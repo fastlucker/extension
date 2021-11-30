@@ -1,9 +1,9 @@
 {
-	"expo": {
-		"name": "ambire-mobile-wallet",
-		"slug": "ambire-mobile-wallet",
-		"version": "1.0.0",
-		"assetBundlePatterns": ["**/*"]
-	},
-	"name": "ambire-mobile-wallet"
+  "expo": {
+    "name": "ambire-mobile-wallet",
+    "slug": "ambire-mobile-wallet",
+    "version": "1.0.0",
+    "assetBundlePatterns": ["**/*"]
+  },
+  "name": "ambire-mobile-wallet"
 }
