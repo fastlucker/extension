@@ -3,9 +3,7 @@
     "name": "ambire-mobile-wallet",
     "slug": "ambire-mobile-wallet",
     "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ]
+    "assetBundlePatterns": ["**/*"]
   },
   "name": "ambire-mobile-wallet"
 }
