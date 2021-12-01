@@ -9,7 +9,7 @@
     "start": "react-native start"
   },
   "engines": {
-    "node": ">=16.13.0"
+    "node": "16.13.0"
   },
   "dependencies": {
     "expo": "~43.0.2",
