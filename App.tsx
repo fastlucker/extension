@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
+import Placeholder from '@components/Placeholder'
 
 const styles = StyleSheet.create({
   container: {
@@ -14,7 +15,8 @@ const styles = StyleSheet.create({
 const App = function () {
   return (
     <View style={styles.container}>
-      <Text>Ambire app initial screen</Text>
+      <Placeholder text="Ambire app initial screen" />
+
       <StatusBar style="auto" />
     </View>
   )
