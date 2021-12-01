@@ -8,6 +8,9 @@
     "web": "expo start --web",
     "start": "react-native start"
   },
+  "engines": {
+    "node": ">=16.13.0"
+  },
   "dependencies": {
     "expo": "~43.0.2",
     "expo-splash-screen": "~0.13.5",
