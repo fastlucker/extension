@@ -18,7 +18,7 @@ No additional steps required.
 
 ## Editor Config
 
-Make sure your code editor has plugins that support the following configuration files: `.editorconfig`, `.prettierrc`, `tsconfig.json`, `eslint.js`, [`import-sorter.json`](https://github.com/SoominHan/import-sorter).
+Make sure your code editor has plugins that support the following configuration files: `.editorconfig`, `.prettierrc`, `tsconfig.json`, `eslintrc.js`, [`import-sorter.json`](https://github.com/SoominHan/import-sorter).
 
 ## Start
 
