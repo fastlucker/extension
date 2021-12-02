@@ -1,6 +1,9 @@
 import 'react-native-gesture-handler'
+import 'expo-asset'
+
 import { registerRootComponent } from 'expo'
 
+// eslint-disable-next-line
 import App from './App'
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
