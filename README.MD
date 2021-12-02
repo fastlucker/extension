@@ -16,6 +16,10 @@ Then run `cd ios && pod install && cd ..` from the root folder of the project. T
 Android:
 No additional steps required.
 
+## Editor Config
+
+Make sure your code editor has plugins that support the following configuration files: `.editorconfig`, `.prettierrc`, `tsconfig.json`, `eslint.js`, [`import-sorter.json`](https://github.com/SoominHan/import-sorter).
+
 ## Start
 
 iOS:
