@@ -4,5 +4,6 @@
   "importStringConfiguration.maximumNumberOfImportExpressionsPerLine.count": 100,
   "importStringConfiguration.tabSize": 2,
   "importStringConfiguration.quoteMark": "single",
-  "importSorter.importStringConfiguration.hasSemicolon": false
+  "importSorter.importStringConfiguration.hasSemicolon": false,
+  "importSorter.sortConfiguration.removeUnusedImports": true
 }
