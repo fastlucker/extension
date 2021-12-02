@@ -25,5 +25,6 @@ module.exports = {
     'prefer-destructuring': 0,
     '@typescript-eslint/semi': 'off',
     'react/style-prop-object': 'off',
+    'react/function-component-definition': 'off',
   },
 }
