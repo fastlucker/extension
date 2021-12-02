@@ -22,14 +22,14 @@ Make sure your code editor has plugins that support the following configuration 
 
 ## Start
 
-iOS:
-`yarn ios`
+iOS:\
+`yarn ios`\
 Note: This command runs `expo run:ios`.
 
-Android:
-`yarn android`
+Android:\
+`yarn android`\
 Note: This command runs `expo run:android`.
 
-Development server (Metro bundler):
-`yarn start`
+Development server (Metro bundler):\
+`yarn start`\
 Note: This command runs `react-native start`.
