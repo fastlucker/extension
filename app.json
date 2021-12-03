@@ -4,7 +4,10 @@
     "slug": "ambire-mobile-wallet",
     "version": "1.0.0",
     "assetBundlePatterns": ["**/*"],
-    "sdkVersion": "43.0.0"
+    "sdkVersion": "43.0.0",
+    "ios": {
+      "bundleIdentifier": "org.name.ambiremobilewallet"
+    }
   },
   "name": "ambire-mobile-wallet"
 }
