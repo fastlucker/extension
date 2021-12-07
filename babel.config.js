@@ -21,6 +21,11 @@ module.exports = function (api) {
           ],
           alias: {
             '@components': './src/components',
+            '@config': './src/config',
+            '@screens': './src/screens',
+            '@services': './src/services',
+            '@hooks': './src/hooks',
+            '@contexts': './src/contexts',
           },
         },
       ],

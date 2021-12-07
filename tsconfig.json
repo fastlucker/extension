@@ -2,7 +2,12 @@
   "compilerOptions": {
     "baseUrl": "src/",
     "paths": {
-      "@components/*": ["components/*"]
+      "@components/*": ["components/*"],
+      "@config/*": ["config/*"],
+      "@screens/*": ["screens/*"],
+      "@services/*": ["services/*"],
+      "@hooks/*": ["hooks/*"],
+      "@contexts/*": ["contexts/*"]
     },
     "noEmit": false,
     "noEmitOnError": true,

@@ -1,26 +1,16 @@
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
 
-import Placeholder from '@components/Placeholder'
-import { NavigationContainer } from '@react-navigation/native'
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-})
+import Router from '@config/Router'
+import { AuthProvider } from '@contexts/auth'
 
 const App = () => (
-  <NavigationContainer>
-    <View style={styles.container}>
-      <Placeholder text="Ambire app screen" />
-      <StatusBar style="auto" />
-    </View>
-  </NavigationContainer>
+  <>
+    <StatusBar style="auto" />
+    <AuthProvider>
+      <Router />
+    </AuthProvider>
+  </>
 )
 
 export default App
