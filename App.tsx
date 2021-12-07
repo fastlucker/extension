@@ -3,6 +3,7 @@ import React from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import Placeholder from '@components/Placeholder'
+import { NavigationContainer } from '@react-navigation/native'
 
 const styles = StyleSheet.create({
   container: {
@@ -14,11 +15,12 @@ const styles = StyleSheet.create({
 })
 
 const App = () => (
-  <View style={styles.container}>
-    <Placeholder text="Ambire app screen" />
-
-    <StatusBar style="auto" />
-  </View>
+  <NavigationContainer>
+    <View style={styles.container}>
+      <Placeholder text="Ambire app screen" />
+      <StatusBar style="auto" />
+    </View>
+  </NavigationContainer>
 )
 
 export default App
