@@ -1,24 +1,26 @@
 import React from 'react'
-import { Button, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
+import EmailLogin from '@modules/auth/components/EmailLogin'
 import { useAuth } from '@modules/auth/contexts/auth'
-import Placeholder from '@modules/common/components/Placeholder'
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
   },
 })
 
 const AuthScreen = () => {
   const { logIn } = useAuth()
+  const handleLogin = () => {
+    logIn()
+  }
+
   return (
     <View style={styles.container}>
-      <Placeholder text="Auth screen" />
-      <Button title="Login" onPress={logIn} />
+      <EmailLogin onSubmit={handleLogin} />
     </View>
   )
 }

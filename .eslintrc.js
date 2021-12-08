@@ -26,5 +26,6 @@ module.exports = {
     '@typescript-eslint/semi': 'off',
     'react/style-prop-object': 'off',
     'react/function-component-definition': 'off',
+    'arrow-body-style': 'off',
   },
 }
