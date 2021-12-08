@@ -8,8 +8,11 @@
     "web": "expo start --web",
     "start": "react-native start",
     "build:ios:development": "eas build -p ios --profile development",
-    "build:ios:preview": "eas build -p ios --profile preview",
-    "build:ios:production": "eas build -p ios --profile production"
+    "build:ios:staging": "eas build -p ios --profile staging",
+    "build:ios:production": "eas build -p ios --profile production",
+    "publish:development": "expo publish --release-channel development",
+    "publish:staging": "expo publish --release-channel staging",
+    "publish:production": "expo publish --release-channel default"
   },
   "engines": {
     "node": "16.13.0"

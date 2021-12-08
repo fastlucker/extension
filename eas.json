@@ -7,11 +7,13 @@
       "node": "16.13.0",
       "ios": {
         "simulator": true
-      }
+      },
+      "releaseChannel": "default"
     },
-    "preview": {
+    "staging": {
       "extends": "production",
-      "distribution": "internal"
+      "distribution": "internal",
+      "releaseChannel": "staging"
     },
     "development": {
       "extends": "production",
@@ -21,7 +23,8 @@
       },
       "ios": {
         "buildConfiguration": "Debug"
-      }
+      },
+      "releaseChannel": "development"
     }
   },
   "submit": {
