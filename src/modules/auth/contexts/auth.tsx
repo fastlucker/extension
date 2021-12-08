@@ -5,7 +5,7 @@ type AuthContextData = {
   logIn: () => any
 }
 
-const AuthContext = createContext<AuthContextData>({} as AuthContextData)
+const AuthContext = createContext<AuthContextData>({ token: null, logIn: () => {} })
 
 const AuthProvider: React.FC = ({ children }) => {
   const [token, setToken]: any = useState(null)
