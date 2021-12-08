@@ -5,7 +5,7 @@
     <key>EXUpdatesSDKVersion</key>
     <string>43.0.0</string>
     <key>EXUpdatesURL</key>
-    <string>https://exp.host/@superkalo/ambire-mobile-wallet</string>
+    <string>https://exp.host/@ambire/ambire-mobile-wallet</string>
     <key>EXUpdatesEnabled</key>
     <true/>
     <key>EXUpdatesCheckOnLaunch</key>
