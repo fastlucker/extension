@@ -4,7 +4,10 @@
   },
   "build": {
     "production": {
-      "node": "16.13.0"
+      "node": "16.13.0",
+      "ios": {
+        "simulator": true
+      }
     },
     "preview": {
       "extends": "production",
@@ -17,8 +20,7 @@
         "gradleCommand": ":app:assembleDebug"
       },
       "ios": {
-        "buildConfiguration": "Debug",
-        "simulator": true
+        "buildConfiguration": "Debug"
       }
     }
   },
