@@ -20,7 +20,8 @@ module.exports = function (api) {
             '.json',
           ],
           alias: {
-            '@components': './src/components',
+            '@modules': './src/modules',
+            '@config': './src/config',
           },
         },
       ],
