@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 
 import Router from '@config/Router'
-import { AuthProvider } from '@contexts/auth'
+import { AuthProvider } from '@modules/auth/contexts/auth'
 
 const App = () => (
   <>

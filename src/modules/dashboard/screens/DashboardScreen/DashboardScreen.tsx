@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import Placeholder from '@components/Placeholder'
+import Placeholder from '@modules/common/components/Placeholder'
 
 const styles = StyleSheet.create({
   container: {
@@ -12,10 +12,10 @@ const styles = StyleSheet.create({
   },
 })
 
-const AppsScreen = () => (
+const DashboardScreen = () => (
   <View style={styles.container}>
-    <Placeholder text="Apps screen" />
+    <Placeholder text="Dashboard screen" />
   </View>
 )
 
-export default AppsScreen
+export default DashboardScreen

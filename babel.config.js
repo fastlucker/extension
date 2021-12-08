@@ -20,12 +20,8 @@ module.exports = function (api) {
             '.json',
           ],
           alias: {
-            '@components': './src/components',
+            '@modules': './src/modules',
             '@config': './src/config',
-            '@screens': './src/screens',
-            '@services': './src/services',
-            '@hooks': './src/hooks',
-            '@contexts': './src/contexts',
           },
         },
       ],

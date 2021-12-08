@@ -1,16 +1,16 @@
 import React from 'react'
 
-import { useAuth } from '@contexts/auth'
+import AppsScreen from '@modules/apps/screens/AppsScreen'
+import { useAuth } from '@modules/auth/contexts/auth'
+import AuthScreen from '@modules/auth/screens/AuthScreen'
+import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
+import EarnScreen from '@modules/earn/screens/EarnScreen'
+import SendScreen from '@modules/send/screens/SendScreen'
+import SettingsScreen from '@modules/settings/screens/SettingsScreen'
+import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import AppsScreen from '@screens/AppsScreen'
-import AuthScreen from '@screens/AuthScreen'
-import DashboardScreen from '@screens/DashboardScreen'
-import EarnScreen from '@screens/EarnScreen'
-import SendScreen from '@screens/SendScreen'
-import SettingsScreen from '@screens/SettingsScreen'
-import TransactionsScreen from '@screens/TransactionsScreen'
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()

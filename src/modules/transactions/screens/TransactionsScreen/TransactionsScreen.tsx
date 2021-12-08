@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import Placeholder from '@components/Placeholder'
+import Placeholder from '@modules/common/components/Placeholder'
 
 const styles = StyleSheet.create({
   container: {

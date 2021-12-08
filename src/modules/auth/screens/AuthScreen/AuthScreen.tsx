@@ -1,8 +1,8 @@
 import React from 'react'
 import { Button, StyleSheet, View } from 'react-native'
 
-import Placeholder from '@components/Placeholder'
-import { useAuth } from '@contexts/auth'
+import { useAuth } from '@modules/auth/contexts/auth'
+import Placeholder from '@modules/common/components/Placeholder'
 
 const styles = StyleSheet.create({
   container: {
