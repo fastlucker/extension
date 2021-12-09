@@ -5,8 +5,6 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import { fetchCaught } from '@modules/common/services/fetch'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import useAuth from '../useAuth'
-
 type FormProps = {
   email: string
   passphrase: string
@@ -20,7 +18,6 @@ export default function useEmailLogin() {
   const [inProgress, setInProgress] = useState<any>(false)
 
   const { onAddAccount } = useAccounts()
-  const { setIsAuthenticated } = useAuth()
 
   const attemptLogin = async (
     { email, passphrase }: FormProps,
@@ -74,7 +71,7 @@ export default function useEmailLogin() {
       const { _id: id, salt, identityFactoryAddr, baseIdentityAddr, bytecode } = identityInfo
       const { quickAccSigner, primaryKeyBackup } = identityInfo.meta
 
-      const success = onAddAccount(
+      onAddAccount(
         {
           id,
           email: identityInfo.meta.email,
@@ -87,9 +84,7 @@ export default function useEmailLogin() {
         },
         { select: true }
       )
-      if (success) {
-        setIsAuthenticated(true)
-      }
+
       // Delete the key so that it can't be used anymore on this browser
       AsyncStorage.removeItem('loginSessionKey')
     } else {

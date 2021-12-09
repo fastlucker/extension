@@ -1,12 +1,13 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
+import useAuth from '@modules/auth/hooks/useAuth'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type AuthContextData = {
   accounts: any
   selectedAcc: any
   onSelectAcc: (selected: any) => void
-  onAddAccount: (acc: any, opts: any) => boolean
+  onAddAccount: (acc: any, opts: any) => void
   onRemoveAccount: (id: string) => void
 }
 
@@ -21,6 +22,7 @@ const AccountsContext = createContext<AuthContextData>({
 const AccountsProvider: React.FC = ({ children }) => {
   const [accounts, setAccounts] = useState<any>([])
   const [selectedAcc, setSelectedAcc] = useState<any>('')
+  const { setIsAuthenticated } = useAuth()
 
   const initState = async () => {
     try {
@@ -74,10 +76,8 @@ const AccountsProvider: React.FC = ({ children }) => {
 
       if (opts.select) onSelectAcc(acc.id)
       if (Object.keys(accounts).length) {
-        return true
-        // TODO: add some logic here if needed
+        setIsAuthenticated(true)
       }
-      return false
     },
     [accounts, onSelectAcc]
   )
@@ -91,7 +91,9 @@ const AccountsProvider: React.FC = ({ children }) => {
       AsyncStorage.setItem('accounts', JSON.stringify(clearedAccounts))
 
       if (!clearedAccounts.length) {
-        // TODO: add some logic here if needed
+        AsyncStorage.removeItem('selectedAcc')
+        setSelectedAcc('')
+        setIsAuthenticated(false)
       } else onSelectAcc(clearedAccounts[0].id)
     },
     [accounts, onSelectAcc]
