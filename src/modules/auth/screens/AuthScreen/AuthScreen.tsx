@@ -1,9 +1,10 @@
 import React from 'react'
-import { Button, StyleSheet, View } from 'react-native'
+import { Button, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '@modules/auth/contexts/auth'
 import Placeholder from '@modules/common/components/Placeholder'
-import { changeLanguage, useTranslation } from '@config/localization'
+import { useTranslation } from '@config/localization'
+import CONFIG from '@config/env'
 
 const styles = StyleSheet.create({
   container: {
@@ -22,6 +23,7 @@ const AuthScreen = () => {
     <View style={styles.container}>
       <Placeholder text={t('Auth screen')} />
       <Button title="Login" onPress={logIn} />
+      <Text>App env: {CONFIG.APP_ENV}</Text>
     </View>
   )
 }
