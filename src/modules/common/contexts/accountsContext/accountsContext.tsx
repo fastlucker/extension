@@ -45,19 +45,20 @@ const AccountsProvider: React.FC = ({ children }) => {
       const existing = accounts.find((x: any) => x.id.toLowerCase() === acc.id.toLowerCase())
       if (existing) {
         // TODO: set this as an app notification
-        console.log(
-          JSON.stringify(existing) === JSON.stringify(acc)
-            ? 'Account already added'
-            : 'Account updated'
-        )
-      } else if (opts.isNew) {
+        // console.log(
+        //   JSON.stringify(existing) === JSON.stringify(acc)
+        //     ? 'Account already added'
+        //     : 'Account updated'
+        // )
+      }
+      if (opts.isNew) {
         // TODO: set this as an app notification
-        console.log(
-          `New Ambire account created: ${acc.id}${
-            acc.signer.address ? '. This is a fresh smart wallet address.' : ''
-          }`,
-          { timeout: acc.signer.address ? 15000 : 10000 }
-        )
+        // console.log(
+        //   `New Ambire account created: ${acc.id}${
+        //     acc.signer.address ? '. This is a fresh smart wallet address.' : ''
+        //   }`,
+        //   { timeout: acc.signer.address ? 15000 : 10000 }
+        // )
       }
 
       const existingIdx = accounts.indexOf(existing)
@@ -70,8 +71,10 @@ const AccountsProvider: React.FC = ({ children }) => {
 
       if (opts.select) onSelectAcc(acc.id)
       if (Object.keys(accounts).length) {
+        return true
         // TODO: add some logic here if needed
       }
+      return false
     },
     [accounts, onSelectAcc]
   )

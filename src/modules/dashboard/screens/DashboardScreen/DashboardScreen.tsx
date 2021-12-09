@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import Placeholder from '@modules/common/components/Placeholder'
+import useAccounts from '@modules/common/hooks/useAccounts'
 
 const styles = StyleSheet.create({
   container: {
@@ -12,10 +13,15 @@ const styles = StyleSheet.create({
   },
 })
 
-const DashboardScreen = () => (
-  <View style={styles.container}>
-    <Placeholder text="Dashboard screen" />
-  </View>
-)
+const DashboardScreen = () => {
+  const { accounts } = useAccounts()
+
+  console.log(accounts)
+  return (
+    <View style={styles.container}>
+      <Placeholder text="Dashboard screen" />
+    </View>
+  )
+}
 
 export default DashboardScreen
