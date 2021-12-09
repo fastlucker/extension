@@ -8,12 +8,18 @@
       "ios": {
         "simulator": true
       },
-      "releaseChannel": "default"
+      "releaseChannel": "default",
+      "env": {
+        "APP_ENV": "production"
+      }
     },
     "staging": {
       "extends": "production",
       "distribution": "internal",
-      "releaseChannel": "staging"
+      "releaseChannel": "staging",
+      "env": {
+        "APP_ENV": "staging"
+      }
     },
     "development": {
       "extends": "production",
@@ -24,7 +30,10 @@
       "ios": {
         "buildConfiguration": "Debug"
       },
-      "releaseChannel": "development"
+      "releaseChannel": "development",
+      "env": {
+        "APP_ENV": "development"
+      }
     }
   },
   "submit": {
