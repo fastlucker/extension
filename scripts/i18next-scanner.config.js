@@ -17,8 +17,8 @@ module.exports = {
     lngs: ['en', 'bg'],
     defaultValue: (lng, ns, key) => (lng === 'en' ? key : '__STRING_NOT_TRANSLATED__'),
     resource: {
-      loadPath: './src/config/localization/languages/{{lng}}.json',
-      savePath: './src/config/localization/languages/{{lng}}.json',
+      loadPath: './src/config/localization/translations/{{lng}}.json',
+      savePath: './src/config/localization/translations/{{lng}}.json',
       jsonIndent: 2,
       lineEnding: '\n',
     },
