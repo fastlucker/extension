@@ -4,9 +4,23 @@
   "main": "index.js",
   "scripts": {
     "android": "expo run:android",
+    "android:staging": "APP_ENV=STAGING yarn android",
+    "android:production": "APP_ENV=PRODUCTION yarn android",
     "ios": "expo run:ios",
-    "web": "expo start --web",
-    "start": "react-native start"
+    "ios:staging": "APP_ENV=STAGING yarn ios",
+    "ios:production": "APP_ENV=PRODUCTION yarn ios",
+    "start": "react-native start",
+    "start:clean": "react-native start --reset-cache",
+    "start:staging": "APP_ENV=STAGING yarn start",
+    "start:clean:staging": "APP_ENV=STAGING yarn start:clean",
+    "start:production": "APP_ENV=PRODUCTION yarn start",
+    "start:clean:production": "APP_ENV=PRODUCTION yarn start:clean",
+    "build:ios:development": "eas build -p ios --profile development",
+    "build:ios:staging": "eas build -p ios --profile staging",
+    "build:ios:production": "eas build -p ios --profile production",
+    "publish:development": "expo publish --release-channel development",
+    "publish:staging": "expo publish --release-channel staging",
+    "publish:production": "expo publish --release-channel default"
   },
   "engines": {
     "node": "16.13.0"
@@ -17,6 +31,7 @@
     "@react-navigation/native": "6.0.6",
     "@react-navigation/native-stack": "6.2.5",
     "babel-plugin-module-resolver": "4.1.0",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "expo": "~43.0.2",
     "expo-asset": "~8.4.3",
     "expo-splash-screen": "~0.13.5",
@@ -40,6 +55,7 @@
     "@types/react-test-renderer": "17.0.1",
     "@typescript-eslint/eslint-plugin": "5.5.0",
     "@typescript-eslint/parser": "5.5.0",
+    "eas-cli": "^0.39.0",
     "eslint": "8.3.0",
     "eslint-config-airbnb": "19.0.1",
     "eslint-config-airbnb-typescript": "16.0.0",

@@ -1,0 +1,42 @@
+{
+  "cli": {
+    "version": ">= 0.39.0"
+  },
+  "build": {
+    "production": {
+      "node": "16.13.0",
+      "ios": {
+        "simulator": true
+      },
+      "releaseChannel": "default",
+      "env": {
+        "APP_ENV": "production"
+      }
+    },
+    "staging": {
+      "extends": "production",
+      "distribution": "internal",
+      "releaseChannel": "staging",
+      "env": {
+        "APP_ENV": "staging"
+      }
+    },
+    "development": {
+      "extends": "production",
+      "distribution": "internal",
+      "android": {
+        "gradleCommand": ":app:assembleDebug"
+      },
+      "ios": {
+        "buildConfiguration": "Debug"
+      },
+      "releaseChannel": "development",
+      "env": {
+        "APP_ENV": "development"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
