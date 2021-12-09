@@ -37,4 +37,4 @@ Note: This command runs `react-native start`.
 ## Translations
 
 To scan the project for translation labels and to update translations JSON files, run:\
-`yarn translations:scan`\
+`yarn translations:scan`
