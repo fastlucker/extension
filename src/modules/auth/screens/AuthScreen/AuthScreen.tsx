@@ -3,6 +3,7 @@ import { Button, StyleSheet, View } from 'react-native'
 
 import { useAuth } from '@modules/auth/contexts/auth'
 import Placeholder from '@modules/common/components/Placeholder'
+import i18n from '@config/localization'
 
 const styles = StyleSheet.create({
   container: {
@@ -17,7 +18,7 @@ const AuthScreen = () => {
   const { logIn } = useAuth()
   return (
     <View style={styles.container}>
-      <Placeholder text="Auth screen" />
+      <Placeholder text={i18n.t('Auth screen')} />
       <Button title="Login" onPress={logIn} />
     </View>
   )
