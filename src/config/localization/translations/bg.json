@@ -1,3 +1,7 @@
 {
-  "Auth screen": "__STRING_NOT_TRANSLATED__"
+  "Auth screen": "__STRING_NOT_TRANSLATED__",
+  "Settings screen": "Екран за настройки",
+  "Change language to {{nextLang}}": "Промени езика на {{nextLang}}",
+  "English": "Английски",
+  "Bulgarian": "Български"
 }

@@ -1,3 +1,7 @@
 {
-  "Auth screen": "Auth screen"
+  "Auth screen": "Auth screen",
+  "Settings screen": "Settings screen",
+  "Change language to {{nextLang}}": "Change language to {{nextLang}}",
+  "English": "English",
+  "Bulgarian": "Bulgarian"
 }
