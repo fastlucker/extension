@@ -33,8 +33,8 @@ const AppStack = () => (
 )
 
 const Router = () => {
-  const { token } = useAuth()
-  return <NavigationContainer>{token ? <AppStack /> : <AuthStack />}</NavigationContainer>
+  const { isAuthenticated } = useAuth()
+  return <NavigationContainer>{isAuthenticated ? <AppStack /> : <AuthStack />}</NavigationContainer>
 }
 
 export default Router

@@ -2,7 +2,21 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const AccountsContext = createContext<any>({ token: null, logIn: () => {} })
+type AuthContextData = {
+  accounts: any
+  selectedAcc: any
+  onSelectAcc: (selected: any) => void
+  onAddAccount: (acc: any, opts: any) => boolean
+  onRemoveAccount: (id: string) => void
+}
+
+const AccountsContext = createContext<AuthContextData>({
+  accounts: [],
+  selectedAcc: '',
+  onSelectAcc: () => {},
+  onAddAccount: () => false,
+  onRemoveAccount: () => {},
+})
 
 const AccountsProvider: React.FC = ({ children }) => {
   const [accounts, setAccounts] = useState<any>([])
@@ -44,21 +58,10 @@ const AccountsProvider: React.FC = ({ children }) => {
 
       const existing = accounts.find((x: any) => x.id.toLowerCase() === acc.id.toLowerCase())
       if (existing) {
-        // TODO: set this as an app notification
-        // console.log(
-        //   JSON.stringify(existing) === JSON.stringify(acc)
-        //     ? 'Account already added'
-        //     : 'Account updated'
-        // )
+        // TODO: trigger an app notification
       }
       if (opts.isNew) {
-        // TODO: set this as an app notification
-        // console.log(
-        //   `New Ambire account created: ${acc.id}${
-        //     acc.signer.address ? '. This is a fresh smart wallet address.' : ''
-        //   }`,
-        //   { timeout: acc.signer.address ? 15000 : 10000 }
-        // )
+        // TODO: trigger an app notification
       }
 
       const existingIdx = accounts.indexOf(existing)

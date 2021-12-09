@@ -1,21 +1,25 @@
-import React, { createContext, useMemo, useState } from 'react'
+import React, { createContext, Dispatch, useMemo, useState } from 'react'
 
 type AuthContextData = {
-  token: string | null
-  logIn: () => any
+  isAuthenticated: boolean
+  setIsAuthenticated: Dispatch<React.SetStateAction<boolean>>
 }
 
-const AuthContext = createContext<AuthContextData>({ token: null, logIn: () => {} })
+const AuthContext = createContext<AuthContextData>({
+  isAuthenticated: false,
+  setIsAuthenticated: () => false,
+})
 
 const AuthProvider: React.FC = ({ children }) => {
-  const [token, setToken]: any = useState(null)
-
-  const logIn = async () => {
-    setToken('token')
-  }
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
 
   return (
-    <AuthContext.Provider value={useMemo(() => ({ token, logIn }), [token, logIn])}>
+    <AuthContext.Provider
+      value={useMemo(
+        () => ({ isAuthenticated, setIsAuthenticated }),
+        [isAuthenticated, setIsAuthenticated]
+      )}
+    >
       {children}
     </AuthContext.Provider>
   )
