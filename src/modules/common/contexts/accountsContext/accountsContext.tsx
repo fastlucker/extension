@@ -44,14 +44,14 @@ const AccountsProvider: React.FC = ({ children }) => {
 
       const existing = accounts.find((x: any) => x.id.toLowerCase() === acc.id.toLowerCase())
       if (existing) {
-        // TODO: set this as error message
+        // TODO: set this as a app notification
         console.log(
           JSON.stringify(existing) === JSON.stringify(acc)
             ? 'Account already added'
             : 'Account updated'
         )
       } else if (opts.isNew) {
-        // TODO: set this as error message
+        // TODO: set this as a app notification
         console.log(
           `New Ambire account created: ${acc.id}${
             acc.signer.address ? '. This is a fresh smart wallet address.' : ''
