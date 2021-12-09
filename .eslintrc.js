@@ -27,5 +27,7 @@ module.exports = {
     'react/style-prop-object': 'off',
     'react/function-component-definition': 'off',
     'arrow-body-style': 'off',
+    'import/prefer-default-export': 'off',
+    '@typescript-eslint/comma-dangle': 'off',
   },
 }

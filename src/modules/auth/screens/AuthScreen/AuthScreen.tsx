@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import EmailLogin from '@modules/auth/components/EmailLogin'
-import { useAuth } from '@modules/auth/contexts/auth'
+import useAuth from '@modules/auth/hooks/useAuth'
 
 const styles = StyleSheet.create({
   container: {

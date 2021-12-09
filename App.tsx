@@ -2,13 +2,16 @@ import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 
 import Router from '@config/Router'
-import { AuthProvider } from '@modules/auth/contexts/auth'
+import { AuthProvider } from '@modules/auth/contexts/authContext'
+import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 
 const App = () => (
   <>
     <StatusBar style="auto" />
     <AuthProvider>
-      <Router />
+      <AccountsProvider>
+        <Router />
+      </AccountsProvider>
     </AuthProvider>
   </>
 )

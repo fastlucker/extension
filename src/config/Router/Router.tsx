@@ -1,7 +1,7 @@
 import React from 'react'
 
 import AppsScreen from '@modules/apps/screens/AppsScreen'
-import { useAuth } from '@modules/auth/contexts/auth'
+import useAuth from '@modules/auth/hooks/useAuth'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
