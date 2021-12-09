@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Button, StyleSheet, Text, View } from 'react-native'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const styles = StyleSheet.create({
   container: {
