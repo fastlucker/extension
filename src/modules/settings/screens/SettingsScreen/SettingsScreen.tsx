@@ -4,6 +4,7 @@ import { Button, StyleSheet, View } from 'react-native'
 import Placeholder from '@modules/common/components/Placeholder'
 import { changeLanguage, useTranslation } from '@config/localization'
 import { Locale } from '@config/localization/constants'
+import { isProd } from '@config/env'
 
 const styles = StyleSheet.create({
   container: {
@@ -25,12 +26,14 @@ const SettingsScreen = () => {
     <View style={styles.container}>
       <Placeholder text={t('Settings screen')} />
 
-      <Button
-        title={t('Change language to {{nextLang}}', {
-          nextLang: i18n.language === Locale.BG ? t('English') : t('Bulgarian'),
-        })}
-        onPress={handleChangeLanguage}
-      />
+      {!isProd && (
+        <Button
+          title={t('Change language to {{nextLang}}', {
+            nextLang: i18n.language === Locale.BG ? t('English') : t('Bulgarian'),
+          })}
+          onPress={handleChangeLanguage}
+        />
+      )}
     </View>
   )
 }

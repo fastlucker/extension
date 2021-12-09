@@ -1,5 +1,5 @@
-const isProd = process.env['APP_ENV'] === 'PRODUCTION'
-const isStaging = process.env['APP_ENV'] === 'STAGING'
+export const isProd = process.env['APP_ENV'] === 'PRODUCTION'
+export const isStaging = process.env['APP_ENV'] === 'STAGING'
 
 enum APP_ENV {
   PROD = 'production',
