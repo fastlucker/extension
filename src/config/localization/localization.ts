@@ -12,7 +12,8 @@ i18n.use(initReactI18next).init({
   // in order to set the initial language to device language.
   // lng: Localization.locale
   lng: Locale.EN,
-  fallbackLng: Locale.BG,
+  fallbackLng: Locale.EN,
+  supportedLngs: Object.values(Locale),
   defaultNS: 'app',
   resources: { [Locale.EN]: { app: en }, [Locale.BG]: { app: bg } },
   interpolation: {
