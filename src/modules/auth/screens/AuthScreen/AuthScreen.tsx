@@ -1,21 +1,18 @@
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 
 import CONFIG from '@config/env'
-import EmailLogin from '@modules/auth/components/EmailLogin'
+import Button from '@modules/common/components/Button'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-  },
-})
+import styles from './styles'
 
-const AuthScreen = () => {
+interface Props extends NativeStackScreenProps<any, 'auth'> {}
+
+const AuthScreen = ({ navigation }: Props) => {
   return (
     <View style={styles.container}>
-      <EmailLogin />
+      <Button text="Email login" onPress={() => navigation.navigate('emailLogin')} />
       <Text>App env: {CONFIG.APP_ENV}</Text>
     </View>
   )

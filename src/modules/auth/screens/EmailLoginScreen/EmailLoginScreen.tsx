@@ -1,19 +1,14 @@
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Button, StyleSheet, Text, TextInput } from 'react-native'
+import { Text, View } from 'react-native'
 
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
+import Button from '@modules/common/components/Button'
+import Input from '@modules/common/components/Input'
 
-const styles = StyleSheet.create({
-  input: {
-    height: 40,
-    margin: 16,
-    borderBottomWidth: 1,
-    padding: 12,
-  },
-})
+import styles from './styles'
 
-const EmailLogin = () => {
+const EmailLoginScreen = () => {
   const {
     control,
     handleSubmit,
@@ -27,7 +22,7 @@ const EmailLogin = () => {
   const { handleLogin, requiresEmailConfFor } = useEmailLogin()
 
   return (
-    <>
+    <View style={styles.container}>
       {!requiresEmailConfFor && (
         <>
           <Controller
@@ -36,26 +31,20 @@ const EmailLogin = () => {
               required: true,
             }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={styles.input}
-                onBlur={onBlur}
-                placeholder="Email"
-                onChangeText={onChange}
-                value={value}
-              />
+              <Input onBlur={onBlur} placeholder="Email" onChangeText={onChange} value={value} />
             )}
             name="email"
           />
           {errors.email && <Text>Please fill in this field</Text>}
 
-          <Button title="LOG IN" onPress={handleSubmit(handleLogin)} />
+          <Button text="Log in" onPress={handleSubmit(handleLogin)} />
         </>
       )}
       {!!requiresEmailConfFor && (
         <Text>{`We sent an email to ${requiresEmailConfFor?.email}, please check your inbox and click Authorize New Device`}</Text>
       )}
-    </>
+    </View>
   )
 }
 
-export default EmailLogin
+export default EmailLoginScreen
