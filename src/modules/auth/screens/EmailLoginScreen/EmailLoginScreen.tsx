@@ -7,12 +7,14 @@ import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 
 import styles from './styles'
+import { useTranslation } from '@config/localization'
 
 const EmailLoginScreen = () => {
+  const { t } = useTranslation()
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       email: '',
@@ -33,7 +35,7 @@ const EmailLoginScreen = () => {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 onBlur={onBlur}
-                placeholder="Email"
+                placeholder={t('Email')}
                 onChangeText={onChange}
                 value={value}
                 keyboardType="email-address"
@@ -41,9 +43,17 @@ const EmailLoginScreen = () => {
             )}
             name="email"
           />
-          {errors.email && <Text>Please fill in this field</Text>}
+          {errors.email && <Text>{t('Please fill in this field')}</Text>}
 
-          <Button text="Log in" onPress={handleSubmit(handleLogin)} />
+          <Button
+            disabled={isSubmitting}
+            text={isSubmitting ? t('Logging in...') : t('Log in')}
+            onPress={handleSubmit(handleLogin)}
+          />
+
+          <Text>
+            {t('A password will not be required, we will send a magic login link to your email.')}
+          </Text>
         </>
       )}
       {!!requiresEmailConfFor && (
