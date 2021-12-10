@@ -2,12 +2,12 @@ import React from 'react'
 import { TextProps } from 'react-native'
 
 import Text from '@modules/common/components/Text'
-import s from './style'
+import styles from './styles'
 
 interface Props extends TextProps {}
 
 const P = ({ children, ...rest }: Props) => (
-  <Text style={s.text} {...rest}>
+  <Text style={styles.text} {...rest}>
     {children}
   </Text>
 )
