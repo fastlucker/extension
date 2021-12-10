@@ -31,7 +31,13 @@ const EmailLoginScreen = () => {
               required: true,
             }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <Input onBlur={onBlur} placeholder="Email" onChangeText={onChange} value={value} />
+              <Input
+                onBlur={onBlur}
+                placeholder="Email"
+                onChangeText={onChange}
+                value={value}
+                keyboardType="email-address"
+              />
             )}
             name="email"
           />
