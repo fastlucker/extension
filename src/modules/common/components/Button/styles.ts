@@ -1,6 +1,11 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-const styles = StyleSheet.create({
+interface Style {
+  button: ViewStyle
+  buttonText: TextStyle
+}
+
+const styles = StyleSheet.create<Style>({
   button: {
     width: '100%',
     height: 52,
@@ -9,6 +14,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
+    marginBottom: 16,
   },
   buttonText: {
     fontSize: 20,
