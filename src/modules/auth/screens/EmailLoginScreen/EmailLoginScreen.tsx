@@ -1,6 +1,6 @@
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import Button from '@modules/common/components/Button'
@@ -58,7 +58,12 @@ const EmailLoginScreen = () => {
         </>
       )}
       {!!requiresEmailConfFor && (
-        <Text>{`We sent an email to ${requiresEmailConfFor?.email}, please check your inbox and click Authorize New Device`}</Text>
+        <P>
+          {t(
+            'We sent an email to {{email}}, please check your inbox and click Authorize New Device',
+            { email: requiresEmailConfFor?.email }
+          )}
+        </P>
       )}
     </View>
   )
