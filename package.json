@@ -20,7 +20,8 @@
     "build:ios:production": "eas build -p ios --profile production",
     "publish:development": "expo publish --release-channel development",
     "publish:staging": "expo publish --release-channel staging",
-    "publish:production": "expo publish --release-channel default"
+    "publish:production": "expo publish --release-channel default",
+    "translations:scan": "i18next-scanner --config ./scripts/i18next-scanner.config.js './src/**/*.{js,jsx,ts,tsx}'"
   },
   "engines": {
     "node": "16.13.0"
@@ -34,12 +35,15 @@
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "expo": "~43.0.2",
     "expo-asset": "~8.4.3",
+    "expo-localization": "~11.0.0",
     "expo-splash-screen": "~0.13.5",
     "expo-status-bar": "~1.1.0",
     "expo-updates": "~0.10.15",
+    "i18next": "^21.6.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-hook-form": "^7.21.0",
+    "react-i18next": "^11.14.3",
     "react-native": "0.64.3",
     "react-native-gesture-handler": "~1.10.2",
     "react-native-reanimated": "~2.2.0",
@@ -66,6 +70,8 @@
     "eslint-plugin-react": "7.27.1",
     "eslint-plugin-react-hooks": "4.3.0",
     "eslint-plugin-react-native": "3.11.0",
+    "i18next-scanner": "^3.1.0",
+    "i18next-scanner-typescript": "^1.0.6",
     "prettier": "2.5.0",
     "typescript": "4.5.2"
   },
