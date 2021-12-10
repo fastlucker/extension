@@ -1,19 +1,9 @@
 import React from 'react'
-import { Button, StyleSheet, Text, View } from 'react-native'
+import { Button, Text, View } from 'react-native'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 16,
-  },
-  accItemStyle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-})
+import styles from './styles'
 
 const DashboardScreen = () => {
   const { accounts, onRemoveAccount } = useAccounts()
