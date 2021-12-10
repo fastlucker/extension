@@ -1,28 +1,21 @@
 import React from 'react'
-import { Button, StyleSheet, Text, View } from 'react-native'
-
-import { useAuth } from '@modules/auth/contexts/auth'
-import Placeholder from '@modules/common/components/Placeholder'
+import { Text, View } from 'react-native'
 import { useTranslation } from '@config/localization'
+
 import CONFIG from '@config/env'
+import Button from '@modules/common/components/Button'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-})
+import styles from './styles'
 
-const AuthScreen = () => {
+interface Props extends NativeStackScreenProps<any, 'auth'> {}
+
+const AuthScreen = ({ navigation }: Props) => {
   const { t } = useTranslation()
-  const { logIn } = useAuth()
 
   return (
     <View style={styles.container}>
-      <Placeholder text={t('Auth screen')} />
-      <Button title="Login" onPress={logIn} />
+      <Button text={t('Email login')} onPress={() => navigation.navigate('emailLogin')} />
       <Text>App env: {CONFIG.APP_ENV}</Text>
     </View>
   )

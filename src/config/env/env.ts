@@ -9,10 +9,12 @@ enum APP_ENV {
 
 interface Config {
   APP_ENV: APP_ENV
+  RELAYER_URL: string
 }
 
 let CONFIG: Config = {
   APP_ENV: APP_ENV.DEV,
+  RELAYER_URL: 'https://relayer.ambire.com',
 }
 
 if (isProd) {

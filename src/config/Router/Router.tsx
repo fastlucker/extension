@@ -1,8 +1,9 @@
 import React from 'react'
 
 import AppsScreen from '@modules/apps/screens/AppsScreen'
-import { useAuth } from '@modules/auth/contexts/auth'
+import useAuth from '@modules/auth/hooks/useAuth'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
+import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
@@ -17,24 +18,25 @@ const Tab = createBottomTabNavigator()
 
 const AuthStack = () => (
   <Stack.Navigator>
-    <Stack.Screen name="Auth" component={AuthScreen} />
+    <Stack.Screen name="auth" component={AuthScreen} />
+    <Stack.Screen name="emailLogin" component={EmailLoginScreen} />
   </Stack.Navigator>
 )
 
 const AppStack = () => (
   <Tab.Navigator>
-    <Stack.Screen name="Dashboard" component={DashboardScreen} />
-    <Stack.Screen name="Transactions" component={TransactionsScreen} />
-    <Stack.Screen name="Earn" component={EarnScreen} />
-    <Stack.Screen name="Send" component={SendScreen} />
-    <Stack.Screen name="Apps" component={AppsScreen} />
-    <Stack.Screen name="Settings" component={SettingsScreen} />
+    <Stack.Screen name="dashboard" component={DashboardScreen} />
+    <Stack.Screen name="transactions" component={TransactionsScreen} />
+    <Stack.Screen name="earn" component={EarnScreen} />
+    <Stack.Screen name="send" component={SendScreen} />
+    <Stack.Screen name="apps" component={AppsScreen} />
+    <Stack.Screen name="settings" component={SettingsScreen} />
   </Tab.Navigator>
 )
 
 const Router = () => {
-  const { token } = useAuth()
-  return <NavigationContainer>{token ? <AppStack /> : <AuthStack />}</NavigationContainer>
+  const { isAuthenticated } = useAuth()
+  return <NavigationContainer>{isAuthenticated ? <AppStack /> : <AuthStack />}</NavigationContainer>
 }
 
 export default Router
