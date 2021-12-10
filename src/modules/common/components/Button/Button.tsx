@@ -7,8 +7,13 @@ interface Props extends TouchableOpacityProps {
   text: string
 }
 
-const Button = ({ text, ...rest }: Props) => (
-  <TouchableOpacity style={styles.button} {...rest}>
+const Button = ({ text, disabled = false, ...rest }: Props) => (
+  <TouchableOpacity
+    disabled={disabled}
+    activeOpacity={disabled ? 1 : 0.8}
+    style={styles.button}
+    {...rest}
+  >
     <Text style={styles.buttonText}>{text}</Text>
   </TouchableOpacity>
 )
