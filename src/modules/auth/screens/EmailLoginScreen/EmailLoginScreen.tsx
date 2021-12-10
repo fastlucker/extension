@@ -60,7 +60,7 @@ const EmailLoginScreen = () => {
       {!!requiresEmailConfFor && (
         <P>
           {t(
-            'We sent an email to {{email}}, please check your inbox and click Authorize New Device',
+            'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
             { email: requiresEmailConfFor?.email }
           )}
         </P>
