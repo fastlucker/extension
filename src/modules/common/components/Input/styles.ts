@@ -1,6 +1,10 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
-const styles = StyleSheet.create({
+interface Style {
+  input: ViewStyle
+}
+
+const styles = StyleSheet.create<Style>({
   input: {
     height: 40,
     borderBottomWidth: 1,

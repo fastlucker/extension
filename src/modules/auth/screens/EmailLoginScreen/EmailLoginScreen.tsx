@@ -8,6 +8,7 @@ import Input from '@modules/common/components/Input'
 
 import styles from './styles'
 import { useTranslation } from '@config/localization'
+import P from '@modules/common/components/P'
 
 const EmailLoginScreen = () => {
   const { t } = useTranslation()
@@ -43,7 +44,7 @@ const EmailLoginScreen = () => {
             )}
             name="email"
           />
-          {errors.email && <Text>{t('Please fill in this field')}</Text>}
+          {!!errors.email && <P>{t('Please fill in this field')}</P>}
 
           <Button
             disabled={isSubmitting}
@@ -51,9 +52,9 @@ const EmailLoginScreen = () => {
             onPress={handleSubmit(handleLogin)}
           />
 
-          <Text>
+          <P>
             {t('A password will not be required, we will send a magic login link to your email.')}
-          </Text>
+          </P>
         </>
       )}
       {!!requiresEmailConfFor && (
