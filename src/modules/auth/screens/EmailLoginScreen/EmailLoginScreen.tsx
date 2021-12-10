@@ -2,13 +2,14 @@ import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
+import { useTranslation } from '@config/localization'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
+import P from '@modules/common/components/P'
+import { isEmail } from '@modules/common/services/validate'
 
 import styles from './styles'
-import { useTranslation } from '@config/localization'
-import P from '@modules/common/components/P'
 
 const EmailLoginScreen = () => {
   const { t } = useTranslation()
@@ -30,9 +31,7 @@ const EmailLoginScreen = () => {
         <>
           <Controller
             control={control}
-            rules={{
-              required: true,
-            }}
+            rules={{ validate: isEmail }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 onBlur={onBlur}
@@ -44,7 +43,7 @@ const EmailLoginScreen = () => {
             )}
             name="email"
           />
-          {!!errors.email && <P>{t('Please fill in this field')}</P>}
+          {!!errors.email && <P>{t('Please fill in a valid email.')}</P>}
 
           <Button
             disabled={isSubmitting}
