@@ -33,3 +33,8 @@ Note: This command runs `expo run:android`.
 Development server (Metro bundler):\
 `yarn start`\
 Note: This command runs `react-native start`.
+
+## Translations
+
+To scan the project for translation labels and to update translations JSON files, run:\
+`yarn translations:scan`
