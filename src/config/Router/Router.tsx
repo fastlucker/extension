@@ -2,6 +2,7 @@ import React from 'react'
 
 import AppsScreen from '@modules/apps/screens/AppsScreen'
 import useAuth from '@modules/auth/hooks/useAuth'
+import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
@@ -20,6 +21,7 @@ const AuthStack = () => (
   <Stack.Navigator>
     <Stack.Screen name="auth" component={AuthScreen} />
     <Stack.Screen name="emailLogin" component={EmailLoginScreen} />
+    <Stack.Screen name="addNewAccount" component={AddNewAccountScreen} />
   </Stack.Navigator>
 )
 
