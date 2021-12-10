@@ -7,15 +7,13 @@ import Button from '@modules/common/components/Button'
 
 import styles from './styles'
 
-const dummyIdentity = {}
-
 const JsonLoginScreen = () => {
   const { t } = useTranslation()
   const { handleLogin } = useJsonLogin()
 
   return (
     <View style={styles.container}>
-      <Button text={t('Select file')} onPress={() => handleLogin(dummyIdentity)} />
+      <Button text={t('Select file')} onPress={handleLogin} />
     </View>
   )
 }
