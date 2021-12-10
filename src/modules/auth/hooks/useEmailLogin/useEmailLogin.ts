@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import { relayerURL } from '@modules/common/constants/relayer'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import { fetchCaught } from '@modules/common/services/fetch'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import CONFIG from '@config/env'
 
 type FormProps = {
   email: string
@@ -27,7 +27,7 @@ export default function useEmailLogin() {
     // does not matter which network we request
     const loginSessionKey = await AsyncStorage.getItem('loginSessionKey')
     const { resp, body, errMsg }: any = await fetchCaught(
-      `${relayerURL}/identity/by-email/${encodeURIComponent(email)}`,
+      `${CONFIG.RELAYER_URL}/identity/by-email/${encodeURIComponent(email)}`,
       {
         headers: {
           authorization: loginSessionKey ? `Bearer ${loginSessionKey}` : null,
@@ -47,7 +47,9 @@ export default function useEmailLogin() {
         return
       }
       const requestAuthResp = await fetch(
-        `${relayerURL}/identity/by-email/${encodeURIComponent(email)}/request-confirm-login`,
+        `${CONFIG.RELAYER_URL}/identity/by-email/${encodeURIComponent(
+          email
+        )}/request-confirm-login`,
         { method: 'POST' }
       )
       if (requestAuthResp.status !== 200) {
