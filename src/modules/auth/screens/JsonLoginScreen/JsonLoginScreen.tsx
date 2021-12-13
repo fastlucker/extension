@@ -14,7 +14,7 @@ const JsonLoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      {<P>{error}</P>}
+      {!!error && <P>{error}</P>}
       <Button
         disabled={inProgress}
         text={inProgress ? t('Importing...') : t('Select file')}
