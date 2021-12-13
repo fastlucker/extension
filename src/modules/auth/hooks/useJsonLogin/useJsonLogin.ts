@@ -34,7 +34,7 @@ export default function useJsonLogin() {
     const validatedFile = validateImportedAccountProps(fileContent)
     if (!validatedFile.success) {
       setError(
-        validatedFile.message || t('The JSON file is missing some of the mandatory credentials.')
+        validatedFile.message || t('The imported file does not contain needed account data.')
       )
       return
     }
