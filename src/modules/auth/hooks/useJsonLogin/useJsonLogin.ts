@@ -14,12 +14,10 @@ export default function useJsonLogin() {
   const handleLogin = async () => {
     setError('')
 
-    // TODO: add iCloud entitlement
     const document = await DocumentPicker.getDocumentAsync()
 
     if (document.type !== 'success') {
-      setError(t('JSON file was not selected or something went wrong selecting it.'))
-      return
+      return setError(t('JSON file was not selected or something went wrong selecting it.'))
     }
 
     let fileContent
@@ -27,16 +25,16 @@ export default function useJsonLogin() {
       fileContent = await FileSystem.readAsStringAsync(document.uri)
       fileContent = JSON.parse(fileContent)
     } catch (exception) {
-      setError('Something went wrong with pulling the information from the JSON file selected.')
-      return
+      return setError(
+        'Something went wrong with pulling the information from the JSON file selected.'
+      )
     }
 
     const validatedFile = validateImportedAccountProps(fileContent)
     if (!validatedFile.success) {
-      setError(
+      return setError(
         validatedFile.message || t('The imported file does not contain needed account data.')
       )
-      return
     }
 
     onAddAccount(fileContent, { select: true })
