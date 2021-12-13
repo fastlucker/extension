@@ -2,6 +2,9 @@ import 'react-native-gesture-handler'
 import 'expo-asset'
 
 import { registerRootComponent } from 'expo'
+import 'react-native-get-random-values'
+
+import '@ethersproject/shims'
 
 // eslint-disable-next-line
 import App from './App'
