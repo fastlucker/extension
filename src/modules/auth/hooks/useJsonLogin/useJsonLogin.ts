@@ -9,14 +9,17 @@ import { validateImportedAccountProps } from '@modules/common/services/validate/
 export default function useJsonLogin() {
   const { t } = useTranslation()
   const [error, setError] = useState<null | string>(null)
+  const [inProgress, setInProgress] = useState<boolean>(false)
   const { onAddAccount } = useAccounts()
 
   const handleLogin = async () => {
     setError('')
+    setInProgress(true)
 
     const document = await DocumentPicker.getDocumentAsync()
 
     if (document.type !== 'success') {
+      setInProgress(false)
       return setError(t('JSON file was not selected or something went wrong selecting it.'))
     }
 
@@ -25,6 +28,7 @@ export default function useJsonLogin() {
       fileContent = await FileSystem.readAsStringAsync(document.uri)
       fileContent = JSON.parse(fileContent)
     } catch (exception) {
+      setInProgress(false)
       return setError(
         'Something went wrong with pulling the information from the JSON file selected.'
       )
@@ -32,13 +36,15 @@ export default function useJsonLogin() {
 
     const validatedFile = validateImportedAccountProps(fileContent)
     if (!validatedFile.success) {
+      setInProgress(false)
       return setError(
         validatedFile.message || t('The imported file does not contain needed account data.')
       )
     }
 
     onAddAccount(fileContent, { select: true })
+    setInProgress(false)
   }
 
-  return { handleLogin, error }
+  return { handleLogin, error, inProgress }
 }

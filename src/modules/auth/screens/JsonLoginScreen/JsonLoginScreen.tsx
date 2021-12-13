@@ -10,12 +10,16 @@ import styles from './styles'
 
 const JsonLoginScreen = () => {
   const { t } = useTranslation()
-  const { handleLogin, error } = useJsonLogin()
+  const { handleLogin, error, inProgress } = useJsonLogin()
 
   return (
     <View style={styles.container}>
       {<P>{error}</P>}
-      <Button text={t('Select file')} onPress={handleLogin} />
+      <Button
+        disabled={inProgress}
+        text={inProgress ? t('Importing...') : t('Select file')}
+        onPress={handleLogin}
+      />
     </View>
   )
 }
