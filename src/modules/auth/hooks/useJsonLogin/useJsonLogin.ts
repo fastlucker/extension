@@ -16,7 +16,7 @@ export default function useJsonLogin() {
     setError('')
     setInProgress(true)
 
-    const document = await DocumentPicker.getDocumentAsync()
+    const document = await DocumentPicker.getDocumentAsync({ type: 'application/json' })
 
     if (document.type !== 'success') {
       setInProgress(false)
