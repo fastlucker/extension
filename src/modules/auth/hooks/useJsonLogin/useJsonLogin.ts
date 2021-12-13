@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import { validateImportedAccountProps } from '@modules/common/services/validate/imported-account-props'
 
 export default function useJsonLogin() {
   const { t } = useTranslation()
@@ -30,9 +31,13 @@ export default function useJsonLogin() {
       return
     }
 
-    // TODO: validate JSON
-    // const validatedFile = validateImportedAccountProps(fileContent)
-    // if (validatedFile.success) onAddAccount(fileContent, { select: true })
+    const validatedFile = validateImportedAccountProps(fileContent)
+    if (!validatedFile.success) {
+      setError(
+        validatedFile.message || t('The JSON file is missing some of the mandatory credentials.')
+      )
+      return
+    }
 
     onAddAccount(fileContent, { select: true })
   }
