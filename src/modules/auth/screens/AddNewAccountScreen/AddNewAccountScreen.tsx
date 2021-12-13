@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { Linking, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import useAddNewAccount from '@modules/auth/hooks/useAddNewAccount'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import Input from '@modules/common/components/Input'
@@ -13,6 +14,7 @@ import styles from './styles'
 
 const AddNewAccountScreen = () => {
   const { t } = useTranslation()
+  const {} = useAddNewAccount()
   const {
     control,
     handleSubmit,
