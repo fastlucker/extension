@@ -1,8 +1,16 @@
 import React from 'react'
-import { Text as RNText, TextProps } from 'react-native'
+import { StyleSheet, Text as RNText, TextProps } from 'react-native'
 
-interface Props extends TextProps {}
+import styles from './styles'
 
-const Text = ({ children, ...rest }: Props) => <RNText {...rest}>{children}</RNText>
+interface Props extends TextProps {
+  underline?: boolean
+}
+
+const Text = ({ children, underline, ...rest }: Props) => (
+  <RNText style={StyleSheet.flatten([!!underline && styles.underline])} {...rest}>
+    {children}
+  </RNText>
+)
 
 export default Text

@@ -1,12 +1,13 @@
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Linking, Text, View } from 'react-native'
+import { Linking, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import Input from '@modules/common/components/Input'
 import P from '@modules/common/components/P'
+import Text from '@modules/common/components/Text'
 
 import styles from './styles'
 
@@ -98,8 +99,9 @@ const AddNewAccountScreen = () => {
                     'https://www.ambire.com/Ambire%20ToS%20and%20PP%20(26%20November%202021).pdf'
                   )
                 }
+                underline
               >
-                Terms of Service and Privacy policy
+                Terms of Service and Privacy policy.
               </Text>
             </Text>
           </Checkbox>
@@ -118,6 +120,7 @@ const AddNewAccountScreen = () => {
                     'https://help.ambire.com/hc/en-us/articles/4410892186002-What-is-Ambire-Cloud-'
                   )
                 }
+                underline
               >
                 Ambire Cloud.
               </Text>
