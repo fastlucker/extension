@@ -2,6 +2,9 @@ import 'react-native-gesture-handler'
 import 'expo-asset'
 
 import { registerRootComponent } from 'expo'
+
+// Ethers.js installation guide for RN:
+// https://docs.ethers.io/v5/cookbook/react-native/#cookbook-reactnative-shims
 import 'react-native-get-random-values'
 
 import '@ethersproject/shims'

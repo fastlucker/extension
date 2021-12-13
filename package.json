@@ -51,9 +51,9 @@
     "react-native-screens": "3.10.0",
     "react-native-web": "0.17.1",
     "validator": "^13.7.0",
-    "ethers": "5.5.2",
-    "@ethersproject/shims": "5.5.0",
-    "react-native-get-random-values": "1.7.1"
+    "ethers": "^5.5.2",
+    "@ethersproject/shims": "^5.5.0",
+    "react-native-get-random-values": "^1.7.1"
   },
   "devDependencies": {
     "@babel/core": "7.12.9",
