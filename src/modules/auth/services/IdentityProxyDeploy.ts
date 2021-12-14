@@ -21,11 +21,8 @@ function evmPush(data) {
 
 function sstoreCode(slotNumber, keyType, key, valueType, valueBuf) {
   const abi = new AbiCoder()
-
   const buf = abi.encode([keyType, valueType], [key, formatBytes32String(slotNumber)])
-
   const slot = keccak256(buf)
-
   return Buffer.concat([
     evmPush(typeof valueBuf === 'string' ? Buffer.from(valueBuf.slice(2), 'hex') : valueBuf),
     evmPush(Buffer.from(slot.slice(2), 'hex')),
