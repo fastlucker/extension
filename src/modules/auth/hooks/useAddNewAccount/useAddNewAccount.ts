@@ -135,8 +135,8 @@ export default function useEmailLogin() {
     )
   }
 
-  const handleAddNewAccount = (req: FormProps) => {
-    wrapProgress(() => createQuickAcc(req), 'email')
+  const handleAddNewAccount = async (req: FormProps) => {
+    await wrapProgress(() => createQuickAcc(req), 'email')
   }
 
   return { handleAddNewAccount, wrapErr, wrapProgress, err, addAccErr, inProgress }

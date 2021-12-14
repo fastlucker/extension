@@ -23,7 +23,7 @@ const EmailLoginScreen = () => {
     },
   })
 
-  const { handleLogin, requiresEmailConfFor } = useEmailLogin()
+  const { handleLogin, requiresEmailConfFor, err } = useEmailLogin()
 
   return (
     <View style={styles.container}>
@@ -50,7 +50,7 @@ const EmailLoginScreen = () => {
             text={isSubmitting ? t('Logging in...') : t('Log in')}
             onPress={handleSubmit(handleLogin)}
           />
-
+          {!!err && <P>{err}</P>}
           <P>
             {t('A password will not be required, we will send a magic login link to your email.')}
           </P>

@@ -14,7 +14,7 @@ import styles from './styles'
 
 const AddNewAccountScreen = () => {
   const { t } = useTranslation()
-  const { handleAddNewAccount } = useAddNewAccount()
+  const { handleAddNewAccount, err, addAccErr } = useAddNewAccount()
 
   const {
     control,
@@ -140,6 +140,8 @@ const AddNewAccountScreen = () => {
         text={isSubmitting ? t('Signing up...') : t('Sign up')}
         onPress={handleSubmit(handleAddNewAccount)}
       />
+      {!!err && <P>{err}</P>}
+      {!!addAccErr && <P>{addAccErr}</P>}
     </View>
   )
 }
