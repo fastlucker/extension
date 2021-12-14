@@ -5,6 +5,7 @@ import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
+import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
@@ -20,8 +21,9 @@ const Tab = createBottomTabNavigator()
 const AuthStack = () => (
   <Stack.Navigator>
     <Stack.Screen name="auth" component={AuthScreen} />
-    <Stack.Screen name="emailLogin" component={EmailLoginScreen} />
     <Stack.Screen name="addNewAccount" component={AddNewAccountScreen} />
+    <Stack.Screen name="emailLogin" component={EmailLoginScreen} />
+    <Stack.Screen name="jsonLogin" component={JsonLoginScreen} />
   </Stack.Navigator>
 )
 

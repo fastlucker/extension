@@ -41,6 +41,8 @@
     "expo": "~43.0.2",
     "expo-asset": "~8.4.3",
     "expo-checkbox": "~2.0.0",
+    "expo-document-picker": "~10.0.3",
+    "expo-file-system": "~13.0.3",
     "expo-localization": "~11.0.0",
     "expo-splash-screen": "~0.13.5",
     "expo-status-bar": "~1.1.0",
