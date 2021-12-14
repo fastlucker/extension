@@ -1,24 +1,27 @@
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { Trans } from 'react-i18next'
 import { Linking, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import { ambireCloudURL, termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import useAddNewAccount from '@modules/auth/hooks/useAddNewAccount'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import Input from '@modules/common/components/Input'
 import P from '@modules/common/components/P'
 import Text from '@modules/common/components/Text'
+import { isEmail } from '@modules/common/services/validate'
 
 import styles from './styles'
 
 const AddNewAccountScreen = () => {
   const { t } = useTranslation()
   const { handleAddNewAccount, err, addAccErr } = useAddNewAccount()
-
   const {
     control,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -36,9 +39,7 @@ const AddNewAccountScreen = () => {
       <P style={{ alignSelf: 'center', fontSize: 24 }}>{t('Create a new account')}</P>
       <Controller
         control={control}
-        rules={{
-          required: true,
-        }}
+        rules={{ validate: isEmail }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             onBlur={onBlur}
@@ -50,7 +51,7 @@ const AddNewAccountScreen = () => {
         )}
         name="email"
       />
-      {!!errors.email && <P>{t('Please fill in this field')}</P>}
+      {!!errors.email && <P>{t('Please fill in a valid email.')}</P>}
       <Controller
         control={control}
         rules={{
@@ -72,7 +73,7 @@ const AddNewAccountScreen = () => {
       <Controller
         control={control}
         rules={{
-          required: true,
+          validate: (field) => getValues('password') === field,
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
@@ -86,27 +87,19 @@ const AddNewAccountScreen = () => {
         )}
         name="confirmPassword"
       />
-      {!!errors.confirmPassword && <P>{t('Please fill in a valid password confirmation')}</P>}
+      {!!errors.confirmPassword && <P>{t("Passwords don't match.")}</P>}
       <Controller
         control={control}
-        rules={{
-          required: true,
-        }}
         render={({ field: { onChange, value } }) => (
           <Checkbox value={value} onValueChange={() => onChange(!value)}>
-            <Text>
-              <Text onPress={() => onChange(!value)}>{'I agree to the '}</Text>
-              <Text
-                onPress={() =>
-                  Linking.openURL(
-                    'https://www.ambire.com/Ambire%20ToS%20and%20PP%20(26%20November%202021).pdf'
-                  )
-                }
-                underline
-              >
-                Terms of Service and Privacy policy.
+            <Trans t={t}>
+              <Text>
+                <Text onPress={() => onChange(!value)}>{'I agree to the '}</Text>
+                <Text onPress={() => Linking.openURL(termsAndPrivacyURL)} underline>
+                  Terms of Service and Privacy policy.
+                </Text>
               </Text>
-            </Text>
+            </Trans>
           </Checkbox>
         )}
         name="terms"
@@ -115,19 +108,14 @@ const AddNewAccountScreen = () => {
         control={control}
         render={({ field: { onChange, value } }) => (
           <Checkbox value={value} onValueChange={() => onChange(!value)}>
-            <Text>
-              <Text onPress={() => onChange(!value)}>{'Backup on '}</Text>
-              <Text
-                onPress={() =>
-                  Linking.openURL(
-                    'https://help.ambire.com/hc/en-us/articles/4410892186002-What-is-Ambire-Cloud-'
-                  )
-                }
-                underline
-              >
-                Ambire Cloud.
+            <Trans t={t}>
+              <Text>
+                <Text onPress={() => onChange(!value)}>{'Backup on '}</Text>
+                <Text onPress={() => Linking.openURL(ambireCloudURL)} underline>
+                  Ambire Cloud.
+                </Text>
               </Text>
-            </Text>
+            </Trans>
           </Checkbox>
         )}
         name="backup"
