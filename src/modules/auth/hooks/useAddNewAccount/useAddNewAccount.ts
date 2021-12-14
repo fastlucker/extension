@@ -5,11 +5,10 @@ import { useState } from 'react'
 import performance from 'react-native-performance'
 
 import CONFIG from '@config/env'
+import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
 import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import { fetchPost } from '@modules/common/services/fetch'
-
-import { getProxyDeployBytecode } from './IdentityProxyDeploy'
 
 type FormProps = {
   email: string
@@ -88,6 +87,8 @@ export default function useEmailLogin() {
     const bytecode = getProxyDeployBytecode(baseIdentityAddr, privileges, { privSlot: 0 })
     const identityAddr = getAddress(
       `0x${generateAddress2(
+        // Converting to buffer is required in ethereumjs-util version: 7.1.3
+        // Version 6 allows Buffer or string types but installed in RN proj brakes with: Can't find variable: Buffer
         Buffer.from(identityFactoryAddr.slice(2), 'hex'),
         Buffer.from(salt.slice(2), 'hex'),
         Buffer.from(bytecode.slice(2), 'hex')

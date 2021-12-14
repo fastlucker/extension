@@ -1,4 +1,13 @@
 // @ts-nocheck
+
+// Copied from the package: adex-protocol-eth (-> js -> IdentityProxyDeploy.js)
+// because of an error: Can't find variable: Buffer
+// TODO: Remove this file and use the functions from adex-protocol-eth when the issue
+// is fixed on their end
+
+// To make this work the buffer package was added globally in the project (in index.js)
+// Buffer: https://github.com/feross/buffer
+
 import { AbiCoder, formatBytes32String, keccak256 } from 'ethers/lib/utils'
 
 function evmPush(data) {
