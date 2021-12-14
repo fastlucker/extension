@@ -8,6 +8,7 @@ import { ambireCloudURL, termsAndPrivacyURL } from '@modules/auth/constants/URLs
 import useAddNewAccount from '@modules/auth/hooks/useAddNewAccount'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
+import Heading from '@modules/common/components/Heading'
 import Input from '@modules/common/components/Input'
 import P from '@modules/common/components/P'
 import Text from '@modules/common/components/Text'
@@ -35,8 +36,7 @@ const AddNewAccountScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* TODO: replace with heading */}
-      <P style={{ alignSelf: 'center', fontSize: 24 }}>{t('Create a new account')}</P>
+      <Heading>{t('Create a new account')}</Heading>
       <Controller
         control={control}
         rules={{ validate: isEmail }}
