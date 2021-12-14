@@ -14,17 +14,19 @@ import styles from './styles'
 
 const AddNewAccountScreen = () => {
   const { t } = useTranslation()
-  const {} = useAddNewAccount()
+  const { handleAddNewAccount } = useAddNewAccount()
+
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      email: '',
-      password: '',
-      confirmPassword: '',
-      terms: false,
+      email: 'simeon+test3@devlabs.bg',
+      password: 'test12345',
+      confirmPassword: 'test12345',
+      // terms: false,
+      terms: true,
       backup: true,
     },
   })
@@ -136,7 +138,7 @@ const AddNewAccountScreen = () => {
       <Button
         disabled={isSubmitting}
         text={isSubmitting ? t('Signing up...') : t('Sign up')}
-        onPress={handleSubmit(() => {})}
+        onPress={handleSubmit(handleAddNewAccount)}
       />
     </View>
   )

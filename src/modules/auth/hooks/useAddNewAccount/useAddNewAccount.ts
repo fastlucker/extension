@@ -1,4 +1,3 @@
-import { getProxyDeployBytecode } from 'adex-protocol-eth/js/IdentityProxyDeploy'
 import { generateAddress2 } from 'ethereumjs-util'
 import { Wallet } from 'ethers'
 import { AbiCoder, getAddress, id, keccak256 } from 'ethers/lib/utils'
@@ -9,6 +8,8 @@ import CONFIG from '@config/env'
 import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import { fetchPost } from '@modules/common/services/fetch'
+
+import { getProxyDeployBytecode } from './IdentityProxyDeploy'
 
 type FormProps = {
   email: string
@@ -87,10 +88,9 @@ export default function useEmailLogin() {
     const bytecode = getProxyDeployBytecode(baseIdentityAddr, privileges, { privSlot: 0 })
     const identityAddr = getAddress(
       `0x${generateAddress2(
-        // @ts-ignore
-        identityFactoryAddr,
-        salt,
-        bytecode
+        Buffer.from(identityFactoryAddr.slice(2), 'hex'),
+        Buffer.from(salt.slice(2), 'hex'),
+        Buffer.from(bytecode.slice(2), 'hex')
       ).toString('hex')}`
     )
     const primaryKeyBackup = JSON.stringify(

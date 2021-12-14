@@ -8,15 +8,17 @@ import Router from '@config/Router'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 
-const App = () => (
-  <>
-    <StatusBar style="auto" />
-    <AuthProvider>
-      <AccountsProvider>
-        <Router />
-      </AccountsProvider>
-    </AuthProvider>
-  </>
-)
+const App = () => {
+  return (
+    <>
+      <StatusBar style="auto" />
+      <AuthProvider>
+        <AccountsProvider>
+          <Router />
+        </AccountsProvider>
+      </AuthProvider>
+    </>
+  )
+}
 
 export default App
