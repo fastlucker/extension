@@ -3,6 +3,9 @@ import 'expo-asset'
 
 import { registerRootComponent } from 'expo'
 
+// Installed and imported because of a dependency that uses Buffer functions
+// Hack to make Buffer with in RN proj:
+// https://stackoverflow.com/questions/48432524/cant-find-variable-buffer/54448930
 import { Buffer } from 'buffer'
 global.Buffer = Buffer
 
