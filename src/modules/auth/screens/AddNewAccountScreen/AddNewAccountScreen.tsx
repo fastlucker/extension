@@ -22,11 +22,10 @@ const AddNewAccountScreen = () => {
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      email: 'simeon+test3@devlabs.bg',
-      password: 'test12345',
-      confirmPassword: 'test12345',
-      // terms: false,
-      terms: true,
+      email: '',
+      password: '',
+      confirmPassword: '',
+      terms: false,
       backup: true,
     },
   })
