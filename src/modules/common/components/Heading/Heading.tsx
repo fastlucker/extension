@@ -7,10 +7,10 @@ import styles from './styles'
 
 interface Props extends TextProps {}
 
-const P = ({ children, ...rest }: Props) => (
+const Heading = ({ children, ...rest }: Props) => (
   <Text style={styles.text} {...rest}>
     {children}
   </Text>
 )
 
-export default P
+export default Heading

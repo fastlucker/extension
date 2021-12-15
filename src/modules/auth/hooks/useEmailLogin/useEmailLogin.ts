@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 
+import CONFIG from '@config/env'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import { fetchCaught } from '@modules/common/services/fetch'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import CONFIG from '@config/env'
 
 type FormProps = {
   email: string
-  passphrase: string
 }
 
 const EMAIL_VERIFICATION_RECHECK = 3000
@@ -19,10 +18,7 @@ export default function useEmailLogin() {
 
   const { onAddAccount } = useAccounts()
 
-  const attemptLogin = async (
-    { email, passphrase }: FormProps,
-    ignoreEmailConfirmationRequired?: any
-  ) => {
+  const attemptLogin = async ({ email }: FormProps, ignoreEmailConfirmationRequired?: any) => {
     // try by-email first: if this returns data we can just move on to decrypting
     // does not matter which network we request
     const loginSessionKey = await AsyncStorage.getItem('loginSessionKey')
@@ -35,15 +31,14 @@ export default function useEmailLogin() {
       }
     )
     if (errMsg) {
-      // TODO: set error (globally)
-      // setErr(errMsg)
+      setErr(errMsg)
       return
     }
 
     if (resp.status === 401 && body.errType === 'UNAUTHORIZED') {
       if (ignoreEmailConfirmationRequired) {
         // we still have to call this to make sure the state is consistent and to force a re-render (to trigger the effect again)
-        setRequiresConfFor({ email, passphrase })
+        setRequiresConfFor({ email })
         return
       }
       const requestAuthResp = await fetch(
@@ -58,7 +53,7 @@ export default function useEmailLogin() {
       }
       const sessionKey = (await requestAuthResp.json()).sessionKey
       AsyncStorage.setItem('loginSessionKey', sessionKey)
-      setRequiresConfFor({ email, passphrase })
+      setRequiresConfFor({ email })
       return
     }
     // If we make it beyond this point, it means no email confirmation will be required
@@ -97,12 +92,12 @@ export default function useEmailLogin() {
     setRequiresConfFor(null)
   }
 
-  const handleLogin = async ({ email, passphrase }: FormProps) => {
+  const handleLogin = async ({ email }: FormProps) => {
     setErr('')
     setRequiresConfFor(null)
     setInProgress(true)
     try {
-      await attemptLogin({ email, passphrase })
+      await attemptLogin({ email })
     } catch (e: any) {
       setErr(`Unexpected error: ${e.message || e}`)
     }

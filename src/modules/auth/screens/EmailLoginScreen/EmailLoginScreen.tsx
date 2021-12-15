@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import { useTranslation } from '@config/localization'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import Button from '@modules/common/components/Button'
+import Heading from '@modules/common/components/Heading'
 import Input from '@modules/common/components/Input'
 import P from '@modules/common/components/P'
 import { isEmail } from '@modules/common/services/validate'
@@ -23,10 +24,11 @@ const EmailLoginScreen = () => {
     },
   })
 
-  const { handleLogin, requiresEmailConfFor } = useEmailLogin()
+  const { handleLogin, requiresEmailConfFor, err } = useEmailLogin()
 
   return (
     <View style={styles.container}>
+      <Heading>{t('Email login')}</Heading>
       {!requiresEmailConfFor && (
         <>
           <Controller
@@ -50,7 +52,7 @@ const EmailLoginScreen = () => {
             text={isSubmitting ? t('Logging in...') : t('Log in')}
             onPress={handleSubmit(handleLogin)}
           />
-
+          {!!err && <P>{err}</P>}
           <P>
             {t('A password will not be required, we will send a magic login link to your email.')}
           </P>
