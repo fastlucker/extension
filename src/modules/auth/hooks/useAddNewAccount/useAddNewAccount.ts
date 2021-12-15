@@ -17,9 +17,9 @@ type FormProps = {
 }
 
 export default function useEmailLogin() {
-  const [err, setErr] = useState<any>('')
-  const [addAccErr, setAddAccErr] = useState<any>('')
-  const [inProgress, setInProgress] = useState<any>(false)
+  const [err, setErr] = useState<string>('')
+  const [addAccErr, setAddAccErr] = useState<string>('')
+  const [inProgress, setInProgress] = useState<boolean | string>(false)
 
   const { onAddAccount } = useAccounts()
 

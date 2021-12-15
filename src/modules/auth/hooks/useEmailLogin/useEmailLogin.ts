@@ -12,9 +12,9 @@ type FormProps = {
 const EMAIL_VERIFICATION_RECHECK = 3000
 
 export default function useEmailLogin() {
-  const [requiresEmailConfFor, setRequiresConfFor] = useState<any>(null)
-  const [err, setErr] = useState<any>('')
-  const [inProgress, setInProgress] = useState<any>(false)
+  const [requiresEmailConfFor, setRequiresConfFor] = useState<FormProps | null>(null)
+  const [err, setErr] = useState<string>('')
+  const [inProgress, setInProgress] = useState<boolean>(false)
 
   const { onAddAccount } = useAccounts()
 

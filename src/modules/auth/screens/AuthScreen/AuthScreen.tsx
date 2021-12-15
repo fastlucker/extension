@@ -18,6 +18,10 @@ const AuthScreen = ({ navigation }: Props) => {
       <Button text={t('Add a new account')} onPress={() => navigation.navigate('addNewAccount')} />
       <Button text={t('Email login')} onPress={() => navigation.navigate('emailLogin')} />
       <Button text={t('Import from JSON')} onPress={() => navigation.navigate('jsonLogin')} />
+      <Button
+        text={t('Login by QR code scan')}
+        onPress={() => navigation.navigate('qrCodeLogin')}
+      />
       <Text>App env: {CONFIG.APP_ENV}</Text>
     </View>
   )
