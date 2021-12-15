@@ -20,8 +20,8 @@ const AccountsContext = createContext<AuthContextData>({
 })
 
 const AccountsProvider: React.FC = ({ children }) => {
-  const [accounts, setAccounts] = useState<any>([])
-  const [selectedAcc, setSelectedAcc] = useState<any>('')
+  const [accounts, setAccounts] = useState<any[]>([])
+  const [selectedAcc, setSelectedAcc] = useState<string | null>('')
   const { setIsAuthenticated } = useAuth()
 
   const initState = async () => {
