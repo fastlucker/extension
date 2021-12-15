@@ -32,5 +32,7 @@ module.exports = {
     'consistent-return': 'off',
     'react/jsx-props-no-spreading': 'off',
     'react/require-default-props': 'off',
+    '@typescript-eslint/no-unused-expressions': 'off',
+    '@typescript-eslint/no-extra-semi': 'off',
   },
 }
