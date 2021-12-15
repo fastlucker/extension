@@ -13,8 +13,8 @@ interface Props {
 }
 
 const QRCodeScanner = ({ onScan }: Props) => {
-  const [hasPermission, setHasPermission] = useState<any>(null)
-  const [scanned, setScanned] = useState<any>(false)
+  const [hasPermission, setHasPermission] = useState<null | boolean>(null)
+  const [scanned, setScanned] = useState<boolean>(false)
   const { t } = useTranslation()
 
   useEffect(() => {
