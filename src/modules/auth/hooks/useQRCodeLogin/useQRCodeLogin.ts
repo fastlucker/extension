@@ -15,7 +15,7 @@ export default function useQRCodeLogin() {
     setInProgress(true)
     try {
       const parsedData = JSON.parse(data)
-      const validatedData = validateImportedAccountProps(data)
+      const validatedData = validateImportedAccountProps(parsedData)
       if (!validatedData.success) {
         setInProgress(false)
         return setError(validatedData.message || t('Invalid account data import.'))
