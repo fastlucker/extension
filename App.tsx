@@ -7,6 +7,7 @@ import React from 'react'
 import Router from '@config/Router'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
+import { NetworkProvider } from '@modules/common/contexts/networkContext/networkContext'
 
 const App = () => {
   return (
@@ -14,7 +15,9 @@ const App = () => {
       <StatusBar style="auto" />
       <AuthProvider>
         <AccountsProvider>
-          <Router />
+          <NetworkProvider>
+            <Router />
+          </NetworkProvider>
         </AccountsProvider>
       </AuthProvider>
     </>
