@@ -1,4 +1,14 @@
-const networks = [
+export type NetworkType = {
+  id: string
+  chainId: number
+  rpc: string
+  nativeAssetSymbol: string
+  name: string
+  icon: string
+  explorerUrl: string
+}
+
+const networks: NetworkType[] = [
   {
     id: 'ethereum',
     chainId: 1,

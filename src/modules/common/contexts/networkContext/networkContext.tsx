@@ -1,14 +1,14 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import networks from '@modules/common/constants/networks'
+import networks, { NetworkType } from '@modules/common/constants/networks'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const defaultNetwork = 'ethereum'
 
 type NetworkContextData = {
-  setNetwork: (networkId: string) => void
-  network: any
-  allNetworks: any
+  setNetwork: (networkIdentifier: string | number) => void
+  network: NetworkType | undefined
+  allNetworks: NetworkType[]
 }
 
 const NetworkContext = createContext<NetworkContextData>({
