@@ -34,5 +34,6 @@ module.exports = {
     'react/require-default-props': 'off',
     '@typescript-eslint/no-unused-expressions': 'off',
     '@typescript-eslint/no-extra-semi': 'off',
+    'no-plusplus': 'off',
   },
 }
