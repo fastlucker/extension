@@ -1,5 +1,7 @@
-export const isProd = process.env.APP_ENV === 'PRODUCTION'
-export const isStaging = process.env.APP_ENV === 'STAGING'
+// eslint-disable-next-line @typescript-eslint/dot-notation
+export const isProd = process.env['APP_ENV'] === 'PRODUCTION'
+// eslint-disable-next-line @typescript-eslint/dot-notation
+export const isStaging = process.env['APP_ENV'] === 'STAGING'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 enum APP_ENV {
