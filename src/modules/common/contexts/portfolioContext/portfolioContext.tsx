@@ -298,7 +298,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
     return () => clearInterval(refreshInterval)
   }, [refreshTokensIfVisible])
 
-  // TODO:
+  // TODO: decide if this is necessary in the mobile use case
   // // Refresh balance every 60s if hidden
   // useEffect(() => {
   //   const refreshIfHidden =
