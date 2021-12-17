@@ -18,7 +18,7 @@ const NetworkContext = createContext<NetworkContextData>({
 })
 
 const NetworkProvider: React.FC = ({ children }) => {
-  const [networkId, setNetworkId] = useState<string | null>(defaultNetwork)
+  const [networkId, setNetworkId] = useState<string | null>(null)
 
   useEffect(() => {
     ;(async () => {
@@ -50,7 +50,7 @@ const NetworkProvider: React.FC = ({ children }) => {
           network: networks.find((n) => n.id === networkId),
           allNetworks: networks,
         }),
-        [setNetwork, networks]
+        [setNetwork, networks, networkId]
       )}
     >
       {children}

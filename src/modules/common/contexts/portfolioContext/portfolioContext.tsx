@@ -69,10 +69,8 @@ const PortfolioProvider: React.FC = ({ children }) => {
   const [protocols, setProtocols] = useState<any>([])
   const [collectibles, setCollectibles] = useState<any>([])
 
-  const {
-    network: { id },
-  }: any = useNetwork()
-  const currentNetwork = id
+  const { network: selectedNetwork } = useNetwork()
+  const currentNetwork = selectedNetwork?.id
   const { selectedAcc: account } = useAccounts()
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -191,7 +189,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
   const refreshTokensIfVisible = useCallback(() => {
     if (!account) return
     if (!isBalanceLoading) fetchTokens(account, currentNetwork)
-  }, [isBalanceLoading, account, fetchTokens, currentNetwork])
+  }, [isBalanceLoading, account, fetchTokens, currentNetwork, appStateVisible])
 
   const requestOtherProtocolsRefresh = async () => {
     if (!account) return
@@ -219,7 +217,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
     loadProtocols()
   }, [account, fetchTokens, fetchOtherProtocols])
 
-  // Update states on network, tokens and ohterProtocols change
+  // Update states on network, tokens and otherProtocols change
   useEffect(() => {
     try {
       const balanceByNetworks = tokensByNetworks.map(({ network, meta }: any) => {
@@ -309,7 +307,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
   //   return () => clearInterval(refreshInterval)
   // }, [account, currentNetwork, isBalanceLoading, fetchTokens])
 
-  // Refresh balance when window is focused
+  // Refresh balance when app is focused
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
