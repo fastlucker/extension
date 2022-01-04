@@ -3,6 +3,7 @@
 import oracle from 'adex-protocol-eth/abi/RemainingBalancesOracle.json'
 import { ethers, getDefaultProvider } from 'ethers'
 
+import i18n from '@config/localization/localization'
 import networks from '@modules/common/constants/networks'
 import tokenList from '@modules/common/constants/tokensList.json'
 
@@ -24,7 +25,11 @@ function isErr(hex: any) {
 // ToDo check for missing data and double check for incompleted returns
 async function call({ walletAddr, tokens, network }: any) {
   if (!isAddress(walletAddr))
-    return { success: false, data: walletAddr, message: 'Wallet address is not valide eth address' }
+    return {
+      success: false,
+      data: walletAddr,
+      message: i18n.t('Wallet address is not valid eth address')
+    }
   const provider = getDefaultProvider(
     networks.filter((n: any) => n.id === network)[0]?.rpc || undefined
   )
@@ -118,8 +123,8 @@ async function getErrMsg(provider: any, txParams: any, blockTag: any) {
     // weird infura case
     if (e.code === 'UNPREDICTABLE_GAS_LIMIT' && e.error) return e.error.message.slice(20)
     if (e.code === 'CALL_EXCEPTION')
-      return 'no error string, possibly insufficient amount or wrong SmartWallet sig'
-    if (e.code === 'INVALID_ARGUMENT') return `unable to deserialize: ${hexlify(e.value)}`
+      return i18n.t('no error string, possibly insufficient amount or wrong SmartWallet sig')
+    if (e.code === 'INVALID_ARGUMENT') return i18n.t(`unable to deserialize: ${hexlify(e.value)}`)
     throw e
   }
 }

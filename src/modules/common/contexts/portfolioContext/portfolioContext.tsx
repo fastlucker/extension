@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 import { AppState } from 'react-native'
 
 import CONFIG from '@config/env'
+import i18n from '@config/localization/localization'
 import supportedProtocols from '@modules/common/constants/supportedProtocols'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -303,7 +304,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
     // eslint-disable-next-line @typescript-eslint/no-shadow
     if (extraTokens.map(({ address }: any) => address).includes(address))
       // TODO: set global notification
-      return console.log(`${name} (${symbol}) is already added to your wallet.`)
+      return console.log(i18n.t(`${name} (${symbol}) is already added to your wallet.`))
     if (
       Object.values(tokenList)
         .flat(1)
@@ -312,10 +313,10 @@ const PortfolioProvider: React.FC = ({ children }) => {
         .includes(address)
     )
       // TODO: set global notification
-      return console.log(`${name} (${symbol}) is already handled by your wallet.`)
+      return console.log(i18n.t(`${name} (${symbol}) is already handled by your wallet.`))
     // eslint-disable-next-line @typescript-eslint/no-shadow
     if (tokens.map(({ address }: any) => address).includes(address))
-      return console.log(`You already have ${name} (${symbol}) in your wallet.`)
+      return console.log(i18n.t(`You already have ${name} (${symbol}) in your wallet.`))
 
     const updatedExtraTokens = [
       ...extraTokens,
@@ -328,7 +329,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
     AsyncStorage.setItem('extraTokens', JSON.stringify(updatedExtraTokens))
     setExtraTokens(updatedExtraTokens)
     // TODO: set global notification
-    console.log(`${name} (${symbol}) token added to your wallet!`)
+    console.log(i18n.t(`${name} (${symbol}) token added to your wallet!`))
   }
 
   // Fetch balances and protocols on account change
