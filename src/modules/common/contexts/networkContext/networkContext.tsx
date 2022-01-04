@@ -14,7 +14,7 @@ type NetworkContextData = {
 const NetworkContext = createContext<NetworkContextData>({
   setNetwork: () => {},
   network: networks.find((n) => n.id === defaultNetwork),
-  allNetworks: networks,
+  allNetworks: networks
 })
 
 const NetworkProvider: React.FC = ({ children }) => {
@@ -48,7 +48,7 @@ const NetworkProvider: React.FC = ({ children }) => {
         () => ({
           setNetwork,
           network: networks.find((n) => n.id === networkId),
-          allNetworks: networks,
+          allNetworks: networks
         }),
         [setNetwork, networks, networkId]
       )}

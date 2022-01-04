@@ -6,5 +6,6 @@
   "tabWidth": 2,
   "prefer-destructuring": false,
   "consistent-return": false,
-  "bracketSpacing": true
+  "bracketSpacing": true,
+  "trailingComma": "none"
 }

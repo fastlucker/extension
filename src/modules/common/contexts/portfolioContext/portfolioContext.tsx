@@ -7,7 +7,13 @@ import CONFIG from '@config/env'
 import supportedProtocols from '@modules/common/constants/supportedProtocols'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import {
+  checkTokenList,
+  getTokenListBalance,
+  tokenList
+} from '@modules/common/services/balanceOracle'
 import { fetchGet } from '@modules/common/services/fetch'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type PortfolioContextData = {
   isBalanceLoading: boolean
@@ -27,23 +33,75 @@ const PortfolioContext = createContext<PortfolioContextData>({
     total: {
       full: 0,
       truncated: 0,
-      decimals: '00',
+      decimals: '00'
     },
-    tokens: [],
+    tokens: []
   },
   otherBalances: [],
   tokens: [],
   protocols: [],
   collectibles: [],
-  requestOtherProtocolsRefresh: () => {},
+  requestOtherProtocolsRefresh: () => {}
 })
 
-const getBalances = (apiKey: any, network: any, protocol: any, address: any) =>
+const getBalances = (apiKey: any, network: any, protocol: any, address: any, provider?: any) =>
   fetchGet(
-    `${CONFIG.ZAPPER_API_ENDPOINT}/protocols/${protocol}/balances?addresses[]=${address}&network=${network}&api_key=${apiKey}&newBalances=true`
+    `${
+      provider === 'velcro' ? CONFIG.VELCRO_API_ENDPOINT : CONFIG.ZAPPER_API_ENDPOINT
+    }/protocols/${protocol}/balances?addresses[]=${address}&network=${network}&api_key=${apiKey}&newBalances=true`
   )
 
 let lastOtherProtocolsRefresh: any = null
+
+// use Balance Oracle
+function paginateArray(input: any, limit: any) {
+  const pages = []
+  let from = 0
+  for (let i = 1; i <= Math.ceil(input.length / limit); i++) {
+    pages.push(input.slice(from, i * limit))
+    from += limit
+  }
+  return pages
+}
+
+async function supplementTokensDataFromNetwork({
+  walletAddr,
+  network,
+  tokensData,
+  extraTokens,
+  updateBalance
+}: any) {
+  if (!walletAddr || walletAddr === '' || !network || network === '') return []
+  // eslint-disable-next-line no-param-reassign
+  if (!tokensData || !tokensData[0]) tokensData = checkTokenList(tokensData || []) // tokensData check and populate for test if undefind
+  // eslint-disable-next-line no-param-reassign
+  if (!extraTokens || !extraTokens[0]) extraTokens = checkTokenList(extraTokens || []) // extraTokens check and populate for test if undefind
+
+  // concat predefined token list with extraTokens list (extraTokens are certainly ERC20)
+  const fullTokenList = [
+    // @ts-ignore
+    ...new Set(tokenList[network] ? tokenList[network].concat(extraTokens) : [...extraTokens])
+  ]
+  const tokens = fullTokenList.map((t: any) => {
+    return tokensData.find((td: any) => td.address === t.address) || t
+  })
+  const tokensNotInList = tokensData.filter((td: any) => {
+    return !tokens.some((t) => t.address === td.address)
+  })
+
+  // tokensNotInList: call separately to prevent errors from non-erc20 tokens
+  // NOTE about err handling: errors are caught for each call in balanceOracle, and we retain the original token entry, which contains the balance
+  const calls = paginateArray(tokens, 100).concat(paginateArray(tokensNotInList, 100))
+
+  const tokenBalances = (
+    await Promise.all(
+      calls.map((callTokens) => {
+        return getTokenListBalance({ walletAddr, tokens: callTokens, network, updateBalance })
+      })
+    )
+  ).flat()
+  return tokenBalances
+}
 
 const PortfolioProvider: React.FC = ({ children }) => {
   const currentAccount = useRef()
@@ -60,68 +118,111 @@ const PortfolioProvider: React.FC = ({ children }) => {
     total: {
       full: 0,
       truncated: 0,
-      decimals: '00',
+      decimals: '00'
     },
-    tokens: [],
+    tokens: []
   })
   const [otherBalances, setOtherBalances] = useState<any>([])
   const [tokens, setTokens] = useState<any>([])
   const [protocols, setProtocols] = useState<any>([])
   const [collectibles, setCollectibles] = useState<any>([])
+  const [extraTokens, setExtraTokens] = useState<any>([])
 
   const { network: selectedNetwork } = useNetwork()
   const currentNetwork = selectedNetwork?.id
   const { selectedAcc: account } = useAccounts()
 
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  const fetchTokens = useCallback(async (account, currentNetwork = false) => {
-    try {
-      const networks = currentNetwork
-        ? [currentNetwork]
-        : supportedProtocols.map(({ network }) => network)
-
-      let failedRequests = 0
-      const requestsCount = networks.length
-
-      const updatedTokens = (
-        await Promise.all(
-          networks.map(async (network) => {
-            try {
-              // eslint-disable-next-line @typescript-eslint/no-shadow
-              const balance = await getBalances(CONFIG.ZAPPER_API_KEY, network, 'tokens', account)
-              if (!balance) return null
-
-              const { meta, products }: any = Object.values(balance)[0]
-              return {
-                network,
-                meta,
-                products,
-              }
-            } catch (_) {
-              failedRequests++
-            }
-          })
-        )
-      ).filter((data) => data)
-      const updatedNetworks = updatedTokens.map(({ network }: any) => network)
-
-      // Prevent race conditions
-      if (currentAccount.current !== account) return
-
-      setTokensByNetworks((prevTokensByNetworks: any) => [
-        ...prevTokensByNetworks.filter(({ network }: any) => !updatedNetworks.includes(network)),
-        ...updatedTokens,
-      ])
-
-      if (failedRequests >= requestsCount) throw new Error('Failed to fetch Tokens from Zapper API')
-      return true
-    } catch (error) {
-      console.error(error)
-      // TODO: set global error message
-      // addToast(error.message, { error: true })
-      return false
-    }
+  useEffect(() => {
+    ;(async () => {
+      const storedExtraTokens = await AsyncStorage.getItem('extraTokens')
+      setExtraTokens(storedExtraTokens ? JSON.parse(storedExtraTokens) : [])
+    })()
   }, [])
+
+  const getExtraTokensAssets = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    (account: any, network: any) =>
+      extraTokens
+        .filter((extra: any) => extra.account === account && extra.network === network)
+        .map((extraToken: any) => ({
+          ...extraToken,
+          type: 'base',
+          price: 0,
+          balanceUSD: 0,
+          isExtraToken: true
+        })),
+    [extraTokens]
+  )
+
+  const fetchTokens = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    async (account, currentNetwork = false) => {
+      try {
+        const networks = currentNetwork
+          ? [supportedProtocols.find(({ network }) => network === currentNetwork)]
+          : supportedProtocols
+
+        let failedRequests = 0
+        const requestsCount = networks.length
+
+        const updatedTokens = (
+          await Promise.all(
+            networks.map(async ({ network, balancesProvider }: any) => {
+              try {
+                // eslint-disable-next-line @typescript-eslint/no-shadow
+                const balance = await getBalances(
+                  CONFIG.ZAPPER_API_KEY,
+                  network,
+                  'tokens',
+                  account,
+                  balancesProvider
+                )
+                if (!balance) return null
+
+                const { meta, products }: any = Object.values(balance)[0]
+
+                const extraTokensAssets = getExtraTokensAssets(account, network) // Add user added extra token to handle
+                const assets = [
+                  ...products
+                    // eslint-disable-next-line @typescript-eslint/no-shadow
+                    .map(({ assets }: any) => assets.map(({ tokens }: any) => tokens))
+                    .flat(2),
+                  ...extraTokensAssets
+                ]
+                return {
+                  network,
+                  meta,
+                  assets
+                }
+              } catch (e) {
+                console.error('Balances API error', e)
+                failedRequests++
+              }
+            })
+          )
+        ).filter((data) => data)
+        const updatedNetworks = updatedTokens.map(({ network }: any) => network)
+
+        // Prevent race conditions
+        if (currentAccount.current !== account) return
+
+        setTokensByNetworks((prevTokensByNetworks: any) => [
+          ...prevTokensByNetworks.filter(({ network }: any) => !updatedNetworks.includes(network)),
+          ...updatedTokens
+        ])
+
+        if (failedRequests >= requestsCount)
+          throw new Error('Failed to fetch Tokens from Zapper API')
+        return true
+      } catch (error) {
+        console.error(error)
+        // TODO: set global error message
+        // addToast(error.message, { error: true })
+        return false
+      }
+    },
+    [getExtraTokensAssets]
+  )
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const fetchOtherProtocols = useCallback(async (account, currentNetwork = false) => {
@@ -170,7 +271,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
 
       setOtherProtocolsByNetworks((protocolsByNetworks: any) => [
         ...protocolsByNetworks.filter(({ network }: any) => !updatedNetworks.includes(network)),
-        ...updatedProtocols,
+        ...updatedProtocols
       ])
 
       lastOtherProtocolsRefresh = Date.now()
@@ -197,6 +298,39 @@ const PortfolioProvider: React.FC = ({ children }) => {
       await fetchOtherProtocols(account, currentNetwork)
   }
 
+  const onAddExtraToken = (extraToken: any) => {
+    const { address, name, symbol } = extraToken
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    if (extraTokens.map(({ address }: any) => address).includes(address))
+      // TODO: set global notification
+      return console.log(`${name} (${symbol}) is already added to your wallet.`)
+    if (
+      Object.values(tokenList)
+        .flat(1)
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        .map(({ address }: any) => address)
+        .includes(address)
+    )
+      // TODO: set global notification
+      return console.log(`${name} (${symbol}) is already handled by your wallet.`)
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    if (tokens.map(({ address }: any) => address).includes(address))
+      return console.log(`You already have ${name} (${symbol}) in your wallet.`)
+
+    const updatedExtraTokens = [
+      ...extraTokens,
+      {
+        ...extraToken,
+        coingeckoId: null
+      }
+    ]
+
+    AsyncStorage.setItem('extraTokens', JSON.stringify(updatedExtraTokens))
+    setExtraTokens(updatedExtraTokens)
+    // TODO: set global notification
+    console.log(`${name} (${symbol}) token added to your wallet!`)
+  }
+
   // Fetch balances and protocols on account change
   useEffect(() => {
     currentAccount.current = account
@@ -220,20 +354,22 @@ const PortfolioProvider: React.FC = ({ children }) => {
   // Update states on network, tokens and otherProtocols change
   useEffect(() => {
     try {
-      const balanceByNetworks = tokensByNetworks.map(({ network, meta }: any) => {
-        const balanceUSD =
-          // eslint-disable-next-line no-unsafe-optional-chaining
-          meta.find(({ label }: any) => label === 'Total')?.value +
-          // eslint-disable-next-line no-unsafe-optional-chaining
-          meta.find(({ label }: any) => label === 'Debt')?.value
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      const tokens = tokensByNetworks.find(({ network }: any) => network === currentNetwork)
+      if (tokens) setTokens(tokens.assets)
+
+      const balanceByNetworks = tokensByNetworks.map(({ network, meta, assets }: any) => {
+        const totalUSD = assets.reduce((acc: any, curr: any) => acc + curr.balanceUSD, 0)
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        const balanceUSD = totalUSD + meta.find(({ label }: any) => label === 'Debt')?.value
         if (!balanceUSD)
           return {
             network,
             total: {
               full: 0,
               truncated: 0,
-              decimals: '00',
-            },
+              decimals: '00'
+            }
           }
 
         const [truncated, decimals] = Number(balanceUSD.toString()).toFixed(2).split('.')
@@ -242,8 +378,8 @@ const PortfolioProvider: React.FC = ({ children }) => {
           total: {
             full: balanceUSD,
             truncated: Number(truncated).toLocaleString('en-US'),
-            decimals,
-          },
+            decimals
+          }
         }
       })
 
@@ -254,21 +390,16 @@ const PortfolioProvider: React.FC = ({ children }) => {
         setOtherBalances(balanceByNetworks.filter(({ network }: any) => network !== currentNetwork))
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      const tokens = tokensByNetworks.find(({ network }: any) => network === currentNetwork)
-      if (tokens)
-        setTokens(
-          // eslint-disable-next-line @typescript-eslint/no-shadow
-          tokens.products.map(({ assets }: any) => assets.map(({ tokens }: any) => tokens)).flat(2)
-        )
-
       const otherProtocols = otherProtocolsByNetworks.find(
         ({ network }: any) => network === currentNetwork
       )
       if (tokens && otherProtocols) {
         setProtocols([
-          ...tokens.products,
-          ...otherProtocols.protocols.filter(({ label }: any) => label !== 'NFTs'),
+          {
+            label: 'Tokens',
+            assets: tokens.assets
+          },
+          ...otherProtocols.protocols.filter(({ label }: any) => label !== 'NFTs')
         ])
         setCollectibles(
           otherProtocols.protocols.find(({ label }: any) => label === 'NFTs')?.assets || []
@@ -288,24 +419,75 @@ const PortfolioProvider: React.FC = ({ children }) => {
     }
   }, [currentNetwork, refreshTokensIfVisible])
 
-  // Refresh balance every 20s if visible
+  // Refresh balance every 80s if visible
   useEffect(() => {
     const refreshInterval = setInterval(() => {
       if (appStateVisible === 'active') {
         refreshTokensIfVisible()
       }
-    }, 20000)
+    }, 90000)
     return () => clearInterval(refreshInterval)
   }, [refreshTokensIfVisible])
 
-  // TODO: decide if this is necessary in the mobile use case
-  // // Refresh balance every 60s if hidden
-  // useEffect(() => {
-  //   const refreshIfHidden =
-  //     document[hidden] && !isBalanceLoading ? fetchTokens(account, currentNetwork) : null
-  //   const refreshInterval = setInterval(refreshIfHidden, 60000)
-  //   return () => clearInterval(refreshInterval)
-  // }, [account, currentNetwork, isBalanceLoading, fetchTokens])
+  // Get supplement tokens data every 20s
+  useEffect(() => {
+    const getSupplementTokenData = async () => {
+      const currentNetworkTokens = tokensByNetworks.find(
+        ({ network }: any) => network === currentNetwork
+      )
+      if (!currentNetworkTokens) return
+
+      const extraTokensAssets = getExtraTokensAssets(account, currentNetwork)
+      try {
+        const rcpTokenData = await supplementTokensDataFromNetwork({
+          walletAddr: account,
+          network: currentNetwork,
+          tokensData: currentNetworkTokens.assets.filter(({ isExtraToken }: any) => !isExtraToken), // Filter out extraTokens
+          extraTokens: extraTokensAssets
+        })
+        currentNetworkTokens.assets = rcpTokenData
+
+        // Update stored extraTokens with new rpc data
+        // @TODO this seems unnecessary but we'll have to analyze it again
+        const storedExtraTokens = (await AsyncStorage.getItem('extraTokens')) || '[]'
+        const parsedStoredExtraTokens = JSON.parse(storedExtraTokens)
+        const updatedExtraTokens = rcpTokenData
+          .map((updated) => {
+            const extraToken = parsedStoredExtraTokens.find(
+              (extra: any) =>
+                extra.address === updated.address &&
+                extra.network === updated.network &&
+                extra.account === account
+            )
+            if (!extraToken) return null
+            return {
+              ...extraToken,
+              ...updated
+            }
+          })
+          .filter((updated) => updated)
+
+        AsyncStorage.setItem('extraTokens', JSON.stringify(updatedExtraTokens))
+
+        setTokensByNetworks([
+          ...tokensByNetworks.filter(({ network }: any) => network !== currentNetwork),
+          currentNetworkTokens
+        ])
+      } catch (e) {
+        console.error('supplementTokensDataFromNetwork failed', e)
+      }
+    }
+    const refreshInterval = setInterval(getSupplementTokenData, 20000)
+    return () => clearInterval(refreshInterval)
+  }, [
+    account,
+    currentNetwork,
+    isBalanceLoading,
+    fetchTokens,
+    tokensByNetworks,
+    extraTokens,
+    getExtraTokensAssets
+  ])
 
   // Refresh balance when app is focused
   useEffect(() => {
@@ -338,6 +520,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
           protocols,
           collectibles,
           requestOtherProtocolsRefresh,
+          onAddExtraToken
         }),
         [
           isBalanceLoading,
@@ -348,6 +531,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
           protocols,
           collectibles,
           requestOtherProtocolsRefresh,
+          onAddExtraToken
         ]
       )}
     >

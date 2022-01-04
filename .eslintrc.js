@@ -1,25 +1,25 @@
 module.exports = {
   env: {
     browser: true,
-    es2021: true,
+    es2021: true
   },
   extends: ['plugin:react/recommended', 'airbnb', 'prettier', 'airbnb-typescript'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: './tsconfig.json',
     ecmaFeatures: {
-      jsx: true,
+      jsx: true
     },
     ecmaVersion: 13,
-    sourceType: 'module',
+    sourceType: 'module'
   },
   plugins: ['react', 'prettier', '@typescript-eslint'],
   rules: {
     'prettier/prettier': [
       'error',
       {
-        useTabs: false,
-      },
+        useTabs: false
+      }
     ],
     'func-names': 0,
     'prefer-destructuring': 0,
@@ -35,5 +35,6 @@ module.exports = {
     '@typescript-eslint/no-unused-expressions': 'off',
     '@typescript-eslint/no-extra-semi': 'off',
     'no-plusplus': 'off',
-  },
+    '@typescript-eslint/indent': 'off'
+  }
 }
