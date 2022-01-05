@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, View } from 'react-native'
+import { ActivityIndicator, Button, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Panel from '@modules/common/components/Panel'
@@ -16,16 +16,21 @@ const Balances = () => {
   const { t } = useTranslation()
   const { balance, isBalanceLoading } = usePortfolio()
 
-  if (isBalanceLoading) {
-    return <Text>Loading...</Text>
-  }
-
   return (
     <Panel>
       <Title>{t('Balance')}</Title>
       <Text style={styles.text}>
-        <Text style={[textStyles.highlightPrimary, styles.text]}>$</Text> {balance.total?.truncated}
-        <Text style={[textStyles.highlightPrimary, styles.text]}>.{balance.total?.decimals}</Text>
+        <Text style={[textStyles.highlightPrimary, styles.text]}>$</Text>{' '}
+        {isBalanceLoading ? (
+          <ActivityIndicator style={styles.activityIndicator} />
+        ) : (
+          <>
+            {balance.total?.truncated}
+            <Text style={[textStyles.highlightPrimary, styles.text]}>
+              .{balance.total?.decimals}
+            </Text>
+          </>
+        )}
       </Text>
     </Panel>
   )
