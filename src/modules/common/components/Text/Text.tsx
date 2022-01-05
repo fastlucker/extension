@@ -8,7 +8,7 @@ interface Props extends TextProps {
 }
 
 const Text = ({ children, underline, ...rest }: Props) => (
-  <RNText style={StyleSheet.flatten([!!underline && styles.underline])} {...rest}>
+  <RNText style={StyleSheet.flatten([styles.text, !!underline && styles.underline])} {...rest}>
     {children}
   </RNText>
 )
