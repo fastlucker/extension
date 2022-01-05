@@ -304,7 +304,9 @@ const PortfolioProvider: React.FC = ({ children }) => {
     // eslint-disable-next-line @typescript-eslint/no-shadow
     if (extraTokens.map(({ address }: any) => address).includes(address))
       // TODO: set global notification
-      return console.log(i18n.t(`${name} (${symbol}) is already added to your wallet.`))
+      return console.log(
+        i18n.t('{{name}} ({{symbol}}) is already added to your wallet.', { name, symbol })
+      )
     if (
       Object.values(tokenList)
         .flat(1)
@@ -313,7 +315,9 @@ const PortfolioProvider: React.FC = ({ children }) => {
         .includes(address)
     )
       // TODO: set global notification
-      return console.log(i18n.t(`${name} (${symbol}) is already handled by your wallet.`))
+      return console.log(
+        i18n.t('{{name}} ({{symbol}}) is already handled by your wallet.', { name, symbol })
+      )
     // eslint-disable-next-line @typescript-eslint/no-shadow
     if (tokens.map(({ address }: any) => address).includes(address))
       return console.log(
