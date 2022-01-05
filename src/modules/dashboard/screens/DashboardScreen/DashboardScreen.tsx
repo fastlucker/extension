@@ -5,6 +5,7 @@ import Text from '@modules/common/components/Text'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import Balances from '@modules/dashboard/components/Balances'
 
 import styles from './styles'
 
@@ -28,8 +29,8 @@ const DashboardScreen = () => {
         <Text>{`Selected Network: ${network?.name}`}</Text>
         <Button onPress={() => setNetwork(137)} title="Switch to Polygon network" />
         <Button onPress={() => setNetwork(1)} title="Switch to Ethereum network" />
-        <Text>{`Balance: $${balance.total?.truncated}.${balance.total?.decimals}`}</Text>
       </View>
+      <Balances />
     </View>
   )
 }
