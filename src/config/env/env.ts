@@ -1,6 +1,9 @@
+// eslint-disable-next-line @typescript-eslint/dot-notation
 export const isProd = process.env['APP_ENV'] === 'PRODUCTION'
+// eslint-disable-next-line @typescript-eslint/dot-notation
 export const isStaging = process.env['APP_ENV'] === 'STAGING'
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 enum APP_ENV {
   PROD = 'production',
   STAGING = 'staging',
@@ -10,11 +13,17 @@ enum APP_ENV {
 interface Config {
   APP_ENV: APP_ENV
   RELAYER_URL: string
+  ZAPPER_API_ENDPOINT: string
+  ZAPPER_API_KEY: string
+  VELCRO_API_ENDPOINT: string
 }
 
-let CONFIG: Config = {
+const CONFIG: Config = {
   APP_ENV: APP_ENV.DEV,
   RELAYER_URL: 'https://relayer.ambire.com',
+  ZAPPER_API_ENDPOINT: 'https://api.zapper.fi/v1',
+  ZAPPER_API_KEY: '96e0cc51-a62e-42ca-acee-910ea7d2a241',
+  VELCRO_API_ENDPOINT: 'https://velcro.ambire.com/v1',
 }
 
 if (isProd) {
