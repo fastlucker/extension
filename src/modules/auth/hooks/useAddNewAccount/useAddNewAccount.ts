@@ -77,7 +77,7 @@ export default function useEmailLogin() {
       quickAccManager,
       timelock: quickAccountTuple[0],
       one: quickAccountTuple[1],
-      two: quickAccountTuple[2],
+      two: quickAccountTuple[2]
     }
     const abiCoder = new AbiCoder()
     const accHash = keccak256(
@@ -106,7 +106,7 @@ export default function useEmailLogin() {
       identityFactoryAddr,
       baseIdentityAddr,
       privileges,
-      quickAccSigner: signer,
+      quickAccSigner: signer
     })
     if (createResp.message === 'EMAIL_ALREADY_USED') {
       setErr('An account with this email already exists')
@@ -129,7 +129,7 @@ export default function useEmailLogin() {
         bytecode,
         signer,
         // This makes the modal appear, and will be removed by the modal which will call onAddAccount to update it
-        emailConfRequired: true,
+        emailConfRequired: true
       },
       { select: true, isNew: true }
     )

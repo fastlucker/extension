@@ -16,7 +16,7 @@ const AccountsContext = createContext<AuthContextData>({
   selectedAcc: '',
   onSelectAcc: () => {},
   onAddAccount: () => false,
-  onRemoveAccount: () => {},
+  onRemoveAccount: () => {}
 })
 
 const AccountsProvider: React.FC = ({ children }) => {

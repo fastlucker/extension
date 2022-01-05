@@ -1,6 +1,6 @@
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { View } from 'react-native'
+import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
@@ -17,56 +17,62 @@ const EmailLoginScreen = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting }
   } = useForm({
     defaultValues: {
-      email: '',
-    },
+      email: ''
+    }
   })
 
   const { handleLogin, requiresEmailConfFor, err } = useEmailLogin()
 
   return (
-    <View style={styles.container}>
-      <Heading>{t('Email login')}</Heading>
-      {!requiresEmailConfFor && (
-        <>
-          <Controller
-            control={control}
-            rules={{ validate: isEmail }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                onBlur={onBlur}
-                placeholder={t('Email')}
-                onChangeText={onChange}
-                value={value}
-                keyboardType="email-address"
-              />
-            )}
-            name="email"
-          />
-          {!!errors.email && <P>{t('Please fill in a valid email.')}</P>}
+    <TouchableWithoutFeedback
+      onPress={() => {
+        Keyboard.dismiss()
+      }}
+    >
+      <View style={styles.container}>
+        <Heading>{t('Email login')}</Heading>
+        {!requiresEmailConfFor && (
+          <>
+            <Controller
+              control={control}
+              rules={{ validate: isEmail }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  onBlur={onBlur}
+                  placeholder={t('Email')}
+                  onChangeText={onChange}
+                  value={value}
+                  keyboardType="email-address"
+                />
+              )}
+              name="email"
+            />
+            {!!errors.email && <P>{t('Please fill in a valid email.')}</P>}
 
-          <Button
-            disabled={isSubmitting}
-            text={isSubmitting ? t('Logging in...') : t('Log in')}
-            onPress={handleSubmit(handleLogin)}
-          />
-          {!!err && <P>{err}</P>}
+            <Button
+              disabled={isSubmitting}
+              text={isSubmitting ? t('Logging in...') : t('Log in')}
+              onPress={handleSubmit(handleLogin)}
+            />
+            {!!err && <P>{err}</P>}
+            <P>
+              {t('A password will not be required, we will send a magic login link to your email.')}
+            </P>
+          </>
+        )}
+        {!!requiresEmailConfFor && (
           <P>
-            {t('A password will not be required, we will send a magic login link to your email.')}
+            {t(
+              'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
+              { email: requiresEmailConfFor?.email }
+            )}
           </P>
-        </>
-      )}
-      {!!requiresEmailConfFor && (
-        <P>
-          {t(
-            'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
-            { email: requiresEmailConfFor?.email }
-          )}
-        </P>
-      )}
-    </View>
+        )}
+      </View>
+    </TouchableWithoutFeedback>
   )
 }
 
