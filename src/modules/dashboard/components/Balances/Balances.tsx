@@ -5,6 +5,7 @@ import { useTranslation } from '@config/localization'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import networks from '@modules/common/constants/networks'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
@@ -14,7 +15,12 @@ import styles from './styles'
 
 const Balances = () => {
   const { t } = useTranslation()
-  const { balance, isBalanceLoading } = usePortfolio()
+  const { balance, isBalanceLoading, otherBalances } = usePortfolio()
+  const { network: selectedNetwork, setNetwork } = useNetwork()
+  const otherBalancesPresent = otherBalances.filter(
+    ({ network, total }) => network !== selectedNetwork?.id && total.full > 0
+  )
+  const networkDetails = (network) => networks.find(({ id }) => id === network)
 
   return (
     <Panel>
@@ -32,6 +38,23 @@ const Balances = () => {
           </>
         )}
       </Text>
+
+      {otherBalancesPresent.length > 0 && (
+        <Text style={styles.otherBalancesContainer}>
+          {t('You also have')}{' '}
+          {otherBalancesPresent.map(({ network, total }, i) => (
+            <Text key={network} onPress={() => setNetwork(network)}>
+              <Text style={textStyles.highlightSecondary}>$</Text> {total.truncated}
+              <Text style={textStyles.highlightSecondary}>.{total.decimals}</Text>
+              {` ${t('on')} `}
+              {/* TODO: */}
+              {/* <div className="icon" style={{backgroundImage: `url(${networkDetails(network).icon})`}}></div> */}
+              {networkDetails(network).name}
+              {otherBalancesPresent.length - 1 !== i && ` ${t('and')} `}
+            </Text>
+          ))}
+        </Text>
+      )}
     </Panel>
   )
 }

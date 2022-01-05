@@ -3,6 +3,7 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 interface Style {
   text: TextStyle
   activityIndicator: ViewStyle
+  otherBalancesContainer: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -12,6 +13,9 @@ const styles = StyleSheet.create<Style>({
   activityIndicator: {
     marginBottom: 15,
     marginLeft: 15
+  },
+  otherBalancesContainer: {
+    marginTop: 20
   }
 })
 
