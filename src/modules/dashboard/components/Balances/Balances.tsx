@@ -2,6 +2,7 @@ import React from 'react'
 import { ActivityIndicator, Button, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import PolygonLogo from '@modules/common/assets/svg/networks/PolygonLogo'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -17,7 +18,7 @@ const Balances = () => {
   const { t } = useTranslation()
   const { balance, isBalanceLoading, otherBalances } = usePortfolio()
   const { network: selectedNetwork, setNetwork } = useNetwork()
-  const otherBalancesPresent = otherBalances.filter(
+  const otherPositiveBalances = otherBalances.filter(
     ({ network, total }) => network !== selectedNetwork?.id && total.full > 0
   )
   const networkDetails = (network) => networks.find(({ id }) => id === network)
@@ -39,27 +40,29 @@ const Balances = () => {
         )}
       </Text>
 
-      {otherBalancesPresent.length > 0 && (
+      {otherPositiveBalances.length > 0 && (
         <Text style={[styles.otherBalancesContainer, styles.otherBalancesText]}>
           {t('You also have')}{' '}
-          {otherBalancesPresent.map(({ network, total }, i) => (
-            <Text
-              key={network}
-              style={styles.otherBalancesText}
-              onPress={() => setNetwork(network)}
-            >
-              <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>$</Text>{' '}
-              {total.truncated}
-              <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
-                .{total.decimals}
+          {otherPositiveBalances.map(({ network, total }, i: number) => {
+            const { name, Icon } = networkDetails(network)
+            return (
+              <Text
+                key={network}
+                style={styles.otherBalancesText}
+                onPress={() => setNetwork(network)}
+              >
+                <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>$</Text>{' '}
+                {total.truncated}
+                <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
+                  .{total.decimals}
+                </Text>
+                {` ${t('on')} `}
+                <Icon style={styles.networkLogo} />
+                {name}
+                {otherPositiveBalances.length - 1 !== i && ` ${t('and')} `}
               </Text>
-              {` ${t('on')} `}
-              {/* TODO: */}
-              {/* <div className="icon" style={{backgroundImage: `url(${networkDetails(network).icon})`}}></div> */}
-              {networkDetails(network).name}
-              {otherBalancesPresent.length - 1 !== i && ` ${t('and')} `}
-            </Text>
-          ))}
+            )
+          })}
         </Text>
       )}
     </Panel>

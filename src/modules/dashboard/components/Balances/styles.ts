@@ -5,6 +5,7 @@ interface Style {
   otherBalancesText: TextStyle
   activityIndicator: ViewStyle
   otherBalancesContainer: ViewStyle
+  networkLogo: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -20,6 +21,9 @@ const styles = StyleSheet.create<Style>({
   },
   otherBalancesText: {
     fontSize: 20
+  },
+  networkLogo: {
+    marginHorizontal: 5
   }
 })
 
