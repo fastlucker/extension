@@ -13,9 +13,6 @@ const colors = {
   ambirePurple: '#AF50FF',
 
   textColor: '#FFF'
-  // TODO:
-  // $textContainerColor: mix($text-color, $panel-background-color, 60%);
-  // $box-shadow: 0px 5px 10px 0 rgba(0, 0, 0, 0.25);
 }
 
 export default colors
