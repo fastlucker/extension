@@ -18,6 +18,8 @@ const DashboardScreen = () => {
 
   return (
     <Wrapper>
+      <Balances />
+
       <Title>Accounts</Title>
       {accounts.map((account: any) => (
         <View style={styles.accItemStyle} key={account?.id}>
@@ -33,8 +35,6 @@ const DashboardScreen = () => {
         <Button onPress={() => setNetwork(137)} title="Switch to Polygon network" />
         <Button onPress={() => setNetwork(1)} title="Switch to Ethereum network" />
       </View>
-
-      <Balances />
     </Wrapper>
   )
 }

@@ -10,7 +10,8 @@ const styles = StyleSheet.create<Style>({
   wrapper: {
     flex: 1,
     backgroundColor: colors.backgroundColor,
-    padding: 10
+    paddingHorizontal: 10,
+    paddingVertical: 15
   }
 })
 

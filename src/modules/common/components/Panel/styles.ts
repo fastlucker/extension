@@ -11,6 +11,7 @@ const styles = StyleSheet.create<Styles>({
     color: colors.primaryAccentColor,
     paddingHorizontal: 20,
     paddingVertical: 20,
+    marginBottom: 15,
     backgroundColor: colors.panelBackgroundColor
   }
 })
