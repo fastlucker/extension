@@ -2,6 +2,7 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 interface Style {
   text: TextStyle
+  otherBalancesText: TextStyle
   activityIndicator: ViewStyle
   otherBalancesContainer: ViewStyle
 }
@@ -16,6 +17,9 @@ const styles = StyleSheet.create<Style>({
   },
   otherBalancesContainer: {
     marginTop: 20
+  },
+  otherBalancesText: {
+    fontSize: 20
   }
 })
 

@@ -40,12 +40,19 @@ const Balances = () => {
       </Text>
 
       {otherBalancesPresent.length > 0 && (
-        <Text style={styles.otherBalancesContainer}>
+        <Text style={[styles.otherBalancesContainer, styles.otherBalancesText]}>
           {t('You also have')}{' '}
           {otherBalancesPresent.map(({ network, total }, i) => (
-            <Text key={network} onPress={() => setNetwork(network)}>
-              <Text style={textStyles.highlightSecondary}>$</Text> {total.truncated}
-              <Text style={textStyles.highlightSecondary}>.{total.decimals}</Text>
+            <Text
+              key={network}
+              style={styles.otherBalancesText}
+              onPress={() => setNetwork(network)}
+            >
+              <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>$</Text>{' '}
+              {total.truncated}
+              <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
+                .{total.decimals}
+              </Text>
               {` ${t('on')} `}
               {/* TODO: */}
               {/* <div className="icon" style={{backgroundImage: `url(${networkDetails(network).icon})`}}></div> */}
