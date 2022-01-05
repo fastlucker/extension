@@ -316,7 +316,9 @@ const PortfolioProvider: React.FC = ({ children }) => {
       return console.log(i18n.t(`${name} (${symbol}) is already handled by your wallet.`))
     // eslint-disable-next-line @typescript-eslint/no-shadow
     if (tokens.map(({ address }: any) => address).includes(address))
-      return console.log(i18n.t(`You already have ${name} (${symbol}) in your wallet.`))
+      return console.log(
+        i18n.t('{{name}} ({{symbol}}) is already added to your wallet.', { name, symbol })
+      )
 
     const updatedExtraTokens = [
       ...extraTokens,
@@ -329,7 +331,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
     AsyncStorage.setItem('extraTokens', JSON.stringify(updatedExtraTokens))
     setExtraTokens(updatedExtraTokens)
     // TODO: set global notification
-    console.log(i18n.t(`${name} (${symbol}) token added to your wallet!`))
+    console.log(i18n.t('{{name}} ({{symbol}}) token added to your wallet!', { name, symbol }))
   }
 
   // Fetch balances and protocols on account change
