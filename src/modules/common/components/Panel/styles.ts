@@ -9,8 +9,8 @@ interface Styles {
 const styles = StyleSheet.create<Styles>({
   container: {
     color: colors.primaryAccentColor,
-    paddingHorizontal: 30,
-    paddingVertical: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
     backgroundColor: colors.panelBackgroundColor
   }
 })
