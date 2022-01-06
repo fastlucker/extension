@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Image } from 'react-native'
 
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import { isValidAddress } from '@modules/common/services/address'
@@ -14,8 +15,17 @@ export default function useSendTransaction(route: any, navigation: any) {
   const [bigNumberHexAmount, setBigNumberHexAmount] = useState('')
   const [asset, setAsset] = useState(tokenAddress)
   const [amount, setAmount] = useState<number>(0)
+  const [address, setAddress] = useState('')
 
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const selectedAsset = tokens.find(({ address }: any) => address === asset)
+
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  const assetsItems = tokens.map(({ label, symbol, address, img, tokenImageUrl }: any) => ({
+    label: label || symbol,
+    value: address,
+    icon: () => <Image source={{ uri: img || tokenImageUrl }} style={{ width: 30, height: 30 }} />
+  }))
 
   const maxAmount = useMemo(() => {
     if (!selectedAsset) return 0
@@ -46,5 +56,10 @@ export default function useSendTransaction(route: any, navigation: any) {
     setAmount(0)
     setBigNumberHexAmount('')
   }, [asset])
-  return { setMaxAmount, asset, amount, setAsset, setAmount }
+
+  useEffect(() => {
+    if (assetsItems.length && !asset) setAsset(assetsItems[0]?.value)
+  }, [assetsItems])
+
+  return { setMaxAmount, asset, amount, address, setAsset, setAmount, setAddress, assetsItems }
 }

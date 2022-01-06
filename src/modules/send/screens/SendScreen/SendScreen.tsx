@@ -1,22 +1,16 @@
 import React from 'react'
-import { Image, Keyboard, TouchableWithoutFeedback, View } from 'react-native'
+import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
+import Input from '@modules/common/components/Input'
 import NumberInput from '@modules/common/components/NumberInput'
 import Select from '@modules/common/components/Select'
-import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useSendTransaction from '@modules/send/hooks/useSendTransaction'
 
 import styles from './styles'
 
 const SendScreen = ({ route, navigation }: any) => {
-  const { tokens } = usePortfolio()
-  const { asset, amount, setAsset, setAmount, setMaxAmount } = useSendTransaction(route, navigation)
-
-  const assetsItems = tokens.map(({ label, symbol, address, img, tokenImageUrl }: any) => ({
-    label: label || symbol,
-    value: address,
-    icon: () => <Image source={{ uri: img || tokenImageUrl }} style={{ width: 30, height: 30 }} />
-  }))
+  const { asset, amount, address, assetsItems, setAsset, setAmount, setMaxAmount, setAddress } =
+    useSendTransaction(route, navigation)
 
   return (
     <TouchableWithoutFeedback
@@ -31,6 +25,12 @@ const SendScreen = ({ route, navigation }: any) => {
           value={amount.toString()}
           buttonText="MAX"
           onButtonPress={setMaxAmount}
+        />
+        <Input
+          placeholder="Recipient"
+          info="Please double-check the recipient address, blockchain transactions are not reversible."
+          value={address}
+          onChangeText={setAddress}
         />
       </View>
     </TouchableWithoutFeedback>

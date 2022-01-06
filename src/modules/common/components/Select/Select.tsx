@@ -9,10 +9,12 @@ interface Props {
   items: any[]
   setValue?: (value: any) => void
   setItems?: (items: any) => void
+  searchable?: boolean
 }
 
-const Select = ({ value, setValue, items, setItems }: Props) => {
+const Select = ({ value, setValue, items, setItems, searchable = true }: Props) => {
   const [open, setOpen] = useState(false)
+
   return (
     <DropDownPicker
       open={open}
@@ -22,6 +24,7 @@ const Select = ({ value, setValue, items, setItems }: Props) => {
       // @ts-ignore
       setValue={setValue}
       setItems={setItems}
+      searchable={searchable}
     />
   )
 }
