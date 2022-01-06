@@ -1,5 +1,5 @@
-import React from 'react'
-import { ActivityIndicator, Button, View } from 'react-native'
+import React, { useState } from 'react'
+import { ActivityIndicator, Button, Image, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
@@ -12,21 +12,22 @@ import styles from './styles'
 const Balances = () => {
   const { t } = useTranslation()
   const { areProtocolsLoading, tokens } = usePortfolio()
+  const [failedImg, setFailedImg] = useState<string[]>([])
+
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
 
   const tokenItem = (index, img, symbol, balance, balanceUSD, address, send = false) => (
     <View key={`token-${address}-${index}`} style={styles.row}>
       <View style={styles.rowItem}>
-        <Text>{symbol}</Text>
-        {/* TODO: */}
-        {/* <div className="icon">
-                {
-                    failedImg.includes(img) ?
-                        <GiToken size={20}/>
-                        :
-                        <img src={img} draggable="false" alt="Token Icon" onError={() => setFailedImg(failed => [...failed, img])}/>
-                }
-            </div> */}
+        {failedImg.includes(img) ? (
+          <Text>{symbol}</Text>
+        ) : (
+          <Image
+            style={styles.img}
+            source={{ uri: img }}
+            onError={() => setFailedImg((failed) => [...failed, img])}
+          />
+        )}
       </View>
 
       <View style={[styles.rowItem, { flex: 1 }]}>
