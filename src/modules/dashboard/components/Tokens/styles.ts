@@ -38,7 +38,8 @@ const styles = StyleSheet.create<Style>({
   },
   btn: {
     fontSize: 14,
-    fontWeight: '700'
+    fontWeight: '700',
+    textTransform: 'uppercase'
   },
   rowItem: {
     paddingHorizontal: 15,

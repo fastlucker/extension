@@ -3,6 +3,8 @@ import { ActivityIndicator, Button, Image, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import { useTranslation } from '@config/localization'
+import BottomSheet from '@modules/common/components/BottomSheet'
+import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
@@ -17,6 +19,7 @@ const Balances = () => {
   const navigation = useNavigation()
   const { areProtocolsLoading, tokens } = usePortfolio()
   const [failedImg, setFailedImg] = useState<string[]>([])
+  const { sheetRef, openBottomSheet } = useBottomSheet()
 
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
 
@@ -67,10 +70,8 @@ const Balances = () => {
     <>
       <View style={styles.header}>
         <Title style={styles.headerTitle}>{t('Tokens')}</Title>
-        <TouchableOpacity style={styles.btnContainer}>
-          <Text style={styles.btn} onPress={() => {}}>
-            {t('+ ADD TOKEN')}
-          </Text>
+        <TouchableOpacity style={styles.btnContainer} onPress={openBottomSheet}>
+          <Text style={styles.btn}>{t('+ Add token')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -81,6 +82,10 @@ const Balances = () => {
           tokenItem(i, tokenImageUrl, symbol, balance, balanceUSD, address, true)
         )
       )}
+
+      <BottomSheet sheetRef={sheetRef}>
+        <Text>Coming soon.</Text>
+      </BottomSheet>
     </>
   )
 }
