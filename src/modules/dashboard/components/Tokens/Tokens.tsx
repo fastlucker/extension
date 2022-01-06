@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { ActivityIndicator, Button, Image, View } from 'react-native'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
@@ -66,6 +67,11 @@ const Balances = () => {
     <>
       <View style={styles.header}>
         <Title style={styles.headerTitle}>{t('Tokens')}</Title>
+        <TouchableOpacity style={styles.btnContainer}>
+          <Text style={styles.btn} onPress={() => {}}>
+            {t('+ ADD TOKEN')}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {areProtocolsLoading ? (

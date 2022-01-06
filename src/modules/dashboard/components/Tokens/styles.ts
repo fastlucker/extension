@@ -9,6 +9,8 @@ interface Style {
   rowItem: ViewStyle
   img: ImageStyle
   balance: TextStyle
+  btnContainer: ViewStyle
+  btn: TextStyle
   balanceFiat: TextStyle
   symbol: TextStyle
 }
@@ -20,11 +22,23 @@ const styles = StyleSheet.create<Style>({
   header: {
     backgroundColor: colors.headerColor,
     paddingHorizontal: 20,
-    paddingVertical: 20
+    paddingVertical: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   headerTitle: {
     fontSize: 20,
     paddingBottom: 0
+  },
+  btnContainer: {
+    backgroundColor: colors.secondaryButtonColor,
+    paddingHorizontal: 10,
+    paddingVertical: 10
+  },
+  btn: {
+    fontSize: 14,
+    fontWeight: '700'
   },
   rowItem: {
     paddingHorizontal: 15,

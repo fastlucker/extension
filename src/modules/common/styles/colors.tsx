@@ -16,7 +16,9 @@ const colors = {
 
   headerColor: 'hsla(0,0%,100%,.1)',
   rowOddColor: 'hsla(0,0%,100%,.04)',
-  rowEvenColor: 'hsla(0,0%,100%,.02)'
+  rowEvenColor: 'hsla(0,0%,100%,.02)',
+
+  secondaryButtonColor: 'rgba(0,0,0,.1)'
 }
 
 export default colors
