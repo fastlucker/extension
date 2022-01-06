@@ -1,6 +1,7 @@
 import React from 'react'
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
+import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import NumberInput from '@modules/common/components/NumberInput'
 import Select from '@modules/common/components/Select'
@@ -9,8 +10,17 @@ import useSendTransaction from '@modules/send/hooks/useSendTransaction'
 import styles from './styles'
 
 const SendScreen = ({ route, navigation }: any) => {
-  const { asset, amount, address, assetsItems, setAsset, setAmount, setMaxAmount, setAddress } =
-    useSendTransaction(route, navigation)
+  const {
+    asset,
+    amount,
+    address,
+    assetsItems,
+    setAsset,
+    setAmount,
+    setMaxAmount,
+    setAddress,
+    sendTransaction
+  } = useSendTransaction(route, navigation)
 
   return (
     <TouchableWithoutFeedback
@@ -32,6 +42,7 @@ const SendScreen = ({ route, navigation }: any) => {
           value={address}
           onChangeText={setAddress}
         />
+        <Button text="Send" onPress={sendTransaction} />
       </View>
     </TouchableWithoutFeedback>
   )

@@ -1,12 +1,22 @@
+import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import { ethers } from 'ethers'
+import { Interface } from 'ethers/lib/utils'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Image } from 'react-native'
 
+import useAccounts from '@modules/common/hooks/useAccounts'
+import useInternalRequests from '@modules/common/hooks/useInternalRequests'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import { isValidAddress } from '@modules/common/services/address'
 
+const ERC20 = new Interface(erc20Abi)
+
 export default function useSendTransaction(route: any, navigation: any) {
   const { tokens } = usePortfolio()
+  const { network } = useNetwork()
+  const { selectedAcc } = useAccounts()
+  const { addRequest } = useInternalRequests()
   const tokenAddressOrSymbol = route.params?.tokenAddressOrSymbol
 
   const tokenAddress = isValidAddress(tokenAddressOrSymbol)
@@ -45,6 +55,36 @@ export default function useSendTransaction(route: any, navigation: any) {
 
   const setMaxAmount = () => onAmountChange(maxAmount)
 
+  const sendTransaction = () => {
+    try {
+      const txn = {
+        to: selectedAsset.address,
+        value: '0',
+        data: ERC20.encodeFunctionData('transfer', [address, bigNumberHexAmount])
+      }
+
+      if (Number(selectedAsset.address) === 0) {
+        txn.to = address
+        txn.value = bigNumberHexAmount
+        txn.data = '0x'
+      }
+
+      addRequest({
+        id: `transfer_${Date.now()}`,
+        type: 'eth_sendTransaction',
+        chainId: network?.chainId,
+        account: selectedAcc,
+        txn
+      })
+
+      setAmount(0)
+    } catch (e: any) {
+      console.error(e)
+      // TODO: set global error message
+      // addToast(`Error: ${e.message || e}`, { error: true })
+    }
+  }
+
   useEffect(() => {
     if (!selectedAsset) return
     navigation.setParams({
@@ -61,5 +101,15 @@ export default function useSendTransaction(route: any, navigation: any) {
     if (assetsItems.length && !asset) setAsset(assetsItems[0]?.value)
   }, [assetsItems])
 
-  return { setMaxAmount, asset, amount, address, setAsset, setAmount, setAddress, assetsItems }
+  return {
+    setMaxAmount,
+    asset,
+    amount,
+    address,
+    setAsset,
+    setAmount,
+    setAddress,
+    assetsItems,
+    sendTransaction
+  }
 }

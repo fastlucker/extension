@@ -1,6 +1,6 @@
 // List of all supported protocols by networks: https://api.zapper.fi/v1/protocols/balances/supported?api_key=5d1237c2-3840-4733-8e92-c5a58fe81b88
 
-const suportedProtocols = [
+const supportedProtocols = [
   {
     network: 'ethereum',
     protocols: [
@@ -36,4 +36,4 @@ const suportedProtocols = [
   }
 ]
 
-export default suportedProtocols
+export default supportedProtocols
