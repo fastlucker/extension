@@ -7,6 +7,7 @@ interface Style {
   header: ViewStyle
   headerTitle: ViewStyle
   rowItem: ViewStyle
+  rowItemMain: ViewStyle
   img: ImageStyle
   balance: TextStyle
   btnContainer: ViewStyle
@@ -42,8 +43,12 @@ const styles = StyleSheet.create<Style>({
     textTransform: 'uppercase'
   },
   rowItem: {
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     paddingVertical: 15
+  },
+  rowItemMain: {
+    flex: 1,
+    paddingHorizontal: 0
   },
   img: {
     width: 35,

@@ -45,7 +45,7 @@ const Balances = () => {
         )}
       </View>
 
-      <View style={[styles.rowItem, { flex: 1 }]}>
+      <View style={[styles.rowItem, styles.rowItemMain]}>
         <Text style={styles.balance} numberOfLines={1}>
           {balance}
         </Text>
