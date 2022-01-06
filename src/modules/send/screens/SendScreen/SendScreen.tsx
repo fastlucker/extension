@@ -4,8 +4,8 @@ import { ActivityIndicator, Keyboard, TouchableWithoutFeedback, View } from 'rea
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import NumberInput from '@modules/common/components/NumberInput'
+import P from '@modules/common/components/P'
 import Select from '@modules/common/components/Select'
-import Text from '@modules/common/components/Text'
 import useSendTransaction from '@modules/send/hooks/useSendTransaction'
 
 import styles from './styles'
@@ -44,19 +44,18 @@ const SendScreen = ({ route, navigation }: any) => {
                 buttonText="MAX"
                 onButtonPress={setMaxAmount}
               />
-              {!!validationFormMgs.messages?.amount && (
-                <Text>&nbsp;{validationFormMgs.messages.amount}</Text>
-              )}
+              {!!validationFormMgs.messages?.amount && <P>{validationFormMgs.messages.amount}</P>}
               <Input
                 placeholder="Recipient"
                 info="Please double-check the recipient address, blockchain transactions are not reversible."
                 value={address}
                 onChangeText={setAddress}
               />
+              {!!validationFormMgs.messages?.address && <P>{validationFormMgs.messages.address}</P>}
               <Button text="Send" disabled={disabled} onPress={sendTransaction} />
             </View>
           ) : (
-            <Text>You don't have any funds on this account.</Text>
+            <P>You don't have any funds on this account.</P>
           )}
         </TouchableWithoutFeedback>
       )}
