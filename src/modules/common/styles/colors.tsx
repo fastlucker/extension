@@ -14,6 +14,7 @@ const colors = {
 
   textColor: '#FFF',
 
+  headerColor: 'hsla(0,0%,100%,.1)',
   rowOddColor: 'hsla(0,0%,100%,.04)',
   rowEvenColor: 'hsla(0,0%,100%,.02)'
 }

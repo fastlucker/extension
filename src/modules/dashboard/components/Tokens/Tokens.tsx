@@ -63,8 +63,10 @@ const Balances = () => {
   )
 
   return (
-    <View>
-      <Title>{t('Tokens')}</Title>
+    <>
+      <View style={styles.header}>
+        <Title style={styles.headerTitle}>{t('Tokens')}</Title>
+      </View>
 
       {areProtocolsLoading ? (
         <ActivityIndicator />
@@ -73,7 +75,7 @@ const Balances = () => {
           tokenItem(i, tokenImageUrl, symbol, balance, balanceUSD, address, true)
         )
       )}
-    </View>
+    </>
   )
 }
 
