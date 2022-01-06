@@ -10,6 +10,7 @@ import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
+import Wrapper from '@modules/common/components/Wrapper'
 import useSendTransaction from '@modules/send/hooks/useSendTransaction'
 
 import styles from './styles'
@@ -33,7 +34,7 @@ const SendScreen = ({ route, navigation }: any) => {
   } = useSendTransaction(route, navigation)
 
   return (
-    <>
+    <Wrapper>
       {isBalanceLoading && <ActivityIndicator />}
       {!isBalanceLoading && (
         <TouchableWithoutFeedback
@@ -42,34 +43,36 @@ const SendScreen = ({ route, navigation }: any) => {
           }}
         >
           {assetsItems.length ? (
-            <View style={styles.container}>
+            <View>
               <Select value={asset} items={assetsItems} setValue={setAsset} />
               <NumberInput
                 onChangeText={(v: any) => setAmount(v)}
                 value={amount.toString()}
-                buttonText="MAX"
+                buttonText={t('MAX')}
                 onButtonPress={setMaxAmount}
               />
               {!!validationFormMgs.messages?.amount && <P>{validationFormMgs.messages.amount}</P>}
               <Input
-                placeholder="Recipient"
-                info="Please double-check the recipient address, blockchain transactions are not reversible."
+                placeholder={t('Recipient')}
+                info={t(
+                  'Please double-check the recipient address, blockchain transactions are not reversible.'
+                )}
                 value={address}
                 onChangeText={setAddress}
               />
               {!!validationFormMgs.messages?.address && <P>{validationFormMgs.messages.address}</P>}
               <Button text={t('Address book')} onPress={openBottomSheet} />
-              <Button text="Send" disabled={disabled} onPress={sendTransaction} />
+              <Button text={t('Send')} disabled={disabled} onPress={sendTransaction} />
             </View>
           ) : (
-            <P>You don't have any funds on this account.</P>
+            <P>{t("You don't have any funds on this account.")}</P>
           )}
         </TouchableWithoutFeedback>
       )}
       <BottomSheet sheetRef={sheetRef}>
         <Text>{t('Coming soon.')}</Text>
       </BottomSheet>
-    </>
+    </Wrapper>
   )
 }
 
