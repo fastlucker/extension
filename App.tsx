@@ -9,9 +9,9 @@ import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AddressBookProvider } from '@modules/common/contexts/ddressBookContext'
-import { InternalRequestsProvider } from '@modules/common/contexts/internalRequestsContext'
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
+import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 
 const App = () => {
   return (
@@ -21,14 +21,14 @@ const App = () => {
         <AccountsProvider>
           <NetworkProvider>
             <PortfolioProvider>
-              <InternalRequestsProvider>
+              <RequestsProvider>
                 <AddressBookProvider>
                   <PortalProvider>
                     <Router />
                     <PortalHost name="global" />
                   </PortalProvider>
                 </AddressBookProvider>
-              </InternalRequestsProvider>
+              </RequestsProvider>
             </PortfolioProvider>
           </NetworkProvider>
         </AccountsProvider>

@@ -6,9 +6,9 @@ import { Image } from 'react-native'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
-import useInternalRequests from '@modules/common/hooks/useInternalRequests'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import useRequests from '@modules/common/hooks/useRequests'
 import { isValidAddress } from '@modules/common/services/address'
 import {
   validateSendTransferAddress,
@@ -21,7 +21,7 @@ export default function useSendTransaction(route: any, navigation: any) {
   const { tokens, isBalanceLoading } = usePortfolio()
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
-  const { addRequest } = useInternalRequests()
+  const { addRequest } = useRequests()
   const { isKnownAddress } = useAddressBook()
   const tokenAddressOrSymbol = route.params?.tokenAddressOrSymbol
 

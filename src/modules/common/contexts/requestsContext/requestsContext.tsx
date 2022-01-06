@@ -1,27 +1,27 @@
 import React, { createContext, useMemo, useState } from 'react'
 
-type InternalRequestsContextData = {
+type RequestsContextData = {
   internalRequests: any
   addRequest: (req: any) => any
 }
 
-const InternalRequestsContext = createContext<InternalRequestsContextData>({
+const RequestsContext = createContext<RequestsContextData>({
   internalRequests: [],
   addRequest: () => {}
 })
 
-const InternalRequestsProvider: React.FC = ({ children }) => {
+const RequestsProvider: React.FC = ({ children }) => {
   const [internalRequests, setInternalRequests] = useState<any>([])
 
   const addRequest = (req: any) => setInternalRequests((reqs: any) => [...reqs, req])
 
   return (
-    <InternalRequestsContext.Provider
+    <RequestsContext.Provider
       value={useMemo(() => ({ internalRequests, addRequest }), [internalRequests, addRequest])}
     >
       {children}
-    </InternalRequestsContext.Provider>
+    </RequestsContext.Provider>
   )
 }
 
-export { InternalRequestsContext, InternalRequestsProvider }
+export { RequestsContext, RequestsProvider }
