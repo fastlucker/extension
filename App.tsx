@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 
 import Router from '@config/Router'
+import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AddressBookProvider } from '@modules/common/contexts/ddressBookContext'
@@ -22,7 +23,10 @@ const App = () => {
             <PortfolioProvider>
               <InternalRequestsProvider>
                 <AddressBookProvider>
-                  <Router />
+                  <PortalProvider>
+                    <Router />
+                    <PortalHost name="global" />
+                  </PortalProvider>
                 </AddressBookProvider>
               </InternalRequestsProvider>
             </PortfolioProvider>

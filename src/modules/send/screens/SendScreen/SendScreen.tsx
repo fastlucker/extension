@@ -1,16 +1,22 @@
 import React from 'react'
 import { ActivityIndicator, Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
+import { useTranslation } from '@config/localization'
+import BottomSheet from '@modules/common/components/BottomSheet'
+import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Select from '@modules/common/components/Select'
+import Text from '@modules/common/components/Text'
 import useSendTransaction from '@modules/send/hooks/useSendTransaction'
 
 import styles from './styles'
 
 const SendScreen = ({ route, navigation }: any) => {
+  const { t } = useTranslation()
+  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const {
     asset,
     amount,
@@ -52,6 +58,7 @@ const SendScreen = ({ route, navigation }: any) => {
                 onChangeText={setAddress}
               />
               {!!validationFormMgs.messages?.address && <P>{validationFormMgs.messages.address}</P>}
+              <Button text={t('Address book')} onPress={openBottomSheet} />
               <Button text="Send" disabled={disabled} onPress={sendTransaction} />
             </View>
           ) : (
@@ -59,6 +66,9 @@ const SendScreen = ({ route, navigation }: any) => {
           )}
         </TouchableWithoutFeedback>
       )}
+      <BottomSheet sheetRef={sheetRef}>
+        <Text>{t('Coming soon.')}</Text>
+      </BottomSheet>
     </>
   )
 }
