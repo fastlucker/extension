@@ -9,7 +9,7 @@ import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useRequests from '@modules/common/hooks/useRequests'
-import { isValidAddress } from '@modules/common/services/address'
+import { isKnownTokenOrContract, isValidAddress } from '@modules/common/services/address'
 import {
   validateSendTransferAddress,
   validateSendTransferAmount
@@ -103,6 +103,12 @@ export default function useSendTransaction(route: any, navigation: any) {
     }
   }
 
+  const unknownWarning = useMemo(
+    () => isValidAddress(address) && !isKnownAddress(address),
+    [address, isKnownAddress]
+  )
+  const smartContractWarning = useMemo(() => isKnownTokenOrContract(address), [address])
+
   useEffect(() => {
     if (!selectedAsset) return
     navigation.setParams({
@@ -154,6 +160,10 @@ export default function useSendTransaction(route: any, navigation: any) {
     sendTransaction,
     isBalanceLoading,
     disabled,
-    validationFormMgs
+    validationFormMgs,
+    addressConfirmed,
+    setAddressConfirmed,
+    unknownWarning,
+    smartContractWarning
   }
 }

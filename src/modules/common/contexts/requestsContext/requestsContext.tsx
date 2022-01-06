@@ -12,6 +12,7 @@ const RequestsContext = createContext<RequestsContextData>({
 
 const RequestsProvider: React.FC = ({ children }) => {
   const [internalRequests, setInternalRequests] = useState<any>([])
+  console.log('Internal requests: ', internalRequests)
 
   const addRequest = (req: any) => setInternalRequests((reqs: any) => [...reqs, req])
 

@@ -14,7 +14,7 @@ const NumberInput = ({ buttonText, onButtonPress, ...rest }: Props) => (
   <View style={styles.inputContainer}>
     <TextInput
       style={styles.input}
-      keyboardType="number-pad"
+      keyboardType="numeric"
       autoCapitalize="none"
       autoCorrect={false}
       {...rest}

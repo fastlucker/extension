@@ -5,6 +5,7 @@ import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
+import Checkbox from '@modules/common/components/Checkbox'
 import Input from '@modules/common/components/Input'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
@@ -30,7 +31,11 @@ const SendScreen = ({ route, navigation }: any) => {
     sendTransaction,
     isBalanceLoading,
     disabled,
-    validationFormMgs
+    validationFormMgs,
+    addressConfirmed,
+    setAddressConfirmed,
+    unknownWarning,
+    smartContractWarning
   } = useSendTransaction(route, navigation)
 
   return (
@@ -62,6 +67,14 @@ const SendScreen = ({ route, navigation }: any) => {
               />
               {!!validationFormMgs.messages?.address && <P>{validationFormMgs.messages.address}</P>}
               <Button text={t('Address book')} onPress={openBottomSheet} />
+
+              {!smartContractWarning && !!unknownWarning && (
+                <Checkbox
+                  value={addressConfirmed}
+                  onValueChange={() => setAddressConfirmed(!addressConfirmed)}
+                  label={t('Confirm sending to a previously unknown address')}
+                />
+              )}
               <Button text={t('Send')} disabled={disabled} onPress={sendTransaction} />
             </View>
           ) : (
