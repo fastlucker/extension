@@ -7,8 +7,11 @@ interface Props extends TextProps {
   underline?: boolean
 }
 
-const Text = ({ children, underline, ...rest }: Props) => (
-  <RNText style={StyleSheet.flatten([!!underline && styles.underline])} {...rest}>
+const Text: React.FC<Props> = ({ children, underline, style = {}, ...rest }) => (
+  <RNText
+    style={StyleSheet.flatten([styles.text, style, !!underline && styles.underline])}
+    {...rest}
+  >
     {children}
   </RNText>
 )

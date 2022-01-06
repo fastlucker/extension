@@ -2,9 +2,12 @@ import React from 'react'
 import { Button, View } from 'react-native'
 
 import Text from '@modules/common/components/Text'
+import Title from '@modules/common/components/Title'
+import Wrapper from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import Balances from '@modules/dashboard/components/Balances'
 
 import styles from './styles'
 
@@ -14,8 +17,10 @@ const DashboardScreen = () => {
   const { balance } = usePortfolio()
 
   return (
-    <View style={styles.container}>
-      <Text style={{ fontSize: 24 }}>Accounts</Text>
+    <Wrapper>
+      <Balances />
+
+      <Title>Accounts</Title>
       {accounts.map((account: any) => (
         <View style={styles.accItemStyle} key={account?.id}>
           <View style={{ flex: 1 }}>
@@ -24,13 +29,13 @@ const DashboardScreen = () => {
           <Button onPress={() => onRemoveAccount(account?.id)} title="Remove" />
         </View>
       ))}
+
       <View style={styles.balanceContainer}>
         <Text>{`Selected Network: ${network?.name}`}</Text>
         <Button onPress={() => setNetwork(137)} title="Switch to Polygon network" />
         <Button onPress={() => setNetwork(1)} title="Switch to Ethereum network" />
-        <Text>{`Balance: $${balance.total?.truncated}.${balance.total?.decimals}`}</Text>
       </View>
-    </View>
+    </Wrapper>
   )
 }
 

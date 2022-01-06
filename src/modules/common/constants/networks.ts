@@ -1,10 +1,17 @@
+import React from 'react'
+
+import AvalancheLogo from '../assets/svg/networks/AvalancheLogo'
+import BinanceSmartChainLogo from '../assets/svg/networks/BinanceSmartChainLogo'
+import EthereumLogo from '../assets/svg/networks/EthereumLogo'
+import PolygonLogo from '../assets/svg/networks/PolygonLogo'
+
 export type NetworkType = {
   id: string
   chainId: number
   rpc: string
   nativeAssetSymbol: string
   name: string
-  icon: string
+  Icon: React.FC
   explorerUrl: string
 }
 
@@ -15,8 +22,8 @@ const networks: NetworkType[] = [
     rpc: 'https://mainnet.infura.io/v3/3d22938fd7dd41b7af4197752f83e8a1',
     nativeAssetSymbol: 'ETH',
     name: 'Ethereum',
-    icon: '/resources/networks/ethereum.png',
-    explorerUrl: 'https://etherscan.io',
+    Icon: EthereumLogo,
+    explorerUrl: 'https://etherscan.io'
   },
   {
     id: 'polygon',
@@ -24,8 +31,8 @@ const networks: NetworkType[] = [
     rpc: 'https://polygon-rpc.com/rpc',
     nativeAssetSymbol: 'MATIC',
     name: 'Polygon',
-    icon: '/resources/networks/polygon.png',
-    explorerUrl: 'https://polygonscan.com',
+    Icon: PolygonLogo,
+    explorerUrl: 'https://polygonscan.com'
   },
   {
     id: 'avalanche',
@@ -33,8 +40,8 @@ const networks: NetworkType[] = [
     rpc: 'https://api.avax.network/ext/bc/C/rpc',
     nativeAssetSymbol: 'AVAX',
     name: 'Avalanche',
-    icon: '/resources/networks/avalanche.png',
-    explorerUrl: 'https://snowtrace.io',
+    Icon: AvalancheLogo,
+    explorerUrl: 'https://snowtrace.io'
   },
   {
     // to match the zapper ID
@@ -43,8 +50,8 @@ const networks: NetworkType[] = [
     rpc: 'https://bsc-dataseed.binance.org/',
     nativeAssetSymbol: 'BNB',
     name: 'Binance Smart Chain',
-    icon: '/resources/networks/bsc.png',
-    explorerUrl: 'https://bscscan.com',
+    Icon: BinanceSmartChainLogo,
+    explorerUrl: 'https://bscscan.com'
   } /* , {
   id: 'arbitrum',
   chainId: 42161,
@@ -53,7 +60,7 @@ const networks: NetworkType[] = [
   name: 'Arbitrum',
   icon: '/resources/networks/arbitrum.svg',
   explorerUrl: 'https://arbiscan.io'
-} */,
+} */
 ]
 
 export default networks
