@@ -3,7 +3,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import useAuth from '@modules/auth/hooks/useAuth'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-type AuthContextData = {
+type AccountsContextData = {
   accounts: any
   selectedAcc: any
   onSelectAcc: (selected: any) => void
@@ -11,7 +11,7 @@ type AuthContextData = {
   onRemoveAccount: (id: string) => void
 }
 
-const AccountsContext = createContext<AuthContextData>({
+const AccountsContext = createContext<AccountsContextData>({
   accounts: [],
   selectedAcc: '',
   onSelectAcc: () => {},

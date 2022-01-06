@@ -5,18 +5,24 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Image } from 'react-native'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useInternalRequests from '@modules/common/hooks/useInternalRequests'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import { isValidAddress } from '@modules/common/services/address'
+import {
+  validateSendTransferAddress,
+  validateSendTransferAmount
+} from '@modules/common/services/validate'
 
 const ERC20 = new Interface(erc20Abi)
 
 export default function useSendTransaction(route: any, navigation: any) {
-  const { tokens } = usePortfolio()
+  const { tokens, isBalanceLoading } = usePortfolio()
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
   const { addRequest } = useInternalRequests()
+  const { isKnownAddress } = useAddressBook()
   const tokenAddressOrSymbol = route.params?.tokenAddressOrSymbol
 
   const tokenAddress = isValidAddress(tokenAddressOrSymbol)
@@ -26,6 +32,18 @@ export default function useSendTransaction(route: any, navigation: any) {
   const [asset, setAsset] = useState(tokenAddress)
   const [amount, setAmount] = useState<number>(0)
   const [address, setAddress] = useState('')
+  const [disabled, setDisabled] = useState(true)
+  const [addressConfirmed, setAddressConfirmed] = useState(false)
+  const [validationFormMgs, setValidationFormMgs] = useState({
+    success: {
+      amount: false,
+      address: false
+    },
+    messages: {
+      amount: '',
+      address: ''
+    }
+  })
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const selectedAsset = tokens.find(({ address }: any) => address === asset)
@@ -93,6 +111,29 @@ export default function useSendTransaction(route: any, navigation: any) {
   }, [asset, selectedAsset])
 
   useEffect(() => {
+    const isValidRecipientAddress = validateSendTransferAddress(
+      address,
+      selectedAcc,
+      addressConfirmed,
+      isKnownAddress
+    )
+    const isValidSendTransferAmount = validateSendTransferAmount(amount, selectedAsset)
+
+    setValidationFormMgs({
+      success: {
+        amount: isValidSendTransferAmount.success,
+        address: isValidRecipientAddress.success
+      },
+      messages: {
+        amount: isValidSendTransferAmount.message ? isValidSendTransferAmount.message : '',
+        address: isValidRecipientAddress.message ? isValidRecipientAddress.message : ''
+      }
+    })
+
+    setDisabled(!(isValidRecipientAddress.success && isValidSendTransferAmount.success))
+  }, [address, amount, selectedAcc, selectedAsset, addressConfirmed, isKnownAddress])
+
+  useEffect(() => {
     setAmount(0)
     setBigNumberHexAmount('')
   }, [asset])
@@ -110,6 +151,9 @@ export default function useSendTransaction(route: any, navigation: any) {
     setAmount,
     setAddress,
     assetsItems,
-    sendTransaction
+    sendTransaction,
+    isBalanceLoading,
+    disabled,
+    validationFormMgs
   }
 }
