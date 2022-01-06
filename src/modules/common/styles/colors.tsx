@@ -12,7 +12,10 @@ const colors = {
   ambireDarkBlue: '#6000FF',
   ambirePurple: '#AF50FF',
 
-  textColor: '#FFF'
+  textColor: '#FFF',
+
+  rowOddColor: 'hsla(0,0%,100%,.04)',
+  rowEvenColor: 'hsla(0,0%,100%,.02)'
 }
 
 export default colors

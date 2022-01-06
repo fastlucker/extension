@@ -5,6 +5,7 @@ import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import colors from '@modules/common/styles/colors'
 import textStyles from '@modules/common/styles/utils/text'
 import { useNavigation } from '@react-navigation/native'
 
@@ -21,7 +22,13 @@ const Balances = () => {
   const handleGoToSend = (symbol) => navigation.navigate('send', { symbol: symbol.toString() })
 
   const tokenItem = (index, img, symbol, balance, balanceUSD, address, send = false) => (
-    <View key={`token-${address}-${index}`} style={styles.row}>
+    <View
+      key={`token-${address}-${index}`}
+      style={[
+        styles.row,
+        { backgroundColor: index % 2 ? colors.rowEvenColor : colors.rowOddColor }
+      ]}
+    >
       <View style={styles.rowItem}>
         {failedImg.includes(img) ? (
           <Text>{symbol}</Text>
