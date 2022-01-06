@@ -6,7 +6,7 @@ import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
-import usePortfolio from '@modules/common/hooks/usePortfolio'
+import Assets from '@modules/dashboard/components/Assets'
 import Balances from '@modules/dashboard/components/Balances'
 
 import styles from './styles'
@@ -14,11 +14,12 @@ import styles from './styles'
 const DashboardScreen = () => {
   const { accounts, onRemoveAccount } = useAccounts()
   const { network, setNetwork } = useNetwork()
-  const { balance } = usePortfolio()
 
   return (
     <Wrapper>
       <Balances />
+
+      <Assets />
 
       <Title>Accounts</Title>
       {accounts.map((account: any) => (
