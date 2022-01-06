@@ -4,6 +4,9 @@ interface Style {
   row: ViewStyle
   rowItem: ViewStyle
   img: ImageStyle
+  balance: TextStyle
+  balanceFiat: TextStyle
+  symbol: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -17,6 +20,16 @@ const styles = StyleSheet.create<Style>({
   img: {
     width: 35,
     height: 35
+  },
+  balance: {
+    fontSize: 18
+  },
+  balanceFiat: {
+    fontSize: 14
+  },
+  symbol: {
+    fontSize: 18,
+    fontWeight: '700'
   }
 })
 

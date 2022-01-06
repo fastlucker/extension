@@ -6,15 +6,19 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import textStyles from '@modules/common/styles/utils/text'
+import { useNavigation } from '@react-navigation/native'
 
 import styles from './styles'
 
 const Balances = () => {
   const { t } = useTranslation()
+  const navigation = useNavigation()
   const { areProtocolsLoading, tokens } = usePortfolio()
   const [failedImg, setFailedImg] = useState<string[]>([])
 
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
+
+  const handleGoToSend = (symbol) => navigation.navigate('send', { symbol: symbol.toString() })
 
   const tokenItem = (index, img, symbol, balance, balanceUSD, address, send = false) => (
     <View key={`token-${address}-${index}`} style={styles.row}>
@@ -31,24 +35,23 @@ const Balances = () => {
       </View>
 
       <View style={[styles.rowItem, { flex: 1 }]}>
-        <Text numberOfLines={1}>{balance}</Text>
-        <Text>$ {balanceUSD.toFixed(2)}</Text>
+        <Text style={styles.balance} numberOfLines={1}>
+          {balance}
+        </Text>
+        <Text style={styles.balanceFiat}>
+          <Text style={[styles.balanceFiat, textStyles.highlightSecondary]}>$</Text>{' '}
+          {balanceUSD.toFixed(2)}
+        </Text>
       </View>
 
       <View style={styles.rowItem}>
-        <Text>{symbol}</Text>
+        <Text
+          style={[styles.symbol, textStyles.highlightPrimary]}
+          onPress={handleGoToSend.bind(symbol)}
+        >
+          {symbol}
+        </Text>
       </View>
-      {/* TODO: */}
-      {/* {
-                send ?
-                    <div className="actions">
-                        <NavLink to={`/wallet/transfer/${address}`}>
-                            <Button small icon={<AiOutlineSend/>}>Send</Button>
-                        </NavLink>
-                    </div>
-                    :
-                    null
-            } */}
     </View>
   )
 
