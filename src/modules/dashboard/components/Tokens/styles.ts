@@ -20,7 +20,7 @@ const styles = StyleSheet.create<Style>({
   header: {
     backgroundColor: colors.headerColor,
     paddingHorizontal: 20,
-    paddingVertical: 15
+    paddingVertical: 20
   },
   headerTitle: {
     fontSize: 20,
@@ -28,7 +28,7 @@ const styles = StyleSheet.create<Style>({
   },
   rowItem: {
     paddingHorizontal: 15,
-    paddingVertical: 10
+    paddingVertical: 15
   },
   img: {
     width: 35,
