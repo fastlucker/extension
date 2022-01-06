@@ -1967,6 +1967,13 @@
     lodash.pick "^4.4.0"
     lodash.template "^4.5.0"
 
+"@gorhom/portal@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@gorhom/portal/-/portal-1.0.11.tgz#4224d45fea25e70d7e55af3b67249bad0ac9359b"
+  integrity sha512-Vrh2hAVp8ZToJ1a1NbYnehNzdJTxJv1BF3vMNbz1pnJIqm0nbi2W51piVvfiqohCDAegOyCCH1j/AEhW2cJYTA==
+  dependencies:
+    nanoid "^3.1.23"
+
 "@graphql-tools/batch-delegate@^6.2.4", "@graphql-tools/batch-delegate@^6.2.6":
   version "6.2.6"
   resolved "https://registry.yarnpkg.com/@graphql-tools/batch-delegate/-/batch-delegate-6.2.6.tgz#fbea98dc825f87ef29ea5f3f371912c2a2aa2f2c"
@@ -15616,6 +15623,11 @@ readdirp@~3.6.0:
   integrity sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==
   dependencies:
     picomatch "^2.2.1"
+
+reanimated-bottom-sheet@^1.0.0-alpha.22:
+  version "1.0.0-alpha.22"
+  resolved "https://registry.yarnpkg.com/reanimated-bottom-sheet/-/reanimated-bottom-sheet-1.0.0-alpha.22.tgz#01a200946f1a461f01f1e773e5b4961c2df2e53b"
+  integrity sha512-NxecCn+2iA4YzkFuRK5/b86GHHS2OhZ9VRgiM4q18AC20YE/psRilqxzXCKBEvkOjP5AaAvY0yfE7EkEFBjTvw==
 
 recast@^0.20.3:
   version "0.20.5"
