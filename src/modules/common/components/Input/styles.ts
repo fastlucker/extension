@@ -8,6 +8,7 @@ interface Style {
   input: ViewStyle
   focused: ViewStyle
   info: TextStyle
+  label: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -28,6 +29,10 @@ const styles = StyleSheet.create<Style>({
   },
   info: {
     ...spacings.ptTy
+  },
+  label: {
+    fontWeight: '500',
+    ...spacings.mbTy
   }
 })
 

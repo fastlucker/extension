@@ -14,9 +14,10 @@ import styles from './styles'
 
 interface Props extends TextInputProps {
   info?: string
+  label?: string
 }
 
-const Input = ({ info, onBlur = () => {}, onFocus = () => {}, ...rest }: Props) => {
+const Input = ({ label, info, onBlur = () => {}, onFocus = () => {}, ...rest }: Props) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
 
   const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
@@ -30,6 +31,7 @@ const Input = ({ info, onBlur = () => {}, onFocus = () => {}, ...rest }: Props) 
 
   return (
     <View style={styles.inputContainer}>
+      {!!label && <Text style={styles.label}>{label}</Text>}
       <TextInput
         placeholderTextColor={colors.inputPlaceholderColor}
         style={[styles.input, isFocused && styles.focused]}
