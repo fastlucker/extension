@@ -6,6 +6,7 @@ interface Styles {
   highlightPrimary: TextStyle
   highlightSecondary: TextStyle
   bold: TextStyle
+  center: TextStyle
 }
 
 const textStyles = StyleSheet.create<Styles>({
@@ -17,6 +18,9 @@ const textStyles = StyleSheet.create<Styles>({
   },
   bold: {
     fontWeight: '700'
+  },
+  center: {
+    textAlign: 'center'
   }
 })
 
