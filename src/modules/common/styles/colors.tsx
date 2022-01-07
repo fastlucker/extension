@@ -12,7 +12,14 @@ const colors = {
   ambireDarkBlue: '#6000FF',
   ambirePurple: '#AF50FF',
 
-  textColor: '#FFF'
+  textColor: '#FFF',
+
+  headerColor: 'hsla(0,0%,100%,.1)',
+  rowOddColor: 'hsla(0,0%,100%,.04)',
+  rowEvenColor: 'hsla(0,0%,100%,.02)',
+
+  primaryButtonColor: '#000',
+  secondaryButtonColor: 'rgba(0,0,0,.1)'
 }
 
 export default colors
