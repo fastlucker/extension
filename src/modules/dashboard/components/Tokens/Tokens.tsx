@@ -45,7 +45,7 @@ const Balances = () => {
     >
       <View style={styles.rowItem}>
         {failedImg.includes(img) ? (
-          <Text>{symbol}</Text>
+          <Text style={styles.fallbackImage}>🪙</Text>
         ) : (
           <Image
             style={styles.img}

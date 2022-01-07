@@ -12,6 +12,7 @@ interface Style {
   rowItem: ViewStyle
   rowItemMain: ViewStyle
   img: ImageStyle
+  fallbackImage: TextStyle
   balance: TextStyle
   btnContainer: ViewStyle
   btn: TextStyle
@@ -65,6 +66,9 @@ const styles = StyleSheet.create<Style>({
   img: {
     width: 35,
     height: 35
+  },
+  fallbackImage: {
+    fontSize: 32
   },
   balance: {
     fontSize: 18
