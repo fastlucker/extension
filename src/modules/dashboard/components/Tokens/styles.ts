@@ -1,6 +1,8 @@
 import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+import textStyles from '@modules/common/styles/utils/text'
 
 interface Style {
   row: ViewStyle
@@ -17,6 +19,8 @@ interface Style {
   symbol: TextStyle
   infoText: TextStyle
   subInfoText: TextStyle
+  emptyStateContainer: TextStyle
+  emptyStateText: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -83,6 +87,16 @@ const styles = StyleSheet.create<Style>({
     fontSize: 12,
     opacity: 0.5,
     textAlign: 'center'
+  },
+  emptyStateContainer: {
+    ...spacings.ptSm,
+    ...spacings.phSm
+  },
+  emptyStateText: {
+    fontSize: 18,
+    textAlign: 'center',
+    ...textStyles.bold,
+    ...spacings.mbSm
   }
 })
 

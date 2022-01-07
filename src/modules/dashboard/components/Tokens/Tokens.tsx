@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import { ActivityIndicator, Button, Image, Linking, View } from 'react-native'
+import { ActivityIndicator, Image, Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import { Trans, useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
+import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -28,6 +29,7 @@ const Balances = () => {
 
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
 
+  const handleGoToDeposit = () => navigation.navigate('deposit')
   const handleGoToSend = (symbol) => navigation.navigate('send', { symbol: symbol.toString() })
   const handleGoToBlockExplorer = () =>
     Linking.openURL(`${selectedNetwork?.explorerUrl}/address/${selectedAcc}`)
@@ -73,6 +75,15 @@ const Balances = () => {
     </View>
   )
 
+  const emptyState = (
+    <View style={styles.emptyStateContainer}>
+      <Text style={styles.emptyStateText}>
+        {t("Welcome! You don't have any funds on this account.")}
+      </Text>
+      <Button onPress={handleGoToDeposit} text={t('💸 Deposit')} />
+    </View>
+  )
+
   return (
     <>
       <View style={styles.header}>
@@ -84,10 +95,12 @@ const Balances = () => {
 
       {areProtocolsLoading ? (
         <ActivityIndicator />
-      ) : (
+      ) : sortedTokens.length ? (
         sortedTokens.map(({ address, symbol, tokenImageUrl, balance, balanceUSD }, i) =>
           tokenItem(i, tokenImageUrl, symbol, balance, balanceUSD, address, true)
         )
+      ) : (
+        emptyState
       )}
 
       <View style={styles.footer}>
