@@ -35,6 +35,7 @@ module.exports = {
     '@typescript-eslint/no-unused-expressions': 'off',
     '@typescript-eslint/no-extra-semi': 'off',
     'no-plusplus': 'off',
-    '@typescript-eslint/indent': 'off'
+    '@typescript-eslint/indent': 'off',
+    'react/no-unstable-nested-components': 'off'
   }
 }

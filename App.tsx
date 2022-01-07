@@ -8,8 +8,10 @@ import Router from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
+import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
+import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 
 const App = () => {
   return (
@@ -19,10 +21,14 @@ const App = () => {
         <AccountsProvider>
           <NetworkProvider>
             <PortfolioProvider>
-              <PortalProvider>
-                <Router />
-                <PortalHost name="global" />
-              </PortalProvider>
+              <RequestsProvider>
+                <AddressBookProvider>
+                  <PortalProvider>
+                    <Router />
+                    <PortalHost name="global" />
+                  </PortalProvider>
+                </AddressBookProvider>
+              </RequestsProvider>
             </PortfolioProvider>
           </NetworkProvider>
         </AccountsProvider>
