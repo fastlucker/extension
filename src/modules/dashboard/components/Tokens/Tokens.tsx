@@ -28,6 +28,7 @@ const Balances = () => {
   const { sheetRef, openBottomSheet } = useBottomSheet()
 
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
+  const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')
 
   const handleGoToDeposit = () => navigation.navigate('deposit')
   const handleGoToSend = (symbol) => navigation.navigate('send', { symbol: symbol.toString() })
@@ -102,6 +103,26 @@ const Balances = () => {
       ) : (
         emptyState
       )}
+
+      {!!otherProtocols.length &&
+        otherProtocols.map(({ label, assets }, i) => (
+          <View key={`category-${i}`}>
+            <View style={styles.header}>
+              <Title style={styles.headerTitle}>{label}</Title>
+            </View>
+            {assets.map(({ category, symbol, tokenImageUrl, balance, balanceUSD, address }, i) =>
+              tokenItem(
+                i,
+                tokenImageUrl,
+                symbol,
+                balance,
+                balanceUSD,
+                address,
+                category !== 'claimable'
+              )
+            )}
+          </View>
+        ))}
 
       <View style={styles.footer}>
         <View style={flexboxStyles.directionRow}>
