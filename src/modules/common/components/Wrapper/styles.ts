@@ -1,6 +1,7 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
 
 interface Style {
   wrapper: ViewStyle
@@ -11,10 +12,10 @@ const styles = StyleSheet.create<Style>({
   wrapper: {
     flex: 1,
     backgroundColor: colors.backgroundColor,
-    paddingHorizontal: 10
+    ...spacings.phTy
   },
   contentContainerStyle: {
-    paddingVertical: 15
+    ...spacings.pvSm
   }
 })
 

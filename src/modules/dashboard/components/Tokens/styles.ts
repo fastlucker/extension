@@ -29,38 +29,38 @@ const styles = StyleSheet.create<Style>({
   },
   header: {
     backgroundColor: colors.headerColor,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    ...spacings.ph,
+    ...spacings.pv
   },
   footer: {
-    paddingVertical: 15,
-    paddingBottom: 0,
-    paddingHorizontal: 5
+    ...spacings.phTy,
+    ...spacings.pvSm,
+    ...spacings.pb0
   },
   headerTitle: {
     fontSize: 20,
-    paddingBottom: 0
+    ...spacings.pb0
   },
   btnContainer: {
     backgroundColor: colors.secondaryButtonColor,
-    paddingHorizontal: 10,
-    paddingVertical: 10
+    ...spacings.phTy,
+    ...spacings.pvTy
   },
   btn: {
     fontSize: 14,
-    fontWeight: '700',
-    textTransform: 'uppercase'
+    textTransform: 'uppercase',
+    ...textStyles.bold
   },
   rowItem: {
-    paddingHorizontal: 20,
-    paddingVertical: 15
+    ...spacings.ph,
+    ...spacings.pvSm
   },
   rowItemMain: {
     flex: 1,
-    paddingHorizontal: 0
+    ...spacings.ph0
   },
   img: {
     width: 35,
@@ -74,14 +74,14 @@ const styles = StyleSheet.create<Style>({
   },
   symbol: {
     fontSize: 18,
-    fontWeight: '700'
+    ...textStyles.bold
   },
   infoText: {
     flex: 1,
     fontSize: 15,
     opacity: 0.5,
-    paddingBottom: 10,
-    paddingLeft: 10
+    ...spacings.pbTy,
+    ...spacings.plTy
   },
   subInfoText: {
     fontSize: 12,
