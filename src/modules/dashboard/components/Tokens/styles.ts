@@ -33,7 +33,8 @@ const styles = StyleSheet.create<Style>({
   },
   footer: {
     paddingVertical: 15,
-    paddingBottom: 0
+    paddingBottom: 0,
+    paddingHorizontal: 5
   },
   headerTitle: {
     fontSize: 20,
