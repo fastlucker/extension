@@ -142,7 +142,7 @@ const Balances = () => {
       </View>
 
       <BottomSheet sheetRef={sheetRef}>
-        <Text>Coming soon.</Text>
+        <Text>{t('Coming soon.')}</Text>
       </BottomSheet>
     </>
   )
