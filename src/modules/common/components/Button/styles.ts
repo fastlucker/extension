@@ -14,12 +14,12 @@ const styles = StyleSheet.create<Style>({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 16
   },
   buttonText: {
     fontSize: 20,
-    color: '#FFFFFF',
-  },
+    color: '#FFFFFF'
+  }
 })
 
 export default styles
