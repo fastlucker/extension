@@ -1,6 +1,8 @@
 const colors = {
   backgroundColor: '#282b33',
   panelBackgroundColor: '#202229',
+  inputColor: '#fff',
+  inputPlaceholderColor: 'rgba(255,255,255,.5)',
   inputBackgroundColor: '#1c1e24',
   inputBackgroundColorDarker: '#191b20',
 
