@@ -1,22 +1,33 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+
 interface Style {
   inputContainer: ViewStyle
   input: ViewStyle
+  focused: ViewStyle
   info: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
   inputContainer: {
-    marginBottom: 16
+    ...spacings.mbSm
   },
   input: {
-    height: 40,
-    borderBottomWidth: 1,
-    padding: 12
+    borderBottomWidth: 2,
+    borderBottomColor: colors.inputBackgroundColor,
+    backgroundColor: colors.inputBackgroundColor,
+    color: colors.inputColor,
+    fontSize: 19,
+    ...spacings.ph,
+    ...spacings.pv
+  },
+  focused: {
+    borderBottomColor: colors.tertiaryAccentColor
   },
   info: {
-    paddingTop: 8
+    ...spacings.ptTy
   }
 })
 
