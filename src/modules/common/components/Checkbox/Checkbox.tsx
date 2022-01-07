@@ -16,8 +16,8 @@ const Checkbox = ({ label, bottomSpacing = 16, children, ...rest }: Props) => (
     style={[
       styles.container,
       {
-        marginBottom: bottomSpacing,
-      },
+        marginBottom: bottomSpacing
+      }
     ]}
   >
     <ExpoCheckbox style={styles.checkbox} {...rest} />

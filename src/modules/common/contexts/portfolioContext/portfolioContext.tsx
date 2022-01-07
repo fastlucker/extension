@@ -181,7 +181,6 @@ const PortfolioProvider: React.FC = ({ children }) => {
                 if (!balance) return null
 
                 const { meta, products }: any = Object.values(balance)[0]
-
                 const extraTokensAssets = getExtraTokensAssets(account, network) // Add user added extra token to handle
                 const assets = [
                   ...products
@@ -190,6 +189,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
                     .flat(2),
                   ...extraTokensAssets
                 ]
+
                 return {
                   network,
                   meta,
@@ -207,13 +207,13 @@ const PortfolioProvider: React.FC = ({ children }) => {
         // Prevent race conditions
         if (currentAccount.current !== account) return
 
-        setTokensByNetworks((prevTokensByNetworks: any) => [
-          ...prevTokensByNetworks.filter(({ network }: any) => !updatedNetworks.includes(network)),
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        setTokensByNetworks((tokensByNetworks: any) => [
+          ...tokensByNetworks.filter(({ network }: any) => !updatedNetworks.includes(network)),
           ...updatedTokens
         ])
 
-        if (failedRequests >= requestsCount)
-          throw new Error('Failed to fetch Tokens from Zapper API')
+        if (failedRequests >= requestsCount) throw new Error('Failed to fetch Tokens from API')
         return true
       } catch (error) {
         console.error(error)
@@ -260,7 +260,18 @@ const PortfolioProvider: React.FC = ({ children }) => {
               .flat()
 
             return all.length
-              ? { network, protocols: all.map(({ products }: any) => products).flat(2) }
+              ? {
+                  network,
+                  protocols: all
+                    .map(({ products }) =>
+                      products.map(({ label, assets }: any) => ({
+                        label,
+                        // eslint-disable-next-line @typescript-eslint/no-shadow
+                        assets: assets.map(({ tokens }: any) => tokens).flat(1)
+                      }))
+                    )
+                    .flat(2)
+                }
               : null
           })
         )

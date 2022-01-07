@@ -15,21 +15,25 @@ const supportedProtocols = [
       'sushiswap',
       'uniswap-v2',
       'uniswap-v3',
-      'nft',
+      'nft'
     ],
+    balancesProvider: 'velcro'
   },
   {
     network: 'polygon',
     protocols: ['aave-v2', 'quickswap', 'sushiswap'],
+    balancesProvider: 'velcro'
   },
   {
     network: 'avalanche',
     protocols: ['aave-v2'],
+    balancesProvider: 'velcro'
   },
   {
     network: 'binance-smart-chain',
     protocols: ['pancakeswap'],
-  },
+    balancesProvider: 'velcro'
+  }
 ]
 
 export default supportedProtocols
