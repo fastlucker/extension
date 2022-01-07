@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 
-import { AddressBookContext } from '@modules/common/contexts/ddressBookContext'
+import { AddressBookContext } from '@modules/common/contexts/addressBookContext'
 
 export default function useAddressBook() {
   const context = useContext(AddressBookContext)
