@@ -5,6 +5,7 @@ import colors from '@modules/common/styles/colors'
 interface Style {
   row: ViewStyle
   header: ViewStyle
+  footer: ViewStyle
   headerTitle: ViewStyle
   rowItem: ViewStyle
   rowItemMain: ViewStyle
@@ -14,6 +15,8 @@ interface Style {
   btn: TextStyle
   balanceFiat: TextStyle
   symbol: TextStyle
+  infoText: TextStyle
+  subInfoText: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -27,6 +30,10 @@ const styles = StyleSheet.create<Style>({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
+  },
+  footer: {
+    paddingVertical: 15,
+    paddingBottom: 0
   },
   headerTitle: {
     fontSize: 20,
@@ -63,6 +70,18 @@ const styles = StyleSheet.create<Style>({
   symbol: {
     fontSize: 18,
     fontWeight: '700'
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 15,
+    opacity: 0.5,
+    paddingBottom: 10,
+    paddingLeft: 10
+  },
+  subInfoText: {
+    fontSize: 12,
+    opacity: 0.5,
+    textAlign: 'center'
   }
 })
 

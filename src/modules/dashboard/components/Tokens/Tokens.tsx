@@ -1,14 +1,17 @@
 import React, { useState } from 'react'
-import { ActivityIndicator, Button, Image, View } from 'react-native'
+import { ActivityIndicator, Button, Image, Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
-import { useTranslation } from '@config/localization'
+import { Trans, useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import useAccounts from '@modules/common/hooks/useAccounts'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import colors from '@modules/common/styles/colors'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import { useNavigation } from '@react-navigation/native'
 
@@ -17,13 +20,17 @@ import styles from './styles'
 const Balances = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
-  const { areProtocolsLoading, tokens } = usePortfolio()
+  const { areProtocolsLoading, protocols, tokens } = usePortfolio()
+  const { selectedAcc } = useAccounts()
+  const { network: selectedNetwork } = useNetwork()
   const [failedImg, setFailedImg] = useState<string[]>([])
   const { sheetRef, openBottomSheet } = useBottomSheet()
 
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
 
   const handleGoToSend = (symbol) => navigation.navigate('send', { symbol: symbol.toString() })
+  const handleGoToBlockExplorer = () =>
+    Linking.openURL(`${selectedNetwork?.explorerUrl}/address/${selectedAcc}`)
 
   const tokenItem = (index, img, symbol, balance, balanceUSD, address, send = false) => (
     <View
@@ -82,6 +89,23 @@ const Balances = () => {
           tokenItem(i, tokenImageUrl, symbol, balance, balanceUSD, address, true)
         )
       )}
+
+      <View style={styles.footer}>
+        <View style={flexboxStyles.directionRow}>
+          <Text>ℹ️</Text>
+          <Trans>
+            <Text style={styles.infoText}>
+              If you don't see a specific token that you own, please check the{' '}
+              <Text onPress={handleGoToBlockExplorer} style={textStyles.bold}>
+                Block Explorer
+              </Text>
+            </Text>
+          </Trans>
+        </View>
+        {!areProtocolsLoading && !!protocols.length && (
+          <Text style={styles.subInfoText}>{t('Powered by Velcro')}</Text>
+        )}
+      </View>
 
       <BottomSheet sheetRef={sheetRef}>
         <Text>Coming soon.</Text>
