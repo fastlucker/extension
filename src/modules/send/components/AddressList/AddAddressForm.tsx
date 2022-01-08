@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Controller, FieldValues, SubmitHandler, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
@@ -13,25 +13,31 @@ import styles from './styles'
 
 interface Props {
   onSubmit: (fieldValues: SubmitHandler<FieldValues>) => void
+  address?: string
 }
 
-const AddAddressForm = ({ onSubmit }: Props) => {
+const AddAddressForm = ({ onSubmit, address }: Props) => {
   const { t } = useTranslation()
   const {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, dirtyFields, isSubmitSuccessful, isValid }
   } = useForm({
     mode: 'onChange',
     reValidateMode: 'onChange',
     defaultValues: {
       name: '',
-      address: ''
+      address
     }
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
+    setValue('address', address)
+  }, [address])
+
+  useEffect(() => {
     if (isSubmitSuccessful) reset()
   }, [isSubmitSuccessful, reset])
 
