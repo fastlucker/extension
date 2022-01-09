@@ -1,18 +1,11 @@
 import React from 'react'
 import { FieldValues, SubmitHandler } from 'react-hook-form'
-import {
-  ActivityIndicator,
-  Keyboard,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
-} from 'react-native'
+import { ActivityIndicator, Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
-import Checkbox from '@modules/common/components/Checkbox'
 import Input from '@modules/common/components/Input'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
@@ -20,9 +13,10 @@ import Select from '@modules/common/components/Select'
 import Wrapper from '@modules/common/components/Wrapper'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
+import ConfirmAddress from '@modules/send/components/ConfirmAddress'
 import useSendTransaction from '@modules/send/hooks/useSendTransaction'
 
-const SendScreen = ({ route, navigation }: any) => {
+const SendScreen = () => {
   const { t } = useTranslation()
   const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const {
@@ -37,12 +31,12 @@ const SendScreen = ({ route, navigation }: any) => {
     sendTransaction,
     isBalanceLoading,
     disabled,
-    validationFormMgs,
     addressConfirmed,
     setAddressConfirmed,
+    validationFormMgs,
     unknownWarning,
     smartContractWarning
-  } = useSendTransaction(route, navigation)
+  } = useSendTransaction()
 
   const handleAddNewAddress = (fieldValues: SubmitHandler<FieldValues>) => {
     // @ts-ignore
@@ -79,16 +73,11 @@ const SendScreen = ({ route, navigation }: any) => {
               />
               {!!validationFormMgs.messages?.address && <P>{validationFormMgs.messages.address}</P>}
               {!smartContractWarning && !!unknownWarning && (
-                <>
-                  <Checkbox
-                    value={addressConfirmed}
-                    onValueChange={() => setAddressConfirmed(!addressConfirmed)}
-                    label={t('Confirm sending to a previously unknown address')}
-                  />
-                  <TouchableOpacity onPress={openBottomSheet}>
-                    <P>{t('➕ Add it to the address book')}</P>
-                  </TouchableOpacity>
-                </>
+                <ConfirmAddress
+                  addressConfirmed={addressConfirmed}
+                  setAddressConfirmed={setAddressConfirmed}
+                  onAddToAddressBook={openBottomSheet}
+                />
               )}
               <Button text={t('Send')} disabled={disabled} onPress={sendTransaction} />
             </View>
