@@ -1,6 +1,12 @@
 import React from 'react'
 import { FieldValues, SubmitHandler } from 'react-hook-form'
-import { ActivityIndicator, Keyboard, TouchableWithoutFeedback, View } from 'react-native'
+import {
+  ActivityIndicator,
+  Keyboard,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View
+} from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -46,50 +52,58 @@ const SendScreen = () => {
 
   return (
     <Wrapper>
-      {isBalanceLoading && <ActivityIndicator />}
+      {isBalanceLoading && (
+        <View style={StyleSheet.absoluteFill}>
+          <ActivityIndicator style={StyleSheet.absoluteFill} size="large" />
+        </View>
+      )}
       {!isBalanceLoading && (
         <TouchableWithoutFeedback
           onPress={() => {
             Keyboard.dismiss()
           }}
         >
-          {assetsItems.length ? (
-            <View>
-              <Select value={asset} items={assetsItems} setValue={setAsset} />
-              <NumberInput
-                onChangeText={(v: any) => setAmount(v)}
-                value={amount.toString()}
-                buttonText={t('MAX')}
-                onButtonPress={setMaxAmount}
-              />
-              {!!validationFormMgs.messages?.amount && <P>{validationFormMgs.messages.amount}</P>}
-              <Input
-                placeholder={t('Recipient')}
-                info={t(
-                  'Please double-check the recipient address, blockchain transactions are not reversible.'
-                )}
-                value={address}
-                onChangeText={setAddress}
-              />
-              {!!validationFormMgs.messages?.address && <P>{validationFormMgs.messages.address}</P>}
-              {!smartContractWarning && !!unknownWarning && (
-                <ConfirmAddress
-                  addressConfirmed={addressConfirmed}
-                  setAddressConfirmed={setAddressConfirmed}
-                  onAddToAddressBook={openBottomSheet}
+          <>
+            {assetsItems.length ? (
+              <View>
+                <Select value={asset} items={assetsItems} setValue={setAsset} />
+                <NumberInput
+                  onChangeText={(v: any) => setAmount(v)}
+                  value={amount.toString()}
+                  buttonText={t('MAX')}
+                  onButtonPress={setMaxAmount}
                 />
-              )}
-              <Button text={t('Send')} disabled={disabled} onPress={sendTransaction} />
-            </View>
-          ) : (
-            <P>{t("You don't have any funds on this account.")}</P>
-          )}
+                {!!validationFormMgs.messages?.amount && <P>{validationFormMgs.messages.amount}</P>}
+                <Input
+                  placeholder={t('Recipient')}
+                  info={t(
+                    'Please double-check the recipient address, blockchain transactions are not reversible.'
+                  )}
+                  value={address}
+                  onChangeText={setAddress}
+                />
+                {!!validationFormMgs.messages?.address && (
+                  <P>{validationFormMgs.messages.address}</P>
+                )}
+                {!smartContractWarning && !!unknownWarning && (
+                  <ConfirmAddress
+                    addressConfirmed={addressConfirmed}
+                    setAddressConfirmed={setAddressConfirmed}
+                    onAddToAddressBook={openBottomSheet}
+                  />
+                )}
+                <Button text={t('Send')} disabled={disabled} onPress={sendTransaction} />
+              </View>
+            ) : (
+              <P>{t("You don't have any funds on this account.")}</P>
+            )}
+            <AddressList
+              onSelectAddress={(item): any => setAddress(item.address)}
+              onOpenBottomSheet={openBottomSheet}
+            />
+          </>
         </TouchableWithoutFeedback>
       )}
-      <AddressList
-        onSelectAddress={(item): any => setAddress(item.address)}
-        onOpenBottomSheet={openBottomSheet}
-      />
       <BottomSheet
         sheetRef={sheetRef}
         maxInitialHeightPercentage={1}
