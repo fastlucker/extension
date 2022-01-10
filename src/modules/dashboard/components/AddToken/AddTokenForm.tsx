@@ -9,6 +9,7 @@ import { Trans, useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import Text from '@modules/common/components/Text'
+import { TEXT_TYPES } from '@modules/common/components/Text/Text'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import { isValidAddress } from '@modules/common/services/address'
@@ -95,6 +96,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
     onSubmit(tokenDetails)
     reset()
     setTokenDetails(null)
+    setShowError(false)
   })
 
   return (
@@ -120,7 +122,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
       {loading && <ActivityIndicator style={spacings.mb} />}
 
       {showError && (
-        <Text>
+        <Text style={spacings.mb} type={TEXT_TYPES.DANGER}>
           {t(
             'The address you entered does not appear to correspond to {{tokenStandard}} token on {{networkName}}.',
             { tokenStandard, networkName: network?.name }
