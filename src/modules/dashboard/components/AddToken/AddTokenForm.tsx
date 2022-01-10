@@ -146,7 +146,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
       )}
 
       <Button
-        text={isSubmitting ? t('Adding...') : t('Add')}
+        text={isSubmitting ? t('Adding...') : t('➕ Add')}
         style={spacings.mb0}
         disabled={isSubmitting || disabled}
         onPress={handleOnPress}
