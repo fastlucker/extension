@@ -20,6 +20,9 @@ const colors = {
   rowOddColor: 'hsla(0,0%,100%,.04)',
   rowEvenColor: 'hsla(0,0%,100%,.02)',
 
+  headerBackgroundColor: '#202229',
+  headerTintColor: '#fff',
+
   primaryButtonContainerColor: '#80ffdb',
   secondaryButtonContainerColor: 'rgba(0,0,0,.1)',
   primaryButtonTextColor: '#000',
