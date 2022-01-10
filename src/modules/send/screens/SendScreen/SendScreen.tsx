@@ -7,7 +7,6 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native'
-import Toast from 'react-native-toast-message'
 
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -18,6 +17,7 @@ import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Select from '@modules/common/components/Select'
 import Wrapper from '@modules/common/components/Wrapper'
+import useToast from '@modules/common/hooks/useToast'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
@@ -25,6 +25,7 @@ import useSendTransaction from '@modules/send/hooks/useSendTransaction'
 
 const SendScreen = () => {
   const { t } = useTranslation()
+  const { addToast } = useToast()
   const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const {
     asset,
@@ -53,22 +54,18 @@ const SendScreen = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      Toast.show({
-        type: 'sticky',
-        text1: t('Transactions waiting to be signed'),
-        autoHide: false
+      addToast('Test', {
+        sticky: true
+      })
+    }, 2000)
+    setTimeout(() => {
+      addToast('Test 2', {
+        sticky: true
       })
     }, 4000)
-  }, [])
-
-  useEffect(() => {
     setTimeout(() => {
-      Toast.show({
-        type: 'sticky',
-        text1: t('Transactions waiting to be signed 2'),
-        autoHide: false
-      })
-    }, 8000)
+      addToast('Test 3')
+    }, 6000)
   }, [])
 
   return (

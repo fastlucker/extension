@@ -7,12 +7,12 @@ import React from 'react'
 import Router from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
-import Toast from '@modules/common/components/Toast'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
+import { ToastProvider } from '@modules/common/contexts/toastContext'
 
 const App = () => {
   return (
@@ -25,10 +25,9 @@ const App = () => {
               <RequestsProvider>
                 <AddressBookProvider>
                   <PortalProvider>
-                    <>
+                    <ToastProvider>
                       <Router />
-                      <Toast />
-                    </>
+                    </ToastProvider>
                     <PortalHost name="global" />
                   </PortalProvider>
                 </AddressBookProvider>
