@@ -80,7 +80,7 @@ const ToastProvider = ({ children }: any) => {
     >
       <View style={styles.container}>
         {/* eslint-disable-next-line @typescript-eslint/no-shadow */}
-        {toasts.reverse().map(({ id, url, error, sticky, badge, text, onClick }) => (
+        {[...toasts].reverse().map(({ id, url, error, sticky, badge, text, onClick }) => (
           <TouchableOpacity
             key={id}
             style={StyleSheet.flatten([styles.toast, error && styles.error])}
