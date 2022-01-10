@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { FieldValues, SubmitHandler } from 'react-hook-form'
 import {
   ActivityIndicator,
@@ -7,6 +7,7 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native'
+import Toast from 'react-native-toast-message'
 
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -49,6 +50,26 @@ const SendScreen = () => {
     addAddress(fieldValues.name, fieldValues.address)
     closeBottomSheet()
   }
+
+  useEffect(() => {
+    setTimeout(() => {
+      Toast.show({
+        type: 'sticky',
+        text1: t('Transactions waiting to be signed'),
+        autoHide: false
+      })
+    }, 4000)
+  }, [])
+
+  useEffect(() => {
+    setTimeout(() => {
+      Toast.show({
+        type: 'sticky',
+        text1: t('Transactions waiting to be signed 2'),
+        autoHide: false
+      })
+    }, 8000)
+  }, [])
 
   return (
     <Wrapper>
