@@ -6,6 +6,7 @@ import textStyles from '@modules/common/styles/utils/text'
 
 interface Style {
   button: ViewStyle
+  disabled: ViewStyle
   buttonText: TextStyle
 }
 
@@ -19,6 +20,9 @@ const styles = StyleSheet.create<Style>({
     alignItems: 'center',
     ...spacings.phSm,
     ...spacings.mbSm
+  },
+  disabled: {
+    opacity: 0.2
   },
   buttonText: {
     color: colors.primaryButtonColor,
