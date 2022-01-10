@@ -22,6 +22,7 @@ const colors = {
 
   headerBackgroundColor: '#202229',
   headerTintColor: '#fff',
+  headerShadowColor: '#000',
 
   primaryButtonContainerColor: '#80ffdb',
   secondaryButtonContainerColor: 'rgba(0,0,0,.1)',

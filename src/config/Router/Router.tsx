@@ -23,7 +23,8 @@ const Tab = createBottomTabNavigator()
 
 const globalScreenOptions = {
   headerStyle: {
-    backgroundColor: colors.headerBackgroundColor
+    backgroundColor: colors.headerBackgroundColor,
+    shadowColor: colors.headerShadowColor
   },
   headerTintColor: colors.headerTintColor
 }
@@ -54,16 +55,28 @@ const AuthStack = () => {
   )
 }
 
-const AppStack = () => (
-  <Tab.Navigator>
-    <Stack.Screen name="dashboard" component={DashboardScreen} />
-    <Stack.Screen name="transactions" component={TransactionsScreen} />
-    <Stack.Screen name="earn" component={EarnScreen} />
-    <Stack.Screen name="send" component={SendScreen} />
-    <Stack.Screen name="apps" component={AppsScreen} />
-    <Stack.Screen name="settings" component={SettingsScreen} />
-  </Tab.Navigator>
-)
+const AppStack = () => {
+  const { t } = useTranslation()
+
+  return (
+    <Tab.Navigator screenOptions={globalScreenOptions}>
+      <Stack.Screen
+        name="dashboard"
+        options={{ title: t('Dashboard') }}
+        component={DashboardScreen}
+      />
+      <Stack.Screen
+        name="transactions"
+        options={{ title: t('Transactions') }}
+        component={TransactionsScreen}
+      />
+      <Stack.Screen name="earn" options={{ title: t('Earn') }} component={EarnScreen} />
+      <Stack.Screen name="send" options={{ title: t('Send') }} component={SendScreen} />
+      <Stack.Screen name="apps" options={{ title: t('Apps') }} component={AppsScreen} />
+      <Stack.Screen name="settings" options={{ title: t('Settings') }} component={SettingsScreen} />
+    </Tab.Navigator>
+  )
+}
 
 const Router = () => {
   const { isAuthenticated } = useAuth()
