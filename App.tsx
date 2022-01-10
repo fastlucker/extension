@@ -12,6 +12,7 @@ import { AddressBookProvider } from '@modules/common/contexts/addressBookContext
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
+import { ToastProvider } from '@modules/common/contexts/toastContext'
 
 const App = () => {
   return (
@@ -24,7 +25,9 @@ const App = () => {
               <RequestsProvider>
                 <AddressBookProvider>
                   <PortalProvider>
-                    <Router />
+                    <ToastProvider>
+                      <Router />
+                    </ToastProvider>
                     <PortalHost name="global" />
                   </PortalProvider>
                 </AddressBookProvider>
