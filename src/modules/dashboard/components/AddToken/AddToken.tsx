@@ -28,7 +28,7 @@ const AddToken = () => {
         <Text style={styles.btn}>{t('+ Add token')}</Text>
       </TouchableOpacity>
 
-      <BottomSheet sheetRef={sheetRef}>
+      <BottomSheet sheetRef={sheetRef} dynamicInitialHeight={false}>
         <Title>{t('Add Token')}</Title>
 
         <AddTokenForm onSubmit={handleOnSubmit} />
