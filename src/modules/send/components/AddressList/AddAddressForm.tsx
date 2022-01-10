@@ -67,7 +67,7 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
         )}
         name="address"
       />
-      {!!errors.address && dirtyFields.address && <P>Invalid address</P>}
+      {!!errors.address && dirtyFields.address && <P>{t('Invalid address')}</P>}
 
       <Button onPress={handleSubmit(onSubmit)} text={t('➕ Add Address')} disabled={isValid} />
     </View>
