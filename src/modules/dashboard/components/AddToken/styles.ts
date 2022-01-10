@@ -12,7 +12,7 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   btnContainer: {
-    backgroundColor: colors.secondaryButtonColor,
+    backgroundColor: colors.secondaryButtonContainerColor,
     ...spacings.phTy,
     ...spacings.pvTy
   },

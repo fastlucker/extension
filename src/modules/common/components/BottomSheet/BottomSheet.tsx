@@ -9,6 +9,7 @@ import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Button from '../Button'
+import { BUTTON_TYPES } from '../Button/Button'
 import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
 
 interface Props {
@@ -33,7 +34,7 @@ const BottomSheet: React.FC<Props> = ({
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
 
-  const cancelText = _cancelText || (t('Cancel') as string)
+  const cancelText = _cancelText || (t('✗  Cancel') as string)
 
   const handleClose = () => sheetRef.current?.snapTo(0)
 
@@ -61,7 +62,12 @@ const BottomSheet: React.FC<Props> = ({
         <View style={styles.dragger} />
         {children}
         {displayCancel && (
-          <Button onPress={handleClose} style={styles.cancelBtn} text={cancelText} />
+          <Button
+            type={BUTTON_TYPES.SECONDARY}
+            onPress={handleClose}
+            style={styles.cancelBtn}
+            text={cancelText}
+          />
         )}
       </View>
     </View>
