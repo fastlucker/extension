@@ -16,6 +16,7 @@ interface Props {
   cancelText?: string
   displayCancel?: boolean
   maxInitialHeightPercentage?: number
+  dynamicInitialHeight?: boolean
   onCloseEnd?: () => void
 }
 
@@ -25,6 +26,7 @@ const BottomSheet: React.FC<Props> = ({
   displayCancel = true,
   cancelText: _cancelText,
   maxInitialHeightPercentage = 0.6,
+  dynamicInitialHeight = true,
   onCloseEnd
 }) => {
   const { t } = useTranslation()
@@ -42,6 +44,10 @@ const BottomSheet: React.FC<Props> = ({
   const handleOnLayout = (e: any): void => {
     const height = Math.round(e.nativeEvent.layout.height)
     const maxHeight = DEVICE_HEIGHT * maxInitialHeightPercentage
+
+    if (!dynamicInitialHeight) {
+      return setContentHeight(maxHeight)
+    }
 
     // Use flexible height for the content,
     // so that the content is mostly always fully visible,
@@ -92,7 +98,11 @@ const BottomSheet: React.FC<Props> = ({
       />
       <ReanimatedBottomSheet
         ref={sheetRef}
-        snapPoints={[0, contentHeight, BOTTOM_SHEET_FULL_HEIGHT]}
+        snapPoints={
+          dynamicInitialHeight
+            ? [0, contentHeight, BOTTOM_SHEET_FULL_HEIGHT]
+            : [0, BOTTOM_SHEET_FULL_HEIGHT]
+        }
         renderContent={renderContent}
         // So that the content is tap-able on Android
         enabledContentTapInteraction={false}
