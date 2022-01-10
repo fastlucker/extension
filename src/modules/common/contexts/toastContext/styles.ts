@@ -1,6 +1,7 @@
 import { Dimensions, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
 
 interface Style {
   container: ViewStyle
@@ -24,7 +25,8 @@ const styles = StyleSheet.create<Style>({
     borderLeftWidth: 0,
     alignItems: 'center',
     flexDirection: 'row',
-    padding: 10,
+    ...spacings.pvTy,
+    ...spacings.phTy,
     height: 'auto',
     width: Dimensions.get('window').width,
     marginBottom: 5,
@@ -41,13 +43,13 @@ const styles = StyleSheet.create<Style>({
     flex: 1
   },
   rightIcon: {
-    paddingRight: 10
+    ...spacings.prTy
   },
   closeIcon: {
-    paddingLeft: 10
+    ...spacings.plTy
   },
   badgeWrapper: {
-    paddingRight: 10
+    ...spacings.prTy
   }
 })
 
