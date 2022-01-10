@@ -94,6 +94,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
   const handleOnPress = handleSubmit(() => {
     onSubmit(tokenDetails)
     reset()
+    setTokenDetails(null)
   })
 
   return (
