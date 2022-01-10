@@ -29,9 +29,9 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
   const { t } = useTranslation()
   const { selectedAcc: account } = useAccounts()
   const { network } = useNetwork()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState<boolean>(false)
   const [tokenDetails, setTokenDetails] = useState(null)
-  const [showError, setShowError] = useState(false)
+  const [showError, setShowError] = useState<boolean>(false)
 
   const {
     control,
@@ -103,7 +103,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
     <>
       <Controller
         control={control}
-        // rules={{ validate: isAddress }}
+        rules={{ validate: isValidAddress }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             label={t('Token Address')}
