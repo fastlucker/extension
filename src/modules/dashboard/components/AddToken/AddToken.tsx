@@ -1,7 +1,7 @@
 import ERC20ABI from 'adex-protocol-eth/abi/ERC20'
 import { Contract, getDefaultProvider } from 'ethers'
 import { formatUnits, Interface, isAddress } from 'ethers/lib/utils'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { ActivityIndicator, Image, Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -30,8 +30,9 @@ const ERC20Interface = new Interface(ERC20ABI)
 const AddToken = () => {
   const { t } = useTranslation()
   const { selectedAcc: account } = useAccounts()
+  const { onAddExtraToken } = usePortfolio()
   const { network } = useNetwork()
-  const { sheetRef, openBottomSheet } = useBottomSheet()
+  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const [loading, setLoading] = useState(false)
   const [tokenDetails, setTokenDetails] = useState(null)
   const [showError, setShowError] = useState(false)
@@ -39,7 +40,8 @@ const AddToken = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting }
+    reset,
+    formState: { errors, isSubmitting, isSubmitSuccessful }
   } = useForm({
     defaultValues: {
       address: ''
@@ -92,6 +94,13 @@ const AddToken = () => {
     }
 
     setLoading(false)
+  }
+
+  const handleOnAdd = () => {
+    onAddExtraToken(tokenDetails)
+
+    closeBottomSheet()
+    reset()
   }
 
   return (
@@ -149,7 +158,12 @@ const AddToken = () => {
         )}
 
         {/* TODO */}
-        <Button text={t('Add')} style={spacings.mb0} />
+        <Button
+          text={isSubmitting ? t('Adding...') : t('Add')}
+          style={spacings.mb0}
+          disabled={isSubmitting}
+          onPress={handleSubmit(handleOnAdd)}
+        />
       </BottomSheet>
     </>
   )

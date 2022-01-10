@@ -16,6 +16,18 @@ import {
 import { fetchGet } from '@modules/common/services/fetch'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
+type Token = {
+  account: string
+  address: string
+  balance: string
+  balanceRaw: string
+  decimals: number
+  name: string
+  network: string
+  symbol: string
+  tokenImageUrl: string
+}
+
 type PortfolioContextData = {
   isBalanceLoading: boolean
   areProtocolsLoading: boolean
@@ -25,6 +37,7 @@ type PortfolioContextData = {
   protocols: any
   collectibles: any
   requestOtherProtocolsRefresh: () => void
+  onAddExtraToken: (token: Token) => void
 }
 
 const PortfolioContext = createContext<PortfolioContextData>({
@@ -42,7 +55,8 @@ const PortfolioContext = createContext<PortfolioContextData>({
   tokens: [],
   protocols: [],
   collectibles: [],
-  requestOtherProtocolsRefresh: () => {}
+  requestOtherProtocolsRefresh: () => {},
+  onAddExtraToken: () => {}
 })
 
 const getBalances = (apiKey: any, network: any, protocol: any, address: any, provider?: any) =>
