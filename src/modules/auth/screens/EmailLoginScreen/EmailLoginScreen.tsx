@@ -5,14 +5,11 @@ import { Keyboard, TouchableWithoutFeedback } from 'react-native'
 import { useTranslation } from '@config/localization'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import Button from '@modules/common/components/Button'
-import Heading from '@modules/common/components/Heading'
 import Input from '@modules/common/components/Input'
 import P from '@modules/common/components/P'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import { isEmail } from '@modules/common/services/validate'
-
-import styles from './styles'
 
 const EmailLoginScreen = () => {
   const { t } = useTranslation()
