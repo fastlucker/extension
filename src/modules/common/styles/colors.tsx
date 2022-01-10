@@ -20,8 +20,10 @@ const colors = {
   rowOddColor: 'hsla(0,0%,100%,.04)',
   rowEvenColor: 'hsla(0,0%,100%,.02)',
 
-  primaryButtonColor: '#000',
-  secondaryButtonColor: 'rgba(0,0,0,.1)'
+  primaryButtonContainerColor: '#80ffdb',
+  secondaryButtonContainerColor: 'rgba(0,0,0,.1)',
+  primaryButtonTextColor: '#000',
+  secondaryButtonTextColor: '#fff'
 }
 
 export default colors
