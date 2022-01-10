@@ -22,8 +22,9 @@ const styles = StyleSheet.create<Style>({
     ...textStyles.bold
   },
   img: {
-    width: 22,
-    height: 22
+    width: 40,
+    height: 40,
+    ...spacings.mbSm
   }
 })
 

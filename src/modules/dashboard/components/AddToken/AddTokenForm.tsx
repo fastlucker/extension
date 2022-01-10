@@ -117,7 +117,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
         name="address"
       />
 
-      {loading && <ActivityIndicator />}
+      {loading && <ActivityIndicator style={spacings.mb} />}
 
       {showError && (
         <Text>
@@ -131,8 +131,8 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
       {!showError && tokenDetails && (
         <>
           <View style={[flexboxStyles.center, spacings.mb]}>
-            <Text style={spacings.mbTy}>
-              <Image style={styles.img} source={{ uri: tokenDetails.tokenImageUrl }} />{' '}
+            <Image style={styles.img} source={{ uri: tokenDetails.tokenImageUrl }} />
+            <Text style={[spacings.mbTy]}>
               {tokenDetails.name} ({tokenDetails.symbol})
             </Text>
             <Trans>
