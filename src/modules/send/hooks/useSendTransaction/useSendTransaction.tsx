@@ -14,11 +14,14 @@ import {
   validateSendTransferAddress,
   validateSendTransferAmount
 } from '@modules/common/services/validate'
+import { useNavigation, useRoute } from '@react-navigation/native'
 
 const ERC20 = new Interface(erc20Abi)
 
-export default function useSendTransaction(route: any, navigation: any) {
+export default function useSendTransaction() {
   const { tokens, isBalanceLoading } = usePortfolio()
+  const route: any = useRoute()
+  const navigation: any = useNavigation()
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()
