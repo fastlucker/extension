@@ -39,7 +39,7 @@ const styles = StyleSheet.create<Style>({
   text: {
     fontSize: 16,
     fontWeight: '500',
-    color: colors.primaryButtonColor,
+    color: colors.primaryButtonTextColor,
     flex: 1
   },
   rightIcon: {
