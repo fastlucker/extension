@@ -1,7 +1,7 @@
-import { Dimensions, StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
+import spacings, { DEVICE_WIDTH } from '@modules/common/styles/spacings'
 
 interface Style {
   container: ViewStyle
@@ -17,7 +17,7 @@ const styles = StyleSheet.create<Style>({
   container: {
     position: 'absolute',
     bottom: 80,
-    width: Dimensions.get('window').width,
+    width: DEVICE_WIDTH,
     zIndex: 10000
   },
   toast: {
@@ -28,7 +28,7 @@ const styles = StyleSheet.create<Style>({
     ...spacings.pvTy,
     ...spacings.phTy,
     height: 'auto',
-    width: Dimensions.get('window').width,
+    width: DEVICE_WIDTH,
     marginBottom: 5,
     borderRadius: 2,
     flex: 1
