@@ -9,6 +9,7 @@ import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Button from '../Button'
+import { BUTTON_TYPES } from '../Button/Button'
 import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
   cancelText?: string
   displayCancel?: boolean
   maxInitialHeightPercentage?: number
+  dynamicInitialHeight?: boolean
   onCloseEnd?: () => void
 }
 
@@ -25,13 +27,14 @@ const BottomSheet: React.FC<Props> = ({
   displayCancel = true,
   cancelText: _cancelText,
   maxInitialHeightPercentage = 0.6,
+  dynamicInitialHeight = true,
   onCloseEnd
 }) => {
   const { t } = useTranslation()
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
 
-  const cancelText = _cancelText || (t('Cancel') as string)
+  const cancelText = _cancelText || (t('✗  Cancel') as string)
 
   const handleClose = () => sheetRef.current?.snapTo(0)
 
@@ -42,6 +45,10 @@ const BottomSheet: React.FC<Props> = ({
   const handleOnLayout = (e: any): void => {
     const height = Math.round(e.nativeEvent.layout.height)
     const maxHeight = DEVICE_HEIGHT * maxInitialHeightPercentage
+
+    if (!dynamicInitialHeight) {
+      return setContentHeight(maxHeight)
+    }
 
     // Use flexible height for the content,
     // so that the content is mostly always fully visible,
@@ -55,7 +62,12 @@ const BottomSheet: React.FC<Props> = ({
         <View style={styles.dragger} />
         {children}
         {displayCancel && (
-          <Button onPress={handleClose} style={styles.cancelBtn} text={cancelText} />
+          <Button
+            type={BUTTON_TYPES.SECONDARY}
+            onPress={handleClose}
+            style={styles.cancelBtn}
+            text={cancelText}
+          />
         )}
       </View>
     </View>
@@ -92,7 +104,11 @@ const BottomSheet: React.FC<Props> = ({
       />
       <ReanimatedBottomSheet
         ref={sheetRef}
-        snapPoints={[0, contentHeight, BOTTOM_SHEET_FULL_HEIGHT]}
+        snapPoints={
+          dynamicInitialHeight
+            ? [0, contentHeight, BOTTOM_SHEET_FULL_HEIGHT]
+            : [0, BOTTOM_SHEET_FULL_HEIGHT]
+        }
         renderContent={renderContent}
         // So that the content is tap-able on Android
         enabledContentTapInteraction={false}

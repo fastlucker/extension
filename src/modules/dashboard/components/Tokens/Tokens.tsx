@@ -14,6 +14,7 @@ import usePortfolio from '@modules/common/hooks/usePortfolio'
 import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import AddToken from '@modules/dashboard/components/AddToken'
 import { useNavigation } from '@react-navigation/native'
 
 import styles from './styles'
@@ -25,7 +26,6 @@ const Balances = () => {
   const { selectedAcc } = useAccounts()
   const { network: selectedNetwork } = useNetwork()
   const [failedImg, setFailedImg] = useState<string[]>([])
-  const { sheetRef, openBottomSheet } = useBottomSheet()
 
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
   const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')
@@ -89,9 +89,7 @@ const Balances = () => {
     <>
       <View style={styles.header}>
         <Title style={styles.headerTitle}>{t('Tokens')}</Title>
-        <TouchableOpacity style={styles.btnContainer} onPress={openBottomSheet}>
-          <Text style={styles.btn}>{t('+ Add token')}</Text>
-        </TouchableOpacity>
+        <AddToken />
       </View>
 
       {areProtocolsLoading ? (
@@ -140,10 +138,6 @@ const Balances = () => {
           <Text style={styles.subInfoText}>{t('Powered by Velcro')}</Text>
         )}
       </View>
-
-      <BottomSheet sheetRef={sheetRef}>
-        <Text>{t('Coming soon.')}</Text>
-      </BottomSheet>
     </>
   )
 }

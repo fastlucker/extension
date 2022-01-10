@@ -14,8 +14,6 @@ interface Style {
   img: ImageStyle
   fallbackImage: TextStyle
   balance: TextStyle
-  btnContainer: ViewStyle
-  btn: TextStyle
   balanceFiat: TextStyle
   symbol: TextStyle
   infoText: TextStyle
@@ -44,16 +42,6 @@ const styles = StyleSheet.create<Style>({
   headerTitle: {
     fontSize: 20,
     ...spacings.pb0
-  },
-  btnContainer: {
-    backgroundColor: colors.secondaryButtonColor,
-    ...spacings.phTy,
-    ...spacings.pvTy
-  },
-  btn: {
-    fontSize: 14,
-    textTransform: 'uppercase',
-    ...textStyles.bold
   },
   rowItem: {
     ...spacings.ph,
