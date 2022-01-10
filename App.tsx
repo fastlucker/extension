@@ -16,7 +16,7 @@ import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 const App = () => {
   return (
     <>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
       <AuthProvider>
         <AccountsProvider>
           <NetworkProvider>
