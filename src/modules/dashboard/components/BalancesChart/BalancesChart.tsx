@@ -70,7 +70,7 @@ const BalancesChart = () => {
   return (
     <Panel>
       <Title>{t('Balance by')}</Title>
-      <PieChart data={chartTokensData.map(({ value }) => ({ y: value }))} />
+      <PieChart data={chartTokensData.map(({ value, label }) => ({ y: value, name: label }))} />
       <Text>{JSON.stringify(chartTokensData)}</Text>
     </Panel>
   )
