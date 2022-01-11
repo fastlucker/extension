@@ -8,6 +8,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import Assets from '@modules/dashboard/components/Assets'
 import Balances from '@modules/dashboard/components/Balances'
+import BalancesChart from '@modules/dashboard/components/BalancesChart'
 
 import styles from './styles'
 
@@ -18,6 +19,8 @@ const DashboardScreen = () => {
   return (
     <Wrapper>
       <Balances />
+
+      <BalancesChart />
 
       <Assets />
 
