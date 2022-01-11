@@ -17,7 +17,7 @@ import { ToastProvider } from '@modules/common/contexts/toastContext'
 const App = () => {
   return (
     <>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
       <AuthProvider>
         <AccountsProvider>
           <NetworkProvider>
