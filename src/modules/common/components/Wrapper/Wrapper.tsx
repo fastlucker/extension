@@ -1,13 +1,17 @@
 import React from 'react'
-import { TextProps, View } from 'react-native'
+import { ScrollViewProps } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 
 import styles from './styles'
 
-const Wrapper: React.FC<TextProps> = ({ style = {}, children }) => (
+const Wrapper: React.FC<ScrollViewProps> = ({
+  style = {},
+  contentContainerStyle = {},
+  children
+}) => (
   <ScrollView
     style={[styles.wrapper, style]}
-    contentContainerStyle={styles.contentContainerStyle}
+    contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
     alwaysBounceVertical={false}
   >
     {children}

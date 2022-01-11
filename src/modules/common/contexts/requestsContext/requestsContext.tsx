@@ -63,7 +63,7 @@ const RequestsProvider: React.FC = ({ children }) => {
     showing: !!eligibleRequests.length
   }))
 
-  const prevSendTxnState = usePrevious(sendTxnState)
+  const prevSendTxnState: any = usePrevious(sendTxnState)
 
   useEffect(
     () => setSendTxnState({ showing: !!eligibleRequests.length }),

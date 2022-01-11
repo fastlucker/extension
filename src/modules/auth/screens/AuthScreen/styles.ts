@@ -1,12 +1,19 @@
 import { StyleSheet } from 'react-native'
 
+import spacings from '@modules/common/styles/spacings'
+
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    paddingHorizontal: 16,
+    justifyContent: 'center'
   },
+  separator: {
+    fontSize: 20,
+    ...spacings.pvLg
+  },
+  footer: {
+    fontSize: 14
+  }
 })
 
 export default styles

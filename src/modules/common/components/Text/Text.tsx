@@ -3,7 +3,7 @@ import { StyleSheet, Text as RNText, TextProps } from 'react-native'
 
 import styles from './styles'
 
-interface Props extends TextProps {
+export interface Props extends TextProps {
   underline?: boolean
   type?: TEXT_TYPES
 }
