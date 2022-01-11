@@ -8,7 +8,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import colors from '@modules/common/styles/colors'
-import { DEVICE_WIDTH, SPACING_LG, SPACING_SM } from '@modules/common/styles/spacings'
+import { SPACING_LG, SPACING_SM } from '@modules/common/styles/spacings'
 
 interface Props extends VictoryPieProps {}
 
@@ -18,14 +18,13 @@ const PieChart: React.FC<Props> = (rest) => {
       style={{
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5fcff'
+        alignItems: 'center'
       }}
     >
       <VictoryPie
-        innerRadius={DEVICE_WIDTH * 0.25}
+        innerRadius={50}
         labels={() => null}
-        height={DEVICE_WIDTH - SPACING_LG - SPACING_LG}
+        height={200}
         padding={{ top: 0, bottom: 0, left: 0, right: 0 }}
         colorScale={colors.pieChartColorScale}
         {...rest}
@@ -39,7 +38,9 @@ const PieChart: React.FC<Props> = (rest) => {
         // TODO
         height={120}
         orientation="vertical"
-        style={{ labels: { fontSize: 20 } }}
+        style={{
+          labels: { fontSize: 20, fill: 'white' }
+        }}
         data={rest.data}
       />
     </View>
