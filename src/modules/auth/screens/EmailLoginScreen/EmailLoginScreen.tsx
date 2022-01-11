@@ -7,6 +7,7 @@ import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import P from '@modules/common/components/P'
+import { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import { isEmail } from '@modules/common/services/validate'
@@ -49,14 +50,14 @@ const EmailLoginScreen = () => {
               )}
               name="email"
             />
-            {!!errors.email && <P>{t('Please fill in a valid email.')}</P>}
+            {!!errors.email && <P type={TEXT_TYPES.DANGER}>{t('Please fill in a valid email.')}</P>}
 
             <Button
               disabled={isSubmitting}
               text={isSubmitting ? t('Logging in...') : t('Log in')}
               onPress={handleSubmit(handleLogin)}
             />
-            {!!err && <P>{err}</P>}
+            {!!err && <P type={TEXT_TYPES.DANGER}>{err}</P>}
             <P>
               {t('A password will not be required, we will send a magic login link to your email.')}
             </P>

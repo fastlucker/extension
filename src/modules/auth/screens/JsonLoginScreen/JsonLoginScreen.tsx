@@ -4,6 +4,7 @@ import { useTranslation } from '@config/localization'
 import useJsonLogin from '@modules/auth/hooks/useJsonLogin'
 import Button from '@modules/common/components/Button'
 import P from '@modules/common/components/P'
+import { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 
@@ -19,7 +20,7 @@ const JsonLoginScreen = () => {
         text={inProgress ? t('Importing...') : t('Select file')}
         onPress={handleLogin}
       />
-      {!!error && <P>{error}</P>}
+      {!!error && <P type={TEXT_TYPES.DANGER}>{error}</P>}
     </Wrapper>
   )
 }
