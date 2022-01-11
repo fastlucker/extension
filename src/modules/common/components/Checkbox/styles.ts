@@ -1,5 +1,6 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
@@ -19,6 +20,7 @@ const styles = StyleSheet.create<Style>({
     borderWidth: 3,
     width: 25,
     height: 25,
+    borderColor: colors.checkboxBorderColor,
     ...spacings.mrTy
   },
   label: {

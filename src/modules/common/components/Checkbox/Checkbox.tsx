@@ -16,7 +16,11 @@ export const CheckboxLabelStyle = styles.label
 
 const Checkbox = ({ label, children, ...rest }: Props) => (
   <View style={styles.container}>
-    <ExpoCheckbox style={styles.checkbox} color={colors.checkboxActiveColor} {...rest} />
+    <ExpoCheckbox
+      style={styles.checkbox}
+      color={rest.value ? colors.checkboxActiveColor : undefined}
+      {...rest}
+    />
     <View style={flexboxStyles.flex1}>
       {label ? <Text style={styles.label}>{label}</Text> : children}
     </View>
