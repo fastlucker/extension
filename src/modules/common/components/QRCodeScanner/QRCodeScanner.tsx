@@ -1,11 +1,14 @@
 import { BarCodeScanner } from 'expo-barcode-scanner'
 import { Camera } from 'expo-camera'
+import Constants from 'expo-constants'
+import * as IntentLauncher from 'expo-intent-launcher'
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Linking, Platform, StyleSheet, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import P from '@modules/common/components/P'
 
+import Button from '../Button'
 import styles from './styles'
 
 interface Props {
@@ -29,6 +32,21 @@ const QRCodeScanner = ({ onScan }: Props) => {
     !!onScan && onScan(data)
   }
 
+  const requestCameraPermissionAgain = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync()
+    setHasPermission(status === 'granted')
+  }
+
+  const handleGoToSettings = () =>
+    Platform.OS === 'ios'
+      ? Linking.openURL(`app-settings://camera/${Constants?.manifest?.ios?.bundleIdentifier}`)
+      : IntentLauncher.startActivityAsync(
+          IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
+          {
+            data: `package:${Constants?.manifest?.android?.package}`
+          }
+        )
+
   return (
     <View style={styles.container}>
       {!!hasPermission && (
@@ -36,7 +54,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
           <Camera
             onBarCodeScanned={scanned ? undefined : handleBarCodeScan}
             barCodeScannerSettings={{
-              barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
+              barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr]
             }}
             // Android only
             ratio="16:9"
@@ -45,7 +63,29 @@ const QRCodeScanner = ({ onScan }: Props) => {
         </View>
       )}
       {hasPermission === null && <P>{t('Requesting for camera permission')}</P>}
-      {hasPermission === false && <P>{t('No access to camera')}</P>}
+      {hasPermission === false && (
+        <>
+          <P>{t('The request for accessing the phone camera was denied.')}</P>
+          {Platform.OS === 'android' && (
+            <Button text={t('Request camera permission')} onPress={requestCameraPermissionAgain} />
+          )}
+          {Platform.OS === 'ios' && (
+            <P>
+              {t(
+                'To be able to scan the login QR code, first go to Settings. Then - select Ambire Wallet app from the list of installed apps. Finally, check alow camera access.'
+              )}
+            </P>
+          )}
+          {Platform.OS === 'android' && (
+            <P>
+              {t(
+                "Or if you've previously chose don't ask again - to be able to scan the login QR code, first go to Settings. Then - select Ambire Wallet app from the list of installed apps. Finally, check alow camera access."
+              )}
+            </P>
+          )}
+          <Button text={t('Open settings')} onPress={handleGoToSettings} />
+        </>
+      )}
     </View>
   )
 }
