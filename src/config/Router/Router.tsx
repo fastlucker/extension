@@ -30,7 +30,8 @@ const globalScreenOptions = {
   headerTintColor: colors.headerTintColor,
   headerTitleStyle: {
     fontSize: 20
-  }
+  },
+  headerBackTitleVisible: false
 }
 
 const TAB_BAR_ICON_SIZE = 22
