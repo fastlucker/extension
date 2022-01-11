@@ -7,6 +7,7 @@ import React from 'react'
 import Router from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
+import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
@@ -26,7 +27,9 @@ const App = () => {
                 <AddressBookProvider>
                   <PortalProvider>
                     <ToastProvider>
-                      <Router />
+                      <AttentionGrabberProvider>
+                        <Router />
+                      </AttentionGrabberProvider>
                     </ToastProvider>
                     <PortalHost name="global" />
                   </PortalProvider>

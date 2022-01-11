@@ -1,3 +1,3 @@
-import useRequests from './useToast'
+import useToast from './useToast'
 
-export default useRequests
+export default useToast

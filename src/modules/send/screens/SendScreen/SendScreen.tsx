@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { FieldValues, SubmitHandler } from 'react-hook-form'
 import {
   ActivityIndicator,
@@ -17,7 +17,6 @@ import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Select from '@modules/common/components/Select'
 import Wrapper from '@modules/common/components/Wrapper'
-import useToast from '@modules/common/hooks/useToast'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
@@ -25,7 +24,6 @@ import useSendTransaction from '@modules/send/hooks/useSendTransaction'
 
 const SendScreen = () => {
   const { t } = useTranslation()
-  const { addToast } = useToast()
   const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const {
     asset,
@@ -51,22 +49,6 @@ const SendScreen = () => {
     addAddress(fieldValues.name, fieldValues.address)
     closeBottomSheet()
   }
-
-  useEffect(() => {
-    setTimeout(() => {
-      addToast('Test', {
-        sticky: true
-      })
-    }, 2000)
-    setTimeout(() => {
-      addToast('Test 2', {
-        sticky: true
-      })
-    }, 4000)
-    setTimeout(() => {
-      addToast('Test 3')
-    }, 6000)
-  }, [])
 
   return (
     <Wrapper>
