@@ -6,6 +6,8 @@ const colors = {
   inputBackgroundColor: '#1c1e24',
   inputBackgroundColorDarker: '#191b20',
 
+  checkboxActiveColor: '#AA6AFF',
+
   primaryAccentColor: '#80ffdb',
   secondaryAccentColor: '#AA6AFF',
   tertiaryAccentColor: '#C3D4F6',

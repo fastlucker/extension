@@ -2,6 +2,9 @@ import ExpoCheckbox, { CheckboxProps } from 'expo-checkbox'
 import React from 'react'
 import { Text, View } from 'react-native'
 
+import colors from '@modules/common/styles/colors'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+
 import styles from './styles'
 
 interface Props extends CheckboxProps {
@@ -11,17 +14,12 @@ interface Props extends CheckboxProps {
 
 export const CheckboxLabelStyle = styles.label
 
-const Checkbox = ({ label, bottomSpacing = 16, children, ...rest }: Props) => (
-  <View
-    style={[
-      styles.container,
-      {
-        marginBottom: bottomSpacing
-      }
-    ]}
-  >
-    <ExpoCheckbox style={styles.checkbox} {...rest} />
-    {label ? <Text style={styles.label}>{label}</Text> : children}
+const Checkbox = ({ label, children, ...rest }: Props) => (
+  <View style={styles.container}>
+    <ExpoCheckbox style={styles.checkbox} color={colors.checkboxActiveColor} {...rest} />
+    <View style={flexboxStyles.flex1}>
+      {label ? <Text style={styles.label}>{label}</Text> : children}
+    </View>
   </View>
 )
 
