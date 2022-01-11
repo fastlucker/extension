@@ -11,7 +11,7 @@ import Checkbox from '@modules/common/components/Checkbox'
 import Heading from '@modules/common/components/Heading'
 import Input from '@modules/common/components/Input'
 import P from '@modules/common/components/P'
-import Text from '@modules/common/components/Text'
+import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import { isEmail } from '@modules/common/services/validate'
@@ -56,7 +56,7 @@ const AddNewAccountScreen = () => {
           )}
           name="email"
         />
-        {!!errors.email && <P>{t('Please fill in a valid email.')}</P>}
+        {!!errors.email && <P type={TEXT_TYPES.DANGER}>{t('Please fill in a valid email.')}</P>}
         <Controller
           control={control}
           rules={{
@@ -74,7 +74,9 @@ const AddNewAccountScreen = () => {
           )}
           name="password"
         />
-        {!!errors.password && <P>{t('Please fill in a valid password')}</P>}
+        {!!errors.password && (
+          <P type={TEXT_TYPES.DANGER}>{t('Please fill in a valid password.')}</P>
+        )}
         <Controller
           control={control}
           rules={{
@@ -92,7 +94,7 @@ const AddNewAccountScreen = () => {
           )}
           name="confirmPassword"
         />
-        {!!errors.confirmPassword && <P>{t("Passwords don't match.")}</P>}
+        {!!errors.confirmPassword && <P type={TEXT_TYPES.DANGER}>{t("Passwords don't match.")}</P>}
         <Controller
           control={control}
           render={({ field: { onChange, value } }) => (
@@ -132,8 +134,8 @@ const AddNewAccountScreen = () => {
           text={isSubmitting ? t('Signing up...') : t('Sign up')}
           onPress={handleSubmit(handleAddNewAccount)}
         />
-        {!!err && <P>{err}</P>}
-        {!!addAccErr && <P>{addAccErr}</P>}
+        {!!err && <P type={TEXT_TYPES.DANGER}>{err}</P>}
+        {!!addAccErr && <P type={TEXT_TYPES.DANGER}>{addAccErr}</P>}
       </Wrapper>
     </TouchableWithoutFeedback>
   )
