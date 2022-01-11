@@ -76,6 +76,9 @@ const AppStack = () => {
           backgroundColor: colors.tabBarInactiveBackgroundColor,
           borderTopColor: colors.headerShadowColor
         },
+        tabBarLabelStyle: {
+          paddingBottom: 5
+        },
         ...globalScreenOptions
       }}
     >
