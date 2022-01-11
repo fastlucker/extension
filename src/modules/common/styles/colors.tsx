@@ -24,6 +24,11 @@ const colors = {
   headerTintColor: '#fff',
   headerShadowColor: '#000',
 
+  tabBarActiveTintColor: '#AA6AFF',
+  tabBarInactiveTintColor: '#bbbbbb',
+  tabBarInactiveBackgroundColor: '#202229',
+  tabBarActiveBackgroundColor: '#202229',
+
   primaryButtonContainerColor: '#80ffdb',
   secondaryButtonContainerColor: 'rgba(0,0,0,.1)',
   primaryButtonTextColor: '#000',

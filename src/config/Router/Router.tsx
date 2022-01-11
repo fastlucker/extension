@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import AppsScreen from '@modules/apps/screens/AppsScreen'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
@@ -28,6 +29,8 @@ const globalScreenOptions = {
   },
   headerTintColor: colors.headerTintColor
 }
+
+const TAB_BAR_ICON_SIZE = 22
 
 const AuthStack = () => {
   const { t } = useTranslation()
@@ -59,21 +62,85 @@ const AppStack = () => {
   const { t } = useTranslation()
 
   return (
-    <Tab.Navigator screenOptions={globalScreenOptions}>
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: colors.tabBarActiveTintColor,
+        tabBarInactiveTintColor: colors.tabBarInactiveTintColor,
+        tabBarInactiveBackgroundColor: colors.tabBarInactiveBackgroundColor,
+        tabBarActiveBackgroundColor: colors.tabBarActiveBackgroundColor,
+        tabBarStyle: {
+          backgroundColor: colors.tabBarInactiveBackgroundColor,
+          borderTopColor: colors.headerShadowColor
+        },
+        ...globalScreenOptions
+      }}
+    >
       <Stack.Screen
         name="dashboard"
-        options={{ title: t('Dashboard') }}
+        options={{
+          title: t('Dashboard'),
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="dashboard" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
+        }}
         component={DashboardScreen}
       />
       <Stack.Screen
         name="transactions"
-        options={{ title: t('Transactions') }}
+        options={{
+          title: t('Transactions'),
+          // Use this one, because the actual one is <BiTransfer />,
+          // but the Box Icons set is not available
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="send-and-archive" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
+        }}
         component={TransactionsScreen}
       />
-      <Stack.Screen name="earn" options={{ title: t('Earn') }} component={EarnScreen} />
-      <Stack.Screen name="send" options={{ title: t('Send') }} component={SendScreen} />
-      <Stack.Screen name="apps" options={{ title: t('Apps') }} component={AppsScreen} />
-      <Stack.Screen name="settings" options={{ title: t('Settings') }} component={SettingsScreen} />
+      <Stack.Screen
+        name="earn"
+        options={{
+          title: t('Earn'),
+          tabBarIcon: ({ color }) => (
+            // Use this one, because the actual one is <BsPiggyBank />,
+            // but the Bootstrap Icons set is not available
+            <MaterialIcons name="attach-money" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
+        }}
+        component={EarnScreen}
+      />
+      <Stack.Screen
+        name="send"
+        options={{
+          title: t('Send'),
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="compare-arrows" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
+        }}
+        component={SendScreen}
+      />
+      <Stack.Screen
+        name="apps"
+        options={{
+          title: t('Apps'),
+          // Missing in the web app, so the icon here is mobile app specific
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="ios-apps" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
+        }}
+        component={AppsScreen}
+      />
+      <Stack.Screen
+        name="settings"
+        options={{
+          title: t('Settings'),
+          // Missing in the web app, so the icon here is mobile app specific
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="settings" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
+        }}
+        component={SettingsScreen}
+      />
     </Tab.Navigator>
   )
 }
