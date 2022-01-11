@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
 import Panel from '@modules/common/components/Panel'
+import PieChart from '@modules/common/components/PieChart'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
@@ -69,6 +70,7 @@ const BalancesChart = () => {
   return (
     <Panel>
       <Title>{t('Balance by')}</Title>
+      <PieChart data={chartTokensData.map(({ value }) => ({ y: value }))} />
       <Text>{JSON.stringify(chartTokensData)}</Text>
     </Panel>
   )
