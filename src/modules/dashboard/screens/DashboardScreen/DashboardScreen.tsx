@@ -1,11 +1,13 @@
 import React from 'react'
 import { Button, View } from 'react-native'
 
+import Blockies from '@modules/common/components/Blockies'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import spacings from '@modules/common/styles/spacings'
 import Assets from '@modules/dashboard/components/Assets'
 import Balances from '@modules/dashboard/components/Balances'
 import BalancesChart from '@modules/dashboard/components/BalancesChart'
@@ -27,7 +29,8 @@ const DashboardScreen = () => {
       <Title>Accounts</Title>
       {accounts.map((account: any) => (
         <View style={styles.accItemStyle} key={account?.id}>
-          <View style={{ flex: 1 }}>
+          <Blockies size={8} scale={4} isRound={true} borderRadius={15} seed={account?.id} />
+          <View style={{ flex: 1, ...spacings.mlTy }}>
             <Text numberOfLines={1}>{account?.id}</Text>
           </View>
           <Button onPress={() => onRemoveAccount(account?.id)} title="Remove" />
