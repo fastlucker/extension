@@ -3,11 +3,11 @@ import { LayoutChangeEvent, View } from 'react-native'
 import { VictoryLegend, VictoryPie } from 'victory-native'
 import { VictoryPieProps } from 'victory-pie'
 
-import Panel from '@modules/common/components/Panel'
-import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
-import usePortfolio from '@modules/common/hooks/usePortfolio'
 import colors from '@modules/common/styles/colors'
+import { SPACING, SPACING_TY } from '@modules/common/styles/spacings'
+
+const CHART_HEIGHT = 200
+const LEGEND_ROW_HEIGHT = 40
 
 interface Props extends VictoryPieProps {}
 
@@ -31,7 +31,7 @@ const PieChart: React.FC<Props> = (rest) => {
           <VictoryPie
             innerRadius={50}
             labels={() => null}
-            height={200}
+            height={CHART_HEIGHT}
             width={widthChart}
             padding={{ top: 0, bottom: 0, left: 0, right: 0 }}
             colorScale={colors.pieChartColorScale}
@@ -40,7 +40,11 @@ const PieChart: React.FC<Props> = (rest) => {
           <VictoryLegend
             width={widthChart}
             colorScale={colors.pieChartColorScale}
-            height={120}
+            height={LEGEND_ROW_HEIGHT * 2}
+            borderPadding={{ top: SPACING, bottom: 0, left: 0, right: 0 }}
+            gutter={{ left: 0, right: 0 }}
+            rowGutter={{ top: 0, bottom: 0 }}
+            symbolSpacer={SPACING_TY}
             orientation="vertical"
             style={{
               labels: { fontSize: 20, fill: 'white' }
