@@ -11,7 +11,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import styles from './styles'
 
 const CHART_HEIGHT = 200
-const LEGEND_ROW_HEIGHT = 40
+const LEGEND_ROW_HEIGHT = 36
 
 interface Props extends VictoryPieProps {}
 
@@ -44,8 +44,9 @@ const PieChart: React.FC<Props> = (rest) => {
           <VictoryLegend
             width={widthChart}
             colorScale={colors.pieChartColorScale}
-            height={LEGEND_ROW_HEIGHT * 2}
+            height={LEGEND_ROW_HEIGHT * (rest.data?.length || 1)}
             borderPadding={{ top: SPACING, bottom: 0, left: 0, right: 0 }}
+            padding={{ top: 0, bottom: 0, left: 0, right: 0 }}
             gutter={{ left: 0, right: 0 }}
             rowGutter={{ top: 0, bottom: 0 }}
             symbolSpacer={SPACING_TY}

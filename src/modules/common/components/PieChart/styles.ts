@@ -11,7 +11,7 @@ const styles = StyleSheet.create<Style>({
   extraLegend: {
     position: 'absolute',
     right: 0,
-    bottom: 6
+    bottom: 0
   },
   extraLegendText: {
     fontSize: 16,

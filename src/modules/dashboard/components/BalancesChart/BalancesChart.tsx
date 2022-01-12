@@ -65,18 +65,19 @@ const BalancesChart = () => {
     setChartProtocolsData(protocolsData)
   }, [balance, tokens, protocols])
 
+  // TODO:
   // useEffect(() => requestOtherProtocolsRefresh(), [portfolio])
+
+  const pieChartData = chartTokensData.map(({ value, label }) => ({
+    y: value,
+    name: label,
+    symbol: { type: 'square' }
+  }))
 
   return (
     <Panel>
       <Title>{t('Balance by')}</Title>
-      <PieChart
-        data={chartTokensData.map(({ value, label }) => ({
-          y: value,
-          name: label,
-          symbol: { type: 'square' }
-        }))}
-      />
+      <PieChart data={pieChartData} />
     </Panel>
   )
 }
