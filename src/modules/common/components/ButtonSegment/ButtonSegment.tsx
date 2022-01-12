@@ -13,7 +13,11 @@ interface Props extends TouchableOpacityProps {
 }
 
 const ButtonSegment: React.FC<Props> = ({ text, style = {}, isActive = false, ...rest }) => (
-  <TouchableOpacity style={[styles.buttonContainer, style, isActive && styles.active]} {...rest}>
+  <TouchableOpacity
+    disabled={isActive}
+    style={[styles.buttonContainer, isActive && styles.active, style]}
+    {...rest}
+  >
     <Text style={[styles.buttonText, isActive && textStyles.bold]}>{text}</Text>
   </TouchableOpacity>
 )

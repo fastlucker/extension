@@ -10,13 +10,17 @@ import usePortfolio from '@modules/common/hooks/usePortfolio'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
+enum CHART_TYPES {
+  TOKENS = 'tokens',
+  PROTOCOLS = 'protocols'
+}
+
 const BalancesChart = () => {
   const { t } = useTranslation()
   const { isBalanceLoading } = usePortfolio()
   const [chartTokensData, setChartTokensData] = useState([])
   const [chartProtocolsData, setChartProtocolsData] = useState([])
-  const [chartType, setChartType] = useState([])
-  const [tableType, setTableType] = useState([])
+  const [chartType, setChartType] = useState(CHART_TYPES.TOKENS)
 
   const chartSegments = [
     {
@@ -82,15 +86,15 @@ const BalancesChart = () => {
       <View style={[flexboxStyles.directionRow, spacings.mbSm]}>
         <Title style={flexboxStyles.flex1}>{t('Balance by')}</Title>
         <ButtonSegment
-          onPress={() => {}}
+          onPress={() => setChartType(CHART_TYPES.TOKENS)}
           text={t('Tokens')}
-          isActive={true}
+          isActive={chartType === CHART_TYPES.TOKENS}
           style={spacings.mlTy}
         />
         <ButtonSegment
-          onPress={() => {}}
+          onPress={() => setChartType(CHART_TYPES.PROTOCOLS)}
           text={t('Protocols')}
-          isActive={false}
+          isActive={chartType === CHART_TYPES.PROTOCOLS}
           style={spacings.mlTy}
         />
       </View>
