@@ -110,11 +110,7 @@ const BalancesChart = () => {
         />
       </View>
       {chartType === CHART_TYPES.TOKENS &&
-        (isBalanceLoading ? (
-          <ActivityIndicator />
-        ) : (
-          <PieChart data={[...pieChartTokensData, ...pieChartTokensData]} />
-        ))}
+        (isBalanceLoading ? <ActivityIndicator /> : <PieChart data={pieChartTokensData} />)}
       {chartType === CHART_TYPES.PROTOCOLS &&
         (areProtocolsLoading ? <ActivityIndicator /> : <PieChart data={pieChartProtocolsData} />)}
     </Panel>

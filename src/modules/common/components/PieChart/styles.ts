@@ -3,20 +3,33 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
-  extraLegend: ViewStyle
-  extraLegendText: TextStyle
+  symbol: ViewStyle
+  row: ViewStyle
+  value: TextStyle
+  label: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  extraLegend: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0
+  symbol: {
+    width: 15,
+    height: 15,
+    alignSelf: 'center',
+    ...spacings.mrTy
   },
-  extraLegendText: {
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%'
+  },
+  label: {
+    fontSize: 20
+  },
+  value: {
     fontSize: 16,
     textAlign: 'right',
-    ...spacings.mtSm
+    lineHeight: 20,
+    paddingVertical: 5
   }
 })
 
