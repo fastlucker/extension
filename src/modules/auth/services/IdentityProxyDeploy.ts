@@ -26,7 +26,7 @@ function sstoreCode(slotNumber, keyType, key, valueType, valueBuf) {
   return Buffer.concat([
     evmPush(typeof valueBuf === 'string' ? Buffer.from(valueBuf.slice(2), 'hex') : valueBuf),
     evmPush(Buffer.from(slot.slice(2), 'hex')),
-    Buffer.from('55', 'hex'),
+    Buffer.from('55', 'hex')
   ])
 }
 

@@ -11,6 +11,7 @@ type OptionsProps = {
   error?: boolean
   sticky?: boolean
   badge?: any
+  timeout?: number
   onClick?: () => any
 }
 

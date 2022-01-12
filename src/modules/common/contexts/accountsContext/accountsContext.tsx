@@ -4,7 +4,8 @@ import useAuth from '@modules/auth/hooks/useAuth'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type AccountsContextData = {
-  accounts: any
+  account: any
+  accounts: any[]
   selectedAcc: any
   onSelectAcc: (selected: any) => void
   onAddAccount: (acc: any, opts: any) => void
@@ -13,6 +14,7 @@ type AccountsContextData = {
 
 const AccountsContext = createContext<AccountsContextData>({
   accounts: [],
+  account: {},
   selectedAcc: '',
   onSelectAcc: () => {},
   onAddAccount: () => false,
@@ -102,7 +104,14 @@ const AccountsProvider: React.FC = ({ children }) => {
   return (
     <AccountsContext.Provider
       value={useMemo(
-        () => ({ accounts, selectedAcc, onSelectAcc, onAddAccount, onRemoveAccount }),
+        () => ({
+          accounts,
+          selectedAcc,
+          onSelectAcc,
+          onAddAccount,
+          onRemoveAccount,
+          account: accounts.find((x) => x.id === selectedAcc)
+        }),
         [accounts, selectedAcc, onSelectAcc, onAddAccount, onRemoveAccount]
       )}
     >

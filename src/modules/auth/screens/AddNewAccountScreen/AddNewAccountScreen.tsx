@@ -8,7 +8,6 @@ import { ambireCloudURL, termsAndPrivacyURL } from '@modules/auth/constants/URLs
 import useAddNewAccount from '@modules/auth/hooks/useAddNewAccount'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
-import Heading from '@modules/common/components/Heading'
 import Input from '@modules/common/components/Input'
 import P from '@modules/common/components/P'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'

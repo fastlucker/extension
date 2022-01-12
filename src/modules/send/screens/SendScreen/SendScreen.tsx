@@ -17,6 +17,7 @@ import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Select from '@modules/common/components/Select'
 import Wrapper from '@modules/common/components/Wrapper'
+import useAddressBook from '@modules/common/hooks/useAddressBook'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
@@ -25,6 +26,7 @@ import useSendTransaction from '@modules/send/hooks/useSendTransaction'
 const SendScreen = () => {
   const { t } = useTranslation()
   const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const { addAddress } = useAddressBook()
   const {
     asset,
     amount,

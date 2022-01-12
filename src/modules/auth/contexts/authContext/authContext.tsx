@@ -9,7 +9,7 @@ type AuthContextData = {
 
 const AuthContext = createContext<AuthContextData>({
   isAuthenticated: false,
-  setIsAuthenticated: () => false,
+  setIsAuthenticated: () => false
 })
 
 const AuthProvider: React.FC = ({ children }) => {
