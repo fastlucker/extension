@@ -17,7 +17,14 @@ enum CHART_TYPES {
 
 const BalancesChart = () => {
   const { t } = useTranslation()
-  const { isBalanceLoading } = usePortfolio()
+  const {
+    isBalanceLoading,
+    areProtocolsLoading,
+    requestOtherProtocolsRefresh,
+    balance,
+    protocols,
+    tokens
+  } = usePortfolio()
   const [chartTokensData, setChartTokensData] = useState([])
   const [chartProtocolsData, setChartProtocolsData] = useState([])
   const [chartType, setChartType] = useState(CHART_TYPES.TOKENS)
@@ -39,8 +46,6 @@ const BalancesChart = () => {
       value: 'Collectibles'
     }
   ]
-  const { areProtocolsLoading, requestOtherProtocolsRefresh, balance, protocols, tokens } =
-    usePortfolio()
 
   useLayoutEffect(() => {
     const tokensData = tokens
@@ -75,7 +80,13 @@ const BalancesChart = () => {
 
   useEffect(() => requestOtherProtocolsRefresh(), [tokens, protocols])
 
-  const pieChartData = chartTokensData.map(({ value, label }) => ({
+  const pieChartTokensData = chartTokensData.map(({ value, label }) => ({
+    y: value,
+    name: label,
+    symbol: { type: 'square' }
+  }))
+
+  const pieChartProtocolsData = chartProtocolsData.map(({ value, label }) => ({
     y: value,
     name: label,
     symbol: { type: 'square' }
@@ -98,7 +109,14 @@ const BalancesChart = () => {
           style={spacings.mlTy}
         />
       </View>
-      {isBalanceLoading ? <ActivityIndicator /> : <PieChart data={pieChartData} />}
+      {chartType === CHART_TYPES.TOKENS &&
+        (isBalanceLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <PieChart data={[...pieChartTokensData, ...pieChartTokensData]} />
+        ))}
+      {chartType === CHART_TYPES.PROTOCOLS &&
+        (areProtocolsLoading ? <ActivityIndicator /> : <PieChart data={pieChartProtocolsData} />)}
     </Panel>
   )
 }
