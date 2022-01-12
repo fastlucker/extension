@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, LayoutAnimation, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import ButtonSegment from '@modules/common/components/ButtonSegment'
@@ -9,6 +9,8 @@ import Title from '@modules/common/components/Title'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+
+import styles from './styles'
 
 enum CHART_TYPES {
   TOKENS = 'tokens',
@@ -74,18 +76,23 @@ const BalancesChart = () => {
     symbol: { type: 'square' }
   }))
 
+  const handleSetChartType = (type: CHART_TYPES) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+    setChartType(type)
+  }
+
   return (
-    <Panel>
+    <Panel style={styles.panel}>
       <View style={[flexboxStyles.directionRow, spacings.mbSm]}>
         <Title style={flexboxStyles.flex1}>{t('Balance by')}</Title>
         <ButtonSegment
-          onPress={() => setChartType(CHART_TYPES.TOKENS)}
+          onPress={() => handleSetChartType(CHART_TYPES.TOKENS)}
           text={t('Tokens')}
           isActive={chartType === CHART_TYPES.TOKENS}
           style={spacings.mlTy}
         />
         <ButtonSegment
-          onPress={() => setChartType(CHART_TYPES.PROTOCOLS)}
+          onPress={() => handleSetChartType(CHART_TYPES.PROTOCOLS)}
           text={t('Protocols')}
           isActive={chartType === CHART_TYPES.PROTOCOLS}
           style={spacings.mlTy}
