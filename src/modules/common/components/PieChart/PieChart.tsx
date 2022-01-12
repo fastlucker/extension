@@ -3,8 +3,12 @@ import { LayoutChangeEvent, View } from 'react-native'
 import { VictoryLegend, VictoryPie } from 'victory-native'
 import { VictoryPieProps } from 'victory-pie'
 
+import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import { SPACING, SPACING_TY } from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+
+import styles from './styles'
 
 const CHART_HEIGHT = 200
 const LEGEND_ROW_HEIGHT = 40
@@ -18,15 +22,8 @@ const PieChart: React.FC<Props> = (rest) => {
     setWidthChart(Math.round(nativeEvent.layout.width))
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}
-      onLayout={handleOnLayout}
-    >
-      {widthChart && (
+    <View style={[flexboxStyles.center]} onLayout={handleOnLayout}>
+      {!!widthChart && (
         <>
           <VictoryPie
             innerRadius={50}
@@ -37,6 +34,13 @@ const PieChart: React.FC<Props> = (rest) => {
             colorScale={colors.pieChartColorScale}
             {...rest}
           />
+          {/* Absolutely positioning VictoryLegend is not supported */}
+          {/* therefore, position the extra legend content with custom View */}
+          <View style={styles.extraLegend}>
+            {rest.data?.map((d) => (
+              <Text style={styles.extraLegendText}>{`${d.y}%`}</Text>
+            ))}
+          </View>
           <VictoryLegend
             width={widthChart}
             colorScale={colors.pieChartColorScale}
@@ -46,9 +50,7 @@ const PieChart: React.FC<Props> = (rest) => {
             rowGutter={{ top: 0, bottom: 0 }}
             symbolSpacer={SPACING_TY}
             orientation="vertical"
-            style={{
-              labels: { fontSize: 20, fill: 'white' }
-            }}
+            style={{ labels: { fontSize: 20, fill: 'white' } }}
             data={rest.data}
           />
         </>

@@ -77,7 +77,6 @@ const BalancesChart = () => {
           symbol: { type: 'square' }
         }))}
       />
-      <Text>{JSON.stringify(chartTokensData)}</Text>
     </Panel>
   )
 }
