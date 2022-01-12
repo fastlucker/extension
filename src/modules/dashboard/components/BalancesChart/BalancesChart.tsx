@@ -1,12 +1,14 @@
-import React, { useLayoutEffect, useState } from 'react'
-import { ActivityIndicator } from 'react-native'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
+import { ActivityIndicator, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import ButtonSegment from '@modules/common/components/ButtonSegment'
 import Panel from '@modules/common/components/Panel'
 import PieChart from '@modules/common/components/PieChart'
-import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 const BalancesChart = () => {
   const { t } = useTranslation()
@@ -67,8 +69,7 @@ const BalancesChart = () => {
     setChartProtocolsData(protocolsData)
   }, [balance, tokens, protocols])
 
-  // TODO:
-  // useEffect(() => requestOtherProtocolsRefresh(), [portfolio])
+  useEffect(() => requestOtherProtocolsRefresh(), [tokens, protocols])
 
   const pieChartData = chartTokensData.map(({ value, label }) => ({
     y: value,
@@ -78,7 +79,21 @@ const BalancesChart = () => {
 
   return (
     <Panel>
-      <Title>{t('Balance by')}</Title>
+      <View style={[flexboxStyles.directionRow, spacings.mbSm]}>
+        <Title style={flexboxStyles.flex1}>{t('Balance by')}</Title>
+        <ButtonSegment
+          onPress={() => {}}
+          text={t('Tokens')}
+          isActive={true}
+          style={spacings.mlTy}
+        />
+        <ButtonSegment
+          onPress={() => {}}
+          text={t('Protocols')}
+          isActive={false}
+          style={spacings.mlTy}
+        />
+      </View>
       {isBalanceLoading ? <ActivityIndicator /> : <PieChart data={pieChartData} />}
     </Panel>
   )
