@@ -65,6 +65,7 @@ export default function useSendTransaction() {
   }, [selectedAsset])
 
   const onAmountChange = (value: any) => {
+    console.log('val', value)
     if (value) {
       const { decimals } = selectedAsset
       const bigNumberAmount = ethers.utils.parseUnits(value, decimals).toHexString()
@@ -167,6 +168,7 @@ export default function useSendTransaction() {
     addressConfirmed,
     setAddressConfirmed,
     unknownWarning,
-    smartContractWarning
+    smartContractWarning,
+    onAmountChange
   }
 }

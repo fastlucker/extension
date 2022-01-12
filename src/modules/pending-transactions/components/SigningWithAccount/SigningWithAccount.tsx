@@ -14,10 +14,10 @@ const SigningWithAccount = () => {
   const { network } = useNetwork()
   return (
     <Panel>
-      <Title>{t('Signing with account:')}</Title>
+      <Title>{t('Signing with account')}</Title>
       <Text>
         {account.id}
-        {!!account.id && <Text>on</Text>}
+        {!!account.id && <Text>{' on '}</Text>}
         <Text>{network?.name}</Text>
       </Text>
     </Panel>

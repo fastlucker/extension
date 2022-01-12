@@ -35,7 +35,6 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
 
   return (
     <Wrapper>
-      <Text>Pending Transactions</Text>
       <SigningWithAccount />
       <TransactionSummary bundle={bundle} estimation={estimation} />
       <FeeSelector

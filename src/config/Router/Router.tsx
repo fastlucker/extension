@@ -38,60 +38,6 @@ export function navigate(name: string, params?: object): void {
   navigationRef.current?.navigate(name, params)
 }
 
-const DashboardStackScreen = () => {
-  return (
-    <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
-      <DashboardStack.Screen name="dashboard" component={DashboardScreen} />
-      <DashboardStack.Screen name="pending-transactions" component={PendingTransactionsScreen} />
-    </DashboardStack.Navigator>
-  )
-}
-
-const TransactionsStackScreen = () => {
-  return (
-    <TransactionsStack.Navigator screenOptions={{ headerShown: false }}>
-      <TransactionsStack.Screen name="transactions" component={TransactionsScreen} />
-      <TransactionsStack.Screen name="pending-transactions" component={PendingTransactionsScreen} />
-    </TransactionsStack.Navigator>
-  )
-}
-
-const EarnStackScreen = () => {
-  return (
-    <EarnStack.Navigator screenOptions={{ headerShown: false }}>
-      <EarnStack.Screen name="earn" component={EarnScreen} />
-      <EarnStack.Screen name="pending-transactions" component={PendingTransactionsScreen} />
-    </EarnStack.Navigator>
-  )
-}
-
-const SendStackScreen = () => {
-  return (
-    <SendStack.Navigator screenOptions={{ headerShown: false }}>
-      <SendStack.Screen name="send" component={SendScreen} />
-      <SendStack.Screen name="pending-transactions" component={PendingTransactionsScreen} />
-    </SendStack.Navigator>
-  )
-}
-
-const AppStackScreen = () => {
-  return (
-    <AppsStack.Navigator screenOptions={{ headerShown: false }}>
-      <AppsStack.Screen name="apps" component={AppsScreen} />
-      <AppsStack.Screen name="pending-transactions" component={PendingTransactionsScreen} />
-    </AppsStack.Navigator>
-  )
-}
-
-const SettingsStackScreen = () => {
-  return (
-    <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
-      <SettingsStack.Screen name="settings" component={SettingsScreen} />
-      <SettingsStack.Screen name="pending-transactions" component={PendingTransactionsScreen} />
-    </SettingsStack.Navigator>
-  )
-}
-
 const globalScreenOptions = {
   headerStyle: {
     backgroundColor: colors.headerBackgroundColor,
@@ -105,6 +51,168 @@ const globalScreenOptions = {
 }
 
 const TAB_BAR_ICON_SIZE = 22
+
+const DashboardStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <DashboardStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <DashboardStack.Screen
+        name="dashboard"
+        component={DashboardScreen}
+        options={{
+          headerTitle: t('Dashboard')
+        }}
+      />
+      <DashboardStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+    </DashboardStack.Navigator>
+  )
+}
+
+const TransactionsStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <TransactionsStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <TransactionsStack.Screen
+        name="transactions"
+        component={TransactionsScreen}
+        options={{
+          headerTitle: t('Transactions')
+        }}
+      />
+      <TransactionsStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+    </TransactionsStack.Navigator>
+  )
+}
+
+const EarnStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <EarnStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <EarnStack.Screen
+        name="earn"
+        component={EarnScreen}
+        options={{
+          headerTitle: t('Earn')
+        }}
+      />
+      <EarnStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+    </EarnStack.Navigator>
+  )
+}
+
+const SendStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <SendStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <SendStack.Screen
+        name="send"
+        component={SendScreen}
+        options={{
+          headerTitle: t('Send')
+        }}
+      />
+      <SendStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+    </SendStack.Navigator>
+  )
+}
+
+const AppStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <AppsStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <AppsStack.Screen
+        name="apps"
+        component={AppsScreen}
+        options={{
+          headerTitle: t('Apps')
+        }}
+      />
+      <AppsStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+    </AppsStack.Navigator>
+  )
+}
+
+const SettingsStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <SettingsStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <SettingsStack.Screen
+        name="settings"
+        component={SettingsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+      <SettingsStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Dashboard')
+        }}
+      />
+    </SettingsStack.Navigator>
+  )
+}
 
 const AuthStack = () => {
   const { t } = useTranslation()
@@ -148,13 +256,13 @@ const AppStack = () => {
         },
         tabBarLabelStyle: {
           paddingBottom: 5
-        },
-        ...globalScreenOptions
+        }
       }}
     >
       <Tab.Screen
         name="dashboard-tab"
         options={{
+          headerShown: false,
           title: t('Dashboard'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="dashboard" size={TAB_BAR_ICON_SIZE} color={color} />
@@ -165,6 +273,7 @@ const AppStack = () => {
       <Tab.Screen
         name="transactions-tab"
         options={{
+          headerShown: false,
           title: t('Transactions'),
           // Use this one, because the actual one is <BiTransfer />,
           // but the Box Icons set is not available
@@ -177,6 +286,7 @@ const AppStack = () => {
       <Tab.Screen
         name="earn-tab"
         options={{
+          headerShown: false,
           title: t('Earn'),
           tabBarIcon: ({ color }) => (
             // Use this one, because the actual one is <BsPiggyBank />,
@@ -189,6 +299,7 @@ const AppStack = () => {
       <Tab.Screen
         name="send-tab"
         options={{
+          headerShown: false,
           title: t('Send'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="compare-arrows" size={TAB_BAR_ICON_SIZE} color={color} />
@@ -199,6 +310,7 @@ const AppStack = () => {
       <Tab.Screen
         name="apps-tab"
         options={{
+          headerShown: false,
           title: t('Apps'),
           // Missing in the web app, so the icon here is mobile app specific
           tabBarIcon: ({ color }) => (
@@ -210,6 +322,7 @@ const AppStack = () => {
       <Tab.Screen
         name="settings-tab"
         options={{
+          headerShown: false,
           title: t('Settings'),
           // Missing in the web app, so the icon here is mobile app specific
           tabBarIcon: ({ color }) => (

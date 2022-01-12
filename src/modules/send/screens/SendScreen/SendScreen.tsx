@@ -33,7 +33,7 @@ const SendScreen = () => {
     address,
     assetsItems,
     setAsset,
-    setAmount,
+    onAmountChange,
     setMaxAmount,
     setAddress,
     sendTransaction,
@@ -70,7 +70,7 @@ const SendScreen = () => {
               <View>
                 <Select value={asset} items={assetsItems} setValue={setAsset} />
                 <NumberInput
-                  onChangeText={(v: any) => setAmount(v)}
+                  onChangeText={onAmountChange}
                   value={amount.toString()}
                   buttonText={t('MAX')}
                   onButtonPress={setMaxAmount}
