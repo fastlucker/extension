@@ -29,6 +29,7 @@ const colors = {
     '#FFC480',
     '#FF8080'
   ],
+  pieChartEmptyColorScale: ['#e0e0e0'],
 
   headerColor: 'hsla(0,0%,100%,.1)',
   rowOddColor: 'hsla(0,0%,100%,.04)',
