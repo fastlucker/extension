@@ -15,7 +15,7 @@ const LEGEND_ROW_HEIGHT = 36
 
 interface Props extends VictoryPieProps {}
 
-const PieChart: React.FC<Props> = ({ data = [] }) => {
+const PieChart: React.FC<Props> = ({ data = [], ...rest }) => {
   const [widthChart, setWidthChart] = useState<number>(0)
 
   const handleOnLayout = ({ nativeEvent }: LayoutChangeEvent) =>
@@ -37,6 +37,7 @@ const PieChart: React.FC<Props> = ({ data = [] }) => {
             padding={{ top: 0, bottom: 0, left: 0, right: 0 }}
             colorScale={colorScale}
             data={isEmptyState ? [{ y: 100 }] : data}
+            {...rest}
           />
           {!isEmptyState && (
             // Absolutely positioning VictoryLegend is not supported
