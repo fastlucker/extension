@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useState } from 'react'
+import { ActivityIndicator } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Panel from '@modules/common/components/Panel'
@@ -9,6 +10,7 @@ import usePortfolio from '@modules/common/hooks/usePortfolio'
 
 const BalancesChart = () => {
   const { t } = useTranslation()
+  const { isBalanceLoading } = usePortfolio()
   const [chartTokensData, setChartTokensData] = useState([])
   const [chartProtocolsData, setChartProtocolsData] = useState([])
   const [chartType, setChartType] = useState([])
@@ -77,7 +79,7 @@ const BalancesChart = () => {
   return (
     <Panel>
       <Title>{t('Balance by')}</Title>
-      <PieChart data={pieChartData} />
+      {isBalanceLoading ? <ActivityIndicator /> : <PieChart data={pieChartData} />}
     </Panel>
   )
 }
