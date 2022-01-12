@@ -1,5 +1,6 @@
 import 'react-native-gesture-handler'
 import 'expo-asset'
+import { Platform, UIManager } from 'react-native'
 
 import { registerRootComponent } from 'expo'
 
