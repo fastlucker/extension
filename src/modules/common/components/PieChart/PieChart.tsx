@@ -49,6 +49,7 @@ const PieChart: React.FC<Props> = ({ data = [], ...rest }) => {
             // Positioning and aligning VictoryLegend component with this
             // structure, turned out to be a nightmare...
             // Therefore, use custom components as legend content instead.
+            // TODO: Eventually, convert this to a flat list
             data.map(({ y, name }, i) => (
               <View key={name} style={[styles.row, i === 0 && spacings.mt]}>
                 <View style={flexboxStyles.directionRow}>

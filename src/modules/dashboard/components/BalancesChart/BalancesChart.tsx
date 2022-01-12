@@ -29,24 +29,6 @@ const BalancesChart = () => {
   const [chartProtocolsData, setChartProtocolsData] = useState([])
   const [chartType, setChartType] = useState(CHART_TYPES.TOKENS)
 
-  const chartSegments = [
-    {
-      value: 'Tokens'
-    },
-    {
-      value: 'Protocols'
-    }
-  ]
-
-  const tableSegments = [
-    {
-      value: 'Tokens'
-    },
-    {
-      value: 'Collectibles'
-    }
-  ]
-
   useLayoutEffect(() => {
     const tokensData = tokens
       .map(({ label, symbol, balanceUSD }) => ({
