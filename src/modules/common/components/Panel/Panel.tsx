@@ -1,8 +1,12 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, ViewProps } from 'react-native'
 
 import styles from './styles'
 
-const Panel: React.FC = ({ children }) => <View style={styles.container}>{children}</View>
+const Panel: React.FC<ViewProps> = ({ children, style, ...rest }) => (
+  <View style={[styles.container, style]} {...rest}>
+    {children}
+  </View>
+)
 
 export default Panel
