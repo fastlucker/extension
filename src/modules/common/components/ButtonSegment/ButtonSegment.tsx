@@ -3,6 +3,7 @@ import { TouchableOpacityProps } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import Text from '@modules/common/components/Text'
+import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
 
@@ -13,7 +14,7 @@ interface Props extends TouchableOpacityProps {
 
 const ButtonSegment: React.FC<Props> = ({ text, style = {}, isActive = false, ...rest }) => (
   <TouchableOpacity style={[styles.buttonContainer, style, isActive && styles.active]} {...rest}>
-    <Text style={styles.buttonText}>{text}</Text>
+    <Text style={[styles.buttonText, isActive && textStyles.bold]}>{text}</Text>
   </TouchableOpacity>
 )
 
