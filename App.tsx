@@ -19,26 +19,26 @@ const App = () => {
   return (
     <>
       <StatusBar style="light" />
-      <AuthProvider>
-        <AccountsProvider>
-          <NetworkProvider>
-            <PortfolioProvider>
-              <RequestsProvider>
-                <AddressBookProvider>
-                  <PortalProvider>
-                    <ToastProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <AccountsProvider>
+            <NetworkProvider>
+              <PortfolioProvider>
+                <RequestsProvider>
+                  <AddressBookProvider>
+                    <PortalProvider>
                       <AttentionGrabberProvider>
                         <Router />
                       </AttentionGrabberProvider>
-                    </ToastProvider>
-                    <PortalHost name="global" />
-                  </PortalProvider>
-                </AddressBookProvider>
-              </RequestsProvider>
-            </PortfolioProvider>
-          </NetworkProvider>
-        </AccountsProvider>
-      </AuthProvider>
+                      <PortalHost name="global" />
+                    </PortalProvider>
+                  </AddressBookProvider>
+                </RequestsProvider>
+              </PortfolioProvider>
+            </NetworkProvider>
+          </AccountsProvider>
+        </AuthProvider>
+      </ToastProvider>
     </>
   )
 }

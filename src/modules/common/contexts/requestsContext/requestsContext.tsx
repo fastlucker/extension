@@ -1,6 +1,7 @@
 // TODO: add types
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
+import { navigationRef } from '@config/Router/Router'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrevious from '@modules/common/hooks/usePrevious'
@@ -46,7 +47,6 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const [internalRequests, setInternalRequests] = useState<any>([])
   const [sentTxn, setSentTxn] = useState<any[]>([])
-  console.log('Internal requests: ', internalRequests)
 
   const addRequest = (req: any) => setInternalRequests((reqs: any) => [...reqs, req])
 
@@ -88,7 +88,7 @@ const RequestsProvider: React.FC = ({ children }) => {
     }
     setSentTxn((txn: any) => [...txn, { confirmed: false, hash }])
     addToast('Transaction signed and sent successfully! &nbsp;Click to view on block explorer.', {
-      url: `${network.explorerUrl}/tx/${hash}`,
+      onClick: () => navigationRef.navigate('transactions-tab'),
       timeout: 15000
     })
   }
