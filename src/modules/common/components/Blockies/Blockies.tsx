@@ -108,6 +108,8 @@ class Blockie extends Component {
     const scale = this.props.scale || 8
     const isRound = this.props.isRound || false
     const borderRadius = this.props.borderRadius || 30
+    const borderWidth = this.props.borderWidth || 0
+    const borderColor = this.props.borderColor
 
     const style = [
       // The generated visuals match the Ethereum Blockies
@@ -118,7 +120,8 @@ class Blockie extends Component {
       isRound && {
         borderRadius: borderRadius,
         overflow: 'hidden'
-      }
+      },
+      { borderWidth, borderColor }
     ]
 
     return (
