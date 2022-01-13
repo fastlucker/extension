@@ -46,7 +46,7 @@ const Accounts = () => {
   }
 
   const account = accounts.find(({ id }) => id === selectedAcc)
-  const { name: networkName, Icon: NetworkIcon } = network
+  const { name: networkName, Icon: NetworkIcon } = network || {}
 
   const renderAccountDetails = (account) => {
     const isActive = selectedAcc === account.id
