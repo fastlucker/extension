@@ -1,11 +1,9 @@
-import { StyleSheet, ViewProps } from 'react-native'
-import { TextPath } from 'react-native-svg'
+import { StyleSheet, TextProps, ViewProps } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
-
-interface Style {
-  chevron: TextPath
+interface Styles {
+  chevron: TextProps
   accItemStyle: ViewProps
+  accFooter: ViewProps
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -13,7 +11,9 @@ const styles = StyleSheet.create<Styles>({
     flexDirection: 'row',
     alignItems: 'center'
   },
-  chevron: { fontSize: 12 }
+  chevron: {
+    fontSize: 12
+  }
 })
 
 export default styles
