@@ -1,5 +1,5 @@
 import React from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, LayoutAnimation, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import PolygonLogo from '@modules/common/assets/svg/networks/PolygonLogo'
@@ -47,7 +47,10 @@ const Balances = () => {
           {otherPositiveBalances.map(({ network, total }, i: number) => {
             const { name, Icon } = networkDetails(network)
             const hasOneMore = otherPositiveBalances.length - 1 !== i
-            const onNetworkChange = () => setNetwork(network)
+            const onNetworkChange = () => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+              setNetwork(network)
+            }
 
             return (
               <>
