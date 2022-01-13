@@ -75,6 +75,23 @@ const DashboardStackScreen = () => {
           headerTitle: t('Pending Transaction')
         }}
       />
+      <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
+      <Stack.Screen
+        name="addNewAccount"
+        options={{ title: t('Register') }}
+        component={AddNewAccountScreen}
+      />
+      <Stack.Screen
+        name="emailLogin"
+        options={{ title: t('Login') }}
+        component={EmailLoginScreen}
+      />
+      <Stack.Screen name="jsonLogin" options={{ title: t('Login') }} component={JsonLoginScreen} />
+      <Stack.Screen
+        name="qrCodeLogin"
+        options={{ title: t('Login') }}
+        component={QRCodeLoginScreen}
+      />
     </DashboardStack.Navigator>
   )
 }

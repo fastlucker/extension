@@ -19,6 +19,18 @@ const colors = {
 
   textColor: '#FFF',
 
+  pieChartColorScale: [
+    '#AA6AFF',
+    '#80FFDB',
+    '#8088FF',
+    '#E680FF',
+    '#A5FF80',
+    '#E6FF80',
+    '#FFC480',
+    '#FF8080'
+  ],
+  pieChartEmptyColorScale: ['#e0e0e0'],
+
   headerColor: 'hsla(0,0%,100%,.1)',
   rowOddColor: 'hsla(0,0%,100%,.04)',
   rowEvenColor: 'hsla(0,0%,100%,.02)',
