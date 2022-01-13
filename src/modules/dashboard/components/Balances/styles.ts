@@ -3,9 +3,9 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 interface Style {
   text: TextStyle
   otherBalancesText: TextStyle
+  otherBalancesTextHighlight: TextStyle
   activityIndicator: ViewStyle
   otherBalancesContainer: ViewStyle
-  networkLogo: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -17,13 +17,16 @@ const styles = StyleSheet.create<Style>({
     marginLeft: 15
   },
   otherBalancesContainer: {
-    marginTop: 20
+    marginTop: 20,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    opacity: 0.8
   },
   otherBalancesText: {
     fontSize: 20
   },
-  networkLogo: {
-    marginHorizontal: 5
+  otherBalancesTextHighlight: {
+    fontWeight: '500'
   }
 })
 
