@@ -17,12 +17,14 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import { useNavigation } from '@react-navigation/native'
 
 import styles from './styles'
 
 const Accounts = () => {
   const { t } = useTranslation()
-  const { accounts, selectedAcc, onRemoveAccount } = useAccounts()
+  const navigation = useNavigation()
+  const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
   const { network, setNetwork, allNetworks } = useNetwork()
   const sheetNetworks = useBottomSheet()
   const sheetAccounts = useBottomSheet()
@@ -31,6 +33,16 @@ const Accounts = () => {
   const handleChangeNetwork = (chainId) => {
     setNetwork(chainId)
     sheetNetworks.closeBottomSheet()
+  }
+
+  const handleChangeAccount = (accountId) => {
+    sheetAccounts.closeBottomSheet()
+    onSelectAcc(accountId)
+  }
+
+  const handleGoToAddAccount = () => {
+    sheetAccounts.closeBottomSheet()
+    navigation.navigate('auth')
   }
 
   const account = accounts.find(({ id }) => id === selectedAcc)
@@ -77,7 +89,7 @@ const Accounts = () => {
           <View style={[styles.accItemStyle, spacings.mb]} key={account?.id}>
             <Blockies size={16} scale={4} isRound={true} borderRadius={30} seed={account?.id} />
             <View style={[flexboxStyles.flex1, spacings.mlTy]}>
-              <Text onPress={sheetAccounts.openBottomSheet}>{account?.id}</Text>
+              <Text onPress={() => handleChangeAccount(account.id)}>{account.id}</Text>
               {logoutWarning === account.id ? (
                 <>
                   <Text type={TEXT_TYPES.DANGER}>
@@ -107,7 +119,7 @@ const Accounts = () => {
             </View>
           </View>
         ))}
-        <Button style={spacings.mt} text={t('➕ Add account')} />
+        <Button onPress={handleGoToAddAccount} style={spacings.mt} text={t('➕ Add account')} />
       </BottomSheet>
     </>
   )
