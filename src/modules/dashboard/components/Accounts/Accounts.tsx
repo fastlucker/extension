@@ -119,7 +119,7 @@ const Accounts = () => {
           <View>
             <Trans>
               <Text onPress={sheetNetworks.openBottomSheet}>
-                on <NetworkIcon style={{ marginTop: -3 }} />{' '}
+                on <NetworkIcon style={styles.networkIcon} />{' '}
                 <Text style={textStyles.bold}>{networkName}</Text>
                 <Text style={styles.chevron}> 🔽</Text>
               </Text>

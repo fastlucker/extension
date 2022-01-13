@@ -2,6 +2,7 @@ import { StyleSheet, TextProps, ViewProps } from 'react-native'
 
 interface Styles {
   chevron: TextProps
+  networkIcon: TextProps
   accItemStyle: ViewProps
   inactiveAccount: ViewProps
 }
@@ -16,6 +17,10 @@ const styles = StyleSheet.create<Styles>({
   },
   inactiveAccount: {
     opacity: 0.5
+  },
+  networkIcon: {
+    // so it aligns better vertically within text
+    marginTop: -3
   }
 })
 
