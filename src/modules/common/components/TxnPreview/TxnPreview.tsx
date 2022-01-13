@@ -1,7 +1,7 @@
 import { formatUnits } from 'ethers/lib/utils'
 // TODO: add types
 import React, { useState } from 'react'
-import { TextProps, TouchableOpacity, View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 
 import networks from '@modules/common/constants/networks'
 import {
@@ -28,16 +28,23 @@ const TxnPreview = ({
 }: any) => {
   const [isExpanded, setExpanded] = useState(false)
   const contractName = getName(txn[0], network)
+
   return (
-    <View>
-      <TouchableOpacity onPress={() => !disableExpand && setExpanded((e) => !e)}>
+    <View style={{ padding: 10 }}>
+      <TouchableOpacity
+        onPress={() => !disableExpand && setExpanded((e) => !e)}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center'
+        }}
+      >
         <View>
           <Text>{getTransactionSummary(txn, network, account, { mined })}</Text>
+          {isFirstFailing && <Text>This is the first failing transaction.</Text>}
+          {!isFirstFailing && !mined && !isKnown(txn, account) && (
+            <Text>Warning: interacting with an unknown contract or address.</Text>
+          )}
         </View>
-        {isFirstFailing && <Text>This is the first failing transaction.</Text>}
-        {!isFirstFailing && !mined && !isKnown(txn, account) && (
-          <Text>Warning: interacting with an unknown contract or address.</Text>
-        )}
         {!!onDismiss && (
           <TouchableOpacity onPress={onDismiss}>
             <Text>❌</Text>
@@ -47,8 +54,8 @@ const TxnPreview = ({
       {isExpanded ? (
         <View>
           <View>
+            <Text>Interacting with (to):</Text>
             <Text>
-              Interacting with to:
               <Text>{txn[0]}</Text>
               <Text>{contractName ? ` (${contractName})` : ''}</Text>
             </Text>
@@ -56,8 +63,8 @@ const TxnPreview = ({
           <View>
             <Text>
               <Text>
-                {getNetworkSymbol(network)}
-                <Text>to be sent value</Text>
+                {`${getNetworkSymbol(network)} `}
+                <Text>{'to be sent value '}</Text>
               </Text>
               <Text>{formatUnits(txn[1] || '0x0', 18)}</Text>
             </Text>

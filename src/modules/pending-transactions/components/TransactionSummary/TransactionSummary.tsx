@@ -41,7 +41,7 @@ const TransactionSummary = ({ bundle, estimation }: any) => {
         <View>
           <Text>
             {bundle.requestIds
-              ? 'You can sign multiple transactions at once. Add more transactions to this batch by interacting with a connected dApp right now.'
+              ? 'DEGEN TIP: You can sign multiple transactions at once. Add more transactions to this batch by interacting with a connected dApp right now.'
               : 'NOTE: You are currently replacing a pending transaction.'}
           </Text>
         </View>

@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import usePrevious from '@modules/common/hooks/usePrevious'
 import useRequests from '@modules/common/hooks/useRequests'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
 import SigningWithAccount from '@modules/pending-transactions/components/SigningWithAccount'
@@ -18,7 +19,9 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const { bundle, signingStatus, estimation, feeSpeed, setEstimation, setFeeSpeed } =
     useSendTransaction()
 
-  React.useEffect(
+  const prevBundle: any = usePrevious(bundle)
+
+  useEffect(
     () =>
       navigation.addListener('beforeRemove', () => {
         setSendTxnState({ showing: false })
@@ -26,10 +29,18 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     [navigation]
   )
 
+  useEffect(() => {
+    if (prevBundle?.txns?.length && !bundle?.txns?.length) {
+      navigation.goBack()
+    }
+  })
+
   if (!account || !bundle?.txns?.length)
     return (
       <View>
-        <Text>{t('SendTransactions: No account or no requests: should never happen.')}</Text>
+        <Text style={{ color: 'red' }}>
+          {t('SendTransactions: No account or no requests: should never happen.')}
+        </Text>
       </View>
     )
 
