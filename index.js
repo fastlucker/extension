@@ -1,5 +1,6 @@
 import 'react-native-gesture-handler'
 import 'expo-asset'
+import { Platform, UIManager } from 'react-native'
 
 import { registerRootComponent } from 'expo'
 
@@ -14,6 +15,12 @@ global.Buffer = Buffer
 import 'react-native-get-random-values'
 
 import '@ethersproject/shims'
+
+// In order to get Layout API to work on Android.
+// {@link https://reactnative.dev/docs/layoutanimation}
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true)
+}
 
 // eslint-disable-next-line
 import App from './App'
