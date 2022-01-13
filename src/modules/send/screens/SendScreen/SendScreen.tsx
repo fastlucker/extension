@@ -21,7 +21,7 @@ import useAddressBook from '@modules/common/hooks/useAddressBook'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
-import useSendTransaction from '@modules/send/hooks/useSendTransaction'
+import useRequestTransaction from '@modules/send/hooks/useRequestTransaction'
 
 const SendScreen = () => {
   const { t } = useTranslation()
@@ -44,7 +44,7 @@ const SendScreen = () => {
     validationFormMgs,
     unknownWarning,
     smartContractWarning
-  } = useSendTransaction()
+  } = useRequestTransaction()
 
   const handleAddNewAddress = (fieldValues: SubmitHandler<FieldValues>) => {
     // @ts-ignore
