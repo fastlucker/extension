@@ -22,6 +22,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 
+const DashboardStack = createNativeStackNavigator()
+
 const globalScreenOptions = {
   headerStyle: {
     backgroundColor: colors.headerBackgroundColor,
@@ -35,6 +37,43 @@ const globalScreenOptions = {
 }
 
 const TAB_BAR_ICON_SIZE = 22
+
+const DashboardStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <DashboardStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <DashboardStack.Screen
+        name="dashboard"
+        component={DashboardScreen}
+        options={{
+          headerTitle: t('Dashboard')
+        }}
+      />
+      <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
+      <Stack.Screen
+        name="addNewAccount"
+        options={{ title: t('Register') }}
+        component={AddNewAccountScreen}
+      />
+      <Stack.Screen
+        name="emailLogin"
+        options={{ title: t('Login') }}
+        component={EmailLoginScreen}
+      />
+      <Stack.Screen name="jsonLogin" options={{ title: t('Login') }} component={JsonLoginScreen} />
+      <Stack.Screen
+        name="qrCodeLogin"
+        options={{ title: t('Login') }}
+        component={QRCodeLoginScreen}
+      />
+    </DashboardStack.Navigator>
+  )
+}
 
 const AuthStack = () => {
   const { t } = useTranslation()
@@ -82,15 +121,16 @@ const AppStack = () => {
         ...globalScreenOptions
       }}
     >
-      <Stack.Screen
-        name="dashboard"
+      <Tab.Screen
+        name="dashboard-tab"
         options={{
+          headerShown: false,
           title: t('Dashboard'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="dashboard" size={TAB_BAR_ICON_SIZE} color={color} />
           )
         }}
-        component={DashboardScreen}
+        component={DashboardStackScreen}
       />
       <Stack.Screen
         name="transactions"

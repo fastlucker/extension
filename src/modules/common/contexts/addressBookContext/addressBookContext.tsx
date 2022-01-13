@@ -1,4 +1,3 @@
-import * as blockies from 'blockies-ts'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -29,7 +28,8 @@ const accountType = ({ email, signerExtra }: any) => {
       : 'Web3'
   return email ? `Ambire account for ${email}` : `Ambire account (${walletType})`
 }
-// TODO: Fix the document error
+// The Blockies package used for the web is not compatible with React Native.
+// Therefore, we generate the Blockies in different way. Skip this.
 // const toIcon = (seed: any) => blockies.create({ seed }).toDataURL()
 const toIcon = (seed: any) => ''
 
