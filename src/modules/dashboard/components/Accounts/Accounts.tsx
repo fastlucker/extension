@@ -54,14 +54,8 @@ const Accounts = () => {
               <Trans>
                 <Text onPress={openBottomSheet}>
                   on <NetworkIcon style={{ marginTop: -3 }} />{' '}
-                  <Text style={textStyles.bold}>{networkName} </Text>
-                  {/* TODO */}
-                  {/* <MaterialIcons
-                    style={{ backgroundColor: 'red' }}
-                    name="keyboard-arrow-down"
-                    size={30}
-                    color={colors.textColor}
-                  /> */}
+                  <Text style={textStyles.bold}>{networkName}</Text>
+                  <Text style={styles.chevron}> 🔽</Text>
                 </Text>
               </Trans>
             </View>

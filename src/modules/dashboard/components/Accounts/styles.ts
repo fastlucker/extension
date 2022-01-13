@@ -1,13 +1,19 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, ViewProps } from 'react-native'
+import { TextPath } from 'react-native-svg'
 
-const styles = StyleSheet.create({
+import colors from '@modules/common/styles/colors'
+
+interface Style {
+  chevron: TextPath
+  accItemStyle: ViewProps
+}
+
+const styles = StyleSheet.create<Styles>({
   accItemStyle: {
     flexDirection: 'row',
     alignItems: 'center'
   },
-  balanceContainer: {
-    alignItems: 'center'
-  }
+  chevron: { fontSize: 12 }
 })
 
 export default styles
