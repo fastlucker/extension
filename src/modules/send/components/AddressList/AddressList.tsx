@@ -32,7 +32,8 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
         backgroundColor: colors.inputBackgroundColor,
         flexDirection: 'row',
         flex: 1,
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: 10
       }}
       activeOpacity={0.8}
       onPress={() => {
@@ -52,6 +53,9 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
   const renderAddresses = () => (
     <FlatList
       data={items}
+      // TODO: configure more realistic max height
+      style={{ maxHeight: 300 }}
+      bounces={false}
       renderItem={renderItem}
       keyExtractor={(item) => item.address + item.name}
     />
