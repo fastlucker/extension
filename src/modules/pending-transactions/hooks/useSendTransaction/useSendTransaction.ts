@@ -153,6 +153,7 @@ const useSendTransaction = () => {
   }
 
   const approveTxnImplQuickAcc = async ({ quickAccCredentials }: any) => {
+    console.log('quickAccCredentials', quickAccCredentials)
     if (!estimation) throw new Error('no estimation: should never happen')
     if (!CONFIG.RELAYER_URL)
       throw new Error('Email/Password account signing without the relayer is not supported yet')
@@ -197,7 +198,7 @@ const useSendTransaction = () => {
         // Make sure we let React re-render without blocking (decrypting and signing will block)
         // eslint-disable-next-line no-promise-executor-return
         await new Promise((resolve) => setTimeout(resolve, 0))
-        const pwd = quickAccCredentials.passphrase || Alert.alert('Enter password')
+        const pwd = quickAccCredentials.password || Alert.alert('Enter password')
         const wallet = await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), pwd)
         await finalBundle.sign(wallet)
       } else {

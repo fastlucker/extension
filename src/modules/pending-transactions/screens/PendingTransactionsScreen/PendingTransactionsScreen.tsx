@@ -1,13 +1,16 @@
 import React, { useEffect } from 'react'
 import { View } from 'react-native'
 
+import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useRequests from '@modules/common/hooks/useRequests'
+import FailingTxn from '@modules/pending-transactions/components/FailingTxn'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
+import SignActions from '@modules/pending-transactions/components/SignActions'
 import SigningWithAccount from '@modules/pending-transactions/components/SigningWithAccount'
 import TransactionSummary from '@modules/pending-transactions/components/TransactionSummary'
 import useSendTransaction from '@modules/pending-transactions/hooks/useSendTransaction'
@@ -16,8 +19,16 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { setSendTxnState } = useRequests()
   const { account } = useAccounts()
-  const { bundle, signingStatus, estimation, feeSpeed, setEstimation, setFeeSpeed } =
-    useSendTransaction()
+  const {
+    bundle,
+    signingStatus,
+    estimation,
+    feeSpeed,
+    setEstimation,
+    setFeeSpeed,
+    approveTxn,
+    rejectTxn
+  } = useSendTransaction()
 
   const prevBundle: any = usePrevious(bundle)
 
@@ -37,11 +48,11 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
 
   if (!account || !bundle?.txns?.length)
     return (
-      <View>
+      <Wrapper>
         <Text style={{ color: 'red' }}>
           {t('SendTransactions: No account or no requests: should never happen.')}
         </Text>
-      </View>
+      </Wrapper>
     )
 
   return (
@@ -58,6 +69,17 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         feeSpeed={feeSpeed}
         setFeeSpeed={setFeeSpeed}
       />
+      {!!bundle?.signer?.quickAccManager && !CONFIG.RELAYER_URL ? (
+        <FailingTxn message="Signing transactions with an email/password account without being connected to the relayer is unsupported." />
+      ) : (
+        <SignActions
+          estimation={estimation}
+          approveTxn={approveTxn}
+          rejectTxn={rejectTxn}
+          signingStatus={signingStatus}
+          feeSpeed={feeSpeed}
+        />
+      )}
     </Wrapper>
   )
 }

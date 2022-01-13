@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import P from '@modules/common/components/P'
@@ -8,6 +8,7 @@ import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import FailingTxn from '@modules/pending-transactions/components/FailingTxn'
 import {
   getErrHint,
   getFeePaymentConsequences,
@@ -15,17 +16,9 @@ import {
   mapTxnErrMsg
 } from '@modules/pending-transactions/services/helpers'
 
-const SPEEDS = ['slow', 'medium', 'fast', 'ape']
+import styles from './styles'
 
-export function FailingTxn({ message, tooltip = '' }: any) {
-  return (
-    <div className="failingTxn">
-      {/* <AiOutlineWarning /> */}
-      <Text>{message}</Text>
-      {/* <FiHelpCircle title={tooltip} /> */}
-    </div>
-  )
-}
+const SPEEDS = ['slow', 'medium', 'fast', 'ape']
 
 const FeeSelector = ({
   disabled,
@@ -112,9 +105,14 @@ const FeeSelector = ({
     const { multiplier } = getFeePaymentConsequences(estimation.selectedFeeToken, estimation)
 
     const feeAmountSelectors = SPEEDS.map((speed) => (
-      <TouchableOpacity key={speed} onPress={() => !areSelectorsDisabled && setFeeSpeed(speed)}>
+      <TouchableOpacity
+        key={speed}
+        onPress={() => !areSelectorsDisabled && setFeeSpeed(speed)}
+        style={StyleSheet.flatten([styles.feeSelector, feeSpeed === speed && styles.selected])}
+        disabled={areSelectorsDisabled}
+      >
         <Text>{speed}</Text>
-        <Text>
+        <Text numberOfLines={1}>
           {/* eslint-disable-next-line no-nested-ternary */}
           {isStable
             ? `$${estimation.feeInUSD[speed] * multiplier}`
@@ -135,19 +133,17 @@ const FeeSelector = ({
         ) : (
           feeCurrencySelect
         )}
-        <View>{feeAmountSelectors}</View>
+        <View style={styles.selectorsContainer}>{feeAmountSelectors}</View>
         {
           // Visualize the fee once again with a USD estimation if in native currency
           !isStable && (
-            <Text>
-              Fee: {`${estimation.feeInNative[feeSpeed] * multiplier} ${nativeAssetSymbol}`}
-              &nbsp;(~ $
+            <Text numberOfLines={2}>
+              Fee: {`${estimation.feeInNative[feeSpeed] * multiplier} ${nativeAssetSymbol}`}{' '}
               {(
                 estimation.feeInNative[feeSpeed] *
                 multiplier *
                 estimation.nativeAssetPriceInUSD
               ).toFixed(2)}
-              )
             </Text>
           )
         }
