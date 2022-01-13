@@ -2,6 +2,7 @@
  * Credits to Brennen Peters for writing the logic for this module.
  * {@link https://github.com/bpeters}
  * {@link https://github.com/bpeters/react-native-blockies-svg/blob/197fb5932be263489f6f762f0a7d4d18e7161dbc/index.js}
+ * TODO: Write TypeScript types and refactor a bit.
  */
 
 import React, { Component } from 'react'
