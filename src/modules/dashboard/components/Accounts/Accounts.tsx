@@ -31,6 +31,10 @@ const Accounts = () => {
     sheetNetworks.closeBottomSheet()
   }
 
+  const renderBlockies = (seed = '') => (
+    <Blockies size={8} scale={4} isRound={true} borderRadius={15} seed={seed} />
+  )
+
   const account = accounts.find(({ id }) => id === selectedAcc)
   const { name: networkName, Icon: NetworkIcon } = network
 
@@ -39,7 +43,7 @@ const Accounts = () => {
       <Panel>
         <Title>Accounts</Title>
         <View style={styles.accItemStyle} key={account?.id}>
-          <Blockies size={8} scale={4} isRound={true} borderRadius={15} seed={account?.id} />
+          {renderBlockies(account?.id)}
           <View style={[flexboxStyles.flex1, spacings.mlTy]}>
             <Text onPress={sheetAccounts.openBottomSheet} numberOfLines={1}>
               {account?.id}
@@ -71,7 +75,7 @@ const Accounts = () => {
 
         {accounts.map((account: any) => (
           <View style={styles.accItemStyle} key={account?.id}>
-            <Blockies size={8} scale={4} isRound={true} borderRadius={15} seed={account?.id} />
+            {renderBlockies(account?.id)}
             <View style={[flexboxStyles.flex1, spacings.mlTy]}>
               <Text onPress={sheetAccounts.openBottomSheet} numberOfLines={1}>
                 {account?.id}
