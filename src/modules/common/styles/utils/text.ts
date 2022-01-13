@@ -7,6 +7,7 @@ interface Styles {
   highlightSecondary: TextStyle
   bold: TextStyle
   center: TextStyle
+  right: TextStyle
 }
 
 const textStyles = StyleSheet.create<Styles>({
@@ -21,6 +22,9 @@ const textStyles = StyleSheet.create<Styles>({
   },
   center: {
     textAlign: 'center'
+  },
+  right: {
+    textAlign: 'right'
   }
 })
 
