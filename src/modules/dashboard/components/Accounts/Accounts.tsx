@@ -87,7 +87,9 @@ const Accounts = () => {
 
         {accounts.map((account: any) => (
           <View style={[styles.accItemStyle, spacings.mb]} key={account?.id}>
-            <Blockies size={16} scale={4} isRound={true} borderRadius={30} seed={account?.id} />
+            <TouchableOpacity onPress={() => handleChangeAccount(account.id)}>
+              <Blockies size={16} scale={4} isRound={true} borderRadius={30} seed={account?.id} />
+            </TouchableOpacity>
             <View style={[flexboxStyles.flex1, spacings.mlTy]}>
               <Text onPress={() => handleChangeAccount(account.id)}>{account.id}</Text>
               {logoutWarning === account.id ? (
