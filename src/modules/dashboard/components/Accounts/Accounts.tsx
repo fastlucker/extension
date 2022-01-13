@@ -21,53 +21,63 @@ import styles from './styles'
 
 const Accounts = () => {
   const { t } = useTranslation()
-  const { accounts, onRemoveAccount } = useAccounts()
+  const { accounts, selectedAcc, onRemoveAccount } = useAccounts()
   const { network, setNetwork, allNetworks } = useNetwork()
-  const { openBottomSheet, closeBottomSheet, sheetRef } = useBottomSheet()
-
-  // const networksItems = allNetworks.map(({ id, name, icon }) => ({
-  //   label: name,
-  //   value: id,
-  //   icon
-  // }))
+  const sheetNetworks = useBottomSheet()
+  const sheetAccounts = useBottomSheet()
 
   const handleChangeNetwork = (chainId) => {
     setNetwork(chainId)
-    closeBottomSheet()
+    sheetNetworks.closeBottomSheet()
   }
 
+  const account = accounts.find(({ id }) => id === selectedAcc)
   const { name: networkName, Icon: NetworkIcon } = network
 
   return (
     <>
       <Panel>
         <Title>Accounts</Title>
-        {accounts.map((account: any) => (
-          <View style={styles.accItemStyle} key={account?.id}>
-            <Blockies size={8} scale={4} isRound={true} borderRadius={15} seed={account?.id} />
-            <View style={[flexboxStyles.flex1, spacings.mlTy]}>
-              <Text numberOfLines={1}>{account?.id}</Text>
-            </View>
-            {/* TODO */}
-            {/* <Button onPress={() => onRemoveAccount(account?.id)} title="Remove" /> */}
-            <View>
-              <Trans>
-                <Text onPress={openBottomSheet}>
-                  on <NetworkIcon style={{ marginTop: -3 }} />{' '}
-                  <Text style={textStyles.bold}>{networkName}</Text>
-                  <Text style={styles.chevron}> 🔽</Text>
-                </Text>
-              </Trans>
-            </View>
+        <View style={styles.accItemStyle} key={account?.id}>
+          <Blockies size={8} scale={4} isRound={true} borderRadius={15} seed={account?.id} />
+          <View style={[flexboxStyles.flex1, spacings.mlTy]}>
+            <Text onPress={sheetAccounts.openBottomSheet} numberOfLines={1}>
+              {account?.id}
+            </Text>
           </View>
-        ))}
+          {/* TODO */}
+          {/* <Button onPress={() => onRemoveAccount(selectedAcc.id)} title="Remove" /> */}
+          <View>
+            <Trans>
+              <Text onPress={sheetNetworks.openBottomSheet}>
+                on <NetworkIcon style={{ marginTop: -3 }} />{' '}
+                <Text style={textStyles.bold}>{networkName}</Text>
+                <Text style={styles.chevron}> 🔽</Text>
+              </Text>
+            </Trans>
+          </View>
+        </View>
         {/* TODO: Copy address, Send, Receive  */}
       </Panel>
-      <BottomSheet sheetRef={sheetRef}>
+      <BottomSheet sheetRef={sheetNetworks.sheetRef}>
         <Title>{t('Change network')}</Title>
 
         {allNetworks.map(({ name, chainId }) => (
           <Button key={chainId} onPress={() => handleChangeNetwork(chainId)} text={name} />
+        ))}
+      </BottomSheet>
+      <BottomSheet sheetRef={sheetAccounts.sheetRef}>
+        <Title>{t('Change account')}</Title>
+
+        {accounts.map((account: any) => (
+          <View style={styles.accItemStyle} key={account?.id}>
+            <Blockies size={8} scale={4} isRound={true} borderRadius={15} seed={account?.id} />
+            <View style={[flexboxStyles.flex1, spacings.mlTy]}>
+              <Text onPress={sheetAccounts.openBottomSheet} numberOfLines={1}>
+                {account?.id}
+              </Text>
+            </View>
+          </View>
         ))}
       </BottomSheet>
     </>
