@@ -1,13 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import Blockies from '@modules/common/components/Blockies'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
-import Text from '@modules/common/components/Text'
+import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import networks from '@modules/common/constants/networks'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -25,15 +26,12 @@ const Accounts = () => {
   const { network, setNetwork, allNetworks } = useNetwork()
   const sheetNetworks = useBottomSheet()
   const sheetAccounts = useBottomSheet()
+  const [logoutWarning, setLogoutWarning] = useState(false)
 
   const handleChangeNetwork = (chainId) => {
     setNetwork(chainId)
     sheetNetworks.closeBottomSheet()
   }
-
-  const renderBlockies = (seed = '') => (
-    <Blockies size={8} scale={4} isRound={true} borderRadius={15} seed={seed} />
-  )
 
   const account = accounts.find(({ id }) => id === selectedAcc)
   const { name: networkName, Icon: NetworkIcon } = network
@@ -43,7 +41,9 @@ const Accounts = () => {
       <Panel>
         <Title>Accounts</Title>
         <View style={styles.accItemStyle} key={account?.id}>
-          {renderBlockies(account?.id)}
+          <TouchableOpacity onPress={sheetAccounts.openBottomSheet}>
+            <Blockies size={8} scale={4} isRound={true} borderRadius={15} seed={account?.id} />
+          </TouchableOpacity>
           <View style={[flexboxStyles.flex1, spacings.mlTy]}>
             <Text onPress={sheetAccounts.openBottomSheet} numberOfLines={1}>
               {account?.id}
@@ -74,15 +74,40 @@ const Accounts = () => {
         <Title>{t('Change account')}</Title>
 
         {accounts.map((account: any) => (
-          <View style={styles.accItemStyle} key={account?.id}>
-            {renderBlockies(account?.id)}
+          <View style={[styles.accItemStyle, spacings.mb]} key={account?.id}>
+            <Blockies size={16} scale={4} isRound={true} borderRadius={30} seed={account?.id} />
             <View style={[flexboxStyles.flex1, spacings.mlTy]}>
-              <Text onPress={sheetAccounts.openBottomSheet} numberOfLines={1}>
-                {account?.id}
-              </Text>
+              <Text onPress={sheetAccounts.openBottomSheet}>{account?.id}</Text>
+              {logoutWarning === account.id ? (
+                <>
+                  <Text type={TEXT_TYPES.DANGER}>
+                    {t('Are you sure you want to log out from this account?')}{' '}
+                  </Text>
+                  <Text>
+                    <Text
+                      style={textStyles.bold}
+                      onPress={() => {
+                        setLogoutWarning(false)
+                        onRemoveAccount(account.id)
+                      }}
+                    >
+                      {t('Yes, log out.')}
+                    </Text>{' '}
+                    <Text onPress={() => setLogoutWarning(false)}>{t('Cancel.')}</Text>
+                  </Text>
+                </>
+              ) : (
+                <Text
+                  style={[textStyles.bold, textStyles.right]}
+                  onPress={() => setLogoutWarning(account.id)}
+                >
+                  {t('Log out')}
+                </Text>
+              )}
             </View>
           </View>
         ))}
+        <Button style={spacings.mt} text={t('➕ Add account')} />
       </BottomSheet>
     </>
   )
