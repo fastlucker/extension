@@ -1,5 +1,5 @@
 import React from 'react'
-import { ActivityIndicator, Button, View } from 'react-native'
+import { ActivityIndicator, LayoutAnimation, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import PolygonLogo from '@modules/common/assets/svg/networks/PolygonLogo'
@@ -10,6 +10,7 @@ import networks from '@modules/common/constants/networks'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
@@ -41,29 +42,40 @@ const Balances = () => {
       </Text>
 
       {otherPositiveBalances.length > 0 && (
-        <Text style={[styles.otherBalancesContainer, styles.otherBalancesText]}>
-          {t('You also have')}{' '}
+        <View style={styles.otherBalancesContainer}>
+          <Text style={styles.otherBalancesText}>{t('You also have')} </Text>
           {otherPositiveBalances.map(({ network, total }, i: number) => {
             const { name, Icon } = networkDetails(network)
+            const hasOneMore = otherPositiveBalances.length - 1 !== i
+            const onNetworkChange = () => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+              setNetwork(network)
+            }
+
             return (
-              <Text
-                key={network}
-                style={styles.otherBalancesText}
-                onPress={() => setNetwork(network)}
-              >
-                <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>$</Text>{' '}
-                {total.truncated}
-                <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
-                  .{total.decimals}
+              <>
+                <Text>
+                  <Text key={network} style={styles.otherBalancesText} onPress={onNetworkChange}>
+                    <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
+                      {'$ '}
+                    </Text>
+                    {total.truncated}
+                    <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
+                      .{total.decimals}{' '}
+                    </Text>
+                    <Text style={styles.otherBalancesText}>{`${t('on')} `}</Text>
+                    <Icon width={25} />
+                    <Text
+                      style={[styles.otherBalancesText, styles.otherBalancesTextHighlight]}
+                    >{` ${name} `}</Text>
+                  </Text>
+
+                  {hasOneMore && <Text style={styles.otherBalancesText}>{`${t('and')} `}</Text>}
                 </Text>
-                {` ${t('on')} `}
-                <Icon style={styles.networkLogo} />
-                {name}
-                {otherPositiveBalances.length - 1 !== i && ` ${t('and')} `}
-              </Text>
+              </>
             )
           })}
-        </Text>
+        </View>
       )}
     </Panel>
   )
