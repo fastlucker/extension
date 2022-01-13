@@ -3,7 +3,7 @@ import { StyleSheet, TextProps, ViewProps } from 'react-native'
 interface Styles {
   chevron: TextProps
   accItemStyle: ViewProps
-  accFooter: ViewProps
+  inactiveAccount: ViewProps
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -13,6 +13,9 @@ const styles = StyleSheet.create<Styles>({
   },
   chevron: {
     fontSize: 12
+  },
+  inactiveAccount: {
+    opacity: 0.5
   }
 })
 

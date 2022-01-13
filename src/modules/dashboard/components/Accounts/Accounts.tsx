@@ -48,6 +48,59 @@ const Accounts = () => {
   const account = accounts.find(({ id }) => id === selectedAcc)
   const { name: networkName, Icon: NetworkIcon } = network
 
+  const renderAccountDetails = (account) => {
+    const isActive = selectedAcc === account.id
+    const onChangeAccount = () => handleChangeAccount(account.id)
+
+    return (
+      <View
+        key={account?.id}
+        style={[styles.accItemStyle, spacings.mb, !isActive && styles.inactiveAccount]}
+      >
+        <TouchableOpacity onPress={onChangeAccount}>
+          <Blockies
+            size={16}
+            scale={4}
+            isRound={true}
+            borderRadius={30}
+            borderWidth={isActive ? 2 : 0}
+            borderColor={colors.primaryAccentColor}
+            seed={account?.id}
+          />
+        </TouchableOpacity>
+        <View style={[flexboxStyles.flex1, spacings.mlTy]}>
+          <Text onPress={onChangeAccount}>{account.id}</Text>
+          {logoutWarning === account.id ? (
+            <>
+              <Text type={TEXT_TYPES.DANGER}>
+                {t('Are you sure you want to log out from this account?')}{' '}
+              </Text>
+              <Text>
+                <Text
+                  style={textStyles.bold}
+                  onPress={() => {
+                    setLogoutWarning(false)
+                    onRemoveAccount(account.id)
+                  }}
+                >
+                  {t('Yes, log out.')}
+                </Text>{' '}
+                <Text onPress={() => setLogoutWarning(false)}>{t('Cancel.')}</Text>
+              </Text>
+            </>
+          ) : (
+            <Text
+              style={[textStyles.bold, textStyles.right]}
+              onPress={() => setLogoutWarning(account.id)}
+            >
+              {t('Log out')}
+            </Text>
+          )}
+        </View>
+      </View>
+    )
+  }
+
   return (
     <>
       <Panel>
@@ -85,42 +138,7 @@ const Accounts = () => {
       <BottomSheet sheetRef={sheetAccounts.sheetRef}>
         <Title>{t('Change account')}</Title>
 
-        {accounts.map((account: any) => (
-          <View style={[styles.accItemStyle, spacings.mb]} key={account?.id}>
-            <TouchableOpacity onPress={() => handleChangeAccount(account.id)}>
-              <Blockies size={16} scale={4} isRound={true} borderRadius={30} seed={account?.id} />
-            </TouchableOpacity>
-            <View style={[flexboxStyles.flex1, spacings.mlTy]}>
-              <Text onPress={() => handleChangeAccount(account.id)}>{account.id}</Text>
-              {logoutWarning === account.id ? (
-                <>
-                  <Text type={TEXT_TYPES.DANGER}>
-                    {t('Are you sure you want to log out from this account?')}{' '}
-                  </Text>
-                  <Text>
-                    <Text
-                      style={textStyles.bold}
-                      onPress={() => {
-                        setLogoutWarning(false)
-                        onRemoveAccount(account.id)
-                      }}
-                    >
-                      {t('Yes, log out.')}
-                    </Text>{' '}
-                    <Text onPress={() => setLogoutWarning(false)}>{t('Cancel.')}</Text>
-                  </Text>
-                </>
-              ) : (
-                <Text
-                  style={[textStyles.bold, textStyles.right]}
-                  onPress={() => setLogoutWarning(account.id)}
-                >
-                  {t('Log out')}
-                </Text>
-              )}
-            </View>
-          </View>
-        ))}
+        {accounts.map(renderAccountDetails)}
         <Button onPress={handleGoToAddAccount} style={spacings.mt} text={t('➕ Add account')} />
       </BottomSheet>
     </>
