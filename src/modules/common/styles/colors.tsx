@@ -35,6 +35,9 @@ const colors = {
   rowOddColor: 'hsla(0,0%,100%,.04)',
   rowEvenColor: 'hsla(0,0%,100%,.02)',
 
+  listOddColor: 'rgba(0,0,0,.025)',
+  listEvenColor: 'rgba(0,0,0,.1)',
+
   headerBackgroundColor: '#202229',
   headerTintColor: '#fff',
   headerShadowColor: '#000',

@@ -60,8 +60,6 @@ const Accounts = () => {
         <TouchableOpacity onPress={onChangeAccount}>
           <Blockies
             size={16}
-            scale={4}
-            isRound={true}
             borderRadius={30}
             borderWidth={isActive ? 2 : 0}
             borderColor={colors.primaryAccentColor}
@@ -107,7 +105,7 @@ const Accounts = () => {
         <Title>Accounts</Title>
         <View style={styles.accItemStyle} key={account?.id}>
           <TouchableOpacity onPress={sheetAccounts.openBottomSheet}>
-            <Blockies size={8} scale={4} isRound={true} borderRadius={15} seed={account?.id} />
+            <Blockies seed={account?.id} />
           </TouchableOpacity>
           <View style={[flexboxStyles.flex1, spacings.mlTy]}>
             <Text onPress={sheetAccounts.openBottomSheet} numberOfLines={1}>
