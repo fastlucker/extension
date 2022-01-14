@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { FlatList, View } from 'react-native'
+import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import { useTranslation } from '@config/localization'
@@ -25,8 +25,9 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
     [addresses]
   )
 
-  const renderItem: any = ({ item }: any) => (
+  const renderItem: any = (item: any) => (
     <TouchableOpacity
+      key={item.address + item.name}
       style={{
         padding: 8,
         backgroundColor: colors.inputBackgroundColor,
@@ -50,21 +51,10 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
     </TouchableOpacity>
   )
 
-  const renderAddresses = () => (
-    <FlatList
-      data={items}
-      // TODO: configure more realistic max height
-      style={{ maxHeight: 300 }}
-      bounces={false}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.address + item.name}
-    />
-  )
-
   return (
     <Panel>
       <Title>{t('Address Book')}</Title>
-      {!!items.length && renderAddresses()}
+      {!!items.length && items.map(renderItem)}
       {!items.length && <P>{t('Your address book is empty')}</P>}
       <Button onPress={onOpenBottomSheet} text={t('➕ Add Address')} />
     </Panel>
