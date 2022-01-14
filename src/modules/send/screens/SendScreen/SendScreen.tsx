@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { FieldValues, SubmitHandler } from 'react-hook-form'
 import {
   ActivityIndicator,
@@ -17,23 +17,23 @@ import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Select from '@modules/common/components/Select'
 import Wrapper from '@modules/common/components/Wrapper'
-import useToast from '@modules/common/hooks/useToast'
+import useAddressBook from '@modules/common/hooks/useAddressBook'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
-import useSendTransaction from '@modules/send/hooks/useSendTransaction'
+import useRequestTransaction from '@modules/send/hooks/useRequestTransaction'
 
 const SendScreen = () => {
   const { t } = useTranslation()
-  const { addToast } = useToast()
   const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const { addAddress } = useAddressBook()
   const {
     asset,
     amount,
     address,
     assetsItems,
     setAsset,
-    setAmount,
+    onAmountChange,
     setMaxAmount,
     setAddress,
     sendTransaction,
@@ -44,29 +44,13 @@ const SendScreen = () => {
     validationFormMgs,
     unknownWarning,
     smartContractWarning
-  } = useSendTransaction()
+  } = useRequestTransaction()
 
   const handleAddNewAddress = (fieldValues: SubmitHandler<FieldValues>) => {
     // @ts-ignore
     addAddress(fieldValues.name, fieldValues.address)
     closeBottomSheet()
   }
-
-  useEffect(() => {
-    setTimeout(() => {
-      addToast('Test', {
-        sticky: true
-      })
-    }, 2000)
-    setTimeout(() => {
-      addToast('Test 2', {
-        sticky: true
-      })
-    }, 4000)
-    setTimeout(() => {
-      addToast('Test 3')
-    }, 6000)
-  }, [])
 
   return (
     <Wrapper>
@@ -86,7 +70,7 @@ const SendScreen = () => {
               <View>
                 <Select value={asset} items={assetsItems} setValue={setAsset} />
                 <NumberInput
-                  onChangeText={(v: any) => setAmount(v)}
+                  onChangeText={onAmountChange}
                   value={amount.toString()}
                   buttonText={t('MAX')}
                   onButtonPress={setMaxAmount}

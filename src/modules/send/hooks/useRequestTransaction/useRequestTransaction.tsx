@@ -18,7 +18,7 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 
 const ERC20 = new Interface(erc20Abi)
 
-export default function useSendTransaction() {
+export default function useRequestTransaction() {
   const { tokens, isBalanceLoading } = usePortfolio()
   const route: any = useRoute()
   const navigation: any = useNavigation()
@@ -65,6 +65,7 @@ export default function useSendTransaction() {
   }, [selectedAsset])
 
   const onAmountChange = (value: any) => {
+    console.log('val', value)
     if (value) {
       const { decimals } = selectedAsset
       const bigNumberAmount = ethers.utils.parseUnits(value, decimals).toHexString()
@@ -167,6 +168,7 @@ export default function useSendTransaction() {
     addressConfirmed,
     setAddressConfirmed,
     unknownWarning,
-    smartContractWarning
+    smartContractWarning,
+    onAmountChange
   }
 }

@@ -12,17 +12,31 @@ import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import colors from '@modules/common/styles/colors'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
+import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { NavigationContainer } from '@react-navigation/native'
+import { createNavigationContainerRef, NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+
+const navigationRef: any = createNavigationContainerRef()
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 
 const DashboardStack = createNativeStackNavigator()
+const TransactionsStack = createNativeStackNavigator()
+const EarnStack = createNativeStackNavigator()
+const SendStack = createNativeStackNavigator()
+const AppsStack = createNativeStackNavigator()
+const SettingsStack = createNativeStackNavigator()
+
+// Mechanism for being able to navigate without the navigation prop.
+// {@link https://reactnavigation.org/docs/navigating-without-navigation-prop/}
+export function navigate(name: string, params?: object): void {
+  navigationRef.current?.navigate(name, params)
+}
 
 const globalScreenOptions = {
   headerStyle: {
@@ -54,6 +68,13 @@ const DashboardStackScreen = () => {
           headerTitle: t('Dashboard')
         }}
       />
+      <DashboardStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
         name="addNewAccount"
@@ -72,6 +93,141 @@ const DashboardStackScreen = () => {
         component={QRCodeLoginScreen}
       />
     </DashboardStack.Navigator>
+  )
+}
+
+const TransactionsStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <TransactionsStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <TransactionsStack.Screen
+        name="transactions"
+        component={TransactionsScreen}
+        options={{
+          headerTitle: t('Transactions')
+        }}
+      />
+      <TransactionsStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+    </TransactionsStack.Navigator>
+  )
+}
+
+const EarnStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <EarnStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <EarnStack.Screen
+        name="earn"
+        component={EarnScreen}
+        options={{
+          headerTitle: t('Earn')
+        }}
+      />
+      <EarnStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+    </EarnStack.Navigator>
+  )
+}
+
+const SendStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <SendStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <SendStack.Screen
+        name="send"
+        component={SendScreen}
+        options={{
+          headerTitle: t('Send')
+        }}
+      />
+      <SendStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+    </SendStack.Navigator>
+  )
+}
+
+const AppStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <AppsStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <AppsStack.Screen
+        name="apps"
+        component={AppsScreen}
+        options={{
+          headerTitle: t('Apps')
+        }}
+      />
+      <AppsStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+    </AppsStack.Navigator>
+  )
+}
+
+const SettingsStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <SettingsStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <SettingsStack.Screen
+        name="settings"
+        component={SettingsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+      <SettingsStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Dashboard')
+        }}
+      />
+    </SettingsStack.Navigator>
   )
 }
 
@@ -117,8 +273,7 @@ const AppStack = () => {
         },
         tabBarLabelStyle: {
           paddingBottom: 5
-        },
-        ...globalScreenOptions
+        }
       }}
     >
       <Tab.Screen
@@ -132,9 +287,10 @@ const AppStack = () => {
         }}
         component={DashboardStackScreen}
       />
-      <Stack.Screen
-        name="transactions"
+      <Tab.Screen
+        name="transactions-tab"
         options={{
+          headerShown: false,
           title: t('Transactions'),
           // Use this one, because the actual one is <BiTransfer />,
           // but the Box Icons set is not available
@@ -142,11 +298,12 @@ const AppStack = () => {
             <MaterialIcons name="send-and-archive" size={TAB_BAR_ICON_SIZE} color={color} />
           )
         }}
-        component={TransactionsScreen}
+        component={TransactionsStackScreen}
       />
-      <Stack.Screen
-        name="earn"
+      <Tab.Screen
+        name="earn-tab"
         options={{
+          headerShown: false,
           title: t('Earn'),
           tabBarIcon: ({ color }) => (
             // Use this one, because the actual one is <BsPiggyBank />,
@@ -154,39 +311,42 @@ const AppStack = () => {
             <MaterialIcons name="attach-money" size={TAB_BAR_ICON_SIZE} color={color} />
           )
         }}
-        component={EarnScreen}
+        component={EarnStackScreen}
       />
-      <Stack.Screen
-        name="send"
+      <Tab.Screen
+        name="send-tab"
         options={{
+          headerShown: false,
           title: t('Send'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="compare-arrows" size={TAB_BAR_ICON_SIZE} color={color} />
           )
         }}
-        component={SendScreen}
+        component={SendStackScreen}
       />
-      <Stack.Screen
-        name="apps"
+      <Tab.Screen
+        name="apps-tab"
         options={{
+          headerShown: false,
           title: t('Apps'),
           // Missing in the web app, so the icon here is mobile app specific
           tabBarIcon: ({ color }) => (
             <Ionicons name="ios-apps" size={TAB_BAR_ICON_SIZE} color={color} />
           )
         }}
-        component={AppsScreen}
+        component={AppStackScreen}
       />
-      <Stack.Screen
-        name="settings"
+      <Tab.Screen
+        name="settings-tab"
         options={{
+          headerShown: false,
           title: t('Settings'),
           // Missing in the web app, so the icon here is mobile app specific
           tabBarIcon: ({ color }) => (
             <Ionicons name="settings" size={TAB_BAR_ICON_SIZE} color={color} />
           )
         }}
-        component={SettingsScreen}
+        component={SettingsStackScreen}
       />
     </Tab.Navigator>
   )
@@ -194,7 +354,13 @@ const AppStack = () => {
 
 const Router = () => {
   const { isAuthenticated } = useAuth()
-  return <NavigationContainer>{isAuthenticated ? <AppStack /> : <AuthStack />}</NavigationContainer>
+
+  return (
+    <NavigationContainer ref={navigationRef}>
+      {isAuthenticated ? <AppStack /> : <AuthStack />}
+    </NavigationContainer>
+  )
 }
 
+export { navigationRef }
 export default Router
