@@ -94,7 +94,14 @@ const SendScreen = () => {
                     onAddToAddressBook={openBottomSheet}
                   />
                 )}
-                <Button text={t('Send')} disabled={disabled} onPress={sendTransaction} />
+                <Button
+                  text={t('Send')}
+                  disabled={disabled}
+                  onPress={() => {
+                    Keyboard.dismiss()
+                    sendTransaction()
+                  }}
+                />
               </View>
             ) : (
               <P>{t("You don't have any funds on this account.")}</P>

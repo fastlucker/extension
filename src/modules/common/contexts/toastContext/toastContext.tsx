@@ -1,7 +1,9 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native'
 
+import { MaterialIcons } from '@expo/vector-icons'
 import Text from '@modules/common/components/Text'
+import colors from '@modules/common/styles/colors'
 
 import styles from './styles'
 
@@ -87,11 +89,17 @@ const ToastProvider = ({ children }: any) => {
             style={StyleSheet.flatten([styles.toast, error && styles.error])}
             onPress={() => onToastPress(id, onClick, url)}
           >
-            {!!badge && <View style={styles.badgeWrapper}>{badge}</View>}
-            <Text style={styles.text}>{text}</Text>
+            {!!badge && (
+              <View style={styles.badge}>
+                <Text>{badge}</Text>
+              </View>
+            )}
+            <Text style={styles.text} numberOfLines={3}>
+              {text}
+            </Text>
             {!!sticky && (
               <TouchableOpacity style={styles.closeIcon} onPress={() => removeToast(id)}>
-                <Text>❌</Text>
+                <MaterialIcons name="close" size={22} color={colors.inputBackgroundColorDarker} />
               </TouchableOpacity>
             )}
           </TouchableOpacity>

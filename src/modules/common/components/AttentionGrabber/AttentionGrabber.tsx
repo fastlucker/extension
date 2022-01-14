@@ -24,7 +24,7 @@ const AttentionGrabber = ({ children }: any) => {
         stickyIds.push(
           addToast('Transactions waiting to be signed', {
             sticky: true,
-            // badge: eligibleRequests.length,
+            badge: eligibleRequests.length,
             onClick: () => setSendTxnState({ showing: true })
           })
         )
