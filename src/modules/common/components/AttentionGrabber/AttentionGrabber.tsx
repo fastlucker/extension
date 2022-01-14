@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react'
 
-import { navigationRef } from '@config/Router/Router'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
@@ -10,7 +9,7 @@ const stickyIds: string[] = []
 const AttentionGrabber = ({ children }: any) => {
   const { addToast, removeToast } = useToast()
   const { isAuthenticated } = useAuth()
-  const { eligibleRequests, sendTxnState, setSendTxnState, prevSendTxnState } = useRequests()
+  const { eligibleRequests, sendTxnState, setSendTxnState } = useRequests()
   const removeStickyToasts = useCallback(
     () => stickyIds.forEach((id) => removeToast(id)),
     [removeToast]
@@ -33,12 +32,6 @@ const AttentionGrabber = ({ children }: any) => {
       removeStickyToasts()
     }
   }, [removeStickyToasts, eligibleRequests, sendTxnState, addToast, removeToast, isRouteWallet])
-
-  useEffect(() => {
-    if (sendTxnState.showing && !prevSendTxnState.showing) {
-      navigationRef.navigate('pending-transactions')
-    }
-  }, [sendTxnState?.showing, prevSendTxnState?.showing])
 
   return children
 }
