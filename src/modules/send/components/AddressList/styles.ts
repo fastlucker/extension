@@ -5,6 +5,7 @@ import spacings from '@modules/common/styles/spacings'
 interface Style {
   formTitleWrapper: ViewStyle
   addressItem: ViewStyle
+  addressDelete: ViewStyle
   addressName: TextStyle
   addressId: TextStyle
 }
@@ -27,6 +28,10 @@ const styles = StyleSheet.create<Style>({
   },
   addressId: {
     fontSize: 15
+  },
+  addressDelete: {
+    paddingHorizontal: 5,
+    paddingVertical: 5
   }
 })
 

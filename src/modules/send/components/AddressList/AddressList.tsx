@@ -57,7 +57,7 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
             {item.address}
           </Text>
         </View>
-        <TouchableOpacity onPress={onRemoveAddress}>
+        <TouchableOpacity style={styles.addressDelete} onPress={onRemoveAddress}>
           <MaterialIcons name="delete-outline" size={20} color={colors.textColor} />
         </TouchableOpacity>
       </TouchableOpacity>
