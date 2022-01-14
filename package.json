@@ -21,7 +21,8 @@
     "publish:development": "expo publish --release-channel development",
     "publish:staging": "expo publish --release-channel staging",
     "publish:production": "expo publish --release-channel default",
-    "translations:scan": "i18next-scanner --config ./scripts/i18next-scanner.config.js './src/**/*.{js,jsx,ts,tsx}'"
+    "translations:scan": "i18next-scanner --config ./scripts/i18next-scanner.config.js './src/**/*.{js,jsx,ts,tsx}'",
+    "lint:fix": "eslint './src/**' --fix"
   },
   "engines": {
     "node": "16.13.0"
