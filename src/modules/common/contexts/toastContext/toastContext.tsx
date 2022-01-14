@@ -86,7 +86,7 @@ const ToastProvider = ({ children }: any) => {
         {[...toasts].reverse().map(({ id, url, error, sticky, badge, text, onClick }) => (
           <TouchableOpacity
             key={id}
-            style={StyleSheet.flatten([styles.toast, error && styles.error])}
+            style={[styles.toast, error && styles.error]}
             onPress={() => onToastPress(id, onClick, url)}
           >
             {!!badge && (
