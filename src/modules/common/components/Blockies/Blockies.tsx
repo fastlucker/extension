@@ -1,17 +1,42 @@
 /**
  * Credits to Brennen Peters for writing the logic for this module.
+ * This one is based on his module, but slightly changed and enhanced
+ * with additional props, to match our use-case better.
  * {@link https://github.com/bpeters}
  * {@link https://github.com/bpeters/react-native-blockies-svg/blob/197fb5932be263489f6f762f0a7d4d18e7161dbc/index.js}
- * TODO: Write TypeScript types and refactor a bit.
  */
 
-import React, { Component } from 'react'
+import React from 'react'
 import Svg, { Rect } from 'react-native-svg'
 
 const randseed = new Array(4)
 
-class Blockie extends Component {
-  seedrand(seed) {
+interface Props {
+  seed: string
+  color?: string
+  bgcolor?: string
+  spotcolor?: string
+  size?: number
+  scale?: number
+  isRound?: boolean
+  borderRadius?: number
+  borderWidth?: number
+  borderColor?: string
+}
+
+const Blockie: React.FC<Props> = ({
+  seed: _seed,
+  color: _color,
+  bgcolor: _bgcolor,
+  spotcolor: _spotcolor,
+  size = 8,
+  scale = 4,
+  isRound = true,
+  borderRadius = 15,
+  borderWidth = 0,
+  borderColor
+}) => {
+  const seedrand = (seed: Props['seed']) => {
     for (let i = 0; i < randseed.length; i++) {
       randseed[i] = 0
     }
@@ -21,7 +46,7 @@ class Blockie extends Component {
     }
   }
 
-  rand() {
+  const rand = () => {
     const t = randseed[0] ^ (randseed[0] << 11)
 
     randseed[0] = randseed[1]
@@ -32,17 +57,17 @@ class Blockie extends Component {
     return (randseed[3] >>> 0) / ((1 << 31) >>> 0)
   }
 
-  createColor() {
-    const h = Math.floor(this.rand() * 360)
-    const s = this.rand() * 60 + 40 + '%'
-    const l = (this.rand() + this.rand() + this.rand() + this.rand()) * 25 + '%'
+  const createColor = () => {
+    const h = Math.floor(rand() * 360)
+    const s = rand() * 60 + 40 + '%'
+    const l = (rand() + rand() + rand() + rand()) * 25 + '%'
 
     const color = 'hsl(' + h + ',' + s + ',' + l + ')'
 
     return color
   }
 
-  createImageData(size) {
+  const createImageData = (size: Props['size']) => {
     const width = size
     const height = size
 
@@ -55,7 +80,7 @@ class Blockie extends Component {
       let row = []
 
       for (let x = 0; x < dataWidth; x++) {
-        row[x] = Math.floor(this.rand() * 2.3)
+        row[x] = Math.floor(rand() * 2.3)
       }
 
       let r = row.slice(0, mirrorWidth)
@@ -72,16 +97,16 @@ class Blockie extends Component {
     return data
   }
 
-  renderIcon(size, scale) {
-    const seed = this.props.seed || Math.floor(Math.random() * Math.pow(10, 16)).toString(16)
+  const renderIcon = (size, scale) => {
+    const seed = _seed || Math.floor(Math.random() * Math.pow(10, 16)).toString(16)
 
-    this.seedrand(seed)
+    seedrand(seed)
 
-    const color = this.props.color || this.createColor()
-    const bgcolor = this.props.bgcolor || this.createColor()
-    const spotcolor = this.props.spotcolor || this.createColor()
+    const color = _color || createColor()
+    const bgcolor = _bgcolor || createColor()
+    const spotcolor = _spotcolor || createColor()
 
-    const imageData = this.createImageData(size)
+    const imageData = createImageData(size)
     const width = Math.sqrt(imageData.length)
 
     return imageData.map((item, i) => {
@@ -104,33 +129,25 @@ class Blockie extends Component {
     })
   }
 
-  render() {
-    const size = this.props.size || 8
-    const scale = this.props.scale || 8
-    const isRound = this.props.isRound || false
-    const borderRadius = this.props.borderRadius || 30
-    const borderWidth = this.props.borderWidth || 0
-    const borderColor = this.props.borderColor
-
-    const style = [
-      // The generated visuals match the Ethereum Blockies
-      // {@link https://github.com/ethereum/blockiesgenerated}
-      // generated visuals, but are rotated 90 degrees in the diff side.
-      // So this one aligns it correctly.
-      { transform: [{ rotate: '90deg' }] },
-      isRound && {
-        borderRadius: borderRadius,
-        overflow: 'hidden'
-      },
-      { borderWidth, borderColor }
-    ]
-
-    return (
-      <Svg height={size * scale} width={size * scale} style={style}>
-        {this.renderIcon(size, scale)}
-      </Svg>
-    )
-  }
+  return (
+    <Svg
+      height={size * scale}
+      width={size * scale}
+      style={[
+        // The generated visuals match the Ethereum Blockies
+        // {@link https://github.com/ethereum/blockiesgenerated}
+        // generated visuals, but are rotated 90 degrees in the diff side.
+        // So this one aligns it correctly.
+        { transform: [{ rotate: '90deg' }], borderWidth, borderColor },
+        isRound && {
+          borderRadius: borderRadius,
+          overflow: 'hidden'
+        }
+      ]}
+    >
+      {renderIcon(size, scale)}
+    </Svg>
+  )
 }
 
 export default Blockie
