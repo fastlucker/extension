@@ -26,8 +26,8 @@ export default function useEmailLogin() {
       `${CONFIG.RELAYER_URL}/identity/by-email/${encodeURIComponent(email)}`,
       {
         headers: {
-          authorization: loginSessionKey ? `Bearer ${loginSessionKey}` : null,
-        },
+          authorization: loginSessionKey ? `Bearer ${loginSessionKey}` : null
+        }
       }
     )
     if (errMsg) {
@@ -77,7 +77,7 @@ export default function useEmailLogin() {
           identityFactoryAddr,
           baseIdentityAddr,
           bytecode,
-          signer: quickAccSigner,
+          signer: quickAccSigner
         },
         { select: true }
       )

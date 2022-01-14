@@ -53,26 +53,24 @@ const Balances = () => {
             }
 
             return (
-              <>
-                <Text>
-                  <Text key={network} style={styles.otherBalancesText} onPress={onNetworkChange}>
-                    <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
-                      {'$ '}
-                    </Text>
-                    {total.truncated}
-                    <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
-                      .{total.decimals}{' '}
-                    </Text>
-                    <Text style={styles.otherBalancesText}>{`${t('on')} `}</Text>
-                    <Icon width={25} />
-                    <Text
-                      style={[styles.otherBalancesText, styles.otherBalancesTextHighlight]}
-                    >{` ${name} `}</Text>
+              <Text>
+                <Text key={network} style={styles.otherBalancesText} onPress={onNetworkChange}>
+                  <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
+                    {'$ '}
                   </Text>
-
-                  {hasOneMore && <Text style={styles.otherBalancesText}>{`${t('and')} `}</Text>}
+                  {total.truncated}
+                  <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
+                    .{total.decimals}{' '}
+                  </Text>
+                  <Text style={styles.otherBalancesText}>{`${t('on')} `}</Text>
+                  <Icon width={25} />
+                  <Text
+                    style={[styles.otherBalancesText, styles.otherBalancesTextHighlight]}
+                  >{` ${name} `}</Text>
                 </Text>
-              </>
+
+                {hasOneMore && <Text style={styles.otherBalancesText}>{`${t('and')} `}</Text>}
+              </Text>
             )
           })}
         </View>

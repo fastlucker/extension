@@ -59,10 +59,10 @@ const Blockie: React.FC<Props> = ({
 
   const createColor = () => {
     const h = Math.floor(rand() * 360)
-    const s = rand() * 60 + 40 + '%'
-    const l = (rand() + rand() + rand() + rand()) * 25 + '%'
+    const s = `${rand() * 60 + 40}%`
+    const l = `${(rand() + rand() + rand() + rand()) * 25}%`
 
-    const color = 'hsl(' + h + ',' + s + ',' + l + ')'
+    const color = `hsl(${h},${s},${l})`
 
     return color
   }
@@ -83,7 +83,7 @@ const Blockie: React.FC<Props> = ({
         row[x] = Math.floor(rand() * 2.3)
       }
 
-      let r = row.slice(0, mirrorWidth)
+      const r = row.slice(0, mirrorWidth)
 
       r.reverse()
 
@@ -98,7 +98,7 @@ const Blockie: React.FC<Props> = ({
   }
 
   const renderIcon = (size, scale) => {
-    const seed = _seed || Math.floor(Math.random() * Math.pow(10, 16)).toString(16)
+    const seed = _seed || Math.floor(Math.random() * 10 ** 16).toString(16)
 
     seedrand(seed)
 
@@ -120,8 +120,8 @@ const Blockie: React.FC<Props> = ({
         }
       }
 
-      let row = Math.floor(i / size)
-      let col = i % size
+      const row = Math.floor(i / size)
+      const col = i % size
 
       return (
         <Rect key={i} x={row * scale} y={col * scale} width={scale} height={scale} fill={fill} />
@@ -140,7 +140,7 @@ const Blockie: React.FC<Props> = ({
         // So this one aligns it correctly.
         { transform: [{ rotate: '90deg' }], borderWidth, borderColor },
         isRound && {
-          borderRadius: borderRadius,
+          borderRadius,
           overflow: 'hidden'
         }
       ]}

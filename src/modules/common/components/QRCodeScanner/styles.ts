@@ -6,12 +6,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   camera: {
     height: '100%',
-    aspectRatio: 9 / 16,
-  },
+    aspectRatio: 9 / 16
+  }
 })
 
 export default styles

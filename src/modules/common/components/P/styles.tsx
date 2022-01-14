@@ -6,8 +6,8 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   text: {
-    marginBottom: 16,
-  },
+    marginBottom: 16
+  }
 })
 
 export default styles
