@@ -106,9 +106,9 @@ class Blockie extends Component {
 
   render() {
     const size = this.props.size || 8
-    const scale = this.props.scale || 8
-    const isRound = this.props.isRound || false
-    const borderRadius = this.props.borderRadius || 30
+    const scale = this.props.scale || 4
+    const isRound = this.props.isRound || true
+    const borderRadius = this.props.borderRadius || 15
     const borderWidth = this.props.borderWidth || 0
     const borderColor = this.props.borderColor
 
