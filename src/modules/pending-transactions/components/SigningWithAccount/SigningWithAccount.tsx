@@ -33,9 +33,11 @@ const SigningWithAccount = () => {
         </Title>
       </View>
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}>
-        <Blockies seed={account.id} size={8} />
+        <Blockies seed={account.id} size={7.5} />
         <View style={flexboxStyles.flex1}>
-          <Text style={spacings.plTy}>{account.id}</Text>
+          <Text style={[spacings.plTy, textStyles.bold]} fontSize={15}>
+            {account.id}
+          </Text>
         </View>
       </View>
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
