@@ -6,8 +6,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 16,
-  },
+    paddingHorizontal: 16
+  }
 })
 
 export default styles

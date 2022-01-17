@@ -2,15 +2,12 @@ import React from 'react'
 import { ActivityIndicator, LayoutAnimation, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import PolygonLogo from '@modules/common/assets/svg/networks/PolygonLogo'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import networks from '@modules/common/constants/networks'
-import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
@@ -20,9 +17,9 @@ const Balances = () => {
   const { balance, isBalanceLoading, otherBalances } = usePortfolio()
   const { network: selectedNetwork, setNetwork } = useNetwork()
   const otherPositiveBalances = otherBalances.filter(
-    ({ network, total }) => network !== selectedNetwork?.id && total.full > 0
+    ({ network, total }: any) => network !== selectedNetwork?.id && total.full > 0
   )
-  const networkDetails = (network) => networks.find(({ id }) => id === network)
+  const networkDetails = (network: any) => networks.find(({ id }) => id === network)
 
   return (
     <Panel>
@@ -44,8 +41,8 @@ const Balances = () => {
       {otherPositiveBalances.length > 0 && (
         <View style={styles.otherBalancesContainer}>
           <Text style={styles.otherBalancesText}>{t('You also have')} </Text>
-          {otherPositiveBalances.map(({ network, total }, i: number) => {
-            const { name, Icon } = networkDetails(network)
+          {otherPositiveBalances.map(({ network, total }: any, i: number) => {
+            const { chainId, name, Icon }: any = networkDetails(network)
             const hasOneMore = otherPositiveBalances.length - 1 !== i
             const onNetworkChange = () => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
@@ -53,7 +50,7 @@ const Balances = () => {
             }
 
             return (
-              <Text>
+              <Text key={chainId}>
                 <Text key={network} style={styles.otherBalancesText} onPress={onNetworkChange}>
                   <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
                     {'$ '}

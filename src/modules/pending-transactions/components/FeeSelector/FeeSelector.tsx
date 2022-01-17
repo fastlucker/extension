@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -6,6 +6,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 import { FontAwesome5 } from '@expo/vector-icons'
 import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
+import Select from '@modules/common/components/Select'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -33,6 +34,23 @@ const FeeSelector = ({
 }: any) => {
   const { t } = useTranslation()
   const { network }: any = useNetwork()
+  const [currency, setCurrency] = useState<any>(null)
+
+  useEffect(() => {
+    if (estimation?.selectedFeeToken?.symbol && currency !== estimation?.selectedFeeToken?.symbol) {
+      setCurrency(estimation?.selectedFeeToken?.symbol)
+    }
+  }, [currency, estimation?.selectedFeeToken?.symbol])
+
+  useEffect(() => {
+    if (currency) {
+      const tokens = estimation.remainingFeeTokenBalances || [
+        { symbol: network.nativeAssetSymbol, decimals: 18 }
+      ]
+      const token = tokens.find(({ symbol }: any) => symbol === currency)
+      setEstimation({ ...estimation, selectedFeeToken: token })
+    }
+  }, [currency])
 
   const renderFeeSelector = () => {
     if (!estimation) return <ActivityIndicator />
@@ -76,25 +94,16 @@ const FeeSelector = ({
       { symbol: nativeAssetSymbol, decimals: 18 }
     ]
 
-    const onFeeCurrencyChange = (e: any) => {
-      const token = tokens.find(({ symbol }: any) => symbol === e.target.value)
-      setEstimation({ ...estimation, selectedFeeToken: token })
-    }
+    const assetsItems = tokens.map((token: any) => ({
+      label: token.symbol,
+      value: token.symbol,
+      disabled: !isTokenEligible(token, feeSpeed, estimation)
+    }))
 
     const feeCurrencySelect = estimation.feeInUSD ? (
       <>
         <P>Fee currency</P>
-        {/* <select
-          disabled={disabled}
-          value={estimation.selectedFeeToken.symbol}
-          onChange={onFeeCurrencyChange}
-        >
-          {tokens.map((token: any) => (
-            <option disabled={!isTokenEligible(token, feeSpeed, estimation)} key={token.symbol}>
-              {token.symbol}
-            </option>
-          ))}
-        </select> */}
+        <Select value={currency} setValue={setCurrency} items={assetsItems} />
       </>
     ) : null
 
@@ -103,7 +112,7 @@ const FeeSelector = ({
     const { multiplier } = getFeePaymentConsequences(estimation.selectedFeeToken, estimation)
 
     const feeAmountSelectors = SPEEDS.map((speed) => (
-      <View style={flexboxStyles.flex1}>
+      <View style={flexboxStyles.flex1} key={speed}>
         <TouchableOpacity
           key={speed}
           onPress={() => !areSelectorsDisabled && setFeeSpeed(speed)}

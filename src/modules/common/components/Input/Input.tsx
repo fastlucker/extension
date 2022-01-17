@@ -4,20 +4,34 @@ import {
   TextInput,
   TextInputFocusEventData,
   TextInputProps,
+  TouchableOpacity,
   View
 } from 'react-native'
 
 import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
 
-interface Props extends TextInputProps {
+export interface InputProps extends TextInputProps {
   info?: string
   label?: string
+  buttonText?: string
+  onButtonPress?: () => void
 }
 
-const Input = ({ label, info, onBlur = () => {}, onFocus = () => {}, ...rest }: Props) => {
+const Input = ({
+  label,
+  buttonText,
+  info,
+  onBlur = () => {},
+  onFocus = () => {},
+  onButtonPress = () => {},
+  ...rest
+}: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
 
   const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
@@ -29,18 +43,30 @@ const Input = ({ label, info, onBlur = () => {}, onFocus = () => {}, ...rest }: 
     return onBlur(e)
   }
 
+  const hasButton = !!buttonText
+
   return (
     <View style={styles.inputContainer}>
       {!!label && <Text style={styles.label}>{label}</Text>}
-      <TextInput
-        placeholderTextColor={colors.inputPlaceholderColor}
-        style={[styles.input, isFocused && styles.focused]}
-        autoCapitalize="none"
-        autoCorrect={false}
-        onBlur={handleOnBlur}
-        onFocus={handleOnFocus}
-        {...rest}
-      />
+      <View style={flexboxStyles.directionRow}>
+        <TextInput
+          placeholderTextColor={colors.inputPlaceholderColor}
+          style={[styles.input, isFocused && styles.focused, hasButton && spacings.pr0]}
+          autoCapitalize="none"
+          autoCorrect={false}
+          onBlur={handleOnBlur}
+          onFocus={handleOnFocus}
+          {...rest}
+        />
+        {hasButton && (
+          <TouchableOpacity
+            onPress={onButtonPress}
+            style={[styles.button, isFocused && styles.focused]}
+          >
+            <Text style={textStyles.bold}>{buttonText}</Text>
+          </TouchableOpacity>
+        )}
+      </View>
       {!!info && <Text style={styles.info}>{info}</Text>}
     </View>
   )

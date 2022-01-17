@@ -9,6 +9,7 @@ import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useRequests from '@modules/common/hooks/useRequests'
+import useToast from '@modules/common/hooks/useToast'
 import { isKnownTokenOrContract, isValidAddress } from '@modules/common/services/address'
 import {
   validateSendTransferAddress,
@@ -25,6 +26,7 @@ export default function useRequestTransaction() {
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()
+  const { addToast } = useToast()
   const { isKnownAddress } = useAddressBook()
   const tokenAddressOrSymbol = route.params?.tokenAddressOrSymbol
 
@@ -65,7 +67,6 @@ export default function useRequestTransaction() {
   }, [selectedAsset])
 
   const onAmountChange = (value: any) => {
-    console.log('val', value)
     if (value) {
       const { decimals } = selectedAsset
       const bigNumberAmount = ethers.utils.parseUnits(value, decimals).toHexString()
@@ -102,8 +103,7 @@ export default function useRequestTransaction() {
       setAmount(0)
     } catch (e: any) {
       console.error(e)
-      // TODO: set global error message
-      // addToast(`Error: ${e.message || e}`, { error: true })
+      addToast(`Error: ${e.message || e}`, { error: true })
     }
   }
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
@@ -13,6 +13,7 @@ import SignActions from '@modules/pending-transactions/components/SignActions'
 import SigningWithAccount from '@modules/pending-transactions/components/SigningWithAccount'
 import TransactionSummary from '@modules/pending-transactions/components/TransactionSummary'
 import useSendTransaction from '@modules/pending-transactions/hooks/useSendTransaction'
+import { StackActions } from '@react-navigation/native'
 
 const PendingTransactionsScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
@@ -31,13 +32,28 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
 
   const prevBundle: any = usePrevious(bundle)
 
-  useEffect(
-    () =>
-      navigation.addListener('beforeRemove', () => {
-        setSendTxnState({ showing: false })
-      }),
-    [navigation]
-  )
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: `Pending Transactions: ${bundle?.txns?.length}`
+    })
+  }, [navigation, bundle?.txns?.length])
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', () => {
+      setSendTxnState({ showing: false })
+    })
+
+    return unsubscribe
+  }, [navigation])
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', () => {
+      setSendTxnState({ showing: false })
+      navigation.dispatch(StackActions.popToTop())
+    })
+
+    return unsubscribe
+  }, [navigation])
 
   useEffect(() => {
     if (prevBundle?.txns?.length && !bundle?.txns?.length) {

@@ -1,17 +1,15 @@
 import React from 'react'
-import { TextInput, TextInputProps, TouchableOpacity, View } from 'react-native'
 
-import Text from '@modules/common/components/Text'
+import Input from '../Input'
+import { InputProps } from '../Input/Input'
 
-import styles from './styles'
-
-interface Props extends TextInputProps {
+interface Props extends InputProps {
   buttonText?: string
   onButtonPress?: () => any
   precision?: any
 }
 
-const NumberInput = ({ buttonText, onButtonPress, onChangeText, precision, ...rest }: Props) => {
+const NumberInput = ({ onChangeText, precision, ...rest }: Props) => {
   const onInputValue = (value: string) => {
     if (!onChangeText) return
     if (!value) return onChangeText('')
@@ -23,21 +21,13 @@ const NumberInput = ({ buttonText, onButtonPress, onChangeText, precision, ...re
     isIntOrFloat && onChangeText(value)
   }
   return (
-    <View style={styles.inputContainer}>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        autoCapitalize="none"
-        autoCorrect={false}
-        {...rest}
-        onChangeText={onInputValue}
-      />
-      {!!buttonText && (
-        <TouchableOpacity onPress={onButtonPress} style={styles.button}>
-          <Text>{buttonText}</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+    <Input
+      keyboardType="numeric"
+      autoCapitalize="none"
+      autoCorrect={false}
+      onChangeText={onInputValue}
+      {...rest}
+    />
   )
 }
 
