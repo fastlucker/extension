@@ -17,6 +17,7 @@ import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
+import { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
@@ -79,7 +80,9 @@ const SendScreen = () => {
                   placeholder={t('0')}
                   onButtonPress={setMaxAmount}
                 />
-                {!!validationFormMgs.messages?.amount && <P>{validationFormMgs.messages.amount}</P>}
+                {!!validationFormMgs.messages?.amount && (
+                  <P type={TEXT_TYPES.DANGER}>{validationFormMgs.messages.amount}</P>
+                )}
                 <Input
                   placeholder={t('Recipient')}
                   info={t(
@@ -89,7 +92,7 @@ const SendScreen = () => {
                   onChangeText={setAddress}
                 />
                 {!!validationFormMgs.messages?.address && (
-                  <P>{validationFormMgs.messages.address}</P>
+                  <P type={TEXT_TYPES.DANGER}>{validationFormMgs.messages.address}</P>
                 )}
                 {!smartContractWarning && !!unknownWarning && (
                   <ConfirmAddress
