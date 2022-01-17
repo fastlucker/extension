@@ -141,7 +141,7 @@ const SendScreen = () => {
             <Panel>
               <AddressList
                 onSelectAddress={(item): any => setAddress(item.address)}
-                onOpenBottomSheet={openBottomSheet}
+                onOpenBottomSheet={openBottomSheetAddrAdd}
               />
             </Panel>
           </>
@@ -159,7 +159,7 @@ const SendScreen = () => {
             closeBottomSheetAddrDisplay()
             setAddress(item.address)
           }}
-          onOpenBottomSheet={openBottomSheet}
+          onOpenBottomSheet={openBottomSheetAddrAdd}
         />
       </BottomSheet>
       <BottomSheet
