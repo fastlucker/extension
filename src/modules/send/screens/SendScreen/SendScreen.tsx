@@ -26,6 +26,8 @@ import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
 import useRequestTransaction from '@modules/send/hooks/useRequestTransaction'
 
+import styles from './styles'
+
 const SendScreen = () => {
   const { t } = useTranslation()
   const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
@@ -75,12 +77,12 @@ const SendScreen = () => {
               <Panel>
                 <Title>{t('Send')}</Title>
                 <Select value={asset} items={assetsItems} setValue={setAsset} />
-                <P>
-                  {t('Available Amount: {{maxAmount}} {{symbol}}', {
-                    maxAmount,
-                    symbol: selectedAsset?.symbol
-                  })}
-                </P>
+                <View style={styles.amountContainer}>
+                  <Text>{t('Available Amount:')}</Text>
+                  <Text style={styles.amountValue}>
+                    {maxAmount} {selectedAsset?.symbol}
+                  </Text>
+                </View>
                 <NumberInput
                   onChangeText={onAmountChange}
                   value={amount.toString()}
