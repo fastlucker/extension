@@ -17,7 +17,7 @@ import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
-import { TEXT_TYPES } from '@modules/common/components/Text'
+import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
@@ -36,7 +36,9 @@ const SendScreen = () => {
     address,
     assetsItems,
     setAsset,
+    selectedAsset,
     onAmountChange,
+    maxAmount,
     setMaxAmount,
     setAddress,
     sendTransaction,
@@ -73,6 +75,12 @@ const SendScreen = () => {
               <Panel>
                 <Title>{t('Send')}</Title>
                 <Select value={asset} items={assetsItems} setValue={setAsset} />
+                <P>
+                  {t('Available Amount: {{maxAmount}} {{symbol}}', {
+                    maxAmount,
+                    symbol: selectedAsset?.symbol
+                  })}
+                </P>
                 <NumberInput
                   onChangeText={onAmountChange}
                   value={amount.toString()}
