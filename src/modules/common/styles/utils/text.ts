@@ -8,6 +8,7 @@ interface Styles {
   bold: TextStyle
   center: TextStyle
   right: TextStyle
+  uppercase: TextStyle
 }
 
 const textStyles = StyleSheet.create<Styles>({
@@ -25,6 +26,9 @@ const textStyles = StyleSheet.create<Styles>({
   },
   right: {
     textAlign: 'right'
+  },
+  uppercase: {
+    textTransform: 'uppercase'
   }
 })
 

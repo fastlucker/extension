@@ -1,16 +1,19 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
+import { FontAwesome5 } from '@expo/vector-icons'
 import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
-import Text from '@modules/common/components/Text'
+import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
-import FailingTxn from '@modules/pending-transactions/components/FailingTxn'
+import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import textStyles from '@modules/common/styles/utils/text'
 import {
-  getErrHint,
   getFeePaymentConsequences,
   isTokenEligible,
   mapTxnErrMsg
@@ -42,15 +45,10 @@ const FeeSelector = ({
       !isTokenEligible(estimation.selectedFeeToken, feeSpeed, estimation)
     if (estimation && !estimation.success)
       return (
-        <FailingTxn
-          message={
-            <>
-              The current transaction batch cannot be sent because it will fail:{' '}
-              {mapTxnErrMsg(estimation.message)}
-            </>
-          }
-          tooltip={getErrHint(estimation.message)}
-        />
+        <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
+          The current transaction batch cannot be sent because it will fail:{' '}
+          {mapTxnErrMsg(estimation.message)}
+        </Text>
       )
 
     if (!estimation.feeInNative) return null
@@ -105,22 +103,31 @@ const FeeSelector = ({
     const { multiplier } = getFeePaymentConsequences(estimation.selectedFeeToken, estimation)
 
     const feeAmountSelectors = SPEEDS.map((speed) => (
-      <TouchableOpacity
-        key={speed}
-        onPress={() => !areSelectorsDisabled && setFeeSpeed(speed)}
-        style={StyleSheet.flatten([styles.feeSelector, feeSpeed === speed && styles.selected])}
-        disabled={areSelectorsDisabled}
-      >
-        <Text>{speed}</Text>
-        <Text numberOfLines={1}>
-          {/* eslint-disable-next-line no-nested-ternary */}
-          {isStable
-            ? `$${estimation.feeInUSD[speed] * multiplier}`
-            : nativeAssetSymbol === 'ETH'
-            ? `Ξ ${estimation.feeInNative[speed] * multiplier}`
-            : `${estimation.feeInNative[speed] * multiplier} ${nativeAssetSymbol}`}
-        </Text>
-      </TouchableOpacity>
+      <View style={flexboxStyles.flex1}>
+        <TouchableOpacity
+          key={speed}
+          onPress={() => !areSelectorsDisabled && setFeeSpeed(speed)}
+          style={[styles.feeSelector, feeSpeed === speed && styles.selected]}
+          disabled={areSelectorsDisabled}
+        >
+          <Text
+            numberOfLines={1}
+            fontSize={13}
+            style={[spacings.mbMi, textStyles.uppercase, textStyles.bold]}
+            color={colors.invertedTextColor}
+          >
+            {speed}
+          </Text>
+          <Text numberOfLines={1} fontSize={15} color={colors.invertedTextColor}>
+            {/* eslint-disable-next-line no-nested-ternary */}
+            {isStable
+              ? `$${estimation.feeInUSD[speed] * multiplier}`
+              : nativeAssetSymbol === 'ETH'
+              ? `Ξ ${estimation.feeInNative[speed] * multiplier}`
+              : `${estimation.feeInNative[speed] * multiplier} ${nativeAssetSymbol}`}
+          </Text>
+        </TouchableOpacity>
+      </View>
     ))
 
     return (
@@ -159,7 +166,18 @@ const FeeSelector = ({
 
   return (
     <Panel>
-      <Title>{t('Fee')}</Title>
+      <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
+        <FontAwesome5
+          style={spacings.mrTy}
+          name="hand-holding-usd"
+          size={20}
+          color={colors.primaryAccentColor}
+        />
+        <Title hasBottomSpacing={false} color={colors.primaryAccentColor}>
+          {t('Fee')}
+        </Title>
+      </View>
+
       {renderFeeSelector()}
     </Panel>
   )

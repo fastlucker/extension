@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react'
-import { View } from 'react-native'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
-import Text from '@modules/common/components/Text'
+import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useRequests from '@modules/common/hooks/useRequests'
-import FailingTxn from '@modules/pending-transactions/components/FailingTxn'
+import textStyles from '@modules/common/styles/utils/text'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
 import SignActions from '@modules/pending-transactions/components/SignActions'
 import SigningWithAccount from '@modules/pending-transactions/components/SigningWithAccount'
@@ -70,7 +69,10 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         setFeeSpeed={setFeeSpeed}
       />
       {!!bundle?.signer?.quickAccManager && !CONFIG.RELAYER_URL ? (
-        <FailingTxn message="Signing transactions with an email/password account without being connected to the relayer is unsupported." />
+        <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
+          Signing transactions with an email/password account without being connected to the relayer
+          is unsupported.
+        </Text>
       ) : (
         <SignActions
           estimation={estimation}

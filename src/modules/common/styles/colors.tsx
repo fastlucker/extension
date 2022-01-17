@@ -18,6 +18,7 @@ const colors = {
   ambirePurple: '#AF50FF',
 
   textColor: '#FFF',
+  invertedTextColor: '#000',
 
   pieChartColorScale: [
     '#AA6AFF',
