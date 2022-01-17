@@ -30,6 +30,9 @@ const styles = StyleSheet.create<Style>({
     borderBottomColor: colors.tertiaryAccentColor
   },
   info: {
+    opacity: 0.5,
+    fontSize: 15,
+    paddingHorizontal: 5,
     ...spacings.ptTy
   },
   label: {
