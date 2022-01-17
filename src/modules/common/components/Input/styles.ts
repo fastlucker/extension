@@ -43,8 +43,8 @@ const styles = StyleSheet.create<Style>({
     justifyContent: 'center',
     borderBottomWidth: 2,
     borderBottomColor: colors.inputBackgroundColor,
-    backgroundColor: colors.inputBackgroundColor,
-    ...spacings.phSm
+    backgroundColor: colors.secondaryButtonContainerColor,
+    ...spacings.ph
   }
 })
 
