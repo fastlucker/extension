@@ -42,6 +42,8 @@ const Select = ({ value, setValue, items, setItems, searchable = true }: Props) 
       listItemLabelStyle={styles.listItemLabelStyle}
       searchContainerStyle={styles.searchContainerStyle}
       searchTextInputStyle={styles.searchTextInputStyle}
+      // So it displays 4 and a half items (indicating there is a scroll)
+      maxHeight={290}
     />
   )
 }
