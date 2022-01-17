@@ -12,6 +12,7 @@ import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
+import { BUTTON_TYPES } from '@modules/common/components/Button/Button'
 import Input from '@modules/common/components/Input'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
@@ -30,7 +31,16 @@ import styles from './styles'
 
 const SendScreen = () => {
   const { t } = useTranslation()
-  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const {
+    sheetRef: sheetRefAddrAdd,
+    openBottomSheet: openBottomSheetAddrAdd,
+    closeBottomSheet: closeBottomSheetAddrAdd
+  } = useBottomSheet()
+  const {
+    sheetRef: sheetRefAddrDisplay,
+    openBottomSheet: openBottomSheetAddrDisplay,
+    closeBottomSheet: closeBottomSheetAddrDisplay
+  } = useBottomSheet()
   const { addAddress } = useAddressBook()
   const {
     asset,
@@ -56,7 +66,7 @@ const SendScreen = () => {
   const handleAddNewAddress = (fieldValues: SubmitHandler<FieldValues>) => {
     // @ts-ignore
     addAddress(fieldValues.name, fieldValues.address)
-    closeBottomSheet()
+    closeBottomSheetAddrAdd()
   }
 
   return (
@@ -108,9 +118,14 @@ const SendScreen = () => {
                   <ConfirmAddress
                     addressConfirmed={addressConfirmed}
                     setAddressConfirmed={setAddressConfirmed}
-                    onAddToAddressBook={openBottomSheet}
+                    onAddToAddressBook={openBottomSheetAddrAdd}
                   />
                 )}
+                <Button
+                  type={BUTTON_TYPES.SECONDARY}
+                  onPress={openBottomSheetAddrDisplay}
+                  text={t('Address Book')}
+                />
                 <Button
                   text={t('Send')}
                   disabled={disabled}
@@ -123,15 +138,32 @@ const SendScreen = () => {
             ) : (
               <P>{t("You don't have any funds on this account.")}</P>
             )}
-            <AddressList
-              onSelectAddress={(item): any => setAddress(item.address)}
-              onOpenBottomSheet={openBottomSheet}
-            />
+            <Panel>
+              <AddressList
+                onSelectAddress={(item): any => setAddress(item.address)}
+                onOpenBottomSheet={openBottomSheet}
+              />
+            </Panel>
           </>
         </TouchableWithoutFeedback>
       )}
       <BottomSheet
-        sheetRef={sheetRef}
+        sheetRef={sheetRefAddrDisplay}
+        dynamicInitialHeight={false}
+        onCloseEnd={() => {
+          Keyboard.dismiss()
+        }}
+      >
+        <AddressList
+          onSelectAddress={(item): any => {
+            closeBottomSheetAddrDisplay()
+            setAddress(item.address)
+          }}
+          onOpenBottomSheet={openBottomSheet}
+        />
+      </BottomSheet>
+      <BottomSheet
+        sheetRef={sheetRefAddrAdd}
         maxInitialHeightPercentage={1}
         onCloseEnd={() => {
           Keyboard.dismiss()

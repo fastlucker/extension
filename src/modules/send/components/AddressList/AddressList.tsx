@@ -65,12 +65,12 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
   }
 
   return (
-    <Panel>
+    <>
       <Title>{t('Address Book')}</Title>
       {!!items.length && items.map(renderItem)}
       {!items.length && <P>{t('Your address book is empty')}</P>}
       <Button onPress={onOpenBottomSheet} text={t('➕ Add Address')} />
-    </Panel>
+    </>
   )
 }
 
