@@ -10,6 +10,6 @@ const accountPresets = {
   quickAccManager: '0xfF3f6D14DF43c112aB98834Ee1F82083E07c26BF',
   feeCollector: '0x942f9CE5D9a33a82F88D233AEb3292E680230348',
   quickAccTimelock: 259200, // 3 days
-  encryptionOpts: { scrypt: { N: SCRYPT_ITERATIONS } },
+  encryptionOpts: { scrypt: { N: SCRYPT_ITERATIONS } }
 }
 export default accountPresets

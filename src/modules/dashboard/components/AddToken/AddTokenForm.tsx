@@ -131,20 +131,18 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
       )}
 
       {!showError && tokenDetails && (
-        <>
-          <View style={[flexboxStyles.center, spacings.mb]}>
-            <Image style={styles.img} source={{ uri: tokenDetails.tokenImageUrl }} />
-            <Text style={[spacings.mbTy]}>
-              {tokenDetails.name} ({tokenDetails.symbol})
+        <View style={[flexboxStyles.center, spacings.mb]}>
+          <Image style={styles.img} source={{ uri: tokenDetails.tokenImageUrl }} />
+          <Text style={[spacings.mbTy]}>
+            {tokenDetails.name} ({tokenDetails.symbol})
+          </Text>
+          <Trans>
+            <Text>
+              Balance: <Text style={textStyles.highlightPrimary}>{tokenDetails.balance}</Text>{' '}
+              <Text style={textStyles.bold}>{tokenDetails.symbol}</Text>
             </Text>
-            <Trans>
-              <Text>
-                Balance: <Text style={textStyles.highlightPrimary}>{tokenDetails.balance}</Text>{' '}
-                <Text style={textStyles.bold}>{tokenDetails.symbol}</Text>
-              </Text>
-            </Trans>
-          </View>
-        </>
+          </Trans>
+        </View>
       )}
 
       <Button

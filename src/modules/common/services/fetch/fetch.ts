@@ -2,7 +2,7 @@ export async function fetchPost(url: string, body: any) {
   const r = await fetch(url, {
     headers: { 'content-type': 'application/json' },
     method: 'POST',
-    body: JSON.stringify(body),
+    body: JSON.stringify(body)
   })
   return r.json()
 }
@@ -11,8 +11,8 @@ export const fetchGet = async (url: string) => {
   const response = await fetch(url, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
-    },
+      'Content-Type': 'application/json'
+    }
   })
   if (response.status !== 200) throw new Error('Failed to fetch')
   return response.json()

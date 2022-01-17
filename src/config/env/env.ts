@@ -7,7 +7,7 @@ export const isStaging = process.env['APP_ENV'] === 'STAGING'
 enum APP_ENV {
   PROD = 'production',
   STAGING = 'staging',
-  DEV = 'development',
+  DEV = 'development'
 }
 
 interface Config {
@@ -23,7 +23,7 @@ const CONFIG: Config = {
   RELAYER_URL: 'https://relayer.ambire.com',
   ZAPPER_API_ENDPOINT: 'https://api.zapper.fi/v1',
   ZAPPER_API_KEY: '96e0cc51-a62e-42ca-acee-910ea7d2a241',
-  VELCRO_API_ENDPOINT: 'https://velcro.ambire.com/v1',
+  VELCRO_API_ENDPOINT: 'https://velcro.ambire.com/v1'
 }
 
 if (isProd) {

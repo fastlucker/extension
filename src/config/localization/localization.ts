@@ -17,8 +17,8 @@ i18n.use(initReactI18next).init({
   defaultNS: 'app',
   resources: { [Locale.EN]: { app: en }, [Locale.BG]: { app: bg } },
   interpolation: {
-    escapeValue: false,
-  },
+    escapeValue: false
+  }
 })
 
 export const changeLanguage = (locale: Locale) => i18n.changeLanguage(locale)

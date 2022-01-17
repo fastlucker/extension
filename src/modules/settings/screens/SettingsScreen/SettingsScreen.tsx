@@ -22,7 +22,7 @@ const SettingsScreen = () => {
       {!isProd && (
         <Button
           title={t('Change language to {{nextLang}}', {
-            nextLang: i18n.language === Locale.BG ? t('English') : t('Bulgarian'),
+            nextLang: i18n.language === Locale.BG ? t('English') : t('Bulgarian')
           })}
           onPress={handleChangeLanguage}
         />
