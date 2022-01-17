@@ -111,6 +111,12 @@ const RequestsProvider: React.FC = ({ children }) => {
     setInternalRequests((reqs: any) => reqs.filter((x: any) => !ids.includes(x.id)))
   }
 
+  useEffect(() => {
+    if (sendTxnState.showing && !prevSendTxnState.showing) {
+      navigationRef.navigate('pending-transactions')
+    }
+  }, [sendTxnState?.showing, prevSendTxnState?.showing])
+
   return (
     <RequestsContext.Provider
       value={useMemo(

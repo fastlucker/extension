@@ -10,7 +10,7 @@ interface Style {
   text: TextStyle
   rightIcon: ViewStyle
   closeIcon: ViewStyle
-  badgeWrapper: ViewStyle
+  badge: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -48,8 +48,14 @@ const styles = StyleSheet.create<Style>({
   closeIcon: {
     ...spacings.plTy
   },
-  badgeWrapper: {
-    ...spacings.prTy
+  badge: {
+    ...spacings.mrTy,
+    height: 22,
+    width: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 100,
+    backgroundColor: colors.dangerColor
   }
 })
 

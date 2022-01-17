@@ -12,6 +12,8 @@ const Wrapper: React.FC<ScrollViewProps> = ({
   <ScrollView
     style={[styles.wrapper, style]}
     contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
+    keyboardShouldPersistTaps="handled"
+    keyboardDismissMode="none"
     alwaysBounceVertical={false}
   >
     {children}
