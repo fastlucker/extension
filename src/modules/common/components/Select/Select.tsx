@@ -1,8 +1,16 @@
 import React, { useState } from 'react'
-import {} from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 
-// import styles from './styles'
+import i18n from '@config/localization/localization'
+
+import styles from './styles'
+
+DropDownPicker.addTranslation('EN', {
+  PLACEHOLDER: i18n.t('Please select'),
+  SEARCH_PLACEHOLDER: i18n.t('Search...'),
+  SELECTED_ITEMS_COUNT_TEXT: i18n.t('{count} item(s) have been selected'),
+  NOTHING_TO_SHOW: i18n.t('Nothing found.')
+})
 
 interface Props {
   value: string | null
@@ -25,6 +33,15 @@ const Select = ({ value, setValue, items, setItems, searchable = true }: Props) 
       setValue={setValue}
       setItems={setItems}
       searchable={searchable}
+      theme="DARK"
+      language="EN"
+      style={styles.dropdown}
+      labelStyle={styles.labelStyle}
+      dropDownContainerStyle={styles.dropDownContainerStyle}
+      listItemContainerStyle={styles.listItemContainerStyle}
+      listItemLabelStyle={styles.listItemLabelStyle}
+      searchContainerStyle={styles.searchContainerStyle}
+      searchTextInputStyle={styles.searchTextInputStyle}
     />
   )
 }
