@@ -15,7 +15,9 @@ import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
+import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
+import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import AddressList from '@modules/send/components/AddressList'
@@ -67,7 +69,8 @@ const SendScreen = () => {
         >
           <>
             {assetsItems.length ? (
-              <View>
+              <Panel>
+                <Title>{t('Send')}</Title>
                 <Select value={asset} items={assetsItems} setValue={setAsset} />
                 <NumberInput
                   onChangeText={onAmountChange}
@@ -102,7 +105,7 @@ const SendScreen = () => {
                     sendTransaction()
                   }}
                 />
-              </View>
+              </Panel>
             ) : (
               <P>{t("You don't have any funds on this account.")}</P>
             )}
