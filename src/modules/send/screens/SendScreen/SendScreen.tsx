@@ -76,6 +76,7 @@ const SendScreen = () => {
                   onChangeText={onAmountChange}
                   value={amount.toString()}
                   buttonText={t('MAX')}
+                  placeholder={t('0')}
                   onButtonPress={setMaxAmount}
                 />
                 {!!validationFormMgs.messages?.amount && <P>{validationFormMgs.messages.amount}</P>}
