@@ -16,7 +16,7 @@ import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
 
-interface Props extends TextInputProps {
+export interface InputProps extends TextInputProps {
   info?: string
   label?: string
   buttonText?: string
@@ -31,7 +31,7 @@ const Input = ({
   onFocus = () => {},
   onButtonPress = () => {},
   ...rest
-}: Props) => {
+}: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
 
   const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {

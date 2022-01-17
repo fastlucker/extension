@@ -1,9 +1,9 @@
 import React from 'react'
-import { TextInputProps } from 'react-native'
 
 import Input from '../Input'
+import { InputProps } from '../Input/Input'
 
-interface Props extends TextInputProps {
+interface Props extends InputProps {
   buttonText?: string
   onButtonPress?: () => any
   precision?: any
