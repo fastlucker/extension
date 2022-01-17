@@ -15,7 +15,10 @@ import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
+import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
+import { TEXT_TYPES } from '@modules/common/components/Text'
+import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import AddressList from '@modules/send/components/AddressList'
@@ -67,15 +70,19 @@ const SendScreen = () => {
         >
           <>
             {assetsItems.length ? (
-              <View>
+              <Panel>
+                <Title>{t('Send')}</Title>
                 <Select value={asset} items={assetsItems} setValue={setAsset} />
                 <NumberInput
                   onChangeText={onAmountChange}
                   value={amount.toString()}
                   buttonText={t('MAX')}
+                  placeholder={t('0')}
                   onButtonPress={setMaxAmount}
                 />
-                {!!validationFormMgs.messages?.amount && <P>{validationFormMgs.messages.amount}</P>}
+                {!!validationFormMgs.messages?.amount && (
+                  <P type={TEXT_TYPES.DANGER}>{validationFormMgs.messages.amount}</P>
+                )}
                 <Input
                   placeholder={t('Recipient')}
                   info={t(
@@ -85,7 +92,7 @@ const SendScreen = () => {
                   onChangeText={setAddress}
                 />
                 {!!validationFormMgs.messages?.address && (
-                  <P>{validationFormMgs.messages.address}</P>
+                  <P type={TEXT_TYPES.DANGER}>{validationFormMgs.messages.address}</P>
                 )}
                 {!smartContractWarning && !!unknownWarning && (
                   <ConfirmAddress
@@ -102,7 +109,7 @@ const SendScreen = () => {
                     sendTransaction()
                   }}
                 />
-              </View>
+              </Panel>
             ) : (
               <P>{t("You don't have any funds on this account.")}</P>
             )}
