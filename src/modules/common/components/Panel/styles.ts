@@ -1,4 +1,4 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
 
@@ -12,7 +12,8 @@ const styles = StyleSheet.create<Styles>({
     paddingHorizontal: 20,
     paddingVertical: 20,
     marginBottom: 15,
-    backgroundColor: colors.panelBackgroundColor
+    backgroundColor: colors.panelBackgroundColor,
+    flex: 1
   }
 })
 

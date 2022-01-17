@@ -50,7 +50,9 @@ const colors = {
   primaryButtonContainerColor: '#80ffdb',
   secondaryButtonContainerColor: 'rgba(0,0,0,.1)',
   primaryButtonTextColor: '#000',
-  secondaryButtonTextColor: '#fff'
+  secondaryButtonTextColor: '#fff',
+
+  primaryIconColor: '#fff'
 }
 
 export default colors
