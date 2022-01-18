@@ -6,8 +6,11 @@ import styles from './styles'
 export interface Props extends TextProps {
   underline?: boolean
   type?: TEXT_TYPES
+  fontSize?: number
+  color?: string
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export enum TEXT_TYPES {
   REGULAR = 'regular',
   DANGER = 'danger'
@@ -22,6 +25,8 @@ const Text: React.FC<Props> = ({
   type = TEXT_TYPES.REGULAR,
   children,
   underline,
+  fontSize,
+  color,
   style = {},
   ...rest
 }) => (
@@ -30,6 +35,8 @@ const Text: React.FC<Props> = ({
       styles.text,
       textStyles[type],
       !!underline && styles.underline,
+      !!fontSize && { fontSize },
+      !!color && { color },
       style
     ])}
     {...rest}

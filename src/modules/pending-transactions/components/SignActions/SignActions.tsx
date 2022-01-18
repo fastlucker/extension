@@ -1,24 +1,35 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { FontAwesome5 } from '@expo/vector-icons'
 import Button from '@modules/common/components/Button'
+import { BUTTON_TYPES } from '@modules/common/components/Button/Button'
 import Input from '@modules/common/components/Input'
+import NumberInput from '@modules/common/components/NumberInput'
+import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
-import Text from '@modules/common/components/Text'
+import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import { isValidCode } from '@modules/common/services/validate'
+import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import textStyles from '@modules/common/styles/utils/text'
 import { isTokenEligible } from '@modules/pending-transactions/services/helpers'
+
+import styles from './styles'
 
 const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatus }: any) => {
   const {
     control,
     handleSubmit,
     resetField,
-    formState: { errors, isSubmitting, isSubmitSuccessful, isValid }
+    formState: { errors, isSubmitting }
   } = useForm({
-    mode: 'onChange',
-    reValidateMode: 'onChange',
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
     defaultValues: {
       code: '',
       password: ''
@@ -32,7 +43,9 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     [signingStatus]
   )
 
-  const rejectButton = rejectTxn && <Button text={t('Reject')} onPress={rejectTxn} />
+  const rejectButton = rejectTxn && (
+    <Button type={BUTTON_TYPES.DANGER} text={t('Reject')} onPress={rejectTxn} />
+  )
 
   const insufficientFee =
     estimation &&
@@ -41,10 +54,26 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
 
   const willFail = (estimation && !estimation.success) || insufficientFee
 
+  const renderTitle = () => {
+    return (
+      <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
+        <FontAwesome5
+          style={spacings.mrTy}
+          name="signature"
+          size={20}
+          color={colors.primaryAccentColor}
+        />
+        <Title hasBottomSpacing={false} color={colors.primaryAccentColor}>
+          {t('Sign')}
+        </Title>
+      </View>
+    )
+  }
+
   if (willFail) {
     return (
       <Panel>
-        <Title>{t('Sign')}</Title>
+        {renderTitle()}
         {rejectButton}
       </Panel>
     )
@@ -60,39 +89,44 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
   if (signingStatus && signingStatus.quickAcc) {
     return (
       <Panel>
-        <Title>{t('Sign')}</Title>
+        {renderTitle()}
         <View>
           {signingStatus.confCodeRequired === 'otp' ? (
-            <Text>Please enter your OTP code and your password.</Text>
+            <Text>{t('Please enter your OTP code and your password.')}</Text>
           ) : null}
           {signingStatus.confCodeRequired === 'email' ? (
-            <Text>
-              A confirmation code was sent to your email, please enter it along with your password.
+            <Text style={[textStyles.bold, spacings.mbSm]}>
+              {t(
+                'A confirmation code was sent to your email, please enter it along with your password.'
+              )}
             </Text>
           ) : null}
         </View>
+        {!isRecoveryMode && (
+          <Controller
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                placeholder={t('Password')}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                secureTextEntry
+                autoCorrect={false}
+                value={value}
+              />
+            )}
+            name="password"
+          />
+        )}
+
+        {!!errors.password && <P type={TEXT_TYPES.DANGER}>{t('Password is required.')}</P>}
+
         <Controller
           control={control}
-          rules={{ required: true }}
+          rules={{ validate: isValidCode }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              placeholder={t('Password')}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              secureTextEntry
-              autoCorrect={false}
-              value={value}
-              // disabled={isRecoveryMode}
-              // style={isRecoveryMode ? { visibility: 'hidden' } : {}}
-            />
-          )}
-          name="password"
-        />
-        <Controller
-          control={control}
-          rules={{ required: true }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
+            <NumberInput
               placeholder={
                 signingStatus.confCodeRequired === 'otp'
                   ? t('Authenticator code')
@@ -103,15 +137,22 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
               keyboardType="numeric"
               autoCorrect={false}
               value={value}
-              // minLength={6}
-              // maxLength={6}
             />
           )}
           name="code"
         />
-        <View style={{}}>
-          {rejectButton}
-          <Button text={t('Sign and send')} onPress={isValid ? handleSubmit(onSubmit) : () => {}} />
+
+        {!!errors.code && <P type={TEXT_TYPES.DANGER}>{t('Invalid confirmation code.')}</P>}
+
+        <View style={styles.buttonsContainer}>
+          <View style={styles.buttonWrapper}>{rejectButton}</View>
+          <View style={styles.buttonWrapper}>
+            <Button
+              text={isSubmitting ? t('Sending...') : t('Sign and send')}
+              disabled={isSubmitting}
+              onPress={handleSubmit(onSubmit)}
+            />
+          </View>
         </View>
       </Panel>
     )
@@ -119,10 +160,12 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
 
   return (
     <Panel>
-      <Title>{t('Sign')}</Title>
-      <View style={{}}>
-        {rejectButton}
-        <Button text={t('Sign')} onPress={approveTxn} disabled={!estimation || signingStatus} />
+      {renderTitle()}
+      <View style={styles.buttonsContainer}>
+        <View style={styles.buttonWrapper}>{rejectButton}</View>
+        <View style={styles.buttonWrapper}>
+          <Button text={t('Sign')} onPress={approveTxn} disabled={!estimation || signingStatus} />
+        </View>
       </View>
     </Panel>
   )

@@ -5,6 +5,8 @@ interface Styles {
   directionRow: ViewStyle
   center: ViewStyle
   alignSelfCenter: ViewStyle
+  alignCenter: ViewStyle
+  justifyCenter: ViewStyle
 }
 
 const flexboxStyles = StyleSheet.create<Styles>({
@@ -13,6 +15,12 @@ const flexboxStyles = StyleSheet.create<Styles>({
   },
   directionRow: {
     flexDirection: 'row'
+  },
+  alignCenter: {
+    alignItems: 'center'
+  },
+  justifyCenter: {
+    justifyContent: 'center'
   },
   center: {
     justifyContent: 'center',

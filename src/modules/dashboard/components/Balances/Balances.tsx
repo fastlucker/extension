@@ -17,9 +17,9 @@ const Balances = () => {
   const { balance, isBalanceLoading, otherBalances } = usePortfolio()
   const { network: selectedNetwork, setNetwork } = useNetwork()
   const otherPositiveBalances = otherBalances.filter(
-    ({ network, total }) => network !== selectedNetwork?.id && total.full > 0
+    ({ network, total }: any) => network !== selectedNetwork?.id && total.full > 0
   )
-  const networkDetails = (network) => networks.find(({ id }) => id === network)
+  const networkDetails = (network: any) => networks.find(({ id }) => id === network)
 
   return (
     <Panel>
@@ -41,8 +41,8 @@ const Balances = () => {
       {otherPositiveBalances.length > 0 && (
         <View style={styles.otherBalancesContainer}>
           <Text style={styles.otherBalancesText}>{t('You also have')} </Text>
-          {otherPositiveBalances.map(({ network, total }, i: number) => {
-            const { chainId, name, Icon } = networkDetails(network)
+          {otherPositiveBalances.map(({ network, total }: any, i: number) => {
+            const { chainId, name, Icon }: any = networkDetails(network)
             const hasOneMore = otherPositiveBalances.length - 1 !== i
             const onNetworkChange = () => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
