@@ -26,7 +26,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     control,
     handleSubmit,
     resetField,
-    formState: { errors, isSubmitting, isValid }
+    formState: { errors, isSubmitting }
   } = useForm({
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',

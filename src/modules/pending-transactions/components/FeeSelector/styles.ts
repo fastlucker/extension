@@ -2,7 +2,6 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
-import textStyles from '@modules/common/styles/utils/text'
 
 interface Style {
   panelWrapper: ViewStyle

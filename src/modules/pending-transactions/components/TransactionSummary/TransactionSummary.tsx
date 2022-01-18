@@ -13,8 +13,6 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
-import styles from './styles'
-
 const REJECT_MSG = 'Ambire user rejected the request'
 
 const TransactionSummary = ({ bundle, estimation }: any) => {
@@ -42,7 +40,7 @@ const TransactionSummary = ({ bundle, estimation }: any) => {
           return (
             <TxnPreview
               key={[...txn, i].join(':')}
-              // pasing an unused property to make it update
+              // passing an unused property to make it update
               minute={min}
               onDismiss={
                 bundle.requestIds &&
