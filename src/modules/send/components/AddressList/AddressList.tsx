@@ -7,7 +7,6 @@ import { MaterialIcons } from '@expo/vector-icons'
 import Blockies from '@modules/common/components/Blockies'
 import Button from '@modules/common/components/Button'
 import P from '@modules/common/components/P'
-import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
@@ -69,12 +68,12 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
   }
 
   return (
-    <Panel>
+    <>
       <Title>{t('Address Book')}</Title>
       {!!items.length && items.map(renderItem)}
       {!items.length && <P>{t('Your address book is empty')}</P>}
       <Button onPress={onOpenBottomSheet} text={t('➕ Add Address')} />
-    </Panel>
+    </>
   )
 }
 

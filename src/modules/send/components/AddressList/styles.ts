@@ -16,7 +16,6 @@ const styles = StyleSheet.create<Style>({
   },
   addressItem: {
     flexDirection: 'row',
-    flex: 1,
     alignItems: 'center',
     ...spacings.phSm,
     ...spacings.pvSm
