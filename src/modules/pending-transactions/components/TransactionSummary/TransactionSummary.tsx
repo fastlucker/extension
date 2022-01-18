@@ -1,5 +1,5 @@
 import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { FontAwesome5 } from '@expo/vector-icons'
@@ -57,18 +57,22 @@ const TransactionSummary = ({ bundle, estimation }: any) => {
         <View>
           <Text>
             {bundle.requestIds ? (
-              <Text>
-                <Text style={textStyles.bold}>{'DEGEN TIP: '}</Text>
+              <Trans>
                 <Text>
-                  You can sign multiple transactions at once. Add more transactions to this batch by
-                  interacting with a connected dApp right now.
+                  <Text style={textStyles.bold}>{'DEGEN TIP: '}</Text>
+                  <Text>
+                    You can sign multiple transactions at once. Add more transactions to this batch
+                    by interacting with a connected dApp right now.
+                  </Text>
                 </Text>
-              </Text>
+              </Trans>
             ) : (
-              <Text>
-                <Text style={textStyles.bold}>{'NOTE: '}</Text>
-                <Text>You are currently replacing a pending transaction.</Text>
-              </Text>
+              <Trans>
+                <Text>
+                  <Text style={textStyles.bold}>{'NOTE: '}</Text>
+                  <Text>You are currently replacing a pending transaction.</Text>
+                </Text>
+              </Trans>
             )}
           </Text>
         </View>

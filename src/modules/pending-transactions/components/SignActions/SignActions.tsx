@@ -92,11 +92,13 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
         {renderTitle()}
         <View>
           {signingStatus.confCodeRequired === 'otp' ? (
-            <Text>Please enter your OTP code and your password.</Text>
+            <Text>{t('Please enter your OTP code and your password.')}</Text>
           ) : null}
           {signingStatus.confCodeRequired === 'email' ? (
             <Text style={[textStyles.bold, spacings.mbSm]}>
-              A confirmation code was sent to your email, please enter it along with your password.
+              {t(
+                'A confirmation code was sent to your email, please enter it along with your password.'
+              )}
             </Text>
           ) : null}
         </View>

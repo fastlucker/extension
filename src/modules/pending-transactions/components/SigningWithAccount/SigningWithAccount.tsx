@@ -41,7 +41,7 @@ const SigningWithAccount = () => {
         </View>
       </View>
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-        {!!account.id && <Text>{' on '}</Text>}
+        {!!account.id && <Text>{t(' on ')}</Text>}
         <Icon width={25} />
         <Text style={textStyles.bold}>{` ${network?.name}`}</Text>
       </View>

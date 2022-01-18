@@ -1,6 +1,9 @@
 // It costs around 19k to send a token, if that token was interacted with before in the same transaction,
 // because of SLOAD costs - they depend on whether a slot has been read
 // however, it costs 30k if the token has not been interacted with
+
+import i18n from '@config/localization/localization'
+
 // we may decrease it a bit and lean on the relayer failsafe values (cfg.gasAddedOnEstimate) later on
 const ADDED_GAS_TOKEN = 30000
 const ADDED_GAS_NATIVE = 12000
@@ -29,19 +32,20 @@ export function getFeePaymentConsequences(token: any, estimation: any) {
 
 export function mapTxnErrMsg(msg: string) {
   if (!msg) return
-  if (msg.includes('Router: EXPIRED')) return 'Swap expired'
+  if (msg.includes('Router: EXPIRED')) return i18n.t('Swap expired')
   if (msg.includes('Router: INSUFFICIENT_OUTPUT_AMOUNT'))
-    return 'Swap will suffer slippage higher than your requirements'
-  if (msg.includes('INSUFFICIENT_PRIVILEGE')) return 'Your signer address is not authorized.'
+    return i18n.t('Swap will suffer slippage higher than your requirements')
+  if (msg.includes('INSUFFICIENT_PRIVILEGE'))
+    return i18n.t('Your signer address is not authorized.')
   return msg
 }
 
 export function getErrHint(msg: string) {
   if (!msg) return
-  if (msg.includes('Router: EXPIRED')) return 'Try performing the swap again'
+  if (msg.includes('Router: EXPIRED')) return i18n.t('Try performing the swap again')
   if (msg.includes('Router: INSUFFICIENT_OUTPUT_AMOUNT'))
-    return 'Try performing the swap again or increase your slippage requirements'
+    return i18n.t('Try performing the swap again or increase your slippage requirements')
   if (msg.includes('INSUFFICIENT_PRIVILEGE'))
-    return 'If you set a new signer for this account, try re-adding the account.'
-  return 'Sending this transaction batch will result in an error.'
+    return i18n.t('If you set a new signer for this account, try re-adding the account.')
+  return i18n.t('Sending this transaction batch will result in an error.')
 }

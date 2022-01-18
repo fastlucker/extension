@@ -63,8 +63,9 @@ const FeeSelector = ({
     if (estimation && !estimation.success)
       return (
         <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
-          The current transaction batch cannot be sent because it will fail:{' '}
-          {mapTxnErrMsg(estimation.message)}
+          {t('The current transaction batch cannot be sent because it will fail: {{msg}}', {
+            msg: mapTxnErrMsg(estimation.message)
+          })}
         </Text>
       )
 
@@ -73,17 +74,19 @@ const FeeSelector = ({
     if (estimation && !estimation.feeInUSD && estimation.gasLimit < 40000) {
       return (
         <Text>
-          {`WARNING: Fee estimation unavailable when you're doing your first account
-          transaction and you are not connected to a relayer. You will pay the fee from${' '}
-          ${signer.address}, make sure you have ${network.nativeAssetSymbol} there.`}
+          {t(
+            "WARNING: Fee estimation unavailable when you're doing your first account transaction and you are not connected to a relayer. You will pay the fee from {{address}}, make sure you have {{symbol}} there.",
+            { address: signer.address, symbol: network.nativeAssetSymbol }
+          )}
         </Text>
       )
     }
     if (estimation && estimation.feeInUSD && !estimation.remainingFeeTokenBalances) {
       return (
         <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
-          Internal error: fee balances not available. This should never happen, please report this
-          on help.ambire.com
+          {t(
+            'Internal error: fee balances not available. This should never happen, please report this on help.ambire.com'
+          )}
         </Text>
       )
     }
@@ -142,7 +145,7 @@ const FeeSelector = ({
       <>
         {insufficientFee ? (
           <Text>
-            Insufficient balance for the fee. Accepted tokens:{' '}
+            {t('Insufficient balance for the fee. Accepted tokens: ')}
             {(estimation.remainingFeeTokenBalances || []).map((x: any) => x.symbol).join(', ')}
           </Text>
         ) : (
@@ -153,7 +156,8 @@ const FeeSelector = ({
           // Visualize the fee once again with a USD estimation if in native currency
           !isStable && (
             <Text numberOfLines={2}>
-              Fee: {`${estimation.feeInNative[feeSpeed] * multiplier} ${nativeAssetSymbol}`}{' '}
+              {t('Fee: ')}
+              {`${estimation.feeInNative[feeSpeed] * multiplier} ${nativeAssetSymbol}`}{' '}
               {(
                 estimation.feeInNative[feeSpeed] *
                 multiplier *
@@ -164,8 +168,10 @@ const FeeSelector = ({
         }
         {!estimation.feeInUSD ? (
           <Text>
-            {`WARNING: Paying fees in tokens other than ${nativeAssetSymbol} is unavailable because you
-            are not connected to a relayer. You will pay the fee from ${signer.address}.`}
+            {t(
+              'WARNING: Paying fees in tokens other than {{symbol}} is unavailable because you are not connected to a relayer. You will pay the fee from {{address}}.',
+              { symbol: nativeAssetSymbol, address: signer.address }
+            )}
           </Text>
         ) : null}
       </>

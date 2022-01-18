@@ -86,8 +86,9 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
       />
       {!!bundle?.signer?.quickAccManager && !CONFIG.RELAYER_URL ? (
         <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
-          Signing transactions with an email/password account without being connected to the relayer
-          is unsupported.
+          {t(
+            'Signing transactions with an email/password account without being connected to the relayer is unsupported.'
+          )}
         </Text>
       ) : (
         <SignActions
