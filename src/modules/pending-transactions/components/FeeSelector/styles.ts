@@ -5,12 +5,16 @@ import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
 interface Style {
+  panelWrapper: ViewStyle
   selectorsContainer: ViewStyle
   feeSelector: ViewStyle
   selected: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
+  panelWrapper: {
+    zIndex: 500
+  },
   selectorsContainer: {
     flexDirection: 'row',
     flex: 1,

@@ -4,7 +4,6 @@ import { ActivityIndicator, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import { FontAwesome5 } from '@expo/vector-icons'
-import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
@@ -82,7 +81,7 @@ const FeeSelector = ({
     }
     if (estimation && estimation.feeInUSD && !estimation.remainingFeeTokenBalances) {
       return (
-        <Text>
+        <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
           Internal error: fee balances not available. This should never happen, please report this
           on help.ambire.com
         </Text>
@@ -102,12 +101,12 @@ const FeeSelector = ({
 
     const feeCurrencySelect = estimation.feeInUSD ? (
       <>
-        <P>Fee currency</P>
+        <Text style={spacings.pbMi}>Fee currency</Text>
         <Select value={currency} setValue={setCurrency} items={assetsItems} />
       </>
     ) : null
 
-    const areSelectorsDisabled = disabled || insufficientFee
+    const areSelectorsDisabled = disabled
     const { isStable } = estimation.selectedFeeToken
     const { multiplier } = getFeePaymentConsequences(estimation.selectedFeeToken, estimation)
 
@@ -174,21 +173,23 @@ const FeeSelector = ({
   }
 
   return (
-    <Panel>
-      <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
-        <FontAwesome5
-          style={spacings.mrTy}
-          name="hand-holding-usd"
-          size={20}
-          color={colors.primaryAccentColor}
-        />
-        <Title hasBottomSpacing={false} color={colors.primaryAccentColor}>
-          {t('Fee')}
-        </Title>
-      </View>
+    <View style={styles.panelWrapper}>
+      <Panel>
+        <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
+          <FontAwesome5
+            style={spacings.mrTy}
+            name="hand-holding-usd"
+            size={20}
+            color={colors.primaryAccentColor}
+          />
+          <Title hasBottomSpacing={false} color={colors.primaryAccentColor}>
+            {t('Fee')}
+          </Title>
+        </View>
 
-      {renderFeeSelector()}
-    </Panel>
+        {renderFeeSelector()}
+      </Panel>
+    </View>
   )
 }
 
