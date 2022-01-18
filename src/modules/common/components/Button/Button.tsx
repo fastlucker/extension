@@ -8,19 +8,23 @@ interface Props extends TouchableOpacityProps {
   type?: BUTTON_TYPES
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export enum BUTTON_TYPES {
   PRIMARY = 'primary',
-  SECONDARY = 'secondary'
+  SECONDARY = 'secondary',
+  DANGER = 'danger'
 }
 
 const containerStyles = {
   [BUTTON_TYPES.PRIMARY]: styles.buttonContainerPrimary,
-  [BUTTON_TYPES.SECONDARY]: styles.buttonContainerSecondary
+  [BUTTON_TYPES.SECONDARY]: styles.buttonContainerSecondary,
+  [BUTTON_TYPES.DANGER]: styles.buttonContainerDanger
 }
 
 const buttonTextStyles = {
   [BUTTON_TYPES.PRIMARY]: styles.buttonTextPrimary,
-  [BUTTON_TYPES.SECONDARY]: styles.buttonTextSecondary
+  [BUTTON_TYPES.SECONDARY]: styles.buttonTextSecondary,
+  [BUTTON_TYPES.DANGER]: styles.buttonTextDanger
 }
 
 const Button = ({

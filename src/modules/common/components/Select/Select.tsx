@@ -18,9 +18,10 @@ interface Props {
   setValue?: (value: any) => void
   setItems?: (items: any) => void
   searchable?: boolean
+  onChangeValue?: (value: any) => void
 }
 
-const Select = ({ value, setValue, items, setItems, searchable = true }: Props) => {
+const Select = ({ value, setValue, items, setItems, searchable = true, onChangeValue }: Props) => {
   const [open, setOpen] = useState(false)
 
   return (
@@ -31,6 +32,7 @@ const Select = ({ value, setValue, items, setItems, searchable = true }: Props) 
       setOpen={setOpen}
       // @ts-ignore
       setValue={setValue}
+      onChangeValue={onChangeValue}
       setItems={setItems}
       searchable={searchable}
       theme="DARK"
@@ -42,6 +44,9 @@ const Select = ({ value, setValue, items, setItems, searchable = true }: Props) 
       listItemLabelStyle={styles.listItemLabelStyle}
       searchContainerStyle={styles.searchContainerStyle}
       searchTextInputStyle={styles.searchTextInputStyle}
+      disabledItemLabelStyle={{
+        opacity: 0.5
+      }}
       // So it displays 4 and a half items (indicating there is a scroll)
       maxHeight={290}
       // Using FlatList as `listMode` is causing a warning:

@@ -4,8 +4,22 @@ import { TextProps } from 'react-native'
 import Text from '../Text'
 import styles from './styles'
 
-const Title: React.FC<TextProps> = ({ style = {}, children }) => (
-  <Text style={[styles.text, style]}>{children}</Text>
+interface Props extends TextProps {
+  hasBottomSpacing?: boolean
+  color?: string
+}
+
+const Title: React.FC<Props> = ({
+  style = {},
+  hasBottomSpacing = true,
+  children,
+  color
+}: Props) => (
+  <Text
+    style={[styles.text, !!hasBottomSpacing && styles.bottomSpacing, !!color && { color }, style]}
+  >
+    {children}
+  </Text>
 )
 
 export default Title

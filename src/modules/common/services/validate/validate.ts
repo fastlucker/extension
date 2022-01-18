@@ -92,4 +92,6 @@ const validateSendTransferAmount = (amount: any, selectedAsset: any) => {
   return { success: true }
 }
 
-export { isEmail, validateSendTransferAddress, validateSendTransferAmount }
+const isValidCode = (code: string) => code.length === 6
+
+export { isEmail, validateSendTransferAddress, validateSendTransferAmount, isValidCode }
