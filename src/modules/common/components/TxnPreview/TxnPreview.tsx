@@ -4,11 +4,8 @@ import React, { useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import networks from '@modules/common/constants/networks'
-import {
-  getName,
-  getTransactionSummary,
-  isKnown
-} from '@modules/common/services/humanReadableTransactions'
+import { getName, isKnown } from '@modules/common/services/humanReadableTransactions'
+import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
 
 import Text from '../Text'
 
