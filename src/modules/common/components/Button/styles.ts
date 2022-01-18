@@ -8,9 +8,11 @@ interface Style {
   buttonContainer: ViewStyle
   buttonContainerPrimary: ViewStyle
   buttonContainerSecondary: ViewStyle
+  buttonContainerDanger: ViewStyle
   buttonText: TextStyle
   buttonTextPrimary: TextStyle
   buttonTextSecondary: TextStyle
+  buttonTextDanger: TextStyle
   disabled: ViewStyle
 }
 
@@ -30,6 +32,9 @@ const styles = StyleSheet.create<Style>({
   buttonContainerSecondary: {
     backgroundColor: colors.secondaryButtonContainerColor
   },
+  buttonContainerDanger: {
+    backgroundColor: colors.dangerButtonContainerColor
+  },
   buttonText: {
     textTransform: 'uppercase',
     ...textStyles.bold,
@@ -40,6 +45,9 @@ const styles = StyleSheet.create<Style>({
   },
   buttonTextSecondary: {
     color: colors.secondaryButtonTextColor
+  },
+  buttonTextDanger: {
+    color: colors.dangerButtonTextColor
   },
   disabled: {
     opacity: 0.2
