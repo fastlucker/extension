@@ -49,6 +49,14 @@ const Select = ({ value, setValue, items, setItems, searchable = true, onChangeV
       }}
       // So it displays 4 and a half items (indicating there is a scroll)
       maxHeight={290}
+      // Using FlatList as `listMode` is causing a warning:
+      // "VirtualizedLists should never be nested inside plain ScrollViews
+      // with the same orientation because it can break windowing and other
+      // functionality - use another VirtualizedList-backed container instead."
+      // Therefore, because the main Wrapper of the screens is ScrollView,
+      // we must use ScrollView for this component too.
+      // {@link https://github.com/hossein-zare/react-native-dropdown-picker/issues/56#issuecomment-841399365}
+      listMode="SCROLLVIEW"
     />
   )
 }

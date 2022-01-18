@@ -153,8 +153,10 @@ export default function useRequestTransaction() {
   }, [assetsItems])
 
   return {
+    maxAmount,
     setMaxAmount,
     asset,
+    selectedAsset,
     amount,
     address,
     setAsset,
