@@ -9,6 +9,7 @@ import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
+import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
@@ -17,10 +18,8 @@ import SendScreen from '@modules/send/screens/SendScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { createNavigationContainerRef, NavigationContainer } from '@react-navigation/native'
+import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-
-const navigationRef: any = createNavigationContainerRef()
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -31,12 +30,6 @@ const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
 const AppsStack = createNativeStackNavigator()
 const SettingsStack = createNativeStackNavigator()
-
-// Mechanism for being able to navigate without the navigation prop.
-// {@link https://reactnavigation.org/docs/navigating-without-navigation-prop/}
-export function navigate(name: string, params?: object): void {
-  navigationRef.current?.navigate(name, params)
-}
 
 const globalScreenOptions = {
   headerStyle: {
@@ -355,12 +348,21 @@ const AppStack = () => {
 const Router = () => {
   const { isAuthenticated } = useAuth()
 
+  const handleOnReady = () => {
+    // @ts-ignore for some reason TS complains about this 👇
+    routeNameRef.current = navigationRef.current.getCurrentRoute()?.name
+  }
+
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer
+      // Part of the mechanism for being able to navigate without the navigation prop.
+      // For more details, see the NavigationService.
+      ref={navigationRef}
+      onReady={handleOnReady}
+    >
       {isAuthenticated ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   )
 }
 
-export { navigationRef }
 export default Router

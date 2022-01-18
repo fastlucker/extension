@@ -1,11 +1,11 @@
 // TODO: add types
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
-import { navigationRef } from '@config/Router/Router'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useToast from '@modules/common/hooks/useToast'
+import { navigate } from '@modules/common/services/navigation'
 
 type RequestsContextData = {
   internalRequests: any
@@ -88,7 +88,7 @@ const RequestsProvider: React.FC = ({ children }) => {
     }
     setSentTxn((txn: any) => [...txn, { confirmed: false, hash }])
     addToast('Transaction signed and sent successfully! &nbsp;Click to view on block explorer.', {
-      onClick: () => navigationRef.navigate('transactions-tab'),
+      onClick: () => navigate('transactions-tab'),
       timeout: 15000
     })
   }
@@ -113,7 +113,7 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (sendTxnState.showing && !prevSendTxnState.showing) {
-      navigationRef.navigate('pending-transactions')
+      navigate('pending-transactions')
     }
   }, [sendTxnState?.showing, prevSendTxnState?.showing])
 
