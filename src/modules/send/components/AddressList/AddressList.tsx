@@ -53,7 +53,11 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
           <Text style={styles.addressName} numberOfLines={1}>
             {item.name}
           </Text>
-          <Text style={[styles.addressId, textStyles.bold]} numberOfLines={1}>
+          <Text
+            style={[styles.addressId, textStyles.bold]}
+            numberOfLines={1}
+            ellipsizeMode="middle"
+          >
             {item.address}
           </Text>
         </View>

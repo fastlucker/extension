@@ -107,7 +107,7 @@ const Accounts = () => {
             <Blockies seed={account?.id} />
           </TouchableOpacity>
           <View style={[flexboxStyles.flex1, spacings.mlTy]}>
-            <Text onPress={sheetAccounts.openBottomSheet} numberOfLines={1}>
+            <Text onPress={sheetAccounts.openBottomSheet} numberOfLines={1} ellipsizeMode="middle">
               {account?.id}
             </Text>
           </View>
