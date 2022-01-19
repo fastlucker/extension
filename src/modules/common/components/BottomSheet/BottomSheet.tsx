@@ -8,8 +8,7 @@ import { Portal } from '@gorhom/portal'
 import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
-import Button from '../Button'
-import { BUTTON_TYPES } from '../Button/Button'
+import Button, { BUTTON_TYPES } from '../Button'
 import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
 
 interface Props {
