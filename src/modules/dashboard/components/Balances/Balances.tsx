@@ -8,8 +8,10 @@ import Title from '@modules/common/components/Title'
 import networks from '@modules/common/constants/networks'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
+import Rewards from '../Rewards'
 import styles from './styles'
 
 const Balances = () => {
@@ -23,7 +25,10 @@ const Balances = () => {
 
   return (
     <Panel>
-      <Title>{t('Balance')}</Title>
+      <View style={flexboxStyles.directionRow}>
+        <Title style={flexboxStyles.flex1}>{t('Balance')}</Title>
+        <Rewards />
+      </View>
       <Text style={styles.text}>
         <Text style={[textStyles.highlightPrimary, styles.text]}>$</Text>{' '}
         {isBalanceLoading ? (

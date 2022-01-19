@@ -21,7 +21,6 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import { useNavigation } from '@react-navigation/native'
 
-import Rewards from '../Rewards'
 import styles from './styles'
 
 const Accounts = () => {
@@ -113,10 +112,7 @@ const Accounts = () => {
   return (
     <>
       <Panel>
-        <View>
-          <Title>Accounts</Title>
-          <Rewards />
-        </View>
+        <Title>Accounts</Title>
         <View style={[styles.accItemStyle, spacings.mb]} key={account?.id}>
           <TouchableOpacity onPress={sheetAccounts.openBottomSheet}>
             <Blockies seed={account?.id} />
