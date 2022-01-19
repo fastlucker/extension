@@ -35,7 +35,7 @@ const Balances = () => {
 
   const tokenItem = (index, img, symbol, balance, balanceUSD, address, send = false) => (
     <Row index={index} key={`token-${address}-${index}`}>
-      <View style={spacings.ph}>
+      <View style={spacings.pr}>
         {failedImg.includes(img) ? (
           <Text style={styles.fallbackImage}>🪙</Text>
         ) : (
@@ -57,7 +57,7 @@ const Balances = () => {
         </Text>
       </View>
 
-      <View style={spacings.ph}>
+      <View style={spacings.pl}>
         <Text
           style={[styles.symbol, textStyles.highlightPrimary]}
           onPress={() => handleGoToSend(symbol)}

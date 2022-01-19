@@ -15,6 +15,7 @@ export const Row: React.FC<Props> = ({ index = 0, children }) => {
       style={[
         flexboxStyles.directionRow,
         spacings.pvSm,
+        spacings.ph,
         { backgroundColor: index % 2 ? colors.rowEvenColor : colors.rowOddColor }
       ]}
     >
