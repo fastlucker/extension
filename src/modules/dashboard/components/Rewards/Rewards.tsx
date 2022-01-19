@@ -24,14 +24,13 @@ const Rewards = () => {
   useEffect(() => {
     if (errMsg || !data || !data.success) return
 
-    const { rewards, multipliers } = data
-    if (!rewards.length) return
+    if (!data.rewards.length) return
 
     const rewardsDetails = Object.fromEntries(
-      rewards.map(({ _id, rewards }) => [_id, rewards[account.id] || 0])
+      data.rewards.map(({ _id, rewards: _rewards }) => [_id, _rewards[account.id] || 0])
     )
     const total = Object.values(rewardsDetails).reduce((acc, curr) => acc + curr, 0)
-    rewardsDetails.multipliers = multipliers
+    rewardsDetails.multipliers = data.multipliers
 
     setRewardsTotal(total)
     setRewards(rewardsDetails)
