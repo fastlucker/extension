@@ -46,6 +46,7 @@
     "expo-barcode-scanner": "~11.1.2",
     "expo-camera": "~12.0.3",
     "expo-checkbox": "~2.0.0",
+    "expo-clipboard": "~2.0.3",
     "expo-document-picker": "~10.0.3",
     "expo-file-system": "~13.0.3",
     "expo-intent-launcher": "~10.0.3",
