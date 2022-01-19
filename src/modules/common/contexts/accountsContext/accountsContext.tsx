@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import useAuth from '@modules/auth/hooks/useAuth'
+import { navigate } from '@modules/common/services/navigation'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type AccountsContextData = {
@@ -24,7 +25,7 @@ const AccountsContext = createContext<AccountsContextData>({
 const AccountsProvider: React.FC = ({ children }) => {
   const [accounts, setAccounts] = useState<any[]>([])
   const [selectedAcc, setSelectedAcc] = useState<string | null>('')
-  const { setIsAuthenticated } = useAuth()
+  const { setIsAuthenticated, isAuthenticated } = useAuth()
 
   const initState = async () => {
     try {
@@ -78,7 +79,11 @@ const AccountsProvider: React.FC = ({ children }) => {
 
       if (opts.select) onSelectAcc(acc.id)
       if (Object.keys(accounts).length) {
-        setIsAuthenticated(true)
+        if (isAuthenticated) {
+          navigate('dashboard')
+        } else {
+          setIsAuthenticated(true)
+        }
       }
     },
     [accounts, onSelectAcc]
