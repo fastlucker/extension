@@ -1,8 +1,10 @@
+import * as Clipboard from 'expo-clipboard'
 import React, { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
+import { MaterialIcons } from '@expo/vector-icons'
 import Blockies from '@modules/common/components/Blockies'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
@@ -12,6 +14,7 @@ import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -28,6 +31,7 @@ const Accounts = () => {
   const sheetNetworks = useBottomSheet()
   const sheetAccounts = useBottomSheet()
   const [logoutWarning, setLogoutWarning] = useState(false)
+  const { addToast } = useToast()
 
   const handleChangeNetwork = (chainId) => {
     setNetwork(chainId)
@@ -43,6 +47,13 @@ const Accounts = () => {
     sheetAccounts.closeBottomSheet()
     navigation.navigate('auth')
   }
+
+  const handleCopyAddress = () => {
+    Clipboard.setString(selectedAcc)
+    addToast(t('Address copied to clipboard!') as string, { timeout: 2000 })
+  }
+
+  const handleGoToSend = () => navigation.navigate('send-tab')
 
   const account = accounts.find(({ id }) => id === selectedAcc)
   const { name: networkName, Icon: NetworkIcon } = network || {}
@@ -102,7 +113,7 @@ const Accounts = () => {
     <>
       <Panel>
         <Title>Accounts</Title>
-        <View style={styles.accItemStyle} key={account?.id}>
+        <View style={[styles.accItemStyle, spacings.mb]} key={account?.id}>
           <TouchableOpacity onPress={sheetAccounts.openBottomSheet}>
             <Blockies seed={account?.id} />
           </TouchableOpacity>
@@ -123,7 +134,32 @@ const Accounts = () => {
             </Trans>
           </View>
         </View>
-        {/* TODO: Copy address, Send, Receive  */}
+        <View style={styles.actionsContainer}>
+          <TouchableOpacity onPress={handleCopyAddress} style={styles.actionsContainerItem}>
+            <MaterialIcons
+              size={25}
+              name="content-copy"
+              color={colors.textColor}
+              style={spacings.mbTy}
+            />
+            <Text fontSize={14} style={textStyles.bold}>
+              {t('Copy address')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleGoToSend} style={styles.actionsContainerItem}>
+            <MaterialIcons name="compare-arrows" size={25} color={colors.textColor} />
+            <Text fontSize={14} style={textStyles.bold}>
+              {t('Send')}
+            </Text>
+          </TouchableOpacity>
+          {/* TODO: Navigate to Receive / Deposit screen */}
+          <TouchableOpacity disabled style={styles.actionsContainerItem}>
+            <MaterialIcons name="file-download" size={25} color={colors.textColor} />
+            <Text fontSize={14} style={textStyles.bold}>
+              {t('Receive')}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </Panel>
       <BottomSheet sheetRef={sheetNetworks.sheetRef}>
         <Title>{t('Change network')}</Title>
