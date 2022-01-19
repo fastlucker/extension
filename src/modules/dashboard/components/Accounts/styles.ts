@@ -6,6 +6,7 @@ interface Styles {
   accItemStyle: ViewProps
   inactiveAccount: ViewProps
   actionsContainer: ViewProps
+  actionsContainerItem: ViewProps
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -25,9 +26,13 @@ const styles = StyleSheet.create<Styles>({
   },
   actionsContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  actionsContainerItem: {
     flex: 1,
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    minWidth: '33%' // a bit dirty, but for some reason `flexBasis` didn't click
   }
 })
 

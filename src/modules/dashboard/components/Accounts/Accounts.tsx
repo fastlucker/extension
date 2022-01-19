@@ -134,7 +134,7 @@ const Accounts = () => {
           </View>
         </View>
         <View style={styles.actionsContainer}>
-          <TouchableOpacity onPress={handleCopyAddress} style={flexboxStyles.center}>
+          <TouchableOpacity onPress={handleCopyAddress} style={styles.actionsContainerItem}>
             <MaterialIcons
               size={25}
               name="content-copy"
@@ -145,8 +145,18 @@ const Accounts = () => {
               {t('Copy address')}
             </Text>
           </TouchableOpacity>
-          <ButtonSegment style={spacings.mb0} text={t('Send')} />
-          <ButtonSegment style={spacings.mb0} text={t('Receive')} />
+          <TouchableOpacity onPress={handleCopyAddress} style={styles.actionsContainerItem}>
+            <MaterialIcons name="compare-arrows" size={25} color={colors.textColor} />
+            <Text fontSize={14} style={textStyles.bold}>
+              {t('Send')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleCopyAddress} style={styles.actionsContainerItem}>
+            <MaterialIcons name="file-download" size={25} color={colors.textColor} />
+            <Text fontSize={14} style={textStyles.bold}>
+              {t('Receive')}
+            </Text>
+          </TouchableOpacity>
         </View>
       </Panel>
       <BottomSheet sheetRef={sheetNetworks.sheetRef}>
