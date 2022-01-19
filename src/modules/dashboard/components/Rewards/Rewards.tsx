@@ -25,10 +25,10 @@ const Rewards = () => {
     const rewardsDetails = Object.fromEntries(
       rewards.map(({ _id, rewards }) => [_id, rewards[account.id] || 0])
     )
-    const rewardsTotal = Object.values(rewardsDetails).reduce((acc, curr) => acc + curr, 0)
+    const total = Object.values(rewardsDetails).reduce((acc, curr) => acc + curr, 0)
     rewardsDetails.multipliers = multipliers
 
-    setRewardsTotal(rewardsTotal)
+    setRewardsTotal(total)
   }, [data, errMsg, account])
 
   const walletTokensAmount = rewardsTotal.toFixed(3)
