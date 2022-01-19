@@ -5,11 +5,8 @@ import { TouchableOpacity, View } from 'react-native'
 
 import { MaterialIcons } from '@expo/vector-icons'
 import networks from '@modules/common/constants/networks'
-import {
-  getName,
-  getTransactionSummary,
-  isKnown
-} from '@modules/common/services/humanReadableTransactions'
+import { getName, isKnown } from '@modules/common/services/humanReadableTransactions'
+import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
