@@ -50,7 +50,7 @@ const Accounts = () => {
 
   const handleCopyAddress = () => {
     Clipboard.setString(selectedAcc)
-    addToast(t('Address copied to clipboard!') as string)
+    addToast(t('Address copied to clipboard!') as string, { timeout: 2000 })
   }
 
   const handleGoToSend = () => navigation.navigate('send-tab')
