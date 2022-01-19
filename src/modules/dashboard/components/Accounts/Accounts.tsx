@@ -1,17 +1,21 @@
+import * as Clipboard from 'expo-clipboard'
 import React, { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
+import { MaterialIcons } from '@expo/vector-icons'
 import Blockies from '@modules/common/components/Blockies'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
+import ButtonSegment from '@modules/common/components/ButtonSegment'
 import Panel from '@modules/common/components/Panel'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -28,6 +32,7 @@ const Accounts = () => {
   const sheetNetworks = useBottomSheet()
   const sheetAccounts = useBottomSheet()
   const [logoutWarning, setLogoutWarning] = useState(false)
+  const { addToast } = useToast()
 
   const handleChangeNetwork = (chainId) => {
     setNetwork(chainId)
@@ -42,6 +47,11 @@ const Accounts = () => {
   const handleGoToAddAccount = () => {
     sheetAccounts.closeBottomSheet()
     navigation.navigate('auth')
+  }
+
+  const handleCopyAddress = () => {
+    Clipboard.setString(selectedAcc)
+    addToast(t('Address copied to clipboard!') as string)
   }
 
   const account = accounts.find(({ id }) => id === selectedAcc)
@@ -102,7 +112,7 @@ const Accounts = () => {
     <>
       <Panel>
         <Title>Accounts</Title>
-        <View style={styles.accItemStyle} key={account?.id}>
+        <View style={[styles.accItemStyle, spacings.mb]} key={account?.id}>
           <TouchableOpacity onPress={sheetAccounts.openBottomSheet}>
             <Blockies seed={account?.id} />
           </TouchableOpacity>
@@ -123,7 +133,21 @@ const Accounts = () => {
             </Trans>
           </View>
         </View>
-        {/* TODO: Copy address, Send, Receive  */}
+        <View style={styles.actionsContainer}>
+          <TouchableOpacity onPress={handleCopyAddress} style={flexboxStyles.center}>
+            <MaterialIcons
+              size={25}
+              name="content-copy"
+              color={colors.textColor}
+              style={spacings.mbTy}
+            />
+            <Text fontSize={14} style={textStyles.bold}>
+              {t('Copy address')}
+            </Text>
+          </TouchableOpacity>
+          <ButtonSegment style={spacings.mb0} text={t('Send')} />
+          <ButtonSegment style={spacings.mb0} text={t('Receive')} />
+        </View>
       </Panel>
       <BottomSheet sheetRef={sheetNetworks.sheetRef}>
         <Title>{t('Change network')}</Title>

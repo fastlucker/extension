@@ -5,6 +5,7 @@ interface Styles {
   networkIcon: TextProps
   accItemStyle: ViewProps
   inactiveAccount: ViewProps
+  actionsContainer: ViewProps
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -21,6 +22,12 @@ const styles = StyleSheet.create<Styles>({
   networkIcon: {
     // so it aligns better vertically within text
     marginTop: -3
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center'
   }
 })
 
