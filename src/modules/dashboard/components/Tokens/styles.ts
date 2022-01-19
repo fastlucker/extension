@@ -5,11 +5,9 @@ import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
 interface Style {
-  row: ViewStyle
   header: ViewStyle
   footer: ViewStyle
   headerTitle: ViewStyle
-  rowItem: ViewStyle
   rowItemMain: ViewStyle
   img: ImageStyle
   fallbackImage: TextStyle
@@ -23,9 +21,6 @@ interface Style {
 }
 
 const styles = StyleSheet.create<Style>({
-  row: {
-    flexDirection: 'row'
-  },
   header: {
     backgroundColor: colors.headerColor,
     flexDirection: 'row',
@@ -42,10 +37,6 @@ const styles = StyleSheet.create<Style>({
   headerTitle: {
     fontSize: 20,
     ...spacings.pb0
-  },
-  rowItem: {
-    ...spacings.ph,
-    ...spacings.pvSm
   },
   rowItemMain: {
     flex: 1,
