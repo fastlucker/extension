@@ -6,13 +6,19 @@ import Button from '@modules/common/components/Button'
 import P from '@modules/common/components/P'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import useAccounts from '@modules/common/hooks/useAccounts'
 
 const LocalAuth = () => {
   const { t } = useTranslation()
+  const { account } = useAccounts()
   const [isEnabled, setIsEnabled] = useState(false)
 
   const handleOnActivate = async () => {
     const { success } = await LocalAuthentication.authenticateAsync()
+
+    // TODO: Figure out this part
+    const password = ''
+    // const wallet = await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), password)
 
     setIsEnabled(success)
   }
