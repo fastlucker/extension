@@ -6,8 +6,8 @@ import styles from './styles'
 
 interface Props extends TextProps {}
 
-const P = ({ children, ...rest }: Props) => (
-  <Text style={styles.text} {...rest}>
+const P = ({ children, style, ...rest }: Props) => (
+  <Text style={[styles.text, style]} {...rest}>
     {children}
   </Text>
 )

@@ -1,11 +1,13 @@
 import React from 'react'
-import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
+import { ColorValue, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
 
 import styles from './styles'
 
 interface Props extends TouchableOpacityProps {
   text: string
   type?: BUTTON_TYPES
+  size?: BUTTON_SIZES
+  accentColor?: ColorValue
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -15,10 +17,21 @@ export enum BUTTON_TYPES {
   DANGER = 'danger'
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export enum BUTTON_SIZES {
+  SMALL = 'small',
+  REGULAR = 'regular'
+}
+
 const containerStyles = {
   [BUTTON_TYPES.PRIMARY]: styles.buttonContainerPrimary,
   [BUTTON_TYPES.SECONDARY]: styles.buttonContainerSecondary,
   [BUTTON_TYPES.DANGER]: styles.buttonContainerDanger
+}
+
+const containerStylesSizes = {
+  [BUTTON_SIZES.REGULAR]: styles.buttonContainerStylesSizeRegular,
+  [BUTTON_SIZES.SMALL]: styles.buttonContainerStylesSizeSmall
 }
 
 const buttonTextStyles = {
@@ -27,8 +40,15 @@ const buttonTextStyles = {
   [BUTTON_TYPES.DANGER]: styles.buttonTextDanger
 }
 
+const buttonTextStylesSizes = {
+  [BUTTON_SIZES.REGULAR]: styles.buttonTextStylesSizeRegular,
+  [BUTTON_SIZES.SMALL]: styles.buttonTextStylesSizeSmall
+}
+
 const Button = ({
   type = BUTTON_TYPES.PRIMARY,
+  size = BUTTON_SIZES.REGULAR,
+  accentColor,
   text,
   style = {},
   disabled = false,
@@ -36,10 +56,26 @@ const Button = ({
 }: Props) => (
   <TouchableOpacity
     disabled={disabled}
-    style={[styles.buttonContainer, containerStyles[type], disabled && styles.disabled, style]}
+    style={[
+      styles.buttonContainer,
+      containerStyles[type],
+      containerStylesSizes[size],
+      disabled && styles.disabled,
+      style,
+      !!accentColor && { borderColor: accentColor }
+    ]}
     {...rest}
   >
-    <Text style={[styles.buttonText, buttonTextStyles[type]]}>{text}</Text>
+    <Text
+      style={[
+        styles.buttonText,
+        buttonTextStyles[type],
+        buttonTextStylesSizes[size],
+        !!accentColor && { color: accentColor }
+      ]}
+    >
+      {text}
+    </Text>
   </TouchableOpacity>
 )
 

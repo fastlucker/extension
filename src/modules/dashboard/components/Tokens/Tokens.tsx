@@ -1,17 +1,15 @@
 import React, { useState } from 'react'
 import { ActivityIndicator, Image, Linking, View } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import { Trans, useTranslation } from '@config/localization'
-import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
+import { Row } from '@modules/common/components/Table'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
-import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import AddToken from '@modules/dashboard/components/AddToken'
@@ -36,14 +34,8 @@ const Balances = () => {
     Linking.openURL(`${selectedNetwork?.explorerUrl}/address/${selectedAcc}`)
 
   const tokenItem = (index, img, symbol, balance, balanceUSD, address, send = false) => (
-    <View
-      key={`token-${address}-${index}`}
-      style={[
-        styles.row,
-        { backgroundColor: index % 2 ? colors.rowEvenColor : colors.rowOddColor }
-      ]}
-    >
-      <View style={styles.rowItem}>
+    <Row index={index} key={`token-${address}-${index}`}>
+      <View style={spacings.pr}>
         {failedImg.includes(img) ? (
           <Text style={styles.fallbackImage}>🪙</Text>
         ) : (
@@ -55,7 +47,7 @@ const Balances = () => {
         )}
       </View>
 
-      <View style={[styles.rowItem, styles.rowItemMain]}>
+      <View style={[spacings.ph, styles.rowItemMain]}>
         <Text style={styles.balance} numberOfLines={1}>
           {balance}
         </Text>
@@ -65,15 +57,15 @@ const Balances = () => {
         </Text>
       </View>
 
-      <View style={styles.rowItem}>
+      <View style={spacings.pl}>
         <Text
           style={[styles.symbol, textStyles.highlightPrimary]}
-          onPress={handleGoToSend.bind(symbol)}
+          onPress={() => handleGoToSend(symbol)}
         >
           {symbol}
         </Text>
       </View>
-    </View>
+    </Row>
   )
 
   const emptyState = (

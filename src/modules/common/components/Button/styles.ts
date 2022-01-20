@@ -6,10 +6,14 @@ import textStyles from '@modules/common/styles/utils/text'
 
 interface Style {
   buttonContainer: ViewStyle
+  buttonContainerStylesSizeRegular: ViewStyle
+  buttonContainerStylesSizeSmall: ViewStyle
   buttonContainerPrimary: ViewStyle
   buttonContainerSecondary: ViewStyle
   buttonContainerDanger: ViewStyle
   buttonText: TextStyle
+  buttonTextStylesSizeRegular: TextStyle
+  buttonTextStylesSizeSmall: TextStyle
   buttonTextPrimary: TextStyle
   buttonTextSecondary: TextStyle
   buttonTextDanger: TextStyle
@@ -19,12 +23,21 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   buttonContainer: {
     width: '100%',
-    height: 52,
     borderRadius: 2,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'transparent'
+  },
+  buttonContainerStylesSizeRegular: {
+    height: 52,
     ...spacings.phSm,
     ...spacings.mbSm
+  },
+  buttonContainerStylesSizeSmall: {
+    height: 30,
+    ...spacings.phTy,
+    ...spacings.mbTy
   },
   buttonContainerPrimary: {
     backgroundColor: colors.primaryButtonContainerColor
@@ -37,8 +50,13 @@ const styles = StyleSheet.create<Style>({
   },
   buttonText: {
     textTransform: 'uppercase',
-    ...textStyles.bold,
+    ...textStyles.bold
+  },
+  buttonTextStylesSizeRegular: {
     fontSize: 17
+  },
+  buttonTextStylesSizeSmall: {
+    fontSize: 14
   },
   buttonTextPrimary: {
     color: colors.primaryButtonTextColor
