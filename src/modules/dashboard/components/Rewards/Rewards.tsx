@@ -98,7 +98,7 @@ const Rewards = () => {
       <Button
         onPress={openBottomSheet}
         type={BUTTON_TYPES.SECONDARY}
-        accentColor={colors.secondaryAccentColor}
+        accentColor={colors.primaryAccentColor}
         text={t('{{walletTokensAmount}} WALLET', { walletTokensAmount })}
         style={{ width: 'auto' }}
         size={BUTTON_SIZES.SMALL}
@@ -111,7 +111,7 @@ const Rewards = () => {
             <Text>{t('Early users Incentive')}</Text>
           </View>
           <View style={[spacings.plTy, { width: 200 }]}>
-            <Text style={[textStyles.right, spacings.mbTy]}>
+            <Text color={colors.primaryAccentColor} style={[textStyles.right, spacings.mbTy]}>
               {rewards[RewardIds.BALANCE_REWARDS]}
             </Text>
             <Button
@@ -128,7 +128,9 @@ const Rewards = () => {
             <Text>{t('ADX Staking Bonus')}</Text>
           </View>
           <View style={[spacings.plTy, { width: 200 }]}>
-            <Text style={[textStyles.right, spacings.mbTy]}>{rewards[RewardIds.ADX_REWARDS]}</Text>
+            <Text color={colors.primaryAccentColor} style={[textStyles.right, spacings.mbTy]}>
+              {rewards[RewardIds.ADX_REWARDS]}
+            </Text>
             <Button
               type={BUTTON_TYPES.SECONDARY}
               disabled
