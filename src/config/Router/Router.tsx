@@ -210,7 +210,7 @@ const SettingsStackScreen = () => {
         name="settings"
         component={SettingsScreen}
         options={{
-          headerTitle: t('Pending Transaction')
+          headerTitle: t('Settings')
         }}
       />
       <SettingsStack.Screen
