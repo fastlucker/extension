@@ -93,6 +93,22 @@ const Rewards = () => {
     return <ActivityIndicator />
   }
 
+  const claimButton = (
+    <>
+      <Button
+        type={BUTTON_TYPES.SECONDARY}
+        accentColor={colors.primaryAccentColor}
+        disabled
+        size={BUTTON_SIZES.SMALL}
+        text={t('Claim')}
+        style={{ width: 'auto', alignSelf: 'flex-end' }}
+      />
+      <Text fontSize={14} style={textStyles.right}>
+        {t('Claiming will be available after the official token launch')}
+      </Text>
+    </>
+  )
+
   return (
     <>
       <Button
@@ -103,7 +119,7 @@ const Rewards = () => {
         style={{ width: 'auto' }}
         size={BUTTON_SIZES.SMALL}
       />
-      <BottomSheet sheetRef={sheetRef} cancelText={t('Close')}>
+      <BottomSheet dynamicInitialHeight={false} sheetRef={sheetRef} cancelText={t('Close')}>
         <Title>{t('Wallet')}</Title>
 
         <Row index={0}>
@@ -114,13 +130,7 @@ const Rewards = () => {
             <Text color={colors.primaryAccentColor} style={[textStyles.right, spacings.mbTy]}>
               {rewards[RewardIds.BALANCE_REWARDS]}
             </Text>
-            <Button
-              type={BUTTON_TYPES.SECONDARY}
-              disabled
-              size={BUTTON_SIZES.SMALL}
-              text={t('Claim')}
-              style={{ width: 'auto' }}
-            />
+            {claimButton}
           </View>
         </Row>
         <Row index={1} style={spacings.mb}>
@@ -131,13 +141,7 @@ const Rewards = () => {
             <Text color={colors.primaryAccentColor} style={[textStyles.right, spacings.mbTy]}>
               {rewards[RewardIds.ADX_REWARDS]}
             </Text>
-            <Button
-              type={BUTTON_TYPES.SECONDARY}
-              disabled
-              size={BUTTON_SIZES.SMALL}
-              text={t('Claim')}
-              style={{ width: 'auto' }}
-            />
+            {claimButton}
           </View>
         </Row>
 
