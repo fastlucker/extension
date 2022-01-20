@@ -13,7 +13,7 @@ const RBF_THRESHOLD = 1.1
 
 const useTransactions = () => {
   const { addToast } = useToast()
-  const { data, errMsg, isLoading, url } = useRelayerData()
+  const { data } = useRelayerData()
   const { selectedAcc } = useAccounts()
   const { setSendTxnState } = useRequests()
   const [cacheBreak, setCacheBreak] = useState(() => Date.now())
@@ -74,7 +74,8 @@ const useTransactions = () => {
   return {
     speedup,
     cancel,
-    firstPending
+    firstPending,
+    showSendTxns
   }
 }
 

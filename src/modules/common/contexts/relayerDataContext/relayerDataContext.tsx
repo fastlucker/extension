@@ -12,7 +12,7 @@ type RelayerData = {
   data: any
   isLoading: boolean
   errMsg: any
-  url: string
+  url: any
 }
 
 const RelayerDataContext = createContext<RelayerData>({
@@ -56,8 +56,8 @@ const RelayerDataProvider: React.FC = ({ children }) => {
 
     // Data reset: if some time passes before we load the next piece of data, and the URL is different,
     // we will reset the data so that the UI knows to display a loading indicator
-    let resetDataTimer = null
-    const stripQuery = (x) => x.split('?')[0]
+    let resetDataTimer: any = null
+    const stripQuery = (x: any) => x.split('?')[0]
     if (stripQuery(prevUrl.current) !== stripQuery(url)) {
       resetDataTimer = setTimeout(() => setData(null), RESET_DATA_AFTER)
     }
@@ -67,7 +67,7 @@ const RelayerDataProvider: React.FC = ({ children }) => {
     setLoading(true)
     setErr(null)
     updateData()
-      .then((data) => !unloaded && prevUrl.current === url && setData(data))
+      .then((d) => !unloaded && prevUrl.current === url && setData(d))
       .catch((e) => !unloaded && setErr(e.message || e))
       .then(() => {
         clearTimeout(resetDataTimer)
