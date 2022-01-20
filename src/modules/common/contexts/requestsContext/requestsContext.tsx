@@ -19,7 +19,7 @@ type RequestsContextData = {
     [key: string]: any
   }
   eligibleRequests: any[]
-  setSendTxnState: (sendTxnState: { showing: boolean }) => any
+  setSendTxnState: (sendTxnState: { showing: boolean; [key: string]: any }) => any
   onBroadcastedTxn: (hash: any) => void
   confirmSentTx: (txHash: any) => void
   resolveMany: (ids: any, resolution: any) => void
@@ -70,6 +70,7 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   const [sendTxnState, setSendTxnState] = useState<{
     showing: boolean
+    [key: string]: any
   }>(() => ({
     showing: !!eligibleRequests.length
   }))

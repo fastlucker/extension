@@ -281,19 +281,6 @@ const AppStack = () => {
         component={DashboardStackScreen}
       />
       <Tab.Screen
-        name="transactions-tab"
-        options={{
-          headerShown: false,
-          title: t('Transactions'),
-          // Use this one, because the actual one is <BiTransfer />,
-          // but the Box Icons set is not available
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="send-and-archive" size={TAB_BAR_ICON_SIZE} color={color} />
-          )
-        }}
-        component={TransactionsStackScreen}
-      />
-      <Tab.Screen
         name="earn-tab"
         options={{
           headerShown: false,
@@ -316,6 +303,19 @@ const AppStack = () => {
           )
         }}
         component={SendStackScreen}
+      />
+      <Tab.Screen
+        name="transactions-tab"
+        options={{
+          headerShown: false,
+          title: t('Transactions'),
+          // Use this one, because the actual one is <BiTransfer />,
+          // but the Box Icons set is not available
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="send-and-archive" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
+        }}
+        component={TransactionsStackScreen}
       />
       <Tab.Screen
         name="apps-tab"

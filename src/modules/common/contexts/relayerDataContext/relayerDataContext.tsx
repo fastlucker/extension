@@ -12,12 +12,14 @@ type RelayerData = {
   data: any
   isLoading: boolean
   errMsg: any
+  url: string
 }
 
 const RelayerDataContext = createContext<RelayerData>({
   data: null,
   isLoading: true,
-  errMsg: null
+  errMsg: null,
+  url: ''
 })
 
 const RelayerDataProvider: React.FC = ({ children }) => {
@@ -83,7 +85,8 @@ const RelayerDataProvider: React.FC = ({ children }) => {
         () => ({
           data,
           isLoading,
-          errMsg: err
+          errMsg: err,
+          url
         }),
         [data, isLoading, err]
       )}
