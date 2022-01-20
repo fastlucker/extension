@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 
 import CONFIG from '@config/env'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
@@ -13,9 +14,9 @@ const RBF_THRESHOLD = 1.1
 
 const useTransactions = () => {
   const { addToast } = useToast()
-  const { data } = useRelayerData()
   const { selectedAcc } = useAccounts()
   const { setSendTxnState } = useRequests()
+  const { network }: any = useNetwork()
   const [cacheBreak, setCacheBreak] = useState(() => Date.now())
 
   useEffect(() => {
@@ -24,6 +25,10 @@ const useTransactions = () => {
     return () => clearTimeout(intvl)
   }, [cacheBreak])
 
+  const url = CONFIG.RELAYER_URL
+    ? `${CONFIG.RELAYER_URL}/identity/${selectedAcc}/${network.id}/transactions?cacheBreak=${cacheBreak}`
+    : null
+  const { data, errMsg, isLoading } = useRelayerData(url)
   // @TODO: visualize other pending bundles
   const firstPending = data && data.txns?.find((x: any) => !x.executed && !x.replaced)
 
@@ -72,9 +77,12 @@ const useTransactions = () => {
     showSendTxns(mapToBundle(relayerBundle, { txns: relayerBundle.txns.slice(0, -1) }))
 
   return {
+    data,
+    errMsg,
+    isLoading,
+    firstPending,
     speedup,
     cancel,
-    firstPending,
     showSendTxns
   }
 }
