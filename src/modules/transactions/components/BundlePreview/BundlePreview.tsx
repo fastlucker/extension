@@ -1,11 +1,16 @@
 import React from 'react'
 import { Linking, View } from 'react-native'
 
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
 import Text from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import accountPresets from '@modules/common/constants/accountPresets'
 import networks from '@modules/common/constants/networks'
 import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
+import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import textStyles from '@modules/common/styles/utils/text'
 
 const BundlePreview = ({ bundle, mined = false }: any) => {
   const network: any = networks.find((x) => x.id === bundle.network)
@@ -25,7 +30,7 @@ const BundlePreview = ({ bundle, mined = false }: any) => {
 
   return (
     // eslint-disable-next-line no-underscore-dangle
-    <View key={bundle._id}>
+    <View>
       {txns.map((txn: any, i: number) => (
         <TxnPreview
           // eslint-disable-next-line react/no-array-index-key
@@ -36,10 +41,18 @@ const BundlePreview = ({ bundle, mined = false }: any) => {
           mined={mined}
         />
       ))}
-      <View>
+      <View style={[spacings.ptSm, spacings.pbMd]}>
         {hasFeeMatch ? (
-          <View>
-            <Text>Fee</Text>
+          <View style={[flexboxStyles.directionRow, spacings.mbTy, flexboxStyles.alignCenter]}>
+            <MaterialIcons
+              style={spacings.mrMi}
+              name="monetization-on"
+              size={18}
+              color={colors.primaryIconColor}
+            />
+            <Text style={[textStyles.bold, flexboxStyles.flex1]} fontSize={17}>
+              Fee
+            </Text>
             <Text>{lastTxnSummary.slice(5, -hasFeeMatch[0].length)}</Text>
           </View>
         ) : null}
@@ -49,8 +62,16 @@ const BundlePreview = ({ bundle, mined = false }: any) => {
             <Text>{bundle.executed?.errorMsg || 'unknown error'}</Text>
           </View>
         )}
-        <View>
-          <Text>Submitted on</Text>
+        <View style={[flexboxStyles.directionRow, spacings.mbTy, flexboxStyles.alignCenter]}>
+          <FontAwesome
+            style={spacings.mrMi}
+            name="calendar"
+            size={17}
+            color={colors.primaryIconColor}
+          />
+          <Text style={[textStyles.bold, flexboxStyles.flex1]} fontSize={17}>
+            Submitted on
+          </Text>
           <Text>
             {bundle.submittedAt && toLocaleDateTime(new Date(bundle.submittedAt)).toString()}
           </Text>
@@ -62,9 +83,20 @@ const BundlePreview = ({ bundle, mined = false }: any) => {
           </View>
         ) : null}
         {bundle.txId ? (
-          <View>
-            <Text>Block Explorer</Text>
-            <Text onPress={() => Linking.openURL(`${network.explorerUrl}/tx/${bundle.txId}`)}>
+          <View style={[flexboxStyles.directionRow, spacings.mbTy, flexboxStyles.alignCenter]}>
+            <FontAwesome
+              style={spacings.mrMi}
+              name="globe"
+              size={18}
+              color={colors.primaryIconColor}
+            />
+            <Text style={[textStyles.bold, flexboxStyles.flex1]} fontSize={17}>
+              Block Explorer
+            </Text>
+            <Text
+              onPress={() => Linking.openURL(`${network.explorerUrl}/tx/${bundle.txId}`)}
+              underline
+            >
               {network.explorerUrl?.split('/')[2]}
             </Text>
           </View>

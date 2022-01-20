@@ -3,7 +3,7 @@ import { ActivityIndicator, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import CONFIG from '@config/env'
-import Button from '@modules/common/components/Button'
+import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -13,6 +13,8 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import { toBundleTxn } from '@modules/common/services/requestToBundleTxn'
+import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import BundlePreview from '@modules/transactions/components/BundlePreview'
 import useTransactions from '@modules/transactions/hooks/useTransactions'
 
@@ -51,9 +53,18 @@ const TransactionsScreen = () => {
         <Panel>
           <Title>Pending transaction bundle</Title>
           <BundlePreview bundle={firstPending} />
-          <View>
-            <Button onPress={() => cancel(firstPending)} text="Cancel" />
-            <Button onPress={() => speedup(firstPending)} text="Speed up" />
+          <View style={flexboxStyles.directionRow}>
+            <Button
+              type={BUTTON_TYPES.DANGER}
+              onPress={() => cancel(firstPending)}
+              text="Cancel"
+              style={[flexboxStyles.flex1, spacings.mrTy]}
+            />
+            <Button
+              onPress={() => speedup(firstPending)}
+              text="Speed up"
+              style={flexboxStyles.flex1}
+            />
           </View>
         </Panel>
       )}
@@ -71,7 +82,8 @@ const TransactionsScreen = () => {
             !!data &&
               data.txns
                 ?.filter((x: any) => x.executed)
-                .map((bundle: any) => BundlePreview({ bundle, mined: true }))
+                // eslint-disable-next-line no-underscore-dangle
+                .map((bundle: any) => <BundlePreview key={bundle._id} bundle={bundle} mined />)
           }
         </View>
       </Panel>
