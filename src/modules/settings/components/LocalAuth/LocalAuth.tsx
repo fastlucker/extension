@@ -11,6 +11,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 const LocalAuth = () => {
   const { t } = useTranslation()
   const { account } = useAccounts()
+  const [hasSavedBiometrics, setHasSavedBiometrics] = useState(false)
   const [isBiometricSupported, setIsBiometricSupported] = useState(false)
   const [isEnabled, setIsEnabled] = useState(false)
 
@@ -20,7 +21,15 @@ const LocalAuth = () => {
       const compatible = await LocalAuthentication.hasHardwareAsync()
       setIsBiometricSupported(compatible)
     })()
-  })
+  }, [])
+
+  // TODO: Figure out why this doesn't click:
+  useEffect(() => {
+    ;(async () => {
+      const savedBiometrics = await LocalAuthentication.isEnrolledAsync()
+      setHasSavedBiometrics(savedBiometrics)
+    })()
+  }, [isBiometricSupported, isEnabled])
 
   const handleOnActivate = async () => {
     const { success } = await LocalAuthentication.authenticateAsync()
@@ -41,7 +50,7 @@ const LocalAuth = () => {
           : t('Face or Fingerprint scanner is available on this device')}
       </P>
       <Button onPress={handleOnActivate} text={t('Enable')} />
-      <Text>{isEnabled ? 'Enabled!' : 'Not enabled yet!'}</Text>
+      <Text>{hasSavedBiometrics ? t('Biometric enabled!') : t('Biometric record NOT found!')}</Text>
     </>
   )
 }
