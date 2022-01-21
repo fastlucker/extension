@@ -1,7 +1,8 @@
 import React from 'react'
 import { Linking, View } from 'react-native'
 
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
+import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
+import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import accountPresets from '@modules/common/constants/accountPresets'
@@ -12,7 +13,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
-const BundlePreview = ({ bundle, mined = false }: any) => {
+const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any) => {
   const network: any = networks.find((x) => x.id === bundle.network)
 
   if (!Array.isArray(bundle.txns)) {
@@ -30,7 +31,7 @@ const BundlePreview = ({ bundle, mined = false }: any) => {
 
   return (
     // eslint-disable-next-line no-underscore-dangle
-    <View>
+    <Panel>
       {txns.map((txn: any, i: number) => (
         <TxnPreview
           // eslint-disable-next-line react/no-array-index-key
@@ -41,13 +42,13 @@ const BundlePreview = ({ bundle, mined = false }: any) => {
           mined={mined}
         />
       ))}
-      <View style={[spacings.ptSm, spacings.pbMd]}>
+      <View style={[spacings.ptSm, hasBottomSpacing && spacings.pbMd]}>
         {hasFeeMatch ? (
-          <View style={[flexboxStyles.directionRow, spacings.mbTy, flexboxStyles.alignCenter]}>
-            <MaterialIcons
+          <View style={[flexboxStyles.directionRow, spacings.mbSm, flexboxStyles.alignCenter]}>
+            <FontAwesome5
               style={spacings.mrMi}
-              name="monetization-on"
-              size={18}
+              name="hand-holding-usd"
+              size={17}
               color={colors.primaryIconColor}
             />
             <Text style={[textStyles.bold, flexboxStyles.flex1]} fontSize={17}>
@@ -62,7 +63,7 @@ const BundlePreview = ({ bundle, mined = false }: any) => {
             <Text>{bundle.executed?.errorMsg || 'unknown error'}</Text>
           </View>
         )}
-        <View style={[flexboxStyles.directionRow, spacings.mbTy, flexboxStyles.alignCenter]}>
+        <View style={[flexboxStyles.directionRow, spacings.mbSm, flexboxStyles.alignCenter]}>
           <FontAwesome
             style={spacings.mrMi}
             name="calendar"
@@ -83,7 +84,7 @@ const BundlePreview = ({ bundle, mined = false }: any) => {
           </View>
         ) : null}
         {bundle.txId ? (
-          <View style={[flexboxStyles.directionRow, spacings.mbTy, flexboxStyles.alignCenter]}>
+          <View style={[flexboxStyles.directionRow, spacings.mbSm, flexboxStyles.alignCenter]}>
             <FontAwesome
               style={spacings.mrMi}
               name="globe"
@@ -102,7 +103,8 @@ const BundlePreview = ({ bundle, mined = false }: any) => {
           </View>
         ) : null}
       </View>
-    </View>
+      {!!actions && actions}
+    </Panel>
   )
 }
 

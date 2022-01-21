@@ -39,12 +39,14 @@ const TxnPreview = ({
         style={styles.listItem}
         activeOpacity={0.75}
       >
-        <MaterialIcons
-          style={spacings.mrTy}
-          name={isExpanded ? 'expand-less' : 'expand-more'}
-          size={26}
-          color={colors.primaryIconColor}
-        />
+        {!disableExpand && (
+          <MaterialIcons
+            style={spacings.mrTy}
+            name={isExpanded ? 'expand-less' : 'expand-more'}
+            size={26}
+            color={colors.primaryIconColor}
+          />
+        )}
         <View style={[flexboxStyles.flex1, spacings.mrTy]}>
           <Text>{getTransactionSummary(txn, network, account, { mined })}</Text>
           {isFirstFailing && (

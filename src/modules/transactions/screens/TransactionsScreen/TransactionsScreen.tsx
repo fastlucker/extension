@@ -29,64 +29,67 @@ const TransactionsScreen = () => {
   return (
     <Wrapper>
       {!!eligibleRequests.length && (
-        <Panel>
+        <View style={spacings.mb}>
           <Title>Waiting to be signed (current batch)</Title>
-
-          <TouchableOpacity onPress={() => showSendTxns(null)}>
+          <Panel>
             {eligibleRequests.map((req) => (
-              <TxnPreview
-                key={req.id}
-                network={network.id}
-                account={selectedAcc}
-                disableExpand
-                txn={toBundleTxn(req.txn, selectedAcc)}
-              />
+              <TouchableOpacity onPress={() => showSendTxns(null)} activeOpacity={0.8} key={req.id}>
+                <TxnPreview
+                  network={network.id}
+                  account={selectedAcc}
+                  disableExpand
+                  txn={toBundleTxn(req.txn, selectedAcc)}
+                />
+              </TouchableOpacity>
             ))}
-          </TouchableOpacity>
-          <View>
-            <Button onPress={() => showSendTxns(null)} text="Sign or reject" />
-          </View>
-        </Panel>
+            <View style={spacings.ptSm}>
+              <Button onPress={() => showSendTxns(null)} text="Sign or reject" />
+            </View>
+          </Panel>
+        </View>
       )}
 
       {!!firstPending && (
-        <Panel>
+        <View style={spacings.mb}>
           <Title>Pending transaction bundle</Title>
-          <BundlePreview bundle={firstPending} />
-          <View style={flexboxStyles.directionRow}>
-            <Button
-              type={BUTTON_TYPES.DANGER}
-              onPress={() => cancel(firstPending)}
-              text="Cancel"
-              style={[flexboxStyles.flex1, spacings.mrTy]}
-            />
-            <Button
-              onPress={() => speedup(firstPending)}
-              text="Speed up"
-              style={flexboxStyles.flex1}
-            />
-          </View>
-        </Panel>
+          <BundlePreview
+            bundle={firstPending}
+            hasBottomSpacing
+            actions={
+              <View style={flexboxStyles.directionRow}>
+                <Button
+                  type={BUTTON_TYPES.DANGER}
+                  onPress={() => cancel(firstPending)}
+                  text="Cancel"
+                  style={[flexboxStyles.flex1, spacings.mrTy]}
+                />
+                <Button
+                  onPress={() => speedup(firstPending)}
+                  text="Speed up"
+                  style={flexboxStyles.flex1}
+                />
+              </View>
+            }
+          />
+        </View>
       )}
 
-      <Panel>
-        <Title>
-          {data && data.txns?.length === 0 ? 'No transactions yet.' : 'Confirmed transactions'}
-        </Title>
-        <View>
-          {!CONFIG.RELAYER_URL && <Text>Unsupported: not currently connected to a relayer.</Text>}
-          {errMsg && <Text>Error getting list of transactions: {errMsg}</Text>}
-          {isLoading && !data && <ActivityIndicator />}
-          {
-            // @TODO respect the limit and implement pagination
-            !!data &&
-              data.txns
-                ?.filter((x: any) => x.executed)
-                // eslint-disable-next-line no-underscore-dangle
-                .map((bundle: any) => <BundlePreview key={bundle._id} bundle={bundle} mined />)
-          }
-        </View>
-      </Panel>
+      <Title>
+        {data && data.txns?.length === 0 ? 'No transactions yet.' : 'Confirmed transactions'}
+      </Title>
+      <View>
+        {!CONFIG.RELAYER_URL && <Text>Unsupported: not currently connected to a relayer.</Text>}
+        {errMsg && <Text>Error getting list of transactions: {errMsg}</Text>}
+        {isLoading && !data && <ActivityIndicator />}
+        {
+          // @TODO respect the limit and implement pagination
+          !!data &&
+            data.txns
+              ?.filter((x: any) => x.executed)
+              // eslint-disable-next-line no-underscore-dangle
+              .map((bundle: any) => <BundlePreview key={bundle._id} bundle={bundle} mined />)
+        }
+      </View>
     </Wrapper>
   )
 }

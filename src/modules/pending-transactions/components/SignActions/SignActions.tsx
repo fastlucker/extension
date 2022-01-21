@@ -25,7 +25,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     control,
     handleSubmit,
     resetField,
-    formState: { errors, isSubmitting }
+    formState: { errors }
   } = useForm({
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
@@ -147,8 +147,8 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
           <View style={styles.buttonWrapper}>{rejectButton}</View>
           <View style={styles.buttonWrapper}>
             <Button
-              text={isSubmitting ? t('Sending...') : t('Sign and send')}
-              disabled={isSubmitting}
+              text={signingStatus.inProgress ? t('Sending...') : t('Sign and send')}
+              disabled={signingStatus.inProgress}
               onPress={handleSubmit(onSubmit)}
             />
           </View>
@@ -161,7 +161,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     <Panel>
       {renderTitle()}
       <View style={styles.buttonsContainer}>
-        <View style={styles.buttonWrapper}>{rejectButton}</View>
+        {!!rejectTxn && <View style={styles.buttonWrapper}>{rejectButton}</View>}
         <View style={styles.buttonWrapper}>
           <Button text={t('Sign')} onPress={approveTxn} disabled={!estimation || signingStatus} />
         </View>
