@@ -1,7 +1,7 @@
 import React from 'react'
 
 import Wrapper from '@modules/common/components/Wrapper'
-import LocalAuth from '@modules/settings/components/LocalAuth'
+import Passcode from '@modules/settings/components/Passcode'
 
 const SettingsScreen = () => {
   // const { t, i18n } = useTranslation()
@@ -12,7 +12,7 @@ const SettingsScreen = () => {
 
   return (
     <Wrapper>
-      <LocalAuth />
+      <Passcode />
 
       {/* {!isProd && (
         <Button
