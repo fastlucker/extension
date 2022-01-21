@@ -1,6 +1,7 @@
 // TODO: add types
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
+import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrevious from '@modules/common/hooks/usePrevious'
@@ -45,6 +46,7 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { accounts, selectedAcc } = useAccounts()
   const { network }: any = useNetwork()
   const { addToast } = useToast()
+  const { t } = useTranslation()
   const [internalRequests, setInternalRequests] = useState<any>([])
   const [sentTxn, setSentTxn] = useState<any[]>([])
 
@@ -84,11 +86,13 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   const onBroadcastedTxn = (hash: any) => {
     if (!hash) {
-      addToast('Transaction signed but not broadcasted to the network!', { timeout: 15000 })
+      addToast(t('Transaction signed but not broadcasted to the network!') as string, {
+        timeout: 15000
+      })
       return
     }
     setSentTxn((txn: any) => [...txn, { confirmed: false, hash }])
-    addToast('Transaction signed and sent successfully! &nbsp;Click to view on block explorer.', {
+    addToast(t('Transaction signed and sent successfully!') as string, {
       onClick: () => navigate('transactions-tab'),
       timeout: 15000
     })

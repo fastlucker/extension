@@ -1,9 +1,9 @@
-import { t } from 'i18next'
 import React from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import CONFIG from '@config/env'
+import { useTranslation } from '@config/localization'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
@@ -26,6 +26,7 @@ const TransactionsScreen = () => {
   const { eligibleRequests } = useRequests()
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
+  const { t } = useTranslation()
 
   const renderPendingTxns = () => (
     <Panel>

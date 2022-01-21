@@ -3,6 +3,7 @@ import { Bundle } from 'adex-protocol-eth/js'
 import { useEffect, useState } from 'react'
 
 import CONFIG from '@config/env'
+import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
@@ -17,6 +18,8 @@ const useTransactions = () => {
   const { selectedAcc } = useAccounts()
   const { setSendTxnState } = useRequests()
   const { network }: any = useNetwork()
+  const { t } = useTranslation()
+
   const [cacheBreak, setCacheBreak] = useState(() => Date.now())
 
   useEffect(() => {
@@ -59,11 +62,13 @@ const useTransactions = () => {
       .then(({ success }: any) => {
         if (!success) {
           addToast(
-            'Transaction already picked up by the network, you will need to pay a fee to replace it with a cancellation transaction.'
+            t(
+              'Transaction already picked up by the network, you will need to pay a fee to replace it with a cancellation transaction.'
+            ) as string
           )
           cancelByReplacing(relayerBundle)
         } else {
-          addToast('Transaction cancelled successfully')
+          addToast(t('Transaction cancelled successfully') as string)
         }
       })
       .catch((e: any) => {
