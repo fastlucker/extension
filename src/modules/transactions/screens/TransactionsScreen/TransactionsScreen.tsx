@@ -4,6 +4,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
+import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
@@ -14,6 +15,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import { toBundleTxn } from '@modules/common/services/requestToBundleTxn'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import BundlePreview from '@modules/transactions/components/BundlePreview'
@@ -89,18 +91,42 @@ const TransactionsScreen = () => {
   const SECTIONS_DATA = [
     {
       title: t('Waiting to be signed (current batch)'),
+      titleIcon: (
+        <FontAwesome5
+          style={spacings.mrTy}
+          name="signature"
+          size={19}
+          color={colors.primaryIconColor}
+        />
+      ),
       shouldRenderTitle: !!eligibleRequests.length,
       renderItem: renderPendingTxns,
       data: eligibleRequests.length ? ['render-only-one-item'] : []
     },
     {
       title: t('Pending transaction bundle'),
+      titleIcon: (
+        <FontAwesome
+          style={spacings.mrTy}
+          name="clock-o"
+          size={20}
+          color={colors.primaryIconColor}
+        />
+      ),
       shouldRenderTitle: !!firstPending,
       renderItem: renderPendingSentTxns,
       data: firstPending ? ['render-only-one-item'] : []
     },
     {
       title: data?.txns?.length ? t('Confirmed transactions') : t('No transactions yet.'),
+      titleIcon: (
+        <FontAwesome5
+          style={spacings.mrTy}
+          name="check-double"
+          size={18}
+          color={colors.primaryIconColor}
+        />
+      ),
       shouldRenderTitle: true,
       renderItem: data?.txns?.length ? renderConfirmedTxns : renderConfirmedTxnsEmptyState,
       data: data?.txns?.filter((x: any) => x.executed) || ['render-only-one-item']
@@ -114,10 +140,19 @@ const TransactionsScreen = () => {
       keyExtractor={(item, index) => item + index}
       renderItem={({ section: { renderItem } }: any) => renderItem}
       stickySectionHeadersEnabled
-      renderSectionHeader={({ section: { title, shouldRenderTitle } }) =>
+      renderSectionHeader={({ section: { title, titleIcon, shouldRenderTitle } }) =>
         shouldRenderTitle ? (
-          <View style={styles.sectionTitleWrapper}>
-            <Title hasBottomSpacing={false}>{title}</Title>
+          <View
+            style={[
+              styles.sectionTitleWrapper,
+              flexboxStyles.directionRow,
+              flexboxStyles.alignCenter
+            ]}
+          >
+            {!!titleIcon && titleIcon}
+            <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
+              {title}
+            </Title>
           </View>
         ) : null
       }
