@@ -8,7 +8,7 @@ import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import TxnPreview from '@modules/common/components/TxnPreview'
-import Wrapper from '@modules/common/components/Wrapper'
+import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
@@ -26,71 +26,94 @@ const TransactionsScreen = () => {
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
 
-  return (
-    <Wrapper>
-      {!!eligibleRequests.length && (
-        <View style={spacings.mb}>
-          <Title>Waiting to be signed (current batch)</Title>
-          <Panel>
-            {eligibleRequests.map((req) => (
-              <TouchableOpacity onPress={() => showSendTxns(null)} activeOpacity={0.8} key={req.id}>
-                <TxnPreview
-                  network={network.id}
-                  account={selectedAcc}
-                  disableExpand
-                  txn={toBundleTxn(req.txn, selectedAcc)}
-                />
-              </TouchableOpacity>
-            ))}
-            <View style={spacings.ptSm}>
-              <Button onPress={() => showSendTxns(null)} text="Sign or reject" />
-            </View>
-          </Panel>
-        </View>
-      )}
+  const renderPendingTxns = () => (
+    <Panel>
+      {eligibleRequests.map((req) => (
+        <TouchableOpacity onPress={() => showSendTxns(null)} activeOpacity={0.8} key={req.id}>
+          <TxnPreview
+            network={network.id}
+            account={selectedAcc}
+            disableExpand
+            txn={toBundleTxn(req.txn, selectedAcc)}
+          />
+        </TouchableOpacity>
+      ))}
+      <View style={spacings.ptSm}>
+        <Button onPress={() => showSendTxns(null)} text="Sign or reject" />
+      </View>
+    </Panel>
+  )
 
-      {!!firstPending && (
-        <View style={spacings.mb}>
-          <Title>Pending transaction bundle</Title>
-          <BundlePreview
-            bundle={firstPending}
-            hasBottomSpacing
-            actions={
-              <View style={flexboxStyles.directionRow}>
-                <Button
-                  type={BUTTON_TYPES.DANGER}
-                  onPress={() => cancel(firstPending)}
-                  text="Cancel"
-                  style={[flexboxStyles.flex1, spacings.mrTy]}
-                />
-                <Button
-                  onPress={() => speedup(firstPending)}
-                  text="Speed up"
-                  style={flexboxStyles.flex1}
-                />
-              </View>
-            }
+  const renderPendingSentTxns = () => (
+    <BundlePreview
+      bundle={firstPending}
+      hasBottomSpacing
+      actions={
+        <View style={flexboxStyles.directionRow}>
+          <Button
+            type={BUTTON_TYPES.DANGER}
+            onPress={() => cancel(firstPending)}
+            text="Cancel"
+            style={[flexboxStyles.flex1, spacings.mrTy]}
+          />
+          <Button
+            onPress={() => speedup(firstPending)}
+            text="Speed up"
+            style={flexboxStyles.flex1}
           />
         </View>
-      )}
+      }
+    />
+  )
 
-      <Title>
-        {data && data.txns?.length === 0 ? 'No transactions yet.' : 'Confirmed transactions'}
-      </Title>
+  const renderConfirmedTxns = ({ item }: any) => <BundlePreview bundle={item} mined />
+
+  const renderConfirmedTxnsEmptyState = () => {
+    return (
       <View>
         {!CONFIG.RELAYER_URL && <Text>Unsupported: not currently connected to a relayer.</Text>}
         {errMsg && <Text>Error getting list of transactions: {errMsg}</Text>}
         {isLoading && !data && <ActivityIndicator />}
-        {
-          // @TODO respect the limit and implement pagination
-          !!data &&
-            data.txns
-              ?.filter((x: any) => x.executed)
-              // eslint-disable-next-line no-underscore-dangle
-              .map((bundle: any) => <BundlePreview key={bundle._id} bundle={bundle} mined />)
-        }
       </View>
-    </Wrapper>
+    )
+  }
+
+  const SECTIONS_DATA = [
+    {
+      title: 'Waiting to be signed (current batch)',
+      shouldRenderTitle: !!eligibleRequests.length,
+      renderItem: renderPendingTxns,
+      data: eligibleRequests.length ? ['render-only-one-item'] : []
+    },
+    {
+      title: 'Pending transaction bundle',
+      shouldRenderTitle: !!firstPending,
+      renderItem: renderPendingSentTxns,
+      data: firstPending ? ['render-only-one-item'] : []
+    },
+    {
+      title: data?.txns?.length ? 'Confirmed transactions' : 'No transactions yet.',
+      shouldRenderTitle: true,
+      renderItem: data?.txns?.length ? renderConfirmedTxns : renderConfirmedTxnsEmptyState,
+      data: data?.txns?.filter((x: any) => x.executed) || ['render-only-one-item']
+    }
+  ]
+
+  return (
+    <Wrapper
+      type={WRAPPER_TYPES.SECTION_LIST}
+      sections={SECTIONS_DATA}
+      keyExtractor={(item, index) => item + index}
+      renderItem={({ section: { renderItem } }: any) => renderItem}
+      stickySectionHeadersEnabled
+      renderSectionHeader={({ section: { title, shouldRenderTitle } }) =>
+        shouldRenderTitle ? (
+          <View style={styles.sectionTitleWrapper}>
+            <Title hasBottomSpacing={false}>{title}</Title>
+          </View>
+        ) : null
+      }
+    />
   )
 }
 
