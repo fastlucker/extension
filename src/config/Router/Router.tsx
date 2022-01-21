@@ -15,6 +15,8 @@ import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
+import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
+import CreatePasscodeScreen from '@modules/settings/screens/CreatePasscodeScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -214,10 +216,24 @@ const SettingsStackScreen = () => {
         }}
       />
       <SettingsStack.Screen
+        name="passcode-create"
+        component={CreatePasscodeScreen}
+        options={{
+          headerTitle: t('Create passcode')
+        }}
+      />
+      <SettingsStack.Screen
+        name="passcode-change"
+        component={ChangePasscodeScreen}
+        options={{
+          headerTitle: t('Change passcode')
+        }}
+      />
+      <SettingsStack.Screen
         name="pending-transactions"
         component={PendingTransactionsScreen}
         options={{
-          headerTitle: t('Dashboard')
+          headerTitle: t('Pending Transaction')
         }}
       />
     </SettingsStack.Navigator>
