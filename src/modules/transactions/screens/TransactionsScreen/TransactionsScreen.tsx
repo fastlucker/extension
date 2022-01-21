@@ -1,3 +1,4 @@
+import { t } from 'i18next'
 import React from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -39,7 +40,7 @@ const TransactionsScreen = () => {
         </TouchableOpacity>
       ))}
       <View style={spacings.ptSm}>
-        <Button onPress={() => showSendTxns(null)} text="Sign or reject" />
+        <Button onPress={() => showSendTxns(null)} text={t('Sign or reject')} />
       </View>
     </Panel>
   )
@@ -53,12 +54,12 @@ const TransactionsScreen = () => {
           <Button
             type={BUTTON_TYPES.DANGER}
             onPress={() => cancel(firstPending)}
-            text="Cancel"
+            text={t('Cancel')}
             style={[flexboxStyles.flex1, spacings.mrTy]}
           />
           <Button
             onPress={() => speedup(firstPending)}
-            text="Speed up"
+            text={t('Speed up')}
             style={flexboxStyles.flex1}
           />
         </View>
@@ -71,8 +72,14 @@ const TransactionsScreen = () => {
   const renderConfirmedTxnsEmptyState = () => {
     return (
       <View>
-        {!CONFIG.RELAYER_URL && <Text>Unsupported: not currently connected to a relayer.</Text>}
-        {errMsg && <Text>Error getting list of transactions: {errMsg}</Text>}
+        {!CONFIG.RELAYER_URL && (
+          <Text>{t('Unsupported: not currently connected to a relayer.')}</Text>
+        )}
+        {errMsg && (
+          <Text>
+            {t('Error getting list of transactions:')} {errMsg}
+          </Text>
+        )}
         {isLoading && !data && <ActivityIndicator />}
       </View>
     )
@@ -80,19 +87,19 @@ const TransactionsScreen = () => {
 
   const SECTIONS_DATA = [
     {
-      title: 'Waiting to be signed (current batch)',
+      title: t('Waiting to be signed (current batch)'),
       shouldRenderTitle: !!eligibleRequests.length,
       renderItem: renderPendingTxns,
       data: eligibleRequests.length ? ['render-only-one-item'] : []
     },
     {
-      title: 'Pending transaction bundle',
+      title: t('Pending transaction bundle'),
       shouldRenderTitle: !!firstPending,
       renderItem: renderPendingSentTxns,
       data: firstPending ? ['render-only-one-item'] : []
     },
     {
-      title: data?.txns?.length ? 'Confirmed transactions' : 'No transactions yet.',
+      title: data?.txns?.length ? t('Confirmed transactions') : t('No transactions yet.'),
       shouldRenderTitle: true,
       renderItem: data?.txns?.length ? renderConfirmedTxns : renderConfirmedTxnsEmptyState,
       data: data?.txns?.filter((x: any) => x.executed) || ['render-only-one-item']
