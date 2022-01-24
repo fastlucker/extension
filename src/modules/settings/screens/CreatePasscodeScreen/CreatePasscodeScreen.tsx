@@ -18,7 +18,7 @@ const CreatePasscodeScreen: React.FC = () => {
   const handleOnFulfill = async (code: string) => {
     await SecureStore.setItemAsync(SECURE_STORE_KEY, code)
     addToast(t('Passcode configured!') as string, { timeout: 2000 })
-    navigation.navigate('settings-tab')
+    navigation.navigate('settings')
   }
 
   return (
