@@ -1,27 +1,18 @@
-import * as SecureStore from 'expo-secure-store'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
-import { SECURE_STORE_KEY } from '@modules/settings/constants'
+import usePasscode from '@modules/common/hooks/usePasscode'
 import { useNavigation } from '@react-navigation/native'
 
 const LocalAuth = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
-  const [passcode, setPasscode] = useState<null | string>(null)
+  const { hasPasscode, isLoading } = usePasscode()
 
-  // Check if hardware supports biometrics
-  useEffect(() => {
-    ;(async () => {
-      const secureStoreItem = await SecureStore.getItemAsync(SECURE_STORE_KEY)
-      if (secureStoreItem) {
-        setPasscode(secureStoreItem)
-      }
-    })()
-  }, [])
+  if (isLoading) return null
 
-  return passcode ? (
+  return hasPasscode ? (
     <Button text={t('Change passcode')} onPress={() => navigation.navigate('passcode-change')} />
   ) : (
     <Button text={t('Create passcode')} onPress={() => navigation.navigate('passcode-create')} />
