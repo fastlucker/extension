@@ -1,12 +1,15 @@
 import { StyleSheet } from 'react-native'
 
+import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 16
+  sectionTitleWrapper: {
+    backgroundColor: colors.backgroundColor,
+    width: '100%',
+    ...spacings.ptTy,
+    ...spacings.pvSm,
+    ...spacings.mbMi
   }
 })
 

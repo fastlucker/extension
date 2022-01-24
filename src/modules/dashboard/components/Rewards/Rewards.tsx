@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Linking, View } from 'react-native'
+import { Linking, View } from 'react-native'
 
+import CONFIG from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button, { BUTTON_SIZES, BUTTON_TYPES } from '@modules/common/components/Button'
@@ -15,6 +16,8 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+
+import styles from './styles'
 
 const BLOG_POST_URL = 'https://blog.ambire.com/announcing-the-wallet-token-a137aeda9747'
 
@@ -49,8 +52,21 @@ const rewardsInitialState = {
 const Rewards = () => {
   const { t } = useTranslation()
   const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
-  const { account } = useAccounts()
-  const { isLoading, data, errMsg } = useRelayerData()
+  const { account, selectedAcc } = useAccounts()
+  const [cacheBreak, setCacheBreak] = useState(() => Date.now())
+
+  useEffect(() => {
+    if (Date.now() - cacheBreak > 5000) setCacheBreak(Date.now())
+    const intvl = setTimeout(() => setCacheBreak(Date.now()), 30000)
+    return () => clearTimeout(intvl)
+  }, [cacheBreak])
+
+  const url =
+    CONFIG.RELAYER_URL && selectedAcc
+      ? `${CONFIG.RELAYER_URL}/wallet-token/rewards/${selectedAcc}?cacheBreak=${cacheBreak}`
+      : null
+
+  const { isLoading, data, errMsg } = useRelayerData(url)
   const [rewards, setRewards] = useState<RewardsType>(rewardsInitialState)
   const [rewardsTotal, setRewardsTotal] = useState<number>(0)
 
@@ -89,10 +105,6 @@ const Rewards = () => {
 
   const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
 
-  if (isLoading) {
-    return <ActivityIndicator />
-  }
-
   const claimButton = (
     <>
       <Button
@@ -101,7 +113,7 @@ const Rewards = () => {
         disabled
         size={BUTTON_SIZES.SMALL}
         text={t('Claim')}
-        style={{ width: 'auto', alignSelf: 'flex-end' }}
+        style={styles.buttonClaim}
       />
       <Text fontSize={14} style={textStyles.right}>
         {t('Claiming will be available after the official token launch')}
@@ -115,8 +127,10 @@ const Rewards = () => {
         onPress={openBottomSheet}
         type={BUTTON_TYPES.SECONDARY}
         accentColor={colors.primaryAccentColor}
-        text={t('{{walletTokensAmount}} WALLET', { walletTokensAmount })}
-        style={{ width: 'auto' }}
+        text={
+          isLoading ? t('Updating...') : t('{{walletTokensAmount}} WALLET', { walletTokensAmount })
+        }
+        style={styles.button}
         size={BUTTON_SIZES.SMALL}
       />
       <BottomSheet dynamicInitialHeight={false} sheetRef={sheetRef} cancelText={t('Close')}>

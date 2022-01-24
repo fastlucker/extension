@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Linking, TouchableOpacity, View } from 'react-native'
 
 import { MaterialIcons } from '@expo/vector-icons'
 import Text from '@modules/common/components/Text'
@@ -88,6 +88,7 @@ const ToastProvider = ({ children }: any) => {
             key={id}
             style={[styles.toast, error && styles.error]}
             onPress={() => onToastPress(id, onClick, url)}
+            activeOpacity={0.7}
           >
             {!!badge && (
               <View style={styles.badge}>

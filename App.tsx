@@ -12,7 +12,6 @@ import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
-import { RelayerDataProvider } from '@modules/common/contexts/relayerDataContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
 
@@ -27,14 +26,12 @@ const App = () => {
               <PortfolioProvider>
                 <RequestsProvider>
                   <AddressBookProvider>
-                    <RelayerDataProvider>
-                      <PortalProvider>
-                        <AttentionGrabberProvider>
-                          <Router />
-                        </AttentionGrabberProvider>
-                        <PortalHost name="global" />
-                      </PortalProvider>
-                    </RelayerDataProvider>
+                    <PortalProvider>
+                      <AttentionGrabberProvider>
+                        <Router />
+                      </AttentionGrabberProvider>
+                      <PortalHost name="global" />
+                    </PortalProvider>
                   </AddressBookProvider>
                 </RequestsProvider>
               </PortfolioProvider>
