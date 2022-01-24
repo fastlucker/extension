@@ -16,6 +16,7 @@ import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
+import CreateLocalAuthScreen from '@modules/settings/screens/CreateLocalAuthScreen'
 import CreatePasscodeScreen from '@modules/settings/screens/CreatePasscodeScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
@@ -227,6 +228,13 @@ const SettingsStackScreen = () => {
         component={ChangePasscodeScreen}
         options={{
           headerTitle: t('Change passcode')
+        }}
+      />
+      <SettingsStack.Screen
+        name="local-auth-create"
+        component={CreateLocalAuthScreen}
+        options={{
+          headerTitle: t('Create local auth')
         }}
       />
       <SettingsStack.Screen

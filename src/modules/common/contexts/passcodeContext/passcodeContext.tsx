@@ -5,7 +5,16 @@ import { Vibration } from 'react-native'
 
 import { SECURE_STORE_KEY } from '@modules/settings/constants'
 
+// TODO:
+enum PASSCODE_STATES {
+  UNKNOWN = 'UNKNOWN',
+  NO_PASSCODE = 'NO_PASSCODE',
+  PASSCODE_ONLY = 'PASSCODE_ONLY',
+  PASSCODE_AND_LOCAL_AUTH = 'PASSCODE_ONLY'
+}
+
 type PasscodeContextData = {
+  state: PASSCODE_STATES
   passcode: null | string
   removePasscode: () => Promise<void>
   addPasscode: (code: string) => Promise<void>
@@ -15,6 +24,8 @@ type PasscodeContextData = {
   isLocalAuthSupported: null | boolean
   hasLocalAuth: null | boolean
   isLoadingLocalAuth: boolean
+  addLocalAuth: () => void
+  removeLocalAuth: () => void
 }
 
 const PasscodeContext = createContext<PasscodeContextData>({
@@ -26,7 +37,10 @@ const PasscodeContext = createContext<PasscodeContextData>({
   hasPasscode: false,
   isValidPasscode: () => false,
   isLocalAuthSupported: null,
-  hasLocalAuth: null
+  hasLocalAuth: null,
+  addLocalAuth: () => {},
+  removeLocalAuth: () => {},
+  state: PASSCODE_STATES.UNKNOWN
 })
 
 const PasscodeProvider: React.FC = ({ children }) => {
@@ -62,6 +76,14 @@ const PasscodeProvider: React.FC = ({ children }) => {
     })()
   }, [])
 
+  const addPasscode = async (code: string) => {
+    await SecureStore.setItemAsync(SECURE_STORE_KEY, code)
+    setPasscode(code)
+  }
+  const removePasscode = async () => {
+    await SecureStore.deleteItemAsync(SECURE_STORE_KEY)
+    setPasscode(null)
+  }
   const isValidPasscode = (code: string) => {
     const isValid = code === passcode
 
@@ -70,14 +92,13 @@ const PasscodeProvider: React.FC = ({ children }) => {
     return isValid
   }
 
-  const addPasscode = async (code: string) => {
-    await SecureStore.setItemAsync(SECURE_STORE_KEY, code)
-    setPasscode(code)
-  }
+  const addLocalAuth = async () => {
+    const { success } = await LocalAuthentication.authenticateAsync()
 
-  const removePasscode = async () => {
-    await SecureStore.deleteItemAsync(SECURE_STORE_KEY)
-    setPasscode(null)
+    setHasLocalAuth(success)
+  }
+  const removeLocalAuth = async () => {
+    setHasLocalAuth(false)
   }
 
   return (
@@ -92,9 +113,18 @@ const PasscodeProvider: React.FC = ({ children }) => {
           isValidPasscode,
           isLocalAuthSupported,
           hasLocalAuth,
-          isLoadingLocalAuth
+          isLoadingLocalAuth,
+          addLocalAuth,
+          removeLocalAuth
         }),
-        [passcode, isLoading, isLocalAuthSupported, hasLocalAuth, isLoadingLocalAuth]
+        [
+          passcode,
+          isLoading,
+          isLocalAuthSupported,
+          hasLocalAuth,
+          isLoadingLocalAuth,
+          removeLocalAuth
+        ]
       )}
     >
       {children}

@@ -29,8 +29,8 @@ const CreatePasscodeScreen: React.FC = () => {
   const handleOnRemovePasscode = async () => {
     await removePasscode()
 
-    navigation.navigate('settings')
     addToast(t('Passcode removed!') as string, { timeout: 2000 })
+    navigation.navigate('settings')
   }
 
   return (

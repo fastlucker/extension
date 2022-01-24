@@ -15,7 +15,7 @@ const LocalAuth = () => {
   return hasLocalAuth ? (
     <Button
       text={t('Change local auth')}
-      onPress={() => navigation.navigate('local-auth-change')}
+      onPress={() => navigation.navigate('local-auth-create')}
     />
   ) : (
     <Button text={t('Add local auth')} onPress={() => navigation.navigate('local-auth-create')} />
