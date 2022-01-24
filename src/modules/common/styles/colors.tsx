@@ -19,6 +19,7 @@ const colors = {
 
   textColor: '#FFF',
   invertedTextColor: '#000',
+  secondaryTextColor: '#8c8d91',
 
   pieChartColorScale: [
     '#AA6AFF',
