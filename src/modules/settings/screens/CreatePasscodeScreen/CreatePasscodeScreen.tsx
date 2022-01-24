@@ -2,7 +2,7 @@ import * as SecureStore from 'expo-secure-store'
 import React from 'react'
 
 import { useTranslation } from '@config/localization'
-import CodeInput from '@modules/common/components/CodeInput/CodeInput'
+import CodeInput from '@modules/common/components/CodeInput'
 import P from '@modules/common/components/P'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'

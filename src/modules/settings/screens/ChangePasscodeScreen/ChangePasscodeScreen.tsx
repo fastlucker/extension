@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Vibration } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import CodeInput from '@modules/common/components/CodeInput/CodeInput'
+import CodeInput from '@modules/common/components/CodeInput'
 import P from '@modules/common/components/P'
 import { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
