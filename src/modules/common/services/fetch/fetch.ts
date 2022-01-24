@@ -18,7 +18,7 @@ export const fetchGet = async (url: string) => {
   return response.json()
 }
 
-export async function fetchCaught(url: string, params: any) {
+export async function fetchCaught(url: any, params?: any) {
   let resp
   try {
     resp = await fetch(url, params)

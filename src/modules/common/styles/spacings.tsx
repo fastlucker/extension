@@ -40,7 +40,7 @@ const spacings = StyleSheet.create<Style>({
   mlLg: { marginLeft: SPACING_LG },
 
   mr0: { marginRight: 0 },
-  mrMi: { marginVertical: SPACING_MI },
+  mrMi: { marginRight: SPACING_MI },
   mrTy: { marginRight: SPACING_TY },
   mrSm: { marginRight: SPACING_SM },
   mr: { marginRight: SPACING },
@@ -56,7 +56,7 @@ const spacings = StyleSheet.create<Style>({
   mvLg: { marginVertical: SPACING_LG },
 
   mh0: { marginHorizontal: 0 },
-  mhMi: { marginVertical: SPACING_MI },
+  mhMi: { marginHorizontal: SPACING_MI },
   mhTy: { marginHorizontal: SPACING_TY },
   mhSm: { marginHorizontal: SPACING_SM },
   mh: { marginHorizontal: SPACING },
@@ -64,7 +64,7 @@ const spacings = StyleSheet.create<Style>({
   mhLg: { marginHorizontal: SPACING_LG },
 
   pb0: { paddingBottom: 0 },
-  pbMi: { marginVertical: SPACING_MI },
+  pbMi: { paddingBottom: SPACING_MI },
   pbTy: { paddingBottom: SPACING_TY },
   pbSm: { paddingBottom: SPACING_SM },
   pb: { paddingBottom: SPACING },
@@ -72,7 +72,7 @@ const spacings = StyleSheet.create<Style>({
   pbLg: { paddingBottom: SPACING_LG },
 
   pt0: { paddingTop: 0 },
-  ptMi: { marginVertical: SPACING_MI },
+  ptMi: { paddingTop: SPACING_MI },
   ptTy: { paddingTop: SPACING_TY },
   ptSm: { paddingTop: SPACING_SM },
   pt: { paddingTop: SPACING },
@@ -80,7 +80,7 @@ const spacings = StyleSheet.create<Style>({
   ptLg: { paddingTop: SPACING_LG },
 
   pl0: { paddingLeft: 0 },
-  plMi: { marginVertical: SPACING_MI },
+  plMi: { paddingLeft: SPACING_MI },
   plTy: { paddingLeft: SPACING_TY },
   plSm: { paddingLeft: SPACING_SM },
   pl: { paddingLeft: SPACING },
@@ -88,7 +88,7 @@ const spacings = StyleSheet.create<Style>({
   plLg: { paddingLeft: SPACING_LG },
 
   pr0: { paddingRight: 0 },
-  prMi: { marginVertical: SPACING_MI },
+  prMi: { paddingRight: SPACING_MI },
   prTy: { paddingRight: SPACING_TY },
   prSm: { paddingRight: SPACING_SM },
   pr: { paddingRight: SPACING },
@@ -96,7 +96,7 @@ const spacings = StyleSheet.create<Style>({
   prLg: { paddingRight: SPACING_LG },
 
   pv0: { paddingVertical: 0 },
-  pvMi: { marginVertical: SPACING_MI },
+  pvMi: { paddingVertical: SPACING_MI },
   pvTy: { paddingVertical: SPACING_TY },
   pvSm: { paddingVertical: SPACING_SM },
   pv: { paddingVertical: SPACING },
@@ -104,7 +104,7 @@ const spacings = StyleSheet.create<Style>({
   pvLg: { paddingVertical: SPACING_LG },
 
   ph0: { paddingHorizontal: 0 },
-  phMi: { marginVertical: SPACING_MI },
+  phMi: { paddingHorizontal: SPACING_MI },
   phTy: { paddingHorizontal: SPACING_TY },
   phSm: { paddingHorizontal: SPACING_SM },
   ph: { paddingHorizontal: SPACING },
