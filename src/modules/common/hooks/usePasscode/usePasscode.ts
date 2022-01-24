@@ -1,30 +1,13 @@
-import * as SecureStore from 'expo-secure-store'
-import { useEffect, useState } from 'react'
-import { Vibration } from 'react-native'
+import { useContext } from 'react'
 
-import { SECURE_STORE_KEY } from '@modules/settings/constants'
+import { PasscodeContext } from '@modules/common/contexts/passcodeContext'
 
 export default function usePasscode() {
-  const [passcode, setPasscode] = useState<null | string>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const context = useContext(PasscodeContext)
 
-  useEffect(() => {
-    ;(async () => {
-      const secureStoreItem = await SecureStore.getItemAsync(SECURE_STORE_KEY)
-      if (secureStoreItem) {
-        setPasscode(secureStoreItem)
-      }
-      setIsLoading(false)
-    })()
-  }, [])
-
-  const isValidPasscode = (code: string) => {
-    const isValid = code === passcode
-
-    if (!isValid) Vibration.vibrate()
-
-    return isValid
+  if (!context) {
+    throw new Error('usePasscode must be used within an PasscodeProvider')
   }
 
-  return { passcode, isLoading, hasPasscode: !!passcode, isValidPasscode }
+  return context
 }

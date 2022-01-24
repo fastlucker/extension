@@ -30,7 +30,8 @@ const ChangePasscodeScreen: React.FC<Props> = () => {
 
   return (
     <Wrapper>
-      <Title>{t('Enter current passcode first')}</Title>
+      <Title>{t('Current passcode')}</Title>
+      <P>{t('In order to change or remove passcode, enter the current passcode first.')}</P>
       {hasError && <P type={TEXT_TYPES.DANGER}>{t('Wrong passcode.')}</P>}
       <CodeInput onFulfill={handleOnValidate} />
     </Wrapper>
