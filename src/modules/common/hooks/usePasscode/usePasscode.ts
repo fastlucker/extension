@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useState } from 'react'
+import { Vibration } from 'react-native'
 
 import { SECURE_STORE_KEY } from '@modules/settings/constants'
 
@@ -17,5 +18,13 @@ export default function usePasscode() {
     })()
   }, [])
 
-  return { passcode, isLoading, hasPasscode: !!passcode }
+  const isValidPasscode = (code: string) => {
+    const isValid = code === passcode
+
+    if (!isValid) Vibration.vibrate()
+
+    return isValid
+  }
+
+  return { passcode, isLoading, hasPasscode: !!passcode, isValidPasscode }
 }
