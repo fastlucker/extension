@@ -1,3 +1,4 @@
+import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { Vibration } from 'react-native'
@@ -11,6 +12,9 @@ type PasscodeContextData = {
   isLoading: boolean
   hasPasscode: boolean
   isValidPasscode: (code: string) => boolean
+  isLocalAuthSupported: null | boolean
+  hasLocalAuth: null | boolean
+  isLoadingLocalAuth: boolean
 }
 
 const PasscodeContext = createContext<PasscodeContextData>({
@@ -18,13 +22,19 @@ const PasscodeContext = createContext<PasscodeContextData>({
   removePasscode: () => Promise.resolve(),
   addPasscode: () => Promise.resolve(),
   isLoading: true,
+  isLoadingLocalAuth: true,
   hasPasscode: false,
-  isValidPasscode: () => false
+  isValidPasscode: () => false,
+  isLocalAuthSupported: null,
+  hasLocalAuth: null
 })
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const [passcode, setPasscode] = useState<null | string>(null)
+  const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(null)
+  const [hasLocalAuth, setHasLocalAuth] = useState<null | boolean>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isLoadingLocalAuth, setIsLoadingLocalAuth] = useState<boolean>(true)
 
   useEffect(() => {
     ;(async () => {
@@ -33,6 +43,22 @@ const PasscodeProvider: React.FC = ({ children }) => {
         setPasscode(secureStoreItem)
       }
       setIsLoading(false)
+    })()
+  }, [])
+
+  // Check if hardware supports local authentication
+  useEffect(() => {
+    ;(async () => {
+      const isCompatible = await LocalAuthentication.hasHardwareAsync()
+      setIsLocalAuthSupported(isCompatible)
+    })()
+  }, [])
+
+  useEffect(() => {
+    ;(async () => {
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync()
+      setHasLocalAuth(isEnrolled)
+      setIsLoadingLocalAuth(false)
     })()
   }, [])
 
@@ -63,9 +89,12 @@ const PasscodeProvider: React.FC = ({ children }) => {
           removePasscode,
           isLoading,
           hasPasscode: !!passcode,
-          isValidPasscode
+          isValidPasscode,
+          isLocalAuthSupported,
+          hasLocalAuth,
+          isLoadingLocalAuth
         }),
-        [passcode, isLoading]
+        [passcode, isLoading, isLocalAuthSupported, hasLocalAuth, isLoadingLocalAuth]
       )}
     >
       {children}
