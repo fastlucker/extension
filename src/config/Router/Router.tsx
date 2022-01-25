@@ -15,11 +15,11 @@ import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
-import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import CreateLocalAuthScreen from '@modules/settings/screens/CreateLocalAuthScreen'
 import CreatePasscodeScreen from '@modules/settings/screens/CreatePasscodeScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import TransactionsSigningScreen from '@modules/settings/screens/TransactionsSigningScreen'
+import ValidatePasscodeScreen from '@modules/settings/screens/ValidatePasscodeScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
@@ -226,9 +226,9 @@ const SettingsStackScreen = () => {
       />
       <SettingsStack.Screen
         name="passcode-change"
-        component={ChangePasscodeScreen}
+        component={ValidatePasscodeScreen}
         options={{
-          headerTitle: t('Change passcode')
+          headerTitle: t('Validate passcode')
         }}
       />
       <SettingsStack.Screen

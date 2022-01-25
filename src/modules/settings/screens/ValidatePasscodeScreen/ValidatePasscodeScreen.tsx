@@ -13,7 +13,7 @@ interface Props {
   passcode: string
 }
 
-const ChangePasscodeScreen: React.FC<Props> = () => {
+const ValidatePasscodeScreen: React.FC<Props> = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { isValidPasscode } = usePasscode()
@@ -38,4 +38,4 @@ const ChangePasscodeScreen: React.FC<Props> = () => {
   )
 }
 
-export default ChangePasscodeScreen
+export default ValidatePasscodeScreen
