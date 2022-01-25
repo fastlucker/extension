@@ -94,7 +94,7 @@ const getDeviceSupportedAuthTypesLabel = (types: DEVICE_SUPPORTED_AUTH_TYPES[]) 
 type PasscodeContextData = {
   state: PASSCODE_STATES
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL
-  deviceAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
+  deviceSupportedAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
   deviceSupportedAuthTypesLabel: string
   removePasscode: () => Promise<void>
   addPasscode: (code: string) => Promise<void>
@@ -115,7 +115,7 @@ const PasscodeContext = createContext<PasscodeContextData>({
   removeLocalAuth: () => {},
   state: PASSCODE_STATES.NO_PASSCODE,
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE,
-  deviceAuthTypes: [],
+  deviceSupportedAuthTypes: [],
   deviceSupportedAuthTypesLabel: ''
 })
 
