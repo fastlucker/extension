@@ -19,6 +19,7 @@ import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen
 import CreateLocalAuthScreen from '@modules/settings/screens/CreateLocalAuthScreen'
 import CreatePasscodeScreen from '@modules/settings/screens/CreatePasscodeScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
+import TransactionsSigningScreen from '@modules/settings/screens/TransactionsSigningScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
@@ -235,6 +236,13 @@ const SettingsStackScreen = () => {
         component={CreateLocalAuthScreen}
         options={{
           headerTitle: t('Create local auth')
+        }}
+      />
+      <SettingsStack.Screen
+        name="transactions-signing"
+        component={TransactionsSigningScreen}
+        options={{
+          headerTitle: t('Transactions Signing')
         }}
       />
       <SettingsStack.Screen
