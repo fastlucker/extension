@@ -40,6 +40,8 @@ const colors = {
   listOddColor: 'rgba(0,0,0,.025)',
   listEvenColor: 'rgba(0,0,0,.1)',
 
+  listItemColor: 'rgba(0,0,0,.2)',
+
   headerBackgroundColor: '#202229',
   headerTintColor: '#fff',
   headerShadowColor: '#000',
