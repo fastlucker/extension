@@ -71,11 +71,17 @@ const PasscodeProvider: React.FC = ({ children }) => {
       }
 
       const securityLevel = await LocalAuthentication.getEnrolledLevelAsync()
-      setDeviceSecurityLevel(securityLevel)
+      const existingDeviceSecurityLevel =
+        // @ts-ignore `LocalAuthentication.SecurityLevel` and `DEVICE_SECURITY_LEVEL`
+        // overlap each other. So this should match.
+        Object.values(DEVICE_SECURITY_LEVEL).includes(securityLevel)
+      setDeviceSecurityLevel(
+        // @ts-ignore `LocalAuthentication.SecurityLevel` and `DEVICE_SECURITY_LEVEL`
+        // overlap each other. So this should always result a valid setting.
+        existingDeviceSecurityLevel ? securityLevel : DEVICE_SECURITY_LEVEL.NONE
+      )
 
-      // TODO:
-      // const types = await LocalAuthentication.supportedAuthenticationTypesAsync()
-      // console.log(types)
+      // const deviceAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync()
       // if (types && types.length) {
       //   setFacialRecognitionAvailable(
       //     types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)
