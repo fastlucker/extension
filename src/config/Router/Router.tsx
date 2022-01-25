@@ -228,7 +228,7 @@ const SettingsStackScreen = () => {
         name="passcode-validate"
         component={ValidatePasscodeScreen}
         options={{
-          headerTitle: t('Validate passcode')
+          headerTitle: t('Enter passcode')
         }}
       />
       <SettingsStack.Screen

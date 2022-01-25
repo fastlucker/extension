@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { useTranslation } from '@config/localization'
-import Button from '@modules/common/components/Button'
+import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
 import P from '@modules/common/components/P'
 import Text from '@modules/common/components/Text'
@@ -34,15 +34,36 @@ const ChangePasscodeScreen: React.FC = () => {
     navigation.navigate('settings')
   }
 
+  const renderContent = () => {
+    if (state === PASSCODE_STATES.NO_PASSCODE) {
+      return (
+        <>
+          <Title>{t('Create passcode')}</Title>
+          <P>{t('Choose a passcode to protect your app.')}</P>
+        </>
+      )
+    }
+
+    return (
+      <>
+        <Title>{t('Change your passcode')}</Title>
+        <P>{t('Please enter a new passcode.')}</P>
+      </>
+    )
+  }
+
   return (
     <Wrapper>
-      <Title>{t('Create Passcode')}</Title>
-      <P>{t('Choose a passcode to protect your app.')}</P>
+      {renderContent()}
       <CodeInput onFulfill={handleOnFulfill} />
       {state !== PASSCODE_STATES.NO_PASSCODE && (
         <>
-          <Text style={[textStyles.center, spacings.mv]}>{t('– or –')}</Text>
-          <Button text={t('Remove passcode')} onPress={handleOnRemovePasscode} />
+          <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
+          <Button
+            type={BUTTON_TYPES.SECONDARY}
+            text={t('Remove passcode')}
+            onPress={handleOnRemovePasscode}
+          />
         </>
       )}
     </Wrapper>

@@ -10,14 +10,16 @@ import Wrapper from '@modules/common/components/Wrapper'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import { useNavigation } from '@react-navigation/native'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-interface Props {
+interface Props extends NativeStackScreenProps<any> {
   passcode: string
 }
 
-const ValidatePasscodeScreen: React.FC<Props> = () => {
+const ValidatePasscodeScreen: React.FC<Props> = ({ route }) => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { isValidPasscode, isLoading, isValidLocalAuth, state, deviceSupportedAuthTypesLabel } =
@@ -28,7 +30,7 @@ const ValidatePasscodeScreen: React.FC<Props> = () => {
     const isValid = await isValidLocalAuth()
 
     if (isValid) {
-      navigation.navigate('passcode-change')
+      navigation.navigate(route.params?.redirectRoute)
     }
   }
 
@@ -43,7 +45,7 @@ const ValidatePasscodeScreen: React.FC<Props> = () => {
     setHasValidPasscode(isValid)
 
     if (isValid) {
-      navigation.navigate('passcode-change')
+      navigation.navigate(route.params?.redirectRoute)
     }
   }
 
@@ -53,17 +55,18 @@ const ValidatePasscodeScreen: React.FC<Props> = () => {
 
   return (
     <Wrapper>
-      <Title>{t('Current passcode')}</Title>
-      <P>{t('In order to change or remove passcode, enter the current passcode first.')}</P>
+      <P style={[textStyles.center, spacings.mtLg]}>
+        {t('In order to proceed, please authenticate by entering your passcode.')}
+      </P>
       {hasError && <P type={TEXT_TYPES.DANGER}>{t('Wrong passcode.')}</P>}
       <CodeInput
         focusable={state === PASSCODE_STATES.PASSCODE_ONLY}
         onFulfill={handleOnValidatePasscode}
       />
-      {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && (
+      {state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && (
         <>
-          <Text style={[textStyles.center, spacings.mv]}>{t('– or –')}</Text>
-          <P>
+          <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
+          <P style={textStyles.center}>
             {t('Authenticate with your device {{ deviceSupportedAuthTypesLabel }}.', {
               deviceSupportedAuthTypesLabel
             })}
