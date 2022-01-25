@@ -15,8 +15,8 @@ import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
-import CreateLocalAuthScreen from '@modules/settings/screens/CreateLocalAuthScreen'
-import CreatePasscodeScreen from '@modules/settings/screens/CreatePasscodeScreen'
+import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
+import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import TransactionsSigningScreen from '@modules/settings/screens/TransactionsSigningScreen'
 import ValidatePasscodeScreen from '@modules/settings/screens/ValidatePasscodeScreen'
@@ -218,24 +218,24 @@ const SettingsStackScreen = () => {
         }}
       />
       <SettingsStack.Screen
-        name="passcode-create"
-        component={CreatePasscodeScreen}
+        name="passcode-change"
+        component={ChangePasscodeScreen}
         options={{
-          headerTitle: t('Create passcode')
+          headerTitle: t('Passcode')
         }}
       />
       <SettingsStack.Screen
-        name="passcode-change"
+        name="passcode-validate"
         component={ValidatePasscodeScreen}
         options={{
           headerTitle: t('Validate passcode')
         }}
       />
       <SettingsStack.Screen
-        name="local-auth-create"
-        component={CreateLocalAuthScreen}
+        name="local-auth-change"
+        component={ChangeLocalAuthScreen}
         options={{
-          headerTitle: t('Create local auth')
+          headerTitle: t('Local auth')
         }}
       />
       <SettingsStack.Screen

@@ -16,10 +16,10 @@ const LocalAuth = () => {
   return state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH ? (
     <Button
       text={t('Change local auth')}
-      onPress={() => navigation.navigate('local-auth-create')}
+      onPress={() => navigation.navigate('local-auth-change')}
     />
   ) : (
-    <Button text={t('Add local auth')} onPress={() => navigation.navigate('local-auth-create')} />
+    <Button text={t('Add local auth')} onPress={() => navigation.navigate('local-auth-change')} />
   )
 }
 

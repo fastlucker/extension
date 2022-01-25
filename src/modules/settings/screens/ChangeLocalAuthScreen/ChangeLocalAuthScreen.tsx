@@ -3,6 +3,7 @@ import React from 'react'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import P from '@modules/common/components/P'
+import { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext'
@@ -10,7 +11,7 @@ import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
 import { useNavigation } from '@react-navigation/native'
 
-const CreateLocalAuthScreen = () => {
+const ChangeLocalAuthScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
@@ -30,22 +31,41 @@ const CreateLocalAuthScreen = () => {
     navigation.navigate('settings')
   }
 
-  return (
-    <Wrapper>
-      <Title>{t('Local authentication')}</Title>
-      <P>
-        {isLocalAuthSupported
-          ? t('Local auth is available on this device')
-          : t('Your device is not compatible with Local auth')}
-      </P>
-      {isLocalAuthSupported &&
-        (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH ? (
+  const renderContent = () => {
+    if (isLocalAuthSupported) {
+      return (
+        <>
+          <P>
+            {t(
+              'Enabling local authentication allows you to use FaceID and TouchID (iOS) or the Biometric Prompt (Android) to authenticate the user with a face or fingerprint scan.'
+            )}
+          </P>
+          <P type={TEXT_TYPES.DANGER}>
+            {t(
+              'Nor a face, nor a fingerprint scanner is available on the device. Therefore, enabling local authentication is not possible.'
+            )}
+          </P>
+        </>
+      )
+    }
+
+    return (
+      <>
+        <P>
+          {t(
+            'Enabling local authentication allows you to use FaceID and TouchID (iOS) or the Biometric Prompt (Android) to authenticate the user with a face or fingerprint scan.'
+          )}
+        </P>
+        {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH ? (
           <Button onPress={handleDisable} text={t('Disable')} />
         ) : (
           <Button onPress={handleEnable} text={t('Enable')} />
-        ))}
-    </Wrapper>
-  )
+        )}
+      </>
+    )
+  }
+
+  return <Wrapper>{renderContent()}</Wrapper>
 }
 
-export default CreateLocalAuthScreen
+export default ChangeLocalAuthScreen
