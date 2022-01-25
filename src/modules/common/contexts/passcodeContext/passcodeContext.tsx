@@ -57,7 +57,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const [deviceSecurityLevel, setDeviceSecurityLevel] = useState<DEVICE_SECURITY_LEVEL>(
     DEVICE_SECURITY_LEVEL.NONE
   )
-  const [deviceSupportedAuthType, setDeviceSupportedAuthType] = useState<
+  const [deviceSupportedAuthTypes, setDeviceSupportedAuthTypes] = useState<
     DEVICE_SUPPORTED_AUTH_TYPES[]
   >([])
 
@@ -96,7 +96,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       const deviceAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync()
       // @ts-ignore `LocalAuthentication.AuthenticationType` and `DEVICE_SUPPORTED_AUTH_TYPES`
       // overlap each other. So these should match.
-      setDeviceSupportedAuthType(deviceAuthTypes)
+      setDeviceSupportedAuthTypes(deviceAuthTypes)
 
       setIsLoading(false)
     })()
@@ -150,9 +150,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
           removeLocalAuth,
           state,
           deviceSecurityLevel,
-          deviceAuthTypes
+          deviceSupportedAuthTypes
         }),
-        [isLoading, isLocalAuthSupported, deviceSecurityLevel, deviceAuthTypes, state]
+        [isLoading, isLocalAuthSupported, deviceSecurityLevel, deviceSupportedAuthTypes, state]
       )}
     >
       {children}
