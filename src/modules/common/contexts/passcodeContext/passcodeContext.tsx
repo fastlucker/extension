@@ -5,15 +5,24 @@ import { Vibration } from 'react-native'
 
 import { SECURE_STORE_KEY } from '@modules/settings/constants'
 
-// TODO:
 export enum PASSCODE_STATES {
   NO_PASSCODE = 'NO_PASSCODE',
   PASSCODE_ONLY = 'PASSCODE_ONLY',
   PASSCODE_AND_LOCAL_AUTH = 'PASSCODE_AND_LOCAL_AUTH'
 }
 
+export enum DEVICE_SECURITY_LEVEL {
+  // Indicates no enrolled authentication
+  NONE = LocalAuthentication.SecurityLevel.NONE,
+  // Indicates non-biometric authentication (e.g. PIN, Pattern).
+  SECRET = LocalAuthentication.SecurityLevel.SECRET,
+  // Indicates biometric authentication
+  BIOMETRIC = LocalAuthentication.SecurityLevel.BIOMETRIC
+}
+
 type PasscodeContextData = {
   state: PASSCODE_STATES
+  deviceSecurityLevel: DEVICE_SECURITY_LEVEL
   removePasscode: () => Promise<void>
   addPasscode: (code: string) => Promise<void>
   isLoading: boolean
@@ -31,11 +40,15 @@ const PasscodeContext = createContext<PasscodeContextData>({
   isLocalAuthSupported: null,
   addLocalAuth: () => {},
   removeLocalAuth: () => {},
-  state: PASSCODE_STATES.NO_PASSCODE
+  state: PASSCODE_STATES.NO_PASSCODE,
+  deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE
 })
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const [state, setState] = useState<PASSCODE_STATES>(PASSCODE_STATES.NO_PASSCODE)
+  const [deviceSecurityLevel, setDeviceSecurityLevel] = useState<DEVICE_SECURITY_LEVEL>(
+    DEVICE_SECURITY_LEVEL.NONE
+  )
   const [passcode, setPasscode] = useState<null | string>(null)
   const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -56,6 +69,20 @@ const PasscodeProvider: React.FC = ({ children }) => {
       if (isEnrolled) {
         setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
       }
+
+      const securityLevel = await LocalAuthentication.getEnrolledLevelAsync()
+      setDeviceSecurityLevel(securityLevel)
+
+      // TODO:
+      // const types = await LocalAuthentication.supportedAuthenticationTypesAsync()
+      // console.log(types)
+      // if (types && types.length) {
+      //   setFacialRecognitionAvailable(
+      //     types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)
+      //   )
+      //   setFingerprintAvailable(types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT))
+      //   setIrisAvailable(types.includes(LocalAuthentication.AuthenticationType.IRIS))
+      // }
 
       setIsLoading(false)
     })()
@@ -107,9 +134,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
           isLocalAuthSupported,
           addLocalAuth,
           removeLocalAuth,
-          state
+          state,
+          deviceSecurityLevel
         }),
-        [isLoading, isLocalAuthSupported, state]
+        [isLoading, isLocalAuthSupported, deviceSecurityLevel, state]
       )}
     >
       {children}
