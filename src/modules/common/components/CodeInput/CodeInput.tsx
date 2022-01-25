@@ -7,6 +7,7 @@ const CodeInput: React.FC<RnCodeInput['props']> = (props) => {
   return (
     <RnCodeInput
       secureTextEntry
+      keyboardType="numeric"
       className="border-b"
       space={10}
       codeLength={6}
