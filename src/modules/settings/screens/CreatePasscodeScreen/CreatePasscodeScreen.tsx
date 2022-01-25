@@ -7,6 +7,7 @@ import P from '@modules/common/components/P'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
+import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
@@ -17,7 +18,7 @@ const CreatePasscodeScreen: React.FC = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
-  const { hasPasscode, removePasscode, addPasscode } = usePasscode()
+  const { state, removePasscode, addPasscode } = usePasscode()
 
   const handleOnFulfill = async (code: string) => {
     await addPasscode(code)
@@ -38,7 +39,7 @@ const CreatePasscodeScreen: React.FC = () => {
       <Title>{t('Create Passcode')}</Title>
       <P>{t('Choose a passcode to protect your app.')}</P>
       <CodeInput onFulfill={handleOnFulfill} />
-      {hasPasscode && (
+      {state !== PASSCODE_STATES.NO_PASSCODE && (
         <>
           <Text style={[textStyles.center, spacings.mv]}>{t('– or –')}</Text>
           <Button text={t('Remove passcode')} onPress={handleOnRemovePasscode} />

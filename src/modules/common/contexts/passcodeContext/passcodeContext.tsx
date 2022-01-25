@@ -9,32 +9,26 @@ import { SECURE_STORE_KEY } from '@modules/settings/constants'
 export enum PASSCODE_STATES {
   NO_PASSCODE = 'NO_PASSCODE',
   PASSCODE_ONLY = 'PASSCODE_ONLY',
-  PASSCODE_AND_LOCAL_AUTH = 'PASSCODE_ONLY'
+  PASSCODE_AND_LOCAL_AUTH = 'PASSCODE_AND_LOCAL_AUTH'
 }
 
 type PasscodeContextData = {
   state: PASSCODE_STATES
-  passcode: null | string
   removePasscode: () => Promise<void>
   addPasscode: (code: string) => Promise<void>
   isLoading: boolean
-  hasPasscode: boolean
   isValidPasscode: (code: string) => boolean
   isLocalAuthSupported: null | boolean
-  hasLocalAuth: null | boolean
   addLocalAuth: () => void
   removeLocalAuth: () => void
 }
 
 const PasscodeContext = createContext<PasscodeContextData>({
-  passcode: null,
   removePasscode: () => Promise.resolve(),
   addPasscode: () => Promise.resolve(),
   isLoading: true,
-  hasPasscode: false,
   isValidPasscode: () => false,
   isLocalAuthSupported: null,
-  hasLocalAuth: null,
   addLocalAuth: () => {},
   removeLocalAuth: () => {},
   state: PASSCODE_STATES.NO_PASSCODE
@@ -44,7 +38,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const [state, setState] = useState<PASSCODE_STATES>(PASSCODE_STATES.NO_PASSCODE)
   const [passcode, setPasscode] = useState<null | string>(null)
   const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(null)
-  const [hasLocalAuth, setHasLocalAuth] = useState<null | boolean>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
@@ -60,7 +53,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
       }
 
       const isEnrolled = await LocalAuthentication.isEnrolledAsync()
-      setHasLocalAuth(isEnrolled)
       if (isEnrolled) {
         setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
       }
@@ -72,10 +64,18 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const addPasscode = async (code: string) => {
     await SecureStore.setItemAsync(SECURE_STORE_KEY, code)
     setPasscode(code)
+    if (state === PASSCODE_STATES.NO_PASSCODE)
+      setState(
+        // Covers the case coming from a state with passcode already set
+        state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+          ? PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+          : PASSCODE_STATES.PASSCODE_ONLY
+      )
   }
   const removePasscode = async () => {
     await SecureStore.deleteItemAsync(SECURE_STORE_KEY)
     setPasscode(null)
+    setState(PASSCODE_STATES.NO_PASSCODE)
   }
   const isValidPasscode = (code: string) => {
     const isValid = code === passcode
@@ -88,29 +88,28 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const addLocalAuth = async () => {
     const { success } = await LocalAuthentication.authenticateAsync()
 
-    setHasLocalAuth(success)
+    if (success) {
+      setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+    }
   }
   const removeLocalAuth = async () => {
-    setHasLocalAuth(false)
+    setState(PASSCODE_STATES.PASSCODE_ONLY)
   }
 
   return (
     <PasscodeContext.Provider
       value={useMemo(
         () => ({
-          passcode,
           addPasscode,
           removePasscode,
           isLoading,
-          hasPasscode: !!passcode,
           isValidPasscode,
           isLocalAuthSupported,
-          hasLocalAuth,
           addLocalAuth,
           removeLocalAuth,
           state
         }),
-        [passcode, isLoading, isLocalAuthSupported, hasLocalAuth, removeLocalAuth, state]
+        [isLoading, isLocalAuthSupported, state]
       )}
     >
       {children}

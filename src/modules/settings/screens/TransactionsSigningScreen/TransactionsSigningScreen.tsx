@@ -14,7 +14,7 @@ const TransactionsSigningScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
-  const { state, addLocalAuth, hasLocalAuth, removeLocalAuth } = usePasscode()
+  const { state, addLocalAuth, removeLocalAuth } = usePasscode()
 
   const handleEnable = async () => {}
 
