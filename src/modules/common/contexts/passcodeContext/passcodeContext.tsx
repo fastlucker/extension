@@ -1,8 +1,9 @@
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { Vibration } from 'react-native'
+import { Platform, Vibration } from 'react-native'
 
+import i18n from '@config/localization/localization'
 import { SECURE_STORE_KEY } from '@modules/settings/constants'
 
 export enum PASSCODE_STATES {
@@ -26,10 +27,75 @@ export enum DEVICE_SUPPORTED_AUTH_TYPES {
   IRIS = LocalAuthentication.AuthenticationType.IRIS
 }
 
+const getDeviceSupportedAuthTypesLabel = (types: DEVICE_SUPPORTED_AUTH_TYPES[]) => {
+  if (Platform.OS === 'ios') {
+    if (
+      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION) &&
+      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)
+    ) {
+      return i18n.t('Face ID or Touch ID')
+    }
+
+    if (types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION)) {
+      return i18n.t('Face ID')
+    }
+
+    if (types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)) {
+      return i18n.t('Touch ID')
+    }
+  }
+
+  if (Platform.OS === 'android') {
+    if (
+      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION) &&
+      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.IRIS) &&
+      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)
+    ) {
+      return i18n.t('facial recognition, iris recognition or fingerprint')
+    }
+
+    if (
+      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.IRIS) &&
+      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)
+    ) {
+      return i18n.t('iris recognition or fingerprint')
+    }
+
+    if (
+      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION) &&
+      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)
+    ) {
+      return i18n.t('facial recognition or fingerprint')
+    }
+
+    if (
+      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION) &&
+      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.IRIS)
+    ) {
+      return i18n.t('facial recognition or iris recognition')
+    }
+
+    if (types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION)) {
+      return i18n.t('facial recognition')
+    }
+
+    if (types.includes(DEVICE_SUPPORTED_AUTH_TYPES.IRIS)) {
+      return i18n.t('iris recognition')
+    }
+
+    if (types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)) {
+      return i18n.t('fingerprint')
+    }
+  }
+
+  return ''
+}
+
 type PasscodeContextData = {
   state: PASSCODE_STATES
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL
   deviceAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
+  deviceSupportedAuthTypesLabel: string
   removePasscode: () => Promise<void>
   addPasscode: (code: string) => Promise<void>
   isLoading: boolean
@@ -49,7 +115,8 @@ const PasscodeContext = createContext<PasscodeContextData>({
   removeLocalAuth: () => {},
   state: PASSCODE_STATES.NO_PASSCODE,
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE,
-  deviceAuthTypes: []
+  deviceAuthTypes: [],
+  deviceSupportedAuthTypesLabel: ''
 })
 
 const PasscodeProvider: React.FC = ({ children }) => {
@@ -60,7 +127,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const [deviceSupportedAuthTypes, setDeviceSupportedAuthTypes] = useState<
     DEVICE_SUPPORTED_AUTH_TYPES[]
   >([])
-
+  const [deviceSupportedAuthTypesLabel, setDeviceSupportedAuthTypesLabel] = useState<string>('')
   const [passcode, setPasscode] = useState<null | string>(null)
   const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -97,6 +164,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
       // @ts-ignore `LocalAuthentication.AuthenticationType` and `DEVICE_SUPPORTED_AUTH_TYPES`
       // overlap each other. So these should match.
       setDeviceSupportedAuthTypes(deviceAuthTypes)
+      // @ts-ignore `LocalAuthentication.AuthenticationType` and `DEVICE_SUPPORTED_AUTH_TYPES`
+      // overlap each other. So these should match.
+      setDeviceSupportedAuthTypesLabel(getDeviceSupportedAuthTypesLabel(deviceAuthTypes))
 
       setIsLoading(false)
     })()
@@ -150,9 +220,17 @@ const PasscodeProvider: React.FC = ({ children }) => {
           removeLocalAuth,
           state,
           deviceSecurityLevel,
-          deviceSupportedAuthTypes
+          deviceSupportedAuthTypes,
+          deviceSupportedAuthTypesLabel
         }),
-        [isLoading, isLocalAuthSupported, deviceSecurityLevel, deviceSupportedAuthTypes, state]
+        [
+          isLoading,
+          isLocalAuthSupported,
+          deviceSecurityLevel,
+          deviceSupportedAuthTypes,
+          deviceSupportedAuthTypesLabel,
+          state
+        ]
       )}
     >
       {children}

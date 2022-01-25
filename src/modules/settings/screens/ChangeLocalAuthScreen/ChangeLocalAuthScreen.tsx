@@ -14,8 +14,14 @@ const ChangeLocalAuthScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
-  const { isLocalAuthSupported, addLocalAuth, state, removeLocalAuth, deviceSecurityLevel } =
-    usePasscode()
+  const {
+    isLocalAuthSupported,
+    addLocalAuth,
+    state,
+    removeLocalAuth,
+    deviceSecurityLevel,
+    deviceSupportedAuthTypesLabel
+  } = usePasscode()
 
   const handleEnable = async () => {
     await addLocalAuth()
@@ -78,7 +84,8 @@ const ChangeLocalAuthScreen = () => {
       <>
         <P>
           {t(
-            'Enabling local authentication allows you to use FaceID and TouchID (iOS) or the Biometric Prompt (Android) to authenticate the user with a face or fingerprint scan.'
+            'Enabling local authentication allows you to use your device configured {{deviceSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
+            { deviceSupportedAuthTypesLabel }
           )}
         </P>
         {renderContent()}
