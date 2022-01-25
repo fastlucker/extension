@@ -20,9 +20,16 @@ export enum DEVICE_SECURITY_LEVEL {
   BIOMETRIC = LocalAuthentication.SecurityLevel.BIOMETRIC
 }
 
+export enum DEVICE_SUPPORTED_AUTH_TYPES {
+  FINGERPRINT = LocalAuthentication.AuthenticationType.FINGERPRINT,
+  FACIAL_RECOGNITION = LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION,
+  IRIS = LocalAuthentication.AuthenticationType.IRIS
+}
+
 type PasscodeContextData = {
   state: PASSCODE_STATES
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL
+  deviceAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
   removePasscode: () => Promise<void>
   addPasscode: (code: string) => Promise<void>
   isLoading: boolean
@@ -41,7 +48,8 @@ const PasscodeContext = createContext<PasscodeContextData>({
   addLocalAuth: () => {},
   removeLocalAuth: () => {},
   state: PASSCODE_STATES.NO_PASSCODE,
-  deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE
+  deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE,
+  deviceAuthTypes: []
 })
 
 const PasscodeProvider: React.FC = ({ children }) => {
@@ -49,6 +57,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const [deviceSecurityLevel, setDeviceSecurityLevel] = useState<DEVICE_SECURITY_LEVEL>(
     DEVICE_SECURITY_LEVEL.NONE
   )
+  const [deviceSupportedAuthType, setDeviceSupportedAuthType] = useState<
+    DEVICE_SUPPORTED_AUTH_TYPES[]
+  >([])
+
   const [passcode, setPasscode] = useState<null | string>(null)
   const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -81,14 +93,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
         existingDeviceSecurityLevel ? securityLevel : DEVICE_SECURITY_LEVEL.NONE
       )
 
-      // const deviceAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync()
-      // if (types && types.length) {
-      //   setFacialRecognitionAvailable(
-      //     types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)
-      //   )
-      //   setFingerprintAvailable(types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT))
-      //   setIrisAvailable(types.includes(LocalAuthentication.AuthenticationType.IRIS))
-      // }
+      const deviceAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync()
+      // @ts-ignore `LocalAuthentication.AuthenticationType` and `DEVICE_SUPPORTED_AUTH_TYPES`
+      // overlap each other. So these should match.
+      setDeviceSupportedAuthType(deviceAuthTypes)
 
       setIsLoading(false)
     })()
@@ -141,9 +149,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
           addLocalAuth,
           removeLocalAuth,
           state,
-          deviceSecurityLevel
+          deviceSecurityLevel,
+          deviceAuthTypes
         }),
-        [isLoading, isLocalAuthSupported, deviceSecurityLevel, state]
+        [isLoading, isLocalAuthSupported, deviceSecurityLevel, deviceAuthTypes, state]
       )}
     >
       {children}
