@@ -103,6 +103,7 @@ type PasscodeContextData = {
   isLocalAuthSupported: null | boolean
   addLocalAuth: () => void
   removeLocalAuth: () => void
+  isValidLocalAuth: () => Promise<boolean>
 }
 
 const PasscodeContext = createContext<PasscodeContextData>({
@@ -113,6 +114,7 @@ const PasscodeContext = createContext<PasscodeContextData>({
   isLocalAuthSupported: null,
   addLocalAuth: () => {},
   removeLocalAuth: () => {},
+  isValidLocalAuth: () => Promise.resolve(false),
   state: PASSCODE_STATES.NO_PASSCODE,
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE,
   deviceSupportedAuthTypes: [],
@@ -206,6 +208,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const removeLocalAuth = async () => {
     setState(PASSCODE_STATES.PASSCODE_ONLY)
   }
+  const isValidLocalAuth = async () => {
+    const { success } = await LocalAuthentication.authenticateAsync()
+
+    return success
+  }
 
   return (
     <PasscodeContext.Provider
@@ -218,6 +225,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           isLocalAuthSupported,
           addLocalAuth,
           removeLocalAuth,
+          isValidLocalAuth,
           state,
           deviceSecurityLevel,
           deviceSupportedAuthTypes,
