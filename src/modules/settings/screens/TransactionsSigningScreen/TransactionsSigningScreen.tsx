@@ -27,7 +27,7 @@ const TransactionsSigningScreen = () => {
           <P>{t('First you need to have passcode configured.')}</P>
           <Button
             text={t('Create passcode')}
-            onPress={() => navigation.navigate('passcode-create')}
+            onPress={() => navigation.navigate('passcode-validate')}
           />
         </>
       )

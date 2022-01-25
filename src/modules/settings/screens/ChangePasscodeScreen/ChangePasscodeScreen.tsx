@@ -14,7 +14,7 @@ import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 import { useNavigation } from '@react-navigation/native'
 
-const CreatePasscodeScreen: React.FC = () => {
+const ChangePasscodeScreen: React.FC = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
@@ -49,4 +49,4 @@ const CreatePasscodeScreen: React.FC = () => {
   )
 }
 
-export default CreatePasscodeScreen
+export default ChangePasscodeScreen
