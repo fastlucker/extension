@@ -1,9 +1,8 @@
+import { Linking } from 'react-native'
 import url from 'url'
 
 import CONFIG from '@config/env'
 import RampSdk from '@ramp-network/react-native-sdk'
-// @ts-ignore
-import transakSDK from '@transak/transak-sdk'
 
 const { RAMP_HOST_API_KEY, PAYTRIE_PARTNER_URL, TRANSAK_API_KEY, TRANSAK_ENV } = CONFIG
 
@@ -53,6 +52,11 @@ export const openPayTrie = ({ walletAddress, selectedNetwork }: any) => {
 }
 
 export const openTransak = ({ walletAddress, selectedNetwork }: any) => {
+  const baseURL =
+    TRANSAK_ENV === 'PRODUCTION'
+      ? 'https://global.transak.com?'
+      : 'https://staging-global.transak.com'
+
   const networksAlias: any = {
     avalanche: 'avaxcchain',
     'binance-smart-chain': 'bsc'
@@ -66,30 +70,9 @@ export const openTransak = ({ walletAddress, selectedNetwork }: any) => {
     'binance-smart-chain': 'BNB'
   }
 
-  // eslint-disable-next-line new-cap
-  const transak = new transakSDK({
-    apiKey: TRANSAK_API_KEY,
-    environment: TRANSAK_ENV,
-    networks: networksAlias[selectedNetwork] || selectedNetwork,
-    defaultCryptoCurrency: defaultCurency[selectedNetwork],
-    disableWalletAddressForm: true,
-    walletAddress,
-    themeColor: '282b33',
-    email: '',
-    redirectURL: '',
-    // hostURL: window.location.origin,
-    widgetHeight: 'calc(100% - 60px)',
-    widgetWidth: '100%'
-  })
-
-  transak.init()
-
-  transak.on(transak.ALL_EVENTS, (data: any) => {
-    console.log(data)
-  })
-
-  transak.on(transak.EVENTS.TRANSAK_ORDER_SUCCESSFUL, (orderData: any) => {
-    console.log(orderData)
-    transak.close()
-  })
+  Linking.openURL(
+    `${baseURL}?apiKey=${TRANSAK_API_KEY}&themeColor=282b33&disableWalletAddressForm=true&networks=${
+      networksAlias[selectedNetwork] || selectedNetwork
+    }&defaultCryptoCurrency=${defaultCurency[selectedNetwork]}&walletAddress=${walletAddress}`
+  )
 }

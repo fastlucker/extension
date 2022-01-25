@@ -19,10 +19,10 @@ const ReceiveScreen = () => {
   const { t } = useTranslation()
   const { selectedAcc } = useAccounts()
   const { network }: any = useNetwork()
+
   return (
     <Wrapper>
       <DepositTokens />
-
       <Panel>
         <View style={[flexboxStyles.alignCenter, spacings.mb]}>
           <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mbMi]}>
