@@ -63,7 +63,7 @@ const ValidatePasscodeScreen: React.FC<Props> = ({ route }) => {
         focusable={state === PASSCODE_STATES.PASSCODE_ONLY}
         onFulfill={handleOnValidatePasscode}
       />
-      {state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && (
+      {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && (
         <>
           <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
           <P style={textStyles.center}>
