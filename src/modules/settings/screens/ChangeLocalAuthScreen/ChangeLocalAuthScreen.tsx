@@ -32,7 +32,7 @@ const ChangeLocalAuthScreen = () => {
   }
 
   const renderContent = () => {
-    if (isLocalAuthSupported) {
+    if (!isLocalAuthSupported) {
       return (
         <>
           <P>
@@ -45,6 +45,25 @@ const ChangeLocalAuthScreen = () => {
               'Nor a face, nor a fingerprint scanner is available on the device. Therefore, enabling local authentication is not possible.'
             )}
           </P>
+        </>
+      )
+    }
+
+    if (state === PASSCODE_STATES.NO_PASSCODE) {
+      return (
+        <>
+          <P>
+            {t(
+              'Enabling local authentication allows you to use FaceID and TouchID (iOS) or the Biometric Prompt (Android) to authenticate the user with a face or fingerprint scan.'
+            )}
+          </P>
+          <P type={TEXT_TYPES.DANGER}>
+            {t('In order to enable it, first you need to create a passcode.')}
+          </P>
+          <Button
+            text={t('Create passcode')}
+            onPress={() => navigation.navigate('passcode-change')}
+          />
         </>
       )
     }
