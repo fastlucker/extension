@@ -23,7 +23,9 @@ const ValidatePasscodeScreen: React.FC<Props> = () => {
     const isValid = isValidPasscode(code)
     setHasValidPasscode(isValid)
 
-    navigation.navigate('passcode-change')
+    if (isValid) {
+      navigation.navigate('passcode-change')
+    }
   }
 
   const hasError = !hasValidPasscode && hasValidPasscode !== null
