@@ -6,8 +6,7 @@ import { Vibration } from 'react-native'
 import { SECURE_STORE_KEY } from '@modules/settings/constants'
 
 // TODO:
-enum PASSCODE_STATES {
-  UNKNOWN = 'UNKNOWN',
+export enum PASSCODE_STATES {
   NO_PASSCODE = 'NO_PASSCODE',
   PASSCODE_ONLY = 'PASSCODE_ONLY',
   PASSCODE_AND_LOCAL_AUTH = 'PASSCODE_ONLY'
@@ -23,7 +22,6 @@ type PasscodeContextData = {
   isValidPasscode: (code: string) => boolean
   isLocalAuthSupported: null | boolean
   hasLocalAuth: null | boolean
-  isLoadingLocalAuth: boolean
   addLocalAuth: () => void
   removeLocalAuth: () => void
 }
@@ -33,46 +31,41 @@ const PasscodeContext = createContext<PasscodeContextData>({
   removePasscode: () => Promise.resolve(),
   addPasscode: () => Promise.resolve(),
   isLoading: true,
-  isLoadingLocalAuth: true,
   hasPasscode: false,
   isValidPasscode: () => false,
   isLocalAuthSupported: null,
   hasLocalAuth: null,
   addLocalAuth: () => {},
   removeLocalAuth: () => {},
-  state: PASSCODE_STATES.UNKNOWN
+  state: PASSCODE_STATES.NO_PASSCODE
 })
 
 const PasscodeProvider: React.FC = ({ children }) => {
+  const [state, setState] = useState<PASSCODE_STATES>(PASSCODE_STATES.NO_PASSCODE)
   const [passcode, setPasscode] = useState<null | string>(null)
   const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(null)
   const [hasLocalAuth, setHasLocalAuth] = useState<null | boolean>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [isLoadingLocalAuth, setIsLoadingLocalAuth] = useState<boolean>(true)
 
   useEffect(() => {
     ;(async () => {
+      // Check if hardware supports local authentication
+      const isCompatible = await LocalAuthentication.hasHardwareAsync()
+      setIsLocalAuthSupported(isCompatible)
+
       const secureStoreItem = await SecureStore.getItemAsync(SECURE_STORE_KEY)
       if (secureStoreItem) {
         setPasscode(secureStoreItem)
+        setState(PASSCODE_STATES.PASSCODE_ONLY)
       }
-      setIsLoading(false)
-    })()
-  }, [])
 
-  // Check if hardware supports local authentication
-  useEffect(() => {
-    ;(async () => {
-      const isCompatible = await LocalAuthentication.hasHardwareAsync()
-      setIsLocalAuthSupported(isCompatible)
-    })()
-  }, [])
-
-  useEffect(() => {
-    ;(async () => {
       const isEnrolled = await LocalAuthentication.isEnrolledAsync()
       setHasLocalAuth(isEnrolled)
-      setIsLoadingLocalAuth(false)
+      if (isEnrolled) {
+        setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+      }
+
+      setIsLoading(false)
     })()
   }, [])
 
@@ -113,18 +106,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
           isValidPasscode,
           isLocalAuthSupported,
           hasLocalAuth,
-          isLoadingLocalAuth,
           addLocalAuth,
-          removeLocalAuth
+          removeLocalAuth,
+          state
         }),
-        [
-          passcode,
-          isLoading,
-          isLocalAuthSupported,
-          hasLocalAuth,
-          isLoadingLocalAuth,
-          removeLocalAuth
-        ]
+        [passcode, isLoading, isLocalAuthSupported, hasLocalAuth, removeLocalAuth, state]
       )}
     >
       {children}
