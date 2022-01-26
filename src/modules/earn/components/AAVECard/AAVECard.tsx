@@ -1,0 +1,248 @@
+import { ethers } from 'ethers'
+import { Interface } from 'ethers/lib/utils'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+import AAVELendingPoolAbi from '@modules/common/constants/AAVELendingPoolAbi'
+import AAVELendingPoolProviders from '@modules/common/constants/AAVELendingPoolProviders'
+import networks from '@modules/common/constants/networks'
+import useAccounts from '@modules/common/hooks/useAccounts'
+import useNetwork from '@modules/common/hooks/useNetwork'
+import usePortfolio from '@modules/common/hooks/usePortfolio'
+import useRequests from '@modules/common/hooks/useRequests'
+import useToast from '@modules/common/hooks/useToast'
+import approveToken from '@modules/common/services/approveToken/approveToken'
+import { getProvider } from '@modules/common/services/provider'
+import Card from '@modules/earn/components/Card'
+import { getDefaultTokensItems } from '@modules/earn/services/defaultTokens'
+
+const AAVELendingPool = new Interface(AAVELendingPoolAbi)
+const RAY = 10 ** 27
+let lendingPoolAddress: any = null
+
+const AAVECard = () => {
+  const currentNetwork = useRef()
+  const [isLoading, setLoading] = useState<any>(true)
+  const [unavailable, setUnavailable] = useState<any>(false)
+  const [tokensItems, setTokensItems] = useState<any>([])
+  const [details, setDetails] = useState<any>([])
+
+  const { addToast } = useToast()
+  const { network }: any = useNetwork()
+  const { selectedAcc } = useAccounts()
+  const { addRequest } = useRequests()
+  const { protocols, tokens } = usePortfolio()
+
+  const onTokenSelect = useCallback(
+    async (value) => {
+      const token = tokensItems.find(({ address }: any) => address === value)
+      if (token) {
+        setDetails([
+          ['Annual Percentage Rate (APR)', `${token.apr}%`],
+          ['Lock', 'No Lock'],
+          ['Type', 'Variable Rate']
+        ])
+      }
+    },
+    [tokensItems]
+  )
+
+  const networkDetails: any = networks.find(({ id }) => id === network?.id)
+  const defaultTokens = useMemo(() => getDefaultTokensItems(networkDetails.id), [networkDetails.id])
+  const getToken = (type: any, address: any) =>
+    tokensItems
+      .filter((token: any) => token.type === type)
+      .find((token: any) => token.address === address)
+  const addRequestTxn = (id: any, txn: any, extraGas = 0) =>
+    addRequest({
+      id,
+      type: 'eth_sendTransaction',
+      chainId: networkDetails.chainId,
+      account: selectedAcc,
+      txn,
+      extraGas
+    })
+
+  const onValidate = async (type: any, tokenAddress: any, amount: any) => {
+    if (type === 'Deposit') {
+      const token = getToken('deposit', tokenAddress)
+      const bigNumberHexAmount = ethers.utils
+        .parseUnits(amount.toString(), token.decimals)
+        .toHexString()
+      await approveToken(
+        'Aave Pool',
+        networkDetails.id,
+        selectedAcc,
+        lendingPoolAddress,
+        tokenAddress,
+        addRequestTxn,
+        addToast
+      )
+
+      try {
+        addRequestTxn(
+          `aave_pool_deposit_${Date.now()}`,
+          {
+            to: lendingPoolAddress,
+            value: '0x0',
+            data: AAVELendingPool.encodeFunctionData('deposit', [
+              tokenAddress,
+              bigNumberHexAmount,
+              selectedAcc,
+              0
+            ])
+          },
+          60000
+        )
+      } catch (e: any) {
+        console.error(e)
+        addToast(`Aave Deposit Error: ${e.message || e}`, { error: true })
+      }
+    } else if (type === 'Withdraw') {
+      const token = getToken('withdraw', tokenAddress)
+      const bigNumberHexAmount = ethers.utils
+        .parseUnits(amount.toString(), token.decimals)
+        .toHexString()
+      await approveToken(
+        'Aave Pool',
+        networkDetails.id,
+        selectedAcc,
+        lendingPoolAddress,
+        tokenAddress,
+        addRequestTxn,
+        addToast
+      )
+
+      try {
+        addRequestTxn(
+          `aave_pool_withdraw_${Date.now()}`,
+          {
+            to: lendingPoolAddress,
+            value: '0x0',
+            data: AAVELendingPool.encodeFunctionData('withdraw', [
+              tokenAddress,
+              bigNumberHexAmount,
+              selectedAcc
+            ])
+          },
+          60000
+        )
+      } catch (e: any) {
+        console.error(e)
+        addToast(`Aave Withdraw Error: ${e.message || e}`, { error: true })
+      }
+    }
+  }
+
+  const loadPool: any = useCallback(async () => {
+    const providerAddress = AAVELendingPoolProviders[networkDetails.id]
+    if (!providerAddress) {
+      setLoading(false)
+      setUnavailable(true)
+      return
+    }
+
+    try {
+      const provider = getProvider(networkDetails.id)
+      const lendingPoolProviderContract = new ethers.Contract(
+        providerAddress,
+        AAVELendingPool,
+        provider
+      )
+      lendingPoolAddress = await lendingPoolProviderContract.getLendingPool()
+
+      const lendingPoolContract = new ethers.Contract(lendingPoolAddress, AAVELendingPool, provider)
+      const reserves = await lendingPoolContract.getReservesList()
+      const reservesAddresses = reserves.map((reserve: any) => reserve.toLowerCase())
+
+      const withdrawTokens = (protocols.find(({ label }: any) => label === 'Aave V2')?.assets || [])
+        .map(
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          ({ symbol, tokens }: any) =>
+            tokens &&
+            tokens.map((token: any) => ({
+              ...token,
+              symbol,
+              type: 'withdraw'
+            }))
+        )
+        .flat(1)
+        .filter((token: any) => token)
+
+      const depositTokens = tokens
+        .filter(({ address }: any) => reservesAddresses.includes(address))
+        .map((token: any) => ({
+          ...token,
+          type: 'deposit'
+        }))
+        .filter((token: any) => token)
+
+      const allTokens = await Promise.all([
+        ...defaultTokens.filter(
+          ({ type, address }) =>
+            type === 'deposit' &&
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            !depositTokens.map(({ address }: any) => address).includes(address)
+        ),
+        ...defaultTokens.filter(
+          ({ type, address }) =>
+            type === 'withdraw' &&
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            !withdrawTokens.map(({ address }: any) => address).includes(address)
+        ),
+        ...withdrawTokens,
+        ...depositTokens
+      ])
+
+      const uniqueTokenAddresses = [...new Set(allTokens.map(({ address }) => address))]
+      const tokensAPR = Object.fromEntries(
+        await Promise.all(
+          uniqueTokenAddresses.map(async (address) => {
+            const data = await lendingPoolContract.getReserveData(address)
+            const { liquidityRate } = data
+            const apr = ((liquidityRate / RAY) * 100).toFixed(2)
+            return [address, apr]
+          })
+        )
+      )
+
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      const tokensItems = allTokens.map((token) => ({
+        ...token,
+        apr: tokensAPR[token.address],
+        icon: token.img || token.tokenImageUrl,
+        label: `${token.symbol} (${tokensAPR[token.address]}% APR)`,
+        value: token.address
+      }))
+
+      // Prevent race conditions
+      if (currentNetwork.current !== networkDetails.id) return
+
+      setTokensItems(tokensItems)
+      setLoading(false)
+      setUnavailable(false)
+    } catch (e: any) {
+      console.error(e)
+      addToast(`Aave load pool error: ${e.message || e}`, { error: true })
+    }
+  }, [addToast, protocols, tokens, defaultTokens, networkDetails])
+
+  useEffect(() => loadPool(), [loadPool])
+
+  useEffect(() => {
+    currentNetwork.current = network.id
+    setLoading(true)
+  }, [network.id])
+
+  return (
+    <Card
+      loading={isLoading}
+      unavailable={unavailable}
+      details={details}
+      tokensItems={tokensItems}
+      onTokenSelect={onTokenSelect}
+      onValidate={onValidate}
+    />
+  )
+}
+
+export default AAVECard

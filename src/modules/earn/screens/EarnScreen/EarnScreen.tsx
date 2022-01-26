@@ -1,14 +1,26 @@
 import React from 'react'
-import { View } from 'react-native'
+import { ActivityIndicator, View } from 'react-native'
 
-import Placeholder from '@modules/common/components/Placeholder'
+import Text from '@modules/common/components/Text'
+import Wrapper from '@modules/common/components/Wrapper'
+import usePortfolio from '@modules/common/hooks/usePortfolio'
+import AAVECard from '@modules/earn/components/AAVECard/AAVECard'
 
 import styles from './styles'
 
-const EarnScreen = () => (
-  <View style={styles.container}>
-    <Placeholder text="Earn screen" />
-  </View>
-)
+const EarnScreen = () => {
+  const { isBalanceLoading } = usePortfolio()
+
+  return (
+    <Wrapper>
+      {!!isBalanceLoading && <ActivityIndicator />}
+      {!isBalanceLoading && (
+        <View>
+          <AAVECard />
+        </View>
+      )}
+    </Wrapper>
+  )
+}
 
 export default EarnScreen
