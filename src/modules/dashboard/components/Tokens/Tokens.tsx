@@ -28,7 +28,7 @@ const Balances = () => {
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
   const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')
 
-  const handleGoToDeposit = () => navigation.navigate('deposit')
+  const handleGoToDeposit = () => navigation.navigate('receive')
   const handleGoToSend = (symbol) => navigation.navigate('send', { symbol: symbol.toString() })
   const handleGoToBlockExplorer = () =>
     Linking.openURL(`${selectedNetwork?.explorerUrl}/address/${selectedAcc}`)
