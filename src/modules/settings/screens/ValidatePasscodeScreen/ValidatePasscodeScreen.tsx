@@ -54,7 +54,7 @@ const ValidatePasscodeScreen: React.FC<Props> = ({ route }) => {
   return (
     <Wrapper>
       <P style={[textStyles.center, spacings.mtLg]}>
-        {t('In order to proceed, please authenticate by entering your passcode.')}
+        {t('In order to proceed, please authenticate by entering the app passcode.')}
       </P>
       {hasError && (
         <P type={TEXT_TYPES.DANGER} style={[textStyles.center, spacings.mb0]}>
