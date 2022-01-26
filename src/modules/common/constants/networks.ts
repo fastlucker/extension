@@ -1,9 +1,9 @@
 import React from 'react'
 
-import AvalancheLogo from '../assets/svg/networks/AvalancheLogo'
-import BinanceSmartChainLogo from '../assets/svg/networks/BinanceSmartChainLogo'
-import EthereumLogo from '../assets/svg/networks/EthereumLogo'
-import PolygonLogo from '../assets/svg/networks/PolygonLogo'
+import AvalancheLogo from '@modules/common/assets/svg/networks/AvalancheLogo'
+import BinanceSmartChainLogo from '@modules/common/assets/svg/networks/BinanceSmartChainLogo'
+import EthereumLogo from '@modules/common/assets/svg/networks/EthereumLogo'
+import PolygonLogo from '@modules/common/assets/svg/networks/PolygonLogo'
 
 export type NetworkType = {
   id: string

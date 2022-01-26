@@ -19,6 +19,7 @@ const colors = {
 
   textColor: '#FFF',
   invertedTextColor: '#000',
+  secondaryTextColor: '#8c8d91',
 
   pieChartColorScale: [
     '#AA6AFF',
@@ -38,6 +39,8 @@ const colors = {
 
   listOddColor: 'rgba(0,0,0,.025)',
   listEvenColor: 'rgba(0,0,0,.1)',
+
+  listItemColor: 'rgba(0,0,0,.2)',
 
   headerBackgroundColor: '#202229',
   headerTintColor: '#fff',

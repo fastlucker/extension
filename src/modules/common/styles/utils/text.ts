@@ -9,6 +9,7 @@ interface Styles {
   center: TextStyle
   right: TextStyle
   uppercase: TextStyle
+  italic: TextStyle
 }
 
 const textStyles = StyleSheet.create<Styles>({
@@ -29,6 +30,9 @@ const textStyles = StyleSheet.create<Styles>({
   },
   uppercase: {
     textTransform: 'uppercase'
+  },
+  italic: {
+    fontStyle: 'italic'
   }
 })
 
