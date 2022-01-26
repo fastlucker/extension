@@ -4,7 +4,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { Platform, Vibration } from 'react-native'
 
 import i18n from '@config/localization/localization'
-import { SECURE_STORE_KEY } from '@modules/settings/constants'
+import { SECURE_STORE_KEY_PASSCODE } from '@modules/settings/constants'
 
 export enum PASSCODE_STATES {
   NO_PASSCODE = 'NO_PASSCODE',
@@ -140,9 +140,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
       const isCompatible = await LocalAuthentication.hasHardwareAsync()
       setIsLocalAuthSupported(isCompatible)
 
-      const secureStoreItem = await SecureStore.getItemAsync(SECURE_STORE_KEY)
-      if (secureStoreItem) {
-        setPasscode(secureStoreItem)
+      const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE)
+      if (secureStoreItemPasscode) {
+        setPasscode(secureStoreItemPasscode)
         setState(PASSCODE_STATES.PASSCODE_ONLY)
       }
 
@@ -175,7 +175,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }, [])
 
   const addPasscode = async (code: string) => {
-    await SecureStore.setItemAsync(SECURE_STORE_KEY, code)
+    await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code)
     setPasscode(code)
     if (state === PASSCODE_STATES.NO_PASSCODE)
       setState(
@@ -186,7 +186,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       )
   }
   const removePasscode = async () => {
-    await SecureStore.deleteItemAsync(SECURE_STORE_KEY)
+    await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE)
     setPasscode(null)
     setState(PASSCODE_STATES.NO_PASSCODE)
   }
