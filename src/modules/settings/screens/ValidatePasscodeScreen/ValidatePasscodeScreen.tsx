@@ -68,7 +68,7 @@ const ValidatePasscodeScreen: React.FC<Props> = ({ route }) => {
         </P>
       )}
       <CodeInput
-        focusable={state === PASSCODE_STATES.PASSCODE_ONLY}
+        autoFocus={state === PASSCODE_STATES.PASSCODE_ONLY}
         onFulfill={handleOnValidatePasscode}
       />
       {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && (
