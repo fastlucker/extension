@@ -36,6 +36,8 @@ const CONFIG: Config = {
 
 if (isProd) {
   CONFIG.APP_ENV = APP_ENV.PROD
+  CONFIG.TRANSAK_ENV = 'PRODUCTION'
+  CONFIG.TRANSAK_API_KEY = '85fdedd7-0077-4c6d-8499-52039c64353c'
 } else if (isStaging) {
   CONFIG.APP_ENV = APP_ENV.STAGING
 }
