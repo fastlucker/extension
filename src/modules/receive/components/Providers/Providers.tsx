@@ -2,6 +2,9 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
+import PayTrieLogo from '@modules/common/assets/svg/providers/PayTrieLogo'
+import RampLogo from '@modules/common/assets/svg/providers/RampLogo'
+import TransakLogo from '@modules/common/assets/svg/providers/TransakLogo'
 import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -15,7 +18,7 @@ const Providers = ({ walletAddress, networkDetails }: any) => {
 
   const providers = [
     {
-      logo: null,
+      Icon: RampLogo,
       name: 'Ramp',
       type: 'Bank Transfer, Credit/Debit Card, Apple Pay',
       fees: '0.49%-2.9%',
@@ -25,7 +28,7 @@ const Providers = ({ walletAddress, networkDetails }: any) => {
       onClick: () => openRampNetwork({ walletAddress, selectedNetwork: networkDetails.id })
     },
     {
-      logo: null,
+      Icon: PayTrieLogo,
       name: 'PayTrie',
       type: 'Bank Transfer',
       fees: '1% (min. $2 CAD)',
@@ -35,7 +38,7 @@ const Providers = ({ walletAddress, networkDetails }: any) => {
       onClick: () => openPayTrie({ walletAddress, selectedNetwork: networkDetails.id })
     },
     {
-      logo: null,
+      Icon: TransakLogo,
       name: 'Transak',
       type: 'Credit/Debit card and Bank Transfer (methods availability depends on location)',
       fees: 'from 0.5%',
@@ -52,17 +55,16 @@ const Providers = ({ walletAddress, networkDetails }: any) => {
 
   return (
     <View>
-      {providers.map(({ logo, name, type, fees, limits, currencies, networks, onClick }: any) => (
+      {providers.map(({ Icon, name, type, fees, limits, currencies, networks, onClick }: any) => (
         <TouchableOpacity
           key={name}
           onPress={onClick}
           disabled={shouldBeDisabled(networks)}
           style={styles.providerContainer}
+          activeOpacity={0.8}
         >
-          {/* <div className="logo">
-            <img src={logo} alt={name} />
-          </div> */}
           <View>
+            <View style={spacings.mb}>{!!Icon && <Icon />}</View>
             <Text style={spacings.mbMi} fontSize={14}>
               {type}
             </Text>

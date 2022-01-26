@@ -43,12 +43,7 @@ export const openPayTrie = ({ walletAddress, selectedNetwork }: any) => {
     rightSideLabel: rightSideLabels[selectedNetwork]
   }
 
-  // popupCenter({
-  //   url: url.format(URL),
-  //   title: 'Paytrie Deposit',
-  //   w: 450,
-  //   h: 700
-  // })
+  Linking.openURL(url.format(URL))
 }
 
 export const openTransak = ({ walletAddress, selectedNetwork }: any) => {

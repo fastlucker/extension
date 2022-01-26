@@ -1,6 +1,7 @@
+import * as Clipboard from 'expo-clipboard'
 import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
 
 import { MaterialIcons } from '@expo/vector-icons'
@@ -10,6 +11,7 @@ import Title from '@modules/common/components/Title'
 import networks from '@modules/common/constants/networks'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings, { DEVICE_WIDTH } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -22,8 +24,14 @@ const DepositTokens = () => {
   const { selectedAcc } = useAccounts()
   const { network }: any = useNetwork()
   const qrCodeRef: any = useRef(null)
+  const { addToast } = useToast()
   const networkDetails = networks.find(({ id }) => id === network.id)
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
+
+  const handleCopyAddress = () => {
+    Clipboard.setString(selectedAcc)
+    addToast(t('Address copied to clipboard!') as string, { timeout: 2000 })
+  }
 
   return (
     <Panel>
@@ -48,12 +56,16 @@ const DepositTokens = () => {
           symbol: networkDetails?.nativeAssetSymbol
         })}
       </Text>
-      <View style={styles.addressCopyContainer}>
+      <TouchableOpacity
+        style={styles.addressCopyContainer}
+        activeOpacity={0.7}
+        onPress={handleCopyAddress}
+      >
         <Text numberOfLines={1} ellipsizeMode="middle" style={[spacings.prTy, flexboxStyles.flex1]}>
           {selectedAcc}
         </Text>
         <MaterialIcons name="content-copy" size={22} color={colors.primaryIconColor} />
-      </View>
+      </TouchableOpacity>
       <View style={[flexboxStyles.alignCenter, spacings.ptSm, spacings.pbLg]}>
         {!!selectedAcc && !qrCodeError && (
           <QRCode
