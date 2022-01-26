@@ -16,9 +16,10 @@ const CELL_COUNT = 6
 
 interface Props extends Partial<CodeFieldProps> {
   onFulfill: (code: string) => void
+  enableMask?: boolean
 }
 
-const CodeInput: React.FC<Props> = ({ onFulfill, ...rest }) => {
+const CodeInput: React.FC<Props> = ({ onFulfill, enableMask = true, ...rest }) => {
   const [value, setValue] = useState('')
   const ref = useBlurOnFulfill({ value, cellCount: CELL_COUNT })
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({
@@ -32,21 +33,31 @@ const CodeInput: React.FC<Props> = ({ onFulfill, ...rest }) => {
     }
   }, [value])
 
-  const renderCell: CodeFieldProps['renderCell'] = ({ index, symbol, isFocused }) => (
-    // React Native have issue with border styles for <Text/> on iOS.
-    // {@link https://github.com/facebook/react-native/issues/23537}
-    // To fix it need <View/> wrapper for Cell, but also move
-    // onLayout={getCellOnLayoutHandler(index) to <View/>:
-    <View
-      // Moves the onLayout={getCellOnLayoutHandler(index)} prop
-      // to root component of "Cell", because of the issue mentioned above.
-      onLayout={getCellOnLayoutHandler(index)}
-      key={index}
-      style={[styles.cellRoot, isFocused && styles.focusCell]}
-    >
-      <Text style={styles.cellText}>{symbol || (isFocused ? <Cursor /> : null)}</Text>
-    </View>
-  )
+  const renderCell: CodeFieldProps['renderCell'] = ({ index, symbol, isFocused }) => {
+    let textChild = null
+
+    if (symbol) {
+      textChild = enableMask ? '•' : symbol
+    } else if (isFocused) {
+      textChild = <Cursor />
+    }
+
+    return (
+      // React Native have issue with border styles for <Text/> on iOS.
+      // {@link https://github.com/facebook/react-native/issues/23537}
+      // To fix it need <View/> wrapper for Cell, but also move
+      // onLayout={getCellOnLayoutHandler(index) to <View/>:
+      <View
+        // Moves the onLayout={getCellOnLayoutHandler(index)} prop
+        // to root component of "Cell", because of the issue mentioned above.
+        onLayout={getCellOnLayoutHandler(index)}
+        key={index}
+        style={[styles.cellRoot, isFocused && styles.focusCell]}
+      >
+        <Text style={styles.cellText}>{textChild}</Text>
+      </View>
+    )
+  }
 
   return (
     <CodeField
