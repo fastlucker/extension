@@ -2,19 +2,23 @@ import React from 'react'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
-import usePasscode from '@modules/common/hooks/usePasscode'
+import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import { useNavigation } from '@react-navigation/native'
 
 const TransactionsSigning = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
-  const { isLoading } = usePasscode()
+  const { isLoading, selectedAccHasPassword } = useAccountsPasswords()
 
   if (isLoading) return null
 
   return (
     <Button
-      text={t('Transactions signing')}
+      text={
+        selectedAccHasPassword
+          ? t('Sign with passcode (enabled ✅)')
+          : t('Sign with passcode (disabled ❌)')
+      }
       onPress={() => navigation.navigate('transactions-signing')}
     />
   )

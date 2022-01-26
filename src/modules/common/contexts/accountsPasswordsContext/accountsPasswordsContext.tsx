@@ -5,12 +5,14 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import { SECURE_STORE_KEY_ACCOUNTS_PASSWORDS } from '@modules/settings/constants'
 
 type AccountsPasswordsContextData = {
+  isLoading: boolean
   selectedAccHasPassword: boolean
   addSelectedAccPassword: (password: string) => Promise<void>
   removeSelectedAccPassword: () => Promise<void>
 }
 
 const AccountsPasswordsContext = createContext<AccountsPasswordsContextData>({
+  isLoading: true,
   selectedAccHasPassword: false,
   addSelectedAccPassword: () => Promise.resolve(),
   removeSelectedAccPassword: () => Promise.resolve()
@@ -57,12 +59,8 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
   }
 
   const removeSelectedAccPassword = async () => {
-    const secureStoreItemAccountsPasswords = await SecureStore.getItemAsync(
-      SECURE_STORE_KEY_ACCOUNTS_PASSWORDS
-    )
-
     const nextPasswords = {
-      ...(secureStoreItemAccountsPasswords && JSON.parse(secureStoreItemAccountsPasswords)),
+      ...accountsPasswords,
       [selectedAcc]: ''
     }
 
@@ -79,6 +77,7 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
     <AccountsPasswordsContext.Provider
       value={useMemo(
         () => ({
+          isLoading,
           addSelectedAccPassword,
           selectedAccHasPassword,
           removeSelectedAccPassword
