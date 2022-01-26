@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native'
 
 const LocalAuth = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
+  const navigation: any = useNavigation()
   const { state, isLoading } = usePasscode()
 
   if (isLoading) return null

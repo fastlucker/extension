@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native'
 
 const PasscodeSign = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
+  const navigation: any = useNavigation()
   const { isLoading, selectedAccHasPassword } = useAccountsPasswords()
 
   if (isLoading) return null
