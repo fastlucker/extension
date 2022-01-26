@@ -148,7 +148,6 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				41E60EBCD02E58706EA136A8 /* [CP] Embed Pods Frameworks */,
 				E7AEC3EA09AA4CED1A43155A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
@@ -218,23 +217,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n\n# The project root by default is one level up from the ios directory\nexport PROJECT_ROOT=\"$PROJECT_DIR\"/..\n\n`node --print \"require('path').dirname(require.resolve('react-native/package.json')) + '/scripts/react-native-xcode.sh'\"`\n";
-		};
-		41E60EBCD02E58706EA136A8 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ambiremobilewallet/Pods-ambiremobilewallet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ambiremobilewallet/Pods-ambiremobilewallet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ambiremobilewallet/Pods-ambiremobilewallet-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		E7AEC3EA09AA4CED1A43155A /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

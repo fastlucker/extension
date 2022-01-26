@@ -2,7 +2,6 @@ import { Linking } from 'react-native'
 import url from 'url'
 
 import CONFIG from '@config/env'
-import RampSdk from '@ramp-network/react-native-sdk'
 
 const { RAMP_HOST_API_KEY, PAYTRIE_PARTNER_URL, TRANSAK_API_KEY, TRANSAK_ENV } = CONFIG
 
@@ -13,19 +12,9 @@ export const openRampNetwork = ({ walletAddress, selectedNetwork }: any) => {
     avalanche: 'AVAX_*',
     'binance-smart-chain': 'BSC_*,BSC_ERC20_*'
   }
-
-  const ramp = new RampSdk({
-    hostAppName: 'Ambire',
-    hostLogoUrl: 'https://www.ambire.com/ambire-logo.png',
-    hostApiKey: RAMP_HOST_API_KEY,
-    userAddress: walletAddress,
-    swapAsset: assetsList[selectedNetwork],
-    variant: 'auto'
-  }).on('*', (event) => {
-    console.log("RampSdk.on('*')", event)
-  })
-
-  ramp.show()
+  Linking.openURL(
+    `https://buy.ramp.network/?userAddress=${walletAddress}&hostApiKey=${RAMP_HOST_API_KEY}&swapAsset=${assetsList[selectedNetwork]}&finalUrl=ambire://&hostAppName=Ambire&hostLogoUrl=https://www.ambire.com/ambire-logo.png`
+  )
 }
 
 export const openPayTrie = ({ walletAddress, selectedNetwork }: any) => {
