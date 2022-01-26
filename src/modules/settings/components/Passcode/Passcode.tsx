@@ -15,7 +15,7 @@ const Passcode = () => {
 
   return state === PASSCODE_STATES.NO_PASSCODE ? (
     <Button
-      text={t('App passcode (not added ❎)')}
+      text={t('App passcode (not added ❌)')}
       onPress={() => navigation.navigate('passcode-change')}
     />
   ) : (
