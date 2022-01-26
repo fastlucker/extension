@@ -97,6 +97,7 @@ type PasscodeContextData = {
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL
   deviceSupportedAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
   deviceSupportedAuthTypesLabel: string
+  fallbackSupportedAuthTypesLabel: string
   removePasscode: () => Promise<void>
   addPasscode: (code: string) => Promise<void>
   isLoading: boolean
@@ -119,7 +120,8 @@ const PasscodeContext = createContext<PasscodeContextData>({
   state: PASSCODE_STATES.NO_PASSCODE,
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE,
   deviceSupportedAuthTypes: [],
-  deviceSupportedAuthTypesLabel: ''
+  deviceSupportedAuthTypesLabel: '',
+  fallbackSupportedAuthTypesLabel: ''
 })
 
 const PasscodeProvider: React.FC = ({ children }) => {
@@ -230,6 +232,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
     return isValid
   }
 
+  const fallbackSupportedAuthTypesLabel = Platform.select({
+    ios: i18n.t('passcode'),
+    android: i18n.t('PIN / pattern')
+  })
+
   return (
     <PasscodeContext.Provider
       value={useMemo(
@@ -245,7 +252,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
           state,
           deviceSecurityLevel,
           deviceSupportedAuthTypes,
-          deviceSupportedAuthTypesLabel
+          deviceSupportedAuthTypesLabel,
+          fallbackSupportedAuthTypesLabel
         }),
         [
           isLoading,
@@ -253,6 +261,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSecurityLevel,
           deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,
+          fallbackSupportedAuthTypesLabel,
           state
         ]
       )}

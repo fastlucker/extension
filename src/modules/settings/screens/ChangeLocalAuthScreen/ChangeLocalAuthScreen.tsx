@@ -20,7 +20,8 @@ const ChangeLocalAuthScreen = () => {
     state,
     removeLocalAuth,
     deviceSecurityLevel,
-    deviceSupportedAuthTypesLabel
+    deviceSupportedAuthTypesLabel,
+    fallbackSupportedAuthTypesLabel
   } = usePasscode()
 
   const handleEnable = async () => {
@@ -84,8 +85,8 @@ const ChangeLocalAuthScreen = () => {
       <>
         <P>
           {t(
-            'Enabling local authentication allows you to use your device configured {{deviceSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
-            { deviceSupportedAuthTypesLabel }
+            'Enabling local authentication allows you to use your {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
+            { deviceSupportedAuthTypesLabel, fallbackSupportedAuthTypesLabel }
           )}
         </P>
         {renderContent()}
