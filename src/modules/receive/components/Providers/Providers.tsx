@@ -73,21 +73,21 @@ const Providers = ({ walletAddress, networkDetails }: any) => {
               color={colors.secondaryTextColor}
               style={styles.descriptiveTextSpacing}
             >
-              Fees: {fees}
+              {t('Fees: {{fees}}', { fees })}
             </Text>
             <Text
               fontSize={14}
               color={colors.secondaryTextColor}
               style={styles.descriptiveTextSpacing}
             >
-              Limits: {limits}
+              {t('Limits: {{limits}}', { limits })}
             </Text>
             <Text
               fontSize={14}
               color={colors.secondaryTextColor}
               style={styles.descriptiveTextSpacing}
             >
-              Currencies: {currencies}
+              {t('Currencies: {{currencies}}', { currencies })}
             </Text>
           </View>
         </TouchableOpacity>

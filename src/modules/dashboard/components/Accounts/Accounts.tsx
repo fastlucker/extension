@@ -114,7 +114,7 @@ const Accounts = () => {
   return (
     <>
       <Panel>
-        <Title>Accounts</Title>
+        <Title>{t('Accounts')}</Title>
         <View style={[styles.accItemStyle, spacings.mb]} key={account?.id}>
           <TouchableOpacity onPress={sheetAccounts.openBottomSheet}>
             <Blockies seed={account?.id} />
