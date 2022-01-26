@@ -28,16 +28,16 @@ const App = () => {
               <PortfolioProvider>
                 <RequestsProvider>
                   <AddressBookProvider>
-                    <PasscodeProvider>
-                      <AccountsPasswordsProvider>
+                    <AccountsPasswordsProvider>
+                      <PasscodeProvider>
                         <PortalProvider>
                           <AttentionGrabberProvider>
                             <Router />
                           </AttentionGrabberProvider>
                           <PortalHost name="global" />
                         </PortalProvider>
-                      </AccountsPasswordsProvider>
-                    </PasscodeProvider>
+                      </PasscodeProvider>
+                    </AccountsPasswordsProvider>
                   </AddressBookProvider>
                 </RequestsProvider>
               </PortfolioProvider>
