@@ -7,12 +7,14 @@ import i18n from '@config/localization/localization'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import { SECURE_STORE_KEY_PASSCODE } from '@modules/settings/constants'
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export enum PASSCODE_STATES {
   NO_PASSCODE = 'NO_PASSCODE',
   PASSCODE_ONLY = 'PASSCODE_ONLY',
   PASSCODE_AND_LOCAL_AUTH = 'PASSCODE_AND_LOCAL_AUTH'
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export enum DEVICE_SECURITY_LEVEL {
   // Indicates no enrolled authentication
   NONE = LocalAuthentication.SecurityLevel.NONE,
@@ -22,6 +24,7 @@ export enum DEVICE_SECURITY_LEVEL {
   BIOMETRIC = LocalAuthentication.SecurityLevel.BIOMETRIC
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export enum DEVICE_SUPPORTED_AUTH_TYPES {
   FINGERPRINT = LocalAuthentication.AuthenticationType.FINGERPRINT,
   FACIAL_RECOGNITION = LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION,
@@ -199,13 +202,12 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const addPasscode = async (code: string) => {
     await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code)
     setPasscode(code)
-    if (state === PASSCODE_STATES.NO_PASSCODE)
-      setState(
-        // Covers the case coming from a state with passcode already set
-        state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-          ? PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-          : PASSCODE_STATES.PASSCODE_ONLY
-      )
+    setState(
+      // Covers the case coming from a state with passcode already set
+      state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+        ? PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+        : PASSCODE_STATES.PASSCODE_ONLY
+    )
   }
   const removePasscode = async () => {
     // First, remove the local auth (if set), because without passcode
