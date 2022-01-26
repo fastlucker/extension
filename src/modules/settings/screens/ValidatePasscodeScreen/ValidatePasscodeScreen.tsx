@@ -15,9 +15,7 @@ import textStyles from '@modules/common/styles/utils/text'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-interface Props extends NativeStackScreenProps<any> {
-  passcode: string
-}
+interface Props extends NativeStackScreenProps<any> {}
 
 const ValidatePasscodeScreen: React.FC<Props> = ({ route }) => {
   const { t } = useTranslation()
@@ -58,7 +56,11 @@ const ValidatePasscodeScreen: React.FC<Props> = ({ route }) => {
       <P style={[textStyles.center, spacings.mtLg]}>
         {t('In order to proceed, please authenticate by entering your passcode.')}
       </P>
-      {hasError && <P type={TEXT_TYPES.DANGER}>{t('Wrong passcode.')}</P>}
+      {hasError && (
+        <P type={TEXT_TYPES.DANGER} style={[textStyles.center, spacings.mb0]}>
+          {t('Wrong passcode.')}
+        </P>
+      )}
       <CodeInput
         focusable={state === PASSCODE_STATES.PASSCODE_ONLY}
         onFulfill={handleOnValidatePasscode}
