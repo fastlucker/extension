@@ -5,7 +5,7 @@ import Button from '@modules/common/components/Button'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import { useNavigation } from '@react-navigation/native'
 
-const TransactionsSigning = () => {
+const PasscodeSign = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { isLoading, selectedAccHasPassword } = useAccountsPasswords()
@@ -24,4 +24,4 @@ const TransactionsSigning = () => {
   )
 }
 
-export default TransactionsSigning
+export default PasscodeSign

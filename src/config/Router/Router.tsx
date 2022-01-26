@@ -17,8 +17,8 @@ import PendingTransactionsScreen from '@modules/pending-transactions/screens/Pen
 import SendScreen from '@modules/send/screens/SendScreen'
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
+import PasscodeSignScreen from '@modules/settings/screens/PasscodeSignScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
-import TransactionsSigningScreen from '@modules/settings/screens/TransactionsSigningScreen'
 import ValidatePasscodeScreen from '@modules/settings/screens/ValidatePasscodeScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -240,9 +240,9 @@ const SettingsStackScreen = () => {
       />
       <SettingsStack.Screen
         name="transactions-signing"
-        component={TransactionsSigningScreen}
+        component={PasscodeSignScreen}
         options={{
-          headerTitle: t('Transactions Signing')
+          headerTitle: t('Sign with Passcode')
         }}
       />
       <SettingsStack.Screen

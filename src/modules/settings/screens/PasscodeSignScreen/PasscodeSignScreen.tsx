@@ -17,7 +17,7 @@ interface FormValues {
   password: string
 }
 
-const TransactionsSigningScreen = () => {
+const PasscodeSignScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
@@ -113,4 +113,4 @@ const TransactionsSigningScreen = () => {
   )
 }
 
-export default TransactionsSigningScreen
+export default PasscodeSignScreen
