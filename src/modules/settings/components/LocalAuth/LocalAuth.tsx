@@ -17,8 +17,8 @@ const LocalAuth = () => {
     <Button
       text={
         state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-          ? t('Disable local auth')
-          : t('Enable local auth')
+          ? t('Local auth (enabled ✅)')
+          : t('Local auth (not enabled ❌)')
       }
       onPress={() => navigation.navigate('local-auth-change')}
     />

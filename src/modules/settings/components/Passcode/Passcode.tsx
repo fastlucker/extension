@@ -15,12 +15,12 @@ const Passcode = () => {
 
   return state === PASSCODE_STATES.NO_PASSCODE ? (
     <Button
-      text={t('Create app passcode')}
+      text={t('App passcode (not added ❎)')}
       onPress={() => navigation.navigate('passcode-change')}
     />
   ) : (
     <Button
-      text={t('Change app passcode')}
+      text={t('App passcode (added ✅)')}
       onPress={() => navigation.navigate('passcode-validate', { redirectRoute: 'passcode-change' })}
     />
   )
