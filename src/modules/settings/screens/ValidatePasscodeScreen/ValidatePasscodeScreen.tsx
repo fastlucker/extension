@@ -20,8 +20,14 @@ interface Props extends NativeStackScreenProps<any> {}
 const ValidatePasscodeScreen: React.FC<Props> = ({ route }) => {
   const { t } = useTranslation()
   const navigation = useNavigation()
-  const { isValidPasscode, isLoading, isValidLocalAuth, state, deviceSupportedAuthTypesLabel } =
-    usePasscode()
+  const {
+    isValidPasscode,
+    isLoading,
+    isValidLocalAuth,
+    state,
+    deviceSupportedAuthTypesLabel,
+    fallbackSupportedAuthTypesLabel
+  } = usePasscode()
   const [hasValidPasscode, setHasValidPasscode] = useState<null | boolean>(null)
 
   const handleOnValidateLocalAuth = async () => {
@@ -69,9 +75,13 @@ const ValidatePasscodeScreen: React.FC<Props> = ({ route }) => {
         <>
           <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
           <P style={textStyles.center}>
-            {t('Authenticate with your device {{ deviceSupportedAuthTypesLabel }}.', {
-              deviceSupportedAuthTypesLabel
-            })}
+            {t(
+              'Authenticate with {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}}.',
+              {
+                deviceSupportedAuthTypesLabel,
+                fallbackSupportedAuthTypesLabel
+              }
+            )}
           </P>
           <Button text={t('Authenticate')} onPress={handleOnValidateLocalAuth} />
         </>
