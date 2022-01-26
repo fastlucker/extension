@@ -8,7 +8,6 @@ import P from '@modules/common/components/P'
 import { TEXT_TYPES } from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext'
-import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
@@ -22,9 +21,9 @@ const TransactionsSigningScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
-  const { selectedAcc } = useAccounts()
   const { state } = usePasscode()
-  const { addAccountPassword, selectedAccHasPassword } = useAccountsPasswords()
+  const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
+    useAccountsPasswords()
   const {
     control,
     handleSubmit,
@@ -36,12 +35,13 @@ const TransactionsSigningScreen = () => {
   })
 
   const handleEnable = async ({ password }: FormValues) => {
-    await addAccountPassword(selectedAcc, password)
+    await addSelectedAccPassword(password)
     addToast(t('Enabled!') as string, { timeout: 2000 })
   }
 
   const handleDisable = async () => {
-    // TODO.
+    await removeSelectedAccPassword()
+    addToast(t('Disabled!') as string, { timeout: 2000 })
   }
 
   const renderContent = () => {

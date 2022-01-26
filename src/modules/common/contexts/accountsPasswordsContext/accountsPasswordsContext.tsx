@@ -6,12 +6,14 @@ import { SECURE_STORE_KEY_ACCOUNTS_PASSWORDS } from '@modules/settings/constants
 
 type AccountsPasswordsContextData = {
   selectedAccHasPassword: boolean
-  addAccountPassword: (accountId: string, password: string) => Promise<boolean>
+  addSelectedAccPassword: (password: string) => Promise<void>
+  removeSelectedAccPassword: () => Promise<void>
 }
 
 const AccountsPasswordsContext = createContext<AccountsPasswordsContextData>({
   selectedAccHasPassword: false,
-  addAccountPassword: () => Promise.resolve(false)
+  addSelectedAccPassword: () => Promise.resolve(),
+  removeSelectedAccPassword: () => Promise.resolve()
 })
 
 const AccountsPasswordsProvider: React.FC = ({ children }) => {
@@ -35,14 +37,14 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
     })()
   }, [])
 
-  const addAccountPassword = async (accountId: string, password: string) => {
+  const addSelectedAccPassword = async (password: string) => {
     const secureStoreItemAccountsPasswords = await SecureStore.getItemAsync(
       SECURE_STORE_KEY_ACCOUNTS_PASSWORDS
     )
 
     const nextPasswords = {
       ...(secureStoreItemAccountsPasswords && JSON.parse(secureStoreItemAccountsPasswords)),
-      [accountId]: password
+      [selectedAcc]: password
     }
 
     setAccountsPasswords(nextPasswords)
@@ -51,16 +53,35 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
       JSON.stringify(nextPasswords)
     )
 
-    setSelectedAccHasPassword(true)
-    return true
+    return setSelectedAccHasPassword(true)
+  }
+
+  const removeSelectedAccPassword = async () => {
+    const secureStoreItemAccountsPasswords = await SecureStore.getItemAsync(
+      SECURE_STORE_KEY_ACCOUNTS_PASSWORDS
+    )
+
+    const nextPasswords = {
+      ...(secureStoreItemAccountsPasswords && JSON.parse(secureStoreItemAccountsPasswords)),
+      [selectedAcc]: ''
+    }
+
+    setAccountsPasswords(nextPasswords)
+    await SecureStore.setItemAsync(
+      SECURE_STORE_KEY_ACCOUNTS_PASSWORDS,
+      JSON.stringify(nextPasswords)
+    )
+
+    return setSelectedAccHasPassword(false)
   }
 
   return (
     <AccountsPasswordsContext.Provider
       value={useMemo(
         () => ({
-          addAccountPassword,
-          selectedAccHasPassword
+          addSelectedAccPassword,
+          selectedAccHasPassword,
+          removeSelectedAccPassword
         }),
         [isLoading, selectedAccHasPassword]
       )}
