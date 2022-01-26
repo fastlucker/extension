@@ -83,7 +83,7 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
           selectedAccHasPassword,
           removeSelectedAccPassword
         }),
-        [isLoading, selectedAccHasPassword]
+        [isLoading, selectedAccHasPassword, selectedAcc]
       )}
     >
       {children}
