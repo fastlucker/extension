@@ -16,8 +16,8 @@ const TransactionsSigning = () => {
     <Button
       text={
         selectedAccHasPassword
-          ? t('Sign with passcode (enabled ✅)')
-          : t('Sign with passcode (disabled ❌)')
+          ? t('Passcode sign (enabled ✅)')
+          : t('Passcode sign (not enabled ❌)')
       }
       onPress={() => navigation.navigate('transactions-signing')}
     />
