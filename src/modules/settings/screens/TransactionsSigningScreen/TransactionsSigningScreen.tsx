@@ -36,12 +36,16 @@ const TransactionsSigningScreen = () => {
 
   const handleEnable = async ({ password }: FormValues) => {
     await addSelectedAccPassword(password)
-    addToast(t('Enabled!') as string, { timeout: 2000 })
+    addToast(t('Passcode sign enabled!') as string, { timeout: 3000 })
+
+    navigation.navigate('settings')
   }
 
   const handleDisable = async () => {
     await removeSelectedAccPassword()
-    addToast(t('Disabled!') as string, { timeout: 2000 })
+    addToast(t('Passcode sign disabled!') as string, { timeout: 3000 })
+
+    navigation.navigate('settings')
   }
 
   const renderContent = () => {
