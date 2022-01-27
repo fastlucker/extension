@@ -7,6 +7,7 @@ interface Styles {
   alignSelfCenter: ViewStyle
   alignCenter: ViewStyle
   justifyCenter: ViewStyle
+  wrap: ViewStyle
 }
 
 const flexboxStyles = StyleSheet.create<Styles>({
@@ -28,6 +29,9 @@ const flexboxStyles = StyleSheet.create<Styles>({
   },
   alignSelfCenter: {
     alignSelf: 'center'
+  },
+  wrap: {
+    flexWrap: 'wrap'
   }
 })
 

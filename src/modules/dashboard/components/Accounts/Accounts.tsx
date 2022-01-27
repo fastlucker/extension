@@ -25,7 +25,7 @@ import styles from './styles'
 
 const Accounts = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
+  const navigation: any = useNavigation()
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
   const { network, setNetwork, allNetworks } = useNetwork()
   const sheetNetworks = useBottomSheet()
@@ -54,6 +54,8 @@ const Accounts = () => {
   }
 
   const handleGoToSend = () => navigation.navigate('send-tab')
+
+  const handleGoToReceive = () => navigation.navigate('receive')
 
   const account = accounts.find(({ id }) => id === selectedAcc)
   const { name: networkName, Icon: NetworkIcon } = network || {}
@@ -112,7 +114,7 @@ const Accounts = () => {
   return (
     <>
       <Panel>
-        <Title>Accounts</Title>
+        <Title>{t('Accounts')}</Title>
         <View style={[styles.accItemStyle, spacings.mb]} key={account?.id}>
           <TouchableOpacity onPress={sheetAccounts.openBottomSheet}>
             <Blockies seed={account?.id} />
@@ -140,7 +142,7 @@ const Accounts = () => {
               size={25}
               name="content-copy"
               color={colors.textColor}
-              style={spacings.mbTy}
+              style={spacings.mbMi}
             />
             <Text fontSize={14} style={textStyles.bold}>
               {t('Copy address')}
@@ -152,8 +154,7 @@ const Accounts = () => {
               {t('Send')}
             </Text>
           </TouchableOpacity>
-          {/* TODO: Navigate to Receive / Deposit screen */}
-          <TouchableOpacity disabled style={styles.actionsContainerItem}>
+          <TouchableOpacity style={styles.actionsContainerItem} onPress={handleGoToReceive}>
             <MaterialIcons name="file-download" size={25} color={colors.textColor} />
             <Text fontSize={14} style={textStyles.bold}>
               {t('Receive')}

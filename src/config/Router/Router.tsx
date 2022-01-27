@@ -14,6 +14,7 @@ import colors from '@modules/common/styles/colors'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
+import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
@@ -89,6 +90,7 @@ const DashboardStackScreen = () => {
         options={{ title: t('Login') }}
         component={QRCodeLoginScreen}
       />
+      <Stack.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
     </DashboardStack.Navigator>
   )
 }
