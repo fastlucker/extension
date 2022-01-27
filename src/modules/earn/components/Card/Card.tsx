@@ -32,7 +32,7 @@ const Card = ({
   const [amount, setAmount] = useState<any>(0)
   const [disabled, setDisabled] = useState<any>(true)
 
-  const currentToken = tokens.find(({ value }: any) => value === token)
+  const currentToken = tokens.find(({ address }: any) => address === token)
 
   // Sort tokens items by balance
   const getEquToken = useCallback(
@@ -85,7 +85,7 @@ const Card = ({
 
   useEffect(() => {
     if (assetsItems.length && !token) setToken(assetsItems[0]?.value)
-  }, [assetsItems])
+  }, [assetsItems, segment])
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
@@ -120,7 +120,7 @@ const Card = ({
           {!disabled ? (
             <View style={[spacings.mbMd]}>
               {details.map(([type, value]: any) => (
-                <View style={[spacings.mbMi, flexboxStyles.directionRow]}>
+                <View key={type + value} style={[spacings.mbMi, flexboxStyles.directionRow]}>
                   <Text style={[textStyles.bold, flexboxStyles.flex1]}>{type}</Text>
                   <Text>{value}</Text>
                 </View>

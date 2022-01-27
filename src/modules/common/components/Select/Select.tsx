@@ -43,6 +43,7 @@ const Select = ({
         value={value}
         items={items}
         setOpen={setOpen}
+        itemKey="label"
         // @ts-ignore
         setValue={setValue}
         onChangeValue={onChangeValue}

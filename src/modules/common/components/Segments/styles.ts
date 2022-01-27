@@ -1,7 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
 
 interface Style {
   container: ViewStyle

@@ -39,8 +39,8 @@ const Segments = ({ defaultValue, segments, onChange }: Props) => {
     <View style={styles.container}>
       {segments.map((segment) => (
         <TouchableOpacity
-          style={[styles.segment, segment.value === value && styles.active]}
           key={segment.value}
+          style={[styles.segment, segment.value === value && styles.active]}
           onPress={() => setSegment(segment.value)}
         >
           {!!segment.icon && segment.icon}

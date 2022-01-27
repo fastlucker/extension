@@ -1,12 +1,10 @@
 import React from 'react'
 import { ActivityIndicator, View } from 'react-native'
 
-import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import AAVECard from '@modules/earn/components/AAVECard/AAVECard'
-
-import styles from './styles'
+import YearnCard from '@modules/earn/components/YearnCard'
 
 const EarnScreen = () => {
   const { isBalanceLoading } = usePortfolio()
@@ -17,6 +15,7 @@ const EarnScreen = () => {
       {!isBalanceLoading && (
         <View>
           <AAVECard />
+          <YearnCard />
         </View>
       )}
     </Wrapper>
