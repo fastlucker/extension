@@ -8,7 +8,7 @@
     "ios": {
       "bundleIdentifier": "com.ambire.wallet",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "This app uses Face ID to allow user to authenticate and sign transactions easier, as an alternative to using his account password."
+        "NSFaceIDUsageDescription": "Allow Ambire Wallet to use FaceID so you can authenticate and sign transactions easier as an alternative to using your account password."
       }
     },
     "android": {

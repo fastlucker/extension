@@ -65,6 +65,6 @@
       </dict>
     </array>
     <key>NSFaceIDUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to use FaceID</string>
+    <string>Allow $(PRODUCT_NAME) to use FaceID so you can authenticate and sign transactions easier as an alternative to using your account password.</string>
   </dict>
 </plist>
