@@ -1,6 +1,8 @@
 import React from 'react'
 import { ColorValue, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
 
+import spacings from '@modules/common/styles/spacings'
+
 import styles from './styles'
 
 interface Props extends TouchableOpacityProps {
@@ -8,6 +10,7 @@ interface Props extends TouchableOpacityProps {
   type?: BUTTON_TYPES
   size?: BUTTON_SIZES
   accentColor?: ColorValue
+  hasBottomSpacing?: boolean
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -52,6 +55,7 @@ const Button = ({
   text,
   style = {},
   disabled = false,
+  hasBottomSpacing = true,
   ...rest
 }: Props) => (
   <TouchableOpacity
@@ -62,7 +66,8 @@ const Button = ({
       containerStylesSizes[size],
       disabled && styles.disabled,
       style,
-      !!accentColor && { borderColor: accentColor }
+      !!accentColor && { borderColor: accentColor },
+      !hasBottomSpacing && spacings.mb0
     ]}
     {...rest}
   >

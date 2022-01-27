@@ -21,6 +21,7 @@ export interface InputProps extends TextInputProps {
   label?: string
   buttonText?: string
   onButtonPress?: () => void
+  disabled?: boolean
 }
 
 const Input = ({
@@ -30,6 +31,7 @@ const Input = ({
   onBlur = () => {},
   onFocus = () => {},
   onButtonPress = () => {},
+  disabled,
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
@@ -46,7 +48,7 @@ const Input = ({
   const hasButton = !!buttonText
 
   return (
-    <View style={styles.inputContainer}>
+    <View style={[styles.inputContainer, disabled && styles.disabled]}>
       {!!label && <Text style={styles.label}>{label}</Text>}
       <View style={flexboxStyles.directionRow}>
         <TextInput
@@ -54,6 +56,7 @@ const Input = ({
           style={[styles.input, isFocused && styles.focused, hasButton && spacings.pr0]}
           autoCapitalize="none"
           autoCorrect={false}
+          editable={!disabled}
           onBlur={handleOnBlur}
           onFocus={handleOnFocus}
           {...rest}
@@ -61,6 +64,7 @@ const Input = ({
         {hasButton && (
           <TouchableOpacity
             onPress={onButtonPress}
+            disabled={disabled}
             style={[styles.button, isFocused && styles.focused]}
           >
             <Text style={textStyles.bold}>{buttonText}</Text>
