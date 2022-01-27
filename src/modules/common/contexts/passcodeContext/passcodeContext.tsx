@@ -8,6 +8,7 @@ import i18n from '@config/localization/localization'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
 import { SECURE_STORE_KEY_PASSCODE } from '@modules/settings/constants'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum PASSCODE_STATES {
@@ -172,9 +173,22 @@ const PasscodeProvider: React.FC = ({ children }) => {
       }
 
       try {
-        const isEnrolled = await LocalAuthentication.isEnrolledAsync()
-        if (isEnrolled) {
-          setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+        // For Android, simply use the `isEnrolledAsync` method,
+        // that persists if local auth is active.
+        if (Platform.OS === 'android') {
+          const isEnrolledAndroid = await LocalAuthentication.isEnrolledAsync()
+          if (isEnrolledAndroid) {
+            setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+          }
+        }
+
+        // For iOS, the local auth state is not persisted. Therefore,
+        // pull an additional flag that indicates if local auth is active.
+        if (Platform.OS === 'ios') {
+          const iOSisLocalAuthActivated = await AsyncStorage.getItem('iOSisLocalAuthActivated')
+          if (iOSisLocalAuthActivated) {
+            setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+          }
         }
       } catch (e) {
         // fail silently
@@ -215,6 +229,12 @@ const PasscodeProvider: React.FC = ({ children }) => {
     try {
       const { success } = await LocalAuthentication.authenticateAsync()
 
+      // For iOS, the local auth state is not persisted. Therefore,
+      // store additional flag that indicates local auth is active.
+      if (Platform.OS === 'ios') {
+        await AsyncStorage.setItem('iOSisLocalAuthActivated', 'true')
+      }
+
       if (success) {
         setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
       }
@@ -226,7 +246,15 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }
   const removeLocalAuth = async () => {
     try {
-      await LocalAuthentication.cancelAuthenticate()
+      if (Platform.OS === 'android') {
+        await LocalAuthentication.cancelAuthenticate()
+      }
+
+      // For iOS, the local auth state is not persisted. Therefore,
+      // store additional flag that indicates local auth is active.
+      if (Platform.OS === 'ios') {
+        await AsyncStorage.removeItem('iOSisLocalAuthActivated')
+      }
 
       setState(PASSCODE_STATES.PASSCODE_ONLY)
     } catch (e) {
@@ -328,7 +356,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
-          state
+          state,
+          // By including this, when calling the `removePasscode` method,
+          // it makes the `useAccountsPasswords` context re-render too.
+          selectedAccHasPassword
         ]
       )}
     >
