@@ -101,8 +101,8 @@ type PasscodeContextData = {
   deviceSupportedAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
   deviceSupportedAuthTypesLabel: string
   fallbackSupportedAuthTypesLabel: string
-  removePasscode: () => Promise<void>
   addPasscode: (code: string) => Promise<void>
+  removePasscode: () => Promise<void>
   isLoading: boolean
   isValidPasscode: (code: string) => boolean
   isLocalAuthSupported: null | boolean
@@ -111,71 +111,97 @@ type PasscodeContextData = {
   isValidLocalAuth: () => Promise<boolean>
 }
 
-const PasscodeContext = createContext<PasscodeContextData>({
-  removePasscode: () => Promise.resolve(),
+const defaults: PasscodeContextData = {
+  state: PASSCODE_STATES.NO_PASSCODE,
+  deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE,
+  deviceSupportedAuthTypes: [],
+  deviceSupportedAuthTypesLabel: '',
+  fallbackSupportedAuthTypesLabel: '',
   addPasscode: () => Promise.resolve(),
+  removePasscode: () => Promise.resolve(),
   isLoading: true,
   isValidPasscode: () => false,
   isLocalAuthSupported: null,
   addLocalAuth: () => {},
   removeLocalAuth: () => {},
-  isValidLocalAuth: () => Promise.resolve(false),
-  state: PASSCODE_STATES.NO_PASSCODE,
-  deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE,
-  deviceSupportedAuthTypes: [],
-  deviceSupportedAuthTypesLabel: '',
-  fallbackSupportedAuthTypesLabel: ''
-})
+  isValidLocalAuth: () => Promise.resolve(false)
+}
+
+const PasscodeContext = createContext<PasscodeContextData>(defaults)
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
-  const [state, setState] = useState<PASSCODE_STATES>(PASSCODE_STATES.NO_PASSCODE)
+  const [state, setState] = useState<PASSCODE_STATES>(defaults.state)
   const [deviceSecurityLevel, setDeviceSecurityLevel] = useState<DEVICE_SECURITY_LEVEL>(
-    DEVICE_SECURITY_LEVEL.NONE
+    defaults.deviceSecurityLevel
   )
   const [deviceSupportedAuthTypes, setDeviceSupportedAuthTypes] = useState<
     DEVICE_SUPPORTED_AUTH_TYPES[]
-  >([])
-  const [deviceSupportedAuthTypesLabel, setDeviceSupportedAuthTypesLabel] = useState<string>('')
+  >(defaults.deviceSupportedAuthTypes)
+  const [deviceSupportedAuthTypesLabel, setDeviceSupportedAuthTypesLabel] = useState<string>(
+    defaults.deviceSupportedAuthTypesLabel
+  )
   const [passcode, setPasscode] = useState<null | string>(null)
-  const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(
+    defaults.isLocalAuthSupported
+  )
+  const [isLoading, setIsLoading] = useState<boolean>(defaults.isLoading)
 
   useEffect(() => {
     ;(async () => {
       // Check if hardware supports local authentication
-      const isCompatible = await LocalAuthentication.hasHardwareAsync()
-      setIsLocalAuthSupported(isCompatible)
-
-      const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE)
-      if (secureStoreItemPasscode) {
-        setPasscode(secureStoreItemPasscode)
-        setState(PASSCODE_STATES.PASSCODE_ONLY)
+      try {
+        const isCompatible = await LocalAuthentication.hasHardwareAsync()
+        setIsLocalAuthSupported(isCompatible)
+      } catch (e) {
+        // fail silently
       }
 
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync()
-      if (isEnrolled) {
-        setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+      try {
+        const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE)
+        if (secureStoreItemPasscode) {
+          setPasscode(secureStoreItemPasscode)
+          setState(PASSCODE_STATES.PASSCODE_ONLY)
+        }
+      } catch (e) {
+        // fail silently
       }
 
-      const securityLevel = await LocalAuthentication.getEnrolledLevelAsync()
-      const existingDeviceSecurityLevel =
-        // @ts-ignore `LocalAuthentication.SecurityLevel` and `DEVICE_SECURITY_LEVEL`
-        // overlap each other. So this should match.
-        Object.values(DEVICE_SECURITY_LEVEL).includes(securityLevel)
-      setDeviceSecurityLevel(
-        // @ts-ignore `LocalAuthentication.SecurityLevel` and `DEVICE_SECURITY_LEVEL`
-        // overlap each other. So this should always result a valid setting.
-        existingDeviceSecurityLevel ? securityLevel : DEVICE_SECURITY_LEVEL.NONE
-      )
+      try {
+        const isEnrolled = await LocalAuthentication.isEnrolledAsync()
+        if (isEnrolled) {
+          setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+        }
+      } catch (e) {
+        // fail silently
+      }
 
-      const deviceAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync()
-      // @ts-ignore `LocalAuthentication.AuthenticationType` and `DEVICE_SUPPORTED_AUTH_TYPES`
-      // overlap each other. So these should match.
-      setDeviceSupportedAuthTypes(deviceAuthTypes)
-      // @ts-ignore `LocalAuthentication.AuthenticationType` and `DEVICE_SUPPORTED_AUTH_TYPES`
-      // overlap each other. So these should match.
-      setDeviceSupportedAuthTypesLabel(getDeviceSupportedAuthTypesLabel(deviceAuthTypes))
+      try {
+        const securityLevel = await LocalAuthentication.getEnrolledLevelAsync()
+        const existingDeviceSecurityLevel =
+          // @ts-ignore `LocalAuthentication.SecurityLevel` and `DEVICE_SECURITY_LEVEL`
+          // overlap each other. So this should match.
+          Object.values(DEVICE_SECURITY_LEVEL).includes(securityLevel)
+        setDeviceSecurityLevel(
+          // @ts-ignore `LocalAuthentication.SecurityLevel` and `DEVICE_SECURITY_LEVEL`
+          // overlap each other. So this should always result a valid setting.
+          existingDeviceSecurityLevel ? securityLevel : DEVICE_SECURITY_LEVEL.NONE
+        )
+      } catch (e) {
+        // fail silently
+      }
+
+      try {
+        const deviceAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync()
+        // @ts-ignore `LocalAuthentication.AuthenticationType` and `DEVICE_SUPPORTED_AUTH_TYPES`
+        // overlap each other. So these should match.
+        setDeviceSupportedAuthTypes(deviceAuthTypes)
+        // @ts-ignore `LocalAuthentication.AuthenticationType` and `DEVICE_SUPPORTED_AUTH_TYPES`
+        // overlap each other. So these should match.
+        setDeviceSupportedAuthTypesLabel(getDeviceSupportedAuthTypesLabel(deviceAuthTypes))
+      } catch (e) {
+        // fail silently
+      }
 
       setIsLoading(false)
     })()
@@ -234,10 +260,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
     return isValid
   }
 
-  const fallbackSupportedAuthTypesLabel = Platform.select({
-    ios: i18n.t('passcode'),
-    android: i18n.t('PIN / pattern')
-  })
+  const fallbackSupportedAuthTypesLabel =
+    Platform.select({
+      ios: i18n.t('passcode'),
+      android: i18n.t('PIN / pattern')
+    }) || defaults.fallbackSupportedAuthTypesLabel
 
   return (
     <PasscodeContext.Provider
