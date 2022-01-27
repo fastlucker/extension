@@ -230,7 +230,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
       setState(PASSCODE_STATES.PASSCODE_ONLY)
     } catch (e) {
-      addToast(t('Disabling local auth failed.') as string, {
+      addToast(t('Local auth got disabled, but this setting failed to save.') as string, {
         error: true
       })
     }
