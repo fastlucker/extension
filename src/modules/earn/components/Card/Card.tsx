@@ -32,7 +32,10 @@ const Card = ({
   const [amount, setAmount] = useState<any>(0)
   const [disabled, setDisabled] = useState<any>(true)
 
-  const currentToken = tokens.find(({ address }: any) => address === token)
+  const currentToken = useMemo(
+    () => tokens.find(({ value }: any) => value === token),
+    [token, tokens]
+  )
 
   // Sort tokens items by balance
   const getEquToken = useCallback(
@@ -77,15 +80,19 @@ const Card = ({
     setDisabled(!token || !tokens.length)
   }, [token, onTokenSelect, tokens.length])
 
-  const assetsItems = tokens.map(({ label, symbol, address, img, tokenImageUrl }: any) => ({
-    label: label || symbol,
-    value: address,
-    icon: () => <Image source={{ uri: img || tokenImageUrl }} style={{ width: 30, height: 30 }} />
-  }))
+  const assetsItems = useMemo(
+    () =>
+      tokens.map(({ label, symbol, value, icon }: any) => ({
+        label: label || symbol,
+        value,
+        icon: () => <Image source={{ uri: icon }} style={{ width: 30, height: 30 }} />
+      })),
+    [tokens]
+  )
 
   useEffect(() => {
     if (assetsItems.length && !token) setToken(assetsItems[0]?.value)
-  }, [assetsItems, segment])
+  }, [assetsItems])
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
@@ -97,6 +104,10 @@ const Card = ({
       </Text>
     </View>
   )
+
+  useEffect(() => {
+    if (loading) setToken(null)
+  }, [loading])
 
   return (
     <Panel>

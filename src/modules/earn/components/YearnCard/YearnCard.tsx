@@ -83,7 +83,7 @@ const YearnCard = () => {
       return {
         vaultAddress: address,
         apy: formattedAPY,
-        img: displayIcon,
+        icon: displayIcon,
         value: address,
         token: {
           address: token,
