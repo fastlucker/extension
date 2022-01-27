@@ -55,7 +55,7 @@ const ChangePasscodeScreen: React.FC = () => {
   return (
     <Wrapper>
       {renderContent()}
-      <CodeInput onFulfill={handleOnFulfill} />
+      <CodeInput autoFocus onFulfill={handleOnFulfill} />
       {state !== PASSCODE_STATES.NO_PASSCODE && (
         <>
           <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
