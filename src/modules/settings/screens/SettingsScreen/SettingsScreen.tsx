@@ -6,8 +6,8 @@ import Passcode from '@modules/settings/components/Passcode'
 import PasscodeSign from '@modules/settings/components/PasscodeSign'
 
 const SettingsScreen = () => {
+  // TODO: Option to change the app language, when a second one gets introduced.
   // const { t, i18n } = useTranslation()
-
   // const handleChangeLanguage = () => {
   //   changeLanguage(i18n.language === Locale.BG ? Locale.EN : Locale.BG)
   // }
@@ -17,15 +17,6 @@ const SettingsScreen = () => {
       <Passcode />
       <LocalAuth />
       <PasscodeSign />
-
-      {/* {!isProd && (
-        <Button
-          title={t('Change language to {{nextLang}}', {
-            nextLang: i18n.language === Locale.BG ? t('English') : t('Bulgarian')
-          })}
-          onPress={handleChangeLanguage}
-        />
-      )} */}
     </Wrapper>
   )
 }
