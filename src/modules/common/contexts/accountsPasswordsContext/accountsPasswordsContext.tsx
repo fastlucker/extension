@@ -1,7 +1,9 @@
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
+import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useToast from '@modules/common/hooks/useToast'
 import { SECURE_STORE_KEY_ACCOUNTS_PASSWORDS } from '@modules/settings/constants'
 
 type AccountsPasswordsContextData = {
@@ -19,6 +21,8 @@ const AccountsPasswordsContext = createContext<AccountsPasswordsContextData>({
 })
 
 const AccountsPasswordsProvider: React.FC = ({ children }) => {
+  const { addToast } = useToast()
+  const { t } = useTranslation()
   const { selectedAcc } = useAccounts()
   const [accountsPasswords, setAccountsPasswords] = useState<{ [accountId: string]: string }>({})
   const [selectedAccHasPassword, setSelectedAccHasPassword] = useState<boolean>(false)
@@ -26,13 +30,17 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     ;(async () => {
-      const secureStoreItemAccountsPasswords = await SecureStore.getItemAsync(
-        SECURE_STORE_KEY_ACCOUNTS_PASSWORDS
-      )
-      if (secureStoreItemAccountsPasswords) {
-        const passwords = JSON.parse(secureStoreItemAccountsPasswords) || {}
-        setAccountsPasswords(passwords)
-        setSelectedAccHasPassword(!!passwords[selectedAcc])
+      try {
+        const secureStoreItemAccountsPasswords = await SecureStore.getItemAsync(
+          SECURE_STORE_KEY_ACCOUNTS_PASSWORDS
+        )
+        if (secureStoreItemAccountsPasswords) {
+          const passwords = JSON.parse(secureStoreItemAccountsPasswords) || {}
+          setAccountsPasswords(passwords)
+          setSelectedAccHasPassword(!!passwords[selectedAcc])
+        }
+      } catch (e) {
+        // fail silently
       }
 
       setIsLoading(false)
@@ -40,22 +48,27 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
   }, [])
 
   const addSelectedAccPassword = async (password: string) => {
-    const secureStoreItemAccountsPasswords = await SecureStore.getItemAsync(
-      SECURE_STORE_KEY_ACCOUNTS_PASSWORDS
-    )
+    try {
+      const secureStoreItemAccountsPasswords = await SecureStore.getItemAsync(
+        SECURE_STORE_KEY_ACCOUNTS_PASSWORDS
+      )
 
-    const nextPasswords = {
-      ...(secureStoreItemAccountsPasswords && JSON.parse(secureStoreItemAccountsPasswords)),
-      [selectedAcc]: password
+      const nextPasswords = {
+        ...(secureStoreItemAccountsPasswords && JSON.parse(secureStoreItemAccountsPasswords)),
+        [selectedAcc]: password
+      }
+
+      await SecureStore.setItemAsync(
+        SECURE_STORE_KEY_ACCOUNTS_PASSWORDS,
+        JSON.stringify(nextPasswords)
+      )
+
+      setAccountsPasswords(nextPasswords)
+
+      return setSelectedAccHasPassword(true)
+    } catch (e) {
+      return addToast(t('Saving password was not successful.') as string, { error: true })
     }
-
-    setAccountsPasswords(nextPasswords)
-    await SecureStore.setItemAsync(
-      SECURE_STORE_KEY_ACCOUNTS_PASSWORDS,
-      JSON.stringify(nextPasswords)
-    )
-
-    return setSelectedAccHasPassword(true)
   }
 
   const removeSelectedAccPassword = async () => {
@@ -64,11 +77,16 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
       [selectedAcc]: ''
     }
 
+    try {
+      await SecureStore.setItemAsync(
+        SECURE_STORE_KEY_ACCOUNTS_PASSWORDS,
+        JSON.stringify(nextPasswords)
+      )
+    } catch (e) {
+      return addToast(t('Saving password was not successful.') as string, { error: true })
+    }
+
     setAccountsPasswords(nextPasswords)
-    await SecureStore.setItemAsync(
-      SECURE_STORE_KEY_ACCOUNTS_PASSWORDS,
-      JSON.stringify(nextPasswords)
-    )
 
     return setSelectedAccHasPassword(false)
   }

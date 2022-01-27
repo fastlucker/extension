@@ -3,8 +3,10 @@ import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { Platform, Vibration } from 'react-native'
 
+import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
+import useToast from '@modules/common/hooks/useToast'
 import { SECURE_STORE_KEY_PASSCODE } from '@modules/settings/constants'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -130,6 +132,8 @@ const defaults: PasscodeContextData = {
 const PasscodeContext = createContext<PasscodeContextData>(defaults)
 
 const PasscodeProvider: React.FC = ({ children }) => {
+  const { addToast } = useToast()
+  const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
   const [state, setState] = useState<PASSCODE_STATES>(defaults.state)
   const [deviceSecurityLevel, setDeviceSecurityLevel] = useState<DEVICE_SECURITY_LEVEL>(
@@ -208,21 +212,38 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }, [])
 
   const addLocalAuth = async () => {
-    const { success } = await LocalAuthentication.authenticateAsync()
+    try {
+      const { success } = await LocalAuthentication.authenticateAsync()
 
-    if (success) {
-      setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+      if (success) {
+        setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+      }
+    } catch (e) {
+      addToast(t('Enabling local auth failed.') as string, {
+        error: true
+      })
     }
   }
   const removeLocalAuth = async () => {
-    await LocalAuthentication.cancelAuthenticate()
+    try {
+      await LocalAuthentication.cancelAuthenticate()
 
-    setState(PASSCODE_STATES.PASSCODE_ONLY)
+      setState(PASSCODE_STATES.PASSCODE_ONLY)
+    } catch (e) {
+      addToast(t('Disabling local auth failed.') as string, {
+        error: true
+      })
+    }
   }
   const isValidLocalAuth = async () => {
-    const { success } = await LocalAuthentication.authenticateAsync()
+    try {
+      const { success } = await LocalAuthentication.authenticateAsync()
 
-    return success
+      return success
+    } catch (e) {
+      addToast(t('Authentication attempt failed.') as string, { error: true })
+      return false
+    }
   }
 
   const addPasscode = async (code: string) => {
@@ -246,22 +267,14 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const removePasscode = async () => {
     // First, remove the local auth (if set), because without passcode
     // using local auth is not allowed.
-    try {
-      if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
-        await removeLocalAuth()
-      }
-    } catch (e) {
-      // fail silently
+    if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
+      await removeLocalAuth()
     }
 
-    try {
-      // And remove the account password stored too, because without passcode,
-      // this is not allowed neither.
-      if (selectedAccHasPassword) {
-        await removeSelectedAccPassword()
-      }
-    } catch (e) {
-      // fail silently
+    // And remove the account password stored too, because without passcode,
+    // this is not allowed neither.
+    if (selectedAccHasPassword) {
+      await removeSelectedAccPassword()
     }
 
     try {
