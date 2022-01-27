@@ -13,20 +13,24 @@ type AccountsPasswordsContextData = {
   removeSelectedAccPassword: () => Promise<void>
 }
 
-const AccountsPasswordsContext = createContext<AccountsPasswordsContextData>({
+const defaults: AccountsPasswordsContextData = {
   isLoading: true,
   selectedAccHasPassword: false,
   addSelectedAccPassword: () => Promise.resolve(),
   removeSelectedAccPassword: () => Promise.resolve()
-})
+}
+
+const AccountsPasswordsContext = createContext<AccountsPasswordsContextData>(defaults)
 
 const AccountsPasswordsProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { selectedAcc } = useAccounts()
   const [accountsPasswords, setAccountsPasswords] = useState<{ [accountId: string]: string }>({})
-  const [selectedAccHasPassword, setSelectedAccHasPassword] = useState<boolean>(false)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [selectedAccHasPassword, setSelectedAccHasPassword] = useState<boolean>(
+    defaults.selectedAccHasPassword
+  )
+  const [isLoading, setIsLoading] = useState<boolean>(defaults.isLoading)
 
   useEffect(() => {
     ;(async () => {
