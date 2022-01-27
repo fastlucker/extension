@@ -265,22 +265,24 @@ const PasscodeProvider: React.FC = ({ children }) => {
     )
   }
   const removePasscode = async () => {
+    // Remove the account password stored, because without passcode,
+    // this is not allowed.
+    if (selectedAccHasPassword) {
+      await removeSelectedAccPassword()
+    }
+
     // First, remove the local auth (if set), because without passcode
     // using local auth is not allowed.
     if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
       await removeLocalAuth()
     }
 
-    // And remove the account password stored too, because without passcode,
-    // this is not allowed neither.
-    if (selectedAccHasPassword) {
-      await removeSelectedAccPassword()
-    }
-
     try {
       await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE)
     } catch (e) {
-      // fail silently
+      addToast(t('Passcode got removed, but this setting failed to save.') as string, {
+        error: true
+      })
     }
 
     setPasscode(null)
