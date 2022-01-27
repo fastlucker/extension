@@ -16,7 +16,7 @@ import { useNavigation } from '@react-navigation/native'
 
 const ChangePasscodeScreen: React.FC = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
+  const navigation: any = useNavigation()
   const { addToast } = useToast()
   const { state, removePasscode, addPasscode } = usePasscode()
 

@@ -226,7 +226,15 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }
 
   const addPasscode = async (code: string) => {
-    await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code)
+    try {
+      await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code)
+    } catch (e) {
+      // Fail silently. Means that will still set a passcode,
+      // however, it won't store it in the secure storage and therefore,
+      // on the next app load - the passcode won't be persisted.
+      // Not great, not terrible.
+    }
+
     setPasscode(code)
     setState(
       // Covers the case coming from a state with passcode already set
@@ -238,16 +246,30 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const removePasscode = async () => {
     // First, remove the local auth (if set), because without passcode
     // using local auth is not allowed.
-    if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
-      await removeLocalAuth()
-    }
-    // And remove the account password stored too, because without passcode,
-    // this is not allowed neither.
-    if (selectedAccHasPassword) {
-      await removeSelectedAccPassword()
+    try {
+      if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
+        await removeLocalAuth()
+      }
+    } catch (e) {
+      // fail silently
     }
 
-    await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE)
+    try {
+      // And remove the account password stored too, because without passcode,
+      // this is not allowed neither.
+      if (selectedAccHasPassword) {
+        await removeSelectedAccPassword()
+      }
+    } catch (e) {
+      // fail silently
+    }
+
+    try {
+      await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE)
+    } catch (e) {
+      // fail silently
+    }
+
     setPasscode(null)
 
     return setState(PASSCODE_STATES.NO_PASSCODE)
