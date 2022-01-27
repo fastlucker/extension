@@ -84,10 +84,15 @@ const ChangeLocalAuthScreen = () => {
     <Wrapper>
       <>
         <P>
-          {t(
-            'Enabling local authentication allows you to use your {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
-            { deviceSupportedAuthTypesLabel, fallbackSupportedAuthTypesLabel }
-          )}
+          {deviceSupportedAuthTypesLabel
+            ? t(
+                'Enabling local authentication allows you to use your {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
+                { deviceSupportedAuthTypesLabel, fallbackSupportedAuthTypesLabel }
+              )
+            : t(
+                'Enabling local authentication allows you to use your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
+                { fallbackSupportedAuthTypesLabel }
+              )}
         </P>
         {renderContent()}
       </>

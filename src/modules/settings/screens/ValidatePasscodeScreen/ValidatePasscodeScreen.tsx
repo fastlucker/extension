@@ -75,13 +75,17 @@ const ValidatePasscodeScreen: React.FC<Props> = ({ route }) => {
         <>
           <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
           <P style={textStyles.center}>
-            {t(
-              'Authenticate with {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}}.',
-              {
-                deviceSupportedAuthTypesLabel,
-                fallbackSupportedAuthTypesLabel
-              }
-            )}
+            {deviceSupportedAuthTypesLabel
+              ? t(
+                  'Authenticate with {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}}.',
+                  {
+                    deviceSupportedAuthTypesLabel,
+                    fallbackSupportedAuthTypesLabel
+                  }
+                )
+              : t('Authenticate with your phone {{fallbackSupportedAuthTypesLabel}}.', {
+                  fallbackSupportedAuthTypesLabel
+                })}
           </P>
           <Button text={t('Authenticate')} onPress={handleOnValidateLocalAuth} />
         </>
