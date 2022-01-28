@@ -5,6 +5,9 @@ import { Platform, Vibration } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
+import BottomSheet from '@modules/common/components/BottomSheet'
+import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
+import PasscodeAuth from '@modules/common/components/PasscodeAuth'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
 import { SECURE_STORE_KEY_PASSCODE } from '@modules/settings/constants'
@@ -112,6 +115,7 @@ type PasscodeContextData = {
   addLocalAuth: () => void
   removeLocalAuth: () => void
   isValidLocalAuth: () => Promise<boolean>
+  triggerPasscodeAuth: () => void
 }
 
 const defaults: PasscodeContextData = {
@@ -127,13 +131,15 @@ const defaults: PasscodeContextData = {
   isLocalAuthSupported: null,
   addLocalAuth: () => {},
   removeLocalAuth: () => {},
-  isValidLocalAuth: () => Promise.resolve(false)
+  isValidLocalAuth: () => Promise.resolve(false),
+  triggerPasscodeAuth: () => {}
 }
 
 const PasscodeContext = createContext<PasscodeContextData>(defaults)
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
+  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
   const [state, setState] = useState<PASSCODE_STATES>(defaults.state)
@@ -325,6 +331,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
     return isValid
   }
 
+  const triggerPasscodeAuth = () => openBottomSheet()
+
   const fallbackSupportedAuthTypesLabel =
     Platform.select({
       ios: i18n.t('passcode'),
@@ -347,7 +355,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSecurityLevel,
           deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,
-          fallbackSupportedAuthTypesLabel
+          fallbackSupportedAuthTypesLabel,
+          triggerPasscodeAuth
         }),
         [
           isLoading,
@@ -364,6 +373,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
       )}
     >
       {children}
+      <BottomSheet sheetRef={sheetRef} dynamicInitialHeight={false}>
+        {/* TODO: Wire-up success */}
+        <PasscodeAuth onSuccess={() => {}} />
+      </BottomSheet>
     </PasscodeContext.Provider>
   )
 }
