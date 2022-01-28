@@ -8,34 +8,13 @@ import i18n from '@config/localization/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import PasscodeAuth from '@modules/common/components/PasscodeAuth'
+import Text from '@modules/common/components/Text'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
 import { SECURE_STORE_KEY_PASSCODE } from '@modules/settings/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum PASSCODE_STATES {
-  NO_PASSCODE = 'NO_PASSCODE',
-  PASSCODE_ONLY = 'PASSCODE_ONLY',
-  PASSCODE_AND_LOCAL_AUTH = 'PASSCODE_AND_LOCAL_AUTH'
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum DEVICE_SECURITY_LEVEL {
-  // Indicates no enrolled authentication
-  NONE = LocalAuthentication.SecurityLevel.NONE,
-  // Indicates non-biometric authentication (e.g. PIN, Pattern).
-  SECRET = LocalAuthentication.SecurityLevel.SECRET,
-  // Indicates biometric authentication
-  BIOMETRIC = LocalAuthentication.SecurityLevel.BIOMETRIC
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum DEVICE_SUPPORTED_AUTH_TYPES {
-  FINGERPRINT = LocalAuthentication.AuthenticationType.FINGERPRINT,
-  FACIAL_RECOGNITION = LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION,
-  IRIS = LocalAuthentication.AuthenticationType.IRIS
-}
+import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
 
 const getDeviceSupportedAuthTypesLabel = (types: DEVICE_SUPPORTED_AUTH_TYPES[]) => {
   if (Platform.OS === 'ios') {
@@ -116,6 +95,7 @@ type PasscodeContextData = {
   removeLocalAuth: () => void
   isValidLocalAuth: () => Promise<boolean>
   triggerPasscodeAuth: () => void
+  isAuthenticated: boolean
 }
 
 const defaults: PasscodeContextData = {
@@ -132,14 +112,15 @@ const defaults: PasscodeContextData = {
   addLocalAuth: () => {},
   removeLocalAuth: () => {},
   isValidLocalAuth: () => Promise.resolve(false),
-  triggerPasscodeAuth: () => {}
+  triggerPasscodeAuth: () => {},
+  isAuthenticated: false
 }
 
 const PasscodeContext = createContext<PasscodeContextData>(defaults)
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
-  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const { sheetRef, openBottomSheet } = useBottomSheet()
   const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
   const [state, setState] = useState<PASSCODE_STATES>(defaults.state)
@@ -156,6 +137,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(
     defaults.isLocalAuthSupported
   )
+  const [isAuthenticated, setIsAuthenticated] = useState(defaults.isAuthenticated)
   const [isLoading, setIsLoading] = useState<boolean>(defaults.isLoading)
 
   useEffect(() => {
@@ -339,6 +321,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
       android: i18n.t('PIN / pattern')
     }) || defaults.fallbackSupportedAuthTypesLabel
 
+  const handleOnAuthenticateSuccess = () => setIsAuthenticated(true)
+
   return (
     <PasscodeContext.Provider
       value={useMemo(
@@ -356,7 +340,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
-          triggerPasscodeAuth
+          triggerPasscodeAuth,
+          isAuthenticated
         }),
         [
           isLoading,
@@ -366,6 +351,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
           state,
+          isAuthenticated,
           // By including this, when calling the `removePasscode` method,
           // it makes the `useAccountsPasswords` context re-render too.
           selectedAccHasPassword
@@ -374,8 +360,16 @@ const PasscodeProvider: React.FC = ({ children }) => {
     >
       {children}
       <BottomSheet sheetRef={sheetRef} dynamicInitialHeight={false}>
-        {/* TODO: Wire-up success */}
-        <PasscodeAuth onSuccess={() => {}} />
+        {/* TODO: Types. */}
+        <PasscodeAuth
+          onSuccess={handleOnAuthenticateSuccess}
+          isValidPasscode={isValidPasscode}
+          isLoading={isLoading}
+          isValidLocalAuth={isValidLocalAuth}
+          state={state}
+          deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}
+          fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}
+        />
       </BottomSheet>
     </PasscodeContext.Provider>
   )

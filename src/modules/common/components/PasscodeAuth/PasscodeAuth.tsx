@@ -5,25 +5,24 @@ import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
 import P from '@modules/common/components/P'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
-import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext'
-import usePasscode from '@modules/common/hooks/usePasscode'
+import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
 interface Props {
-  onSuccess: () => any
+  onSuccess: () => void
 }
 
-const PasscodeAuth: React.FC<Props> = ({ onSuccess }) => {
+const PasscodeAuth: React.FC<Props> = ({
+  onSuccess,
+  isValidPasscode,
+  isLoading,
+  isValidLocalAuth,
+  state,
+  deviceSupportedAuthTypesLabel,
+  fallbackSupportedAuthTypesLabel
+}) => {
   const { t } = useTranslation()
-  const {
-    isValidPasscode,
-    isLoading,
-    isValidLocalAuth,
-    state,
-    deviceSupportedAuthTypesLabel,
-    fallbackSupportedAuthTypesLabel
-  } = usePasscode()
   const [hasValidPasscode, setHasValidPasscode] = useState<null | boolean>(null)
 
   const handleOnValidateLocalAuth = async () => {
