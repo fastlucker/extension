@@ -11,6 +11,8 @@ import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
+import usePasscode from '@modules/common/hooks/usePasscode'
 import { isValidCode } from '@modules/common/services/validate'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -35,6 +37,9 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     }
   })
   const { t } = useTranslation()
+  const { selectedAccHasPassword } = useAccountsPasswords()
+  // TODO:isAuthenticated
+  const { triggerPasscodeAuth } = usePasscode()
   // reset this every time the signing status changes
   useEffect(
     // @ts-ignore
@@ -80,6 +85,14 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
 
   const isRecoveryMode =
     signingStatus && signingStatus.finalBundle && signingStatus.finalBundle.recoveryMode
+
+  const handleOnSign = () => {
+    if (selectedAccHasPassword) {
+      return triggerPasscodeAuth()
+    }
+
+    approveTxn()
+  }
 
   const onSubmit = (values: { code: string; password: string }) => {
     approveTxn({ quickAccCredentials: values })
@@ -163,7 +176,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
       <View style={styles.buttonsContainer}>
         {!!rejectTxn && <View style={styles.buttonWrapper}>{rejectButton}</View>}
         <View style={styles.buttonWrapper}>
-          <Button text={t('Sign')} onPress={approveTxn} disabled={!estimation || signingStatus} />
+          <Button text={t('Sign')} onPress={handleOnSign} disabled={!estimation || signingStatus} />
         </View>
       </View>
     </Panel>
