@@ -115,7 +115,9 @@ const Card = ({
         {!!Icon && <Icon />}
       </View>
       {!!loading && <ActivityIndicator />}
-      {!loading && !!unavailable && <Text>Unavailable on this Network</Text>}
+      {!loading && !!unavailable && (
+        <Text style={[textStyles.center, spacings.pvSm]}>Unavailable on this Network</Text>
+      )}
       {!loading && !unavailable && (
         <View>
           <View style={[spacings.mbSm, styles.selectWrapper]}>

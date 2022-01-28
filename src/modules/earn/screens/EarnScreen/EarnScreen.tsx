@@ -4,7 +4,7 @@ import { ActivityIndicator, View } from 'react-native'
 import Wrapper from '@modules/common/components/Wrapper'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import AAVECard from '@modules/earn/components/AAVECard/AAVECard'
-import YearnCard from '@modules/earn/components/YearnCard'
+import YearnTesseractCard from '@modules/earn/components/YearnTesseractCard'
 
 const EarnScreen = () => {
   const { isBalanceLoading } = usePortfolio()
@@ -15,7 +15,7 @@ const EarnScreen = () => {
       {!isBalanceLoading && (
         <View>
           <AAVECard />
-          <YearnCard />
+          <YearnTesseractCard />
         </View>
       )}
     </Wrapper>
