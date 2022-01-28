@@ -2,6 +2,7 @@ import { ethers } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, Image, View } from 'react-native'
 
+import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
@@ -31,6 +32,8 @@ const Card = ({
   const [token, setToken] = useState<any>()
   const [amount, setAmount] = useState<any>(0)
   const [disabled, setDisabled] = useState<any>(true)
+
+  const { t } = useTranslation()
 
   const currentToken = useMemo(
     () => tokens.find(({ value }: any) => value === token),
@@ -97,7 +100,7 @@ const Card = ({
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
       <Text style={flexboxStyles.flex1} color={colors.secondaryTextColor}>
-        Available Amount:
+        {t('Available Amount:')}
       </Text>
       <Text color={colors.secondaryTextColor}>
         {!disabled ? `${getMaxAmount()} ${currentToken?.symbol}` : '0'}
@@ -116,7 +119,7 @@ const Card = ({
       </View>
       {!!loading && <ActivityIndicator />}
       {!loading && !!unavailable && (
-        <Text style={[textStyles.center, spacings.pvSm]}>Unavailable on this Network</Text>
+        <Text style={[textStyles.center, spacings.pvSm]}>{t('Unavailable on this Network')}</Text>
       )}
       {!loading && !unavailable && (
         <View>
@@ -127,7 +130,7 @@ const Card = ({
               setValue={setToken}
               // TODO:
               //  disabled={disabled}
-              label="Choose Token"
+              label={t('Choose Token')}
             />
           </View>
           {!disabled ? (
@@ -159,7 +162,7 @@ const Card = ({
               keyboardType="numeric"
               autoCorrect={false}
               value={amount.toString()}
-              buttonText="MAX"
+              buttonText={t('MAX')}
               onButtonPress={setMaxAmount}
               disabled={!currentToken?.balance}
               labelComponent={amountLabel}

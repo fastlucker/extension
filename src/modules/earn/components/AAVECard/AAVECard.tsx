@@ -2,6 +2,7 @@ import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useTranslation } from '@config/localization'
 import AAVELogo from '@modules/common/assets/svg/icons/AAVELogo'
 import AAVELendingPoolAbi from '@modules/common/constants/AAVELendingPoolAbi'
 import AAVELendingPoolProviders from '@modules/common/constants/AAVELendingPoolProviders'
@@ -27,6 +28,7 @@ const AAVECard = () => {
   const [tokensItems, setTokensItems] = useState<any>([])
   const [details, setDetails] = useState<any>([])
 
+  const { t } = useTranslation()
   const { addToast } = useToast()
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
@@ -38,9 +40,9 @@ const AAVECard = () => {
       const token = tokensItems.find(({ address }: any) => address === value)
       if (token) {
         setDetails([
-          ['Annual Percentage Rate (APR)', `${token.apr}%`],
-          ['Lock', 'No Lock'],
-          ['Type', 'Variable Rate']
+          [t('Annual Percentage Rate (APR)'), `${token.apr}%`],
+          [t('Lock'), t('No Lock')],
+          [t('Type'), t('Variable Rate')]
         ])
       }
     },
@@ -96,7 +98,9 @@ const AAVECard = () => {
         )
       } catch (e: any) {
         console.error(e)
-        addToast(`Aave Deposit Error: ${e.message || e}`, { error: true })
+        addToast(t('Aave Withdraw Error: {{message}}', { message: e.message || e }) as string, {
+          error: true
+        })
       }
     } else if (type === 'Withdraw') {
       const token = getToken('withdraw', tokenAddress)
@@ -129,7 +133,9 @@ const AAVECard = () => {
         )
       } catch (e: any) {
         console.error(e)
-        addToast(`Aave Withdraw Error: ${e.message || e}`, { error: true })
+        addToast(t('Aave Withdraw Error: {{message}}', { message: e.message || e }) as string, {
+          error: true
+        })
       }
     }
   }
@@ -223,7 +229,9 @@ const AAVECard = () => {
       setUnavailable(false)
     } catch (e: any) {
       console.error(e)
-      addToast(`Aave load pool error: ${e.message || e}`, { error: true })
+      addToast(t('Aave load pool error: {{message}}', { message: e.message || e }) as string, {
+        error: true
+      })
     }
   }, [addToast, protocols, tokens, defaultTokens, networkDetails])
 

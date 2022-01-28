@@ -1,6 +1,7 @@
 import { Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
+import { useTranslation } from '@config/localization'
 import { getDefaultProvider } from '@ethersproject/providers'
 import networks from '@modules/common/constants/networks'
 import YEARN_TESSERACT_VAULT_ABI from '@modules/common/constants/YearnTesseractVaultABI'
@@ -20,6 +21,7 @@ const YearnTesseractCard = () => {
   const currentNetwork = useRef()
   const [loading, setLoading] = useState<any>([])
 
+  const { t } = useTranslation()
   const { addToast } = useToast()
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
@@ -64,6 +66,7 @@ const YearnTesseractCard = () => {
   )
 
   const onValidate = async (type: any, value: any, amount: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     const item = tokensItems.find((t: any) => t.type === type.toLowerCase() && t.value === value)
     if (!item) return
 
@@ -93,7 +96,12 @@ const YearnTesseractCard = () => {
         })
       } catch (e: any) {
         console.error(e)
-        addToast(`${name} Deposit Error: ${e.message || e}`, { error: true })
+        addToast(
+          t('{{name}} Deposit Error: {{message}}', { name, message: e.message || e }) as string,
+          {
+            error: true
+          }
+        )
       }
     } else if (type === 'Withdraw') {
       try {
@@ -107,7 +115,12 @@ const YearnTesseractCard = () => {
         })
       } catch (e: any) {
         console.error(e)
-        addToast(`${name} Withdraw Error: ${e.message || e}`, { error: true })
+        addToast(
+          t('{{name}} Withdraw Error: {{message}}', { name, message: e.message || e }) as string,
+          {
+            error: true
+          }
+        )
       }
     }
   }
