@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ActivityIndicator } from 'react-native'
 
 import { useTranslation } from '@config/localization'
@@ -11,9 +11,15 @@ import { useNavigation } from '@react-navigation/native'
 const Passcode = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
-  const { state, isLoading } = usePasscode()
+  const { state, isLoading, triggerPasscodeAuth, isAuthenticated } = usePasscode()
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigation.navigate('passcode-change')
+    }
+  }, [isAuthenticated])
 
   return state === PASSCODE_STATES.NO_PASSCODE ? (
     <Button
@@ -21,10 +27,7 @@ const Passcode = () => {
       onPress={() => navigation.navigate('passcode-change')}
     />
   ) : (
-    <Button
-      text={t('App passcode (added ✅)')}
-      onPress={() => navigation.navigate('passcode-validate', { redirectRoute: 'passcode-change' })}
-    />
+    <Button text={t('App passcode (added ✅)')} onPress={triggerPasscodeAuth} />
   )
 }
 

@@ -120,7 +120,7 @@ const PasscodeContext = createContext<PasscodeContextData>(defaults)
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
-  const { sheetRef, openBottomSheet } = useBottomSheet()
+  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
   const [state, setState] = useState<PASSCODE_STATES>(defaults.state)
@@ -295,7 +295,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
       android: i18n.t('PIN / pattern')
     }) || defaults.fallbackSupportedAuthTypesLabel
 
-  const handleOnAuthenticateSuccess = () => setIsAuthenticated(true)
+  const handleOnAuthenticateSuccess = () => {
+    closeBottomSheet()
+    setIsAuthenticated(true)
+  }
 
   return (
     <PasscodeContext.Provider
