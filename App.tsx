@@ -21,30 +21,30 @@ const App = () => {
   return (
     <>
       <StatusBar style="light" />
-      <ToastProvider>
-        <AuthProvider>
-          <AccountsProvider>
-            <NetworkProvider>
-              <PortfolioProvider>
-                <RequestsProvider>
-                  <AddressBookProvider>
-                    <AccountsPasswordsProvider>
-                      <PasscodeProvider>
-                        <PortalProvider>
+      <PortalProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <AccountsProvider>
+              <NetworkProvider>
+                <PortfolioProvider>
+                  <RequestsProvider>
+                    <AddressBookProvider>
+                      <AccountsPasswordsProvider>
+                        <PasscodeProvider>
                           <AttentionGrabberProvider>
                             <Router />
                           </AttentionGrabberProvider>
                           <PortalHost name="global" />
-                        </PortalProvider>
-                      </PasscodeProvider>
-                    </AccountsPasswordsProvider>
-                  </AddressBookProvider>
-                </RequestsProvider>
-              </PortfolioProvider>
-            </NetworkProvider>
-          </AccountsProvider>
-        </AuthProvider>
-      </ToastProvider>
+                        </PasscodeProvider>
+                      </AccountsPasswordsProvider>
+                    </AddressBookProvider>
+                  </RequestsProvider>
+                </PortfolioProvider>
+              </NetworkProvider>
+            </AccountsProvider>
+          </AuthProvider>
+        </ToastProvider>
+      </PortalProvider>
     </>
   )
 }
