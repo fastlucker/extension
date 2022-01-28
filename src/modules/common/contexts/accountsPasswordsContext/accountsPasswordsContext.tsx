@@ -49,7 +49,7 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
 
       setIsLoading(false)
     })()
-  }, [])
+  }, [selectedAcc])
 
   const addSelectedAccPassword = async (password: string) => {
     try {
