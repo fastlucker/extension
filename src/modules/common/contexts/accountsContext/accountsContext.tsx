@@ -86,22 +86,24 @@ const AccountsProvider: React.FC = ({ children }) => {
         }
       }
     },
-    [accounts, onSelectAcc]
+    [accounts, onSelectAcc, isAuthenticated]
   )
 
   const onRemoveAccount = useCallback(
     (id) => {
       if (!id) throw new Error('account: internal err: missing ID/Address')
 
-      const clearedAccounts = accounts.filter((account: any) => account.id !== id)
-      setAccounts([...clearedAccounts])
-      AsyncStorage.setItem('accounts', JSON.stringify(clearedAccounts))
+      try {
+        const clearedAccounts = accounts.filter((account: any) => account.id !== id)
+        setAccounts([...clearedAccounts])
+        AsyncStorage.setItem('accounts', JSON.stringify(clearedAccounts))
 
-      if (!clearedAccounts.length) {
-        AsyncStorage.removeItem('selectedAcc')
-        setSelectedAcc('')
-        setIsAuthenticated(false)
-      } else onSelectAcc(clearedAccounts[0].id)
+        if (!clearedAccounts.length) {
+          AsyncStorage.removeItem('selectedAcc')
+          setSelectedAcc('')
+          setIsAuthenticated(false)
+        } else onSelectAcc(clearedAccounts[0].id)
+      } catch (error) {}
     },
     [accounts, onSelectAcc]
   )
