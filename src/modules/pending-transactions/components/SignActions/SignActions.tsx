@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -42,6 +42,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
   const { selectedAccHasPassword, getSelectedAccPassword } = useAccountsPasswords()
   const { triggerPasscodeAuth, hasValidPasscode, resetValidPasscode } = usePasscode()
   const isFocused = useIsFocused()
+  const [isPasswordSwappedByPasscode, setIsPasswordSwappedByPasscode] = useState(false)
 
   // reset this every time the signing status changes
   useEffect(
@@ -54,6 +55,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     if (hasValidPasscode && isFocused) {
       approveTxn({})
       setValue('password', getSelectedAccPassword())
+      setIsPasswordSwappedByPasscode(true)
       resetValidPasscode()
     }
   }, [hasValidPasscode, isFocused])
@@ -160,6 +162,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
               keyboardType="numeric"
               autoCorrect={false}
               value={value}
+              autoFocus={isPasswordSwappedByPasscode}
             />
           )}
           name="code"
