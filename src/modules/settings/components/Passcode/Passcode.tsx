@@ -6,22 +6,23 @@ import Button from '@modules/common/components/Button'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import spacings from '@modules/common/styles/spacings'
-import { useNavigation } from '@react-navigation/native'
+import { useIsFocused, useNavigation } from '@react-navigation/native'
 
 const Passcode = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
+  const isFocused = useIsFocused()
   const { state, isLoading, triggerPasscodeAuth, hasValidPasscode, resetValidPasscode } =
     usePasscode()
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
   useEffect(() => {
-    if (hasValidPasscode) {
+    if (hasValidPasscode && isFocused) {
       navigation.navigate('passcode-change')
       resetValidPasscode()
     }
-  }, [hasValidPasscode])
+  }, [hasValidPasscode, isFocused])
 
   return state === PASSCODE_STATES.NO_PASSCODE ? (
     <Button

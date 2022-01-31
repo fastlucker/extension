@@ -19,6 +19,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import { isTokenEligible } from '@modules/pending-transactions/services/helpers'
+import { useIsFocused } from '@react-navigation/native'
 
 import styles from './styles'
 
@@ -27,6 +28,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     control,
     handleSubmit,
     resetField,
+    setValue,
     formState: { errors }
   } = useForm({
     mode: 'onSubmit',
@@ -37,15 +39,23 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     }
   })
   const { t } = useTranslation()
-  const { selectedAccHasPassword } = useAccountsPasswords()
-  // TODO:isAuthenticated
-  const { triggerPasscodeAuth } = usePasscode()
+  const { selectedAccHasPassword, getSelectedAccPassword } = useAccountsPasswords()
+  const { triggerPasscodeAuth, hasValidPasscode } = usePasscode()
+  const isFocused = useIsFocused()
+
   // reset this every time the signing status changes
   useEffect(
     // @ts-ignore
     () => !signingStatus && resetField('code'),
     [signingStatus]
   )
+
+  useEffect(() => {
+    if (hasValidPasscode && isFocused) {
+      approveTxn({})
+      setValue('password', getSelectedAccPassword())
+    }
+  }, [hasValidPasscode, isFocused])
 
   const rejectButton = rejectTxn && (
     <Button type={BUTTON_TYPES.DANGER} text={t('Reject')} onPress={rejectTxn} />
@@ -91,7 +101,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
       return triggerPasscodeAuth()
     }
 
-    approveTxn()
+    approveTxn({})
   }
 
   const onSubmit = (values: { code: string; password: string }) => {
