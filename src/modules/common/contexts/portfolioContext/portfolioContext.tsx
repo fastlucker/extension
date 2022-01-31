@@ -8,6 +8,7 @@ import i18n from '@config/localization/localization'
 import supportedProtocols from '@modules/common/constants/supportedProtocols'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import useToast from '@modules/common/hooks/useToast'
 import {
   checkTokenList,
   getTokenListBalance,
@@ -122,6 +123,8 @@ const PortfolioProvider: React.FC = ({ children }) => {
   const currentAccount = useRef()
   const appState = useRef(AppState.currentState)
 
+  const { addToast } = useToast()
+
   const [appStateVisible, setAppStateVisible] = useState<any>(appState.current)
   const [isBalanceLoading, setBalanceLoading] = useState<any>(true)
   const [areProtocolsLoading, setProtocolsLoading] = useState<any>(true)
@@ -229,10 +232,9 @@ const PortfolioProvider: React.FC = ({ children }) => {
 
         if (failedRequests >= requestsCount) throw new Error('Failed to fetch Tokens from API')
         return true
-      } catch (error) {
+      } catch (error: any) {
         console.error(error)
-        // TODO: set global error message
-        // addToast(error.message, { error: true })
+        addToast(error.message, { error: true })
         return false
       }
     },
@@ -305,10 +307,9 @@ const PortfolioProvider: React.FC = ({ children }) => {
       if (failedRequests >= requestsCount)
         throw new Error('Failed to fetch other Protocols from Zapper API')
       return true
-    } catch (error) {
+    } catch (error: any) {
       console.error(error)
-      // TODO: set global error message
-      // addToast(error.message, { error: true })
+      addToast(error.message, { error: true })
       return false
     }
   }, [])
@@ -328,9 +329,8 @@ const PortfolioProvider: React.FC = ({ children }) => {
     const { address, name, symbol } = extraToken
     // eslint-disable-next-line @typescript-eslint/no-shadow
     if (extraTokens.map(({ address }: any) => address).includes(address))
-      // TODO: set global notification
-      return console.log(
-        i18n.t('{{name}} ({{symbol}}) is already added to your wallet.', { name, symbol })
+      return addToast(
+        i18n.t('{{name}} ({{symbol}}) is already added to your wallet.', { name, symbol }) as string
       )
     if (
       Object.values(tokenList)
@@ -339,14 +339,16 @@ const PortfolioProvider: React.FC = ({ children }) => {
         .map(({ address }: any) => address)
         .includes(address)
     )
-      // TODO: set global notification
-      return console.log(
-        i18n.t('{{name}} ({{symbol}}) is already handled by your wallet.', { name, symbol })
+      return addToast(
+        i18n.t('{{name}} ({{symbol}}) is already handled by your wallet.', {
+          name,
+          symbol
+        }) as string
       )
     // eslint-disable-next-line @typescript-eslint/no-shadow
     if (tokens.map(({ address }: any) => address).includes(address))
-      return console.log(
-        i18n.t('{{name}} ({{symbol}}) is already added to your wallet.', { name, symbol })
+      return addToast(
+        i18n.t('{{name}} ({{symbol}}) is already added to your wallet.', { name, symbol }) as string
       )
 
     const updatedExtraTokens = [
@@ -359,8 +361,9 @@ const PortfolioProvider: React.FC = ({ children }) => {
 
     AsyncStorage.setItem('extraTokens', JSON.stringify(updatedExtraTokens))
     setExtraTokens(updatedExtraTokens)
-    // TODO: set global notification
-    console.log(i18n.t('{{name}} ({{symbol}}) token added to your wallet!', { name, symbol }))
+    addToast(
+      i18n.t('{{name}} ({{symbol}}) token added to your wallet!', { name, symbol }) as string
+    )
   }
 
   // Fetch balances and protocols on account change
@@ -437,10 +440,9 @@ const PortfolioProvider: React.FC = ({ children }) => {
           otherProtocols.protocols.find(({ label }: any) => label === 'NFTs')?.assets || []
         )
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
-      // TODO: set global error message
-      // addToast(e.message | e, { error: true })
+      addToast(e.message || e, { error: true })
     }
   }, [currentNetwork, tokensByNetworks, otherProtocolsByNetworks])
 

@@ -1,6 +1,8 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
+import i18n from '@config/localization/localization'
 import useAuth from '@modules/auth/hooks/useAuth'
+import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -26,6 +28,7 @@ const AccountsProvider: React.FC = ({ children }) => {
   const [accounts, setAccounts] = useState<any[]>([])
   const [selectedAcc, setSelectedAcc] = useState<string | null>('')
   const { setIsAuthenticated, isAuthenticated } = useAuth()
+  const { addToast } = useToast()
 
   const initState = async () => {
     try {
@@ -63,10 +66,24 @@ const AccountsProvider: React.FC = ({ children }) => {
 
       const existing = accounts.find((x: any) => x.id.toLowerCase() === acc.id.toLowerCase())
       if (existing) {
-        // TODO: trigger an app notification
+        addToast(
+          JSON.stringify(existing) === JSON.stringify(acc)
+            ? (i18n.t('Account already added') as string)
+            : (i18n.t('Account updated') as string)
+        )
       }
       if (opts.isNew) {
-        // TODO: trigger an app notification
+        // TODO: consider something more explanatory such as "using Trezor as a signer", or "this is different from your signer address"
+        acc.signer.address
+          ? addToast(
+              i18n.t(
+                'New Ambire account created:{{account}}. This is a fresh smart wallet address.',
+                { account: acc.id }
+              ) as string
+            )
+          : addToast(
+              i18n.t('New Ambire account created:{{account}}', { account: acc.id }) as string
+            )
       }
 
       const existingIdx = accounts.indexOf(existing)
@@ -103,7 +120,9 @@ const AccountsProvider: React.FC = ({ children }) => {
           setSelectedAcc('')
           setIsAuthenticated(false)
         } else onSelectAcc(clearedAccounts[0].id)
-      } catch (error) {}
+      } catch (error) {
+        // Silent error
+      }
     },
     [accounts, onSelectAcc]
   )

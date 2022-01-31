@@ -12,6 +12,7 @@ import Text from '@modules/common/components/Text'
 import { TEXT_TYPES } from '@modules/common/components/Text/Text'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import useToast from '@modules/common/hooks/useToast'
 import { isValidAddress } from '@modules/common/services/address'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -28,16 +29,17 @@ interface Props {
 const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
   const { t } = useTranslation()
   const { selectedAcc: account } = useAccounts()
-  const { network } = useNetwork()
+  const { network }: any = useNetwork()
   const [loading, setLoading] = useState<boolean>(false)
-  const [tokenDetails, setTokenDetails] = useState(null)
+  const [tokenDetails, setTokenDetails] = useState<any>(null)
   const [showError, setShowError] = useState<boolean>(false)
+  const { addToast } = useToast()
 
   const {
     control,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting, isSubmitSuccessful }
+    formState: { isSubmitting }
   } = useForm({
     defaultValues: {
       address: ''
@@ -47,6 +49,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
   const disabled = !tokenDetails || !(tokenDetails.symbol && tokenDetails.decimals)
 
   const tokenStandard =
+    // eslint-disable-next-line no-nested-ternary
     network?.id === 'binance-smart-chain'
       ? 'a BEP20'
       : network?.id === 'ethereum'
@@ -85,7 +88,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
       })
     } catch (e) {
       console.error(e)
-      // addToast('Failed to load token info', { error: true })
+      addToast('Failed to load token info', { error: true })
       setShowError(true)
     }
 

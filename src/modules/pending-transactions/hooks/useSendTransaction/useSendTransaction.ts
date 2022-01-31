@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Alert } from 'react-native'
 
 import CONFIG from '@config/env'
+import i18n from '@config/localization/localization'
 import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -100,7 +101,9 @@ const useSendTransaction = () => {
         .catch((e: any) => {
           if (unmounted) return
           console.log('estimation error', e)
-          addToast(`Estimation error: ${e.message || e}`, { error: true })
+          addToast(i18n.t('Estimation error: {{error}}', { error: e.message || e }) as string, {
+            error: true
+          })
         })
 
     reestimate()
@@ -180,7 +183,7 @@ const useSendTransaction = () => {
     if (!success) {
       if (!message) throw new Error('Secondary key: no success but no error message')
       if (message.includes('invalid confirmation code')) {
-        addToast('Unable to sign: wrong confirmation code', { error: true })
+        addToast(i18n.t('Unable to sign: wrong confirmation code') as string, { error: true })
         return
       }
       throw new Error(`Secondary key error: ${message}`)
@@ -217,11 +220,12 @@ const useSendTransaction = () => {
     setSigningStatus(signingStatus || { inProgress: true })
 
     if (account.signerExtra && account.signerExtra.type === 'ledger') {
-      addToast('Please confirm this transaction on your Ledger device.', { timeout: 10000 })
+      addToast(i18n.t('Please confirm this transaction on your Ledger device.') as string, {
+        timeout: 10000
+      })
     }
 
     const requestIds = bundle.requestIds
-    console.log('bundle.signer.quickAccManager', bundle?.signer?.quickAccManager)
     const approveTxnPromise = approveTxnImplQuickAcc({ quickAccCredentials })
     approveTxnPromise
       .then((bundleResult) => {
@@ -247,28 +251,44 @@ const useSendTransaction = () => {
           onBroadcastedTxn(bundleResult.txId)
           setSendTxnState({ showing: false })
         } else
-          addToast(`Transaction error: ${bundleResult.message || 'unspecified error'}`, {
-            error: true
-          })
+          bundleResult.message
+            ? addToast(
+                i18n.t('Transaction error: {{message}}', {
+                  message: bundleResult.message
+                }) as string,
+                {
+                  error: true
+                }
+              )
+            : addToast(i18n.t('Transaction error: unspecified error') as string, {
+                error: true
+              })
       })
       .catch((e) => {
         setSigningStatus(null)
         console.error(e)
         if (e && e.message.includes('must provide an Ethereum address')) {
           addToast(
-            `Signing error: not connected with the correct address. Make sure you're connected with ${bundle.signer.address}.`,
+            i18n.t(
+              "Signing error: not connected with the correct address. Make sure you're connected with {{address}}.",
+              { address: bundle.signer.address }
+            ) as string,
             { error: true }
           )
         } else if (e && e.message.includes('0x6b0c')) {
           // not sure if that's actually the case with this hellish error, but after unlocking the device it no longer appeared
           // however, it stopped appearing after that even if the device is locked, so I'm not sure it's related...
           addToast(
-            'Ledger: unknown error (0x6b0c): is your Ledger unlocked and in the Ethereum application?',
+            i18n.t(
+              'Ledger: unknown error (0x6b0c): is your Ledger unlocked and in the Ethereum application?'
+            ) as string,
             { error: true }
           )
         } else {
           console.log(e.message)
-          addToast(`Signing error: ${e.message || e}`, { error: true })
+          addToast(i18n.t('Signing error: {{message}}', { message: e.message || e }) as string, {
+            error: true
+          })
         }
       })
   }
