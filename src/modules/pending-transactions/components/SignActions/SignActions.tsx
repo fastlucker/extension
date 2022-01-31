@@ -40,7 +40,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
   })
   const { t } = useTranslation()
   const { selectedAccHasPassword, getSelectedAccPassword } = useAccountsPasswords()
-  const { triggerPasscodeAuth, hasValidPasscode } = usePasscode()
+  const { triggerPasscodeAuth, hasValidPasscode, resetValidPasscode } = usePasscode()
   const isFocused = useIsFocused()
 
   // reset this every time the signing status changes
@@ -54,6 +54,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     if (hasValidPasscode && isFocused) {
       approveTxn({})
       setValue('password', getSelectedAccPassword())
+      resetValidPasscode()
     }
   }, [hasValidPasscode, isFocused])
 
