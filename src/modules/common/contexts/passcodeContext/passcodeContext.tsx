@@ -95,8 +95,8 @@ type PasscodeContextData = {
   removeLocalAuth: () => void
   isValidLocalAuth: () => Promise<boolean>
   triggerPasscodeAuth: () => void
-  resetAuthenticatedState: () => void
-  isAuthenticated: boolean
+  resetValidPasscode: () => void
+  hasValidPasscode: boolean | null
 }
 
 const defaults: PasscodeContextData = {
@@ -114,8 +114,8 @@ const defaults: PasscodeContextData = {
   removeLocalAuth: () => {},
   isValidLocalAuth: () => Promise.resolve(false),
   triggerPasscodeAuth: () => {},
-  resetAuthenticatedState: () => {},
-  isAuthenticated: false
+  resetValidPasscode: () => {},
+  hasValidPasscode: null
 }
 
 const PasscodeContext = createContext<PasscodeContextData>(defaults)
@@ -139,8 +139,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(
     defaults.isLocalAuthSupported
   )
-  const [isAuthenticated, setIsAuthenticated] = useState(defaults.isAuthenticated)
   const [isLoading, setIsLoading] = useState<boolean>(defaults.isLoading)
+  const [hasValidPasscode, setHasValidPasscode] = useState<null | boolean>(
+    defaults.hasValidPasscode
+  )
 
   useEffect(() => {
     ;(async () => {
@@ -238,6 +240,15 @@ const PasscodeProvider: React.FC = ({ children }) => {
     }
   }
 
+  const handleOnValidateLocalAuth = async () => {
+    const isValid = await isValidLocalAuth()
+
+    if (isValid) {
+      closeBottomSheet()
+      setHasValidPasscode(true)
+    }
+  }
+
   const addPasscode = async (code: string) => {
     try {
       await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code)
@@ -289,7 +300,12 @@ const PasscodeProvider: React.FC = ({ children }) => {
     return isValid
   }
 
-  const triggerPasscodeAuth = () => openBottomSheet()
+  const triggerPasscodeAuth = () => {
+    openBottomSheet()
+    if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
+      handleOnValidateLocalAuth()
+    }
+  }
 
   const fallbackSupportedAuthTypesLabel =
     Platform.select({
@@ -297,13 +313,18 @@ const PasscodeProvider: React.FC = ({ children }) => {
       android: i18n.t('PIN / pattern')
     }) || defaults.fallbackSupportedAuthTypesLabel
 
-  const handleOnAuthenticateSuccess = () => {
-    closeBottomSheet()
-    setIsAuthenticated(true)
+  const handleOnValidatePasscode = (code: string) => {
+    const isValid = isValidPasscode(code)
+    setHasValidPasscode(isValid)
+
+    if (isValid) {
+      closeBottomSheet()
+      setHasValidPasscode(true)
+    }
   }
 
-  const resetAuthenticatedState = () => {
-    setIsAuthenticated(false)
+  const resetValidPasscode = () => {
+    setHasValidPasscode(null)
   }
 
   return (
@@ -324,8 +345,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
           triggerPasscodeAuth,
-          resetAuthenticatedState,
-          isAuthenticated
+          resetValidPasscode,
+          hasValidPasscode
         }),
         [
           isLoading,
@@ -335,7 +356,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
           state,
-          isAuthenticated,
+          hasValidPasscode,
           // By including this, when calling the `removePasscode` method,
           // it makes the `useAccountsPasswords` context re-render too.
           selectedAccHasPassword
@@ -344,12 +365,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
     >
       {children}
       <BottomSheet sheetRef={sheetRef} dynamicInitialHeight={false}>
-        {/* TODO: Types. */}
         <PasscodeAuth
-          onSuccess={handleOnAuthenticateSuccess}
-          isValidPasscode={isValidPasscode}
-          isLoading={isLoading}
-          isValidLocalAuth={isValidLocalAuth}
+          autoFocus={state === PASSCODE_STATES.PASSCODE_ONLY}
+          onFulfill={handleOnValidatePasscode}
+          onValidateLocalAuth={handleOnValidateLocalAuth}
+          hasError={!hasValidPasscode && hasValidPasscode !== null}
           state={state}
           deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}
           fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}

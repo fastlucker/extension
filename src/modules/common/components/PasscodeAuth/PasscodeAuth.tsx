@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
@@ -10,48 +10,25 @@ import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
 interface Props {
-  onSuccess: () => void
+  onFulfill: (code: string) => void
+  hasError: boolean | null
+  onValidateLocalAuth: () => any
+  state: PASSCODE_STATES
+  deviceSupportedAuthTypesLabel: string
+  fallbackSupportedAuthTypesLabel: string
+  autoFocus: boolean
 }
 
 const PasscodeAuth: React.FC<Props> = ({
-  onSuccess,
-  isValidPasscode,
-  isLoading,
-  isValidLocalAuth,
+  onFulfill,
+  hasError,
+  onValidateLocalAuth,
   state,
   deviceSupportedAuthTypesLabel,
-  fallbackSupportedAuthTypesLabel
+  fallbackSupportedAuthTypesLabel,
+  autoFocus
 }) => {
   const { t } = useTranslation()
-  const [hasValidPasscode, setHasValidPasscode] = useState<null | boolean>(null)
-
-  const handleOnValidateLocalAuth = async () => {
-    const isValid = await isValidLocalAuth()
-
-    if (isValid) {
-      onSuccess()
-    }
-  }
-
-  // TODO: Figure out.
-  // useEffect(() => {
-  //   if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
-  //     handleOnValidateLocalAuth()
-  //   }
-  // }, [state])
-
-  const handleOnValidatePasscode = (code: string) => {
-    const isValid = isValidPasscode(code)
-    setHasValidPasscode(isValid)
-
-    if (isValid) {
-      onSuccess()
-    }
-  }
-
-  const hasError = !hasValidPasscode && hasValidPasscode !== null
-
-  if (isLoading) return null
 
   return (
     <>
@@ -63,10 +40,7 @@ const PasscodeAuth: React.FC<Props> = ({
           {t('Wrong passcode.')}
         </P>
       )}
-      <CodeInput
-        autoFocus={state === PASSCODE_STATES.PASSCODE_ONLY}
-        onFulfill={handleOnValidatePasscode}
-      />
+      <CodeInput autoFocus={autoFocus} onFulfill={onFulfill} />
       {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && (
         <>
           <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
@@ -83,7 +57,7 @@ const PasscodeAuth: React.FC<Props> = ({
                   fallbackSupportedAuthTypesLabel
                 })}
           </P>
-          <Button text={t('Authenticate')} onPress={handleOnValidateLocalAuth} />
+          <Button text={t('Authenticate')} onPress={onValidateLocalAuth} />
         </>
       )}
     </>

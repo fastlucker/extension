@@ -11,17 +11,17 @@ import { useNavigation } from '@react-navigation/native'
 const Passcode = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
-  const { state, isLoading, triggerPasscodeAuth, isAuthenticated, resetAuthenticatedState } =
+  const { state, isLoading, triggerPasscodeAuth, hasValidPasscode, resetValidPasscode } =
     usePasscode()
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (hasValidPasscode) {
       navigation.navigate('passcode-change')
-      resetAuthenticatedState()
+      resetValidPasscode()
     }
-  }, [isAuthenticated])
+  }, [hasValidPasscode])
 
   return state === PASSCODE_STATES.NO_PASSCODE ? (
     <Button
