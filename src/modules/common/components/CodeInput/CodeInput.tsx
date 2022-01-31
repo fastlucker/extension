@@ -30,6 +30,7 @@ const CodeInput: React.FC<Props> = ({ onFulfill, enableMask = true, ...rest }) =
   useEffect(() => {
     if (value.length >= 6) {
       onFulfill(value)
+      setValue('')
     }
   }, [value])
 
