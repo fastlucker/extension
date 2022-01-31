@@ -176,14 +176,17 @@ const PasscodeProvider: React.FC = ({ children }) => {
       return false
     }
   }
+  const handleValidationSuccess = () => {
+    setFocusCodeInput(false)
+    closeBottomSheet()
+    setHasValidPasscode(true)
+  }
 
   const triggerValidateLocalAuth = async () => {
     const isValid = await isValidLocalAuth()
 
     if (isValid) {
-      setFocusCodeInput(false)
-      closeBottomSheet()
-      setHasValidPasscode(true)
+      handleValidationSuccess()
     }
   }
 
@@ -259,9 +262,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     setHasValidPasscode(isValid)
 
     if (isValid) {
-      setFocusCodeInput(false)
-      closeBottomSheet()
-      setHasValidPasscode(true)
+      handleValidationSuccess()
     }
   }
 
