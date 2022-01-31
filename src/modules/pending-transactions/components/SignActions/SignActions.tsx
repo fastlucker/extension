@@ -40,7 +40,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
   })
   const { t } = useTranslation()
   const { selectedAccHasPassword, getSelectedAccPassword } = useAccountsPasswords()
-  const { triggerPasscodeAuth, hasValidPasscode, resetValidPasscode } = usePasscode()
+  const { triggerPasscodeAuth, hasEnteredValidPasscode, resetValidPasscodeEntered } = usePasscode()
   const isFocused = useIsFocused()
   const [isPasswordSwappedByPasscode, setIsPasswordSwappedByPasscode] = useState(false)
 
@@ -52,13 +52,13 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
   )
 
   useEffect(() => {
-    if (hasValidPasscode && isFocused) {
+    if (hasEnteredValidPasscode && isFocused) {
       approveTxn({})
       setValue('password', getSelectedAccPassword())
       setIsPasswordSwappedByPasscode(true)
-      resetValidPasscode()
+      resetValidPasscodeEntered()
     }
-  }, [hasValidPasscode, isFocused])
+  }, [hasEnteredValidPasscode, isFocused])
 
   const rejectButton = rejectTxn && (
     <Button type={BUTTON_TYPES.DANGER} text={t('Reject')} onPress={rejectTxn} />

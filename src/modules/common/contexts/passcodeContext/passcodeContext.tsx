@@ -31,8 +31,8 @@ type PasscodeContextData = {
   removeLocalAuth: () => void
   isValidLocalAuth: () => Promise<boolean>
   triggerPasscodeAuth: () => void
-  resetValidPasscode: () => void
-  hasValidPasscode: boolean | null
+  resetValidPasscodeEntered: () => void
+  hasEnteredValidPasscode: boolean | null
 }
 
 const defaults: PasscodeContextData = {
@@ -50,8 +50,8 @@ const defaults: PasscodeContextData = {
   removeLocalAuth: () => {},
   isValidLocalAuth: () => Promise.resolve(false),
   triggerPasscodeAuth: () => {},
-  resetValidPasscode: () => {},
-  hasValidPasscode: null
+  resetValidPasscodeEntered: () => {},
+  hasEnteredValidPasscode: null
 }
 
 const PasscodeContext = createContext<PasscodeContextData>(defaults)
@@ -76,8 +76,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
     defaults.isLocalAuthSupported
   )
   const [isLoading, setIsLoading] = useState<boolean>(defaults.isLoading)
-  const [hasValidPasscode, setHasValidPasscode] = useState<null | boolean>(
-    defaults.hasValidPasscode
+  const [hasEnteredValidPasscode, setHasEnteredValidPasscode] = useState<null | boolean>(
+    defaults.hasEnteredValidPasscode
   )
   const [focusCodeInput, setFocusCodeInput] = useState(false)
 
@@ -179,7 +179,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const handleValidationSuccess = () => {
     setFocusCodeInput(false)
     closeBottomSheet()
-    setHasValidPasscode(true)
+    setHasEnteredValidPasscode(true)
   }
 
   const triggerValidateLocalAuth = async () => {
@@ -259,15 +259,15 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const handleOnValidatePasscode = (code: string) => {
     const isValid = isValidPasscode(code)
-    setHasValidPasscode(isValid)
+    setHasEnteredValidPasscode(isValid)
 
     if (isValid) {
       handleValidationSuccess()
     }
   }
 
-  const resetValidPasscode = () => {
-    setHasValidPasscode(null)
+  const resetValidPasscodeEntered = () => {
+    setHasEnteredValidPasscode(null)
   }
 
   return (
@@ -288,8 +288,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
           triggerPasscodeAuth,
-          resetValidPasscode,
-          hasValidPasscode
+          resetValidPasscodeEntered,
+          hasEnteredValidPasscode
         }),
         [
           isLoading,
@@ -299,7 +299,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
           state,
-          hasValidPasscode,
+          hasEnteredValidPasscode,
           // By including this, when calling the `removePasscode` method,
           // it makes the `useAccountsPasswords` context re-render too.
           selectedAccHasPassword
@@ -312,7 +312,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           autoFocus={focusCodeInput}
           onFulfill={handleOnValidatePasscode}
           onValidateLocalAuth={triggerValidateLocalAuth}
-          hasError={!hasValidPasscode && hasValidPasscode !== null}
+          hasError={!hasEnteredValidPasscode && hasEnteredValidPasscode !== null}
           state={state}
           deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}
           fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}

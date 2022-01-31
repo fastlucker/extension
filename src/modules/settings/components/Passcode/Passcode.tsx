@@ -12,17 +12,22 @@ const Passcode = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const isFocused = useIsFocused()
-  const { state, isLoading, triggerPasscodeAuth, hasValidPasscode, resetValidPasscode } =
-    usePasscode()
+  const {
+    state,
+    isLoading,
+    triggerPasscodeAuth,
+    hasEnteredValidPasscode,
+    resetValidPasscodeEntered
+  } = usePasscode()
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
   useEffect(() => {
-    if (hasValidPasscode && isFocused) {
+    if (hasEnteredValidPasscode && isFocused) {
       navigation.navigate('passcode-change')
-      resetValidPasscode()
+      resetValidPasscodeEntered()
     }
-  }, [hasValidPasscode, isFocused])
+  }, [hasEnteredValidPasscode, isFocused])
 
   return state === PASSCODE_STATES.NO_PASSCODE ? (
     <Button
