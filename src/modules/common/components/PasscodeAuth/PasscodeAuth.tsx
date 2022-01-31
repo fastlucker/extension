@@ -42,7 +42,7 @@ const PasscodeAuth: React.FC<Props> = ({
       )}
       <CodeInput
         // TODO: Auto-focus doesn't pop the keyboard
-        autoFocus
+        autoFocus={autoFocus}
         onFulfill={onFulfill}
       />
       {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && (
