@@ -22,6 +22,11 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true)
 }
 
+import { LogBox } from 'react-native'
+// Ignore the Android specific warnings for setting long timers
+// {@link https://stackoverflow.com/a/64832663/1333836}
+LogBox.ignoreLogs(['Setting a timer'])
+
 // eslint-disable-next-line
 import App from './App'
 
