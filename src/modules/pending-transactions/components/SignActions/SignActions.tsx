@@ -40,7 +40,8 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
   })
   const { t } = useTranslation()
   const { selectedAccHasPassword, getSelectedAccPassword } = useAccountsPasswords()
-  const { triggerPasscodeAuth, hasEnteredValidPasscode, resetValidPasscodeEntered } = usePasscode()
+  const { triggerEnteringPasscode, hasEnteredValidPasscode, resetValidPasscodeEntered } =
+    usePasscode()
   const isFocused = useIsFocused()
   const [isPasswordSwappedByPasscode, setIsPasswordSwappedByPasscode] = useState(false)
 
@@ -101,7 +102,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
 
   const handleOnSign = () => {
     if (selectedAccHasPassword) {
-      return triggerPasscodeAuth()
+      return triggerEnteringPasscode()
     }
 
     approveTxn({})

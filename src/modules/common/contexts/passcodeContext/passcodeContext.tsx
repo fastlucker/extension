@@ -30,7 +30,7 @@ type PasscodeContextData = {
   addLocalAuth: () => void
   removeLocalAuth: () => void
   isValidLocalAuth: () => Promise<boolean>
-  triggerPasscodeAuth: () => void
+  triggerEnteringPasscode: () => void
   resetValidPasscodeEntered: () => void
   hasEnteredValidPasscode: boolean | null
 }
@@ -49,7 +49,7 @@ const defaults: PasscodeContextData = {
   addLocalAuth: () => {},
   removeLocalAuth: () => {},
   isValidLocalAuth: () => Promise.resolve(false),
-  triggerPasscodeAuth: () => {},
+  triggerEnteringPasscode: () => {},
   resetValidPasscodeEntered: () => {},
   hasEnteredValidPasscode: null
 }
@@ -241,7 +241,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     return isValid
   }
 
-  const triggerPasscodeAuth = () => {
+  const triggerEnteringPasscode = () => {
     openBottomSheet()
 
     if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
@@ -287,7 +287,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
-          triggerPasscodeAuth,
+          triggerEnteringPasscode,
           resetValidPasscodeEntered,
           hasEnteredValidPasscode
         }),

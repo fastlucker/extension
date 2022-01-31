@@ -15,7 +15,7 @@ const Passcode = () => {
   const {
     state,
     isLoading,
-    triggerPasscodeAuth,
+    triggerEnteringPasscode,
     hasEnteredValidPasscode,
     resetValidPasscodeEntered
   } = usePasscode()
@@ -35,7 +35,7 @@ const Passcode = () => {
       onPress={() => navigation.navigate('passcode-change')}
     />
   ) : (
-    <Button text={t('App passcode (added ✅)')} onPress={triggerPasscodeAuth} />
+    <Button text={t('App passcode (added ✅)')} onPress={triggerEnteringPasscode} />
   )
 }
 
