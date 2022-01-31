@@ -95,6 +95,7 @@ type PasscodeContextData = {
   removeLocalAuth: () => void
   isValidLocalAuth: () => Promise<boolean>
   triggerPasscodeAuth: () => void
+  resetAuthenticatedState: () => void
   isAuthenticated: boolean
 }
 
@@ -113,6 +114,7 @@ const defaults: PasscodeContextData = {
   removeLocalAuth: () => {},
   isValidLocalAuth: () => Promise.resolve(false),
   triggerPasscodeAuth: () => {},
+  resetAuthenticatedState: () => {},
   isAuthenticated: false
 }
 
@@ -300,6 +302,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
     setIsAuthenticated(true)
   }
 
+  const resetAuthenticatedState = () => {
+    setIsAuthenticated(false)
+  }
+
   return (
     <PasscodeContext.Provider
       value={useMemo(
@@ -318,6 +324,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
           triggerPasscodeAuth,
+          resetAuthenticatedState,
           isAuthenticated
         }),
         [
