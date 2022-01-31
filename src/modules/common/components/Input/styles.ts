@@ -10,9 +10,13 @@ interface Style {
   button: ViewStyle
   info: TextStyle
   label: TextStyle
+  disabled: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
+  disabled: {
+    opacity: 0.6
+  },
   inputContainer: {
     ...spacings.mbSm
   },
