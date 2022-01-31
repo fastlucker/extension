@@ -1,33 +1,23 @@
 import React from 'react'
-import { Button, View } from 'react-native'
 
-import { isProd } from '@config/env'
-import { changeLanguage, useTranslation } from '@config/localization'
-import { Locale } from '@config/localization/constants'
-import Placeholder from '@modules/common/components/Placeholder'
-
-import styles from './styles'
+import Wrapper from '@modules/common/components/Wrapper'
+import LocalAuth from '@modules/settings/components/LocalAuth'
+import Passcode from '@modules/settings/components/Passcode'
+import PasscodeSign from '@modules/settings/components/PasscodeSign'
 
 const SettingsScreen = () => {
-  const { t, i18n } = useTranslation()
-
-  const handleChangeLanguage = () => {
-    changeLanguage(i18n.language === Locale.BG ? Locale.EN : Locale.BG)
-  }
+  // TODO: Option to change the app language, when a second one gets introduced.
+  // const { t, i18n } = useTranslation()
+  // const handleChangeLanguage = () => {
+  //   changeLanguage(i18n.language === Locale.BG ? Locale.EN : Locale.BG)
+  // }
 
   return (
-    <View style={styles.container}>
-      <Placeholder text={t('Settings screen')} />
-
-      {!isProd && (
-        <Button
-          title={t('Change language to {{nextLang}}', {
-            nextLang: i18n.language === Locale.BG ? t('English') : t('Bulgarian')
-          })}
-          onPress={handleChangeLanguage}
-        />
-      )}
-    </View>
+    <Wrapper>
+      <Passcode />
+      <LocalAuth />
+      <PasscodeSign />
+    </Wrapper>
   )
 }
 

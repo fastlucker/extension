@@ -16,7 +16,11 @@ import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
+import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
+import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
+import PasscodeSignScreen from '@modules/settings/screens/PasscodeSignScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
+import ValidatePasscodeScreen from '@modules/settings/screens/ValidatePasscodeScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
@@ -212,14 +216,42 @@ const SettingsStackScreen = () => {
         name="settings"
         component={SettingsScreen}
         options={{
-          headerTitle: t('Pending Transaction')
+          headerTitle: t('Settings')
+        }}
+      />
+      <SettingsStack.Screen
+        name="passcode-change"
+        component={ChangePasscodeScreen}
+        options={{
+          headerTitle: t('Passcode')
+        }}
+      />
+      <SettingsStack.Screen
+        name="passcode-validate"
+        component={ValidatePasscodeScreen}
+        options={{
+          headerTitle: t('Enter passcode')
+        }}
+      />
+      <SettingsStack.Screen
+        name="local-auth-change"
+        component={ChangeLocalAuthScreen}
+        options={{
+          headerTitle: t('Local auth')
+        }}
+      />
+      <SettingsStack.Screen
+        name="transactions-signing"
+        component={PasscodeSignScreen}
+        options={{
+          headerTitle: t('Sign with Passcode')
         }}
       />
       <SettingsStack.Screen
         name="pending-transactions"
         component={PendingTransactionsScreen}
         options={{
-          headerTitle: t('Dashboard')
+          headerTitle: t('Pending Transaction')
         }}
       />
     </SettingsStack.Navigator>
