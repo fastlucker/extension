@@ -79,6 +79,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const [hasValidPasscode, setHasValidPasscode] = useState<null | boolean>(
     defaults.hasValidPasscode
   )
+  const [focusCodeInput, setFocusCodeInput] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -176,10 +177,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
     }
   }
 
-  const handleOnValidateLocalAuth = async () => {
+  const triggerValidateLocalAuth = async () => {
     const isValid = await isValidLocalAuth()
 
     if (isValid) {
+      setFocusCodeInput(false)
       closeBottomSheet()
       setHasValidPasscode(true)
     }
@@ -238,8 +240,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const triggerPasscodeAuth = () => {
     openBottomSheet()
+
     if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
-      handleOnValidateLocalAuth()
+      triggerValidateLocalAuth()
+    } else {
+      setFocusCodeInput(true)
     }
   }
 
@@ -254,6 +259,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     setHasValidPasscode(isValid)
 
     if (isValid) {
+      setFocusCodeInput(false)
       closeBottomSheet()
       setHasValidPasscode(true)
     }
@@ -302,9 +308,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
       {children}
       <BottomSheet sheetRef={sheetRef} dynamicInitialHeight={false}>
         <PasscodeAuth
-          autoFocus={state === PASSCODE_STATES.PASSCODE_ONLY}
+          autoFocus={focusCodeInput}
           onFulfill={handleOnValidatePasscode}
-          onValidateLocalAuth={handleOnValidateLocalAuth}
+          onValidateLocalAuth={triggerValidateLocalAuth}
           hasError={!hasValidPasscode && hasValidPasscode !== null}
           state={state}
           deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}

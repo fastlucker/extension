@@ -40,7 +40,11 @@ const PasscodeAuth: React.FC<Props> = ({
           {t('Wrong passcode.')}
         </P>
       )}
-      <CodeInput autoFocus={autoFocus} onFulfill={onFulfill} />
+      <CodeInput
+        // TODO: Auto-focus doesn't pop the keyboard
+        autoFocus
+        onFulfill={onFulfill}
+      />
       {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && (
         <>
           <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
