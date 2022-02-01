@@ -121,7 +121,7 @@ const AccountsProvider: React.FC = ({ children }) => {
           setIsAuthenticated(false)
         } else onSelectAcc(clearedAccounts[0].id)
       } catch (error) {
-        // Silent error
+        // fail silently
       }
     },
     [accounts, onSelectAcc]

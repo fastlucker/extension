@@ -233,7 +233,6 @@ const PortfolioProvider: React.FC = ({ children }) => {
         if (failedRequests >= requestsCount) throw new Error('Failed to fetch Tokens from API')
         return true
       } catch (error: any) {
-        console.error(error)
         addToast(error.message, { error: true })
         return false
       }
@@ -308,7 +307,6 @@ const PortfolioProvider: React.FC = ({ children }) => {
         throw new Error('Failed to fetch other Protocols from Zapper API')
       return true
     } catch (error: any) {
-      console.error(error)
       addToast(error.message, { error: true })
       return false
     }
