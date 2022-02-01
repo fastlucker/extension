@@ -100,7 +100,6 @@ const useSendTransaction = () => {
         })
         .catch((e: any) => {
           if (unmounted) return
-          console.log('estimation error', e)
           addToast(i18n.t('Estimation error: {{error}}', { error: e.message || e }) as string, {
             error: true
           })
@@ -156,7 +155,6 @@ const useSendTransaction = () => {
   }
 
   const approveTxnImplQuickAcc = async ({ quickAccCredentials }: any) => {
-    console.log('quickAccCredentials', quickAccCredentials)
     if (!estimation) throw new Error('no estimation: should never happen')
     if (!CONFIG.RELAYER_URL)
       throw new Error('Email/Password account signing without the relayer is not supported yet')
@@ -266,7 +264,6 @@ const useSendTransaction = () => {
       })
       .catch((e) => {
         setSigningStatus(null)
-        console.error(e)
         if (e && e.message.includes('must provide an Ethereum address')) {
           addToast(
             i18n.t(
@@ -285,7 +282,6 @@ const useSendTransaction = () => {
             { error: true }
           )
         } else {
-          console.log(e.message)
           addToast(i18n.t('Signing error: {{message}}', { message: e.message || e }) as string, {
             error: true
           })
