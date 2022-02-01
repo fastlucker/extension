@@ -109,6 +109,12 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
   }
 
   const onSubmit = (values: { code: string; password: string }) => {
+    if (isPasswordSwappedByPasscode) {
+      return approveTxn({
+        quickAccCredentials: { code: values.code, password: getSelectedAccPassword() }
+      })
+    }
+
     approveTxn({ quickAccCredentials: values })
   }
 
@@ -118,7 +124,11 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
         {renderTitle()}
         <View>
           {signingStatus.confCodeRequired === 'otp' ? (
-            <Text>{t('Please enter your OTP code and your password.')}</Text>
+            <Text style={spacings.mbTy}>
+              {isPasswordSwappedByPasscode
+                ? t('Please enter your OTP code.')
+                : t('Please enter your OTP code and your password.')}
+            </Text>
           ) : null}
           {signingStatus.confCodeRequired === 'email' ? (
             <Text style={[textStyles.bold, spacings.mbSm]}>
@@ -128,7 +138,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
             </Text>
           ) : null}
         </View>
-        {!isRecoveryMode && (
+        {!isRecoveryMode && !isPasswordSwappedByPasscode && (
           <Controller
             control={control}
             rules={{ required: true }}
