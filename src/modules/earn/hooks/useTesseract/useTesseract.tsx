@@ -2,6 +2,7 @@ import ERC20ABI from 'adex-protocol-eth/abi/ERC20.json'
 import { Contract } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
+import i18n from '@config/localization/localization'
 import TesseractLogo from '@modules/common/assets/svg/icons/TesseractLogo'
 import TesseractVaultABI from '@modules/common/constants/YearnTesseractVaultABI'
 import useToast from '@modules/common/hooks/useToast'
@@ -66,7 +67,9 @@ const useTesseract = ({ tokens, provider, networkId, currentNetwork }: any) => {
         return (data.result[0]?.value[1] * 100).toFixed(2)
       } catch (e: any) {
         console.error(e)
-        addToast(`Failed to fetch ${ticker} Vault APY`, { error: true })
+        addToast(i18n.t('Failed to fetch {{ticker}} Vault APY', { ticker }) as string, {
+          error: true
+        })
       }
     },
     [addToast]
@@ -106,7 +109,10 @@ const useTesseract = ({ tokens, provider, networkId, currentNetwork }: any) => {
             }
           } catch (e: any) {
             console.error(e)
-            addToast(`Fetch Tesseract Vaults: ${e.message}` || e, { error: true })
+            addToast(
+              i18n.t('Fetch Tesseract Vaults: {{error}}', { error: e.message || e }) as string,
+              { error: true }
+            )
             return null
           }
         })

@@ -1,7 +1,10 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
+import i18n from '@config/localization/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useToast from '@modules/common/hooks/useToast'
 import { isKnownTokenOrContract, isValidAddress } from '@modules/common/services/address'
+import { setKnownAddresses } from '@modules/common/services/humanReadableTransactions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type AddressBookContextData = {
@@ -28,13 +31,10 @@ const accountType = ({ email, signerExtra }: any) => {
       : 'Web3'
   return email ? `Ambire account for ${email}` : `Ambire account (${walletType})`
 }
-// The Blockies package used for the web is not compatible with React Native.
-// Therefore, we generate the Blockies in different way. Skip this.
-// const toIcon = (seed: any) => blockies.create({ seed }).toDataURL()
-const toIcon = (seed: any) => ''
 
 const AddressBookProvider: React.FC = ({ children }) => {
   const { accounts } = useAccounts()
+  const { addToast } = useToast()
 
   const [addresses, setAddresses] = useState<any>([])
 
@@ -42,8 +42,7 @@ const AddressBookProvider: React.FC = ({ children }) => {
   const updateAddresses = (addresses: any) => {
     setAddresses(
       addresses.map((entry: any) => ({
-        ...entry,
-        icon: toIcon(entry.address)
+        ...entry
       }))
     )
     AsyncStorage.setItem(
@@ -65,10 +64,12 @@ const AddressBookProvider: React.FC = ({ children }) => {
     (name, address) => {
       if (!name || !address) throw new Error('Address Book: invalid arguments supplied')
       if (!isValidAddress(address)) throw new Error('Address Book: invalid address format')
-      if (isKnownTokenOrContract(address))
-        // TODO: set global message
-        // addToast("The address you're trying to add is a smart contract.", { error: true })
+      if (isKnownTokenOrContract(address)) {
+        addToast(i18n.t("The address you're trying to add is a smart contract.") as string, {
+          error: true
+        })
         return
+      }
 
       const newAddresses = [
         ...addresses,
@@ -80,8 +81,7 @@ const AddressBookProvider: React.FC = ({ children }) => {
 
       updateAddresses(newAddresses)
 
-      // TODO: set global message
-      // addToast(`${address} added to your Address Book.`)
+      addToast(i18n.t('{{address}} added to your Address Book.', { address }) as string)
     },
     [addresses]
   )
@@ -94,8 +94,7 @@ const AddressBookProvider: React.FC = ({ children }) => {
       const newAddresses = addresses.filter((a: any) => !(a.name === name && a.address === address))
 
       updateAddresses(newAddresses)
-      // TODO: set global message
-      // addToast(`${address} removed from your Address Book.`)
+      addToast(i18n.t('{{address}} removed from your Address Book.', { address }) as string)
     },
     [addresses]
   )
@@ -110,12 +109,10 @@ const AddressBookProvider: React.FC = ({ children }) => {
           ...accounts.map((account: any) => ({
             isAccount: true,
             name: accountType(account),
-            address: account.id,
-            icon: toIcon(account.id)
+            address: account.id
           })),
           ...parsedAddresses.map((entry) => ({
-            ...entry,
-            icon: toIcon(entry.address)
+            ...entry
           }))
         ])
       } catch (e) {
@@ -128,8 +125,7 @@ const AddressBookProvider: React.FC = ({ children }) => {
   // a bit of a 'cheat': update the humanizer with the latest known addresses
   // this is breaking the react patterns cause the humanizer has a 'global' state, but that's fine since it simply constantly learns new addr aliases,
   // so there's no 'inconsistent state' there, the more the better
-  // TODO: add humanizers logic
-  // useEffect(() => setKnownAddresses(addresses), [addresses])
+  useEffect(() => setKnownAddresses(addresses), [addresses])
 
   return (
     <AddressBookContext.Provider
