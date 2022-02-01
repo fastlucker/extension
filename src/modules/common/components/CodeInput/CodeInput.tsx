@@ -9,6 +9,7 @@ import {
 } from 'react-native-confirmation-code-field'
 
 import Text from '@modules/common/components/Text'
+import usePrevious from '@modules/common/hooks/usePrevious'
 
 import styles from './styles'
 
@@ -19,13 +20,23 @@ interface Props extends Partial<CodeFieldProps> {
   enableMask?: boolean
 }
 
-const CodeInput: React.FC<Props> = ({ onFulfill, enableMask = true, ...rest }) => {
+const CodeInput: React.FC<Props> = ({ onFulfill, enableMask = true, autoFocus, ...rest }) => {
   const [value, setValue] = useState('')
-  const ref = useBlurOnFulfill({ value, cellCount: CELL_COUNT })
+  const inputRef = useBlurOnFulfill({ value, cellCount: CELL_COUNT })
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({
     value,
     setValue
   })
+
+  const prevAutoFocus = usePrevious(autoFocus)
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (autoFocus) {
+        inputRef.current?.focus()
+      }
+    }, 200)
+  }, [autoFocus])
 
   useEffect(() => {
     if (value.length >= 6) {
@@ -33,6 +44,12 @@ const CodeInput: React.FC<Props> = ({ onFulfill, enableMask = true, ...rest }) =
       setValue('')
     }
   }, [value])
+
+  useEffect(() => {
+    if (!prevAutoFocus && autoFocus) {
+      inputRef.current?.focus()
+    }
+  }, [autoFocus, prevAutoFocus])
 
   const renderCell: CodeFieldProps['renderCell'] = ({ index, symbol, isFocused }) => {
     let textChild = null
@@ -62,8 +79,9 @@ const CodeInput: React.FC<Props> = ({ onFulfill, enableMask = true, ...rest }) =
 
   return (
     <CodeField
-      ref={ref}
+      ref={inputRef}
       {...props}
+      autoFocus={false}
       value={value}
       onChangeText={setValue}
       cellCount={CELL_COUNT}

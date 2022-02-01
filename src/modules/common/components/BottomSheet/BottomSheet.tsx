@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Keyboard, StyleSheet, TouchableWithoutFeedback, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import Animated, { greaterThan } from 'react-native-reanimated'
 import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 
@@ -18,6 +18,7 @@ interface Props {
   maxInitialHeightPercentage?: number
   dynamicInitialHeight?: boolean
   onCloseEnd?: () => void
+  onCloseStart?: () => void
 }
 
 const BottomSheet: React.FC<Props> = ({
@@ -27,7 +28,8 @@ const BottomSheet: React.FC<Props> = ({
   cancelText: _cancelText,
   maxInitialHeightPercentage = 0.6,
   dynamicInitialHeight = true,
-  onCloseEnd
+  onCloseEnd,
+  onCloseStart
 }) => {
   const { t } = useTranslation()
   const [contentHeight, setContentHeight] = useState(0)
@@ -56,22 +58,20 @@ const BottomSheet: React.FC<Props> = ({
   }
 
   const renderContent = () => (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.containerWrapper}>
-        <View style={styles.containerInnerWrapper} onLayout={handleOnLayout}>
-          <View style={styles.dragger} />
-          {children}
-          {displayCancel && (
-            <Button
-              type={BUTTON_TYPES.SECONDARY}
-              onPress={handleClose}
-              style={styles.cancelBtn}
-              text={cancelText}
-            />
-          )}
-        </View>
+    <View style={styles.containerWrapper}>
+      <View style={styles.containerInnerWrapper} onLayout={handleOnLayout}>
+        <View style={styles.dragger} />
+        {children}
+        {displayCancel && (
+          <Button
+            type={BUTTON_TYPES.SECONDARY}
+            onPress={handleClose}
+            style={styles.cancelBtn}
+            text={cancelText}
+          />
+        )}
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   )
 
   const animatedShadowOpacity = Animated.interpolateNode(bottomSheetY, {
@@ -115,6 +115,7 @@ const BottomSheet: React.FC<Props> = ({
         enabledContentTapInteraction={false}
         callbackNode={bottomSheetY}
         borderRadius={15}
+        onCloseStart={onCloseStart}
         onCloseEnd={onCloseEnd}
       />
     </Portal>
