@@ -1,7 +1,7 @@
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { Platform, Vibration } from 'react-native'
+import { Platform, SafeAreaView, StyleSheet, Vibration, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
@@ -11,10 +11,12 @@ import PasscodeAuth from '@modules/common/components/PasscodeAuth'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
+import spacings from '@modules/common/styles/spacings'
 import { SECURE_STORE_KEY_PASSCODE } from '@modules/settings/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
+import styles from './styles'
 
 type PasscodeContextData = {
   state: PASSCODE_STATES
@@ -33,6 +35,7 @@ type PasscodeContextData = {
   triggerEnteringPasscode: () => void
   resetValidPasscodeEntered: () => void
   hasEnteredValidPasscode: boolean | null
+  lockApp: () => void
 }
 
 const defaults: PasscodeContextData = {
@@ -51,7 +54,8 @@ const defaults: PasscodeContextData = {
   isValidLocalAuth: () => Promise.resolve(false),
   triggerEnteringPasscode: () => {},
   resetValidPasscodeEntered: () => {},
-  hasEnteredValidPasscode: null
+  hasEnteredValidPasscode: null,
+  lockApp: () => {}
 }
 
 const PasscodeContext = createContext<PasscodeContextData>(defaults)
@@ -80,6 +84,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     defaults.hasEnteredValidPasscode
   )
   const [focusCodeInput, setFocusCodeInput] = useState(false)
+  const [isAppLocked, setIsAppLocked] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -141,6 +146,15 @@ const PasscodeProvider: React.FC = ({ children }) => {
     })()
   }, [])
 
+  const lockApp = () => {
+    if (state === PASSCODE_STATES.NO_PASSCODE) {
+      return
+    }
+
+    setIsAppLocked(true)
+  }
+  const unlockApp = () => setIsAppLocked(false)
+
   const addLocalAuth = async () => {
     try {
       const { success } = await LocalAuthentication.authenticateAsync()
@@ -185,9 +199,15 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const triggerValidateLocalAuth = async () => {
     const isValid = await isValidLocalAuth()
 
-    if (isValid) {
-      handleValidationSuccess()
+    if (!isValid) {
+      return
     }
+
+    if (isAppLocked) {
+      return unlockApp()
+    }
+
+    handleValidationSuccess()
   }
 
   const addPasscode = async (code: string) => {
@@ -259,11 +279,17 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const handleOnValidatePasscode = (code: string) => {
     const isValid = isValidPasscode(code)
-    setHasEnteredValidPasscode(isValid)
 
-    if (isValid) {
-      handleValidationSuccess()
+    if (!isValid) {
+      return setHasEnteredValidPasscode(false)
     }
+
+    if (isAppLocked) {
+      return unlockApp()
+    }
+
+    setHasEnteredValidPasscode(isValid)
+    handleValidationSuccess()
   }
 
   const resetValidPasscodeEntered = () => {
@@ -289,7 +315,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
           fallbackSupportedAuthTypesLabel,
           triggerEnteringPasscode,
           resetValidPasscodeEntered,
-          hasEnteredValidPasscode
+          hasEnteredValidPasscode,
+          lockApp
         }),
         [
           isLoading,
@@ -307,6 +334,23 @@ const PasscodeProvider: React.FC = ({ children }) => {
       )}
     >
       {children}
+
+      {isAppLocked && (
+        <View style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
+          <SafeAreaView style={[spacings.mhSm, spacings.mv]}>
+            <PasscodeAuth
+              autoFocus={focusCodeInput}
+              onFulfill={handleOnValidatePasscode}
+              onValidateLocalAuth={triggerValidateLocalAuth}
+              hasError={!hasEnteredValidPasscode && hasEnteredValidPasscode !== null}
+              state={state}
+              deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}
+              fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}
+            />
+          </SafeAreaView>
+        </View>
+      )}
+
       <BottomSheet sheetRef={sheetRef} dynamicInitialHeight={false}>
         <PasscodeAuth
           autoFocus={focusCodeInput}
