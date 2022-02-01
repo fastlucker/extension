@@ -1,7 +1,7 @@
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { Platform, SafeAreaView, StyleSheet, Vibration, View } from 'react-native'
+import { Keyboard, Platform, SafeAreaView, StyleSheet, Vibration, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
@@ -263,7 +263,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const triggerEnteringPasscode = () => {
     openBottomSheet()
-
     if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
       triggerValidateLocalAuth()
     } else {
@@ -290,6 +289,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
     setHasEnteredValidPasscode(isValid)
     handleValidationSuccess()
+  }
+
+  const handleBottomSheetClose = () => {
+    setFocusCodeInput(false)
+    Keyboard.dismiss()
   }
 
   const resetValidPasscodeEntered = () => {
@@ -351,7 +355,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
         </View>
       )}
 
-      <BottomSheet sheetRef={sheetRef} dynamicInitialHeight={false}>
+      <BottomSheet
+        sheetRef={sheetRef}
+        dynamicInitialHeight={false}
+        onCloseStart={handleBottomSheetClose}
+      >
         <PasscodeAuth
           autoFocus={focusCodeInput}
           onFulfill={handleOnValidatePasscode}
