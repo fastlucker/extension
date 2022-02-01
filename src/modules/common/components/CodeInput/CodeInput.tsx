@@ -30,6 +30,7 @@ const CodeInput: React.FC<Props> = ({ onFulfill, enableMask = true, ...rest }) =
   useEffect(() => {
     if (value.length >= 6) {
       onFulfill(value)
+      setValue('')
     }
   }, [value])
 
@@ -67,7 +68,7 @@ const CodeInput: React.FC<Props> = ({ onFulfill, enableMask = true, ...rest }) =
       onChangeText={setValue}
       cellCount={CELL_COUNT}
       rootStyle={styles.codeFieldRoot}
-      keyboardType="number-pad"
+      keyboardType="numeric"
       textContentType="password"
       {...rest}
       renderCell={renderCell}

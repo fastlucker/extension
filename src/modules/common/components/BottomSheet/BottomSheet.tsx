@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet, View } from 'react-native'
+import { Keyboard, StyleSheet, TouchableWithoutFeedback, View } from 'react-native'
 import Animated, { greaterThan } from 'react-native-reanimated'
 import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 
@@ -56,20 +56,22 @@ const BottomSheet: React.FC<Props> = ({
   }
 
   const renderContent = () => (
-    <View style={styles.containerWrapper}>
-      <View style={styles.containerInnerWrapper} onLayout={handleOnLayout}>
-        <View style={styles.dragger} />
-        {children}
-        {displayCancel && (
-          <Button
-            type={BUTTON_TYPES.SECONDARY}
-            onPress={handleClose}
-            style={styles.cancelBtn}
-            text={cancelText}
-          />
-        )}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.containerWrapper}>
+        <View style={styles.containerInnerWrapper} onLayout={handleOnLayout}>
+          <View style={styles.dragger} />
+          {children}
+          {displayCancel && (
+            <Button
+              type={BUTTON_TYPES.SECONDARY}
+              onPress={handleClose}
+              style={styles.cancelBtn}
+              text={cancelText}
+            />
+          )}
+        </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   )
 
   const animatedShadowOpacity = Animated.interpolateNode(bottomSheetY, {

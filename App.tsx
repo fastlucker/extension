@@ -29,14 +29,14 @@ const App = () => {
                 <RequestsProvider>
                   <AddressBookProvider>
                     <AccountsPasswordsProvider>
-                      <PasscodeProvider>
-                        <PortalProvider>
+                      <PortalProvider>
+                        <PasscodeProvider>
                           <AttentionGrabberProvider>
                             <Router />
                           </AttentionGrabberProvider>
                           <PortalHost name="global" />
-                        </PortalProvider>
-                      </PasscodeProvider>
+                        </PasscodeProvider>
+                      </PortalProvider>
                     </AccountsPasswordsProvider>
                   </AddressBookProvider>
                 </RequestsProvider>

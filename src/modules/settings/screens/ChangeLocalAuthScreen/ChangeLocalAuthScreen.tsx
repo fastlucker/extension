@@ -5,7 +5,10 @@ import Button from '@modules/common/components/Button'
 import P from '@modules/common/components/P'
 import { TEXT_TYPES } from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
-import { DEVICE_SECURITY_LEVEL, PASSCODE_STATES } from '@modules/common/contexts/passcodeContext'
+import {
+  DEVICE_SECURITY_LEVEL,
+  PASSCODE_STATES
+} from '@modules/common/contexts/passcodeContext/constants'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
 import { useNavigation } from '@react-navigation/native'

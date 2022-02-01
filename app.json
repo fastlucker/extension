@@ -6,10 +6,7 @@
     "assetBundlePatterns": ["**/*"],
     "sdkVersion": "43.0.0",
     "ios": {
-      "bundleIdentifier": "com.ambire.wallet",
-      "infoPlist": {
-        "NSFaceIDUsageDescription": "Allow Ambire Wallet to use FaceID so you can authenticate and sign transactions easier as an alternative to using your account password."
-      }
+      "bundleIdentifier": "com.ambire.wallet"
     },
     "android": {
       "package": "com.ambire.wallet"

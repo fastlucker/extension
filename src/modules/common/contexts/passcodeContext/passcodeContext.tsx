@@ -5,98 +5,16 @@ import { Platform, Vibration } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
+import BottomSheet from '@modules/common/components/BottomSheet'
+import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
+import PasscodeAuth from '@modules/common/components/PasscodeAuth'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
+import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
 import { SECURE_STORE_KEY_PASSCODE } from '@modules/settings/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum PASSCODE_STATES {
-  NO_PASSCODE = 'NO_PASSCODE',
-  PASSCODE_ONLY = 'PASSCODE_ONLY',
-  PASSCODE_AND_LOCAL_AUTH = 'PASSCODE_AND_LOCAL_AUTH'
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum DEVICE_SECURITY_LEVEL {
-  // Indicates no enrolled authentication
-  NONE = LocalAuthentication.SecurityLevel.NONE,
-  // Indicates non-biometric authentication (e.g. PIN, Pattern).
-  SECRET = LocalAuthentication.SecurityLevel.SECRET,
-  // Indicates biometric authentication
-  BIOMETRIC = LocalAuthentication.SecurityLevel.BIOMETRIC
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum DEVICE_SUPPORTED_AUTH_TYPES {
-  FINGERPRINT = LocalAuthentication.AuthenticationType.FINGERPRINT,
-  FACIAL_RECOGNITION = LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION,
-  IRIS = LocalAuthentication.AuthenticationType.IRIS
-}
-
-const getDeviceSupportedAuthTypesLabel = (types: DEVICE_SUPPORTED_AUTH_TYPES[]) => {
-  if (Platform.OS === 'ios') {
-    if (
-      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION) &&
-      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)
-    ) {
-      return i18n.t('Face ID or Touch ID')
-    }
-
-    if (types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION)) {
-      return i18n.t('Face ID')
-    }
-
-    if (types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)) {
-      return i18n.t('Touch ID')
-    }
-  }
-
-  if (Platform.OS === 'android') {
-    if (
-      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION) &&
-      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.IRIS) &&
-      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)
-    ) {
-      return i18n.t('facial recognition, iris recognition or fingerprint')
-    }
-
-    if (
-      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.IRIS) &&
-      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)
-    ) {
-      return i18n.t('iris recognition or fingerprint')
-    }
-
-    if (
-      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION) &&
-      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)
-    ) {
-      return i18n.t('facial recognition or fingerprint')
-    }
-
-    if (
-      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION) &&
-      types.includes(DEVICE_SUPPORTED_AUTH_TYPES.IRIS)
-    ) {
-      return i18n.t('facial recognition or iris recognition')
-    }
-
-    if (types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FACIAL_RECOGNITION)) {
-      return i18n.t('facial recognition')
-    }
-
-    if (types.includes(DEVICE_SUPPORTED_AUTH_TYPES.IRIS)) {
-      return i18n.t('iris recognition')
-    }
-
-    if (types.includes(DEVICE_SUPPORTED_AUTH_TYPES.FINGERPRINT)) {
-      return i18n.t('fingerprint')
-    }
-  }
-
-  return ''
-}
+import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
 
 type PasscodeContextData = {
   state: PASSCODE_STATES
@@ -112,6 +30,9 @@ type PasscodeContextData = {
   addLocalAuth: () => void
   removeLocalAuth: () => void
   isValidLocalAuth: () => Promise<boolean>
+  triggerEnteringPasscode: () => void
+  resetValidPasscodeEntered: () => void
+  hasEnteredValidPasscode: boolean | null
 }
 
 const defaults: PasscodeContextData = {
@@ -127,13 +48,17 @@ const defaults: PasscodeContextData = {
   isLocalAuthSupported: null,
   addLocalAuth: () => {},
   removeLocalAuth: () => {},
-  isValidLocalAuth: () => Promise.resolve(false)
+  isValidLocalAuth: () => Promise.resolve(false),
+  triggerEnteringPasscode: () => {},
+  resetValidPasscodeEntered: () => {},
+  hasEnteredValidPasscode: null
 }
 
 const PasscodeContext = createContext<PasscodeContextData>(defaults)
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
+  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
   const [state, setState] = useState<PASSCODE_STATES>(defaults.state)
@@ -151,6 +76,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
     defaults.isLocalAuthSupported
   )
   const [isLoading, setIsLoading] = useState<boolean>(defaults.isLoading)
+  const [hasEnteredValidPasscode, setHasEnteredValidPasscode] = useState<null | boolean>(
+    defaults.hasEnteredValidPasscode
+  )
+  const [focusCodeInput, setFocusCodeInput] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -247,6 +176,19 @@ const PasscodeProvider: React.FC = ({ children }) => {
       return false
     }
   }
+  const handleValidationSuccess = () => {
+    setFocusCodeInput(false)
+    closeBottomSheet()
+    setHasEnteredValidPasscode(true)
+  }
+
+  const triggerValidateLocalAuth = async () => {
+    const isValid = await isValidLocalAuth()
+
+    if (isValid) {
+      handleValidationSuccess()
+    }
+  }
 
   const addPasscode = async (code: string) => {
     try {
@@ -299,11 +241,34 @@ const PasscodeProvider: React.FC = ({ children }) => {
     return isValid
   }
 
+  const triggerEnteringPasscode = () => {
+    openBottomSheet()
+
+    if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
+      triggerValidateLocalAuth()
+    } else {
+      setFocusCodeInput(true)
+    }
+  }
+
   const fallbackSupportedAuthTypesLabel =
     Platform.select({
       ios: i18n.t('passcode'),
       android: i18n.t('PIN / pattern')
     }) || defaults.fallbackSupportedAuthTypesLabel
+
+  const handleOnValidatePasscode = (code: string) => {
+    const isValid = isValidPasscode(code)
+    setHasEnteredValidPasscode(isValid)
+
+    if (isValid) {
+      handleValidationSuccess()
+    }
+  }
+
+  const resetValidPasscodeEntered = () => {
+    setHasEnteredValidPasscode(null)
+  }
 
   return (
     <PasscodeContext.Provider
@@ -321,7 +286,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSecurityLevel,
           deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,
-          fallbackSupportedAuthTypesLabel
+          fallbackSupportedAuthTypesLabel,
+          triggerEnteringPasscode,
+          resetValidPasscodeEntered,
+          hasEnteredValidPasscode
         }),
         [
           isLoading,
@@ -331,6 +299,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
           state,
+          hasEnteredValidPasscode,
           // By including this, when calling the `removePasscode` method,
           // it makes the `useAccountsPasswords` context re-render too.
           selectedAccHasPassword
@@ -338,6 +307,17 @@ const PasscodeProvider: React.FC = ({ children }) => {
       )}
     >
       {children}
+      <BottomSheet sheetRef={sheetRef} dynamicInitialHeight={false}>
+        <PasscodeAuth
+          autoFocus={focusCodeInput}
+          onFulfill={handleOnValidatePasscode}
+          onValidateLocalAuth={triggerValidateLocalAuth}
+          hasError={!hasEnteredValidPasscode && hasEnteredValidPasscode !== null}
+          state={state}
+          deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}
+          fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}
+        />
+      </BottomSheet>
     </PasscodeContext.Provider>
   )
 }

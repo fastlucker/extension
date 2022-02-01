@@ -11,13 +11,15 @@ type AccountsPasswordsContextData = {
   selectedAccHasPassword: boolean
   addSelectedAccPassword: (password: string) => Promise<void>
   removeSelectedAccPassword: () => Promise<void>
+  getSelectedAccPassword: () => string
 }
 
 const defaults: AccountsPasswordsContextData = {
   isLoading: true,
   selectedAccHasPassword: false,
   addSelectedAccPassword: () => Promise.resolve(),
-  removeSelectedAccPassword: () => Promise.resolve()
+  removeSelectedAccPassword: () => Promise.resolve(),
+  getSelectedAccPassword: () => ''
 }
 
 const AccountsPasswordsContext = createContext<AccountsPasswordsContextData>(defaults)
@@ -95,6 +97,8 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
     return setSelectedAccHasPassword(false)
   }
 
+  const getSelectedAccPassword = () => accountsPasswords[selectedAcc]
+
   return (
     <AccountsPasswordsContext.Provider
       value={useMemo(
@@ -102,7 +106,8 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
           isLoading,
           addSelectedAccPassword,
           selectedAccHasPassword,
-          removeSelectedAccPassword
+          removeSelectedAccPassword,
+          getSelectedAccPassword
         }),
         [isLoading, selectedAccHasPassword, selectedAcc]
       )}

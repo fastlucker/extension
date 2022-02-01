@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -11,12 +11,15 @@ import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
+import usePasscode from '@modules/common/hooks/usePasscode'
 import { isValidCode } from '@modules/common/services/validate'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import { isTokenEligible } from '@modules/pending-transactions/services/helpers'
+import { useIsFocused } from '@react-navigation/native'
 
 import styles from './styles'
 
@@ -25,6 +28,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     control,
     handleSubmit,
     resetField,
+    setValue,
     formState: { errors }
   } = useForm({
     mode: 'onSubmit',
@@ -35,12 +39,27 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     }
   })
   const { t } = useTranslation()
+  const { selectedAccHasPassword, getSelectedAccPassword } = useAccountsPasswords()
+  const { triggerEnteringPasscode, hasEnteredValidPasscode, resetValidPasscodeEntered } =
+    usePasscode()
+  const isFocused = useIsFocused()
+  const [isPasswordSwappedByPasscode, setIsPasswordSwappedByPasscode] = useState(false)
+
   // reset this every time the signing status changes
   useEffect(
     // @ts-ignore
     () => !signingStatus && resetField('code'),
     [signingStatus]
   )
+
+  useEffect(() => {
+    if (hasEnteredValidPasscode && isFocused) {
+      approveTxn({})
+      setValue('password', getSelectedAccPassword())
+      setIsPasswordSwappedByPasscode(true)
+      resetValidPasscodeEntered()
+    }
+  }, [hasEnteredValidPasscode, isFocused])
 
   const rejectButton = rejectTxn && (
     <Button type={BUTTON_TYPES.DANGER} text={t('Reject')} onPress={rejectTxn} />
@@ -81,7 +100,21 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
   const isRecoveryMode =
     signingStatus && signingStatus.finalBundle && signingStatus.finalBundle.recoveryMode
 
+  const handleOnSign = () => {
+    if (selectedAccHasPassword) {
+      return triggerEnteringPasscode()
+    }
+
+    approveTxn({})
+  }
+
   const onSubmit = (values: { code: string; password: string }) => {
+    if (isPasswordSwappedByPasscode) {
+      return approveTxn({
+        quickAccCredentials: { code: values.code, password: getSelectedAccPassword() }
+      })
+    }
+
     approveTxn({ quickAccCredentials: values })
   }
 
@@ -91,7 +124,11 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
         {renderTitle()}
         <View>
           {signingStatus.confCodeRequired === 'otp' ? (
-            <Text>{t('Please enter your OTP code and your password.')}</Text>
+            <Text style={spacings.mbTy}>
+              {isPasswordSwappedByPasscode
+                ? t('Please enter your OTP code.')
+                : t('Please enter your OTP code and your password.')}
+            </Text>
           ) : null}
           {signingStatus.confCodeRequired === 'email' ? (
             <Text style={[textStyles.bold, spacings.mbSm]}>
@@ -101,7 +138,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
             </Text>
           ) : null}
         </View>
-        {!isRecoveryMode && (
+        {!isRecoveryMode && !isPasswordSwappedByPasscode && (
           <Controller
             control={control}
             rules={{ required: true }}
@@ -136,6 +173,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
               keyboardType="numeric"
               autoCorrect={false}
               value={value}
+              autoFocus={isPasswordSwappedByPasscode}
             />
           )}
           name="code"
@@ -163,7 +201,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
       <View style={styles.buttonsContainer}>
         {!!rejectTxn && <View style={styles.buttonWrapper}>{rejectButton}</View>}
         <View style={styles.buttonWrapper}>
-          <Button text={t('Sign')} onPress={approveTxn} disabled={!estimation || signingStatus} />
+          <Button text={t('Sign')} onPress={handleOnSign} disabled={!estimation || signingStatus} />
         </View>
       </View>
     </Panel>

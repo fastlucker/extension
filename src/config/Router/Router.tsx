@@ -20,7 +20,6 @@ import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScre
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import PasscodeSignScreen from '@modules/settings/screens/PasscodeSignScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
-import ValidatePasscodeScreen from '@modules/settings/screens/ValidatePasscodeScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
@@ -224,13 +223,6 @@ const SettingsStackScreen = () => {
         component={ChangePasscodeScreen}
         options={{
           headerTitle: t('Passcode')
-        }}
-      />
-      <SettingsStack.Screen
-        name="passcode-validate"
-        component={ValidatePasscodeScreen}
-        options={{
-          headerTitle: t('Enter passcode')
         }}
       />
       <SettingsStack.Screen
