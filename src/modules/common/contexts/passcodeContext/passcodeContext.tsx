@@ -147,13 +147,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     })()
   }, [])
 
-  const lockApp = () => {
-    if (state === PASSCODE_STATES.NO_PASSCODE) {
-      return
-    }
-
-    setIsAppLocked(true)
-  }
+  const lockApp = () => setIsAppLocked(true)
   const unlockApp = () => setIsAppLocked(false)
 
   const addLocalAuth = async () => {
@@ -193,6 +187,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }
   const handleValidationSuccess = () => {
     setFocusCodeInput(false)
+
+    if (isAppLocked) {
+      return unlockApp()
+    }
+
     closeBottomSheet()
     setHasEnteredValidPasscode(true)
   }
@@ -202,10 +201,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
     if (!isValid) {
       return
-    }
-
-    if (isAppLocked) {
-      return unlockApp()
     }
 
     handleValidationSuccess()
@@ -263,7 +258,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }
 
   const triggerEnteringPasscode = () => {
-    openBottomSheet()
+    if (!isAppLocked) {
+      openBottomSheet()
+    }
+
     if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
       triggerValidateLocalAuth()
     } else {
@@ -284,11 +282,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
       return setHasEnteredValidPasscode(false)
     }
 
-    if (isAppLocked) {
-      return unlockApp()
-    }
-
-    setHasEnteredValidPasscode(isValid)
     handleValidationSuccess()
   }
 
@@ -331,6 +324,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
           state,
+          isAppLocked,
           hasEnteredValidPasscode,
           // By including this, when calling the `removePasscode` method,
           // it makes the `useAccountsPasswords` context re-render too.
