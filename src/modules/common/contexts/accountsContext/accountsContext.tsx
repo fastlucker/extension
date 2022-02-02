@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import i18n from '@config/localization/localization'
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
@@ -27,7 +28,7 @@ const AccountsContext = createContext<AccountsContextData>({
 const AccountsProvider: React.FC = ({ children }) => {
   const [accounts, setAccounts] = useState<any[]>([])
   const [selectedAcc, setSelectedAcc] = useState<string | null>('')
-  const { setIsAuthenticated, isAuthenticated } = useAuth()
+  const { setAuthStatus, authStatus } = useAuth()
   const { addToast } = useToast()
 
   const initState = async () => {
@@ -96,14 +97,14 @@ const AccountsProvider: React.FC = ({ children }) => {
 
       if (opts.select) onSelectAcc(acc.id)
       if (Object.keys(accounts).length) {
-        if (isAuthenticated) {
+        if (authStatus === AUTH_STATUS.AUTHENTICATED) {
           navigate('dashboard')
         } else {
-          setIsAuthenticated(true)
+          setAuthStatus(AUTH_STATUS.AUTHENTICATED)
         }
       }
     },
-    [accounts, onSelectAcc, isAuthenticated]
+    [accounts, onSelectAcc, authStatus]
   )
 
   const onRemoveAccount = useCallback(
@@ -118,7 +119,7 @@ const AccountsProvider: React.FC = ({ children }) => {
         if (!clearedAccounts.length) {
           AsyncStorage.removeItem('selectedAcc')
           setSelectedAcc('')
-          setIsAuthenticated(false)
+          setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
         } else onSelectAcc(clearedAccounts[0].id)
       } catch (error) {
         // fail silently
