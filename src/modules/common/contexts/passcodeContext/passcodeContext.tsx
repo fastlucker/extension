@@ -176,22 +176,67 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const lockApp = () => setIsAppLocked(true)
   const unlockApp = () => setIsAppLocked(false)
 
-  const enableLockOnStartup = () => {
-    setLockOnStartup(true)
-    AsyncStorage.setItem('lockOnStartup', 'true')
+  const enableLockOnStartup = async () => {
+    try {
+      await AsyncStorage.setItem('lockOnStartup', 'true')
+      setLockOnStartup(true)
+
+      addToast(t('Lock on startup enabled.') as string, {
+        timeout: 3000
+      })
+    } catch (e) {
+      addToast(t('Enabling lock on startup failed.') as string, {
+        error: true
+      })
+    }
   }
-  const disableLockOnStartup = () => {
-    setLockOnStartup(false)
-    AsyncStorage.removeItem('lockOnStartup')
+  const disableLockOnStartup = async () => {
+    try {
+      await AsyncStorage.removeItem('lockOnStartup')
+      setLockOnStartup(false)
+
+      addToast(t('Lock on startup disabled.') as string, {
+        timeout: 3000
+      })
+    } catch (e) {
+      addToast(t('Disabling lock on startup failed.') as string, {
+        error: true
+      })
+    }
   }
 
-  const enableLockWhenInactive = () => {
-    setLockWhenInactive(true)
-    AsyncStorage.setItem('lockWhenInactive', 'true')
+  const enableLockWhenInactive = async () => {
+    try {
+      await AsyncStorage.setItem('lockWhenInactive', 'true')
+      setLockWhenInactive(true)
+
+      addToast(t('Lock when inactive enabled.') as string, {
+        timeout: 3000
+      })
+    } catch (e) {
+      addToast(t('Enabling lock when inactive failed.') as string, {
+        error: true
+      })
+    }
   }
-  const disableLockWhenInactive = () => {
-    setLockWhenInactive(false)
-    AsyncStorage.removeItem('lockWhenInactive')
+  const disableLockWhenInactive = async () => {
+    try {
+      await AsyncStorage.removeItem('lockWhenInactive')
+      setLockWhenInactive(false)
+
+      addToast(
+        t(
+          'Lock when inactive disabled. It will take effect next time you start the app.'
+        ) as string,
+        {
+          timeout: 8000
+        }
+      )
+    } catch (e) {
+      addToast(t('Disabling lock when inactive failed.') as string, {
+        error: true
+      })
+    }
   }
 
   const addLocalAuth = async () => {
