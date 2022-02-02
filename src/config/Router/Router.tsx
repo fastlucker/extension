@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { AppState } from 'react-native'
 
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import AppsScreen from '@modules/apps/screens/AppsScreen'
@@ -293,6 +294,18 @@ const AppStack = () => {
       lockApp()
     }
   }, [isLoading])
+
+  useEffect(() => {
+    const lockListener = AppState.addEventListener('change', (nextState) => {
+      // The app is running in the background means that user is either:
+      // in another app, on the home screen or [Android] on another Activity
+      // (even if it was launched by our app).
+      if (nextState === 'background') {
+        lockApp()
+      }
+    })
+    return () => lockListener.remove()
+  }, [])
 
   return (
     <Tab.Navigator
