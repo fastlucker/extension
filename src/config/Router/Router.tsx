@@ -400,18 +400,6 @@ const Router = () => {
     routeNameRef.current = navigationRef.current.getCurrentRoute()?.name
   }
 
-  if (authStatus === AUTH_STATUS.LOADING)
-    return (
-      <NavigationContainer
-        // Part of the mechanism for being able to navigate without the navigation prop.
-        // For more details, see the NavigationService.
-        ref={navigationRef}
-        onReady={handleOnReady}
-      >
-        {null}
-      </NavigationContainer>
-    )
-
   return (
     <NavigationContainer
       // Part of the mechanism for being able to navigate without the navigation prop.
@@ -419,8 +407,12 @@ const Router = () => {
       ref={navigationRef}
       onReady={handleOnReady}
     >
-      {authStatus === AUTH_STATUS.AUTHENTICATED && <AppStack />}
-      {authStatus === AUTH_STATUS.NOT_AUTHENTICATED && <AuthStack />}
+      {authStatus === AUTH_STATUS.LOADING ? null : (
+        <>
+          {authStatus === AUTH_STATUS.AUTHENTICATED && <AppStack />}
+          {authStatus === AUTH_STATUS.NOT_AUTHENTICATED && <AuthStack />}
+        </>
+      )}
     </NavigationContainer>
   )
 }
