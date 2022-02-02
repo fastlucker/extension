@@ -9,7 +9,11 @@ import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/consta
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
+import Title from '../Title'
+
 interface Props {
+  title?: string
+  message?: string
   onFulfill: (code: string) => void
   hasError: boolean | null
   onValidateLocalAuth: () => any
@@ -20,6 +24,8 @@ interface Props {
 }
 
 const PasscodeAuth: React.FC<Props> = ({
+  title,
+  message,
   onFulfill,
   hasError,
   onValidateLocalAuth,
@@ -32,8 +38,9 @@ const PasscodeAuth: React.FC<Props> = ({
 
   return (
     <>
+      {title && <Title style={[textStyles.center, spacings.mt]}>{title}</Title>}
       <P style={[textStyles.center, spacings.mtLg]}>
-        {t('In order to proceed, please authenticate by entering the app passcode.')}
+        {message || t('In order to proceed, please authenticate by entering the app passcode.')}
       </P>
       {hasError && (
         <P type={TEXT_TYPES.DANGER} style={[textStyles.center, spacings.mb0]}>
