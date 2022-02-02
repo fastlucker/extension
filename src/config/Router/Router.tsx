@@ -17,6 +17,7 @@ import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
+import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import PasscodeSignScreen from '@modules/settings/screens/PasscodeSignScreen'
@@ -238,6 +239,13 @@ const SettingsStackScreen = () => {
         component={PasscodeSignScreen}
         options={{
           headerTitle: t('Sign with Passcode')
+        }}
+      />
+      <SettingsStack.Screen
+        name="app-locking"
+        component={ChangeAppLockingScreen}
+        options={{
+          headerTitle: t('App Locking')
         }}
       />
       <SettingsStack.Screen
