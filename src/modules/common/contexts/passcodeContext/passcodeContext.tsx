@@ -1,13 +1,14 @@
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { Keyboard, Platform, SafeAreaView, StyleSheet, Vibration, View } from 'react-native'
+import { Keyboard, Platform, StyleSheet, Vibration, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import PasscodeAuth from '@modules/common/components/PasscodeAuth'
+import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
@@ -341,8 +342,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
       {isAppLocked && (
         <View style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
-          <SafeAreaView style={[spacings.mhSm, spacings.mv]}>
+          <SafeAreaView>
             <PasscodeAuth
+              title={t('Unlock Ambire Wallet')}
+              message={t('Entering your passcode.')}
               autoFocus={focusCodeInput}
               onFulfill={handleOnValidatePasscode}
               onValidateLocalAuth={triggerValidateLocalAuth}
