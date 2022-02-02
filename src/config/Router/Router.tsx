@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { AppState } from 'react-native'
 
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import AppsScreen from '@modules/apps/screens/AppsScreen'
@@ -10,8 +9,7 @@ import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
-import usePasscode from '@modules/common/hooks/usePasscode'
+import useAppLocksmith from '@modules/common/hooks/useAppLocksmith'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
@@ -281,31 +279,7 @@ const AuthStack = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-  const { lockApp, isLoading, state } = usePasscode()
-
-  useEffect(() => {
-    if (isLoading) {
-      // TODO: Figure out how to persist the splash screen,
-      // So that the lock screen gets displayed before the AppStack.
-      return
-    }
-
-    if (state !== PASSCODE_STATES.NO_PASSCODE) {
-      lockApp()
-    }
-  }, [isLoading])
-
-  useEffect(() => {
-    const lockListener = AppState.addEventListener('change', (nextState) => {
-      // The app is running in the background means that user is either:
-      // in another app, on the home screen or [Android] on another Activity
-      // (even if it was launched by our app).
-      if (nextState === 'background') {
-        lockApp()
-      }
-    })
-    return () => lockListener.remove()
-  }, [])
+  useAppLocksmith()
 
   return (
     <Tab.Navigator
