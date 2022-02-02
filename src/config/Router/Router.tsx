@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
@@ -9,6 +9,8 @@ import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
+import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
+import usePasscode from '@modules/common/hooks/usePasscode'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
@@ -278,6 +280,19 @@ const AuthStack = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
+  const { lockApp, isLoading, state } = usePasscode()
+
+  useEffect(() => {
+    if (isLoading) {
+      // TODO: Figure out how to persist the splash screen,
+      // So that the lock screen gets displayed before the AppStack.
+      return
+    }
+
+    if (state !== PASSCODE_STATES.NO_PASSCODE) {
+      lockApp()
+    }
+  }, [isLoading])
 
   return (
     <Tab.Navigator
