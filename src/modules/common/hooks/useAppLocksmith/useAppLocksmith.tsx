@@ -29,7 +29,7 @@ const useAppLocksmith = () => {
         lockApp()
       }
     })
-    return () => lockListener.remove()
+    return () => lockListener?.remove()
   }, [])
 }
 
