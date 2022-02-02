@@ -258,9 +258,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }
 
   const triggerEnteringPasscode = () => {
-    if (!isAppLocked) {
-      openBottomSheet()
-    }
+    openBottomSheet()
 
     if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
       triggerValidateLocalAuth()
