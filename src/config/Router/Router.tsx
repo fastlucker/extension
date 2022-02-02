@@ -283,6 +283,8 @@ const AppStack = () => {
 
   useEffect(() => {
     if (isLoading) {
+      // TODO: Figure out how to persist the splash screen,
+      // So that the lock screen gets displayed before the AppStack.
       return
     }
 
