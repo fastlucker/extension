@@ -14,15 +14,15 @@ const ChangeAppLockingScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
-  const { state } = usePasscode()
-
-  const toggleLockAppOnStartup = async () => {
-    // TODO.
-  }
-
-  const toggleLockAppWhenInactive = async () => {
-    // TODO.
-  }
+  const {
+    state,
+    lockOnStartup,
+    lockWhenInactive,
+    enableLockOnStartup,
+    disableLockOnStartup,
+    enableLockWhenInactive,
+    disableLockWhenInactive
+  } = usePasscode()
 
   const renderContent = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
@@ -41,16 +41,20 @@ const ChangeAppLockingScreen = () => {
 
     return (
       <>
-        <Button
-          onPress={toggleLockAppOnStartup}
-          text={true ? t('Lock on startup (enabled ✅)') : t('Lock on startup (not enabled ❌)')}
-        />
-        <Button
-          onPress={toggleLockAppWhenInactive}
-          text={
-            true ? t('Lock when inactive (enabled ✅)') : t('Lock when inactive (not enabled ❌)')
-          }
-        />
+        {lockOnStartup ? (
+          <Button onPress={disableLockOnStartup} text={t('Lock on startup (enabled ✅)')} />
+        ) : (
+          <Button onPress={enableLockOnStartup} text={t('Lock on startup (not enabled ❌)')} />
+        )}
+
+        {lockWhenInactive ? (
+          <Button onPress={disableLockWhenInactive} text={t('Lock when inactive (enabled ✅)')} />
+        ) : (
+          <Button
+            onPress={enableLockWhenInactive}
+            text={t('Lock when inactive (not enabled ❌)')}
+          />
+        )}
       </>
     )
   }

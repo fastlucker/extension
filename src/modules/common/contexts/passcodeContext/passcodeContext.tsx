@@ -37,6 +37,12 @@ type PasscodeContextData = {
   resetValidPasscodeEntered: () => void
   hasEnteredValidPasscode: boolean | null
   lockApp: () => void
+  enableLockOnStartup: () => void
+  disableLockOnStartup: () => void
+  enableLockWhenInactive: () => void
+  disableLockWhenInactive: () => void
+  lockOnStartup: boolean
+  lockWhenInactive: boolean
 }
 
 const defaults: PasscodeContextData = {
@@ -56,7 +62,13 @@ const defaults: PasscodeContextData = {
   triggerEnteringPasscode: () => {},
   resetValidPasscodeEntered: () => {},
   hasEnteredValidPasscode: null,
-  lockApp: () => {}
+  lockApp: () => {},
+  enableLockOnStartup: () => {},
+  disableLockOnStartup: () => {},
+  enableLockWhenInactive: () => {},
+  disableLockWhenInactive: () => {},
+  lockOnStartup: false,
+  lockWhenInactive: false
 }
 
 const PasscodeContext = createContext<PasscodeContextData>(defaults)
@@ -85,7 +97,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
     defaults.hasEnteredValidPasscode
   )
   const [focusCodeInput, setFocusCodeInput] = useState(false)
+  // App locking configurations
   const [isAppLocked, setIsAppLocked] = useState(false)
+  const [lockOnStartup, setLockOnStartup] = useState(defaults.lockOnStartup)
+  const [lockWhenInactive, setLockWhenInactive] = useState(defaults.lockWhenInactive)
 
   useEffect(() => {
     ;(async () => {
@@ -143,12 +158,41 @@ const PasscodeProvider: React.FC = ({ children }) => {
         // fail silently
       }
 
+      try {
+        const [lockOnStartupItem, lockWhenInactiveItem] = await Promise.all([
+          AsyncStorage.getItem('lockOnStartup'),
+          AsyncStorage.getItem('lockWhenInactive')
+        ])
+        setLockOnStartup(!!lockOnStartupItem)
+        setLockWhenInactive(!!lockWhenInactiveItem)
+      } catch (e) {
+        // fail silently
+      }
+
       setIsLoading(false)
     })()
   }, [])
 
   const lockApp = () => setIsAppLocked(true)
   const unlockApp = () => setIsAppLocked(false)
+
+  const enableLockOnStartup = () => {
+    setLockOnStartup(true)
+    AsyncStorage.setItem('lockOnStartup', 'true')
+  }
+  const disableLockOnStartup = () => {
+    setLockOnStartup(false)
+    AsyncStorage.removeItem('lockOnStartup')
+  }
+
+  const enableLockWhenInactive = () => {
+    setLockWhenInactive(true)
+    AsyncStorage.setItem('lockWhenInactive', 'true')
+  }
+  const disableLockWhenInactive = () => {
+    setLockWhenInactive(false)
+    AsyncStorage.removeItem('lockWhenInactive')
+  }
 
   const addLocalAuth = async () => {
     try {
@@ -217,6 +261,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
     }
 
     setPasscode(code)
+
+    if (state === PASSCODE_STATES.NO_PASSCODE) {
+      enableLockOnStartup()
+    }
+
     setState(
       // Covers the case coming from a state with passcode already set
       state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
@@ -312,7 +361,13 @@ const PasscodeProvider: React.FC = ({ children }) => {
           triggerEnteringPasscode,
           resetValidPasscodeEntered,
           hasEnteredValidPasscode,
-          lockApp
+          lockApp,
+          lockOnStartup,
+          lockWhenInactive,
+          enableLockOnStartup,
+          disableLockOnStartup,
+          enableLockWhenInactive,
+          disableLockWhenInactive
         }),
         [
           isLoading,
@@ -326,7 +381,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
           hasEnteredValidPasscode,
           // By including this, when calling the `removePasscode` method,
           // it makes the `useAccountsPasswords` context re-render too.
-          selectedAccHasPassword
+          selectedAccHasPassword,
+          lockOnStartup,
+          lockWhenInactive
         ]
       )}
     >

@@ -6,7 +6,7 @@ import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/consta
 import usePasscode from '../usePasscode'
 
 const useAppLocksmith = () => {
-  const { lockApp, isLoading, state } = usePasscode()
+  const { lockApp, isLoading, state, lockOnStartup, lockWhenInactive } = usePasscode()
 
   useEffect(() => {
     if (isLoading) {
@@ -15,12 +15,20 @@ const useAppLocksmith = () => {
       return
     }
 
-    if (state !== PASSCODE_STATES.NO_PASSCODE) {
+    if (state !== PASSCODE_STATES.NO_PASSCODE && lockOnStartup) {
       lockApp()
     }
   }, [isLoading])
 
   useEffect(() => {
+    if (isLoading) {
+      return
+    }
+
+    if (!lockWhenInactive) {
+      return
+    }
+
     const lockListener = AppState.addEventListener('change', (nextState) => {
       // The app is running in the background means that user is either:
       // in another app, on the home screen or [Android] on another Activity
@@ -30,7 +38,7 @@ const useAppLocksmith = () => {
       }
     })
     return () => lockListener?.remove()
-  }, [])
+  }, [isLoading, lockWhenInactive])
 }
 
 export default useAppLocksmith
