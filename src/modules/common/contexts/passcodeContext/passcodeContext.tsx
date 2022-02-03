@@ -211,7 +211,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const enableLockWhenInactive = async () => {
     try {
-      await AsyncStorage.setItem(LOCK_ON_STARTUP_KEY, 'true')
+      await AsyncStorage.setItem(LOCK_WHEN_INACTIVE_KEY, 'true')
       setLockWhenInactive(true)
 
       addToast(t('Lock when inactive enabled.') as string, {
@@ -225,7 +225,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }
   const disableLockWhenInactive = async () => {
     try {
-      await AsyncStorage.removeItem(LOCK_ON_STARTUP_KEY)
+      await AsyncStorage.removeItem(LOCK_WHEN_INACTIVE_KEY)
       setLockWhenInactive(false)
 
       addToast(
