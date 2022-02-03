@@ -15,7 +15,7 @@ const AppLocking = () => {
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
   return (
-    <Button text={t('Manage app locking')} onPress={() => navigation.navigate('app-locking')} />
+    <Button text={t('Manage app locking 🔐')} onPress={() => navigation.navigate('app-locking')} />
   )
 }
 
