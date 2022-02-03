@@ -18,40 +18,40 @@ import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry error
 
 const App = () => {
   return (
-    <>
+    <GestureHandlerRootView style={flexboxStyles.flex1}>
       <StatusBar style="light" />
-      <GestureHandlerRootView>
-        <ToastProvider>
-          <AuthProvider>
-            <AccountsProvider>
-              <NetworkProvider>
-                <PortfolioProvider>
-                  <RequestsProvider>
-                    <AddressBookProvider>
-                      <AccountsPasswordsProvider>
-                        <PortalProvider>
-                          <PasscodeProvider>
-                            <AttentionGrabberProvider>
-                              <Router />
-                            </AttentionGrabberProvider>
-                            <PortalHost name="global" />
-                          </PasscodeProvider>
-                        </PortalProvider>
-                      </AccountsPasswordsProvider>
-                    </AddressBookProvider>
-                  </RequestsProvider>
-                </PortfolioProvider>
-              </NetworkProvider>
-            </AccountsProvider>
-          </AuthProvider>
-        </ToastProvider>
-      </GestureHandlerRootView>
-    </>
+
+      <ToastProvider>
+        <AuthProvider>
+          <AccountsProvider>
+            <NetworkProvider>
+              <PortfolioProvider>
+                <RequestsProvider>
+                  <AddressBookProvider>
+                    <AccountsPasswordsProvider>
+                      <PortalProvider>
+                        <PasscodeProvider>
+                          <AttentionGrabberProvider>
+                            <Router />
+                          </AttentionGrabberProvider>
+                          <PortalHost name="global" />
+                        </PasscodeProvider>
+                      </PortalProvider>
+                    </AccountsPasswordsProvider>
+                  </AddressBookProvider>
+                </RequestsProvider>
+              </PortfolioProvider>
+            </NetworkProvider>
+          </AccountsProvider>
+        </AuthProvider>
+      </ToastProvider>
+    </GestureHandlerRootView>
   )
 }
 
