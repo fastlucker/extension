@@ -324,8 +324,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           triggerEnteringPasscode,
           resetValidPasscodeEntered,
           hasEnteredValidPasscode,
-          lockApp,
-          isAppLocked
+          lockApp
         }),
         [
           isLoading,
