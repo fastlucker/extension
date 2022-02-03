@@ -1,23 +1,28 @@
 import React, { createContext, Dispatch, useEffect, useMemo, useState } from 'react'
 
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type AuthContextData = {
-  isAuthenticated: boolean
-  setIsAuthenticated: Dispatch<React.SetStateAction<boolean>>
+  authStatus: AUTH_STATUS
+  setAuthStatus: Dispatch<React.SetStateAction<AUTH_STATUS>>
 }
 
 const AuthContext = createContext<AuthContextData>({
-  isAuthenticated: false,
-  setIsAuthenticated: () => false
+  authStatus: AUTH_STATUS.LOADING,
+  setAuthStatus: () => false
 })
 
 const AuthProvider: React.FC = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  const [authStatus, setAuthStatus] = useState<AUTH_STATUS>(AUTH_STATUS.LOADING)
 
   const initState = async () => {
     const selectedAcc = await AsyncStorage.getItem('selectedAcc')
-    setIsAuthenticated(!!selectedAcc)
+    if (selectedAcc) {
+      setAuthStatus(AUTH_STATUS.AUTHENTICATED)
+    } else {
+      setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
+    }
   }
 
   useEffect(() => {
@@ -26,10 +31,7 @@ const AuthProvider: React.FC = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={useMemo(
-        () => ({ isAuthenticated, setIsAuthenticated }),
-        [isAuthenticated, setIsAuthenticated]
-      )}
+      value={useMemo(() => ({ authStatus, setAuthStatus }), [authStatus, setAuthStatus])}
     >
       {children}
     </AuthContext.Provider>

@@ -1,6 +1,7 @@
 // So that the localization gets initialized at the beginning.
 import '@config/localization'
 
+import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 
@@ -16,6 +17,8 @@ import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
+
+SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry error
 
 const App = () => {
   return (

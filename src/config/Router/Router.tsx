@@ -1,8 +1,10 @@
+import * as SplashScreen from 'expo-splash-screen'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import AppsScreen from '@modules/apps/screens/AppsScreen'
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
@@ -255,6 +257,10 @@ const SettingsStackScreen = () => {
 const AuthStack = () => {
   const { t } = useTranslation()
 
+  useEffect(() => {
+    SplashScreen.hideAsync()
+  }, [])
+
   return (
     <Stack.Navigator screenOptions={globalScreenOptions}>
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
@@ -283,15 +289,15 @@ const AppStack = () => {
   const { lockApp, isLoading, state } = usePasscode()
 
   useEffect(() => {
-    if (isLoading) {
-      // TODO: Figure out how to persist the splash screen,
-      // So that the lock screen gets displayed before the AppStack.
-      return
-    }
+    ;(async () => {
+      if (isLoading) return
 
-    if (state !== PASSCODE_STATES.NO_PASSCODE) {
-      lockApp()
-    }
+      await SplashScreen.hideAsync()
+
+      if (state !== PASSCODE_STATES.NO_PASSCODE) {
+        lockApp()
+      }
+    })()
   }, [isLoading])
 
   return (
@@ -387,7 +393,7 @@ const AppStack = () => {
 }
 
 const Router = () => {
-  const { isAuthenticated } = useAuth()
+  const { authStatus } = useAuth()
 
   const handleOnReady = () => {
     // @ts-ignore for some reason TS complains about this 👇
@@ -401,7 +407,12 @@ const Router = () => {
       ref={navigationRef}
       onReady={handleOnReady}
     >
-      {isAuthenticated ? <AppStack /> : <AuthStack />}
+      {authStatus === AUTH_STATUS.LOADING ? null : (
+        <>
+          {authStatus === AUTH_STATUS.AUTHENTICATED && <AppStack />}
+          {authStatus === AUTH_STATUS.NOT_AUTHENTICATED && <AuthStack />}
+        </>
+      )}
     </NavigationContainer>
   )
 }
