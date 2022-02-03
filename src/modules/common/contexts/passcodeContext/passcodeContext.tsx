@@ -105,8 +105,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
         const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE)
         if (secureStoreItemPasscode) {
           setPasscode(secureStoreItemPasscode)
-          setState(PASSCODE_STATES.PASSCODE_ONLY)
           passcodeState = PASSCODE_STATES.PASSCODE_ONLY
+          setState(passcodeState)
         }
       } catch (e) {
         // fail silently
@@ -115,8 +115,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
       try {
         const isLocalAuthActivated = await AsyncStorage.getItem('isLocalAuthActivated')
         if (isLocalAuthActivated) {
-          setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
           passcodeState = PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+          setState(passcodeState)
         }
       } catch (e) {
         // fail silently
