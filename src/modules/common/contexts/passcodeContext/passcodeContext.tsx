@@ -5,6 +5,8 @@ import { Keyboard, Platform, StyleSheet, Vibration, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
+import useAuth from '@modules/auth/hooks/useAuth'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import PasscodeAuth from '@modules/common/components/PasscodeAuth'
@@ -12,7 +14,6 @@ import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
-import spacings from '@modules/common/styles/spacings'
 import { SECURE_STORE_KEY_PASSCODE } from '@modules/settings/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -63,6 +64,7 @@ const PasscodeContext = createContext<PasscodeContextData>(defaults)
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
+  const { authStatus } = useAuth()
   const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
@@ -89,6 +91,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     ;(async () => {
+      let passcodeState = state
+      if (authStatus === AUTH_STATUS.LOADING) return
       // Check if hardware supports local authentication
       try {
         const isCompatible = await LocalAuthentication.hasHardwareAsync()
@@ -101,7 +105,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
         const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE)
         if (secureStoreItemPasscode) {
           setPasscode(secureStoreItemPasscode)
-          setState(PASSCODE_STATES.PASSCODE_ONLY)
+          passcodeState = PASSCODE_STATES.PASSCODE_ONLY
+          setState(passcodeState)
         }
       } catch (e) {
         // fail silently
@@ -110,7 +115,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
       try {
         const isLocalAuthActivated = await AsyncStorage.getItem('isLocalAuthActivated')
         if (isLocalAuthActivated) {
-          setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+          passcodeState = PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+          setState(passcodeState)
         }
       } catch (e) {
         // fail silently
@@ -143,9 +149,15 @@ const PasscodeProvider: React.FC = ({ children }) => {
         // fail silently
       }
 
+      if (
+        passcodeState !== PASSCODE_STATES.NO_PASSCODE &&
+        authStatus === AUTH_STATUS.AUTHENTICATED
+      ) {
+        setIsAppLocked(true)
+      }
       setIsLoading(false)
     })()
-  }, [])
+  }, [authStatus])
 
   const lockApp = () => setIsAppLocked(true)
   const unlockApp = () => setIsAppLocked(false)
