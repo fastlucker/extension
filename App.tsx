@@ -4,6 +4,7 @@ import '@config/localization'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import Router from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
@@ -24,30 +25,32 @@ const App = () => {
   return (
     <>
       <StatusBar style="light" />
-      <ToastProvider>
-        <AuthProvider>
-          <AccountsProvider>
-            <NetworkProvider>
-              <PortfolioProvider>
-                <RequestsProvider>
-                  <AddressBookProvider>
-                    <AccountsPasswordsProvider>
-                      <PortalProvider>
-                        <PasscodeProvider>
-                          <AttentionGrabberProvider>
-                            <Router />
-                          </AttentionGrabberProvider>
-                          <PortalHost name="global" />
-                        </PasscodeProvider>
-                      </PortalProvider>
-                    </AccountsPasswordsProvider>
-                  </AddressBookProvider>
-                </RequestsProvider>
-              </PortfolioProvider>
-            </NetworkProvider>
-          </AccountsProvider>
-        </AuthProvider>
-      </ToastProvider>
+      <GestureHandlerRootView>
+        <ToastProvider>
+          <AuthProvider>
+            <AccountsProvider>
+              <NetworkProvider>
+                <PortfolioProvider>
+                  <RequestsProvider>
+                    <AddressBookProvider>
+                      <AccountsPasswordsProvider>
+                        <PortalProvider>
+                          <PasscodeProvider>
+                            <AttentionGrabberProvider>
+                              <Router />
+                            </AttentionGrabberProvider>
+                            <PortalHost name="global" />
+                          </PasscodeProvider>
+                        </PortalProvider>
+                      </AccountsPasswordsProvider>
+                    </AddressBookProvider>
+                  </RequestsProvider>
+                </PortfolioProvider>
+              </NetworkProvider>
+            </AccountsProvider>
+          </AuthProvider>
+        </ToastProvider>
+      </GestureHandlerRootView>
     </>
   )
 }
