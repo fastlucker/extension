@@ -91,7 +91,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     ;(async () => {
-      let tempState = state
+      let passcodeState = state
       if (authStatus === AUTH_STATUS.LOADING) return
       // Check if hardware supports local authentication
       try {
@@ -106,7 +106,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
         if (secureStoreItemPasscode) {
           setPasscode(secureStoreItemPasscode)
           setState(PASSCODE_STATES.PASSCODE_ONLY)
-          tempState = PASSCODE_STATES.PASSCODE_ONLY
+          passcodeState = PASSCODE_STATES.PASSCODE_ONLY
         }
       } catch (e) {
         // fail silently
@@ -116,7 +116,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
         const isLocalAuthActivated = await AsyncStorage.getItem('isLocalAuthActivated')
         if (isLocalAuthActivated) {
           setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
-          tempState = PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+          passcodeState = PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
         }
       } catch (e) {
         // fail silently
@@ -149,7 +149,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
         // fail silently
       }
 
-      if (tempState !== PASSCODE_STATES.NO_PASSCODE && authStatus === AUTH_STATUS.AUTHENTICATED) {
+      if (
+        passcodeState !== PASSCODE_STATES.NO_PASSCODE &&
+        authStatus === AUTH_STATUS.AUTHENTICATED
+      ) {
         setIsAppLocked(true)
       }
       setIsLoading(false)
