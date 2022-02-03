@@ -298,11 +298,9 @@ const AppStack = () => {
   useAppLocksmith()
 
   useEffect(() => {
-    ;(async () => {
-      if (isLoading) return
+    if (isLoading) return
 
-      SplashScreen.hideAsync()
-    })()
+    SplashScreen.hideAsync()
   }, [isLoading])
 
   return (
