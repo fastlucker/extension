@@ -12,8 +12,11 @@ import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
-import spacings from '@modules/common/styles/spacings'
-import { SECURE_STORE_KEY_PASSCODE } from '@modules/settings/constants'
+import {
+  LOCK_ON_STARTUP_KEY,
+  LOCK_WHEN_INACTIVE_KEY,
+  SECURE_STORE_KEY_PASSCODE
+} from '@modules/settings/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
@@ -123,7 +126,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       }
 
       try {
-        const isLocalAuthActivated = await AsyncStorage.getItem('isLocalAuthActivated')
+        const isLocalAuthActivated = await AsyncStorage.getItem(LOCK_WHEN_INACTIVE_KEY)
         if (isLocalAuthActivated) {
           setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
         }
@@ -161,7 +164,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       try {
         const [lockOnStartupItem, lockWhenInactiveItem] = await Promise.all([
           AsyncStorage.getItem('lockOnStartup'),
-          AsyncStorage.getItem('lockWhenInactive')
+          AsyncStorage.getItem(LOCK_ON_STARTUP_KEY)
         ])
         setLockOnStartup(!!lockOnStartupItem)
         setLockWhenInactive(!!lockWhenInactiveItem)
@@ -207,7 +210,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const enableLockWhenInactive = async () => {
     try {
-      await AsyncStorage.setItem('lockWhenInactive', 'true')
+      await AsyncStorage.setItem(LOCK_ON_STARTUP_KEY, 'true')
       setLockWhenInactive(true)
 
       addToast(t('Lock when inactive enabled.') as string, {
@@ -221,7 +224,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }
   const disableLockWhenInactive = async () => {
     try {
-      await AsyncStorage.removeItem('lockWhenInactive')
+      await AsyncStorage.removeItem(LOCK_ON_STARTUP_KEY)
       setLockWhenInactive(false)
 
       addToast(
@@ -243,7 +246,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     try {
       const { success } = await LocalAuthentication.authenticateAsync()
       if (success) {
-        await AsyncStorage.setItem('isLocalAuthActivated', 'true')
+        await AsyncStorage.setItem(LOCK_WHEN_INACTIVE_KEY, 'true')
 
         setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
       }
@@ -255,7 +258,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }
   const removeLocalAuth = async () => {
     try {
-      await AsyncStorage.removeItem('isLocalAuthActivated')
+      await AsyncStorage.removeItem(LOCK_WHEN_INACTIVE_KEY)
 
       setState(PASSCODE_STATES.PASSCODE_ONLY)
     } catch (e) {
