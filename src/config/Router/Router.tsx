@@ -11,7 +11,6 @@ import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
@@ -286,17 +285,13 @@ const AuthStack = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-  const { lockApp, isLoading, state } = usePasscode()
+  const { isLoading } = usePasscode()
 
   useEffect(() => {
     ;(async () => {
       if (isLoading) return
 
-      await SplashScreen.hideAsync()
-
-      if (state !== PASSCODE_STATES.NO_PASSCODE) {
-        lockApp()
-      }
+      SplashScreen.hideAsync()
     })()
   }, [isLoading])
 
