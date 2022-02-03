@@ -1,33 +1,19 @@
 import { useEffect } from 'react'
 import { AppState } from 'react-native'
 
-import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
+import useAuth from '@modules/auth/hooks/useAuth'
 
 import usePasscode from '../usePasscode'
 
 const useAppLocksmith = () => {
-  const { lockApp, isLoading, state, lockOnStartup, lockWhenInactive } = usePasscode()
+  const { lockApp, isLoading, lockWhenInactive } = usePasscode()
+  const { authStatus } = useAuth()
 
   useEffect(() => {
-    if (isLoading) {
-      // TODO: Figure out how to persist the splash screen,
-      // So that the lock screen gets displayed before the AppStack.
-      return
-    }
-
-    if (state !== PASSCODE_STATES.NO_PASSCODE && lockOnStartup) {
-      lockApp()
-    }
-  }, [isLoading])
-
-  useEffect(() => {
-    if (isLoading) {
-      return
-    }
-
-    if (!lockWhenInactive) {
-      return
-    }
+    if (isLoading) return
+    if (authStatus !== AUTH_STATUS.AUTHENTICATED) return
+    if (!lockWhenInactive) return
 
     const lockListener = AppState.addEventListener('change', (nextState) => {
       // The app is running in the background means that user is either:
@@ -38,7 +24,7 @@ const useAppLocksmith = () => {
       }
     })
     return () => lockListener?.remove()
-  }, [isLoading, lockWhenInactive])
+  }, [isLoading, lockWhenInactive, authStatus])
 }
 
 export default useAppLocksmith

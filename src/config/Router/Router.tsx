@@ -1,8 +1,10 @@
-import React from 'react'
+import * as SplashScreen from 'expo-splash-screen'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
 import AppsScreen from '@modules/apps/screens/AppsScreen'
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
@@ -10,6 +12,7 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import useAppLocksmith from '@modules/common/hooks/useAppLocksmith'
+import usePasscode from '@modules/common/hooks/usePasscode'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
@@ -262,6 +265,10 @@ const SettingsStackScreen = () => {
 const AuthStack = () => {
   const { t } = useTranslation()
 
+  useEffect(() => {
+    SplashScreen.hideAsync()
+  }, [])
+
   return (
     <Stack.Navigator screenOptions={globalScreenOptions}>
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
@@ -287,7 +294,16 @@ const AuthStack = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
+  const { isLoading } = usePasscode()
   useAppLocksmith()
+
+  useEffect(() => {
+    ;(async () => {
+      if (isLoading) return
+
+      SplashScreen.hideAsync()
+    })()
+  }, [isLoading])
 
   return (
     <Tab.Navigator
@@ -382,7 +398,7 @@ const AppStack = () => {
 }
 
 const Router = () => {
-  const { isAuthenticated } = useAuth()
+  const { authStatus } = useAuth()
 
   const handleOnReady = () => {
     // @ts-ignore for some reason TS complains about this 👇
@@ -396,7 +412,12 @@ const Router = () => {
       ref={navigationRef}
       onReady={handleOnReady}
     >
-      {isAuthenticated ? <AppStack /> : <AuthStack />}
+      {authStatus === AUTH_STATUS.LOADING ? null : (
+        <>
+          {authStatus === AUTH_STATUS.AUTHENTICATED && <AppStack />}
+          {authStatus === AUTH_STATUS.NOT_AUTHENTICATED && <AuthStack />}
+        </>
+      )}
     </NavigationContainer>
   )
 }

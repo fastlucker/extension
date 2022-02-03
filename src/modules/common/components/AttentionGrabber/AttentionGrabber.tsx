@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 
 import { useTranslation } from '@config/localization'
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
@@ -10,7 +11,7 @@ const stickyIds: string[] = []
 const AttentionGrabber = ({ children }: any) => {
   const { addToast, removeToast } = useToast()
   const { t } = useTranslation()
-  const { isAuthenticated } = useAuth()
+  const { authStatus } = useAuth()
   const { eligibleRequests, sendTxnState, setSendTxnState } = useRequests()
   const removeStickyToasts = useCallback(
     () => stickyIds.forEach((id) => removeToast(id)),
@@ -19,7 +20,7 @@ const AttentionGrabber = ({ children }: any) => {
   const isRouteWallet = useMemo(() => null, [])
 
   useEffect(() => {
-    if (eligibleRequests.length && isAuthenticated) {
+    if (eligibleRequests.length && authStatus === AUTH_STATUS.AUTHENTICATED) {
       if (sendTxnState.showing) removeStickyToasts()
       else {
         stickyIds.push(

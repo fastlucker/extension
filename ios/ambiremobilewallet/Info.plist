@@ -54,7 +54,7 @@
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to use the microphone</string>
     <key>UIStatusBarStyle</key>
-    <string>UIStatusBarStyleDefault</string>
+    <string>UIStatusBarStyleLightContent</string>
     <key>CFBundleURLTypes</key>
     <array>
       <dict>

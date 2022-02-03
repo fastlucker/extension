@@ -5,6 +5,8 @@ import { Keyboard, Platform, StyleSheet, Vibration, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
+import useAuth from '@modules/auth/hooks/useAuth'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import PasscodeAuth from '@modules/common/components/PasscodeAuth'
@@ -79,6 +81,7 @@ const PasscodeContext = createContext<PasscodeContextData>(defaults)
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
+  const { authStatus } = useAuth()
   const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
@@ -108,6 +111,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     ;(async () => {
+      if (authStatus !== AUTH_STATUS.AUTHENTICATED) return
+
       // Check if hardware supports local authentication
       try {
         const isCompatible = await LocalAuthentication.hasHardwareAsync()
@@ -169,13 +174,17 @@ const PasscodeProvider: React.FC = ({ children }) => {
         ])
         setLockOnStartup(!!lockOnStartupItem)
         setLockWhenInactive(!!lockWhenInactiveItem)
+
+        if (lockOnStartupItem) {
+          setIsAppLocked(true)
+        }
       } catch (e) {
         // fail silently
       }
 
       setIsLoading(false)
     })()
-  }, [])
+  }, [authStatus])
 
   const lockApp = () => setIsAppLocked(true)
   const unlockApp = () => setIsAppLocked(false)
