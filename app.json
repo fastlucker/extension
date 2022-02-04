@@ -2,10 +2,8 @@
   "name": "ambire-mobile-wallet",
   "expo": {
     "slug": "ambire-mobile-wallet",
-    "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "version": "0.1.0",
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.ambire.wallet"
     },
