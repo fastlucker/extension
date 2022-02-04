@@ -75,6 +75,8 @@ const Accounts = () => {
       // or in the Android Keystore.
       removeAccPasswordIfItExists(account.id)
 
+      // In case this account is the only one logged in,
+      // clean up the app passcode too.
       const isLastAccount = accounts.length === 1
       if (isLastAccount) {
         removePasscode(account.id)
