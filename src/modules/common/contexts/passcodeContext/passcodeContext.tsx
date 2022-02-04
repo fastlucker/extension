@@ -343,6 +343,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
     )
   }
   const removePasscode = async (accountId?: string) => {
+    // In case the remove `passcode` is called with another account,
+    // than the currently selected one, removing the account password
+    // has already happened. So skip it.
     if (!accountId) {
       // Remove the account password stored, because without passcode,
       // this is not allowed.
