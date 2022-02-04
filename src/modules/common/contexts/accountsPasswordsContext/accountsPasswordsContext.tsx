@@ -12,6 +12,7 @@ type AccountsPasswordsContextData = {
   addSelectedAccPassword: (password: string) => Promise<void>
   removeSelectedAccPassword: () => Promise<void>
   getSelectedAccPassword: () => string
+  removeAccPasswordIfItExists: (accountId: string) => void
 }
 
 const defaults: AccountsPasswordsContextData = {
@@ -19,7 +20,8 @@ const defaults: AccountsPasswordsContextData = {
   selectedAccHasPassword: false,
   addSelectedAccPassword: () => Promise.resolve(),
   removeSelectedAccPassword: () => Promise.resolve(),
-  getSelectedAccPassword: () => ''
+  getSelectedAccPassword: () => '',
+  removeAccPasswordIfItExists: () => {}
 }
 
 const AccountsPasswordsContext = createContext<AccountsPasswordsContextData>(defaults)
@@ -97,6 +99,24 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
     return setSelectedAccHasPassword(false)
   }
 
+  const removeAccPasswordIfItExists = async (accountId: string) => {
+    const nextPasswords = {
+      ...accountsPasswords,
+      [accountId]: ''
+    }
+
+    try {
+      await SecureStore.setItemAsync(
+        SECURE_STORE_KEY_ACCOUNTS_PASSWORDS,
+        JSON.stringify(nextPasswords)
+      )
+    } catch (e) {
+      // fail silently
+    }
+
+    return setAccountsPasswords(nextPasswords)
+  }
+
   const getSelectedAccPassword = () => accountsPasswords[selectedAcc]
 
   return (
@@ -107,7 +127,8 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
           addSelectedAccPassword,
           selectedAccHasPassword,
           removeSelectedAccPassword,
-          getSelectedAccPassword
+          getSelectedAccPassword,
+          removeAccPasswordIfItExists
         }),
         [isLoading, selectedAccHasPassword, selectedAcc]
       )}

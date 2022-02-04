@@ -13,6 +13,7 @@ import Panel from '@modules/common/components/Panel'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
@@ -31,6 +32,7 @@ const Accounts = () => {
   const sheetNetworks = useBottomSheet()
   const sheetAccounts = useBottomSheet()
   const [logoutWarning, setLogoutWarning] = useState(false)
+  const { removeAccPasswordIfItExists } = useAccountsPasswords()
   const { addToast } = useToast()
 
   const handleChangeNetwork = (chainId) => {
@@ -64,6 +66,16 @@ const Accounts = () => {
     const isActive = selectedAcc === account.id
     const onChangeAccount = () => handleChangeAccount(account.id)
 
+    const handleRemoveAccount = () => {
+      setLogoutWarning(false)
+
+      // Remove account password, because it gets persisted in the iOS Keychain
+      // or in the Android Keystore.
+      removeAccPasswordIfItExists(account.id)
+
+      onRemoveAccount(account.id)
+    }
+
     return (
       <View
         key={account?.id}
@@ -86,13 +98,7 @@ const Accounts = () => {
                 {t('Are you sure you want to log out from this account?')}{' '}
               </Text>
               <Text>
-                <Text
-                  style={textStyles.bold}
-                  onPress={() => {
-                    setLogoutWarning(false)
-                    onRemoveAccount(account.id)
-                  }}
-                >
+                <Text style={textStyles.bold} onPress={handleRemoveAccount}>
                   {t('Yes, log out.')}
                 </Text>{' '}
                 <Text onPress={() => setLogoutWarning(false)}>{t('Cancel.')}</Text>
@@ -124,8 +130,6 @@ const Accounts = () => {
               {account?.id}
             </Text>
           </View>
-          {/* TODO */}
-          {/* <Button onPress={() => onRemoveAccount(selectedAcc.id)} title="Remove" /> */}
           <View>
             <Trans>
               <Text onPress={sheetNetworks.openBottomSheet}>
