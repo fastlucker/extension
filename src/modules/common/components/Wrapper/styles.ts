@@ -15,7 +15,8 @@ const styles = StyleSheet.create<Style>({
     ...spacings.phTy
   },
   contentContainerStyle: {
-    ...spacings.pvSm
+    ...spacings.pvSm,
+    flexGrow: 1
   }
 })
 

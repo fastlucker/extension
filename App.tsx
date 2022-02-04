@@ -4,6 +4,7 @@ import '@config/localization'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import Router from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
@@ -17,13 +18,15 @@ import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry error
 
 const App = () => {
   return (
-    <>
+    <GestureHandlerRootView style={flexboxStyles.flex1}>
       <StatusBar style="light" />
+
       <ToastProvider>
         <AuthProvider>
           <AccountsProvider>
@@ -48,7 +51,7 @@ const App = () => {
           </AccountsProvider>
         </AuthProvider>
       </ToastProvider>
-    </>
+    </GestureHandlerRootView>
   )
 }
 
