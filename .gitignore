@@ -475,3 +475,7 @@ yarn-error.log
 
 # CocoaPods
 /ios/Pods/
+
+# iOS local certificates & credentials
+ios/certs/*
+credentials.json

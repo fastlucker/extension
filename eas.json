@@ -6,7 +6,8 @@
     "production": {
       "node": "16.13.0",
       "ios": {
-        "simulator": true
+        "simulator": true,
+        "credentialsSource": "local"
       },
       "releaseChannel": "default",
       "env": {
