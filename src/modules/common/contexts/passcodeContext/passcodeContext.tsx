@@ -355,6 +355,15 @@ const PasscodeProvider: React.FC = ({ children }) => {
       await removeLocalAuth()
     }
 
+    // Disable lock on startup and when inactive, , because without passcode
+    // these are no longer relevant.
+    if (lockOnStartup) {
+      disableLockOnStartup()
+    }
+    if (lockWhenInactive) {
+      disableLockWhenInactive()
+    }
+
     try {
       await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE)
     } catch (e) {
