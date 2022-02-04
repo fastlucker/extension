@@ -13,8 +13,7 @@ const styles = StyleSheet.create<Style>({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    ...spacings.mb,
-    ...spacings.phTy
+    ...spacings.mb
   },
   checkbox: {
     borderWidth: 3,

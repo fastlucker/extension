@@ -13,11 +13,7 @@ const QRCodeLoginScreen = () => {
   const { handleLogin, error, inProgress, setError } = useQRCodeLogin()
 
   if (!error && !inProgress) {
-    return (
-      <Wrapper>
-        <QRCodeScanner onScan={handleLogin} />
-      </Wrapper>
-    )
+    return <QRCodeScanner onScan={handleLogin} />
   }
 
   return (
