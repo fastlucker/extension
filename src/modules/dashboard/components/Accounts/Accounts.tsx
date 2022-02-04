@@ -15,6 +15,7 @@ import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -33,6 +34,7 @@ const Accounts = () => {
   const sheetAccounts = useBottomSheet()
   const [logoutWarning, setLogoutWarning] = useState(false)
   const { removeAccPasswordIfItExists } = useAccountsPasswords()
+  const { removePasscode } = usePasscode()
   const { addToast } = useToast()
 
   const handleChangeNetwork = (chainId) => {
@@ -72,6 +74,11 @@ const Accounts = () => {
       // Remove account password, because it gets persisted in the iOS Keychain
       // or in the Android Keystore.
       removeAccPasswordIfItExists(account.id)
+
+      const isLastAccount = accounts.length === 1
+      if (isLastAccount) {
+        removePasscode(account.id)
+      }
 
       onRemoveAccount(account.id)
     }
