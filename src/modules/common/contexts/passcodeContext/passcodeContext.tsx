@@ -1,7 +1,7 @@
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { Keyboard, Platform, StyleSheet, Vibration, View } from 'react-native'
+import { AppState, Keyboard, Platform, StyleSheet, Vibration, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
@@ -42,7 +42,6 @@ type PasscodeContextData = {
   triggerEnteringPasscode: () => void
   resetValidPasscodeEntered: () => void
   hasEnteredValidPasscode: boolean | null
-  lockApp: () => void
   enableLockOnStartup: () => void
   disableLockOnStartup: () => void
   enableLockWhenInactive: () => void
@@ -68,7 +67,6 @@ const defaults: PasscodeContextData = {
   triggerEnteringPasscode: () => {},
   resetValidPasscodeEntered: () => {},
   hasEnteredValidPasscode: null,
-  lockApp: () => {},
   enableLockOnStartup: () => {},
   disableLockOnStartup: () => {},
   enableLockWhenInactive: () => {},
@@ -186,8 +184,21 @@ const PasscodeProvider: React.FC = ({ children }) => {
     })()
   }, [authStatus])
 
-  const lockApp = () => setIsAppLocked(true)
-  const unlockApp = () => setIsAppLocked(false)
+  useEffect(() => {
+    if (isLoading) return
+    if (authStatus !== AUTH_STATUS.AUTHENTICATED) return
+    if (!lockWhenInactive) return
+
+    const lockListener = AppState.addEventListener('change', (nextState) => {
+      // The app is running in the background means that user is either:
+      // in another app, on the home screen or [Android] on another Activity
+      // (even if it was launched by our app).
+      if (nextState === 'background') {
+        setIsAppLocked(true)
+      }
+    })
+    return () => lockListener?.remove()
+  }, [isLoading, lockWhenInactive, authStatus])
 
   const enableLockOnStartup = async () => {
     try {
@@ -291,7 +302,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     setFocusCodeInput(false)
 
     if (isAppLocked) {
-      return unlockApp()
+      return setIsAppLocked(false)
     }
 
     closeBottomSheet()
@@ -419,7 +430,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
           triggerEnteringPasscode,
           resetValidPasscodeEntered,
           hasEnteredValidPasscode,
-          lockApp,
           lockOnStartup,
           lockWhenInactive,
           enableLockOnStartup,

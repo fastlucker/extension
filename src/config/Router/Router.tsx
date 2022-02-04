@@ -11,7 +11,6 @@ import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import useAppLocksmith from '@modules/common/hooks/useAppLocksmith'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
@@ -295,7 +294,6 @@ const AuthStack = () => {
 const AppStack = () => {
   const { t } = useTranslation()
   const { isLoading } = usePasscode()
-  useAppLocksmith()
 
   useEffect(() => {
     if (isLoading) return
