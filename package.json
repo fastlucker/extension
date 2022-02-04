@@ -1,6 +1,5 @@
 {
   "name": "ambire-mobile-wallet",
-  "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "android": "expo run:android",
