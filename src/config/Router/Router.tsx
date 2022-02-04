@@ -19,6 +19,7 @@ import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
+import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import PasscodeSignScreen from '@modules/settings/screens/PasscodeSignScreen'
@@ -243,6 +244,13 @@ const SettingsStackScreen = () => {
         }}
       />
       <SettingsStack.Screen
+        name="app-locking"
+        component={ChangeAppLockingScreen}
+        options={{
+          headerTitle: t('App Locking')
+        }}
+      />
+      <SettingsStack.Screen
         name="pending-transactions"
         component={PendingTransactionsScreen}
         options={{
@@ -288,11 +296,9 @@ const AppStack = () => {
   const { isLoading } = usePasscode()
 
   useEffect(() => {
-    ;(async () => {
-      if (isLoading) return
+    if (isLoading) return
 
-      SplashScreen.hideAsync()
-    })()
+    SplashScreen.hideAsync()
   }, [isLoading])
 
   return (

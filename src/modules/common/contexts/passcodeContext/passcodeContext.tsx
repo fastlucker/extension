@@ -1,7 +1,7 @@
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { Keyboard, Platform, StyleSheet, Vibration, View } from 'react-native'
+import { AppState, Keyboard, Platform, StyleSheet, Vibration, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
@@ -14,7 +14,12 @@ import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
-import { SECURE_STORE_KEY_PASSCODE } from '@modules/settings/constants'
+import {
+  IS_LOCAL_AUTH_ACTIVATED_KEY,
+  LOCK_ON_STARTUP_KEY,
+  LOCK_WHEN_INACTIVE_KEY,
+  SECURE_STORE_KEY_PASSCODE
+} from '@modules/settings/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
@@ -37,7 +42,12 @@ type PasscodeContextData = {
   triggerEnteringPasscode: () => void
   resetValidPasscodeEntered: () => void
   hasEnteredValidPasscode: boolean | null
-  lockApp: () => void
+  enableLockOnStartup: () => void
+  disableLockOnStartup: () => void
+  enableLockWhenInactive: () => void
+  disableLockWhenInactive: () => void
+  lockOnStartup: boolean
+  lockWhenInactive: boolean
 }
 
 const defaults: PasscodeContextData = {
@@ -57,7 +67,12 @@ const defaults: PasscodeContextData = {
   triggerEnteringPasscode: () => {},
   resetValidPasscodeEntered: () => {},
   hasEnteredValidPasscode: null,
-  lockApp: () => {}
+  enableLockOnStartup: () => {},
+  disableLockOnStartup: () => {},
+  enableLockWhenInactive: () => {},
+  disableLockWhenInactive: () => {},
+  lockOnStartup: false,
+  lockWhenInactive: false
 }
 
 const PasscodeContext = createContext<PasscodeContextData>(defaults)
@@ -87,12 +102,15 @@ const PasscodeProvider: React.FC = ({ children }) => {
     defaults.hasEnteredValidPasscode
   )
   const [focusCodeInput, setFocusCodeInput] = useState(false)
+  // App locking configurations
   const [isAppLocked, setIsAppLocked] = useState(false)
+  const [lockOnStartup, setLockOnStartup] = useState(defaults.lockOnStartup)
+  const [lockWhenInactive, setLockWhenInactive] = useState(defaults.lockWhenInactive)
 
   useEffect(() => {
     ;(async () => {
-      let passcodeState = state
-      if (authStatus === AUTH_STATUS.LOADING) return
+      if (authStatus !== AUTH_STATUS.AUTHENTICATED) return
+
       // Check if hardware supports local authentication
       try {
         const isCompatible = await LocalAuthentication.hasHardwareAsync()
@@ -105,18 +123,16 @@ const PasscodeProvider: React.FC = ({ children }) => {
         const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE)
         if (secureStoreItemPasscode) {
           setPasscode(secureStoreItemPasscode)
-          passcodeState = PASSCODE_STATES.PASSCODE_ONLY
-          setState(passcodeState)
+          setState(PASSCODE_STATES.PASSCODE_ONLY)
         }
       } catch (e) {
         // fail silently
       }
 
       try {
-        const isLocalAuthActivated = await AsyncStorage.getItem('isLocalAuthActivated')
+        const isLocalAuthActivated = await AsyncStorage.getItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
         if (isLocalAuthActivated) {
-          passcodeState = PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-          setState(passcodeState)
+          setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
         }
       } catch (e) {
         // fail silently
@@ -149,24 +165,109 @@ const PasscodeProvider: React.FC = ({ children }) => {
         // fail silently
       }
 
-      if (
-        passcodeState !== PASSCODE_STATES.NO_PASSCODE &&
-        authStatus === AUTH_STATUS.AUTHENTICATED
-      ) {
-        setIsAppLocked(true)
+      try {
+        const [lockOnStartupItem, lockWhenInactiveItem] = await Promise.all([
+          AsyncStorage.getItem(LOCK_ON_STARTUP_KEY),
+          AsyncStorage.getItem(LOCK_WHEN_INACTIVE_KEY)
+        ])
+        setLockOnStartup(!!lockOnStartupItem)
+        setLockWhenInactive(!!lockWhenInactiveItem)
+
+        if (lockOnStartupItem) {
+          setIsAppLocked(true)
+        }
+      } catch (e) {
+        // fail silently
       }
+
       setIsLoading(false)
     })()
   }, [authStatus])
 
-  const lockApp = () => setIsAppLocked(true)
-  const unlockApp = () => setIsAppLocked(false)
+  useEffect(() => {
+    if (isLoading) return
+    if (authStatus !== AUTH_STATUS.AUTHENTICATED) return
+    if (!lockWhenInactive) return
+
+    const lockListener = AppState.addEventListener('change', (nextState) => {
+      // The app is running in the background means that user is either:
+      // in another app, on the home screen or [Android] on another Activity
+      // (even if it was launched by our app).
+      if (nextState === 'background') {
+        setIsAppLocked(true)
+      }
+    })
+    return () => lockListener?.remove()
+  }, [isLoading, lockWhenInactive, authStatus])
+
+  const enableLockOnStartup = async () => {
+    try {
+      await AsyncStorage.setItem(LOCK_ON_STARTUP_KEY, 'true')
+      setLockOnStartup(true)
+
+      addToast(t('Lock on startup enabled.') as string, {
+        timeout: 3000
+      })
+    } catch (e) {
+      addToast(t('Enabling lock on startup failed.') as string, {
+        error: true
+      })
+    }
+  }
+  const disableLockOnStartup = async () => {
+    try {
+      await AsyncStorage.removeItem(LOCK_ON_STARTUP_KEY)
+      setLockOnStartup(false)
+
+      addToast(t('Lock on startup disabled.') as string, {
+        timeout: 3000
+      })
+    } catch (e) {
+      addToast(t('Disabling lock on startup failed.') as string, {
+        error: true
+      })
+    }
+  }
+
+  const enableLockWhenInactive = async () => {
+    try {
+      await AsyncStorage.setItem(LOCK_WHEN_INACTIVE_KEY, 'true')
+      setLockWhenInactive(true)
+
+      addToast(t('Lock when inactive enabled.') as string, {
+        timeout: 3000
+      })
+    } catch (e) {
+      addToast(t('Enabling lock when inactive failed.') as string, {
+        error: true
+      })
+    }
+  }
+  const disableLockWhenInactive = async () => {
+    try {
+      await AsyncStorage.removeItem(LOCK_WHEN_INACTIVE_KEY)
+      setLockWhenInactive(false)
+
+      addToast(
+        t(
+          'Lock when inactive disabled. It will take effect next time you start the app.'
+        ) as string,
+        {
+          timeout: 8000
+        }
+      )
+    } catch (e) {
+      addToast(t('Disabling lock when inactive failed.') as string, {
+        error: true
+      })
+    }
+  }
 
   const addLocalAuth = async () => {
     try {
       const { success } = await LocalAuthentication.authenticateAsync()
       if (success) {
-        await AsyncStorage.setItem('isLocalAuthActivated', 'true')
+        await AsyncStorage.setItem(IS_LOCAL_AUTH_ACTIVATED_KEY, 'true')
 
         setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
       }
@@ -178,7 +279,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }
   const removeLocalAuth = async () => {
     try {
-      await AsyncStorage.removeItem('isLocalAuthActivated')
+      await AsyncStorage.removeItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
 
       setState(PASSCODE_STATES.PASSCODE_ONLY)
     } catch (e) {
@@ -201,7 +302,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     setFocusCodeInput(false)
 
     if (isAppLocked) {
-      return unlockApp()
+      return setIsAppLocked(false)
     }
 
     closeBottomSheet()
@@ -229,6 +330,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
     }
 
     setPasscode(code)
+
+    if (state === PASSCODE_STATES.NO_PASSCODE) {
+      enableLockOnStartup()
+    }
+
     setState(
       // Covers the case coming from a state with passcode already set
       state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
@@ -324,7 +430,12 @@ const PasscodeProvider: React.FC = ({ children }) => {
           triggerEnteringPasscode,
           resetValidPasscodeEntered,
           hasEnteredValidPasscode,
-          lockApp
+          lockOnStartup,
+          lockWhenInactive,
+          enableLockOnStartup,
+          disableLockOnStartup,
+          enableLockWhenInactive,
+          disableLockWhenInactive
         }),
         [
           isLoading,
@@ -338,7 +449,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
           hasEnteredValidPasscode,
           // By including this, when calling the `removePasscode` method,
           // it makes the `useAccountsPasswords` context re-render too.
-          selectedAccHasPassword
+          selectedAccHasPassword,
+          lockOnStartup,
+          lockWhenInactive
         ]
       )}
     >
