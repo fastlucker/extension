@@ -32,7 +32,7 @@ type PasscodeContextData = {
   deviceSupportedAuthTypesLabel: string
   fallbackSupportedAuthTypesLabel: string
   addPasscode: (code: string) => Promise<void>
-  removePasscode: () => Promise<void>
+  removePasscode: (accountId: string) => Promise<void>
   isLoading: boolean
   isValidPasscode: (code: string) => boolean
   isLocalAuthSupported: null | boolean
@@ -342,17 +342,31 @@ const PasscodeProvider: React.FC = ({ children }) => {
         : PASSCODE_STATES.PASSCODE_ONLY
     )
   }
-  const removePasscode = async () => {
-    // Remove the account password stored, because without passcode,
-    // this is not allowed.
-    if (selectedAccHasPassword) {
-      await removeSelectedAccPassword()
+  const removePasscode = async (accountId?: string) => {
+    // In case the remove `passcode` is called with another account,
+    // than the currently selected one, removing the account password
+    // has already happened. So skip it.
+    if (!accountId) {
+      // Remove the account password stored, because without passcode,
+      // this is not allowed.
+      if (selectedAccHasPassword) {
+        await removeSelectedAccPassword()
+      }
     }
 
     // First, remove the local auth (if set), because without passcode
     // using local auth is not allowed.
     if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
       await removeLocalAuth()
+    }
+
+    // Disable lock on startup and when inactive, , because without passcode
+    // these are no longer relevant.
+    if (lockOnStartup) {
+      disableLockOnStartup()
+    }
+    if (lockWhenInactive) {
+      disableLockWhenInactive()
     }
 
     try {
