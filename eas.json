@@ -6,7 +6,6 @@
     "production": {
       "node": "16.13.0",
       "ios": {
-        "simulator": true,
         "credentialsSource": "local"
       },
       "releaseChannel": "default",
@@ -34,6 +33,24 @@
       "releaseChannel": "development",
       "env": {
         "APP_ENV": "development"
+      }
+    },
+    "production:simulator": {
+      "extends": "production",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "staging:simulator": {
+      "extends": "staging",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "development:simulator": {
+      "extends": "development",
+      "ios": {
+        "simulator": true
       }
     }
   },
