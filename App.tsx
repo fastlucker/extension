@@ -18,6 +18,7 @@ import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
+import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry error
@@ -34,16 +35,18 @@ const App = () => {
               <PortfolioProvider>
                 <RequestsProvider>
                   <AddressBookProvider>
-                    <AccountsPasswordsProvider>
-                      <PortalProvider>
-                        <PasscodeProvider>
-                          <AttentionGrabberProvider>
-                            <Router />
-                          </AttentionGrabberProvider>
-                          <PortalHost name="global" />
-                        </PasscodeProvider>
-                      </PortalProvider>
-                    </AccountsPasswordsProvider>
+                    <WalletConnectProvider>
+                      <AccountsPasswordsProvider>
+                        <PortalProvider>
+                          <PasscodeProvider>
+                            <AttentionGrabberProvider>
+                              <Router />
+                            </AttentionGrabberProvider>
+                            <PortalHost name="global" />
+                          </PasscodeProvider>
+                        </PortalProvider>
+                      </AccountsPasswordsProvider>
+                    </WalletConnectProvider>
                   </AddressBookProvider>
                 </RequestsProvider>
               </PortfolioProvider>
