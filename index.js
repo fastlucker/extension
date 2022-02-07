@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler'
 import 'expo-asset'
 import { Platform, UIManager } from 'react-native'
-
+import './shim'
 import { registerRootComponent } from 'expo'
 
 // Installed and imported because of a dependency that uses Buffer functions

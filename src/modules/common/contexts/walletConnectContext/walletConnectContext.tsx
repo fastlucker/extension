@@ -51,7 +51,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
   const { selectedAcc } = useAccounts()
   const account = selectedAcc
   const { network, allNetworks, setNetwork }: any = useNetwork()
-  const chainId = network.chainId
+  const chainId = network?.chainId
 
   // This is needed cause of the WalletConnect event handlers
   const stateRef: any = useRef()
@@ -110,6 +110,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
   const maybeUpdateSessions = () => {
     // restore connectors and update the ones that are stale
     let updateConnections = false
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     state.connections.forEach(({ uri, session, isOffline }: any) => {
       if (connectors[uri]) {
         const connector = connectors[uri]
@@ -190,7 +191,8 @@ const WalletConnectProvider: React.FC = ({ children }) => {
             addToast(`Unable to get session from dApp - ${suggestion}`, { error: true })
         }, SESSION_TIMEOUT)
 
-      connector.on('session_request', (error, payload) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      connector.on('session_request', (error: any, payload: any) => {
         if (error) {
           onError(error)
           return
