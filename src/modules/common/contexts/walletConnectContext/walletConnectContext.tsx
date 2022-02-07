@@ -399,6 +399,10 @@ const WalletConnectProvider: React.FC = ({ children }) => {
   //   [connect, account, initialUri, addToast]
   // )
 
+  const handleConnect = (uri: string) => {
+    connect({ uri })
+  }
+
   return (
     <WalletConnectContext.Provider
       value={useMemo(
@@ -407,7 +411,8 @@ const WalletConnectProvider: React.FC = ({ children }) => {
           requests: state.requests,
           resolveMany,
           connect,
-          disconnect
+          disconnect,
+          handleConnect
         }),
         [state]
       )}

@@ -3,7 +3,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
-import AppsScreen from '@modules/apps/screens/AppsScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
@@ -14,6 +13,7 @@ import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
+import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
@@ -36,7 +36,7 @@ const DashboardStack = createNativeStackNavigator()
 const TransactionsStack = createNativeStackNavigator()
 const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
-const AppsStack = createNativeStackNavigator()
+const ConnectStack = createNativeStackNavigator()
 const SettingsStack = createNativeStackNavigator()
 
 const globalScreenOptions = {
@@ -183,26 +183,26 @@ const AppStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <AppsStack.Navigator
+    <ConnectStack.Navigator
       screenOptions={{
         ...globalScreenOptions
       }}
     >
-      <AppsStack.Screen
-        name="apps"
-        component={AppsScreen}
+      <ConnectStack.Screen
+        name="connect"
+        component={ConnectScreen}
         options={{
-          headerTitle: t('Apps')
+          headerTitle: t('Connect')
         }}
       />
-      <AppsStack.Screen
+      <ConnectStack.Screen
         name="pending-transactions"
         component={PendingTransactionsScreen}
         options={{
           headerTitle: t('Pending Transaction')
         }}
       />
-    </AppsStack.Navigator>
+    </ConnectStack.Navigator>
   )
 }
 
@@ -366,13 +366,13 @@ const AppStack = () => {
         component={TransactionsStackScreen}
       />
       <Tab.Screen
-        name="apps-tab"
+        name="connect-tab"
         options={{
           headerShown: false,
-          title: t('Apps'),
+          title: t('Connect'),
           // Missing in the web app, so the icon here is mobile app specific
           tabBarIcon: ({ color }) => (
-            <Ionicons name="ios-apps" size={TAB_BAR_ICON_SIZE} color={color} />
+            <MaterialIcons name="crop-free" size={TAB_BAR_ICON_SIZE} color={color} />
           )
         }}
         component={AppStackScreen}
