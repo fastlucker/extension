@@ -9,6 +9,7 @@ interface Props extends TouchableOpacityProps {
   text: string
   type?: BUTTON_TYPES
   size?: BUTTON_SIZES
+  textStyle?: any
   accentColor?: ColorValue
   hasBottomSpacing?: boolean
 }
@@ -17,7 +18,8 @@ interface Props extends TouchableOpacityProps {
 export enum BUTTON_TYPES {
   PRIMARY = 'primary',
   SECONDARY = 'secondary',
-  DANGER = 'danger'
+  DANGER = 'danger',
+  OUTLINE = 'outline'
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -29,7 +31,8 @@ export enum BUTTON_SIZES {
 const containerStyles = {
   [BUTTON_TYPES.PRIMARY]: styles.buttonContainerPrimary,
   [BUTTON_TYPES.SECONDARY]: styles.buttonContainerSecondary,
-  [BUTTON_TYPES.DANGER]: styles.buttonContainerDanger
+  [BUTTON_TYPES.DANGER]: styles.buttonContainerDanger,
+  [BUTTON_TYPES.OUTLINE]: styles.buttonContainerOutline
 }
 
 const containerStylesSizes = {
@@ -40,7 +43,8 @@ const containerStylesSizes = {
 const buttonTextStyles = {
   [BUTTON_TYPES.PRIMARY]: styles.buttonTextPrimary,
   [BUTTON_TYPES.SECONDARY]: styles.buttonTextSecondary,
-  [BUTTON_TYPES.DANGER]: styles.buttonTextDanger
+  [BUTTON_TYPES.DANGER]: styles.buttonTextDanger,
+  [BUTTON_TYPES.OUTLINE]: styles.buttonTextOutline
 }
 
 const buttonTextStylesSizes = {
@@ -54,6 +58,7 @@ const Button = ({
   accentColor,
   text,
   style = {},
+  textStyle = {},
   disabled = false,
   hasBottomSpacing = true,
   ...rest
@@ -76,7 +81,8 @@ const Button = ({
         styles.buttonText,
         buttonTextStyles[type],
         buttonTextStylesSizes[size],
-        !!accentColor && { color: accentColor }
+        !!accentColor && { color: accentColor },
+        textStyle
       ]}
     >
       {text}
