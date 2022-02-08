@@ -8,6 +8,9 @@
       "ios": {
         "credentialsSource": "local"
       },
+      "android": {
+        "credentialsSource": "local"
+      },
       "releaseChannel": "default",
       "env": {
         "APP_ENV": "production"
