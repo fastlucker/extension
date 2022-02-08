@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
   },
   camera: {
     height: '100%',
-    aspectRatio: 9.1 / 16
+    aspectRatio: 9 / 16
   }
 })
 
