@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Image, Linking, TouchableOpacity, View } from 'react-native'
 
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
@@ -15,7 +16,7 @@ import styles from './styles'
 
 const ConnectedDapps = () => {
   const { connections, disconnect } = useWalletConnect()
-
+  const { t } = useTranslation()
   const isLegacyWC = ({ bridge }: any) => /https:\/\/bridge.walletconnect.org/g.test(bridge)
 
   if (!connections.length) {
@@ -25,12 +26,13 @@ const ConnectedDapps = () => {
   return (
     <View>
       <Panel>
-        <Title>Connected dApps</Title>
+        <Title>{t('Connected dApps')}</Title>
         {connections.map(({ session, uri, isOffline }: any, i: number) => {
           const icon = session?.peerMeta?.icons?.filter((x: any) => !x?.endsWith('favicon.ico'))[0]
 
           return (
             <TouchableOpacity
+              key={session.key}
               style={[
                 flexboxStyles.directionRow,
                 flexboxStyles.alignCenter,
@@ -74,7 +76,7 @@ const ConnectedDapps = () => {
                   size={BUTTON_SIZES.SMALL}
                   type={BUTTON_TYPES.OUTLINE}
                   hitSlop={{ bottom: 10, top: 10, left: 5, right: 5 }}
-                  text="Disconnect"
+                  text={t('Disconnect')}
                   textStyle={{ fontSize: 11 }}
                   hasBottomSpacing={false}
                   onPress={() => disconnect(uri)}

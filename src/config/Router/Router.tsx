@@ -373,7 +373,7 @@ const AppStack = () => {
       <MainStack.Screen
         name="connect"
         component={ConnectScreen}
-        options={{ title: t('Connect dApp') }}
+        options={{ title: t('Connect a dApp') }}
       />
     </MainStack.Navigator>
   )

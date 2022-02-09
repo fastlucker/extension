@@ -36,9 +36,9 @@ const App = () => {
           <AccountsProvider>
             <NetworkProvider>
               <PortfolioProvider>
-                <RequestsProvider>
-                  <AddressBookProvider>
-                    <WalletConnectProvider>
+                <WalletConnectProvider>
+                  <RequestsProvider>
+                    <AddressBookProvider>
                       <AccountsPasswordsProvider>
                         <PortalProvider>
                           <PasscodeProvider>
@@ -49,9 +49,9 @@ const App = () => {
                           </PasscodeProvider>
                         </PortalProvider>
                       </AccountsPasswordsProvider>
-                    </WalletConnectProvider>
-                  </AddressBookProvider>
-                </RequestsProvider>
+                    </AddressBookProvider>
+                  </RequestsProvider>
+                </WalletConnectProvider>
               </PortfolioProvider>
             </NetworkProvider>
           </AccountsProvider>

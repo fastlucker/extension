@@ -23,7 +23,14 @@ import { useIsFocused } from '@react-navigation/native'
 
 import styles from './styles'
 
-const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatus }: any) => {
+const SignActions = ({
+  estimation,
+  feeSpeed,
+  approveTxn,
+  rejectTxn,
+  signingStatus,
+  bundle
+}: any) => {
   const {
     control,
     handleSubmit,
@@ -65,6 +72,16 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     <Button type={BUTTON_TYPES.DANGER} text={t('Reject')} onPress={rejectTxn} />
   )
 
+  const feeNote =
+    estimation?.success && estimation?.isDeployed === false && bundle.gasLimit ? (
+      <Text style={spacings.mbSm} color={colors.secondaryTextColor}>
+        {t(
+          'Note: Because this is your first Ambire transaction, this fee is {{fee}}% higher than usual because we have to deploy your smart wallet. Subsequent transactions will be cheaper',
+          { fee: ((60000 / bundle.gasLimit) * 100).toFixed() }
+        )}
+      </Text>
+    ) : null
+
   const insufficientFee =
     estimation &&
     estimation.feeInUSD &&
@@ -92,6 +109,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     return (
       <Panel>
         {renderTitle()}
+        {feeNote}
         {rejectButton}
       </Panel>
     )
@@ -122,6 +140,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
     return (
       <Panel>
         {renderTitle()}
+        {feeNote}
         <View>
           {signingStatus.confCodeRequired === 'otp' ? (
             <Text style={spacings.mbTy}>
@@ -198,6 +217,7 @@ const SignActions = ({ estimation, feeSpeed, approveTxn, rejectTxn, signingStatu
   return (
     <Panel>
       {renderTitle()}
+      {feeNote}
       <View style={styles.buttonsContainer}>
         {!!rejectTxn && <View style={styles.buttonWrapper}>{rejectButton}</View>}
         <View style={styles.buttonWrapper}>

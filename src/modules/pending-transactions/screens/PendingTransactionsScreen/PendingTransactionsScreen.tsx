@@ -92,6 +92,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         </Text>
       ) : (
         <SignActions
+          bundle={bundle}
           estimation={estimation}
           approveTxn={approveTxn}
           rejectTxn={rejectTxn}
