@@ -3,12 +3,28 @@ import React, { createContext, useCallback, useEffect, useMemo, useReducer, useR
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
+// eslint-disable-next-line import/no-extraneous-dependencies
 import WalletConnectCore from '@walletconnect/core'
+// eslint-disable-next-line import/no-extraneous-dependencies
 import * as cryptoLib from '@walletconnect/iso-crypto'
 
-type WalletConnectContextData = {}
+type WalletConnectContextData = {
+  connections: any[]
+  requests: any[]
+  resolveMany: (ids: any, resolution: any) => void
+  connect: (opts: any) => any
+  disconnect: (uri: string) => void
+  handleConnect: (uri: string) => void
+}
 
-const WalletConnectContext = createContext<WalletConnectContextData>({})
+const WalletConnectContext = createContext<WalletConnectContextData>({
+  connections: [],
+  requests: [],
+  resolveMany: () => {},
+  connect: () => {},
+  disconnect: () => {},
+  handleConnect: () => {}
+})
 
 const noop = () => null
 const noopSessionStorage: any = { setSession: noop, getSession: noop, removeSession: noop }
@@ -29,21 +45,6 @@ const checkIsOffline = (uri: any) => {
   return errors.find(({ time }: any = {}) => time > Date.now() - timePastForConnectionErr)
   // return errors.length > 1 && errors.slice(-2)
   //    .every(({ time } = {}) => time > (Date.now() - timePastForConnectionErr))
-}
-
-// Initialization side effects
-function runInitEffects(wcConnect: any, account: any, initialUri: any, addToast: any) {
-  if (initialUri) {
-    if (account) wcConnect({ uri: initialUri })
-    else
-      addToast(
-        'WalletConnect dApp connection request detected, please create an account and you will be connected to the dApp.',
-        { timeout: 15000 }
-      )
-  }
-
-  // hax
-  // window.wcConnect = (uri) => wcConnect({ uri })
 }
 
 const WalletConnectProvider: React.FC = ({ children }) => {
@@ -264,7 +265,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
         // FutureProof? WC does not implement it yet
         if (payload.method === 'wallet_switchEthereumChain') {
           const supportedNetwork = allNetworks.find(
-            (a) => a.chainId === parseInt(payload.params[0].chainId, 16)
+            (a: any) => a.chainId === parseInt(payload.params[0].chainId, 16)
           )
 
           if (supportedNetwork) {
@@ -330,7 +331,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
         })
       })
 
-      connector.on('disconnect', (error, payload) => {
+      connector.on('disconnect', (error: any, payload: any) => {
         if (error) {
           onError(error)
           return
@@ -392,12 +393,6 @@ const WalletConnectProvider: React.FC = ({ children }) => {
     })
     // we specifically want to run this only once despite depending on state
   }, [connect])
-
-  // Initialization effects
-  // useEffect(
-  //   () => runInitEffects(connect, account, initialUri, addToast),
-  //   [connect, account, initialUri, addToast]
-  // )
 
   const handleConnect = (uri: string) => {
     connect({ uri })

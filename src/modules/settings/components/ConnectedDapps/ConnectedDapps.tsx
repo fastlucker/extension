@@ -5,6 +5,7 @@ import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
 import Button, { BUTTON_SIZES, BUTTON_TYPES } from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
+import Title from '@modules/common/components/Title'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -24,6 +25,7 @@ const ConnectedDapps = () => {
   return (
     <View>
       <Panel>
+        <Title>Connected dApps</Title>
         {connections.map(({ session, uri, isOffline }: any, i: number) => {
           const icon = session?.peerMeta?.icons?.filter((x: any) => !x?.endsWith('favicon.ico'))[0]
 
