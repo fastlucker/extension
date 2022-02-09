@@ -20,9 +20,10 @@
     "build:ios:development": "eas build -p ios --profile development",
     "build:ios:staging": "eas build -p ios --profile staging",
     "build:ios:production": "eas build -p ios --profile production",
+    "build:ios:production:simulator": "eas build -p ios --profile production:simulator",
     "publish:development": "expo publish --release-channel development",
-    "publish:staging": "expo publish --release-channel staging",
-    "publish:production": "expo publish --release-channel default",
+    "publish:staging": "APP_ENV=staging expo publish --release-channel staging",
+    "publish:production": "APP_ENV=production expo publish --release-channel default",
     "translations:scan": "i18next-scanner --config ./scripts/i18next-scanner.config.js './src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint ./src/** --ext .js,.jsx,.ts,.tsx --fix"
   },
