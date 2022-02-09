@@ -18,14 +18,15 @@ module.exports = function (api) {
             '.tsx',
             '.jsx',
             '.js',
-            '.json',
+            '.json'
           ],
           alias: {
             '@modules': './src/modules',
             '@config': './src/config',
-          },
-        },
-      ],
-    ],
+            '@shared': './src/shared'
+          }
+        }
+      ]
+    ]
   }
 }

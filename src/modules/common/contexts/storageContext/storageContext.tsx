@@ -4,13 +4,13 @@ import { Storage } from '@modules/common/hooks/useStorage/useStorage'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type StorageContextData = {
-  storage: { [key: string]: any }
+  storage: { [key: string]: any } | null
   storageLoaded: boolean
   SyncStorage: Storage
 }
 
 const StorageContext = createContext<StorageContextData>({
-  storage: {},
+  storage: null,
   storageLoaded: false,
   SyncStorage: {
     getItem: () => null,
@@ -32,7 +32,10 @@ const StorageProvider: React.FC = ({ children }) => {
     })()
   }, [])
 
-  const storageLoaded = useCallback(() => !!Object.keys(storage)?.length, [storage])
+  const storageLoaded = useCallback(
+    () => !!Object.keys(storage)?.length || storage !== null,
+    [storage]
+  )
 
   const SyncStorage: StorageContextData['SyncStorage'] = {
     getItem: (key: string) => storage[key],

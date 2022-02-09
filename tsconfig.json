@@ -3,7 +3,8 @@
     "baseUrl": "src/",
     "paths": {
       "@modules/*": ["modules/*"],
-      "@config/*": ["config/*"]
+      "@config/*": ["config/*"],
+      "@shared/*": ["shared/*"]
     },
     "noEmit": false,
     "noEmitOnError": true,
