@@ -1,3 +1,3 @@
-import useStorage from './useSyncStorage'
+import useStorage from './useStorage'
 
 export default useStorage
