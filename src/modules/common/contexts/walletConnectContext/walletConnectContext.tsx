@@ -1,3 +1,4 @@
+// TODO: refactore types and add toast translations
 import React, { createContext, useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -165,7 +166,6 @@ const WalletConnectProvider: React.FC = ({ children }) => {
           sessionStorage: noopSessionStorage
         })
       } catch (e) {
-        console.error(e)
         addToast(`Unable to connect to ${connectorOpts.uri}: ${e.message}`, { error: true })
         return null
       }
@@ -177,7 +177,6 @@ const WalletConnectProvider: React.FC = ({ children }) => {
           } ${err.message || err}`,
           { error: true }
         )
-        console.error('WalletConnect error', err)
       }
 
       let sessionStart: any
@@ -395,7 +394,11 @@ const WalletConnectProvider: React.FC = ({ children }) => {
   }, [connect])
 
   const handleConnect = (uri: string) => {
-    connect({ uri })
+    if (uri.startsWith('wc:')) {
+      connect({ uri })
+    } else {
+      addToast('Invalid link. Refresh the dApp and try again.')
+    }
   }
 
   return (
