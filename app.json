@@ -4,10 +4,6 @@
     "slug": "ambire-mobile-wallet",
     "version": "1.0.0",
     "assetBundlePatterns": ["**/*"],
-    "updates": {
-      "enabled": true,
-      "fallbackToCacheTimeout": 45000
-    },
     "ios": {
       "bundleIdentifier": "com.ambire.wallet"
     },
