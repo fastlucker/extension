@@ -1,7 +1,7 @@
 import Constants from 'expo-constants'
 import React from 'react'
 
-import CONFIG from '@config/env'
+import CONFIG, { APP_VERSION, BUILD_NUMBER, RELEASE_CHANNEL } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
@@ -36,7 +36,7 @@ const AuthScreen = ({ navigation }: Props) => {
         style={spacings.mbLg}
       />
       <Text style={[textStyles.center, styles.footer]}>
-        v{Constants?.manifest?.version} ({CONFIG.APP_ENV})
+        app v{APP_VERSION}, build #{BUILD_NUMBER}, {RELEASE_CHANNEL} channel, {CONFIG.APP_ENV} env
       </Text>
     </Wrapper>
   )

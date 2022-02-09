@@ -1,3 +1,7 @@
+import Constants from 'expo-constants'
+import * as Updates from 'expo-updates'
+import { Platform } from 'react-native'
+
 // eslint-disable-next-line @typescript-eslint/dot-notation
 export const isProd = process.env['APP_ENV'] === 'production'
 // eslint-disable-next-line @typescript-eslint/dot-notation
@@ -41,5 +45,14 @@ if (isProd) {
 } else if (isStaging) {
   CONFIG.APP_ENV = APP_ENV.STAGING
 }
+
+export const BUILD_NUMBER = Platform.select({
+  ios: Constants?.manifest?.ios?.buildNumber || 'N/A',
+  android: Constants?.manifest?.android?.versionCode || 'N/A'
+})
+
+export const APP_VERSION = Constants?.manifest?.version || 'N/A'
+
+export const RELEASE_CHANNEL = Updates.releaseChannel || 'N/A'
 
 export default CONFIG
