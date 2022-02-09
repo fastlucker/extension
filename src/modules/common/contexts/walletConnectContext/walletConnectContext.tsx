@@ -3,6 +3,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useReducer, useR
 
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import WalletConnectCore from '@walletconnect/core'
@@ -59,6 +60,8 @@ const WalletConnectProvider: React.FC = ({ children }) => {
   const stateRef: any = useRef()
   stateRef.current = { account, chainId }
 
+  const [stateStorage, setStateStorage] = useStorage({ key: STORAGE_KEY })
+
   const [state, dispatch]: any = useReducer<any>(
     // eslint-disable-next-line @typescript-eslint/no-shadow
     (state: any, action: any) => {
@@ -92,14 +95,11 @@ const WalletConnectProvider: React.FC = ({ children }) => {
     },
     null,
     () => {
-      // TODO:
-      // const json = localStorage[STORAGE_KEY]
-      const json = null
-      if (!json) return getDefaultState()
+      if (!stateStorage) return getDefaultState()
       try {
         return {
           ...getDefaultState(),
-          ...JSON.parse(json)
+          ...stateStorage
         }
       } catch (e) {
         console.error(e)
@@ -130,8 +130,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
       }
     })
 
-    // TODO:
-    // localStorage[STORAGE_KEY] = JSON.stringify(state)
+    setStateStorage(state)
 
     if (updateConnections)
       dispatch({
@@ -146,7 +145,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
       })
   }
 
-  useEffect(maybeUpdateSessions, [account, chainId, state])
+  useEffect(maybeUpdateSessions, [account, chainId, state, setStateStorage])
   // we need this so we can invoke the latest version from any event handler
   stateRef.current.maybeUpdateSessions = maybeUpdateSessions
 

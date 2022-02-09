@@ -1,3 +1,4 @@
+import Constants from 'expo-constants'
 import React from 'react'
 
 import CONFIG from '@config/env'
@@ -34,7 +35,9 @@ const AuthScreen = ({ navigation }: Props) => {
         onPress={() => navigation.navigate('qrCodeLogin')}
         style={spacings.mbLg}
       />
-      <Text style={[textStyles.center, styles.footer]}>App env: {CONFIG.APP_ENV}</Text>
+      <Text style={[textStyles.center, styles.footer]}>
+        v{Constants?.manifest?.version} ({CONFIG.APP_ENV})
+      </Text>
     </Wrapper>
   )
 }
