@@ -2,10 +2,8 @@ import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
 import { Platform } from 'react-native'
 
-// eslint-disable-next-line @typescript-eslint/dot-notation
-export const isProd = process.env['APP_ENV'] === 'production'
-// eslint-disable-next-line @typescript-eslint/dot-notation
-export const isStaging = process.env['APP_ENV'] === 'staging'
+export const isProd = process.env.APP_ENV === 'production'
+export const isStaging = process.env.APP_ENV === 'staging'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 enum APP_ENV {
