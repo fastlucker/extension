@@ -55,4 +55,6 @@ export const APP_VERSION = Constants?.manifest?.version || 'N/A'
 
 export const RELEASE_CHANNEL = Updates.releaseChannel || 'N/A'
 
+export const RUNTIME_VERSION = Constants?.manifest?.ios?.runtimeVersion || 'N/A'
+
 export default CONFIG
