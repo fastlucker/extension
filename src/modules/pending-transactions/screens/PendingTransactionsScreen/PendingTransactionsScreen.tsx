@@ -17,7 +17,7 @@ import { StackActions } from '@react-navigation/native'
 
 const PendingTransactionsScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const { setSendTxnState } = useRequests()
+  const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
   const { account } = useAccounts()
   const {
     bundle,
@@ -40,7 +40,14 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', () => {
-      setSendTxnState({ showing: false })
+      if (sendTxnState.showing) {
+        setSendTxnState({ showing: false })
+      }
+      if (everythingToSign.length) {
+        resolveMany([everythingToSign[0].id], {
+          message: 'Ambire user rejected the signature request'
+        })
+      }
     })
 
     return unsubscribe
@@ -48,7 +55,14 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', () => {
-      setSendTxnState({ showing: false })
+      if (sendTxnState.showing) {
+        setSendTxnState({ showing: false })
+      }
+      if (everythingToSign.length) {
+        resolveMany([everythingToSign[0].id], {
+          message: 'Ambire user rejected the signature request'
+        })
+      }
       navigation.dispatch(StackActions.popToTop())
     })
 

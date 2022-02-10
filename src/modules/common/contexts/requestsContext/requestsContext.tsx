@@ -25,6 +25,7 @@ type RequestsContextData = {
   onBroadcastedTxn: (hash: any) => void
   confirmSentTx: (txHash: any) => void
   resolveMany: (ids: any, resolution: any) => void
+  everythingToSign: any[]
 }
 
 const RequestsContext = createContext<RequestsContextData>({
@@ -40,7 +41,8 @@ const RequestsContext = createContext<RequestsContextData>({
   setSendTxnState: () => {},
   onBroadcastedTxn: () => {},
   confirmSentTx: () => {},
-  resolveMany: () => {}
+  resolveMany: () => {},
+  everythingToSign: []
 })
 
 const RequestsProvider: React.FC = ({ children }) => {
@@ -120,6 +122,21 @@ const RequestsProvider: React.FC = ({ children }) => {
     setInternalRequests((reqs: any) => reqs.filter((x: any) => !ids.includes(x.id)))
   }
 
+  const everythingToSign = useMemo(
+    () =>
+      requests.filter(
+        ({ type, account }) =>
+          (type === 'personal_sign' || type === 'eth_sign') && account === selectedAcc
+      ),
+    [requests, selectedAcc]
+  )
+
+  useEffect(() => {
+    if (everythingToSign.length) {
+      navigate('sign-message')
+    }
+  }, [everythingToSign.length])
+
   useEffect(() => {
     if (sendTxnState.showing && !prevSendTxnState.showing) {
       navigate('pending-transactions')
@@ -138,7 +155,8 @@ const RequestsProvider: React.FC = ({ children }) => {
           prevSendTxnState,
           onBroadcastedTxn,
           confirmSentTx,
-          resolveMany
+          resolveMany,
+          everythingToSign
         }),
         [
           internalRequests,
@@ -149,7 +167,8 @@ const RequestsProvider: React.FC = ({ children }) => {
           prevSendTxnState,
           onBroadcastedTxn,
           confirmSentTx,
-          resolveMany
+          resolveMany,
+          everythingToSign
         ]
       )}
     >
