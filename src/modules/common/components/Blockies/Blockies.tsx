@@ -7,6 +7,7 @@
  */
 
 import React from 'react'
+import { View } from 'react-native'
 import Svg, { Rect } from 'react-native-svg'
 
 const randseed = new Array(4)
@@ -130,23 +131,30 @@ const Blockie: React.FC<Props> = ({
   }
 
   return (
-    <Svg
-      height={size * scale}
-      width={size * scale}
-      style={[
-        // The generated visuals match the Ethereum Blockies
-        // {@link https://github.com/ethereum/blockiesgenerated}
-        // generated visuals, but are rotated 90 degrees in the diff side.
-        // So this one aligns it correctly.
-        { transform: [{ rotate: '90deg' }], borderWidth, borderColor },
+    <View
+      style={
+        // Wrapping view is required, otherwise, the border radius on Android doesn't work
+        // {@link https://github.com/react-native-svg/react-native-svg/issues/1393}
         isRound && {
           borderRadius,
           overflow: 'hidden'
         }
-      ]}
+      }
     >
-      {renderIcon(size, scale)}
-    </Svg>
+      <Svg
+        height={size * scale}
+        width={size * scale}
+        style={[
+          // The generated visuals match the Ethereum Blockies
+          // {@link https://github.com/ethereum/blockiesgenerated}
+          // generated visuals, but are rotated 90 degrees in the diff side.
+          // So this one aligns it correctly.
+          { transform: [{ rotate: '90deg' }], borderWidth, borderColor }
+        ]}
+      >
+        {renderIcon(size, scale)}
+      </Svg>
+    </View>
   )
 }
 
