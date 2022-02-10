@@ -7,7 +7,7 @@ export const isStaging = process.env.APP_ENV === 'staging'
 
 export const APP_ID = Application.applicationId
 export const APP_VERSION = Constants?.manifest?.version || 'N/A'
-export const BUILD_NUMBER = Application.nativeBuildVersion
+export const BUILD_NUMBER = Application.nativeBuildVersion || 'N/A'
 
 export const RELEASE_CHANNEL = Updates.releaseChannel || 'N/A'
 export const RUNTIME_VERSION = Updates.runtimeVersion || 'N/A'
