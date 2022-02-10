@@ -5,6 +5,13 @@ import * as Updates from 'expo-updates'
 export const isProd = process.env.APP_ENV === 'production'
 export const isStaging = process.env.APP_ENV === 'staging'
 
+export const APP_ID = Application.applicationId
+export const APP_VERSION = Constants?.manifest?.version || 'N/A'
+export const BUILD_NUMBER = Application.nativeBuildVersion
+
+export const RELEASE_CHANNEL = Updates.releaseChannel || 'N/A'
+export const RUNTIME_VERSION = Updates?.runtimeVersion || 'N/A'
+
 // eslint-disable-next-line @typescript-eslint/naming-convention
 enum APP_ENV {
   PROD = 'production',
@@ -43,15 +50,5 @@ if (isProd) {
 } else if (isStaging) {
   CONFIG.APP_ENV = APP_ENV.STAGING
 }
-
-export const BUILD_NUMBER = Application.nativeBuildVersion
-
-export const APP_VERSION = Constants?.manifest?.version || 'N/A'
-
-export const RELEASE_CHANNEL = Updates.releaseChannel || 'N/A'
-
-export const RUNTIME_VERSION = Updates?.runtimeVersion || 'N/A'
-
-export const APP_ID = Application.applicationId
 
 export default CONFIG
