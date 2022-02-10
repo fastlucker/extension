@@ -1,6 +1,5 @@
 import React from 'react'
 
-import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import AppVersion from '@modules/common/components/AppVersion'
 import Button from '@modules/common/components/Button'
