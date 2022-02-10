@@ -10,7 +10,7 @@ export const APP_VERSION = Constants?.manifest?.version || 'N/A'
 export const BUILD_NUMBER = Application.nativeBuildVersion
 
 export const RELEASE_CHANNEL = Updates.releaseChannel || 'N/A'
-export const RUNTIME_VERSION = Updates?.runtimeVersion || 'N/A'
+export const RUNTIME_VERSION = Updates.runtimeVersion || 'N/A'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 enum APP_ENV {
