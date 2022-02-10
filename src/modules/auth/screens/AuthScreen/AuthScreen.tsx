@@ -1,7 +1,8 @@
 import React from 'react'
 
-import CONFIG, { APP_VERSION, BUILD_NUMBER, RELEASE_CHANNEL, RUNTIME_VERSION } from '@config/env'
+import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
+import AppVersion from '@modules/common/components/AppVersion'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -34,11 +35,7 @@ const AuthScreen = ({ navigation }: Props) => {
         onPress={() => navigation.navigate('qrCodeLogin')}
         style={spacings.mbLg}
       />
-      <Text style={[textStyles.center, styles.footer]}>
-        app v{APP_VERSION}, build #{BUILD_NUMBER}
-        {'\n'}
-        {RELEASE_CHANNEL} channel ({RUNTIME_VERSION}), {CONFIG.APP_ENV} env
-      </Text>
+      <AppVersion />
     </Wrapper>
   )
 }

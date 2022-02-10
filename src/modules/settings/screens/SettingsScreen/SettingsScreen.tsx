@@ -1,5 +1,6 @@
 import React from 'react'
 
+import AppVersion from '@modules/common/components/AppVersion'
 import Wrapper from '@modules/common/components/Wrapper'
 import AppLocking from '@modules/settings/components/AppLocking'
 import LocalAuth from '@modules/settings/components/LocalAuth'
@@ -19,6 +20,7 @@ const SettingsScreen = () => {
       <LocalAuth />
       <PasscodeSign />
       <AppLocking />
+      <AppVersion />
     </Wrapper>
   )
 }
