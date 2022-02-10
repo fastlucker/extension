@@ -1,6 +1,6 @@
+import * as Application from 'expo-application'
 import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
-import { Platform } from 'react-native'
 
 export const isProd = process.env.APP_ENV === 'production'
 export const isStaging = process.env.APP_ENV === 'staging'
@@ -44,15 +44,12 @@ if (isProd) {
   CONFIG.APP_ENV = APP_ENV.STAGING
 }
 
-export const BUILD_NUMBER = Platform.select({
-  ios: Constants?.manifest?.ios?.buildNumber || 'N/A',
-  android: Constants?.manifest?.android?.versionCode || 'N/A'
-})
+export const BUILD_NUMBER = Application.nativeBuildVersion
 
 export const APP_VERSION = Constants?.manifest?.version || 'N/A'
 
 export const RELEASE_CHANNEL = Updates.releaseChannel || 'N/A'
 
-export const RUNTIME_VERSION = Constants?.manifest?.ios?.runtimeVersion || 'N/A'
+export const RUNTIME_VERSION = Updates?.runtimeVersion || 'N/A'
 
 export default CONFIG
