@@ -52,4 +52,6 @@ export const RELEASE_CHANNEL = Updates.releaseChannel || 'N/A'
 
 export const RUNTIME_VERSION = Updates?.runtimeVersion || 'N/A'
 
+export const APP_ID = Application.applicationId
+
 export default CONFIG
