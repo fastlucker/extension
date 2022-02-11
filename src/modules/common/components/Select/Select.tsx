@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { ViewProps } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 
 import i18n from '@config/localization/localization'
@@ -22,6 +23,7 @@ interface Props {
   searchable?: boolean
   onChangeValue?: (value: any) => void
   label?: string
+  containerProps?: ViewProps
 }
 
 const Select = ({
@@ -31,7 +33,8 @@ const Select = ({
   setItems,
   searchable = true,
   onChangeValue,
-  label
+  label,
+  containerProps
 }: Props) => {
   const [open, setOpen] = useState(false)
 
@@ -58,6 +61,7 @@ const Select = ({
         listItemLabelStyle={styles.listItemLabelStyle}
         searchContainerStyle={styles.searchContainerStyle}
         searchTextInputStyle={styles.searchTextInputStyle}
+        containerProps={containerProps}
         disabledItemLabelStyle={{
           opacity: 0.5
         }}
