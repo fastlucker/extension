@@ -123,16 +123,15 @@ const Card = ({
       )}
       {!loading && !unavailable && (
         <View>
-          <View style={[spacings.mbSm, styles.selectWrapper]}>
-            <Select
-              value={token}
-              items={assetsItems}
-              setValue={setToken}
-              // TODO:
-              //  disabled={disabled}
-              label={t('Choose Token')}
-            />
-          </View>
+          <Select
+            value={token}
+            items={assetsItems}
+            setValue={setToken}
+            containerProps={{ style: spacings.mbSm }}
+            // TODO:
+            //  disabled={disabled}
+            label={t('Choose Token')}
+          />
           {!disabled ? (
             <View style={[spacings.mbMd]}>
               {details.map(([type, value]: any) => (
