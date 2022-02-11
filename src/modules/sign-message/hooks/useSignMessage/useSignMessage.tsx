@@ -9,6 +9,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
+import { navigate } from '@modules/common/services/navigation'
 
 const useSignMessage = () => {
   const { addToast } = useToast()
@@ -81,6 +82,7 @@ const useSignMessage = () => {
       const sig = await signMsgHash(wallet, account.id, account.signer, arrayify(hash), signature)
       resolve({ success: true, result: sig })
       addToast('Successfully signed!')
+      navigate('dashboard')
     } catch (e) {
       handleSigningErr(e)
     }

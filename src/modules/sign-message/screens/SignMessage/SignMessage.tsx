@@ -96,7 +96,9 @@ const SignScreen = ({ navigation }: any) => {
         )}
         {!dApp && <Text style={spacings.mbTy}>{t('A dApp is requesting your signature.')}</Text>}
         <Text style={spacings.mbSm} color={colors.secondaryTextColor}>
-          {totalRequests > 1 ? `You have ${totalRequests - 1} more pending requests.` : ''}
+          {totalRequests > 1
+            ? t('You have {{number}} more pending requests.', { number: totalRequests - 1 })
+            : ''}
         </Text>
         <View style={styles.textarea}>
           <Text fontSize={13} color="#ccc">

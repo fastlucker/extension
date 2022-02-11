@@ -82,7 +82,7 @@ const SignActions = ({
           Keyboard.dismiss()
         }}
       >
-        <Title>Confirmation code</Title>
+        <Title>{t('Confirmation code')}</Title>
         <Text style={spacings.mb}>
           {t(
             'A confirmation code has been sent to your email, it is valid for 3 minutes. Please enter it here:'
