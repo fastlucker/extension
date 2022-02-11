@@ -1,8 +1,7 @@
-import Constants from 'expo-constants'
 import React from 'react'
 
-import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
+import AppVersion from '@modules/common/components/AppVersion'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -35,9 +34,7 @@ const AuthScreen = ({ navigation }: Props) => {
         onPress={() => navigation.navigate('qrCodeLogin')}
         style={spacings.mbLg}
       />
-      <Text style={[textStyles.center, styles.footer]}>
-        v{Constants?.manifest?.version} ({CONFIG.APP_ENV})
-      </Text>
+      <AppVersion />
     </Wrapper>
   )
 }

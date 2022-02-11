@@ -10,9 +10,6 @@ const styles = StyleSheet.create({
   separator: {
     fontSize: 20,
     ...spacings.pvLg
-  },
-  footer: {
-    fontSize: 14
   }
 })
 

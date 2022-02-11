@@ -21,7 +21,8 @@ const styles = StyleSheet.create<Style>({
     justifyContent: 'center',
     backgroundColor: 'black',
     opacity: 0.3,
-    borderRadius: 50
+    borderRadius: 50,
+    overflow: 'hidden'
   }
 })
 

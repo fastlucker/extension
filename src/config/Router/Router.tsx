@@ -63,7 +63,10 @@ const HEADER_ICON_SIZE = 25
 const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions => ({
   ...globalScreenOptions,
   headerRight: ({ tintColor }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('connect')}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate('connect')}
+      hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+    >
       <MaterialIcons name="crop-free" size={HEADER_ICON_SIZE} color={tintColor} />
     </TouchableOpacity>
   )
