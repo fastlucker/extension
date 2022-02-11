@@ -76,13 +76,7 @@ const SignActions = ({
           </View>
         </View>
       </View>
-      <BottomSheet
-        sheetRef={sheetRef}
-        dynamicInitialHeight={false}
-        onCloseEnd={() => {
-          Keyboard.dismiss()
-        }}
-      >
+      <BottomSheet sheetRef={sheetRef} dynamicInitialHeight={false}>
         <Title>{t('Confirmation code')}</Title>
         <Text style={spacings.mb}>
           {t(
