@@ -82,7 +82,9 @@ const useSignMessage = () => {
       const sig = await signMsgHash(wallet, account.id, account.signer, arrayify(hash), signature)
       resolve({ success: true, result: sig })
       addToast('Successfully signed!')
-      navigate('dashboard')
+      if (everythingToSign.length === 1) {
+        navigate('dashboard')
+      }
     } catch (e) {
       handleSigningErr(e)
     }
