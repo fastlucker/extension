@@ -4,6 +4,7 @@ import { arrayify, keccak256 } from 'ethers/lib/utils'
 import { useState } from 'react'
 
 import CONFIG from '@config/env'
+import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
@@ -16,6 +17,8 @@ const useSignMessage = () => {
   const toSign = everythingToSign[0]
 
   const [isLoading, setLoading] = useState<boolean>(false)
+
+  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
 
   const resolve = (outcome: any) => resolveMany([everythingToSign[0].id], outcome)
 
@@ -31,7 +34,7 @@ const useSignMessage = () => {
     }
   }
 
-  const approveQuickAcc = async (credentials: any, confirmationCode?: any) => {
+  const approveQuickAcc = async (credentials: any) => {
     if (!CONFIG.RELAYER_URL) {
       addToast('Email/pass accounts not supported without a relayer connection', { error: true })
       return
@@ -49,7 +52,7 @@ const useSignMessage = () => {
         `${CONFIG.RELAYER_URL}/second-key/${account.id}/ethereum/sign`,
         {
           toSign: hash,
-          code: confirmationCode
+          code: credentials.code?.length ? credentials.code : undefined
         }
       )
       if (!success) {
@@ -61,13 +64,9 @@ const useSignMessage = () => {
         return
       }
       if (confCodeRequired) {
-        // TODO:
-        // const confCode = prompt(
-        //   'A confirmation code has been sent to your email, it is valid for 3 minutes. Please enter it here:'
-        // )
-        const confCode = null
-        if (!confCode) throw new Error('You must enter a confirmation code')
-        await approveQuickAcc(credentials, confCode)
+        openBottomSheet()
+        setLoading(false)
+
         return
       }
 
@@ -96,8 +95,11 @@ const useSignMessage = () => {
 
   return {
     approve,
+    approveQuickAcc,
     isLoading,
-    resolve
+    resolve,
+    closeBottomSheet,
+    sheetRef
   }
 }
 
