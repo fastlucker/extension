@@ -1,10 +1,10 @@
 import { BarCodeScanner } from 'expo-barcode-scanner'
 import { Camera } from 'expo-camera'
-import Constants from 'expo-constants'
 import * as IntentLauncher from 'expo-intent-launcher'
 import React, { useEffect, useState } from 'react'
 import { Linking, Platform, StyleSheet, View } from 'react-native'
 
+import { APP_ID } from '@config/env'
 import { useTranslation } from '@config/localization'
 import P from '@modules/common/components/P'
 
@@ -39,12 +39,10 @@ const QRCodeScanner = ({ onScan }: Props) => {
 
   const handleGoToSettings = () =>
     Platform.OS === 'ios'
-      ? Linking.openURL(`app-settings://camera/${Constants?.manifest?.ios?.bundleIdentifier}`)
+      ? Linking.openURL(`app-settings://camera/${APP_ID}`)
       : IntentLauncher.startActivityAsync(
           IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
-          {
-            data: `package:${Constants?.manifest?.android?.package}`
-          }
+          { data: `package:${APP_ID}` }
         )
 
   return (

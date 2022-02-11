@@ -1,7 +1,22 @@
-// eslint-disable-next-line @typescript-eslint/dot-notation
-export const isProd = process.env['APP_ENV'] === 'production'
-// eslint-disable-next-line @typescript-eslint/dot-notation
-export const isStaging = process.env['APP_ENV'] === 'staging'
+import * as Application from 'expo-application'
+import Constants from 'expo-constants'
+import * as Updates from 'expo-updates'
+
+export const isProd = process.env.APP_ENV === 'production'
+export const isStaging = process.env.APP_ENV === 'staging'
+
+// On Android, this is the package name. On iOS, this is the bundle ID.
+export const APP_ID = Application.applicationId
+// Internal app version, example: 1.0.0 (follows semantic versioning)
+export const APP_VERSION = Constants?.manifest?.version || 'N/A'
+// The internal build version of the native build (binary).
+// This is the Info.plist value for `CFBundleVersion` on iOS and
+// the `versionCode` set by `build.gradle` on Android.
+export const BUILD_NUMBER = Application.nativeBuildVersion || 'N/A'
+
+export const RELEASE_CHANNEL = Updates.releaseChannel || 'N/A'
+export const RUNTIME_VERSION = Updates.runtimeVersion || 'N/A'
+export const EXPO_SDK = Constants?.manifest?.sdkVersion || 'N/A'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 enum APP_ENV {
