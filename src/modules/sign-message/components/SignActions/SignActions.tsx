@@ -27,6 +27,7 @@ const SignActions = ({
     control,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors }
   } = useForm({
     mode: 'onSubmit',
@@ -93,11 +94,13 @@ const SignActions = ({
           onChangeText={(val) => setValue('code', val)}
           keyboardType="numeric"
           autoCorrect={false}
+          value={watch('code', '')}
         />
         <Button
           text={t('Confirm')}
           onPress={() => {
             handleSubmit(approveQuickAcc)()
+            setValue('code', '')
             closeBottomSheet()
           }}
         />
