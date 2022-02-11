@@ -60,7 +60,9 @@ const QRCodeScanner = ({ onScan }: Props) => {
           />
         </View>
       )}
-      {hasPermission === null && <P>{t('Requesting for camera permission')}</P>}
+      {hasPermission === null && (
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000' }]} />
+      )}
       {hasPermission === false && (
         <>
           <P>{t('The request for accessing the phone camera was denied.')}</P>

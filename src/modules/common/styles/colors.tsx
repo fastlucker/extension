@@ -54,9 +54,11 @@ const colors = {
   primaryButtonContainerColor: '#80ffdb',
   secondaryButtonContainerColor: 'rgba(0,0,0,.1)',
   dangerButtonContainerColor: '#ff8480',
+  outlineButtonColor: '#fff',
   primaryButtonTextColor: '#000',
   secondaryButtonTextColor: '#fff',
   dangerButtonTextColor: '#000',
+  outlineButtonTextColor: '#fff',
 
   primaryIconColor: '#fff'
 }

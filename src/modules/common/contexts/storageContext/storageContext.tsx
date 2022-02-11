@@ -1,67 +1,55 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useMemo, useState } from 'react'
 
-import { Storage } from '@modules/common/hooks/useStorage/useStorage'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type StorageContextData = {
-  storage: { [key: string]: any } | null
   storageLoaded: boolean
-  SyncStorage: Storage
 }
 
 const StorageContext = createContext<StorageContextData>({
-  storage: null,
-  storageLoaded: false,
-  SyncStorage: {
-    getItem: () => null,
-    setItem: () => {},
-    removeItem: () => {}
-  }
+  storageLoaded: false
 })
 
+// eslint-disable-next-line import/no-mutable-exports
+export let storage: { [key: string]: any } = {}
+
+export const SyncStorage: {
+  getItem(key: string): string | null
+  setItem(key: string, value: string): void
+  removeItem(key: string): void
+} = {
+  getItem: (key: string) => storage[key],
+  setItem: (key: string, value: any) => {
+    AsyncStorage.setItem(key, value)
+    storage = { ...storage, [key]: value }
+  },
+  removeItem: (key: string) => {
+    AsyncStorage.removeItem(key)
+    storage = { ...storage, [key]: null }
+  }
+}
+
 const StorageProvider: React.FC = ({ children }) => {
-  const [storage, setStorage] = useState<{ [key: string]: any }>([])
+  const [loaded, setLoaded] = useState<boolean>(false)
 
   useEffect(() => {
     ;(async () => {
       const keys = await AsyncStorage.getAllKeys()
       AsyncStorage.multiGet(keys).then((data) => {
         const storedData = Object.assign({}, ...data.map((d) => ({ [`${d[0]}`]: d[1] })))
-        setStorage(storedData)
+        storage = storedData
+        setLoaded(true)
       })
     })()
   }, [])
-
-  const storageLoaded = useCallback(
-    () => !!Object.keys(storage)?.length || storage !== null,
-    [storage]
-  )
-
-  const SyncStorage: StorageContextData['SyncStorage'] = {
-    getItem: (key: string) => storage[key],
-    setItem: (key: string, value: any) => {
-      AsyncStorage.setItem(key, value)
-      setStorage((prevStorage: any) => {
-        return { ...prevStorage, [key]: value }
-      })
-    },
-    removeItem: (key: string) => {
-      AsyncStorage.removeItem(key)
-      setStorage((prevStorage: any) => {
-        return { ...prevStorage, [key]: null }
-      })
-    }
-  }
 
   return (
     <StorageContext.Provider
       value={useMemo(
         () => ({
-          storage,
-          storageLoaded: storageLoaded(),
-          SyncStorage
+          storageLoaded: loaded
         }),
-        [storage, storageLoaded]
+        [loaded]
       )}
     >
       {children}

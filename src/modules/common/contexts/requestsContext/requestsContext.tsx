@@ -6,6 +6,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useToast from '@modules/common/hooks/useToast'
+import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import { navigate } from '@modules/common/services/navigation'
 
 type RequestsContextData = {
@@ -45,6 +46,7 @@ const RequestsContext = createContext<RequestsContextData>({
 const RequestsProvider: React.FC = ({ children }) => {
   const { accounts, selectedAcc } = useAccounts()
   const { network }: any = useNetwork()
+  const { requests: wcRequests, resolveMany: wcResolveMany } = useWalletConnect()
   const { addToast } = useToast()
   const { t } = useTranslation()
   const [internalRequests, setInternalRequests] = useState<any>([])
@@ -56,8 +58,10 @@ const RequestsProvider: React.FC = ({ children }) => {
   // TODO: Add the rest of the requests -> [...internalRequests, ...wcRequests, ...gnosisRequests]
   const requests = useMemo(
     () =>
-      [...internalRequests].filter(({ account }) => accounts.find(({ id }: any) => id === account)),
-    [internalRequests, accounts]
+      [...internalRequests, ...wcRequests].filter(({ account }) =>
+        accounts.find(({ id }: any) => id === account)
+      ),
+    [internalRequests, wcRequests, accounts]
   )
 
   // Show the send transaction full-screen modal if we have a new txn
@@ -111,8 +115,8 @@ const RequestsProvider: React.FC = ({ children }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const resolveMany = (ids: any, resolution: any) => {
     // TODO:
-    // wcResolveMany(ids, resolution)
     // gnosisResolveMany(ids, resolution)
+    wcResolveMany(ids, resolution)
     setInternalRequests((reqs: any) => reqs.filter((x: any) => !ids.includes(x.id)))
   }
 

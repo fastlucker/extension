@@ -13,6 +13,7 @@ import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 import { StorageContext } from '@modules/common/contexts/storageContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
+import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 
 const AppLoading = () => {
   const { storageLoaded } = useContext(StorageContext)
@@ -24,20 +25,22 @@ const AppLoading = () => {
         <AccountsProvider>
           <NetworkProvider>
             <PortfolioProvider>
-              <RequestsProvider>
-                <AddressBookProvider>
-                  <AccountsPasswordsProvider>
-                    <PortalProvider>
-                      <PasscodeProvider>
-                        <AttentionGrabberProvider>
-                          <Router />
-                        </AttentionGrabberProvider>
-                        <PortalHost name="global" />
-                      </PasscodeProvider>
-                    </PortalProvider>
-                  </AccountsPasswordsProvider>
-                </AddressBookProvider>
-              </RequestsProvider>
+              <WalletConnectProvider>
+                <RequestsProvider>
+                  <AddressBookProvider>
+                    <AccountsPasswordsProvider>
+                      <PortalProvider>
+                        <PasscodeProvider>
+                          <AttentionGrabberProvider>
+                            <Router />
+                          </AttentionGrabberProvider>
+                          <PortalHost name="global" />
+                        </PasscodeProvider>
+                      </PortalProvider>
+                    </AccountsPasswordsProvider>
+                  </AddressBookProvider>
+                </RequestsProvider>
+              </WalletConnectProvider>
             </PortfolioProvider>
           </NetworkProvider>
         </AccountsProvider>

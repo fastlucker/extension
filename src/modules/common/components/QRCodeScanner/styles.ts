@@ -1,12 +1,14 @@
 import { StyleSheet } from 'react-native'
 
+import colors from '@modules/common/styles/colors'
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    backgroundColor: colors.backgroundColor
   },
   camera: {
     height: '100%',

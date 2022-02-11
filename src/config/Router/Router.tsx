@@ -1,9 +1,9 @@
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { TouchableOpacity } from 'react-native'
 
 import { Ionicons, MaterialIcons } from '@expo/vector-icons'
-import AppsScreen from '@modules/apps/screens/AppsScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
@@ -14,6 +14,7 @@ import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
+import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
@@ -27,7 +28,10 @@ import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationOptions
+} from '@react-navigation/native-stack'
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -36,8 +40,9 @@ const DashboardStack = createNativeStackNavigator()
 const TransactionsStack = createNativeStackNavigator()
 const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
-const AppsStack = createNativeStackNavigator()
 const SettingsStack = createNativeStackNavigator()
+
+const MainStack = createNativeStackNavigator()
 
 const globalScreenOptions = {
   headerStyle: {
@@ -52,16 +57,25 @@ const globalScreenOptions = {
 }
 
 const TAB_BAR_ICON_SIZE = 22
+const HEADER_ICON_SIZE = 25
+
+const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions => ({
+  ...globalScreenOptions,
+  headerRight: ({ tintColor }) => (
+    <TouchableOpacity
+      onPress={() => navigation.navigate('connect')}
+      hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+    >
+      <MaterialIcons name="crop-free" size={HEADER_ICON_SIZE} color={tintColor} />
+    </TouchableOpacity>
+  )
+})
 
 const DashboardStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <DashboardStack.Navigator
-      screenOptions={{
-        ...globalScreenOptions
-      }}
-    >
+    <DashboardStack.Navigator screenOptions={tabsScreenOptions}>
       <DashboardStack.Screen
         name="dashboard"
         component={DashboardScreen}
@@ -102,11 +116,7 @@ const TransactionsStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <TransactionsStack.Navigator
-      screenOptions={{
-        ...globalScreenOptions
-      }}
-    >
+    <TransactionsStack.Navigator screenOptions={tabsScreenOptions}>
       <TransactionsStack.Screen
         name="transactions"
         component={TransactionsScreen}
@@ -129,11 +139,7 @@ const EarnStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <EarnStack.Navigator
-      screenOptions={{
-        ...globalScreenOptions
-      }}
-    >
+    <EarnStack.Navigator screenOptions={tabsScreenOptions}>
       <EarnStack.Screen
         name="earn"
         component={EarnScreen}
@@ -156,11 +162,7 @@ const SendStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <SendStack.Navigator
-      screenOptions={{
-        ...globalScreenOptions
-      }}
-    >
+    <SendStack.Navigator screenOptions={tabsScreenOptions}>
       <SendStack.Screen
         name="send"
         component={SendScreen}
@@ -179,42 +181,15 @@ const SendStackScreen = () => {
   )
 }
 
-const AppStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <AppsStack.Navigator
-      screenOptions={{
-        ...globalScreenOptions
-      }}
-    >
-      <AppsStack.Screen
-        name="apps"
-        component={AppsScreen}
-        options={{
-          headerTitle: t('Apps')
-        }}
-      />
-      <AppsStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
-        }}
-      />
-    </AppsStack.Navigator>
-  )
-}
+// const DAppsStackScreen = () => {
+// TODO: DApps: postponed for version 2 of the mobile app
+// }
 
 const SettingsStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <SettingsStack.Navigator
-      screenOptions={{
-        ...globalScreenOptions
-      }}
-    >
+    <SettingsStack.Navigator screenOptions={tabsScreenOptions}>
       <SettingsStack.Screen
         name="settings"
         component={SettingsScreen}
@@ -291,15 +266,8 @@ const AuthStack = () => {
   )
 }
 
-const AppStack = () => {
+const AppTabs = () => {
   const { t } = useTranslation()
-  const { isLoading } = usePasscode()
-
-  useEffect(() => {
-    if (isLoading) return
-
-    SplashScreen.hideAsync()
-  }, [isLoading])
 
   return (
     <Tab.Navigator
@@ -366,18 +334,6 @@ const AppStack = () => {
         component={TransactionsStackScreen}
       />
       <Tab.Screen
-        name="apps-tab"
-        options={{
-          headerShown: false,
-          title: t('Apps'),
-          // Missing in the web app, so the icon here is mobile app specific
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="ios-apps" size={TAB_BAR_ICON_SIZE} color={color} />
-          )
-        }}
-        component={AppStackScreen}
-      />
-      <Tab.Screen
         name="settings-tab"
         options={{
           headerShown: false,
@@ -390,6 +346,39 @@ const AppStack = () => {
         component={SettingsStackScreen}
       />
     </Tab.Navigator>
+  )
+}
+
+const AppStack = () => {
+  const { t } = useTranslation()
+
+  const { isLoading } = usePasscode()
+
+  useEffect(() => {
+    if (isLoading) return
+
+    SplashScreen.hideAsync()
+  }, [isLoading])
+
+  return (
+    <MainStack.Navigator
+      screenOptions={{
+        ...globalScreenOptions
+      }}
+    >
+      <MainStack.Screen
+        name="tabs"
+        component={AppTabs}
+        options={{
+          headerShown: false
+        }}
+      />
+      <MainStack.Screen
+        name="connect"
+        component={ConnectScreen}
+        options={{ title: t('Connect a dApp') }}
+      />
+    </MainStack.Navigator>
   )
 }
 
