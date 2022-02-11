@@ -146,13 +146,7 @@ const SendScreen = () => {
           </>
         </TouchableWithoutFeedback>
       )}
-      <BottomSheet
-        sheetRef={sheetRefAddrDisplay}
-        dynamicInitialHeight={false}
-        onCloseEnd={() => {
-          Keyboard.dismiss()
-        }}
-      >
+      <BottomSheet sheetRef={sheetRefAddrDisplay} dynamicInitialHeight={false}>
         <AddressList
           onSelectAddress={(item): any => {
             closeBottomSheetAddrDisplay()
@@ -161,13 +155,7 @@ const SendScreen = () => {
           onOpenBottomSheet={openBottomSheetAddrAdd}
         />
       </BottomSheet>
-      <BottomSheet
-        sheetRef={sheetRefAddrAdd}
-        maxInitialHeightPercentage={1}
-        onCloseEnd={() => {
-          Keyboard.dismiss()
-        }}
-      >
+      <BottomSheet sheetRef={sheetRefAddrAdd} maxInitialHeightPercentage={1}>
         <AddAddressForm
           onSubmit={handleAddNewAddress}
           address={!smartContractWarning && !!unknownWarning && !!address ? address : ''}
