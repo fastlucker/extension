@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet, View } from 'react-native'
+import { Keyboard, StyleSheet, View } from 'react-native'
 import Animated, { greaterThan } from 'react-native-reanimated'
 import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 
@@ -9,6 +9,7 @@ import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Button, { BUTTON_TYPES } from '../Button'
+import useBottomSheet from './hooks/useBottomSheet'
 import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
 
 interface Props {
@@ -28,16 +29,21 @@ const BottomSheet: React.FC<Props> = ({
   cancelText: _cancelText,
   maxInitialHeightPercentage = 0.6,
   dynamicInitialHeight = true,
-  onCloseEnd,
+  onCloseEnd = () => {},
   onCloseStart
 }) => {
   const { t } = useTranslation()
+  const { closeBottomSheet } = useBottomSheet()
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
 
   const cancelText = _cancelText || (t('✗  Cancel') as string)
 
-  const handleClose = () => sheetRef.current?.snapTo(0)
+  const handleClose = () => closeBottomSheet(sheetRef)
+  const handleOnCloseEnd = () => {
+    Keyboard.dismiss()
+    onCloseEnd()
+  }
 
   /**
    * Get the content height, so that the modal pops out dynamically,
@@ -116,7 +122,7 @@ const BottomSheet: React.FC<Props> = ({
         callbackNode={bottomSheetY}
         borderRadius={15}
         onCloseStart={onCloseStart}
-        onCloseEnd={onCloseEnd}
+        onCloseEnd={handleOnCloseEnd}
       />
     </Portal>
   )
