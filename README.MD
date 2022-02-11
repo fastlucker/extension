@@ -105,7 +105,7 @@ When releasing a new version, here are the steps:
 - If the iOS build fails with the following error:
 
   ```
-  > bla bla
+  > ❌  ... duplicate symbols for architecture x86_64
   > Failed to build iOS project. "xcodebuild" exited with error code 65.
   ```
 
