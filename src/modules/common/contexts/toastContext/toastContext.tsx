@@ -73,6 +73,8 @@ const ToastProvider = ({ children }: any) => {
     onClick ? onClick() : removeToast(id)
   }
 
+  // -4 is a magic number
+  // 44 is the height of the bottom tab navigation
   const bottomInset = insets.bottom > 0 ? insets.bottom - 4 + 44 : insets.bottom + 44
 
   return (
