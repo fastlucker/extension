@@ -8,6 +8,9 @@
     "updates": {
       "enabled": true,
       "fallbackToCacheTimeout": 45000
+    },
+    "ios": {
+      "bundleIdentifier": "com.ambire.wallet"
     }
   }
 }
