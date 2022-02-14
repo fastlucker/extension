@@ -64,7 +64,7 @@ const SignActions = ({
             <Button
               type={BUTTON_TYPES.DANGER}
               text={t('Reject')}
-              onPress={() => resolve({ message: 'signature denied' })}
+              onPress={() => resolve({ message: t('signature denied') })}
             />
           </View>
           <View style={styles.buttonWrapper}>
