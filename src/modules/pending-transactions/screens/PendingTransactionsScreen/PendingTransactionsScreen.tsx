@@ -34,7 +34,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: `Pending Transactions: ${bundle?.txns?.length}`
+      headerTitle: t('Pending Transactions: {{numTxns}}', { numTxns: bundle?.txns?.length })
     })
   }, [navigation, bundle?.txns?.length])
 
@@ -45,7 +45,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
       }
       if (everythingToSign.length) {
         resolveMany([everythingToSign[0].id], {
-          message: 'Ambire user rejected the signature request'
+          message: t('Ambire user rejected the signature request')
         })
       }
     })
@@ -60,7 +60,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
       }
       if (everythingToSign.length) {
         resolveMany([everythingToSign[0].id], {
-          message: 'Ambire user rejected the signature request'
+          message: t('Ambire user rejected the signature request')
         })
       }
       navigation.dispatch(StackActions.popToTop())

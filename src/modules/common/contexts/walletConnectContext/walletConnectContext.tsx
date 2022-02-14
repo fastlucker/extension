@@ -1,6 +1,7 @@
 // TODO: refactore types and add toast translations
 import React, { createContext, useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
 
+import i18n from '@config/localization/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
@@ -94,6 +95,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
       return { ...state }
     },
     null,
+    // @ts-ignore
     () => {
       if (!stateStorage) return getDefaultState()
       try {
@@ -153,7 +155,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
   const connect = useCallback(
     (connectorOpts) => {
       if (connectors[connectorOpts.uri]) {
-        addToast('dApp already connected')
+        addToast(i18n.t('dApp already connected') as string)
         return connectors[connectorOpts.uri]
       }
       let connector: any
@@ -165,15 +167,23 @@ const WalletConnectProvider: React.FC = ({ children }) => {
           sessionStorage: noopSessionStorage
         })
       } catch (e) {
-        addToast(`Unable to connect to ${connectorOpts.uri}: ${e.message}`, { error: true })
+        addToast(
+          i18n.t('Unable to connect to {{uri}}: {{message}}', {
+            uri: connectorOpts.uri,
+            message: e.message
+          }) as string,
+          { error: true }
+        )
         return null
       }
 
       const onError = (err: any) => {
         addToast(
-          `WalletConnect error: ${
-            connector.session && connector.session.peerMeta && connector.session.peerMeta.name
-          } ${err.message || err}`,
+          i18n.t('WalletConnect error: {{name}} {{err}}', {
+            name:
+              connector.session && connector.session.peerMeta && connector.session.peerMeta.name,
+            err: err.message || err
+          }) as string,
           { error: true }
         )
       }
@@ -184,10 +194,15 @@ const WalletConnectProvider: React.FC = ({ children }) => {
         sessionTimeout = setTimeout(() => {
           const suggestion = /https:\/\/bridge.walletconnect.org/g.test(connector.session.bridge)
             ? // @TODO: 'or try an alternative connection method' when we implement one
-              'this dApp is using an old version of WalletConnect - please tell them to upgrade!'
-            : 'perhaps the link has expired? Refresh the dApp and try again.'
+              (i18n.t(
+                'this dApp is using an old version of WalletConnect - please tell them to upgrade!'
+              ) as string)
+            : (i18n.t('perhaps the link has expired? Refresh the dApp and try again.') as string)
           if (!connector.session.peerMeta)
-            addToast(`Unable to get session from dApp - ${suggestion}`, { error: true })
+            addToast(
+              i18n.t('Unable to get session from dApp - {{suggestion}}', { suggestion }) as string,
+              { error: true }
+            )
         }, SESSION_TIMEOUT)
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -201,7 +216,9 @@ const WalletConnectProvider: React.FC = ({ children }) => {
         clearTimeout(sessionTimeout)
 
         if (connector.session.peerMeta.url.includes('bridge.avax.network')) {
-          const message = 'Avalanche Bridge does not currently support smart wallets.'
+          const message = i18n.t(
+            'Avalanche Bridge does not currently support smart wallets.'
+          ) as string
           connector.rejectSession({ message })
           addToast(message, { error: true })
           return
@@ -221,11 +238,14 @@ const WalletConnectProvider: React.FC = ({ children }) => {
           session: connector.session
         })
 
-        addToast(`Successfully connected to ${connector.session.peerMeta.name}`)
+        addToast(
+          i18n.t('Successfully connected to {{name}}', {
+            name: connector.session.peerMeta.name
+          }) as string
+        )
       })
 
       connector.on('transport_error', (error: any, payload: any) => {
-        console.error('WalletConnect transport error', payload)
         connectionErrors.push({ uri: connectorOpts.uri, event: payload.event, time: Date.now() })
         // Keep the last 690 only
         connectionErrors = connectionErrors.slice(-690)
@@ -275,10 +295,15 @@ const WalletConnectProvider: React.FC = ({ children }) => {
           } else {
             // Graceful error for user
             addToast(
-              `dApp asked to switch to an unsupported chain: ${payload.params[0]?.chainId}`,
+              i18n.t('dApp asked to switch to an unsupported chain: {{chainId}}', {
+                chainId: payload.params[0]?.chainId
+              }) as string,
               { error: true }
             )
-            connector.rejectRequest({ id: payload.id, error: { message: 'Unsupported chain' } })
+            connector.rejectRequest({
+              id: payload.id,
+              error: { message: i18n.t('Unsupported chain') }
+            })
           }
           return
         }
@@ -290,7 +315,12 @@ const WalletConnectProvider: React.FC = ({ children }) => {
           // @TODO: if the dapp is in a "allow list" of dApps that have fallbacks, ignore certain messages
           // eg uni has a fallback for eth_signTypedData_v4
           if (!isUniIgnorable)
-            addToast(`dApp requested unsupported method: ${payload.method}`, { error: true })
+            addToast(
+              i18n.t('dApp requested unsupported method: {{method}}', {
+                method: payload.method
+              }) as string,
+              { error: true }
+            )
           connector.rejectRequest({
             id: payload.id,
             error: { message: `METHOD_NOT_SUPPORTED: ${payload.method}` }
@@ -306,12 +336,17 @@ const WalletConnectProvider: React.FC = ({ children }) => {
             payload.params[1] &&
             payload.params[1].toLowerCase() !== connector.session.accounts[0].toLowerCase())
         if (wrongAcc) {
-          addToast(`dApp sent a request for the wrong account: ${payload.params[0].from}`, {
-            error: true
-          })
+          addToast(
+            i18n.t('dApp sent a request for the wrong account: {{from}}', {
+              from: payload.params[0].from
+            }) as string,
+            {
+              error: true
+            }
+          )
           connector.rejectRequest({
             id: payload.id,
-            error: { message: 'Sent a request for the wrong account' }
+            error: { message: i18n.t('Sent a request for the wrong account') }
           })
           return
         }
@@ -347,11 +382,18 @@ const WalletConnectProvider: React.FC = ({ children }) => {
         // currently we don't dedupe that
         if (sessionStart && Date.now() - sessionStart < SESSION_TIMEOUT) {
           addToast(
-            'dApp disconnected immediately - perhaps it does not support the current network?',
+            i18n.t(
+              'dApp disconnected immediately - perhaps it does not support the current network?'
+            ) as string,
             { error: true }
           )
         } else {
-          addToast(`${connector.session.peerMeta.name} disconnected: ${payload.params[0].message}`)
+          addToast(
+            i18n.t('{{name}} disconnected: {{message}}', {
+              name: connector.session.peerMeta.name,
+              message: payload.params[0].message
+            }) as string
+          )
         }
       })
 
@@ -396,7 +438,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
     if (uri.startsWith('wc:')) {
       connect({ uri })
     } else {
-      addToast('Invalid link. Refresh the dApp and try again.')
+      addToast(i18n.t('Invalid link. Refresh the dApp and try again.') as string)
     }
   }
 
