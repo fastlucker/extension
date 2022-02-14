@@ -4,6 +4,7 @@ import { arrayify, keccak256 } from 'ethers/lib/utils'
 import { useState } from 'react'
 
 import CONFIG from '@config/env'
+import i18n from '@config/localization/localization'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useRequests from '@modules/common/hooks/useRequests'
@@ -24,24 +25,30 @@ const useSignMessage = () => {
   const resolve = (outcome: any) => resolveMany([everythingToSign[0].id], outcome)
 
   const handleSigningErr = (e: any) => {
-    console.error('Signing error', e)
     if (e && e.message.includes('must provide an Ethereum address')) {
       addToast(
-        `Signing error: not connected with the correct address. Make sure you're connected with ${account.signer?.address}.`,
+        i18n.t(
+          "Signing error: not connected with the correct address. Make sure you're connected with {{address}}.",
+          { address: account.signer?.address }
+        ) as string,
         { error: true }
       )
     } else {
-      addToast(`Signing error: ${e.message || e}`, { error: true })
+      addToast(i18n.t('Signing error: {{message}}', { message: e.message || e }) as string, {
+        error: true
+      })
     }
   }
 
   const approveQuickAcc = async (credentials: any) => {
     if (!CONFIG.RELAYER_URL) {
-      addToast('Email/pass accounts not supported without a relayer connection', { error: true })
+      addToast(i18n.t('Email/pass accounts not supported without a relayer connection') as string, {
+        error: true
+      })
       return
     }
     if (!credentials.password) {
-      addToast('Password required to unlock the account', { error: true })
+      addToast(i18n.t('Password required to unlock the account') as string, { error: true })
       return
     }
     setLoading(true)
@@ -59,9 +66,11 @@ const useSignMessage = () => {
       if (!success) {
         if (!message) throw new Error('Secondary key: no success but no error message')
         if (message.includes('invalid confirmation code')) {
-          addToast('Unable to sign: wrong confirmation code', { error: true })
+          addToast(i18n.t('Unable to sign: wrong confirmation code') as string, { error: true })
         }
-        addToast(`Second signature error: ${message}`, { error: true })
+        addToast(i18n.t('Second signature error: {{message}}', { message }) as string, {
+          error: true
+        })
         return
       }
       if (confCodeRequired) {
@@ -81,7 +90,7 @@ const useSignMessage = () => {
       )
       const sig = await signMsgHash(wallet, account.id, account.signer, arrayify(hash), signature)
       resolve({ success: true, result: sig })
-      addToast('Successfully signed!')
+      addToast(i18n.t('Successfully signed!') as string)
       if (everythingToSign.length === 1) {
         navigate('dashboard')
       }
