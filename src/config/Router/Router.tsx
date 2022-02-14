@@ -25,6 +25,7 @@ import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScre
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import PasscodeSignScreen from '@modules/settings/screens/PasscodeSignScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
+import SignMessage from '@modules/sign-message/screens/SignMessage'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
@@ -377,6 +378,11 @@ const AppStack = () => {
         name="connect"
         component={ConnectScreen}
         options={{ title: t('Connect a dApp') }}
+      />
+      <MainStack.Screen
+        name="sign-message"
+        component={SignMessage}
+        options={{ title: t('Sign'), headerBackVisible: false }}
       />
     </MainStack.Navigator>
   )

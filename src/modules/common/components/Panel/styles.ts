@@ -13,7 +13,8 @@ const styles = StyleSheet.create<Styles>({
     paddingVertical: 20,
     marginBottom: 15,
     backgroundColor: colors.panelBackgroundColor,
-    flex: 1
+    flex: 1,
+    flexGrow: 0
   }
 })
 

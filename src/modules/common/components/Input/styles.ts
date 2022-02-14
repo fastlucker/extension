@@ -27,8 +27,8 @@ const styles = StyleSheet.create<Style>({
     color: colors.inputColor,
     fontSize: 19,
     flex: 1,
-    ...spacings.ph,
-    ...spacings.pv
+    height: 60,
+    ...spacings.ph
   },
   focused: {
     borderBottomColor: colors.tertiaryAccentColor
