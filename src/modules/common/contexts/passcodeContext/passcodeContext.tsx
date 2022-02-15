@@ -208,7 +208,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   // When app starts, immediately prompt user for local auth validation.
   useEffect(() => {
-    if (isAppLocked && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
+    const shouldPromptLocalAuth = isAppLocked && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+    if (shouldPromptLocalAuth) {
       triggerValidateLocalAuth()
     }
   }, [isAppLocked])
