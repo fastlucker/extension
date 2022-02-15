@@ -175,14 +175,24 @@ const Accounts = () => {
           </TouchableOpacity>
         </View>
       </Panel>
-      <BottomSheet sheetRef={sheetNetworks.sheetRef}>
+      <BottomSheet
+        id="networks"
+        sheetRef={sheetNetworks.sheetRef}
+        isOpen={sheetNetworks.isOpen}
+        closeBottomSheet={sheetNetworks.closeBottomSheet}
+      >
         <Title>{t('Change network')}</Title>
 
         {allNetworks.map(({ name, chainId }) => (
           <Button key={chainId} onPress={() => handleChangeNetwork(chainId)} text={name} />
         ))}
       </BottomSheet>
-      <BottomSheet sheetRef={sheetAccounts.sheetRef}>
+      <BottomSheet
+        id="accounts"
+        sheetRef={sheetAccounts.sheetRef}
+        isOpen={sheetAccounts.isOpen}
+        closeBottomSheet={sheetAccounts.closeBottomSheet}
+      >
         <Title>{t('Change account')}</Title>
 
         {accounts.map(renderAccountDetails)}
