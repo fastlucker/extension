@@ -18,6 +18,7 @@ interface Props {
   sheetRef: React.RefObject<any>
   closeBottomSheet: () => void
   isOpen: boolean
+  children: React.ReactNode
   // Preferences
   cancelText?: string
   displayCancel?: boolean
