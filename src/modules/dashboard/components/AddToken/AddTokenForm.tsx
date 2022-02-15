@@ -111,6 +111,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
           <Input
             label={t('Token Address')}
             placeholder={t('0x...')}
+            autoFocus
             onBlur={onBlur}
             onChangeText={(text: string) => {
               onInput(text)
