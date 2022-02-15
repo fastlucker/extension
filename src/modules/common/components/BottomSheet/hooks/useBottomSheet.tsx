@@ -7,6 +7,10 @@ export default function useBottomSheet() {
 
   const openBottomSheet = useCallback(() => {
     setIsOpen(true)
+
+    // A bit hacky, but it works. Otherwise - if fired synchronously, it doesn't
+    // "wait" until the dynamic height of the bottom sheet content gets
+    // calculated. And as a result, user needs to tap open bottom sheet twice.
     setTimeout(() => sheetRef.current?.snapTo(1), 100)
   }, [])
   const closeBottomSheet = useCallback(() => {
