@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Keyboard, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import Animated, { greaterThan } from 'react-native-reanimated'
 import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 
@@ -9,20 +9,27 @@ import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Button, { BUTTON_TYPES } from '../Button'
-import useBottomSheet from './hooks/useBottomSheet'
 import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
 
 interface Props {
+  // Useful for debugging and generally knowing which bottom sheet gets triggered
+  id?: string
+  // Required in order all bottom sheet related events to click
   sheetRef: React.RefObject<any>
+  closeBottomSheet: () => void
+  isOpen: boolean
+  // Preferences
   cancelText?: string
   displayCancel?: boolean
   maxInitialHeightPercentage?: number
   dynamicInitialHeight?: boolean
+  // Callbacks
   onCloseEnd?: () => void
   onCloseStart?: () => void
 }
 
 const BottomSheet: React.FC<Props> = ({
+  id,
   sheetRef,
   children,
   displayCancel = true,
@@ -30,18 +37,18 @@ const BottomSheet: React.FC<Props> = ({
   maxInitialHeightPercentage = 0.6,
   dynamicInitialHeight = true,
   onCloseEnd = () => {},
-  onCloseStart
+  onCloseStart,
+  closeBottomSheet = () => {},
+  isOpen = false
 }) => {
   const { t } = useTranslation()
-  const { closeBottomSheet } = useBottomSheet()
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
 
   const cancelText = _cancelText || (t('✗  Cancel') as string)
 
-  const handleClose = () => closeBottomSheet(sheetRef)
   const handleOnCloseEnd = () => {
-    Keyboard.dismiss()
+    closeBottomSheet()
     onCloseEnd()
   }
 
@@ -63,22 +70,28 @@ const BottomSheet: React.FC<Props> = ({
     setContentHeight(Math.min(height, maxHeight))
   }
 
-  const renderContent = () => (
-    <View style={styles.containerWrapper}>
-      <View style={styles.containerInnerWrapper} onLayout={handleOnLayout}>
-        <View style={styles.dragger} />
-        {children}
-        {displayCancel && (
-          <Button
-            type={BUTTON_TYPES.SECONDARY}
-            onPress={handleClose}
-            style={styles.cancelBtn}
-            text={cancelText}
-          />
-        )}
+  const renderContent = () => {
+    if (!isOpen) {
+      return null
+    }
+
+    return (
+      <View style={styles.containerWrapper}>
+        <View style={styles.containerInnerWrapper} onLayout={handleOnLayout}>
+          <View style={styles.dragger} />
+          {children}
+          {displayCancel && (
+            <Button
+              type={BUTTON_TYPES.SECONDARY}
+              onPress={handleOnCloseEnd}
+              style={styles.cancelBtn}
+              text={cancelText}
+            />
+          )}
+        </View>
       </View>
-    </View>
-  )
+    )
+  }
 
   const animatedShadowOpacity = Animated.interpolateNode(bottomSheetY, {
     inputRange: [0, 0.5, 0.75, 1],
@@ -123,9 +136,12 @@ const BottomSheet: React.FC<Props> = ({
         borderRadius={15}
         onCloseStart={onCloseStart}
         onCloseEnd={handleOnCloseEnd}
+        // These are not consistent.
+        // onOpenEnd={() => console.log('open end')}
+        // onOpenStart={() => console.log('open start')}
       />
     </Portal>
   )
 }
 
-export default BottomSheet
+export default React.memo(BottomSheet)
