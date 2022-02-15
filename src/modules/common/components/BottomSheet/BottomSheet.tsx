@@ -24,9 +24,6 @@ interface Props {
   displayCancel?: boolean
   maxInitialHeightPercentage?: number
   dynamicInitialHeight?: boolean
-  // Callbacks
-  onCloseEnd?: () => void
-  onCloseStart?: () => void
 }
 
 const BottomSheet: React.FC<Props> = ({
@@ -37,8 +34,6 @@ const BottomSheet: React.FC<Props> = ({
   cancelText: _cancelText,
   maxInitialHeightPercentage = 0.6,
   dynamicInitialHeight = true,
-  onCloseEnd = () => {},
-  onCloseStart,
   closeBottomSheet = () => {},
   isOpen = false
 }) => {
@@ -50,7 +45,6 @@ const BottomSheet: React.FC<Props> = ({
 
   const handleOnCloseEnd = () => {
     closeBottomSheet()
-    onCloseEnd()
   }
 
   /**
@@ -135,7 +129,6 @@ const BottomSheet: React.FC<Props> = ({
         enabledContentTapInteraction={false}
         callbackNode={bottomSheetY}
         borderRadius={15}
-        onCloseStart={onCloseStart}
         onCloseEnd={handleOnCloseEnd}
         // These are not consistent.
         // onOpenEnd={() => console.log('open end')}
