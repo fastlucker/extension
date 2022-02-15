@@ -43,10 +43,6 @@ const BottomSheet: React.FC<Props> = ({
 
   const cancelText = _cancelText || (t('✗  Cancel') as string)
 
-  const handleOnCloseEnd = () => {
-    closeBottomSheet()
-  }
-
   /**
    * Get the content height, so that the modal pops out dynamically,
    * based on the content (so that the content is always visible)
@@ -78,7 +74,7 @@ const BottomSheet: React.FC<Props> = ({
           {displayCancel && (
             <Button
               type={BUTTON_TYPES.SECONDARY}
-              onPress={handleOnCloseEnd}
+              onPress={closeBottomSheet}
               style={styles.cancelBtn}
               text={cancelText}
             />
@@ -129,10 +125,19 @@ const BottomSheet: React.FC<Props> = ({
         enabledContentTapInteraction={false}
         callbackNode={bottomSheetY}
         borderRadius={15}
-        onCloseEnd={handleOnCloseEnd}
-        // These are not consistent.
+        // Trigger the `closeBottomSheet` method on close end,
+        // because otherwise - if user drags out the bottom sheet
+        // and cancels it this way - the `closeBottomSheet` method
+        // logic is not executed. But it is required to, because
+        // it includes hiding keyboard, flipping the `isOpen` flag, etc.
+        onCloseEnd={closeBottomSheet}
+        // Unfortunately, these are not consistent. When component re-renders
+        // they tend to not click. So they are not reliable to determine
+        // if the bottom sheet is opened or closed, neither to hold any logic.
+        // {@link https://github.com/osdnk/react-native-reanimated-bottom-sheet/issues/183}
         // onOpenEnd={() => console.log('open end')}
         // onOpenStart={() => console.log('open start')}
+        // onCloseStart={() => console.log('close start')}
       />
     </Portal>
   )
