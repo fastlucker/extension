@@ -1,7 +1,7 @@
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { AppState, Keyboard, Platform, StyleSheet, Vibration, View } from 'react-native'
+import { AppState, Platform, StyleSheet, Vibration, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
@@ -80,7 +80,7 @@ const PasscodeContext = createContext<PasscodeContextData>(defaults)
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { authStatus } = useAuth()
-  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
   const [state, setState] = useState<PASSCODE_STATES>(defaults.state)
@@ -101,7 +101,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const [hasEnteredValidPasscode, setHasEnteredValidPasscode] = useState<null | boolean>(
     defaults.hasEnteredValidPasscode
   )
-  const [focusCodeInput, setFocusCodeInput] = useState(false)
   // App locking configurations
   const [isAppLocked, setIsAppLocked] = useState(false)
   const [lockOnStartup, setLockOnStartup] = useState(defaults.lockOnStartup)
@@ -196,9 +195,23 @@ const PasscodeProvider: React.FC = ({ children }) => {
       if (nextState === 'background') {
         setIsAppLocked(true)
       }
+
+      // When coming back, immediately prompt user for local auth validation.
+      const shouldPromptLocalAuth =
+        nextState === 'active' && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+      if (shouldPromptLocalAuth) {
+        triggerValidateLocalAuth()
+      }
     })
     return () => lockListener?.remove()
   }, [isLoading, lockWhenInactive, authStatus])
+
+  // When app starts, immediately prompt user for local auth validation.
+  useEffect(() => {
+    if (isAppLocked && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
+      triggerValidateLocalAuth()
+    }
+  }, [isAppLocked])
 
   const enableLockOnStartup = async () => {
     try {
@@ -299,8 +312,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
     }
   }
   const handleValidationSuccess = () => {
-    setFocusCodeInput(false)
-
     if (isAppLocked) {
       return setIsAppLocked(false)
     }
@@ -394,8 +405,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
     if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
       triggerValidateLocalAuth()
-    } else {
-      setFocusCodeInput(true)
     }
   }
 
@@ -413,11 +422,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
     }
 
     handleValidationSuccess()
-  }
-
-  const handleBottomSheetClose = () => {
-    setFocusCodeInput(false)
-    Keyboard.dismiss()
   }
 
   const resetValidPasscodeEntered = () => {
@@ -475,9 +479,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
         <View style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
           <SafeAreaView>
             <PasscodeAuth
+              autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
               title={t('Unlock Ambire Wallet')}
               message={t('Entering your passcode.')}
-              autoFocus={focusCodeInput}
               onFulfill={handleOnValidatePasscode}
               onValidateLocalAuth={triggerValidateLocalAuth}
               hasError={!hasEnteredValidPasscode && hasEnteredValidPasscode !== null}
@@ -491,12 +495,13 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
       <BottomSheet
         sheetRef={sheetRef}
+        isOpen={isOpen}
+        closeBottomSheet={closeBottomSheet}
         dynamicInitialHeight={false}
-        onCloseStart={handleBottomSheetClose}
       >
         <PasscodeAuth
-          autoFocus={focusCodeInput}
           onFulfill={handleOnValidatePasscode}
+          autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
           onValidateLocalAuth={triggerValidateLocalAuth}
           hasError={!hasEnteredValidPasscode && hasEnteredValidPasscode !== null}
           state={state}
