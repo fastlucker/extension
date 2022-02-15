@@ -27,7 +27,7 @@ interface Props {
 }
 
 const BottomSheet: React.FC<Props> = ({
-  id,
+  // id,
   sheetRef,
   children,
   displayCancel = true,
