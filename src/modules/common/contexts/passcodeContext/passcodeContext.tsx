@@ -195,13 +195,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
       if (nextState === 'background') {
         setIsAppLocked(true)
       }
-
-      // When coming back, immediately prompt user for local auth validation.
-      const shouldPromptLocalAuth =
-        nextState === 'active' && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-      if (shouldPromptLocalAuth) {
-        triggerValidateLocalAuth()
-      }
     })
     return () => lockListener?.remove()
   }, [isLoading, lockWhenInactive, authStatus])
@@ -212,7 +205,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     if (shouldPromptLocalAuth) {
       triggerValidateLocalAuth()
     }
-  }, [isAppLocked])
+  }, [isAppLocked, state])
 
   const enableLockOnStartup = async () => {
     try {
