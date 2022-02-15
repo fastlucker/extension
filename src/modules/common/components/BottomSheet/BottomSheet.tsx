@@ -62,6 +62,10 @@ const BottomSheet: React.FC<Props> = ({
   }
 
   const renderContent = () => {
+    // Prevent rendering the bottom sheet content if the bottom sheet is closed,
+    // otherwise - children gets mounted behind the scenes (invisible),
+    // and this create some complications for the 1) focusing elements
+    // when they appear on screen; 2) performance
     if (!isOpen) {
       return null
     }
