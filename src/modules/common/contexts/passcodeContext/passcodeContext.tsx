@@ -303,7 +303,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }
   const isValidLocalAuth = async () => {
     try {
-      const { success } = await LocalAuthentication.authenticateAsync()
+      const { success } = await LocalAuthentication.authenticateAsync({
+        promptMessage: t('Confirm your identity')
+      })
 
       return success
     } catch (e) {
