@@ -321,7 +321,13 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }
 
   const triggerValidateLocalAuth = async () => {
-    const isValid = await isValidLocalAuth()
+    let isValid = false
+    try {
+      isValid = await isValidLocalAuth()
+    } catch (e) {
+      // fail silently
+      // Will fallback to passcode authentication so all good!
+    }
 
     if (!isValid) {
       return
