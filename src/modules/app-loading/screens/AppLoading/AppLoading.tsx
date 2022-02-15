@@ -1,4 +1,5 @@
 import React, { useContext } from 'react'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import Router from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
@@ -20,32 +21,34 @@ const AppLoading = () => {
   if (!storageLoaded) return null
 
   return (
-    <ToastProvider>
-      <AuthProvider>
-        <AccountsProvider>
-          <NetworkProvider>
-            <PortfolioProvider>
-              <WalletConnectProvider>
-                <RequestsProvider>
-                  <AddressBookProvider>
-                    <AccountsPasswordsProvider>
-                      <PortalProvider>
-                        <PasscodeProvider>
-                          <AttentionGrabberProvider>
-                            <Router />
-                          </AttentionGrabberProvider>
-                          <PortalHost name="global" />
-                        </PasscodeProvider>
-                      </PortalProvider>
-                    </AccountsPasswordsProvider>
-                  </AddressBookProvider>
-                </RequestsProvider>
-              </WalletConnectProvider>
-            </PortfolioProvider>
-          </NetworkProvider>
-        </AccountsProvider>
-      </AuthProvider>
-    </ToastProvider>
+    <SafeAreaProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <AccountsProvider>
+            <NetworkProvider>
+              <PortfolioProvider>
+                <WalletConnectProvider>
+                  <RequestsProvider>
+                    <AddressBookProvider>
+                      <AccountsPasswordsProvider>
+                        <PortalProvider>
+                          <PasscodeProvider>
+                            <AttentionGrabberProvider>
+                              <Router />
+                            </AttentionGrabberProvider>
+                            <PortalHost name="global" />
+                          </PasscodeProvider>
+                        </PortalProvider>
+                      </AccountsPasswordsProvider>
+                    </AddressBookProvider>
+                  </RequestsProvider>
+                </WalletConnectProvider>
+              </PortfolioProvider>
+            </NetworkProvider>
+          </AccountsProvider>
+        </AuthProvider>
+      </ToastProvider>
+    </SafeAreaProvider>
   )
 }
 
