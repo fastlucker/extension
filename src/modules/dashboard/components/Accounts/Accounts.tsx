@@ -180,6 +180,8 @@ const Accounts = () => {
         sheetRef={sheetNetworks.sheetRef}
         isOpen={sheetNetworks.isOpen}
         closeBottomSheet={sheetNetworks.closeBottomSheet}
+        // Otherwise, with lower max value, on smaller screens the cancel button gets cut off
+        maxInitialHeightPercentage={0.8}
       >
         <Title>{t('Change network')}</Title>
 

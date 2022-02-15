@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { MaterialIcons } from '@expo/vector-icons'
 import Text from '@modules/common/components/Text'
@@ -31,6 +32,7 @@ let id = 0
 
 const ToastProvider = ({ children }: any) => {
   const [toasts, setToasts] = useState<any[]>([])
+  const insets = useSafeAreaInsets()
 
   const removeToast = useCallback((tId) => {
     // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -71,6 +73,10 @@ const ToastProvider = ({ children }: any) => {
     onClick ? onClick() : removeToast(id)
   }
 
+  // -4 is a magic number
+  // 44 is the height of the bottom tab navigation
+  const bottomInset = insets.bottom > 0 ? insets.bottom - 4 + 44 : insets.bottom + 44
+
   return (
     <ToastContext.Provider
       value={useMemo(
@@ -81,7 +87,7 @@ const ToastProvider = ({ children }: any) => {
         [addToast, removeToast]
       )}
     >
-      <View style={styles.container}>
+      <View style={[styles.container, { bottom: bottomInset }]}>
         {/* eslint-disable-next-line @typescript-eslint/no-shadow */}
         {[...toasts].reverse().map(({ id, url, error, sticky, badge, text, onClick }) => (
           <TouchableOpacity

@@ -16,7 +16,6 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   container: {
     position: 'absolute',
-    bottom: 74,
     width: DEVICE_WIDTH,
     zIndex: 10000,
     elevation: 5
