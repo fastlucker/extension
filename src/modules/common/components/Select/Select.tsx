@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { ViewProps } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 
+import { isiOS } from '@config/env'
 import i18n from '@config/localization/localization'
 import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
@@ -62,7 +63,7 @@ const Select = ({
         searchContainerStyle={styles.searchContainerStyle}
         searchTextInputStyle={styles.searchTextInputStyle}
         containerProps={{
-          style: [containerPropsStyle, styles.containerPropsStyle]
+          style: [containerPropsStyle, isiOS && styles.iOScontainerPropsStyle]
         }}
         disabledItemLabelStyle={{
           opacity: 0.5

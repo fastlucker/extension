@@ -1,6 +1,7 @@
 import * as Application from 'expo-application'
 import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
+import { Platform } from 'react-native'
 
 export const isProd = process.env.APP_ENV === 'production'
 export const isStaging = process.env.APP_ENV === 'staging'
@@ -17,6 +18,9 @@ export const BUILD_NUMBER = Application.nativeBuildVersion || 'N/A'
 export const RELEASE_CHANNEL = Updates.releaseChannel || 'N/A'
 export const RUNTIME_VERSION = Updates.runtimeVersion || 'N/A'
 export const EXPO_SDK = Constants?.manifest?.sdkVersion || 'N/A'
+
+export const isiOS = Platform.OS === 'ios'
+export const isAndroid = Platform.OS === 'android'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 enum APP_ENV {
