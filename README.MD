@@ -80,6 +80,22 @@ When doing over the air updates, be careful. Adding new packages requires a new 
 yarn publish:production
 ```
 
+## Making builds
+
+Create `credentials.json` file in the root directory. See `credentials-sample.json` as an example. Fill-in the required credentials. Then:
+
+- iOS: Create `ios/certs` directory and place there the 1) Provisioning Profile (`profile.mobileprovision` file) 2) Distribution Certificate (`dist.p12` file) and (optionally) 3) Push Notifications Service Key (`AuthKey_XXX.p8` file). Then run:
+
+  ```bash
+  yarn build:ios:production
+  ```
+
+- Android: Create `android/keystores` directory and place there the `release.keystore` file. Then run:
+
+  ```bash
+  yarn build:android:production
+  ```
+
 ## Versioning
 
 When releasing a new version, here are the steps:
@@ -107,24 +123,3 @@ When releasing a new version, here are the steps:
    iOS: Change the key `EXUpdatesRuntimeVersion` in the `Expo.plist` file
 
    Android: Change the `<meta-data>` element with `expo.modules.updates.EXPO_RUNTIME_VERSION` attribute in AndroidManifest.xml file
-
-## Quirks
-
-- If the iOS build fails with the following error:
-
-  ```
-  > ❌  ... duplicate symbols for architecture x86_64
-  > Failed to build iOS project. "xcodebuild" exited with error code 65.
-  ```
-
-  Run:
-
-  ```bash
-  rm -rf node_modules/react-native-tcp/ios/CocoaAsyncSocket
-  ```
-
-  Then:
-
-  ```bash
-  cd ios && pod install
-  ```
