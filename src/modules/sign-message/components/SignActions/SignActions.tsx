@@ -95,6 +95,7 @@ const SignActions = ({
           keyboardType="numeric"
           autoCorrect={false}
           value={watch('code', '')}
+          autoFocus
         />
         <Button
           text={t('Confirm')}
