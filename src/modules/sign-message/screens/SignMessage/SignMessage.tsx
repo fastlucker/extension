@@ -34,8 +34,15 @@ const SignScreen = ({ navigation }: any) => {
   const { account } = useAccounts()
   const { connections } = useWalletConnect()
   const { everythingToSign } = useRequests()
-  const { approve, approveQuickAcc, isLoading, resolve, sheetRef, closeBottomSheet } =
-    useSignMessage()
+  const {
+    approve,
+    approveQuickAcc,
+    isLoading,
+    resolve,
+    sheetRef,
+    closeBottomSheet,
+    isBottomSheetOpen
+  } = useSignMessage()
 
   const toSign = everythingToSign[0]
   const totalRequests = everythingToSign.length
@@ -112,6 +119,7 @@ const SignScreen = ({ navigation }: any) => {
           resolve={resolve}
           sheetRef={sheetRef}
           closeBottomSheet={closeBottomSheet}
+          isBottomSheetOpen={isBottomSheetOpen}
         />
       </Panel>
     </Wrapper>

@@ -14,7 +14,7 @@ import styles from './styles'
 const AddToken = () => {
   const { t } = useTranslation()
   const { onAddExtraToken } = usePortfolio()
-  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
 
   const handleOnSubmit = (token) => {
     onAddExtraToken(token)
@@ -28,7 +28,13 @@ const AddToken = () => {
         <Text style={styles.btn}>{t('+ Add token')}</Text>
       </TouchableOpacity>
 
-      <BottomSheet sheetRef={sheetRef} dynamicInitialHeight={false}>
+      <BottomSheet
+        id="add-token"
+        sheetRef={sheetRef}
+        isOpen={isOpen}
+        closeBottomSheet={closeBottomSheet}
+        dynamicInitialHeight={false}
+      >
         <Title>{t('Add Token')}</Title>
 
         <AddTokenForm onSubmit={handleOnSubmit} />

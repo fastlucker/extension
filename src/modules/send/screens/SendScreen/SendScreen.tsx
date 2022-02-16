@@ -33,12 +33,14 @@ const SendScreen = () => {
   const {
     sheetRef: sheetRefAddrAdd,
     openBottomSheet: openBottomSheetAddrAdd,
-    closeBottomSheet: closeBottomSheetAddrAdd
+    closeBottomSheet: closeBottomSheetAddrAdd,
+    isOpen: isOpenBottomSheetAddrAdd
   } = useBottomSheet()
   const {
     sheetRef: sheetRefAddrDisplay,
     openBottomSheet: openBottomSheetAddrDisplay,
-    closeBottomSheet: closeBottomSheetAddrDisplay
+    closeBottomSheet: closeBottomSheetAddrDisplay,
+    isOpen: isOpenBottomSheetAddrDisplay
   } = useBottomSheet()
   const { addAddress } = useAddressBook()
   const {
@@ -146,7 +148,12 @@ const SendScreen = () => {
           </>
         </TouchableWithoutFeedback>
       )}
-      <BottomSheet sheetRef={sheetRefAddrDisplay} dynamicInitialHeight={false}>
+      <BottomSheet
+        sheetRef={sheetRefAddrDisplay}
+        isOpen={isOpenBottomSheetAddrDisplay}
+        closeBottomSheet={closeBottomSheetAddrDisplay}
+        dynamicInitialHeight={false}
+      >
         <AddressList
           onSelectAddress={(item): any => {
             closeBottomSheetAddrDisplay()
@@ -155,7 +162,12 @@ const SendScreen = () => {
           onOpenBottomSheet={openBottomSheetAddrAdd}
         />
       </BottomSheet>
-      <BottomSheet sheetRef={sheetRefAddrAdd} maxInitialHeightPercentage={1}>
+      <BottomSheet
+        sheetRef={sheetRefAddrAdd}
+        isOpen={isOpenBottomSheetAddrAdd}
+        closeBottomSheet={closeBottomSheetAddrAdd}
+        maxInitialHeightPercentage={1}
+      >
         <AddAddressForm
           onSubmit={handleAddNewAddress}
           address={!smartContractWarning && !!unknownWarning && !!address ? address : ''}

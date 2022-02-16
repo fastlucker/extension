@@ -176,7 +176,10 @@ const Accounts = () => {
         </View>
       </Panel>
       <BottomSheet
+        id="networks"
         sheetRef={sheetNetworks.sheetRef}
+        isOpen={sheetNetworks.isOpen}
+        closeBottomSheet={sheetNetworks.closeBottomSheet}
         // Otherwise, with lower max value, on smaller screens the cancel button gets cut off
         maxInitialHeightPercentage={0.8}
       >
@@ -186,7 +189,12 @@ const Accounts = () => {
           <Button key={chainId} onPress={() => handleChangeNetwork(chainId)} text={name} />
         ))}
       </BottomSheet>
-      <BottomSheet sheetRef={sheetAccounts.sheetRef}>
+      <BottomSheet
+        id="accounts"
+        sheetRef={sheetAccounts.sheetRef}
+        isOpen={sheetAccounts.isOpen}
+        closeBottomSheet={sheetAccounts.closeBottomSheet}
+      >
         <Title>{t('Change account')}</Title>
 
         {accounts.map(renderAccountDetails)}

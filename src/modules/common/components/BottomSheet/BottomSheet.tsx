@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Keyboard, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import Animated, { greaterThan } from 'react-native-reanimated'
 import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 
@@ -9,41 +9,39 @@ import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Button, { BUTTON_TYPES } from '../Button'
-import useBottomSheet from './hooks/useBottomSheet'
 import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
 
 interface Props {
+  // Useful for debugging and generally knowing which bottom sheet gets triggered
+  id?: string
+  // Required in order all bottom sheet related events to click
   sheetRef: React.RefObject<any>
+  closeBottomSheet: () => void
+  isOpen: boolean
+  children: React.ReactNode
+  // Preferences
   cancelText?: string
   displayCancel?: boolean
   maxInitialHeightPercentage?: number
   dynamicInitialHeight?: boolean
-  onCloseEnd?: () => void
-  onCloseStart?: () => void
 }
 
 const BottomSheet: React.FC<Props> = ({
+  // id,
   sheetRef,
   children,
   displayCancel = true,
   cancelText: _cancelText,
   maxInitialHeightPercentage = 0.6,
   dynamicInitialHeight = true,
-  onCloseEnd = () => {},
-  onCloseStart
+  closeBottomSheet = () => {},
+  isOpen = false
 }) => {
   const { t } = useTranslation()
-  const { closeBottomSheet } = useBottomSheet()
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
 
   const cancelText = _cancelText || (t('✗  Cancel') as string)
-
-  const handleClose = () => closeBottomSheet(sheetRef)
-  const handleOnCloseEnd = () => {
-    Keyboard.dismiss()
-    onCloseEnd()
-  }
 
   /**
    * Get the content height, so that the modal pops out dynamically,
@@ -63,22 +61,32 @@ const BottomSheet: React.FC<Props> = ({
     setContentHeight(Math.min(height, maxHeight))
   }
 
-  const renderContent = () => (
-    <View style={styles.containerWrapper}>
-      <View style={styles.containerInnerWrapper} onLayout={handleOnLayout}>
-        <View style={styles.dragger} />
-        {children}
-        {displayCancel && (
-          <Button
-            type={BUTTON_TYPES.SECONDARY}
-            onPress={handleClose}
-            style={styles.cancelBtn}
-            text={cancelText}
-          />
-        )}
+  const renderContent = () => {
+    // Prevent rendering the bottom sheet content if the bottom sheet is closed,
+    // otherwise - children gets mounted behind the scenes (invisible),
+    // and this create some complications for the 1) focusing elements
+    // when they appear on screen; 2) performance
+    if (!isOpen) {
+      return null
+    }
+
+    return (
+      <View style={styles.containerWrapper}>
+        <View style={styles.containerInnerWrapper} onLayout={handleOnLayout}>
+          <View style={styles.dragger} />
+          {children}
+          {displayCancel && (
+            <Button
+              type={BUTTON_TYPES.SECONDARY}
+              onPress={closeBottomSheet}
+              style={styles.cancelBtn}
+              text={cancelText}
+            />
+          )}
+        </View>
       </View>
-    </View>
-  )
+    )
+  }
 
   const animatedShadowOpacity = Animated.interpolateNode(bottomSheetY, {
     inputRange: [0, 0.5, 0.75, 1],
@@ -121,11 +129,22 @@ const BottomSheet: React.FC<Props> = ({
         enabledContentTapInteraction={false}
         callbackNode={bottomSheetY}
         borderRadius={15}
-        onCloseStart={onCloseStart}
-        onCloseEnd={handleOnCloseEnd}
+        // Trigger the `closeBottomSheet` method on close end,
+        // because otherwise - if user drags out the bottom sheet
+        // and cancels it this way - the `closeBottomSheet` method
+        // logic is not executed. But it is required to, because
+        // it includes hiding keyboard, flipping the `isOpen` flag, etc.
+        onCloseEnd={closeBottomSheet}
+        // Unfortunately, these are not consistent. When component re-renders
+        // they tend to not click. So they are not reliable to determine
+        // if the bottom sheet is opened or closed, neither to hold any logic.
+        // {@link https://github.com/osdnk/react-native-reanimated-bottom-sheet/issues/183}
+        // onOpenEnd={() => console.log('open end')}
+        // onOpenStart={() => console.log('open start')}
+        // onCloseStart={() => console.log('close start')}
       />
     </Portal>
   )
 }
 
-export default BottomSheet
+export default React.memo(BottomSheet)

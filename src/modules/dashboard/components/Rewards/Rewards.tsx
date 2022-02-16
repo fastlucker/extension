@@ -51,7 +51,7 @@ const rewardsInitialState = {
 
 const Rewards = () => {
   const { t } = useTranslation()
-  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
   const { account, selectedAcc } = useAccounts()
   const [cacheBreak, setCacheBreak] = useState(() => Date.now())
 
@@ -133,7 +133,14 @@ const Rewards = () => {
         style={styles.button}
         size={BUTTON_SIZES.SMALL}
       />
-      <BottomSheet dynamicInitialHeight={false} sheetRef={sheetRef} cancelText={t('Close')}>
+      <BottomSheet
+        id="rewards"
+        dynamicInitialHeight={false}
+        sheetRef={sheetRef}
+        isOpen={isOpen}
+        closeBottomSheet={closeBottomSheet}
+        cancelText={t('Close')}
+      >
         <Title>{t('Wallet')}</Title>
 
         <Row index={0}>

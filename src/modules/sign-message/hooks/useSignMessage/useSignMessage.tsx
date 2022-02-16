@@ -20,7 +20,12 @@ const useSignMessage = () => {
 
   const [isLoading, setLoading] = useState<boolean>(false)
 
-  const { sheetRef, openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const {
+    sheetRef,
+    openBottomSheet,
+    closeBottomSheet,
+    isOpen: isBottomSheetOpen
+  } = useBottomSheet()
 
   const resolve = (outcome: any) => resolveMany([everythingToSign[0].id], outcome)
 
@@ -112,7 +117,8 @@ const useSignMessage = () => {
     isLoading,
     resolve,
     closeBottomSheet,
-    sheetRef
+    sheetRef,
+    isBottomSheetOpen
   }
 }
 

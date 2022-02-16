@@ -1,7 +1,7 @@
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Keyboard, View } from 'react-native'
+import { View } from 'react-native'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
@@ -20,7 +20,8 @@ const SignActions = ({
   approveQuickAcc,
   resolve,
   sheetRef,
-  closeBottomSheet
+  closeBottomSheet,
+  isBottomSheetOpen
 }: any) => {
   const { t } = useTranslation()
   const {
@@ -76,7 +77,12 @@ const SignActions = ({
           </View>
         </View>
       </View>
-      <BottomSheet sheetRef={sheetRef} dynamicInitialHeight={false}>
+      <BottomSheet
+        closeBottomSheet={isBottomSheetOpen}
+        isOpen={isBottomSheetOpen}
+        sheetRef={sheetRef}
+        dynamicInitialHeight={false}
+      >
         <Title>{t('Confirmation code')}</Title>
         <Text style={spacings.mb}>
           {t(
@@ -89,6 +95,7 @@ const SignActions = ({
           keyboardType="numeric"
           autoCorrect={false}
           value={watch('code', '')}
+          autoFocus
         />
         <Button
           text={t('Confirm')}
