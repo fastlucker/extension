@@ -1,11 +1,6 @@
 import React from 'react'
-import {
-  Platform,
-  SafeAreaView as SafeAreaViewRN,
-  StatusBar,
-  StyleSheet,
-  ViewProps
-} from 'react-native'
+import { Platform, StatusBar, StyleSheet, ViewProps } from 'react-native'
+import { SafeAreaView as SafeAreaViewRN } from 'react-native-safe-area-context'
 
 import spacings from '@modules/common/styles/spacings'
 
