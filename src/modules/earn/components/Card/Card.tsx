@@ -127,7 +127,7 @@ const Card = ({
             value={token}
             items={assetsItems}
             setValue={setToken}
-            containerProps={{ style: spacings.mbSm }}
+            containerPropsStyle={spacings.mbSm}
             // TODO:
             //  disabled={disabled}
             label={t('Choose Token')}

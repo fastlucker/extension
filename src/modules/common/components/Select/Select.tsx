@@ -23,7 +23,7 @@ interface Props {
   searchable?: boolean
   onChangeValue?: (value: any) => void
   label?: string
-  containerProps?: ViewProps
+  containerPropsStyle?: ViewProps['style']
 }
 
 const Select = ({
@@ -34,7 +34,7 @@ const Select = ({
   searchable = true,
   onChangeValue,
   label,
-  containerProps
+  containerPropsStyle
 }: Props) => {
   const [open, setOpen] = useState(false)
 
@@ -61,7 +61,9 @@ const Select = ({
         listItemLabelStyle={styles.listItemLabelStyle}
         searchContainerStyle={styles.searchContainerStyle}
         searchTextInputStyle={styles.searchTextInputStyle}
-        containerProps={containerProps}
+        containerProps={{
+          style: [containerPropsStyle, styles.containerPropsStyle]
+        }}
         disabledItemLabelStyle={{
           opacity: 0.5
         }}
