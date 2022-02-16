@@ -14,6 +14,12 @@ First run:
 yarn install
 ```
 
+Then, run:
+
+```bash
+git submodule update --init
+```
+
 - iOS: Then run:
 
   ```
@@ -95,6 +101,8 @@ When releasing a new version, here are the steps:
    Android: `versionCode` in the `android/app/build.gradle` file
 
 1. Runtime version. Integer. Bump up If the next internal version we're about to ship requires creating a new build and shipping it over the air will break the previous (existing) builds: (example: `1`)
+
+   For both platforms: change `runtimeVersion` key in `app.json`. Then run: `eas build:configure`.
 
    iOS: Change the key `EXUpdatesRuntimeVersion` in the `Expo.plist` file
 

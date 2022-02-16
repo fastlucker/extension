@@ -1,7 +1,7 @@
+import './shim'
 import 'react-native-gesture-handler'
 import 'expo-asset'
 import { Platform, UIManager } from 'react-native'
-import './shim'
 import { registerRootComponent } from 'expo'
 
 // In order to get Layout API to work on Android.
