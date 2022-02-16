@@ -3,10 +3,8 @@
   "expo": {
     "slug": "ambire-mobile-wallet",
     "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "runtimeVersion": "1",
+    "assetBundlePatterns": ["**/*"],
+    "runtimeVersion": "2",
     "updates": {
       "enabled": true,
       "fallbackToCacheTimeout": 45000
