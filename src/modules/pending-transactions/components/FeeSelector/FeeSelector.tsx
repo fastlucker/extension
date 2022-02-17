@@ -180,7 +180,7 @@ const FeeSelector = ({
   }
 
   return (
-    <Panel style={{ zIndex: 50 }}>
+    <Panel>
       <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
         <FontAwesome5
           style={spacings.mrTy}
