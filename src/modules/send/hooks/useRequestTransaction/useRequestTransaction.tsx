@@ -99,8 +99,11 @@ export default function useRequestTransaction() {
         account: selectedAcc,
         txn
       })
-
-      setAmount(0)
+      setTimeout(() => {
+        setAsset('')
+        setAmount(0)
+        setAddress('')
+      }, 500)
     } catch (e: any) {
       console.error(e)
       addToast(`Error: ${e.message || e}`, { error: true })

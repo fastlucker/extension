@@ -94,7 +94,7 @@ const ToastProvider = ({ children }: any) => {
             key={id}
             style={[styles.toast, error && styles.error]}
             onPress={() => onToastPress(id, onClick, url)}
-            activeOpacity={0.7}
+            activeOpacity={0.9}
           >
             {!!badge && (
               <View style={styles.badge}>
