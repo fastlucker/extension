@@ -14,6 +14,7 @@ import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
+import { isAskingForPermission } from '@modules/common/services/requestPermissionFlagging'
 import {
   IS_LOCAL_AUTH_ACTIVATED_KEY,
   LOCK_ON_STARTUP_KEY,
@@ -192,7 +193,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       // The app is running in the background means that user is either:
       // in another app, on the home screen or [Android] on another Activity
       // (even if it was launched by our app).
-      if (nextState === 'background') {
+      if (nextState === 'background' && !isAskingForPermission) {
         setIsAppLocked(true)
       }
     })
