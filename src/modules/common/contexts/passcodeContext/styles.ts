@@ -8,7 +8,9 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
   lockedContainer: {
-    backgroundColor: colors.secondaryAccentColor
+    backgroundColor: colors.secondaryAccentColor,
+    // The lock container should come on top of everything
+    zIndex: 100
   }
 })
 
