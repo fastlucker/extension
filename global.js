@@ -1,0 +1,1 @@
+global.isAskingForPermission = false
