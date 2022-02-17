@@ -35,8 +35,9 @@ const FeeSelector = ({
   const { network }: any = useNetwork()
   const [currency, setCurrency] = useState<any>(null)
 
+  // Initially sets a value in the Select
   useEffect(() => {
-    if (estimation?.selectedFeeToken?.symbol && currency !== estimation?.selectedFeeToken?.symbol) {
+    if (!currency && estimation?.selectedFeeToken?.symbol) {
       setCurrency(estimation?.selectedFeeToken?.symbol)
     }
   }, [currency, estimation?.selectedFeeToken?.symbol])
@@ -179,7 +180,7 @@ const FeeSelector = ({
   }
 
   return (
-    <Panel>
+    <Panel style={{ zIndex: 50 }}>
       <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
         <FontAwesome5
           style={spacings.mrTy}
