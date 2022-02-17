@@ -4,6 +4,7 @@
 // they all trigger AppState change (to `background` and then `active`).
 // Which triggers the AppState listeners, like the one on the PasscodeContext,
 // that locks the app (in case lock when inactive option is active).
+// Apply this for both iOS and Android, for consistency.
 export default function requestPermissionFlagging<R>(p: () => Promise<R>): Promise<R> {
   global.isAskingForPermission = true
 
