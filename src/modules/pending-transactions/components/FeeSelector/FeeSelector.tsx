@@ -35,8 +35,9 @@ const FeeSelector = ({
   const { network }: any = useNetwork()
   const [currency, setCurrency] = useState<any>(null)
 
+  // Initially sets a value in the Select
   useEffect(() => {
-    if (estimation?.selectedFeeToken?.symbol && currency !== estimation?.selectedFeeToken?.symbol) {
+    if (!currency && estimation?.selectedFeeToken?.symbol) {
       setCurrency(estimation?.selectedFeeToken?.symbol)
     }
   }, [currency, estimation?.selectedFeeToken?.symbol])
@@ -179,23 +180,21 @@ const FeeSelector = ({
   }
 
   return (
-    <View style={styles.panelWrapper}>
-      <Panel>
-        <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
-          <FontAwesome5
-            style={spacings.mrTy}
-            name="hand-holding-usd"
-            size={20}
-            color={colors.primaryAccentColor}
-          />
-          <Title hasBottomSpacing={false} color={colors.primaryAccentColor}>
-            {t('Fee')}
-          </Title>
-        </View>
+    <Panel>
+      <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
+        <FontAwesome5
+          style={spacings.mrTy}
+          name="hand-holding-usd"
+          size={20}
+          color={colors.primaryAccentColor}
+        />
+        <Title hasBottomSpacing={false} color={colors.primaryAccentColor}>
+          {t('Fee')}
+        </Title>
+      </View>
 
-        {renderFeeSelector()}
-      </Panel>
-    </View>
+      {renderFeeSelector()}
+    </Panel>
   )
 }
 

@@ -9,9 +9,9 @@ interface Style {
   listItemContainerStyle: ViewProps
   searchContainerStyle: ViewProps
   searchTextInputStyle: ViewProps
+  modalContentContainerStyle: ViewProps
   labelStyle: TextProps
   listItemLabelStyle: TextProps
-  iOScontainerPropsStyle: ViewProps
 }
 
 const styles = StyleSheet.create<Style>({
@@ -51,11 +51,8 @@ const styles = StyleSheet.create<Style>({
     borderColor: colors.inputBackgroundColor,
     color: colors.textColor
   },
-  iOScontainerPropsStyle: {
-    // Using `zIndex` is required for iOS when the select is nested inside
-    // multiple Views, for example on the Earn screen. Without specifying
-    // `zIndex`, other elements go on top of the list when it gets opened.
-    zIndex: 10
+  modalContentContainerStyle: {
+    backgroundColor: colors.inputBackgroundColor
   }
 })
 
