@@ -22,7 +22,7 @@ const styles = StyleSheet.create<Style>({
   },
   feeSelector: {
     padding: 2,
-    minHeight: 70,
+    minHeight: 90,
     flex: 1,
     marginHorizontal: 5,
     overflow: 'hidden',
