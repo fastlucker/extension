@@ -99,6 +99,8 @@ export default function useRequestTransaction() {
         account: selectedAcc,
         txn
       })
+
+      // Timeout of 500ms because of the animated transition between screens (addRequest opens PendingTransactions screen)
       setTimeout(() => {
         setAsset('')
         setAmount(0)
