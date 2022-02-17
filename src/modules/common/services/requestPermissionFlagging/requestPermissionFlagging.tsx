@@ -11,5 +11,3 @@ export default function requestPermissionFlagging<R>(p: () => Promise<R>): Promi
     global.isAskingForPermission = false
   })
 }
-
-export const isAskingForPermission = global.isAskingForPermission
