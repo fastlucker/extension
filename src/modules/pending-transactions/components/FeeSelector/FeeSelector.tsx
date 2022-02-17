@@ -130,7 +130,7 @@ const FeeSelector = ({
           >
             {speed}
           </Text>
-          <Text numberOfLines={1} fontSize={15} color={colors.invertedTextColor}>
+          <Text numberOfLines={2} fontSize={15} color={colors.invertedTextColor}>
             {/* eslint-disable-next-line no-nested-ternary */}
             {isStable
               ? `$${estimation.feeInUSD[speed] * multiplier}`
@@ -156,15 +156,21 @@ const FeeSelector = ({
         {
           // Visualize the fee once again with a USD estimation if in native currency
           !isStable && (
-            <Text numberOfLines={2}>
-              {t('Fee: ')}
-              {`${estimation.feeInNative[feeSpeed] * multiplier} ${nativeAssetSymbol}`}{' '}
-              {(
-                estimation.feeInNative[feeSpeed] *
-                multiplier *
-                estimation.nativeAssetPriceInUSD
-              ).toFixed(2)}
-            </Text>
+            <>
+              <Text numberOfLines={2}>
+                <Text>{t('Fee: ')}</Text>
+                <Text>{`${
+                  estimation.feeInNative[feeSpeed] * multiplier
+                } ${nativeAssetSymbol}`}</Text>
+              </Text>
+              <Text>
+                {`(~ $${(
+                  estimation.feeInNative[feeSpeed] *
+                  multiplier *
+                  estimation.nativeAssetPriceInUSD
+                ).toFixed(2)})`}
+              </Text>
+            </>
           )
         }
         {!estimation.feeInUSD ? (
