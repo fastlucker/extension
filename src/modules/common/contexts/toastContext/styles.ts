@@ -17,7 +17,7 @@ const styles = StyleSheet.create<Style>({
   container: {
     position: 'absolute',
     width: DEVICE_WIDTH,
-    zIndex: 10000,
+    zIndex: 99,
     elevation: 5
   },
   toast: {
