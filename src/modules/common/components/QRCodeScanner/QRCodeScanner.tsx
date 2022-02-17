@@ -7,6 +7,7 @@ import { Linking, Platform, StyleSheet, View } from 'react-native'
 import { APP_ID } from '@config/env'
 import { useTranslation } from '@config/localization'
 import P from '@modules/common/components/P'
+import requestPermissionFlagging from '@modules/common/services/requestPermissionFlagging'
 
 import Button from '../Button'
 import styles from './styles'
@@ -22,7 +23,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
 
   useEffect(() => {
     ;(async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync()
+      const { status } = await requestPermissionFlagging(Camera.requestCameraPermissionsAsync)
       setHasPermission(status === 'granted')
     })()
   }, [])
@@ -33,7 +34,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
   }
 
   const requestCameraPermissionAgain = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync()
+    const { status } = await requestPermissionFlagging(Camera.requestCameraPermissionsAsync)
     setHasPermission(status === 'granted')
   }
 

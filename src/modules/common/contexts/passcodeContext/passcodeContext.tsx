@@ -192,7 +192,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       // The app is running in the background means that user is either:
       // in another app, on the home screen or [Android] on another Activity
       // (even if it was launched by our app).
-      if (nextState === 'background') {
+      if (nextState === 'background' && !global.isAskingForPermission) {
         setIsAppLocked(true)
       }
     })
