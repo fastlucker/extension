@@ -179,23 +179,21 @@ const FeeSelector = ({
   }
 
   return (
-    <View style={styles.panelWrapper}>
-      <Panel>
-        <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
-          <FontAwesome5
-            style={spacings.mrTy}
-            name="hand-holding-usd"
-            size={20}
-            color={colors.primaryAccentColor}
-          />
-          <Title hasBottomSpacing={false} color={colors.primaryAccentColor}>
-            {t('Fee')}
-          </Title>
-        </View>
+    <Panel>
+      <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
+        <FontAwesome5
+          style={spacings.mrTy}
+          name="hand-holding-usd"
+          size={20}
+          color={colors.primaryAccentColor}
+        />
+        <Title hasBottomSpacing={false} color={colors.primaryAccentColor}>
+          {t('Fee')}
+        </Title>
+      </View>
 
-        {renderFeeSelector()}
-      </Panel>
-    </View>
+      {renderFeeSelector()}
+    </Panel>
   )
 }
 
