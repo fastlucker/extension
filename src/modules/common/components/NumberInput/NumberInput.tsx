@@ -27,7 +27,8 @@ const NumberInput = ({
   const onInputValue = (value: string) => {
     if (!onChangeText) return
     if (!value) return onChangeText('')
-
+    // eslint-disable-next-line no-param-reassign
+    value = value.replace(',', '.')
     const afterDecimals = value?.split('.')[1]
     if (afterDecimals && afterDecimals.length > precision) return
 

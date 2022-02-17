@@ -71,7 +71,7 @@ const SendScreen = () => {
   }
 
   return (
-    <Wrapper>
+    <Wrapper keyboardDismissMode="on-drag">
       {isBalanceLoading && (
         <View style={StyleSheet.absoluteFill}>
           <ActivityIndicator style={StyleSheet.absoluteFill} size="large" />
@@ -124,7 +124,10 @@ const SendScreen = () => {
                 )}
                 <Button
                   type={BUTTON_TYPES.SECONDARY}
-                  onPress={openBottomSheetAddrDisplay}
+                  onPress={() => {
+                    Keyboard.dismiss()
+                    openBottomSheetAddrDisplay()
+                  }}
                   text={t('Address Book')}
                 />
                 <Button
@@ -167,6 +170,7 @@ const SendScreen = () => {
         isOpen={isOpenBottomSheetAddrAdd}
         closeBottomSheet={closeBottomSheetAddrAdd}
         maxInitialHeightPercentage={1}
+        dynamicInitialHeight={false}
       >
         <AddAddressForm
           onSubmit={handleAddNewAddress}

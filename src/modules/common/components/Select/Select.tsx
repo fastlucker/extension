@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ViewProps } from 'react-native'
+import { Keyboard, ViewProps } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 
 import { isiOS } from '@config/env'
@@ -46,7 +46,10 @@ const Select = ({
         open={open}
         value={value}
         items={items}
-        setOpen={setOpen}
+        setOpen={(isOpen) => {
+          Keyboard.dismiss()
+          setOpen(isOpen)
+        }}
         itemKey="label"
         // @ts-ignore
         setValue={setValue}
