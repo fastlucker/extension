@@ -14,7 +14,7 @@ const useAppLock = (
   const [, setAppState] = useState<AppStateStatus>(AppState.currentState)
 
   // Run this hook only once, when app starts.
-  // Otherwise, it interfiers with the rest of the logic
+  // Otherwise, it interferes with the rest of the logic
   // and makes the app state change event veeeeryyyy slooooooooow.
   useEffect(() => {
     if (!isInitialAppOpen) return
@@ -45,8 +45,6 @@ const useAppLock = (
         }
         return nextAppState
       }),
-    // only pass function as handleAppStateChange
-    // on mount by providing empty dependency
     [triggerValidateLocalAuth, isAppLocked, setIsAppLocked, lockWhenInactive, state]
   )
 
