@@ -10,16 +10,20 @@ const usePasscodeLock = (
   triggerValidateLocalAuth: () => void,
   setIsAppLocked: Dispatch<SetStateAction<boolean>>
 ) => {
+  const [isInitialAppOpen, setIsInitialAppOpen] = useState(true)
   const [, setAppState] = useState<AppStateStatus>(AppState.currentState)
 
-  // When app starts, immediately prompt user for local auth validation.
-  // TODO: For some reason, enabling this makes the other part slooooooooow.
-  // useEffect(() => {
-  //   const shouldPromptLocalAuth = isAppLocked && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-  //   if (shouldPromptLocalAuth) {
-  //     triggerValidateLocalAuth()
-  //   }
-  // }, [isAppLocked, state])
+  // Run this hook only once, when app starts.
+  // Otherwise, it interfiers with the rest of the logic
+  // and makes the app state change event veeeeryyyy slooooooooow.
+  useEffect(() => {
+    if (!isInitialAppOpen) return
+
+    if (isAppLocked && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
+      setIsInitialAppOpen(false)
+      triggerValidateLocalAuth()
+    }
+  }, [isInitialAppOpen, isAppLocked, state, triggerValidateLocalAuth])
 
   // Catches better the otherwise not extremely consistent app state change.
   // {@link https://stackoverflow.com/a/62773667/1333836}
