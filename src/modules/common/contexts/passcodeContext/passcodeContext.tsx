@@ -211,15 +211,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }, [isAppLocked, closeBottomSheet])
 
   const triggerValidateLocalAuth = useCallback(async () => {
-    // TODO: No idea why this doesn't work.
-    // const isValid = await requestLocalAuthFlagging(isValidLocalAuth)
-    global.isAskingForLocalAuth = true
-    const isValid = await isValidLocalAuth()
-    // Delaying a bit resetting of this flag solves a race condition on iOS
-    // where the app state clicks before this one, and the app gets locked again
-    setTimeout(() => {
-      global.isAskingForLocalAuth = false
-    }, 500)
+    const isValid = await requestLocalAuthFlagging(isValidLocalAuth)
 
     if (!isValid) {
       return
@@ -298,6 +290,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const addLocalAuth = async () => {
     try {
       const { success } = await requestLocalAuthFlagging(LocalAuthentication.authenticateAsync)
+
       if (success) {
         await AsyncStorage.setItem(IS_LOCAL_AUTH_ACTIVATED_KEY, 'true')
 
