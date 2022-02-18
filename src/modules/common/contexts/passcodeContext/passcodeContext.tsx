@@ -1,7 +1,7 @@
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import { AppState, Platform, StyleSheet, Vibration, View } from 'react-native'
+import { Platform, StyleSheet, Vibration, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
@@ -184,22 +184,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
     })()
   }, [authStatus])
 
-  useEffect(() => {
-    if (isLoading) return
-    if (authStatus !== AUTH_STATUS.AUTHENTICATED) return
-    if (!lockWhenInactive) return
-
-    const lockListener = AppState.addEventListener('change', (nextState) => {
-      // The app is running in the background means that user is either:
-      // in another app, on the home screen or [Android] on another Activity
-      // (even if it was launched by our app).
-      if (nextState === 'background' && !global.isAskingForPermission) {
-        setIsAppLocked(true)
-      }
-    })
-    return () => lockListener?.remove()
-  }, [isLoading, lockWhenInactive, authStatus])
-
   const isValidLocalAuth = useCallback(async () => {
     try {
       const { success } = await LocalAuthentication.authenticateAsync({
@@ -231,7 +215,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     handleValidationSuccess()
   }, [handleValidationSuccess, isValidLocalAuth])
 
-  usePasscodeLock(state, isAppLocked, triggerValidateLocalAuth)
+  usePasscodeLock(state, isAppLocked, lockWhenInactive, triggerValidateLocalAuth, setIsAppLocked)
 
   const enableLockOnStartup = async () => {
     try {
