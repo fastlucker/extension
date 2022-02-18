@@ -1,6 +1,6 @@
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { AppState, Platform, StyleSheet, Vibration, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
@@ -24,6 +24,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
 import styles from './styles'
+import usePasscodeLock from './usePasscodeLock'
 
 type PasscodeContextData = {
   state: PASSCODE_STATES
@@ -199,13 +200,47 @@ const PasscodeProvider: React.FC = ({ children }) => {
     return () => lockListener?.remove()
   }, [isLoading, lockWhenInactive, authStatus])
 
-  // When app starts, immediately prompt user for local auth validation.
-  useEffect(() => {
-    const shouldPromptLocalAuth = isAppLocked && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-    if (shouldPromptLocalAuth) {
-      triggerValidateLocalAuth()
+  const isValidLocalAuth = useCallback(async () => {
+    try {
+      const { success } = await LocalAuthentication.authenticateAsync({
+        promptMessage: t('Confirm your identity')
+      })
+
+      return success
+    } catch (e) {
+      addToast(t('Authentication attempt failed.') as string, { error: true })
+      return false
     }
-  }, [isAppLocked, state])
+  }, [isAppLocked])
+
+  const handleValidationSuccess = useCallback(() => {
+    if (isAppLocked) {
+      return setIsAppLocked(false)
+    }
+
+    closeBottomSheet()
+    setHasEnteredValidPasscode(true)
+  }, [isAppLocked])
+
+  const triggerValidateLocalAuth = useCallback(async () => {
+    const isValid = await isValidLocalAuth()
+    if (!isValid) {
+      return
+    }
+
+    handleValidationSuccess()
+  }, [isAppLocked])
+
+  // TODO:
+  // When app starts, immediately prompt user for local auth validation.
+  // useEffect(() => {
+  //   const shouldPromptLocalAuth = isAppLocked && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+  //   if (shouldPromptLocalAuth) {
+  //     triggerValidateLocalAuth()
+  //   }
+  // }, [isAppLocked, state])
+
+  usePasscodeLock(state, isAppLocked, triggerValidateLocalAuth)
 
   const enableLockOnStartup = async () => {
     try {
@@ -294,35 +329,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
         error: true
       })
     }
-  }
-  const isValidLocalAuth = async () => {
-    try {
-      const { success } = await LocalAuthentication.authenticateAsync({
-        promptMessage: t('Confirm your identity')
-      })
-
-      return success
-    } catch (e) {
-      addToast(t('Authentication attempt failed.') as string, { error: true })
-      return false
-    }
-  }
-  const handleValidationSuccess = () => {
-    if (isAppLocked) {
-      return setIsAppLocked(false)
-    }
-
-    closeBottomSheet()
-    setHasEnteredValidPasscode(true)
-  }
-
-  const triggerValidateLocalAuth = async () => {
-    const isValid = await isValidLocalAuth()
-    if (!isValid) {
-      return
-    }
-
-    handleValidationSuccess()
   }
 
   const addPasscode = async (code: string) => {
