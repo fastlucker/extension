@@ -73,7 +73,7 @@ const Rewards = () => {
   useEffect(() => {
     if (errMsg || !data || !data.success) return
 
-    if (!data.rewards.length) return
+    if (!data?.rewards?.length) return
 
     // @ts-ignore not sure why this type is complaining, types mismatch a bit.
     // but the end result matches this structure:
@@ -85,7 +85,7 @@ const Rewards = () => {
       [RewardIds.ADX_REWARDS]: number
       [RewardIds.BALANCE_REWARDS]: number
     } = Object.fromEntries<RewardsData[]>(
-      data.rewards.map(({ _id, rewards: _rewards }: RewardsData) => [
+      data?.rewards?.map(({ _id, rewards: _rewards }: RewardsData) => [
         _id,
         _rewards[account.id] || 0
       ])
@@ -166,7 +166,7 @@ const Rewards = () => {
           </View>
         </Row>
 
-        {rewards.multipliers.map(({ mul, name }) => (
+        {rewards?.multipliers?.map(({ mul, name }) => (
           <Button
             accentColor={colors.primaryAccentColor}
             type={BUTTON_TYPES.SECONDARY}

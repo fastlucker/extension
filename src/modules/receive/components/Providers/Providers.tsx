@@ -99,7 +99,7 @@ const Providers = ({ walletAddress, networkDetails }: any) => {
           style={[textStyles.italic, textStyles.center]}
         >
           {t(
-            'NOTE: Some deposit methods are unavailable on {{name}}. Switch toEthereum for the widest support.',
+            'NOTE: Some deposit methods are unavailable on {{name}}. Switch to Ethereum for the widest support.',
             { name: networkDetails.name }
           )}
         </Text>
