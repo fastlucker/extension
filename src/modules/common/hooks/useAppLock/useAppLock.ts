@@ -8,7 +8,8 @@ const useAppLock = (
   isAppLocked: boolean,
   lockWhenInactive: boolean,
   triggerValidateLocalAuth: () => void,
-  setIsAppLocked: Dispatch<SetStateAction<boolean>>
+  setIsAppLocked: Dispatch<SetStateAction<boolean>>,
+  setPasscodeError: Dispatch<SetStateAction<string>>
 ) => {
   const [isInitialAppOpen, setIsInitialAppOpen] = useState(true)
   const [, setAppState] = useState<AppStateStatus>(AppState.currentState)
@@ -41,6 +42,10 @@ const useAppLock = (
           // App has come to background!
           if (lockWhenInactive && !global.isAskingForPermission) {
             setIsAppLocked(true)
+            // Clear the passcode error, otherwise, it gets persisted,
+            // and the next time when app opens - it gets instantly displayed
+            // which is a bit misleading.
+            setPasscodeError('')
           }
         }
         return nextAppState

@@ -99,6 +99,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     defaults.isLocalAuthSupported
   )
   const [isLoading, setIsLoading] = useState<boolean>(defaults.isLoading)
+  const [passcodeError, setPasscodeError] = useState<string>('')
   const [hasEnteredValidPasscode, setHasEnteredValidPasscode] = useState<null | boolean>(
     defaults.hasEnteredValidPasscode
   )
@@ -198,6 +199,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }, [addToast, t])
 
   const handleValidationSuccess = useCallback(() => {
+    setPasscodeError('')
+
     if (isAppLocked) {
       return setIsAppLocked(false)
     }
@@ -215,7 +218,14 @@ const PasscodeProvider: React.FC = ({ children }) => {
     handleValidationSuccess()
   }, [handleValidationSuccess, isValidLocalAuth])
 
-  useAppLock(state, isAppLocked, lockWhenInactive, triggerValidateLocalAuth, setIsAppLocked)
+  useAppLock(
+    state,
+    isAppLocked,
+    lockWhenInactive,
+    triggerValidateLocalAuth,
+    setIsAppLocked,
+    setPasscodeError
+  )
 
   const enableLockOnStartup = async () => {
     try {
@@ -366,7 +376,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
   const isValidPasscode = (code: string) => {
     const isValid = code === passcode
 
-    if (!isValid) Vibration.vibrate()
+    if (!isValid) {
+      setPasscodeError(t('Invalid passcode'))
+      Vibration.vibrate(200)
+    }
 
     return isValid
   }
@@ -455,7 +468,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
               message={t('Entering your passcode.')}
               onFulfill={handleOnValidatePasscode}
               onValidateLocalAuth={triggerValidateLocalAuth}
-              hasError={!hasEnteredValidPasscode && hasEnteredValidPasscode !== null}
+              error={passcodeError}
               state={state}
               deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}
               fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}
@@ -474,7 +487,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           onFulfill={handleOnValidatePasscode}
           autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
           onValidateLocalAuth={triggerValidateLocalAuth}
-          hasError={!hasEnteredValidPasscode && hasEnteredValidPasscode !== null}
+          error={passcodeError}
           state={state}
           deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}
           fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}
