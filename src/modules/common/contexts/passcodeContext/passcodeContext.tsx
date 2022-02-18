@@ -210,7 +210,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
   }, [isAppLocked, closeBottomSheet])
 
   const triggerValidateLocalAuth = useCallback(async () => {
+    global.isAskingForLocalAuth = true
     const isValid = await isValidLocalAuth()
+    global.isAskingForLocalAuth = false
+
     if (!isValid) {
       return
     }

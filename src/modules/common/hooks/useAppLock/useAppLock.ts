@@ -40,7 +40,7 @@ const useAppLock = (
           }
         } else if (currentAppState === 'active' && nextAppState.match(/inactive|background/)) {
           // App has come to background!
-          if (lockWhenInactive && !global.isAskingForPermission) {
+          if (lockWhenInactive && !global.isAskingForPermission && !global.isAskingForLocalAuth) {
             setIsAppLocked(true)
             // Clear the passcode error, otherwise, it gets persisted,
             // and the next time when app opens - it gets instantly displayed
