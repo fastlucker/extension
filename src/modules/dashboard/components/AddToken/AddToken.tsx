@@ -1,5 +1,5 @@
-import React from 'react'
-import { TouchableOpacity } from 'react-native-gesture-handler'
+import React, { useEffect } from 'react'
+import { BackHandler, TouchableOpacity } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -15,6 +15,25 @@ const AddToken = () => {
   const { t } = useTranslation()
   const { onAddExtraToken } = usePortfolio()
   const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
+
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    const backAction = () => {
+      if (isOpen) {
+        closeBottomSheet()
+        return true
+      }
+
+      return false
+    }
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction)
+
+    return () => backHandler.remove()
+  }, [isOpen])
 
   const handleOnSubmit = (token) => {
     onAddExtraToken(token)

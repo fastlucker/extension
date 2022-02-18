@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { BackHandler, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import { MaterialIcons } from '@expo/vector-icons'
@@ -36,6 +36,29 @@ const Accounts = () => {
   const { removeAccPasswordIfItExists } = useAccountsPasswords()
   const { removePasscode } = usePasscode()
   const { addToast } = useToast()
+
+  useEffect(() => {
+    if (!sheetAccounts.isOpen && !sheetNetworks.isOpen) {
+      return
+    }
+
+    const backAction = () => {
+      if (sheetAccounts.isOpen) {
+        sheetAccounts.closeBottomSheet()
+        return true
+      }
+
+      if (sheetNetworks.isOpen) {
+        sheetNetworks.closeBottomSheet()
+        return true
+      }
+      return false
+    }
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction)
+
+    return () => backHandler.remove()
+  }, [sheetAccounts.isOpen, sheetNetworks.isOpen])
 
   const handleChangeNetwork = (chainId) => {
     setNetwork(chainId)
