@@ -8,7 +8,7 @@ const usePasscodeLock = (
   isAppLocked: boolean,
   triggerValidateLocalAuth: () => void
 ) => {
-  const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState)
+  const [, setAppState] = useState<AppStateStatus>(AppState.currentState)
 
   // When app starts, immediately prompt user for local auth validation.
   // TODO: For some reason, enabling this makes the other part slooooooooow.
@@ -19,6 +19,8 @@ const usePasscodeLock = (
   //   }
   // }, [isAppLocked, state])
 
+  // Catches better the otherwise not extremely consistent app state change.
+  // {@link https://stackoverflow.com/a/62773667/1333836}
   const handleAppStateChange = useCallback(
     (nextAppState) =>
       setAppState((currentAppState) => {
@@ -36,28 +38,14 @@ const usePasscodeLock = (
       }),
     // only pass function as handleAppStateChange
     // on mount by providing empty dependency
-    [isAppLocked, state]
+    [triggerValidateLocalAuth, isAppLocked, state]
   )
 
   useEffect(() => {
     AppState.addEventListener('change', handleAppStateChange)
-    // clean up code when component unmounts
+
     return () => AppState.removeEventListener('change', handleAppStateChange)
-    // handleAppStateChange is a dependency but useCallback
-    // has empty dependency so it is only created on mount
   }, [handleAppStateChange])
-
-  // TODO:
-  // useEffect(() => {
-  //   if (appState !== 'active') {
-  //     return
-  //   }
-
-  //   const shouldPromptLocalAuth = isAppLocked && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-  //   if (shouldPromptLocalAuth) {
-  //     triggerValidateLocalAuth()
-  //   }
-  // }, [appState])
 }
 
 export default usePasscodeLock

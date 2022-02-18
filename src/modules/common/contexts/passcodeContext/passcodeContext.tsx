@@ -211,7 +211,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       addToast(t('Authentication attempt failed.') as string, { error: true })
       return false
     }
-  }, [isAppLocked])
+  }, [addToast, t])
 
   const handleValidationSuccess = useCallback(() => {
     if (isAppLocked) {
@@ -220,7 +220,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
     closeBottomSheet()
     setHasEnteredValidPasscode(true)
-  }, [isAppLocked])
+  }, [isAppLocked, closeBottomSheet])
 
   const triggerValidateLocalAuth = useCallback(async () => {
     const isValid = await isValidLocalAuth()
@@ -229,16 +229,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     }
 
     handleValidationSuccess()
-  }, [isAppLocked])
-
-  // TODO:
-  // When app starts, immediately prompt user for local auth validation.
-  // useEffect(() => {
-  //   const shouldPromptLocalAuth = isAppLocked && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-  //   if (shouldPromptLocalAuth) {
-  //     triggerValidateLocalAuth()
-  //   }
-  // }, [isAppLocked, state])
+  }, [handleValidationSuccess, isValidLocalAuth])
 
   usePasscodeLock(state, isAppLocked, triggerValidateLocalAuth)
 
