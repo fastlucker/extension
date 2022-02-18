@@ -377,7 +377,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     const isValid = code === passcode
 
     if (!isValid) {
-      setPasscodeError(t('Invalid passcode'))
+      setPasscodeError(t('Wrong passcode.'))
       Vibration.vibrate(200)
     }
 
