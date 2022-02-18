@@ -265,14 +265,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
       await AsyncStorage.removeItem(LOCK_WHEN_INACTIVE_KEY)
       setLockWhenInactive(false)
 
-      addToast(
-        t(
-          'Lock when inactive disabled. It will take effect next time you start the app.'
-        ) as string,
-        {
-          timeout: 8000
-        }
-      )
+      addToast(t('Lock when inactive is disabled.') as string, {
+        timeout: 8000
+      })
     } catch (e) {
       addToast(t('Disabling lock when inactive failed.') as string, {
         error: true
