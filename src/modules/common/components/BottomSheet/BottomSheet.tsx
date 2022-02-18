@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet, View } from 'react-native'
+import { BackHandler, StyleSheet, View } from 'react-native'
 import Animated, { greaterThan } from 'react-native-reanimated'
 import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 
@@ -40,6 +40,26 @@ const BottomSheet: React.FC<Props> = ({
   const { t } = useTranslation()
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
+
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    const backAction = () => {
+      if (isOpen) {
+        !!closeBottomSheet && closeBottomSheet()
+        // Returning true prevents execution of the default native back handling
+        return true
+      }
+
+      return false
+    }
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction)
+
+    return () => backHandler.remove()
+  }, [isOpen])
 
   const cancelText = _cancelText || (t('✗  Cancel') as string)
 
