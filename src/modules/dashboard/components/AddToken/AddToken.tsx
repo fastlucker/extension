@@ -24,6 +24,7 @@ const AddToken = () => {
     const backAction = () => {
       if (isOpen) {
         closeBottomSheet()
+        // Returning true prevents execution of the default native back handling
         return true
       }
 

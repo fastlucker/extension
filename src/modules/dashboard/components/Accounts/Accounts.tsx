@@ -45,13 +45,16 @@ const Accounts = () => {
     const backAction = () => {
       if (sheetAccounts.isOpen) {
         sheetAccounts.closeBottomSheet()
+        // Returning true prevents execution of the default native back handling
         return true
       }
 
       if (sheetNetworks.isOpen) {
         sheetNetworks.closeBottomSheet()
+        // Returning true prevents execution of the default native back handling
         return true
       }
+
       return false
     }
 
