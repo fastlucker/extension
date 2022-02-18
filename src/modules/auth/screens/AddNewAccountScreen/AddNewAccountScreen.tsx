@@ -119,7 +119,11 @@ const AddNewAccountScreen = () => {
           name="terms"
         />
 
-        {!!errors.terms && <P>{t('Please agree to our Terms of Service and Privacy policy')}</P>}
+        {!!errors.terms && (
+          <P type={TEXT_TYPES.DANGER}>
+            {t('Please agree to our Terms of Service and Privacy policy')}
+          </P>
+        )}
 
         <Controller
           control={control}
@@ -160,7 +164,7 @@ const AddNewAccountScreen = () => {
           name="noBackup"
         />
         {!!errors.noBackup && watch('backup', true) === false && (
-          <P>{t('Please tick this box if you want to proceed.')}</P>
+          <P type={TEXT_TYPES.DANGER}>{t('Please tick this box if you want to proceed.')}</P>
         )}
 
         <Button
