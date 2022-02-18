@@ -2,6 +2,7 @@ import { generateAddress2 } from 'ethereumjs-util'
 import { Wallet } from 'ethers'
 import { AbiCoder, getAddress, id, keccak256 } from 'ethers/lib/utils'
 import { useState } from 'react'
+import { Keyboard } from 'react-native'
 import performance from 'react-native-performance'
 
 import CONFIG from '@config/env'
@@ -136,6 +137,7 @@ export default function useEmailLogin() {
   }
 
   const handleAddNewAccount = async (req: FormProps) => {
+    Keyboard.dismiss()
     await wrapProgress(() => createQuickAcc(req), 'email')
   }
 

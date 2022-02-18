@@ -30,6 +30,8 @@ const Wrapper = ({
   contentContainerStyle = {},
   children,
   type = WRAPPER_TYPES.SCROLL_VIEW,
+  keyboardShouldPersistTaps,
+  keyboardDismissMode,
   ...rest
 }: Props) => {
   if (type === WRAPPER_TYPES.FLAT_LIST) {
@@ -38,8 +40,8 @@ const Wrapper = ({
       <FlatList
         style={[styles.wrapper, style]}
         contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="none"
+        keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
+        keyboardDismissMode={keyboardDismissMode || 'none'}
         alwaysBounceVertical={false}
         {...rest}
       />
@@ -52,8 +54,8 @@ const Wrapper = ({
       <SectionList
         style={[styles.wrapper, style]}
         contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="none"
+        keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
+        keyboardDismissMode={keyboardDismissMode || 'none'}
         alwaysBounceVertical={false}
         {...rest}
       />
@@ -64,8 +66,8 @@ const Wrapper = ({
     <ScrollView
       style={[styles.wrapper, style]}
       contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="none"
+      keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
+      keyboardDismissMode={keyboardDismissMode || 'none'}
       alwaysBounceVertical={false}
     >
       {children}

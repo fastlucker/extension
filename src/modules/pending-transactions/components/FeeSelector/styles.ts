@@ -4,16 +4,12 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
-  panelWrapper: ViewStyle
   selectorsContainer: ViewStyle
   feeSelector: ViewStyle
   selected: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  panelWrapper: {
-    zIndex: 500
-  },
   selectorsContainer: {
     flexDirection: 'row',
     flex: 1,
@@ -22,7 +18,7 @@ const styles = StyleSheet.create<Style>({
   },
   feeSelector: {
     padding: 2,
-    minHeight: 70,
+    minHeight: 90,
     flex: 1,
     marginHorizontal: 5,
     overflow: 'hidden',

@@ -100,7 +100,12 @@ export default function useRequestTransaction() {
         txn
       })
 
-      setAmount(0)
+      // Timeout of 500ms because of the animated transition between screens (addRequest opens PendingTransactions screen)
+      setTimeout(() => {
+        setAsset('')
+        setAmount(0)
+        setAddress('')
+      }, 500)
     } catch (e: any) {
       console.error(e)
       addToast(`Error: ${e.message || e}`, { error: true })

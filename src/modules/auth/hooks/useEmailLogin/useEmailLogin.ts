@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Keyboard } from 'react-native'
 
 import CONFIG from '@config/env'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -93,6 +94,7 @@ export default function useEmailLogin() {
   }
 
   const handleLogin = async ({ email }: FormProps) => {
+    Keyboard.dismiss()
     setErr('')
     setRequiresConfFor(null)
     setInProgress(true)

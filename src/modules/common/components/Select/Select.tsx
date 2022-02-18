@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
-import { ViewProps } from 'react-native'
+import { Keyboard, ViewProps } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 
-import { isiOS } from '@config/env'
 import i18n from '@config/localization/localization'
 import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
@@ -46,7 +45,10 @@ const Select = ({
         open={open}
         value={value}
         items={items}
-        setOpen={setOpen}
+        setOpen={(isOpen) => {
+          Keyboard.dismiss()
+          setOpen(isOpen)
+        }}
         itemKey="label"
         // @ts-ignore
         setValue={setValue}
@@ -62,22 +64,26 @@ const Select = ({
         listItemLabelStyle={styles.listItemLabelStyle}
         searchContainerStyle={styles.searchContainerStyle}
         searchTextInputStyle={styles.searchTextInputStyle}
-        containerProps={{
-          style: [containerPropsStyle, isiOS && styles.iOScontainerPropsStyle]
-        }}
+        containerProps={{ style: containerPropsStyle }}
+        modalContentContainerStyle={styles.modalContentContainerStyle}
         disabledItemLabelStyle={{
           opacity: 0.5
         }}
         // So it displays 4 and a half items (indicating there is a scroll)
         maxHeight={290}
-        // Using FlatList as `listMode` is causing a warning:
+        // Using `FLATLIST` as `listMode` is causing a warning:
         // "VirtualizedLists should never be nested inside plain ScrollViews
         // with the same orientation because it can break windowing and other
         // functionality - use another VirtualizedList-backed container instead."
+        // {@link https://github.com/hossein-zare/react-native-dropdown-picker/issues/56#issuecomment-841399365}
+        // Using `SCROLLVIEW` as `listMode` is glitchy with Android
+        // and sometimes iOS, especially when the component is nested
+        // in a <Panel> or in many Views.
         // Therefore, because the main Wrapper of the screens is ScrollView,
         // we must use ScrollView for this component too.
-        // {@link https://github.com/hossein-zare/react-native-dropdown-picker/issues/56#issuecomment-841399365}
-        listMode="SCROLLVIEW"
+        // So the only feasible option that works well for our use-cases
+        // is to use it in a  `MODAL`.
+        listMode="MODAL"
       />
     </>
   )

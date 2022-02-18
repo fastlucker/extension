@@ -80,7 +80,7 @@ When doing over the air updates, be careful. Adding new packages requires a new 
 yarn publish:production
 ```
 
-## Making builds
+## Building the app on EAS
 
 Create `credentials.json` file in the root directory. See `credentials-sample.json` as an example. Fill-in the required credentials. Then:
 
@@ -95,6 +95,15 @@ Create `credentials.json` file in the root directory. See `credentials-sample.js
   ```bash
   yarn build:android:production
   ```
+
+## Building the iOS app locally on a real device
+
+Add the Apple Distribution Certificate (`dist.p12` file) and the Apple Development Certificate (`test.dist.p12` file) to your macOS Keychain.
+
+Open the app in xCode. Go to "Signing & Capabilities". Then:
+
+- For the "Signing (Debug)" import the Apple Development Provisioning Profile (`test.profile.mobileprovision` file).
+- For the "Signing (Release)" import the Apple Distribution Provisioning Profile (`profile.mobileprovision` file).
 
 ## Versioning
 

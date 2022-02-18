@@ -15,7 +15,7 @@ interface Props {
   title?: string
   message?: string
   onFulfill: (code: string) => void
-  hasError: boolean | null
+  error: string
   onValidateLocalAuth: () => any
   state: PASSCODE_STATES
   deviceSupportedAuthTypesLabel: string
@@ -27,7 +27,7 @@ const PasscodeAuth: React.FC<Props> = ({
   title,
   message,
   onFulfill,
-  hasError,
+  error,
   onValidateLocalAuth,
   state,
   deviceSupportedAuthTypesLabel,
@@ -42,9 +42,9 @@ const PasscodeAuth: React.FC<Props> = ({
       <P style={[textStyles.center, spacings.mtLg]}>
         {message || t('In order to proceed, please authenticate by entering the app passcode.')}
       </P>
-      {hasError && (
+      {!!error && (
         <P type={TEXT_TYPES.DANGER} style={[textStyles.center, spacings.mb0]}>
-          {t('Wrong passcode.')}
+          {error}
         </P>
       )}
       <CodeInput autoFocus={autoFocus} onFulfill={onFulfill} />
