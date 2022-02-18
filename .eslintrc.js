@@ -13,7 +13,7 @@ module.exports = {
     ecmaVersion: 13,
     sourceType: 'module'
   },
-  plugins: ['react', 'prettier', '@typescript-eslint'],
+  plugins: ['react', 'react-hooks', 'prettier', '@typescript-eslint'],
   rules: {
     'prettier/prettier': [
       'error',
@@ -36,6 +36,7 @@ module.exports = {
     '@typescript-eslint/no-extra-semi': 'off',
     'no-plusplus': 'off',
     '@typescript-eslint/indent': 'off',
-    'react/no-unstable-nested-components': 'off'
+    'react/no-unstable-nested-components': 'off',
+    'react-hooks/exhaustive-deps': 'warn'
   }
 }
