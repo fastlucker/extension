@@ -12,3 +12,15 @@ export default function requestPermissionFlagging<R>(p: () => Promise<R>): Promi
     global.isAskingForPermission = false
   })
 }
+
+export function requestLocalAuthFlagging<R>(p: () => Promise<R>): Promise<R> {
+  global.isAskingForLocalAuth = true
+
+  return p().finally(() => {
+    // Delaying a bit resetting of this flag solves a race condition on iOS
+    // where the app state clicks before this one, and the app gets locked again
+    setTimeout(() => {
+      global.isAskingForLocalAuth = false
+    }, 500)
+  })
+}

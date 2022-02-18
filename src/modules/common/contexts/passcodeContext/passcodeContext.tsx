@@ -214,6 +214,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
     // const isValid = await requestLocalAuthFlagging(isValidLocalAuth)
     global.isAskingForLocalAuth = true
     const isValid = await isValidLocalAuth()
+    // Delaying a bit resetting of this flag solves a race condition on iOS
+    // where the app state clicks before this one, and the app gets locked again
     setTimeout(() => {
       global.isAskingForLocalAuth = false
     }, 500)
