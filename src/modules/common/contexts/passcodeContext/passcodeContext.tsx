@@ -15,6 +15,7 @@ import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useAppLock from '@modules/common/hooks/useAppLock'
 import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
+import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import {
   IS_LOCAL_AUTH_ACTIVATED_KEY,
   LOCK_ON_STARTUP_KEY,
@@ -296,7 +297,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const addLocalAuth = async () => {
     try {
-      const { success } = await LocalAuthentication.authenticateAsync()
+      const { success } = await requestLocalAuthFlagging(LocalAuthentication.authenticateAsync)
       if (success) {
         await AsyncStorage.setItem(IS_LOCAL_AUTH_ACTIVATED_KEY, 'true')
 
