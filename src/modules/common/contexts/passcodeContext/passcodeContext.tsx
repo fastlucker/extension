@@ -1,7 +1,7 @@
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
-import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { AppState, Platform, StyleSheet, Vibration, View } from 'react-native'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { Platform, StyleSheet, Vibration, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
@@ -12,6 +12,7 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import PasscodeAuth from '@modules/common/components/PasscodeAuth'
 import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
+import useAppLock from '@modules/common/hooks/useAppLock'
 import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
 import {
@@ -183,29 +184,38 @@ const PasscodeProvider: React.FC = ({ children }) => {
     })()
   }, [authStatus])
 
-  useEffect(() => {
-    if (isLoading) return
-    if (authStatus !== AUTH_STATUS.AUTHENTICATED) return
-    if (!lockWhenInactive) return
+  const isValidLocalAuth = useCallback(async () => {
+    try {
+      const { success } = await LocalAuthentication.authenticateAsync({
+        promptMessage: t('Confirm your identity')
+      })
 
-    const lockListener = AppState.addEventListener('change', (nextState) => {
-      // The app is running in the background means that user is either:
-      // in another app, on the home screen or [Android] on another Activity
-      // (even if it was launched by our app).
-      if (nextState === 'background' && !global.isAskingForPermission) {
-        setIsAppLocked(true)
-      }
-    })
-    return () => lockListener?.remove()
-  }, [isLoading, lockWhenInactive, authStatus])
-
-  // When app starts, immediately prompt user for local auth validation.
-  useEffect(() => {
-    const shouldPromptLocalAuth = isAppLocked && state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-    if (shouldPromptLocalAuth) {
-      triggerValidateLocalAuth()
+      return success
+    } catch (e) {
+      addToast(t('Authentication attempt failed.') as string, { error: true })
+      return false
     }
-  }, [isAppLocked, state])
+  }, [addToast, t])
+
+  const handleValidationSuccess = useCallback(() => {
+    if (isAppLocked) {
+      return setIsAppLocked(false)
+    }
+
+    closeBottomSheet()
+    setHasEnteredValidPasscode(true)
+  }, [isAppLocked, closeBottomSheet])
+
+  const triggerValidateLocalAuth = useCallback(async () => {
+    const isValid = await isValidLocalAuth()
+    if (!isValid) {
+      return
+    }
+
+    handleValidationSuccess()
+  }, [handleValidationSuccess, isValidLocalAuth])
+
+  useAppLock(state, isAppLocked, lockWhenInactive, triggerValidateLocalAuth, setIsAppLocked)
 
   const enableLockOnStartup = async () => {
     try {
@@ -255,14 +265,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
       await AsyncStorage.removeItem(LOCK_WHEN_INACTIVE_KEY)
       setLockWhenInactive(false)
 
-      addToast(
-        t(
-          'Lock when inactive disabled. It will take effect next time you start the app.'
-        ) as string,
-        {
-          timeout: 8000
-        }
-      )
+      addToast(t('Lock when inactive is disabled.') as string, {
+        timeout: 8000
+      })
     } catch (e) {
       addToast(t('Disabling lock when inactive failed.') as string, {
         error: true
@@ -294,35 +299,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
         error: true
       })
     }
-  }
-  const isValidLocalAuth = async () => {
-    try {
-      const { success } = await LocalAuthentication.authenticateAsync({
-        promptMessage: t('Confirm your identity')
-      })
-
-      return success
-    } catch (e) {
-      addToast(t('Authentication attempt failed.') as string, { error: true })
-      return false
-    }
-  }
-  const handleValidationSuccess = () => {
-    if (isAppLocked) {
-      return setIsAppLocked(false)
-    }
-
-    closeBottomSheet()
-    setHasEnteredValidPasscode(true)
-  }
-
-  const triggerValidateLocalAuth = async () => {
-    const isValid = await isValidLocalAuth()
-    if (!isValid) {
-      return
-    }
-
-    handleValidationSuccess()
   }
 
   const addPasscode = async (code: string) => {
