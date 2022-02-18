@@ -12,6 +12,7 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import PasscodeAuth from '@modules/common/components/PasscodeAuth'
 import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
+import useAppLock from '@modules/common/hooks/useAppLock'
 import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
 import {
@@ -24,7 +25,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
 import styles from './styles'
-import usePasscodeLock from './usePasscodeLock'
 
 type PasscodeContextData = {
   state: PASSCODE_STATES
@@ -215,7 +215,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     handleValidationSuccess()
   }, [handleValidationSuccess, isValidLocalAuth])
 
-  usePasscodeLock(state, isAppLocked, lockWhenInactive, triggerValidateLocalAuth, setIsAppLocked)
+  useAppLock(state, isAppLocked, lockWhenInactive, triggerValidateLocalAuth, setIsAppLocked)
 
   const enableLockOnStartup = async () => {
     try {

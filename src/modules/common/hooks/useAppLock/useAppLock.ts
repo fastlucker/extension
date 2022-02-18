@@ -1,9 +1,9 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 import { AppState, AppStateStatus } from 'react-native'
 
-import { PASSCODE_STATES } from './constants'
+import { PASSCODE_STATES } from '../../contexts/passcodeContext/constants'
 
-const usePasscodeLock = (
+const useAppLock = (
   state: PASSCODE_STATES,
   isAppLocked: boolean,
   lockWhenInactive: boolean,
@@ -57,4 +57,4 @@ const usePasscodeLock = (
   }, [handleAppStateChange])
 }
 
-export default usePasscodeLock
+export default useAppLock
