@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
-import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
+import { DEVICE_HEIGHT, DEVICE_WIDTH } from '@modules/common/styles/spacings'
 
 // Fill up all available space, excluding only the status bar and the header
 // to determinate the status bar height (currently, with a magic number)
@@ -12,6 +12,7 @@ interface Styles {
   containerInnerWrapper: ViewStyle
   cancelBtn: ViewStyle
   dragger: ViewStyle
+  backDrop: ViewStyle
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -38,6 +39,13 @@ const styles = StyleSheet.create<Styles>({
     alignSelf: 'center',
     position: 'absolute',
     top: 8
+  },
+  backDrop: {
+    width: DEVICE_WIDTH,
+    height: DEVICE_HEIGHT,
+    position: 'absolute',
+    backgroundColor: 'transparent',
+    zIndex: 1
   }
 })
 
