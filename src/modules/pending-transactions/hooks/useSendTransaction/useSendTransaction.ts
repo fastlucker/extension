@@ -292,7 +292,13 @@ const useSendTransaction = () => {
         if (bundleResult.success) {
           onBroadcastedTxn(bundleResult.txId)
           setSendTxnState({ showing: false })
-        } else addToast(`Transaction error: ${getErrorMessage(bundleResult)}`, { error: true }) // 'unspecified error'
+        } else
+          addToast(
+            i18n.t('Transaction error: {{error}}', {
+              error: getErrorMessage(bundleResult)
+            }) as string,
+            { error: true }
+          )
       })
       .catch((e) => {
         setSigningStatus(null)
@@ -314,7 +320,9 @@ const useSendTransaction = () => {
             { error: true }
           )
         } else {
-          addToast(`Signing error: ${getErrorMessage(e)}`, { error: true })
+          addToast(i18n.t('Signing error: {{error}}', { error: getErrorMessage(e) }) as string, {
+            error: true
+          })
         }
       })
   }
