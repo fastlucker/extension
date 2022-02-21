@@ -28,10 +28,12 @@ const ChangeLocalAuthScreen = () => {
   } = usePasscode()
 
   const handleEnable = async () => {
-    await addLocalAuth()
+    const enabled = await addLocalAuth()
 
-    addToast(t('Local auth enabled!') as string, { timeout: 2000 })
-    navigation.navigate('settings')
+    if (enabled) {
+      addToast(t('Local auth enabled!') as string, { timeout: 2000 })
+      navigation.navigate('settings')
+    }
   }
 
   const handleDisable = async () => {
