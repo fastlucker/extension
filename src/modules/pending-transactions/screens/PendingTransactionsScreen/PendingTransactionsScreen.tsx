@@ -3,7 +3,7 @@ import React, { useEffect, useLayoutEffect } from 'react'
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
-import Wrapper from '@modules/common/components/Wrapper'
+import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useRequests from '@modules/common/hooks/useRequests'
@@ -85,7 +85,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     )
 
   return (
-    <Wrapper>
+    <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}>
       <SigningWithAccount />
       <TransactionSummary bundle={bundle} estimation={estimation} />
       <FeeSelector

@@ -14,6 +14,7 @@ import styles from './styles'
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum WRAPPER_TYPES {
   SCROLL_VIEW = 'scrollview',
+  KEYBOARD_AWARE_SCROLL_VIEW = 'keyboard-aware-scrollview',
   FLAT_LIST = 'flatlist',
   SECTION_LIST = 'sectionlist'
 }
@@ -63,18 +64,32 @@ const Wrapper = ({
     )
   }
 
+  if (type === WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW) {
+    return (
+      <KeyboardAwareScrollView
+        style={[styles.wrapper, style]}
+        contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
+        keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
+        keyboardDismissMode={keyboardDismissMode || 'none'}
+        alwaysBounceVertical={false}
+        enableOnAndroid
+        extraScrollHeight={-68}
+      >
+        {children}
+      </KeyboardAwareScrollView>
+    )
+  }
+
   return (
-    <KeyboardAwareScrollView
+    <ScrollView
       style={[styles.wrapper, style]}
       contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
       keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
       keyboardDismissMode={keyboardDismissMode || 'none'}
       alwaysBounceVertical={false}
-      enableOnAndroid
-      extraScrollHeight={-68}
     >
       {children}
-    </KeyboardAwareScrollView>
+    </ScrollView>
   )
 }
 
