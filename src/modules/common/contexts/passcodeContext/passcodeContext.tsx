@@ -38,9 +38,13 @@ type PasscodeContextData = {
   isLoading: boolean
   isValidPasscode: (code: string) => boolean
   isLocalAuthSupported: null | boolean
+  // Be aware that the Promise should always return something for `addLocalAuth`
+  // and `isValidLocalAuth`, because Promise<void> makes the local auth to hang
+  // on Android and always return `false`, without rejecting the promise,
+  // which leads to strange results.
   addLocalAuth: () => Promise<boolean>
-  removeLocalAuth: () => void
   isValidLocalAuth: () => Promise<boolean>
+  removeLocalAuth: () => void
   triggerEnteringPasscode: () => void
   resetValidPasscodeEntered: () => void
   hasEnteredValidPasscode: boolean | null
