@@ -7,6 +7,7 @@ import {
   SectionList,
   SectionListProps
 } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import styles from './styles'
 
@@ -63,15 +64,17 @@ const Wrapper = ({
   }
 
   return (
-    <ScrollView
+    <KeyboardAwareScrollView
       style={[styles.wrapper, style]}
       contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
       keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
       keyboardDismissMode={keyboardDismissMode || 'none'}
       alwaysBounceVertical={false}
+      enableOnAndroid
+      extraScrollHeight={-68}
     >
       {children}
-    </ScrollView>
+    </KeyboardAwareScrollView>
   )
 }
 
