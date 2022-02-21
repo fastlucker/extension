@@ -38,7 +38,7 @@ type PasscodeContextData = {
   isLoading: boolean
   isValidPasscode: (code: string) => boolean
   isLocalAuthSupported: null | boolean
-  addLocalAuth: () => void
+  addLocalAuth: () => Promise<boolean>
   removeLocalAuth: () => void
   isValidLocalAuth: () => Promise<boolean>
   triggerEnteringPasscode: () => void
@@ -63,7 +63,7 @@ const defaults: PasscodeContextData = {
   isLoading: true,
   isValidPasscode: () => false,
   isLocalAuthSupported: null,
-  addLocalAuth: () => {},
+  addLocalAuth: () => Promise.resolve(false),
   removeLocalAuth: () => {},
   isValidLocalAuth: () => Promise.resolve(false),
   triggerEnteringPasscode: () => {},
@@ -289,17 +289,23 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const addLocalAuth = async () => {
     try {
-      const { success } = await requestLocalAuthFlagging(LocalAuthentication.authenticateAsync)
+      const { success } = await requestLocalAuthFlagging(() =>
+        LocalAuthentication.authenticateAsync({
+          promptMessage: t('Confirm your identity')
+        })
+      )
 
       if (success) {
         await AsyncStorage.setItem(IS_LOCAL_AUTH_ACTIVATED_KEY, 'true')
 
         setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
       }
+      return success
     } catch (e) {
       addToast(t('Enabling local auth failed.') as string, {
         error: true
       })
+      return false
     }
   }
   const removeLocalAuth = async () => {
