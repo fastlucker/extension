@@ -55,7 +55,8 @@ const styles = StyleSheet.create<Style>({
   },
   buttonText: {
     textTransform: 'uppercase',
-    ...textStyles.bold
+    ...textStyles.bold,
+    textAlign: 'center'
   },
   buttonTextStylesSizeRegular: {
     fontSize: 17

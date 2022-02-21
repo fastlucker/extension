@@ -2,7 +2,7 @@ import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import { Bundle } from 'adex-protocol-eth/js'
 import { Wallet } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert } from 'react-native'
 
 import CONFIG from '@config/env'
@@ -39,6 +39,19 @@ function makeBundle(account: any, networkId: any, requests: any) {
   return null
 }
 
+function getErrorMessage(e: any) {
+  if (e && e.message === 'NOT_TIME') {
+    return "Your 72 hour recovery waiting period still hasn't ended. You will be able to use your account after this lock period."
+  }
+  if (e && e.message === 'WRONG_ACC_OR_NO_PRIV') {
+    return 'Unable to sign with this email/password account. Please contact support.'
+  }
+  if (e && e.message === 'INVALID_SIGNATURE') {
+    return 'Invalid signature. This may happen if you used password/derivation path on your hardware wallet.'
+  }
+  return e.message || e
+}
+
 const useSendTransaction = () => {
   const [estimation, setEstimation] = useState<any>(null)
   const [signingStatus, setSigningStatus] = useState<any>(false)
@@ -48,6 +61,9 @@ const useSendTransaction = () => {
   const { account } = useAccounts()
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
+
+  // TODO: implement the related functionality
+  const [replaceTx, setReplaceTx] = useState(false)
 
   const bundle = useMemo(
     () => sendTxnState.replacementBundle || makeBundle(account, network?.id, eligibleRequests),
@@ -64,8 +80,12 @@ const useSendTransaction = () => {
   currentBundle.current = bundle
 
   useEffect(() => {
+    // We don't need to reestimate the fee when a signing process is in progress
+    if (signingStatus) return
+    // nor when there are no txns in the bundle, if this is even possible
     if (!bundle.txns.length) return
 
+    // track whether the effect has been unmounted
     let unmounted = false
 
     const reestimate = () =>
@@ -73,7 +93,8 @@ const useSendTransaction = () => {
         ? bundle.estimate({
             relayerURL: CONFIG.RELAYER_URL,
             fetch,
-            replacing: !!bundle.minFeeInUSDPerGas
+            replacing: !!bundle.minFeeInUSDPerGas,
+            getNextNonce: true
           })
         : bundle.estimateNoRelayer({ provider: getProvider(network.id) })
       )
@@ -83,6 +104,7 @@ const useSendTransaction = () => {
           // eslint-disable-next-line no-param-reassign
           estimation.selectedFeeToken = { symbol: network.nativeAssetSymbol }
           setEstimation((prevEstimation: any) => {
+            if (prevEstimation && prevEstimation.customFee) return prevEstimation
             if (estimation.remainingFeeTokenBalances) {
               // If there's no eligible token, set it to the first one cause it looks more user friendly (it's the preferred one, usually a stablecoin)
               // eslint-disable-next-line no-param-reassign
@@ -97,12 +119,13 @@ const useSendTransaction = () => {
             }
             return estimation
           })
+          if (estimation.nextNonce && !estimation.nextNonce.pendingBundle) {
+            setReplaceTx(false)
+          }
         })
         .catch((e: any) => {
           if (unmounted) return
-          addToast(i18n.t('Estimation error: {{error}}', { error: e.message || e }) as string, {
-            error: true
-          })
+          addToast(`Estimation error: ${e.message || e}`, { error: true })
         })
 
     reestimate()
@@ -112,14 +135,25 @@ const useSendTransaction = () => {
       unmounted = true
       clearInterval(intvl)
     }
-  }, [bundle, setEstimation, feeSpeed, addToast, network, CONFIG.RELAYER_URL])
+  }, [
+    bundle,
+    setEstimation,
+    feeSpeed,
+    addToast,
+    network,
+    CONFIG.RELAYER_URL,
+    signingStatus,
+    replaceTx,
+    setReplaceTx
+  ])
 
-  const getFinalBundle = () => {
+  // The final bundle is used when signing + sending it
+  // the bundle before that is used for estimating
+  const getFinalBundle = useCallback(() => {
     if (!CONFIG.RELAYER_URL) {
       return new Bundle({
         ...bundle,
         gasLimit: estimation.gasLimit
-        // set nonce here when we implement "replace current pending transaction"
       })
     }
 
@@ -147,12 +181,18 @@ const useSendTransaction = () => {
               )
             ])
           ]
+
+    const pendingBundle = estimation.nextNonce?.pendingBundle
+    const nextFreeNonce = estimation.nextNonce?.nonce
+    const nextNonMinedNonce = estimation.nextNonce?.nextNonMinedNonce
+
     return new Bundle({
       ...bundle,
       txns: [...bundle.txns, feeTxn],
-      gasLimit: estimation.gasLimit + addedGas + (bundle.extraGas || 0)
+      gasLimit: estimation.gasLimit + addedGas + (bundle.extraGas || 0),
+      nonce: replaceTx && pendingBundle ? nextNonMinedNonce : nextFreeNonce
     })
-  }
+  }, [CONFIG.RELAYER_URL, bundle, estimation, feeSpeed, network.nativeAssetSymbol, replaceTx])
 
   const approveTxnImplQuickAcc = async ({ quickAccCredentials }: any) => {
     if (!estimation) throw new Error('no estimation: should never happen')
@@ -248,19 +288,7 @@ const useSendTransaction = () => {
         if (bundleResult.success) {
           onBroadcastedTxn(bundleResult.txId)
           setSendTxnState({ showing: false })
-        } else
-          bundleResult.message
-            ? addToast(
-                i18n.t('Transaction error: {{message}}', {
-                  message: bundleResult.message
-                }) as string,
-                {
-                  error: true
-                }
-              )
-            : addToast(i18n.t('Transaction error: unspecified error') as string, {
-                error: true
-              })
+        } else addToast(`Transaction error: ${getErrorMessage(bundleResult)}`, { error: true }) // 'unspecified error'
       })
       .catch((e) => {
         setSigningStatus(null)
@@ -282,9 +310,7 @@ const useSendTransaction = () => {
             { error: true }
           )
         } else {
-          addToast(i18n.t('Signing error: {{message}}', { message: e.message || e }) as string, {
-            error: true
-          })
+          addToast(`Signing error: ${getErrorMessage(e)}`, { error: true })
         }
       })
   }
