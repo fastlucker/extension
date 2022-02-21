@@ -68,7 +68,8 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
 
       await SecureStore.setItemAsync(
         SECURE_STORE_KEY_ACCOUNTS_PASSWORDS,
-        JSON.stringify(nextPasswords)
+        JSON.stringify(nextPasswords),
+        { authenticationPrompt: t('Confirm your identity'), requireAuthentication: true }
       )
 
       setAccountsPasswords(nextPasswords)
@@ -88,7 +89,8 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
     try {
       await SecureStore.setItemAsync(
         SECURE_STORE_KEY_ACCOUNTS_PASSWORDS,
-        JSON.stringify(nextPasswords)
+        JSON.stringify(nextPasswords),
+        { authenticationPrompt: t('Confirm your identity'), requireAuthentication: true }
       )
     } catch (e) {
       return addToast(t('Saving password was not successful.') as string, { error: true })

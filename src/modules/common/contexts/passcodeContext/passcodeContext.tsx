@@ -33,7 +33,7 @@ type PasscodeContextData = {
   deviceSupportedAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
   deviceSupportedAuthTypesLabel: string
   fallbackSupportedAuthTypesLabel: string
-  addPasscode: (code: string) => Promise<void>
+  addPasscode: (code: string) => Promise<boolean>
   removePasscode: (accountId: string) => Promise<void>
   isLoading: boolean
   isValidPasscode: (code: string) => boolean
@@ -62,7 +62,7 @@ const defaults: PasscodeContextData = {
   deviceSupportedAuthTypes: [],
   deviceSupportedAuthTypesLabel: '',
   fallbackSupportedAuthTypesLabel: '',
-  addPasscode: () => Promise.resolve(),
+  addPasscode: () => Promise.resolve(false),
   removePasscode: () => Promise.resolve(),
   isLoading: true,
   isValidPasscode: () => false,
@@ -126,7 +126,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
       }
 
       try {
-        const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE)
+        const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE, {
+          // TODO:
+          requireAuthentication: false,
+          authenticationPrompt: t('Test')
+        })
         if (secureStoreItemPasscode) {
           setPasscode(secureStoreItemPasscode)
           setState(PASSCODE_STATES.PASSCODE_ONLY)
@@ -326,26 +330,28 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const addPasscode = async (code: string) => {
     try {
-      await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code)
+      await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code, {
+        authenticationPrompt: t('Confirm your identity'),
+        requireAuthentication: true
+      })
+
+      setPasscode(code)
+
+      if (state === PASSCODE_STATES.NO_PASSCODE) {
+        enableLockOnStartup()
+      }
+
+      setState(
+        // Covers the case coming from a state with passcode already set
+        state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+          ? PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+          : PASSCODE_STATES.PASSCODE_ONLY
+      )
+
+      return true
     } catch (e) {
-      // Fail silently. Means that will still set a passcode,
-      // however, it won't store it in the secure storage and therefore,
-      // on the next app load - the passcode won't be persisted.
-      // Not great, not terrible.
+      return false
     }
-
-    setPasscode(code)
-
-    if (state === PASSCODE_STATES.NO_PASSCODE) {
-      enableLockOnStartup()
-    }
-
-    setState(
-      // Covers the case coming from a state with passcode already set
-      state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-        ? PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-        : PASSCODE_STATES.PASSCODE_ONLY
-    )
   }
   const removePasscode = async (accountId?: string) => {
     // In case the remove `passcode` is called with another account,
@@ -375,7 +381,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
     }
 
     try {
-      await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE)
+      await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE, {
+        requireAuthentication: true
+      })
     } catch (e) {
       addToast(t('Passcode got removed, but this setting failed to save.') as string, {
         error: true
