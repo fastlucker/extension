@@ -73,7 +73,8 @@ const Wrapper = ({
         keyboardDismissMode={keyboardDismissMode || 'none'}
         alwaysBounceVertical={false}
         enableOnAndroid
-        extraScrollHeight={-68}
+        // subs 68 of the scroll height only when the keyboard is visible because of the height of the bottom tab navigation
+        extraScrollHeight={-68} // magic num
       >
         {children}
       </KeyboardAwareScrollView>
