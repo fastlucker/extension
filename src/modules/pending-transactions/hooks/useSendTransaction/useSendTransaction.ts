@@ -41,13 +41,17 @@ function makeBundle(account: any, networkId: any, requests: any) {
 
 function getErrorMessage(e: any) {
   if (e && e.message === 'NOT_TIME') {
-    return "Your 72 hour recovery waiting period still hasn't ended. You will be able to use your account after this lock period."
+    return i18n.t(
+      "Your 72 hour recovery waiting period still hasn't ended. You will be able to use your account after this lock period."
+    )
   }
   if (e && e.message === 'WRONG_ACC_OR_NO_PRIV') {
-    return 'Unable to sign with this email/password account. Please contact support.'
+    return i18n.t('Unable to sign with this email/password account. Please contact support.')
   }
   if (e && e.message === 'INVALID_SIGNATURE') {
-    return 'Invalid signature. This may happen if you used password/derivation path on your hardware wallet.'
+    return i18n.t(
+      'Invalid signature. This may happen if you used password/derivation path on your hardware wallet.'
+    )
   }
   return e.message || e
 }
@@ -62,7 +66,7 @@ const useSendTransaction = () => {
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
 
-  // TODO: implement the related functionality
+  // TODO: implement the related functionality (should be applied in useTransactions)
   const [replaceTx, setReplaceTx] = useState(false)
 
   const bundle = useMemo(
