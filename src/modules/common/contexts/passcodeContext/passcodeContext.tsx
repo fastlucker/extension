@@ -38,9 +38,13 @@ type PasscodeContextData = {
   isLoading: boolean
   isValidPasscode: (code: string) => boolean
   isLocalAuthSupported: null | boolean
-  addLocalAuth: () => void
-  removeLocalAuth: () => void
+  // Be aware that the Promise should always return something for `addLocalAuth`
+  // and `isValidLocalAuth`, because Promise<void> makes the local auth to hang
+  // on Android and always return `false`, without rejecting the promise,
+  // which leads to strange results.
+  addLocalAuth: () => Promise<boolean>
   isValidLocalAuth: () => Promise<boolean>
+  removeLocalAuth: () => void
   triggerEnteringPasscode: () => void
   resetValidPasscodeEntered: () => void
   hasEnteredValidPasscode: boolean | null
@@ -63,7 +67,7 @@ const defaults: PasscodeContextData = {
   isLoading: true,
   isValidPasscode: () => false,
   isLocalAuthSupported: null,
-  addLocalAuth: () => {},
+  addLocalAuth: () => Promise.resolve(false),
   removeLocalAuth: () => {},
   isValidLocalAuth: () => Promise.resolve(false),
   triggerEnteringPasscode: () => {},
@@ -289,17 +293,23 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const addLocalAuth = async () => {
     try {
-      const { success } = await requestLocalAuthFlagging(LocalAuthentication.authenticateAsync)
+      const { success } = await requestLocalAuthFlagging(() =>
+        LocalAuthentication.authenticateAsync({
+          promptMessage: t('Confirm your identity')
+        })
+      )
 
       if (success) {
         await AsyncStorage.setItem(IS_LOCAL_AUTH_ACTIVATED_KEY, 'true')
 
         setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
       }
+      return success
     } catch (e) {
       addToast(t('Enabling local auth failed.') as string, {
         error: true
       })
+      return false
     }
   }
   const removeLocalAuth = async () => {
