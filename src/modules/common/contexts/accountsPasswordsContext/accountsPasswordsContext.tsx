@@ -11,9 +11,8 @@ type AccountsPasswordsContextData = {
   isLoading: boolean
   selectedAccHasPassword: boolean
   addSelectedAccPassword: (password: string) => Promise<boolean>
-  removeSelectedAccPassword: () => Promise<boolean>
+  removeSelectedAccPassword: (accountId?: string) => Promise<boolean>
   getSelectedAccPassword: () => Promise<string>
-  removeAccPasswordIfItExists: (accountId: string) => Promise<boolean>
 }
 
 const defaults: AccountsPasswordsContextData = {
@@ -21,12 +20,13 @@ const defaults: AccountsPasswordsContextData = {
   selectedAccHasPassword: false,
   addSelectedAccPassword: () => Promise.resolve(false),
   removeSelectedAccPassword: () => Promise.resolve(false),
-  getSelectedAccPassword: () => Promise.resolve(''),
-  removeAccPasswordIfItExists: () => Promise.resolve(false)
+  getSelectedAccPassword: () => Promise.resolve('')
 }
 
 const AccountsPasswordsContext = createContext<AccountsPasswordsContextData>(defaults)
 
+// The secure key is separate for each account. This way, it appears as a
+// separate value in the Keychain / Keystore, suffixed by the account id.
 const getAccountSecureKey = (acc: string) => `${SECURE_STORE_KEY_ACCOUNT}-${acc}`
 
 const AccountsPasswordsProvider: React.FC = ({ children }) => {
@@ -63,6 +63,11 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
         requireAuthentication: true
       })
 
+      // Store a flag if the selected account has password stored.
+      // This is for ease of use across the other parts of the app.
+      // Because otherwise, figuring out if the selected account has password
+      // via the `SecureStore` requires the user every time to
+      // authenticate via his phone local auth.
       await AsyncStorage.setItem(key, 'true')
 
       setSelectedAccHasPassword(true)
@@ -75,9 +80,9 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
     }
   }
 
-  const removeSelectedAccPassword = async () => {
+  const removeSelectedAccPassword = async (accountId?: string) => {
     try {
-      const key = getAccountSecureKey(selectedAcc)
+      const key = getAccountSecureKey(accountId || selectedAcc)
 
       await SecureStore.deleteItemAsync(key, {
         authenticationPrompt: t('Confirm your identity'),
@@ -86,25 +91,11 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
 
       await AsyncStorage.removeItem(key)
 
-      setSelectedAccHasPassword(false)
-
-      return true
-    } catch (e) {
-      addToast(t('Saving password was not successful.') as string, { error: true })
-      return false
-    }
-  }
-
-  const removeAccPasswordIfItExists = async (accountId: string) => {
-    try {
-      const key = getAccountSecureKey(accountId)
-
-      await SecureStore.deleteItemAsync(key, {
-        authenticationPrompt: t('Confirm your identity'),
-        requireAuthentication: true
-      })
-
-      await AsyncStorage.removeItem(key)
+      // If the change is made for the selected account, clean up the other flag too.
+      const isForTheSelectedAccount = !accountId
+      if (isForTheSelectedAccount) {
+        setSelectedAccHasPassword(false)
+      }
 
       return true
     } catch (e) {
@@ -130,8 +121,7 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
           addSelectedAccPassword,
           selectedAccHasPassword,
           removeSelectedAccPassword,
-          getSelectedAccPassword,
-          removeAccPasswordIfItExists
+          getSelectedAccPassword
         }),
         [isLoading, selectedAccHasPassword, selectedAcc, getSelectedAccPassword]
       )}
