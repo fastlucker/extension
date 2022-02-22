@@ -66,6 +66,20 @@ const PasscodeSignScreen = () => {
       )
     }
 
+    if (state === PASSCODE_STATES.PASSCODE_ONLY) {
+      return (
+        <>
+          <P type={TEXT_TYPES.DANGER}>
+            {t('In order to enable it, first you need to enable local auth.')}
+          </P>
+          <Button
+            text={t('Enable local auth')}
+            onPress={() => navigation.navigate('local-auth-change')}
+          />
+        </>
+      )
+    }
+
     if (selectedAccHasPassword) {
       return (
         <>
