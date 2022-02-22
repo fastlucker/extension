@@ -4,13 +4,14 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
-import { SECURE_STORE_KEY_ACCOUNTS_PASSWORDS } from '@modules/settings/constants'
+import { SECURE_STORE_KEY_ACCOUNT } from '@modules/settings/constants'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type AccountsPasswordsContextData = {
   isLoading: boolean
   selectedAccHasPassword: boolean
-  addSelectedAccPassword: (password: string) => Promise<void>
-  removeSelectedAccPassword: () => Promise<void>
+  addSelectedAccPassword: (password: string) => Promise<boolean>
+  removeSelectedAccPassword: () => Promise<boolean>
   getSelectedAccPassword: () => string
   removeAccPasswordIfItExists: (accountId: string) => void
 }
@@ -18,13 +19,15 @@ type AccountsPasswordsContextData = {
 const defaults: AccountsPasswordsContextData = {
   isLoading: true,
   selectedAccHasPassword: false,
-  addSelectedAccPassword: () => Promise.resolve(),
-  removeSelectedAccPassword: () => Promise.resolve(),
+  addSelectedAccPassword: () => Promise.resolve(false),
+  removeSelectedAccPassword: () => Promise.resolve(false),
   getSelectedAccPassword: () => '',
   removeAccPasswordIfItExists: () => {}
 }
 
 const AccountsPasswordsContext = createContext<AccountsPasswordsContextData>(defaults)
+
+const getAccountSecureKey = (acc: string) => `${SECURE_STORE_KEY_ACCOUNT}-${acc}`
 
 const AccountsPasswordsProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
@@ -39,14 +42,10 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
   useEffect(() => {
     ;(async () => {
       try {
-        const secureStoreItemAccountsPasswords = await SecureStore.getItemAsync(
-          SECURE_STORE_KEY_ACCOUNTS_PASSWORDS
-        )
-        if (secureStoreItemAccountsPasswords) {
-          const passwords = JSON.parse(secureStoreItemAccountsPasswords) || {}
-          setAccountsPasswords(passwords)
-          setSelectedAccHasPassword(!!passwords[selectedAcc])
-        }
+        const key = getAccountSecureKey(selectedAcc)
+        const accountHasPassword = await AsyncStorage.getItem(key)
+
+        setSelectedAccHasPassword(!!accountHasPassword)
       } catch (e) {
         // fail silently
       }
@@ -57,48 +56,43 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
 
   const addSelectedAccPassword = async (password: string) => {
     try {
-      const secureStoreItemAccountsPasswords = await SecureStore.getItemAsync(
-        SECURE_STORE_KEY_ACCOUNTS_PASSWORDS
-      )
+      const key = getAccountSecureKey(selectedAcc)
 
-      const nextPasswords = {
-        ...(secureStoreItemAccountsPasswords && JSON.parse(secureStoreItemAccountsPasswords)),
-        [selectedAcc]: password
-      }
+      await SecureStore.setItemAsync(key, password, {
+        authenticationPrompt: t('Confirm your identity'),
+        requireAuthentication: true
+      })
 
-      await SecureStore.setItemAsync(
-        SECURE_STORE_KEY_ACCOUNTS_PASSWORDS,
-        JSON.stringify(nextPasswords),
-        { authenticationPrompt: t('Confirm your identity'), requireAuthentication: true }
-      )
+      await AsyncStorage.setItem(key, 'true')
 
-      setAccountsPasswords(nextPasswords)
-
-      return setSelectedAccHasPassword(true)
-    } catch (e) {
-      return addToast(t('Saving password was not successful.') as string, { error: true })
+      setSelectedAccHasPassword(true)
+      return true
+    } catch (error) {
+      addToast(t('Error saving. {{error}}}', { error }) as string, {
+        error: true
+      })
+      return false
     }
   }
 
   const removeSelectedAccPassword = async () => {
-    const nextPasswords = {
-      ...accountsPasswords,
-      [selectedAcc]: ''
-    }
-
     try {
-      await SecureStore.setItemAsync(
-        SECURE_STORE_KEY_ACCOUNTS_PASSWORDS,
-        JSON.stringify(nextPasswords),
-        { authenticationPrompt: t('Confirm your identity'), requireAuthentication: true }
-      )
+      const key = getAccountSecureKey(selectedAcc)
+
+      await SecureStore.deleteItemAsync(key, {
+        authenticationPrompt: t('Confirm your identity'),
+        requireAuthentication: true
+      })
+
+      await AsyncStorage.removeItem(key)
+
+      setSelectedAccHasPassword(false)
+
+      return true
     } catch (e) {
-      return addToast(t('Saving password was not successful.') as string, { error: true })
+      addToast(t('Saving password was not successful.') as string, { error: true })
+      return false
     }
-
-    setAccountsPasswords(nextPasswords)
-
-    return setSelectedAccHasPassword(false)
   }
 
   const removeAccPasswordIfItExists = async (accountId: string) => {
@@ -108,10 +102,7 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
     }
 
     try {
-      await SecureStore.setItemAsync(
-        SECURE_STORE_KEY_ACCOUNTS_PASSWORDS,
-        JSON.stringify(nextPasswords)
-      )
+      await SecureStore.setItemAsync(SECURE_STORE_KEY_ACCOUNT, JSON.stringify(nextPasswords))
     } catch (e) {
       // fail silently
     }

@@ -35,17 +35,20 @@ const PasscodeSignScreen = () => {
   })
 
   const handleEnable = async ({ password }: FormValues) => {
-    await addSelectedAccPassword(password)
-    addToast(t('Passcode sign enabled!') as string, { timeout: 3000 })
+    const enable = await addSelectedAccPassword(password)
 
-    navigation.navigate('settings')
+    if (enable) {
+      addToast(t('Passcode sign enabled!') as string, { timeout: 3000 })
+      navigation.navigate('settings')
+    }
   }
 
   const handleDisable = async () => {
-    await removeSelectedAccPassword()
-    addToast(t('Passcode sign disabled!') as string, { timeout: 3000 })
-
-    navigation.navigate('settings')
+    const disabled = await removeSelectedAccPassword()
+    if (disabled) {
+      addToast(t('Passcode sign disabled!') as string, { timeout: 3000 })
+      navigation.navigate('settings')
+    }
   }
 
   const renderContent = () => {
