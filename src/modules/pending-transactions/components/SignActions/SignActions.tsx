@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -12,14 +12,13 @@ import Panel from '@modules/common/components/Panel'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
-import usePasscode from '@modules/common/hooks/usePasscode'
+import useToast from '@modules/common/hooks/useToast'
 import { isValidCode } from '@modules/common/services/validate'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import { isTokenEligible } from '@modules/pending-transactions/services/helpers'
-import { useIsFocused } from '@react-navigation/native'
 
 import styles from './styles'
 
@@ -35,7 +34,6 @@ const SignActions = ({
     control,
     handleSubmit,
     resetField,
-    setValue,
     formState: { errors }
   } = useForm({
     mode: 'onSubmit',
@@ -47,10 +45,7 @@ const SignActions = ({
   })
   const { t } = useTranslation()
   const { selectedAccHasPassword, getSelectedAccPassword } = useAccountsPasswords()
-  const { triggerEnteringPasscode, hasEnteredValidPasscode, resetValidPasscodeEntered } =
-    usePasscode()
-  const isFocused = useIsFocused()
-  const [isPasswordSwappedByPasscode, setIsPasswordSwappedByPasscode] = useState(false)
+  const { addToast } = useToast()
 
   // reset this every time the signing status changes
   useEffect(
@@ -58,15 +53,6 @@ const SignActions = ({
     () => !signingStatus && resetField('code'),
     [signingStatus]
   )
-
-  useEffect(() => {
-    if (hasEnteredValidPasscode && isFocused) {
-      approveTxn({})
-      setValue('password', getSelectedAccPassword())
-      setIsPasswordSwappedByPasscode(true)
-      resetValidPasscodeEntered()
-    }
-  }, [hasEnteredValidPasscode, isFocused])
 
   const rejectButton = rejectTxn && (
     <Button type={BUTTON_TYPES.DANGER} text={t('Reject')} onPress={rejectTxn} />
@@ -119,21 +105,23 @@ const SignActions = ({
     signingStatus && signingStatus.finalBundle && signingStatus.finalBundle.recoveryMode
 
   const handleOnSign = () => {
-    if (selectedAccHasPassword) {
-      return triggerEnteringPasscode()
-    }
-
     approveTxn({})
   }
 
-  const onSubmit = (values: { code: string; password: string }) => {
-    if (isPasswordSwappedByPasscode) {
-      return approveTxn({
-        quickAccCredentials: { code: values.code, password: getSelectedAccPassword() }
-      })
+  const onSubmit = async (values: { code: string; password: string }) => {
+    if (!selectedAccHasPassword) {
+      return approveTxn({ quickAccCredentials: values })
     }
 
-    approveTxn({ quickAccCredentials: values })
+    try {
+      const password = await getSelectedAccPassword()
+
+      return approveTxn({
+        quickAccCredentials: { code: values.code, password }
+      })
+    } catch (e) {
+      addToast(t('Failed to confirm your identity.') as string, { error: true })
+    }
   }
 
   if (signingStatus && signingStatus.quickAcc) {
@@ -144,7 +132,7 @@ const SignActions = ({
         <View>
           {signingStatus.confCodeRequired === 'otp' ? (
             <Text style={spacings.mbTy}>
-              {isPasswordSwappedByPasscode
+              {selectedAccHasPassword
                 ? t('Please enter your OTP code.')
                 : t('Please enter your OTP code and your password.')}
             </Text>
@@ -157,7 +145,7 @@ const SignActions = ({
             </Text>
           ) : null}
         </View>
-        {!isRecoveryMode && !isPasswordSwappedByPasscode && (
+        {!isRecoveryMode && !selectedAccHasPassword && (
           <Controller
             control={control}
             rules={{ required: true }}
@@ -192,7 +180,7 @@ const SignActions = ({
               keyboardType="numeric"
               autoCorrect={false}
               value={value}
-              autoFocus={isPasswordSwappedByPasscode}
+              autoFocus={selectedAccHasPassword}
             />
           )}
           name="code"
