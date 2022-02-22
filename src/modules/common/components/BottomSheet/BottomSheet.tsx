@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { BackHandler, StyleSheet, View } from 'react-native'
+import { BackHandler, StyleSheet, TouchableOpacity, View } from 'react-native'
 import Animated, { greaterThan } from 'react-native-reanimated'
 import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 
@@ -137,6 +137,7 @@ const BottomSheet: React.FC<Props> = ({
           }
         ]}
       />
+      {!!isOpen && <TouchableOpacity style={styles.backDrop} onPress={closeBottomSheet} />}
       <ReanimatedBottomSheet
         ref={sheetRef}
         snapPoints={
