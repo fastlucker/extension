@@ -126,11 +126,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       }
 
       try {
-        const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE, {
-          // TODO:
-          requireAuthentication: false,
-          authenticationPrompt: t('Test')
-        })
+        const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE)
         if (secureStoreItemPasscode) {
           setPasscode(secureStoreItemPasscode)
           setState(PASSCODE_STATES.PASSCODE_ONLY)
@@ -330,10 +326,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const addPasscode = async (code: string) => {
     try {
-      await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code, {
-        authenticationPrompt: t('Confirm your identity'),
-        requireAuthentication: true
-      })
+      await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code)
 
       setPasscode(code)
 
@@ -381,9 +374,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     }
 
     try {
-      await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE, {
-        requireAuthentication: true
-      })
+      await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE)
     } catch (e) {
       addToast(t('Passcode got removed, but this setting failed to save.') as string, {
         error: true
