@@ -42,6 +42,10 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
     ;(async () => {
       try {
         const key = getAccountSecureKey(selectedAcc)
+        // Checks via a flag in the Async Storage.
+        // Because otherwise, figuring out if the selected account has password
+        // via the `SecureStore` requires the user every time to
+        // authenticate via his phone local auth.
         const accountHasPassword = await AsyncStorage.getItem(key)
 
         setSelectedAccHasPassword(!!accountHasPassword)
