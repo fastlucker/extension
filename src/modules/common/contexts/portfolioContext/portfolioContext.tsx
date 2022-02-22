@@ -15,6 +15,10 @@ import {
   tokenList
 } from '@modules/common/services/balanceOracle'
 import { fetchGet } from '@modules/common/services/fetch'
+import {
+  setKnownAddresses,
+  setKnownTokens
+} from '@modules/common/services/humanReadableTransactions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type Token = {
@@ -323,6 +327,17 @@ const PortfolioProvider: React.FC = ({ children }) => {
       await fetchOtherProtocols(account, currentNetwork)
   }
 
+  // Make humanizer 'learn' about new tokens and aliases
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  const updateHumanizerData = (tokensByNetworks: any) => {
+    const tokensList = Object.values(tokensByNetworks)
+      .map(({ assets }: any) => assets)
+      .flat(1)
+    const knownAliases = tokensList.map(({ address, symbol }) => ({ address, name: symbol }))
+    setKnownAddresses(knownAliases)
+    setKnownTokens(tokensList)
+  }
+
   const onAddExtraToken = (extraToken: any) => {
     const { address, name, symbol } = extraToken
     // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -422,6 +437,8 @@ const PortfolioProvider: React.FC = ({ children }) => {
         setBalance(balance)
         setOtherBalances(balanceByNetworks.filter(({ network }: any) => network !== currentNetwork))
       }
+
+      updateHumanizerData(tokensByNetworks)
 
       const otherProtocols = otherProtocolsByNetworks.find(
         ({ network }: any) => network === currentNetwork
