@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store'
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -12,7 +12,7 @@ type AccountsPasswordsContextData = {
   selectedAccHasPassword: boolean
   addSelectedAccPassword: (password: string) => Promise<boolean>
   removeSelectedAccPassword: () => Promise<boolean>
-  getSelectedAccPassword: () => string
+  getSelectedAccPassword: () => Promise<string>
   removeAccPasswordIfItExists: (accountId: string) => Promise<boolean>
 }
 
@@ -21,7 +21,7 @@ const defaults: AccountsPasswordsContextData = {
   selectedAccHasPassword: false,
   addSelectedAccPassword: () => Promise.resolve(false),
   removeSelectedAccPassword: () => Promise.resolve(false),
-  getSelectedAccPassword: () => '',
+  getSelectedAccPassword: () => Promise.resolve(''),
   removeAccPasswordIfItExists: () => Promise.resolve(false)
 }
 
@@ -33,7 +33,6 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { selectedAcc } = useAccounts()
-  const [accountsPasswords, setAccountsPasswords] = useState<{ [accountId: string]: string }>({})
   const [selectedAccHasPassword, setSelectedAccHasPassword] = useState<boolean>(
     defaults.selectedAccHasPassword
   )
@@ -113,8 +112,14 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
     }
   }
 
-  // TODO:
-  const getSelectedAccPassword = () => accountsPasswords[selectedAcc]
+  const getSelectedAccPassword = useCallback(() => {
+    const key = getAccountSecureKey(selectedAcc)
+
+    return SecureStore.getItemAsync(key, {
+      authenticationPrompt: t('Confirm your identity'),
+      requireAuthentication: true
+    })
+  }, [selectedAcc, t])
 
   return (
     <AccountsPasswordsContext.Provider
@@ -127,7 +132,7 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
           getSelectedAccPassword,
           removeAccPasswordIfItExists
         }),
-        [isLoading, selectedAccHasPassword, selectedAcc]
+        [isLoading, selectedAccHasPassword, selectedAcc, getSelectedAccPassword]
       )}
     >
       {children}
