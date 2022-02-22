@@ -33,7 +33,7 @@ const Accounts = () => {
   const sheetNetworks = useBottomSheet()
   const sheetAccounts = useBottomSheet()
   const [logoutWarning, setLogoutWarning] = useState(false)
-  const { removeAccPasswordIfItExists } = useAccountsPasswords()
+  const { removeSelectedAccPassword } = useAccountsPasswords()
   const { removePasscode } = usePasscode()
   const { addToast } = useToast()
 
@@ -68,12 +68,12 @@ const Accounts = () => {
     const isActive = selectedAcc === account.id
     const onChangeAccount = () => handleChangeAccount(account.id)
 
-    const handleRemoveAccount = () => {
+    const handleRemoveAccount = async () => {
       setLogoutWarning(false)
 
       // Remove account password, because it gets persisted in the iOS Keychain
       // or in the Android Keystore.
-      removeAccPasswordIfItExists(account.id)
+      await removeSelectedAccPassword(account.id)
 
       // In case this account is the only one logged in,
       // clean up the app passcode too.

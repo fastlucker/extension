@@ -104,7 +104,7 @@ const AccountsProvider: React.FC = ({ children }) => {
         }
       }
     },
-    [accounts, onSelectAcc, authStatus]
+    [accounts, onSelectAcc, authStatus, setAuthStatus, addToast]
   )
 
   const onRemoveAccount = useCallback(
@@ -125,7 +125,7 @@ const AccountsProvider: React.FC = ({ children }) => {
         // fail silently
       }
     },
-    [accounts, onSelectAcc]
+    [accounts, onSelectAcc, setAuthStatus]
   )
 
   return (
