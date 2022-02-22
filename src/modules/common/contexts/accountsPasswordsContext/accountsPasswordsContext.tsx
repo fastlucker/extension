@@ -46,7 +46,8 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
 
         setSelectedAccHasPassword(!!accountHasPassword)
       } catch (e) {
-        // fail silently
+        // Fail silently and assume account doesn't have a password set
+        // for the selected account. Which is fine.
       }
 
       setIsLoading(false)
