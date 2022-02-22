@@ -155,6 +155,7 @@ const SignActions = ({
                 secureTextEntry
                 autoCorrect={false}
                 value={value}
+                disabled={signingStatus.inProgress}
               />
             )}
             name="password"
@@ -176,6 +177,7 @@ const SignActions = ({
               onBlur={onBlur}
               onChangeText={onChange}
               keyboardType="numeric"
+              disabled={signingStatus.inProgress}
               autoCorrect={false}
               value={value}
               autoFocus={selectedAccHasPassword}
@@ -207,7 +209,11 @@ const SignActions = ({
       <View style={styles.buttonsContainer}>
         {!!rejectTxn && <View style={styles.buttonWrapper}>{rejectButton}</View>}
         <View style={styles.buttonWrapper}>
-          <Button text={t('Sign')} onPress={handleOnSign} disabled={!estimation || signingStatus} />
+          <Button
+            text={!estimation || signingStatus ? t('Signing...') : t('Sign')}
+            onPress={handleOnSign}
+            disabled={!estimation || signingStatus}
+          />
         </View>
       </View>
     </Panel>
