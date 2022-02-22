@@ -104,9 +104,7 @@ const SignActions = ({
   const isRecoveryMode =
     signingStatus && signingStatus.finalBundle && signingStatus.finalBundle.recoveryMode
 
-  const handleOnSign = () => {
-    approveTxn({})
-  }
+  const handleOnSign = () => approveTxn({})
 
   const onSubmit = async (values: { code: string; password: string }) => {
     if (!selectedAccHasPassword) {
