@@ -1,3 +1,4 @@
+import { Wallet } from 'ethers'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
@@ -8,6 +9,7 @@ import P from '@modules/common/components/P'
 import { TEXT_TYPES } from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
+import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
@@ -22,11 +24,13 @@ const PasscodeSignScreen = () => {
   const navigation = useNavigation()
   const { addToast } = useToast()
   const { state } = usePasscode()
+  const { account } = useAccounts()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
     useAccountsPasswords()
   const {
     control,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting }
   } = useForm<FormValues>({
     defaultValues: {
@@ -35,8 +39,18 @@ const PasscodeSignScreen = () => {
   })
 
   const handleEnable = async ({ password }: FormValues) => {
-    const enable = await addSelectedAccPassword(password)
+    // Validation if the password is correct
+    try {
+      await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), password)
+    } catch (e) {
+      return setError(
+        'password',
+        { type: 'focus', message: t('Invalid password.') },
+        { shouldFocus: true }
+      )
+    }
 
+    const enable = await addSelectedAccPassword(password)
     if (enable) {
       addToast(t('Passcode sign enabled!') as string, { timeout: 3000 })
       navigation.navigate('settings')
@@ -94,7 +108,7 @@ const PasscodeSignScreen = () => {
         <P>{t('To enable it, enter your Ambire account password.')}</P>
         <Controller
           control={control}
-          rules={{ required: true }}
+          rules={{ required: t('Please fill in a password.') as string }}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
               placeholder={t('Account password')}
@@ -107,7 +121,7 @@ const PasscodeSignScreen = () => {
           )}
           name="password"
         />
-        {!!errors.password && <P type={TEXT_TYPES.DANGER}>{t('Please fill in a password.')}</P>}
+        {!!errors.password && <P type={TEXT_TYPES.DANGER}>{errors.password.message}</P>}
 
         <Button
           disabled={isSubmitting}
