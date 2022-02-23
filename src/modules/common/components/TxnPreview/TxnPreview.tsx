@@ -84,9 +84,11 @@ const TxnPreview = ({
   const extendedSummary = getTransactionSummary(txn, network, account, { mined, extended: true })
 
   const summary = extendedSummary.map((entry: any) =>
-    Array.isArray(entry)
-      ? entry.map((item, i) => parseExtendedSummaryItem(item, i, networkDetails))
-      : entry
+    Array.isArray(entry) ? (
+      entry.map((item, i) => parseExtendedSummaryItem(item, i, networkDetails))
+    ) : (
+      <Text>{entry}</Text>
+    )
   )
 
   return (
