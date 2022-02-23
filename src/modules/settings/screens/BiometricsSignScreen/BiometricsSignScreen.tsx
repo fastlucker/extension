@@ -1,6 +1,7 @@
 import { Wallet } from 'ethers'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { Keyboard } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
@@ -40,6 +41,10 @@ const BiometricsSignScreen = () => {
   })
 
   const handleEnable = async ({ password }: FormValues) => {
+    // Dismiss the keyboard, because the validation process sometimes takes longer,
+    // and having the keyboard in there all the time, is strange.
+    Keyboard.dismiss()
+
     // Validation if the password is correct
     try {
       // For some reason, the `isSubmitting` flag doesn't flip immediately
@@ -124,6 +129,7 @@ const BiometricsSignScreen = () => {
               secureTextEntry
               autoCorrect={false}
               value={value}
+              disabled={isSubmitting}
             />
           )}
           name="password"

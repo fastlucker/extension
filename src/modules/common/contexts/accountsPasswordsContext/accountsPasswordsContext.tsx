@@ -64,7 +64,8 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
 
       await SecureStore.setItemAsync(key, password, {
         authenticationPrompt: t('Confirm your identity'),
-        requireAuthentication: true
+        requireAuthentication: true,
+        keychainService: key
       })
 
       // Store a flag if the selected account has password stored.
@@ -90,7 +91,8 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
 
       await SecureStore.deleteItemAsync(key, {
         authenticationPrompt: t('Confirm your identity'),
-        requireAuthentication: true
+        requireAuthentication: true,
+        keychainService: key
       })
 
       await AsyncStorage.removeItem(key)
@@ -113,7 +115,8 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
 
     return SecureStore.getItemAsync(key, {
       authenticationPrompt: t('Confirm your identity'),
-      requireAuthentication: true
+      requireAuthentication: true,
+      keychainService: key
     })
   }, [selectedAcc, t])
 
