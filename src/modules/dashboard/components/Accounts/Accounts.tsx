@@ -25,6 +25,8 @@ import { useNavigation } from '@react-navigation/native'
 
 import styles from './styles'
 
+const HIT_SLOP = { bottom: 10, left: 10, right: 10, top: 10 }
+
 const Accounts = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
@@ -131,23 +133,25 @@ const Accounts = () => {
       <Panel>
         <Title>{t('Accounts')}</Title>
         <View style={[styles.accItemStyle, spacings.mb]} key={account?.id}>
-          <TouchableOpacity onPress={sheetAccounts.openBottomSheet}>
+          <TouchableOpacity hitSlop={HIT_SLOP} onPress={sheetAccounts.openBottomSheet}>
             <Blockies seed={account?.id} />
           </TouchableOpacity>
           <View style={[flexboxStyles.flex1, spacings.mlTy]}>
-            <Text onPress={sheetAccounts.openBottomSheet} numberOfLines={1} ellipsizeMode="middle">
-              {account?.id}
-            </Text>
+            <TouchableOpacity onPress={sheetAccounts.openBottomSheet} hitSlop={HIT_SLOP}>
+              <Text numberOfLines={1} ellipsizeMode="middle">
+                {account?.id}
+              </Text>
+            </TouchableOpacity>
           </View>
-          <View>
+          <TouchableOpacity hitSlop={HIT_SLOP} onPress={sheetNetworks.openBottomSheet}>
             <Trans>
-              <Text onPress={sheetNetworks.openBottomSheet}>
+              <Text>
                 on <NetworkIcon style={styles.networkIcon} />{' '}
                 <Text style={textStyles.bold}>{networkName}</Text>
                 <Text style={styles.chevron}> 🔽</Text>
               </Text>
             </Trans>
-          </View>
+          </TouchableOpacity>
         </View>
         <View style={styles.actionsContainer}>
           <TouchableOpacity onPress={handleCopyAddress} style={styles.actionsContainerItem}>

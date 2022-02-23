@@ -5,6 +5,7 @@ import Animated, { greaterThan } from 'react-native-reanimated'
 import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 
 import { Portal } from '@gorhom/portal'
+import usePrevious from '@modules/common/hooks/usePrevious'
 import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
@@ -40,6 +41,7 @@ const BottomSheet: React.FC<Props> = ({
   const { t } = useTranslation()
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
+  const prevIsOpen = usePrevious(isOpen)
 
   useEffect(() => {
     if (!isOpen) {
@@ -63,6 +65,13 @@ const BottomSheet: React.FC<Props> = ({
 
   const cancelText = _cancelText || (t('✗  Cancel') as string)
 
+  // Closing modal animation trigger
+  useEffect(() => {
+    if (!isOpen && prevIsOpen) {
+      sheetRef.current?.snapTo(0)
+    }
+  }, [isOpen, prevIsOpen, sheetRef])
+
   /**
    * Get the content height, so that the modal pops out dynamically,
    * based on the content (so that the content is always visible)
@@ -72,13 +81,28 @@ const BottomSheet: React.FC<Props> = ({
     const maxHeight = DEVICE_HEIGHT * maxInitialHeightPercentage
 
     if (!dynamicInitialHeight) {
-      return setContentHeight(maxHeight)
+      setContentHeight(maxHeight)
+      sheetRef.current?.snapTo(1)
+      return
     }
 
     // Use flexible height for the content,
     // so that the content is mostly always fully visible,
     // but only up to certain percent of the fill screen height.
     setContentHeight(Math.min(height, maxHeight))
+
+    // Because the layout is dynamic, and renders when the bottom sheet gets
+    // triggered, pop the bottom sheet animation immediately, if needed.
+    // Otherwise, the `openBottomSheet` event gets fired, but it is faster
+    // than calculating the layout height and therefore - when executed -
+    // there is a race condition between the two. And the height is still `0`.
+    // And the animation doesn't run the first time.
+    if (isOpen) {
+      // A bit hacky, but it works. Otherwise - if fired synchronously, it doesn't
+      // "wait" until the dynamic height of the bottom sheet content gets
+      // calculated. And as a result, user needs to tap open bottom sheet twice.
+      setTimeout(() => sheetRef.current?.snapTo(1), 1)
+    }
   }
 
   const renderContent = () => {
