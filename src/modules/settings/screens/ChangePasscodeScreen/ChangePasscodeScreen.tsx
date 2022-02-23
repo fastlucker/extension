@@ -38,10 +38,11 @@ const ChangePasscodeScreen: React.FC = () => {
       return setPasscodeConfirmFailed(true)
     }
 
-    await addPasscode(code)
-
-    addToast(t('Passcode configured!') as string, { timeout: 2000 })
-    navigation.navigate('settings')
+    const added = await addPasscode(code)
+    if (added) {
+      addToast(t('Passcode configured!') as string, { timeout: 2000 })
+      navigation.navigate('settings')
+    }
   }
 
   const handleOnRemovePasscode = async () => {

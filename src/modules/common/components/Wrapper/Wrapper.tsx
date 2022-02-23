@@ -7,12 +7,14 @@ import {
   SectionList,
   SectionListProps
 } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import styles from './styles'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum WRAPPER_TYPES {
   SCROLL_VIEW = 'scrollview',
+  KEYBOARD_AWARE_SCROLL_VIEW = 'keyboard-aware-scrollview',
   FLAT_LIST = 'flatlist',
   SECTION_LIST = 'sectionlist'
 }
@@ -59,6 +61,23 @@ const Wrapper = ({
         alwaysBounceVertical={false}
         {...rest}
       />
+    )
+  }
+
+  if (type === WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW) {
+    return (
+      <KeyboardAwareScrollView
+        style={[styles.wrapper, style]}
+        contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
+        keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
+        keyboardDismissMode={keyboardDismissMode || 'none'}
+        alwaysBounceVertical={false}
+        enableOnAndroid
+        // subs 68 of the scroll height only when the keyboard is visible because of the height of the bottom tab navigation
+        extraScrollHeight={-68} // magic num
+      >
+        {children}
+      </KeyboardAwareScrollView>
     )
   }
 

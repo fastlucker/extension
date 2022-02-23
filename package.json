@@ -86,6 +86,7 @@
     "react-native-dropdown-picker": "^5.3.0",
     "react-native-gesture-handler": "~2.1.0",
     "react-native-get-random-values": "~1.7.0",
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-level-fs": "^3.0.0",
     "react-native-os": "^1.0.1",
     "react-native-performance": "^2.1.0",

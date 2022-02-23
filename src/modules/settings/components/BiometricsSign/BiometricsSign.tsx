@@ -7,7 +7,7 @@ import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import spacings from '@modules/common/styles/spacings'
 import { useNavigation } from '@react-navigation/native'
 
-const PasscodeSign = () => {
+const BiometricsSign = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { isLoading, selectedAccHasPassword } = useAccountsPasswords()
@@ -18,12 +18,12 @@ const PasscodeSign = () => {
     <Button
       text={
         selectedAccHasPassword
-          ? t('Passcode sign (enabled ✅)')
-          : t('Passcode sign (not enabled ❌)')
+          ? t('Biometrics sign (enabled ✅)')
+          : t('Biometrics sign (not enabled ❌)')
       }
-      onPress={() => navigation.navigate('transactions-signing')}
+      onPress={() => navigation.navigate('biometrics-sign-change')}
     />
   )
 }
 
-export default PasscodeSign
+export default BiometricsSign

@@ -10,8 +10,8 @@ import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 
-// 10% in geth and most EVM chain RPCs
-const RBF_THRESHOLD = 1.1
+// 10% in geth and most EVM chain RPCs; relayer wants 12%
+const RBF_THRESHOLD = 1.14
 
 const useTransactions = () => {
   const { addToast } = useToast()

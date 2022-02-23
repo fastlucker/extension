@@ -7,6 +7,12 @@
       "decimals": 18
     },
     {
+      "address": "0x88800092ff476844f74dc2fc427974bbee2794ae",
+      "symbol": "WALLET",
+      "coingeckoId": "ambire-wallet",
+      "decimals": 18
+    },
+    {
       "address": "0xade00c28244d5ce17d72e40330b1c318cd12b7c3",
       "symbol": "ADX",
       "coingeckoId": "adex",
@@ -1327,6 +1333,12 @@
       "symbol": "BUSD",
       "decimals": 18,
       "coingeckoId": "binance-usd"
+    },
+    {
+      "address": "0xBA96731324dE188ebC1eD87ca74544dDEbC07D7f",
+      "symbol": "TITANO",
+      "decimals": 18,
+      "coingeckoId": null
     },
     {
       "address": "0xcc42724c6683b7e57334c4e856f4c9965ed682bd",
