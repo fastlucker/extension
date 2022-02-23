@@ -58,7 +58,7 @@ const BiometricsSignScreen = () => {
 
     const enable = await addSelectedAccPassword(password)
     if (enable) {
-      addToast(t('Passcode sign enabled!') as string, { timeout: 3000 })
+      addToast(t('Biometrics sign enabled!') as string, { timeout: 3000 })
       navigation.navigate('settings')
     }
     return enable
@@ -67,7 +67,7 @@ const BiometricsSignScreen = () => {
   const handleDisable = async () => {
     const disabled = await removeSelectedAccPassword()
     if (disabled) {
-      addToast(t('Passcode sign disabled!') as string, { timeout: 3000 })
+      addToast(t('Biometrics sign disabled!') as string, { timeout: 3000 })
       navigation.navigate('settings')
     }
   }
