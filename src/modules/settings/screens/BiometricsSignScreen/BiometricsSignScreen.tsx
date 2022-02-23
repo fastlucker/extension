@@ -13,6 +13,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
+import { delayPromise } from '@modules/common/utils/promises'
 import { useNavigation } from '@react-navigation/native'
 
 interface FormValues {
@@ -41,6 +42,11 @@ const BiometricsSignScreen = () => {
   const handleEnable = async ({ password }: FormValues) => {
     // Validation if the password is correct
     try {
+      // For some reason, the `isSubmitting` flag doesn't flip immediately
+      // when the `Wallet.fromEncryptedJson` promise fires.
+      // Triggering this dummy promise delay flips the `isSubmitting` flag.
+      await delayPromise(100)
+
       await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), password)
     } catch (e) {
       return setError(
@@ -52,15 +58,16 @@ const BiometricsSignScreen = () => {
 
     const enable = await addSelectedAccPassword(password)
     if (enable) {
-      addToast(t('Passcode sign enabled!') as string, { timeout: 3000 })
+      addToast(t('Biometrics sign enabled!') as string, { timeout: 3000 })
       navigation.navigate('settings')
     }
+    return enable
   }
 
   const handleDisable = async () => {
     const disabled = await removeSelectedAccPassword()
     if (disabled) {
-      addToast(t('Passcode sign disabled!') as string, { timeout: 3000 })
+      addToast(t('Biometrics sign disabled!') as string, { timeout: 3000 })
       navigation.navigate('settings')
     }
   }
@@ -125,7 +132,7 @@ const BiometricsSignScreen = () => {
 
         <Button
           disabled={isSubmitting}
-          text={isSubmitting ? t('Enabling...') : t('Enable')}
+          text={isSubmitting ? t('Validating...') : t('Enable')}
           onPress={handleSubmit(handleEnable)}
         />
       </>
