@@ -34,7 +34,7 @@ type PasscodeContextData = {
   deviceSupportedAuthTypesLabel: string
   fallbackSupportedAuthTypesLabel: string
   addPasscode: (code: string) => Promise<boolean>
-  removePasscode: (accountId: string) => Promise<void>
+  removePasscode: (accountId?: string) => Promise<void>
   isLoading: boolean
   isValidPasscode: (code: string) => boolean
   isLocalAuthSupported: null | boolean
