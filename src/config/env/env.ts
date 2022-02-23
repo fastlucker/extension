@@ -39,6 +39,7 @@ interface Config {
   PAYTRIE_PARTNER_URL: string
   TRANSAK_API_KEY: string
   TRANSAK_ENV: string
+  SENTRY_DSN: string
 }
 
 const CONFIG: Config = {
@@ -50,7 +51,8 @@ const CONFIG: Config = {
   RAMP_HOST_API_KEY: 'jfmvma5hxecxjht293qmbu7bc7jx3sc9tg48a2so',
   PAYTRIE_PARTNER_URL: 'https://partner.paytrie.com/?app=876454',
   TRANSAK_API_KEY: '325625ed-5a85-4131-ae50-ea7906332fb3',
-  TRANSAK_ENV: 'STAGING'
+  TRANSAK_ENV: 'STAGING',
+  SENTRY_DSN: 'TODO'
 }
 
 if (isProd) {
