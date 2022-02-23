@@ -136,7 +136,7 @@ const BiometricsSignScreen = () => {
     <Wrapper>
       <P>
         {t(
-          'You can opt-in to use the app passcode to sign transactions instead of your Ambire account password.'
+          'You can opt-in to use your phone biometrics to sign transactions instead of your Ambire account password.'
         )}
       </P>
       {renderContent()}
