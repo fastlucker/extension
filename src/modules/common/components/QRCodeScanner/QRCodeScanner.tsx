@@ -8,6 +8,7 @@ import { APP_ID } from '@config/env'
 import { useTranslation } from '@config/localization'
 import P from '@modules/common/components/P'
 import requestPermissionFlagging from '@modules/common/services/requestPermissionFlagging'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import Button from '../Button'
 import styles from './styles'
@@ -16,10 +17,22 @@ interface Props {
   onScan?: (data: string) => void
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
+enum BASE_SIDE {
+  HEIGHT = 'height',
+  WIDTH = 'width'
+}
+
+const isAndroid = Platform.OS === 'android'
+
 const QRCodeScanner = ({ onScan }: Props) => {
   const [hasPermission, setHasPermission] = useState<null | boolean>(null)
   const [scanned, setScanned] = useState<boolean>(false)
   const { t } = useTranslation()
+  // Dimensions of the camera container
+  const [dim, setDim] = useState<null | { width: number; height: number }>(null)
+  // the camera will be stretched on that side (Android only)
+  const [baseSide, setBaseSide] = useState<null | BASE_SIDE>(null)
 
   useEffect(() => {
     ;(async () => {
@@ -27,6 +40,17 @@ const QRCodeScanner = ({ onScan }: Props) => {
       setHasPermission(status === 'granted')
     })()
   }, [])
+
+  // Android only
+  useEffect(() => {
+    if (dim) {
+      if (dim.height / dim.width >= 16 / 9) {
+        setBaseSide(BASE_SIDE.HEIGHT)
+      } else {
+        setBaseSide(BASE_SIDE.WIDTH)
+      }
+    }
+  }, [dim])
 
   const handleBarCodeScan = ({ data }: any) => {
     setScanned(true)
@@ -47,17 +71,34 @@ const QRCodeScanner = ({ onScan }: Props) => {
         )
 
   return (
-    <View style={styles.container}>
-      {!!hasPermission && (
+    <View
+      style={styles.container}
+      onLayout={({
+        nativeEvent: {
+          layout: { width, height }
+        }
+      }) => {
+        setDim({ width, height })
+      }}
+    >
+      {!!hasPermission && !!baseSide && (
         <View style={StyleSheet.absoluteFillObject}>
           <Camera
             onBarCodeScanned={scanned ? undefined : handleBarCodeScan}
             barCodeScannerSettings={{
               barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr]
             }}
+            style={
+              isAndroid
+                ? [
+                    styles.camera,
+                    baseSide === BASE_SIDE.HEIGHT && { height: '100%' },
+                    baseSide === BASE_SIDE.WIDTH && { width: '100%' }
+                  ]
+                : flexboxStyles.flex1
+            }
             // Android only
             ratio="16:9"
-            style={styles.camera}
           />
         </View>
       )}

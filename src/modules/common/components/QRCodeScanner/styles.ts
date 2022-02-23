@@ -11,7 +11,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundColor
   },
   camera: {
-    height: '100%',
     aspectRatio: 9 / 16
   }
 })

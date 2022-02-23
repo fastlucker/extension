@@ -20,10 +20,10 @@ import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
+import BiometricsSignScreen from '@modules/settings/screens/BiometricsSignScreen'
 import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
-import PasscodeSignScreen from '@modules/settings/screens/PasscodeSignScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
@@ -213,10 +213,10 @@ const SettingsStackScreen = () => {
         }}
       />
       <SettingsStack.Screen
-        name="transactions-signing"
-        component={PasscodeSignScreen}
+        name="biometrics-sign-change"
+        component={BiometricsSignScreen}
         options={{
-          headerTitle: t('Sign with Passcode')
+          headerTitle: t('Sign with Biometrics')
         }}
       />
       <SettingsStack.Screen
