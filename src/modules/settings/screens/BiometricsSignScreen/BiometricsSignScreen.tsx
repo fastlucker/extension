@@ -19,7 +19,7 @@ interface FormValues {
   password: string
 }
 
-const PasscodeSignScreen = () => {
+const BiometricsSignScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
@@ -144,4 +144,4 @@ const PasscodeSignScreen = () => {
   )
 }
 
-export default PasscodeSignScreen
+export default BiometricsSignScreen
