@@ -1,7 +1,7 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useMemo } from 'react'
 
 import networks, { NetworkType } from '@modules/common/constants/networks'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import useStorage from '@modules/common/hooks/useStorage'
 
 const defaultNetwork = 'ethereum'
 
@@ -18,14 +18,14 @@ const NetworkContext = createContext<NetworkContextData>({
 })
 
 const NetworkProvider: React.FC = ({ children }) => {
-  const [networkId, setNetworkId] = useState<string | null>(null)
-
-  useEffect(() => {
-    ;(async () => {
-      const network = await AsyncStorage.getItem('network')
-      setNetworkId(networks.find((n) => n.id === network) ? network : defaultNetwork)
-    })()
-  }, [])
+  const [networkId, setNetworkId] = useStorage({
+    key: 'network',
+    defaultValue: defaultNetwork,
+    isStringStorage: true,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    setInit: (networkId: any) =>
+      networks.find((n) => n.id === networkId) ? networkId : defaultNetwork
+  })
 
   const setNetwork = useCallback(
     (networkIdentifier) => {
@@ -36,7 +36,7 @@ const NetworkProvider: React.FC = ({ children }) => {
           n.chainId === networkIdentifier
       )
       if (!network) throw new Error(`no network found: ${networkIdentifier}`)
-      AsyncStorage.setItem('network', network.id)
+
       setNetworkId(network.id)
     },
     [setNetworkId]
