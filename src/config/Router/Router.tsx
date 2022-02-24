@@ -26,6 +26,7 @@ import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScre
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
+import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
@@ -38,6 +39,7 @@ const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 
 const DashboardStack = createNativeStackNavigator()
+const SwapStack = createNativeStackNavigator()
 const TransactionsStack = createNativeStackNavigator()
 const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
@@ -110,6 +112,29 @@ const DashboardStackScreen = () => {
       />
       <Stack.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
     </DashboardStack.Navigator>
+  )
+}
+
+const SwapStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <SwapStack.Navigator screenOptions={tabsScreenOptions}>
+      <SwapStack.Screen
+        name="swap"
+        component={SwapScreen}
+        options={{
+          headerTitle: t('Swap')
+        }}
+      />
+      <SwapStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+    </SwapStack.Navigator>
   )
 }
 
@@ -320,6 +345,17 @@ const AppTabs = () => {
           )
         }}
         component={SendStackScreen}
+      />
+      <Tab.Screen
+        name="swap-tab"
+        options={{
+          headerShown: false,
+          title: t('Swap'),
+          // Use this one, because the actual one is <BiTransfer />,
+          // but the Box Icons set is not available
+          tabBarIcon: () => null
+        }}
+        component={SwapStackScreen}
       />
       <Tab.Screen
         name="transactions-tab"
