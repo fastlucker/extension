@@ -8,9 +8,19 @@ import useToast from '@modules/common/hooks/useToast'
 import { GnosisConnector } from '@modules/common/services/gnosisConnector'
 import { getProvider } from '@modules/common/services/provider'
 
-type GnosisContextData = {}
+type GnosisContextData = {
+  requests: any[]
+  resolveMany: (ids: any, resolution: any) => any
+  connect: (connectorOpts: any) => any
+  disconnect: () => any
+}
 
-const GnosisContext = createContext<GnosisContextData>({})
+const GnosisContext = createContext<GnosisContextData>({
+  requests: [],
+  resolveMany: () => {},
+  connect: () => {},
+  disconnect: () => {}
+})
 
 const STORAGE_KEY = 'gnosis_safe_state'
 
@@ -260,7 +270,7 @@ const GnosisProvider: React.FC = ({ children }) => {
     connector.current?.clear()
   }, [verbose])
 
-  const resolveMany = (ids, resolution) => {
+  const resolveMany = (ids: any, resolution: any) => {
     for (const req of requests.filter((x) => ids.includes(x.id))) {
       if (!req.isBatch || req.id.endsWith(':0')) {
         const replyData = {

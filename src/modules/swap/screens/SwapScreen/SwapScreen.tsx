@@ -1,34 +1,32 @@
 import React from 'react'
-import WebView from 'react-native-webview'
+
+import useAccounts from '@modules/common/hooks/useAccounts'
+import useGnosis from '@modules/common/hooks/useGnosis'
+import useNetwork from '@modules/common/hooks/useNetwork'
+import GnosisSafeAppIframe from '@modules/swap/components/GnosisSafeAppIframe'
+
+const ambireSushiConfig = {
+  name: 'Ambire swap',
+  url: 'https://sushiswap-interface-ten.vercel.app/swap',
+  logo: 'https://www.ambire.com/ambire-logo.png',
+  desc: 'Ambire swap'
+}
 
 const SwapScreen = () => {
-  const htmlStyleFix = `<style type="text/css">
-    div {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      align-items: stretch;
-      height: 100%;
-    }
-    iframe {
-      overflow: auto;
-      box-sizing: border-box;
-      border: 0;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      align-items: stretch;
+  const { network } = useNetwork()
+  const { selectedAcc } = useAccounts()
+  const { connect, disconnect } = useGnosis()
 
-    }
-    </style>`
-
-  const html = `
-    ${htmlStyleFix}
-    <div>
-      <iframe src='https://sushiswap-interface-ten.vercel.app/swap' />
-    </div>
-  `
-  return <WebView originWhitelist={['*']} source={{ html }} />
+  return (
+    <GnosisSafeAppIframe
+      network={network}
+      selectedAcc={selectedAcc}
+      gnosisConnect={connect}
+      gnosisDisconnect={disconnect}
+      selectedApp={ambireSushiConfig}
+      title="Ambire swap"
+    />
+  )
 }
 
 export default SwapScreen

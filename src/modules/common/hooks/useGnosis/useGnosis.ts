@@ -2,7 +2,7 @@ import { useContext } from 'react'
 
 import { GnosisContext } from '@modules/common/contexts/gnosisContext'
 
-export default function useNetwork() {
+export default function useGnosis() {
   const context = useContext(GnosisContext)
 
   if (!context) {
