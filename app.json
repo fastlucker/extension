@@ -12,15 +12,14 @@
     "ios": {
       "bundleIdentifier": "com.ambire.wallet"
     },
-    "plugins": ["sentry-expo"],
     "hooks": {
       "postPublish": [
         {
           "file": "sentry-expo/upload-sourcemaps",
           "config": {
-            "organization": "your sentry organization's short name here",
-            "project": "your sentry project's name here",
-            "authToken": "your auth token here"
+            "organization": "ambire",
+            "project": "ambire",
+            "authToken": "94f0f4e891314cb79d2a094b3e1af571944170fe8d54435c95a539b039673db3"
           }
         }
       ]
