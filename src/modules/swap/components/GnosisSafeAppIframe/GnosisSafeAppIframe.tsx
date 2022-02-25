@@ -73,11 +73,22 @@ function GnosisSafeAppIframe({
     </div>
   `
 
+  const INJECTED_JAVASCRIPT = `(function() {
+    window.addEventListener('message', (msg) => {
+      window.ReactNativeWebView.postMessage(JSON.stringify(msg));
+    })
+  })();`
+
   return (
     <WebView
       originWhitelist={['*']}
       source={{ html }}
+      injectedJavaScript={INJECTED_JAVASCRIPT}
       style={{ backgroundColor: colors.backgroundColor }}
+      onMessage={(event) => {
+        const data = JSON.parse(event.nativeEvent.data)
+        console.log('message', data)
+      }}
     />
   )
 }
