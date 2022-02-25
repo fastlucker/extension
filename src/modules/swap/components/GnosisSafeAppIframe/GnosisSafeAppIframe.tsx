@@ -38,53 +38,24 @@ function GnosisSafeAppIframe({
     }
   }, [selectedApp, network, selectedAcc, iframeRef, gnosisConnect, gnosisDisconnect])
 
-  const htmlStyleFix = `
-    <style type="text/css">
-    div {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      align-items: stretch;
-      height: 100%;
-      background-color: ${colors.backgroundColor}
-    }
-    iframe {
-      overflow: auto;
-      box-sizing: border-box;
-      border: 0;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      align-items: stretch;
-      background-color: ${colors.backgroundColor}
-    }
-    </style>
-  `
-
-  const html = `
-    ${htmlStyleFix}
-    <div>
-      <iframe
-        id=${hash}
-        key=${hash}
-        src=${url}
-        title=${title}
-      />
-    </div>
-  `
-
   const INJECTED_JAVASCRIPT = `(function() {
+    document.addEventListener('message', function (event) {
+      document.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
+    });
+
     window.addEventListener('message', (msg) => {
-      window.ReactNativeWebView.postMessage(JSON.stringify(msg));
+      window.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
     })
   })();`
 
   return (
     <WebView
       originWhitelist={['*']}
-      source={{ html }}
-      injectedJavaScript={INJECTED_JAVASCRIPT}
+      source={{ uri: 'https://sushiswap-interface-ten.vercel.app/swap' }}
+      javaScriptEnabled
+      injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT}
       style={{ backgroundColor: colors.backgroundColor }}
+      bounces={false}
       onMessage={(event) => {
         const data = JSON.parse(event.nativeEvent.data)
         console.log('message', data)

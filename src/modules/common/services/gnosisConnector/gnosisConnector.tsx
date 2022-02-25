@@ -33,9 +33,7 @@ function GnosisConnector(_iframeRef: any, _app: any) {
       : MessageFormatter.makeResponse(requestId, data, sdkVersion)
 
     if (this.iframeRef) {
-      // console.log("Posting to child")
-      // console.log(msg)
-      this.iframeRef.current?.contentWindow?.postMessage(msg, '*')
+      this.iframeRef.current?.postMessage(msg, '*')
     } else {
       console.log('Iframe not referenced ')
     }
@@ -56,27 +54,10 @@ function GnosisConnector(_iframeRef: any, _app: any) {
           this.send(response, msg.data.id)
         }
       } catch (err) {
-        console.error(`GS : ${err}`)
         this.send(err.message, msg.data.id, true)
-        /* trackError(Errors._901, err.message, {
-          contexts: {
-            safeApp: this.app,
-            request: msg.data,
-          },
-        }) */
       }
     }
   }
-
-  this.clear = () => {
-    console.log('removeListener...')
-    // TODO:
-    // window.removeEventListener('message', this.handleIncomingMessage)
-  }
-
-  console.log('new appCommunicator')
-  // TODO:
-  // window.addEventListener('message', this.handleIncomingMessage)
 }
 
 export { GnosisConnector }
