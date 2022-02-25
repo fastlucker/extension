@@ -10,7 +10,7 @@ SentryLib.init({
   dsn: CONFIG.SENTRY_DSN,
   // In order to use the published release source maps with Issues in Sentry,
   // set your Expo revisionId as the Sentry release identifier:
-  release: Constants?.manifest?.revisionId || 'N/A',
+  release: Constants?.manifest?.revisionId || 'unspecified',
   // Match an error to a specific environment
   environment: CONFIG.APP_ENV
   // TODO:
