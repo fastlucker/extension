@@ -1,5 +1,6 @@
 import './shim'
 import './global'
+import './src/config/analytics/CrashAnalytics'
 import 'react-native-gesture-handler'
 import 'expo-asset'
 import { Platform, UIManager } from 'react-native'
