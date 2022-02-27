@@ -1,279 +1,268 @@
-import React, { createContext, useCallback, useMemo, useRef } from 'react'
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
+import React, { createContext, useEffect, useMemo, useRef, useState } from 'react'
 
-import { Methods } from '@gnosis.pm/safe-apps-sdk'
+import { getSDKVersion, MessageFormatter, Methods } from '@gnosis.pm/safe-apps-sdk'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
-import useToast from '@modules/common/hooks/useToast'
-import { GnosisConnector } from '@modules/common/services/gnosisConnector'
 import { getProvider } from '@modules/common/services/provider'
 
 type GnosisContextData = {
+  sushiSwapIframeRef: any
+  hash: string
   requests: any[]
   resolveMany: (ids: any, resolution: any) => any
-  connect: (connectorOpts: any) => any
-  disconnect: () => any
+  handlers: {
+    [key: string]: any
+  }
+  handleIncomingMessage: (msg: any) => any
 }
 
 const GnosisContext = createContext<GnosisContextData>({
+  sushiSwapIframeRef: null,
+  hash: '',
   requests: [],
   resolveMany: () => {},
-  connect: () => {},
-  disconnect: () => {}
+  handlers: {},
+  handleIncomingMessage: () => {}
 })
+
+const isValidMessage = (msg: any) => {
+  // if (!msg?.source?.parent) {
+  //   return false
+  // }
+  const knownMethod = Object.values(Methods).includes(msg.method)
+
+  return knownMethod
+}
 
 const STORAGE_KEY = 'gnosis_safe_state'
 
+const url = 'https://sushiswap-interface-ten.vercel.app/swap'
+
 const GnosisProvider: React.FC = ({ children }) => {
+  const sushiSwapIframeRef: any = useRef(null)
+  const [hash, setHash] = useState('')
+
   const verbose = 0
   const { network }: any = useNetwork()
-  const { selectedAcc: selectedAccount } = useAccounts()
-  // One connector at a time
-  const { addToast } = useToast()
-  const connector = useRef(null)
-
-  const uniqueId = useMemo(
-    () => `${new Date().getTime()} ${network.chainId} ${selectedAccount}`,
-    [selectedAccount, network]
-  )
-
-  // This is needed cause of the Gnosis Safe event handlers (listeners)
-  const stateRef: any = useRef()
-  stateRef.current = {
-    selectedAccount,
-    network
-  }
-
+  const { selectedAcc } = useAccounts()
   const [requests, setRequests] = useStorage({
     key: STORAGE_KEY,
     defaultValue: [],
     setInit: (initialRequests: any) => (!Array.isArray(initialRequests) ? [] : initialRequests)
   })
 
-  const connect = useCallback(
-    (connectorOpts) => {
-      verbose > 1 && console.log('GS: creating connector')
+  useEffect(() => {
+    const newHash = url + network.chainId + selectedAcc
+    setHash(newHash)
+  }, [network.chainId, selectedAcc, url])
 
-      try {
-        connector.current = new GnosisConnector(
-          connectorOpts.iframeRef,
-          connectorOpts.app,
-          uniqueId
-        )
-      } catch (e) {
-        addToast(`Unable to connect to ${connectorOpts.app.url}: ${e.message}`)
-        return null
+  const handlePersonalSign = (msg: any) => {
+    verbose > 0 && console.log('DApp requested signMessage', msg)
+
+    const data = msg?.data
+    if (!data) {
+      console.error('GS: no data')
+      return
+    }
+
+    const id = `gs_${data.id}`
+    const message = data?.params?.message
+    if (!message) {
+      console.error('GS: no message in received payload')
+      return
+    }
+
+    const request = {
+      id,
+      forwardId: msg.data.id,
+      type: 'personal_sign',
+      txn: message,
+      chainId: network.chainId,
+      account: selectedAcc
+    }
+
+    setRequests((prevRequests: any) =>
+      prevRequests.find((x: any) => x.id === request.id) ? prevRequests : [...prevRequests, request]
+    )
+  }
+
+  const handleSendTransactions = (msg: any) => {
+    verbose > 0 && console.log('DApp requested sendTx', msg)
+
+    const data = msg?.data
+    if (!data) {
+      console.error('GS: no data')
+      return
+    }
+
+    const txs = data?.params?.txs
+    if (txs?.length) {
+      for (const i in txs) {
+        if (!txs[i].from) txs[i].from = selectedAcc
       }
+    } else {
+      console.error('GS: no txs in received payload')
+      return
+    }
 
-      // reply back to iframe with safe data
-      connector.current.on(Methods.getSafeInfo, () => {
-        return {
-          safeAddress: stateRef.current.selectedAccount,
-          network: stateRef.current.network.id,
-          chainId: stateRef.current.network.chainId,
-          owners: [stateRef.current.selectedAccount],
-          threshold: 1 // Number of confirmations (not used in ambire)
-        }
-      })
-
-      // reply back to iframe with safe data
-
-      // connector.current.on(Methods.getSafeBalances, async (msg) => {
-      //   verbose>0 && console.log("DApp requested getSafeBalances") && console.log(msg)
-
-      // TODO later
-      // await portfolio.updatePortfolio("polygon", selectedAccount, true)//not this because it does NOT return the updated state anyway
-      // console.log(portfolio)
-
-      // struct template
-      /* connector.current.on(Methods.getSafeBalances, () => {
-     return {
-       "fiatTotal": "0.18072",
-         "items": [
-         {
-           "tokenInfo": {
-             "type": "NATIVE_TOKEN",
-             "address": "0x0000000000000000000000000000000000000000",
-             "decimals": 18,
-             "symbol": "MATIC",
-             "name": "Matic",
-             "logoUri": "https://safe-transaction-assets.staging.gnosisdev.com/chains/137/currency_logo.png"
-           },
-           "balance": "100000000000000000",
-           "fiatBalance": "0.18072",
-           "fiatConversion": "1.8072"
-         }
-       ]
-     }
-    }) */
-
-      connector.current.on(Methods.rpcCall, async (msg) => {
-        verbose > 0 && console.log('DApp requested rpcCall', msg)
-
-        if (!msg?.data?.params) {
-          throw new Error('invalid call object')
-        }
-        const method = msg.data.params.call
-        const callTx = msg.data.params.params
-
-        const provider = getProvider(stateRef.current.network.id)
-        let result
-        if (method === 'eth_call') {
-          result = await provider.call(callTx[0], callTx[1]).catch((err) => {
-            throw err
-          })
-        } else if (method === 'eth_getBalance') {
-          result = await provider.getBalance(callTx[0], callTx[1]).catch((err) => {
-            throw err
-          })
-        } else if (method === 'eth_blockNumber') {
-          result = await provider.getBlockNumber().catch((err) => {
-            throw err
-          })
-        } else if (method === 'eth_getBlockByNumber' || method === 'eth_getBlockByHash') {
-          if (callTx[1]) {
-            result = await provider.getBlockWithTransactions(callTx[0]).catch((err) => {
-              throw err
-            })
-          } else {
-            result = await provider.getBlock(callTx[0]).catch((err) => {
-              throw err
-            })
-          }
-        } else if (method === 'eth_getTransactionByHash') {
-          result = await provider.getTransaction(callTx[0]).catch((err) => {
-            throw err
-          })
-        } else if (method === 'eth_getCode') {
-          result = await provider.getCode(callTx[0], callTx[1]).catch((err) => {
-            throw err
-          })
-        } else if (method === 'eth_getBlockByNumber') {
-          result = await provider.getBlock(callTx[0], callTx[1]).catch((err) => {
-            throw err
-          })
-        } else if (method === 'eth_getTransactionReceipt') {
-          result = await provider.getTransactionReceipt(callTx[0]).catch((err) => {
-            throw err
-          })
-          // requires custom from calls from SDK but are not implemented in gnosis SDK
-        } else if (method === 'gs_multi_send' || method === 'ambire_sendBatchTransaction') {
-          // As future proof as possible (tested with a tweaked eth_call)
-          msg.data.params.txs = callTx[0]
-          await handleSendTransactions(msg).catch((err) => {
-            throw err
-          })
-        } else if (method === 'personal_sign') {
-          result = await handlePersonalSign(msg).catch((err) => {
-            throw err
-          })
-        } else {
-          throw new Error(`method not supported ${method}`)
-        }
-        return result
-      })
-
-      connector.current.on(Methods.sendTransactions, (msg) => {
-        handleSendTransactions(msg)
-      })
-
-      const handleSendTransactions = (msg) => {
-        verbose > 0 && console.log('DApp requested sendTx', msg)
-
-        const data = msg?.data
-        if (!data) {
-          console.error('GS: no data')
-          return
-        }
-
-        const txs = data?.params?.txs
-        if (txs?.length) {
-          for (const i in txs) {
-            if (!txs[i].from) txs[i].from = stateRef.current.selectedAccount
-          }
-        } else {
-          console.error('GS: no txs in received payload')
-          return
-        }
-
-        for (const ix in txs) {
-          const id = `gs_${data.id}:${ix}`
-          const request = {
-            id,
-            forwardId: msg.data.id,
-            type: 'eth_sendTransaction',
-            isBatch: txs.length > 1,
-            txn: txs[ix], // if anyone finds a dapp that sends a bundle, please reach me out
-            chainId: stateRef.current.network.chainId,
-            account: stateRef.current.selectedAccount
-          }
-          // is reducer really needed here?
-          setRequests((prevRequests) =>
-            prevRequests.find((x) => x.id === request.id)
-              ? prevRequests
-              : [...prevRequests, request]
-          )
-        }
+    for (const ix in txs) {
+      const id = `gs_${data.id}:${ix}`
+      const request = {
+        id,
+        forwardId: msg.data.id,
+        type: 'eth_sendTransaction',
+        isBatch: txs.length > 1,
+        txn: txs[ix], // if anyone finds a dapp that sends a bundle, please reach me out
+        chainId: network.chainId,
+        account: selectedAcc
       }
+      // is reducer really needed here?
+      setRequests((prevRequests: any) =>
+        prevRequests.find((x: any) => x.id === request.id)
+          ? prevRequests
+          : [...prevRequests, request]
+      )
+    }
+  }
 
-      const handlePersonalSign = (msg) => {
-        verbose > 0 && console.log('DApp requested signMessage', msg)
-
-        const data = msg?.data
-        if (!data) {
-          console.error('GS: no data')
-          return
-        }
-
-        const id = `gs_${data.id}`
-        const message = data?.params?.message
-        if (!message) {
-          console.error('GS: no message in received payload')
-          return
-        }
-
-        const request = {
-          id,
-          forwardId: msg.data.id,
-          type: 'personal_sign',
-          txn: message,
-          chainId: stateRef.current.network.chainId,
-          account: stateRef.current.selectedAccount
-        }
-
-        setRequests((prevRequests) =>
-          prevRequests.find((x) => x.id === request.id) ? prevRequests : [...prevRequests, request]
-        )
+  const handlers: any = {
+    [Methods.getSafeInfo]: () => {
+      return {
+        safeAddress: selectedAcc,
+        network: network.id,
+        chainId: network.chainId,
+        owners: [selectedAcc],
+        threshold: 1
       }
-
-      connector.current.on(Methods.signMessage, (msg) => handlePersonalSign(msg))
-
-      connector.current.on(Methods.getTxBySafeTxHash, async (msg) => {
-        const { safeTxHash } = msg.data.params
-        const provider = getProvider(stateRef.current.network.id)
-        try {
-          const res = await provider.getTransaction(safeTxHash)
-
-          return res
-        } catch (e) {
-          console.error(`GS: Err getting transaction ${safeTxHash}`)
-          console.log(e)
-          return {}
-        }
-      })
     },
-    [uniqueId, addToast, verbose, setRequests]
-  )
+    [Methods.rpcCall]: async (msg: any) => {
+      verbose > 0 && console.log('DApp requested rpcCall', msg)
 
-  const disconnect = useCallback(() => {
-    verbose > 1 && console.log('GS: disconnecting connector')
-    connector.current?.clear()
-  }, [verbose])
+      if (!msg?.params) {
+        throw new Error('invalid call object')
+      }
+
+      const method = msg.params.call
+      const callTx = msg.params.params
+
+      const provider = getProvider(network.id)
+      let result
+
+      if (method === 'eth_call') {
+        result = await provider.call(callTx[0], callTx[1]).catch((err: any) => {
+          throw err
+        })
+      } else if (method === 'eth_getBalance') {
+        result = await provider.getBalance(callTx[0], callTx[1]).catch((err: any) => {
+          throw err
+        })
+      } else if (method === 'eth_blockNumber') {
+        result = await provider.getBlockNumber().catch((err: any) => {
+          throw err
+        })
+      } else if (method === 'eth_getBlockByNumber' || method === 'eth_getBlockByHash') {
+        if (callTx[1]) {
+          result = await provider.getBlockWithTransactions(callTx[0]).catch((err: any) => {
+            throw err
+          })
+        } else {
+          result = await provider.getBlock(callTx[0]).catch((err: any) => {
+            throw err
+          })
+        }
+      } else if (method === 'eth_getTransactionByHash') {
+        result = await provider.getTransaction(callTx[0]).catch((err: any) => {
+          throw err
+        })
+      } else if (method === 'eth_getCode') {
+        result = await provider.getCode(callTx[0], callTx[1]).catch((err: any) => {
+          throw err
+        })
+      } else if (method === 'eth_getBlockByNumber') {
+        result = await provider.getBlock(callTx[0], callTx[1]).catch((err: any) => {
+          throw err
+        })
+      } else if (method === 'eth_getTransactionReceipt') {
+        result = await provider.getTransactionReceipt(callTx[0]).catch((err: any) => {
+          throw err
+        })
+        // requires custom from calls from SDK but are not implemented in gnosis SDK
+      } else if (method === 'gs_multi_send' || method === 'ambire_sendBatchTransaction') {
+        // As future proof as possible (tested with a tweaked eth_call)
+        msg.params.txs = callTx[0]
+        await handleSendTransactions(msg).catch((err: any) => {
+          throw err
+        })
+      } else if (method === 'personal_sign') {
+        result = await handlePersonalSign(msg).catch((err: any) => {
+          throw err
+        })
+      } else {
+        throw new Error(`method not supported ${method}`)
+      }
+      return result
+    },
+    [Methods.sendTransactions]: (msg: any) => {
+      handleSendTransactions(msg)
+    },
+    [Methods.signMessage]: (msg: any) => handlePersonalSign(msg),
+    [Methods.getTxBySafeTxHash]: async (msg: any) => {
+      const { safeTxHash } = msg.data.params
+      const provider = getProvider(network.id)
+      try {
+        const res = await provider.getTransaction(safeTxHash)
+
+        return res
+      } catch (e) {
+        console.error(`GS: Err getting transaction ${safeTxHash}`)
+        console.log(e)
+        return {}
+      }
+    }
+  }
+
+  const send = (data: any, requestId: any, error?: any) => {
+    const sdkVersion = getSDKVersion()
+    const msg = error
+      ? MessageFormatter.makeErrorResponse(requestId, error, sdkVersion)
+      : MessageFormatter.makeResponse(requestId, data, sdkVersion)
+
+    sushiSwapIframeRef?.current?.injectJavaScript(`
+      (function() {
+        document.getElementById("${hash}").contentWindow.postMessage(${JSON.stringify(msg)}, '*');
+      })();
+    `)
+  }
+
+  const canHandleMessage = (msg: any) => {
+    return Boolean(handlers[msg.method])
+  }
+
+  const handleIncomingMessage = async (msg: any) => {
+    const validMessage = isValidMessage(msg)
+    const hasHandler = canHandleMessage(msg)
+
+    if (validMessage && hasHandler) {
+      const handler = handlers[msg.method]
+      try {
+        const response = await handler(msg)
+        // If response is not returned, it means the response will be send somewhere else
+        if (typeof response !== 'undefined') {
+          send(response, msg.id)
+        }
+      } catch (err) {
+        send(err.message, msg.id, true)
+      }
+    }
+  }
 
   const resolveMany = (ids: any, resolution: any) => {
-    for (const req of requests.filter((x) => ids.includes(x.id))) {
+    for (const req of requests.filter((x: any) => ids.includes(x.id))) {
       if (!req.isBatch || req.id.endsWith(':0')) {
-        const replyData = {
+        const replyData: any = {
           id: req.forwardId,
           success: null,
           txId: null,
@@ -291,13 +280,13 @@ const GnosisProvider: React.FC = ({ children }) => {
           replyData.txId = resolution.result
           replyData.safeTxHash = resolution.result
         }
-        if (!connector.current) {
+        if (!sushiSwapIframeRef) {
           // soft error handling: sendTransaction has issues
           // throw new Error("gnosis safe connector not set")
           console.error('gnosis safe connector not set')
         } else {
           console.log('gnosis reply', replyData)
-          connector.current.send(replyData, req.forwardId, replyData.error)
+          send(replyData, req.forwardId, replyData.error)
         }
       }
     }
@@ -309,12 +298,14 @@ const GnosisProvider: React.FC = ({ children }) => {
     <GnosisContext.Provider
       value={useMemo(
         () => ({
+          sushiSwapIframeRef,
+          hash,
           requests,
           resolveMany,
-          connect,
-          disconnect
+          handlers,
+          handleIncomingMessage
         }),
-        [requests, connect, disconnect]
+        [requests, hash]
       )}
     >
       {children}
