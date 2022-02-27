@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
+import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
-import colors from '@modules/common/styles/colors'
+
+import styles from './styles'
 
 const ambireSushiConfig = {
   name: 'Ambire swap',
@@ -31,59 +34,61 @@ const SwapScreen = () => {
     })
   })();`
 
-  const htmlStyleFix = `
-    <style type="text/css">
-    div {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      align-items: stretch;
-      height: 100%;
-      background-color: ${colors.backgroundColor}
-    }
-    iframe {
-      overflow: auto;
-      box-sizing: border-box;
-      border: 0;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      align-items: stretch;
-      background-color: ${colors.backgroundColor}
-    }
-    </style>
-  `
+  // const htmlStyleFix = `
+  //   <style type="text/css">
+  //   div {
+  //     display: flex;
+  //     flex-direction: column;
+  //     flex: 1;
+  //     align-items: stretch;
+  //     height: 100%;
+  //     background-color: ${colors.backgroundColor}
+  //   }
+  //   iframe {
+  //     overflow: auto;
+  //     box-sizing: border-box;
+  //     border: 0;
+  //     display: flex;
+  //     flex-direction: column;
+  //     flex: 1;
+  //     align-items: stretch;
+  //     background-color: ${colors.backgroundColor}
+  //   }
+  //   </style>
+  // `
 
-  const html = `
-    ${htmlStyleFix}
-    <div>
-      <iframe
-        id=${hash}
-        key=${hash}
-        src=${ambireSushiConfig.url}
-        title="Ambire Plugin"
-      />
-    </div>
-  `
+  // const html = `
+  //   <div>
+  //     <iframe
+  //       id=${hash}
+  //       key=${hash}
+  //       src=${ambireSushiConfig.url}
+  //       title="Ambire Plugin"
+  //     />
+  //   </div>
+  // `
 
   return (
-    <WebView
-      ref={sushiSwapIframeRef}
-      originWhitelist={['*']}
-      // source={{ uri: 'https://sushiswap-interface-ten.vercel.app/swap' }}
-      source={{ html }}
-      javaScriptEnabled
-      injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT}
-      style={{ backgroundColor: colors.backgroundColor }}
-      bounces={false}
-      onMessage={(event) => {
-        const msg = JSON.parse(event.nativeEvent.data)
-        handleIncomingMessage(msg)
-      }}
-      // onLoad={() => {
-      //   setLoading(false)
-      // }}
-    />
+    <Wrapper>
+      <WebView
+        ref={sushiSwapIframeRef}
+        originWhitelist={['*']}
+        // source={{ html }}
+        source={{ uri: 'https://sushiswap-interface-ten.vercel.app/swap' }}
+        javaScriptEnabled
+        injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT}
+        style={styles.webview}
+        bounces={false}
+        scrollEnabled={false}
+        onMessage={(event) => {
+          const msg = JSON.parse(event.nativeEvent.data)
+          handleIncomingMessage(msg)
+        }}
+        // onLoad={() => {
+        //   setLoading(false)
+        // }}
+      />
+    </Wrapper>
   )
 }
 

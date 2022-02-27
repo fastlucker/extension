@@ -230,9 +230,11 @@ const GnosisProvider: React.FC = ({ children }) => {
       ? MessageFormatter.makeErrorResponse(requestId, error, sdkVersion)
       : MessageFormatter.makeResponse(requestId, data, sdkVersion)
 
+    // Alternative way to send message if an iframe is used instead of url in the webview
+    // document.getElementById("${hash}").contentWindow.postMessage(${JSON.stringify(msg)}, '*');
     sushiSwapIframeRef?.current?.injectJavaScript(`
       (function() {
-        document.getElementById("${hash}").contentWindow.postMessage(${JSON.stringify(msg)}, '*');
+        window.postMessage(${JSON.stringify(msg)}, '*');
       })();
     `)
   }
