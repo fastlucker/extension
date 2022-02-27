@@ -71,6 +71,7 @@ const SwapScreen = () => {
   return (
     <Wrapper>
       <WebView
+        key={hash}
         ref={sushiSwapIframeRef}
         originWhitelist={['*']}
         // source={{ html }}
