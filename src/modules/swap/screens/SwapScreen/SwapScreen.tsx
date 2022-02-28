@@ -14,7 +14,7 @@ const SwapScreen = () => {
 
   const INJECTED_JAVASCRIPT = `(function() {
     document.addEventListener('message', function (event) {
-      document.ReactNativeWebView.postMessage(JSON.stringify(msg));
+      document.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
     });
 
     window.addEventListener('message', (msg) => {
@@ -28,7 +28,9 @@ const SwapScreen = () => {
         key={hash}
         ref={sushiSwapIframeRef}
         originWhitelist={['*']}
-        source={{ uri: CONFIG.SUSHI_SWAP_URL }}
+        source={{
+          uri: CONFIG.SUSHI_SWAP_URL
+        }}
         javaScriptEnabled
         injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT}
         containerStyle={flexboxStyles.flex1}
