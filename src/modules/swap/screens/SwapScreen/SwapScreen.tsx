@@ -5,6 +5,7 @@ import WebView from 'react-native-webview'
 import CONFIG from '@config/env'
 import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
+import colors from '@modules/common/styles/colors'
 import { useIsFocused } from '@react-navigation/native'
 
 import styles from './styles'
@@ -25,11 +26,21 @@ const WEB_VIEW_SCALE = 0.85
 
 // Disables zoom in and pinch on the WebView for iOS
 // {@link https://stackoverflow.com/a/49121982/1333836}
-const INJECTED_JAVASCRIPT = `
+const DISABLE_ZOOM = `
   const meta = document.createElement('meta');
   meta.setAttribute('content', 'width=device-width, initial-scale=${WEB_VIEW_SCALE}, maximum-scale=${WEB_VIEW_SCALE}, user-scalable=0');
   meta.setAttribute('name', 'viewport');
   document.head.appendChild(meta);
+`
+
+// Sets a better matching the mobile UI text selection color
+const TEXT_SELECTION_COLOR = `
+  document.styleSheets[0].insertRule('::selection { background-color: ${colors.backgroundColor}; }', 0);
+`
+
+const INJECTED_JAVASCRIPT = `
+  ${DISABLE_ZOOM}
+  ${TEXT_SELECTION_COLOR}
 `
 
 const SwapScreen = () => {
