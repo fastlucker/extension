@@ -3,7 +3,8 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
 
-import { Ionicons, MaterialIcons } from '@expo/vector-icons'
+import { isAndroid } from '@config/env'
+import { FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
@@ -26,6 +27,7 @@ import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScre
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
+import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
@@ -38,6 +40,7 @@ const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 
 const DashboardStack = createNativeStackNavigator()
+const SwapStack = createNativeStackNavigator()
 const TransactionsStack = createNativeStackNavigator()
 const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
@@ -62,6 +65,10 @@ const HEADER_ICON_SIZE = 25
 
 const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions => ({
   ...globalScreenOptions,
+  // The default animation transitions don't work well on Android,
+  // there is a white screen splashing between transitions. Our theme is dark,
+  // which creates an annoying blink effect.
+  animation: isAndroid ? 'none' : 'default',
   headerRight: ({ tintColor }) => (
     <TouchableOpacity
       onPress={() => navigation.navigate('connect')}
@@ -110,6 +117,29 @@ const DashboardStackScreen = () => {
       />
       <Stack.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
     </DashboardStack.Navigator>
+  )
+}
+
+const SwapStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <SwapStack.Navigator screenOptions={tabsScreenOptions}>
+      <SwapStack.Screen
+        name="swap"
+        component={SwapScreen}
+        options={{
+          headerTitle: t('Ambire Swap')
+        }}
+      />
+      <SwapStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      />
+    </SwapStack.Navigator>
   )
 }
 
@@ -320,6 +350,19 @@ const AppTabs = () => {
           )
         }}
         component={SendStackScreen}
+      />
+      <Tab.Screen
+        name="swap-tab"
+        options={{
+          headerShown: false,
+          title: t('Swap'),
+          // Use this one, because the actual one is <BiTransfer />,
+          // but the Box Icons set is not available
+          tabBarIcon: ({ color }) => (
+            <FontAwesome5 name="retweet" size={TAB_BAR_ICON_SIZE - 4} color={color} />
+          )
+        }}
+        component={SwapStackScreen}
       />
       <Tab.Screen
         name="transactions-tab"

@@ -87,7 +87,7 @@ const Rewards = () => {
     } = Object.fromEntries<RewardsData[]>(
       data?.rewards?.map(({ _id, rewards: _rewards }: RewardsData) => [
         _id,
-        _rewards[account.id] || 0
+        _rewards[account?.id || null] || 0
       ])
     )
 
