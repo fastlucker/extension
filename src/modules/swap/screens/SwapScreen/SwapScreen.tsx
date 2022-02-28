@@ -58,8 +58,8 @@ const SwapScreen = () => {
         containerStyle={styles.container}
         style={styles.webview}
         bounces={false}
-        scrollEnabled={false}
         setBuiltInZoomControls={false}
+        overScrollMode="never" // prevents the Android bounce effect (blue shade when scroll to end)
         startInLoadingState
         renderLoading={() => (
           <View style={styles.loadingWrapper}>
