@@ -19,7 +19,7 @@ const SwapScreen = () => {
 
     window.addEventListener('message', (msg) => {
       window.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
-    })
+    });
   })();`
 
   return (

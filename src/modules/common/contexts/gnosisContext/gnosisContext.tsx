@@ -109,9 +109,7 @@ const GnosisProvider: React.FC = ({ children }) => {
     }
 
     for (const ix in txs) {
-      console.log('in in in')
       const id = `gs_${data.id}:${ix}`
-      console.log('id', id)
       const request = {
         id,
         forwardId: msg.id,
@@ -122,7 +120,6 @@ const GnosisProvider: React.FC = ({ children }) => {
         account: selectedAcc
       }
       // is reducer really needed here?
-      console.log('request', request)
       setRequests((prevRequests: any) =>
         prevRequests.find((x: any) => x.id === request.id)
           ? prevRequests
