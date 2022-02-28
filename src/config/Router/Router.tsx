@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
 
-import { Ionicons, MaterialIcons } from '@expo/vector-icons'
+import { FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
@@ -353,7 +353,9 @@ const AppTabs = () => {
           title: t('Swap'),
           // Use this one, because the actual one is <BiTransfer />,
           // but the Box Icons set is not available
-          tabBarIcon: () => null
+          tabBarIcon: ({ color }) => (
+            <FontAwesome5 name="retweet" size={TAB_BAR_ICON_SIZE - 4} color={color} />
+          )
         }}
         component={SwapStackScreen}
       />

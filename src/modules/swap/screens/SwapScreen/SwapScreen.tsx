@@ -11,12 +11,12 @@ import styles from './styles'
 
 const INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED = `(function() {
   document.addEventListener('message', function (event) {
-    document.ReactNativeWebView.postMessage(JSON.stringify(msg));
+    document.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
   });
 
   window.addEventListener('message', (msg) => {
     window.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
-  })
+  });
 })();`
 
 // Disables zoom in and pinch on the WebView for iOS
@@ -37,7 +37,9 @@ const SwapScreen = () => {
         key={hash}
         ref={sushiSwapIframeRef}
         originWhitelist={['*']}
-        source={{ uri: CONFIG.SUSHI_SWAP_URL }}
+        source={{
+          uri: CONFIG.SUSHI_SWAP_URL
+        }}
         javaScriptEnabled
         injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
         injectedJavaScript={INJECTED_JAVASCRIPT}
