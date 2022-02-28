@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
 
+import { isAndroid } from '@config/env'
 import { FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
@@ -64,6 +65,10 @@ const HEADER_ICON_SIZE = 25
 
 const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions => ({
   ...globalScreenOptions,
+  // The default animation transitions don't work well on Android,
+  // there is a white screen splashing between transitions. Our theme is dark,
+  // which creates an annoying blink effect.
+  animation: isAndroid ? 'none' : 'default',
   headerRight: ({ tintColor }) => (
     <TouchableOpacity
       onPress={() => navigation.navigate('connect')}
