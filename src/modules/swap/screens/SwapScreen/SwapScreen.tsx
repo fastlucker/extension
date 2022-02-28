@@ -1,10 +1,11 @@
-import React from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import React, { useEffect } from 'react'
+import { ActivityIndicator, Platform, View } from 'react-native'
 import WebView from 'react-native-webview'
 
 import CONFIG from '@config/env'
 import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
+import { useIsFocused } from '@react-navigation/native'
 
 import styles from './styles'
 
@@ -33,6 +34,14 @@ const INJECTED_JAVASCRIPT = `
 
 const SwapScreen = () => {
   const { sushiSwapIframeRef, hash, handleIncomingMessage } = useGnosis()
+  const isFocused = useIsFocused()
+
+  // Reload webview when entering the screen because of some strange webview caching on Android
+  useEffect(() => {
+    if (isFocused && Platform.OS === 'android') {
+      sushiSwapIframeRef.current?.reload()
+    }
+  }, [isFocused])
 
   return (
     <Wrapper>
@@ -59,6 +68,7 @@ const SwapScreen = () => {
         )}
         onMessage={(event) => {
           const msg = JSON.parse(event.nativeEvent.data)
+          console.log(msg.method)
           handleIncomingMessage(msg)
         }}
       />

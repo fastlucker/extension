@@ -59,6 +59,13 @@ const GnosisProvider: React.FC = ({ children }) => {
     setHash(newHash)
   }, [network.chainId, selectedAcc, url])
 
+  // useEffect(() => {
+  //   if (Platform.OS === 'android') {
+  //     console.log('a', sushiSwapIframeRef.current)
+  //     sushiSwapIframeRef.current?.reload()
+  //   }
+  // }, [network.chainId, selectedAcc])
+
   const handlePersonalSign = (msg: any) => {
     verbose > 0 && console.log('DApp requested signMessage', msg)
 
