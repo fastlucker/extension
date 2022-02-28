@@ -62,7 +62,7 @@ const GnosisProvider: React.FC = ({ children }) => {
   const handlePersonalSign = (msg: any) => {
     verbose > 0 && console.log('DApp requested signMessage', msg)
 
-    const data = msg?.data
+    const data = msg
     if (!data) {
       console.error('GS: no data')
       return
@@ -77,7 +77,7 @@ const GnosisProvider: React.FC = ({ children }) => {
 
     const request = {
       id,
-      forwardId: msg.data.id,
+      forwardId: msg.id,
       type: 'personal_sign',
       txn: message,
       chainId: network.chainId,
@@ -109,10 +109,12 @@ const GnosisProvider: React.FC = ({ children }) => {
     }
 
     for (const ix in txs) {
+      console.log('in in in')
       const id = `gs_${data.id}:${ix}`
+      console.log('id', id)
       const request = {
         id,
-        forwardId: msg.data.id,
+        forwardId: msg.id,
         type: 'eth_sendTransaction',
         isBatch: txs.length > 1,
         txn: txs[ix], // if anyone finds a dapp that sends a bundle, please reach me out
@@ -120,6 +122,7 @@ const GnosisProvider: React.FC = ({ children }) => {
         account: selectedAcc
       }
       // is reducer really needed here?
+      console.log('request', request)
       setRequests((prevRequests: any) =>
         prevRequests.find((x: any) => x.id === request.id)
           ? prevRequests
@@ -210,7 +213,7 @@ const GnosisProvider: React.FC = ({ children }) => {
     },
     [Methods.signMessage]: (msg: any) => handlePersonalSign(msg),
     [Methods.getTxBySafeTxHash]: async (msg: any) => {
-      const { safeTxHash } = msg.data.params
+      const { safeTxHash } = msg.params
       const provider = getProvider(network.id)
       try {
         const res = await provider.getTransaction(safeTxHash)
