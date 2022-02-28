@@ -445,6 +445,17 @@ const Router = () => {
       // For more details, see the NavigationService.
       ref={navigationRef}
       onReady={handleOnReady}
+      theme={{
+        dark: true,
+        colors: {
+          primary: colors.panelBackgroundColor,
+          background: colors.backgroundColor,
+          card: colors.panelBackgroundColor,
+          text: colors.textColor,
+          border: 'transparent',
+          notification: colors.panelBackgroundColor
+        }
+      }}
     >
       {authStatus === AUTH_STATUS.LOADING ? null : (
         <>
