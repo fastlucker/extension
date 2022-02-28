@@ -9,18 +9,27 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 
+const INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED = `(function() {
+  document.addEventListener('message', function (event) {
+    document.ReactNativeWebView.postMessage(JSON.stringify(msg));
+  });
+
+  window.addEventListener('message', (msg) => {
+    window.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
+  })
+})();`
+
+// Disables zoom in and pinch on the WebView for iOS
+// {@link https://stackoverflow.com/a/49121982/1333836}
+const INJECTED_JAVASCRIPT = `
+  const meta = document.createElement('meta');
+  meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+  meta.setAttribute('name', 'viewport');
+  document.head.appendChild(meta);
+`
+
 const SwapScreen = () => {
   const { sushiSwapIframeRef, hash, handleIncomingMessage } = useGnosis()
-
-  const INJECTED_JAVASCRIPT = `(function() {
-    document.addEventListener('message', function (event) {
-      document.ReactNativeWebView.postMessage(JSON.stringify(msg));
-    });
-
-    window.addEventListener('message', (msg) => {
-      window.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
-    })
-  })();`
 
   return (
     <Wrapper>
@@ -30,11 +39,13 @@ const SwapScreen = () => {
         originWhitelist={['*']}
         source={{ uri: CONFIG.SUSHI_SWAP_URL }}
         javaScriptEnabled
-        injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT}
+        injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
+        injectedJavaScript={INJECTED_JAVASCRIPT}
         containerStyle={flexboxStyles.flex1}
         style={styles.webview}
         bounces={false}
         scrollEnabled={false}
+        setBuiltInZoomControls={false}
         startInLoadingState
         renderLoading={() => (
           <View style={styles.loadingWrapper}>
