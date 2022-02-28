@@ -38,7 +38,7 @@ const SwapScreen = () => {
         startInLoadingState
         renderLoading={() => (
           <View style={styles.loadingWrapper}>
-            <ActivityIndicator />
+            <ActivityIndicator size="large" />
           </View>
         )}
         onMessage={(event) => {

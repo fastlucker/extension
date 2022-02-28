@@ -3,6 +3,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useGnosisSafe from '@modules/common/hooks/useGnosis'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useToast from '@modules/common/hooks/useToast'
@@ -49,6 +50,7 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { accounts, selectedAcc } = useAccounts()
   const { network }: any = useNetwork()
   const { requests: wcRequests, resolveMany: wcResolveMany } = useWalletConnect()
+  const { requests: gnosisRequests, resolveMany: gnosisResolveMany } = useGnosisSafe()
   const { addToast } = useToast()
   const { t } = useTranslation()
   const [internalRequests, setInternalRequests] = useState<any>([])
@@ -56,11 +58,9 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   const addRequest = (req: any) => setInternalRequests((reqs: any) => [...reqs, req])
 
-  // Merge all requests
-  // TODO: Add the rest of the requests -> [...internalRequests, ...wcRequests, ...gnosisRequests]
   const requests = useMemo(
     () =>
-      [...internalRequests, ...wcRequests].filter(({ account }) =>
+      [...internalRequests, ...wcRequests, ...gnosisRequests].filter(({ account }) =>
         accounts.find(({ id }: any) => id === account)
       ),
     [internalRequests, wcRequests, accounts]
@@ -116,8 +116,7 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const resolveMany = (ids: any, resolution: any) => {
-    // TODO:
-    // gnosisResolveMany(ids, resolution)
+    gnosisResolveMany(ids, resolution)
     wcResolveMany(ids, resolution)
     setInternalRequests((reqs: any) => reqs.filter((x: any) => !ids.includes(x.id)))
   }
