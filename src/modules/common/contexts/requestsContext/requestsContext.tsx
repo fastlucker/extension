@@ -63,7 +63,7 @@ const RequestsProvider: React.FC = ({ children }) => {
       [...internalRequests, ...wcRequests, ...gnosisRequests].filter(({ account }) =>
         accounts.find(({ id }: any) => id === account)
       ),
-    [internalRequests, wcRequests, accounts]
+    [internalRequests, wcRequests, gnosisRequests, accounts]
   )
 
   // Show the send transaction full-screen modal if we have a new txn
