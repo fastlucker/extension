@@ -18,11 +18,15 @@ const INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED = `(function() {
   });
 })();`
 
+// Scales the webview a little bit, in order for the content to fit
+// based on all spacings in our app, and to prevent horizontal scroll.
+const WEB_VIEW_SCALE = 0.85
+
 // Disables zoom in and pinch on the WebView for iOS
 // {@link https://stackoverflow.com/a/49121982/1333836}
 const INJECTED_JAVASCRIPT = `
   const meta = document.createElement('meta');
-  meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+  meta.setAttribute('content', 'width=device-width, initial-scale=${WEB_VIEW_SCALE}, maximum-scale=${WEB_VIEW_SCALE}, user-scalable=0');
   meta.setAttribute('name', 'viewport');
   document.head.appendChild(meta);
 `
