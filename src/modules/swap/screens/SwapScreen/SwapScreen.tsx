@@ -68,7 +68,6 @@ const SwapScreen = () => {
         )}
         onMessage={(event) => {
           const msg = JSON.parse(event.nativeEvent.data)
-          console.log(msg.method)
           handleIncomingMessage(msg)
         }}
       />
