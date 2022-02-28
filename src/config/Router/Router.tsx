@@ -124,7 +124,7 @@ const SwapStackScreen = () => {
         name="swap"
         component={SwapScreen}
         options={{
-          headerTitle: t('Swap')
+          headerTitle: t('Ambire Swap')
         }}
       />
       <SwapStack.Screen
