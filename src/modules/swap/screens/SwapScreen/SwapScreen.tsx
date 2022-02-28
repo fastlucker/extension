@@ -33,14 +33,23 @@ const DISABLE_ZOOM = `
   document.head.appendChild(meta);
 `
 
-// Sets a better matching the mobile UI text selection color
+// Set a better matching the mobile UI text selection color
+// {@link https://stackoverflow.com/a/311437/1333836}
 const TEXT_SELECTION_COLOR = `
   document.styleSheets[0].insertRule('::selection { background-color: ${colors.backgroundColor}; }', 0);
+`
+
+// Set a better matching the mobile UI tap highlighting color,
+// a bit transparent so the elements below gets visible.
+// {@link https://stackoverflow.com/a/8092444/1333836}
+const HIGHLIGHT_COLOR = `
+  document.styleSheets[0].insertRule('* { -webkit-tap-highlight-color: ${colors.secondaryButtonContainerColor}; }', 0);
 `
 
 const INJECTED_JAVASCRIPT = `
   ${DISABLE_ZOOM}
   ${TEXT_SELECTION_COLOR}
+  ${HIGHLIGHT_COLOR}
 `
 
 const SwapScreen = () => {
