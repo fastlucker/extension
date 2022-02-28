@@ -1,11 +1,17 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import colors from '@modules/common/styles/colors'
+
 interface Style {
+  container: ViewStyle
   webview: ViewStyle
   loadingWrapper: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
+  container: {
+    backgroundColor: colors.backgroundColor
+  },
   webview: {
     flex: 1,
     backgroundColor: 'transparent'

@@ -5,7 +5,6 @@ import WebView from 'react-native-webview'
 import CONFIG from '@config/env'
 import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 
@@ -33,14 +32,14 @@ const SwapScreen = () => {
         }}
         javaScriptEnabled
         injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT}
-        containerStyle={flexboxStyles.flex1}
+        containerStyle={styles.container}
         style={styles.webview}
         bounces={false}
         scrollEnabled={false}
         startInLoadingState
         renderLoading={() => (
           <View style={styles.loadingWrapper}>
-            <ActivityIndicator size="large" />
+            <ActivityIndicator size="large" color="#fff" />
           </View>
         )}
         onMessage={(event) => {
