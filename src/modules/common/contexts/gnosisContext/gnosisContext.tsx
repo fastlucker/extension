@@ -92,7 +92,7 @@ const GnosisProvider: React.FC = ({ children }) => {
   const handleSendTransactions = (msg: any) => {
     verbose > 0 && console.log('DApp requested sendTx', msg)
 
-    const data = msg?.data
+    const data = msg
     if (!data) {
       console.error('GS: no data')
       return
