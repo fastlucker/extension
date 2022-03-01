@@ -2,8 +2,10 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { MaterialIcons } from '@expo/vector-icons'
 import Input, { InputProps } from '@modules/common/components/Input'
 import Title from '@modules/common/components/Title'
+import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT, DEVICE_WIDTH, SPACING } from '@modules/common/styles/spacings'
 
 import BottomSheet from '../BottomSheet'
@@ -34,7 +36,7 @@ const InputOrScan: React.FC<Props> = ({ onChangeText, ...rest }) => {
   return (
     <>
       <Input
-        buttonText={t('Scan')}
+        buttonText={<MaterialIcons name="crop-free" size={25} color={colors.inputColor} />}
         onButtonPress={openBottomSheet}
         onChangeText={onChangeText}
         {...rest}
