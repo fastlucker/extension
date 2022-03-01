@@ -27,6 +27,14 @@ import styles from './styles'
 
 const HIT_SLOP = { bottom: 10, left: 10, right: 10, top: 10 }
 
+const shortenedAddress = (address: any) => `${address.slice(0, 5)}...${address.slice(-3)}`
+
+const walletType = (signerExtra: any) => {
+  if (signerExtra && signerExtra.type === 'ledger') return 'Ledger'
+  if (signerExtra && signerExtra.type === 'trezor') return 'Trezor'
+  return 'Web3'
+}
+
 const Accounts = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
@@ -39,12 +47,12 @@ const Accounts = () => {
   const { removePasscode } = usePasscode()
   const { addToast } = useToast()
 
-  const handleChangeNetwork = (chainId) => {
+  const handleChangeNetwork = (chainId: any) => {
     setNetwork(chainId)
     sheetNetworks.closeBottomSheet()
   }
 
-  const handleChangeAccount = (accountId) => {
+  const handleChangeAccount = (accountId: any) => {
     sheetAccounts.closeBottomSheet()
     onSelectAcc(accountId)
   }
@@ -66,7 +74,7 @@ const Accounts = () => {
   const account = accounts.find(({ id }) => id === selectedAcc)
   const { name: networkName, Icon: NetworkIcon } = network || {}
 
-  const renderAccountDetails = (account) => {
+  const renderAccountDetails = (account: any) => {
     const isActive = selectedAcc === account.id
     const onChangeAccount = () => handleChangeAccount(account.id)
 
@@ -92,28 +100,35 @@ const Accounts = () => {
         key={account?.id}
         style={[styles.accItemStyle, spacings.mb, !isActive && styles.inactiveAccount]}
       >
-        <TouchableOpacity onPress={onChangeAccount}>
+        <TouchableOpacity onPress={onChangeAccount} style={isActive && styles.activeBlockieStyle}>
           <Blockies
             size={16}
             borderRadius={30}
-            borderWidth={isActive ? 2 : 0}
             borderColor={colors.primaryAccentColor}
             seed={account?.id}
           />
         </TouchableOpacity>
         <View style={[flexboxStyles.flex1, spacings.mlTy]}>
           <Text onPress={onChangeAccount}>{account.id}</Text>
+          <Text fontSize={14} color={colors.secondaryTextColor}>
+            {account.email
+              ? `Email/Password account (${account?.email})`
+              : `${walletType(account?.signerExtra)} (${shortenedAddress(
+                  account?.signer?.address
+                )})`}
+          </Text>
           {logoutWarning === account.id ? (
             <>
               <Text type={TEXT_TYPES.DANGER}>
                 {t('Are you sure you want to log out from this account?')}{' '}
               </Text>
-              <Text>
+              <View style={[flexboxStyles.directionRow, flexboxStyles.justifySpaceBetween]}>
                 <Text style={textStyles.bold} onPress={handleRemoveAccount}>
                   {t('Yes, log out.')}
-                </Text>{' '}
-                <Text onPress={() => setLogoutWarning(false)}>{t('Cancel.')}</Text>
-              </Text>
+                </Text>
+
+                <Text onPress={() => setLogoutWarning(false)}>{t('Cancel')}</Text>
+              </View>
             </>
           ) : (
             <Text

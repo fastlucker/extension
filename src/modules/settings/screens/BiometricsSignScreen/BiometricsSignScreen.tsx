@@ -5,7 +5,7 @@ import { Keyboard } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
-import Input from '@modules/common/components/Input'
+import InputPassword from '@modules/common/components/InputPassword'
 import P from '@modules/common/components/P'
 import { TEXT_TYPES } from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
@@ -122,12 +122,10 @@ const BiometricsSignScreen = () => {
           control={control}
           rules={{ required: t('Please fill in a password.') as string }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input
+            <InputPassword
               placeholder={t('Account password')}
               onBlur={onBlur}
               onChangeText={onChange}
-              secureTextEntry
-              autoCorrect={false}
               value={value}
               disabled={isSubmitting}
             />

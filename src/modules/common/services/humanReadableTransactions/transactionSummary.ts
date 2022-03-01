@@ -4,7 +4,7 @@ import { names, tokens } from '@modules/common/constants/humanizerInfo.json'
 import networks from '@modules/common/constants/networks'
 import humanizers from '@modules/common/services/humanizers'
 
-import { nativeToken } from './humanReadableTransactions'
+import { getName, nativeToken } from './humanReadableTransactions'
 
 // This function is moved away from the `humanReadableTransactions` main file,
 // because the `humanizers` import is causing a require cycle between
@@ -44,7 +44,7 @@ export function getTransactionSummary(txn, networkId, accountAddr, opts = {}) {
           {
             type: 'address',
             address: to,
-            name
+            name: getName(to, network)
           }
         ]
 

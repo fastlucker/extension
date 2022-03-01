@@ -1,5 +1,7 @@
 import { StyleSheet, TextProps, ViewProps } from 'react-native'
 
+import colors from '@modules/common/styles/colors'
+
 interface Styles {
   chevron: TextProps
   networkIcon: TextProps
@@ -7,6 +9,7 @@ interface Styles {
   inactiveAccount: ViewProps
   actionsContainer: ViewProps
   actionsContainerItem: ViewProps
+  activeBlockieStyle: ViewProps
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -33,6 +36,11 @@ const styles = StyleSheet.create<Styles>({
     justifyContent: 'space-between',
     alignItems: 'center',
     minWidth: '33%' // a bit dirty, but for some reason `flexBasis` didn't click
+  },
+  activeBlockieStyle: {
+    borderWidth: 3,
+    borderRadius: 50,
+    borderColor: colors.primaryAccentColor
   }
 })
 

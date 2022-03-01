@@ -33,7 +33,7 @@ const BottomSheet: React.FC<Props> = ({
   children,
   displayCancel = true,
   cancelText: _cancelText,
-  maxInitialHeightPercentage = 0.6,
+  maxInitialHeightPercentage = 0.75,
   dynamicInitialHeight = true,
   closeBottomSheet = () => {},
   isOpen = false

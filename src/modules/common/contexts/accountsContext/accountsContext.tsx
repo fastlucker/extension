@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
+import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
 import i18n from '@config/localization/localization'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
@@ -43,6 +44,8 @@ const AccountsProvider: React.FC = ({ children }) => {
         setSelectedAcc(accounts[0] ? accounts[0].id : '')
       }
       setSelectedAcc(initialSelectedAcc)
+
+      CrashAnalytics.setUserContext({ id: initialSelectedAcc || 'N/A' })
     } catch (e) {
       console.error('accounts parsing failure', e)
       setAccounts([])
@@ -57,6 +60,8 @@ const AccountsProvider: React.FC = ({ children }) => {
     (selected) => {
       AsyncStorage.setItem('selectedAcc', selected)
       setSelectedAcc(selected)
+
+      CrashAnalytics.setUserContext({ id: selected || 'N/A' })
     },
     [setSelectedAcc]
   )
