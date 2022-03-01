@@ -8,6 +8,7 @@ import { APP_ID } from '@config/env'
 import { useTranslation } from '@config/localization'
 import P from '@modules/common/components/P'
 import requestPermissionFlagging from '@modules/common/services/requestPermissionFlagging'
+import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import Button from '../Button'
@@ -106,7 +107,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
         <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000' }]} />
       )}
       {hasPermission === false && (
-        <>
+        <View style={spacings.mh}>
           <P>{t('The request for accessing the phone camera was denied.')}</P>
           {Platform.OS === 'android' && (
             <Button text={t('Request camera permission')} onPress={requestCameraPermissionAgain} />
@@ -126,7 +127,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
             </P>
           )}
           <Button text={t('Open settings')} onPress={handleGoToSettings} />
-        </>
+        </View>
       )}
     </View>
   )
