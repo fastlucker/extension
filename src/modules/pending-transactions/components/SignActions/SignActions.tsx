@@ -5,7 +5,7 @@ import { View } from 'react-native'
 
 import { FontAwesome5 } from '@expo/vector-icons'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
-import Input from '@modules/common/components/Input'
+import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
@@ -148,12 +148,10 @@ const SignActions = ({
             control={control}
             rules={{ required: true }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <Input
+              <InputPassword
                 placeholder={t('Password')}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                secureTextEntry
-                autoCorrect={false}
                 value={value}
                 disabled={signingStatus.inProgress}
               />

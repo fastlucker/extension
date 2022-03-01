@@ -6,6 +6,7 @@ import { View } from 'react-native'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
+import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
@@ -47,12 +48,10 @@ const SignActions = ({
             control={control}
             rules={{ required: true }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <Input
+              <InputPassword
                 placeholder={t('Account password')}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                secureTextEntry
-                autoCorrect={false}
                 value={value}
               />
             )}
