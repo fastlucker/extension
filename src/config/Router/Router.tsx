@@ -65,10 +65,6 @@ const HEADER_ICON_SIZE = 25
 
 const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions => ({
   ...globalScreenOptions,
-  // The default animation transitions don't work well on Android,
-  // there is a white screen splashing between transitions. Our theme is dark,
-  // which creates an annoying blink effect.
-  animation: isAndroid ? 'none' : 'default',
   headerRight: ({ tintColor }) => (
     <TouchableOpacity
       onPress={() => navigation.navigate('connect')}
