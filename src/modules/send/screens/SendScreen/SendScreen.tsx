@@ -12,7 +12,7 @@ import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
-import Input from '@modules/common/components/Input'
+import InputOrScan from '@modules/common/components/InputOrScan/InputOrScan'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
@@ -104,7 +104,7 @@ const SendScreen = () => {
                 {!!validationFormMgs.messages?.amount && (
                   <P type={TEXT_TYPES.DANGER}>{validationFormMgs.messages.amount}</P>
                 )}
-                <Input
+                <InputOrScan
                   placeholder={t('Recipient')}
                   info={t(
                     'Please double-check the recipient address, blockchain transactions are not reversible.'
