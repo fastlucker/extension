@@ -9,6 +9,7 @@ import useAddNewAccount from '@modules/auth/hooks/useAddNewAccount'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import Input from '@modules/common/components/Input'
+import InputPassword from '@modules/common/components/InputPassword'
 import P from '@modules/common/components/P'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -67,13 +68,11 @@ const AddNewAccountScreen = () => {
             required: true
           }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input
+            <InputPassword
               onBlur={onBlur}
               placeholder={t('Password')}
               onChangeText={onChange}
               value={value}
-              secureTextEntry
-              autoCorrect={false}
             />
           )}
           name="password"
