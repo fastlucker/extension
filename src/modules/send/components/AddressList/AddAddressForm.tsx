@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
+import InputOrScan from '@modules/common/components/InputOrScan'
 import P from '@modules/common/components/P'
 import Title from '@modules/common/components/Title'
 import { isValidAddress } from '@modules/common/services/address'
@@ -63,7 +64,12 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
         control={control}
         rules={{ validate: isValidAddress }}
         render={({ field: { onChange, onBlur, value } }) => (
-          <Input onBlur={onBlur} placeholder={t('0x')} onChangeText={onChange} value={value} />
+          <InputOrScan
+            onBlur={onBlur}
+            placeholder={t('0x')}
+            onChangeText={onChange}
+            value={value}
+          />
         )}
         name="address"
       />
