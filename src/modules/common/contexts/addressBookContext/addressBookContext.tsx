@@ -1,11 +1,12 @@
+import { sha256 } from 'ethers/lib/utils'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import i18n from '@config/localization/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
 import { isKnownTokenOrContract, isValidAddress } from '@modules/common/services/address'
 import { setKnownAddresses } from '@modules/common/services/humanReadableTransactions'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type AddressBookContextData = {
   addresses: any
@@ -36,27 +37,50 @@ const AddressBookProvider: React.FC = ({ children }) => {
   const { accounts } = useAccounts()
   const { addToast } = useToast()
 
-  const [addresses, setAddresses] = useState<any>([])
+  const [storageAddresses, setStorageAddresses] = useStorage({ key: 'addresses', defaultValue: [] })
 
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  const updateAddresses = (addresses: any) => {
-    setAddresses(
-      addresses.map((entry: any) => ({
-        ...entry
-      }))
-    )
-    AsyncStorage.setItem(
-      'addresses',
-      JSON.stringify(addresses.filter(({ isAccount }: any) => !isAccount))
-    )
-  }
+  const addressList = useMemo(() => {
+    try {
+      const addresses = storageAddresses
+      if (!Array.isArray(addresses)) throw new Error('Address Book: incorrect format')
+      return [
+        ...accounts.map((account) => ({
+          isAccount: true,
+          name: accountType(account),
+          address: account.id
+        })),
+        ...addresses.map((entry) => ({
+          ...entry
+        }))
+      ]
+    } catch (e) {
+      console.error('Address Book parsing failure', e)
+      return []
+    }
+  }, [accounts, storageAddresses])
+
+  const [addresses, setAddresses] = useState(() => addressList)
+
+  const updateAddresses = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    (addresses: any) => {
+      setAddresses(
+        addresses.map((entry: any) => ({
+          ...entry
+        }))
+      )
+      setStorageAddresses(addresses.filter(({ isAccount }: any) => !isAccount))
+    },
+    [setAddresses, setStorageAddresses]
+  )
 
   const isKnownAddress = useCallback(
     (address) =>
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      [...addresses.map(({ address }: any) => address), ...accounts.map(({ id }) => id)].includes(
-        address
-      ),
+      [
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        ...addresses.map(({ address }: any) => sha256(address)),
+        ...accounts.map(({ id }) => sha256(id))
+      ].includes(sha256(address)),
     [addresses, accounts]
   )
 
@@ -64,12 +88,10 @@ const AddressBookProvider: React.FC = ({ children }) => {
     (name, address) => {
       if (!name || !address) throw new Error('Address Book: invalid arguments supplied')
       if (!isValidAddress(address)) throw new Error('Address Book: invalid address format')
-      if (isKnownTokenOrContract(address)) {
-        addToast(i18n.t("The address you're trying to add is a smart contract.") as string, {
+      if (isKnownTokenOrContract(address))
+        return addToast(i18n.t("The address you're trying to add is a smart contract.") as string, {
           error: true
         })
-        return
-      }
 
       const newAddresses = [
         ...addresses,
@@ -83,7 +105,7 @@ const AddressBookProvider: React.FC = ({ children }) => {
 
       addToast(i18n.t('{{address}} added to your Address Book.', { address }) as string)
     },
-    [addresses]
+    [addresses, addToast, updateAddresses]
   )
 
   const removeAddress = useCallback(
@@ -91,36 +113,18 @@ const AddressBookProvider: React.FC = ({ children }) => {
       if (!name || !address) throw new Error('Address Book: invalid arguments supplied')
       if (!isValidAddress(address)) throw new Error('Address Book: invalid address format')
 
-      const newAddresses = addresses.filter((a: any) => !(a.name === name && a.address === address))
+      const newAddresses = addresses.filter((a) => !(a.name === name && a.address === address))
 
       updateAddresses(newAddresses)
+
       addToast(i18n.t('{{address}} removed from your Address Book.', { address }) as string)
     },
-    [addresses]
+    [addresses, addToast, updateAddresses]
   )
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        const storedAddresses = await AsyncStorage.getItem('addresses')
-        const parsedAddresses = JSON.parse(storedAddresses || '[]')
-        if (!Array.isArray(parsedAddresses)) throw new Error('Address Book: incorrect format')
-        setAddresses([
-          ...accounts.map((account: any) => ({
-            isAccount: true,
-            name: accountType(account),
-            address: account.id
-          })),
-          ...parsedAddresses.map((entry) => ({
-            ...entry
-          }))
-        ])
-      } catch (e) {
-        console.error('Address Book parsing failure', e)
-        setAddresses([])
-      }
-    })()
-  }, [accounts])
+    setAddresses(addressList)
+  }, [accounts, addressList])
 
   // a bit of a 'cheat': update the humanizer with the latest known addresses
   // this is breaking the react patterns cause the humanizer has a 'global' state, but that's fine since it simply constantly learns new addr aliases,
