@@ -40,8 +40,8 @@ const InputOrScan: React.FC<Props> = ({ onChangeText, ...rest }) => {
         closeBottomSheet={closeBottomSheet}
         dynamicInitialHeight={false}
       >
+        <Title>{t('Scan recipient QR code')}</Title>
         <View style={{ width: DEVICE_WIDTH - SPACING * 2, height: DEVICE_HEIGHT / 2 }}>
-          <Title>{t('Scan recipient QR code')}</Title>
           <QRCodeScanner onScan={handleOnScan} />
         </View>
       </BottomSheet>
