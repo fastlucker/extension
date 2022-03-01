@@ -25,6 +25,12 @@ const InputOrScan: React.FC<Props> = ({ onChangeText, ...rest }) => {
     [onChangeText, closeBottomSheet]
   )
 
+  // Wraps the container in order to fit the whole horizontal space available
+  const qrCodeScannerContainerStyle = {
+    width: DEVICE_WIDTH - SPACING * 2,
+    height: DEVICE_HEIGHT / 2
+  }
+
   return (
     <>
       <Input
@@ -41,7 +47,7 @@ const InputOrScan: React.FC<Props> = ({ onChangeText, ...rest }) => {
         dynamicInitialHeight={false}
       >
         <Title>{t('Scan recipient QR code')}</Title>
-        <View style={{ width: DEVICE_WIDTH - SPACING * 2, height: DEVICE_HEIGHT / 2 }}>
+        <View style={qrCodeScannerContainerStyle}>
           <QRCodeScanner onScan={handleOnScan} />
         </View>
       </BottomSheet>
