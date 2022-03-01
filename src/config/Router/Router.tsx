@@ -3,7 +3,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
 
-import { isAndroid } from '@config/env'
 import { FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'

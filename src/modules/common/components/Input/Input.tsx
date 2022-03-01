@@ -19,7 +19,7 @@ import styles from './styles'
 export interface InputProps extends TextInputProps {
   info?: string
   label?: string
-  buttonText?: string
+  buttonText?: string | JSX.Element
   onButtonPress?: () => void
   disabled?: boolean
 }
