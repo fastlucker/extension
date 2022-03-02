@@ -46,21 +46,21 @@ const HIGHLIGHT_COLOR = `
   document.styleSheets[0].insertRule('* { -webkit-tap-highlight-color: ${colors.secondaryButtonContainerColor}; }', 0);
 `
 
-// TODO: Figure out why this doesn't work
-// The problematic events are `onMouseEnter` and `onMouseLeave`.
-// On mobile, they trigger the animation on tap, but don't trigger the actual
-// action that switches token positions.
-// Setting `outerHTML` this way removes all events.
-const REMOVE_SWAP_BUTTON_HOVER_ANIMATION = `(function() {
-  const swapButtonWrapper = document.querySelector('#swap-page > div > div:nth-child(2) > div.grid.py-3 > div > button > div > div');
-  swapButtonWrapper.outerHTML = swapButtonWrapper.outerHTML;
-})();`
+// The switch tokens button has animation, that gets triggered via
+// `onMouseEnter` and `onMouseLeave` events (animated SVG).
+// These events however, on tap, trigger the animation, but don't fire
+// the actual event that switches token positions.
+// Therefore, turn off the `onMouseEnter` and `onMouseLeave` events with CSS
+// so that the button always fires the logic when tapped.
+const DISABLE_SWITCH_TOKENS_ANIMATION = `
+  document.styleSheets[0].insertRule('.bg-ambire-input-background { pointer-events: none; }', 0);
+`
 
 const INJECTED_JAVASCRIPT = `
   ${DISABLE_ZOOM}
   ${TEXT_SELECTION_COLOR}
   ${HIGHLIGHT_COLOR}
-  ${REMOVE_SWAP_BUTTON_HOVER_ANIMATION}
+  ${DISABLE_SWITCH_TOKENS_ANIMATION}
 `
 
 const SwapScreen = () => {
