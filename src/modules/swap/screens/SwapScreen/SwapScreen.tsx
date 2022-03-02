@@ -46,10 +46,21 @@ const HIGHLIGHT_COLOR = `
   document.styleSheets[0].insertRule('* { -webkit-tap-highlight-color: ${colors.secondaryButtonContainerColor}; }', 0);
 `
 
+// The switch tokens button has animation, that gets triggered via
+// `onMouseEnter` and `onMouseLeave` events (animated SVG).
+// These events however, on tap, trigger the animation, but don't fire
+// the actual event that switches token positions.
+// Therefore, turn off the `onMouseEnter` and `onMouseLeave` events with CSS
+// so that the button always fires the logic when tapped.
+const DISABLE_SWITCH_TOKENS_HOVER_ANIMATION = `
+  document.styleSheets[0].insertRule('button div.p-3.full.bg-ambire-input-background { pointer-events: none; }', 0);
+`
+
 const INJECTED_JAVASCRIPT = `
   ${DISABLE_ZOOM}
   ${TEXT_SELECTION_COLOR}
   ${HIGHLIGHT_COLOR}
+  ${DISABLE_SWITCH_TOKENS_HOVER_ANIMATION}
 `
 
 const SwapScreen = () => {
