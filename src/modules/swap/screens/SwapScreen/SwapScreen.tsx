@@ -52,7 +52,7 @@ const HIGHLIGHT_COLOR = `
 // the actual event that switches token positions.
 // Therefore, turn off the `onMouseEnter` and `onMouseLeave` events with CSS
 // so that the button always fires the logic when tapped.
-const DISABLE_SWITCH_TOKENS_ANIMATION = `
+const DISABLE_SWITCH_TOKENS_HOVER_ANIMATION = `
   document.styleSheets[0].insertRule('.bg-ambire-input-background { pointer-events: none; }', 0);
 `
 
@@ -60,7 +60,7 @@ const INJECTED_JAVASCRIPT = `
   ${DISABLE_ZOOM}
   ${TEXT_SELECTION_COLOR}
   ${HIGHLIGHT_COLOR}
-  ${DISABLE_SWITCH_TOKENS_ANIMATION}
+  ${DISABLE_SWITCH_TOKENS_HOVER_ANIMATION}
 `
 
 const SwapScreen = () => {
