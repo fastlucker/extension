@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
+import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import { SECURE_STORE_KEY_ACCOUNT } from '@modules/settings/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -113,11 +114,13 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
   const getSelectedAccPassword = useCallback(() => {
     const key = getAccountSecureKey(selectedAcc)
 
-    return SecureStore.getItemAsync(key, {
-      authenticationPrompt: t('Confirm your identity'),
-      requireAuthentication: true,
-      keychainService: key
-    })
+    return requestLocalAuthFlagging(() =>
+      SecureStore.getItemAsync(key, {
+        authenticationPrompt: t('Confirm your identity'),
+        requireAuthentication: true,
+        keychainService: key
+      })
+    )
   }, [selectedAcc, t])
 
   return (
