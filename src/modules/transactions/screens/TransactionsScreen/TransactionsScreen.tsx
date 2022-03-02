@@ -83,7 +83,6 @@ const TransactionsScreen = () => {
             {t('Error getting list of transactions:')} {errMsg}
           </Text>
         )}
-        {isLoading && !data && <ActivityIndicator />}
       </View>
     )
   }
@@ -132,6 +131,16 @@ const TransactionsScreen = () => {
       data: data?.txns?.filter((x: any) => x.executed) || ['render-only-one-item']
     }
   ]
+
+  if (isLoading && !data) {
+    return (
+      <Wrapper>
+        <View style={[flexboxStyles.flex1, flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}>
+          <ActivityIndicator size="large" />
+        </View>
+      </Wrapper>
+    )
+  }
 
   return (
     <Wrapper
