@@ -53,7 +53,7 @@ const HIGHLIGHT_COLOR = `
 // Therefore, turn off the `onMouseEnter` and `onMouseLeave` events with CSS
 // so that the button always fires the logic when tapped.
 const DISABLE_SWITCH_TOKENS_HOVER_ANIMATION = `
-  document.styleSheets[0].insertRule('div.p-3.full.bg-ambire-input-background { pointer-events: none; }', 0);
+  document.styleSheets[0].insertRule('button div.p-3.full.bg-ambire-input-background { pointer-events: none; }', 0);
 `
 
 const INJECTED_JAVASCRIPT = `
