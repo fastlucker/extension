@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
+import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import { SECURE_STORE_KEY_ACCOUNT } from '@modules/settings/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -62,11 +63,13 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
     try {
       const key = getAccountSecureKey(selectedAcc)
 
-      await SecureStore.setItemAsync(key, password, {
-        authenticationPrompt: t('Confirm your identity'),
-        requireAuthentication: true,
-        keychainService: key
-      })
+      await requestLocalAuthFlagging(() =>
+        SecureStore.setItemAsync(key, password, {
+          authenticationPrompt: t('Confirm your identity'),
+          requireAuthentication: true,
+          keychainService: key
+        })
+      )
 
       // Store a flag if the selected account has password stored.
       // This is for ease of use across the other parts of the app.
@@ -89,11 +92,13 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
     try {
       const key = getAccountSecureKey(accountId || selectedAcc)
 
-      await SecureStore.deleteItemAsync(key, {
-        authenticationPrompt: t('Confirm your identity'),
-        requireAuthentication: true,
-        keychainService: key
-      })
+      await requestLocalAuthFlagging(() =>
+        SecureStore.deleteItemAsync(key, {
+          authenticationPrompt: t('Confirm your identity'),
+          requireAuthentication: true,
+          keychainService: key
+        })
+      )
 
       await AsyncStorage.removeItem(key)
 
@@ -113,11 +118,13 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
   const getSelectedAccPassword = useCallback(() => {
     const key = getAccountSecureKey(selectedAcc)
 
-    return SecureStore.getItemAsync(key, {
-      authenticationPrompt: t('Confirm your identity'),
-      requireAuthentication: true,
-      keychainService: key
-    })
+    return requestLocalAuthFlagging(() =>
+      SecureStore.getItemAsync(key, {
+        authenticationPrompt: t('Confirm your identity'),
+        requireAuthentication: true,
+        keychainService: key
+      })
+    )
   }, [selectedAcc, t])
 
   return (

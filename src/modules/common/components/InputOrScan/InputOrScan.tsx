@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Keyboard, View } from 'react-native'
 
 import { MaterialIcons } from '@expo/vector-icons'
 import Input, { InputProps } from '@modules/common/components/Input'
@@ -27,6 +27,11 @@ const InputOrScan: React.FC<Props> = ({ onChangeText, ...rest }) => {
     [onChangeText, closeBottomSheet]
   )
 
+  const handleOnButtonPress = useCallback(() => {
+    Keyboard.dismiss()
+    openBottomSheet()
+  }, [openBottomSheet])
+
   // Wraps the container in order to fit the whole horizontal space available
   const qrCodeScannerContainerStyle = {
     width: DEVICE_WIDTH - SPACING * 2,
@@ -37,7 +42,7 @@ const InputOrScan: React.FC<Props> = ({ onChangeText, ...rest }) => {
     <>
       <Input
         buttonText={<MaterialIcons name="crop-free" size={25} color={colors.inputColor} />}
-        onButtonPress={openBottomSheet}
+        onButtonPress={handleOnButtonPress}
         onChangeText={onChangeText}
         {...rest}
       />
