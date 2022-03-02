@@ -46,7 +46,7 @@ function parseExtendedSummaryItem(item: any, i: any, networkDetails: any) {
           />
         ) : null}
         <Text> </Text>
-        <Text>{`${item.symbol} `}</Text>
+        <Text>{`${item.symbol || ''} `}</Text>
       </>
     )
 
