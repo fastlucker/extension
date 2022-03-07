@@ -2,7 +2,6 @@ import * as SplashScreen from 'expo-splash-screen'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { isAndroid } from '@config/env'
 import { FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'
@@ -31,11 +30,9 @@ import SignMessage from '@modules/sign-message/screens/SignMessage'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { getHeaderTitle, Header, HeaderBackButton } from '@react-navigation/elements'
 import { NavigationContainer } from '@react-navigation/native'
 import {
   createNativeStackNavigator,
-  NativeStackHeaderProps,
   NativeStackNavigationOptions
 } from '@react-navigation/native-stack'
 
@@ -51,9 +48,6 @@ const SettingsStack = createNativeStackNavigator()
 
 const MainStack = createNativeStackNavigator()
 
-const TAB_BAR_ICON_SIZE = 22
-const HEADER_ICON_SIZE = 25
-
 const globalScreenOptions = {
   headerStyle: {
     backgroundColor: colors.headerBackgroundColor,
@@ -66,47 +60,23 @@ const globalScreenOptions = {
   headerBackTitleVisible: false
 }
 
-const tabsScreenOptions = (): NativeStackNavigationOptions => ({
+const TAB_BAR_ICON_SIZE = 22
+const HEADER_ICON_SIZE = 25
+
+const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions => ({
   ...globalScreenOptions,
-  header: ({ navigation, route, options, back }: NativeStackHeaderProps) => {
-    const title = getHeaderTitle(options, route.name)
-    return (
-      <Header
-        title={title}
-        headerRightContainerStyle={{
-          paddingRight: 10
-        }}
-        headerLeftLabelVisible={!!back}
-        headerStyle={{
-          backgroundColor: colors.headerBackgroundColor,
-          shadowColor: colors.headerShadowColor
-        }}
-        headerLeft={() => {
-          if (back) {
-            return (
-              <HeaderBackButton
-                onPress={() => navigation.goBack()}
-                tintColor={colors.headerTintColor}
-              />
-            )
-          }
-          return null
-        }}
-        headerTintColor={colors.headerTintColor}
-        headerTitleStyle={{
-          fontSize: 20
-        }}
-        headerRight={({ tintColor }) => (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('connect')}
-            hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
-          >
-            <MaterialIcons name="crop-free" size={HEADER_ICON_SIZE} color={tintColor} />
-          </TouchableOpacity>
-        )}
-      />
-    )
-  }
+  // The default animation transitions don't work well on Android,
+  // there is a white screen splashing between transitions. Our theme is dark,
+  // which creates an annoying blink effect.
+  animation: isAndroid ? 'none' : 'default',
+  headerRight: ({ tintColor }) => (
+    <TouchableOpacity
+      onPress={() => navigation.navigate('connect')}
+      hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+    >
+      <MaterialIcons name="crop-free" size={HEADER_ICON_SIZE} color={tintColor} />
+    </TouchableOpacity>
+  )
 })
 
 const DashboardStackScreen = () => {
@@ -331,97 +301,95 @@ const AppTabs = () => {
   const { t } = useTranslation()
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.headerBackgroundColor }}>
-      <Tab.Navigator
-        screenOptions={{
-          tabBarActiveTintColor: colors.tabBarActiveTintColor,
-          tabBarInactiveTintColor: colors.tabBarInactiveTintColor,
-          tabBarInactiveBackgroundColor: colors.tabBarInactiveBackgroundColor,
-          tabBarActiveBackgroundColor: colors.tabBarActiveBackgroundColor,
-          tabBarStyle: {
-            backgroundColor: colors.tabBarInactiveBackgroundColor,
-            borderTopColor: colors.headerShadowColor
-          },
-          tabBarLabelStyle: {
-            paddingBottom: 5
-          }
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: colors.tabBarActiveTintColor,
+        tabBarInactiveTintColor: colors.tabBarInactiveTintColor,
+        tabBarInactiveBackgroundColor: colors.tabBarInactiveBackgroundColor,
+        tabBarActiveBackgroundColor: colors.tabBarActiveBackgroundColor,
+        tabBarStyle: {
+          backgroundColor: colors.tabBarInactiveBackgroundColor,
+          borderTopColor: colors.headerShadowColor
+        },
+        tabBarLabelStyle: {
+          paddingBottom: 5
+        }
+      }}
+    >
+      <Tab.Screen
+        name="dashboard-tab"
+        options={{
+          headerShown: false,
+          title: t('Dashboard'),
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="dashboard" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
         }}
-      >
-        <Tab.Screen
-          name="dashboard-tab"
-          options={{
-            headerShown: false,
-            title: t('Dashboard'),
-            tabBarIcon: ({ color }) => (
-              <MaterialIcons name="dashboard" size={TAB_BAR_ICON_SIZE} color={color} />
-            )
-          }}
-          component={DashboardStackScreen}
-        />
-        <Tab.Screen
-          name="earn-tab"
-          options={{
-            headerShown: false,
-            title: t('Earn'),
-            tabBarIcon: ({ color }) => (
-              // Use this one, because the actual one is <BsPiggyBank />,
-              // but the Bootstrap Icons set is not available
-              <MaterialIcons name="attach-money" size={TAB_BAR_ICON_SIZE} color={color} />
-            )
-          }}
-          component={EarnStackScreen}
-        />
-        <Tab.Screen
-          name="send-tab"
-          options={{
-            headerShown: false,
-            title: t('Send'),
-            tabBarIcon: ({ color }) => (
-              <MaterialIcons name="compare-arrows" size={TAB_BAR_ICON_SIZE} color={color} />
-            )
-          }}
-          component={SendStackScreen}
-        />
-        <Tab.Screen
-          name="swap-tab"
-          options={{
-            headerShown: false,
-            title: t('Swap'),
-            // Use this one, because the actual one is <BiTransfer />,
-            // but the Box Icons set is not available
-            tabBarIcon: ({ color }) => (
-              <FontAwesome5 name="retweet" size={TAB_BAR_ICON_SIZE - 4} color={color} />
-            )
-          }}
-          component={SwapStackScreen}
-        />
-        <Tab.Screen
-          name="transactions-tab"
-          options={{
-            headerShown: false,
-            title: t('Transactions'),
-            // Use this one, because the actual one is <BiTransfer />,
-            // but the Box Icons set is not available
-            tabBarIcon: ({ color }) => (
-              <MaterialIcons name="send-and-archive" size={TAB_BAR_ICON_SIZE} color={color} />
-            )
-          }}
-          component={TransactionsStackScreen}
-        />
-        <Tab.Screen
-          name="settings-tab"
-          options={{
-            headerShown: false,
-            title: t('Settings'),
-            // Missing in the web app, so the icon here is mobile app specific
-            tabBarIcon: ({ color }) => (
-              <Ionicons name="settings" size={TAB_BAR_ICON_SIZE} color={color} />
-            )
-          }}
-          component={SettingsStackScreen}
-        />
-      </Tab.Navigator>
-    </SafeAreaView>
+        component={DashboardStackScreen}
+      />
+      <Tab.Screen
+        name="earn-tab"
+        options={{
+          headerShown: false,
+          title: t('Earn'),
+          tabBarIcon: ({ color }) => (
+            // Use this one, because the actual one is <BsPiggyBank />,
+            // but the Bootstrap Icons set is not available
+            <MaterialIcons name="attach-money" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
+        }}
+        component={EarnStackScreen}
+      />
+      <Tab.Screen
+        name="send-tab"
+        options={{
+          headerShown: false,
+          title: t('Send'),
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="compare-arrows" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
+        }}
+        component={SendStackScreen}
+      />
+      <Tab.Screen
+        name="swap-tab"
+        options={{
+          headerShown: false,
+          title: t('Swap'),
+          // Use this one, because the actual one is <BiTransfer />,
+          // but the Box Icons set is not available
+          tabBarIcon: ({ color }) => (
+            <FontAwesome5 name="retweet" size={TAB_BAR_ICON_SIZE - 4} color={color} />
+          )
+        }}
+        component={SwapStackScreen}
+      />
+      <Tab.Screen
+        name="transactions-tab"
+        options={{
+          headerShown: false,
+          title: t('Transactions'),
+          // Use this one, because the actual one is <BiTransfer />,
+          // but the Box Icons set is not available
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="send-and-archive" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
+        }}
+        component={TransactionsStackScreen}
+      />
+      <Tab.Screen
+        name="settings-tab"
+        options={{
+          headerShown: false,
+          title: t('Settings'),
+          // Missing in the web app, so the icon here is mobile app specific
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="settings" size={TAB_BAR_ICON_SIZE} color={color} />
+          )
+        }}
+        component={SettingsStackScreen}
+      />
+    </Tab.Navigator>
   )
 }
 
