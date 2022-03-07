@@ -3,7 +3,6 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
-import Panel from '@modules/common/components/Panel'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import accountPresets from '@modules/common/constants/accountPresets'
@@ -13,6 +12,8 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+
+import styles from './styles'
 
 const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any) => {
   const network: any = networks.find((x) => x.id === bundle.network)
@@ -36,8 +37,8 @@ const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any
     `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
 
   return (
-    // eslint-disable-next-line no-underscore-dangle
-    <Panel>
+    // Here is better to use Panel for consistency but there is some interference between the expandable content and the Panel's flex props
+    <View style={styles.container}>
       {txns.map((txn: any, i: number) => (
         <TxnPreview
           // eslint-disable-next-line react/no-array-index-key
@@ -114,7 +115,7 @@ const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any
         ) : null}
       </View>
       {!!actions && actions}
-    </Panel>
+    </View>
   )
 }
 

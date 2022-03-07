@@ -107,14 +107,7 @@ const TxnPreview = ({
           />
         )}
         <View style={[flexboxStyles.flex1, spacings.mrTy]}>
-          <View
-            style={[
-              flexboxStyles.directionRow,
-              flexboxStyles.wrap,
-              flexboxStyles.flex1,
-              flexboxStyles.alignCenter
-            ]}
-          >
+          <View style={[flexboxStyles.directionRow, flexboxStyles.wrap, flexboxStyles.alignCenter]}>
             {summary}
           </View>
           {isFirstFailing && (
