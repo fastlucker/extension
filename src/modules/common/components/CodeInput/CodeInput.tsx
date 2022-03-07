@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { View } from 'react-native'
 import {
   CodeField,
@@ -9,6 +9,7 @@ import {
 } from 'react-native-confirmation-code-field'
 
 import Text from '@modules/common/components/Text'
+import useKeyboard from '@modules/common/hooks/useKeybard'
 
 import styles from './styles'
 
@@ -26,19 +27,20 @@ const CodeInput: React.FC<Props> = ({ onFulfill, enableMask = true, autoFocus, .
     value,
     setValue
   })
+  // Used to disable auto focus once the keyboard is manually closed
+  const autoFocusAllowed = useRef(true)
+
+  const { keyboardShown } = useKeyboard()
 
   useEffect(() => {
-    // Timeout for the cases when another component sends keyboard dismiss action right before navigating to another screen containing this CodeInput.
-    // There might be some overlap of the dismiss and focus of the keyboard if there is no timeout
-    setTimeout(() => {
-      // autoFocus can be a static prop and this way it will function as a regular autoFocus
-      // When CodeInput should be focused on some other action (not component render), the autoFocus can be used as a boolean state
-      //  in the parent component and trigger the focus when changing: false -> true
-      if (autoFocus) {
-        inputRef.current?.focus()
-      }
-    }, 200)
-  }, [autoFocus])
+    // autoFocus can be a static prop and this way it will function as a regular autoFocus
+    // When CodeInput should be focused on some other action (not component render), the autoFocus can be used as a boolean state
+    //  in the parent component and trigger the focus when changing: false -> true
+    if (autoFocus && !keyboardShown && autoFocusAllowed.current) {
+      inputRef.current?.focus()
+      autoFocusAllowed.current = false
+    }
+  }, [autoFocus, keyboardShown])
 
   useEffect(() => {
     if (value.length >= 6) {

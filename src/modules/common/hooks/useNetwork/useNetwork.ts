@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 
-import { NetworkContext } from '@modules/common/contexts/networkContext/networkContext'
+import { NetworkContext } from '@modules/common/contexts/networkContext'
 
 export default function useNetwork() {
   const context = useContext(NetworkContext)
