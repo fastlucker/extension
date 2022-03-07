@@ -12,7 +12,6 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   container: {
     backgroundColor: colors.inputBackgroundColor,
-    flex: 1,
     ...spacings.mbTy
   },
   listItem: {
