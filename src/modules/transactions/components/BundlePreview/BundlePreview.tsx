@@ -38,6 +38,7 @@ const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any
 
   return (
     // eslint-disable-next-line no-underscore-dangle
+    // Here is better to use Panel for consistency but there is some interference between the expandable content and the Panel's flex props
     <View style={styles.container}>
       {txns.map((txn: any, i: number) => (
         <TxnPreview
