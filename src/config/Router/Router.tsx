@@ -450,7 +450,7 @@ const Router = () => {
   const { isConnected } = useNetInfo()
 
   const renderContent = useCallback(() => {
-    if (!isConnected) {
+    if (isConnected !== null && !isConnected) {
       return <NoConnectionStack />
     }
 
