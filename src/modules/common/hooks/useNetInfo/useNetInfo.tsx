@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import NetInfo from '@react-native-community/netinfo'
 
-export default function useNetworkConnection() {
+export default function useNetInfo() {
   const [isConnected, setIsConnected] = useState<null | boolean>(null)
   const [type, setType] = useState(null)
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
-      // console.log('Connection type', state.type)
-      // console.log('Is connected?', state.isConnected)
       setIsConnected(state.isConnected)
       setType(state.type)
     })
