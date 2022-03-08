@@ -18,7 +18,7 @@ const NoConnectionScreen: React.FC<Props> = () => {
       <Title style={textStyles.center}>{t('No internet connection 📡')}</Title>
       <Text style={spacings.mb}>
         {t(
-          'You are not connected to the Internet. Make sure Wi-Fi is on, Airplane Mode is off and try again.'
+          'You are not connected to the Internet. Make sure you are connected over Wi-Fi or your phone mobile data is turned on.'
         )}
       </Text>
     </Wrapper>
