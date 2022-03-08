@@ -10,6 +10,7 @@ import { AccountsPasswordsProvider } from '@modules/common/contexts/accountsPass
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
 import { GnosisProvider } from '@modules/common/contexts/gnosisContext'
 import { KeyboardProvider } from '@modules/common/contexts/keyboardContext'
+import { NetInfoProvider } from '@modules/common/contexts/netInfoContext'
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
 import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
@@ -25,34 +26,36 @@ const AppLoading = () => {
   return (
     <SafeAreaProvider>
       <KeyboardProvider>
-        <ToastProvider>
-          <AuthProvider>
-            <AccountsProvider>
-              <NetworkProvider>
-                <PortfolioProvider>
-                  <GnosisProvider>
-                    <WalletConnectProvider>
-                      <RequestsProvider>
-                        <AddressBookProvider>
-                          <AccountsPasswordsProvider>
-                            <PortalProvider>
-                              <PasscodeProvider>
-                                <AttentionGrabberProvider>
-                                  <Router />
-                                </AttentionGrabberProvider>
-                                <PortalHost name="global" />
-                              </PasscodeProvider>
-                            </PortalProvider>
-                          </AccountsPasswordsProvider>
-                        </AddressBookProvider>
-                      </RequestsProvider>
-                    </WalletConnectProvider>
-                  </GnosisProvider>
-                </PortfolioProvider>
-              </NetworkProvider>
-            </AccountsProvider>
-          </AuthProvider>
-        </ToastProvider>
+        <NetInfoProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <AccountsProvider>
+                <NetworkProvider>
+                  <PortfolioProvider>
+                    <GnosisProvider>
+                      <WalletConnectProvider>
+                        <RequestsProvider>
+                          <AddressBookProvider>
+                            <AccountsPasswordsProvider>
+                              <PortalProvider>
+                                <PasscodeProvider>
+                                  <AttentionGrabberProvider>
+                                    <Router />
+                                  </AttentionGrabberProvider>
+                                  <PortalHost name="global" />
+                                </PasscodeProvider>
+                              </PortalProvider>
+                            </AccountsPasswordsProvider>
+                          </AddressBookProvider>
+                        </RequestsProvider>
+                      </WalletConnectProvider>
+                    </GnosisProvider>
+                  </PortfolioProvider>
+                </NetworkProvider>
+              </AccountsProvider>
+            </AuthProvider>
+          </ToastProvider>
+        </NetInfoProvider>
       </KeyboardProvider>
     </SafeAreaProvider>
   )
