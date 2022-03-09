@@ -11,6 +11,7 @@ import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
+import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
@@ -447,10 +448,10 @@ const AppStack = () => {
 
 const Router = () => {
   const { authStatus } = useAuth()
-  const { isConnected } = useNetInfo()
+  const { connectionState } = useNetInfo()
 
   const renderContent = useCallback(() => {
-    if (isConnected !== null && !isConnected) {
+    if (connectionState === ConnectionStates.NOT_CONNECTED) {
       return <NoConnectionStack />
     }
 
@@ -464,7 +465,7 @@ const Router = () => {
 
     // authStatus === AUTH_STATUS.LOADING or anything else:
     return null
-  }, [isConnected, authStatus])
+  }, [connectionState, authStatus])
 
   const handleOnReady = () => {
     // @ts-ignore for some reason TS complains about this 👇
