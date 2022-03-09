@@ -316,7 +316,7 @@
 				CODE_SIGN_ENTITLEMENTS = ambiremobilewallet/ambiremobilewallet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = 4L8ZCALQF5;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -353,7 +353,7 @@
 				CODE_SIGN_ENTITLEMENTS = ambiremobilewallet/ambiremobilewallet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = 4L8ZCALQF5;
 				INFOPLIST_FILE = ambiremobilewallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
