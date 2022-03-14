@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useMemo } from 'react'
 import { useColorScheme } from 'react-native'
 
 import useStorage from '@modules/common/hooks/useStorage'
-import ThemeColors, { Styles, Themes } from '@modules/common/styles/ themeConfig'
+import ThemeColors, { Styles, Themes } from '@modules/common/styles/themeConfig'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum THEME_TYPES {

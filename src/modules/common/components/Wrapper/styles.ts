@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { ThemeColorsConfig } from '@modules/common/styles/ themeConfig'
 import spacings from '@modules/common/styles/spacings'
+import { ThemeColorsConfig } from '@modules/common/styles/themeConfig'
 
 interface Style {
   wrapper: ViewStyle
