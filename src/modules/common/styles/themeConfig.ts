@@ -14,7 +14,11 @@ export type Theme = {
   panelBackground: ThemeProp
 }
 
-type ThemeProp = {
+export type ThemeProps = {
+  [key in keyof Theme]: ColorValue
+}
+
+export type ThemeProp = {
   [key in Themes]: ColorValue
 }
 

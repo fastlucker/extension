@@ -1,14 +1,14 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@modules/common/styles/spacings'
-import { ThemeColorsConfig } from '@modules/common/styles/themeConfig'
+import { ThemeProps } from '@modules/common/styles/themeConfig'
 
 interface Style {
   wrapper: ViewStyle
   contentContainerStyle: ViewStyle
 }
 
-const styles = (theme: ThemeColorsConfig) =>
+const styles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     wrapper: {
       flex: 1,
