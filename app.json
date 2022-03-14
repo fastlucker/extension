@@ -20,9 +20,6 @@
           }
         }
       ]
-    },
-    "ios": {
-      "bundleIdentifier": "com.ambire.wallet"
     }
   }
 }
