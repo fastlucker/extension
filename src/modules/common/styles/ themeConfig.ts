@@ -5,34 +5,31 @@ export enum Themes {
   DARK = 'dark'
 }
 
-export enum Styles {
-  background = 'background',
-  primaryText = 'primaryText',
-  secondaryText = 'secondaryText',
-  panelBackground = 'panelBackground'
+export type Theme = {
+  background: ThemeProp
+  primaryText: ThemeProp
+  secondaryText: ThemeProp
+  panelBackground: ThemeProp
 }
 
-export type ThemeColorsConfig = {
-  [key in Styles]: {
-    [Themes.LIGHT]: string
-    [Themes.DARK]: string
-  }
+type ThemeProp = {
+  [key in Themes]: string
 }
 
-const ThemeColors: ThemeColorsConfig = {
-  [Styles.background]: {
+const ThemeColors: Theme = {
+  background: {
     [Themes.LIGHT]: colors.white,
     [Themes.DARK]: colors.salute
   },
-  [Styles.primaryText]: {
+  primaryText: {
     [Themes.LIGHT]: colors.black,
     [Themes.DARK]: colors.white
   },
-  [Styles.secondaryText]: {
+  secondaryText: {
     [Themes.LIGHT]: colors.aluminumSilver,
     [Themes.DARK]: colors.aluminumSilver
   },
-  [Styles.panelBackground]: {
+  panelBackground: {
     [Themes.LIGHT]: colors.washedBlack,
     [Themes.DARK]: colors.washedBlack
   }
