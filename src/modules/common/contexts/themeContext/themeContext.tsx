@@ -2,8 +2,7 @@ import React, { createContext, useCallback, useMemo } from 'react'
 import { useColorScheme } from 'react-native'
 
 import useStorage from '@modules/common/hooks/useStorage'
-import darkThemeColors from '@modules/common/styles/darkThemeColors'
-import lightThemeColors from '@modules/common/styles/lightThemeColors'
+import ThemeColors, { Styles, Themes } from '@modules/common/styles/ themeConfig'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum THEME_TYPES {
@@ -34,14 +33,15 @@ const ThemeProvider: React.FC = ({ children }) => {
 
   const setTheme = useCallback(() => {
     const type = themeType === THEME_TYPES.AUTO ? colorScheme : themeType
+    const theme: any = {}
 
-    if (!type) {
-      // Defaults to a dark theme
-      return darkThemeColors
+    // Defaults to a dark theme
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key of Object.keys(ThemeColors)) {
+      theme[key] = ThemeColors[key as Styles][(type as Themes) || THEME_TYPES.DARK]
     }
-    // Light theme if the theme type is light
-    // Dark theme in all other cases
-    return type === THEME_TYPES.LIGHT ? lightThemeColors : darkThemeColors
+
+    return theme
   }, [themeType])
 
   return (

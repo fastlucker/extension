@@ -1,8 +1,9 @@
 import { useContext, useMemo } from 'react'
 
 import { ThemeContext } from '@modules/common/contexts/themeContext'
+import { ThemeColorsConfig } from '@modules/common/styles/ themeConfig'
 
-export default function useTheme(createStyles: (theme: any) => any) {
+export default function useTheme(createStyles: (theme: ThemeColorsConfig) => any) {
   const context = useContext(ThemeContext)
 
   if (!context) {
