@@ -10,8 +10,8 @@ import { AccountsPasswordsProvider } from '@modules/common/contexts/accountsPass
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
 import { GnosisProvider } from '@modules/common/contexts/gnosisContext'
 import { KeyboardProvider } from '@modules/common/contexts/keyboardContext'
-import { NetInfoProvider } from '@modules/common/contexts/netInfoContext'
 import { LinkingProvider } from '@modules/common/contexts/linkingContext'
+import { NetInfoProvider } from '@modules/common/contexts/netInfoContext'
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
 import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
@@ -41,8 +41,8 @@ const AppLoading = () => {
                               <PortalProvider>
                                 <PasscodeProvider>
                                   <AttentionGrabberProvider>
-                                  <LinkingProvider>
-                                    <Router />
+                                    <LinkingProvider>
+                                      <Router />
                                     </LinkingProvider>
                                   </AttentionGrabberProvider>
                                   <PortalHost name="global" />
