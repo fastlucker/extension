@@ -1,11 +1,7 @@
 import { ColorValue } from 'react-native'
 
+import { THEME_TYPES as Themes } from '../contexts/themeContext'
 import { colorPalette as colors } from './colors'
-
-export enum Themes {
-  LIGHT = 'light',
-  DARK = 'dark'
-}
 
 export type ThemeProps = {
   [key in keyof typeof ThemeColors]: ColorValue
