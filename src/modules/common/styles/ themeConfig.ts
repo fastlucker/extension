@@ -1,3 +1,5 @@
+import { ColorValue } from 'react-native'
+
 import { colorPalette as colors } from './colors'
 
 export enum Themes {
@@ -13,7 +15,7 @@ export type Theme = {
 }
 
 type ThemeProp = {
-  [key in Themes]: string
+  [key in Themes]: ColorValue
 }
 
 const ThemeColors: Theme = {
