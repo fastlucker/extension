@@ -22,6 +22,7 @@
     "build:ios:staging": "eas build -p ios --profile staging",
     "build:ios:production": "eas build -p ios --profile production",
     "build:ios:production:simulator": "eas build -p ios --profile production:simulator",
+    "build:android:production:simulator": "eas build -p android --profile production:simulator",
     "publish:development": "expo publish --release-channel development",
     "publish:staging": "APP_ENV=staging expo publish --release-channel staging",
     "publish:production": "APP_ENV=production expo publish --release-channel default",
