@@ -7,22 +7,11 @@ export enum Themes {
   DARK = 'dark'
 }
 
-export type Theme = {
-  background: ThemeProp
-  primaryText: ThemeProp
-  secondaryText: ThemeProp
-  panelBackground: ThemeProp
-}
-
 export type ThemeProps = {
-  [key in keyof Theme]: ColorValue
+  [key in keyof typeof ThemeColors]: ColorValue
 }
 
-export type ThemeProp = {
-  [key in Themes]: ColorValue
-}
-
-const ThemeColors: Theme = {
+const ThemeColors = {
   background: {
     [Themes.LIGHT]: colors.white,
     [Themes.DARK]: colors.salute
