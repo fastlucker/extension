@@ -32,6 +32,10 @@ const AuthScreen = ({ navigation }: Props) => {
       <Button
         text={t('Login by QR code scan')}
         onPress={() => navigation.navigate('qrCodeLogin')}
+      />
+      <Button
+        text={t('Ledger')}
+        onPress={() => navigation.navigate('hardwareWallet')}
         style={spacings.mbLg}
       />
       <AppVersion />

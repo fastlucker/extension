@@ -9,6 +9,7 @@ import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
+import HardwareWalletScreen from '@modules/auth/screens/HardwareWalletScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import usePasscode from '@modules/common/hooks/usePasscode'
@@ -287,6 +288,11 @@ const AuthStack = () => {
         name="qrCodeLogin"
         options={{ title: t('Login') }}
         component={QRCodeLoginScreen}
+      />
+      <Stack.Screen
+        name="hardwareWallet"
+        options={{ title: t('Hardware Wallet') }}
+        component={HardwareWalletScreen}
       />
     </Stack.Navigator>
   )
