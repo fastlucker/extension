@@ -2,15 +2,7 @@ import React, { createContext, useCallback, useMemo } from 'react'
 import { useColorScheme } from 'react-native'
 
 import useStorage from '@modules/common/hooks/useStorage'
-import ThemeColors, { ThemeProps, Themes } from '@modules/common/styles/themeConfig'
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum THEME_TYPES {
-  LIGHT = 'light',
-  DARK = 'dark',
-  // When the theme type is set to auto by the user, the app will get the system theme
-  AUTO = 'auto'
-}
+import ThemeColors, { THEME_TYPES, ThemeProps } from '@modules/common/styles/themeConfig'
 
 type ThemeContextData = {
   theme?: ThemeProps
@@ -37,7 +29,7 @@ const ThemeProvider: React.FC = ({ children }) => {
     // eslint-disable-next-line no-restricted-syntax
     for (const key of Object.keys(ThemeColors)) {
       // @ts-ignore
-      theme[key] = ThemeColors[key][(type as Themes) || THEME_TYPES.DARK]
+      theme[key] = ThemeColors[key][type || THEME_TYPES.DARK]
     }
 
     return theme

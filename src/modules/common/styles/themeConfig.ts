@@ -1,7 +1,14 @@
 import { ColorValue } from 'react-native'
 
-import { THEME_TYPES as Themes } from '../contexts/themeContext'
 import { colorPalette as colors } from './colors'
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export enum THEME_TYPES {
+  LIGHT = 'light',
+  DARK = 'dark',
+  // When the theme type is set to auto by the user, the app will get the system theme
+  AUTO = 'auto'
+}
 
 export type ThemeProps = {
   [key in keyof typeof ThemeColors]: ColorValue
@@ -9,20 +16,20 @@ export type ThemeProps = {
 
 const ThemeColors = {
   background: {
-    [Themes.LIGHT]: colors.white,
-    [Themes.DARK]: colors.salute
+    [THEME_TYPES.LIGHT]: colors.white,
+    [THEME_TYPES.DARK]: colors.salute
   },
   primaryText: {
-    [Themes.LIGHT]: colors.black,
-    [Themes.DARK]: colors.white
+    [THEME_TYPES.LIGHT]: colors.black,
+    [THEME_TYPES.DARK]: colors.white
   },
   secondaryText: {
-    [Themes.LIGHT]: colors.aluminumSilver,
-    [Themes.DARK]: colors.aluminumSilver
+    [THEME_TYPES.LIGHT]: colors.aluminumSilver,
+    [THEME_TYPES.DARK]: colors.aluminumSilver
   },
   panelBackground: {
-    [Themes.LIGHT]: colors.washedBlack,
-    [Themes.DARK]: colors.washedBlack
+    [THEME_TYPES.LIGHT]: colors.washedBlack,
+    [THEME_TYPES.DARK]: colors.washedBlack
   }
 }
 
