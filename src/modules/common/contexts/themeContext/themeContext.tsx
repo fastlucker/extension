@@ -19,7 +19,8 @@ const ThemeProvider: React.FC = ({ children }) => {
   const colorScheme = useColorScheme()
   const [themeType, setThemeType] = useStorage({
     key: 'theme',
-    defaultValue: THEME_TYPES.AUTO
+    // Maybe change the default theme to `auto` once the light theme is ready
+    defaultValue: THEME_TYPES.DARK
   })
 
   const setTheme = useCallback(() => {
