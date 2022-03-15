@@ -1,5 +1,5 @@
 import * as SplashScreen from 'expo-splash-screen'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
 
@@ -11,7 +11,10 @@ import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
+import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
+import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
+import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
@@ -292,6 +295,24 @@ const AuthStack = () => {
   )
 }
 
+const NoConnectionStack = () => {
+  const { t } = useTranslation()
+
+  useEffect(() => {
+    SplashScreen.hideAsync()
+  }, [])
+
+  return (
+    <Stack.Navigator screenOptions={globalScreenOptions}>
+      <Stack.Screen
+        options={{ title: t('No connection') }}
+        name="no-connection"
+        component={NoConnectionScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
 const AppTabs = () => {
   const { t } = useTranslation()
 
@@ -390,7 +411,6 @@ const AppTabs = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-
   const { isLoading } = usePasscode()
 
   useEffect(() => {
@@ -428,6 +448,24 @@ const AppStack = () => {
 
 const Router = () => {
   const { authStatus } = useAuth()
+  const { connectionState } = useNetInfo()
+
+  const renderContent = useCallback(() => {
+    if (connectionState === ConnectionStates.NOT_CONNECTED) {
+      return <NoConnectionStack />
+    }
+
+    if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
+      return <AuthStack />
+    }
+
+    if (authStatus === AUTH_STATUS.AUTHENTICATED) {
+      return <AppStack />
+    }
+
+    // authStatus === AUTH_STATUS.LOADING or anything else:
+    return null
+  }, [connectionState, authStatus])
 
   const handleOnReady = () => {
     // @ts-ignore for some reason TS complains about this 👇
@@ -452,12 +490,7 @@ const Router = () => {
         }
       }}
     >
-      {authStatus === AUTH_STATUS.LOADING ? null : (
-        <>
-          {authStatus === AUTH_STATUS.AUTHENTICATED && <AppStack />}
-          {authStatus === AUTH_STATUS.NOT_AUTHENTICATED && <AuthStack />}
-        </>
-      )}
+      {renderContent()}
     </NavigationContainer>
   )
 }
