@@ -9,7 +9,7 @@ const DeviceItem = ({ device, onSelect }: any) => {
   const handleSelectDevice = async () => {
     setPending(true)
     try {
-      await onSelect(device)
+      await onSelect(device.id)
     } finally {
       setPending(false)
     }
