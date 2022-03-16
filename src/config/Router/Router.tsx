@@ -27,6 +27,7 @@ import BiometricsSignScreen from '@modules/settings/screens/BiometricsSignScreen
 import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
+import ConnectLedgerScreen from '@modules/settings/screens/ConnectLedgerScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
@@ -260,6 +261,13 @@ const SettingsStackScreen = () => {
         component={SignersScreen}
         options={{
           headerTitle: t('Manage signers')
+        }}
+      />
+      <SettingsStack.Screen
+        name="connect-ledger"
+        component={ConnectLedgerScreen}
+        options={{
+          headerTitle: t('Connect Ledger')
         }}
       />
       <SettingsStack.Screen
