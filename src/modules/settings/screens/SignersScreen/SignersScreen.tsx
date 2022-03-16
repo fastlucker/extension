@@ -20,7 +20,7 @@ const SignersScreen = () => {
       <Title>{t('Hardware wallet signers')}</Title>
       <Button text={t('Connect Ledger')} onPress={goToConnectLedger} />
       <Button disabled text={t('Connect Trezor')} />
-      <P>{t('To manage signers other than Ledger Nano X or Trezor, visit the web app.')}</P>
+      <P>{t('To manage signers other than Ledger or Trezor, visit the web app.')}</P>
 
       <Title>{t('Connected hardware wallet signers')}</Title>
       <P>
