@@ -7,7 +7,7 @@ const DevicesList = ({ onSelectDevice, devices }: any) => {
   return (
     <View>
       {devices.map((device: any) => (
-        <DeviceItem device={device} onSelect={onSelectDevice} />
+        <DeviceItem key={device.id} device={device} onSelect={onSelectDevice} />
       ))}
     </View>
   )
