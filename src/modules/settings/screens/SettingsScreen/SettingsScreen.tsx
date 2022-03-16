@@ -7,6 +7,7 @@ import BiometricsSign from '@modules/settings/components/BiometricsSign'
 import ConnectedDapps from '@modules/settings/components/ConnectedDapps'
 import LocalAuth from '@modules/settings/components/LocalAuth'
 import Passcode from '@modules/settings/components/Passcode'
+import Signers from '@modules/settings/components/Signers'
 import Theme from '@modules/settings/components/Theme'
 
 const SettingsScreen = () => {
@@ -24,6 +25,7 @@ const SettingsScreen = () => {
       <BiometricsSign />
       <AppLocking />
       <Theme />
+      <Signers />
       <AppVersion />
     </Wrapper>
   )
