@@ -1,3 +1,4 @@
+import i18n from '@config/localization/localization'
 import AppEth from '@ledgerhq/hw-app-eth'
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 
@@ -65,9 +66,12 @@ async function getAccounts(transport: any) {
       .then((o: any) => o)
       .catch((err: any) => {
         if (err.statusCode === 25871 || err.statusCode === 27404) {
-          returnData.error = `Please make sure your ledger is unlocked and running the Ethereum app. ${err.message}`
+          returnData.error = i18n.t(
+            'Please make sure your ledger is unlocked and running the Ethereum app. {{error}}',
+            { error: err.message }
+          )
         } else {
-          returnData.error = `Could not get address from ledger : ${err}`
+          returnData.error = i18n.t('Could not get address from ledger : {{error}}', { error: err })
         }
       })
   } catch (e) {

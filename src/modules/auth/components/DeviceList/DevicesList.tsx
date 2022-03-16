@@ -1,9 +1,9 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import DeviceItem from './DeviceItem'
+import DeviceItem from '@modules/auth/components/DeviceItem'
 
-const DeviceSelection = ({ onSelectDevice, devices }: any) => {
+const DevicesList = ({ onSelectDevice, devices }: any) => {
   return (
     <View>
       {devices.map((device: any) => (
@@ -13,4 +13,4 @@ const DeviceSelection = ({ onSelectDevice, devices }: any) => {
   )
 }
 
-export default DeviceSelection
+export default DevicesList

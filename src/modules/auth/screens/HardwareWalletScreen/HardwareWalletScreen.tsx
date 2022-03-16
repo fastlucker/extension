@@ -8,6 +8,7 @@ import { Observable } from 'rxjs'
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
+import DevicesList from '@modules/auth/components/DeviceList'
 import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -21,8 +22,6 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-
-import DeviceSelection from './DeviceSelection'
 
 const deviceAddition = (device: any) => (devices: any) =>
   devices.some((i: any) => i.id === device.id) ? devices : devices.concat(device)
@@ -258,7 +257,7 @@ const HardwareWalletScreen = () => {
         </Title>
         {refreshing && <ActivityIndicator />}
       </View>
-      <DeviceSelection devices={devices} refreshing={refreshing} onSelectDevice={onSelectDevice} />
+      <DevicesList devices={devices} refreshing={refreshing} onSelectDevice={onSelectDevice} />
     </Wrapper>
   )
 }
