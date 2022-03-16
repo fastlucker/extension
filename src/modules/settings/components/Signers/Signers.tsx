@@ -10,7 +10,7 @@ const Signers = () => {
 
   const goToSigners = () => navigation.navigate('signers')
 
-  return <Button text={t('Hardware wallet signers')} onPress={goToSigners} />
+  return <Button text={t('Signers')} onPress={goToSigners} />
 }
 
 export default Signers
