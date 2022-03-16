@@ -18,7 +18,7 @@ const SignersScreen = () => {
   return (
     <Wrapper>
       <Title>{t('Hardware wallet signers')}</Title>
-      <Button text={t('Connect Ledger Nano X')} onPress={goToConnectLedger} />
+      <Button text={t('Connect Ledger')} onPress={goToConnectLedger} />
       <Button disabled text={t('Connect Trezor')} />
       <P>{t('To manage signers other than Ledger Nano X or Trezor, visit the web app.')}</P>
 
