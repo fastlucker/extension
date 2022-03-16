@@ -2,18 +2,25 @@ import { generateAddress2 } from 'ethereumjs-util'
 import { getAddress, hexZeroPad } from 'ethers/lib/utils'
 /* eslint-disable no-await-in-loop */
 import React, { useCallback, useEffect, useState } from 'react'
-import { PermissionsAndroid, Platform } from 'react-native'
+import { ActivityIndicator, PermissionsAndroid, Platform, RefreshControl, View } from 'react-native'
 import { Observable } from 'rxjs'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
+import Text from '@modules/common/components/Text'
+import Title from '@modules/common/components/Title'
+import Wrapper from '@modules/common/components/Wrapper'
 import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
 import { ledgerDeviceGetAddresses } from '@modules/common/services/ledger/ledger'
+import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import textStyles from '@modules/common/styles/utils/text'
 
 import DeviceSelection from './DeviceSelection'
 
@@ -26,7 +33,10 @@ const HardwareWalletScreen = () => {
   const [devices, setDevices] = useState<any>([])
   const [refreshing, setRefreshing] = useState<any>(false)
   const { onAddAccount } = useAccounts()
-  // TODO: handle via modal
+  // TODO: Multiple signers support is not implemented yet.
+  // @ledgerhq/hw-app-eth supports retrieving only a single address
+  // once multi-address fetching is supported,
+  // a bottom sheet with the address list should be implemented
   const [signersToChoose, setChooseSigners] = useState<any>(null)
 
   let sub: any
@@ -42,16 +52,18 @@ const HardwareWalletScreen = () => {
           setDevices(deviceAddition(e.descriptor))
         }
       },
-      error: (e: any) => {
+      error: () => {
         setRefreshing(false)
-        // TODO: handle error
       }
     })
+
+    setTimeout(() => {
+      sub.complete()
+    }, 40000)
   }
 
   const reload = async () => {
     if (sub) sub.unsubscribe()
-    setDevices([])
     setRefreshing(false)
     startScan()
   }
@@ -221,7 +233,33 @@ const HardwareWalletScreen = () => {
   }
 
   return (
-    <DeviceSelection devices={devices} refreshing={refreshing} onSelectDevice={onSelectDevice} />
+    <Wrapper
+      refreshControl={
+        <RefreshControl
+          refreshing={false}
+          onRefresh={reload}
+          tintColor={colors.primaryIconColor}
+          progressBackgroundColor={colors.primaryIconColor}
+          enabled={!refreshing}
+        />
+      }
+    >
+      {!!refreshing && (
+        <View style={[flexboxStyles.alignCenter, spacings.mb]}>
+          <Text style={[textStyles.bold, spacings.mbMi]}>{t('Looking for devices')}</Text>
+          <Text style={textStyles.center} color={colors.secondaryTextColor} fontSize={14}>
+            {t('Please make sure your Ledger Nano X is unlocked and Bluetooth is enabled.')}
+          </Text>
+        </View>
+      )}
+      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbSm]}>
+        <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
+          Available devices
+        </Title>
+        {refreshing && <ActivityIndicator />}
+      </View>
+      <DeviceSelection devices={devices} refreshing={refreshing} onSelectDevice={onSelectDevice} />
+    </Wrapper>
   )
 }
 

@@ -111,6 +111,11 @@ const DashboardStackScreen = () => {
         options={{ title: t('Login') }}
         component={QRCodeLoginScreen}
       />
+      <Stack.Screen
+        name="hardwareWallet"
+        options={{ title: t('Hardware Wallet') }}
+        component={HardwareWalletScreen}
+      />
       <Stack.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
     </DashboardStack.Navigator>
   )
