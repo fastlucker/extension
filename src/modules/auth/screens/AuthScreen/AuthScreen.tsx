@@ -34,7 +34,7 @@ const AuthScreen = ({ navigation }: Props) => {
         onPress={() => navigation.navigate('qrCodeLogin')}
       />
       <Button
-        text={t('Ledger')}
+        text={t('Hardware wallet')}
         onPress={() => navigation.navigate('hardwareWallet')}
         style={spacings.mbLg}
       />
