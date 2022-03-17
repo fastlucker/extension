@@ -42,8 +42,12 @@ const useLedgerConnect = () => {
           setDevices(deviceAddition(e.descriptor))
         }
       },
-      error: () => {
-        setRefreshing(false)
+      error: (e) => {
+        // Timeout just for a better UX
+        setTimeout(() => {
+          addToast(e.message, { error: true })
+          setRefreshing(false)
+        }, 1200)
       }
     })
 

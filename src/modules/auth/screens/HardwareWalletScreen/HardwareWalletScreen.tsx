@@ -40,9 +40,14 @@ const HardwareWalletScreen = () => {
         <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
           Available devices
         </Title>
-        {refreshing && <ActivityIndicator />}
+        {!!refreshing && <ActivityIndicator />}
       </View>
-      <DevicesList devices={devices} refreshing={refreshing} onSelectDevice={onSelectDevice} />
+      <DevicesList
+        devices={devices}
+        refreshing={refreshing}
+        onSelectDevice={onSelectDevice}
+        onRefresh={reload}
+      />
     </Wrapper>
   )
 }
