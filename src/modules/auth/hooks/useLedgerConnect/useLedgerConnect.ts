@@ -66,7 +66,7 @@ const useLedgerConnect = () => {
     ;(async () => {
       // NB: this is the bare minimal. We recommend to implement a screen to explain to user.
       if (Platform.OS === 'android') {
-        await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION)
+        await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
       }
 
       let previousAvailable = false

@@ -40,7 +40,7 @@ const HardwareWalletScreen = () => {
         <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
           Available devices
         </Title>
-        {!!refreshing && <ActivityIndicator />}
+        {!!refreshing && <ActivityIndicator color={colors.primaryIconColor} />}
       </View>
       <DevicesList
         devices={devices}
