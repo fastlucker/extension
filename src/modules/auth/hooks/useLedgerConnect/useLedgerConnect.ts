@@ -3,7 +3,6 @@ import { generateAddress2 } from 'ethereumjs-util'
 import { getAddress, hexZeroPad } from 'ethers/lib/utils'
 import { useCallback, useEffect, useState } from 'react'
 import { PermissionsAndroid } from 'react-native'
-import { BleManager } from 'react-native-ble-plx'
 import { Observable } from 'rxjs'
 
 import CONFIG, { isAndroid } from '@config/env'
@@ -23,7 +22,6 @@ const useLedgerConnect = () => {
   const { addToast } = useToast()
   const [devices, setDevices] = useState<any>([])
   const [refreshing, setRefreshing] = useState<any>(false)
-  const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState(false)
   const { onAddAccount } = useAccounts()
   // TODO: Multiple signers support is not implemented yet.
   // @ledgerhq/hw-app-eth supports retrieving only a single address
@@ -65,21 +63,7 @@ const useLedgerConnect = () => {
   }
 
   useEffect(() => {
-    const subscription = new BleManager().onStateChange((state) => {
-      setInBluetoothPoweredOn(state === 'PoweredOn')
-    }, true)
-
-    return () => subscription.remove()
-  }, [])
-
-  useEffect(() => {
     ;(async () => {
-      if (!isBluetoothPoweredOn) {
-        if (sub) sub.unsubscribe()
-
-        return
-      }
-
       // NB: this is the bare minimal. We recommend to implement a screen to explain to user.
       // ACCESS_FINE_LOCATION is necessary because, on Android 11 and lower,
       // a Bluetooth scan could potentially be used to gather information
@@ -104,7 +88,7 @@ const useLedgerConnect = () => {
     return () => {
       if (sub) sub.unsubscribe()
     }
-  }, [isBluetoothPoweredOn])
+  }, [])
 
   const getAccountByAddr = useCallback(
     async (idAddr, signerAddr) => {
@@ -255,7 +239,6 @@ const useLedgerConnect = () => {
     signersToChoose,
     devices,
     refreshing,
-    isBluetoothPoweredOn,
     onSelectDevice,
     reload
   }
