@@ -3,9 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { BleManager } from 'react-native-ble-plx'
 import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 
+import { isAndroid } from '@config/env'
 import Button from '@modules/common/components/Button'
 import P from '@modules/common/components/P'
 import { TEXT_TYPES } from '@modules/common/components/Text'
+
+import RequireLocation from '../RequireLocation/RequireLocation'
 
 const RequireBluetooth: React.FC = ({ children }) => {
   const { t } = useTranslation()
@@ -21,8 +24,13 @@ const RequireBluetooth: React.FC = ({ children }) => {
 
   const turnOnBluetooth = () => BluetoothStateManager.enable()
 
+  // On Android only, location permission (ACCESS_FINE_LOCATION) also is needed.
+  // This is because, on Android 11 and lower, a Bluetooth scan could
+  // potentially be used to gather information about the location of the user.
+  const state = isAndroid ? <RequireLocation>{children}</RequireLocation> : children
+
   return isBluetoothPoweredOn ? (
-    children
+    state
   ) : (
     <>
       <P type={TEXT_TYPES.DANGER}>
