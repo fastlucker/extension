@@ -13,8 +13,10 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
+import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { getProvider } from '@modules/common/services/provider'
 import { toBundleTxn } from '@modules/common/services/requestToBundleTxn'
+import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import {
   getFeePaymentConsequences,
   isTokenEligible
@@ -198,6 +200,40 @@ const useSendTransaction = () => {
     })
   }, [CONFIG.RELAYER_URL, bundle, estimation, feeSpeed, network.nativeAssetSymbol, replaceTx])
 
+  const approveTxnImpl = async () => {
+    if (!estimation) throw new Error('no estimation: should never happen')
+
+    const finalBundle = getFinalBundle()
+    const provider = getProvider(network.id)
+    const signer = finalBundle.signer
+
+    // TODO: implement bottom sheet with devices for providing the second argument(transporter)
+    const wallet = getWallet({
+      signer,
+      signerExtra: account.signerExtra,
+      chainId: network.chainId
+    })
+
+    if (CONFIG.RELAYER_URL) {
+      // Temporary way of debugging the fee cost
+      // const initialLimit = finalBundle.gasLimit - getFeePaymentConsequences(estimation.selectedFeeToken, estimation).addedGas
+      // finalBundle.estimate({ relayerURL, fetch }).then(estimation => console.log('fee costs: ', estimation.gasLimit - initialLimit), estimation.selectedFeeToken).catch(console.error)
+      await finalBundle.sign(wallet)
+      // eslint-disable-next-line @typescript-eslint/return-await
+      return await finalBundle.submit({ relayerURL: CONFIG.RELAYER_URL, fetch })
+    }
+    // eslint-disable-next-line @typescript-eslint/return-await
+    return await sendNoRelayer({
+      finalBundle,
+      account,
+      network,
+      wallet,
+      estimation,
+      feeSpeed,
+      provider
+    })
+  }
+
   const approveTxnImplQuickAcc = async ({ quickAccCredentials }: any) => {
     if (!estimation) throw new Error('no estimation: should never happen')
     if (!CONFIG.RELAYER_URL)
@@ -268,7 +304,9 @@ const useSendTransaction = () => {
     }
 
     const requestIds = bundle.requestIds
-    const approveTxnPromise = approveTxnImplQuickAcc({ quickAccCredentials })
+    const approveTxnPromise = bundle.signer.quickAccManager
+      ? approveTxnImplQuickAcc({ quickAccCredentials })
+      : approveTxnImpl()
     approveTxnPromise
       .then((bundleResult) => {
         // special case for approveTxnImplQuickAcc
