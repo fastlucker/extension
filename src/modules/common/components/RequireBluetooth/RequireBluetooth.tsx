@@ -6,9 +6,8 @@ import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 import { isAndroid } from '@config/env'
 import Button from '@modules/common/components/Button'
 import P from '@modules/common/components/P'
+import RequireLocation from '@modules/common/components/RequireLocation'
 import { TEXT_TYPES } from '@modules/common/components/Text'
-
-import RequireLocation from '../RequireLocation/RequireLocation'
 
 const RequireBluetooth: React.FC = ({ children }) => {
   const { t } = useTranslation()
