@@ -2,11 +2,11 @@
 import { generateAddress2 } from 'ethereumjs-util'
 import { getAddress, hexZeroPad } from 'ethers/lib/utils'
 import { useCallback, useEffect, useState } from 'react'
-import { PermissionsAndroid, Platform } from 'react-native'
+import { PermissionsAndroid } from 'react-native'
 import { BleManager } from 'react-native-ble-plx'
 import { Observable } from 'rxjs'
 
-import CONFIG from '@config/env'
+import CONFIG, { isAndroid } from '@config/env'
 import i18n from '@config/localization/localization'
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
@@ -84,7 +84,7 @@ const useLedgerConnect = () => {
       // ACCESS_FINE_LOCATION is necessary because, on Android 11 and lower,
       // a Bluetooth scan could potentially be used to gather information
       // about the location of the user.
-      if (Platform.OS === 'android') {
+      if (isAndroid) {
         await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
       }
 
