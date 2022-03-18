@@ -38,7 +38,7 @@ const HardwareWalletScreen = () => {
       )}
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbSm]}>
         <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
-          Available devices
+          {t('Available devices')}
         </Title>
         {!!refreshing && <ActivityIndicator color={colors.primaryIconColor} />}
       </View>

@@ -187,7 +187,13 @@ const useLedgerConnect = () => {
       if (!owned.length) {
         addAccount(await createFromEOA(addr), { select: true, isNew: true })
       } else {
-        addToast(`Found ${owned.length} existing accounts with signer ${addr}`, { timeout: 15000 })
+        addToast(
+          i18n.t('Found {{numAccs}} existing accounts with signer {{addr}}', {
+            numAccs: owned.length,
+            addr
+          }) as string,
+          { timeout: 15000 }
+        )
         owned.forEach((acc: any, i: any) => addAccount(acc, { select: i === 0 }))
       }
     },

@@ -24,7 +24,7 @@ const DevicesList = ({ onSelectDevice, devices, refreshing, onRefresh }: any) =>
           style={[StyleSheet.absoluteFill, flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}
         >
           <Text fontSize={18} style={spacings.mbTy}>
-            No devices found
+            {t('No devices found')}
           </Text>
           <View>
             <Button size={BUTTON_SIZES.SMALL} text={t('Scan')} onPress={onRefresh} />
