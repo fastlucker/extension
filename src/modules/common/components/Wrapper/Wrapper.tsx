@@ -5,7 +5,8 @@ import {
   ScrollView,
   ScrollViewProps,
   SectionList,
-  SectionListProps
+  SectionListProps,
+  View
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
@@ -18,7 +19,8 @@ export enum WRAPPER_TYPES {
   SCROLL_VIEW = 'scrollview',
   KEYBOARD_AWARE_SCROLL_VIEW = 'keyboard-aware-scrollview',
   FLAT_LIST = 'flatlist',
-  SECTION_LIST = 'sectionlist'
+  SECTION_LIST = 'sectionlist',
+  VIEW = 'view'
 }
 
 // @ts-ignore ignored because SectionList and FlatList receive props with same names
@@ -84,6 +86,10 @@ const Wrapper = ({
         {children}
       </KeyboardAwareScrollView>
     )
+  }
+
+  if (type === WRAPPER_TYPES.VIEW) {
+    return <View style={style}>{children}</View>
   }
 
   return (

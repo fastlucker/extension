@@ -2,6 +2,9 @@ import React, { useEffect, useLayoutEffect } from 'react'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
+import useLedgerConnect from '@modules/auth/hooks/useLedgerConnect'
+import BottomSheet from '@modules/common/components/BottomSheet'
+import HardwareWalletScanDevices from '@modules/common/components/HardwareWalletScanDevices'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -20,6 +23,9 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
   const { account } = useAccounts()
   const {
+    sheetRefHardwareWalletScan,
+    isOpenBottomSheetHardwareWalletScan,
+    closeBottomSheetHardwareWalletScan,
     bundle,
     signingStatus,
     estimation,
@@ -27,8 +33,11 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     setEstimation,
     setFeeSpeed,
     approveTxn,
+    setSigningStatus,
     rejectTxn
   } = useSendTransaction()
+
+  const connect = useLedgerConnect(isOpenBottomSheetHardwareWalletScan)
 
   const prevBundle: any = usePrevious(bundle)
 
@@ -114,6 +123,24 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
           feeSpeed={feeSpeed}
         />
       )}
+      <BottomSheet
+        sheetRef={sheetRefHardwareWalletScan}
+        isOpen={isOpenBottomSheetHardwareWalletScan}
+        closeBottomSheet={() => {
+          closeBottomSheetHardwareWalletScan()
+          setSigningStatus(null)
+        }}
+        dynamicInitialHeight={false}
+      >
+        <HardwareWalletScanDevices
+          onSelectDevice={(deviceId) => {
+            approveTxn({ deviceId })
+            closeBottomSheetHardwareWalletScan()
+          }}
+          shouldWrap={false}
+          {...connect}
+        />
+      </BottomSheet>
     </Wrapper>
   )
 }

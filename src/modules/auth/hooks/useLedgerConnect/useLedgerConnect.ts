@@ -9,7 +9,7 @@ import useToast from '@modules/common/hooks/useToast'
 const deviceAddition = (device: any) => (devices: any) =>
   devices.some((i: any) => i.id === device.id) ? devices : devices.concat(device)
 
-const useLedgerConnect = () => {
+const useLedgerConnect = (shouldScan: boolean = true) => {
   const { addToast } = useToast()
   const [devices, setDevices] = useState<any>([])
   const [refreshing, setRefreshing] = useState<any>(false)
@@ -57,13 +57,13 @@ const useLedgerConnect = () => {
   }, [])
 
   useEffect(() => {
+    if (!shouldScan || !isBluetoothPoweredOn) {
+      if (sub) sub.unsubscribe()
+
+      return
+    }
+
     ;(async () => {
-      if (!isBluetoothPoweredOn) {
-        if (sub) sub.unsubscribe()
-
-        return
-      }
-
       // NB: this is the bare minimal. We recommend to implement a screen to explain to user.
       if (Platform.OS === 'android') {
         await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
@@ -85,7 +85,7 @@ const useLedgerConnect = () => {
     return () => {
       if (sub) sub.unsubscribe()
     }
-  }, [isBluetoothPoweredOn])
+  }, [shouldScan, isBluetoothPoweredOn])
 
   return {
     devices,

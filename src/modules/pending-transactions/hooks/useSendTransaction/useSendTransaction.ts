@@ -7,6 +7,8 @@ import { Alert } from 'react-native'
 
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
+import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
+import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -38,7 +40,6 @@ function makeBundle(account: any, networkId: any, requests: any) {
   bundle.extraGas = requests.map((x: any) => x.extraGas || 0).reduce((a: any, b: any) => a + b, 0)
   bundle.requestIds = requests.map((x: any) => x.id)
   return bundle
-  return null
 }
 
 function getErrorMessage(e: any) {
@@ -70,6 +71,13 @@ const useSendTransaction = () => {
 
   // TODO: implement the related functionality (should be applied in useTransactions)
   const [replaceTx, setReplaceTx] = useState(false)
+
+  const {
+    sheetRef: sheetRefHardwareWalletScan,
+    openBottomSheet: openBottomSheetHardwareWalletScan,
+    closeBottomSheet: closeBottomSheetHardwareWalletScan,
+    isOpen: isOpenBottomSheetHardwareWalletScan
+  } = useBottomSheet()
 
   const bundle = useMemo(
     () => sendTxnState.replacementBundle || makeBundle(account, network?.id, eligibleRequests),
@@ -200,19 +208,25 @@ const useSendTransaction = () => {
     })
   }, [CONFIG.RELAYER_URL, bundle, estimation, feeSpeed, network.nativeAssetSymbol, replaceTx])
 
-  const approveTxnImpl = async () => {
+  const approveTxnImpl = async (deviceId: any) => {
     if (!estimation) throw new Error('no estimation: should never happen')
+
+    const transport = await TransportBLE.open(deviceId).catch((err: any) => {
+      throw err
+    })
 
     const finalBundle = getFinalBundle()
     const provider = getProvider(network.id)
     const signer = finalBundle.signer
 
-    // TODO: implement bottom sheet with devices for providing the second argument(transporter)
-    const wallet = getWallet({
-      signer,
-      signerExtra: account.signerExtra,
-      chainId: network.chainId
-    })
+    const wallet = getWallet(
+      {
+        signer,
+        signerExtra: account.signerExtra,
+        chainId: network.chainId
+      },
+      transport
+    )
 
     if (CONFIG.RELAYER_URL) {
       // Temporary way of debugging the fee cost
@@ -293,20 +307,26 @@ const useSendTransaction = () => {
     }
   }
 
-  const approveTxn = ({ quickAccCredentials }: any) => {
+  const approveTxn = ({ quickAccCredentials, deviceId }: any) => {
     if (signingStatus && signingStatus.inProgress) return
     setSigningStatus(signingStatus || { inProgress: true })
 
-    if (account.signerExtra && account.signerExtra.type === 'ledger') {
-      addToast(i18n.t('Please confirm this transaction on your Ledger device.') as string, {
-        timeout: 10000
-      })
+    // if (account.signerExtra && account.signerExtra.type === 'ledger') {
+    //   addToast(i18n.t('Please confirm this transaction on your Ledger device.') as string, {
+    //     timeout: 10000
+    //   })
+    // }
+
+    if (!bundle.signer.quickAccManager && !isOpenBottomSheetHardwareWalletScan) {
+      openBottomSheetHardwareWalletScan()
+      setSigningStatus(null)
+      return
     }
 
     const requestIds = bundle.requestIds
     const approveTxnPromise = bundle.signer.quickAccManager
       ? approveTxnImplQuickAcc({ quickAccCredentials })
-      : approveTxnImpl()
+      : approveTxnImpl(deviceId)
     approveTxnPromise
       .then((bundleResult) => {
         // special case for approveTxnImplQuickAcc
@@ -374,6 +394,10 @@ const useSendTransaction = () => {
     })
 
   return {
+    sheetRefHardwareWalletScan,
+    openBottomSheetHardwareWalletScan,
+    closeBottomSheetHardwareWalletScan,
+    isOpenBottomSheetHardwareWalletScan,
     bundle,
     rejectTxn,
     estimation,
@@ -381,7 +405,8 @@ const useSendTransaction = () => {
     feeSpeed,
     approveTxn,
     setFeeSpeed,
-    setEstimation
+    setEstimation,
+    setSigningStatus
   }
 }
 

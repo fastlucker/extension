@@ -13,7 +13,7 @@ const DevicesList = ({ onSelectDevice, devices, refreshing, onRefresh }: any) =>
   return (
     <>
       {!!devices.length && (
-        <View style={flexboxStyles.flex1}>
+        <View>
           {devices.map((device: any) => (
             <DeviceItem key={device.id} device={device} onSelect={onSelectDevice} />
           ))}
