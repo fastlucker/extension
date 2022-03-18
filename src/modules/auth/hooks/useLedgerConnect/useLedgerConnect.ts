@@ -67,14 +67,16 @@ const useLedgerConnect = () => {
   useEffect(() => {
     const subscription = new BleManager().onStateChange((state) => {
       setInBluetoothPoweredOn(state === 'PoweredOn')
-
-      return () => subscription.remove()
     }, true)
+
+    return () => subscription.remove()
   }, [])
 
   useEffect(() => {
     ;(async () => {
       if (!isBluetoothPoweredOn) {
+        if (sub) sub.unsubscribe()
+
         return
       }
 
