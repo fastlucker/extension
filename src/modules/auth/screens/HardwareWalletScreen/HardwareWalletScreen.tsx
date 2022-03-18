@@ -7,6 +7,7 @@ import useLedgerConnect from '@modules/auth/hooks/useLedgerConnect'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
+import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -14,14 +15,23 @@ import textStyles from '@modules/common/styles/utils/text'
 
 const HardwareWalletScreen = () => {
   const { t } = useTranslation()
-  const { devices, refreshing, onSelectDevice, reload } = useLedgerConnect()
+  const { addToast } = useToast()
+  const { devices, refreshing, onSelectDevice, isBluetoothPoweredOn, reload } = useLedgerConnect()
+
+  const handleOnRefresh = () => {
+    if (!isBluetoothPoweredOn) {
+      return addToast(t('Please turn on the Bluetooth first.') as string, { error: true })
+    }
+
+    return reload()
+  }
 
   return (
     <Wrapper
       refreshControl={
         <RefreshControl
           refreshing={false}
-          onRefresh={reload}
+          onRefresh={handleOnRefresh}
           tintColor={colors.primaryIconColor}
           progressBackgroundColor={colors.primaryIconColor}
           enabled={!refreshing}
@@ -46,7 +56,7 @@ const HardwareWalletScreen = () => {
         devices={devices}
         refreshing={refreshing}
         onSelectDevice={onSelectDevice}
-        onRefresh={reload}
+        onRefresh={handleOnRefresh}
       />
     </Wrapper>
   )
