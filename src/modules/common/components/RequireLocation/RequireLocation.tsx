@@ -1,3 +1,4 @@
+import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
 import { PermissionsAndroid } from 'react-native'
 
@@ -11,11 +12,17 @@ const RequireLocation: React.FC = ({ children }) => {
       const permissionStatus = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
       )
-      setPermissionGranted(permissionStatus === 'granted')
+      setPermissionGranted(permissionStatus === PermissionsAndroid.RESULTS.GRANTED)
     })()
   }, [])
 
-  return permissionGranted ? children : <P>Please grant!</P>
+  return permissionGranted ? (
+    children
+  ) : (
+    <P>
+      {t('Please turn on Location services first, in order to connect to hardware wallet devices.')}
+    </P>
+  )
 }
 
 export default RequireLocation
