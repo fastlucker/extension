@@ -81,6 +81,9 @@ const useLedgerConnect = () => {
       }
 
       // NB: this is the bare minimal. We recommend to implement a screen to explain to user.
+      // ACCESS_FINE_LOCATION is necessary because, on Android 11 and lower,
+      // a Bluetooth scan could potentially be used to gather information
+      // about the location of the user.
       if (Platform.OS === 'android') {
         await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
       }
