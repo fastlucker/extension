@@ -9,7 +9,9 @@ import {
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
-import styles from './styles'
+import useTheme from '@modules/common/hooks/useTheme'
+
+import createStyles from './styles'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum WRAPPER_TYPES {
@@ -36,6 +38,8 @@ const Wrapper = ({
   keyboardDismissMode,
   ...rest
 }: Props) => {
+  const { styles } = useTheme(createStyles)
+
   if (type === WRAPPER_TYPES.FLAT_LIST) {
     return (
       // @ts-ignore

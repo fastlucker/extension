@@ -7,6 +7,7 @@ import BiometricsSign from '@modules/settings/components/BiometricsSign'
 import ConnectedDapps from '@modules/settings/components/ConnectedDapps'
 import LocalAuth from '@modules/settings/components/LocalAuth'
 import Passcode from '@modules/settings/components/Passcode'
+import Theme from '@modules/settings/components/Theme'
 
 const SettingsScreen = () => {
   // TODO: Option to change the app language, when a second one gets introduced.
@@ -22,6 +23,7 @@ const SettingsScreen = () => {
       <LocalAuth />
       <BiometricsSign />
       <AppLocking />
+      <Theme />
       <AppVersion />
     </Wrapper>
   )

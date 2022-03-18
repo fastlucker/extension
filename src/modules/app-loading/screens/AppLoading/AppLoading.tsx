@@ -11,11 +11,13 @@ import { AddressBookProvider } from '@modules/common/contexts/addressBookContext
 import { GnosisProvider } from '@modules/common/contexts/gnosisContext'
 import { KeyboardProvider } from '@modules/common/contexts/keyboardContext'
 import { LinkingProvider } from '@modules/common/contexts/linkingContext'
+import { NetInfoProvider } from '@modules/common/contexts/netInfoContext'
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
 import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 import { StorageContext } from '@modules/common/contexts/storageContext'
+import { ThemeProvider } from '@modules/common/contexts/themeContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 
@@ -24,40 +26,44 @@ const AppLoading = () => {
   if (!storageLoaded) return null
 
   return (
-    <SafeAreaProvider>
-      <KeyboardProvider>
-        <ToastProvider>
-          <AuthProvider>
-            <AccountsProvider>
-              <NetworkProvider>
-                <PortfolioProvider>
-                  <GnosisProvider>
-                    <WalletConnectProvider>
-                      <RequestsProvider>
-                        <AddressBookProvider>
-                          <AccountsPasswordsProvider>
-                            <PortalProvider>
-                              <PasscodeProvider>
-                                <AttentionGrabberProvider>
-                                  <LinkingProvider>
-                                    <Router />
-                                  </LinkingProvider>
-                                </AttentionGrabberProvider>
-                                <PortalHost name="global" />
-                              </PasscodeProvider>
-                            </PortalProvider>
-                          </AccountsPasswordsProvider>
-                        </AddressBookProvider>
-                      </RequestsProvider>
-                    </WalletConnectProvider>
-                  </GnosisProvider>
-                </PortfolioProvider>
-              </NetworkProvider>
-            </AccountsProvider>
-          </AuthProvider>
-        </ToastProvider>
-      </KeyboardProvider>
-    </SafeAreaProvider>
+    <ThemeProvider>
+      <SafeAreaProvider>
+        <KeyboardProvider>
+          <NetInfoProvider>
+            <ToastProvider>
+              <AuthProvider>
+                <AccountsProvider>
+                  <NetworkProvider>
+                    <PortfolioProvider>
+                      <GnosisProvider>
+                        <WalletConnectProvider>
+                          <RequestsProvider>
+                            <AddressBookProvider>
+                              <AccountsPasswordsProvider>
+                                <PortalProvider>
+                                  <PasscodeProvider>
+                                    <AttentionGrabberProvider>
+                                      <LinkingProvider>
+                                        <Router />
+                                      </LinkingProvider>
+                                    </AttentionGrabberProvider>
+                                    <PortalHost name="global" />
+                                  </PasscodeProvider>
+                                </PortalProvider>
+                              </AccountsPasswordsProvider>
+                            </AddressBookProvider>
+                          </RequestsProvider>
+                        </WalletConnectProvider>
+                      </GnosisProvider>
+                    </PortfolioProvider>
+                  </NetworkProvider>
+                </AccountsProvider>
+              </AuthProvider>
+            </ToastProvider>
+          </NetInfoProvider>
+        </KeyboardProvider>
+      </SafeAreaProvider>
+    </ThemeProvider>
   )
 }
 

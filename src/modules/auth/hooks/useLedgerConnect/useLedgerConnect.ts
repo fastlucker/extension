@@ -3,6 +3,7 @@ import { generateAddress2 } from 'ethereumjs-util'
 import { getAddress, hexZeroPad } from 'ethers/lib/utils'
 import { useCallback, useEffect, useState } from 'react'
 import { PermissionsAndroid, Platform } from 'react-native'
+import { BleManager } from 'react-native-ble-plx'
 import { Observable } from 'rxjs'
 
 import CONFIG from '@config/env'
@@ -22,6 +23,7 @@ const useLedgerConnect = () => {
   const { addToast } = useToast()
   const [devices, setDevices] = useState<any>([])
   const [refreshing, setRefreshing] = useState<any>(false)
+  const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState(false)
   const { onAddAccount } = useAccounts()
   // TODO: Multiple signers support is not implemented yet.
   // @ledgerhq/hw-app-eth supports retrieving only a single address
@@ -63,7 +65,21 @@ const useLedgerConnect = () => {
   }
 
   useEffect(() => {
+    const subscription = new BleManager().onStateChange((state) => {
+      setInBluetoothPoweredOn(state === 'PoweredOn')
+    }, true)
+
+    return () => subscription.remove()
+  }, [])
+
+  useEffect(() => {
     ;(async () => {
+      if (!isBluetoothPoweredOn) {
+        if (sub) sub.unsubscribe()
+
+        return
+      }
+
       // NB: this is the bare minimal. We recommend to implement a screen to explain to user.
       if (Platform.OS === 'android') {
         await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
@@ -85,7 +101,7 @@ const useLedgerConnect = () => {
     return () => {
       if (sub) sub.unsubscribe()
     }
-  }, [])
+  }, [isBluetoothPoweredOn])
 
   const getAccountByAddr = useCallback(
     async (idAddr, signerAddr) => {
@@ -187,7 +203,13 @@ const useLedgerConnect = () => {
       if (!owned.length) {
         addAccount(await createFromEOA(addr), { select: true, isNew: true })
       } else {
-        addToast(`Found ${owned.length} existing accounts with signer ${addr}`, { timeout: 15000 })
+        addToast(
+          i18n.t('Found {{numAccs}} existing accounts with signer {{addr}}', {
+            numAccs: owned.length,
+            addr
+          }) as string,
+          { timeout: 15000 }
+        )
         owned.forEach((acc: any, i: any) => addAccount(acc, { select: i === 0 }))
       }
     },
@@ -230,6 +252,7 @@ const useLedgerConnect = () => {
     signersToChoose,
     devices,
     refreshing,
+    isBluetoothPoweredOn,
     onSelectDevice,
     reload
   }
