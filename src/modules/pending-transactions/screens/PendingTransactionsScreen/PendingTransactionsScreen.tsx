@@ -134,7 +134,6 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         isOpen={isOpen}
         closeBottomSheet={() => {
           closeBottomSheet()
-          setSigningStatus(null)
         }}
         dynamicInitialHeight={false}
       >

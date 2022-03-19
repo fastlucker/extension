@@ -7,7 +7,6 @@ import { Alert } from 'react-native'
 
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
-import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -210,10 +209,6 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
   const approveTxnImpl = async (deviceId: any) => {
     if (!estimation) throw new Error('no estimation: should never happen')
 
-    const transport = await TransportBLE.open(deviceId).catch((err: any) => {
-      throw err
-    })
-
     const finalBundle = getFinalBundle()
     const provider = getProvider(network.id)
     const signer = finalBundle.signer
@@ -224,7 +219,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
         signerExtra: account.signerExtra,
         chainId: network.chainId
       },
-      transport
+      deviceId
     )
 
     if (CONFIG.RELAYER_URL) {

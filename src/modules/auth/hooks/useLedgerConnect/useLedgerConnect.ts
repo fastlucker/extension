@@ -79,6 +79,7 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
         }
       })
 
+      setDevices([])
       startScan()
     })()
 

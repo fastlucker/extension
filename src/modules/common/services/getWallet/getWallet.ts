@@ -4,12 +4,12 @@ import { ledgerSignMessage, ledgerSignTransaction } from '@modules/common/servic
 
 const wallets: any = {}
 
-function getWalletNew({ chainId, signer, signerExtra }: any, transport: any) {
+function getWalletNew({ chainId, signer, signerExtra }: any, deviceId: any) {
   if (signerExtra && signerExtra.type === 'ledger') {
     return {
       signMessage: (hash: any) =>
-        ledgerSignMessage(ethers.utils.hexlify(hash), signer.address, transport),
-      signTransaction: (params: any) => ledgerSignTransaction(params, chainId, transport)
+        ledgerSignMessage(ethers.utils.hexlify(hash), signer.address, deviceId),
+      signTransaction: (params: any) => ledgerSignTransaction(params, chainId, deviceId)
     }
   }
   // TODO: implement Trezor logic here
@@ -22,9 +22,9 @@ function getWalletNew({ chainId, signer, signerExtra }: any, transport: any) {
   }
 }
 
-export function getWallet({ signer, signerExtra, chainId }: any, transport: any) {
+export function getWallet({ signer, signerExtra, chainId }: any, deviceId: any) {
   const id = `${signer.address || signer.one}${chainId}`
   if (wallets[id]) return wallets[id]
   // eslint-disable-next-line no-return-assign
-  return (wallets[id] = getWalletNew({ signer, signerExtra, chainId }, transport))
+  return (wallets[id] = getWalletNew({ signer, signerExtra, chainId }, deviceId))
 }
