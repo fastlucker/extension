@@ -4,6 +4,7 @@ import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import useLedgerConnect from '@modules/auth/hooks/useLedgerConnect'
 import BottomSheet from '@modules/common/components/BottomSheet'
+import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import HardwareWalletScanDevices from '@modules/common/components/HardwareWalletScanDevices'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
@@ -22,10 +23,10 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
   const { account } = useAccounts()
+
+  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
+
   const {
-    sheetRefHardwareWalletScan,
-    isOpenBottomSheetHardwareWalletScan,
-    closeBottomSheetHardwareWalletScan,
     bundle,
     signingStatus,
     estimation,
@@ -35,9 +36,14 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     approveTxn,
     setSigningStatus,
     rejectTxn
-  } = useSendTransaction()
+  } = useSendTransaction({
+    sheetRef,
+    openBottomSheet,
+    closeBottomSheet,
+    isOpen
+  })
 
-  const connect = useLedgerConnect(isOpenBottomSheetHardwareWalletScan)
+  const connect = useLedgerConnect(isOpen)
 
   const prevBundle: any = usePrevious(bundle)
 
@@ -124,10 +130,10 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         />
       )}
       <BottomSheet
-        sheetRef={sheetRefHardwareWalletScan}
-        isOpen={isOpenBottomSheetHardwareWalletScan}
+        sheetRef={sheetRef}
+        isOpen={isOpen}
         closeBottomSheet={() => {
-          closeBottomSheetHardwareWalletScan()
+          closeBottomSheet()
           setSigningStatus(null)
         }}
         dynamicInitialHeight={false}
@@ -135,7 +141,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         <HardwareWalletScanDevices
           onSelectDevice={(deviceId) => {
             approveTxn({ deviceId })
-            closeBottomSheetHardwareWalletScan()
+            closeBottomSheet()
           }}
           shouldWrap={false}
           {...connect}

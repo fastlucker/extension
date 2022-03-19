@@ -45,6 +45,7 @@ const HardwareWalletScanDevices = ({
   return (
     <Wrapper
       type={shouldWrap ? WRAPPER_TYPES.SCROLL_VIEW : WRAPPER_TYPES.VIEW}
+      style={!shouldWrap && flexboxStyles.flex1}
       refreshControl={
         <RefreshControl
           refreshing={false}

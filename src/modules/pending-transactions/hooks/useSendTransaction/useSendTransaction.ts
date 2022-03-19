@@ -8,7 +8,6 @@ import { Alert } from 'react-native'
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -23,6 +22,13 @@ import {
   getFeePaymentConsequences,
   isTokenEligible
 } from '@modules/pending-transactions/services/helpers'
+
+type HardwareWalletBottomSheetType = {
+  sheetRef: any
+  openBottomSheet: any
+  closeBottomSheet: any
+  isOpen: any
+}
 
 const DEFAULT_SPEED = 'fast'
 const REESTIMATE_INTERVAL = 15000
@@ -59,7 +65,7 @@ function getErrorMessage(e: any) {
   return e.message || e
 }
 
-const useSendTransaction = () => {
+const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheetType) => {
   const [estimation, setEstimation] = useState<any>(null)
   const [signingStatus, setSigningStatus] = useState<any>(false)
   const [feeSpeed, setFeeSpeed] = useState<any>(DEFAULT_SPEED)
@@ -71,13 +77,6 @@ const useSendTransaction = () => {
 
   // TODO: implement the related functionality (should be applied in useTransactions)
   const [replaceTx, setReplaceTx] = useState(false)
-
-  const {
-    sheetRef: sheetRefHardwareWalletScan,
-    openBottomSheet: openBottomSheetHardwareWalletScan,
-    closeBottomSheet: closeBottomSheetHardwareWalletScan,
-    isOpen: isOpenBottomSheetHardwareWalletScan
-  } = useBottomSheet()
 
   const bundle = useMemo(
     () => sendTxnState.replacementBundle || makeBundle(account, network?.id, eligibleRequests),
@@ -317,8 +316,8 @@ const useSendTransaction = () => {
     //   })
     // }
 
-    if (!bundle.signer.quickAccManager && !isOpenBottomSheetHardwareWalletScan) {
-      openBottomSheetHardwareWalletScan()
+    if (!bundle.signer.quickAccManager && !hardwareWalletBottomSheet.isOpen) {
+      hardwareWalletBottomSheet.openBottomSheet()
       setSigningStatus(null)
       return
     }
@@ -394,10 +393,6 @@ const useSendTransaction = () => {
     })
 
   return {
-    sheetRefHardwareWalletScan,
-    openBottomSheetHardwareWalletScan,
-    closeBottomSheetHardwareWalletScan,
-    isOpenBottomSheetHardwareWalletScan,
     bundle,
     rejectTxn,
     estimation,
