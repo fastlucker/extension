@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 
 import Blockies from '@modules/common/components/Blockies'
+import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import Wrapper from '@modules/common/components/Wrapper'
+import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useRequests from '@modules/common/hooks/useRequests'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
@@ -34,15 +35,35 @@ const SignScreen = ({ navigation }: any) => {
   const { account } = useAccounts()
   const { connections } = useWalletConnect()
   const { everythingToSign } = useRequests()
+
   const {
-    approve,
-    approveQuickAcc,
-    isLoading,
-    resolve,
-    sheetRef,
-    closeBottomSheet,
-    isBottomSheetOpen
-  } = useSignMessage()
+    sheetRef: sheetRefQickAcc,
+    openBottomSheet: openBottomSheetQickAcc,
+    closeBottomSheet: closeBottomSheetQickAcc,
+    isOpen: isOpenBottomSheetQickAcc
+  } = useBottomSheet()
+
+  const {
+    sheetRef: sheetRefHardwareWallet,
+    openBottomSheet: openBottomSheetHardwareWallet,
+    closeBottomSheet: closeBottomSheetHardwareWallet,
+    isOpen: isOpenBottomSheetHardwareWallet
+  } = useBottomSheet()
+
+  const { approve, approveQuickAcc, isLoading, resolve } = useSignMessage(
+    {
+      sheetRef: sheetRefQickAcc,
+      openBottomSheet: openBottomSheetQickAcc,
+      closeBottomSheet: closeBottomSheetQickAcc,
+      isOpen: isOpenBottomSheetQickAcc
+    },
+    {
+      sheetRef: sheetRefHardwareWallet,
+      openBottomSheet: openBottomSheetHardwareWallet,
+      closeBottomSheet: closeBottomSheetHardwareWallet,
+      isOpen: isOpenBottomSheetHardwareWallet
+    }
+  )
 
   const toSign = everythingToSign[0]
   const totalRequests = everythingToSign.length
@@ -57,6 +78,7 @@ const SignScreen = ({ navigation }: any) => {
   }, [connection])
 
   if (!toSign || !account) return null
+
   if (toSign && !isHexString(toSign?.txn)) {
     return (
       <Wrapper>
@@ -75,7 +97,7 @@ const SignScreen = ({ navigation }: any) => {
   }
 
   return (
-    <Wrapper>
+    <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} hasBottomTabNav={false}>
       <Panel>
         <Title>{t('Signing with account')}</Title>
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
@@ -117,9 +139,18 @@ const SignScreen = ({ navigation }: any) => {
           approve={approve}
           approveQuickAcc={approveQuickAcc}
           resolve={resolve}
-          sheetRef={sheetRef}
-          closeBottomSheet={closeBottomSheet}
-          isBottomSheetOpen={isBottomSheetOpen}
+          quickAccBottomSheet={{
+            sheetRef: sheetRefQickAcc,
+            openBottomSheet: openBottomSheetQickAcc,
+            closeBottomSheet: closeBottomSheetQickAcc,
+            isOpen: isOpenBottomSheetQickAcc
+          }}
+          hardwareWalletBottomSheet={{
+            sheetRef: sheetRefHardwareWallet,
+            openBottomSheet: openBottomSheetHardwareWallet,
+            closeBottomSheet: closeBottomSheetHardwareWallet,
+            isOpen: isOpenBottomSheetHardwareWallet
+          }}
         />
       </Panel>
     </Wrapper>

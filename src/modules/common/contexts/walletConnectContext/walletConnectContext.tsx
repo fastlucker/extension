@@ -44,7 +44,7 @@ let connectionErrors: any = []
 // Offline check: if it errored recently
 const timePastForConnectionErr = 90 * 1000
 const checkIsOffline = (uri: any) => {
-  const errors = connectionErrors.filter((x) => x.uri === uri)
+  const errors = connectionErrors.filter((x: any) => x.uri === uri)
   return errors.find(({ time }: any = {}) => time > Date.now() - timePastForConnectionErr)
   // return errors.length > 1 && errors.slice(-2)
   //    .every(({ time } = {}) => time > (Date.now() - timePastForConnectionErr))
@@ -166,7 +166,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
           cryptoLib,
           sessionStorage: noopSessionStorage
         })
-      } catch (e) {
+      } catch (e: any) {
         addToast(
           i18n.t('Unable to connect to {{uri}}: {{message}}', {
             uri: connectorOpts.uri,

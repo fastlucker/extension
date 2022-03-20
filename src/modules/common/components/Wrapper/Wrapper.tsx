@@ -29,6 +29,7 @@ interface Props
     Partial<FlatListProps<any>>,
     Partial<SectionListProps<any, any>> {
   type?: WRAPPER_TYPES
+  hasBottomTabNav: boolean
 }
 
 const Wrapper = ({
@@ -38,6 +39,7 @@ const Wrapper = ({
   type = WRAPPER_TYPES.SCROLL_VIEW,
   keyboardShouldPersistTaps,
   keyboardDismissMode,
+  hasBottomTabNav = true,
   ...rest
 }: Props) => {
   const { styles } = useTheme(createStyles)
@@ -80,7 +82,7 @@ const Wrapper = ({
         alwaysBounceVertical={false}
         enableOnAndroid
         // subs 68 of the scroll height only when the keyboard is visible because of the height of the bottom tab navigation
-        extraScrollHeight={-68} // magic num
+        extraScrollHeight={hasBottomTabNav ? -68 : 0} // magic num
         {...rest}
       >
         {children}

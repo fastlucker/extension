@@ -5,26 +5,41 @@ import { View } from 'react-native'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
-import Input from '@modules/common/components/Input'
+import HardwareWalletScanDevices from '@modules/common/components/HardwareWalletScanDevices'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import useAccounts from '@modules/common/hooks/useAccounts'
 import spacings from '@modules/common/styles/spacings'
+import {
+  HardwareWalletBottomSheetType,
+  QuickAccBottomSheetType
+} from '@modules/sign-message/hooks/useSignMessage/useSignMessage'
 
 import styles from './styles'
+
+interface Props {
+  isLoading: boolean
+  approve: any
+  approveQuickAcc: any
+  resolve: any
+  quickAccBottomSheet: QuickAccBottomSheetType
+  hardwareWalletBottomSheet: HardwareWalletBottomSheetType
+}
 
 const SignActions = ({
   isLoading,
   approve,
   approveQuickAcc,
   resolve,
-  sheetRef,
-  closeBottomSheet,
-  isBottomSheetOpen
-}: any) => {
+  quickAccBottomSheet,
+  hardwareWalletBottomSheet
+}: Props) => {
   const { t } = useTranslation()
+  const { account } = useAccounts()
+
   const {
     control,
     handleSubmit,
@@ -43,21 +58,23 @@ const SignActions = ({
   return (
     <>
       <View>
-        <View style={spacings.mbTy}>
-          <Controller
-            control={control}
-            rules={{ required: true }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <InputPassword
-                placeholder={t('Account password')}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-            name="password"
-          />
-        </View>
+        {!!account.signer?.quickAccManager && (
+          <View style={spacings.mbTy}>
+            <Controller
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <InputPassword
+                  placeholder={t('Account password')}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+              name="password"
+            />
+          </View>
+        )}
         {!!errors.password && <P type={TEXT_TYPES.DANGER}>{t('Password is required.')}</P>}
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonWrapper}>
@@ -70,16 +87,16 @@ const SignActions = ({
           <View style={styles.buttonWrapper}>
             <Button
               text={isLoading ? t('Signing...') : t('Sign')}
-              onPress={handleSubmit(approve)}
+              onPress={account.signer?.quickAccManager ? handleSubmit(approve) : approve}
               disabled={isLoading}
             />
           </View>
         </View>
       </View>
       <BottomSheet
-        closeBottomSheet={isBottomSheetOpen}
-        isOpen={isBottomSheetOpen}
-        sheetRef={sheetRef}
+        closeBottomSheet={quickAccBottomSheet.closeBottomSheet}
+        isOpen={quickAccBottomSheet.isOpen}
+        sheetRef={quickAccBottomSheet.sheetRef}
         dynamicInitialHeight={false}
       >
         <Title>{t('Confirmation code')}</Title>
@@ -101,8 +118,22 @@ const SignActions = ({
           onPress={() => {
             handleSubmit(approveQuickAcc)()
             setValue('code', '')
-            closeBottomSheet()
+            quickAccBottomSheet.closeBottomSheet()
           }}
+        />
+      </BottomSheet>
+      <BottomSheet
+        sheetRef={hardwareWalletBottomSheet.sheetRef}
+        isOpen={hardwareWalletBottomSheet.isOpen}
+        closeBottomSheet={hardwareWalletBottomSheet.closeBottomSheet}
+        dynamicInitialHeight={false}
+      >
+        <HardwareWalletScanDevices
+          onSelectDevice={(deviceId) => {
+            approve({}, deviceId)
+            hardwareWalletBottomSheet.closeBottomSheet()
+          }}
+          shouldWrap={false}
         />
       </BottomSheet>
     </>
