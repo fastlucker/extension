@@ -3,6 +3,7 @@ import { ActivityIndicator, RefreshControl, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import DevicesList from '@modules/auth/components/DeviceList'
+import useLedgerConnect from '@modules/auth/hooks/useLedgerConnect'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
@@ -15,24 +16,18 @@ import textStyles from '@modules/common/styles/utils/text'
 interface Props {
   onSelectDevice: (deviceId: any) => any
   shouldWrap?: boolean
-
-  // Props coming from the useLedgerConnect hook
-  devices: any[]
-  refreshing: boolean
-  isBluetoothPoweredOn: boolean
-  reload: () => Promise<void>
+  shouldScan?: boolean
 }
 
 const HardwareWalletScanDevices = ({
   onSelectDevice,
-  devices,
-  refreshing,
-  isBluetoothPoweredOn,
-  reload,
-  shouldWrap = true
+  shouldWrap = true,
+  shouldScan = true
 }: Props) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
+
+  const { devices, refreshing, isBluetoothPoweredOn, reload } = useLedgerConnect(shouldScan)
 
   const handleOnRefresh = () => {
     if (!isBluetoothPoweredOn) {

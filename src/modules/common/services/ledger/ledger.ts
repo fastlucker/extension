@@ -145,6 +145,7 @@ export async function ledgerSignTransaction(txn: any, chainId: any, deviceId: an
 
   const accountsData = await getAccounts(transport)
   if (accountsData.error) {
+    TransportBLE.disconnect(deviceId)
     throw new Error(accountsData.error)
   }
 
@@ -163,6 +164,7 @@ export async function ledgerSignTransaction(txn: any, chainId: any, deviceId: an
         serializedUnsigned.substr(2)
       )
     } catch (e) {
+      TransportBLE.disconnect(deviceId)
       throw new Error(`Could not sign transaction ${e}`)
     }
 
@@ -170,6 +172,7 @@ export async function ledgerSignTransaction(txn: any, chainId: any, deviceId: an
     const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
 
     if (signedChainId !== chainId) {
+      TransportBLE.disconnect(deviceId)
       throw new Error(`Invalid returned V 0x${rsvResponse.v}`)
     }
 
@@ -180,6 +183,7 @@ export async function ledgerSignTransaction(txn: any, chainId: any, deviceId: an
       v: intV
     })
   } else {
+    TransportBLE.disconnect(deviceId)
     throw new Error('Incorrect address. Are you using the correct account/ledger?')
   }
 
@@ -195,6 +199,7 @@ export async function ledgerSignMessage(hash: any, signerAddress: any, deviceId:
 
   const accountsData = await getAccounts(transport)
   if (accountsData.error) {
+    TransportBLE.disconnect(deviceId)
     throw new Error(accountsData.error)
   }
 
@@ -210,9 +215,11 @@ export async function ledgerSignMessage(hash: any, signerAddress: any, deviceId:
       )
       signedMsg = `0x${rsvReply.r}${rsvReply.s}${rsvReply.v.toString(16)}`
     } catch (e: any) {
+      TransportBLE.disconnect(deviceId)
       throw new Error(`Signature denied ${e.message}`)
     }
   } else {
+    TransportBLE.disconnect(deviceId)
     throw new Error('Incorrect address. Are you using the correct account/ledger?')
   }
 

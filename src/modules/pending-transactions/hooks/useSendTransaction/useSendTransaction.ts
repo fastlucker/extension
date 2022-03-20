@@ -213,6 +213,10 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     const provider = getProvider(network.id)
     const signer = finalBundle.signer
 
+    addToast(i18n.t('Please confirm this transaction on your Ledger device.') as string, {
+      timeout: 5000
+    })
+
     const wallet = getWallet(
       {
         signer,
@@ -304,12 +308,6 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
   const approveTxn = ({ quickAccCredentials, deviceId }: any) => {
     if (signingStatus && signingStatus.inProgress) return
     setSigningStatus(signingStatus || { inProgress: true })
-
-    // if (account.signerExtra && account.signerExtra.type === 'ledger') {
-    //   addToast(i18n.t('Please confirm this transaction on your Ledger device.') as string, {
-    //     timeout: 10000
-    //   })
-    // }
 
     if (!bundle.signer.quickAccManager && !hardwareWalletBottomSheet.isOpen) {
       hardwareWalletBottomSheet.openBottomSheet()

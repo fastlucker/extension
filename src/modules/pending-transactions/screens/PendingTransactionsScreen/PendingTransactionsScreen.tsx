@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect } from 'react'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
-import useLedgerConnect from '@modules/auth/hooks/useLedgerConnect'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import HardwareWalletScanDevices from '@modules/common/components/HardwareWalletScanDevices'
@@ -34,7 +33,6 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     setEstimation,
     setFeeSpeed,
     approveTxn,
-    setSigningStatus,
     rejectTxn
   } = useSendTransaction({
     sheetRef,
@@ -42,8 +40,6 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     closeBottomSheet,
     isOpen
   })
-
-  const connect = useLedgerConnect(isOpen)
 
   const prevBundle: any = usePrevious(bundle)
 
@@ -143,7 +139,6 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
             closeBottomSheet()
           }}
           shouldWrap={false}
-          {...connect}
         />
       </BottomSheet>
     </Wrapper>
