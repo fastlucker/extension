@@ -1,12 +1,11 @@
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import DeviceItem from '@modules/auth/components/DeviceItem'
-import Button, { BUTTON_SIZES } from '@modules/common/components/Button'
+import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 const DevicesList = ({ onSelectDevice, devices, refreshing, onRefresh }: any) => {
   const { t } = useTranslation()
