@@ -5,27 +5,37 @@ import { useState } from 'react'
 
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
+import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { navigate } from '@modules/common/services/navigation'
 
-const useSignMessage = () => {
+export type QuickAccBottomSheetType = {
+  sheetRef: any
+  openBottomSheet: any
+  closeBottomSheet: any
+  isOpen: any
+}
+
+export type HardwareWalletBottomSheetType = {
+  sheetRef: any
+  openBottomSheet: any
+  closeBottomSheet: any
+  isOpen: any
+}
+
+const useSignMessage = (
+  quickAccBottomSheet: QuickAccBottomSheetType,
+  hardwareWalletBottomSheet: HardwareWalletBottomSheetType
+) => {
   const { addToast } = useToast()
   const { account } = useAccounts()
   const { everythingToSign, resolveMany } = useRequests()
   const toSign = everythingToSign[0]
 
   const [isLoading, setLoading] = useState<boolean>(false)
-
-  const {
-    sheetRef,
-    openBottomSheet,
-    closeBottomSheet,
-    isOpen: isBottomSheetOpen
-  } = useBottomSheet()
 
   const resolve = (outcome: any) => resolveMany([everythingToSign[0].id], outcome)
 
@@ -79,7 +89,7 @@ const useSignMessage = () => {
         return
       }
       if (confCodeRequired) {
-        openBottomSheet()
+        quickAccBottomSheet.openBottomSheet()
         setLoading(false)
 
         return
@@ -105,20 +115,48 @@ const useSignMessage = () => {
     setLoading(false)
   }
 
-  const approve = async (credentials: any) => {
-    if (account.signer.quickAccManager) {
+  const approve = async (credentials: any, deviceId: any) => {
+    if (account.signer?.quickAccManager) {
       await approveQuickAcc(credentials)
+      return
     }
+
+    setLoading(true)
+
+    try {
+      if (!hardwareWalletBottomSheet.isOpen && !deviceId) {
+        hardwareWalletBottomSheet.openBottomSheet()
+        return
+      }
+
+      // if quick account, wallet = await fromEncryptedBackup
+      // and just pass the signature as secondSig to signMsgHash
+      const wallet = getWallet(
+        {
+          signer: account.signer,
+          signerExtra: account.signerExtra,
+          chainId: 1 // does not matter
+        },
+        deviceId
+      )
+      // It would be great if we could pass the full data cause then web3 wallets/hw wallets can display the full text
+      // Unfortunately that isn't possible, because isValidSignature only takes a bytes32 hash; so to sign this with
+      // a personal message, we need to be signing the hash itself as binary data such that we match 'Ethereum signed message:\n32<hash binary data>' on the contract
+      const hash = keccak256(arrayify(toSign.txn)) // hacky equivalent is: id(toUtf8String(toSign.txn))
+      const sig = await signMsgHash(wallet, account.id, account.signer, arrayify(hash))
+      resolve({ success: true, result: sig })
+      addToast(i18n.t('Successfully signed!') as string)
+    } catch (e) {
+      handleSigningErr(e)
+    }
+    setLoading(false)
   }
 
   return {
     approve,
     approveQuickAcc,
     isLoading,
-    resolve,
-    closeBottomSheet,
-    sheetRef,
-    isBottomSheetOpen
+    resolve
   }
 }
 
