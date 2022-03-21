@@ -277,10 +277,8 @@ const PortfolioProvider: React.FC = ({ children }) => {
                       account,
                       protocol === 'nft' ? nftsProvider : null
                     )
-                    console.log(balance)
                     return balance ? Object.values(balance)[0] : null
                   } catch (e) {
-                    console.error('Balances API error', e)
                     failedRequests++
                   }
                 })
