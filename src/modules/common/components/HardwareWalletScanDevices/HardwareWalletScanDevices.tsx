@@ -6,7 +6,7 @@ import DevicesList from '@modules/auth/components/DeviceList'
 import useLedgerConnect from '@modules/auth/hooks/useLedgerConnect'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import Wrapper from '@modules/common/components/Wrapper'
 import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -37,20 +37,8 @@ const HardwareWalletScanDevices = ({
     return reload()
   }
 
-  return (
-    <Wrapper
-      type={shouldWrap ? WRAPPER_TYPES.SCROLL_VIEW : WRAPPER_TYPES.VIEW}
-      style={!shouldWrap && flexboxStyles.flex1}
-      refreshControl={
-        <RefreshControl
-          refreshing={false}
-          onRefresh={handleOnRefresh}
-          tintColor={colors.primaryIconColor}
-          progressBackgroundColor={colors.primaryIconColor}
-          enabled={!refreshing}
-        />
-      }
-    >
+  const content = (
+    <>
       {!!refreshing && (
         <View style={[flexboxStyles.alignCenter, spacings.mb]}>
           <Text style={[textStyles.bold, spacings.mbMi]}>{t('Looking for devices')}</Text>
@@ -71,7 +59,26 @@ const HardwareWalletScanDevices = ({
         onSelectDevice={onSelectDevice}
         onRefresh={handleOnRefresh}
       />
+    </>
+  )
+
+  return shouldWrap ? (
+    <Wrapper
+      style={flexboxStyles.flex1}
+      refreshControl={
+        <RefreshControl
+          refreshing={false}
+          onRefresh={handleOnRefresh}
+          tintColor={colors.primaryIconColor}
+          progressBackgroundColor={colors.primaryIconColor}
+          enabled={!refreshing}
+        />
+      }
+    >
+      {content}
     </Wrapper>
+  ) : (
+    content
   )
 }
 

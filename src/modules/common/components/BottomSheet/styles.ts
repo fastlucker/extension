@@ -20,14 +20,12 @@ const styles = StyleSheet.create<Styles>({
     backgroundColor: colors.panelBackgroundColor,
     // Required in order for the wrapper to cover
     // the bottom bars and to extend all the way to full screen
-    minHeight: BOTTOM_SHEET_FULL_HEIGHT,
-    flex: 1
+    minHeight: BOTTOM_SHEET_FULL_HEIGHT
   },
   containerInnerWrapper: {
     paddingTop: 30,
     paddingBottom: 30,
-    paddingHorizontal: 20,
-    flex: 1
+    paddingHorizontal: 20
   },
   cancelBtn: {
     alignSelf: 'center',
