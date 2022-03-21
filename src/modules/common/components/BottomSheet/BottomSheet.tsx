@@ -14,6 +14,7 @@ import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
 
 interface Props {
   // Useful for debugging and generally knowing which bottom sheet gets triggered
+  // eslint-disable-next-line react/no-unused-prop-types
   id?: string
   // Required in order all bottom sheet related events to click
   sheetRef: React.RefObject<any>

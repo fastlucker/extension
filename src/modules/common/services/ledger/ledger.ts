@@ -1,16 +1,18 @@
 import i18n from '@config/localization/localization'
+import { serialize } from '@ethersproject/transactions'
 import AppEth from '@ledgerhq/hw-app-eth'
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 
 const ethUtil = require('ethereumjs-util')
 const HDNode = require('hdkey')
 
+const EIP_155_CONSTANT = 35
+
 export const PARENT_HD_PATH = "44'/60'/0'/0"
 
 async function getAddressInternal(transport: any, parentKeyDerivationPath: any) {
   let timeoutHandle: any
   const appEth = new AppEth(transport)
-
   const ledgerTimeout = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(() => {
       return reject(new Error('Device took too long to respond...'))
@@ -71,6 +73,7 @@ async function getAccounts(transport: any) {
             { error: err.message }
           )
         } else {
+          console.log(err)
           returnData.error = i18n.t('Could not get address from ledger : {{error}}', { error: err })
         }
       })
@@ -112,7 +115,7 @@ export async function ledgerDeviceGetAddresses(deviceId: string) {
 
   const accountsData = await getAccounts(transport)
 
-  transport.close()
+  TransportBLE.disconnect(deviceId)
 
   if (accountsData.error) {
     returnData.error = accountsData.error
@@ -121,4 +124,106 @@ export async function ledgerDeviceGetAddresses(deviceId: string) {
   }
 
   return returnData
+}
+
+export async function ledgerSignTransaction(txn: any, chainId: any, deviceId: any) {
+  const fromAddr = txn.from
+
+  const unsignedTxObj = {
+    ...txn,
+    gasLimit: txn.gasLimit || txn.gas,
+    chainId
+  }
+  delete unsignedTxObj.from
+  delete unsignedTxObj.gas
+
+  const serializedUnsigned = serialize(unsignedTxObj)
+
+  const transport = await TransportBLE.open(deviceId).catch((err: any) => {
+    throw err
+  })
+
+  const accountsData = await getAccounts(transport)
+  if (accountsData.error) {
+    TransportBLE.disconnect(deviceId)
+    throw new Error(accountsData.error)
+  }
+
+  // TODO: Managing multiple signers support is not implemented yet.
+  // @ledgerhq/hw-app-eth works with a single address only
+  // once multi-address fetching is supported,
+  // a bottom sheet with the address list should be implemented
+  const address = accountsData.accounts[0].address
+
+  let serializedSigned
+  if (address.toLowerCase() === fromAddr.toLowerCase()) {
+    let rsvResponse
+    try {
+      rsvResponse = await new AppEth(transport).signTransaction(
+        accountsData.accounts[0].derivationPath,
+        serializedUnsigned.substr(2)
+      )
+    } catch (e) {
+      TransportBLE.disconnect(deviceId)
+      throw new Error(`Could not sign transaction ${e}`)
+    }
+
+    const intV = parseInt(rsvResponse.v, 16)
+    const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
+
+    if (signedChainId !== chainId) {
+      TransportBLE.disconnect(deviceId)
+      throw new Error(`Invalid returned V 0x${rsvResponse.v}`)
+    }
+
+    delete unsignedTxObj.v
+    serializedSigned = serialize(unsignedTxObj, {
+      r: `0x${rsvResponse.r}`,
+      s: `0x${rsvResponse.s}`,
+      v: intV
+    })
+  } else {
+    TransportBLE.disconnect(deviceId)
+    throw new Error('Incorrect address. Are you using the correct account/ledger?')
+  }
+
+  TransportBLE.disconnect(deviceId)
+
+  return serializedSigned
+}
+
+export async function ledgerSignMessage(hash: any, signerAddress: any, deviceId: any) {
+  const transport = await TransportBLE.open(deviceId).catch((err: any) => {
+    throw err
+  })
+
+  const accountsData = await getAccounts(transport)
+  if (accountsData.error) {
+    TransportBLE.disconnect(deviceId)
+    throw new Error(accountsData.error)
+  }
+
+  // TODO: research how to implement for multiple accounts
+  const account = accountsData.accounts[0]
+
+  let signedMsg
+  if (account.address.toLowerCase() === signerAddress.toLowerCase()) {
+    try {
+      const rsvReply = await new AppEth(transport).signPersonalMessage(
+        account.derivationPath,
+        hash.substr(2)
+      )
+      signedMsg = `0x${rsvReply.r}${rsvReply.s}${rsvReply.v.toString(16)}`
+    } catch (e: any) {
+      TransportBLE.disconnect(deviceId)
+      throw new Error(`Signature denied ${e.message}`)
+    }
+  } else {
+    TransportBLE.disconnect(deviceId)
+    throw new Error('Incorrect address. Are you using the correct account/ledger?')
+  }
+
+  TransportBLE.disconnect(deviceId)
+
+  return signedMsg
 }
