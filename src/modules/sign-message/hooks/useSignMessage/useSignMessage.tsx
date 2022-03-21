@@ -131,7 +131,6 @@ const useSignMessage = (
 
       // if quick account, wallet = await fromEncryptedBackup
       // and just pass the signature as secondSig to signMsgHash
-      console.log(deviceId)
       const wallet = getWallet(
         {
           signer: account.signer,
