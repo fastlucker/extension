@@ -29,7 +29,7 @@ interface Props
     Partial<FlatListProps<any>>,
     Partial<SectionListProps<any, any>> {
   type?: WRAPPER_TYPES
-  hasBottomTabNav: boolean
+  hasBottomTabNav?: boolean
 }
 
 const Wrapper = ({
