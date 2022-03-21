@@ -23,9 +23,7 @@ const DevicesList = ({ onSelectDevice, devices, refreshing, onRefresh }: any) =>
           <Text fontSize={18} style={spacings.mbTy}>
             {t('No devices found')}
           </Text>
-          <View>
-            <Button text={t('Scan')} onPress={onRefresh} />
-          </View>
+          <Button text={t('Scan')} onPress={onRefresh} />
         </View>
       )}
     </>
