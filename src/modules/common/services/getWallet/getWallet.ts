@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 
-import { ledgerSignMessage, ledgerSignTransaction } from '@modules/common/services/ledger'
+import { ledgerSignMessage, ledgerSignTransaction } from '@modules/hardware-wallet/services/ledger'
 
 const wallets: any = {}
 
