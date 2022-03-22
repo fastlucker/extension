@@ -11,17 +11,25 @@ import { TEXT_TYPES } from '@modules/common/components/Text'
 
 const RequireBluetooth: React.FC = ({ children }) => {
   const { t } = useTranslation()
+  const [isBluetoothTurningOn, setIsBluetoothTurningOn] = useState(false)
   const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState<boolean | null>(null)
 
   useEffect(() => {
     const subscription = new BleManager().onStateChange((state) => {
       setInBluetoothPoweredOn(state === 'PoweredOn')
+
+      // On state change, assume that the module is no longer in process of
+      // being turned on. Delay it a bit, otherwise, there is annoying UI jump.
+      setTimeout(() => setIsBluetoothTurningOn(false), 1000)
     }, true)
 
     return () => subscription.remove()
   }, [])
 
-  const turnOnBluetooth = () => BluetoothStateManager.enable()
+  const turnOnBluetooth = () => {
+    setIsBluetoothTurningOn(true)
+    BluetoothStateManager.enable()
+  }
 
   // On Android only, location permission (ACCESS_FINE_LOCATION) also is needed.
   // This is because, on Android 11 and lower, a Bluetooth scan could
@@ -35,7 +43,11 @@ const RequireBluetooth: React.FC = ({ children }) => {
       <P type={TEXT_TYPES.DANGER}>
         {t('Please turn on the Bluetooth first, in order to connect to hardware wallet devices.')}
       </P>
-      <Button text={t('Turn on Bluetooth')} onPress={turnOnBluetooth} />
+      <Button
+        disabled={isBluetoothTurningOn}
+        text={isBluetoothTurningOn ? t('Turning on...') : t('Turn on Bluetooth')}
+        onPress={turnOnBluetooth}
+      />
     </>
   )
 }
