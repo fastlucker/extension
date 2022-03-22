@@ -32,7 +32,7 @@ const HardwareWalletConnect = ({ onSelectDevice, shouldWrap = true }: Props) => 
 
   const content = (
     <>
-      <View style={[flexboxStyles.alignCenter, spacings.mb]}>
+      <View style={[flexboxStyles.alignCenter, spacings.mbSm, !shouldWrap && spacings.ptSm]}>
         <Text style={textStyles.center} color={colors.secondaryTextColor} fontSize={14}>
           {t('Please connect USB cable and enter the PIN code on your device.')}
         </Text>
