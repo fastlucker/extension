@@ -7,14 +7,14 @@ import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
 
-const DevicesList = ({ onSelectDevice, devices, refreshing, onRefresh, type }: any) => {
+const DevicesList = ({ onSelectDevice, devices, refreshing, onRefresh }: any) => {
   const { t } = useTranslation()
   return (
     <>
       {!!devices.length && (
         <View>
           {devices.map((device: any) => (
-            <DeviceItem key={device.id} device={device} onSelect={onSelectDevice} type={type} />
+            <DeviceItem key={device.id} device={device} onSelect={onSelectDevice} />
           ))}
         </View>
       )}

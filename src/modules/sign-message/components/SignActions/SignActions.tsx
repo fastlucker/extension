@@ -12,7 +12,7 @@ import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import spacings from '@modules/common/styles/spacings'
-import HardwareWalletConnect from '@modules/hardware-wallet/components/HardwareWalletConnect'
+import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import {
   HardwareWalletBottomSheetType,
   QuickAccBottomSheetType
@@ -128,7 +128,7 @@ const SignActions = ({
         closeBottomSheet={hardwareWalletBottomSheet.closeBottomSheet}
         dynamicInitialHeight={false}
       >
-        <HardwareWalletConnect
+        <HardwareWalletSelectConnection
           onSelectDevice={(device: any) => {
             approve({}, device)
             hardwareWalletBottomSheet.closeBottomSheet()

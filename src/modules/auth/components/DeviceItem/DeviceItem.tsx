@@ -6,13 +6,13 @@ import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
-const DeviceItem = ({ device, onSelect, type }: any) => {
+const DeviceItem = ({ device, onSelect }: any) => {
   const [pending, setPending] = useState(false)
 
   const handleSelectDevice = async () => {
     setPending(true)
     try {
-      await onSelect(device, type)
+      await onSelect(device)
 
       setTimeout(() => {
         setPending(false)

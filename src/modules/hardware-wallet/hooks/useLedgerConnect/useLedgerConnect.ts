@@ -5,12 +5,7 @@ import { Observable } from 'rxjs'
 
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 import useToast from '@modules/common/hooks/useToast'
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-enum CONNECTION_TYPE {
-  BLUETOOTH = 'Bluetooth',
-  USB = 'USB'
-}
+import { CONNECTION_TYPE } from '@modules/hardware-wallet/constants'
 
 const deviceAddition = (device: any) => (devices: any) =>
   devices.some((i: any) => i.id === device.id) ? devices : devices.concat(device)

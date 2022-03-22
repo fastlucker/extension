@@ -3,12 +3,7 @@ import { Observable } from 'rxjs'
 
 import TransportHID from '@ledgerhq/react-native-hid'
 import useToast from '@modules/common/hooks/useToast'
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-enum CONNECTION_TYPE {
-  BLUETOOTH = 'Bluetooth',
-  USB = 'USB'
-}
+import { CONNECTION_TYPE } from '@modules/hardware-wallet/constants'
 
 const useHardwareWalletHIDConnect = () => {
   const { addToast } = useToast()

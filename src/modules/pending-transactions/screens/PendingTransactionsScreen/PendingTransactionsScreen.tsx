@@ -10,7 +10,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useRequests from '@modules/common/hooks/useRequests'
 import textStyles from '@modules/common/styles/utils/text'
-import HardwareWalletConnect from '@modules/hardware-wallet/components/HardwareWalletConnect'
+import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
 import SignActions from '@modules/pending-transactions/components/SignActions'
 import SigningWithAccount from '@modules/pending-transactions/components/SigningWithAccount'
@@ -133,7 +133,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         }}
         dynamicInitialHeight={false}
       >
-        <HardwareWalletConnect
+        <HardwareWalletSelectConnection
           onSelectDevice={(device: any) => {
             approveTxn({ device })
             closeBottomSheet()

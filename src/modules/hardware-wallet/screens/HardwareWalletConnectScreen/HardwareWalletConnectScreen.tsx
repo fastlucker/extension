@@ -1,12 +1,12 @@
 import React from 'react'
 
-import HardwareWalletConnect from '@modules/hardware-wallet/components/HardwareWalletConnect'
+import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import useHardwareWalletActions from '@modules/hardware-wallet/hooks/useHardwareWalletActions'
 
 const HardwareWalletConnectScreen = () => {
   const { addAccount } = useHardwareWalletActions()
 
-  return <HardwareWalletConnect onSelectDevice={addAccount} />
+  return <HardwareWalletSelectConnection onSelectDevice={addAccount} />
 }
 
 export default HardwareWalletConnectScreen
