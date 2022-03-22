@@ -69,7 +69,7 @@ const LedgerBluetoothConnect = ({
 
   return shouldWrap ? (
     <Wrapper
-      style={flexboxStyles.flex1}
+      contentContainerStyle={spacings.pt0}
       refreshControl={
         <RefreshControl
           refreshing={false}

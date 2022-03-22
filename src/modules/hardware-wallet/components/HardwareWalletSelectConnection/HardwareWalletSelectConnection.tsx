@@ -25,7 +25,7 @@ const HardwareWalletSelectConnection = ({
 
   return (
     <>
-      <View style={spacings.mb}>
+      <View style={[spacings.mb, shouldWrap && spacings.ptSm]}>
         <Segments
           defaultValue={connectionType}
           segments={segments}
