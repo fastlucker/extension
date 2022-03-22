@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { PermissionsAndroid } from 'react-native'
-import { BleManager } from 'react-native-ble-plx'
 import { Observable } from 'rxjs'
 
 import { isAndroid } from '@config/env'
@@ -14,8 +13,6 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
   const { addToast } = useToast()
   const [devices, setDevices] = useState<any>([])
   const [refreshing, setRefreshing] = useState<any>(false)
-  // TODO: Delete?
-  const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState(false)
 
   let sub: any
 
@@ -50,17 +47,8 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
     startScan()
   }
 
-  // TODO: Delete?
   useEffect(() => {
-    const subscription = new BleManager().onStateChange((state) => {
-      setInBluetoothPoweredOn(state === 'PoweredOn')
-    }, true)
-
-    return () => subscription.remove()
-  }, [])
-
-  useEffect(() => {
-    if (!shouldScan || !isBluetoothPoweredOn) {
+    if (!shouldScan) {
       if (sub) sub.unsubscribe()
 
       return
@@ -92,12 +80,11 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
     return () => {
       if (sub) sub.unsubscribe()
     }
-  }, [shouldScan, isBluetoothPoweredOn])
+  }, [shouldScan])
 
   return {
     devices,
     refreshing,
-    isBluetoothPoweredOn,
     reload
   }
 }
