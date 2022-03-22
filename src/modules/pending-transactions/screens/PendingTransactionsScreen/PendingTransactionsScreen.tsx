@@ -5,6 +5,7 @@ import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import HardwareWalletScanDevices from '@modules/common/components/HardwareWalletScanDevices'
+import RequireBluetooth from '@modules/common/components/RequireBluetooth'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -133,13 +134,15 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         }}
         dynamicInitialHeight={false}
       >
-        <HardwareWalletScanDevices
-          onSelectDevice={(deviceId) => {
-            approveTxn({ deviceId })
-            closeBottomSheet()
-          }}
-          shouldWrap={false}
-        />
+        <RequireBluetooth>
+          <HardwareWalletScanDevices
+            onSelectDevice={(deviceId) => {
+              approveTxn({ deviceId })
+              closeBottomSheet()
+            }}
+            shouldWrap={false}
+          />
+        </RequireBluetooth>
       </BottomSheet>
     </Wrapper>
   )

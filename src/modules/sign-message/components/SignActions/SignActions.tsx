@@ -9,6 +9,7 @@ import HardwareWalletScanDevices from '@modules/common/components/HardwareWallet
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
+import RequireBluetooth from '@modules/common/components/RequireBluetooth'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -128,13 +129,15 @@ const SignActions = ({
         closeBottomSheet={hardwareWalletBottomSheet.closeBottomSheet}
         dynamicInitialHeight={false}
       >
-        <HardwareWalletScanDevices
-          onSelectDevice={(deviceId) => {
-            approve({}, deviceId)
-            hardwareWalletBottomSheet.closeBottomSheet()
-          }}
-          shouldWrap={false}
-        />
+        <RequireBluetooth>
+          <HardwareWalletScanDevices
+            onSelectDevice={(deviceId) => {
+              approve({}, deviceId)
+              hardwareWalletBottomSheet.closeBottomSheet()
+            }}
+            shouldWrap={false}
+          />
+        </RequireBluetooth>
       </BottomSheet>
     </>
   )
