@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
 import { BleManager } from 'react-native-ble-plx'
 import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 
@@ -8,6 +9,7 @@ import Button from '@modules/common/components/Button'
 import P from '@modules/common/components/P'
 import RequireLocation from '@modules/common/components/RequireLocation'
 import { TEXT_TYPES } from '@modules/common/components/Text'
+import spacings from '@modules/common/styles/spacings'
 
 const RequireBluetooth: React.FC = ({ children }) => {
   const { t } = useTranslation()
@@ -39,16 +41,18 @@ const RequireBluetooth: React.FC = ({ children }) => {
   return isBluetoothPoweredOn ? (
     state
   ) : (
-    <>
+    <View style={[spacings.mh, spacings.mv]}>
       <P type={TEXT_TYPES.DANGER}>
         {t('Please turn on the Bluetooth first, in order to connect to hardware wallet devices.')}
       </P>
-      <Button
-        disabled={isBluetoothTurningOn}
-        text={isBluetoothTurningOn ? t('Turning on...') : t('Turn on Bluetooth')}
-        onPress={turnOnBluetooth}
-      />
-    </>
+      {isAndroid && (
+        <Button
+          disabled={isBluetoothTurningOn}
+          text={isBluetoothTurningOn ? t('Turning on...') : t('Turn on Bluetooth')}
+          onPress={turnOnBluetooth}
+        />
+      )}
+    </View>
   )
 }
 
