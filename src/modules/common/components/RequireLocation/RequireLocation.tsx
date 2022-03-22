@@ -17,6 +17,8 @@ const RequireLocation: React.FC = ({ children }) => {
   const [locationServicesEnabled, setLocationServicesEnabled] = useState<boolean | null>(true)
 
   useEffect(() => {
+    // TODO: Figure out a way to flip the `locationServicesEnabled` flag,
+    // in case the location services are enabled (but they were disabled before).
     const sub = new Observable(TransportBLE.listen).subscribe({
       complete: () => {
         setLocationServicesEnabled(true)
