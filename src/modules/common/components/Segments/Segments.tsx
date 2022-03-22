@@ -16,7 +16,7 @@ type SegmentsProps = SegmentProps[]
 interface Props {
   defaultValue: string
   segments: SegmentsProps
-  onChange: (val: string) => any
+  onChange: (val: any) => any
 }
 
 const Segments = ({ defaultValue, segments, onChange }: Props) => {

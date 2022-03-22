@@ -134,8 +134,8 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         dynamicInitialHeight={false}
       >
         <HardwareWalletScanDevices
-          onSelectDevice={(deviceId) => {
-            approveTxn({ deviceId })
+          onSelectDevice={(device) => {
+            approveTxn({ device })
             closeBottomSheet()
           }}
           shouldWrap={false}

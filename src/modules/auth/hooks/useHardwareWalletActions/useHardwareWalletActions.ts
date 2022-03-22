@@ -143,11 +143,11 @@ const useHardwareWalletActions = () => {
     }
   }
 
-  const addAccount = async (deviceId: any) => {
+  const addAccount = async (device: any) => {
     let error: any = null
 
     try {
-      const addrData = await ledgerDeviceGetAddresses(deviceId)
+      const addrData = await ledgerDeviceGetAddresses(device)
       if (!addrData.error) {
         const signerExtra = { type: 'ledger', transportProtocol: 'webHID' }
 

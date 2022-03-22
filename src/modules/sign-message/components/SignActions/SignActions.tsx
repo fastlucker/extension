@@ -129,8 +129,8 @@ const SignActions = ({
         dynamicInitialHeight={false}
       >
         <HardwareWalletScanDevices
-          onSelectDevice={(deviceId) => {
-            approve({}, deviceId)
+          onSelectDevice={(device) => {
+            approve({}, device)
             hardwareWalletBottomSheet.closeBottomSheet()
           }}
           shouldWrap={false}
