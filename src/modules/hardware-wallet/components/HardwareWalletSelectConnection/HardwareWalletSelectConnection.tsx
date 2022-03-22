@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View } from 'react-native'
+import { Platform, View } from 'react-native'
 
 import Segments from '@modules/common/components/Segments'
 import spacings from '@modules/common/styles/spacings'
@@ -25,13 +25,15 @@ const HardwareWalletSelectConnection = ({
 
   return (
     <>
-      <View style={[spacings.mb, shouldWrap && spacings.ptSm]}>
-        <Segments
-          defaultValue={connectionType}
-          segments={segments}
-          onChange={(value: CONNECTION_TYPE) => setConnectionType(value)}
-        />
-      </View>
+      {Platform.OS === 'android' && (
+        <View style={[spacings.mbMi, shouldWrap && spacings.ptSm]}>
+          <Segments
+            defaultValue={connectionType}
+            segments={segments}
+            onChange={(value: CONNECTION_TYPE) => setConnectionType(value)}
+          />
+        </View>
+      )}
       {connectionType === CONNECTION_TYPE.BLUETOOTH && (
         <LedgerBluetoothConnect
           onSelectDevice={onSelectDevice}

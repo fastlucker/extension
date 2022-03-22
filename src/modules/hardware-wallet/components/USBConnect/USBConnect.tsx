@@ -39,11 +39,13 @@ const HardwareWalletConnect = ({ onSelectDevice, shouldWrap = true }: Props) => 
       </View>
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbSm]}>
         {usbDevice && (
-          <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
-            {t('Connected device')}
-          </Title>
+          <>
+            <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
+              {t('Connected device')}
+            </Title>
+            {!!usbRefreshing && <ActivityIndicator color={colors.primaryIconColor} />}
+          </>
         )}
-        {!!usbRefreshing && <ActivityIndicator color={colors.primaryIconColor} />}
       </View>
       <DevicesList
         devices={usbDevice ? [usbDevice] : []}
@@ -58,7 +60,6 @@ const HardwareWalletConnect = ({ onSelectDevice, shouldWrap = true }: Props) => 
     <Wrapper
       type={shouldWrap ? WRAPPER_TYPES.SCROLL_VIEW : WRAPPER_TYPES.VIEW}
       style={!shouldWrap && flexboxStyles.flex1}
-      contentContainerStyle={spacings.pt0}
       refreshControl={
         <RefreshControl
           refreshing={false}
