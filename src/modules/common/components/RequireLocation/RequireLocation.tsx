@@ -1,4 +1,6 @@
 import { t } from 'i18next'
+import Button from 'modules/common/components/Button'
+import { TEXT_TYPES } from 'modules/common/components/Text'
 import React, { useEffect, useState } from 'react'
 import { PermissionsAndroid } from 'react-native'
 import LocationServicesDialogBox from 'react-native-android-location-services-dialog-box'
@@ -7,8 +9,6 @@ import { Observable } from 'rxjs'
 
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 import P from '@modules/common/components/P'
-
-import Button from '../Button'
 
 const RequireLocation: React.FC = ({ children }) => {
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null)
@@ -54,21 +54,30 @@ const RequireLocation: React.FC = ({ children }) => {
 
   if (!permissionGranted) {
     return (
-      <P>
-        {t('Please allow Location services first, in order to connect to hardware wallet devices.')}
-      </P>
+      <>
+        <P type={TEXT_TYPES.DANGER}>
+          {t(
+            'Please allow Location services first, in order to connect to hardware wallet devices.'
+          )}
+        </P>
+        <P type={TEXT_TYPES.DANGER}>
+          {t(
+            'Location services are required, in order for us to pair your device through Bluetooth.'
+          )}
+        </P>
+      </>
     )
   }
 
   if (!locationServicesEnabled) {
     return (
       <>
-        <P>
+        <P type={TEXT_TYPES.DANGER}>
           {t(
-            'Location services are required, in order for us to pair your device throught Bluetooth.'
+            'Location services are required, in order for us to pair your device through Bluetooth.'
           )}
         </P>
-        <P>{t('Ambire does not access your location information.')}</P>
+        <P type={TEXT_TYPES.DANGER}>{t('Ambire does not access your location information.')}</P>
         <Button onPress={handleOpenLocationSettings} text={t('Open location settings')} />
       </>
     )
