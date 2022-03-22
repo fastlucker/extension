@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { PermissionsAndroid, Platform } from 'react-native'
 import { BleManager } from 'react-native-ble-plx'
 import { Observable } from 'rxjs'
 
@@ -13,7 +12,7 @@ const deviceAddition = (device: any) => (devices: any) =>
 const useLedgerConnect = (shouldScan: boolean = true) => {
   const { addToast } = useToast()
   const [devices, setDevices] = useState<any>([])
-  const [refreshing, setRefreshing] = useState<any>(false)
+  const [refreshing, setRefreshing] = useState<any>(true)
   const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState(false)
 
   let sub: any
@@ -69,25 +68,7 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
       return
     }
 
-    ;(async () => {
-      // NB: this is the bare minimal. We recommend to implement a screen to explain to user.
-      if (Platform.OS === 'android') {
-        await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
-      }
-
-      let previousAvailable = false
-      new Observable(TransportBLE.observeState).subscribe((e: any) => {
-        if (e.available !== previousAvailable) {
-          previousAvailable = e.available
-          if (e.available) {
-            reload()
-          }
-        }
-      })
-
-      setDevices([])
-      startScan()
-    })()
+    startScan()
 
     return () => {
       if (sub) sub.unsubscribe()
