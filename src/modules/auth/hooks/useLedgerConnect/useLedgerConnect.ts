@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
-import { PermissionsAndroid } from 'react-native'
 import { Observable } from 'rxjs'
 
-import { isAndroid } from '@config/env'
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 import useToast from '@modules/common/hooks/useToast'
 
@@ -54,28 +52,8 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
       return
     }
 
-    ;(async () => {
-      // NB: this is the bare minimal. We recommend to implement a screen to explain to user.
-      // ACCESS_FINE_LOCATION is necessary because, on Android 11 and lower,
-      // a Bluetooth scan could potentially be used to gather information
-      // about the location of the user.
-      if (isAndroid) {
-        await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
-      }
-
-      let previousAvailable = false
-      new Observable(TransportBLE.observeState).subscribe((e: any) => {
-        if (e.available !== previousAvailable) {
-          previousAvailable = e.available
-          if (e.available) {
-            reload()
-          }
-        }
-      })
-
-      setDevices([])
-      startScan()
-    })()
+    setDevices([])
+    startScan()
 
     return () => {
       if (sub) sub.unsubscribe()
