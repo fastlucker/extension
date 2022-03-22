@@ -5,7 +5,7 @@ import { useTranslation } from '@config/localization'
 import DevicesList from '@modules/auth/components/DeviceList'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import Wrapper from '@modules/common/components/Wrapper'
+import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -67,8 +67,10 @@ const LedgerBluetoothConnect = ({
     </>
   )
 
-  return shouldWrap ? (
+  return (
     <Wrapper
+      type={shouldWrap ? WRAPPER_TYPES.SCROLL_VIEW : WRAPPER_TYPES.VIEW}
+      style={!shouldWrap && flexboxStyles.flex1}
       contentContainerStyle={spacings.pt0}
       refreshControl={
         <RefreshControl
@@ -82,8 +84,6 @@ const LedgerBluetoothConnect = ({
     >
       {content}
     </Wrapper>
-  ) : (
-    content
   )
 }
 
