@@ -4,13 +4,13 @@ import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
-import HardwareWalletScanDevices from '@modules/common/components/HardwareWalletScanDevices'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useRequests from '@modules/common/hooks/useRequests'
 import textStyles from '@modules/common/styles/utils/text'
+import HardwareWalletConnect from '@modules/hardware-wallet/components/HardwareWalletConnect'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
 import SignActions from '@modules/pending-transactions/components/SignActions'
 import SigningWithAccount from '@modules/pending-transactions/components/SigningWithAccount'
@@ -133,8 +133,8 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         }}
         dynamicInitialHeight={false}
       >
-        <HardwareWalletScanDevices
-          onSelectDevice={(device) => {
+        <HardwareWalletConnect
+          onSelectDevice={(device: any) => {
             approveTxn({ device })
             closeBottomSheet()
           }}

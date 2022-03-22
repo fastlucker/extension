@@ -3,8 +3,6 @@ import { ActivityIndicator, RefreshControl, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import DevicesList from '@modules/auth/components/DeviceList'
-import useHardwareWalletHIDConnect from '@modules/auth/hooks/useHardwareWalletHIDConnect/useHardwareWalletHIDConnect'
-import useLedgerConnect from '@modules/auth/hooks/useLedgerConnect'
 import Segments from '@modules/common/components/Segments'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -14,6 +12,8 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import useHardwareWalletHIDConnect from '@modules/hardware-wallet/hooks/useHardwareWalletHIDConnect/useHardwareWalletHIDConnect'
+import useLedgerConnect from '@modules/hardware-wallet/hooks/useLedgerConnect'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 enum CONNECTION_TYPE {
@@ -28,11 +28,7 @@ interface Props {
 
 const segments = [{ value: CONNECTION_TYPE.BLUETOOTH }, { value: CONNECTION_TYPE.USB }]
 
-const HardwareWalletScanDevices = ({
-  onSelectDevice,
-  shouldWrap = true,
-  shouldScan = true
-}: Props) => {
+const HardwareWalletConnect = ({ onSelectDevice, shouldWrap = true, shouldScan = true }: Props) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
 
@@ -144,4 +140,4 @@ const HardwareWalletScanDevices = ({
   )
 }
 
-export default HardwareWalletScanDevices
+export default HardwareWalletConnect
