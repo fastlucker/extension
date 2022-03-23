@@ -1,20 +1,28 @@
 /* eslint-disable no-await-in-loop */
 import { generateAddress2 } from 'ethereumjs-util'
-import { getAddress, hexZeroPad } from 'ethers/lib/utils'
+import { getAddress, hexZeroPad, Interface } from 'ethers/lib/utils'
 import { useCallback, useState } from 'react'
 
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
 import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
 import accountPresets from '@modules/common/constants/accountPresets'
+import privilegesOptions from '@modules/common/constants/privilegesOptions'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useNetwork from '@modules/common/hooks/useNetwork'
+import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
 import { ledgerDeviceGetAddresses } from '@modules/hardware-wallet/services/ledger'
 
+// eslint-disable-next-line global-require
+const IDENTITY_INTERFACE = new Interface(require('adex-protocol-eth/abi/Identity5.2'))
+
 const useHardwareWalletActions = () => {
   const { addToast } = useToast()
-  const { onAddAccount } = useAccounts()
+  const { onAddAccount, selectedAcc } = useAccounts()
+  const { addRequest } = useRequests()
+  const { network: selectedNetwork } = useNetwork()
 
   // TODO: Multiple signers support is not implemented yet.
   // @ledgerhq/hw-app-eth supports retrieving only a single address
@@ -172,9 +180,33 @@ const useHardwareWalletActions = () => {
     }
   }
 
+  const addSigner = (newSignerAddress: any) => {
+    const txn = {
+      to: selectedAcc,
+      data: IDENTITY_INTERFACE.encodeFunctionData('setAddrPrivilege', [
+        newSignerAddress.address,
+        privilegesOptions.true
+      ]),
+      value: '0x00'
+    }
+
+    try {
+      addRequest({
+        id: `setPriv_${txn.data}`,
+        type: 'eth_sendTransaction',
+        txn,
+        chainId: selectedNetwork?.chainId,
+        account: selectedAcc
+      })
+    } catch (err) {
+      addToast(`Error: ${err?.message || err}`, { error: true })
+    }
+  }
+
   return {
     signersToChoose,
-    addAccount
+    addAccount,
+    addSigner
   }
 }
 
