@@ -19,20 +19,20 @@ const RequireLocation: React.FC<any> = ({ children }) => {
   const setLocationState = () => {
     const sub = new Observable(TransportBLE.listen).subscribe({
       next: () => {
-        setLocationServicesEnabled(true)
         sub.unsubscribe()
+        setLocationServicesEnabled(true)
       },
       error: (e) => {
         const disabled = e?.errorCode === BleErrorCode.LocationServicesDisabled
-        setLocationServicesEnabled(!disabled)
         sub.unsubscribe()
+        setLocationServicesEnabled(!disabled)
       }
     })
   }
 
   useEffect(() => {
     const subscription: any = AppState.addEventListener('focus', () => {
-      // Called when the app state is moves from blur to focus
+      // Called when the app state changes from blurred to focused
       setLocationState()
     })
 
