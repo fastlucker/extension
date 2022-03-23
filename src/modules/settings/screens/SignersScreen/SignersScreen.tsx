@@ -7,6 +7,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import textStyles from '@modules/common/styles/utils/text'
+import SignersList from '@modules/settings/components/SignersList'
 import { useNavigation } from '@react-navigation/native'
 
 const SignersScreen = () => {
@@ -17,6 +18,7 @@ const SignersScreen = () => {
 
   return (
     <Wrapper>
+      <SignersList />
       <Title>{t('Hardware wallet signers')}</Title>
       <Button text={t('Connect Ledger')} onPress={goToConnectLedger} />
       <Button disabled text={t('Connect Trezor')} />
