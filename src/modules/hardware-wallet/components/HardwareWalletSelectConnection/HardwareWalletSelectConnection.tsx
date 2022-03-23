@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Platform, View } from 'react-native'
+import { View } from 'react-native'
 
+import { isAndroid } from '@config/env'
 import Segments from '@modules/common/components/Segments'
 import spacings from '@modules/common/styles/spacings'
 import { CONNECTION_TYPE } from '@modules/hardware-wallet/constants'
@@ -25,7 +26,7 @@ const HardwareWalletSelectConnection = ({
 
   return (
     <>
-      {Platform.OS === 'android' && (
+      {isAndroid && (
         <View style={[spacings.mbMi, shouldWrap && spacings.ptSm]}>
           <Segments
             defaultValue={connectionType}
