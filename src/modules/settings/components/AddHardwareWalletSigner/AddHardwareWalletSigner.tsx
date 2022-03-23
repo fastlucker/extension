@@ -26,8 +26,7 @@ const AddHardwareWalletSigner = () => {
     <>
       <Title>{t('Add new hardware wallet signer')}</Title>
       <Button text={t('Add signer')} onPress={openBottomSheet} />
-      <Button disabled text={t('Connect Trezor')} />
-      <P>{t('To manage signers other than Ledger or Trezor, visit the web app.')}</P>
+      <P>{t('For accessing the full signers management options, please visit the web app.')}</P>
       <BottomSheet
         sheetRef={sheetRef}
         isOpen={isOpen}
