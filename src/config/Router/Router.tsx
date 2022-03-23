@@ -20,6 +20,7 @@ import colors from '@modules/common/styles/colors'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
+import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
@@ -114,6 +115,11 @@ const DashboardStackScreen = () => {
         name="qrCodeLogin"
         options={{ title: t('Login') }}
         component={QRCodeLoginScreen}
+      />
+      <Stack.Screen
+        name="hardwareWallet"
+        options={{ title: t('Hardware Wallet') }}
+        component={HardwareWalletConnectScreen}
       />
       <Stack.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
     </DashboardStack.Navigator>
@@ -306,6 +312,11 @@ const AuthStack = () => {
         name="qrCodeLogin"
         options={{ title: t('Login') }}
         component={QRCodeLoginScreen}
+      />
+      <Stack.Screen
+        name="hardwareWallet"
+        options={{ title: t('Hardware Wallet') }}
+        component={HardwareWalletConnectScreen}
       />
     </Stack.Navigator>
   )

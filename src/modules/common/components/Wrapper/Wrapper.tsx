@@ -5,7 +5,8 @@ import {
   ScrollView,
   ScrollViewProps,
   SectionList,
-  SectionListProps
+  SectionListProps,
+  View
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
@@ -18,7 +19,8 @@ export enum WRAPPER_TYPES {
   SCROLL_VIEW = 'scrollview',
   KEYBOARD_AWARE_SCROLL_VIEW = 'keyboard-aware-scrollview',
   FLAT_LIST = 'flatlist',
-  SECTION_LIST = 'sectionlist'
+  SECTION_LIST = 'sectionlist',
+  VIEW = 'view'
 }
 
 // @ts-ignore ignored because SectionList and FlatList receive props with same names
@@ -27,6 +29,7 @@ interface Props
     Partial<FlatListProps<any>>,
     Partial<SectionListProps<any, any>> {
   type?: WRAPPER_TYPES
+  hasBottomTabNav?: boolean
 }
 
 const Wrapper = ({
@@ -36,6 +39,7 @@ const Wrapper = ({
   type = WRAPPER_TYPES.SCROLL_VIEW,
   keyboardShouldPersistTaps,
   keyboardDismissMode,
+  hasBottomTabNav = true,
   ...rest
 }: Props) => {
   const { styles } = useTheme(createStyles)
@@ -78,11 +82,16 @@ const Wrapper = ({
         alwaysBounceVertical={false}
         enableOnAndroid
         // subs 68 of the scroll height only when the keyboard is visible because of the height of the bottom tab navigation
-        extraScrollHeight={-68} // magic num
+        extraScrollHeight={hasBottomTabNav ? -68 : 0} // magic num
+        {...rest}
       >
         {children}
       </KeyboardAwareScrollView>
     )
+  }
+
+  if (type === WRAPPER_TYPES.VIEW) {
+    return <View style={style}>{children}</View>
   }
 
   return (
@@ -92,6 +101,7 @@ const Wrapper = ({
       keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
       keyboardDismissMode={keyboardDismissMode || 'none'}
       alwaysBounceVertical={false}
+      {...rest}
     >
       {children}
     </ScrollView>

@@ -1,0 +1,86 @@
+import { useEffect, useState } from 'react'
+import { BleManager } from 'react-native-ble-plx'
+import { Observable } from 'rxjs'
+
+import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
+import useToast from '@modules/common/hooks/useToast'
+import { CONNECTION_TYPE } from '@modules/hardware-wallet/constants'
+
+const deviceAddition = (device: any) => (devices: any) =>
+  devices.some((i: any) => i.id === device.id) ? devices : devices.concat(device)
+
+const useLedgerConnect = (shouldScan: boolean = true) => {
+  const { addToast } = useToast()
+  const [devices, setDevices] = useState<any>([])
+  const [refreshing, setRefreshing] = useState<any>(true)
+  const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState(false)
+
+  let sub: any
+
+  const startScan = async () => {
+    setRefreshing(true)
+    sub = new Observable(TransportBLE.listen).subscribe({
+      complete: () => {
+        setRefreshing(false)
+      },
+      next: (e: any) => {
+        if (e.type === 'add') {
+          setDevices(
+            deviceAddition({
+              ...e.descriptor,
+              connectionType: CONNECTION_TYPE.BLUETOOTH
+            })
+          )
+        }
+      },
+      error: (e) => {
+        // Timeout just for a better UX
+        setTimeout(() => {
+          addToast(e.message, { error: true })
+          setRefreshing(false)
+        }, 1200)
+      }
+    })
+
+    setTimeout(() => {
+      sub.complete()
+    }, 40000)
+  }
+
+  const reload = async () => {
+    if (sub) sub.unsubscribe()
+    setRefreshing(false)
+    startScan()
+  }
+
+  useEffect(() => {
+    const subscription = new BleManager().onStateChange((state) => {
+      setInBluetoothPoweredOn(state === 'PoweredOn')
+    }, true)
+
+    return () => subscription.remove()
+  }, [])
+
+  useEffect(() => {
+    if (!shouldScan || !isBluetoothPoweredOn) {
+      if (sub) sub.unsubscribe()
+
+      return
+    }
+
+    startScan()
+
+    return () => {
+      if (sub) sub.unsubscribe()
+    }
+  }, [shouldScan, isBluetoothPoweredOn])
+
+  return {
+    devices,
+    refreshing,
+    isBluetoothPoweredOn,
+    reload
+  }
+}
+
+export default useLedgerConnect
