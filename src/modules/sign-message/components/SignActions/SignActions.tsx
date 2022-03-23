@@ -5,7 +5,6 @@ import { View } from 'react-native'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
-import HardwareWalletScanDevices from '@modules/common/components/HardwareWalletScanDevices'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
@@ -13,6 +12,7 @@ import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import spacings from '@modules/common/styles/spacings'
+import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import {
   HardwareWalletBottomSheetType,
   QuickAccBottomSheetType
@@ -128,9 +128,9 @@ const SignActions = ({
         closeBottomSheet={hardwareWalletBottomSheet.closeBottomSheet}
         dynamicInitialHeight={false}
       >
-        <HardwareWalletScanDevices
-          onSelectDevice={(deviceId) => {
-            approve({}, deviceId)
+        <HardwareWalletSelectConnection
+          onSelectDevice={(device: any) => {
+            approve({}, device)
             hardwareWalletBottomSheet.closeBottomSheet()
           }}
           shouldWrap={false}

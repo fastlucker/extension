@@ -1,6 +1,7 @@
 import i18n from '@config/localization/localization'
 import { serialize } from '@ethersproject/transactions'
 import AppEth from '@ledgerhq/hw-app-eth'
+import TransportHID from '@ledgerhq/react-native-hid'
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 
 const ethUtil = require('ethereumjs-util')
@@ -9,6 +10,22 @@ const HDNode = require('hdkey')
 const EIP_155_CONSTANT = 35
 
 export const PARENT_HD_PATH = "44'/60'/0'/0"
+
+const openTransport = async (device: any) => {
+  return device.connectionType === 'Bluetooth'
+    ? TransportBLE.open(device.id).catch((err: any) => {
+        throw err
+      })
+    : TransportHID.open(device).catch((err: any) => {
+        throw err
+      })
+}
+
+const closeTransport = async (device: any) => {
+  if (device.connectionType === 'Bluetooth') {
+    TransportBLE.disconnect(device.id)
+  }
+}
 
 async function getAddressInternal(transport: any, parentKeyDerivationPath: any) {
   let timeoutHandle: any
@@ -102,20 +119,21 @@ async function getAccounts(transport: any) {
   return returnData
 }
 
-export async function ledgerDeviceGetAddresses(deviceId: string) {
+export async function ledgerDeviceGetAddresses(device: any) {
   const returnData = {
     error: null,
     addresses: []
   }
 
-  const transport = await TransportBLE.open(deviceId).catch((err: any) => {
+  const transport = await openTransport(device).catch((err: any) => {
     returnData.error = err
   })
+
   if (!transport) return returnData
 
   const accountsData = await getAccounts(transport)
 
-  TransportBLE.disconnect(deviceId)
+  closeTransport(device)
 
   if (accountsData.error) {
     returnData.error = accountsData.error
@@ -126,7 +144,7 @@ export async function ledgerDeviceGetAddresses(deviceId: string) {
   return returnData
 }
 
-export async function ledgerSignTransaction(txn: any, chainId: any, deviceId: any) {
+export async function ledgerSignTransaction(txn: any, chainId: any, device: any) {
   const fromAddr = txn.from
 
   const unsignedTxObj = {
@@ -139,13 +157,11 @@ export async function ledgerSignTransaction(txn: any, chainId: any, deviceId: an
 
   const serializedUnsigned = serialize(unsignedTxObj)
 
-  const transport = await TransportBLE.open(deviceId).catch((err: any) => {
-    throw err
-  })
+  const transport = await openTransport(device)
 
   const accountsData = await getAccounts(transport)
   if (accountsData.error) {
-    TransportBLE.disconnect(deviceId)
+    closeTransport(device)
     throw new Error(accountsData.error)
   }
 
@@ -164,7 +180,7 @@ export async function ledgerSignTransaction(txn: any, chainId: any, deviceId: an
         serializedUnsigned.substr(2)
       )
     } catch (e) {
-      TransportBLE.disconnect(deviceId)
+      closeTransport(device)
       throw new Error(`Could not sign transaction ${e}`)
     }
 
@@ -172,7 +188,7 @@ export async function ledgerSignTransaction(txn: any, chainId: any, deviceId: an
     const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
 
     if (signedChainId !== chainId) {
-      TransportBLE.disconnect(deviceId)
+      closeTransport(device)
       throw new Error(`Invalid returned V 0x${rsvResponse.v}`)
     }
 
@@ -183,23 +199,21 @@ export async function ledgerSignTransaction(txn: any, chainId: any, deviceId: an
       v: intV
     })
   } else {
-    TransportBLE.disconnect(deviceId)
+    closeTransport(device)
     throw new Error('Incorrect address. Are you using the correct account/ledger?')
   }
 
-  TransportBLE.disconnect(deviceId)
+  closeTransport(device)
 
   return serializedSigned
 }
 
-export async function ledgerSignMessage(hash: any, signerAddress: any, deviceId: any) {
-  const transport = await TransportBLE.open(deviceId).catch((err: any) => {
-    throw err
-  })
+export async function ledgerSignMessage(hash: any, signerAddress: any, device: any) {
+  const transport = await openTransport(device)
 
   const accountsData = await getAccounts(transport)
   if (accountsData.error) {
-    TransportBLE.disconnect(deviceId)
+    closeTransport(device)
     throw new Error(accountsData.error)
   }
 
@@ -215,15 +229,15 @@ export async function ledgerSignMessage(hash: any, signerAddress: any, deviceId:
       )
       signedMsg = `0x${rsvReply.r}${rsvReply.s}${rsvReply.v.toString(16)}`
     } catch (e: any) {
-      TransportBLE.disconnect(deviceId)
+      closeTransport(device)
       throw new Error(`Signature denied ${e.message}`)
     }
   } else {
-    TransportBLE.disconnect(deviceId)
+    closeTransport(device)
     throw new Error('Incorrect address. Are you using the correct account/ledger?')
   }
 
-  TransportBLE.disconnect(deviceId)
+  closeTransport(device)
 
   return signedMsg
 }

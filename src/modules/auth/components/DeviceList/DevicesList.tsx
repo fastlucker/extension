@@ -9,6 +9,7 @@ import spacings from '@modules/common/styles/spacings'
 
 const DevicesList = ({ onSelectDevice, devices, refreshing, onRefresh }: any) => {
   const { t } = useTranslation()
+
   return (
     <>
       {!!devices.length && (

@@ -115,7 +115,7 @@ const useSignMessage = (
     setLoading(false)
   }
 
-  const approve = async (credentials: any, deviceId: any) => {
+  const approve = async (credentials: any, device: any) => {
     if (account.signer?.quickAccManager) {
       await approveQuickAcc(credentials)
       return
@@ -124,7 +124,7 @@ const useSignMessage = (
     setLoading(true)
 
     try {
-      if (!hardwareWalletBottomSheet.isOpen && !deviceId) {
+      if (!hardwareWalletBottomSheet.isOpen && !device) {
         hardwareWalletBottomSheet.openBottomSheet()
         return
       }
@@ -137,7 +137,7 @@ const useSignMessage = (
           signerExtra: account.signerExtra,
           chainId: 1 // does not matter
         },
-        deviceId
+        device
       )
       // It would be great if we could pass the full data cause then web3 wallets/hw wallets can display the full text
       // Unfortunately that isn't possible, because isValidSignature only takes a bytes32 hash; so to sign this with
