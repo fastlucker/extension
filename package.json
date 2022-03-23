@@ -41,6 +41,7 @@
     "@gnosis.pm/safe-apps-sdk": "^6.0.0",
     "@gorhom/portal": "^1.0.11",
     "@ledgerhq/hw-app-eth": "^6.26.1",
+    "@ledgerhq/react-native-hid": "^6.24.1",
     "@ledgerhq/react-native-hw-transport-ble": "^6.25.1",
     "@react-native-async-storage/async-storage": "~1.15.0",
     "@react-native-community/netinfo": "7.1.3",

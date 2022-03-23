@@ -9,7 +9,6 @@ import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
-import HardwareWalletScreen from '@modules/auth/screens/HardwareWalletScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
@@ -21,6 +20,7 @@ import colors from '@modules/common/styles/colors'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
+import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
@@ -117,7 +117,7 @@ const DashboardStackScreen = () => {
       <Stack.Screen
         name="hardwareWallet"
         options={{ title: t('Hardware Wallet') }}
-        component={HardwareWalletScreen}
+        component={HardwareWalletConnectScreen}
       />
       <Stack.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
     </DashboardStack.Navigator>
@@ -300,7 +300,7 @@ const AuthStack = () => {
       <Stack.Screen
         name="hardwareWallet"
         options={{ title: t('Hardware Wallet') }}
-        component={HardwareWalletScreen}
+        component={HardwareWalletConnectScreen}
       />
     </Stack.Navigator>
   )

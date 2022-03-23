@@ -3160,6 +3160,17 @@
   resolved "https://registry.yarnpkg.com/@ledgerhq/logs/-/logs-6.10.0.tgz#c012c1ecc1a0e53d50e6af381618dca5268461c1"
   integrity sha512-lLseUPEhSFUXYTKj6q7s2O3s2vW2ebgA11vMAlKodXGf5AFw4zUoEbTz9CoFOC9jS6xY4Qr8BmRnxP/odT4Uuw==
 
+"@ledgerhq/react-native-hid@^6.24.1":
+  version "6.24.1"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/react-native-hid/-/react-native-hid-6.24.1.tgz#6a5cf8ed513db6430105be3491e71b3a0250c2a0"
+  integrity sha512-xTwWr7q/kWUNVfMIiLEybSzEdRseWopNeV7X91vfhqvlkoESfU9SvuhvTKh41qrt+TrTfExAkgbML3uVlwRUXg==
+  dependencies:
+    "@ledgerhq/devices" "^6.24.1"
+    "@ledgerhq/errors" "^6.10.0"
+    "@ledgerhq/hw-transport" "^6.24.1"
+    "@ledgerhq/logs" "^6.10.0"
+    rxjs "6"
+
 "@ledgerhq/react-native-hw-transport-ble@^6.25.1":
   version "6.25.1"
   resolved "https://registry.yarnpkg.com/@ledgerhq/react-native-hw-transport-ble/-/react-native-hw-transport-ble-6.25.1.tgz#01f16438ff69705dcb0943a76ff14ded1b5b9cc5"

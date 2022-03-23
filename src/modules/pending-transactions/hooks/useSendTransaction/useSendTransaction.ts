@@ -206,7 +206,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     })
   }, [CONFIG.RELAYER_URL, bundle, estimation, feeSpeed, network.nativeAssetSymbol, replaceTx])
 
-  const approveTxnImpl = async (deviceId: any) => {
+  const approveTxnImpl = async (device: any) => {
     if (!estimation) throw new Error('no estimation: should never happen')
 
     const finalBundle = getFinalBundle()
@@ -223,7 +223,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
         signerExtra: account.signerExtra,
         chainId: network.chainId
       },
-      deviceId
+      device
     )
 
     if (CONFIG.RELAYER_URL) {
@@ -305,7 +305,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     }
   }
 
-  const approveTxn = ({ quickAccCredentials, deviceId }: any) => {
+  const approveTxn = ({ quickAccCredentials, device }: any) => {
     if (signingStatus && signingStatus.inProgress) return
     setSigningStatus(signingStatus || { inProgress: true })
 
@@ -318,7 +318,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     const requestIds = bundle.requestIds
     const approveTxnPromise = bundle.signer.quickAccManager
       ? approveTxnImplQuickAcc({ quickAccCredentials })
-      : approveTxnImpl(deviceId)
+      : approveTxnImpl(device)
     approveTxnPromise
       .then((bundleResult) => {
         // special case for approveTxnImplQuickAcc

@@ -1,15 +1,15 @@
 import { ethers } from 'ethers'
 
-import { ledgerSignMessage, ledgerSignTransaction } from '@modules/common/services/ledger'
+import { ledgerSignMessage, ledgerSignTransaction } from '@modules/hardware-wallet/services/ledger'
 
 const wallets: any = {}
 
-function getWalletNew({ chainId, signer, signerExtra }: any, deviceId: any) {
+function getWalletNew({ chainId, signer, signerExtra }: any, device: any) {
   if (signerExtra && signerExtra.type === 'ledger') {
     return {
       signMessage: (hash: any) =>
-        ledgerSignMessage(ethers.utils.hexlify(hash), signer.address, deviceId),
-      signTransaction: (params: any) => ledgerSignTransaction(params, chainId, deviceId)
+        ledgerSignMessage(ethers.utils.hexlify(hash), signer.address, device),
+      signTransaction: (params: any) => ledgerSignTransaction(params, chainId, device)
     }
   }
   // TODO: implement Trezor logic here
@@ -22,9 +22,9 @@ function getWalletNew({ chainId, signer, signerExtra }: any, deviceId: any) {
   }
 }
 
-export function getWallet({ signer, signerExtra, chainId }: any, deviceId: any) {
+export function getWallet({ signer, signerExtra, chainId }: any, device: any) {
   const id = `${signer.address || signer.one}${chainId}`
   if (wallets[id]) return wallets[id]
   // eslint-disable-next-line no-return-assign
-  return (wallets[id] = getWalletNew({ signer, signerExtra, chainId }, deviceId))
+  return (wallets[id] = getWalletNew({ signer, signerExtra, chainId }, device))
 }

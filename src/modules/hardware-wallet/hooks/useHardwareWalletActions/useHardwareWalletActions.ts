@@ -10,7 +10,7 @@ import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
-import { ledgerDeviceGetAddresses } from '@modules/common/services/ledger/ledger'
+import { ledgerDeviceGetAddresses } from '@modules/hardware-wallet/services/ledger'
 
 const useHardwareWalletActions = () => {
   const { addToast } = useToast()
@@ -143,11 +143,11 @@ const useHardwareWalletActions = () => {
     }
   }
 
-  const addAccount = async (deviceId: any) => {
+  const addAccount = async (device: any) => {
     let error: any = null
 
     try {
-      const addrData = await ledgerDeviceGetAddresses(deviceId)
+      const addrData = await ledgerDeviceGetAddresses(device)
       if (!addrData.error) {
         const signerExtra = { type: 'ledger', transportProtocol: 'webHID' }
 
