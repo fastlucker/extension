@@ -30,6 +30,7 @@ interface Props
     Partial<SectionListProps<any, any>> {
   type?: WRAPPER_TYPES
   hasBottomTabNav?: boolean
+  extraHeight?: number
 }
 
 const Wrapper = ({
@@ -40,6 +41,7 @@ const Wrapper = ({
   keyboardShouldPersistTaps,
   keyboardDismissMode,
   hasBottomTabNav = true,
+  extraHeight,
   ...rest
 }: Props) => {
   const { styles } = useTheme(createStyles)
@@ -81,8 +83,11 @@ const Wrapper = ({
         keyboardDismissMode={keyboardDismissMode || 'none'}
         alwaysBounceVertical={false}
         enableOnAndroid
-        // subs 68 of the scroll height only when the keyboard is visible because of the height of the bottom tab navigation
-        extraScrollHeight={hasBottomTabNav ? -68 : 0} // magic num
+        keyboardOpeningTime={100}
+        // subs 44 of the scroll height only when the keyboard is visible because of the height of the bottom tab navigation
+        extraScrollHeight={hasBottomTabNav ? -44 : 0} // magic num
+        // Adds extra offset between the keyboard and the focused input
+        extraHeight={extraHeight || 75}
         {...rest}
       >
         {children}

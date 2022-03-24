@@ -96,7 +96,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     )
 
   return (
-    <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}>
+    <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={220}>
       <SigningWithAccount />
       <TransactionSummary bundle={bundle} estimation={estimation} />
       <FeeSelector
