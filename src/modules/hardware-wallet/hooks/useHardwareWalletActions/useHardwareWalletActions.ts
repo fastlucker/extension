@@ -180,11 +180,22 @@ const useHardwareWalletActions = () => {
     }
   }
 
-  const addSigner = (newSignerAddress: string) => {
+  const addSigner = async (device: any) => {
+    const { addresses, error } = await ledgerDeviceGetAddresses(device)
+
+    if (error) {
+      return addToast(error, { error: true })
+    }
+
     const txn = {
       to: selectedAcc,
       data: IDENTITY_INTERFACE.encodeFunctionData('setAddrPrivilege', [
-        newSignerAddress,
+        // Managing multiple signers support is not implemented yet
+        // for any hardware wallet. Since the only one currently implemented,
+        // Ledger, works with a single address only, select it directly.
+        // Once multi-address fetching is supported,
+        // a bottom sheet with the address list could be implemented.
+        addresses[0],
         privilegesOptions.true
       ]),
       value: '0x00'
