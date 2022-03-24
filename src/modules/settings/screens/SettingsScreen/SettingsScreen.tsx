@@ -20,12 +20,12 @@ const SettingsScreen = () => {
   return (
     <Wrapper>
       <ConnectedDapps />
+      <Signers />
       <Passcode />
       <LocalAuth />
       <BiometricsSign />
       <AppLocking />
       <Theme />
-      <Signers />
       <AppVersion />
     </Wrapper>
   )
