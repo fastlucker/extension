@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { View } from 'react-native'
 
 import { isAndroid } from '@config/env'
+import RequireBluetooth from '@modules/common/components/RequireBluetooth'
 import Segments from '@modules/common/components/Segments'
 import spacings from '@modules/common/styles/spacings'
 import { CONNECTION_TYPE } from '@modules/hardware-wallet/constants'
@@ -36,11 +37,13 @@ const HardwareWalletSelectConnection = ({
         </View>
       )}
       {connectionType === CONNECTION_TYPE.BLUETOOTH && (
-        <LedgerBluetoothConnect
-          onSelectDevice={onSelectDevice}
-          shouldScan={shouldScan}
-          shouldWrap={shouldWrap}
-        />
+        <RequireBluetooth>
+          <LedgerBluetoothConnect
+            onSelectDevice={onSelectDevice}
+            shouldScan={shouldScan}
+            shouldWrap={shouldWrap}
+          />
+        </RequireBluetooth>
       )}
       {connectionType === CONNECTION_TYPE.USB && (
         <USBConnect onSelectDevice={onSelectDevice} shouldWrap={shouldWrap} />

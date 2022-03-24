@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { BleManager } from 'react-native-ble-plx'
 import { Observable } from 'rxjs'
 
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
@@ -13,7 +12,6 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
   const { addToast } = useToast()
   const [devices, setDevices] = useState<any>([])
   const [refreshing, setRefreshing] = useState<any>(true)
-  const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState(false)
 
   let sub: any
 
@@ -54,15 +52,7 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
   }
 
   useEffect(() => {
-    const subscription = new BleManager().onStateChange((state) => {
-      setInBluetoothPoweredOn(state === 'PoweredOn')
-    }, true)
-
-    return () => subscription.remove()
-  }, [])
-
-  useEffect(() => {
-    if (!shouldScan || !isBluetoothPoweredOn) {
+    if (!shouldScan) {
       if (sub) sub.unsubscribe()
 
       return
@@ -73,12 +63,11 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
     return () => {
       if (sub) sub.unsubscribe()
     }
-  }, [shouldScan, isBluetoothPoweredOn])
+  }, [shouldScan])
 
   return {
     devices,
     refreshing,
-    isBluetoothPoweredOn,
     reload
   }
 }

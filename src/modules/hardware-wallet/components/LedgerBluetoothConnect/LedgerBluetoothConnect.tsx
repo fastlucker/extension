@@ -6,7 +6,6 @@ import DevicesList from '@modules/auth/components/DeviceList'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -25,27 +24,17 @@ const LedgerBluetoothConnect = ({
   shouldWrap = true
 }: Props) => {
   const { t } = useTranslation()
-  const { addToast } = useToast()
 
   const {
     devices: bluetoothDevices,
     refreshing: bluetoothRefreshing,
-    isBluetoothPoweredOn,
     reload: bluetoothReload
   } = useLedgerConnect(shouldScan)
-
-  const handleOnRefresh = () => {
-    if (!isBluetoothPoweredOn) {
-      return addToast(t('Please turn on the Bluetooth first.') as string, { error: true })
-    }
-
-    return bluetoothReload()
-  }
 
   const content = (
     <>
       {!!bluetoothRefreshing && (
-        <View style={[flexboxStyles.alignCenter, spacings.mb]}>
+        <View style={[flexboxStyles.alignCenter, spacings.mb, !shouldWrap && spacings.ptSm]}>
           <Text style={[textStyles.bold, spacings.mbMi]}>{t('Looking for devices')}</Text>
           <Text style={textStyles.center} color={colors.secondaryTextColor} fontSize={14}>
             {t('Please make sure your Ledger Nano X is unlocked and Bluetooth is enabled.')}
@@ -62,7 +51,7 @@ const LedgerBluetoothConnect = ({
         devices={bluetoothDevices}
         refreshing={bluetoothRefreshing}
         onSelectDevice={onSelectDevice}
-        onRefresh={handleOnRefresh}
+        onRefresh={bluetoothReload}
       />
     </>
   )
@@ -73,7 +62,7 @@ const LedgerBluetoothConnect = ({
       refreshControl={
         <RefreshControl
           refreshing={false}
-          onRefresh={handleOnRefresh}
+          onRefresh={bluetoothReload}
           tintColor={colors.primaryIconColor}
           progressBackgroundColor={colors.primaryIconColor}
           enabled={!bluetoothRefreshing}
