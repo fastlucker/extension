@@ -48,7 +48,9 @@ const SignersList = () => {
     } else {
       onAddAccount({ ...account, signer: { address: address }, signerExtra: null })
       addToast(
-        'This signer is now the default. If it is a hardware wallet, you will have to re-add the account manually to connect it directly, otherwise you will have to add this signer address to your web3 wallet.',
+        t(
+          'This signer is now the default. If it is a hardware wallet, you will have to re-add the account manually to connect it directly, otherwise you will have to add this signer address to your web3 wallet.'
+        ) as string,
         { timeout: 30000 }
       )
 
