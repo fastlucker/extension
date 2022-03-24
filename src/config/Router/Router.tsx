@@ -29,6 +29,7 @@ import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingSc
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
+import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
@@ -258,6 +259,13 @@ const SettingsStackScreen = () => {
         component={ChangeAppLockingScreen}
         options={{
           headerTitle: t('App Locking')
+        }}
+      />
+      <SettingsStack.Screen
+        name="signers"
+        component={SignersScreen}
+        options={{
+          headerTitle: t('Manage signers')
         }}
       />
       <SettingsStack.Screen
