@@ -78,7 +78,7 @@ const useHardwareWalletActions = () => {
   // EOA implementations
   // Add or create accounts from Trezor/Ledger/Metamask/etc.
   const createFromEOA = useCallback(
-    async (addr) => {
+    async (addr, signerType) => {
       const privileges = [[getAddress(addr), hexZeroPad('0x01', 32)]]
       const { salt, baseIdentityAddr, identityFactoryAddr } = accountPresets
       const bytecode = getProxyDeployBytecode(baseIdentityAddr, privileges, { privSlot: 0 })
@@ -97,7 +97,8 @@ const useHardwareWalletActions = () => {
           salt,
           identityFactoryAddr,
           baseIdentityAddr,
-          privileges
+          privileges,
+          signerType
         })
         if (
           !createResp.success &&
@@ -124,11 +125,12 @@ const useHardwareWalletActions = () => {
       // when there is no relayer, we can only add the 'default' account created from that EOA
       // @TODO in the future, it would be nice to do getLogs from the provider here to find out which other addrs we control
       //   ... maybe we can isolate the code for that in lib/relayerless or something like that to not clutter this code
-      if (!CONFIG.RELAYER_URL) return addAccount(await createFromEOA(addr), { select: true })
+      if (!CONFIG.RELAYER_URL)
+        return addAccount(await createFromEOA(addr, signerExtra.type), { select: true })
       // otherwise check which accs we already own and add them
       const owned = await getOwnedByEOAs([addr])
       if (!owned.length) {
-        addAccount(await createFromEOA(addr), { select: true, isNew: true })
+        addAccount(await createFromEOA(addr, signerExtra.type), { select: true, isNew: true })
       } else {
         addToast(
           i18n.t('Found {{numAccs}} existing accounts with signer {{addr}}', {
