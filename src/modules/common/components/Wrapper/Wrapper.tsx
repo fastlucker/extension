@@ -84,7 +84,7 @@ const Wrapper = ({
         alwaysBounceVertical={false}
         enableOnAndroid
         keyboardOpeningTime={100}
-        // subs 68 of the scroll height only when the keyboard is visible because of the height of the bottom tab navigation
+        // subs 44 of the scroll height only when the keyboard is visible because of the height of the bottom tab navigation
         extraScrollHeight={hasBottomTabNav ? -44 : 0} // magic num
         extraHeight={extraHeight || 75}
         {...rest}
