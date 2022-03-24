@@ -63,7 +63,7 @@ const SignersList = () => {
     <>
       <Title>{t('Authorized signers')}</Title>
       {showLoading && <ActivityIndicator />}
-      {errMsg && (
+      {!!errMsg && (
         <P type={TEXT_TYPES.DANGER}>
           {t('Error getting authorized signers: {{errMsg}}', { errMsg })}
         </P>
