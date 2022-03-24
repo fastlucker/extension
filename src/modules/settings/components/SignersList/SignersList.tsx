@@ -59,6 +59,9 @@ const SignersList = () => {
   }
 
   const privList = Object.entries(privileges)
+    // Sort the incoming entries, otherwise, they sometime come in different
+    // order. And on almost every refresh - the list re-orders. Which is weird.
+    .sort((a, b) => a[0].localeCompare(b[0]))
     .map(([addr, privValue]) => {
       if (!privValue) return null
 
