@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import CONFIG from '@config/env'
 import P from '@modules/common/components/P'
@@ -76,11 +75,12 @@ const SignersList = () => {
           {isSelected ? (
             <Text style={textStyles.bold}>{t('(default signer)')}</Text>
           ) : (
-            <TouchableOpacity onPress={handleOnMakeDefaultBtnClicked}>
-              <Text style={[textStyles.bold, { color: colors.primaryAccentColor }]}>
-                {t('Make default')}
-              </Text>
-            </TouchableOpacity>
+            <Text
+              style={[textStyles.bold, { color: colors.primaryAccentColor }]}
+              onPress={handleOnMakeDefaultBtnClicked}
+            >
+              {t('Make default')}
+            </Text>
           )}
         </Text>
       )
