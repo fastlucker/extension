@@ -241,16 +241,3 @@ export async function ledgerSignMessage(hash: any, signerAddress: any, device: a
 
   return signedMsg
 }
-
-export async function ledgerGetAddress(device: any) {
-  const transport = await openTransport(device)
-
-  const accountsData = await getAccounts(transport)
-  if (accountsData.error) {
-    closeTransport(device)
-    throw new Error(accountsData.error)
-  }
-
-  // TODO: research how to implement for multiple accounts
-  return accountsData.accounts[0]
-}

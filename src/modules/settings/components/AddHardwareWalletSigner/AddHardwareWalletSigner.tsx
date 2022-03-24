@@ -6,20 +6,31 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import Button from '@modules/common/components/Button'
 import P from '@modules/common/components/P'
 import Title from '@modules/common/components/Title'
+import useToast from '@modules/common/hooks/useToast'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import useHardwareWalletActions from '@modules/hardware-wallet/hooks/useHardwareWalletActions'
-import { ledgerGetAddress } from '@modules/hardware-wallet/services/ledger'
+import { ledgerDeviceGetAddresses } from '@modules/hardware-wallet/services/ledger'
 
 const AddHardwareWalletSigner = () => {
   const { t } = useTranslation()
+  const { addToast } = useToast()
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
   const { addSigner } = useHardwareWalletActions()
 
   const handleOnSelectDevice = async (device: any) => {
-    closeBottomSheet()
+    const { addresses, error } = await ledgerDeviceGetAddresses(device)
 
-    const address = await ledgerGetAddress(device)
-    addSigner(address)
+    if (error) {
+      return addToast(error, { error: true })
+    }
+
+    // Managing multiple signers support is not implemented yet
+    // for any hardware wallet. Since the only one currently implemented,
+    // Ledger, works with a single address only, select it directly.
+    // Once multi-address fetching is supported,
+    // a bottom sheet with the address list could be implemented.
+    addSigner(addresses[0])
+    closeBottomSheet()
   }
 
   return (

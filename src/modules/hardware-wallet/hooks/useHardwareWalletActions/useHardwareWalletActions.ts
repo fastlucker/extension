@@ -180,11 +180,11 @@ const useHardwareWalletActions = () => {
     }
   }
 
-  const addSigner = (newSignerAddress: any) => {
+  const addSigner = (newSignerAddress: string) => {
     const txn = {
       to: selectedAcc,
       data: IDENTITY_INTERFACE.encodeFunctionData('setAddrPrivilege', [
-        newSignerAddress.address,
+        newSignerAddress,
         privilegesOptions.true
       ]),
       value: '0x00'
