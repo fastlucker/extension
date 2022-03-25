@@ -137,7 +137,7 @@ const RequestsProvider: React.FC = ({ children }) => {
   }, [everythingToSign.length])
 
   useEffect(() => {
-    if (sendTxnState.showing && !prevSendTxnState.showing) {
+    if (sendTxnState?.showing && !prevSendTxnState?.showing) {
       navigate('pending-transactions')
     }
   }, [sendTxnState?.showing, prevSendTxnState?.showing])
