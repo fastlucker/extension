@@ -9,19 +9,23 @@ import Select from '@modules/common/components/Select'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import { formatFloatTokenAmount } from '@modules/common/services/formatters'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import {
-  getFeePaymentConsequences,
+  getDiscountApplied,
+  getFeesData,
   isTokenEligible,
   mapTxnErrMsg
 } from '@modules/pending-transactions/services/helpers'
 
+import CustomFee from './CustomFee'
 import styles from './styles'
 
 const SPEEDS = ['slow', 'medium', 'fast', 'ape']
+const OVERPRICED_MULTIPLIER = 1.2
 
 const FeeSelector = ({
   disabled,
@@ -34,6 +38,7 @@ const FeeSelector = ({
   const { t } = useTranslation()
   const { network }: any = useNetwork()
   const [currency, setCurrency] = useState<any>(null)
+  const [editCustomFee, setEditCustomFee] = useState(false)
 
   // Initially sets a value in the Select
   useEffect(() => {
@@ -105,42 +110,129 @@ const FeeSelector = ({
 
     const feeCurrencySelect = estimation.feeInUSD ? (
       <>
-        <Text style={spacings.pbMi}>Fee currency</Text>
+        <Text style={spacings.pbMi}>{t('Fee Currency')}</Text>
         <Select value={currency} setValue={setCurrency} items={assetsItems} />
       </>
     ) : null
 
-    const areSelectorsDisabled = disabled
-    const { isStable } = estimation.selectedFeeToken
-    const { multiplier } = getFeePaymentConsequences(estimation.selectedFeeToken, estimation)
+    const { discount = 0, symbol, nativeRate, decimals } = estimation.selectedFeeToken
 
-    const feeAmountSelectors = SPEEDS.map((speed) => (
-      <View style={flexboxStyles.flex1} key={speed}>
-        <TouchableOpacity
-          key={speed}
-          onPress={() => !areSelectorsDisabled && setFeeSpeed(speed)}
-          style={[styles.feeSelector, feeSpeed === speed && styles.selected]}
-          disabled={areSelectorsDisabled}
-        >
-          <Text
-            numberOfLines={1}
-            fontSize={13}
-            style={[spacings.mbMi, textStyles.uppercase, textStyles.bold]}
-            color={colors.invertedTextColor}
+    const setCustomFee = (value: any) =>
+      setEstimation((prevEstimation: any) => ({
+        ...prevEstimation,
+        customFee: value
+      }))
+
+    const selectFeeSpeed = (speed: any) => {
+      setFeeSpeed(speed)
+      setCustomFee(null)
+      setEditCustomFee(false)
+    }
+
+    const checkIsSelectorDisabled = (speed: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      const insufficientFee = !isTokenEligible(estimation.selectedFeeToken, speed, estimation)
+      return disabled || insufficientFee
+    }
+
+    const feeAmountSelectors = SPEEDS.map((speed) => {
+      const isETH = symbol === 'ETH' && nativeAssetSymbol === 'ETH'
+
+      const {
+        feeInFeeToken,
+        feeInUSD
+        // NOTE: get the estimation res data w/o custom fee for the speeds
+      } = getFeesData({ ...estimation.selectedFeeToken }, { ...estimation, customFee: null }, speed)
+
+      const discountInFeeToken = getDiscountApplied(feeInFeeToken, discount)
+      const discountInFeeInUSD = getDiscountApplied(feeInUSD, discount)
+
+      const baseFeeInFeeToken = feeInFeeToken + discountInFeeToken
+      const baseFeeInFeeUSD = feeInUSD ? feeInUSD + discountInFeeInUSD : null
+
+      const showInUSD = nativeRate !== null && baseFeeInFeeUSD
+
+      return (
+        <View style={flexboxStyles.flex1} key={speed}>
+          <TouchableOpacity
+            key={speed}
+            onPress={() => {
+              !checkIsSelectorDisabled(speed) && selectFeeSpeed(speed)
+            }}
+            style={[
+              styles.feeSelector,
+              !estimation.customFee && feeSpeed === speed && styles.selected
+            ]}
+            disabled={checkIsSelectorDisabled(speed)}
           >
-            {speed}
-          </Text>
-          <Text numberOfLines={2} fontSize={15} color={colors.invertedTextColor}>
-            {/* eslint-disable-next-line no-nested-ternary */}
-            {isStable
-              ? `$${estimation.feeInUSD[speed] * multiplier}`
-              : nativeAssetSymbol === 'ETH'
-              ? `Ξ ${estimation.feeInNative[speed] * multiplier}`
-              : `${estimation.feeInNative[speed] * multiplier} ${nativeAssetSymbol}`}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    ))
+            <Text
+              numberOfLines={1}
+              fontSize={13}
+              style={[spacings.mbMi, textStyles.uppercase, textStyles.bold]}
+              color={colors.textColor}
+            >
+              {speed}
+            </Text>
+            <Text numberOfLines={2} fontSize={15} color={colors.secondaryTextColor}>
+              {(isETH ? 'Ξ ' : '') +
+                (showInUSD
+                  ? `$${formatFloatTokenAmount(baseFeeInFeeUSD, true, 4)}`
+                  : formatFloatTokenAmount(baseFeeInFeeToken, true, decimals)) +
+                (!isETH && !showInUSD ? ` ${estimation.selectedFeeToken.symbol}` : '')}
+            </Text>
+            {!isETH && !showInUSD && (
+              <Text fontSize={12} color={colors.secondaryTextColor}>
+                {estimation.selectedFeeToken.symbol}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      )
+    })
+
+    const { feeInFeeToken, feeInUSD } = getFeesData(
+      estimation.selectedFeeToken,
+      estimation,
+      feeSpeed
+    )
+
+    const { feeInFeeToken: minFee, feeInUSD: minFeeUSD } = getFeesData(
+      { ...estimation.selectedFeeToken },
+      { ...estimation, customFee: null },
+      'slow'
+    )
+
+    const { feeInFeeToken: maxFee, feeInUSD: maxFeeUSD } = getFeesData(
+      { ...estimation.selectedFeeToken },
+      { ...estimation, customFee: null },
+      'ape'
+    )
+
+    const discountMin = getDiscountApplied(minFee, discount)
+    const discountMax = getDiscountApplied(maxFee, discount)
+
+    const discountInFeeToken = getDiscountApplied(feeInFeeToken, discount)
+    const discountInUSD = getDiscountApplied(feeInUSD, discount)
+    const discountBaseMinInUSD = getDiscountApplied(minFeeUSD, discount)
+    const discountBaseMaxInUSD = getDiscountApplied(maxFeeUSD, discount)
+
+    // Fees with no discounts applied
+    const baseFeeInFeeToken = feeInFeeToken + discountInFeeToken
+    const baseFeeInUSD = feeInUSD + discountInUSD
+    const baseMinFee = minFee + discountMin
+    const baseMaxFee = (maxFee + discountMax) * OVERPRICED_MULTIPLIER
+    const baseMinFeeUSD = minFeeUSD + discountBaseMinInUSD
+    const baseMaxFeeUSD = (maxFeeUSD + discountBaseMaxInUSD) * OVERPRICED_MULTIPLIER
+
+    const isUnderpriced =
+      !!estimation.customFee &&
+      !Number.isNaN(parseFloat(estimation.customFee)) &&
+      baseFeeInFeeToken < baseMinFee
+
+    const isOverpriced =
+      !!estimation.customFee &&
+      !Number.isNaN(parseFloat(estimation.customFee)) &&
+      baseFeeInFeeToken > baseMaxFee
 
     return (
       <>
@@ -152,27 +244,81 @@ const FeeSelector = ({
         ) : (
           feeCurrencySelect
         )}
+
+        <Text style={spacings.pbMi}>{t('Transaction Speed')}</Text>
         <View style={styles.selectorsContainer}>{feeAmountSelectors}</View>
-        {
-          // Visualize the fee once again with a USD estimation if in native currency
-          !isStable && (
-            <>
-              <Text numberOfLines={2}>
-                <Text>{t('Fee: ')}</Text>
-                <Text>{`${
-                  estimation.feeInNative[feeSpeed] * multiplier
-                } ${nativeAssetSymbol}`}</Text>
+
+        <CustomFee
+          isEditEnabled={editCustomFee}
+          setEnableEdit={() => setEditCustomFee(true)}
+          setCustomFee={setCustomFee}
+          value={estimation.customFee}
+          symbol={symbol}
+        />
+
+        {isUnderpriced && (
+          <View style={[{ marginTop: -15 }, spacings.mbSm]}>
+            <Text fontSize={14} color={colors.warningColor} style={spacings.mbMi}>
+              Custom Fee too low. You can try to &quot;sign and send&quot; the transaction but most
+              probably it will fail.
+            </Text>
+            <Text fontSize={14} color={colors.warningColor}>
+              {'Min estimated fee: '}
+              <TouchableOpacity onPress={() => setCustomFee(baseMinFee.toString())}>
+                <Text underline fontSize={15}>
+                  {baseMinFee} {symbol}
+                </Text>
+              </TouchableOpacity>
+              {!Number.isNaN(baseMinFeeUSD) && (
+                <Text fontSize={14} color={colors.warningColor}>
+                  &nbsp; (~${formatFloatTokenAmount(baseMinFeeUSD, true, 4)}){' '}
+                </Text>
+              )}
+            </Text>
+          </View>
+        )}
+
+        {isOverpriced && (
+          <View style={[{ marginTop: -15 }, spacings.mbSm]}>
+            <Text fontSize={14} color={colors.warningColor} style={spacings.mbMi}>
+              Custom Fee is higher than the APE speed. You will pay more than probably needed. Make
+              sure you know what are you doing!
+            </Text>
+            <Text fontSize={14} color={colors.warningColor}>
+              Recommended max fee: &nbsp;
+              <TouchableOpacity onPress={() => setCustomFee(baseMaxFee.toString())}>
+                <Text underline fontSize={15}>
+                  {baseMaxFee} {symbol}
+                </Text>
+              </TouchableOpacity>
+              <Text />
+              {!Number.isNaN(baseMaxFeeUSD) && (
+                <Text fontSize={14} color={colors.warningColor}>
+                  &nbsp; (~${formatFloatTokenAmount(baseMaxFeeUSD, true, 4)}){' '}
+                </Text>
+              )}
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.unstableFeeContainer}>
+          <Text style={flexboxStyles.flex1}>{t('Fee: ')}</Text>
+          <View style={flexboxStyles.alignEnd}>
+            {!Number.isNaN(baseFeeInUSD) && (
+              <Text style={spacings.mbMi}>
+                {`~ $${formatFloatTokenAmount(baseFeeInUSD, true, 4)}`}
               </Text>
-              <Text>
-                {`(~ $${(
-                  estimation.feeInNative[feeSpeed] *
-                  multiplier *
-                  estimation.nativeAssetPriceInUSD
-                ).toFixed(2)})`}
+            )}
+            {!Number.isNaN(baseFeeInFeeToken) && (
+              <Text numberOfLines={2} fontSize={12}>
+                {`${formatFloatTokenAmount(baseFeeInFeeToken, true, decimals)} ${
+                  estimation.selectedFeeToken.symbol
+                }`}
               </Text>
-            </>
-          )
-        }
+            )}
+          </View>
+        </View>
+
         {!estimation.feeInUSD ? (
           <Text>
             {t(

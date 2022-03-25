@@ -26,6 +26,7 @@ export const colorPalette = {
   keyLimeWater: '#E6FF80',
   apricotAppeal: '#FFC480',
   forbiddenFruit: '#FF8080',
+  warning: '#ebaf40',
   christmasSilver: '#e0e0e0',
   gravelFint: '#bbbbbb'
 }
@@ -45,6 +46,7 @@ const colors = {
   secondaryAccentColor: '#AA6AFF',
   tertiaryAccentColor: '#C3D4F6',
   dangerColor: '#da5151',
+  warningColor: '#ebaf40',
 
   ambireDarkBlue: '#6000FF',
   ambirePurple: '#AF50FF',

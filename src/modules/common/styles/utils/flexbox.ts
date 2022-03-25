@@ -6,6 +6,7 @@ interface Styles {
   center: ViewStyle
   alignSelfCenter: ViewStyle
   alignCenter: ViewStyle
+  alignEnd: ViewStyle
   justifyCenter: ViewStyle
   wrap: ViewStyle
   justifySpaceBetween: ViewStyle
@@ -20,6 +21,9 @@ const flexboxStyles = StyleSheet.create<Styles>({
   },
   alignCenter: {
     alignItems: 'center'
+  },
+  alignEnd: {
+    alignItems: 'flex-end'
   },
   justifyCenter: {
     justifyContent: 'center'
