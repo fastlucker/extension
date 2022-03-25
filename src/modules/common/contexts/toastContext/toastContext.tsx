@@ -101,7 +101,7 @@ const ToastProvider = ({ children }: any) => {
                 <Text>{badge}</Text>
               </View>
             )}
-            <Text style={styles.text} numberOfLines={3}>
+            <Text style={styles.text} numberOfLines={5}>
               {text}
             </Text>
             {!!sticky && (
