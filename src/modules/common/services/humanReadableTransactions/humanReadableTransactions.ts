@@ -13,7 +13,8 @@ export const formatNativeTokenAddress = (address) =>
   address.toLowerCase() === `0x${'e'.repeat(40)}` ? `0x${'0'.repeat(40)}` : address.toLowerCase()
 
 // Currently takes network because one day we may be seeing the same addresses used on different networks
-export function getName(addr) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getName(addr, network) {
   const address = addr.toLowerCase()
   if (knownAliases[address]) return knownAliases[address]
   return names[address] || (tokens[address] ? `${tokens[address][0]} token` : null) || addr

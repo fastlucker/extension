@@ -1,10 +1,12 @@
 import { formatUnits } from 'ethers/lib/utils'
 // TODO: add types
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Image, TouchableOpacity, View } from 'react-native'
 
 import { MaterialIcons } from '@expo/vector-icons'
 import networks from '@modules/common/constants/networks'
+import { formatFloatTokenAmount } from '@modules/common/services/formatters'
 import { getName, isKnown } from '@modules/common/services/humanReadableTransactions'
 import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
 import colors from '@modules/common/styles/colors'
@@ -26,7 +28,7 @@ function getTokenIcon(network: any, address: any) {
   return `${zapperStorageTokenIcons}/${network}/${address}.png`
 }
 
-function parseExtendedSummaryItem(item: any, i: any, networkDetails: any) {
+function parseExtendedSummaryItem(item: any, i: any, networkDetails: any, t: any) {
   if (item === '') return null
 
   if (item.length === 1) return <Text>{`${item} `}</Text>
@@ -38,15 +40,24 @@ function parseExtendedSummaryItem(item: any, i: any, networkDetails: any) {
   if (item.type === 'token')
     return (
       <>
-        {item.amount > 0 ? <Text>{`${item.amount} `}</Text> : null}
-        {item.address ? (
-          <Image
-            source={{ uri: getTokenIcon(networkDetails.id, item.address) }}
-            style={{ width: 24, height: 24 }}
-          />
+        {item.amount > 0 ? (
+          <Text>{`${formatFloatTokenAmount(item.amount, true, item.decimals)} `}</Text>
         ) : null}
-        <Text> </Text>
-        <Text>{`${item.symbol || ''} `}</Text>
+        {/* eslint-disable-next-line no-nested-ternary */}
+        {item.decimals !== null && item.symbol ? (
+          <>
+            {item.address ? (
+              <Image
+                source={{ uri: getTokenIcon(networkDetails.id, item.address) }}
+                style={{ width: 24, height: 24 }}
+              />
+            ) : null}
+            <Text> </Text>
+            <Text>{`${item.symbol || ''} `}</Text>
+          </>
+        ) : item.amount > 0 ? (
+          <Text>{t('units of unknown token')}</Text>
+        ) : null}
       </>
     )
 
@@ -78,6 +89,7 @@ const TxnPreview = ({
 }: any) => {
   const [isExpanded, setExpanded] = useState(false)
   const contractName = getName(txn[0], network)
+  const { t } = useTranslation()
 
   const networkDetails = networks.find(({ id }) => id === network)
 
@@ -85,7 +97,7 @@ const TxnPreview = ({
 
   const summary = extendedSummary.map((entry: any) =>
     Array.isArray(entry) ? (
-      entry.map((item, i) => parseExtendedSummaryItem(item, i, networkDetails))
+      entry.map((item, i) => parseExtendedSummaryItem(item, i, networkDetails, t))
     ) : (
       <Text>{entry}</Text>
     )
@@ -112,12 +124,12 @@ const TxnPreview = ({
           </View>
           {isFirstFailing && (
             <Text type={TEXT_TYPES.DANGER} style={[spacings.ptTy, textStyles.bold]}>
-              This is the first failing transaction.
+              {t('This is the first failing transaction.')}
             </Text>
           )}
           {!isFirstFailing && !mined && !isKnown(txn, account) && (
             <Text type={TEXT_TYPES.DANGER} style={[spacings.ptTy, textStyles.bold]}>
-              Warning: interacting with an unknown contract or address.
+              {t('Warning: interacting with an unknown contract or address.')}
             </Text>
           )}
         </View>
@@ -131,7 +143,7 @@ const TxnPreview = ({
         <View style={styles.expandedContainer}>
           <View style={spacings.mbTy}>
             <Text fontSize={13} style={textStyles.bold}>
-              Interacting with (to):
+              {t('Interacting with (to):')}
             </Text>
             <Text fontSize={13}>
               {txn[0]}
@@ -142,13 +154,13 @@ const TxnPreview = ({
             <Text>
               <Text>
                 <Text fontSize={13}>{`${getNetworkSymbol(network)} `}</Text>
-                <Text fontSize={13}>{'to be sent value '}</Text>
+                <Text fontSize={13}>{t('to be sent value ')}</Text>
               </Text>
               <Text fontSize={13}>{formatUnits(txn[1] || '0x0', 18)}</Text>
             </Text>
           </View>
           <View>
-            <Text fontSize={13}>Data:</Text>
+            <Text fontSize={13}>{t('Data:')}</Text>
             <Text fontSize={13}>{txn[2]}</Text>
           </View>
         </View>
