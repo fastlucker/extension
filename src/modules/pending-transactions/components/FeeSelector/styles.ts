@@ -7,29 +7,41 @@ interface Style {
   selectorsContainer: ViewStyle
   feeSelector: ViewStyle
   selected: ViewStyle
+  customFeeContainer: ViewStyle
+  unstableFeeContainer: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
   selectorsContainer: {
     flexDirection: 'row',
     flex: 1,
-    ...spacings.pvTy,
-    marginHorizontal: -5
+    ...spacings.mb,
+    marginHorizontal: -2.5
   },
   feeSelector: {
     padding: 2,
     minHeight: 90,
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: 2.5,
     overflow: 'hidden',
-    backgroundColor: '#ccc',
+    backgroundColor: colors.backgroundColor,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 5,
-    borderColor: '#ccc'
+    borderWidth: 4,
+    borderColor: colors.backgroundColor
+  },
+  customFeeContainer: {
+    ...spacings.mbTy
+  },
+  unstableFeeContainer: {
+    ...spacings.pvTy,
+    ...spacings.phTy,
+    backgroundColor: colors.backgroundColor,
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   selected: {
-    borderColor: colors.primaryAccentColor
+    borderColor: colors.ambireDarkBlue
   }
 })
 
