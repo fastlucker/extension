@@ -237,7 +237,7 @@ const FeeSelector = ({
     return (
       <>
         {insufficientFee ? (
-          <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
+          <Text fontSize={17} type={TEXT_TYPES.DANGER} style={[textStyles.bold, spacings.mbTy]}>
             {t('Insufficient balance for the fee. Accepted tokens: ')}
             {(estimation.remainingFeeTokenBalances || []).map((x: any) => x.symbol).join(', ')}
           </Text>
