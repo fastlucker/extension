@@ -259,16 +259,15 @@ const FeeSelector = ({
         {isUnderpriced && (
           <View style={[{ marginTop: -15 }, spacings.mbSm]}>
             <Text fontSize={14} color={colors.warningColor} style={spacings.mbMi}>
-              Custom Fee too low. You can try to &quot;sign and send&quot; the transaction but most
-              probably it will fail.
+              {t(
+                'Custom Fee too low. You can try to "sign and send" the transaction but most probably it will fail.'
+              )}
             </Text>
             <Text fontSize={14} color={colors.warningColor}>
-              {'Min estimated fee: '}
-              <TouchableOpacity onPress={() => setCustomFee(baseMinFee.toString())}>
-                <Text underline fontSize={15}>
-                  {baseMinFee} {symbol}
-                </Text>
-              </TouchableOpacity>
+              {t('Min estimated fee: ')}
+              <Text underline fontSize={15} onPress={() => setCustomFee(baseMaxFee.toString())}>
+                {baseMinFee} {symbol}
+              </Text>
               {!Number.isNaN(baseMinFeeUSD) && (
                 <Text fontSize={14} color={colors.warningColor}>
                   &nbsp; (~${formatFloatTokenAmount(baseMinFeeUSD, true, 4)}){' '}
@@ -281,16 +280,15 @@ const FeeSelector = ({
         {isOverpriced && (
           <View style={[{ marginTop: -15 }, spacings.mbSm]}>
             <Text fontSize={14} color={colors.warningColor} style={spacings.mbMi}>
-              Custom Fee is higher than the APE speed. You will pay more than probably needed. Make
-              sure you know what are you doing!
+              {t(
+                'Custom Fee is higher than the APE speed. You will pay more than probably needed. Make sure you know what are you doing!'
+              )}
             </Text>
             <Text fontSize={14} color={colors.warningColor}>
-              Recommended max fee: &nbsp;
-              <TouchableOpacity onPress={() => setCustomFee(baseMaxFee.toString())}>
-                <Text underline fontSize={15}>
-                  {baseMaxFee} {symbol}
-                </Text>
-              </TouchableOpacity>
+              {t('Recommended max fee: ')}
+              <Text underline fontSize={15} onPress={() => setCustomFee(baseMaxFee.toString())}>
+                {baseMaxFee} {symbol}
+              </Text>
               <Text />
               {!Number.isNaN(baseMaxFeeUSD) && (
                 <Text fontSize={14} color={colors.warningColor}>
