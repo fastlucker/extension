@@ -127,7 +127,7 @@ When releasing a new version, here are the steps:
 
 1. Runtime version. Integer. Bump up If the next internal version we're about to ship requires creating a new build and shipping it over the air will break the previous (existing) builds: (example: `1`)
 
-   For both platforms: change `runtimeVersion` key in `app.json`. Then run: `eas build:configure`.
+   For both platforms: change `runtimeVersion` key in `app.json`. Then run: `yarn build:configure`.
 
    iOS: Change the key `EXUpdatesRuntimeVersion` in the `Expo.plist` file
 
