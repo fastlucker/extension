@@ -134,7 +134,9 @@ const PortfolioProvider: React.FC = ({ children }) => {
   const [areProtocolsLoading, setProtocolsLoading] = useState<any>(true)
 
   const [tokensByNetworks, setTokensByNetworks] = useState<any>([])
-  const [otherProtocolsByNetworks, setOtherProtocolsByNetworks] = useState<any>([])
+  const [otherProtocolsByNetworks, setOtherProtocolsByNetworks] = useState(
+    supportedProtocols.filter((item) => !item.protocols || !item.protocols.length)
+  )
 
   const [balance, setBalance] = useState<any>({
     total: {
@@ -262,20 +264,27 @@ const PortfolioProvider: React.FC = ({ children }) => {
       const updatedProtocols = (
         await Promise.all(
           // eslint-disable-next-line @typescript-eslint/no-shadow
-          protocols.map(async ({ network, protocols }: any) => {
+          protocols.map(async ({ network, protocols, nftsProvider }: any) => {
             const all = (
               await Promise.all(
                 protocols.map(async (protocol: any) => {
                   try {
-                    const bal = await getBalances(CONFIG.ZAPPER_API_KEY, network, protocol, account)
-                    return bal ? Object.values(bal)[0] : null
-                  } catch (_) {
+                    // eslint-disable-next-line @typescript-eslint/no-shadow
+                    const balance = await getBalances(
+                      CONFIG.ZAPPER_API_KEY,
+                      network,
+                      protocol,
+                      account,
+                      protocol === 'nft' ? nftsProvider : null
+                    )
+                    return balance ? Object.values(balance)[0] : null
+                  } catch (e) {
                     failedRequests++
                   }
                 })
               )
             )
-              .filter((data: any) => data)
+              .filter((data) => data)
               .flat()
 
             return all.length
@@ -308,7 +317,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
       lastOtherProtocolsRefresh = Date.now()
 
       if (failedRequests >= requestsCount)
-        throw new Error('Failed to fetch other Protocols from Zapper API')
+        throw new Error('Failed to fetch other Protocols from API')
       return true
     } catch (error: any) {
       addToast(error.message, { error: true })

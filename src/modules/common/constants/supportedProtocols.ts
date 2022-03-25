@@ -1,6 +1,6 @@
 // List of all supported protocols by networks: https://api.zapper.fi/v1/protocols/balances/supported?api_key=5d1237c2-3840-4733-8e92-c5a58fe81b88
 
-const supportedProtocols = [
+const suportedProtocols = [
   {
     network: 'ethereum',
     protocols: [
@@ -17,12 +17,14 @@ const supportedProtocols = [
       'uniswap-v3',
       'nft'
     ],
-    balancesProvider: 'velcro'
+    balancesProvider: 'velcro',
+    nftsProvider: 'velcro'
   },
   {
     network: 'polygon',
-    protocols: ['aave-v2', 'quickswap', 'sushiswap'],
-    balancesProvider: 'velcro'
+    protocols: ['aave-v2', 'quickswap', 'sushiswap', 'nft'],
+    balancesProvider: 'velcro',
+    nftsProvider: 'velcro'
   },
   {
     network: 'avalanche',
@@ -33,7 +35,22 @@ const supportedProtocols = [
     network: 'binance-smart-chain',
     protocols: ['pancakeswap'],
     balancesProvider: 'velcro'
-  }
+  },
+  {
+    network: 'fantom',
+    protocols: [],
+    balancesProvider: 'velcro'
+  },
+  {
+    network: 'moonbeam',
+    protocols: [],
+    balancesProvider: 'velcro'
+  } /* ,
+  {
+      network: 'arbitrum',
+      protocols: [],
+      balancesProvider: 'velcro'
+  } */
 ]
 
-export default supportedProtocols
+export default suportedProtocols

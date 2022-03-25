@@ -4,7 +4,7 @@ import spacings from '@modules/common/styles/spacings'
 
 const styles = StyleSheet.create({
   wrapper: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center'
   },
   separator: {

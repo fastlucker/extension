@@ -2,12 +2,15 @@ import React, { useEffect, useLayoutEffect } from 'react'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
+import BottomSheet from '@modules/common/components/BottomSheet'
+import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useRequests from '@modules/common/hooks/useRequests'
 import textStyles from '@modules/common/styles/utils/text'
+import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
 import SignActions from '@modules/pending-transactions/components/SignActions'
 import SigningWithAccount from '@modules/pending-transactions/components/SigningWithAccount'
@@ -19,6 +22,9 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
   const { account } = useAccounts()
+
+  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
+
   const {
     bundle,
     signingStatus,
@@ -28,7 +34,12 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     setFeeSpeed,
     approveTxn,
     rejectTxn
-  } = useSendTransaction()
+  } = useSendTransaction({
+    sheetRef,
+    openBottomSheet,
+    closeBottomSheet,
+    isOpen
+  })
 
   const prevBundle: any = usePrevious(bundle)
 
@@ -85,7 +96,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     )
 
   return (
-    <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}>
+    <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={220}>
       <SigningWithAccount />
       <TransactionSummary bundle={bundle} estimation={estimation} />
       <FeeSelector
@@ -114,6 +125,22 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
           feeSpeed={feeSpeed}
         />
       )}
+      <BottomSheet
+        sheetRef={sheetRef}
+        isOpen={isOpen}
+        closeBottomSheet={() => {
+          closeBottomSheet()
+        }}
+        dynamicInitialHeight={false}
+      >
+        <HardwareWalletSelectConnection
+          onSelectDevice={(device: any) => {
+            approveTxn({ device })
+            closeBottomSheet()
+          }}
+          shouldWrap={false}
+        />
+      </BottomSheet>
     </Wrapper>
   )
 }

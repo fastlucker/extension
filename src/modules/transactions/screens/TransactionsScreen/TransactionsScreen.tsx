@@ -78,7 +78,7 @@ const TransactionsScreen = () => {
         {!CONFIG.RELAYER_URL && (
           <Text>{t('Unsupported: not currently connected to a relayer.')}</Text>
         )}
-        {errMsg && (
+        {!!errMsg && (
           <Text>
             {t('Error getting list of transactions:')} {errMsg}
           </Text>

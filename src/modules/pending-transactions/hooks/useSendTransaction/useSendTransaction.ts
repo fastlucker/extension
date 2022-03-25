@@ -13,12 +13,21 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
+import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { getProvider } from '@modules/common/services/provider'
 import { toBundleTxn } from '@modules/common/services/requestToBundleTxn'
+import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import {
   getFeePaymentConsequences,
   isTokenEligible
 } from '@modules/pending-transactions/services/helpers'
+
+type HardwareWalletBottomSheetType = {
+  sheetRef: any
+  openBottomSheet: any
+  closeBottomSheet: any
+  isOpen: any
+}
 
 const DEFAULT_SPEED = 'fast'
 const REESTIMATE_INTERVAL = 15000
@@ -36,7 +45,6 @@ function makeBundle(account: any, networkId: any, requests: any) {
   bundle.extraGas = requests.map((x: any) => x.extraGas || 0).reduce((a: any, b: any) => a + b, 0)
   bundle.requestIds = requests.map((x: any) => x.id)
   return bundle
-  return null
 }
 
 function getErrorMessage(e: any) {
@@ -56,7 +64,7 @@ function getErrorMessage(e: any) {
   return e.message || e
 }
 
-const useSendTransaction = () => {
+const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheetType) => {
   const [estimation, setEstimation] = useState<any>(null)
   const [signingStatus, setSigningStatus] = useState<any>(false)
   const [feeSpeed, setFeeSpeed] = useState<any>(DEFAULT_SPEED)
@@ -198,6 +206,46 @@ const useSendTransaction = () => {
     })
   }, [CONFIG.RELAYER_URL, bundle, estimation, feeSpeed, network.nativeAssetSymbol, replaceTx])
 
+  const approveTxnImpl = async (device: any) => {
+    if (!estimation) throw new Error('no estimation: should never happen')
+
+    const finalBundle = getFinalBundle()
+    const provider = getProvider(network.id)
+    const signer = finalBundle.signer
+
+    addToast(i18n.t('Please confirm this transaction on your Ledger device.') as string, {
+      timeout: 5000
+    })
+
+    const wallet = getWallet(
+      {
+        signer,
+        signerExtra: account.signerExtra,
+        chainId: network.chainId
+      },
+      device
+    )
+
+    if (CONFIG.RELAYER_URL) {
+      // Temporary way of debugging the fee cost
+      // const initialLimit = finalBundle.gasLimit - getFeePaymentConsequences(estimation.selectedFeeToken, estimation).addedGas
+      // finalBundle.estimate({ relayerURL, fetch }).then(estimation => console.log('fee costs: ', estimation.gasLimit - initialLimit), estimation.selectedFeeToken).catch(console.error)
+      await finalBundle.sign(wallet)
+      // eslint-disable-next-line @typescript-eslint/return-await
+      return await finalBundle.submit({ relayerURL: CONFIG.RELAYER_URL, fetch })
+    }
+    // eslint-disable-next-line @typescript-eslint/return-await
+    return await sendNoRelayer({
+      finalBundle,
+      account,
+      network,
+      wallet,
+      estimation,
+      feeSpeed,
+      provider
+    })
+  }
+
   const approveTxnImplQuickAcc = async ({ quickAccCredentials }: any) => {
     if (!estimation) throw new Error('no estimation: should never happen')
     if (!CONFIG.RELAYER_URL)
@@ -257,18 +305,20 @@ const useSendTransaction = () => {
     }
   }
 
-  const approveTxn = ({ quickAccCredentials }: any) => {
+  const approveTxn = ({ quickAccCredentials, device }: any) => {
     if (signingStatus && signingStatus.inProgress) return
     setSigningStatus(signingStatus || { inProgress: true })
 
-    if (account.signerExtra && account.signerExtra.type === 'ledger') {
-      addToast(i18n.t('Please confirm this transaction on your Ledger device.') as string, {
-        timeout: 10000
-      })
+    if (!bundle.signer.quickAccManager && !hardwareWalletBottomSheet.isOpen) {
+      hardwareWalletBottomSheet.openBottomSheet()
+      setSigningStatus(null)
+      return
     }
 
     const requestIds = bundle.requestIds
-    const approveTxnPromise = approveTxnImplQuickAcc({ quickAccCredentials })
+    const approveTxnPromise = bundle.signer.quickAccManager
+      ? approveTxnImplQuickAcc({ quickAccCredentials })
+      : approveTxnImpl(device)
     approveTxnPromise
       .then((bundleResult) => {
         // special case for approveTxnImplQuickAcc
@@ -343,7 +393,8 @@ const useSendTransaction = () => {
     feeSpeed,
     approveTxn,
     setFeeSpeed,
-    setEstimation
+    setEstimation,
+    setSigningStatus
   }
 }
 

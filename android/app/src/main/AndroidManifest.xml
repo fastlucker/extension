@@ -5,6 +5,10 @@
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.CAMERA"/>
+  <uses-permission android:name="android.permission.BLUETOOTH"/>
+  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+  <uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION"/>
+  <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
   <queries>
     <intent>
       <action android:name="android.intent.action.VIEW"/>
@@ -17,7 +21,7 @@
     <meta-data android:name="expo.modules.updates.ENABLED" android:value="true"/>
     <meta-data android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH" android:value="ALWAYS"/>
     <meta-data android:name="expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS" android:value="45000"/>
-    <meta-data android:name="expo.modules.updates.EXPO_RUNTIME_VERSION" android:value="4"/>
+    <meta-data android:name="expo.modules.updates.EXPO_RUNTIME_VERSION" android:value="5"/>
     <!-- Using android:windowSoftInputMode="adjustPan" resolves an issue -->
     <!-- with the keyboard when having input fields in the Bottom Sheet -->
     <!-- https://github.com/osdnk/react-native-reanimated-bottom-sheet/issues/203#issuecomment-609712288 -->

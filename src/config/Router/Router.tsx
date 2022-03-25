@@ -20,6 +20,7 @@ import colors from '@modules/common/styles/colors'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
+import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
@@ -28,6 +29,7 @@ import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingSc
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import SettingsScreen from '@modules/settings/screens/SettingsScreen'
+import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
@@ -112,6 +114,11 @@ const DashboardStackScreen = () => {
         name="qrCodeLogin"
         options={{ title: t('Login') }}
         component={QRCodeLoginScreen}
+      />
+      <Stack.Screen
+        name="hardwareWallet"
+        options={{ title: t('Hardware Wallet') }}
+        component={HardwareWalletConnectScreen}
       />
       <Stack.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
     </DashboardStack.Navigator>
@@ -255,6 +262,13 @@ const SettingsStackScreen = () => {
         }}
       />
       <SettingsStack.Screen
+        name="signers"
+        component={SignersScreen}
+        options={{
+          headerTitle: t('Manage signers')
+        }}
+      />
+      <SettingsStack.Screen
         name="pending-transactions"
         component={PendingTransactionsScreen}
         options={{
@@ -290,6 +304,11 @@ const AuthStack = () => {
         name="qrCodeLogin"
         options={{ title: t('Login') }}
         component={QRCodeLoginScreen}
+      />
+      <Stack.Screen
+        name="hardwareWallet"
+        options={{ title: t('Hardware Wallet') }}
+        component={HardwareWalletConnectScreen}
       />
     </Stack.Navigator>
   )

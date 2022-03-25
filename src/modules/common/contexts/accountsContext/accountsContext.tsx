@@ -67,7 +67,7 @@ const AccountsProvider: React.FC = ({ children }) => {
   )
 
   const onAddAccount = useCallback(
-    (acc, opts = {}) => {
+    (acc, opts = { shouldRedirect: true }) => {
       if (!(acc.id && acc.signer)) throw new Error('account: internal err: missing ID or signer')
 
       const existing = accounts.find((x: any) => x.id.toLowerCase() === acc.id.toLowerCase())
@@ -103,7 +103,7 @@ const AccountsProvider: React.FC = ({ children }) => {
       if (opts.select) onSelectAcc(acc.id)
       if (Object.keys(accounts).length) {
         if (authStatus === AUTH_STATUS.AUTHENTICATED) {
-          navigate('dashboard')
+          if (opts.shouldRedirect) navigate('dashboard')
         } else {
           setAuthStatus(AUTH_STATUS.AUTHENTICATED)
         }
