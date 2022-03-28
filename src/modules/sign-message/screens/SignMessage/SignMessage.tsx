@@ -50,7 +50,7 @@ const SignScreen = ({ navigation }: any) => {
     isOpen: isOpenBottomSheetHardwareWallet
   } = useBottomSheet()
 
-  const { approve, approveQuickAcc, isLoading, resolve } = useSignMessage(
+  const { approve, approveQuickAcc, isLoading, resolve, confirmationType } = useSignMessage(
     {
       sheetRef: sheetRefQickAcc,
       openBottomSheet: openBottomSheetQickAcc,
@@ -142,6 +142,7 @@ const SignScreen = ({ navigation }: any) => {
           isLoading={isLoading}
           approve={approve}
           approveQuickAcc={approveQuickAcc}
+          confirmationType={confirmationType}
           resolve={resolve}
           quickAccBottomSheet={{
             sheetRef: sheetRefQickAcc,

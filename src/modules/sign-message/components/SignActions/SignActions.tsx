@@ -27,6 +27,7 @@ interface Props {
   resolve: any
   quickAccBottomSheet: QuickAccBottomSheetType
   hardwareWalletBottomSheet: HardwareWalletBottomSheetType
+  confirmationType: string | null
 }
 
 const SignActions = ({
@@ -35,7 +36,8 @@ const SignActions = ({
   approveQuickAcc,
   resolve,
   quickAccBottomSheet,
-  hardwareWalletBottomSheet
+  hardwareWalletBottomSheet,
+  confirmationType
 }: Props) => {
   const { t } = useTranslation()
   const { account } = useAccounts()
@@ -100,13 +102,18 @@ const SignActions = ({
         dynamicInitialHeight={false}
       >
         <Title>{t('Confirmation code')}</Title>
-        <Text style={spacings.mb}>
-          {t(
-            'A confirmation code has been sent to your email, it is valid for 3 minutes. Please enter it here:'
-          )}
-        </Text>
+        {(confirmationType === 'email' || !confirmationType) && (
+          <Text style={spacings.mb}>
+            {t('A confirmation code has been sent to your email, it is valid for 3 minutes.')}
+          </Text>
+        )}
+        {confirmationType === 'otp' && (
+          <Text style={spacings.mb}>{t('Please enter your OTP code.')}</Text>
+        )}
         <NumberInput
-          placeholder={t('Confirmation code')}
+          placeholder={
+            confirmationType === 'otp' ? t('Authenticator OTP code') : t('Confirmation code')
+          }
           onChangeText={(val) => setValue('code', val)}
           keyboardType="numeric"
           autoCorrect={false}
