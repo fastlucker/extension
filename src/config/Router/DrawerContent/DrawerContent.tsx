@@ -5,12 +5,13 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import Text from '@modules/common/components/Text'
+import spacings from '@modules/common/styles/spacings'
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer'
 
 const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/4404980091538-Ambire-Wallet'
 const REPORT_ISSUE_URL = 'https://help.ambire.com/hc/en-us/requests/new'
 
-const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
+const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const { t } = useTranslation()
   const { navigation } = props
 
@@ -27,17 +28,18 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const help = [
     { name: t('Help Center'), url: HELP_CENTER_URL },
     { name: t('Report an issue'), url: REPORT_ISSUE_URL },
-    { name: t('Report an issue'), url: termsAndPrivacyURL }
+    { name: t('Terms of Service'), url: termsAndPrivacyURL }
   ]
 
   return (
-    <DrawerContentScrollView {...props}>
+    <DrawerContentScrollView {...props} contentContainerStyle={spacings.mhLg}>
       <Text>Menu</Text>
       {menu.map((m) => (
         <TouchableOpacity key={m.name} onPress={() => navigation.navigate(m.route)}>
           <Text>{m.name}</Text>
         </TouchableOpacity>
       ))}
+
       {help.map((h) => (
         <TouchableOpacity key={h.name} onPress={() => Linking.openURL(h.url)}>
           <Text>{h.name}</Text>
@@ -47,4 +49,4 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   )
 }
 
-export default CustomDrawerContent
+export default DrawerContent

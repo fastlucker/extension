@@ -3,6 +3,7 @@ import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
 
+import DrawerContent from '@config/Router/DrawerContent'
 import { FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
@@ -40,8 +41,6 @@ import {
   createNativeStackNavigator,
   NativeStackNavigationOptions
 } from '@react-navigation/native-stack'
-
-import CustomDrawerContent from './DrawerContent'
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -447,7 +446,7 @@ const AppStack = () => {
   }, [isLoading])
 
   return (
-    <Drawer.Navigator drawerContent={CustomDrawerContent} screenOptions={globalScreenOptions}>
+    <Drawer.Navigator drawerContent={DrawerContent} screenOptions={globalScreenOptions}>
       <Drawer.Screen
         name="tabs"
         component={AppTabs}
