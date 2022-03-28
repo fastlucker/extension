@@ -11,7 +11,8 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   text: {
-    fontSize: 16
+    fontSize: 16,
+    fontFamily: 'Poppins_400Regular'
   },
   textRegular: {
     color: colors.textColor
