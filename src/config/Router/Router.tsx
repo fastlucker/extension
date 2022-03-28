@@ -34,6 +34,7 @@ import SignMessage from '@modules/sign-message/screens/SignMessage'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import {
   createNativeStackNavigator,
@@ -42,6 +43,7 @@ import {
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
+const Drawer = createDrawerNavigator()
 
 const DashboardStack = createNativeStackNavigator()
 const SwapStack = createNativeStackNavigator()
@@ -49,8 +51,6 @@ const TransactionsStack = createNativeStackNavigator()
 const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
 const SettingsStack = createNativeStackNavigator()
-
-const MainStack = createNativeStackNavigator()
 
 const globalScreenOptions = {
   headerStyle: {
@@ -76,6 +76,11 @@ const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions =>
       hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
     >
       <MaterialIcons name="crop-free" size={HEADER_ICON_SIZE} color={tintColor} />
+    </TouchableOpacity>
+  ),
+  headerLeft: () => (
+    <TouchableOpacity onPress={navigation.openDrawer}>
+      <Ionicons name="ios-menu" size={32} color="white" />
     </TouchableOpacity>
   )
 })
@@ -440,29 +445,21 @@ const AppStack = () => {
   }, [isLoading])
 
   return (
-    <MainStack.Navigator
-      screenOptions={{
-        ...globalScreenOptions
-      }}
-    >
-      <MainStack.Screen
+    <Drawer.Navigator screenOptions={globalScreenOptions}>
+      <Drawer.Screen
         name="tabs"
         component={AppTabs}
         options={{
           headerShown: false
         }}
       />
-      <MainStack.Screen
+      <Drawer.Screen
         name="connect"
         component={ConnectScreen}
         options={{ title: t('Connect a dApp') }}
       />
-      <MainStack.Screen
-        name="sign-message"
-        component={SignMessage}
-        options={{ title: t('Sign'), headerBackVisible: false }}
-      />
-    </MainStack.Navigator>
+      <Drawer.Screen name="sign-message" component={SignMessage} options={{ title: t('Sign') }} />
+    </Drawer.Navigator>
   )
 }
 
