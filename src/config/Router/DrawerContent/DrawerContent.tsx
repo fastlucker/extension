@@ -8,6 +8,8 @@ import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer'
 
+import styles from './style'
+
 const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/4404980091538-Ambire-Wallet'
 const REPORT_ISSUE_URL = 'https://help.ambire.com/hc/en-us/requests/new'
 
@@ -33,7 +35,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
 
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={spacings.mhLg}>
-      <Text>Menu</Text>
+      <Text style={styles.menuTitle}>{t('Menu')}</Text>
       {menu.map((m) => (
         <TouchableOpacity key={m.name} onPress={() => navigation.navigate(m.route)}>
           <Text>{m.name}</Text>
