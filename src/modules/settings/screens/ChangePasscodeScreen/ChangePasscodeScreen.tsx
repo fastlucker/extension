@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useTranslation } from '@config/localization'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import P from '@modules/common/components/P'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -80,24 +81,26 @@ const ChangePasscodeScreen: React.FC = () => {
   }
 
   return (
-    <Wrapper>
-      {renderContent()}
-      {passcodeConfirmFailed && <P type={TEXT_TYPES.DANGER}>{t("Passcodes don't match!")}</P>}
-      {step === STEPS.NEW_PASSCODE && <CodeInput autoFocus onFulfill={handleOnFulfillStep1} />}
-      {step === STEPS.CONFIRM_NEW_PASSCODE && (
-        <CodeInput autoFocus onFulfill={handleOnFulfillStep2} />
-      )}
-      {state !== PASSCODE_STATES.NO_PASSCODE && (
-        <>
-          <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
-          <Button
-            type={BUTTON_TYPES.SECONDARY}
-            text={t('Remove passcode')}
-            onPress={handleOnRemovePasscode}
-          />
-        </>
-      )}
-    </Wrapper>
+    <GradientBackgroundWrapper>
+      <Wrapper>
+        {renderContent()}
+        {passcodeConfirmFailed && <P type={TEXT_TYPES.DANGER}>{t("Passcodes don't match!")}</P>}
+        {step === STEPS.NEW_PASSCODE && <CodeInput autoFocus onFulfill={handleOnFulfillStep1} />}
+        {step === STEPS.CONFIRM_NEW_PASSCODE && (
+          <CodeInput autoFocus onFulfill={handleOnFulfillStep2} />
+        )}
+        {state !== PASSCODE_STATES.NO_PASSCODE && (
+          <>
+            <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
+            <Button
+              type={BUTTON_TYPES.SECONDARY}
+              text={t('Remove passcode')}
+              onPress={handleOnRemovePasscode}
+            />
+          </>
+        )}
+      </Wrapper>
+    </GradientBackgroundWrapper>
   )
 }
 

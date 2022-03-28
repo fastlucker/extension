@@ -5,6 +5,7 @@ import { Keyboard } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
 import P from '@modules/common/components/P'
 import { TEXT_TYPES } from '@modules/common/components/Text'
@@ -144,14 +145,16 @@ const BiometricsSignScreen = () => {
   }
 
   return (
-    <Wrapper>
-      <P>
-        {t(
-          'You can opt-in to use your phone biometrics to sign transactions instead of your Ambire account password.'
-        )}
-      </P>
-      {renderContent()}
-    </Wrapper>
+    <GradientBackgroundWrapper>
+      <Wrapper>
+        <P>
+          {t(
+            'You can opt-in to use your phone biometrics to sign transactions instead of your Ambire account password.'
+          )}
+        </P>
+        {renderContent()}
+      </Wrapper>
+    </GradientBackgroundWrapper>
   )
 }
 

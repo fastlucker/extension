@@ -12,6 +12,7 @@ import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputOrScan from '@modules/common/components/InputOrScan/InputOrScan'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
@@ -71,113 +72,115 @@ const SendScreen = () => {
   }
 
   return (
-    <Wrapper keyboardDismissMode="on-drag">
-      {isBalanceLoading && (
-        <View style={StyleSheet.absoluteFill}>
-          <ActivityIndicator style={StyleSheet.absoluteFill} size="large" />
-        </View>
-      )}
-      {!isBalanceLoading && (
-        <TouchableWithoutFeedback
-          onPress={() => {
-            Keyboard.dismiss()
-          }}
-        >
-          <>
-            {assetsItems.length ? (
-              <Panel>
-                <Title>{t('Send')}</Title>
-                <Select value={asset} items={assetsItems} setValue={setAsset} />
-                <View style={styles.amountContainer}>
-                  <Text>{t('Available Amount:')}</Text>
-                  <Text style={styles.amountValue}>
-                    {maxAmount} {selectedAsset?.symbol}
-                  </Text>
-                </View>
-                <NumberInput
-                  onChangeText={onAmountChange}
-                  value={amount.toString()}
-                  buttonText={t('MAX')}
-                  placeholder={t('0')}
-                  onButtonPress={setMaxAmount}
-                />
-                {!!validationFormMgs.messages?.amount && (
-                  <P type={TEXT_TYPES.DANGER}>{validationFormMgs.messages.amount}</P>
-                )}
-                <InputOrScan
-                  placeholder={t('Recipient')}
-                  info={t(
-                    'Please double-check the recipient address, blockchain transactions are not reversible.'
-                  )}
-                  value={address}
-                  onChangeText={setAddress}
-                />
-                {!!validationFormMgs.messages?.address && (
-                  <P type={TEXT_TYPES.DANGER}>{validationFormMgs.messages.address}</P>
-                )}
-                {!smartContractWarning && !!unknownWarning && (
-                  <ConfirmAddress
-                    addressConfirmed={addressConfirmed}
-                    setAddressConfirmed={setAddressConfirmed}
-                    onAddToAddressBook={openBottomSheetAddrAdd}
+    <GradientBackgroundWrapper>
+      <Wrapper keyboardDismissMode="on-drag">
+        {isBalanceLoading && (
+          <View style={StyleSheet.absoluteFill}>
+            <ActivityIndicator style={StyleSheet.absoluteFill} size="large" />
+          </View>
+        )}
+        {!isBalanceLoading && (
+          <TouchableWithoutFeedback
+            onPress={() => {
+              Keyboard.dismiss()
+            }}
+          >
+            <>
+              {assetsItems.length ? (
+                <Panel>
+                  <Title>{t('Send')}</Title>
+                  <Select value={asset} items={assetsItems} setValue={setAsset} />
+                  <View style={styles.amountContainer}>
+                    <Text>{t('Available Amount:')}</Text>
+                    <Text style={styles.amountValue}>
+                      {maxAmount} {selectedAsset?.symbol}
+                    </Text>
+                  </View>
+                  <NumberInput
+                    onChangeText={onAmountChange}
+                    value={amount.toString()}
+                    buttonText={t('MAX')}
+                    placeholder={t('0')}
+                    onButtonPress={setMaxAmount}
                   />
-                )}
-                <Button
-                  type={BUTTON_TYPES.SECONDARY}
-                  onPress={() => {
-                    Keyboard.dismiss()
-                    openBottomSheetAddrDisplay()
-                  }}
-                  text={t('Address Book')}
-                />
-                <Button
-                  text={t('Send')}
-                  disabled={disabled}
-                  onPress={() => {
-                    Keyboard.dismiss()
-                    sendTransaction()
-                  }}
+                  {!!validationFormMgs.messages?.amount && (
+                    <P type={TEXT_TYPES.DANGER}>{validationFormMgs.messages.amount}</P>
+                  )}
+                  <InputOrScan
+                    placeholder={t('Recipient')}
+                    info={t(
+                      'Please double-check the recipient address, blockchain transactions are not reversible.'
+                    )}
+                    value={address}
+                    onChangeText={setAddress}
+                  />
+                  {!!validationFormMgs.messages?.address && (
+                    <P type={TEXT_TYPES.DANGER}>{validationFormMgs.messages.address}</P>
+                  )}
+                  {!smartContractWarning && !!unknownWarning && (
+                    <ConfirmAddress
+                      addressConfirmed={addressConfirmed}
+                      setAddressConfirmed={setAddressConfirmed}
+                      onAddToAddressBook={openBottomSheetAddrAdd}
+                    />
+                  )}
+                  <Button
+                    type={BUTTON_TYPES.SECONDARY}
+                    onPress={() => {
+                      Keyboard.dismiss()
+                      openBottomSheetAddrDisplay()
+                    }}
+                    text={t('Address Book')}
+                  />
+                  <Button
+                    text={t('Send')}
+                    disabled={disabled}
+                    onPress={() => {
+                      Keyboard.dismiss()
+                      sendTransaction()
+                    }}
+                  />
+                </Panel>
+              ) : (
+                <P>{t("You don't have any funds on this account.")}</P>
+              )}
+              <Panel>
+                <AddressList
+                  onSelectAddress={(item): any => setAddress(item.address)}
+                  onOpenBottomSheet={openBottomSheetAddrAdd}
                 />
               </Panel>
-            ) : (
-              <P>{t("You don't have any funds on this account.")}</P>
-            )}
-            <Panel>
-              <AddressList
-                onSelectAddress={(item): any => setAddress(item.address)}
-                onOpenBottomSheet={openBottomSheetAddrAdd}
-              />
-            </Panel>
-          </>
-        </TouchableWithoutFeedback>
-      )}
-      <BottomSheet
-        sheetRef={sheetRefAddrDisplay}
-        isOpen={isOpenBottomSheetAddrDisplay}
-        closeBottomSheet={closeBottomSheetAddrDisplay}
-        dynamicInitialHeight={false}
-      >
-        <AddressList
-          onSelectAddress={(item): any => {
-            closeBottomSheetAddrDisplay()
-            setAddress(item.address)
-          }}
-          onOpenBottomSheet={openBottomSheetAddrAdd}
-        />
-      </BottomSheet>
-      <BottomSheet
-        sheetRef={sheetRefAddrAdd}
-        isOpen={isOpenBottomSheetAddrAdd}
-        closeBottomSheet={closeBottomSheetAddrAdd}
-        maxInitialHeightPercentage={1}
-        dynamicInitialHeight={false}
-      >
-        <AddAddressForm
-          onSubmit={handleAddNewAddress}
-          address={!smartContractWarning && !!unknownWarning && !!address ? address : ''}
-        />
-      </BottomSheet>
-    </Wrapper>
+            </>
+          </TouchableWithoutFeedback>
+        )}
+        <BottomSheet
+          sheetRef={sheetRefAddrDisplay}
+          isOpen={isOpenBottomSheetAddrDisplay}
+          closeBottomSheet={closeBottomSheetAddrDisplay}
+          dynamicInitialHeight={false}
+        >
+          <AddressList
+            onSelectAddress={(item): any => {
+              closeBottomSheetAddrDisplay()
+              setAddress(item.address)
+            }}
+            onOpenBottomSheet={openBottomSheetAddrAdd}
+          />
+        </BottomSheet>
+        <BottomSheet
+          sheetRef={sheetRefAddrAdd}
+          isOpen={isOpenBottomSheetAddrAdd}
+          closeBottomSheet={closeBottomSheetAddrAdd}
+          maxInitialHeightPercentage={1}
+          dynamicInitialHeight={false}
+        >
+          <AddAddressForm
+            onSubmit={handleAddNewAddress}
+            address={!smartContractWarning && !!unknownWarning && !!address ? address : ''}
+          />
+        </BottomSheet>
+      </Wrapper>
+    </GradientBackgroundWrapper>
   )
 }
 

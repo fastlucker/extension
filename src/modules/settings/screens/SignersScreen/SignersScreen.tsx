@@ -1,15 +1,18 @@
 import React from 'react'
 
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Wrapper from '@modules/common/components/Wrapper'
 import AddHardwareWalletSigner from '@modules/settings/components/AddHardwareWalletSigner'
 import SignersList from '@modules/settings/components/SignersList'
 
 const SignersScreen = () => {
   return (
-    <Wrapper>
-      <SignersList />
-      <AddHardwareWalletSigner />
-    </Wrapper>
+    <GradientBackgroundWrapper>
+      <Wrapper>
+        <SignersList />
+        <AddHardwareWalletSigner />
+      </Wrapper>
+    </GradientBackgroundWrapper>
   )
 }
 
