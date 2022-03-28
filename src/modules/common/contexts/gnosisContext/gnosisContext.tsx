@@ -286,7 +286,6 @@ const GnosisProvider: React.FC = ({ children }) => {
           // throw new Error("gnosis safe connector not set")
           console.error('gnosis safe connector not set')
         } else {
-          console.log('gnosis reply', replyData)
           send(replyData, req.forwardId, replyData.error)
         }
       }
