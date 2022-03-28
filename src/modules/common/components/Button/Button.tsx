@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import { ColorValue, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
 
@@ -40,6 +41,15 @@ const containerStylesSizes = {
   [BUTTON_SIZES.SMALL]: styles.buttonContainerStylesSizeSmall
 }
 
+const noGradient = ['transparent', 'transparent']
+
+const gradientColors = {
+  [BUTTON_TYPES.PRIMARY]: ['red', 'green'],
+  [BUTTON_TYPES.SECONDARY]: noGradient,
+  [BUTTON_TYPES.DANGER]: noGradient,
+  [BUTTON_TYPES.OUTLINE]: noGradient
+}
+
 const buttonTextStyles = {
   [BUTTON_TYPES.PRIMARY]: styles.buttonTextPrimary,
   [BUTTON_TYPES.SECONDARY]: styles.buttonTextSecondary,
@@ -63,30 +73,34 @@ const Button = ({
   hasBottomSpacing = true,
   ...rest
 }: Props) => (
-  <TouchableOpacity
-    disabled={disabled}
-    style={[
-      styles.buttonContainer,
-      containerStyles[type],
-      containerStylesSizes[size],
-      disabled && styles.disabled,
-      style,
-      !!accentColor && { borderColor: accentColor },
-      !hasBottomSpacing && spacings.mb0
-    ]}
-    {...rest}
-  >
-    <Text
+  <TouchableOpacity disabled={disabled} style={styles.buttonWrapper} {...rest}>
+    <LinearGradient
+      // Button background - linear gradient or transparent
+      colors={gradientColors[type]}
+      start={{ x: 0, y: 0.5 }}
+      end={{ x: 1, y: 0.5 }}
       style={[
-        styles.buttonText,
-        buttonTextStyles[type],
-        buttonTextStylesSizes[size],
-        !!accentColor && { color: accentColor },
-        textStyle
+        styles.buttonContainer,
+        containerStyles[type],
+        containerStylesSizes[size],
+        disabled && styles.disabled,
+        style,
+        !!accentColor && { borderColor: accentColor },
+        !hasBottomSpacing && spacings.mb0
       ]}
     >
-      {text}
-    </Text>
+      <Text
+        style={[
+          styles.buttonText,
+          buttonTextStyles[type],
+          buttonTextStylesSizes[size],
+          !!accentColor && { color: accentColor },
+          textStyle
+        ]}
+      >
+        {text}
+      </Text>
+    </LinearGradient>
   </TouchableOpacity>
 )
 

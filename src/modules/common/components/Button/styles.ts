@@ -5,6 +5,7 @@ import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
 interface Style {
+  buttonWrapper: ViewStyle
   buttonContainer: ViewStyle
   buttonContainerStylesSizeRegular: ViewStyle
   buttonContainerStylesSizeSmall: ViewStyle
@@ -23,16 +24,19 @@ interface Style {
 }
 
 const styles = StyleSheet.create<Style>({
-  buttonContainer: {
+  buttonWrapper: {
     width: '100%',
-    borderRadius: 2,
+    overflow: 'hidden'
+  },
+  buttonContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
+    borderRadius: 13,
     borderColor: 'transparent'
   },
   buttonContainerStylesSizeRegular: {
-    height: 52,
+    height: 50,
     ...spacings.phSm,
     ...spacings.mbSm
   },
@@ -42,7 +46,7 @@ const styles = StyleSheet.create<Style>({
     ...spacings.mbTy
   },
   buttonContainerPrimary: {
-    backgroundColor: colors.primaryButtonContainerColor
+    backgroundColor: 'transparent'
   },
   buttonContainerSecondary: {
     backgroundColor: colors.secondaryButtonContainerColor
@@ -54,7 +58,6 @@ const styles = StyleSheet.create<Style>({
     borderColor: colors.outlineButtonColor
   },
   buttonText: {
-    textTransform: 'uppercase',
     ...textStyles.bold,
     textAlign: 'center'
   },
