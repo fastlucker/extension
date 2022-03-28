@@ -1,0 +1,50 @@
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { Linking } from 'react-native'
+import { TouchableOpacity } from 'react-native-gesture-handler'
+
+import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
+import Text from '@modules/common/components/Text'
+import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer'
+
+const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/4404980091538-Ambire-Wallet'
+const REPORT_ISSUE_URL = 'https://help.ambire.com/hc/en-us/requests/new'
+
+const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
+  const { t } = useTranslation()
+  const { navigation } = props
+
+  const menu = [
+    { name: t('Dashboards'), route: 'dashboard' },
+    { name: t('Earn'), route: 'earn' },
+    { name: t('Send'), route: 'send' },
+    { name: t('Swap'), route: 'swap' },
+    { name: t('Transactions'), route: 'transactions' },
+    { name: t('Cross-chain'), route: 'cross-chain' },
+    { name: t('Deposit'), route: 'deposit' }
+  ]
+
+  const help = [
+    { name: t('Help Center'), url: HELP_CENTER_URL },
+    { name: t('Report an issue'), url: REPORT_ISSUE_URL },
+    { name: t('Report an issue'), url: termsAndPrivacyURL }
+  ]
+
+  return (
+    <DrawerContentScrollView {...props}>
+      <Text>Menu</Text>
+      {menu.map((m) => (
+        <TouchableOpacity key={m.name} onPress={() => navigation.navigate(m.route)}>
+          <Text>{m.name}</Text>
+        </TouchableOpacity>
+      ))}
+      {help.map((h) => (
+        <TouchableOpacity key={h.name} onPress={() => Linking.openURL(h.url)}>
+          <Text>{h.name}</Text>
+        </TouchableOpacity>
+      ))}
+    </DrawerContentScrollView>
+  )
+}
+
+export default CustomDrawerContent

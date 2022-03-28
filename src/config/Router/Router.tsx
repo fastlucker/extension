@@ -41,6 +41,8 @@ import {
   NativeStackNavigationOptions
 } from '@react-navigation/native-stack'
 
+import CustomDrawerContent from './DrawerContent'
+
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -445,7 +447,7 @@ const AppStack = () => {
   }, [isLoading])
 
   return (
-    <Drawer.Navigator screenOptions={globalScreenOptions}>
+    <Drawer.Navigator drawerContent={CustomDrawerContent} screenOptions={globalScreenOptions}>
       <Drawer.Screen
         name="tabs"
         component={AppTabs}
