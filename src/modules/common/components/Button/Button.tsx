@@ -9,8 +9,8 @@ import styles from './styles'
 
 interface Props extends TouchableOpacityProps {
   text: string
-  type?: BUTTON_TYPES
-  size?: BUTTON_SIZES
+  type?: keyof typeof BUTTON_TYPES
+  size?: keyof typeof BUTTON_SIZES
   textStyle?: any
   accentColor?: ColorValue
   hasBottomSpacing?: boolean
@@ -18,23 +18,25 @@ interface Props extends TouchableOpacityProps {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum BUTTON_TYPES {
-  PRIMARY = 'primary',
-  SECONDARY = 'secondary',
-  DANGER = 'danger',
-  OUTLINE = 'outline'
+  PRIMARY = 'PRIMARY',
+  SECONDARY = 'SECONDARY',
+  DANGER = 'DANGER',
+  OUTLINE = 'OUTLINE',
+  GHOST = 'GHOST'
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum BUTTON_SIZES {
-  SMALL = 'small',
-  REGULAR = 'regular'
+  SMALL = 'SMALL',
+  REGULAR = 'REGULAR'
 }
 
 const containerStyles = {
   [BUTTON_TYPES.PRIMARY]: styles.buttonContainerPrimary,
   [BUTTON_TYPES.SECONDARY]: styles.buttonContainerSecondary,
   [BUTTON_TYPES.DANGER]: styles.buttonContainerDanger,
-  [BUTTON_TYPES.OUTLINE]: styles.buttonContainerOutline
+  [BUTTON_TYPES.OUTLINE]: styles.buttonContainerOutline,
+  [BUTTON_TYPES.GHOST]: styles.buttonContainerGhost
 }
 
 const containerStylesSizes = {
@@ -48,7 +50,8 @@ const gradientColors = {
   [BUTTON_TYPES.PRIMARY]: [colors.violet, colors.heliotrope],
   [BUTTON_TYPES.SECONDARY]: noGradient,
   [BUTTON_TYPES.DANGER]: noGradient,
-  [BUTTON_TYPES.OUTLINE]: noGradient
+  [BUTTON_TYPES.OUTLINE]: noGradient,
+  [BUTTON_TYPES.GHOST]: noGradient
 }
 
 // Gradient colors applied when button is disabled
@@ -61,7 +64,8 @@ const buttonTextStyles = {
   [BUTTON_TYPES.PRIMARY]: styles.buttonTextPrimary,
   [BUTTON_TYPES.SECONDARY]: styles.buttonTextSecondary,
   [BUTTON_TYPES.DANGER]: styles.buttonTextDanger,
-  [BUTTON_TYPES.OUTLINE]: styles.buttonTextOutline
+  [BUTTON_TYPES.OUTLINE]: styles.buttonTextOutline,
+  [BUTTON_TYPES.GHOST]: styles.buttonTextGhost
 }
 
 const buttonTextStylesSizes = {

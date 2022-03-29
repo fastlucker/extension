@@ -7,27 +7,38 @@ import textStyles from '@modules/common/styles/utils/text'
 interface Style {
   buttonWrapper: ViewStyle
   buttonContainer: ViewStyle
-  buttonContainerStylesSizeRegular: ViewStyle
-  buttonContainerStylesSizeSmall: ViewStyle
+
   buttonContainerPrimary: ViewStyle
   buttonContainerSecondary: ViewStyle
   buttonContainerDanger: ViewStyle
   buttonContainerOutline: ViewStyle
+  buttonContainerGhost: ViewStyle
+
+  buttonContainerStylesSizeRegular: ViewStyle
+  buttonContainerStylesSizeSmall: ViewStyle
+
   buttonText: TextStyle
-  buttonTextStylesSizeRegular: TextStyle
-  buttonTextStylesSizeSmall: TextStyle
+
   buttonTextPrimary: TextStyle
   buttonTextSecondary: TextStyle
   buttonTextDanger: TextStyle
   buttonTextOutline: TextStyle
+  buttonTextGhost: TextStyle
+
+  buttonTextStylesSizeRegular: TextStyle
+  buttonTextStylesSizeSmall: TextStyle
+
   disabled: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
+  // Touchable element wrapper
   buttonWrapper: {
     width: '100%',
     overflow: 'hidden'
   },
+
+  // Default button container styles
   buttonContainer: {
     width: '100%',
     justifyContent: 'center',
@@ -36,21 +47,13 @@ const styles = StyleSheet.create<Style>({
     borderRadius: 13,
     borderColor: 'transparent'
   },
-  buttonContainerStylesSizeRegular: {
-    height: 50,
-    ...spacings.phSm,
-    ...spacings.mbSm
-  },
-  buttonContainerStylesSizeSmall: {
-    height: 30,
-    ...spacings.phTy,
-    ...spacings.mbTy
-  },
+
+  // Button container styles by type
   buttonContainerPrimary: {
     backgroundColor: 'transparent'
   },
   buttonContainerSecondary: {
-    backgroundColor: 'transparent'
+    backgroundColor: colors.howl
   },
   buttonContainerDanger: {
     borderColor: colors.pink
@@ -58,17 +61,30 @@ const styles = StyleSheet.create<Style>({
   buttonContainerOutline: {
     borderColor: colors.turquoise
   },
+  buttonContainerGhost: {
+    backgroundColor: 'transparent'
+  },
+
+  // Button sizes (regular/small)
+  buttonContainerStylesSizeRegular: {
+    height: 50,
+    ...spacings.phSm,
+    ...spacings.mbSm
+  },
+  buttonContainerStylesSizeSmall: {
+    height: 50,
+    ...spacings.phTy,
+    ...spacings.mbTy
+  },
+
+  // Default button text styles
   buttonText: {
     fontFamily: 'Poppins_400Regular',
     ...textStyles.bold,
     textAlign: 'center'
   },
-  buttonTextStylesSizeRegular: {
-    fontSize: 17
-  },
-  buttonTextStylesSizeSmall: {
-    fontSize: 14
-  },
+
+  // Button text styles by type
   buttonTextPrimary: {
     color: colors.titan
   },
@@ -81,6 +97,19 @@ const styles = StyleSheet.create<Style>({
   buttonTextOutline: {
     color: colors.turquoise
   },
+  buttonTextGhost: {
+    color: colors.titan
+  },
+
+  // Button text sizes (regular/small)
+  buttonTextStylesSizeRegular: {
+    fontSize: 16
+  },
+  buttonTextStylesSizeSmall: {
+    fontSize: 14
+  },
+
+  // Default button disabled styles
   disabled: {
     opacity: 0.4
   }
