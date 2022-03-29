@@ -35,6 +35,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   ]
 
   const settings = [
+    // TODO: Fill in the state for each one
     { name: t('App Passcode (not added)'), route: 'passcode-change' },
     { name: t('Local auth (not enabled)'), route: 'local-auth-change' },
     { name: t('Biometrics sign (not enabled)'), route: 'biometrics-sign-change' },
