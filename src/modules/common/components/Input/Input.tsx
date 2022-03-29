@@ -17,6 +17,7 @@ import styles from './styles'
 
 export interface InputProps extends TextInputProps {
   info?: string
+  // Error message - Active if there is some error message string passed
   error?: string
   label?: string
   isValid?: boolean
@@ -53,6 +54,7 @@ const Input = ({
   return (
     <View style={[styles.inputContainer]}>
       {!!label && <Text style={styles.label}>{label}</Text>}
+
       <View
         style={[
           styles.inputWrapper,
@@ -82,14 +84,16 @@ const Input = ({
           </TouchableOpacity>
         )}
       </View>
-      {!!info && !error && (
-        <Text style={styles.infoText} fontSize={12}>
-          {info}
-        </Text>
-      )}
+
       {!!error && (
         <Text style={styles.errorText} fontSize={12} appearance="danger">
           {error}
+        </Text>
+      )}
+
+      {!!info && (
+        <Text style={styles.infoText} fontSize={12}>
+          {info}
         </Text>
       )}
     </View>
