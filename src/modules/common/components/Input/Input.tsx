@@ -9,9 +9,8 @@ import {
 } from 'react-native'
 
 import Text from '@modules/common/components/Text'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
@@ -64,7 +63,7 @@ const Input = ({
         ]}
       >
         <TextInput
-          placeholderTextColor={colors.inputPlaceholderColor}
+          placeholderTextColor={colors.waikawaGray}
           style={[styles.input, hasButton && spacings.pr0]}
           autoCapitalize="none"
           autoCorrect={false}
