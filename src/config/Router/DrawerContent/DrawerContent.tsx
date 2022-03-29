@@ -34,6 +34,15 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { name: t('Terms of Service'), url: termsAndPrivacyURL }
   ]
 
+  const settings = [
+    { name: t('App Passcode (not added)'), route: 'passcode-change' },
+    { name: t('Local auth (not enabled)'), route: 'local-auth-change' },
+    { name: t('Biometrics sign (not enabled)'), route: 'biometrics-sign-change' },
+    { name: t('Manage app locking'), route: 'app-locking' },
+    { name: t('Theme: Dark Mode'), route: '' },
+    { name: t('Security'), route: '' }
+  ]
+
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={spacings.mhLg} style={spacings.mvLg}>
       <Text fontSize={16} underline style={styles.menuTitle}>
@@ -51,6 +60,11 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         <Text fontSize={16} underline style={styles.menuTitle}>
           {t('Settings')}
         </Text>
+        {settings.map((s) => (
+          <TouchableOpacity key={s.name} onPress={() => navigation.navigate(s.route)}>
+            <Text style={spacings.mbSm}>{s.name}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {help.map((h) => (
