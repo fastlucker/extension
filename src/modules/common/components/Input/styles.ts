@@ -52,11 +52,13 @@ const styles = StyleSheet.create<Style>({
   infoText: {
     opacity: 0.5,
     paddingHorizontal: 5,
-    ...spacings.ptTy
+    ...spacings.ptTy,
+    ...spacings.ph
   },
   errorText: {
     paddingHorizontal: 5,
-    ...spacings.ptMi
+    ...spacings.ptMi,
+    ...spacings.ph
   },
   label: {
     ...spacings.mbTy
