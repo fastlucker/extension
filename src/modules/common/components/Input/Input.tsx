@@ -18,7 +18,9 @@ import styles from './styles'
 
 export interface InputProps extends TextInputProps {
   info?: string
+  error?: string
   label?: string
+  isValid?: boolean
   buttonText?: string | JSX.Element
   onButtonPress?: () => void
   disabled?: boolean
@@ -28,6 +30,8 @@ const Input = ({
   label,
   buttonText,
   info,
+  error,
+  isValid,
   onBlur = () => {},
   onFocus = () => {},
   onButtonPress = () => {},
@@ -48,12 +52,20 @@ const Input = ({
   const hasButton = !!buttonText
 
   return (
-    <View style={[styles.inputContainer, disabled && styles.disabled]}>
+    <View style={[styles.inputContainer]}>
       {!!label && <Text style={styles.label}>{label}</Text>}
-      <View style={flexboxStyles.directionRow}>
+      <View
+        style={[
+          styles.inputWrapper,
+          isFocused && styles.focused,
+          disabled && styles.disabled,
+          !!error && styles.error,
+          isValid && styles.valid
+        ]}
+      >
         <TextInput
           placeholderTextColor={colors.inputPlaceholderColor}
-          style={[styles.input, isFocused && styles.focused, hasButton && spacings.pr0]}
+          style={[styles.input, hasButton && spacings.pr0]}
           autoCapitalize="none"
           autoCorrect={false}
           editable={!disabled}
@@ -71,7 +83,16 @@ const Input = ({
           </TouchableOpacity>
         )}
       </View>
-      {!!info && <Text style={styles.info}>{info}</Text>}
+      {!!info && !error && (
+        <Text style={styles.infoText} fontSize={12}>
+          {info}
+        </Text>
+      )}
+      {!!error && (
+        <Text style={styles.errorText} fontSize={12}>
+          {error}
+        </Text>
+      )}
     </View>
   )
 }
