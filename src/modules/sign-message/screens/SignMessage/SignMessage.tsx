@@ -5,7 +5,7 @@ import { Image, View } from 'react-native'
 
 import Blockies from '@modules/common/components/Blockies'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
-import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
+import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
 import Text, { TEXT_TYPES } from '@modules/common/components/Text'
@@ -88,7 +88,7 @@ const SignScreen = ({ navigation }: any) => {
             {t('Invalid signing request: .txn has to be a hex string')}
           </Text>
           <Button
-            type={BUTTON_TYPES.DANGER}
+            type="danger"
             text={t('Reject')}
             onPress={() => resolve({ message: 'signature denied' })}
           />

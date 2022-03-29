@@ -11,7 +11,7 @@ import {
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
-import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
+import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputOrScan from '@modules/common/components/InputOrScan/InputOrScan'
 import NumberInput from '@modules/common/components/NumberInput'
@@ -125,7 +125,7 @@ const SendScreen = () => {
                     />
                   )}
                   <Button
-                    type={BUTTON_TYPES.SECONDARY}
+                    type="secondary"
                     onPress={() => {
                       Keyboard.dismiss()
                       openBottomSheetAddrDisplay()

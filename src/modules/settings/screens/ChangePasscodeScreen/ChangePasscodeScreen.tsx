@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 import { useTranslation } from '@config/localization'
-import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
+import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import P from '@modules/common/components/P'
@@ -92,11 +92,7 @@ const ChangePasscodeScreen: React.FC = () => {
         {state !== PASSCODE_STATES.NO_PASSCODE && (
           <>
             <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
-            <Button
-              type={BUTTON_TYPES.SECONDARY}
-              text={t('Remove passcode')}
-              onPress={handleOnRemovePasscode}
-            />
+            <Button type="secondary" text={t('Remove passcode')} onPress={handleOnRemovePasscode} />
           </>
         )}
       </Wrapper>

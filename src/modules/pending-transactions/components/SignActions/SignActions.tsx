@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { FontAwesome5 } from '@expo/vector-icons'
-import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
+import Button from '@modules/common/components/Button'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
@@ -54,9 +54,7 @@ const SignActions = ({
     [signingStatus]
   )
 
-  const rejectButton = rejectTxn && (
-    <Button type={BUTTON_TYPES.DANGER} text={t('Reject')} onPress={rejectTxn} />
-  )
+  const rejectButton = rejectTxn && <Button type="danger" text={t('Reject')} onPress={rejectTxn} />
 
   const feeNote =
     estimation?.success && estimation?.isDeployed === false && bundle.gasLimit ? (
