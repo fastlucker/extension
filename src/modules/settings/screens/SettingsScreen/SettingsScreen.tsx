@@ -1,6 +1,7 @@
 import React from 'react'
 
 import AppVersion from '@modules/common/components/AppVersion'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Wrapper from '@modules/common/components/Wrapper'
 import AppLocking from '@modules/settings/components/AppLocking'
 import BiometricsSign from '@modules/settings/components/BiometricsSign'
@@ -18,16 +19,18 @@ const SettingsScreen = () => {
   // }
 
   return (
-    <Wrapper>
-      <ConnectedDapps />
-      <Signers />
-      <Passcode />
-      <LocalAuth />
-      <BiometricsSign />
-      <AppLocking />
-      <Theme />
-      <AppVersion />
-    </Wrapper>
+    <GradientBackgroundWrapper>
+      <Wrapper>
+        <ConnectedDapps />
+        <Signers />
+        <Passcode />
+        <LocalAuth />
+        <BiometricsSign />
+        <AppLocking />
+        <Theme />
+        <AppVersion />
+      </Wrapper>
+    </GradientBackgroundWrapper>
   )
 }
 

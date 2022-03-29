@@ -14,7 +14,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
-import Text, { TEXT_TYPES } from '../Text'
+import Text from '../Text'
 import styles from './styles'
 
 function getNetworkSymbol(networkId: any) {
@@ -123,12 +123,12 @@ const TxnPreview = ({
             {summary}
           </View>
           {isFirstFailing && (
-            <Text type={TEXT_TYPES.DANGER} style={[spacings.ptTy, textStyles.bold]}>
+            <Text appearance="danger" style={[spacings.ptTy, textStyles.bold]}>
               {t('This is the first failing transaction.')}
             </Text>
           )}
           {!isFirstFailing && !mined && !isKnown(txn, account) && (
-            <Text type={TEXT_TYPES.DANGER} style={[spacings.ptTy, textStyles.bold]}>
+            <Text appearance="danger" style={[spacings.ptTy, textStyles.bold]}>
               {t('Warning: interacting with an unknown contract or address.')}
             </Text>
           )}

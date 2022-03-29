@@ -1,60 +1,76 @@
+import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
-import { ColorValue, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
+import {
+  ColorValue,
+  Text,
+  TextStyle,
+  TouchableOpacity,
+  TouchableOpacityProps,
+  ViewStyle
+} from 'react-native'
 
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 import styles from './styles'
 
+type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
+
+type ButtonSizes = 'regular' | 'small'
 interface Props extends TouchableOpacityProps {
   text: string
-  type?: BUTTON_TYPES
-  size?: BUTTON_SIZES
+  type?: ButtonTypes
+  size?: ButtonSizes
   textStyle?: any
   accentColor?: ColorValue
   hasBottomSpacing?: boolean
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum BUTTON_TYPES {
-  PRIMARY = 'primary',
-  SECONDARY = 'secondary',
-  DANGER = 'danger',
-  OUTLINE = 'outline'
+const containerStyles: { [key in ButtonTypes]: ViewStyle } = {
+  primary: styles.buttonContainerPrimary,
+  secondary: styles.buttonContainerSecondary,
+  danger: styles.buttonContainerDanger,
+  outline: styles.buttonContainerOutline,
+  ghost: styles.buttonContainerGhost
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum BUTTON_SIZES {
-  SMALL = 'small',
-  REGULAR = 'regular'
+const containerStylesSizes: { [key in ButtonSizes]: ViewStyle } = {
+  regular: styles.buttonContainerStylesSizeRegular,
+  small: styles.buttonContainerStylesSizeSmall
 }
 
-const containerStyles = {
-  [BUTTON_TYPES.PRIMARY]: styles.buttonContainerPrimary,
-  [BUTTON_TYPES.SECONDARY]: styles.buttonContainerSecondary,
-  [BUTTON_TYPES.DANGER]: styles.buttonContainerDanger,
-  [BUTTON_TYPES.OUTLINE]: styles.buttonContainerOutline
+const noGradient = ['transparent', 'transparent']
+
+const gradientColors: { [key in ButtonTypes]: string[] } = {
+  primary: [colors.violet, colors.heliotrope],
+  secondary: noGradient,
+  danger: noGradient,
+  outline: noGradient,
+  ghost: noGradient
 }
 
-const containerStylesSizes = {
-  [BUTTON_SIZES.REGULAR]: styles.buttonContainerStylesSizeRegular,
-  [BUTTON_SIZES.SMALL]: styles.buttonContainerStylesSizeSmall
+// Gradient colors applied when button is disabled
+const gradientDisabledColors: { [key in ButtonTypes]: string[] } = {
+  ...gradientColors,
+  primary: [colors.darkViolet, colors.violet]
 }
 
-const buttonTextStyles = {
-  [BUTTON_TYPES.PRIMARY]: styles.buttonTextPrimary,
-  [BUTTON_TYPES.SECONDARY]: styles.buttonTextSecondary,
-  [BUTTON_TYPES.DANGER]: styles.buttonTextDanger,
-  [BUTTON_TYPES.OUTLINE]: styles.buttonTextOutline
+const buttonTextStyles: { [key in ButtonTypes]: TextStyle } = {
+  primary: styles.buttonTextPrimary,
+  secondary: styles.buttonTextSecondary,
+  danger: styles.buttonTextDanger,
+  outline: styles.buttonTextOutline,
+  ghost: styles.buttonTextGhost
 }
 
-const buttonTextStylesSizes = {
-  [BUTTON_SIZES.REGULAR]: styles.buttonTextStylesSizeRegular,
-  [BUTTON_SIZES.SMALL]: styles.buttonTextStylesSizeSmall
+const buttonTextStylesSizes: { [key in ButtonSizes]: TextStyle } = {
+  regular: styles.buttonTextStylesSizeRegular,
+  small: styles.buttonTextStylesSizeSmall
 }
 
 const Button = ({
-  type = BUTTON_TYPES.PRIMARY,
-  size = BUTTON_SIZES.REGULAR,
+  type = 'primary',
+  size = 'regular',
   accentColor,
   text,
   style = {},
@@ -63,30 +79,33 @@ const Button = ({
   hasBottomSpacing = true,
   ...rest
 }: Props) => (
-  <TouchableOpacity
-    disabled={disabled}
-    style={[
-      styles.buttonContainer,
-      containerStyles[type],
-      containerStylesSizes[size],
-      disabled && styles.disabled,
-      style,
-      !!accentColor && { borderColor: accentColor },
-      !hasBottomSpacing && spacings.mb0
-    ]}
-    {...rest}
-  >
-    <Text
+  <TouchableOpacity disabled={disabled} style={styles.buttonWrapper} {...rest}>
+    <LinearGradient
+      colors={disabled ? gradientDisabledColors[type] : gradientColors[type]}
+      start={{ x: 0, y: 0.5 }}
+      end={{ x: 1, y: 0.5 }}
       style={[
-        styles.buttonText,
-        buttonTextStyles[type],
-        buttonTextStylesSizes[size],
-        !!accentColor && { color: accentColor },
-        textStyle
+        styles.buttonContainer,
+        containerStyles[type],
+        containerStylesSizes[size],
+        disabled && styles.disabled,
+        style,
+        !!accentColor && { borderColor: accentColor },
+        !hasBottomSpacing && spacings.mb0
       ]}
     >
-      {text}
-    </Text>
+      <Text
+        style={[
+          styles.buttonText,
+          buttonTextStyles[type],
+          buttonTextStylesSizes[size],
+          !!accentColor && { color: accentColor },
+          textStyle
+        ]}
+      >
+        {text}
+      </Text>
+    </LinearGradient>
   </TouchableOpacity>
 )
 

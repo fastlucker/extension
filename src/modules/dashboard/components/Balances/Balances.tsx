@@ -29,14 +29,16 @@ const Balances = () => {
         <Title style={flexboxStyles.flex1}>{t('Balance')}</Title>
         <Rewards />
       </View>
-      <Text style={styles.text}>
-        <Text style={[textStyles.highlightPrimary, styles.text]}>$</Text>{' '}
+      <Text fontSize={40}>
+        <Text fontSize={40} style={textStyles.highlightPrimary}>
+          $
+        </Text>{' '}
         {isBalanceLoading ? (
           <ActivityIndicator style={styles.activityIndicator} />
         ) : (
           <>
             {balance.total?.truncated}
-            <Text style={[textStyles.highlightPrimary, styles.text]}>
+            <Text fontSize={40} style={textStyles.highlightPrimary}>
               .{balance.total?.decimals}
             </Text>
           </>
@@ -45,7 +47,7 @@ const Balances = () => {
 
       {otherPositiveBalances.length > 0 && (
         <View style={styles.otherBalancesContainer}>
-          <Text style={styles.otherBalancesText}>{t('You also have')} </Text>
+          <Text fontSize={20}>{t('You also have')} </Text>
           {otherPositiveBalances.map(({ network, total }: any, i: number) => {
             const { chainId, name, Icon }: any = networkDetails(network)
             const hasOneMore = otherPositiveBalances.length - 1 !== i
@@ -56,22 +58,20 @@ const Balances = () => {
 
             return (
               <Text key={chainId}>
-                <Text key={network} style={styles.otherBalancesText} onPress={onNetworkChange}>
-                  <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
+                <Text key={network} fontSize={20} onPress={onNetworkChange}>
+                  <Text fontSize={20} style={textStyles.highlightSecondary}>
                     {'$ '}
                   </Text>
                   {total.truncated}
-                  <Text style={[textStyles.highlightSecondary, styles.otherBalancesText]}>
+                  <Text fontSize={20} style={textStyles.highlightSecondary}>
                     .{total.decimals}{' '}
                   </Text>
-                  <Text style={styles.otherBalancesText}>{`${t('on')} `}</Text>
+                  <Text fontSize={20}>{`${t('on')} `}</Text>
                   <Icon width={25} />
-                  <Text
-                    style={[styles.otherBalancesText, styles.otherBalancesTextHighlight]}
-                  >{` ${name} `}</Text>
+                  <Text fontSize={20} style={styles.otherBalancesTextHighlight}>{` ${name} `}</Text>
                 </Text>
 
-                {hasOneMore && <Text style={styles.otherBalancesText}>{`${t('and')} `}</Text>}
+                {hasOneMore && <Text fontSize={20}>{`${t('and')} `}</Text>}
               </Text>
             )
           })}

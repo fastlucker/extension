@@ -5,6 +5,13 @@ import {
   useFonts as useFontsRn
 } from '@expo-google-fonts/poppins'
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export enum FONT_FAMILIES {
+  LIGHT = 'Poppins_300Light',
+  REGULAR = 'Poppins_400Regular',
+  MEDIUM = 'Poppins_500Medium'
+}
+
 export default function useFonts() {
   // Import only the ones that are used, because having all could lead to a performance
   // penalty, since loading of the fonts take some time during initial app open.

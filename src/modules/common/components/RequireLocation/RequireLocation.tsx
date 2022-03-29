@@ -1,6 +1,6 @@
 import { t } from 'i18next'
 import Button from 'modules/common/components/Button'
-import { TEXT_TYPES } from 'modules/common/components/Text'
+import Text from 'modules/common/components/Text'
 import React, { useEffect, useState } from 'react'
 import { AppState, PermissionsAndroid } from 'react-native'
 import LocationServicesDialogBox from 'react-native-android-location-services-dialog-box'
@@ -8,7 +8,7 @@ import { BleErrorCode } from 'react-native-ble-plx'
 import { Observable } from 'rxjs'
 
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
-import P from '@modules/common/components/P'
+import spacings from '@modules/common/styles/spacings'
 
 const RequireLocation: React.FC<any> = ({ children }) => {
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null)
@@ -64,16 +64,16 @@ const RequireLocation: React.FC<any> = ({ children }) => {
   if (!permissionGranted) {
     return (
       <>
-        <P type={TEXT_TYPES.DANGER}>
+        <Text style={spacings.mbSm}>
           {t(
             'Please allow Location services first, in order to connect to hardware wallet devices.'
           )}
-        </P>
-        <P type={TEXT_TYPES.DANGER}>
+        </Text>
+        <Text style={spacings.mbSm}>
           {t(
             'Location services are required, in order for us to pair your device through Bluetooth.'
           )}
-        </P>
+        </Text>
       </>
     )
   }
@@ -81,12 +81,12 @@ const RequireLocation: React.FC<any> = ({ children }) => {
   if (!locationServicesEnabled) {
     return (
       <>
-        <P type={TEXT_TYPES.DANGER}>
+        <Text style={spacings.mbSm}>
           {t(
             'Location services are required, in order for us to pair your device through Bluetooth.'
           )}
-        </P>
-        <P type={TEXT_TYPES.DANGER}>{t('Ambire does not access your location information.')}</P>
+        </Text>
+        <Text style={spacings.mbSm}>{t('Ambire does not access your location information.')}</Text>
         <Button onPress={handleOpenLocationSettings} text={t('Open location settings')} />
       </>
     )

@@ -13,6 +13,7 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
+import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
@@ -55,15 +56,17 @@ const SettingsStack = createNativeStackNavigator()
 
 const globalScreenOptions = {
   headerStyle: {
-    backgroundColor: colors.headerBackgroundColor,
+    backgroundColor: 'transparent',
     shadowColor: colors.headerShadowColor
   },
   headerTintColor: colors.headerTintColor,
   headerTitleStyle: {
     fontSize: 18,
-    fontFamily: 'Poppins_400Regular'
+    fontFamily: FONT_FAMILIES.REGULAR
   },
-  headerBackTitleVisible: false
+  headerBackTitleVisible: false,
+  headerTransparent: true,
+  headerShadowVisible: false
 }
 
 const TAB_BAR_ICON_SIZE = 22
@@ -500,7 +503,7 @@ const Router = () => {
         dark: true,
         colors: {
           primary: colors.panelBackgroundColor,
-          background: colors.backgroundColor,
+          background: 'transparent',
           card: colors.panelBackgroundColor,
           text: colors.textColor,
           border: 'transparent',

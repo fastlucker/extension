@@ -1,5 +1,6 @@
 import React from 'react'
 
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import QRCodeScanner from '@modules/common/components/QRCodeScanner'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import { useIsFocused } from '@react-navigation/native'
@@ -13,12 +14,14 @@ const ConnectScreen = ({ navigation }: any) => {
   }
 
   return (
-    <QRCodeScanner
-      onScan={(uri) => {
-        handleConnect(uri)
-        navigation.goBack()
-      }}
-    />
+    <GradientBackgroundWrapper>
+      <QRCodeScanner
+        onScan={(uri) => {
+          handleConnect(uri)
+          navigation.goBack()
+        }}
+      />
+    </GradientBackgroundWrapper>
   )
 }
 

@@ -6,9 +6,10 @@ import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import InputOrScan from '@modules/common/components/InputOrScan'
-import P from '@modules/common/components/P'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import { isValidAddress } from '@modules/common/services/address'
+import spacings from '@modules/common/styles/spacings'
 
 import styles from './styles'
 
@@ -73,7 +74,11 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
         )}
         name="address"
       />
-      {!!errors.address && dirtyFields.address && <P>{t('Invalid address')}</P>}
+      {!!errors.address && dirtyFields.address && (
+        <Text appearance="danger" style={spacings.mbSm}>
+          {t('Invalid address')}
+        </Text>
+      )}
 
       <Button onPress={handleSubmit(onSubmit)} text={t('➕ Add Address')} disabled={!isValid} />
     </View>
