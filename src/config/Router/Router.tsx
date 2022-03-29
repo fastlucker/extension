@@ -59,7 +59,8 @@ const globalScreenOptions = {
   },
   headerTintColor: colors.headerTintColor,
   headerTitleStyle: {
-    fontSize: 20
+    fontSize: 18,
+    fontFamily: 'Poppins_400Regular'
   },
   headerBackTitleVisible: false,
   headerTransparent: true,

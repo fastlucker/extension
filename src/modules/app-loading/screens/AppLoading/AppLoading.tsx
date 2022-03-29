@@ -20,10 +20,13 @@ import { StorageContext } from '@modules/common/contexts/storageContext'
 import { ThemeProvider } from '@modules/common/contexts/themeContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
+import useFonts from '@modules/common/hooks/useFonts'
 
 const AppLoading = () => {
   const { storageLoaded } = useContext(StorageContext)
-  if (!storageLoaded) return null
+  const { fontsLoaded } = useFonts()
+
+  if (!storageLoaded || !fontsLoaded) return null
 
   return (
     <ThemeProvider>

@@ -54,6 +54,7 @@ const styles = StyleSheet.create<Style>({
     borderColor: colors.outlineButtonColor
   },
   buttonText: {
+    fontFamily: 'Poppins_400Regular',
     textTransform: 'uppercase',
     ...textStyles.bold,
     textAlign: 'center'
