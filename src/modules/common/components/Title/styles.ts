@@ -1,5 +1,7 @@
 import { StyleSheet, TextStyle } from 'react-native'
 
+import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
+
 interface Style {
   titleRegular: TextStyle
   titleSmall: TextStyle
@@ -8,13 +10,13 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   titleRegular: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: FONT_FAMILIES.REGULAR,
     fontSize: 20,
     letterSpacing: 0,
     lineHeight: 30
   },
   titleSmall: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: FONT_FAMILIES.MEDIUM,
     fontSize: 16,
     letterSpacing: 5,
     lineHeight: 25

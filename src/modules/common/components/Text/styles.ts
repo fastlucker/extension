@@ -1,5 +1,6 @@
 import { StyleSheet, TextStyle } from 'react-native'
 
+import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import colors from '@modules/common/styles/colors'
 
 interface Style {
@@ -14,7 +15,7 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   text: {
-    fontFamily: 'Poppins_300Light',
+    fontFamily: FONT_FAMILIES.LIGHT,
     color: colors.textColor
   },
   textRegular: {
