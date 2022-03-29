@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
-import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
+import Button from '@modules/common/components/Button'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import P from '@modules/common/components/P'
@@ -81,7 +81,7 @@ const SignActions = ({
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonWrapper}>
             <Button
-              type={BUTTON_TYPES.DANGER}
+              type="danger"
               text={t('Reject')}
               onPress={() => resolve({ message: t('signature denied') })}
             />

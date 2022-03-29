@@ -9,7 +9,7 @@ import usePrevious from '@modules/common/hooks/usePrevious'
 import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
-import Button, { BUTTON_TYPES } from '../Button'
+import Button from '../Button'
 import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
 
 interface Props {
@@ -64,7 +64,7 @@ const BottomSheet: React.FC<Props> = ({
     return () => backHandler.remove()
   }, [isOpen])
 
-  const cancelText = _cancelText || (t('✗  Cancel') as string)
+  const cancelText = _cancelText || (t('Cancel') as string)
 
   // Closing modal animation trigger
   useEffect(() => {
@@ -122,7 +122,7 @@ const BottomSheet: React.FC<Props> = ({
           {children}
           {displayCancel && (
             <Button
-              type={BUTTON_TYPES.SECONDARY}
+              type="ghost"
               onPress={closeBottomSheet}
               style={styles.cancelBtn}
               text={cancelText}

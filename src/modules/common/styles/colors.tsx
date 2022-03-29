@@ -1,4 +1,6 @@
 export const colorPalette = {
+  turquoise: '#27E8A7',
+
   lightAquamarine: '#B3FFFD',
   aquamarine: '#80FFFB',
   darkAquamarine: '#478C8A',

@@ -5,7 +5,7 @@ import { Linking, View } from 'react-native'
 import CONFIG from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
-import Button, { BUTTON_SIZES, BUTTON_TYPES } from '@modules/common/components/Button'
+import Button from '@modules/common/components/Button'
 import P from '@modules/common/components/P'
 import { Row } from '@modules/common/components/Table'
 import Text from '@modules/common/components/Text'
@@ -108,10 +108,10 @@ const Rewards = () => {
   const claimButton = (
     <>
       <Button
-        type={BUTTON_TYPES.SECONDARY}
+        type="secondary"
         accentColor={colors.primaryAccentColor}
         disabled
-        size={BUTTON_SIZES.SMALL}
+        size="small"
         text={t('Claim')}
         style={styles.buttonClaim}
       />
@@ -123,16 +123,19 @@ const Rewards = () => {
 
   return (
     <>
-      <Button
-        onPress={openBottomSheet}
-        type={BUTTON_TYPES.SECONDARY}
-        accentColor={colors.primaryAccentColor}
-        text={
-          isLoading ? t('Updating...') : t('{{walletTokensAmount}} WALLET', { walletTokensAmount })
-        }
-        style={styles.button}
-        size={BUTTON_SIZES.SMALL}
-      />
+      <View>
+        <Button
+          onPress={openBottomSheet}
+          type="outline"
+          text={
+            isLoading
+              ? t('Updating...')
+              : t('{{walletTokensAmount}} WALLET', { walletTokensAmount })
+          }
+          style={styles.button}
+          size="small"
+        />
+      </View>
       <BottomSheet
         id="rewards"
         dynamicInitialHeight={false}
@@ -169,7 +172,7 @@ const Rewards = () => {
         {rewards?.multipliers?.map(({ mul, name }) => (
           <Button
             accentColor={colors.primaryAccentColor}
-            type={BUTTON_TYPES.SECONDARY}
+            type="secondary"
             text={t('{{mul}}x {{name}} multiplier', { mul, name })}
             disabled
             key={name}
