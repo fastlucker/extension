@@ -34,14 +34,22 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   ]
 
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={spacings.mhLg}>
-      <Text style={styles.menuTitle}>{t('Menu')}</Text>
+    <DrawerContentScrollView {...props} contentContainerStyle={spacings.mhLg} style={spacings.mvLg}>
+      <Text fontSize={16} underline style={styles.menuTitle}>
+        {t('Menu')}
+      </Text>
       <View style={spacings.mbLg}>
         {menu.map((m) => (
           <TouchableOpacity key={m.name} onPress={() => navigation.navigate(m.route)}>
-            <Text>{m.name}</Text>
+            <Text style={spacings.mbSm}>{m.name}</Text>
           </TouchableOpacity>
         ))}
+      </View>
+
+      <View style={spacings.mbLg}>
+        <Text fontSize={16} underline style={styles.menuTitle}>
+          {t('Settings')}
+        </Text>
       </View>
 
       {help.map((h) => (

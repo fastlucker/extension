@@ -1,5 +1,6 @@
 import { StyleSheet, TextStyle } from 'react-native'
 
+import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
@@ -9,9 +10,7 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   menuTitle: {
-    fontSize: 16,
-    fontFamily: 'Poppins_500Medium',
-    textDecorationLine: 'underline',
+    fontFamily: FONT_FAMILIES.MEDIUM,
     ...spacings.mbTy
   },
   link: {
