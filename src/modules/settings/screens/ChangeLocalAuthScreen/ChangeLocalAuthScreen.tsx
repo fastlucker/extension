@@ -3,8 +3,7 @@ import React from 'react'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import P from '@modules/common/components/P'
-import { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import {
   DEVICE_SECURITY_LEVEL,
@@ -12,6 +11,7 @@ import {
 } from '@modules/common/contexts/passcodeContext/constants'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
+import spacings from '@modules/common/styles/spacings'
 import { useNavigation } from '@react-navigation/native'
 
 const ChangeLocalAuthScreen = () => {
@@ -47,30 +47,30 @@ const ChangeLocalAuthScreen = () => {
   const renderContent = () => {
     if (!isLocalAuthSupported) {
       return (
-        <P type={TEXT_TYPES.DANGER}>
+        <Text appearance="danger" style={spacings.mbSm}>
           {t(
             'Nor a face, nor a fingerprint scanner is available on the device. Therefore, enabling local authentication is not possible.'
           )}
-        </P>
+        </Text>
       )
     }
 
     if (deviceSecurityLevel === DEVICE_SECURITY_LEVEL.NONE) {
       return (
-        <P type={TEXT_TYPES.DANGER}>
+        <Text appearance="danger" style={spacings.mbSm}>
           {t(
             'No local authentication is enrolled on your device. Therefore, enabling local authentication is not possible.'
           )}
-        </P>
+        </Text>
       )
     }
 
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <P type={TEXT_TYPES.DANGER}>
+          <Text appearance="danger" style={spacings.mbSm}>
             {t('In order to enable it, first you need to create a passcode.')}
-          </P>
+          </Text>
           <Button
             text={t('Create passcode')}
             onPress={() => navigation.navigate('passcode-change')}
@@ -90,7 +90,7 @@ const ChangeLocalAuthScreen = () => {
     <GradientBackgroundWrapper>
       <Wrapper>
         <>
-          <P>
+          <Text style={spacings.mbSm}>
             {deviceSupportedAuthTypesLabel
               ? t(
                   'Enabling local authentication allows you to use your {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
@@ -100,7 +100,7 @@ const ChangeLocalAuthScreen = () => {
                   'Enabling local authentication allows you to use your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
                   { fallbackSupportedAuthTypesLabel }
                 )}
-          </P>
+          </Text>
           {renderContent()}
         </>
       </Wrapper>

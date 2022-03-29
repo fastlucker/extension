@@ -6,7 +6,6 @@ import { useTranslation } from '@config/localization'
 import { MaterialIcons } from '@expo/vector-icons'
 import Blockies from '@modules/common/components/Blockies'
 import Button from '@modules/common/components/Button'
-import P from '@modules/common/components/P'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
@@ -71,7 +70,7 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
     <>
       <Title>{t('Address Book')}</Title>
       {!!items.length && items.map(renderItem)}
-      {!items.length && <P>{t('Your address book is empty')}</P>}
+      {!items.length && <Text style={spacings.mbSm}>{t('Your address book is empty')}</Text>}
       <Button onPress={onOpenBottomSheet} text={t('➕ Add Address')} />
     </>
   )

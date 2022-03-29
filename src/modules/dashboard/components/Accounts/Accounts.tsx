@@ -10,7 +10,7 @@ import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
@@ -119,7 +119,7 @@ const Accounts = () => {
           </Text>
           {logoutWarning === account.id ? (
             <>
-              <Text type={TEXT_TYPES.DANGER}>
+              <Text appearance="danger">
                 {t('Are you sure you want to log out from this account?')}{' '}
               </Text>
               <View style={[flexboxStyles.directionRow, flexboxStyles.justifySpaceBetween]}>

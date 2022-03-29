@@ -4,8 +4,7 @@ import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import P from '@modules/common/components/P'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
@@ -58,7 +57,7 @@ const ChangePasscodeScreen: React.FC = () => {
       return (
         <>
           <Title>{t('Confirm new passcode')}</Title>
-          <P>{t('Please type the passcode again, to confirm it.')}</P>
+          <Text style={spacings.mbSm}>{t('Please type the passcode again, to confirm it.')}</Text>
         </>
       )
     }
@@ -67,7 +66,7 @@ const ChangePasscodeScreen: React.FC = () => {
       return (
         <>
           <Title>{t('Create passcode')}</Title>
-          <P>{t('Choose a passcode to protect your app.')}</P>
+          <Text style={spacings.mbSm}>{t('Choose a passcode to protect your app.')}</Text>
         </>
       )
     }
@@ -75,7 +74,7 @@ const ChangePasscodeScreen: React.FC = () => {
     return (
       <>
         <Title>{t('Change your passcode')}</Title>
-        <P>{t('Please enter a new passcode.')}</P>
+        <Text style={spacings.mbSm}>{t('Please enter a new passcode.')}</Text>
       </>
     )
   }
@@ -84,7 +83,11 @@ const ChangePasscodeScreen: React.FC = () => {
     <GradientBackgroundWrapper>
       <Wrapper>
         {renderContent()}
-        {passcodeConfirmFailed && <P type={TEXT_TYPES.DANGER}>{t("Passcodes don't match!")}</P>}
+        {passcodeConfirmFailed && (
+          <Text appearance="danger" style={spacings.mbSm}>
+            {t("Passcodes don't match!")}
+          </Text>
+        )}
         {step === STEPS.NEW_PASSCODE && <CodeInput autoFocus onFulfill={handleOnFulfillStep1} />}
         {step === STEPS.CONFIRM_NEW_PASSCODE && (
           <CodeInput autoFocus onFulfill={handleOnFulfillStep2} />

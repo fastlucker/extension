@@ -6,7 +6,7 @@ import QRCode from 'react-native-qrcode-svg'
 
 import { MaterialIcons } from '@expo/vector-icons'
 import Panel from '@modules/common/components/Panel'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import networks from '@modules/common/constants/networks'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -76,7 +76,7 @@ const DepositTokens = () => {
             onError={() => setQrCodeError(t('Failed to load QR code!') as string)}
           />
         )}
-        {!!qrCodeError && <Text type={TEXT_TYPES.DANGER}>{qrCodeError}</Text>}
+        {!!qrCodeError && <Text appearance="danger">{qrCodeError}</Text>}
       </View>
       <View style={[flexboxStyles.alignCenter, spacings.ptTy]}>
         <Text color={colors.secondaryTextColor} style={[spacings.mbMi, textStyles.center]}>

@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ActivityIndicator } from 'react-native'
 
 import CONFIG from '@config/env'
-import P from '@modules/common/components/P'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -99,9 +98,9 @@ const SignersList = () => {
       <Title>{t('Authorized signers')}</Title>
       {showLoading && <ActivityIndicator />}
       {!!errMsg && (
-        <P type={TEXT_TYPES.DANGER}>
+        <Text appearance="danger" style={spacings.mbSm}>
           {t('Error getting authorized signers: {{errMsg}}', { errMsg })}
-        </P>
+        </Text>
       )}
       {privList}
     </>

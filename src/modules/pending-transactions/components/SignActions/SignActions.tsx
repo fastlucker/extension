@@ -7,9 +7,8 @@ import { FontAwesome5 } from '@expo/vector-icons'
 import Button from '@modules/common/components/Button'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
-import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
@@ -158,7 +157,11 @@ const SignActions = ({
           />
         )}
 
-        {!!errors.password && <P type={TEXT_TYPES.DANGER}>{t('Password is required.')}</P>}
+        {!!errors.password && (
+          <Text appearance="danger" style={spacings.mbSm}>
+            {t('Password is required.')}
+          </Text>
+        )}
 
         <Controller
           control={control}
@@ -182,7 +185,11 @@ const SignActions = ({
           name="code"
         />
 
-        {!!errors.code && <P type={TEXT_TYPES.DANGER}>{t('Invalid confirmation code.')}</P>}
+        {!!errors.code && (
+          <Text appearance="danger" style={spacings.mbSm}>
+            {t('Invalid confirmation code.')}
+          </Text>
+        )}
 
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonWrapper}>{rejectButton}</View>
