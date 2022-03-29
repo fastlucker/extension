@@ -7,14 +7,14 @@ import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
-import P from '@modules/common/components/P'
-import { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
+import spacings from '@modules/common/styles/spacings'
 import { delayPromise } from '@modules/common/utils/promises'
 import { useNavigation } from '@react-navigation/native'
 
@@ -82,9 +82,9 @@ const BiometricsSignScreen = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <P type={TEXT_TYPES.DANGER}>
+          <Text appearance="danger" style={spacings.mbSm}>
             {t('In order to enable it, first you need to create a passcode.')}
-          </P>
+          </Text>
           <Button
             text={t('Create passcode')}
             onPress={() => navigation.navigate('passcode-change')}
@@ -96,9 +96,9 @@ const BiometricsSignScreen = () => {
     if (state === PASSCODE_STATES.PASSCODE_ONLY) {
       return (
         <>
-          <P type={TEXT_TYPES.DANGER}>
+          <Text appearance="danger" style={spacings.mbSm}>
             {t('In order to enable it, first you need to enable local auth.')}
-          </P>
+          </Text>
           <Button
             text={t('Enable local auth')}
             onPress={() => navigation.navigate('local-auth-change')}
@@ -110,7 +110,7 @@ const BiometricsSignScreen = () => {
     if (selectedAccHasPassword) {
       return (
         <>
-          <P>{t('Enabled!')}</P>
+          <Text style={spacings.mbSm}>{t('Enabled!')}</Text>
           <Button text={t('Disable')} onPress={handleDisable} />
         </>
       )
@@ -118,7 +118,7 @@ const BiometricsSignScreen = () => {
 
     return (
       <>
-        <P>{t('To enable it, enter your Ambire account password.')}</P>
+        <Text style={spacings.mbSm}>{t('To enable it, enter your Ambire account password.')}</Text>
         <Controller
           control={control}
           rules={{ required: t('Please fill in a password.') as string }}
@@ -133,7 +133,11 @@ const BiometricsSignScreen = () => {
           )}
           name="password"
         />
-        {!!errors.password && <P type={TEXT_TYPES.DANGER}>{errors.password.message}</P>}
+        {!!errors.password && (
+          <Text appearance="danger" style={spacings.mbSm}>
+            {errors.password.message}
+          </Text>
+        )}
 
         <Button
           disabled={isSubmitting}
@@ -147,11 +151,11 @@ const BiometricsSignScreen = () => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper>
-        <P>
+        <Text style={spacings.mbSm}>
           {t(
             'You can opt-in to use your phone biometrics to sign transactions instead of your Ambire account password.'
           )}
-        </P>
+        </Text>
         {renderContent()}
       </Wrapper>
     </GradientBackgroundWrapper>

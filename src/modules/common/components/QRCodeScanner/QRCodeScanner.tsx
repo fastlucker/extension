@@ -6,7 +6,7 @@ import { Linking, Platform, StyleSheet, View } from 'react-native'
 
 import { APP_ID } from '@config/env'
 import { useTranslation } from '@config/localization'
-import P from '@modules/common/components/P'
+import Text from '@modules/common/components/Text'
 import requestPermissionFlagging from '@modules/common/services/requestPermissionFlagging'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -108,23 +108,25 @@ const QRCodeScanner = ({ onScan }: Props) => {
       )}
       {hasPermission === false && (
         <View style={spacings.mh}>
-          <P>{t('The request for accessing the phone camera was denied.')}</P>
+          <Text style={spacings.mbSm}>
+            {t('The request for accessing the phone camera was denied.')}
+          </Text>
           {Platform.OS === 'android' && (
             <Button text={t('Request camera permission')} onPress={requestCameraPermissionAgain} />
           )}
           {Platform.OS === 'ios' && (
-            <P>
+            <Text style={spacings.mbSm}>
               {t(
                 'To be able to scan the login QR code, first go to Settings. Then - select Ambire Wallet app from the list of installed apps. Finally, check alow camera access.'
               )}
-            </P>
+            </Text>
           )}
           {Platform.OS === 'android' && (
-            <P>
+            <Text style={spacings.mbSm}>
               {t(
                 "Or if you've previously chose don't ask again - to be able to scan the login QR code, first go to Settings. Then - select Ambire Wallet app from the list of installed apps. Finally, check alow camera access."
               )}
-            </P>
+            </Text>
           )}
           <Button text={t('Open settings')} onPress={handleGoToSettings} />
         </View>

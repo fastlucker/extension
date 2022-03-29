@@ -6,7 +6,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 import { FontAwesome5 } from '@expo/vector-icons'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import { formatFloatTokenAmount } from '@modules/common/services/formatters'
@@ -68,7 +68,7 @@ const FeeSelector = ({
       !isTokenEligible(estimation.selectedFeeToken, feeSpeed, estimation)
     if (estimation && !estimation.success)
       return (
-        <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
+        <Text fontSize={17} appearance="danger" style={textStyles.bold}>
           {t('The current transaction batch cannot be sent because it will fail: {{msg}}', {
             msg: mapTxnErrMsg(estimation.message)
           })}
@@ -89,7 +89,7 @@ const FeeSelector = ({
     }
     if (estimation && estimation.feeInUSD && !estimation.remainingFeeTokenBalances) {
       return (
-        <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
+        <Text fontSize={17} appearance="danger" style={textStyles.bold}>
           {t(
             'Internal error: fee balances not available. This should never happen, please report this on help.ambire.com'
           )}
@@ -237,7 +237,7 @@ const FeeSelector = ({
     return (
       <>
         {insufficientFee ? (
-          <Text fontSize={17} type={TEXT_TYPES.DANGER} style={[textStyles.bold, spacings.mbTy]}>
+          <Text fontSize={17} appearance="danger" style={[textStyles.bold, spacings.mbTy]}>
             {t('Insufficient balance for the fee. Accepted tokens: ')}
             {(estimation.remainingFeeTokenBalances || []).map((x: any) => x.symbol).join(', ')}
           </Text>

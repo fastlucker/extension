@@ -6,7 +6,6 @@ import CONFIG from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
-import P from '@modules/common/components/P'
 import { Row } from '@modules/common/components/Table'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -178,11 +177,11 @@ const Rewards = () => {
             key={name}
           />
         ))}
-        <P>
+        <Text style={spacings.mbSm}>
           {t(
             'You are receiving $WALLETS for holding funds on your Ambire wallet as an early user. Have in mind that $WALLET has not launched yet.'
           )}
-        </P>
+        </Text>
         <Button onPress={handleReadMore} text={t('Read more')} />
       </BottomSheet>
     </>

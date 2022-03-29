@@ -65,11 +65,10 @@ const styles = StyleSheet.create<Style>({
     // Centers the content (used because of the borderBottomWidth)
     paddingTop: 2,
     justifyContent: 'center',
-    backgroundColor: 'transparent',
     ...spacings.phSm
   },
   disabled: {
-    opacity: 0.6
+    opacity: 0.5
   }
 })
 

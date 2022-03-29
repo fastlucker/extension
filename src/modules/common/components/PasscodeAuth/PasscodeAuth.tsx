@@ -3,8 +3,7 @@ import React from 'react'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
-import P from '@modules/common/components/P'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
@@ -39,19 +38,19 @@ const PasscodeAuth: React.FC<Props> = ({
   return (
     <>
       {title && <Title style={[textStyles.center, spacings.mt]}>{title}</Title>}
-      <P style={[textStyles.center, spacings.mtLg]}>
+      <Text style={[textStyles.center, spacings.mtLg, spacings.mbSm]}>
         {message || t('In order to proceed, please authenticate by entering the app passcode.')}
-      </P>
+      </Text>
       {!!error && (
-        <P type={TEXT_TYPES.DANGER} style={[textStyles.center, spacings.mb0]}>
+        <Text appearance="danger" style={textStyles.center}>
           {error}
-        </P>
+        </Text>
       )}
       <CodeInput autoFocus={autoFocus} onFulfill={onFulfill} />
       {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && (
         <>
           <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
-          <P style={textStyles.center}>
+          <Text style={[textStyles.center, spacings.mbSm]}>
             {deviceSupportedAuthTypesLabel
               ? t(
                   'Authenticate with {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}}.',
@@ -63,7 +62,7 @@ const PasscodeAuth: React.FC<Props> = ({
               : t('Authenticate with your phone {{fallbackSupportedAuthTypesLabel}}.', {
                   fallbackSupportedAuthTypesLabel
                 })}
-          </P>
+          </Text>
           <Button text={t('Authenticate')} onPress={onValidateLocalAuth} />
         </>
       )}

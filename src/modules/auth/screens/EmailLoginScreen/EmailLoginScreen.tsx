@@ -7,11 +7,11 @@ import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Input from '@modules/common/components/Input'
-import P from '@modules/common/components/P'
-import { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import { isEmail } from '@modules/common/services/validate'
+import spacings from '@modules/common/styles/spacings'
 
 const EmailLoginScreen = () => {
   const { t } = useTranslation()
@@ -53,7 +53,9 @@ const EmailLoginScreen = () => {
                 name="email"
               />
               {!!errors.email && (
-                <P type={TEXT_TYPES.DANGER}>{t('Please fill in a valid email.')}</P>
+                <Text appearance="danger" style={spacings.mbSm}>
+                  {t('Please fill in a valid email.')}
+                </Text>
               )}
 
               <Button
@@ -61,21 +63,25 @@ const EmailLoginScreen = () => {
                 text={isSubmitting ? t('Logging in...') : t('Log in')}
                 onPress={handleSubmit(handleLogin)}
               />
-              {!!err && <P type={TEXT_TYPES.DANGER}>{err}</P>}
-              <P>
+              {!!err && (
+                <Text appearance="danger" style={spacings.mbSm}>
+                  {err}
+                </Text>
+              )}
+              <Text style={spacings.mbSm}>
                 {t(
                   'A password will not be required, we will send a magic login link to your email.'
                 )}
-              </P>
+              </Text>
             </>
           )}
           {!!requiresEmailConfFor && (
-            <P>
+            <Text style={spacings.mbSm}>
               {t(
                 'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
                 { email: requiresEmailConfFor?.email }
               )}
-            </P>
+            </Text>
           )}
         </Wrapper>
       </TouchableWithoutFeedback>

@@ -11,12 +11,12 @@ import Checkbox from '@modules/common/components/Checkbox'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
-import P from '@modules/common/components/P'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import accountPresets from '@modules/common/constants/accountPresets'
 import { isEmail } from '@modules/common/services/validate'
+import spacings from '@modules/common/styles/spacings'
 
 const days = Math.ceil(accountPresets.quickAccTimelock / 86400)
 
@@ -119,9 +119,9 @@ const AddNewAccountScreen = () => {
           />
 
           {!!errors.terms && (
-            <P type={TEXT_TYPES.DANGER}>
+            <Text appearance="danger" style={spacings.mbSm}>
               {t('Please agree to our Terms of Service and Privacy policy')}
-            </P>
+            </Text>
           )}
 
           <Controller
@@ -163,7 +163,9 @@ const AddNewAccountScreen = () => {
             name="noBackup"
           />
           {!!errors.noBackup && watch('backup', true) === false && (
-            <P type={TEXT_TYPES.DANGER}>{t('Please tick this box if you want to proceed.')}</P>
+            <Text appearance="danger" style={spacings.mbSm}>
+              {t('Please tick this box if you want to proceed.')}
+            </Text>
           )}
 
           <Button
@@ -171,8 +173,16 @@ const AddNewAccountScreen = () => {
             text={isSubmitting ? t('Signing up...') : t('Sign up')}
             onPress={handleSubmit(handleAddNewAccount)}
           />
-          {!!err && <P type={TEXT_TYPES.DANGER}>{err}</P>}
-          {!!addAccErr && <P type={TEXT_TYPES.DANGER}>{addAccErr}</P>}
+          {!!err && (
+            <Text appearance="danger" style={spacings.mbSm}>
+              {err}
+            </Text>
+          )}
+          {!!addAccErr && (
+            <Text appearance="danger" style={spacings.mbSm}>
+              {addAccErr}
+            </Text>
+          )}
         </Wrapper>
       </TouchableWithoutFeedback>
     </GradientBackgroundWrapper>

@@ -3,7 +3,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import accountPresets from '@modules/common/constants/accountPresets'
 import networks from '@modules/common/constants/networks'
@@ -21,7 +21,7 @@ const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any
 
   if (!Array.isArray(bundle.txns)) {
     return (
-      <Text type={TEXT_TYPES.DANGER} style={textStyles.bold}>
+      <Text appearance="danger" style={textStyles.bold}>
         {t('Bundle has no transactions (should never happen)')}
       </Text>
     )
@@ -52,7 +52,7 @@ const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any
       {!!bundle.executed && !bundle.executed?.success && (
         <View style={spacings.mbTy}>
           <Trans>
-            <Text type={TEXT_TYPES.DANGER} style={textStyles.bold}>
+            <Text appearance="danger" style={textStyles.bold}>
               {'Error: '} {bundle.executed?.errorMsg || 'unknown error'}
             </Text>
           </Trans>

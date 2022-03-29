@@ -73,12 +73,12 @@ const Input = ({
           {...rest}
         />
         {hasButton && (
-          <TouchableOpacity
-            onPress={onButtonPress}
-            disabled={disabled}
-            style={[styles.button, isFocused && styles.focused]}
-          >
-            <Text style={textStyles.bold}>{buttonText}</Text>
+          <TouchableOpacity onPress={onButtonPress} disabled={disabled} style={styles.button}>
+            {typeof buttonText === 'string' || buttonText instanceof String ? (
+              <Text style={textStyles.bold}>{buttonText}</Text>
+            ) : (
+              buttonText
+            )}
           </TouchableOpacity>
         )}
       </View>
@@ -88,7 +88,7 @@ const Input = ({
         </Text>
       )}
       {!!error && (
-        <Text style={styles.errorText} fontSize={12}>
+        <Text style={styles.errorText} fontSize={12} appearance="danger">
           {error}
         </Text>
       )}
