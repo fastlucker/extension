@@ -58,16 +58,12 @@ const AddNewAccountScreen = () => {
                 placeholder={t('Email')}
                 onChangeText={onChange}
                 value={value}
+                error={errors.email && (t('Please fill in a valid email.') as string)}
                 keyboardType="email-address"
               />
             )}
             name="email"
           />
-          {!!errors.email && (
-            <Text appearance="danger" style={spacings.mbSm}>
-              {t('Please fill in a valid email.')}
-            </Text>
-          )}
           <Controller
             control={control}
             rules={{
@@ -79,15 +75,11 @@ const AddNewAccountScreen = () => {
                 placeholder={t('Password')}
                 onChangeText={onChange}
                 value={value}
+                error={errors.password && (t('Please fill in a valid password.') as string)}
               />
             )}
             name="password"
           />
-          {!!errors.password && (
-            <Text appearance="danger" style={spacings.mbSm}>
-              {t('Please fill in a valid password.')}
-            </Text>
-          )}
           <Controller
             control={control}
             rules={{
@@ -100,16 +92,12 @@ const AddNewAccountScreen = () => {
                 onChangeText={onChange}
                 value={value}
                 secureTextEntry
+                error={errors.confirmPassword && (t("Passwords don't match.") as string)}
                 autoCorrect={false}
               />
             )}
             name="confirmPassword"
           />
-          {!!errors.confirmPassword && (
-            <Text appearance="danger" style={spacings.mbSm}>
-              {t("Passwords don't match.")}
-            </Text>
-          )}
           <Controller
             control={control}
             rules={{

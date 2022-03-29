@@ -1,54 +1,76 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
   inputContainer: ViewStyle
+  inputWrapper: ViewStyle
   input: ViewStyle
   focused: ViewStyle
   button: ViewStyle
-  info: TextStyle
+  error: ViewStyle
+  valid: ViewStyle
+  infoText: TextStyle
+  errorText: TextStyle
   label: TextStyle
   disabled: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  disabled: {
-    opacity: 0.6
-  },
   inputContainer: {
-    ...spacings.mbSm
+    ...spacings.mbLg
+  },
+  inputWrapper: {
+    overflow: 'hidden',
+    borderRadius: 13,
+    flexDirection: 'row',
+    backgroundColor: colors.howl,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.howl
   },
   input: {
-    borderBottomWidth: 2,
-    borderBottomColor: colors.inputBackgroundColor,
-    backgroundColor: colors.inputBackgroundColor,
-    color: colors.inputColor,
-    fontSize: 19,
+    // Centers the content (used because of the borderBottomWidth)
+    paddingTop: 2,
+    backgroundColor: colors.howl,
+    color: colors.titan,
+    fontSize: 16,
+    fontFamily: 'Poppins_300Light',
     flex: 1,
-    height: 60,
+    height: 50,
     ...spacings.ph
   },
   focused: {
-    borderBottomColor: colors.tertiaryAccentColor
+    borderBottomColor: colors.titan
   },
-  info: {
+  error: {
+    borderBottomColor: colors.pink
+  },
+  valid: {
+    borderBottomColor: colors.turquoise
+  },
+  infoText: {
     opacity: 0.5,
-    fontSize: 15,
     paddingHorizontal: 5,
-    ...spacings.ptTy
+    ...spacings.ptTy,
+    ...spacings.ph
+  },
+  errorText: {
+    paddingHorizontal: 5,
+    ...spacings.ptMi,
+    ...spacings.ph
   },
   label: {
-    fontWeight: '500',
     ...spacings.mbTy
   },
   button: {
+    // Centers the content (used because of the borderBottomWidth)
+    paddingTop: 2,
     justifyContent: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: colors.inputBackgroundColor,
-    backgroundColor: colors.secondaryButtonContainerColor,
-    ...spacings.ph
+    ...spacings.phSm
+  },
+  disabled: {
+    opacity: 0.5
   }
 })
 
