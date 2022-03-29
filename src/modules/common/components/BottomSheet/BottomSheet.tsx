@@ -64,7 +64,7 @@ const BottomSheet: React.FC<Props> = ({
     return () => backHandler.remove()
   }, [isOpen])
 
-  const cancelText = _cancelText || (t('✗  Cancel') as string)
+  const cancelText = _cancelText || (t('Cancel') as string)
 
   // Closing modal animation trigger
   useEffect(() => {

@@ -6,6 +6,7 @@ import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
 import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -143,29 +144,31 @@ const TransactionsScreen = () => {
   }
 
   return (
-    <Wrapper
-      type={WRAPPER_TYPES.SECTION_LIST}
-      sections={SECTIONS_DATA}
-      keyExtractor={(item, index) => item + index}
-      renderItem={({ section: { renderItem } }: any) => renderItem}
-      stickySectionHeadersEnabled
-      renderSectionHeader={({ section: { title, titleIcon, shouldRenderTitle } }) =>
-        shouldRenderTitle ? (
-          <View
-            style={[
-              styles.sectionTitleWrapper,
-              flexboxStyles.directionRow,
-              flexboxStyles.alignCenter
-            ]}
-          >
-            {!!titleIcon && titleIcon}
-            <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
-              {title}
-            </Title>
-          </View>
-        ) : null
-      }
-    />
+    <GradientBackgroundWrapper>
+      <Wrapper
+        type={WRAPPER_TYPES.SECTION_LIST}
+        sections={SECTIONS_DATA}
+        keyExtractor={(item, index) => item + index}
+        renderItem={({ section: { renderItem } }: any) => renderItem}
+        stickySectionHeadersEnabled
+        renderSectionHeader={({ section: { title, titleIcon, shouldRenderTitle } }) =>
+          shouldRenderTitle ? (
+            <View
+              style={[
+                styles.sectionTitleWrapper,
+                flexboxStyles.directionRow,
+                flexboxStyles.alignCenter
+              ]}
+            >
+              {!!titleIcon && titleIcon}
+              <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
+                {title}
+              </Title>
+            </View>
+          ) : null
+        }
+      />
+    </GradientBackgroundWrapper>
   )
 }
 

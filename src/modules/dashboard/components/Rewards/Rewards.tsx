@@ -123,16 +123,19 @@ const Rewards = () => {
 
   return (
     <>
-      <Button
-        onPress={openBottomSheet}
-        type={BUTTON_TYPES.SECONDARY}
-        accentColor={colors.primaryAccentColor}
-        text={
-          isLoading ? t('Updating...') : t('{{walletTokensAmount}} WALLET', { walletTokensAmount })
-        }
-        style={styles.button}
-        size={BUTTON_SIZES.SMALL}
-      />
+      <View>
+        <Button
+          onPress={openBottomSheet}
+          type={BUTTON_TYPES.OUTLINE}
+          text={
+            isLoading
+              ? t('Updating...')
+              : t('{{walletTokensAmount}} WALLET', { walletTokensAmount })
+          }
+          style={styles.button}
+          size={BUTTON_SIZES.SMALL}
+        />
+      </View>
       <BottomSheet
         id="rewards"
         dynamicInitialHeight={false}

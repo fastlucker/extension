@@ -2,6 +2,7 @@ import React from 'react'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import P from '@modules/common/components/P'
 import { TEXT_TYPES } from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
@@ -86,22 +87,24 @@ const ChangeLocalAuthScreen = () => {
   }
 
   return (
-    <Wrapper>
-      <>
-        <P>
-          {deviceSupportedAuthTypesLabel
-            ? t(
-                'Enabling local authentication allows you to use your {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
-                { deviceSupportedAuthTypesLabel, fallbackSupportedAuthTypesLabel }
-              )
-            : t(
-                'Enabling local authentication allows you to use your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
-                { fallbackSupportedAuthTypesLabel }
-              )}
-        </P>
-        {renderContent()}
-      </>
-    </Wrapper>
+    <GradientBackgroundWrapper>
+      <Wrapper>
+        <>
+          <P>
+            {deviceSupportedAuthTypesLabel
+              ? t(
+                  'Enabling local authentication allows you to use your {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
+                  { deviceSupportedAuthTypesLabel, fallbackSupportedAuthTypesLabel }
+                )
+              : t(
+                  'Enabling local authentication allows you to use your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
+                  { fallbackSupportedAuthTypesLabel }
+                )}
+          </P>
+          {renderContent()}
+        </>
+      </Wrapper>
+    </GradientBackgroundWrapper>
   )
 }
 

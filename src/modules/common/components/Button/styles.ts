@@ -1,6 +1,6 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
@@ -29,9 +29,10 @@ const styles = StyleSheet.create<Style>({
     overflow: 'hidden'
   },
   buttonContainer: {
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderRadius: 13,
     borderColor: 'transparent'
   },
@@ -49,15 +50,16 @@ const styles = StyleSheet.create<Style>({
     backgroundColor: 'transparent'
   },
   buttonContainerSecondary: {
-    backgroundColor: colors.secondaryButtonContainerColor
+    backgroundColor: 'transparent'
   },
   buttonContainerDanger: {
-    backgroundColor: colors.dangerButtonContainerColor
+    borderColor: colors.pink
   },
   buttonContainerOutline: {
-    borderColor: colors.outlineButtonColor
+    borderColor: colors.turquoise
   },
   buttonText: {
+    fontFamily: 'Poppins_400Regular',
     ...textStyles.bold,
     textAlign: 'center'
   },
@@ -68,19 +70,19 @@ const styles = StyleSheet.create<Style>({
     fontSize: 14
   },
   buttonTextPrimary: {
-    color: colors.primaryButtonTextColor
+    color: colors.titan
   },
   buttonTextSecondary: {
-    color: colors.secondaryButtonTextColor
+    color: colors.titan
   },
   buttonTextDanger: {
-    color: colors.dangerButtonTextColor
+    color: colors.pink
   },
   buttonTextOutline: {
-    color: colors.outlineButtonTextColor
+    color: colors.turquoise
   },
   disabled: {
-    opacity: 0.2
+    opacity: 0.4
   }
 })
 

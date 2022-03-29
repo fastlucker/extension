@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import { ColorValue, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
 
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 import styles from './styles'
@@ -44,10 +45,16 @@ const containerStylesSizes = {
 const noGradient = ['transparent', 'transparent']
 
 const gradientColors = {
-  [BUTTON_TYPES.PRIMARY]: ['red', 'green'],
+  [BUTTON_TYPES.PRIMARY]: [colors.violet, colors.heliotrope],
   [BUTTON_TYPES.SECONDARY]: noGradient,
   [BUTTON_TYPES.DANGER]: noGradient,
   [BUTTON_TYPES.OUTLINE]: noGradient
+}
+
+// Gradient colors applied when button is disabled
+const gradientDisabledColors = {
+  ...gradientColors,
+  [BUTTON_TYPES.PRIMARY]: [colors.darkViolet, colors.violet]
 }
 
 const buttonTextStyles = {
@@ -75,8 +82,7 @@ const Button = ({
 }: Props) => (
   <TouchableOpacity disabled={disabled} style={styles.buttonWrapper} {...rest}>
     <LinearGradient
-      // Button background - linear gradient or transparent
-      colors={gradientColors[type]}
+      colors={disabled ? gradientDisabledColors[type] : gradientColors[type]}
       start={{ x: 0, y: 0.5 }}
       end={{ x: 1, y: 0.5 }}
       style={[
