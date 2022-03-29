@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Linking } from 'react-native'
+import { Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
@@ -36,15 +36,17 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={spacings.mhLg}>
       <Text style={styles.menuTitle}>{t('Menu')}</Text>
-      {menu.map((m) => (
-        <TouchableOpacity key={m.name} onPress={() => navigation.navigate(m.route)}>
-          <Text>{m.name}</Text>
-        </TouchableOpacity>
-      ))}
+      <View style={spacings.mbLg}>
+        {menu.map((m) => (
+          <TouchableOpacity key={m.name} onPress={() => navigation.navigate(m.route)}>
+            <Text>{m.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       {help.map((h) => (
         <TouchableOpacity key={h.name} onPress={() => Linking.openURL(h.url)}>
-          <Text>{h.name}</Text>
+          <Text style={styles.link}>{h.name}</Text>
         </TouchableOpacity>
       ))}
     </DrawerContentScrollView>
