@@ -4,15 +4,15 @@ import { TextProps, TextStyle } from 'react-native'
 import Text from '../Text'
 import styles from './styles'
 
-export type TextTypes = 'regular' | 'small'
+type TitleTypes = 'regular' | 'small'
 
 interface Props extends TextProps {
-  type?: TextTypes
+  type?: TitleTypes
   hasBottomSpacing?: boolean
   color?: string
 }
 
-const titleStyles: { [key in TextTypes]: TextStyle } = {
+const titleStyles: { [key in TitleTypes]: TextStyle } = {
   regular: styles.titleRegular,
   small: styles.titleSmall
 }
