@@ -1,7 +1,7 @@
 import { StyleSheet, TextStyle } from 'react-native'
 
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 
 interface Style {
   text: TextStyle
@@ -9,14 +9,13 @@ interface Style {
   textSmall: TextStyle
   textCaption: TextStyle
   textInfo: TextStyle
-  textDanger: TextStyle
   underline: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
   text: {
     fontFamily: FONT_FAMILIES.LIGHT,
-    color: colors.textColor
+    color: colors.titan
   },
   textRegular: {
     fontSize: 14,
@@ -37,9 +36,6 @@ const styles = StyleSheet.create<Style>({
     fontSize: 10,
     lineHeight: 14,
     letterSpacing: -5
-  },
-  textDanger: {
-    color: colors.dangerColor
   },
   underline: {
     textDecorationLine: 'underline'
