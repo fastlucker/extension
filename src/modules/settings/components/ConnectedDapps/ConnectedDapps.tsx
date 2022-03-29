@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Image, Linking, TouchableOpacity, View } from 'react-native'
 
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
-import Button, { BUTTON_SIZES, BUTTON_TYPES } from '@modules/common/components/Button'
+import Button from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -72,8 +72,8 @@ const ConnectedDapps = () => {
             </View>
             <View>
               <Button
-                size={BUTTON_SIZES.SMALL}
-                type={BUTTON_TYPES.OUTLINE}
+                size="small"
+                type="outline"
                 hitSlop={{ bottom: 10, top: 10, left: 5, right: 5 }}
                 text={t('Disconnect')}
                 textStyle={{ fontSize: 11 }}

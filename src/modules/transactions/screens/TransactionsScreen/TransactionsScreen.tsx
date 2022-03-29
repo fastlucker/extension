@@ -5,7 +5,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
-import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
+import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
@@ -56,7 +56,7 @@ const TransactionsScreen = () => {
       actions={
         <View style={flexboxStyles.directionRow}>
           <Button
-            type={BUTTON_TYPES.DANGER}
+            type="danger"
             onPress={() => cancel(firstPending)}
             text={t('Cancel')}
             style={[flexboxStyles.flex1, spacings.mrTy]}

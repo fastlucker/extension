@@ -122,7 +122,7 @@ const BottomSheet: React.FC<Props> = ({
           {children}
           {displayCancel && (
             <Button
-              type="GHOST"
+              type="ghost"
               onPress={closeBottomSheet}
               style={styles.cancelBtn}
               text={cancelText}
