@@ -62,7 +62,8 @@ const globalScreenOptions = {
     fontSize: 20
   },
   headerBackTitleVisible: false,
-  headerTransparent: true
+  headerTransparent: true,
+  headerShadowVisible: false
 }
 
 const TAB_BAR_ICON_SIZE = 22
