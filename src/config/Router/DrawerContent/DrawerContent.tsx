@@ -18,13 +18,14 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const { navigation } = props
 
   const menu = [
-    { name: t('Dashboards'), route: 'dashboard' },
-    { name: t('Earn'), route: 'earn' },
-    { name: t('Send'), route: 'send' },
-    { name: t('Swap'), route: 'swap' },
-    { name: t('Transactions'), route: 'transactions' },
-    { name: t('Cross-chain'), route: 'cross-chain' },
-    { name: t('Deposit'), route: 'deposit' }
+    { name: t('Dashboard'), route: 'dashboard-tab' },
+    { name: t('Earn'), route: 'earn-tab' },
+    { name: t('Send'), route: 'send-tab' },
+    { name: t('Swap'), route: 'swap-tab' },
+    { name: t('Transactions'), route: 'transactions-tab' },
+    // TODO: Uncomment when Cross-chain is implemented
+    // { name: t('Cross-chain'), route: '' },
+    { name: t('Deposit'), route: 'receive' }
   ]
 
   const help = [
