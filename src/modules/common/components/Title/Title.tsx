@@ -1,28 +1,24 @@
 import React from 'react'
-import { TextProps } from 'react-native'
+import { TextProps, TextStyle } from 'react-native'
 
 import Text from '../Text'
 import styles from './styles'
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum TITLE_TYPES {
-  REGULAR = 'regular',
-  SMALL = 'small'
-}
+export type TextTypes = 'regular' | 'small'
 
 interface Props extends TextProps {
-  type: TITLE_TYPES
+  type?: TextTypes
   hasBottomSpacing?: boolean
   color?: string
 }
 
-const titleStyles = {
-  [TITLE_TYPES.REGULAR]: styles.titleRegular,
-  [TITLE_TYPES.SMALL]: styles.titleSmall
+const titleStyles: { [key in TextTypes]: TextStyle } = {
+  regular: styles.titleRegular,
+  small: styles.titleSmall
 }
 
 const Title: React.FC<Props> = ({
-  type = TITLE_TYPES.REGULAR,
+  type = 'regular',
   style = {},
   hasBottomSpacing = true,
   children,
