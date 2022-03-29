@@ -15,13 +15,13 @@ import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputOrScan from '@modules/common/components/InputOrScan/InputOrScan'
 import NumberInput from '@modules/common/components/NumberInput'
-import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
+import spacings from '@modules/common/styles/spacings'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
@@ -104,7 +104,9 @@ const SendScreen = () => {
                     onButtonPress={setMaxAmount}
                   />
                   {!!validationFormMgs.messages?.amount && (
-                    <P type={TEXT_TYPES.DANGER}>{validationFormMgs.messages.amount}</P>
+                    <Text appearance="danger" style={spacings.mbSm}>
+                      {validationFormMgs.messages.amount}
+                    </Text>
                   )}
                   <InputOrScan
                     placeholder={t('Recipient')}
@@ -115,7 +117,9 @@ const SendScreen = () => {
                     onChangeText={setAddress}
                   />
                   {!!validationFormMgs.messages?.address && (
-                    <P type={TEXT_TYPES.DANGER}>{validationFormMgs.messages.address}</P>
+                    <Text appearance="danger" style={spacings.mbSm}>
+                      {validationFormMgs.messages.address}
+                    </Text>
                   )}
                   {!smartContractWarning && !!unknownWarning && (
                     <ConfirmAddress
@@ -142,7 +146,7 @@ const SendScreen = () => {
                   />
                 </Panel>
               ) : (
-                <P>{t("You don't have any funds on this account.")}</P>
+                <Text style={spacings.mbSm}>{t("You don't have any funds on this account.")}</Text>
               )}
               <Panel>
                 <AddressList

@@ -5,7 +5,7 @@ import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import usePrevious from '@modules/common/hooks/usePrevious'
@@ -114,7 +114,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
           setFeeSpeed={setFeeSpeed}
         />
         {!!bundle?.signer?.quickAccManager && !CONFIG.RELAYER_URL ? (
-          <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
+          <Text fontSize={17} appearance="danger" style={textStyles.bold}>
             {t(
               'Signing transactions with an email/password account without being connected to the relayer is unsupported.'
             )}

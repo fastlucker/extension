@@ -8,7 +8,7 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -84,7 +84,7 @@ const SignScreen = ({ navigation }: any) => {
     return (
       <Wrapper>
         <Panel>
-          <Text fontSize={17} type={TEXT_TYPES.DANGER} style={[textStyles.bold, spacings.mb]}>
+          <Text fontSize={17} appearance="danger" style={[textStyles.bold, spacings.mb]}>
             {t('Invalid signing request: .txn has to be a hex string')}
           </Text>
           <Button
