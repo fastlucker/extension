@@ -130,7 +130,6 @@ const DashboardStackScreen = () => {
         options={{ title: t('Hardware Wallet') }}
         component={HardwareWalletConnectScreen}
       />
-      <Stack.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
     </DashboardStack.Navigator>
   )
 }
@@ -457,6 +456,7 @@ const AppStack = () => {
           headerShown: false
         }}
       />
+      <Stack.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
       <Drawer.Screen
         name="connect"
         component={ConnectScreen}
