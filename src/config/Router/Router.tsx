@@ -54,7 +54,7 @@ const MainStack = createNativeStackNavigator()
 
 const globalScreenOptions = {
   headerStyle: {
-    backgroundColor: colors.headerBackgroundColor,
+    backgroundColor: 'transparent',
     shadowColor: colors.headerShadowColor
   },
   headerTintColor: colors.headerTintColor,
@@ -62,7 +62,9 @@ const globalScreenOptions = {
     fontSize: 18,
     fontFamily: 'Poppins_400Regular'
   },
-  headerBackTitleVisible: false
+  headerBackTitleVisible: false,
+  headerTransparent: true,
+  headerShadowVisible: false
 }
 
 const TAB_BAR_ICON_SIZE = 22
@@ -502,7 +504,7 @@ const Router = () => {
         dark: true,
         colors: {
           primary: colors.panelBackgroundColor,
-          background: colors.backgroundColor,
+          background: 'transparent',
           card: colors.panelBackgroundColor,
           text: colors.textColor,
           border: 'transparent',
