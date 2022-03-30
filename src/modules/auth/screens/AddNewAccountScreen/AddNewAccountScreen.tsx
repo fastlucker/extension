@@ -4,6 +4,7 @@ import { Trans } from 'react-i18next'
 import { Keyboard, Linking, TouchableWithoutFeedback } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import { ambireCloudURL, termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import useAddNewAccount from '@modules/auth/hooks/useAddNewAccount'
 import Button from '@modules/common/components/Button'
@@ -12,7 +13,6 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import accountPresets from '@modules/common/constants/accountPresets'
 import { isEmail } from '@modules/common/services/validate'
@@ -47,8 +47,8 @@ const AddNewAccountScreen = () => {
           Keyboard.dismiss()
         }}
       >
-        <Wrapper keyboardDismissMode="on-drag">
-          <Title>{t('Create a new account')}</Title>
+        <Wrapper keyboardDismissMode="on-drag" contentContainerStyle={spacings.pbLg}>
+          <AmbireLogo />
           <Controller
             control={control}
             rules={{ validate: isEmail }}
@@ -125,8 +125,8 @@ const AddNewAccountScreen = () => {
           />
 
           {!!errors.terms && (
-            <Text appearance="danger" style={spacings.mbSm}>
-              {t('Please agree to our Terms of Service and Privacy policy')}
+            <Text appearance="danger" fontSize={12} style={spacings.mb}>
+              {t('Please agree to our Terms of Service and Privacy policy.')}
             </Text>
           )}
 
@@ -171,14 +171,14 @@ const AddNewAccountScreen = () => {
             name="noBackup"
           />
           {!!errors.noBackup && watch('backup', true) === false && (
-            <Text appearance="danger" style={spacings.mbSm}>
+            <Text appearance="danger" style={spacings.mb} fontSize={12}>
               {t('Please tick this box if you want to proceed.')}
             </Text>
           )}
 
           <Button
             disabled={isSubmitting}
-            text={isSubmitting ? t('Signing up...') : t('Sign up')}
+            text={isSubmitting ? t('Signing up...') : t('Sign Up')}
             onPress={handleSubmit(handleAddNewAccount)}
           />
           {!!err && (
