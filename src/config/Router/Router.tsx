@@ -51,7 +51,6 @@ const SwapStack = createNativeStackNavigator()
 const TransactionsStack = createNativeStackNavigator()
 const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
-const SettingsStack = createNativeStackNavigator()
 
 const globalScreenOptions = {
   headerStyle: {
