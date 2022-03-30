@@ -230,64 +230,6 @@ const SendStackScreen = () => {
 // TODO: DApps: postponed for version 2 of the mobile app
 // }
 
-const SettingsStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <SettingsStack.Navigator screenOptions={tabsScreenOptions}>
-      <SettingsStack.Screen
-        name="settings"
-        component={SettingsScreen}
-        options={{
-          headerTitle: t('Settings')
-        }}
-      />
-      <SettingsStack.Screen
-        name="passcode-change"
-        component={ChangePasscodeScreen}
-        options={{
-          headerTitle: t('Passcode')
-        }}
-      />
-      <SettingsStack.Screen
-        name="local-auth-change"
-        component={ChangeLocalAuthScreen}
-        options={{
-          headerTitle: t('Local auth')
-        }}
-      />
-      <SettingsStack.Screen
-        name="biometrics-sign-change"
-        component={BiometricsSignScreen}
-        options={{
-          headerTitle: t('Sign with Biometrics')
-        }}
-      />
-      <SettingsStack.Screen
-        name="app-locking"
-        component={ChangeAppLockingScreen}
-        options={{
-          headerTitle: t('App Locking')
-        }}
-      />
-      <SettingsStack.Screen
-        name="signers"
-        component={SignersScreen}
-        options={{
-          headerTitle: t('Manage signers')
-        }}
-      />
-      <SettingsStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
-        }}
-      />
-    </SettingsStack.Navigator>
-  )
-}
-
 const AuthStack = () => {
   const { t } = useTranslation()
 
@@ -421,18 +363,6 @@ const AppTabs = () => {
         }}
         component={TransactionsStackScreen}
       />
-      <Tab.Screen
-        name="settings-tab"
-        options={{
-          headerShown: false,
-          title: t('Settings'),
-          // Missing in the web app, so the icon here is mobile app specific
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="settings" size={TAB_BAR_ICON_SIZE} color={color} />
-          )
-        }}
-        component={SettingsStackScreen}
-      />
     </Tab.Navigator>
   )
 }
@@ -456,7 +386,50 @@ const AppStack = () => {
           headerShown: false
         }}
       />
-      <Stack.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
+      <Drawer.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
+      <Drawer.Screen
+        name="passcode-change"
+        component={ChangePasscodeScreen}
+        options={{
+          headerTitle: t('Passcode')
+        }}
+      />
+      <Drawer.Screen
+        name="local-auth-change"
+        component={ChangeLocalAuthScreen}
+        options={{
+          headerTitle: t('Local auth')
+        }}
+      />
+      <Drawer.Screen
+        name="biometrics-sign-change"
+        component={BiometricsSignScreen}
+        options={{
+          headerTitle: t('Sign with Biometrics')
+        }}
+      />
+      <Drawer.Screen
+        name="app-locking"
+        component={ChangeAppLockingScreen}
+        options={{
+          headerTitle: t('App Locking')
+        }}
+      />
+      <Drawer.Screen
+        name="signers"
+        component={SignersScreen}
+        options={{
+          headerTitle: t('Manage signers')
+        }}
+      />
+      {/* TODO: Is this needed? Probably no. */}
+      {/* <Drawer.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{
+          headerTitle: t('Pending Transaction')
+        }}
+      /> */}
       <Drawer.Screen
         name="connect"
         component={ConnectScreen}
