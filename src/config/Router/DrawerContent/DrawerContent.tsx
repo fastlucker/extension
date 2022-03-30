@@ -5,10 +5,13 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import DashboardIcon from '@assets/svg/DashboardIcon'
 import DepositIcon from '@assets/svg/DepositIcon'
+import DiscordIcon from '@assets/svg/DiscordIcon'
 import EarnIcon from '@assets/svg/EarnIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
+import TelegramIcon from '@assets/svg/TelegramIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
+import TwitterIcon from '@assets/svg/TwitterIcon'
 import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import AppVersion from '@modules/common/components/AppVersion'
 import Text from '@modules/common/components/Text'
@@ -63,7 +66,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       <Text fontSize={16} underline style={styles.menuTitle}>
         {t('Menu')}
       </Text>
-      <View style={spacings.mbLg}>
+      <View style={spacings.mbMd}>
         {menu.map(({ Icon, name, route }) => (
           <TouchableOpacity
             key={name}
@@ -76,7 +79,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         ))}
       </View>
 
-      <View style={spacings.mbLg}>
+      <View style={spacings.mb}>
         <Text fontSize={16} underline style={styles.menuTitle}>
           {t('Settings')}
         </Text>
@@ -94,9 +97,18 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
 
       {help.map((h) => (
         <TouchableOpacity key={h.name} onPress={() => Linking.openURL(h.url)}>
-          <Text style={styles.link}>{h.name}</Text>
+          <Text fontSize={16} style={spacings.mbSm}>
+            {h.name}
+          </Text>
         </TouchableOpacity>
       ))}
+
+      <View style={[flexboxStyles.directionRow, spacings.mtSm, spacings.mbMd]}>
+        <DiscordIcon style={spacings.mr} />
+        <TwitterIcon style={spacings.mr} />
+        <TelegramIcon />
+      </View>
+
       <AppVersion />
     </DrawerContentScrollView>
   )
