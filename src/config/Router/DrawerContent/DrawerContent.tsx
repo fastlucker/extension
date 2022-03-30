@@ -54,7 +54,12 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   ]
 
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={spacings.mhLg} style={spacings.mvLg}>
+    <DrawerContentScrollView
+      {...props}
+      alwaysBounceVertical={false}
+      contentContainerStyle={spacings.mhLg}
+      style={spacings.mvLg}
+    >
       <Text fontSize={16} underline style={styles.menuTitle}>
         {t('Menu')}
       </Text>
