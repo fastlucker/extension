@@ -18,7 +18,7 @@ import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
-import colors from '@modules/common/styles/colors'
+import colors, { colorPalette } from '@modules/common/styles/colors'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
@@ -376,7 +376,19 @@ const AppStack = () => {
   }, [isLoading])
 
   return (
-    <Drawer.Navigator drawerContent={DrawerContent} screenOptions={globalScreenOptions}>
+    <Drawer.Navigator
+      drawerContent={DrawerContent}
+      screenOptions={{
+        ...globalScreenOptions,
+        drawerType: 'front',
+        drawerStyle: {
+          backgroundColor: colorPalette.clay,
+          borderTopRightRadius: 13,
+          borderBottomRightRadius: 13,
+          width: 282
+        }
+      }}
+    >
       <Drawer.Screen
         name="tabs"
         component={AppTabs}
