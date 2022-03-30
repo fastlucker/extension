@@ -33,7 +33,7 @@ const ChangeLocalAuthScreen = () => {
 
     if (enabled) {
       addToast(t('Local auth enabled!') as string, { timeout: 2000 })
-      navigation.navigate('settings')
+      navigation.navigate('dashboard')
     }
   }
 
@@ -41,7 +41,7 @@ const ChangeLocalAuthScreen = () => {
     await removeLocalAuth()
 
     addToast(t('Local auth disabled!') as string, { timeout: 2000 })
-    navigation.navigate('settings')
+    navigation.navigate('dashboard')
   }
 
   const renderContent = () => {

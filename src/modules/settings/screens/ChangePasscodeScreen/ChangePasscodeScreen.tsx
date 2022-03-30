@@ -41,7 +41,7 @@ const ChangePasscodeScreen: React.FC = () => {
     const added = await addPasscode(code)
     if (added) {
       addToast(t('Passcode configured!') as string, { timeout: 2000 })
-      navigation.navigate('settings')
+      navigation.navigate('dashboard')
     }
   }
 
@@ -49,7 +49,7 @@ const ChangePasscodeScreen: React.FC = () => {
     await removePasscode()
 
     addToast(t('Passcode removed!') as string, { timeout: 2000 })
-    navigation.navigate('settings')
+    navigation.navigate('dashboard')
   }
 
   const renderContent = () => {
