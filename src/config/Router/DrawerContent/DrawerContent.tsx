@@ -9,6 +9,7 @@ import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer'
 
+import Passcode from './Passcode'
 import styles from './style'
 
 const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/4404980091538-Ambire-Wallet'
@@ -37,7 +38,6 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
 
   const settings = [
     // TODO: Fill in the state for each one
-    { name: t('App Passcode (not added)'), route: 'passcode-change' },
     { name: t('Local auth (not enabled)'), route: 'local-auth-change' },
     { name: t('Biometrics sign (not enabled)'), route: 'biometrics-sign-change' },
     { name: t('Manage app locking'), route: 'app-locking' },
@@ -64,6 +64,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         <Text fontSize={16} underline style={styles.menuTitle}>
           {t('Settings')}
         </Text>
+        <Passcode />
         {settings.map((s) => (
           <TouchableOpacity key={s.name} onPress={() => navigation.navigate(s.route)}>
             <Text style={spacings.mbSm}>{s.name}</Text>
