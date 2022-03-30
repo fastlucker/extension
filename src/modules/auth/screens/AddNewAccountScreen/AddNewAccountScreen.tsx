@@ -106,9 +106,15 @@ const AddNewAccountScreen = () => {
             render={({ field: { onChange, value } }) => (
               <Checkbox value={value} onValueChange={() => onChange(!value)}>
                 <Trans t={t}>
-                  <Text>
-                    <Text onPress={() => onChange(!value)}>{'I agree to the '}</Text>
-                    <Text onPress={() => Linking.openURL(termsAndPrivacyURL)} underline>
+                  <Text fontSize={12}>
+                    <Text fontSize={12} onPress={() => onChange(!value)}>
+                      {'I agree to the '}
+                    </Text>
+                    <Text
+                      fontSize={12}
+                      onPress={() => Linking.openURL(termsAndPrivacyURL)}
+                      underline
+                    >
                       Terms of Service and Privacy policy.
                     </Text>
                   </Text>
@@ -129,9 +135,11 @@ const AddNewAccountScreen = () => {
             render={({ field: { onChange, value } }) => (
               <Checkbox value={value} onValueChange={() => onChange(!value)}>
                 <Trans t={t}>
-                  <Text>
-                    <Text onPress={() => onChange(!value)}>{'Backup on '}</Text>
-                    <Text onPress={() => Linking.openURL(ambireCloudURL)} underline>
+                  <Text fontSize={12}>
+                    <Text fontSize={12} onPress={() => onChange(!value)}>
+                      {'Backup on '}
+                    </Text>
+                    <Text fontSize={12} onPress={() => Linking.openURL(ambireCloudURL)} underline>
                       Ambire Cloud.
                     </Text>
                   </Text>
@@ -148,7 +156,7 @@ const AddNewAccountScreen = () => {
             render={({ field: { onChange, value } }) =>
               watch('backup', true) === false ? (
                 <Checkbox value={value} onValueChange={() => onChange(!value)}>
-                  <Text onPress={() => onChange(!value)}>
+                  <Text fontSize={12} onPress={() => onChange(!value)}>
                     {t(
                       'In case you forget your password or lose your backup, you will have to wait {{days}} days and pay the recovery fee to restore access to your account.',
                       { days }

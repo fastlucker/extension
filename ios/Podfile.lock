@@ -403,6 +403,8 @@ PODS:
     - React
   - RNCAsyncStorage (1.15.17):
     - React-Core
+  - RNCCheckbox (0.5.12):
+    - React-Core
   - RNGestureHandler (2.1.1):
     - React-Core
   - RNOS (1.2.6):
@@ -517,6 +519,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RNBluetoothStateManager (from `../node_modules/react-native-bluetooth-state-manager`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNOS (from `../node_modules/react-native-os`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -667,6 +670,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-bluetooth-state-manager"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNCCheckbox:
+    :path: "../node_modules/@react-native-community/checkbox"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNOS:
@@ -758,6 +763,7 @@ SPEC CHECKSUMS:
   ReactCommon: 8fea6422328e2fc093e25c9fac67adbcf0f04fb4
   RNBluetoothStateManager: 3929aefcf1bac102702f34982984f6699f14f80b
   RNCAsyncStorage: 6bd5a7ba3dde1c3facba418aa273f449bdc5437a
+  RNCCheckbox: ed1b4ca295475b41e7251ebae046360a703b6eb5
   RNGestureHandler: e1ad51d31a580755079d5124d3ab66f0fcaa8311
   RNOS: 6f2f9a70895bbbfbdad7196abd952e7b01d45027
   RNReanimated: 7f143675d94978c3555345d5bfa8ed6ae800c5d3
