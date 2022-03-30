@@ -4,12 +4,16 @@ import { Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import DashboardIcon from '@assets/svg/DashboardIcon'
+import DepositIcon from '@assets/svg/DepositIcon'
 import EarnIcon from '@assets/svg/EarnIcon'
 import SendIcon from '@assets/svg/SendIcon'
+import SwapIcon from '@assets/svg/SwapIcon'
+import TransferIcon from '@assets/svg/TransferIcon'
 import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import AppVersion from '@modules/common/components/AppVersion'
 import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer'
 
 import AppLocking from './AppLocking'
@@ -30,11 +34,11 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard-tab' },
     { Icon: EarnIcon, name: t('Earn'), route: 'earn-tab' },
     { Icon: SendIcon, name: t('Send'), route: 'send-tab' },
-    { name: t('Swap'), route: 'swap-tab' },
-    { name: t('Transactions'), route: 'transactions-tab' },
+    { Icon: SwapIcon, name: t('Swap'), route: 'swap-tab' },
+    { Icon: TransferIcon, name: t('Transactions'), route: 'transactions-tab' },
     // TODO: Not implemented yet.
-    // { name: t('Cross-chain'), route: '' },
-    { name: t('Deposit'), route: 'receive' }
+    // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
+    { Icon: DepositIcon, name: t('Deposit'), route: 'receive' }
   ]
 
   const help = [
@@ -56,11 +60,13 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       </Text>
       <View style={spacings.mbLg}>
         {menu.map(({ Icon, name, route }) => (
-          <TouchableOpacity key={name} onPress={() => navigation.navigate(route)}>
-            <Text style={spacings.mbSm}>
-              {Icon && <Icon />}
-              {name}
-            </Text>
+          <TouchableOpacity
+            key={name}
+            onPress={() => navigation.navigate(route)}
+            style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}
+          >
+            {Icon && <Icon />}
+            <Text style={spacings.mlMi}>{name}</Text>
           </TouchableOpacity>
         ))}
       </View>
