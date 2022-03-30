@@ -78,6 +78,13 @@ const globalScreenOptions = ({ navigation }: any) => ({
 
 const TAB_BAR_ICON_SIZE = 22
 
+const hamburgerHeaderLeft = (navigation: any) => () =>
+  (
+    <NavIconWrapper onPress={navigation.openDrawer}>
+      <Ionicons name="ios-menu" size={32} color="white" />
+    </NavIconWrapper>
+  )
+
 const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions => ({
   ...globalScreenOptions({ navigation }),
   headerRight: () => (
@@ -88,11 +95,7 @@ const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions =>
       <ScanIcon />
     </TouchableOpacity>
   ),
-  headerLeft: () => (
-    <NavIconWrapper onPress={navigation.openDrawer}>
-      <Ionicons name="ios-menu" size={32} color="white" />
-    </NavIconWrapper>
-  )
+  headerLeft: hamburgerHeaderLeft(navigation)
 })
 
 const DashboardStackScreen = () => {
@@ -346,6 +349,7 @@ const AppDrawer = () => {
       drawerContent={DrawerContent}
       screenOptions={({ navigation }: any): DrawerNavigationOptions => ({
         ...globalScreenOptions({ navigation }),
+        headerLeft: hamburgerHeaderLeft(navigation),
         drawerType: 'front',
         drawerStyle: {
           backgroundColor: colors.clay,
