@@ -75,7 +75,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       <Text fontSize={16} underline style={styles.menuTitle}>
         {t('Menu')}
       </Text>
-      <View style={spacings.mbMd}>
+      <View style={[spacings.mlTy, spacings.mbMd]}>
         {menu.map(({ Icon, name, route }) => (
           <TouchableOpacity
             key={name}
@@ -88,10 +88,10 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         ))}
       </View>
 
-      <View style={spacings.mb}>
-        <Text fontSize={16} underline style={styles.menuTitle}>
-          {t('Settings')}
-        </Text>
+      <Text fontSize={16} underline style={styles.menuTitle}>
+        {t('Settings')}
+      </Text>
+      <View style={[spacings.mlTy, spacings.mb]}>
         <Passcode />
         <LocalAuth />
         <BiometricsSign />
