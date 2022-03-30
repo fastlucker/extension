@@ -1,8 +1,8 @@
 import React from 'react'
-import { ActivityIndicator } from 'react-native'
+import { ActivityIndicator, TouchableOpacity } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import Button from '@modules/common/components/Button'
+import Text from '@modules/common/components/Text'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import spacings from '@modules/common/styles/spacings'
 import { useNavigation } from '@react-navigation/native'
@@ -15,7 +15,9 @@ const AppLocking = () => {
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
   return (
-    <Button text={t('Manage app locking 🔐')} onPress={() => navigation.navigate('app-locking')} />
+    <TouchableOpacity onPress={() => navigation.navigate('app-locking')}>
+      <Text style={spacings.mbSm}>{t('Manage app locking')}</Text>
+    </TouchableOpacity>
   )
 }
 
