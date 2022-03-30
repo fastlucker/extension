@@ -9,6 +9,7 @@ import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer'
 
+import BiometricsSign from './BiometricsSign'
 import LocalAuth from './LocalAuth'
 import Passcode from './Passcode'
 import styles from './style'
@@ -39,7 +40,6 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
 
   const settings = [
     // TODO: Fill in the state for each one
-    { name: t('Biometrics sign (not enabled)'), route: 'biometrics-sign-change' },
     { name: t('Manage app locking'), route: 'app-locking' },
     { name: t('Theme: Dark Mode'), route: '' },
     { name: t('Signers'), route: 'signers' }
@@ -66,6 +66,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         </Text>
         <Passcode />
         <LocalAuth />
+        <BiometricsSign />
         {settings.map((s) => (
           <TouchableOpacity key={s.name} onPress={() => navigation.navigate(s.route)}>
             <Text style={spacings.mbSm}>{s.name}</Text>
