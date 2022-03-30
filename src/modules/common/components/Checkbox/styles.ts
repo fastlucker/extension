@@ -17,12 +17,12 @@ const styles = StyleSheet.create<Style>({
   checkboxWrapper: {
     // Because the rn-checkbox can't get smaller than 20
     //  it should be scaled down to ~18
-    transform: [{ scale: 0.9 }]
+    transform: [{ scale: 0.9 }],
+    ...spacings.mrTy
   },
   checkbox: {
     width: 20,
-    height: 20,
-    ...spacings.mrTy
+    height: 20
   }
 })
 
