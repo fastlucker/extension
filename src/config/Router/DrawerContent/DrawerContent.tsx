@@ -28,6 +28,9 @@ import Theme from './Theme'
 
 const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/4404980091538-Ambire-Wallet'
 const REPORT_ISSUE_URL = 'https://help.ambire.com/hc/en-us/requests/new'
+const TELEGRAM_URL = 'https://t.me/AmbireWallet'
+const TWITTER_URL = 'https://twitter.com/AmbireWallet'
+const DISCORD_URL = 'https://discord.gg/nMBGJsb'
 
 const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const { t } = useTranslation()
@@ -54,6 +57,12 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { name: t('Signers'), route: 'signers' }
     // TODO: Not implemented yet.
     // { name: t('Security'), route: 'security' }
+  ]
+
+  const social = [
+    { Icon: DiscordIcon, url: DISCORD_URL },
+    { Icon: TwitterIcon, url: TWITTER_URL },
+    { Icon: TelegramIcon, url: TELEGRAM_URL }
   ]
 
   return (
@@ -95,18 +104,20 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         ))}
       </View>
 
-      {help.map((h) => (
-        <TouchableOpacity key={h.name} onPress={() => Linking.openURL(h.url)}>
+      {help.map(({ name, url }) => (
+        <TouchableOpacity key={name} onPress={() => Linking.openURL(url)}>
           <Text fontSize={16} style={spacings.mbSm}>
-            {h.name}
+            {name}
           </Text>
         </TouchableOpacity>
       ))}
 
       <View style={[flexboxStyles.directionRow, spacings.mtSm, spacings.mbMd]}>
-        <DiscordIcon style={spacings.mr} />
-        <TwitterIcon style={spacings.mr} />
-        <TelegramIcon />
+        {social.map(({ Icon, url }) => (
+          <TouchableOpacity key={url} onPress={() => Linking.openURL(url)}>
+            <Icon style={spacings.mr} />
+          </TouchableOpacity>
+        ))}
       </View>
 
       <AppVersion />
