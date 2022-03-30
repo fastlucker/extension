@@ -49,6 +49,7 @@ const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
 
+const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SwapStack = createNativeStackNavigator()
 const TransactionsStack = createNativeStackNavigator()
@@ -337,15 +338,8 @@ const AppTabs = () => {
   )
 }
 
-const AppStack = () => {
+const AppDrawer = () => {
   const { t } = useTranslation()
-  const { isLoading } = usePasscode()
-
-  useEffect(() => {
-    if (isLoading) return
-
-    SplashScreen.hideAsync()
-  }, [isLoading])
 
   return (
     <Drawer.Navigator
@@ -368,7 +362,6 @@ const AppStack = () => {
           headerShown: false
         }}
       />
-      <Drawer.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
       <Drawer.Screen
         name="passcode-change"
         component={ChangePasscodeScreen}
@@ -404,20 +397,52 @@ const AppStack = () => {
           headerTitle: t('Manage signers')
         }}
       />
-      <Drawer.Screen
+    </Drawer.Navigator>
+  )
+}
+
+const AppStack = () => {
+  const { t } = useTranslation()
+  const { isLoading } = usePasscode()
+
+  useEffect(() => {
+    if (isLoading) return
+
+    SplashScreen.hideAsync()
+  }, [isLoading])
+
+  return (
+    <MainStack.Navigator screenOptions={globalScreenOptions}>
+      <MainStack.Screen
+        name="drawer"
+        component={AppDrawer}
+        options={{
+          headerShown: false
+        }}
+      />
+      <MainStack.Screen
+        name="connect"
+        component={ConnectScreen}
+        options={{ title: t('Connect a dApp') }}
+      />
+      <MainStack.Screen
+        name="receive"
+        options={{ title: t('Receive') }}
+        component={ReceiveScreen}
+      />
+      <MainStack.Screen
         name="pending-transactions"
         component={PendingTransactionsScreen}
         options={{
           headerTitle: t('Pending Transaction')
         }}
       />
-      <Drawer.Screen
-        name="connect"
-        component={ConnectScreen}
-        options={{ title: t('Connect a dApp') }}
+      <MainStack.Screen
+        name="sign-message"
+        component={SignMessage}
+        options={{ title: t('Sign') }}
       />
-      <Drawer.Screen name="sign-message" component={SignMessage} options={{ title: t('Sign') }} />
-    </Drawer.Navigator>
+    </MainStack.Navigator>
   )
 }
 
