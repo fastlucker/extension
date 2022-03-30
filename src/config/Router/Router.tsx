@@ -3,10 +3,11 @@ import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
 
+import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
 import DrawerContent from '@config/Router/DrawerContent'
-import { FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'
+import { FontAwesome5, MaterialIcons } from '@expo/vector-icons'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
@@ -81,7 +82,7 @@ const TAB_BAR_ICON_SIZE = 22
 const hamburgerHeaderLeft = (navigation: any) => () =>
   (
     <NavIconWrapper onPress={navigation.openDrawer}>
-      <Ionicons name="ios-menu" size={32} color="white" />
+      <BurgerIcon />
     </NavIconWrapper>
   )
 
