@@ -18,8 +18,10 @@ const AppVersion: React.FC = () => {
   return (
     <>
       <Text style={styles.text} fontSize={10}>
-        {t('app v{{APP_VERSION}}, build #{{BUILD_NUMBER}} (SDK v{{EXPO_SDK}})', {
-          APP_VERSION,
+        {t('Ambire Wallet app v{{APP_VERSION}}', { APP_VERSION })}
+      </Text>
+      <Text style={styles.text} fontSize={10}>
+        {t('build #{{BUILD_NUMBER}} (SDK v{{EXPO_SDK}})', {
           BUILD_NUMBER,
           EXPO_SDK
         })}
@@ -31,11 +33,7 @@ const AppVersion: React.FC = () => {
         })}
       </Text>
       <Text style={styles.text} fontSize={10}>
-        {t('{{APP_ENV}} env', {
-          RELEASE_CHANNEL,
-          RUNTIME_VERSION,
-          APP_ENV: CONFIG.APP_ENV
-        })}
+        {t('{{APP_ENV}} env', { APP_ENV: CONFIG.APP_ENV })}
       </Text>
     </>
   )
