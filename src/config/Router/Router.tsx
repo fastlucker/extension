@@ -30,7 +30,6 @@ import BiometricsSignScreen from '@modules/settings/screens/BiometricsSignScreen
 import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
-import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
 import SwapScreen from '@modules/swap/screens/SwapScreen'

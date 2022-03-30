@@ -4,6 +4,7 @@ import { Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
+import AppVersion from '@modules/common/components/AppVersion'
 import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer'
@@ -41,7 +42,9 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { name: t('Biometrics sign (not enabled)'), route: 'biometrics-sign-change' },
     { name: t('Manage app locking'), route: 'app-locking' },
     { name: t('Theme: Dark Mode'), route: '' },
-    { name: t('Security'), route: '' }
+    { name: t('Signers'), route: 'signers' }
+    // TODO: Uncomment when this is needed
+    // { name: t('Security'), route: '' }
   ]
 
   return (
@@ -73,6 +76,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
           <Text style={styles.link}>{h.name}</Text>
         </TouchableOpacity>
       ))}
+      <AppVersion />
     </DrawerContentScrollView>
   )
 }
