@@ -1,11 +1,12 @@
 import React from 'react'
+import { Image, View } from 'react-native'
 
+import logo from '@assets/images/Ambire-Wallet-logo-colored-white-vertical.png'
 import { useTranslation } from '@config/localization'
 import AppVersion from '@modules/common/components/AppVersion'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
@@ -20,23 +21,36 @@ const AuthScreen = ({ navigation }: Props) => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper contentContainerStyle={styles.wrapper}>
-        <Title style={textStyles.center}>{t('Ambire Wallet')}</Title>
+      <Wrapper>
+        <View style={styles.logoWrapper}>
+          <Image source={logo} />
+        </View>
         <Button
-          text={t('Create a new account')}
+          text={t('Create New Account')}
           onPress={() => navigation.navigate('addNewAccount')}
+          hasBottomSpacing={false}
         />
-        <Text style={[textStyles.center, styles.separator]}>{t('– or –')}</Text>
-
-        <Title style={textStyles.center}>{t('Add an account')}</Title>
-        <Button text={t('Email login')} onPress={() => navigation.navigate('emailLogin')} />
-        <Button text={t('Import from JSON')} onPress={() => navigation.navigate('jsonLogin')} />
+        <Text style={[textStyles.center, spacings.pvLg]} fontSize={18}>
+          {t('– or –')}
+        </Text>
         <Button
-          text={t('Login by QR code scan')}
+          text={t('Login With Email')}
+          type="outline"
+          onPress={() => navigation.navigate('emailLogin')}
+        />
+        <Button
+          text={t('Import From JSON')}
+          type="outline"
+          onPress={() => navigation.navigate('jsonLogin')}
+        />
+        <Button
+          text={t('Login By QR Code')}
+          type="outline"
           onPress={() => navigation.navigate('qrCodeLogin')}
         />
         <Button
-          text={t('Hardware wallet')}
+          text={t('Hardware Wallet')}
+          type="outline"
           onPress={() => navigation.navigate('hardwareWallet')}
           style={spacings.mbLg}
         />

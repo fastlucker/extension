@@ -11,7 +11,7 @@ const styles = () =>
   StyleSheet.create<Style>({
     wrapper: {
       flex: 1,
-      ...spacings.phTy,
+      ...spacings.ph,
       backgroundColor: 'transparent'
     },
     contentContainerStyle: {
