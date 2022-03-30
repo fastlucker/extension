@@ -21,6 +21,7 @@ module.exports = function (api) {
             '.json'
           ],
           alias: {
+            '@assets': './src/assets',
             '@modules': './src/modules',
             '@config': './src/config',
             '@shared': './src/shared'
