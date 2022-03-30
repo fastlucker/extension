@@ -99,13 +99,6 @@ const DashboardStackScreen = () => {
           headerTitle: t('Dashboard')
         }}
       />
-      <DashboardStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
-        }}
-      />
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
         name="addNewAccount"
@@ -144,13 +137,6 @@ const SwapStackScreen = () => {
           headerTitle: t('Ambire Swap')
         }}
       />
-      <SwapStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
-        }}
-      />
     </SwapStack.Navigator>
   )
 }
@@ -165,13 +151,6 @@ const TransactionsStackScreen = () => {
         component={TransactionsScreen}
         options={{
           headerTitle: t('Transactions')
-        }}
-      />
-      <TransactionsStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
         }}
       />
     </TransactionsStack.Navigator>
@@ -190,13 +169,6 @@ const EarnStackScreen = () => {
           headerTitle: t('Earn')
         }}
       />
-      <EarnStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
-        }}
-      />
     </EarnStack.Navigator>
   )
 }
@@ -211,13 +183,6 @@ const SendStackScreen = () => {
         component={SendScreen}
         options={{
           headerTitle: t('Send')
-        }}
-      />
-      <SendStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
         }}
       />
     </SendStack.Navigator>
@@ -432,14 +397,13 @@ const AppStack = () => {
           headerTitle: t('Manage signers')
         }}
       />
-      {/* TODO: Is this needed? Probably no. */}
-      {/* <Drawer.Screen
+      <Drawer.Screen
         name="pending-transactions"
         component={PendingTransactionsScreen}
         options={{
           headerTitle: t('Pending Transaction')
         }}
-      /> */}
+      />
       <Drawer.Screen
         name="connect"
         component={ConnectScreen}
