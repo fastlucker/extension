@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
+import DashboardIcon from '@assets/svg/DashboardIcon'
+import EarnIcon from '@assets/svg/EarnIcon'
+import SendIcon from '@assets/svg/SendIcon'
 import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import AppVersion from '@modules/common/components/AppVersion'
 import Text from '@modules/common/components/Text'
@@ -24,9 +27,9 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const { navigation } = props
 
   const menu = [
-    { name: t('Dashboard'), route: 'dashboard-tab' },
-    { name: t('Earn'), route: 'earn-tab' },
-    { name: t('Send'), route: 'send-tab' },
+    { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard-tab' },
+    { Icon: EarnIcon, name: t('Earn'), route: 'earn-tab' },
+    { Icon: SendIcon, name: t('Send'), route: 'send-tab' },
     { name: t('Swap'), route: 'swap-tab' },
     { name: t('Transactions'), route: 'transactions-tab' },
     // TODO: Not implemented yet.
@@ -52,9 +55,12 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         {t('Menu')}
       </Text>
       <View style={spacings.mbLg}>
-        {menu.map((m) => (
-          <TouchableOpacity key={m.name} onPress={() => navigation.navigate(m.route)}>
-            <Text style={spacings.mbSm}>{m.name}</Text>
+        {menu.map(({ Icon, name, route }) => (
+          <TouchableOpacity key={name} onPress={() => navigation.navigate(route)}>
+            <Text style={spacings.mbSm}>
+              {Icon && <Icon />}
+              {name}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
