@@ -1,12 +1,11 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
   container: ViewStyle
+  checkboxWrapper: ViewStyle
   checkbox: ViewStyle
-  label: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -15,15 +14,15 @@ const styles = StyleSheet.create<Style>({
     alignItems: 'center',
     ...spacings.mb
   },
-  checkbox: {
-    borderWidth: 3,
-    width: 25,
-    height: 25,
-    borderColor: colors.checkboxBorderColor,
+  checkboxWrapper: {
+    // Because the rn-checkbox can't get smaller than 20
+    //  it should be scaled down to ~18
+    transform: [{ scale: 0.9 }],
     ...spacings.mrTy
   },
-  label: {
-    fontSize: 16
+  checkbox: {
+    width: 20,
+    height: 20
   }
 })
 

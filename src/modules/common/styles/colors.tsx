@@ -33,6 +33,7 @@ export const colorPalette = {
   chetwode: '#6770B3',
   baileyBells: '#898DCB',
   titan: '#EBECFF',
+  titan_05: '#ebecff7f',
 
   white: '#FFFFFF',
   black: '#000000'

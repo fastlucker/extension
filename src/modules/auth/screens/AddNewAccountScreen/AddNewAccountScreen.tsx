@@ -58,16 +58,12 @@ const AddNewAccountScreen = () => {
                 placeholder={t('Email')}
                 onChangeText={onChange}
                 value={value}
+                error={errors.email && (t('Please fill in a valid email.') as string)}
                 keyboardType="email-address"
               />
             )}
             name="email"
           />
-          {!!errors.email && (
-            <Text appearance="danger" style={spacings.mbSm}>
-              {t('Please fill in a valid email.')}
-            </Text>
-          )}
           <Controller
             control={control}
             rules={{
@@ -79,15 +75,11 @@ const AddNewAccountScreen = () => {
                 placeholder={t('Password')}
                 onChangeText={onChange}
                 value={value}
+                error={errors.password && (t('Please fill in a valid password.') as string)}
               />
             )}
             name="password"
           />
-          {!!errors.password && (
-            <Text appearance="danger" style={spacings.mbSm}>
-              {t('Please fill in a valid password.')}
-            </Text>
-          )}
           <Controller
             control={control}
             rules={{
@@ -100,16 +92,12 @@ const AddNewAccountScreen = () => {
                 onChangeText={onChange}
                 value={value}
                 secureTextEntry
+                error={errors.confirmPassword && (t("Passwords don't match.") as string)}
                 autoCorrect={false}
               />
             )}
             name="confirmPassword"
           />
-          {!!errors.confirmPassword && (
-            <Text appearance="danger" style={spacings.mbSm}>
-              {t("Passwords don't match.")}
-            </Text>
-          )}
           <Controller
             control={control}
             rules={{
@@ -118,9 +106,15 @@ const AddNewAccountScreen = () => {
             render={({ field: { onChange, value } }) => (
               <Checkbox value={value} onValueChange={() => onChange(!value)}>
                 <Trans t={t}>
-                  <Text>
-                    <Text onPress={() => onChange(!value)}>{'I agree to the '}</Text>
-                    <Text onPress={() => Linking.openURL(termsAndPrivacyURL)} underline>
+                  <Text fontSize={12}>
+                    <Text fontSize={12} onPress={() => onChange(!value)}>
+                      {'I agree to the '}
+                    </Text>
+                    <Text
+                      fontSize={12}
+                      onPress={() => Linking.openURL(termsAndPrivacyURL)}
+                      underline
+                    >
                       Terms of Service and Privacy policy.
                     </Text>
                   </Text>
@@ -141,9 +135,11 @@ const AddNewAccountScreen = () => {
             render={({ field: { onChange, value } }) => (
               <Checkbox value={value} onValueChange={() => onChange(!value)}>
                 <Trans t={t}>
-                  <Text>
-                    <Text onPress={() => onChange(!value)}>{'Backup on '}</Text>
-                    <Text onPress={() => Linking.openURL(ambireCloudURL)} underline>
+                  <Text fontSize={12}>
+                    <Text fontSize={12} onPress={() => onChange(!value)}>
+                      {'Backup on '}
+                    </Text>
+                    <Text fontSize={12} onPress={() => Linking.openURL(ambireCloudURL)} underline>
                       Ambire Cloud.
                     </Text>
                   </Text>
@@ -160,7 +156,7 @@ const AddNewAccountScreen = () => {
             render={({ field: { onChange, value } }) =>
               watch('backup', true) === false ? (
                 <Checkbox value={value} onValueChange={() => onChange(!value)}>
-                  <Text onPress={() => onChange(!value)}>
+                  <Text fontSize={12} onPress={() => onChange(!value)}>
                     {t(
                       'In case you forget your password or lose your backup, you will have to wait {{days}} days and pay the recovery fee to restore access to your account.',
                       { days }

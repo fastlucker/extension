@@ -3,6 +3,8 @@ import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
 
+import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
+import ScanIcon from '@assets/svg/ScanIcon'
 import DrawerContent from '@config/Router/DrawerContent'
 import { FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
@@ -12,13 +14,14 @@ import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
+import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
-import colors, { colorPalette } from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
@@ -35,7 +38,7 @@ import SignMessage from '@modules/sign-message/screens/SignMessage'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { createDrawerNavigator } from '@react-navigation/drawer'
+import { createDrawerNavigator, DrawerNavigationOptions } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import {
   createNativeStackNavigator,
@@ -52,38 +55,42 @@ const TransactionsStack = createNativeStackNavigator()
 const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
 
-const globalScreenOptions = {
+const globalScreenOptions = ({ navigation }: any) => ({
   headerStyle: {
-    backgroundColor: 'transparent',
-    shadowColor: colors.headerShadowColor
+    backgroundColor: 'transparent'
   },
-  headerTintColor: colors.headerTintColor,
+  headerTintColor: colors.titan,
   headerTitleStyle: {
     fontSize: 18,
     fontFamily: FONT_FAMILIES.REGULAR
   },
   headerBackTitleVisible: false,
   headerTransparent: true,
-  headerShadowVisible: false
-}
+  headerShadowVisible: false,
+  headerLeft: ({ canGoBack }: any) =>
+    canGoBack ? (
+      <NavIconWrapper onPress={navigation.goBack}>
+        <LeftArrowIcon />
+      </NavIconWrapper>
+    ) : null
+})
 
 const TAB_BAR_ICON_SIZE = 22
-const HEADER_ICON_SIZE = 25
 
 const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions => ({
-  ...globalScreenOptions,
-  headerRight: ({ tintColor }) => (
+  ...globalScreenOptions({ navigation }),
+  headerRight: () => (
     <TouchableOpacity
       onPress={() => navigation.navigate('connect')}
       hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
     >
-      <MaterialIcons name="crop-free" size={HEADER_ICON_SIZE} color={tintColor} />
+      <ScanIcon />
     </TouchableOpacity>
   ),
   headerLeft: () => (
-    <TouchableOpacity onPress={navigation.openDrawer}>
+    <NavIconWrapper onPress={navigation.openDrawer}>
       <Ionicons name="ios-menu" size={32} color="white" />
-    </TouchableOpacity>
+    </NavIconWrapper>
   )
 })
 
@@ -252,13 +259,13 @@ const AppTabs = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: colors.tabBarActiveTintColor,
-        tabBarInactiveTintColor: colors.tabBarInactiveTintColor,
-        tabBarInactiveBackgroundColor: colors.tabBarInactiveBackgroundColor,
-        tabBarActiveBackgroundColor: colors.tabBarActiveBackgroundColor,
+        tabBarActiveTintColor: colors.heliotrope,
+        tabBarInactiveTintColor: colors.titan,
+        tabBarInactiveBackgroundColor: colors.valhalla,
+        tabBarActiveBackgroundColor: colors.valhalla,
         tabBarStyle: {
-          backgroundColor: colors.tabBarInactiveBackgroundColor,
-          borderTopColor: colors.headerShadowColor
+          backgroundColor: colors.valhalla,
+          borderTopColor: colors.baileyBells
         },
         tabBarLabelStyle: {
           paddingBottom: 5
@@ -343,16 +350,16 @@ const AppStack = () => {
   return (
     <Drawer.Navigator
       drawerContent={DrawerContent}
-      screenOptions={{
-        ...globalScreenOptions,
+      screenOptions={({ navigation }: any): DrawerNavigationOptions => ({
+        ...globalScreenOptions({ navigation }),
         drawerType: 'front',
         drawerStyle: {
-          backgroundColor: colorPalette.clay,
+          backgroundColor: colors.clay,
           borderTopRightRadius: 13,
           borderBottomRightRadius: 13,
           width: 282
         }
-      }}
+      })}
     >
       <Drawer.Screen
         name="tabs"
@@ -449,12 +456,12 @@ const Router = () => {
       theme={{
         dark: true,
         colors: {
-          primary: colors.panelBackgroundColor,
+          primary: colors.clay,
           background: 'transparent',
-          card: colors.panelBackgroundColor,
-          text: colors.textColor,
+          card: colors.clay,
+          text: colors.titan,
           border: 'transparent',
-          notification: colors.panelBackgroundColor
+          notification: colors.clay
         }
       }}
     >
