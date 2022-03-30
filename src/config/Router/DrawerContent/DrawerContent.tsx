@@ -29,7 +29,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { name: t('Send'), route: 'send-tab' },
     { name: t('Swap'), route: 'swap-tab' },
     { name: t('Transactions'), route: 'transactions-tab' },
-    // TODO: Uncomment when Cross-chain is implemented
+    // TODO: Not implemented yet.
     // { name: t('Cross-chain'), route: '' },
     { name: t('Deposit'), route: 'receive' }
   ]
@@ -42,7 +42,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
 
   const settings = [
     { name: t('Signers'), route: 'signers' }
-    // TODO: Uncomment when this is needed
+    // TODO: Not implemented yet.
     // { name: t('Security'), route: 'security' }
   ]
 

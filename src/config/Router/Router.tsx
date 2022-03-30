@@ -201,10 +201,6 @@ const SendStackScreen = () => {
   )
 }
 
-// const DAppsStackScreen = () => {
-// TODO: DApps: postponed for version 2 of the mobile app
-// }
-
 const AuthStack = () => {
   const { t } = useTranslation()
 
