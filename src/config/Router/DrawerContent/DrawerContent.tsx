@@ -14,6 +14,7 @@ import BiometricsSign from './BiometricsSign'
 import LocalAuth from './LocalAuth'
 import Passcode from './Passcode'
 import styles from './style'
+import Theme from './Theme'
 
 const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/4404980091538-Ambire-Wallet'
 const REPORT_ISSUE_URL = 'https://help.ambire.com/hc/en-us/requests/new'
@@ -40,11 +41,9 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   ]
 
   const settings = [
-    // TODO: Fill in the state for each one
-    { name: t('Theme: Dark Mode'), route: '' },
     { name: t('Signers'), route: 'signers' }
     // TODO: Uncomment when this is needed
-    // { name: t('Security'), route: '' }
+    // { name: t('Security'), route: 'security' }
   ]
 
   return (
@@ -68,6 +67,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         <LocalAuth />
         <BiometricsSign />
         <AppLocking />
+        <Theme />
         {settings.map((s) => (
           <TouchableOpacity key={s.name} onPress={() => navigation.navigate(s.route)}>
             <Text style={spacings.mbSm}>{s.name}</Text>
