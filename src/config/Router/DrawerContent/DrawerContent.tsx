@@ -91,7 +91,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       <Text fontSize={16} underline style={styles.menuTitle}>
         {t('Settings')}
       </Text>
-      <View style={[spacings.mlTy, spacings.mb]}>
+      <View style={[spacings.mlTy, spacings.mbSm]}>
         <Passcode />
         <LocalAuth />
         <BiometricsSign />
