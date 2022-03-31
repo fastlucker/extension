@@ -43,6 +43,8 @@ import { createDrawerNavigator, DrawerNavigationOptions } from '@react-navigatio
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
+import Header from './Header'
+
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -101,7 +103,7 @@ const DashboardStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <DashboardStack.Navigator screenOptions={tabsScreenOptions}>
+    <DashboardStack.Navigator screenOptions={{ header: Header }}>
       <DashboardStack.Screen
         name="dashboard"
         component={DashboardScreen}
