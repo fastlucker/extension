@@ -107,9 +107,7 @@ const DashboardStackScreen = () => {
       <DashboardStack.Screen
         name="dashboard"
         component={DashboardScreen}
-        options={{
-          headerTitle: t('Dashboard')
-        }}
+        options={{ title: t('Dashboard') }}
       />
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
@@ -150,7 +148,7 @@ const SwapStackScreen = () => {
         name="swap"
         component={SwapScreen}
         options={{
-          headerTitle: t('Ambire Swap')
+          title: t('Ambire Swap')
         }}
       />
     </SwapStack.Navigator>
@@ -166,7 +164,7 @@ const TransactionsStackScreen = () => {
         name="transactions"
         component={TransactionsScreen}
         options={{
-          headerTitle: t('Transactions')
+          title: t('Transactions')
         }}
       />
     </TransactionsStack.Navigator>
@@ -182,7 +180,7 @@ const EarnStackScreen = () => {
         name="earn"
         component={EarnScreen}
         options={{
-          headerTitle: t('Earn')
+          title: t('Earn')
         }}
       />
     </EarnStack.Navigator>
@@ -198,7 +196,7 @@ const SendStackScreen = () => {
         name="send"
         component={SendScreen}
         options={{
-          headerTitle: t('Send')
+          title: t('Send')
         }}
       />
     </SendStack.Navigator>
@@ -285,7 +283,7 @@ const AppTabs = () => {
         name="dashboard-tab"
         options={{
           headerShown: false,
-          title: t('Dashboard'),
+          tabBarLabel: t('Dashboard'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="dashboard" size={TAB_BAR_ICON_SIZE} color={color} />
           )
@@ -296,7 +294,7 @@ const AppTabs = () => {
         name="earn-tab"
         options={{
           headerShown: false,
-          title: t('Earn'),
+          tabBarLabel: t('Earn'),
           tabBarIcon: ({ color }) => (
             // Use this one, because the actual one is <BsPiggyBank />,
             // but the Bootstrap Icons set is not available
@@ -309,7 +307,7 @@ const AppTabs = () => {
         name="send-tab"
         options={{
           headerShown: false,
-          title: t('Send'),
+          tabBarLabel: t('Send'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="compare-arrows" size={TAB_BAR_ICON_SIZE} color={color} />
           )
@@ -320,7 +318,7 @@ const AppTabs = () => {
         name="swap-tab"
         options={{
           headerShown: false,
-          title: t('Swap'),
+          tabBarLabel: t('Swap'),
           // Use this one, because the actual one is <BiTransfer />,
           // but the Box Icons set is not available
           tabBarIcon: ({ color }) => (
@@ -333,7 +331,7 @@ const AppTabs = () => {
         name="transactions-tab"
         options={{
           headerShown: false,
-          title: t('Transactions'),
+          tabBarLabel: t('Transactions'),
           // Use this one, because the actual one is <BiTransfer />,
           // but the Box Icons set is not available
           tabBarIcon: ({ color }) => (
@@ -375,35 +373,35 @@ const AppDrawer = () => {
         name="passcode-change"
         component={ChangePasscodeScreen}
         options={{
-          headerTitle: t('Passcode')
+          title: t('Passcode')
         }}
       />
       <Drawer.Screen
         name="local-auth-change"
         component={ChangeLocalAuthScreen}
         options={{
-          headerTitle: t('Local auth')
+          title: t('Local auth')
         }}
       />
       <Drawer.Screen
         name="biometrics-sign-change"
         component={BiometricsSignScreen}
         options={{
-          headerTitle: t('Sign with Biometrics')
+          title: t('Sign with Biometrics')
         }}
       />
       <Drawer.Screen
         name="app-locking"
         component={ChangeAppLockingScreen}
         options={{
-          headerTitle: t('App Locking')
+          title: t('App Locking')
         }}
       />
       <Drawer.Screen
         name="signers"
         component={SignersScreen}
         options={{
-          headerTitle: t('Manage signers')
+          title: t('Manage signers')
         }}
       />
     </Drawer.Navigator>
@@ -442,9 +440,7 @@ const AppStack = () => {
       <MainStack.Screen
         name="pending-transactions"
         component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
-        }}
+        options={{ title: t('Pending Transaction') }}
       />
       <MainStack.Screen
         name="sign-message"
