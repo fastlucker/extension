@@ -8,6 +8,7 @@ import { Linking, Platform, View } from 'react-native'
 import CameraCorners from '@assets/svg/CameraCorners'
 import { APP_ID } from '@config/env'
 import { useTranslation } from '@config/localization'
+import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Text from '@modules/common/components/Text'
 import requestPermissionFlagging from '@modules/common/services/requestPermissionFlagging'
 import { colorPalette as colors } from '@modules/common/styles/colors'
@@ -156,11 +157,13 @@ const QRCodeScanner = ({ onScan }: Props) => {
 
       {hasPermission === false && (
         <>
+          <AmbireLogo />
           <Text style={spacings.mbMi} fontSize={12}>
             {t('The request for accessing the phone camera was denied.')}
           </Text>
           {Platform.OS === 'android' && (
             <Button
+              style={spacings.mtSm}
               type="outline"
               text={t('Request Camera Permission')}
               onPress={requestCameraPermissionAgain}
@@ -169,18 +172,23 @@ const QRCodeScanner = ({ onScan }: Props) => {
           {Platform.OS === 'ios' && (
             <Text style={spacings.mbSm} fontSize={12}>
               {t(
-                'To be able to scan the login QR code, first go to Settings. Then - select Ambire Wallet app from the list of installed apps. Finally, check alow camera access.'
+                'To be able to scan the login QR code, go to: Settings/Ambire Wallet app and check Alow Camera Access.'
               )}
             </Text>
           )}
           {Platform.OS === 'android' && (
-            <Text style={spacings.mbSm} fontSize={12}>
+            <Text fontSize={12}>
               {t(
-                "Or if you've previously chose don't ask again - to be able to scan the login QR code, first go to Settings. Then - select Ambire Wallet app from the list of installed apps. Finally, check alow camera access."
+                "Or if you've previously chosen don't ask again - to be able to scan the login QR code, first go to Settings. Then - select Ambire Wallet app from the list of installed apps. Finally, check alow camera access."
               )}
             </Text>
           )}
-          <Button text={t('Open Settings')} onPress={handleGoToSettings} />
+          <Button
+            style={spacings.mtSm}
+            type="outline"
+            text={t('Open Settings')}
+            onPress={handleGoToSettings}
+          />
         </>
       )}
     </Wrapper>
