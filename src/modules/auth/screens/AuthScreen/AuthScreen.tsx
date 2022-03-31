@@ -49,7 +49,6 @@ const AuthScreen = ({ navigation }: Props) => {
           onPress={() => navigation.navigate('hardwareWallet')}
           style={spacings.mbLg}
         />
-        <AppVersion />
       </Wrapper>
     </GradientBackgroundWrapper>
   )
