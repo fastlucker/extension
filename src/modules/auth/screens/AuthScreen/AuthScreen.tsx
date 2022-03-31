@@ -1,8 +1,7 @@
 import React from 'react'
-import { Image, View } from 'react-native'
 
-import logo from '@assets/images/Ambire-Wallet-logo-colored-white-vertical.png'
 import { useTranslation } from '@config/localization'
+import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import AppVersion from '@modules/common/components/AppVersion'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -12,8 +11,6 @@ import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import styles from './styles'
-
 interface Props extends NativeStackScreenProps<any, 'auth'> {}
 
 const AuthScreen = ({ navigation }: Props) => {
@@ -22,9 +19,7 @@ const AuthScreen = ({ navigation }: Props) => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper>
-        <View style={styles.logoWrapper}>
-          <Image source={logo} />
-        </View>
+        <AmbireLogo />
         <Button
           text={t('Create New Account')}
           onPress={() => navigation.navigate('addNewAccount')}

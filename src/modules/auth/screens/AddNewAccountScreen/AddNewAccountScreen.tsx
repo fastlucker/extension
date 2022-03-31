@@ -1,9 +1,10 @@
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
-import { Keyboard, Linking, TouchableWithoutFeedback } from 'react-native'
+import { Keyboard, Linking, TouchableWithoutFeedback, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import { ambireCloudURL, termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import useAddNewAccount from '@modules/auth/hooks/useAddNewAccount'
 import Button from '@modules/common/components/Button'
@@ -12,10 +13,9 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import accountPresets from '@modules/common/constants/accountPresets'
-import { isEmail } from '@modules/common/services/validate'
+import { isEmail, isValidPassword } from '@modules/common/services/validate'
 import spacings from '@modules/common/styles/spacings'
 
 const days = Math.ceil(accountPresets.quickAccTimelock / 86400)
@@ -26,10 +26,10 @@ const AddNewAccountScreen = () => {
   const {
     control,
     handleSubmit,
-    getValues,
     watch,
     formState: { errors, isSubmitting }
   } = useForm({
+    reValidateMode: 'onChange',
     defaultValues: {
       email: '',
       password: '',
@@ -47,8 +47,8 @@ const AddNewAccountScreen = () => {
           Keyboard.dismiss()
         }}
       >
-        <Wrapper keyboardDismissMode="on-drag">
-          <Title>{t('Create a new account')}</Title>
+        <Wrapper keyboardDismissMode="on-drag" contentContainerStyle={spacings.pbLg}>
+          <AmbireLogo />
           <Controller
             control={control}
             rules={{ validate: isEmail }}
@@ -58,6 +58,7 @@ const AddNewAccountScreen = () => {
                 placeholder={t('Email')}
                 onChangeText={onChange}
                 value={value}
+                isValid={isEmail(value)}
                 error={errors.email && (t('Please fill in a valid email.') as string)}
                 keyboardType="email-address"
               />
@@ -66,14 +67,13 @@ const AddNewAccountScreen = () => {
           />
           <Controller
             control={control}
-            rules={{
-              required: true
-            }}
+            rules={{ validate: isValidPassword }}
             render={({ field: { onChange, onBlur, value } }) => (
               <InputPassword
                 onBlur={onBlur}
                 placeholder={t('Password')}
                 onChangeText={onChange}
+                isValid={isValidPassword(value)}
                 value={value}
                 error={errors.password && (t('Please fill in a valid password.') as string)}
               />
@@ -83,7 +83,7 @@ const AddNewAccountScreen = () => {
           <Controller
             control={control}
             rules={{
-              validate: (field) => getValues('password') === field
+              validate: (value) => watch('password', '') === value
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
@@ -91,6 +91,7 @@ const AddNewAccountScreen = () => {
                 placeholder={t('Confirm password')}
                 onChangeText={onChange}
                 value={value}
+                isValid={!!value && watch('password', '') === value}
                 secureTextEntry
                 error={errors.confirmPassword && (t("Passwords don't match.") as string)}
                 autoCorrect={false}
@@ -125,8 +126,8 @@ const AddNewAccountScreen = () => {
           />
 
           {!!errors.terms && (
-            <Text appearance="danger" style={spacings.mbSm}>
-              {t('Please agree to our Terms of Service and Privacy policy')}
+            <Text appearance="danger" fontSize={12} style={spacings.mb}>
+              {t('Please agree to our Terms of Service and Privacy policy.')}
             </Text>
           )}
 
@@ -171,16 +172,23 @@ const AddNewAccountScreen = () => {
             name="noBackup"
           />
           {!!errors.noBackup && watch('backup', true) === false && (
-            <Text appearance="danger" style={spacings.mbSm}>
+            <Text appearance="danger" style={spacings.mb} fontSize={12}>
               {t('Please tick this box if you want to proceed.')}
             </Text>
           )}
 
-          <Button
-            disabled={isSubmitting}
-            text={isSubmitting ? t('Signing up...') : t('Sign up')}
-            onPress={handleSubmit(handleAddNewAccount)}
-          />
+          <View style={spacings.ptSm}>
+            <Button
+              disabled={
+                isSubmitting ||
+                !watch('email', '') ||
+                !watch('password', '') ||
+                !watch('confirmPassword', '')
+              }
+              text={isSubmitting ? t('Signing Up...') : t('Sign Up')}
+              onPress={handleSubmit(handleAddNewAccount)}
+            />
+          </View>
           {!!err && (
             <Text appearance="danger" style={spacings.mbSm}>
               {err}

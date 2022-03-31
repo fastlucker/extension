@@ -1,8 +1,9 @@
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Keyboard, TouchableWithoutFeedback } from 'react-native'
+import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -18,8 +19,10 @@ const EmailLoginScreen = () => {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting }
   } = useForm({
+    reValidateMode: 'onChange',
     defaultValues: {
       email: ''
     }
@@ -34,8 +37,8 @@ const EmailLoginScreen = () => {
           Keyboard.dismiss()
         }}
       >
-        <Wrapper>
-          <Title>{t('Email login')}</Title>
+        <Wrapper contentContainerStyle={spacings.pbLg}>
+          <AmbireLogo />
           {!requiresEmailConfFor && (
             <>
               <Controller
@@ -47,28 +50,27 @@ const EmailLoginScreen = () => {
                     placeholder={t('Email')}
                     onChangeText={onChange}
                     value={value}
+                    isValid={isEmail(value)}
                     keyboardType="email-address"
+                    error={errors.email && (t('Please fill in a valid email.') as string)}
                   />
                 )}
                 name="email"
               />
-              {!!errors.email && (
-                <Text appearance="danger" style={spacings.mbSm}>
-                  {t('Please fill in a valid email.')}
-                </Text>
-              )}
-
-              <Button
-                disabled={isSubmitting}
-                text={isSubmitting ? t('Logging in...') : t('Log in')}
-                onPress={handleSubmit(handleLogin)}
-              />
+              <View style={spacings.mbTy}>
+                <Button
+                  disabled={isSubmitting || !watch('email', '')}
+                  type="outline"
+                  text={isSubmitting ? t('Logging in...') : t('Log In')}
+                  onPress={handleSubmit(handleLogin)}
+                />
+              </View>
               {!!err && (
                 <Text appearance="danger" style={spacings.mbSm}>
                   {err}
                 </Text>
               )}
-              <Text style={spacings.mbSm}>
+              <Text style={spacings.mbSm} fontSize={12}>
                 {t(
                   'A password will not be required, we will send a magic login link to your email.'
                 )}
@@ -76,12 +78,17 @@ const EmailLoginScreen = () => {
             </>
           )}
           {!!requiresEmailConfFor && (
-            <Text style={spacings.mbSm}>
-              {t(
-                'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
-                { email: requiresEmailConfFor?.email }
-              )}
-            </Text>
+            <>
+              <Title hasBottomSpacing={false} style={spacings.mbSm}>
+                {t('Email Login')}
+              </Title>
+              <Text style={spacings.mbSm} fontSize={12}>
+                {t(
+                  'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
+                  { email: requiresEmailConfFor?.email }
+                )}
+              </Text>
+            </>
           )}
         </Wrapper>
       </TouchableWithoutFeedback>
