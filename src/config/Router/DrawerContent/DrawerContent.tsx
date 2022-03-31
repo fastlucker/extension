@@ -82,7 +82,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}
           >
             {Icon && <Icon />}
-            <Text style={spacings.mlMi}>{name}</Text>
+            <Text style={spacings.mlTy}>{name}</Text>
           </TouchableOpacity>
         ))}
       </View>
