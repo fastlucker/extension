@@ -68,6 +68,7 @@ const globalScreenOptions = ({ navigation }: any) => ({
   headerBackTitleVisible: false,
   headerTransparent: true,
   headerShadowVisible: false,
+  headerTitleAlign: 'center',
   headerLeft: ({ canGoBack }: any) =>
     canGoBack ? (
       <NavIconWrapper onPress={() => navigation.goBack()}>
@@ -78,7 +79,7 @@ const globalScreenOptions = ({ navigation }: any) => ({
 
 const TAB_BAR_ICON_SIZE = 22
 
-const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions => ({
+const tabsScreenOptions = ({ navigation }: any): any => ({
   ...globalScreenOptions({ navigation }),
   headerRight: () => (
     <TouchableOpacity
@@ -127,7 +128,7 @@ const DashboardStackScreen = () => {
       />
       <Stack.Screen
         name="qrCodeLogin"
-        options={{ title: t('Login') }}
+        options={{ title: t('Import with QR Code') }}
         component={QRCodeLoginScreen}
       />
       <Stack.Screen
@@ -321,7 +322,7 @@ const AuthStack = () => {
       />
       <Stack.Screen
         name="qrCodeLogin"
-        options={{ title: t('Login') }}
+        options={{ title: t('Import with QR Code') }}
         component={QRCodeLoginScreen}
       />
       <Stack.Screen
@@ -458,11 +459,7 @@ const AppStack = () => {
   }, [isLoading])
 
   return (
-    <MainStack.Navigator
-      screenOptions={{
-        ...globalScreenOptions
-      }}
-    >
+    <MainStack.Navigator screenOptions={globalScreenOptions}>
       <MainStack.Screen
         name="tabs"
         component={AppTabs}

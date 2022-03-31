@@ -22,6 +22,10 @@ const Checkbox = ({ label, children, ...rest }: Props) => (
         onFillColor={colors.turquoise}
         onTintColor={colors.turquoise}
         onCheckColor={colors.wooed}
+        tintColors={{
+          true: colors.turquoise,
+          false: colors.waikawaGray
+        }}
         onAnimationType="fade"
         offAnimationType="fade"
         boxType="square"
