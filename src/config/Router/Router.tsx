@@ -41,10 +41,7 @@ import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator, DrawerNavigationOptions } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
-import {
-  createNativeStackNavigator,
-  NativeStackNavigationOptions
-} from '@react-navigation/native-stack'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -86,8 +83,9 @@ const hamburgerHeaderLeft = (navigation: any) => () =>
     </NavIconWrapper>
   )
 
-const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions => ({
+const tabsScreenOptions = ({ navigation }: any): any => ({
   ...globalScreenOptions({ navigation }),
+  headerTitleAlign: 'center',
   headerRight: () => (
     <TouchableOpacity
       onPress={() => navigation.navigate('connect')}
@@ -127,7 +125,7 @@ const DashboardStackScreen = () => {
       />
       <Stack.Screen
         name="qrCodeLogin"
-        options={{ title: t('Login') }}
+        options={{ title: t('Import with QR Code') }}
         component={QRCodeLoginScreen}
       />
       <Stack.Screen
@@ -230,7 +228,7 @@ const AuthStack = () => {
       />
       <Stack.Screen
         name="qrCodeLogin"
-        options={{ title: t('Login') }}
+        options={{ title: t('Import with QR Code') }}
         component={QRCodeLoginScreen}
       />
       <Stack.Screen
@@ -352,6 +350,7 @@ const AppDrawer = () => {
       drawerContent={DrawerContent}
       screenOptions={({ navigation }: any): DrawerNavigationOptions => ({
         ...globalScreenOptions({ navigation }),
+        headerTitleAlign: 'center',
         headerLeft: hamburgerHeaderLeft(navigation),
         drawerType: 'front',
         drawerStyle: {
@@ -419,7 +418,12 @@ const AppStack = () => {
   }, [isLoading])
 
   return (
-    <MainStack.Navigator screenOptions={globalScreenOptions}>
+    <MainStack.Navigator
+      screenOptions={(navigation) => ({
+        headerTitleAlign: 'center',
+        ...globalScreenOptions(navigation)
+      })}
+    >
       <MainStack.Screen
         name="drawer"
         component={AppDrawer}
