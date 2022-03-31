@@ -1,16 +1,19 @@
 import React from 'react'
 import { StyleSheet, Text as RNText, TextProps, TextStyle } from 'react-native'
 
+import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 
 import styles from './styles'
 
 type TextTypes = 'regular' | 'small' | 'caption' | 'info'
+type TextWeight = 'light' | 'regular' | 'bold'
 type TextAppearance = 'accent' | 'danger' | 'warning'
 
 export interface Props extends TextProps {
   underline?: boolean
   type?: TextTypes
+  weight?: TextWeight
   appearance?: TextAppearance
   fontSize?: number
   color?: string
@@ -23,6 +26,12 @@ const textStyles: { [key in TextTypes]: TextStyle } = {
   info: styles.textInfo
 }
 
+const textWeights: { [key in TextWeight]: string } = {
+  light: FONT_FAMILIES.LIGHT,
+  regular: FONT_FAMILIES.REGULAR,
+  bold: FONT_FAMILIES.MEDIUM
+}
+
 const textAppearances: { [key in TextAppearance]: string } = {
   accent: colors.turquoise,
   danger: colors.pink,
@@ -31,6 +40,7 @@ const textAppearances: { [key in TextAppearance]: string } = {
 
 const Text: React.FC<Props> = ({
   type = 'regular',
+  weight = 'light',
   appearance,
   children,
   underline,
@@ -43,6 +53,7 @@ const Text: React.FC<Props> = ({
     style={StyleSheet.flatten([
       styles.text,
       textStyles[type],
+      { fontFamily: textWeights[weight] },
       !!underline && styles.underline,
       !!fontSize && {
         fontSize,
