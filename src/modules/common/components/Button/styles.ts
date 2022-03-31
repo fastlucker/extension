@@ -70,7 +70,7 @@ const styles = StyleSheet.create<Style>({
   buttonContainerStylesSizeRegular: {
     height: 50,
     ...spacings.phSm,
-    ...spacings.mbSm
+    ...spacings.mb
   },
   buttonContainerStylesSizeSmall: {
     height: 40,

@@ -114,7 +114,7 @@ const DashboardStackScreen = () => {
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
         name="addNewAccount"
-        options={{ title: t('Register') }}
+        options={{ title: t('Create new Account') }}
         component={AddNewAccountScreen}
       />
       <Stack.Screen
@@ -122,7 +122,11 @@ const DashboardStackScreen = () => {
         options={{ title: t('Login') }}
         component={EmailLoginScreen}
       />
-      <Stack.Screen name="jsonLogin" options={{ title: t('Login') }} component={JsonLoginScreen} />
+      <Stack.Screen
+        name="jsonLogin"
+        options={{ title: t('Import from JSON') }}
+        component={JsonLoginScreen}
+      />
       <Stack.Screen
         name="qrCodeLogin"
         options={{ title: t('Login') }}
@@ -213,7 +217,7 @@ const AuthStack = () => {
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
         name="addNewAccount"
-        options={{ title: t('Register') }}
+        options={{ title: t('Create new Account') }}
         component={AddNewAccountScreen}
       />
       <Stack.Screen
@@ -221,7 +225,11 @@ const AuthStack = () => {
         options={{ title: t('Login') }}
         component={EmailLoginScreen}
       />
-      <Stack.Screen name="jsonLogin" options={{ title: t('Login') }} component={JsonLoginScreen} />
+      <Stack.Screen
+        name="jsonLogin"
+        options={{ title: t('Import from JSON') }}
+        component={JsonLoginScreen}
+      />
       <Stack.Screen
         name="qrCodeLogin"
         options={{ title: t('Login') }}
