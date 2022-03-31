@@ -22,6 +22,7 @@ const EmailLoginScreen = () => {
     watch,
     formState: { errors, isSubmitting }
   } = useForm({
+    reValidateMode: 'onChange',
     defaultValues: {
       email: ''
     }
@@ -69,7 +70,7 @@ const EmailLoginScreen = () => {
                   {err}
                 </Text>
               )}
-              <Text style={spacings.mbSm}>
+              <Text style={spacings.mbSm} fontSize={12}>
                 {t(
                   'A password will not be required, we will send a magic login link to your email.'
                 )}
@@ -81,7 +82,7 @@ const EmailLoginScreen = () => {
               <Title hasBottomSpacing={false} style={spacings.mbSm}>
                 {t('Email Login')}
               </Title>
-              <Text style={spacings.mbSm}>
+              <Text style={spacings.mbSm} fontSize={12}>
                 {t(
                   'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
                   { email: requiresEmailConfFor?.email }
