@@ -7,7 +7,7 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 import styles from './styles'
 
 type TextTypes = 'regular' | 'small' | 'caption' | 'info'
-type TextWeight = 'light' | 'regular' | 'bold'
+type TextWeight = 'light' | 'regular' | 'medium'
 type TextAppearance = 'accent' | 'danger' | 'warning'
 
 export interface Props extends TextProps {
@@ -29,7 +29,7 @@ const textStyles: { [key in TextTypes]: TextStyle } = {
 const textWeights: { [key in TextWeight]: string } = {
   light: FONT_FAMILIES.LIGHT,
   regular: FONT_FAMILIES.REGULAR,
-  bold: FONT_FAMILIES.MEDIUM
+  medium: FONT_FAMILIES.MEDIUM
 }
 
 const textAppearances: { [key in TextAppearance]: string } = {
