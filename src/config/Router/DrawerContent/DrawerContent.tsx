@@ -23,7 +23,6 @@ import AppLocking from './AppLocking'
 import BiometricsSign from './BiometricsSign'
 import LocalAuth from './LocalAuth'
 import Passcode from './Passcode'
-import styles from './style'
 import Theme from './Theme'
 
 const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/4404980091538-Ambire-Wallet'
@@ -72,7 +71,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       contentContainerStyle={spacings.mhLg}
       style={spacings.mvLg}
     >
-      <Text fontSize={16} underline style={styles.menuTitle}>
+      <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
         {t('Menu')}
       </Text>
       <View style={[spacings.mlTy, spacings.mbMd]}>
@@ -88,7 +87,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         ))}
       </View>
 
-      <Text fontSize={16} underline style={styles.menuTitle}>
+      <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
         {t('Settings')}
       </Text>
       <View style={[spacings.mlTy, spacings.mbSm]}>
@@ -106,7 +105,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
 
       {help.map(({ name, url }) => (
         <TouchableOpacity key={name} onPress={() => Linking.openURL(url)}>
-          <Text fontSize={16} style={spacings.mbSm}>
+          <Text fontSize={16} weight="regular" style={spacings.mbSm}>
             {name}
           </Text>
         </TouchableOpacity>
