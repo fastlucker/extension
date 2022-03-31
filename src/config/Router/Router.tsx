@@ -3,9 +3,11 @@ import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
 
+import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
-import { FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'
+import DrawerContent from '@config/Router/DrawerContent'
+import { FontAwesome5, MaterialIcons } from '@expo/vector-icons'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
@@ -32,29 +34,25 @@ import BiometricsSignScreen from '@modules/settings/screens/BiometricsSignScreen
 import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
-import SettingsScreen from '@modules/settings/screens/SettingsScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createDrawerNavigator, DrawerNavigationOptions } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
-import {
-  createNativeStackNavigator,
-  NativeStackNavigationOptions
-} from '@react-navigation/native-stack'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
+const Drawer = createDrawerNavigator()
 
+const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SwapStack = createNativeStackNavigator()
 const TransactionsStack = createNativeStackNavigator()
 const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
-const SettingsStack = createNativeStackNavigator()
-
-const MainStack = createNativeStackNavigator()
 
 const globalScreenOptions = ({ navigation }: any) => ({
   headerStyle: {
@@ -68,10 +66,9 @@ const globalScreenOptions = ({ navigation }: any) => ({
   headerBackTitleVisible: false,
   headerTransparent: true,
   headerShadowVisible: false,
-  headerTitleAlign: 'center',
   headerLeft: ({ canGoBack }: any) =>
     canGoBack ? (
-      <NavIconWrapper onPress={() => navigation.goBack()}>
+      <NavIconWrapper onPress={navigation.goBack}>
         <LeftArrowIcon />
       </NavIconWrapper>
     ) : null
@@ -79,8 +76,16 @@ const globalScreenOptions = ({ navigation }: any) => ({
 
 const TAB_BAR_ICON_SIZE = 22
 
+const hamburgerHeaderLeft = (navigation: any) => () =>
+  (
+    <NavIconWrapper onPress={navigation.openDrawer}>
+      <BurgerIcon />
+    </NavIconWrapper>
+  )
+
 const tabsScreenOptions = ({ navigation }: any): any => ({
   ...globalScreenOptions({ navigation }),
+  headerTitleAlign: 'center',
   headerRight: () => (
     <TouchableOpacity
       onPress={() => navigation.navigate('connect')}
@@ -88,7 +93,8 @@ const tabsScreenOptions = ({ navigation }: any): any => ({
     >
       <ScanIcon />
     </TouchableOpacity>
-  )
+  ),
+  headerLeft: hamburgerHeaderLeft(navigation)
 })
 
 const DashboardStackScreen = () => {
@@ -99,16 +105,7 @@ const DashboardStackScreen = () => {
       <DashboardStack.Screen
         name="dashboard"
         component={DashboardScreen}
-        options={{
-          headerTitle: t('Dashboard')
-        }}
-      />
-      <DashboardStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
-        }}
+        options={{ title: t('Dashboard') }}
       />
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
@@ -136,7 +133,6 @@ const DashboardStackScreen = () => {
         options={{ title: t('Hardware Wallet') }}
         component={HardwareWalletConnectScreen}
       />
-      <Stack.Screen name="receive" options={{ title: t('Receive') }} component={ReceiveScreen} />
     </DashboardStack.Navigator>
   )
 }
@@ -150,14 +146,7 @@ const SwapStackScreen = () => {
         name="swap"
         component={SwapScreen}
         options={{
-          headerTitle: t('Ambire Swap')
-        }}
-      />
-      <SwapStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
+          title: t('Ambire Swap')
         }}
       />
     </SwapStack.Navigator>
@@ -173,14 +162,7 @@ const TransactionsStackScreen = () => {
         name="transactions"
         component={TransactionsScreen}
         options={{
-          headerTitle: t('Transactions')
-        }}
-      />
-      <TransactionsStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
+          title: t('Transactions')
         }}
       />
     </TransactionsStack.Navigator>
@@ -196,14 +178,7 @@ const EarnStackScreen = () => {
         name="earn"
         component={EarnScreen}
         options={{
-          headerTitle: t('Earn')
-        }}
-      />
-      <EarnStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
+          title: t('Earn')
         }}
       />
     </EarnStack.Navigator>
@@ -219,79 +194,10 @@ const SendStackScreen = () => {
         name="send"
         component={SendScreen}
         options={{
-          headerTitle: t('Send')
-        }}
-      />
-      <SendStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
+          title: t('Send')
         }}
       />
     </SendStack.Navigator>
-  )
-}
-
-// const DAppsStackScreen = () => {
-// TODO: DApps: postponed for version 2 of the mobile app
-// }
-
-const SettingsStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <SettingsStack.Navigator screenOptions={tabsScreenOptions}>
-      <SettingsStack.Screen
-        name="settings"
-        component={SettingsScreen}
-        options={{
-          headerTitle: t('Settings')
-        }}
-      />
-      <SettingsStack.Screen
-        name="passcode-change"
-        component={ChangePasscodeScreen}
-        options={{
-          headerTitle: t('Passcode')
-        }}
-      />
-      <SettingsStack.Screen
-        name="local-auth-change"
-        component={ChangeLocalAuthScreen}
-        options={{
-          headerTitle: t('Local auth')
-        }}
-      />
-      <SettingsStack.Screen
-        name="biometrics-sign-change"
-        component={BiometricsSignScreen}
-        options={{
-          headerTitle: t('Sign with Biometrics')
-        }}
-      />
-      <SettingsStack.Screen
-        name="app-locking"
-        component={ChangeAppLockingScreen}
-        options={{
-          headerTitle: t('App Locking')
-        }}
-      />
-      <SettingsStack.Screen
-        name="signers"
-        component={SignersScreen}
-        options={{
-          headerTitle: t('Manage signers')
-        }}
-      />
-      <SettingsStack.Screen
-        name="pending-transactions"
-        component={PendingTransactionsScreen}
-        options={{
-          headerTitle: t('Pending Transaction')
-        }}
-      />
-    </SettingsStack.Navigator>
   )
 }
 
@@ -375,7 +281,7 @@ const AppTabs = () => {
         name="dashboard-tab"
         options={{
           headerShown: false,
-          title: t('Dashboard'),
+          tabBarLabel: t('Dashboard'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="dashboard" size={TAB_BAR_ICON_SIZE} color={color} />
           )
@@ -386,7 +292,7 @@ const AppTabs = () => {
         name="earn-tab"
         options={{
           headerShown: false,
-          title: t('Earn'),
+          tabBarLabel: t('Earn'),
           tabBarIcon: ({ color }) => (
             // Use this one, because the actual one is <BsPiggyBank />,
             // but the Bootstrap Icons set is not available
@@ -399,7 +305,7 @@ const AppTabs = () => {
         name="send-tab"
         options={{
           headerShown: false,
-          title: t('Send'),
+          tabBarLabel: t('Send'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="compare-arrows" size={TAB_BAR_ICON_SIZE} color={color} />
           )
@@ -410,7 +316,7 @@ const AppTabs = () => {
         name="swap-tab"
         options={{
           headerShown: false,
-          title: t('Swap'),
+          tabBarLabel: t('Swap'),
           // Use this one, because the actual one is <BiTransfer />,
           // but the Box Icons set is not available
           tabBarIcon: ({ color }) => (
@@ -423,7 +329,7 @@ const AppTabs = () => {
         name="transactions-tab"
         options={{
           headerShown: false,
-          title: t('Transactions'),
+          tabBarLabel: t('Transactions'),
           // Use this one, because the actual one is <BiTransfer />,
           // but the Box Icons set is not available
           tabBarIcon: ({ color }) => (
@@ -432,19 +338,72 @@ const AppTabs = () => {
         }}
         component={TransactionsStackScreen}
       />
-      <Tab.Screen
-        name="settings-tab"
-        options={{
-          headerShown: false,
-          title: t('Settings'),
-          // Missing in the web app, so the icon here is mobile app specific
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="settings" size={TAB_BAR_ICON_SIZE} color={color} />
-          )
-        }}
-        component={SettingsStackScreen}
-      />
     </Tab.Navigator>
+  )
+}
+
+const AppDrawer = () => {
+  const { t } = useTranslation()
+
+  return (
+    <Drawer.Navigator
+      drawerContent={DrawerContent}
+      screenOptions={({ navigation }: any): DrawerNavigationOptions => ({
+        ...globalScreenOptions({ navigation }),
+        headerTitleAlign: 'center',
+        headerLeft: hamburgerHeaderLeft(navigation),
+        drawerType: 'front',
+        drawerStyle: {
+          backgroundColor: colors.clay,
+          borderTopRightRadius: 13,
+          borderBottomRightRadius: 13,
+          width: 282
+        }
+      })}
+    >
+      <Drawer.Screen
+        name="tabs"
+        component={AppTabs}
+        options={{
+          headerShown: false
+        }}
+      />
+      <Drawer.Screen
+        name="passcode-change"
+        component={ChangePasscodeScreen}
+        options={{
+          title: t('Passcode')
+        }}
+      />
+      <Drawer.Screen
+        name="local-auth-change"
+        component={ChangeLocalAuthScreen}
+        options={{
+          title: t('Local auth')
+        }}
+      />
+      <Drawer.Screen
+        name="biometrics-sign-change"
+        component={BiometricsSignScreen}
+        options={{
+          title: t('Sign with Biometrics')
+        }}
+      />
+      <Drawer.Screen
+        name="app-locking"
+        component={ChangeAppLockingScreen}
+        options={{
+          title: t('App Locking')
+        }}
+      />
+      <Drawer.Screen
+        name="signers"
+        component={SignersScreen}
+        options={{
+          title: t('Manage signers')
+        }}
+      />
+    </Drawer.Navigator>
   )
 }
 
@@ -459,10 +418,15 @@ const AppStack = () => {
   }, [isLoading])
 
   return (
-    <MainStack.Navigator screenOptions={globalScreenOptions}>
+    <MainStack.Navigator
+      screenOptions={(navigation) => ({
+        headerTitleAlign: 'center',
+        ...globalScreenOptions(navigation)
+      })}
+    >
       <MainStack.Screen
-        name="tabs"
-        component={AppTabs}
+        name="drawer"
+        component={AppDrawer}
         options={{
           headerShown: false
         }}
@@ -473,9 +437,19 @@ const AppStack = () => {
         options={{ title: t('Connect a dApp') }}
       />
       <MainStack.Screen
+        name="receive"
+        options={{ title: t('Receive') }}
+        component={ReceiveScreen}
+      />
+      <MainStack.Screen
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+        options={{ title: t('Pending Transaction') }}
+      />
+      <MainStack.Screen
         name="sign-message"
         component={SignMessage}
-        options={{ title: t('Sign'), headerBackVisible: false }}
+        options={{ title: t('Sign') }}
       />
     </MainStack.Navigator>
   )
