@@ -1,17 +1,42 @@
 import { StyleSheet } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import spacings, { DEVICE_WIDTH } from '@modules/common/styles/spacings'
+
+const cameraSideMaxLength = DEVICE_WIDTH - 90
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  cameraWrapper: {
+    borderRadius: 13,
+    width: cameraSideMaxLength,
+    aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    backgroundColor: colors.backgroundColor
+    ...spacings.mb
   },
-  camera: {
-    aspectRatio: 9 / 16
+  borderTopLeft: {
+    position: 'absolute',
+    zIndex: 5,
+    top: 0,
+    left: 0
+  },
+  borderBottomLeft: {
+    position: 'absolute',
+    zIndex: 5,
+    bottom: 0,
+    left: 0
+  },
+  borderTopRight: {
+    position: 'absolute',
+    zIndex: 5,
+    right: 0,
+    top: 0
+  },
+  borderBottomRight: {
+    position: 'absolute',
+    zIndex: 5,
+    right: 0,
+    bottom: 0
   }
 })
 

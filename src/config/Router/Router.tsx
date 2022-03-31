@@ -450,11 +450,7 @@ const AppStack = () => {
   }, [isLoading])
 
   return (
-    <MainStack.Navigator
-      screenOptions={{
-        ...globalScreenOptions
-      }}
-    >
+    <MainStack.Navigator screenOptions={globalScreenOptions}>
       <MainStack.Screen
         name="tabs"
         component={AppTabs}
