@@ -68,6 +68,7 @@ const globalScreenOptions = ({ navigation }: any) => ({
   headerBackTitleVisible: false,
   headerTransparent: true,
   headerShadowVisible: false,
+  headerTitleAlign: 'center',
   headerLeft: ({ canGoBack }: any) =>
     canGoBack ? (
       <NavIconWrapper onPress={() => navigation.goBack()}>
@@ -78,7 +79,7 @@ const globalScreenOptions = ({ navigation }: any) => ({
 
 const TAB_BAR_ICON_SIZE = 22
 
-const tabsScreenOptions = ({ navigation }: any): NativeStackNavigationOptions => ({
+const tabsScreenOptions = ({ navigation }: any): any => ({
   ...globalScreenOptions({ navigation }),
   headerRight: () => (
     <TouchableOpacity

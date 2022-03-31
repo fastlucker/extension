@@ -25,7 +25,7 @@ const AuthScreen = ({ navigation }: Props) => {
           onPress={() => navigation.navigate('addNewAccount')}
           hasBottomSpacing={false}
         />
-        <Text style={[textStyles.center, spacings.pvLg]} fontSize={18}>
+        <Text style={[textStyles.center, spacings.pvLg]} weight="regular" fontSize={18}>
           {t('– or –')}
         </Text>
         <Button
