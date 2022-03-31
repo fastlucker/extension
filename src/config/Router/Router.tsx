@@ -123,7 +123,7 @@ const DashboardStackScreen = () => {
       <Stack.Screen name="jsonLogin" options={{ title: t('Login') }} component={JsonLoginScreen} />
       <Stack.Screen
         name="qrCodeLogin"
-        options={{ title: t('Login') }}
+        options={{ title: t('Import with QR Code') }}
         component={QRCodeLoginScreen}
       />
       <Stack.Screen
@@ -313,7 +313,7 @@ const AuthStack = () => {
       <Stack.Screen name="jsonLogin" options={{ title: t('Login') }} component={JsonLoginScreen} />
       <Stack.Screen
         name="qrCodeLogin"
-        options={{ title: t('Login') }}
+        options={{ title: t('Import with QR Code') }}
         component={QRCodeLoginScreen}
       />
       <Stack.Screen

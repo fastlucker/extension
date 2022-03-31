@@ -37,6 +37,9 @@ const styles = StyleSheet.create({
     zIndex: 5,
     right: 0,
     bottom: 0
+  },
+  animation: {
+    zIndex: 5
   }
 })
 

@@ -1,8 +1,9 @@
 import { BarCodeScanner } from 'expo-barcode-scanner'
 import { Camera } from 'expo-camera'
 import * as IntentLauncher from 'expo-intent-launcher'
+import LottieView from 'lottie-react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { Linking, Platform, StyleSheet, View } from 'react-native'
+import { Linking, Platform, View } from 'react-native'
 
 import CameraCorners from '@assets/svg/CameraCorners'
 import { APP_ID } from '@config/env'
@@ -17,6 +18,7 @@ import { useHeaderHeight } from '@react-navigation/elements'
 
 import Button from '../Button'
 import Wrapper from '../Wrapper'
+import CameraAnimation from './camera-animation.json'
 import styles from './styles'
 
 interface Props {
@@ -128,6 +130,9 @@ const QRCodeScanner = ({ onScan }: Props) => {
             <View style={[styles.borderBottomRight]}>
               <CameraCorners type="bottom-right" />
             </View>
+            {!!ratio && (
+              <LottieView style={styles.animation} source={CameraAnimation} autoPlay loop />
+            )}
             <Camera
               ref={cameraRef}
               ratio={ratio as string}
