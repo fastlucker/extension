@@ -19,7 +19,7 @@ const GradientBackgroundWrapper = ({ children, gradient }: Props) => (
             colors={gradient || theme?.backgroundGradient}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
-            style={[flexboxStyles.flex1, { paddingTop: headerHeight }]}
+            style={[flexboxStyles.flex1 /* FIXME: { paddingTop: headerHeight } */]}
           >
             {children}
           </LinearGradient>
