@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Linking, Platform, View } from 'react-native'
 
 import CameraCorners from '@assets/svg/CameraCorners'
-import { APP_ID } from '@config/env'
+import { APP_ID, isiOS } from '@config/env'
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Text from '@modules/common/components/Text'
@@ -25,8 +25,6 @@ import styles from './styles'
 interface Props {
   onScan?: (data: string) => void
 }
-
-const isIOS = Platform.OS === 'ios'
 
 const maxLength = DEVICE_WIDTH - 90
 
@@ -87,7 +85,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
         )
 
   const onCameraReady = () => {
-    if (isIOS) {
+    if (isiOS) {
       setRatio('1:1')
       return
     }
