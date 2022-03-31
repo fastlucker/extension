@@ -63,11 +63,11 @@ const SignersList = () => {
       const addressName = getName(addr) || null
       const isQuickAcc = addr === accountPresets.quickAccManager
       const privText = isQuickAcc
-        ? `Email/password signer (${selectedAccount.email || 'unknown email'})`
+        ? `Email/password signer (${selectedAccount?.email || 'unknown email'})`
         : `${addr} ${addressName && addressName !== addr ? `(${addressName})` : ''}`
       const signerAddress = isQuickAcc
-        ? selectedAccount.signer.quickAccManager
-        : selectedAccount.signer.address
+        ? selectedAccount?.signer?.quickAccManager
+        : selectedAccount?.signer?.address
       const isSelected = signerAddress === addr
 
       const handleOnMakeDefaultBtnClicked = () =>
