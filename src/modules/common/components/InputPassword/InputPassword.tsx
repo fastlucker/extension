@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 
-import { Feather } from '@expo/vector-icons'
+import InvisibilityIcon from '@assets/svg/InvisibilityIcon'
+import VisibilityIcon from '@assets/svg/VisibilityIcon'
 import Input, { InputProps } from '@modules/common/components/Input'
-import colors from '@modules/common/styles/colors'
 
 interface Props extends InputProps {}
 
@@ -15,9 +15,7 @@ const InputPassword: React.FC<Props> = ({ onChangeText, ...rest }) => {
     <Input
       secureTextEntry={secureTextEntry}
       autoCorrect={false}
-      buttonText={
-        <Feather name={secureTextEntry ? 'eye' : 'eye-off'} size={25} color={colors.inputColor} />
-      }
+      buttonText={secureTextEntry ? <VisibilityIcon /> : <InvisibilityIcon />}
       onButtonPress={handleToggleSecureTextEntry}
       onChangeText={onChangeText}
       {...rest}

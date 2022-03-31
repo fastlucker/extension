@@ -1,11 +1,12 @@
 import React from 'react'
+import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import useJsonLogin from '@modules/auth/hooks/useJsonLogin'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import spacings from '@modules/common/styles/spacings'
 
@@ -15,17 +16,20 @@ const JsonLoginScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper>
-        <Title>{t('Import from JSON')}</Title>
+      <Wrapper contentContainerStyle={spacings.mbLg}>
+        <AmbireLogo />
         <Button
           disabled={inProgress}
-          text={inProgress ? t('Importing...') : t('Select file')}
+          text={inProgress ? t('Importing...') : t('Select File')}
           onPress={handleLogin}
+          hasBottomSpacing={!error}
         />
         {!!error && (
-          <Text appearance="danger" style={spacings.mbSm}>
-            {error}
-          </Text>
+          <View style={spacings.ptTy}>
+            <Text appearance="danger" fontSize={12} style={spacings.ph}>
+              {error}
+            </Text>
+          </View>
         )}
       </Wrapper>
     </GradientBackgroundWrapper>

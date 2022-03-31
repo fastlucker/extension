@@ -1,10 +1,13 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@modules/common/styles/spacings'
 
-const styles = StyleSheet.create({
+interface Style {
+  logoWrapper: ViewStyle
+}
+
+const styles = StyleSheet.create<Style>({
   logoWrapper: {
-    flex: 1,
     alignItems: 'center',
     ...spacings.pt,
     paddingBottom: 40

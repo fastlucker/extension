@@ -11,7 +11,6 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   container: {
     flexDirection: 'row',
-    alignItems: 'center',
     ...spacings.mb
   },
   checkboxWrapper: {
