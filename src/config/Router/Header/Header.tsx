@@ -38,8 +38,8 @@ const Header: React.FC<Props> = ({
         position: 'absolute',
         top: 0,
         zIndex: 998,
-        width: DEVICE_WIDTH,
-        paddingTop: 0
+        elevation: 10,
+        width: DEVICE_WIDTH
       }}
     >
       <RNHeader
@@ -83,6 +83,7 @@ const Header: React.FC<Props> = ({
         // headerBackTitleVisible={false}
         // headerTransparent={true}
         headerShadowVisible={false}
+        headerTitleAlign="center"
         headerRight={() =>
           withScanner ? (
             <TouchableOpacity
