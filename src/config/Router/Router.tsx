@@ -116,32 +116,6 @@ const DashboardStackScreen = () => {
         component={DashboardScreen}
         options={{ title: t('Dashboard') }}
       />
-      <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
-      <Stack.Screen
-        name="addNewAccount"
-        options={{ header: headerGamma }}
-        component={AddNewAccountScreen}
-      />
-      <Stack.Screen
-        name="emailLogin"
-        options={{ title: t('Login') }}
-        component={EmailLoginScreen}
-      />
-      <Stack.Screen
-        name="jsonLogin"
-        options={{ title: t('Import from JSON') }}
-        component={JsonLoginScreen}
-      />
-      <Stack.Screen
-        name="qrCodeLogin"
-        options={{ title: t('Import with QR Code') }}
-        component={QRCodeLoginScreen}
-      />
-      <Stack.Screen
-        name="hardwareWallet"
-        options={{ title: t('Hardware Wallet') }}
-        component={HardwareWalletConnectScreen}
-      />
     </DashboardStack.Navigator>
   )
 }
@@ -479,6 +453,7 @@ const AppStack = () => {
           headerShown: false
         }}
       />
+      <MainStack.Screen name="auth" component={AuthStack} options={{ headerShown: false }} />
       <MainStack.Screen
         name="connect"
         component={ConnectScreen}
