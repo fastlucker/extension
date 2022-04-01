@@ -24,6 +24,7 @@ export const colorPalette = {
   vulcan: '#12131F',
   mirage: '#181A29',
   howl: '#1E2033',
+  howl_40: '#1e203366',
   clay: '#24263D',
   valhalla: '#272A42',
   valhalla_80: 'rgba(39, 42, 66, 0.8)',

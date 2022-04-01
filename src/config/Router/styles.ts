@@ -22,6 +22,18 @@ export const tabBarStyle = {
   paddingHorizontal: 10
 }
 
+export const tabBarItemStyle = {
+  paddingTop: 5,
+  // Button background should hover the tab bar too
+  marginTop: -1
+}
+
+export const tabBarLabelStyle = {
+  paddingBottom: 12,
+  marginTop: -4,
+  fontSize: 9
+}
+
 export const navigationContainerDarkTheme = {
   dark: true,
   colors: {
