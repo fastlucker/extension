@@ -20,7 +20,7 @@ const GradientBackgroundWrapper = ({ children, gradient }: Props) => (
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
             // TODO: Static paddingTop might work better now. Check out.
-            style={[flexboxStyles.flex1, { paddingTop: 100 }]}
+            style={[flexboxStyles.flex1]}
           >
             {children}
           </LinearGradient>
