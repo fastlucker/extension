@@ -2,6 +2,7 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import { isiOS } from '@config/env'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
+import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 
 interface Style {
@@ -11,6 +12,22 @@ interface Style {
 
 const tabBarContainerBackground = !isiOS ? { backgroundColor: colors.valhalla } : {}
 const tabBarBackground = isiOS ? { backgroundColor: 'transparent' } : {}
+
+export const drawerStyle = {
+  backgroundColor: colors.clay,
+  borderTopRightRadius: 13,
+  borderBottomRightRadius: 13,
+  width: 282
+}
+
+export const headerStyle = {
+  backgroundColor: 'transparent'
+}
+
+export const headerTitleStyle = {
+  fontSize: 18,
+  fontFamily: FONT_FAMILIES.REGULAR
+}
 
 export const tabBarStyle = {
   ...tabBarBackground,

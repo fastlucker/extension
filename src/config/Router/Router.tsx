@@ -50,6 +50,9 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import styles, {
+  drawerStyle,
+  headerStyle,
+  headerTitleStyle,
   navigationContainerDarkTheme,
   tabBarItemStyle,
   tabBarLabelStyle,
@@ -68,14 +71,9 @@ const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
 
 const globalScreenOptions = ({ navigation }: any) => ({
-  headerStyle: {
-    backgroundColor: 'transparent'
-  },
+  headerStyle,
   headerTintColor: colors.titan,
-  headerTitleStyle: {
-    fontSize: 18,
-    fontFamily: FONT_FAMILIES.REGULAR
-  },
+  headerTitleStyle,
   headerBackTitleVisible: false,
   headerTransparent: true,
   headerShadowVisible: false,
@@ -352,12 +350,7 @@ const AppDrawer = () => {
         headerTitleAlign: 'center',
         headerLeft: hamburgerHeaderLeft(navigation),
         drawerType: 'front',
-        drawerStyle: {
-          backgroundColor: colors.clay,
-          borderTopRightRadius: 13,
-          borderBottomRightRadius: 13,
-          width: 282
-        }
+        drawerStyle
       })}
     >
       <Drawer.Screen
