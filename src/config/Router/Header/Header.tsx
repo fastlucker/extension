@@ -43,6 +43,7 @@ const Header: React.FC<Props> = ({
         borderRadius: 13,
         justifyContent: 'center',
         paddingHorizontal: 10,
+        alignSelf: 'center',
         width: DEVICE_WIDTH - 110 // that's minus the left and right actions
       }}
     >
