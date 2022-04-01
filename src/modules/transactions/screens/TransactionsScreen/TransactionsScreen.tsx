@@ -146,6 +146,7 @@ const TransactionsScreen = () => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper
+        hasBottomTabNav
         type={WRAPPER_TYPES.SECTION_LIST}
         sections={SECTIONS_DATA}
         keyExtractor={(item, index) => item + index}

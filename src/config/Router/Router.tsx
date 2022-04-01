@@ -13,7 +13,6 @@ import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
 import DrawerContent from '@config/Router/DrawerContent'
-import { FontAwesome5, MaterialIcons } from '@expo/vector-icons'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
@@ -22,7 +21,7 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
-import { TAB_BAR_BLUR, TAB_BAR_ICON_SIZE } from '@modules/common/constants/router'
+import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
@@ -278,15 +277,17 @@ const AppTabs = () => {
       screenOptions={{
         tabBarActiveTintColor: colors.heliotrope,
         tabBarInactiveTintColor: colors.titan,
-        tabBarActiveBackgroundColor: colors.howl_40,
+        tabBarActiveBackgroundColor: colors.howl_65,
         tabBarStyle,
         tabBarLabelStyle,
         tabBarItemStyle
       }}
-      tabBar={(props) => (
-        <View style={styles.tabBarContainer}>
-          <BlurView intensity={TAB_BAR_BLUR} tint="dark" style={styles.backdropBlurWrapper}>
-            <BottomTabBar {...props} />
+      tabBar={(props: any) => (
+        <View style={[styles.tabBarContainer]}>
+          <BlurView intensity={TAB_BAR_BLUR} tint="dark" style={[styles.backdropBlurWrapper]}>
+            <View style={{ paddingBottom: props.insets.bottom }}>
+              <BottomTabBar {...props} insets={{ bottom: 0 }} />
+            </View>
           </BlurView>
         </View>
       )}

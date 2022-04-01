@@ -9,7 +9,9 @@ import {
   View
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import useTheme from '@modules/common/hooks/useTheme'
 
 import createStyles from './styles'
@@ -45,13 +47,17 @@ const Wrapper = ({
   ...rest
 }: Props) => {
   const { styles } = useTheme(createStyles)
-
+  const insets = useSafeAreaInsets()
   if (type === WRAPPER_TYPES.FLAT_LIST) {
     return (
       // @ts-ignore
       <FlatList
         style={[styles.wrapper, style]}
-        contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
+        contentContainerStyle={[
+          styles.contentContainerStyle,
+          !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
+          contentContainerStyle
+        ]}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
         alwaysBounceVertical={false}
@@ -65,7 +71,11 @@ const Wrapper = ({
       // @ts-ignore
       <SectionList
         style={[styles.wrapper, style]}
-        contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
+        contentContainerStyle={[
+          styles.contentContainerStyle,
+          !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
+          contentContainerStyle
+        ]}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
         alwaysBounceVertical={false}
@@ -78,7 +88,11 @@ const Wrapper = ({
     return (
       <KeyboardAwareScrollView
         style={[styles.wrapper, style]}
-        contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
+        contentContainerStyle={[
+          styles.contentContainerStyle,
+          !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
+          contentContainerStyle
+        ]}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
         alwaysBounceVertical={false}
@@ -104,7 +118,7 @@ const Wrapper = ({
       style={[styles.wrapper, style]}
       contentContainerStyle={[
         styles.contentContainerStyle,
-        !!hasBottomTabNav && { paddingBottom: 62 },
+        !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
         contentContainerStyle
       ]}
       keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}

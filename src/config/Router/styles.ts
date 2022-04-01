@@ -1,5 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isiOS } from '@config/env'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 
@@ -8,8 +9,11 @@ interface Style {
   backdropBlurWrapper: ViewStyle
 }
 
+const tabBarContainerBackground = !isiOS ? { backgroundColor: colors.valhalla } : {}
+const tabBarBackground = isiOS ? { backgroundColor: 'transparent' } : {}
+
 export const tabBarStyle = {
-  backgroundColor: 'transparent',
+  ...tabBarBackground,
   borderColor: colors.waikawaGray,
   borderWidth: 1,
   // border top width and color should be specified separately
@@ -23,9 +27,7 @@ export const tabBarStyle = {
 }
 
 export const tabBarItemStyle = {
-  paddingTop: 5,
-  // Button background should hover the tab bar too
-  marginTop: -1
+  paddingTop: 5
 }
 
 export const tabBarLabelStyle = {
@@ -48,19 +50,17 @@ export const navigationContainerDarkTheme = {
 
 const styles = StyleSheet.create<Style>({
   tabBarContainer: {
+    ...tabBarContainerBackground,
     borderTopRightRadius: 13,
     borderTopLeftRadius: 13,
     overflow: 'hidden',
-    flex: 1,
     width: '100%',
-    maxHeight: TAB_BAR_HEIGHT,
     position: 'absolute',
     bottom: 0
   },
   backdropBlurWrapper: {
     width: '100%',
-    height: TAB_BAR_HEIGHT,
-    backgroundColor: colors.valhalla_80,
+    backgroundColor: colors.patriotBlue_75,
     overflow: 'hidden'
   }
 })
