@@ -1,6 +1,6 @@
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
@@ -29,6 +29,7 @@ const Header: React.FC<Props> = ({
   route,
   options
 }) => {
+  const insets = useSafeAreaInsets()
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
   const canGoBack = navigation.canGoBack()
@@ -38,11 +39,13 @@ const Header: React.FC<Props> = ({
     <View
       style={{
         backgroundColor: colors.valhalla,
+        // backgroundColor: 'red',
         height: 50,
         borderRadius: 13,
         justifyContent: 'center',
-        width: DEVICE_WIDTH - 110,
-        paddingHorizontal: 10
+        // flex: 1,
+        paddingHorizontal: 10,
+        width: DEVICE_WIDTH - 110
       }}
     >
       <Text weight="regular">{network?.name}</Text>
@@ -53,22 +56,25 @@ const Header: React.FC<Props> = ({
   )
 
   return (
-    <SafeAreaView
-      style={{
-        position: 'absolute',
-        top: 0,
-        zIndex: 998,
-        elevation: 10,
-        // width: DEVICE_WIDTH,
-        width: '100%'
-        // paddingRight: 20,
-        // paddingLeft: 20
-      }}
-    >
+    // <SafeAreaView
+    //   style={{
+    //     justifyContent: 'center',
+    //     paddingTop: 30,
+    //     paddingBottom: 30
+    //     // backgroundColor: colors.wooed
+    //     // backgroundColor: 'red'
+    //   }}
+    // >
+    <View style={{ paddingTop: insets.top + 5, paddingBottom: 15 }}>
       <RNHeader
         title={title}
         headerTitle={mode === 'switcher' ? headerTitle : undefined}
         headerRightContainerStyle={{
+          // backgroundColor: 'yellow'
+          // marginLeft: 0,
+          // marginRight: 0
+          // paddingLeft: 0,
+          // paddingRight: 0
           paddingRight: 20
           // backgroundColor: 'yellow',
           // width: 50
@@ -80,8 +86,8 @@ const Header: React.FC<Props> = ({
         headerLeftLabelVisible={!!canGoBack}
         headerStyle={{
           // TODO:
-          backgroundColor: 'transparent'
-          // height: 100
+          backgroundColor: colors.wooed,
+          height: 50
         }}
         headerLeft={() => {
           if (withHamburger) {
@@ -121,7 +127,7 @@ const Header: React.FC<Props> = ({
           ) : null
         }
       />
-    </SafeAreaView>
+    </View>
   )
 }
 
