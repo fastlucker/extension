@@ -1,7 +1,6 @@
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity } from 'react-native'
 
 import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
@@ -17,7 +16,6 @@ import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
-import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
@@ -56,54 +54,58 @@ const TransactionsStack = createNativeStackNavigator()
 const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
 
-const globalScreenOptions = ({ navigation }: any) => ({
-  headerStyle: {
-    backgroundColor: 'transparent'
-  },
-  headerTintColor: colors.titan,
-  headerTitleStyle: {
-    fontSize: 18,
-    fontFamily: FONT_FAMILIES.REGULAR
-  },
-  headerBackTitleVisible: false,
-  headerTransparent: true,
-  headerShadowVisible: false,
-  headerLeft: ({ canGoBack }: any) =>
-    canGoBack ? (
-      <NavIconWrapper onPress={navigation.goBack}>
-        <LeftArrowIcon />
-      </NavIconWrapper>
-    ) : null
-})
+const headerAlpha = (props) => <Header withHamburger withScanner {...props} />
+const headerBeta = (props) => <Header withHamburger withScanner mode="title" {...props} />
+const headerGamma = (props) => <Header mode="title" {...props} />
+
+// const globalScreenOptions = ({ navigation }: any) => ({
+//   headerStyle: {
+//     backgroundColor: 'transparent'
+//   },
+//   headerTintColor: colors.titan,
+//   headerTitleStyle: {
+//     fontSize: 18,
+//     fontFamily: FONT_FAMILIES.REGULAR
+//   },
+//   headerBackTitleVisible: false,
+//   headerTransparent: true,
+//   headerShadowVisible: false,
+//   headerLeft: ({ canGoBack }: any) =>
+//     canGoBack ? (
+//       <NavIconWrapper onPress={navigation.goBack}>
+//         <LeftArrowIcon />
+//       </NavIconWrapper>
+//     ) : null
+// })
 
 const TAB_BAR_ICON_SIZE = 22
 
-const hamburgerHeaderLeft = (navigation: any) => () =>
-  (
-    <NavIconWrapper onPress={navigation.openDrawer}>
-      <BurgerIcon />
-    </NavIconWrapper>
-  )
+// const hamburgerHeaderLeft = (navigation: any) => () =>
+//   (
+//     <NavIconWrapper onPress={navigation.openDrawer}>
+//       <BurgerIcon />
+//     </NavIconWrapper>
+//   )
 
-const tabsScreenOptions = ({ navigation }: any): any => ({
-  ...globalScreenOptions({ navigation }),
-  headerTitleAlign: 'center',
-  headerRight: () => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('connect')}
-      hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
-    >
-      <ScanIcon />
-    </TouchableOpacity>
-  ),
-  headerLeft: hamburgerHeaderLeft(navigation)
-})
+// const tabsScreenOptions = ({ navigation }: any): any => ({
+//   ...globalScreenOptions({ navigation }),
+//   headerTitleAlign: 'center',
+//   headerRight: () => (
+//     <TouchableOpacity
+//       onPress={() => navigation.navigate('connect')}
+//       hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+//     >
+//       <ScanIcon />
+//     </TouchableOpacity>
+//   ),
+//   headerLeft: hamburgerHeaderLeft(navigation)
+// })
 
 const DashboardStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <DashboardStack.Navigator screenOptions={{ header: Header }}>
+    <DashboardStack.Navigator screenOptions={{ header: headerAlpha }}>
       <DashboardStack.Screen
         name="dashboard"
         component={DashboardScreen}
@@ -143,7 +145,7 @@ const SwapStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <SwapStack.Navigator screenOptions={tabsScreenOptions}>
+    <SwapStack.Navigator screenOptions={{ header: headerAlpha }}>
       <SwapStack.Screen
         name="swap"
         component={SwapScreen}
@@ -159,7 +161,7 @@ const TransactionsStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <TransactionsStack.Navigator screenOptions={tabsScreenOptions}>
+    <TransactionsStack.Navigator screenOptions={{ header: headerAlpha }}>
       <TransactionsStack.Screen
         name="transactions"
         component={TransactionsScreen}
@@ -175,7 +177,7 @@ const EarnStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <EarnStack.Navigator screenOptions={tabsScreenOptions}>
+    <EarnStack.Navigator screenOptions={{ header: headerAlpha }}>
       <EarnStack.Screen
         name="earn"
         component={EarnScreen}
@@ -191,7 +193,7 @@ const SendStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <SendStack.Navigator screenOptions={tabsScreenOptions}>
+    <SendStack.Navigator screenOptions={{ header: headerAlpha }}>
       <SendStack.Screen
         name="send"
         component={SendScreen}
@@ -211,7 +213,7 @@ const AuthStack = () => {
   }, [])
 
   return (
-    <Stack.Navigator screenOptions={globalScreenOptions}>
+    <Stack.Navigator screenOptions={{ header: headerGamma }}>
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
         name="addNewAccount"
@@ -250,7 +252,7 @@ const NoConnectionStack = () => {
   }, [])
 
   return (
-    <Stack.Navigator screenOptions={globalScreenOptions}>
+    <Stack.Navigator screenOptions={{ header: headerGamma }}>
       <Stack.Screen
         options={{ title: t('No connection') }}
         name="no-connection"
@@ -351,9 +353,11 @@ const AppDrawer = () => {
     <Drawer.Navigator
       drawerContent={DrawerContent}
       screenOptions={({ navigation }: any): DrawerNavigationOptions => ({
-        ...globalScreenOptions({ navigation }),
-        headerTitleAlign: 'center',
-        headerLeft: hamburgerHeaderLeft(navigation),
+        // ...globalScreenOptions({ navigation }),
+        // headerTitleAlign: 'center',
+        // headerLeft: hamburgerHeaderLeft(navigation),
+        // headerShown: false,
+        header: headerBeta,
         drawerType: 'front',
         drawerStyle: {
           backgroundColor: colors.clay,
@@ -422,8 +426,9 @@ const AppStack = () => {
   return (
     <MainStack.Navigator
       screenOptions={(navigation) => ({
-        headerTitleAlign: 'center',
-        ...globalScreenOptions(navigation)
+        header: headerGamma
+        // headerTitleAlign: 'center',
+        // ...globalScreenOptions(navigation)
       })}
     >
       <MainStack.Screen

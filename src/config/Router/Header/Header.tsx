@@ -7,6 +7,8 @@ import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
+import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import { DEVICE_WIDTH } from '@modules/common/styles/spacings'
 import { getHeaderTitle, Header as RNHeader } from '@react-navigation/elements'
 import { NativeStackHeaderProps } from '@react-navigation/native-stack'
@@ -14,11 +16,13 @@ import { NativeStackHeaderProps } from '@react-navigation/native-stack'
 interface Props extends NativeStackHeaderProps {
   mode?: 'title' | 'switcher'
   withHamburger?: boolean
+  withScanner?: boolean
 }
 
 const Header: React.FC<Props> = ({
   mode = 'switcher',
   withHamburger = false,
+  withScanner = false,
   navigation,
   route,
   options
@@ -72,16 +76,23 @@ const Header: React.FC<Props> = ({
           return null
         }}
         headerTitleStyle={{
-          fontSize: 20
+          fontSize: 18,
+          fontFamily: FONT_FAMILIES.REGULAR
         }}
-        headerRight={() => (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('connect')}
-            hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
-          >
-            <ScanIcon />
-          </TouchableOpacity>
-        )}
+        headerTintColor={colors.titan}
+        // headerBackTitleVisible={false}
+        // headerTransparent={true}
+        headerShadowVisible={false}
+        headerRight={() =>
+          withScanner ? (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('connect')}
+              hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+            >
+              <ScanIcon />
+            </TouchableOpacity>
+          ) : null
+        }
       />
     </SafeAreaView>
   )
