@@ -39,13 +39,11 @@ const Header: React.FC<Props> = ({
     <View
       style={{
         backgroundColor: colors.valhalla,
-        // backgroundColor: 'red',
         height: 50,
         borderRadius: 13,
         justifyContent: 'center',
-        // flex: 1,
         paddingHorizontal: 10,
-        width: DEVICE_WIDTH - 110
+        width: DEVICE_WIDTH - 110 // that's minus the left and right actions
       }}
     >
       <Text weight="regular">{network?.name}</Text>
@@ -56,38 +54,20 @@ const Header: React.FC<Props> = ({
   )
 
   return (
-    // <SafeAreaView
-    //   style={{
-    //     justifyContent: 'center',
-    //     paddingTop: 30,
-    //     paddingBottom: 30
-    //     // backgroundColor: colors.wooed
-    //     // backgroundColor: 'red'
-    //   }}
-    // >
     <View style={{ paddingTop: insets.top + 5, paddingBottom: 15 }}>
       <RNHeader
         title={title}
         headerTitle={mode === 'switcher' ? headerTitle : undefined}
         headerRightContainerStyle={{
-          // backgroundColor: 'yellow'
-          // marginLeft: 0,
-          // marginRight: 0
-          // paddingLeft: 0,
-          // paddingRight: 0
           paddingRight: 20
-          // backgroundColor: 'yellow',
-          // width: 50
-          // marginRight: 20
         }}
         headerLeftContainerStyle={{
           paddingLeft: 20
         }}
         headerLeftLabelVisible={!!canGoBack}
         headerStyle={{
-          // TODO:
           backgroundColor: colors.wooed,
-          height: 50
+          height: 50 // kind of a magic number
         }}
         headerLeft={() => {
           if (withHamburger) {
@@ -112,8 +92,6 @@ const Header: React.FC<Props> = ({
           fontFamily: FONT_FAMILIES.REGULAR
         }}
         headerTintColor={colors.titan}
-        // headerBackTitleVisible={false}
-        // headerTransparent={true}
         headerShadowVisible={false}
         headerTitleAlign="center"
         headerRight={() =>
