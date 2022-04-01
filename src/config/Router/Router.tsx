@@ -53,6 +53,11 @@ const SwapStack = createNativeStackNavigator()
 const TransactionsStack = createNativeStackNavigator()
 const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
+const SignersStack = createNativeStackNavigator()
+const ChangePasscodeStack = createNativeStackNavigator()
+const ChangeLocalAuthStack = createNativeStackNavigator()
+const BiometricsStack = createNativeStackNavigator()
+const AppLockingStack = createNativeStackNavigator()
 
 const headerAlpha = (props) => <Header withHamburger withScanner {...props} />
 const headerBeta = (props) => <Header withHamburger withScanner mode="title" {...props} />
@@ -114,7 +119,7 @@ const DashboardStackScreen = () => {
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
         name="addNewAccount"
-        options={{ title: t('Create new Account') }}
+        options={{ header: headerGamma }}
         component={AddNewAccountScreen}
       />
       <Stack.Screen
@@ -205,6 +210,86 @@ const SendStackScreen = () => {
   )
 }
 
+const SignersStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <SignersStack.Navigator screenOptions={{ header: headerAlpha }}>
+      <SignersStack.Screen
+        name="signers-screen"
+        component={SignersScreen}
+        options={{
+          title: t('Manage signers')
+        }}
+      />
+    </SignersStack.Navigator>
+  )
+}
+
+const ChangePasscodeStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <ChangePasscodeStack.Navigator screenOptions={{ header: headerAlpha }}>
+      <ChangePasscodeStack.Screen
+        name="passcode-change-screen"
+        component={ChangePasscodeScreen}
+        options={{
+          title: t('Passcode')
+        }}
+      />
+    </ChangePasscodeStack.Navigator>
+  )
+}
+
+const ChangeLocalAuthStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <ChangeLocalAuthStack.Navigator screenOptions={{ header: headerAlpha }}>
+      <ChangeLocalAuthStack.Screen
+        name="local-auth-change-screen"
+        component={ChangeLocalAuthScreen}
+        options={{
+          title: t('Local auth')
+        }}
+      />
+    </ChangeLocalAuthStack.Navigator>
+  )
+}
+
+const BiometricsStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <BiometricsStack.Navigator screenOptions={{ header: headerAlpha }}>
+      <BiometricsStack.Screen
+        name="biometrics-sign-change-screen"
+        component={BiometricsSignScreen}
+        options={{
+          title: t('Sign with Biometrics')
+        }}
+      />
+    </BiometricsStack.Navigator>
+  )
+}
+
+const AppLockingStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <AppLockingStack.Navigator screenOptions={{ header: headerAlpha }}>
+      <AppLockingStack.Screen
+        name="app-locking-screen"
+        component={ChangeAppLockingScreen}
+        options={{
+          title: t('App Locking')
+        }}
+      />
+    </AppLockingStack.Navigator>
+  )
+}
+
 const AuthStack = () => {
   const { t } = useTranslation()
 
@@ -268,6 +353,7 @@ const AppTabs = () => {
   return (
     <Tab.Navigator
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: colors.heliotrope,
         tabBarInactiveTintColor: colors.titan,
         tabBarInactiveBackgroundColor: colors.valhalla,
@@ -284,7 +370,6 @@ const AppTabs = () => {
       <Tab.Screen
         name="dashboard-tab"
         options={{
-          headerShown: false,
           tabBarLabel: t('Dashboard'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="dashboard" size={TAB_BAR_ICON_SIZE} color={color} />
@@ -295,7 +380,6 @@ const AppTabs = () => {
       <Tab.Screen
         name="earn-tab"
         options={{
-          headerShown: false,
           tabBarLabel: t('Earn'),
           tabBarIcon: ({ color }) => (
             // Use this one, because the actual one is <BsPiggyBank />,
@@ -308,7 +392,6 @@ const AppTabs = () => {
       <Tab.Screen
         name="send-tab"
         options={{
-          headerShown: false,
           tabBarLabel: t('Send'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="compare-arrows" size={TAB_BAR_ICON_SIZE} color={color} />
@@ -319,7 +402,6 @@ const AppTabs = () => {
       <Tab.Screen
         name="swap-tab"
         options={{
-          headerShown: false,
           tabBarLabel: t('Swap'),
           // Use this one, because the actual one is <BiTransfer />,
           // but the Box Icons set is not available
@@ -332,7 +414,6 @@ const AppTabs = () => {
       <Tab.Screen
         name="transactions-tab"
         options={{
-          headerShown: false,
           tabBarLabel: t('Transactions'),
           // Use this one, because the actual one is <BiTransfer />,
           // but the Box Icons set is not available
@@ -353,11 +434,7 @@ const AppDrawer = () => {
     <Drawer.Navigator
       drawerContent={DrawerContent}
       screenOptions={({ navigation }: any): DrawerNavigationOptions => ({
-        // ...globalScreenOptions({ navigation }),
-        // headerTitleAlign: 'center',
-        // headerLeft: hamburgerHeaderLeft(navigation),
-        // headerShown: false,
-        header: headerBeta,
+        headerShown: false,
         drawerType: 'front',
         drawerStyle: {
           backgroundColor: colors.clay,
@@ -367,48 +444,12 @@ const AppDrawer = () => {
         }
       })}
     >
-      <Drawer.Screen
-        name="tabs"
-        component={AppTabs}
-        options={{
-          headerShown: false
-        }}
-      />
-      <Drawer.Screen
-        name="passcode-change"
-        component={ChangePasscodeScreen}
-        options={{
-          title: t('Passcode')
-        }}
-      />
-      <Drawer.Screen
-        name="local-auth-change"
-        component={ChangeLocalAuthScreen}
-        options={{
-          title: t('Local auth')
-        }}
-      />
-      <Drawer.Screen
-        name="biometrics-sign-change"
-        component={BiometricsSignScreen}
-        options={{
-          title: t('Sign with Biometrics')
-        }}
-      />
-      <Drawer.Screen
-        name="app-locking"
-        component={ChangeAppLockingScreen}
-        options={{
-          title: t('App Locking')
-        }}
-      />
-      <Drawer.Screen
-        name="signers"
-        component={SignersScreen}
-        options={{
-          title: t('Manage signers')
-        }}
-      />
+      <Drawer.Screen name="tabs" component={AppTabs} />
+      <Drawer.Screen name="passcode-change" component={ChangePasscodeStackScreen} />
+      <Drawer.Screen name="local-auth-change" component={ChangeLocalAuthStackScreen} />
+      <Drawer.Screen name="biometrics-sign-change" component={BiometricsStackScreen} />
+      <Drawer.Screen name="app-locking" component={AppLockingStackScreen} />
+      <Drawer.Screen name="signers" component={SignersStackScreen} />
     </Drawer.Navigator>
   )
 }
