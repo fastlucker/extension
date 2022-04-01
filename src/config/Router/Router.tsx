@@ -1,13 +1,18 @@
+import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 
 import BurgerIcon from '@assets/svg/BurgerIcon'
+import DashboardIcon from '@assets/svg/DashboardIcon'
+import EarnIcon from '@assets/svg/EarnIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
+import SendIcon from '@assets/svg/SendIcon'
+import SwapIcon from '@assets/svg/SwapIcon'
+import TransferIcon from '@assets/svg/TransferIcon'
 import DrawerContent from '@config/Router/DrawerContent'
-import { FontAwesome5, MaterialIcons } from '@expo/vector-icons'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
@@ -16,8 +21,8 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
+import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
-import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
@@ -38,10 +43,20 @@ import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator, DrawerNavigationOptions } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+
+import styles, {
+  drawerStyle,
+  headerStyle,
+  headerTitleStyle,
+  navigationContainerDarkTheme,
+  tabBarItemStyle,
+  tabBarLabelStyle,
+  tabBarStyle
+} from './styles'
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -55,14 +70,9 @@ const EarnStack = createNativeStackNavigator()
 const SendStack = createNativeStackNavigator()
 
 const globalScreenOptions = ({ navigation }: any) => ({
-  headerStyle: {
-    backgroundColor: 'transparent'
-  },
+  headerStyle,
   headerTintColor: colors.titan,
-  headerTitleStyle: {
-    fontSize: 18,
-    fontFamily: FONT_FAMILIES.REGULAR
-  },
+  headerTitleStyle,
   headerBackTitleVisible: false,
   headerTransparent: true,
   headerShadowVisible: false,
@@ -73,8 +83,6 @@ const globalScreenOptions = ({ navigation }: any) => ({
       </NavIconWrapper>
     ) : null
 })
-
-const TAB_BAR_ICON_SIZE = 22
 
 const hamburgerHeaderLeft = (navigation: any) => () =>
   (
@@ -266,25 +274,27 @@ const AppTabs = () => {
       screenOptions={{
         tabBarActiveTintColor: colors.heliotrope,
         tabBarInactiveTintColor: colors.titan,
-        tabBarInactiveBackgroundColor: colors.valhalla,
-        tabBarActiveBackgroundColor: colors.valhalla,
-        tabBarStyle: {
-          backgroundColor: colors.valhalla,
-          borderTopColor: colors.baileyBells
-        },
-        tabBarLabelStyle: {
-          paddingBottom: 5
-        }
+        tabBarActiveBackgroundColor: colors.howl_65,
+        tabBarStyle,
+        tabBarLabelStyle,
+        tabBarItemStyle
       }}
+      tabBar={(props: any) => (
+        <View style={[styles.tabBarContainer]}>
+          <BlurView intensity={TAB_BAR_BLUR} tint="dark" style={[styles.backdropBlurWrapper]}>
+            <View style={{ paddingBottom: props.insets.bottom }}>
+              <BottomTabBar {...props} insets={{ bottom: 0 }} />
+            </View>
+          </BlurView>
+        </View>
+      )}
     >
       <Tab.Screen
         name="dashboard-tab"
         options={{
           headerShown: false,
           tabBarLabel: t('Dashboard'),
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="dashboard" size={TAB_BAR_ICON_SIZE} color={color} />
-          )
+          tabBarIcon: ({ color }) => <DashboardIcon color={color} />
         }}
         component={DashboardStackScreen}
       />
@@ -293,11 +303,7 @@ const AppTabs = () => {
         options={{
           headerShown: false,
           tabBarLabel: t('Earn'),
-          tabBarIcon: ({ color }) => (
-            // Use this one, because the actual one is <BsPiggyBank />,
-            // but the Bootstrap Icons set is not available
-            <MaterialIcons name="attach-money" size={TAB_BAR_ICON_SIZE} color={color} />
-          )
+          tabBarIcon: ({ color }) => <EarnIcon color={color} />
         }}
         component={EarnStackScreen}
       />
@@ -306,9 +312,7 @@ const AppTabs = () => {
         options={{
           headerShown: false,
           tabBarLabel: t('Send'),
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="compare-arrows" size={TAB_BAR_ICON_SIZE} color={color} />
-          )
+          tabBarIcon: ({ color }) => <SendIcon color={color} />
         }}
         component={SendStackScreen}
       />
@@ -317,11 +321,7 @@ const AppTabs = () => {
         options={{
           headerShown: false,
           tabBarLabel: t('Swap'),
-          // Use this one, because the actual one is <BiTransfer />,
-          // but the Box Icons set is not available
-          tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="retweet" size={TAB_BAR_ICON_SIZE - 4} color={color} />
-          )
+          tabBarIcon: ({ color }) => <SwapIcon color={color} />
         }}
         component={SwapStackScreen}
       />
@@ -330,11 +330,7 @@ const AppTabs = () => {
         options={{
           headerShown: false,
           tabBarLabel: t('Transactions'),
-          // Use this one, because the actual one is <BiTransfer />,
-          // but the Box Icons set is not available
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="send-and-archive" size={TAB_BAR_ICON_SIZE} color={color} />
-          )
+          tabBarIcon: ({ color }) => <TransferIcon color={color} />
         }}
         component={TransactionsStackScreen}
       />
@@ -353,12 +349,7 @@ const AppDrawer = () => {
         headerTitleAlign: 'center',
         headerLeft: hamburgerHeaderLeft(navigation),
         drawerType: 'front',
-        drawerStyle: {
-          backgroundColor: colors.clay,
-          borderTopRightRadius: 13,
-          borderBottomRightRadius: 13,
-          width: 282
-        }
+        drawerStyle
       })}
     >
       <Drawer.Screen
@@ -487,17 +478,7 @@ const Router = () => {
       // For more details, see the NavigationService.
       ref={navigationRef}
       onReady={handleOnReady}
-      theme={{
-        dark: true,
-        colors: {
-          primary: colors.clay,
-          background: 'transparent',
-          card: colors.clay,
-          text: colors.titan,
-          border: 'transparent',
-          notification: colors.clay
-        }
-      }}
+      theme={navigationContainerDarkTheme}
     >
       {renderContent()}
     </NavigationContainer>

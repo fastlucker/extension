@@ -73,7 +73,7 @@ const SendScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper keyboardDismissMode="on-drag">
+      <Wrapper keyboardDismissMode="on-drag" hasBottomTabNav>
         {isBalanceLoading && (
           <View style={StyleSheet.absoluteFill}>
             <ActivityIndicator style={StyleSheet.absoluteFill} size="large" />

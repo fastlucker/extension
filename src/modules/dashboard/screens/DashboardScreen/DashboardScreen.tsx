@@ -10,7 +10,7 @@ import BalancesChart from '@modules/dashboard/components/BalancesChart'
 const DashboardScreen = () => {
   return (
     <GradientBackgroundWrapper>
-      <Wrapper>
+      <Wrapper hasBottomTabNav>
         <Accounts />
 
         <Balances />

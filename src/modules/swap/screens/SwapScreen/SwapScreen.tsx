@@ -77,7 +77,7 @@ const SwapScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper>
+      <Wrapper hasBottomTabNav>
         <WebView
           key={hash}
           ref={sushiSwapIframeRef}
