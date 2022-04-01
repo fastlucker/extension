@@ -1,6 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler'
+import { TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import BurgerIcon from '@assets/svg/BurgerIcon'
@@ -41,7 +40,9 @@ const Header: React.FC<Props> = ({
         backgroundColor: colors.valhalla,
         height: 50,
         borderRadius: 13,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        width: DEVICE_WIDTH - 110,
+        paddingHorizontal: 10
       }}
     >
       <Text weight="regular">{network?.name}</Text>
@@ -58,7 +59,10 @@ const Header: React.FC<Props> = ({
         top: 0,
         zIndex: 998,
         elevation: 10,
-        width: DEVICE_WIDTH
+        // width: DEVICE_WIDTH,
+        width: '100%'
+        // paddingRight: 20,
+        // paddingLeft: 20
       }}
     >
       <RNHeader
@@ -66,6 +70,8 @@ const Header: React.FC<Props> = ({
         headerTitle={mode === 'switcher' ? headerTitle : undefined}
         headerRightContainerStyle={{
           paddingRight: 20
+          // backgroundColor: 'yellow',
+          // width: 50
           // marginRight: 20
         }}
         headerLeftContainerStyle={{
