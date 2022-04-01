@@ -1,5 +1,5 @@
 import React from 'react'
-import { TouchableOpacity } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import BurgerIcon from '@assets/svg/BurgerIcon'
@@ -7,18 +7,40 @@ import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
+import { DEVICE_WIDTH } from '@modules/common/styles/spacings'
 import { getHeaderTitle, Header as RNHeader } from '@react-navigation/elements'
 import { NativeStackHeaderProps } from '@react-navigation/native-stack'
 
-const Header: React.FC<NativeStackHeaderProps> = ({ navigation, route, options }) => {
-  // TODO:
+interface Props extends NativeStackHeaderProps {
+  mode?: 'title' | 'switcher'
+  withHamburger?: boolean
+}
+
+const Header: React.FC<Props> = ({
+  mode = 'switcher',
+  withHamburger = false,
+  navigation,
+  route,
+  options
+}) => {
   const canGoBack = navigation.canGoBack()
   const title = getHeaderTitle(options, route.name)
 
+  const headerTitle = () => <View style={{ backgroundColor: 'red', width: 200, height: 50 }} />
+
   return (
-    <SafeAreaView style={{ backgroundColor: 'yellow' }}>
+    <SafeAreaView
+      style={{
+        position: 'absolute',
+        top: 0,
+        zIndex: 998,
+        width: DEVICE_WIDTH,
+        paddingTop: 0
+      }}
+    >
       <RNHeader
         title={title}
+        headerTitle={mode === 'switcher' ? headerTitle : undefined}
         headerRightContainerStyle={{
           paddingRight: 20
         }}
@@ -28,11 +50,18 @@ const Header: React.FC<NativeStackHeaderProps> = ({ navigation, route, options }
         headerLeftLabelVisible={!!canGoBack}
         headerStyle={{
           // TODO:
-          backgroundColor: 'red'
-          // height: 30
+          backgroundColor: 'transparent'
+          // height: 100
         }}
-        headerTitle={() => <Text>Hi</Text>}
         headerLeft={() => {
+          if (withHamburger) {
+            return (
+              <NavIconWrapper onPress={navigation.openDrawer}>
+                <BurgerIcon />
+              </NavIconWrapper>
+            )
+          }
+
           if (canGoBack) {
             return (
               <NavIconWrapper onPress={navigation.goBack}>
@@ -40,11 +69,7 @@ const Header: React.FC<NativeStackHeaderProps> = ({ navigation, route, options }
               </NavIconWrapper>
             )
           }
-          return (
-            <NavIconWrapper onPress={navigation.openDrawer}>
-              <BurgerIcon />
-            </NavIconWrapper>
-          )
+          return null
         }}
         headerTitleStyle={{
           fontSize: 20
