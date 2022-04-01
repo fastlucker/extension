@@ -99,11 +99,7 @@ const SignScreen = ({ navigation }: any) => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper
-        type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
-        hasBottomTabNav={false}
-        extraHeight={180}
-      >
+      <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={180}>
         <Panel>
           <Title>{t('Signing with account')}</Title>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>

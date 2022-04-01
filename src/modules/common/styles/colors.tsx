@@ -26,6 +26,7 @@ export const colorPalette = {
   howl: '#1E2033',
   clay: '#24263D',
   valhalla: '#272A42',
+  valhalla_80: 'rgba(39, 42, 66, 0.8)',
   martinique: '#2D314D',
   patriotBlue: '#333757',
   wooed: '#3E436B',

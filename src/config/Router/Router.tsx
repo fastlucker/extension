@@ -1,7 +1,8 @@
+import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 
 import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
@@ -16,6 +17,7 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
+import { TAB_BAR_ICON_SIZE } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
@@ -38,10 +40,12 @@ import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator, DrawerNavigationOptions } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+
+import styles, { navigationContainerDarkTheme, tabBarStyle } from './styles'
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -73,8 +77,6 @@ const globalScreenOptions = ({ navigation }: any) => ({
       </NavIconWrapper>
     ) : null
 })
-
-const TAB_BAR_ICON_SIZE = 22
 
 const hamburgerHeaderLeft = (navigation: any) => () =>
   (
@@ -266,16 +268,18 @@ const AppTabs = () => {
       screenOptions={{
         tabBarActiveTintColor: colors.heliotrope,
         tabBarInactiveTintColor: colors.titan,
-        tabBarInactiveBackgroundColor: colors.valhalla,
-        tabBarActiveBackgroundColor: colors.valhalla,
-        tabBarStyle: {
-          backgroundColor: colors.valhalla,
-          borderTopColor: colors.baileyBells
-        },
+        tabBarStyle,
         tabBarLabelStyle: {
           paddingBottom: 5
         }
       }}
+      tabBar={(props) => (
+        <View style={styles.tabBarContainer}>
+          <BlurView intensity={30} tint="dark" style={styles.backdropBlurWrapper}>
+            <BottomTabBar {...props} />
+          </BlurView>
+        </View>
+      )}
     >
       <Tab.Screen
         name="dashboard-tab"
@@ -487,17 +491,7 @@ const Router = () => {
       // For more details, see the NavigationService.
       ref={navigationRef}
       onReady={handleOnReady}
-      theme={{
-        dark: true,
-        colors: {
-          primary: colors.clay,
-          background: 'transparent',
-          card: colors.clay,
-          text: colors.titan,
-          border: 'transparent',
-          notification: colors.clay
-        }
-      }}
+      theme={navigationContainerDarkTheme}
     >
       {renderContent()}
     </NavigationContainer>

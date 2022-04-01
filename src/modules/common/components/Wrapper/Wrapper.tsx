@@ -102,7 +102,11 @@ const Wrapper = ({
   return (
     <ScrollView
       style={[styles.wrapper, style]}
-      contentContainerStyle={[styles.contentContainerStyle, contentContainerStyle]}
+      contentContainerStyle={[
+        styles.contentContainerStyle,
+        !!hasBottomTabNav && { paddingBottom: 62 },
+        contentContainerStyle
+      ]}
       keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
       keyboardDismissMode={keyboardDismissMode || 'none'}
       alwaysBounceVertical={false}
