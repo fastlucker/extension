@@ -59,7 +59,7 @@ const Accounts = () => {
 
   const handleGoToAddAccount = () => {
     sheetAccounts.closeBottomSheet()
-    navigation.navigate('auth')
+    navigation.navigate('auth-add-account')
   }
 
   const handleCopyAddress = () => {

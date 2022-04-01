@@ -453,7 +453,11 @@ const AppStack = () => {
           headerShown: false
         }}
       />
-      <MainStack.Screen name="auth" component={AuthStack} options={{ headerShown: false }} />
+      <MainStack.Screen
+        name="auth-add-account"
+        component={AuthStack}
+        options={{ headerShown: false }}
+      />
       <MainStack.Screen
         name="connect"
         component={ConnectScreen}
