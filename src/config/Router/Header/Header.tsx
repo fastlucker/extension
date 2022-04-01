@@ -1,5 +1,6 @@
 import React from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import BurgerIcon from '@assets/svg/BurgerIcon'
@@ -7,7 +8,9 @@ import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
+import useAccounts from '@modules/common/hooks/useAccounts'
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import { DEVICE_WIDTH } from '@modules/common/styles/spacings'
 import { getHeaderTitle, Header as RNHeader } from '@react-navigation/elements'
@@ -27,10 +30,26 @@ const Header: React.FC<Props> = ({
   route,
   options
 }) => {
+  const { network } = useNetwork()
+  const { selectedAcc } = useAccounts()
   const canGoBack = navigation.canGoBack()
   const title = getHeaderTitle(options, route.name)
 
-  const headerTitle = () => <View style={{ backgroundColor: 'red', width: 200, height: 50 }} />
+  const headerTitle = () => (
+    <View
+      style={{
+        backgroundColor: colors.valhalla,
+        height: 50,
+        borderRadius: 13,
+        justifyContent: 'center'
+      }}
+    >
+      <Text weight="regular">{network?.name}</Text>
+      <Text fontSize={12} numberOfLines={1} ellipsizeMode="middle">
+        {selectedAcc}
+      </Text>
+    </View>
+  )
 
   return (
     <SafeAreaView
@@ -47,6 +66,7 @@ const Header: React.FC<Props> = ({
         headerTitle={mode === 'switcher' ? headerTitle : undefined}
         headerRightContainerStyle={{
           paddingRight: 20
+          // marginRight: 20
         }}
         headerLeftContainerStyle={{
           paddingLeft: 20
