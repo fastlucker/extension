@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
+import CopyAddress from '@config/Router/Header/CopyAddress'
 import Blockies from '@modules/common/components/Blockies'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
@@ -42,12 +43,14 @@ const Header: React.FC<Props> = ({
     <View style={styles.switcherContainer}>
       <Blockies seed={selectedAcc} />
 
-      <View style={[flexboxStyles.flex1, spacings.mlTy]}>
+      <View style={[flexboxStyles.flex1, spacings.mhTy]}>
         <Text weight="regular">{network?.name}</Text>
         <Text color={colors.baileyBells} fontSize={12} numberOfLines={1} ellipsizeMode="middle">
           {selectedAcc}
         </Text>
       </View>
+
+      <CopyAddress />
     </View>
   )
 
