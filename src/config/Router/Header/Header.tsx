@@ -41,7 +41,7 @@ const Header: React.FC<Props> = ({
 
   const renderHeaderSwitcher = () => (
     <View style={styles.switcherContainer}>
-      <Blockies seed={selectedAcc} />
+      <Blockies borderRadius={13} seed={selectedAcc} />
 
       <View style={[flexboxStyles.flex1, spacings.mhTy]}>
         <Text weight="regular">{network?.name}</Text>
