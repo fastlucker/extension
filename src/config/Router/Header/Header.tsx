@@ -1,5 +1,5 @@
 import React from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import BurgerIcon from '@assets/svg/BurgerIcon'
@@ -97,12 +97,9 @@ const Header: React.FC<Props> = ({
         headerTitleAlign="center"
         headerRight={() =>
           withScanner ? (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('connect')}
-              hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
-            >
+            <NavIconWrapper onPress={() => navigation.navigate('connect')}>
               <ScanIcon />
-            </TouchableOpacity>
+            </NavIconWrapper>
           ) : null
         }
       />
