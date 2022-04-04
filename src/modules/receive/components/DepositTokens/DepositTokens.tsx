@@ -38,7 +38,7 @@ const DepositTokens = () => {
       <Title hasBottomSpacing={false} style={[textStyles.center, spacings.mbSm]}>
         {t('Deposit Tokens')}
       </Title>
-      <Panel>
+      <Panel style={spacings.mb0}>
         <Text style={spacings.mb} fontSize={16} weight="medium" color={colors.turquoise}>
           {t('Direct Deposit')}
         </Text>
@@ -76,31 +76,29 @@ const DepositTokens = () => {
           )}
           {!!qrCodeError && <Text appearance="danger">{qrCodeError}</Text>}
         </View>
-        <View style={[flexboxStyles.alignCenter]}>
-          <Text fontSize={12} style={[spacings.mbMi, textStyles.center]}>
-            {t('Following networks supported on this address:')}
-          </Text>
-          <View
-            style={[flexboxStyles.directionRow, flexboxStyles.wrap, flexboxStyles.justifyCenter]}
-          >
-            {networks.map(({ id, IconMonochrome, name }: any) => (
-              <View key={id} style={styles.supportedNetworksContainer}>
-                <View style={{ marginBottom: 3 }}>
-                  <IconMonochrome />
-                </View>
-                <Text
-                  style={spacings.plMi}
-                  fontSize={10}
-                  numberOfLines={1}
-                  color={colors.waikawaGray}
-                >
-                  {name}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
       </Panel>
+      <View style={[flexboxStyles.alignCenter, spacings.mb]}>
+        <Text fontSize={12} style={[spacings.mbMi, textStyles.center]}>
+          {t('Following networks supported on this address:')}
+        </Text>
+        <View style={[flexboxStyles.directionRow, flexboxStyles.wrap, flexboxStyles.justifyCenter]}>
+          {networks.map(({ id, IconMonochrome, name }: any) => (
+            <View key={id} style={styles.supportedNetworksContainer}>
+              <View style={{ marginBottom: 3 }}>
+                <IconMonochrome />
+              </View>
+              <Text
+                style={spacings.plMi}
+                fontSize={10}
+                numberOfLines={1}
+                color={colors.waikawaGray}
+              >
+                {name}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
     </>
   )
 }
