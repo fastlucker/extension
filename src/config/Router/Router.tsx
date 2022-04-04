@@ -2,9 +2,6 @@ import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import BurgerIcon from '@assets/svg/BurgerIcon'
-import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
-import ScanIcon from '@assets/svg/ScanIcon'
 import DrawerContent from '@config/Router/DrawerContent'
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
@@ -14,7 +11,6 @@ import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
@@ -60,51 +56,9 @@ const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
 
 const headerAlpha = (props) => <Header withHamburger withScanner {...props} />
-const headerBeta = (props) => <Header withHamburger withScanner mode="title" {...props} />
-const headerGamma = (props) => <Header mode="title" {...props} />
-
-// const globalScreenOptions = ({ navigation }: any) => ({
-//   headerStyle: {
-//     backgroundColor: 'transparent'
-//   },
-//   headerTintColor: colors.titan,
-//   headerTitleStyle: {
-//     fontSize: 18,
-//     fontFamily: FONT_FAMILIES.REGULAR
-//   },
-//   headerBackTitleVisible: false,
-//   headerTransparent: true,
-//   headerShadowVisible: false,
-//   headerLeft: ({ canGoBack }: any) =>
-//     canGoBack ? (
-//       <NavIconWrapper onPress={navigation.goBack}>
-//         <LeftArrowIcon />
-//       </NavIconWrapper>
-//     ) : null
-// })
+const headerBeta = (props) => <Header mode="title" {...props} />
 
 const TAB_BAR_ICON_SIZE = 22
-
-// const hamburgerHeaderLeft = (navigation: any) => () =>
-//   (
-//     <NavIconWrapper onPress={navigation.openDrawer}>
-//       <BurgerIcon />
-//     </NavIconWrapper>
-//   )
-
-// const tabsScreenOptions = ({ navigation }: any): any => ({
-//   ...globalScreenOptions({ navigation }),
-//   headerTitleAlign: 'center',
-//   headerRight: () => (
-//     <TouchableOpacity
-//       onPress={() => navigation.navigate('connect')}
-//       hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
-//     >
-//       <ScanIcon />
-//     </TouchableOpacity>
-//   ),
-//   headerLeft: hamburgerHeaderLeft(navigation)
-// })
 
 const DashboardStackScreen = () => {
   const { t } = useTranslation()
@@ -272,7 +226,7 @@ const AuthStack = () => {
   }, [])
 
   return (
-    <Stack.Navigator screenOptions={{ header: headerGamma }}>
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
         name="addNewAccount"
@@ -311,7 +265,7 @@ const NoConnectionStack = () => {
   }, [])
 
   return (
-    <Stack.Navigator screenOptions={{ header: headerGamma }}>
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
       <Stack.Screen
         options={{ title: t('No connection') }}
         name="no-connection"
@@ -441,7 +395,7 @@ const AppStack = () => {
   return (
     <MainStack.Navigator
       screenOptions={(navigation) => ({
-        header: headerGamma
+        header: headerBeta
         // headerTitleAlign: 'center',
         // ...globalScreenOptions(navigation)
       })}
