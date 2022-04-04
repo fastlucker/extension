@@ -1,18 +1,22 @@
 import { StyleSheet } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
+import commonStyles from '@modules/common/styles/utils/common'
 
 const styles = StyleSheet.create({
   providerContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
     ...spacings.phSm,
-    ...spacings.pv,
-    ...spacings.mbSm,
-    backgroundColor: colors.listItemColor
+    ...spacings.pvSm,
+    ...spacings.mb,
+    backgroundColor: colors.clay,
+    ...commonStyles.borderRadiusPrimary,
+    ...commonStyles.shadowPrimary
   },
   descriptiveTextSpacing: {
-    marginBottom: 2
+    marginBottom: 3
   }
 })
 

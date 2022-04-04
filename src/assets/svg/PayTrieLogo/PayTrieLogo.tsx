@@ -6,7 +6,7 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const PayTrieLogo: React.FC<Props> = ({ width = 136, height = 36, ...rest }) => (
+const PayTrieLogo: React.FC<Props> = ({ width = 90, height = 36, ...rest }) => (
   <Svg width={width} height={height} viewBox="0 0 287 81" {...rest}>
     <G transform="translate(-20.8 -19.43)">
       <Path

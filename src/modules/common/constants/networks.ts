@@ -1,5 +1,9 @@
 import React from 'react'
 
+import AvalancheMonochromeIcon from '@assets/svg/AvalancheMonochromeIcon'
+import BinanceMonochromeIcon from '@assets/svg/BinanceMonochromeIcon'
+import EthereumMonochromeIcon from '@assets/svg/EthereumMonochromeIcon'
+import PolygonMonochromeIcon from '@assets/svg/PolygonMonochromeIcon'
 import AvalancheLogo from '@modules/common/assets/svg/networks/AvalancheLogo'
 import BinanceSmartChainLogo from '@modules/common/assets/svg/networks/BinanceSmartChainLogo'
 import EthereumLogo from '@modules/common/assets/svg/networks/EthereumLogo'
@@ -12,6 +16,7 @@ export type NetworkType = {
   nativeAssetSymbol: string
   name: string
   Icon: React.FC
+  IconMonochrome: React.FC
   explorerUrl: string
 }
 
@@ -23,6 +28,7 @@ const networks: NetworkType[] = [
     nativeAssetSymbol: 'ETH',
     name: 'Ethereum',
     Icon: EthereumLogo,
+    IconMonochrome: EthereumMonochromeIcon,
     explorerUrl: 'https://etherscan.io'
   },
   {
@@ -32,6 +38,7 @@ const networks: NetworkType[] = [
     nativeAssetSymbol: 'MATIC',
     name: 'Polygon',
     Icon: PolygonLogo,
+    IconMonochrome: PolygonMonochromeIcon,
     explorerUrl: 'https://polygonscan.com'
   },
   {
@@ -41,6 +48,7 @@ const networks: NetworkType[] = [
     nativeAssetSymbol: 'AVAX',
     name: 'Avalanche',
     Icon: AvalancheLogo,
+    IconMonochrome: AvalancheMonochromeIcon,
     explorerUrl: 'https://snowtrace.io'
   },
   {
@@ -49,8 +57,9 @@ const networks: NetworkType[] = [
     chainId: 56,
     rpc: 'https://bsc-dataseed.binance.org/',
     nativeAssetSymbol: 'BNB',
-    name: 'Binance Smart Chain',
+    name: 'Binance',
     Icon: BinanceSmartChainLogo,
+    IconMonochrome: BinanceMonochromeIcon,
     explorerUrl: 'https://bscscan.com'
   } /* , {
   id: 'arbitrum',
