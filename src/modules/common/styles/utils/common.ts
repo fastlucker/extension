@@ -9,7 +9,7 @@ interface Styles {
 const commonStyles = StyleSheet.create<Styles>({
   shadowPrimary: {
     shadowColor: '#000',
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.25,
     shadowOffset: {
       width: 0,
       height: 5

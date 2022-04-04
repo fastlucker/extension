@@ -41,7 +41,7 @@ const Providers = ({ walletAddress, networkDetails }: any) => {
     {
       Icon: TransakLogo,
       name: 'Transak',
-      type: 'Credit/Debit card and Bank Transfer (methods availability depends on location)',
+      type: 'Credit/Debit card & Bank Transfer (depends on location)',
       fees: 'from 0.5%',
       limits: 'up to 15,000 EUR/day',
       currencies: 'GBP, EUR, USD and many more',
