@@ -69,6 +69,16 @@ const Header: React.FC<Props> = ({
       </NavIconWrapper>
     ) : null
 
+  // On the left and on the right side, there is always reserved space
+  // for the nav bar buttons. And so that in case a title is present,
+  // it is centered always in the logical horizontal middle.
+  const navIconContainer = withHamburger
+    ? styles.navIconContainerSmall
+    : styles.navIconContainerRegular
+
+  // The header should start a little bit below the end of the notch
+  const notchInset = insets.top + 5
+
   // Using the `<Header />` from the '@react-navigation/elements' created
   // many complications in terms of styling the UI, calculating the header
   // height and the spacings between the `headerLeftContainerStyle` and the
@@ -77,8 +87,8 @@ const Header: React.FC<Props> = ({
   // in different manner. And styling it was hell. So instead - implement
   // custom components that fully match the design we follow.
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 5 }]}>
-      <View style={styles.navIconContainer}>{renderHeaderLeft()}</View>
+    <View style={[styles.container, { paddingTop: notchInset }]}>
+      <View style={navIconContainer}>{renderHeaderLeft()}</View>
 
       {mode === 'switcher' && renderHeaderSwitcher()}
       {mode === 'title' && (
@@ -87,7 +97,7 @@ const Header: React.FC<Props> = ({
         </Text>
       )}
 
-      <View style={styles.navIconContainer}>{renderHeaderRight()}</View>
+      <View style={navIconContainer}>{renderHeaderRight()}</View>
     </View>
   )
 }

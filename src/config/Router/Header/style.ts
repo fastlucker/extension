@@ -5,7 +5,8 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 interface Styles {
   container: ViewStyle
   switcherContainer: ViewStyle
-  navIconContainer: ViewStyle
+  navIconContainerRegular: ViewStyle
+  navIconContainerSmall: ViewStyle
   title: TextStyle
 }
 
@@ -26,11 +27,13 @@ const styles = StyleSheet.create<Styles>({
     flex: 1,
     justifyContent: 'center'
   },
-  navIconContainer: {
-    // So that on the left and on the right side, there is always reserved space
-    // for the nav bar buttons. And so that in case a title is present,
-    // it is centered always in the logical horizontal middle.
-    width: 40
+  navIconContainerRegular: {
+    width: 40,
+    alignItems: 'center'
+  },
+  navIconContainerSmall: {
+    width: 24,
+    alignItems: 'center'
   },
   title: {
     textAlign: 'center',
