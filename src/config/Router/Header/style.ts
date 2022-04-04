@@ -40,7 +40,10 @@ const styles = StyleSheet.create<Styles>({
   },
   title: {
     textAlign: 'center',
-    flex: 1
+    flex: 1,
+    // So it is vertically aligned well with the nav buttons,
+    // even when there are none.
+    paddingVertical: 7
   }
 })
 
