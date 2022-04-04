@@ -1,12 +1,52 @@
+import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import { View, ViewProps } from 'react-native'
 
+import { colorPalette as colors } from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+
 import styles from './styles'
 
-const Panel: React.FC<ViewProps> = ({ children, style, ...rest }) => (
-  <View style={[styles.container, style]} {...rest}>
-    {children}
-  </View>
-)
+type PanelTypes = 'filled' | 'gradient'
+interface Props extends ViewProps {
+  type?: PanelTypes
+  horizontalSpacing?: 'small' | 'tiny' | 'micro'
+}
+
+const Panel: React.FC<Props> = ({
+  children,
+  style,
+  type = 'gradient',
+  horizontalSpacing = 'small',
+  ...rest
+}) => {
+  return (
+    <View style={[styles.container, style]} {...rest}>
+      {type === 'gradient' && (
+        <LinearGradient
+          style={styles.gradient}
+          colors={[colors.martinique, 'transparent']}
+          locations={[0, 0.96]}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        />
+      )}
+      <View
+        style={[
+          styles.innerContainer,
+          spacings.pvSm,
+          flexboxStyles.flex1,
+          type === 'filled' && { backgroundColor: colors.clay },
+          horizontalSpacing === 'small' && spacings.phSm,
+          horizontalSpacing === 'tiny' && spacings.phTy,
+          horizontalSpacing === 'micro' && spacings.phMi
+        ]}
+      >
+        {children}
+      </View>
+    </View>
+  )
+}
 
 export default Panel

@@ -12,7 +12,7 @@ const EarnScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper>
+      <Wrapper hasBottomTabNav>
         {!!isBalanceLoading && <ActivityIndicator />}
         {!isBalanceLoading && (
           <View>
