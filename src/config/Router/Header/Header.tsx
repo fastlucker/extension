@@ -8,12 +8,11 @@ import ScanIcon from '@assets/svg/ScanIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import useNetwork from '@modules/common/hooks/useNetwork'
-import { colorPalette as colors } from '@modules/common/styles/colors'
-import { DEVICE_WIDTH } from '@modules/common/styles/spacings'
-import { getHeaderTitle, Header as RNHeader } from '@react-navigation/elements'
+import { getHeaderTitle } from '@react-navigation/elements'
 import { NativeStackHeaderProps } from '@react-navigation/native-stack'
+
+import styles from './style'
 
 interface Props extends NativeStackHeaderProps {
   mode?: 'title' | 'switcher'
@@ -35,18 +34,8 @@ const Header: React.FC<Props> = ({
   const canGoBack = navigation.canGoBack()
   const title = getHeaderTitle(options, route.name)
 
-  const headerTitle = () => (
-    <View
-      style={{
-        backgroundColor: colors.valhalla,
-        height: 50,
-        borderRadius: 13,
-        justifyContent: 'center',
-        paddingHorizontal: 10,
-        alignSelf: 'center',
-        width: DEVICE_WIDTH - 110 // that's minus the left and right actions
-      }}
-    >
+  const renderHeaderSwitcher = () => (
+    <View style={styles.switcherContainer}>
       <Text weight="regular">{network?.name}</Text>
       <Text fontSize={12} numberOfLines={1} ellipsizeMode="middle">
         {selectedAcc}
@@ -54,55 +43,51 @@ const Header: React.FC<Props> = ({
     </View>
   )
 
-  return (
-    <View style={{ paddingTop: insets.top + 5, paddingBottom: 15 }}>
-      <RNHeader
-        title={title}
-        headerTitle={mode === 'switcher' ? headerTitle : undefined}
-        headerRightContainerStyle={{
-          paddingRight: 20
-        }}
-        headerLeftContainerStyle={{
-          paddingLeft: 20
-        }}
-        headerLeftLabelVisible={!!canGoBack}
-        headerStyle={{
-          backgroundColor: colors.wooed,
-          height: 50 // kind of a magic number
-        }}
-        headerLeft={() => {
-          if (withHamburger) {
-            return (
-              <NavIconWrapper onPress={navigation.openDrawer}>
-                <BurgerIcon />
-              </NavIconWrapper>
-            )
-          }
+  const renderHeaderLeft = () => {
+    if (withHamburger) {
+      return (
+        <NavIconWrapper onPress={navigation.openDrawer}>
+          <BurgerIcon />
+        </NavIconWrapper>
+      )
+    }
 
-          if (canGoBack) {
-            return (
-              <NavIconWrapper onPress={navigation.goBack}>
-                <LeftArrowIcon />
-              </NavIconWrapper>
-            )
-          }
-          return null
-        }}
-        headerTitleStyle={{
-          fontSize: 18,
-          fontFamily: FONT_FAMILIES.REGULAR
-        }}
-        headerTintColor={colors.titan}
-        headerShadowVisible={false}
-        headerTitleAlign="center"
-        headerRight={() =>
-          withScanner ? (
-            <NavIconWrapper onPress={() => navigation.navigate('connect')}>
-              <ScanIcon />
-            </NavIconWrapper>
-          ) : null
-        }
-      />
+    if (canGoBack) {
+      return (
+        <NavIconWrapper onPress={navigation.goBack}>
+          <LeftArrowIcon />
+        </NavIconWrapper>
+      )
+    }
+    return null
+  }
+
+  const renderHeaderRight = () =>
+    withScanner ? (
+      <NavIconWrapper onPress={() => navigation.navigate('connect')}>
+        <ScanIcon />
+      </NavIconWrapper>
+    ) : null
+
+  // Using the `<Header />` from the '@react-navigation/elements' created
+  // many complications in terms of styling the UI, calculating the header
+  // height and the spacings between the `headerLeftContainerStyle` and the
+  // `headerRightContainerStyle`. The calculations never match.
+  // Probably due to the fact the box model of the `<Header />` behaves
+  // in different manner. And styling it was hell. So instead - implement
+  // custom components that fully match the design we follow.
+  return (
+    <View style={[styles.container, { paddingTop: insets.top + 5 }]}>
+      <View style={styles.navIconContainer}>{renderHeaderLeft()}</View>
+
+      {mode === 'switcher' && renderHeaderSwitcher()}
+      {mode === 'title' && (
+        <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={1}>
+          {title}
+        </Text>
+      )}
+
+      <View style={styles.navIconContainer}>{renderHeaderRight()}</View>
     </View>
   )
 }
