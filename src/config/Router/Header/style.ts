@@ -25,7 +25,9 @@ const styles = StyleSheet.create<Styles>({
     paddingHorizontal: 10,
     marginHorizontal: 10,
     flex: 1,
-    justifyContent: 'center'
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row'
   },
   navIconContainerRegular: {
     width: 40,

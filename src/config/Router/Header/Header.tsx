@@ -5,10 +5,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
+import Blockies from '@modules/common/components/Blockies'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import { colorPalette as colors } from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { getHeaderTitle } from '@react-navigation/elements'
 import { NativeStackHeaderProps } from '@react-navigation/native-stack'
 
@@ -36,10 +40,14 @@ const Header: React.FC<Props> = ({
 
   const renderHeaderSwitcher = () => (
     <View style={styles.switcherContainer}>
-      <Text weight="regular">{network?.name}</Text>
-      <Text fontSize={12} numberOfLines={1} ellipsizeMode="middle">
-        {selectedAcc}
-      </Text>
+      <Blockies seed={selectedAcc} />
+
+      <View style={[flexboxStyles.flex1, spacings.mlTy]}>
+        <Text weight="regular">{network?.name}</Text>
+        <Text color={colors.baileyBells} fontSize={12} numberOfLines={1} ellipsizeMode="middle">
+          {selectedAcc}
+        </Text>
+      </View>
     </View>
   )
 
