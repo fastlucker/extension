@@ -6,7 +6,7 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const TransakLogo: React.FC<Props> = ({ width = 152, height = 58, ...rest }) => (
+const TransakLogo: React.FC<Props> = ({ width = 90, height = 58, ...rest }) => (
   <Svg width={width} height={height} viewBox="0 0 2160 700" {...rest}>
     <G id="transparent_1_">
       <G id="logo_4_">

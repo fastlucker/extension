@@ -6,7 +6,7 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const RampLogo: React.FC<Props> = ({ width = 137.333, height = 32, ...rest }) => (
+const RampLogo: React.FC<Props> = ({ width = 90, height = 32, ...rest }) => (
   <Svg width={width} height={height} viewBox="0 0 137.333 32" {...rest}>
     <Path
       id="Path_24"

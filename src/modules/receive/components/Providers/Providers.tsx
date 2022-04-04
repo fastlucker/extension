@@ -2,13 +2,14 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
-import PayTrieLogo from '@modules/common/assets/svg/providers/PayTrieLogo'
-import RampLogo from '@modules/common/assets/svg/providers/RampLogo'
-import TransakLogo from '@modules/common/assets/svg/providers/TransakLogo'
+import InfoIcon from '@assets/svg/InfoIcon'
+import PayTrieLogo from '@assets/svg/PayTrieLogo'
+import RampLogo from '@assets/svg/RampLogo'
+import TransakLogo from '@assets/svg/TransakLogo'
 import Text from '@modules/common/components/Text'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
-import textStyles from '@modules/common/styles/utils/text'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { openPayTrie, openRampNetwork, openTransak } from '@modules/receive/services/providers'
 
 import styles from './styles'
@@ -63,46 +64,33 @@ const Providers = ({ walletAddress, networkDetails }: any) => {
           style={styles.providerContainer}
           activeOpacity={0.8}
         >
-          <View>
-            <View style={spacings.mb}>{!!Icon && <Icon />}</View>
-            <Text style={spacings.mbMi} fontSize={14}>
+          <View style={spacings.mrSm}>{!!Icon && <Icon />}</View>
+          <View style={flexboxStyles.flex1}>
+            <Text style={spacings.mbMi} fontSize={10}>
               {type}
             </Text>
-            <Text
-              fontSize={14}
-              color={colors.secondaryTextColor}
-              style={styles.descriptiveTextSpacing}
-            >
+            <Text fontSize={10} color={colors.baileyBells} style={styles.descriptiveTextSpacing}>
               {t('Fees: {{fees}}', { fees })}
             </Text>
-            <Text
-              fontSize={14}
-              color={colors.secondaryTextColor}
-              style={styles.descriptiveTextSpacing}
-            >
+            <Text fontSize={10} color={colors.baileyBells} style={styles.descriptiveTextSpacing}>
               {t('Limits: {{limits}}', { limits })}
             </Text>
-            <Text
-              fontSize={14}
-              color={colors.secondaryTextColor}
-              style={styles.descriptiveTextSpacing}
-            >
+            <Text fontSize={10} color={colors.baileyBells}>
               {t('Currencies: {{currencies}}', { currencies })}
             </Text>
           </View>
         </TouchableOpacity>
       ))}
       {networkDetails.id !== 'ethereum' && (
-        <Text
-          fontSize={15}
-          color={colors.secondaryTextColor}
-          style={[textStyles.italic, textStyles.center]}
-        >
-          {t(
-            'NOTE: Some deposit methods are unavailable on {{name}}. Switch to Ethereum for the widest support.',
-            { name: networkDetails.name }
-          )}
-        </Text>
+        <View style={[flexboxStyles.directionRow, spacings.phSm]}>
+          <InfoIcon />
+          <Text fontSize={12} style={[flexboxStyles.flex1, spacings.plTy]}>
+            {t(
+              'Some deposit methods are unavailable on {{name}}. Switch to Ethereum for the widest support.',
+              { name: networkDetails.name }
+            )}
+          </Text>
+        </View>
       )}
     </View>
   )
