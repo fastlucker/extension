@@ -10,6 +10,7 @@ import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
 import DrawerContent from '@config/Router/DrawerContent'
+import Header from '@config/Router/Header'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
@@ -44,7 +45,6 @@ import { createDrawerNavigator, DrawerNavigationOptions } from '@react-navigatio
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import Header from './Header'
 import styles, {
   drawerStyle,
   navigationContainerDarkTheme,
@@ -388,13 +388,7 @@ const AppStack = () => {
   }, [isLoading])
 
   return (
-    <MainStack.Navigator
-      screenOptions={(navigation) => ({
-        header: headerBeta
-        // headerTitleAlign: 'center',
-        // ...globalScreenOptions(navigation)
-      })}
-    >
+    <MainStack.Navigator screenOptions={{ header: headerBeta }}>
       <MainStack.Screen
         name="drawer"
         component={AppDrawer}
