@@ -13,7 +13,7 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
-import Wrapper from '@modules/common/components/Wrapper'
+import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import accountPresets from '@modules/common/constants/accountPresets'
 import { isEmail, isValidPassword } from '@modules/common/services/validate'
 import spacings from '@modules/common/styles/spacings'
@@ -47,7 +47,12 @@ const AddNewAccountScreen = () => {
           Keyboard.dismiss()
         }}
       >
-        <Wrapper keyboardDismissMode="on-drag" contentContainerStyle={spacings.pbLg}>
+        <Wrapper
+          keyboardDismissMode="on-drag"
+          contentContainerStyle={spacings.pbLg}
+          type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
+          extraHeight={200}
+        >
           <AmbireLogo />
           <Controller
             control={control}
