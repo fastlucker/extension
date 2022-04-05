@@ -3,9 +3,7 @@ import { StyleSheet, ViewStyle } from 'react-native'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT, DEVICE_WIDTH } from '@modules/common/styles/spacings'
 
-// Fill up all available space, excluding only the status bar and the header
-// to determinate the status bar height (currently, with a magic number)
-export const BOTTOM_SHEET_FULL_HEIGHT = DEVICE_HEIGHT - 100
+export const BOTTOM_SHEET_FULL_HEIGHT = DEVICE_HEIGHT * 0.8
 
 interface Styles {
   containerWrapper: ViewStyle
