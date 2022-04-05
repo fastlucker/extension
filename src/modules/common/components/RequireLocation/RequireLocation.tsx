@@ -2,7 +2,7 @@ import { t } from 'i18next'
 import Button from 'modules/common/components/Button'
 import Text from 'modules/common/components/Text'
 import React, { useEffect, useState } from 'react'
-import { AppState, PermissionsAndroid } from 'react-native'
+import { AppState, PermissionsAndroid, View } from 'react-native'
 import LocationServicesDialogBox from 'react-native-android-location-services-dialog-box'
 import { BleErrorCode } from 'react-native-ble-plx'
 import { Observable } from 'rxjs'
@@ -63,8 +63,8 @@ const RequireLocation: React.FC<any> = ({ children }) => {
 
   if (!permissionGranted) {
     return (
-      <>
-        <Text style={spacings.mbSm}>
+      <View style={spacings.ph}>
+        <Text style={spacings.mbSm} fontSize={12}>
           {t(
             'Please allow Location services first, in order to connect to hardware wallet devices.'
           )}
@@ -74,21 +74,23 @@ const RequireLocation: React.FC<any> = ({ children }) => {
             'Location services are required, in order for us to pair your device through Bluetooth.'
           )}
         </Text>
-      </>
+      </View>
     )
   }
 
   if (!locationServicesEnabled) {
     return (
-      <>
-        <Text style={spacings.mbSm}>
+      <View style={spacings.ph}>
+        <Text style={spacings.mbMi} fontSize={12}>
           {t(
             'Location services are required, in order for us to pair your device through Bluetooth.'
           )}
         </Text>
-        <Text style={spacings.mbSm}>{t('Ambire does not access your location information.')}</Text>
-        <Button onPress={handleOpenLocationSettings} text={t('Open location settings')} />
-      </>
+        <Text style={spacings.mbSm} fontSize={12}>
+          {t('Ambire does not access your location information.')}
+        </Text>
+        <Button onPress={handleOpenLocationSettings} text={t('Open Location Settings')} />
+      </View>
     )
   }
 

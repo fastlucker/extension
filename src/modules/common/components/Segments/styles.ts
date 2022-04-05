@@ -1,6 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 
 interface Style {
   container: ViewStyle
@@ -21,7 +21,7 @@ const styles = StyleSheet.create<Style>({
     borderColor: 'transparent'
   },
   active: {
-    borderColor: colors.primaryAccentColor
+    borderColor: colors.turquoise
   }
 })
 

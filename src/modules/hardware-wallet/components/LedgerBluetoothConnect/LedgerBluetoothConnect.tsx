@@ -4,9 +4,8 @@ import { ActivityIndicator, RefreshControl, View } from 'react-native'
 import { useTranslation } from '@config/localization'
 import DevicesList from '@modules/auth/components/DeviceList'
 import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -34,18 +33,20 @@ const LedgerBluetoothConnect = ({
   const content = (
     <>
       {!!bluetoothRefreshing && (
-        <View style={[flexboxStyles.alignCenter, spacings.mb, !shouldWrap && spacings.ptSm]}>
-          <Text style={[textStyles.bold, spacings.mbMi]}>{t('Looking for devices')}</Text>
-          <Text style={textStyles.center} color={colors.secondaryTextColor} fontSize={14}>
+        <View style={[flexboxStyles.alignCenter, spacings.mbLg]}>
+          <Text style={spacings.mbSm} fontSize={14}>
+            {t('Looking for devices')}
+          </Text>
+          <Text style={textStyles.center} color={colors.chetwode} fontSize={12}>
             {t('Please make sure your Ledger Nano X is unlocked and Bluetooth is enabled.')}
           </Text>
         </View>
       )}
-      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbSm]}>
-        <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
+      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
+        <Text style={flexboxStyles.flex1} fontSize={16} weight="medium">
           {t('Available devices')}
-        </Title>
-        {!!bluetoothRefreshing && <ActivityIndicator color={colors.primaryIconColor} />}
+        </Text>
+        {!!bluetoothRefreshing && <ActivityIndicator color={colors.lightViolet} />}
       </View>
       <DevicesList
         devices={bluetoothDevices}
@@ -63,8 +64,8 @@ const LedgerBluetoothConnect = ({
         <RefreshControl
           refreshing={false}
           onRefresh={bluetoothReload}
-          tintColor={colors.primaryIconColor}
-          progressBackgroundColor={colors.primaryIconColor}
+          tintColor={colors.titan}
+          progressBackgroundColor={colors.titan}
           enabled={!bluetoothRefreshing}
         />
       }

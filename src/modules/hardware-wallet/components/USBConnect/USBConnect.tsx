@@ -4,9 +4,8 @@ import { ActivityIndicator, RefreshControl, View } from 'react-native'
 import { useTranslation } from '@config/localization'
 import DevicesList from '@modules/auth/components/DeviceList'
 import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -32,18 +31,18 @@ const HardwareWalletConnect = ({ onSelectDevice, shouldWrap = true }: Props) => 
 
   const content = (
     <>
-      <View style={[flexboxStyles.alignCenter, spacings.mbSm, !shouldWrap && spacings.ptSm]}>
-        <Text style={textStyles.center} color={colors.secondaryTextColor} fontSize={14}>
+      <View style={[flexboxStyles.alignCenter, spacings.mbSm]}>
+        <Text style={textStyles.center} color={colors.chetwode} fontSize={12}>
           {t('Please connect USB cable and enter the PIN code on your device.')}
         </Text>
       </View>
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbSm]}>
         {usbDevice && (
           <>
-            <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
+            <Text fontSize={16} weight="medium" style={flexboxStyles.flex1}>
               {t('Connected device')}
-            </Title>
-            {!!usbRefreshing && <ActivityIndicator color={colors.primaryIconColor} />}
+            </Text>
+            {!!usbRefreshing && <ActivityIndicator />}
           </>
         )}
       </View>
@@ -63,8 +62,8 @@ const HardwareWalletConnect = ({ onSelectDevice, shouldWrap = true }: Props) => 
         <RefreshControl
           refreshing={false}
           onRefresh={handleOnRefresh}
-          tintColor={colors.primaryIconColor}
-          progressBackgroundColor={colors.primaryIconColor}
+          tintColor={colors.titan}
+          progressBackgroundColor={colors.titan}
           enabled={!usbRefreshing}
         />
       }
