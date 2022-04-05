@@ -8,7 +8,7 @@ import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 import CloseIcon from '@assets/svg/CloseIcon'
 import { Portal } from '@gorhom/portal'
 import usePrevious from '@modules/common/hooks/usePrevious'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Button from '../Button'
@@ -170,7 +170,7 @@ const BottomSheet: React.FC<Props> = ({
         style={[
           StyleSheet.absoluteFillObject,
           {
-            backgroundColor: colors.backgroundColor,
+            backgroundColor: colors.valhalla,
             opacity: animatedShadowOpacity
           }
         ]}
