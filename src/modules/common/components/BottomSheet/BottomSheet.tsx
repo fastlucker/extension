@@ -1,16 +1,23 @@
+import { BlurView } from 'expo-blur'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BackHandler, StyleSheet, TouchableOpacity, View } from 'react-native'
 import Animated, { greaterThan } from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 
+import CloseIcon from '@assets/svg/CloseIcon'
+import { isiOS } from '@config/env'
 import { Portal } from '@gorhom/portal'
 import usePrevious from '@modules/common/hooks/usePrevious'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Button from '../Button'
+import NavIconWrapper from '../NavIconWrapper'
 import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
+
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView)
 
 interface Props {
   // Useful for debugging and generally knowing which bottom sheet gets triggered
@@ -40,6 +47,7 @@ const BottomSheet: React.FC<Props> = ({
   isOpen = false
 }) => {
   const { t } = useTranslation()
+  const insets = useSafeAreaInsets()
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
   const prevIsOpen = usePrevious(isOpen)
@@ -135,7 +143,12 @@ const BottomSheet: React.FC<Props> = ({
 
   const animatedShadowOpacity = Animated.interpolateNode(bottomSheetY, {
     inputRange: [0, 0.5, 0.75, 1],
-    outputRange: [0.9, 0.8, 0.7, 0]
+    outputRange: [0.95, 0.8, 0.7, 0]
+  })
+
+  const animatedBlurOpacity = Animated.interpolateNode(bottomSheetY, {
+    inputRange: [0, 0.5, 0.75, 1],
+    outputRange: [1, 0.95, 0.9, 0]
   })
 
   // Disable pointer events so that the overlay is not clickable
@@ -150,18 +163,47 @@ const BottomSheet: React.FC<Props> = ({
     'auto' // misleadingly, but it actually DISABLES pointer events
   )
 
+  // The header should start a little bit below the end of the notch,
+  // and right in the vertical middle of the nav.
+  const notchInset = insets.top + 10
+
+  const backdrop = isiOS ? (
+    // The blurred view works on iOS only
+    <AnimatedBlurView
+      pointerEvents={clickThrough}
+      intensity={55}
+      tint="dark"
+      style={[
+        StyleSheet.absoluteFillObject,
+        {
+          opacity: animatedBlurOpacity
+        }
+      ]}
+    />
+  ) : (
+    <Animated.View
+      pointerEvents={clickThrough}
+      style={[
+        StyleSheet.absoluteFillObject,
+        {
+          backgroundColor: colors.valhalla,
+          opacity: animatedShadowOpacity
+        }
+      ]}
+    />
+  )
+
   return (
     <Portal hostName="global">
-      <Animated.View
-        pointerEvents={clickThrough}
-        style={[
-          StyleSheet.absoluteFillObject,
-          {
-            backgroundColor: colors.backgroundColor,
-            opacity: animatedShadowOpacity
-          }
-        ]}
-      />
+      {!!isOpen && (
+        <NavIconWrapper onPress={closeBottomSheet} style={[styles.closeBtn, { top: notchInset }]}>
+          <Animated.View style={{ opacity: animatedShadowOpacity }}>
+            <CloseIcon />
+          </Animated.View>
+        </NavIconWrapper>
+      )}
+      {/* Don't base it on the `isOpen` flag, because otherwise - the animation is not fluid */}
+      {backdrop}
       {!!isOpen && <TouchableOpacity style={styles.backDrop} onPress={closeBottomSheet} />}
       <ReanimatedBottomSheet
         ref={sheetRef}
