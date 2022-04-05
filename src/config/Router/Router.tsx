@@ -58,11 +58,6 @@ const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
 
 const MainStack = createNativeStackNavigator()
-const DashboardStack = createNativeStackNavigator()
-const SwapStack = createNativeStackNavigator()
-const TransactionsStack = createNativeStackNavigator()
-const EarnStack = createNativeStackNavigator()
-const SendStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
 const ChangePasscodeStack = createNativeStackNavigator()
 const ChangeLocalAuthStack = createNativeStackNavigator()
@@ -71,84 +66,6 @@ const AppLockingStack = createNativeStackNavigator()
 
 const headerAlpha = (props) => <Header withHamburger withScanner {...props} />
 const headerBeta = (props) => <Header mode="title" {...props} />
-
-const DashboardStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <DashboardStack.Navigator screenOptions={{ header: headerAlpha }}>
-      <DashboardStack.Screen
-        name="dashboard"
-        component={DashboardScreen}
-        options={{ title: t('Dashboard') }}
-      />
-    </DashboardStack.Navigator>
-  )
-}
-
-const SwapStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <SwapStack.Navigator screenOptions={{ header: headerAlpha }}>
-      <SwapStack.Screen
-        name="swap"
-        component={SwapScreen}
-        options={{
-          title: t('Ambire Swap')
-        }}
-      />
-    </SwapStack.Navigator>
-  )
-}
-
-const TransactionsStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <TransactionsStack.Navigator screenOptions={{ header: headerAlpha }}>
-      <TransactionsStack.Screen
-        name="transactions"
-        component={TransactionsScreen}
-        options={{
-          title: t('Transactions')
-        }}
-      />
-    </TransactionsStack.Navigator>
-  )
-}
-
-const EarnStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <EarnStack.Navigator screenOptions={{ header: headerAlpha }}>
-      <EarnStack.Screen
-        name="earn"
-        component={EarnScreen}
-        options={{
-          title: t('Earn')
-        }}
-      />
-    </EarnStack.Navigator>
-  )
-}
-
-const SendStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <SendStack.Navigator screenOptions={{ header: headerAlpha }}>
-      <SendStack.Screen
-        name="send"
-        component={SendScreen}
-        options={{
-          title: t('Send')
-        }}
-      />
-    </SendStack.Navigator>
-  )
-}
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
@@ -293,7 +210,7 @@ const AppTabs = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        headerShown: false,
+        header: headerAlpha,
         tabBarActiveTintColor: colors.heliotrope,
         tabBarInactiveTintColor: colors.titan,
         tabBarActiveBackgroundColor: colors.howl_65,
@@ -312,52 +229,55 @@ const AppTabs = () => {
       )}
     >
       <Tab.Screen
-        name="dashboard-tab"
+        name="dashboard"
         options={{
           tabBarLabel: t('Dashboard'),
+          headerTitle: t('Dashboard'),
           tabBarIcon: ({ color }) => <DashboardIcon color={color} />
         }}
-        component={DashboardStackScreen}
+        component={DashboardScreen}
       />
       <Tab.Screen
-        name="earn-tab"
+        name="earn"
         options={{
           tabBarLabel: t('Earn'),
+          headerTitle: t('Earn'),
           tabBarIcon: ({ color }) => <EarnIcon color={color} />
         }}
-        component={EarnStackScreen}
+        component={EarnScreen}
       />
       <Tab.Screen
-        name="send-tab"
+        name="send"
         options={{
           tabBarLabel: t('Send'),
+          headerTitle: t('Send'),
           tabBarIcon: ({ color }) => <SendIcon color={color} />
         }}
-        component={SendStackScreen}
+        component={SendScreen}
       />
       <Tab.Screen
-        name="swap-tab"
+        name="swap"
         options={{
           tabBarLabel: t('Swap'),
+          headerTitle: t('Swap'),
           tabBarIcon: ({ color }) => <SwapIcon color={color} />
         }}
-        component={SwapStackScreen}
+        component={SwapScreen}
       />
       <Tab.Screen
-        name="transactions-tab"
+        name="transactions"
         options={{
           tabBarLabel: t('Transactions'),
+          headerTitle: t('Transactions'),
           tabBarIcon: ({ color }) => <TransferIcon color={color} />
         }}
-        component={TransactionsStackScreen}
+        component={TransactionsScreen}
       />
     </Tab.Navigator>
   )
 }
 
 const AppDrawer = () => {
-  const { t } = useTranslation()
-
   return (
     <Drawer.Navigator
       drawerContent={DrawerContent}
