@@ -165,7 +165,7 @@ const BottomSheet: React.FC<Props> = ({
 
   // The header should start a little bit below the end of the notch,
   // and right in the vertical middle of the nav.
-  const notchInset = insets.top + 7
+  const notchInset = insets.top + 10
 
   const backdrop = isiOS ? (
     // The blurred view works on iOS only
