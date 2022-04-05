@@ -2,17 +2,15 @@ import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 
-import BurgerIcon from '@assets/svg/BurgerIcon'
 import DashboardIcon from '@assets/svg/DashboardIcon'
 import EarnIcon from '@assets/svg/EarnIcon'
-import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
-import ScanIcon from '@assets/svg/ScanIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
 import DrawerContent from '@config/Router/DrawerContent'
+import Header from '@config/Router/Header'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
@@ -20,7 +18,6 @@ import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
@@ -50,8 +47,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import styles, {
   drawerStyle,
-  headerStyle,
-  headerTitleStyle,
   navigationContainerDarkTheme,
   tabBarItemStyle,
   tabBarLabelStyle,
@@ -63,149 +58,92 @@ const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
 
 const MainStack = createNativeStackNavigator()
-const DashboardStack = createNativeStackNavigator()
-const SwapStack = createNativeStackNavigator()
-const TransactionsStack = createNativeStackNavigator()
-const EarnStack = createNativeStackNavigator()
-const SendStack = createNativeStackNavigator()
+const SignersStack = createNativeStackNavigator()
+const ChangePasscodeStack = createNativeStackNavigator()
+const ChangeLocalAuthStack = createNativeStackNavigator()
+const BiometricsStack = createNativeStackNavigator()
+const AppLockingStack = createNativeStackNavigator()
 
-const globalScreenOptions = ({ navigation }: any) => ({
-  headerStyle,
-  headerTintColor: colors.titan,
-  headerTitleStyle,
-  headerBackTitleVisible: false,
-  headerTransparent: true,
-  headerShadowVisible: false,
-  headerLeft: ({ canGoBack }: any) =>
-    canGoBack ? (
-      <NavIconWrapper onPress={navigation.goBack}>
-        <LeftArrowIcon />
-      </NavIconWrapper>
-    ) : null
-})
+const headerAlpha = (props) => <Header withHamburger withScanner {...props} />
+const headerBeta = (props) => <Header mode="title" {...props} />
 
-const hamburgerHeaderLeft = (navigation: any) => () =>
-  (
-    <NavIconWrapper onPress={navigation.openDrawer}>
-      <BurgerIcon />
-    </NavIconWrapper>
-  )
-
-const tabsScreenOptions = ({ navigation }: any): any => ({
-  ...globalScreenOptions({ navigation }),
-  headerTitleAlign: 'center',
-  headerRight: () => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('connect')}
-      hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
-    >
-      <ScanIcon />
-    </TouchableOpacity>
-  ),
-  headerLeft: hamburgerHeaderLeft(navigation)
-})
-
-const DashboardStackScreen = () => {
+const SignersStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <DashboardStack.Navigator screenOptions={tabsScreenOptions}>
-      <DashboardStack.Screen
-        name="dashboard"
-        component={DashboardScreen}
-        options={{ title: t('Dashboard') }}
+    <SignersStack.Navigator screenOptions={{ header: headerAlpha }}>
+      <SignersStack.Screen
+        name="signers-screen"
+        component={SignersScreen}
+        options={{
+          title: t('Manage signers')
+        }}
       />
-      <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
-      <Stack.Screen
-        name="addNewAccount"
-        options={{ title: t('Create new Account') }}
-        component={AddNewAccountScreen}
-      />
-      <Stack.Screen
-        name="emailLogin"
-        options={{ title: t('Login') }}
-        component={EmailLoginScreen}
-      />
-      <Stack.Screen
-        name="jsonLogin"
-        options={{ title: t('Import from JSON') }}
-        component={JsonLoginScreen}
-      />
-      <Stack.Screen
-        name="qrCodeLogin"
-        options={{ title: t('Import with QR Code') }}
-        component={QRCodeLoginScreen}
-      />
-      <Stack.Screen
-        name="hardwareWallet"
-        options={{ title: t('Hardware Wallet') }}
-        component={HardwareWalletConnectScreen}
-      />
-    </DashboardStack.Navigator>
+    </SignersStack.Navigator>
   )
 }
 
-const SwapStackScreen = () => {
+const ChangePasscodeStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <SwapStack.Navigator screenOptions={tabsScreenOptions}>
-      <SwapStack.Screen
-        name="swap"
-        component={SwapScreen}
+    <ChangePasscodeStack.Navigator screenOptions={{ header: headerAlpha }}>
+      <ChangePasscodeStack.Screen
+        name="passcode-change-screen"
+        component={ChangePasscodeScreen}
         options={{
-          title: t('Ambire Swap')
+          title: t('Passcode')
         }}
       />
-    </SwapStack.Navigator>
+    </ChangePasscodeStack.Navigator>
   )
 }
 
-const TransactionsStackScreen = () => {
+const ChangeLocalAuthStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <TransactionsStack.Navigator screenOptions={tabsScreenOptions}>
-      <TransactionsStack.Screen
-        name="transactions"
-        component={TransactionsScreen}
+    <ChangeLocalAuthStack.Navigator screenOptions={{ header: headerAlpha }}>
+      <ChangeLocalAuthStack.Screen
+        name="local-auth-change-screen"
+        component={ChangeLocalAuthScreen}
         options={{
-          title: t('Transactions')
+          title: t('Local auth')
         }}
       />
-    </TransactionsStack.Navigator>
+    </ChangeLocalAuthStack.Navigator>
   )
 }
 
-const EarnStackScreen = () => {
+const BiometricsStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <EarnStack.Navigator screenOptions={tabsScreenOptions}>
-      <EarnStack.Screen
-        name="earn"
-        component={EarnScreen}
+    <BiometricsStack.Navigator screenOptions={{ header: headerAlpha }}>
+      <BiometricsStack.Screen
+        name="biometrics-sign-change-screen"
+        component={BiometricsSignScreen}
         options={{
-          title: t('Earn')
+          title: t('Sign with Biometrics')
         }}
       />
-    </EarnStack.Navigator>
+    </BiometricsStack.Navigator>
   )
 }
 
-const SendStackScreen = () => {
+const AppLockingStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <SendStack.Navigator screenOptions={tabsScreenOptions}>
-      <SendStack.Screen
-        name="send"
-        component={SendScreen}
+    <AppLockingStack.Navigator screenOptions={{ header: headerAlpha }}>
+      <AppLockingStack.Screen
+        name="app-locking-screen"
+        component={ChangeAppLockingScreen}
         options={{
-          title: t('Send')
+          title: t('App Locking')
         }}
       />
-    </SendStack.Navigator>
+    </AppLockingStack.Navigator>
   )
 }
 
@@ -217,7 +155,7 @@ const AuthStack = () => {
   }, [])
 
   return (
-    <Stack.Navigator screenOptions={globalScreenOptions}>
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
         name="addNewAccount"
@@ -256,7 +194,7 @@ const NoConnectionStack = () => {
   }, [])
 
   return (
-    <Stack.Navigator screenOptions={globalScreenOptions}>
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
       <Stack.Screen
         options={{ title: t('No connection') }}
         name="no-connection"
@@ -272,6 +210,7 @@ const AppTabs = () => {
   return (
     <Tab.Navigator
       screenOptions={{
+        header: headerAlpha,
         tabBarActiveTintColor: colors.heliotrope,
         tabBarInactiveTintColor: colors.titan,
         tabBarActiveBackgroundColor: colors.howl_65,
@@ -290,110 +229,70 @@ const AppTabs = () => {
       )}
     >
       <Tab.Screen
-        name="dashboard-tab"
+        name="dashboard"
         options={{
-          headerShown: false,
           tabBarLabel: t('Dashboard'),
+          headerTitle: t('Dashboard'),
           tabBarIcon: ({ color }) => <DashboardIcon color={color} />
         }}
-        component={DashboardStackScreen}
+        component={DashboardScreen}
       />
       <Tab.Screen
-        name="earn-tab"
+        name="earn"
         options={{
-          headerShown: false,
           tabBarLabel: t('Earn'),
+          headerTitle: t('Earn'),
           tabBarIcon: ({ color }) => <EarnIcon color={color} />
         }}
-        component={EarnStackScreen}
+        component={EarnScreen}
       />
       <Tab.Screen
-        name="send-tab"
+        name="send"
         options={{
-          headerShown: false,
           tabBarLabel: t('Send'),
+          headerTitle: t('Send'),
           tabBarIcon: ({ color }) => <SendIcon color={color} />
         }}
-        component={SendStackScreen}
+        component={SendScreen}
       />
       <Tab.Screen
-        name="swap-tab"
+        name="swap"
         options={{
-          headerShown: false,
           tabBarLabel: t('Swap'),
+          headerTitle: t('Swap'),
           tabBarIcon: ({ color }) => <SwapIcon color={color} />
         }}
-        component={SwapStackScreen}
+        component={SwapScreen}
       />
       <Tab.Screen
-        name="transactions-tab"
+        name="transactions"
         options={{
-          headerShown: false,
           tabBarLabel: t('Transactions'),
+          headerTitle: t('Transactions'),
           tabBarIcon: ({ color }) => <TransferIcon color={color} />
         }}
-        component={TransactionsStackScreen}
+        component={TransactionsScreen}
       />
     </Tab.Navigator>
   )
 }
 
 const AppDrawer = () => {
-  const { t } = useTranslation()
-
   return (
     <Drawer.Navigator
       drawerContent={DrawerContent}
       screenOptions={({ navigation }: any): DrawerNavigationOptions => ({
-        ...globalScreenOptions({ navigation }),
-        headerTitleAlign: 'center',
-        headerLeft: hamburgerHeaderLeft(navigation),
+        headerShown: false,
         drawerType: 'front',
         drawerStyle
       })}
     >
-      <Drawer.Screen
-        name="tabs"
-        component={AppTabs}
-        options={{
-          headerShown: false
-        }}
-      />
-      <Drawer.Screen
-        name="passcode-change"
-        component={ChangePasscodeScreen}
-        options={{
-          title: t('Passcode')
-        }}
-      />
-      <Drawer.Screen
-        name="local-auth-change"
-        component={ChangeLocalAuthScreen}
-        options={{
-          title: t('Local auth')
-        }}
-      />
-      <Drawer.Screen
-        name="biometrics-sign-change"
-        component={BiometricsSignScreen}
-        options={{
-          title: t('Sign with Biometrics')
-        }}
-      />
-      <Drawer.Screen
-        name="app-locking"
-        component={ChangeAppLockingScreen}
-        options={{
-          title: t('App Locking')
-        }}
-      />
-      <Drawer.Screen
-        name="signers"
-        component={SignersScreen}
-        options={{
-          title: t('Manage signers')
-        }}
-      />
+      <Drawer.Screen name="tabs" component={AppTabs} />
+      <Drawer.Screen name="passcode-change" component={ChangePasscodeStackScreen} />
+      <Drawer.Screen name="local-auth-change" component={ChangeLocalAuthStackScreen} />
+      <Drawer.Screen name="biometrics-sign-change" component={BiometricsStackScreen} />
+      <Drawer.Screen name="app-locking" component={AppLockingStackScreen} />
+      <Drawer.Screen name="signers" component={SignersStackScreen} />
     </Drawer.Navigator>
   )
 }
@@ -409,18 +308,18 @@ const AppStack = () => {
   }, [isLoading])
 
   return (
-    <MainStack.Navigator
-      screenOptions={(navigation) => ({
-        headerTitleAlign: 'center',
-        ...globalScreenOptions(navigation)
-      })}
-    >
+    <MainStack.Navigator screenOptions={{ header: headerBeta }}>
       <MainStack.Screen
         name="drawer"
         component={AppDrawer}
         options={{
           headerShown: false
         }}
+      />
+      <MainStack.Screen
+        name="auth-add-account"
+        component={AuthStack}
+        options={{ headerShown: false }}
       />
       <MainStack.Screen
         name="connect"

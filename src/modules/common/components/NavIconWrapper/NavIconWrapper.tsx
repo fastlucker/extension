@@ -1,20 +1,16 @@
 import React, { ReactNode } from 'react'
 import { TouchableOpacity } from 'react-native'
 
-import styles from './styles'
-
 type Props = {
   children: ReactNode
   onPress: () => any
 }
 
+const HIT_SLOP = { bottom: 10, left: 10, right: 10, top: 10 }
+
 const NavIconWrapper = ({ children, onPress }: Props) => {
   return (
-    <TouchableOpacity
-      style={styles.wrapper}
-      onPress={onPress}
-      hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
-    >
+    <TouchableOpacity onPress={onPress} hitSlop={HIT_SLOP}>
       {children}
     </TouchableOpacity>
   )

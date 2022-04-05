@@ -59,7 +59,7 @@ const Accounts = () => {
 
   const handleGoToAddAccount = () => {
     sheetAccounts.closeBottomSheet()
-    navigation.navigate('auth')
+    navigation.navigate('auth-add-account')
   }
 
   const handleCopyAddress = () => {
@@ -67,7 +67,7 @@ const Accounts = () => {
     addToast(t('Address copied to clipboard!') as string, { timeout: 2000 })
   }
 
-  const handleGoToSend = () => navigation.navigate('send-tab')
+  const handleGoToSend = () => navigation.navigate('send')
 
   const handleGoToReceive = () => navigation.navigate('receive')
 
