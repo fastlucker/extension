@@ -67,7 +67,9 @@ const AccountsProvider: React.FC = ({ children }) => {
   )
 
   const onAddAccount = useCallback(
-    (acc, opts = { shouldRedirect: true }) => {
+    (acc, _opts = {}) => {
+      const opts = { shouldRedirect: true, ..._opts }
+
       if (!(acc.id && acc.signer)) throw new Error('account: internal err: missing ID or signer')
 
       const existing = accounts.find((x: any) => x.id.toLowerCase() === acc.id.toLowerCase())
