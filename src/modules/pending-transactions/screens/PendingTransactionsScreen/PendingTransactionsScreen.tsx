@@ -100,7 +100,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={220}>
+      <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={190}>
         <SigningWithAccount />
         <TransactionSummary bundle={bundle} estimation={estimation} />
         <FeeSelector

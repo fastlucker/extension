@@ -10,7 +10,7 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import Input from '@modules/common/components/Input'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import Wrapper from '@modules/common/components/Wrapper'
+import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import { isEmail } from '@modules/common/services/validate'
 import spacings from '@modules/common/styles/spacings'
 
@@ -37,7 +37,11 @@ const EmailLoginScreen = () => {
           Keyboard.dismiss()
         }}
       >
-        <Wrapper contentContainerStyle={spacings.pbLg}>
+        <Wrapper
+          contentContainerStyle={spacings.pbLg}
+          type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
+          extraHeight={220}
+        >
           <AmbireLogo />
           {!requiresEmailConfFor && (
             <>
