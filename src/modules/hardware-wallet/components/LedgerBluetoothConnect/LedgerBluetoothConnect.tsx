@@ -1,8 +1,9 @@
 import React from 'react'
-import { ActivityIndicator, RefreshControl, View } from 'react-native'
+import { RefreshControl, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import DevicesList from '@modules/auth/components/DeviceList'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import { colorPalette as colors } from '@modules/common/styles/colors'
@@ -46,7 +47,7 @@ const LedgerBluetoothConnect = ({
         <Text style={flexboxStyles.flex1} fontSize={16} weight="medium">
           {t('Available devices')}
         </Text>
-        {!!bluetoothRefreshing && <ActivityIndicator color={colors.lightViolet} />}
+        {!!bluetoothRefreshing && <Spinner />}
       </View>
       <DevicesList
         devices={bluetoothDevices}

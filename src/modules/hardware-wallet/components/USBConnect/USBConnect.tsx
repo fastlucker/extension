@@ -1,8 +1,9 @@
 import React from 'react'
-import { ActivityIndicator, RefreshControl, View } from 'react-native'
+import { RefreshControl, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import DevicesList from '@modules/auth/components/DeviceList'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import { colorPalette as colors } from '@modules/common/styles/colors'
@@ -42,7 +43,7 @@ const HardwareWalletConnect = ({ onSelectDevice, shouldWrap = true }: Props) => 
             <Text fontSize={16} weight="medium" style={flexboxStyles.flex1}>
               {t('Connected device')}
             </Text>
-            {!!usbRefreshing && <ActivityIndicator />}
+            {!!usbRefreshing && <Spinner />}
           </>
         )}
       </View>
