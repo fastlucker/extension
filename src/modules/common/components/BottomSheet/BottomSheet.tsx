@@ -1,3 +1,4 @@
+import { BlurView } from 'expo-blur'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BackHandler, StyleSheet, TouchableOpacity, View } from 'react-native'
@@ -6,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 
 import CloseIcon from '@assets/svg/CloseIcon'
+import { isiOS } from '@config/env'
 import { Portal } from '@gorhom/portal'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import { colorPalette as colors } from '@modules/common/styles/colors'
@@ -14,6 +16,8 @@ import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 import Button from '../Button'
 import NavIconWrapper from '../NavIconWrapper'
 import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
+
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView)
 
 interface Props {
   // Useful for debugging and generally knowing which bottom sheet gets triggered
@@ -142,6 +146,11 @@ const BottomSheet: React.FC<Props> = ({
     outputRange: [0.9, 0.8, 0.7, 0]
   })
 
+  const animatedBlurOpacity = Animated.interpolateNode(bottomSheetY, {
+    inputRange: [0, 0.5, 0.75, 1],
+    outputRange: [1, 0.95, 0.9, 0]
+  })
+
   // Disable pointer events so that the overlay is not clickable
   // {@link https://github.com/osdnk/react-native-reanimated-bottom-sheet/issues/138#issuecomment-772803302}
   const clickThrough = Animated.cond(
@@ -158,6 +167,32 @@ const BottomSheet: React.FC<Props> = ({
   // and right in the vertical middle of the nav.
   const notchInset = insets.top + 7
 
+  const backdrop = isiOS ? (
+    // The blurred view works on iOS only
+    <AnimatedBlurView
+      pointerEvents={clickThrough}
+      intensity={55}
+      tint="dark"
+      style={[
+        StyleSheet.absoluteFillObject,
+        {
+          opacity: animatedBlurOpacity
+        }
+      ]}
+    />
+  ) : (
+    <Animated.View
+      pointerEvents={clickThrough}
+      style={[
+        StyleSheet.absoluteFillObject,
+        {
+          backgroundColor: colors.valhalla,
+          opacity: animatedShadowOpacity
+        }
+      ]}
+    />
+  )
+
   return (
     <Portal hostName="global">
       {!!isOpen && (
@@ -165,16 +200,7 @@ const BottomSheet: React.FC<Props> = ({
           <CloseIcon />
         </NavIconWrapper>
       )}
-      <Animated.View
-        pointerEvents={clickThrough}
-        style={[
-          StyleSheet.absoluteFillObject,
-          {
-            backgroundColor: colors.valhalla,
-            opacity: animatedShadowOpacity
-          }
-        ]}
-      />
+      {!!isOpen && backdrop}
       {!!isOpen && <TouchableOpacity style={styles.backDrop} onPress={closeBottomSheet} />}
       <ReanimatedBottomSheet
         ref={sheetRef}
