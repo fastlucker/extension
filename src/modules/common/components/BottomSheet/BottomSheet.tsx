@@ -143,7 +143,7 @@ const BottomSheet: React.FC<Props> = ({
 
   const animatedShadowOpacity = Animated.interpolateNode(bottomSheetY, {
     inputRange: [0, 0.5, 0.75, 1],
-    outputRange: [0.9, 0.8, 0.7, 0]
+    outputRange: [0.95, 0.8, 0.7, 0]
   })
 
   const animatedBlurOpacity = Animated.interpolateNode(bottomSheetY, {
@@ -200,7 +200,8 @@ const BottomSheet: React.FC<Props> = ({
           <CloseIcon />
         </NavIconWrapper>
       )}
-      {!!isOpen && backdrop}
+      {/* Don't base it on the `isOpen` flag, because otherwise - the animation is not fluid */}
+      {backdrop}
       {!!isOpen && <TouchableOpacity style={styles.backDrop} onPress={closeBottomSheet} />}
       <ReanimatedBottomSheet
         ref={sheetRef}
