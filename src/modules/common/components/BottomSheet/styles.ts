@@ -1,6 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT, DEVICE_WIDTH } from '@modules/common/styles/spacings'
 
 // Fill up all available space, excluding only the status bar and the header
@@ -17,28 +17,28 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
   containerWrapper: {
-    backgroundColor: colors.panelBackgroundColor,
+    backgroundColor: colors.clay,
     // Required in order for the wrapper to cover
     // the bottom bars and to extend all the way to full screen
     minHeight: BOTTOM_SHEET_FULL_HEIGHT
   },
   containerInnerWrapper: {
-    paddingTop: 30,
-    paddingBottom: 30,
-    paddingHorizontal: 20
+    paddingTop: 35,
+    paddingBottom: 25,
+    paddingHorizontal: 35
   },
   cancelBtn: {
     alignSelf: 'center',
     marginTop: 15
   },
   dragger: {
-    width: 36,
+    width: 50,
     height: 4,
     borderRadius: 4,
-    backgroundColor: colors.tertiaryAccentColor,
+    backgroundColor: colors.titan,
     alignSelf: 'center',
     position: 'absolute',
-    top: 8
+    top: 10
   },
   backDrop: {
     width: DEVICE_WIDTH,
