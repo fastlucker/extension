@@ -1,16 +1,16 @@
 import React, { ReactNode } from 'react'
-import { TouchableOpacity } from 'react-native'
+import { TouchableOpacity, TouchableOpacityProps } from 'react-native'
 
-type Props = {
+interface Props extends TouchableOpacityProps {
   children: ReactNode
   onPress: () => any
 }
 
 const HIT_SLOP = { bottom: 10, left: 10, right: 10, top: 10 }
 
-const NavIconWrapper = ({ children, onPress }: Props) => {
+const NavIconWrapper = ({ children, onPress, ...rest }: Props) => {
   return (
-    <TouchableOpacity onPress={onPress} hitSlop={HIT_SLOP}>
+    <TouchableOpacity onPress={onPress} hitSlop={HIT_SLOP} {...rest}>
       {children}
     </TouchableOpacity>
   )
