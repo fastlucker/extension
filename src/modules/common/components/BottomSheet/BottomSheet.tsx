@@ -197,7 +197,9 @@ const BottomSheet: React.FC<Props> = ({
     <Portal hostName="global">
       {!!isOpen && (
         <NavIconWrapper onPress={closeBottomSheet} style={[styles.closeBtn, { top: notchInset }]}>
-          <CloseIcon />
+          <Animated.View style={{ opacity: animatedShadowOpacity }}>
+            <CloseIcon />
+          </Animated.View>
         </NavIconWrapper>
       )}
       {/* Don't base it on the `isOpen` flag, because otherwise - the animation is not fluid */}
