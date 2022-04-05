@@ -2,14 +2,17 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BackHandler, StyleSheet, TouchableOpacity, View } from 'react-native'
 import Animated, { greaterThan } from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import ReanimatedBottomSheet from 'reanimated-bottom-sheet'
 
+import CloseIcon from '@assets/svg/CloseIcon'
 import { Portal } from '@gorhom/portal'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Button from '../Button'
+import NavIconWrapper from '../NavIconWrapper'
 import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
 
 interface Props {
@@ -40,6 +43,7 @@ const BottomSheet: React.FC<Props> = ({
   isOpen = false
 }) => {
   const { t } = useTranslation()
+  const insets = useSafeAreaInsets()
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
   const prevIsOpen = usePrevious(isOpen)
@@ -150,8 +154,17 @@ const BottomSheet: React.FC<Props> = ({
     'auto' // misleadingly, but it actually DISABLES pointer events
   )
 
+  // The header should start a little bit below the end of the notch,
+  // and right in the vertical middle of the nav.
+  const notchInset = insets.top + 7
+
   return (
     <Portal hostName="global">
+      {!!isOpen && (
+        <NavIconWrapper onPress={closeBottomSheet} style={[styles.closeBtn, { top: notchInset }]}>
+          <CloseIcon />
+        </NavIconWrapper>
+      )}
       <Animated.View
         pointerEvents={clickThrough}
         style={[

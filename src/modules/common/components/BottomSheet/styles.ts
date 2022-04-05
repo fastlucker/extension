@@ -10,6 +10,7 @@ export const BOTTOM_SHEET_FULL_HEIGHT = DEVICE_HEIGHT - 100
 interface Styles {
   containerWrapper: ViewStyle
   containerInnerWrapper: ViewStyle
+  closeBtn: ViewStyle
   cancelBtn: ViewStyle
   dragger: ViewStyle
   backDrop: ViewStyle
@@ -26,6 +27,11 @@ const styles = StyleSheet.create<Styles>({
     paddingTop: 35,
     paddingBottom: 25,
     paddingHorizontal: 35
+  },
+  closeBtn: {
+    position: 'absolute',
+    right: 20,
+    zIndex: 2
   },
   cancelBtn: {
     alignSelf: 'center',
