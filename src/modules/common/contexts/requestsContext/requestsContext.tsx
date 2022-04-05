@@ -99,7 +99,7 @@ const RequestsProvider: React.FC = ({ children }) => {
     }
     setSentTxn((txn: any) => [...txn, { confirmed: false, hash }])
     addToast(t('Transaction signed and sent successfully!') as string, {
-      onClick: () => navigate('transactions-tab'),
+      onClick: () => navigate('transactions'),
       timeout: 15000
     })
   }

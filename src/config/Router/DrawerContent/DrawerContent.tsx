@@ -36,11 +36,11 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const { navigation } = props
 
   const menu = [
-    { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard-tab' },
-    { Icon: EarnIcon, name: t('Earn'), route: 'earn-tab' },
-    { Icon: SendIcon, name: t('Send'), route: 'send-tab' },
-    { Icon: SwapIcon, name: t('Swap'), route: 'swap-tab' },
-    { Icon: TransferIcon, name: t('Transactions'), route: 'transactions-tab' },
+    { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard' },
+    { Icon: EarnIcon, name: t('Earn'), route: 'earn' },
+    { Icon: SendIcon, name: t('Send'), route: 'send' },
+    { Icon: SwapIcon, name: t('Swap'), route: 'swap' },
+    { Icon: TransferIcon, name: t('Transactions'), route: 'transactions' },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
     { Icon: DepositIcon, name: t('Deposit'), route: 'receive' }

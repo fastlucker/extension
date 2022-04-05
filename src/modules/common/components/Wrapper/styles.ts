@@ -15,7 +15,7 @@ const styles = () =>
       backgroundColor: 'transparent'
     },
     contentContainerStyle: {
-      ...spacings.pvSm,
+      ...spacings.pbSm,
       flexGrow: 1
     }
   })
