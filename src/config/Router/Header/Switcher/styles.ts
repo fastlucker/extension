@@ -1,7 +1,7 @@
 import { StyleSheet, ViewProps, ViewStyle } from 'react-native'
 
 import { colorPalette as colors } from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
+import spacings, { SPACING_TY } from '@modules/common/styles/spacings'
 
 interface Styles {
   switcherContainer: ViewStyle
@@ -45,9 +45,9 @@ const styles = StyleSheet.create<Styles>({
     borderRadius: 13,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft: ICON_WRAPPER_SIZE,
-    ...spacings.pvTy,
-    ...spacings.phTy
+    paddingLeft: ICON_WRAPPER_SIZE + SPACING_TY,
+    ...spacings.prTy,
+    ...spacings.pvTy
   },
   networkBtnContainerActive: {
     backgroundColor: colors.howl
