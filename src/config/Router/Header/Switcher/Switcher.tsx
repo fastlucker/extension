@@ -173,7 +173,7 @@ const Switcher: React.FC = () => {
           {t('Change network')}
         </Title>
         <View style={styles.networksContainer}>{allNetworks.map(renderNetwork)}</View>
-        <View style={[styles.line, spacings.mb]} />
+        <View style={[styles.separator, spacings.mb]} />
 
         <Title style={textStyles.center} type="small">
           {t('Change account')}

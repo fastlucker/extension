@@ -7,7 +7,7 @@ interface Styles {
   switcherContainer: ViewStyle
   accountContainerActive: ViewProps
   activeBlockieStyle: ViewProps
-  line: ViewProps
+  separator: ViewProps
   networksContainer: ViewProps
   networkBtnContainer: ViewProps
   networkBtnContainerActive: ViewProps
@@ -44,7 +44,7 @@ const styles = StyleSheet.create<Styles>({
   networksContainer: {
     marginHorizontal: -1 * SPACING_SM
   },
-  line: {
+  separator: {
     height: 1,
     borderBottomWidth: 0.5,
     borderColor: colors.waikawaGray
