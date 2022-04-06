@@ -33,7 +33,7 @@ const styles = StyleSheet.create<Style>({
   textInfo: {
     fontSize: 10,
     lineHeight: 14,
-    letterSpacing: -5
+    letterSpacing: -0.25
   },
   underline: {
     textDecorationLine: 'underline'
