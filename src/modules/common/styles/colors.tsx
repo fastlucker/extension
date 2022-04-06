@@ -1,5 +1,6 @@
 export const colorPalette = {
   turquoise: '#27E8A7',
+  onahau: '#C8FFFE',
 
   lightAquamarine: '#B3FFFD',
   aquamarine: '#80FFFB',
@@ -20,6 +21,7 @@ export const colorPalette = {
   lightPink: '#FF7C95',
   pink: '#FF4367',
   darkPink: '#8C2539',
+  pigPink: '#FEE2E8',
 
   vulcan: '#12131F',
   mirage: '#181A29',

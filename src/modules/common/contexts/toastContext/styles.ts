@@ -1,6 +1,6 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings, { DEVICE_WIDTH } from '@modules/common/styles/spacings'
 
 interface Style {
@@ -18,23 +18,27 @@ const styles = StyleSheet.create<Style>({
     position: 'absolute',
     width: DEVICE_WIDTH,
     zIndex: 999,
-    elevation: 20
+    elevation: 20,
+    paddingHorizontal: 20
   },
   toast: {
-    backgroundColor: colors.primaryAccentColor,
-    borderLeftWidth: 0,
+    backgroundColor: colors.onahau,
+    borderLeftColor: colors.turquoise,
+    borderLeftWidth: 9,
     alignItems: 'center',
     flexDirection: 'row',
     ...spacings.pvTy,
     ...spacings.phTy,
     height: 'auto',
-    width: DEVICE_WIDTH,
-    marginBottom: 5,
-    borderRadius: 2,
+    minHeight: 50,
+    width: '100%',
+    marginBottom: 10,
+    borderRadius: 10,
     flex: 1
   },
   error: {
-    backgroundColor: colors.dangerColor
+    backgroundColor: colors.pigPink,
+    borderLeftColor: colors.pink
   },
   text: {
     fontSize: 16,
