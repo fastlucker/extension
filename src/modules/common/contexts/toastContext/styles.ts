@@ -18,7 +18,7 @@ const styles = StyleSheet.create<Style>({
     position: 'absolute',
     width: DEVICE_WIDTH,
     zIndex: 999,
-    elevation: 5
+    elevation: 20
   },
   toast: {
     backgroundColor: colors.primaryAccentColor,
