@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import Text from '@modules/common/components/Text'
-import textStyles from '@modules/common/styles/utils/text'
+import spacings from '@modules/common/styles/spacings'
 
 import styles from './styles'
 
@@ -37,14 +37,20 @@ const Segments = ({ defaultValue, segments, onChange }: Props) => {
 
   return (
     <View style={styles.container}>
-      {segments.map((segment) => (
+      {segments.map((segment, i) => (
         <TouchableOpacity
           key={segment.value}
-          style={[styles.segment, segment.value === value && styles.active]}
+          style={[
+            styles.segment,
+            segment.value === value && styles.active,
+            i < segments.length - 1 && spacings.mrMd
+          ]}
           onPress={() => setSegment(segment.value)}
         >
           {!!segment.icon && segment.icon}
-          <Text style={segment.value === value && textStyles.bold}>{segment.value}</Text>
+          <Text fontSize={16} weight={segment.value === value ? 'medium' : 'regular'}>
+            {segment.value}
+          </Text>
         </TouchableOpacity>
       ))}
     </View>
