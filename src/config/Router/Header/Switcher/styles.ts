@@ -32,6 +32,7 @@ const styles = StyleSheet.create<Styles>({
   accountContainerActive: {
     backgroundColor: colors.howl,
     borderRadius: 13,
+    // Because the content goes beyond the parent wrapper
     marginHorizontal: -1 * SPACING_SM,
     ...spacings.pvTy,
     ...spacings.phSm
@@ -42,6 +43,7 @@ const styles = StyleSheet.create<Styles>({
     borderColor: colors.lightViolet
   },
   networksContainer: {
+    // Because the content goes beyond the parent wrapper
     marginHorizontal: -1 * SPACING_SM
   },
   separator: {
