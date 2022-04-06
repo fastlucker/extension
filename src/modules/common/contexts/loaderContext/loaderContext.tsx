@@ -1,6 +1,7 @@
 import { BlurView } from 'expo-blur'
 import LottieView from 'lottie-react-native'
 import React, { useMemo, useState } from 'react'
+import { View } from 'react-native'
 
 import LoaderAnimation from './loader-animation.json'
 import styles from './styles'
@@ -41,9 +42,11 @@ const LoaderProvider = ({ children }: any) => {
       )}
     >
       {isVisible && (
-        <BlurView style={styles.container} tint="dark" intensity={LOADER_BACKGROUND_BLUR}>
-          <LottieView source={LoaderAnimation} style={{ width: 86, height: 86 }} autoPlay loop />
-        </BlurView>
+        <View style={styles.container}>
+          <BlurView style={styles.blur} tint="dark" intensity={LOADER_BACKGROUND_BLUR}>
+            <LottieView source={LoaderAnimation} style={{ width: 86, height: 86 }} autoPlay loop />
+          </BlurView>
+        </View>
       )}
       {children}
     </LoaderContext.Provider>
