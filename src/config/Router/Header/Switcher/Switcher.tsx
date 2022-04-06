@@ -138,14 +138,18 @@ const Switcher: React.FC = () => {
         isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
         dynamicInitialHeight={false}
+        displayCancel={false}
       >
-        <Title>{t('Change network')}</Title>
-
+        <Title style={textStyles.center} type="small">
+          {t('Change network')}
+        </Title>
         {allNetworks.map(({ name, chainId }) => (
           <Button key={chainId} onPress={() => handleChangeNetwork(chainId)} text={name} />
         ))}
-        <Title>{t('Change account')}</Title>
 
+        <Title style={textStyles.center} type="small">
+          {t('Change account')}
+        </Title>
         {accounts.map(renderAccountDetails)}
         <Button onPress={handleGoToAddAccount} style={spacings.mt} text={t('➕ Add account')} />
       </BottomSheet>
