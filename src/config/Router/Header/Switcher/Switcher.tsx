@@ -9,6 +9,7 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import { NetworkType } from '@modules/common/constants/networks'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -53,7 +54,7 @@ const Switcher: React.FC = () => {
     navigation.navigate('auth-add-account')
   }
 
-  const renderAccountDetails = (account: any) => {
+  const renderAccount = (account: any) => {
     const isActive = selectedAcc === account.id
     const onChangeAccount = () => handleChangeAccount(account.id)
 
@@ -118,6 +119,30 @@ const Switcher: React.FC = () => {
     )
   }
 
+  const renderNetwork = ({ name, Icon, chainId }: NetworkType) => {
+    const isActive = chainId === network?.chainId
+
+    return (
+      <TouchableOpacity
+        key={chainId}
+        onPress={() => handleChangeNetwork(chainId)}
+        style={[styles.networkBtnContainer, isActive && styles.networkBtnContainerActive]}
+      >
+        <Text
+          weight="regular"
+          color={isActive ? colors.titan : colors.titan_05}
+          style={[flexboxStyles.flex1, textStyles.center]}
+          numberOfLines={1}
+        >
+          {name}
+        </Text>
+        <View style={styles.networkBtnIcon}>
+          <Icon />
+        </View>
+      </TouchableOpacity>
+    )
+  }
+
   return (
     <>
       <TouchableOpacity style={styles.switcherContainer} onPress={openBottomSheet}>
@@ -143,34 +168,12 @@ const Switcher: React.FC = () => {
         <Title style={textStyles.center} type="small">
           {t('Change network')}
         </Title>
-        {allNetworks.map(({ name, Icon, chainId }) => {
-          const isActive = chainId === network?.chainId
+        {allNetworks.map(renderNetwork)}
 
-          return (
-            <TouchableOpacity
-              key={chainId}
-              onPress={() => handleChangeNetwork(chainId)}
-              style={[styles.networkBtnContainer, isActive && styles.networkBtnContainerActive]}
-            >
-              <Text
-                weight="regular"
-                color={isActive ? colors.titan : colors.titan_05}
-                style={[flexboxStyles.flex1, textStyles.center]}
-                numberOfLines={1}
-              >
-                {name}
-              </Text>
-              <View style={styles.networkBtnIcon}>
-                <Icon />
-              </View>
-            </TouchableOpacity>
-          )
-        })}
-
-        <Title style={textStyles.center} type="small">
+        <Title style={[textStyles.center, spacings.mt]} type="small">
           {t('Change account')}
         </Title>
-        {accounts.map(renderAccountDetails)}
+        {accounts.map(renderAccount)}
         <Button onPress={handleGoToAddAccount} style={spacings.mt} text={t('➕ Add account')} />
       </BottomSheet>
     </>
