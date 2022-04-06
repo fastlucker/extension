@@ -81,17 +81,21 @@ const Switcher: React.FC = () => {
         style={[styles.accItemStyle, spacings.mb, !isActive && styles.inactiveAccount]}
       >
         <TouchableOpacity onPress={onChangeAccount} style={isActive && styles.activeBlockieStyle}>
-          <Blockies size={16} borderRadius={30} borderColor={colors.valhalla} seed={account?.id} />
+          <Blockies size={8} borderRadius={30} borderColor={colors.valhalla} seed={account?.id} />
         </TouchableOpacity>
         <View style={[flexboxStyles.flex1, spacings.mlTy]}>
-          <Text onPress={onChangeAccount}>{account.id}</Text>
-          <Text fontSize={14}>
+          <Text type="small" numberOfLines={1} ellipsizeMode="middle" onPress={onChangeAccount}>
+            {account.id}
+          </Text>
+          <Text type="info" color={colors.titan_05}>
             {account.email
               ? `Email/Password account (${account?.email})`
               : `${walletType(account?.signerExtra)} (${shortenedAddress(
                   account?.signer?.address
                 )})`}
           </Text>
+        </View>
+        <View>
           {logoutWarning === account.id ? (
             <>
               <Text appearance="danger">
