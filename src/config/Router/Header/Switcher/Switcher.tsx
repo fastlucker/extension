@@ -2,11 +2,11 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
-import CopyAddress from '@config/Router/Header/CopyAddress'
 import Blockies from '@modules/common/components/Blockies'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
+import CopyText from '@modules/common/components/CopyText'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import { NetworkType } from '@modules/common/constants/networks'
@@ -110,13 +110,16 @@ const Switcher: React.FC = () => {
               </View>
             </>
           ) : (
-            <Text
-              weight="medium"
-              style={textStyles.right}
-              onPress={() => setLogoutWarning(account.id)}
-            >
-              {t('Log out')}
-            </Text>
+            <>
+              <CopyText text={account?.id} />
+              <Text
+                weight="medium"
+                style={textStyles.right}
+                onPress={() => setLogoutWarning(account.id)}
+              >
+                {t('Log out')}
+              </Text>
+            </>
           )}
         </View>
       </View>
@@ -159,7 +162,7 @@ const Switcher: React.FC = () => {
           </Text>
         </View>
 
-        <CopyAddress />
+        <CopyText text={selectedAcc} />
       </TouchableOpacity>
       <BottomSheet
         id="header-switcher"
