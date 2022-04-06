@@ -10,7 +10,8 @@ const styles = StyleSheet.create<Styles>({
   lockedContainer: {
     backgroundColor: colors.secondaryAccentColor,
     // The lock container should come on top of everything
-    zIndex: 1000
+    zIndex: 1000,
+    elevation: 100
   }
 })
 
