@@ -173,7 +173,7 @@ const Switcher: React.FC = () => {
           {t('Change account')}
         </Title>
         {accounts.map(renderAccount)}
-        <Button onPress={handleGoToAddAccount} style={spacings.mt} text={t('➕ Add account')} />
+        <Button onPress={handleGoToAddAccount} style={spacings.mt} text={t('Add account')} />
       </BottomSheet>
     </>
   )
