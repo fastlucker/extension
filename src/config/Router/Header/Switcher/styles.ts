@@ -1,12 +1,11 @@
 import { StyleSheet, ViewProps, ViewStyle } from 'react-native'
 
 import { colorPalette as colors } from '@modules/common/styles/colors'
-import spacings, { SPACING_TY } from '@modules/common/styles/spacings'
+import spacings, { SPACING_SM, SPACING_TY } from '@modules/common/styles/spacings'
 
 interface Styles {
   switcherContainer: ViewStyle
-  accItemStyle: ViewProps
-  inactiveAccount: ViewProps
+  accountContainerActive: ViewProps
   activeBlockieStyle: ViewProps
   networkBtnContainer: ViewProps
   networkBtnContainerActive: ViewProps
@@ -28,12 +27,12 @@ const styles = StyleSheet.create<Styles>({
     alignItems: 'center',
     flexDirection: 'row'
   },
-  accItemStyle: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  inactiveAccount: {
-    opacity: 0.5
+  accountContainerActive: {
+    backgroundColor: colors.howl,
+    borderRadius: 13,
+    marginHorizontal: -1 * SPACING_SM,
+    ...spacings.pvTy,
+    ...spacings.phSm
   },
   activeBlockieStyle: {
     borderWidth: 3,

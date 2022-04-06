@@ -1,12 +1,14 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity, View } from 'react-native'
+import { Alert, TouchableOpacity, View } from 'react-native'
 
+import LogOutIcon from '@assets/svg/LogOutIcon'
 import Blockies from '@modules/common/components/Blockies'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import CopyText from '@modules/common/components/CopyText'
+import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import { NetworkType } from '@modules/common/constants/networks'
@@ -35,7 +37,6 @@ const Switcher: React.FC = () => {
   const { sheetRef, isOpen, closeBottomSheet, openBottomSheet } = useBottomSheet()
   const { network, setNetwork, allNetworks } = useNetwork()
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
-  const [logoutWarning, setLogoutWarning] = useState(false)
   const { removeSelectedAccPassword } = useAccountsPasswords()
   const { removePasscode } = usePasscode()
 
@@ -58,9 +59,7 @@ const Switcher: React.FC = () => {
     const isActive = selectedAcc === account.id
     const onChangeAccount = () => handleChangeAccount(account.id)
 
-    const handleRemoveAccount = async () => {
-      setLogoutWarning(false)
-
+    const removeAccount = async () => {
       // Remove account password, because it gets persisted in the iOS Keychain
       // or in the Android Keystore.
       await removeSelectedAccPassword(account.id)
@@ -75,54 +74,47 @@ const Switcher: React.FC = () => {
       onRemoveAccount(account.id)
     }
 
+    const handleRemoveAccount = () =>
+      Alert.alert(t('Log out from this account?'), undefined, [
+        {
+          text: t('Log out'),
+          onPress: removeAccount,
+          style: 'destructive'
+        },
+        {
+          text: t('Cancel'),
+          style: 'cancel'
+        }
+      ])
+
     return (
-      <View
+      <TouchableOpacity
+        onPress={onChangeAccount}
         key={account?.id}
-        style={[styles.accItemStyle, spacings.mb, !isActive && styles.inactiveAccount]}
+        style={[flexboxStyles.directionRow, spacings.mb, isActive && styles.accountContainerActive]}
       >
-        <TouchableOpacity onPress={onChangeAccount} style={isActive && styles.activeBlockieStyle}>
+        <View>
           <Blockies size={8} borderRadius={30} borderColor={colors.valhalla} seed={account?.id} />
-        </TouchableOpacity>
+        </View>
         <View style={[flexboxStyles.flex1, spacings.mlTy]}>
-          <Text type="small" numberOfLines={1} ellipsizeMode="middle" onPress={onChangeAccount}>
+          <Text type="small" numberOfLines={1} ellipsizeMode="middle">
             {account.id}
           </Text>
           <Text type="info" color={colors.titan_05}>
             {account.email
-              ? `Email/Password account (${account?.email})`
+              ? t('Email/Password account ({{email}})', { email: account?.email })
               : `${walletType(account?.signerExtra)} (${shortenedAddress(
                   account?.signer?.address
                 )})`}
           </Text>
         </View>
-        <View>
-          {logoutWarning === account.id ? (
-            <>
-              <Text appearance="danger">
-                {t('Are you sure you want to log out from this account?')}{' '}
-              </Text>
-              <View style={[flexboxStyles.directionRow, flexboxStyles.justifySpaceBetween]}>
-                <Text style={textStyles.bold} onPress={handleRemoveAccount}>
-                  {t('Yes, log out.')}
-                </Text>
-
-                <Text onPress={() => setLogoutWarning(false)}>{t('Cancel')}</Text>
-              </View>
-            </>
-          ) : (
-            <>
-              <CopyText text={account?.id} />
-              <Text
-                weight="medium"
-                style={textStyles.right}
-                onPress={() => setLogoutWarning(account.id)}
-              >
-                {t('Log out')}
-              </Text>
-            </>
-          )}
+        <View style={[spacings.ml, { justifyContent: 'flex-start', flexDirection: 'row' }]}>
+          <CopyText text={account?.id} />
+          <NavIconWrapper onPress={handleRemoveAccount} style={spacings.ml}>
+            <LogOutIcon />
+          </NavIconWrapper>
         </View>
-      </View>
+      </TouchableOpacity>
     )
   }
 
