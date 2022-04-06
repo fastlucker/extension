@@ -1,13 +1,19 @@
 import { StyleSheet, ViewProps, ViewStyle } from 'react-native'
 
 import { colorPalette as colors } from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
 
 interface Styles {
   switcherContainer: ViewStyle
   accItemStyle: ViewProps
   inactiveAccount: ViewProps
   activeBlockieStyle: ViewProps
+  networkBtnContainer: ViewProps
+  networkBtnContainerActive: ViewProps
+  networkBtnIcon: ViewProps
 }
+
+const ICON_WRAPPER_SIZE = 32
 
 const styles = StyleSheet.create<Styles>({
   switcherContainer: {
@@ -33,6 +39,26 @@ const styles = StyleSheet.create<Styles>({
     borderWidth: 3,
     borderRadius: 50,
     borderColor: colors.lightViolet
+  },
+  networkBtnContainer: {
+    width: '100%',
+    borderRadius: 13,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: ICON_WRAPPER_SIZE,
+    ...spacings.pvTy,
+    ...spacings.phTy
+  },
+  networkBtnContainerActive: {
+    backgroundColor: colors.howl
+  },
+  networkBtnIcon: {
+    width: ICON_WRAPPER_SIZE,
+    height: ICON_WRAPPER_SIZE,
+    backgroundColor: colors.valhalla,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
 

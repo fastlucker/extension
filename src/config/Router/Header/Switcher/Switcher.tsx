@@ -143,9 +143,28 @@ const Switcher: React.FC = () => {
         <Title style={textStyles.center} type="small">
           {t('Change network')}
         </Title>
-        {allNetworks.map(({ name, chainId }) => (
-          <Button key={chainId} onPress={() => handleChangeNetwork(chainId)} text={name} />
-        ))}
+        {allNetworks.map(({ name, Icon, chainId }) => {
+          const isActive = chainId === network?.chainId
+
+          return (
+            <TouchableOpacity
+              key={chainId}
+              onPress={() => handleChangeNetwork(chainId)}
+              style={[styles.networkBtnContainer, isActive && styles.networkBtnContainerActive]}
+            >
+              <Text
+                weight="regular"
+                color={isActive ? colors.titan : colors.titan_05}
+                style={[flexboxStyles.flex1, textStyles.center]}
+              >
+                {name}
+              </Text>
+              <View style={styles.networkBtnIcon}>
+                <Icon />
+              </View>
+            </TouchableOpacity>
+          )
+        })}
 
         <Title style={textStyles.center} type="small">
           {t('Change account')}
