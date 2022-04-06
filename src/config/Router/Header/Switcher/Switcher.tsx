@@ -156,6 +156,7 @@ const Switcher: React.FC = () => {
                 weight="regular"
                 color={isActive ? colors.titan : colors.titan_05}
                 style={[flexboxStyles.flex1, textStyles.center]}
+                numberOfLines={1}
               >
                 {name}
               </Text>
