@@ -11,7 +11,7 @@ import CopyText from '@modules/common/components/CopyText'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import { NetworkType } from '@modules/common/constants/networks'
+import networks, { NetworkType } from '@modules/common/constants/networks'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -118,14 +118,19 @@ const Switcher: React.FC = () => {
     )
   }
 
-  const renderNetwork = ({ name, Icon, chainId }: NetworkType) => {
+  const renderNetwork = ({ name, Icon, chainId }: NetworkType, i: number) => {
     const isActive = chainId === network?.chainId
+    const isLast = i + 1 === allNetworks.length
 
     return (
       <TouchableOpacity
         key={chainId}
         onPress={() => handleChangeNetwork(chainId)}
-        style={[styles.networkBtnContainer, isActive && styles.networkBtnContainerActive]}
+        style={[
+          styles.networkBtnContainer,
+          isActive && styles.networkBtnContainerActive,
+          isLast && spacings.mbTy
+        ]}
       >
         <Text
           weight="regular"
@@ -167,9 +172,10 @@ const Switcher: React.FC = () => {
         <Title style={textStyles.center} type="small">
           {t('Change network')}
         </Title>
-        {allNetworks.map(renderNetwork)}
+        <View style={styles.networksContainer}>{allNetworks.map(renderNetwork)}</View>
+        <View style={[styles.line, spacings.mb]} />
 
-        <Title style={[textStyles.center, spacings.mt]} type="small">
+        <Title style={textStyles.center} type="small">
           {t('Change account')}
         </Title>
         {accounts.map(renderAccount)}
