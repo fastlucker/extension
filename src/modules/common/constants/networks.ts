@@ -2,12 +2,12 @@ import React from 'react'
 
 import AvalancheLogo from '@assets/svg/AvalancheLogo'
 import AvalancheMonochromeIcon from '@assets/svg/AvalancheMonochromeIcon'
+import BinanceLogo from '@assets/svg/BinanceLogo'
 import BinanceMonochromeIcon from '@assets/svg/BinanceMonochromeIcon'
 import EthereumLogo from '@assets/svg/EthereumLogo'
 import EthereumMonochromeIcon from '@assets/svg/EthereumMonochromeIcon'
 import PolygonLogo from '@assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@assets/svg/PolygonMonochromeIcon'
-import BinanceSmartChainLogo from '@modules/common/assets/svg/networks/BinanceSmartChainLogo'
 
 export type NetworkType = {
   id: string
@@ -58,7 +58,7 @@ const networks: NetworkType[] = [
     rpc: 'https://bsc-dataseed.binance.org/',
     nativeAssetSymbol: 'BNB',
     name: 'Binance',
-    Icon: BinanceSmartChainLogo,
+    Icon: BinanceLogo,
     IconMonochrome: BinanceMonochromeIcon,
     explorerUrl: 'https://bscscan.com'
   } /* , {
