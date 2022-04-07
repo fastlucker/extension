@@ -4,24 +4,26 @@ import { useTranslation } from 'react-i18next'
 
 import CopyIcon from '@assets/svg/CopyIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
-import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
 
-const CopyAddress: React.FC = () => {
+interface Props {
+  text: string
+}
+
+const CopyText: React.FC<Props> = ({ text }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
-  const { selectedAcc } = useAccounts()
 
-  const handleCopyAddress = () => {
-    Clipboard.setString(selectedAcc)
-    addToast(t('Address copied to clipboard!') as string, { timeout: 2000 })
+  const handleCopyText = () => {
+    Clipboard.setString(text)
+    addToast(t('Copied to clipboard!') as string, { timeout: 2000 })
   }
 
   return (
-    <NavIconWrapper onPress={handleCopyAddress}>
+    <NavIconWrapper onPress={handleCopyText}>
       <CopyIcon />
     </NavIconWrapper>
   )
 }
 
-export default CopyAddress
+export default CopyText

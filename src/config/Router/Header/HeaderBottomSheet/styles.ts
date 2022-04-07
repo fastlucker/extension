@@ -4,9 +4,7 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 
 interface Styles {
   switcherContainer: ViewStyle
-  accItemStyle: ViewProps
-  inactiveAccount: ViewProps
-  activeBlockieStyle: ViewProps
+  separator: ViewProps
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -22,17 +20,10 @@ const styles = StyleSheet.create<Styles>({
     alignItems: 'center',
     flexDirection: 'row'
   },
-  accItemStyle: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  inactiveAccount: {
-    opacity: 0.5
-  },
-  activeBlockieStyle: {
-    borderWidth: 3,
-    borderRadius: 50,
-    borderColor: colors.lightViolet
+  separator: {
+    height: 1,
+    borderBottomWidth: 0.5,
+    borderColor: colors.waikawaGray
   }
 })
 

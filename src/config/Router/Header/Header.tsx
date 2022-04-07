@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
-import Switcher from '@config/Router/Header/Switcher'
+import HeaderBottomSheet from '@config/Router/Header/HeaderBottomSheet'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import { getHeaderTitle } from '@react-navigation/elements'
@@ -14,13 +14,13 @@ import { NativeStackHeaderProps } from '@react-navigation/native-stack'
 import styles from './style'
 
 interface Props extends NativeStackHeaderProps {
-  mode?: 'title' | 'switcher'
+  mode?: 'title' | 'bottom-sheet'
   withHamburger?: boolean
   withScanner?: boolean
 }
 
 const Header: React.FC<Props> = ({
-  mode = 'switcher',
+  mode = 'bottom-sheet',
   withHamburger = false,
   withScanner = false,
   navigation,
@@ -31,7 +31,7 @@ const Header: React.FC<Props> = ({
   const canGoBack = navigation.canGoBack()
   const title = getHeaderTitle(options, route.name)
 
-  const renderHeaderSwitcher = () => <Switcher />
+  const renderHeaderBottomSheet = () => <HeaderBottomSheet />
 
   const renderHeaderLeft = () => {
     if (withHamburger) {
@@ -80,7 +80,7 @@ const Header: React.FC<Props> = ({
     <View style={[styles.container, { paddingTop: notchInset }]}>
       <View style={navIconContainer}>{renderHeaderLeft()}</View>
 
-      {mode === 'switcher' && renderHeaderSwitcher()}
+      {mode === 'bottom-sheet' && renderHeaderBottomSheet()}
       {mode === 'title' && (
         <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={1}>
           {title}

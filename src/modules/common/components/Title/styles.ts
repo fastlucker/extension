@@ -18,7 +18,7 @@ const styles = StyleSheet.create<Style>({
   titleSmall: {
     fontFamily: FONT_FAMILIES.MEDIUM,
     fontSize: 16,
-    letterSpacing: 5,
+    letterSpacing: 0.25,
     lineHeight: 25
   },
   bottomSpacing: {
