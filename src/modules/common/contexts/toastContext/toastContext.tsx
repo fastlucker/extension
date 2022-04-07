@@ -9,6 +9,7 @@ import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import { navigationRef } from '@modules/common/services/navigation'
+import { isRouteWithTabBar } from '@modules/common/services/router'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -49,13 +50,7 @@ const ToastProvider = ({ children }: any) => {
       // @ts-ignore
       const routeName = navigationRef?.current?.getCurrentRoute()?.name
 
-      const hasTabs =
-        routeName === 'dashboard' ||
-        routeName === 'earn' ||
-        routeName === 'send' ||
-        routeName === 'swap' ||
-        routeName === 'transactions'
-      setHasTabBar(hasTabs)
+      setHasTabBar(isRouteWithTabBar(routeName))
     })
 
     return unsubscribe
@@ -119,9 +114,8 @@ const ToastProvider = ({ children }: any) => {
       <View style={[styles.container, { bottom: bottomInset }]}>
         {/* eslint-disable-next-line @typescript-eslint/no-shadow */}
         {[...toasts].reverse().map(({ id, url, error, sticky, text, onClick }) => (
-          <View style={styles.toastWrapper}>
+          <View style={styles.toastWrapper} key={id}>
             <TouchableOpacity
-              key={id}
               style={[styles.toast, error && styles.error]}
               onPress={() => onToastPress(id, onClick, url)}
               activeOpacity={0.9}
