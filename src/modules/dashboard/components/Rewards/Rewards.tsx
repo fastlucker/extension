@@ -131,8 +131,6 @@ const Rewards = () => {
               ? t('Updating...')
               : t('{{walletTokensAmount}} WALLET', { walletTokensAmount })
           }
-          style={styles.button}
-          size="small"
         />
       </View>
       <BottomSheet
