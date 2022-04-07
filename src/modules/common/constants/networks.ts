@@ -1,12 +1,12 @@
 import React from 'react'
 
+import AvalancheLogo from '@assets/svg/AvalancheLogo'
 import AvalancheMonochromeIcon from '@assets/svg/AvalancheMonochromeIcon'
 import BinanceMonochromeIcon from '@assets/svg/BinanceMonochromeIcon'
 import EthereumLogo from '@assets/svg/EthereumLogo'
 import EthereumMonochromeIcon from '@assets/svg/EthereumMonochromeIcon'
 import PolygonLogo from '@assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@assets/svg/PolygonMonochromeIcon'
-import AvalancheLogo from '@modules/common/assets/svg/networks/AvalancheLogo'
 import BinanceSmartChainLogo from '@modules/common/assets/svg/networks/BinanceSmartChainLogo'
 
 export type NetworkType = {
