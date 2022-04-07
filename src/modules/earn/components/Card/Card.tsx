@@ -172,9 +172,15 @@ const Card = ({
               <Text style={spacings.mbTy} fontSize={16} color={colors.baileyBells} weight="medium">
                 {t('Details')}
               </Text>
-              <View style={[spacings.mbSm]}>
-                {details.map(([type, value]: any) => (
-                  <View key={type + value} style={styles.detailsItem}>
+              <View>
+                {details.map(([type, value]: any, idx: number) => (
+                  <View
+                    key={type + value}
+                    style={[
+                      styles.detailsItem,
+                      idx !== details.length - 1 && { borderBottomWidth: 1 }
+                    ]}
+                  >
                     <Text
                       style={[textStyles.bold, flexboxStyles.flex1, spacings.prTy]}
                       numberOfLines={1}

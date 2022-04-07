@@ -20,8 +20,7 @@ const styles = StyleSheet.create<Style>({
     ...spacings.pvTy,
     ...flexboxStyles.directionRow,
     borderColor: 'red',
-    borderBottomColor: colors.waikawaGray,
-    borderBottomWidth: 1
+    borderBottomColor: colors.waikawaGray
   }
 })
 

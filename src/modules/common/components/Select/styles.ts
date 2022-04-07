@@ -2,13 +2,13 @@ import { StyleSheet, TextProps, ViewProps } from 'react-native'
 
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import { colorPalette as colors } from '@modules/common/styles/colors'
-import spacings, { SPACING_TY } from '@modules/common/styles/spacings'
+import spacings, { SPACING, SPACING_TY } from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
 
 interface Style {
   dropdown: ViewProps
-  dropDownContainerStyle: ViewProps
   listItemContainerStyle: ViewProps
+  selectedItemContainerStyle: ViewProps
   searchContainerStyle: ViewProps
   searchTextInputStyle: ViewProps
   modalContentContainerStyle: ViewProps
@@ -31,31 +31,41 @@ const styles = StyleSheet.create<Style>({
     fontFamily: FONT_FAMILIES.LIGHT
   },
   listItemLabelStyle: {
-    color: colors.textColor,
-    fontSize: 16,
-    fontWeight: '500'
-  },
-  dropDownContainerStyle: {
-    backgroundColor: colors.inputBackgroundColor
+    color: colors.titan,
+    fontSize: 16
   },
   listItemContainerStyle: {
-    ...spacings.phSM,
-    height: 50
+    ...spacings.mh,
+    ...spacings.phTy,
+    height: 50,
+    backgroundColor: 'transparent',
+    ...commonStyles.borderRadiusPrimary
+  },
+  selectedItemContainerStyle: {
+    backgroundColor: colors.howl
   },
   searchContainerStyle: {
-    padding: SPACING_TY,
-    borderBottomColor: colors.panelBackgroundColor,
-    borderBottomWidth: 1
+    flexDirection: 'column-reverse',
+    width: '100%',
+    alignItems: 'flex-end',
+    ...spacings.ph,
+    ...spacings.pt,
+    ...spacings.pbTy,
+    borderBottomWidth: 0
   },
   searchTextInputStyle: {
-    ...spacings.phTy,
-    ...spacings.pvTy,
-    borderRadius: 0,
-    borderColor: colors.inputBackgroundColor,
-    color: colors.textColor
+    marginTop: 10,
+    width: '100%',
+    height: 50,
+    borderRadius: 13,
+    backgroundColor: colors.howl,
+    borderWidth: 0,
+    fontSize: 16,
+    paddingHorizontal: 15,
+    color: colors.titan
   },
   modalContentContainerStyle: {
-    backgroundColor: colors.inputBackgroundColor
+    backgroundColor: colors.valhalla
   },
   iconContainerStyle: {
     backgroundColor: colors.titan_05,
