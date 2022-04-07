@@ -1,11 +1,12 @@
 import { ethers } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, Image, View } from 'react-native'
+import { ActivityIndicator, Image, TouchableOpacity, View } from 'react-native'
 
+import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
+import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import NumberInput from '@modules/common/components/NumberInput'
-import Panel from '@modules/common/components/Panel'
 import Segments from '@modules/common/components/Segments'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
@@ -13,6 +14,10 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import {
+  ExpandableCardContext,
+  ExpandableCardProvider
+} from '@modules/earn/contexts/expandableCardContext/expandableCardContext'
 
 import styles from './styles'
 
@@ -112,11 +117,8 @@ const Card = ({
     if (loading) setToken(null)
   }, [loading])
 
-  return (
-    <Panel>
-      <View style={[spacings.pt, spacings.mbLg, flexboxStyles.alignCenter]}>
-        {!!Icon && <Icon />}
-      </View>
+  const expandedContent = (
+    <>
       {!!loading && <ActivityIndicator />}
       {!loading && !!unavailable && (
         <Text style={[textStyles.center, spacings.pvSm]}>{t('Unavailable on this Network')}</Text>
@@ -177,7 +179,43 @@ const Card = ({
           />
         </View>
       )}
-    </Panel>
+    </>
+  )
+
+  return (
+    <ExpandableCardProvider>
+      <ExpandableCardContext.Consumer>
+        {({ isExpanded, expand, collapse }) => (
+          <>
+            <View
+              style={[
+                !isExpanded && flexboxStyles.flex1,
+                isExpanded && { width: '100%', marginBottom: 40 }
+              ]}
+            >
+              {isExpanded && (
+                <NavIconWrapper style={styles.backButton} onPress={collapse}>
+                  <LeftArrowIcon />
+                </NavIconWrapper>
+              )}
+              <TouchableOpacity
+                style={[
+                  flexboxStyles.alignCenter,
+                  isExpanded && spacings.ptMi,
+                  !isExpanded && flexboxStyles.flex1,
+                  !isExpanded && flexboxStyles.justifyCenter
+                ]}
+                activeOpacity={isExpanded ? 1 : 0.7}
+                onPress={() => (isExpanded ? null : expand())}
+              >
+                {!!Icon && <Icon />}
+              </TouchableOpacity>
+            </View>
+            {isExpanded && expandedContent}
+          </>
+        )}
+      </ExpandableCardContext.Consumer>
+    </ExpandableCardProvider>
   )
 }
 
