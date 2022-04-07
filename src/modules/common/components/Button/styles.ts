@@ -35,8 +35,9 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   // Touchable element wrapper
   buttonWrapper: {
-    width: '100%',
-    overflow: 'hidden'
+    // TODO: Figure out if this breaks stuff
+    // width: '100%',
+    // overflow: 'hidden'
   },
 
   // Default button container styles
