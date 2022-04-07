@@ -1,30 +1,27 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings, { SPACING_SM } from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Style {
-  detailsPlaceholderContainer: ViewStyle
-  detailsPlaceholder: ViewStyle
   backButton: ViewStyle
+  detailsItem: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  detailsPlaceholderContainer: {
-    ...spacings.mbLg,
-    opacity: 0.5
-  },
-  detailsPlaceholder: {
-    flex: 1,
-    height: 18,
-    backgroundColor: '#FFF',
-    opacity: 0.1,
-    ...spacings.mbMi
-  },
   backButton: {
     position: 'absolute',
     top: SPACING_SM,
     left: 0,
     zIndex: 5
+  },
+  detailsItem: {
+    ...spacings.pvTy,
+    ...flexboxStyles.directionRow,
+    borderColor: 'red',
+    borderBottomColor: colors.waikawaGray,
+    borderBottomWidth: 1
   }
 })
 

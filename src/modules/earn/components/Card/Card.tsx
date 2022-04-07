@@ -7,10 +7,9 @@ import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import NumberInput from '@modules/common/components/NumberInput'
-import Segments from '@modules/common/components/Segments'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -21,7 +20,7 @@ import {
 
 import styles from './styles'
 
-const segments = [{ value: 'Deposit' }, { value: 'Withdraw' }]
+type Segment = 'Deposit' | 'Withdraw'
 
 const Card = ({
   loading,
@@ -32,7 +31,7 @@ const Card = ({
   onTokenSelect,
   onValidate
 }: any) => {
-  const [segment, setSegment] = useState<any>(segments[0].value)
+  const [segment, setSegment] = useState<Segment>('Deposit')
   const [tokens, setTokens] = useState<any>([])
   const [token, setToken] = useState<any>()
   const [amount, setAmount] = useState<any>(0)
@@ -75,9 +74,8 @@ const Card = ({
   const setMaxAmount = () => setAmount(getMaxAmount())
 
   useEffect(() => {
-    if (segment === segments[0]?.value)
-      setTokens(sortedTokenItems.filter(({ type }) => type === 'deposit'))
-    if (segment === segments[1]?.value)
+    if (segment === 'Deposit') setTokens(sortedTokenItems.filter(({ type }) => type === 'deposit'))
+    if (segment === 'Withdraw')
       setTokens(sortedTokenItems.filter(({ type }) => type === 'withdraw'))
   }, [segment, sortedTokenItems])
 
@@ -93,7 +91,7 @@ const Card = ({
       tokens.map(({ label, symbol, value, icon }: any) => ({
         label: label || symbol,
         value,
-        icon: () => <Image source={{ uri: icon }} style={{ width: 30, height: 30 }} />
+        icon: () => <Image source={{ uri: icon }} style={{ width: 16, height: 16 }} />
       })),
     [tokens]
   )
@@ -104,12 +102,8 @@ const Card = ({
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
-      <Text style={flexboxStyles.flex1} color={colors.secondaryTextColor}>
-        {t('Available Amount:')}
-      </Text>
-      <Text color={colors.secondaryTextColor}>
-        {!disabled ? `${getMaxAmount()} ${currentToken?.symbol}` : '0'}
-      </Text>
+      <Text style={flexboxStyles.flex1}>{t('Available Amount:')}</Text>
+      <Text>{!disabled ? `${getMaxAmount()} ${currentToken?.symbol}` : '0'}</Text>
     </View>
   )
 
@@ -134,49 +128,65 @@ const Card = ({
             //  disabled={disabled}
             label={t('Choose Token')}
           />
-          {!disabled ? (
-            <View style={[spacings.mbMd]}>
-              {details.map(([type, value]: any) => (
-                <View key={type + value} style={[spacings.mbMi, flexboxStyles.directionRow]}>
-                  <Text style={[textStyles.bold, flexboxStyles.flex1]}>{type}</Text>
-                  <Text>{value}</Text>
-                </View>
-              ))}
+          <View style={[flexboxStyles.directionRow, spacings.mbTy]}>
+            <View style={[flexboxStyles.flex1, spacings.prTy]}>
+              <Button
+                text={t('Deposit')}
+                textStyle={[
+                  segment === 'Deposit' ? { color: colors.titan } : { color: colors.waikawaGray },
+                  { fontSize: 14 }
+                ]}
+                type={segment === 'Deposit' ? 'outline' : 'secondary'}
+                onPress={() => setSegment('Deposit')}
+              />
             </View>
-          ) : (
-            <View style={styles.detailsPlaceholderContainer}>
-              <View style={styles.detailsPlaceholder} />
-              <View style={styles.detailsPlaceholder} />
-              <View style={styles.detailsPlaceholder} />
+            <View style={[flexboxStyles.flex1, spacings.plTy]}>
+              <Button
+                text={t('Withdraw')}
+                textStyle={[
+                  segment === 'Withdraw' ? { color: colors.titan } : { color: colors.waikawaGray },
+                  { fontSize: 14 }
+                ]}
+                type={segment === 'Withdraw' ? 'outline' : 'secondary'}
+                onPress={() => setSegment('Withdraw')}
+              />
             </View>
-          )}
-          <View style={spacings.mbLg}>
-            <Segments
-              defaultValue={segment}
-              segments={segments}
-              onChange={(value) => setSegment(value)}
-            />
           </View>
-          <View style={spacings.mbLg}>
-            <NumberInput
-              onChangeText={setAmount}
-              keyboardType="numeric"
-              autoCorrect={false}
-              value={amount.toString()}
-              buttonText={t('MAX')}
-              onButtonPress={setMaxAmount}
-              disabled={!currentToken?.balance}
-              labelComponent={amountLabel}
-            />
-          </View>
+          <NumberInput
+            onChangeText={setAmount}
+            keyboardType="numeric"
+            autoCorrect={false}
+            value={amount.toString()}
+            buttonText={t('MAX')}
+            onButtonPress={setMaxAmount}
+            disabled={!currentToken?.balance}
+            labelComponent={amountLabel}
+          />
           <Button
             disabled={disabled || amount <= 0 || amount > currentToken?.balance}
-            // TODO:
-            // icon={segment === segments[0].value ? <BsArrowDownSquare /> : <BsArrowUpSquare />}
             onPress={() => onValidate(segment, token, amount)}
-            hasBottomSpacing={false}
             text={segment}
           />
+          {!disabled && (
+            <View style={spacings.pt}>
+              <Text style={spacings.mbTy} fontSize={16} color={colors.baileyBells} weight="medium">
+                {t('Details')}
+              </Text>
+              <View style={[spacings.mbSm]}>
+                {details.map(([type, value]: any) => (
+                  <View key={type + value} style={styles.detailsItem}>
+                    <Text
+                      style={[textStyles.bold, flexboxStyles.flex1, spacings.prTy]}
+                      numberOfLines={1}
+                    >
+                      {type}
+                    </Text>
+                    <Text color={colors.baileyBells}>{value}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
         </View>
       )}
     </>

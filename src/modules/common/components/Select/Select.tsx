@@ -55,6 +55,7 @@ const Select = ({
         onChangeValue={onChangeValue}
         setItems={setItems}
         searchable={searchable}
+        iconContainerStyle={styles.iconContainerStyle}
         theme="DARK"
         language="EN"
         style={styles.dropdown}

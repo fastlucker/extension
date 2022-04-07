@@ -25,12 +25,12 @@ const ExpandableCardProvider: React.FC = ({ children }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false)
 
   const expand = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.create(500, 'linear', 'opacity'))
+    LayoutAnimation.configureNext(LayoutAnimation.create(450, 'linear', 'opacity'))
     setIsExpanded(true)
   }
 
   const collapse = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.create(500, 'linear', 'opacity'))
+    LayoutAnimation.configureNext(LayoutAnimation.create(450, 'linear', 'opacity'))
     setIsExpanded(false)
   }
 
@@ -45,7 +45,7 @@ const ExpandableCardProvider: React.FC = ({ children }) => {
         [isExpanded]
       )}
     >
-      <Panel type={isExpanded ? 'gradient' : 'filled'} style={!isExpanded && { minHeight: 120 }}>
+      <Panel type="filled" style={!isExpanded && { minHeight: 120 }}>
         {children}
       </Panel>
     </ExpandableCardContext.Provider>
