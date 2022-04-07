@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Alert, TouchableOpacity, View } from 'react-native'
 
 import LogOutIcon from '@assets/svg/LogOutIcon'
+import NetworkChanger from '@config/Router/Header/NetworkChanger'
 import Blockies from '@modules/common/components/Blockies'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
@@ -11,7 +12,6 @@ import CopyText from '@modules/common/components/CopyText'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import networks, { NetworkType } from '@modules/common/constants/networks'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -35,15 +35,10 @@ const Switcher: React.FC = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { sheetRef, isOpen, closeBottomSheet, openBottomSheet } = useBottomSheet()
-  const { network, setNetwork, allNetworks } = useNetwork()
+  const { network } = useNetwork()
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
   const { removeSelectedAccPassword } = useAccountsPasswords()
   const { removePasscode } = usePasscode()
-
-  const handleChangeNetwork = (chainId: any) => {
-    setNetwork(chainId)
-    closeBottomSheet()
-  }
 
   const handleChangeAccount = (accountId: any) => {
     closeBottomSheet()
@@ -118,35 +113,6 @@ const Switcher: React.FC = () => {
     )
   }
 
-  const renderNetwork = ({ name, Icon, chainId }: NetworkType, i: number) => {
-    const isActive = chainId === network?.chainId
-    const isLast = i + 1 === allNetworks.length
-
-    return (
-      <TouchableOpacity
-        key={chainId}
-        onPress={() => handleChangeNetwork(chainId)}
-        style={[
-          styles.networkBtnContainer,
-          isActive && styles.networkBtnContainerActive,
-          isLast && spacings.mbTy
-        ]}
-      >
-        <Text
-          weight="regular"
-          color={isActive ? colors.titan : colors.titan_05}
-          style={[flexboxStyles.flex1, textStyles.center]}
-          numberOfLines={1}
-        >
-          {name}
-        </Text>
-        <View style={styles.networkBtnIcon}>
-          <Icon />
-        </View>
-      </TouchableOpacity>
-    )
-  }
-
   return (
     <>
       <TouchableOpacity style={styles.switcherContainer} onPress={openBottomSheet}>
@@ -169,10 +135,7 @@ const Switcher: React.FC = () => {
         dynamicInitialHeight={false}
         displayCancel={false}
       >
-        <Title style={textStyles.center} type="small">
-          {t('Change network')}
-        </Title>
-        <View style={styles.networksContainer}>{allNetworks.map(renderNetwork)}</View>
+        <NetworkChanger closeBottomSheet={closeBottomSheet} />
         <View style={[styles.separator, spacings.mb]} />
 
         <Title style={textStyles.center} type="small">
