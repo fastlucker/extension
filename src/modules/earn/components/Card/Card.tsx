@@ -16,13 +16,14 @@ import textStyles from '@modules/common/styles/utils/text'
 import {
   ExpandableCardContext,
   ExpandableCardProvider
-} from '@modules/earn/contexts/expandableCardContext/expandableCardContext'
+} from '@modules/earn/contexts/expandableCardContext'
 
 import styles from './styles'
 
 type Segment = 'Deposit' | 'Withdraw'
 
 const Card = ({
+  name,
   loading,
   unavailable,
   tokensItems,
@@ -36,7 +37,6 @@ const Card = ({
   const [token, setToken] = useState<any>()
   const [amount, setAmount] = useState<any>(0)
   const [disabled, setDisabled] = useState<any>(true)
-
   const { t } = useTranslation()
 
   const currentToken = useMemo(
@@ -193,7 +193,7 @@ const Card = ({
   )
 
   return (
-    <ExpandableCardProvider>
+    <ExpandableCardProvider cardName={name}>
       <ExpandableCardContext.Consumer>
         {({ isExpanded, expand, collapse }) => (
           <>
@@ -216,7 +216,7 @@ const Card = ({
                   !isExpanded && flexboxStyles.justifyCenter
                 ]}
                 activeOpacity={isExpanded ? 1 : 0.7}
-                onPress={() => (isExpanded ? null : expand())}
+                onPress={() => (isExpanded ? null : expand(name))}
               >
                 {!!Icon && <Icon />}
               </TouchableOpacity>
