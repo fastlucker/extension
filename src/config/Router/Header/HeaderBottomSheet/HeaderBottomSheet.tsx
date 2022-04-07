@@ -40,7 +40,6 @@ const HeaderBottomSheet: React.FC = () => {
         sheetRef={sheetRef}
         isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
-        dynamicInitialHeight={false}
         displayCancel={false}
       >
         <NetworkChanger closeBottomSheet={closeBottomSheet} />

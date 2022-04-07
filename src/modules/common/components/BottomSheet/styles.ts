@@ -23,7 +23,7 @@ const styles = StyleSheet.create<Styles>({
   },
   containerInnerWrapper: {
     paddingTop: 35,
-    paddingBottom: 25,
+    paddingBottom: 35,
     paddingHorizontal: 35
   },
   closeBtn: {
