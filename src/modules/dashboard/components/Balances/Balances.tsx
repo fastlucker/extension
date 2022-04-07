@@ -1,5 +1,5 @@
 import React from 'react'
-import { ActivityIndicator, LayoutAnimation, View } from 'react-native'
+import { ActivityIndicator, LayoutAnimation, TouchableOpacity, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Panel from '@modules/common/components/Panel'
@@ -10,12 +10,14 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import { useNavigation } from '@react-navigation/native'
 
 import Rewards from '../Rewards'
 import styles from './styles'
 
 const Balances = () => {
   const { t } = useTranslation()
+  const navigation: any = useNavigation()
   const { balance, isBalanceLoading, otherBalances } = usePortfolio()
   const { network: selectedNetwork, setNetwork } = useNetwork()
   const otherPositiveBalances = otherBalances.filter(
@@ -23,12 +25,13 @@ const Balances = () => {
   )
   const networkDetails = (network: any) => networks.find(({ id }) => id === network)
 
+  const handleGoToSend = () => navigation.navigate('send')
+  const handleGoToReceive = () => navigation.navigate('receive')
+
   return (
     <Panel>
-      <View style={flexboxStyles.directionRow}>
-        <Title style={flexboxStyles.flex1}>{t('Balance')}</Title>
-        <Rewards />
-      </View>
+      <Rewards />
+
       <Text fontSize={40}>
         <Text fontSize={40} style={textStyles.highlightPrimary}>
           $
@@ -44,6 +47,17 @@ const Balances = () => {
           </>
         )}
       </Text>
+
+      <TouchableOpacity onPress={handleGoToSend}>
+        <Text fontSize={14} style={textStyles.bold}>
+          {t('Send')}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={handleGoToReceive}>
+        <Text fontSize={14} style={textStyles.bold}>
+          {t('Receive')}
+        </Text>
+      </TouchableOpacity>
 
       {otherPositiveBalances.length > 0 && (
         <View style={styles.otherBalancesContainer}>
