@@ -16,7 +16,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 
-const Switcher: React.FC = () => {
+const HeaderBottomSheet: React.FC = () => {
   const { sheetRef, isOpen, closeBottomSheet, openBottomSheet } = useBottomSheet()
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
@@ -51,4 +51,4 @@ const Switcher: React.FC = () => {
   )
 }
 
-export default Switcher
+export default HeaderBottomSheet
