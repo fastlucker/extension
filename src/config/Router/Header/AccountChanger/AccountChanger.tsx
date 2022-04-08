@@ -92,7 +92,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
           <Text type="small" numberOfLines={1} ellipsizeMode="middle">
             {account.id}
           </Text>
-          <Text type="info" color={colors.titan_05}>
+          <Text type="info" color={colors.titan_50}>
             {account.email
               ? t('Email/Password account ({{email}})', { email: account?.email })
               : `${walletType(account?.signerExtra)} (${shortenedAddress(
