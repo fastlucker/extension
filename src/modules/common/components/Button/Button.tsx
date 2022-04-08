@@ -76,7 +76,6 @@ const Button = ({
   style = {},
   textStyle = {},
   disabled = false,
-  children,
   hasBottomSpacing = true,
   children,
   ...rest
