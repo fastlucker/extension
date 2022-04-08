@@ -9,7 +9,6 @@ import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -32,7 +31,7 @@ const TransactionsScreen = () => {
   const { t } = useTranslation()
 
   const renderPendingTxns = () => (
-    <Panel>
+    <Panel style={styles.panel}>
       {eligibleRequests.map((req) => (
         <TouchableOpacity onPress={() => showSendTxns(null)} activeOpacity={0.8} key={req.id}>
           <TxnPreview
@@ -161,10 +160,10 @@ const TransactionsScreen = () => {
                 flexboxStyles.alignCenter
               ]}
             >
-              {!!titleIcon && titleIcon}
-              <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
+              {/* {!!titleIcon && titleIcon} */}
+              <Text fontSize={16} weight="medium">
                 {title}
-              </Title>
+              </Text>
             </View>
           ) : null
         }

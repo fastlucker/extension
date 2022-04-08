@@ -2,9 +2,13 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 interface Styles {
   shadowPrimary: ViewStyle
+  shadowSecondary: ViewStyle
   borderRadiusPrimary: ViewStyle
   borderRadiusSecondary: ViewStyle
 }
+
+export const BORDER_RADIUS_PRIMARY = 13
+export const BORDER_RADIUS_SECONDARY = 2
 
 const commonStyles = StyleSheet.create<Styles>({
   shadowPrimary: {
@@ -17,11 +21,21 @@ const commonStyles = StyleSheet.create<Styles>({
     shadowRadius: 10,
     elevation: 9
   },
+  shadowSecondary: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3
+    },
+    shadowOpacity: 0.29,
+    shadowRadius: 4.65,
+    elevation: 7
+  },
   borderRadiusPrimary: {
-    borderRadius: 13
+    borderRadius: BORDER_RADIUS_PRIMARY
   },
   borderRadiusSecondary: {
-    borderRadius: 2
+    borderRadius: BORDER_RADIUS_SECONDARY
   }
 })
 

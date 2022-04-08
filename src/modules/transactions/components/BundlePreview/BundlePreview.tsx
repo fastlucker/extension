@@ -3,6 +3,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 
 import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
+import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import accountPresets from '@modules/common/constants/accountPresets'
@@ -38,7 +39,7 @@ const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any
 
   return (
     // Here is better to use Panel for consistency but there is some interference between the expandable content and the Panel's flex props
-    <View style={styles.container}>
+    <Panel style={styles.panel}>
       {txns.map((txn: any, i: number) => (
         <TxnPreview
           // eslint-disable-next-line react/no-array-index-key
@@ -115,7 +116,7 @@ const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any
         ) : null}
       </View>
       {!!actions && actions}
-    </View>
+    </Panel>
   )
 }
 

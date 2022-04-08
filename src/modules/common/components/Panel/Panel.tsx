@@ -25,7 +25,7 @@ const Panel: React.FC<Props> = ({
     <View style={[styles.container, style]} {...rest}>
       {type === 'gradient' && (
         <LinearGradient
-          style={styles.gradient}
+          style={[styles.gradient, style]}
           colors={[colors.valhalla, 'transparent']}
           locations={[0, 0.96]}
           start={{ x: 0.5, y: 0 }}
