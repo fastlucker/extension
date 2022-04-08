@@ -80,7 +80,7 @@ const Button = ({
   hasBottomSpacing = true,
   ...rest
 }: Props) => (
-  <TouchableOpacity disabled={disabled} style={styles.buttonWrapper} {...rest}>
+  <TouchableOpacity disabled={disabled} {...rest}>
     <LinearGradient
       colors={disabled ? gradientDisabledColors[type] : gradientColors[type]}
       start={{ x: 0, y: 0.5 }}
