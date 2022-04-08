@@ -14,6 +14,7 @@ const styles = StyleSheet.create<Style>({
   button: {
     minWidth: 100,
     alignItems: 'flex-end',
+    backgroundColor: colors.martinique,
     ...spacings.mhMi,
     ...spacings.ph0
   },

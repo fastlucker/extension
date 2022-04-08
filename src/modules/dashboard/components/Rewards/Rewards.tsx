@@ -125,6 +125,7 @@ const Rewards = () => {
       <Button
         onPress={openBottomSheet}
         type="outline"
+        size="small"
         text={
           isLoading
             ? t('Updating...')

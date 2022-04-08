@@ -40,7 +40,7 @@ const Balances = () => {
     <>
       <Rewards />
 
-      <Text fontSize={42} weight="regular" style={spacings.mbSm}>
+      <Text fontSize={42} weight="regular" style={spacings.mbTy}>
         <Text fontSize={26} weight="regular" style={[textStyles.highlightSecondary]}>
           ${' '}
         </Text>
@@ -50,11 +50,12 @@ const Balances = () => {
         </Text>
       </Text>
 
-      <View style={flexboxStyles.directionRow}>
+      <View style={[flexboxStyles.directionRow, spacings.mb]}>
         <Button
           style={styles.button}
           textStyle={[{ color: colors.titan }, flexboxStyles.alignSelfCenter]}
           type="secondary"
+          hasBottomSpacing={false}
           onPress={handleGoToSend}
         >
           <View style={[flexboxStyles.directionRow, flexboxStyles.center]}>
@@ -70,6 +71,7 @@ const Balances = () => {
           style={styles.button}
           textStyle={[{ color: colors.titan }, flexboxStyles.alignSelfCenter]}
           type="secondary"
+          hasBottomSpacing={false}
           onPress={handleGoToReceive}
         >
           <View style={[flexboxStyles.directionRow, flexboxStyles.center]}>
