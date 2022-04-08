@@ -42,7 +42,10 @@ const containerStylesSizes: { [key in ButtonSizes]: ViewStyle } = {
 const noGradient = ['transparent', 'transparent']
 
 const gradientColors: { [key in ButtonTypes]: string[] } = {
+  // TODO: This is the style when tapped
   primary: [colors.violet, colors.heliotrope],
+  // TODO: This is the style by default
+  // primary: ['#6000FF', '#6000FF', '#923DFF'],
   secondary: noGradient,
   danger: noGradient,
   outline: noGradient,
@@ -84,6 +87,10 @@ const Button = ({
       colors={disabled ? gradientDisabledColors[type] : gradientColors[type]}
       start={{ x: 0, y: 0.5 }}
       end={{ x: 1, y: 0.5 }}
+      // TODO: This is the style by default
+      // locations={[0, 0.25, 1]}
+      // TODO: This is the style when tapped
+      locations={[0, 1]}
       style={[
         styles.buttonContainer,
         containerStyles[type],
