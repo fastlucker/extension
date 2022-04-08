@@ -12,8 +12,6 @@ import { isValidAddress } from '@modules/common/services/address'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
-import styles from './styles'
-
 interface Props {
   onSubmit: (fieldValues: SubmitHandler<FieldValues>) => void
   address?: string
