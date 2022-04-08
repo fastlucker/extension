@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react'
-import { LayoutAnimation, Platform, UIManager, View } from 'react-native'
+import { LayoutAnimation, View } from 'react-native'
 
 import Panel from '@modules/common/components/Panel'
 
@@ -9,12 +9,6 @@ type ExpandableCardData = {
   isExpanded: boolean
   expand: (cardName: CARDS) => void
   collapse: () => void
-}
-
-if (Platform.OS === 'android') {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true)
-  }
 }
 
 const ExpandableCardContext = createContext<ExpandableCardData>({
