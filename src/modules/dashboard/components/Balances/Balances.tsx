@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useLayoutEffect, useState } from 'react'
 import { LayoutAnimation, TouchableOpacity, View } from 'react-native'
 
 import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
+import { isAndroid } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Spinner from '@modules/common/components/Spinner'
@@ -24,6 +25,21 @@ const Balances = () => {
   const navigation: any = useNavigation()
   const { balance, isBalanceLoading, otherBalances } = usePortfolio()
   const { network: selectedNetwork, setNetwork } = useNetwork()
+  const [isFirstAnimation, setIsFirstAnimation] = useState(true)
+
+  useLayoutEffect(() => {
+    // There is an ongoing issue with Android and calling `LayoutAnimation.configureNext`
+    // during the first render. It does not render the component if executed.
+    // However, on the second time onwards - all good.
+    if (isAndroid && isFirstAnimation) {
+      return
+    }
+
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+
+    if (isFirstAnimation) setIsFirstAnimation(false)
+  }, [isBalanceLoading, selectedNetwork, isFirstAnimation])
+
   const otherPositiveBalances = otherBalances.filter(
     ({ network, total }: any) => network !== selectedNetwork?.id && total.full > 0
   )
@@ -31,10 +47,6 @@ const Balances = () => {
 
   const handleGoToSend = () => navigation.navigate('send')
   const handleGoToReceive = () => navigation.navigate('receive')
-
-  useEffect(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
-  }, [isBalanceLoading, selectedNetwork])
 
   const content = (
     <>
