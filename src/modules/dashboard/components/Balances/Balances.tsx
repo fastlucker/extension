@@ -119,7 +119,7 @@ const Balances = () => {
   )
 
   return (
-    <View style={[spacings.mbSm, flexboxStyles.alignCenter]}>
+    <View style={flexboxStyles.alignCenter}>
       {isBalanceLoading ? (
         <View style={[styles.loadingContainer, flexboxStyles.center]}>
           <Spinner />

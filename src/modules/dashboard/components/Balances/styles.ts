@@ -30,8 +30,7 @@ const styles = StyleSheet.create<Style>({
     flexDirection: 'row',
     width: 275,
     borderBottomColor: colors.waikawaGray,
-    borderBottomWidth: 0.5,
-    paddingVertical: 3
+    borderBottomWidth: 0.5
   }
 })
 
