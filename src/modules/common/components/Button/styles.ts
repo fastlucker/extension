@@ -60,12 +60,14 @@ const styles = StyleSheet.create<Style>({
 
   // Button sizes (regular/small)
   buttonContainerStylesSizeRegular: {
-    height: 50,
+    minHeight: 50,
+    ...spacings.pvMi,
     ...spacings.phSm,
     ...spacings.mb
   },
   buttonContainerStylesSizeSmall: {
-    height: 40,
+    minHeight: 40,
+    ...spacings.pvMi,
     ...spacings.phTy,
     ...spacings.mbTy
   },
