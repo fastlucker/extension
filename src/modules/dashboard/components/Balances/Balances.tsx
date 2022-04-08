@@ -34,7 +34,7 @@ const Balances = () => {
 
   useEffect(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
-  }, [isBalanceLoading])
+  }, [isBalanceLoading, selectedNetwork])
 
   const content = (
     <>
