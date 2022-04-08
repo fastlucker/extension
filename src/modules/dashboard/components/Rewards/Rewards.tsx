@@ -122,17 +122,18 @@ const Rewards = () => {
 
   return (
     <>
-      <View>
-        <Button
-          onPress={openBottomSheet}
-          type="outline"
-          text={
-            isLoading
-              ? t('Updating...')
-              : t('{{walletTokensAmount}} WALLET', { walletTokensAmount })
-          }
-        />
-      </View>
+      <Button
+        onPress={openBottomSheet}
+        type="outline"
+        text={
+          isLoading
+            ? t('Updating...')
+            : t('{{walletTokensAmount}} WALLET Rewards', {
+                walletTokensAmount
+              })
+        }
+        style={flexboxStyles.alignSelfCenter}
+      />
       <BottomSheet
         id="rewards"
         dynamicInitialHeight={false}
