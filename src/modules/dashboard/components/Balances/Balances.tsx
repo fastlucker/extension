@@ -53,21 +53,21 @@ const Balances = () => {
 
       <View style={flexboxStyles.directionRow}>
         <Button
-          text={t('Send')}
-          style={[spacings.mhMi, { minWidth: 100 }]}
+          style={[spacings.mhMi, spacings.pr0, { minWidth: 100, alignItems: 'flex-end' }]}
           textStyle={[{ color: colors.titan }, flexboxStyles.alignSelfCenter]}
-          type="ghost"
-          accentColor={colors.martinique}
+          type="secondary"
           onPress={handleGoToSend}
-        />
+        >
+          <Text style={textStyles.right}>{t('Send')}</Text>
+        </Button>
         <Button
-          text={t('Receive')}
-          style={[spacings.mhMi, { minWidth: 100 }]}
+          style={[spacings.mhMi, spacings.pr0, { minWidth: 100, alignItems: 'flex-end' }]}
           textStyle={[{ color: colors.titan }, flexboxStyles.alignSelfCenter]}
-          type="ghost"
-          accentColor={colors.martinique}
+          type="secondary"
           onPress={handleGoToReceive}
-        />
+        >
+          <Text>{t('Receive')}</Text>
+        </Button>
       </View>
 
       {otherPositiveBalances.length > 0 && (
