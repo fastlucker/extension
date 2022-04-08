@@ -4,16 +4,20 @@ import {
   ActivityIndicator,
   Keyboard,
   StyleSheet,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View
 } from 'react-native'
 
+import DownArrowIcon from '@assets/svg/DownArrowIcon'
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import Input from '@modules/common/components/Input'
 import InputOrScan from '@modules/common/components/InputOrScan/InputOrScan'
+import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
@@ -22,6 +26,7 @@ import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import spacings from '@modules/common/styles/spacings'
+import textStyles from '@modules/common/styles/utils/text'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
@@ -87,64 +92,90 @@ const SendScreen = () => {
           >
             <>
               {assetsItems.length ? (
-                <Panel>
-                  <Title>{t('Send')}</Title>
-                  <Select value={asset} items={assetsItems} setValue={setAsset} />
-                  <View style={styles.amountContainer}>
-                    <Text>{t('Available Amount:')}</Text>
-                    <Text style={styles.amountValue}>
-                      {maxAmount} {selectedAsset?.symbol}
-                    </Text>
-                  </View>
-                  <NumberInput
-                    onChangeText={onAmountChange}
-                    value={amount.toString()}
-                    buttonText={t('MAX')}
-                    placeholder={t('0')}
-                    onButtonPress={setMaxAmount}
-                  />
-                  {!!validationFormMgs.messages?.amount && (
-                    <Text appearance="danger" style={spacings.mbSm}>
-                      {validationFormMgs.messages.amount}
-                    </Text>
-                  )}
-                  <InputOrScan
-                    placeholder={t('Recipient')}
-                    info={t(
-                      'Please double-check the recipient address, blockchain transactions are not reversible.'
-                    )}
-                    value={address}
-                    onChangeText={setAddress}
-                  />
-                  {!!validationFormMgs.messages?.address && (
-                    <Text appearance="danger" style={spacings.mbSm}>
-                      {validationFormMgs.messages.address}
-                    </Text>
-                  )}
-                  {!smartContractWarning && !!unknownWarning && (
-                    <ConfirmAddress
-                      addressConfirmed={addressConfirmed}
-                      setAddressConfirmed={setAddressConfirmed}
-                      onAddToAddressBook={openBottomSheetAddrAdd}
+                <>
+                  <Panel style={spacings.mb0}>
+                    <Title style={textStyles.center}>{t('Send')}</Title>
+                    <View style={spacings.mbMi}>
+                      <Select value={asset} items={assetsItems} setValue={setAsset} />
+                    </View>
+                    <View style={styles.amountContainer}>
+                      <Text>{t('Available Amount:')}</Text>
+                      <Text style={styles.amountValue}>
+                        {maxAmount} {selectedAsset?.symbol}
+                      </Text>
+                    </View>
+                    <NumberInput
+                      onChangeText={onAmountChange}
+                      containerStyle={spacings.mbTy}
+                      value={amount.toString()}
+                      buttonText={t('MAX')}
+                      placeholder={t('0')}
+                      onButtonPress={setMaxAmount}
                     />
-                  )}
-                  <Button
-                    type="secondary"
-                    onPress={() => {
-                      Keyboard.dismiss()
-                      openBottomSheetAddrDisplay()
-                    }}
-                    text={t('Address Book')}
-                  />
-                  <Button
-                    text={t('Send')}
-                    disabled={disabled}
-                    onPress={() => {
-                      Keyboard.dismiss()
-                      sendTransaction()
-                    }}
-                  />
-                </Panel>
+                    {!!validationFormMgs.messages?.amount && (
+                      <Text appearance="danger" style={spacings.mbSm}>
+                        {validationFormMgs.messages.amount}
+                      </Text>
+                    )}
+                    <InputOrScan
+                      containerStyle={spacings.mb}
+                      placeholder={t('Recipient')}
+                      info={t(
+                        'Please double-check the recipient address, blockchain transactions are not reversible.'
+                      )}
+                      value={address}
+                      onChangeText={setAddress}
+                    />
+                    {!!validationFormMgs.messages?.address && (
+                      <Text appearance="danger" style={spacings.mbSm}>
+                        {validationFormMgs.messages.address}
+                      </Text>
+                    )}
+                    {!smartContractWarning && !!unknownWarning && (
+                      <ConfirmAddress
+                        addressConfirmed={addressConfirmed}
+                        setAddressConfirmed={setAddressConfirmed}
+                        onAddToAddressBook={openBottomSheetAddrAdd}
+                      />
+                    )}
+                    <TouchableOpacity
+                      onPress={() => {
+                        Keyboard.dismiss()
+                        openBottomSheetAddrDisplay()
+                      }}
+                    >
+                      <View pointerEvents="none">
+                        <Input
+                          value={t('Address Book')}
+                          buttonText={
+                            <NavIconWrapper onPress={() => null}>
+                              <DownArrowIcon width={34} height={34} />
+                            </NavIconWrapper>
+                          }
+                        />
+                      </View>
+                    </TouchableOpacity>
+                    <Button
+                      type="secondary"
+                      style={spacings.mbSm}
+                      onPress={() => {
+                        Keyboard.dismiss()
+                        openBottomSheetAddrDisplay()
+                      }}
+                      text={t('Address Book')}
+                    />
+                  </Panel>
+                  <View style={[spacings.phSm, spacings.mbMd]}>
+                    <Button
+                      text={t('Send')}
+                      disabled={disabled}
+                      onPress={() => {
+                        Keyboard.dismiss()
+                        sendTransaction()
+                      }}
+                    />
+                  </View>
+                </>
               ) : (
                 <Text style={spacings.mbSm}>{t("You don't have any funds on this account.")}</Text>
               )}
