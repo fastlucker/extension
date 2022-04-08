@@ -76,8 +76,8 @@ const Button = ({
   style = {},
   textStyle = {},
   disabled = false,
-  children,
   hasBottomSpacing = true,
+  children,
   ...rest
 }: Props) => (
   <TouchableOpacity disabled={disabled} {...rest}>
