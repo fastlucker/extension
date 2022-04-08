@@ -36,13 +36,14 @@ const styles = StyleSheet.create<Style>({
   // Touchable element wrapper
   buttonWrapper: {
     // TODO: Figure out if this breaks stuff
-    // width: '100%',
-    // overflow: 'hidden'
+    width: '100%',
+    overflow: 'hidden'
   },
 
   // Default button container styles
   buttonContainer: {
-    width: '100%',
+    // TODO: Figure out if this breaks stuff
+    // width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
