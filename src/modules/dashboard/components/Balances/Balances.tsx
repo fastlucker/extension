@@ -86,7 +86,7 @@ const Balances = () => {
 
       {otherPositiveBalances.length > 0 && (
         <View style={spacings.mb}>
-          <Text style={textStyles.center}>{t('You also have')}</Text>
+          <Text style={[textStyles.center, spacings.mbTy]}>{t('You also have')}</Text>
           {otherPositiveBalances.map(({ network, total }: any, i: number) => {
             const { chainId, name, Icon }: any = networkDetails(network)
             const isLast = i + 1 === otherPositiveBalances.length
