@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useMemo, useState } from 'react'
-import { LayoutAnimation, View } from 'react-native'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { BackHandler, LayoutAnimation, View } from 'react-native'
 
 import Panel from '@modules/common/components/Panel'
 
@@ -21,6 +21,28 @@ const ExpandableCardProvider: React.FC<any> = ({ children, cardName: name }) => 
   const [isExpanded, setIsExpanded] = useState<boolean>(false)
 
   const { visibleCard, setVisibleCard } = useContext(CardsVisibilityContext)
+
+  useEffect(() => {
+    if (!isExpanded) {
+      return
+    }
+
+    const backAction = () => {
+      if (isExpanded) {
+        LayoutAnimation.configureNext(LayoutAnimation.create(450, 'linear', 'opacity'))
+        setIsExpanded(false)
+        setVisibleCard(null)
+        // Returning true prevents execution of the default native back handling
+        return true
+      }
+
+      return false
+    }
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction)
+
+    return () => backHandler.remove()
+  }, [isExpanded, setVisibleCard])
 
   const expand = (cardName: CARDS) => {
     LayoutAnimation.configureNext(LayoutAnimation.create(450, 'linear', 'opacity'))
