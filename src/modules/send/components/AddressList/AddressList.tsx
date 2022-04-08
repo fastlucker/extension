@@ -19,9 +19,10 @@ import styles from './styles'
 type Props = {
   onSelectAddress?: (item: { name: string; address: string }) => void
   onOpenBottomSheet: () => any
+  onCloseBottomSheet?: () => any
 }
 
-const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
+const AddressList = ({ onSelectAddress, onOpenBottomSheet, onCloseBottomSheet }: Props) => {
   const { t } = useTranslation()
   const { addresses, removeAddress } = useAddressBook()
 
@@ -37,6 +38,7 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
 
     const onPressAddress = () => {
       !!onSelectAddress && onSelectAddress(item)
+      !!onCloseBottomSheet && onCloseBottomSheet()
     }
 
     return (
@@ -68,10 +70,19 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet }: Props) => {
 
   return (
     <>
-      <Title>{t('Address Book')}</Title>
+      <Title style={textStyles.center}>{t('Address Book')}</Title>
       {!!items.length && items.map(renderItem)}
-      {!items.length && <Text style={spacings.mbSm}>{t('Your address book is empty')}</Text>}
-      <Button onPress={onOpenBottomSheet} text={t('➕ Add Address')} />
+      {!items.length && (
+        <Text style={[textStyles.center, spacings.mb]}>{t('Your address book is empty.')}</Text>
+      )}
+      <Button
+        onPress={() => {
+          !!onOpenBottomSheet && onOpenBottomSheet()
+          !!onCloseBottomSheet && onCloseBottomSheet()
+        }}
+        type="outline"
+        text={t('Add Address')}
+      />
     </>
   )
 }
