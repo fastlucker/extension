@@ -60,7 +60,7 @@ const Balances = () => {
         >
           <View style={[flexboxStyles.directionRow, flexboxStyles.center]}>
             <Text
-              style={[textStyles.center, flexboxStyles.flex1, flexboxStyles.center, spacings.mlMi]}
+              style={[textStyles.center, flexboxStyles.flex1, flexboxStyles.center, spacings.mlTy]}
             >
               {t('Send')}
             </Text>
