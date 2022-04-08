@@ -1,13 +1,15 @@
 import React from 'react'
-import { ActivityIndicator, LayoutAnimation, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, LayoutAnimation, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import Button from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import networks from '@modules/common/constants/networks'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -49,16 +51,24 @@ const Balances = () => {
         )}
       </Text>
 
-      <TouchableOpacity onPress={handleGoToSend}>
-        <Text fontSize={14} style={textStyles.bold}>
-          {t('Send')}
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleGoToReceive}>
-        <Text fontSize={14} style={textStyles.bold}>
-          {t('Receive')}
-        </Text>
-      </TouchableOpacity>
+      <View style={flexboxStyles.directionRow}>
+        <Button
+          text={t('Send')}
+          style={[spacings.mhMi, { minWidth: 100 }]}
+          textStyle={[{ color: colors.titan }, flexboxStyles.alignSelfCenter]}
+          type="ghost"
+          accentColor={colors.martinique}
+          onPress={handleGoToSend}
+        />
+        <Button
+          text={t('Receive')}
+          style={[spacings.mhMi, { minWidth: 100 }]}
+          textStyle={[{ color: colors.titan }, flexboxStyles.alignSelfCenter]}
+          type="ghost"
+          accentColor={colors.martinique}
+          onPress={handleGoToReceive}
+        />
+      </View>
 
       {otherPositiveBalances.length > 0 && (
         <View style={styles.otherBalancesContainer}>
