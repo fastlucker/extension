@@ -8,6 +8,7 @@ import Title from '@modules/common/components/Title'
 import networks from '@modules/common/constants/networks'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import { useNavigation } from '@react-navigation/native'
@@ -29,19 +30,19 @@ const Balances = () => {
   const handleGoToReceive = () => navigation.navigate('receive')
 
   return (
-    <Panel>
+    <View style={[spacings.mb, flexboxStyles.alignCenter]}>
       <Rewards />
 
-      <Text fontSize={40}>
-        <Text fontSize={40} style={textStyles.highlightPrimary}>
-          $
-        </Text>{' '}
+      <Text fontSize={42} weight="regular">
+        <Text fontSize={26} weight="regular" style={[textStyles.highlightSecondary]}>
+          ${' '}
+        </Text>
         {isBalanceLoading ? (
           <ActivityIndicator style={styles.activityIndicator} />
         ) : (
           <>
             {balance.total?.truncated}
-            <Text fontSize={40} style={textStyles.highlightPrimary}>
+            <Text fontSize={26} weight="regular">
               .{balance.total?.decimals}
             </Text>
           </>
@@ -91,7 +92,7 @@ const Balances = () => {
           })}
         </View>
       )}
-    </Panel>
+    </View>
   )
 }
 
