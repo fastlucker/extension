@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { ActivityIndicator, LayoutAnimation, TouchableOpacity, View } from 'react-native'
+import { LayoutAnimation, TouchableOpacity, View } from 'react-native'
 
 import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
@@ -44,16 +44,10 @@ const Balances = () => {
         <Text fontSize={26} weight="regular" style={[textStyles.highlightSecondary]}>
           ${' '}
         </Text>
-        {isBalanceLoading ? (
-          <ActivityIndicator style={styles.activityIndicator} />
-        ) : (
-          <>
-            {balance.total?.truncated}
-            <Text fontSize={26} weight="regular">
-              .{balance.total?.decimals}
-            </Text>
-          </>
-        )}
+        {balance.total?.truncated}
+        <Text fontSize={26} weight="regular">
+          .{balance.total?.decimals}
+        </Text>
       </Text>
 
       <View style={flexboxStyles.directionRow}>
