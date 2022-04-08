@@ -1,11 +1,17 @@
 import React, { useState } from 'react'
-import { Keyboard, ViewProps } from 'react-native'
+import { Keyboard, View, ViewProps } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 
+import CheckIcon from '@assets/svg/CheckIcon'
+import CloseIcon from '@assets/svg/CloseIcon'
 import i18n from '@config/localization/localization'
 import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import textStyles from '@modules/common/styles/utils/text'
 
+import DownArrowIcon from '../../../../assets/svg/DownArrowIcon'
+import NavIconWrapper from '../NavIconWrapper'
 import styles from './styles'
 
 DropDownPicker.addTranslation('EN', {
@@ -55,12 +61,13 @@ const Select = ({
         onChangeValue={onChangeValue}
         setItems={setItems}
         searchable={searchable}
+        iconContainerStyle={styles.iconContainerStyle}
         theme="DARK"
         language="EN"
         style={styles.dropdown}
         labelStyle={styles.labelStyle}
-        dropDownContainerStyle={styles.dropDownContainerStyle}
         listItemContainerStyle={styles.listItemContainerStyle}
+        selectedItemContainerStyle={styles.selectedItemContainerStyle}
         listItemLabelStyle={styles.listItemLabelStyle}
         searchContainerStyle={styles.searchContainerStyle}
         searchTextInputStyle={styles.searchTextInputStyle}
@@ -84,6 +91,26 @@ const Select = ({
         // So the only feasible option that works well for our use-cases
         // is to use it in a  `MODAL`.
         listMode="MODAL"
+        ArrowDownIconComponent={() => (
+          <View pointerEvents="none">
+            <NavIconWrapper onPress={() => null}>
+              <DownArrowIcon width={34} height={34} />
+            </NavIconWrapper>
+          </View>
+        )}
+        TickIconComponent={() => <CheckIcon color="transparent" />}
+        ListEmptyComponent={() => (
+          <View style={[spacings.ptLg, flexboxStyles.alignCenter]}>
+            <Text style={textStyles.center}>No tokens were found.</Text>
+          </View>
+        )}
+        CloseIconComponent={() => (
+          <View pointerEvents="none">
+            <NavIconWrapper onPress={() => null}>
+              <CloseIcon />
+            </NavIconWrapper>
+          </View>
+        )}
       />
     </>
   )

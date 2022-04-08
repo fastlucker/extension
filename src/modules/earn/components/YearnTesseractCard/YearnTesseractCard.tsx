@@ -12,6 +12,7 @@ import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 import approveToken from '@modules/common/services/approveToken/approveToken'
 import Card from '@modules/earn/components/Card'
+import { CARDS } from '@modules/earn/contexts/cardsVisibilityContext'
 import useTesseract from '@modules/earn/hooks/useTesseract'
 import useYearn from '@modules/earn/hooks/useYearn'
 
@@ -144,6 +145,7 @@ const YearnTesseractCard = () => {
 
   return (
     <Card
+      name={CARDS.YearnTesseract}
       loading={loading}
       Icon={Icon}
       unavailable={unavailable}

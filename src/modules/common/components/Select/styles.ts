@@ -1,58 +1,79 @@
 import { StyleSheet, TextProps, ViewProps } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
-import spacings, { SPACING_TY } from '@modules/common/styles/spacings'
+import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
+import { colorPalette as colors } from '@modules/common/styles/colors'
+import spacings, { SPACING, SPACING_TY } from '@modules/common/styles/spacings'
+import commonStyles from '@modules/common/styles/utils/common'
 
 interface Style {
   dropdown: ViewProps
-  dropDownContainerStyle: ViewProps
   listItemContainerStyle: ViewProps
+  selectedItemContainerStyle: ViewProps
   searchContainerStyle: ViewProps
   searchTextInputStyle: ViewProps
   modalContentContainerStyle: ViewProps
   labelStyle: TextProps
   listItemLabelStyle: TextProps
+  iconContainerStyle: ViewProps
 }
 
 const styles = StyleSheet.create<Style>({
   dropdown: {
-    backgroundColor: colors.inputBackgroundColor,
-    borderRadius: 0,
-    borderColor: colors.inputBackgroundColor,
+    backgroundColor: colors.howl,
+    ...commonStyles.borderRadiusPrimary,
+    borderWidth: 0,
     height: 50,
     ...spacings.mbSm
   },
   labelStyle: {
-    color: colors.textColor,
+    color: colors.titan,
     fontSize: 16,
-    fontWeight: '700'
+    fontFamily: FONT_FAMILIES.LIGHT
   },
   listItemLabelStyle: {
-    color: colors.textColor,
-    fontSize: 16,
-    fontWeight: '500'
-  },
-  dropDownContainerStyle: {
-    backgroundColor: colors.inputBackgroundColor
+    color: colors.titan,
+    fontSize: 16
   },
   listItemContainerStyle: {
-    ...spacings.phSM,
-    height: 50
+    ...spacings.mh,
+    ...spacings.phTy,
+    height: 50,
+    backgroundColor: 'transparent',
+    ...commonStyles.borderRadiusPrimary
+  },
+  selectedItemContainerStyle: {
+    backgroundColor: colors.howl
   },
   searchContainerStyle: {
-    padding: SPACING_TY,
-    borderBottomColor: colors.panelBackgroundColor,
-    borderBottomWidth: 1
+    flexDirection: 'column-reverse',
+    width: '100%',
+    alignItems: 'flex-end',
+    ...spacings.ph,
+    ...spacings.pt,
+    ...spacings.pbTy,
+    borderBottomWidth: 0
   },
   searchTextInputStyle: {
-    ...spacings.phTy,
-    ...spacings.pvTy,
-    borderRadius: 0,
-    borderColor: colors.inputBackgroundColor,
-    color: colors.textColor
+    marginTop: 10,
+    width: '100%',
+    height: 50,
+    borderRadius: 13,
+    backgroundColor: colors.howl,
+    borderWidth: 0,
+    fontSize: 16,
+    paddingHorizontal: 15,
+    color: colors.titan
   },
   modalContentContainerStyle: {
-    backgroundColor: colors.inputBackgroundColor
+    backgroundColor: colors.valhalla
+  },
+  iconContainerStyle: {
+    backgroundColor: colors.titan_05,
+    ...commonStyles.borderRadiusPrimary,
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
 
