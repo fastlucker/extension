@@ -1,9 +1,9 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
-  otherBalancesTextHighlight: TextStyle
   activityIndicator: ViewStyle
   otherBalancesContainer: ViewStyle
   button: ViewStyle
@@ -25,13 +25,10 @@ const styles = StyleSheet.create<Style>({
     marginLeft: 15
   },
   otherBalancesContainer: {
-    marginTop: 20,
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    opacity: 0.8
-  },
-  otherBalancesTextHighlight: {
-    fontWeight: '500'
+    width: 275,
+    borderBottomColor: colors.waikawaGray,
+    borderBottomWidth: 0.5
   }
 })
 

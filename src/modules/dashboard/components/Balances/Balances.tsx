@@ -1,13 +1,11 @@
 import React from 'react'
-import { ActivityIndicator, LayoutAnimation, View } from 'react-native'
+import { ActivityIndicator, LayoutAnimation, TouchableOpacity, View } from 'react-native'
 
 import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
-import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
 import networks from '@modules/common/constants/networks'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
@@ -37,7 +35,7 @@ const Balances = () => {
     <View style={[spacings.mb, flexboxStyles.alignCenter]}>
       <Rewards />
 
-      <Text fontSize={42} weight="regular">
+      <Text fontSize={42} weight="regular" style={spacings.mbSm}>
         <Text fontSize={26} weight="regular" style={[textStyles.highlightSecondary]}>
           ${' '}
         </Text>
@@ -87,33 +85,31 @@ const Balances = () => {
       </View>
 
       {otherPositiveBalances.length > 0 && (
-        <View style={styles.otherBalancesContainer}>
-          <Text fontSize={20}>{t('You also have')} </Text>
+        <View style={spacings.mb}>
+          <Text style={textStyles.center}>{t('You also have')}</Text>
           {otherPositiveBalances.map(({ network, total }: any, i: number) => {
             const { chainId, name, Icon }: any = networkDetails(network)
-            const hasOneMore = otherPositiveBalances.length - 1 !== i
+            const isLast = i + 1 === otherPositiveBalances.length
+
             const onNetworkChange = () => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
               setNetwork(network)
             }
 
             return (
-              <Text key={chainId}>
-                <Text key={network} fontSize={20} onPress={onNetworkChange}>
-                  <Text fontSize={20} style={textStyles.highlightSecondary}>
-                    {'$ '}
-                  </Text>
-                  {total.truncated}
-                  <Text fontSize={20} style={textStyles.highlightSecondary}>
-                    .{total.decimals}{' '}
-                  </Text>
-                  <Text fontSize={20}>{`${t('on')} `}</Text>
-                  <Icon width={25} />
-                  <Text fontSize={20} style={styles.otherBalancesTextHighlight}>{` ${name} `}</Text>
+              <TouchableOpacity
+                key={chainId}
+                onPress={onNetworkChange}
+                style={[styles.otherBalancesContainer, isLast && { borderBottomWidth: 0 }]}
+              >
+                <Text numberOfLines={1} style={flexboxStyles.flex1}>
+                  <Text style={textStyles.highlightSecondary}>{'$ '}</Text>
+                  {total.truncated}.{total.decimals}
                 </Text>
-
-                {hasOneMore && <Text fontSize={20}>{`${t('and')} `}</Text>}
-              </Text>
+                <Text>{` ${t('on')} `}</Text>
+                <Icon width={24} height={24} />
+                <Text numberOfLines={1} style={flexboxStyles.flex1}>{` ${name}`}</Text>
+              </TouchableOpacity>
             )
           })}
         </View>
