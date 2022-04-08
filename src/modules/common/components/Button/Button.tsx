@@ -18,7 +18,7 @@ type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
 
 type ButtonSizes = 'regular' | 'small'
 interface Props extends TouchableOpacityProps {
-  text: string
+  text?: string
   type?: ButtonTypes
   size?: ButtonSizes
   textStyle?: any
@@ -76,6 +76,7 @@ const Button = ({
   style = {},
   textStyle = {},
   disabled = false,
+  children,
   hasBottomSpacing = true,
   ...rest
 }: Props) => (
@@ -94,17 +95,20 @@ const Button = ({
         !hasBottomSpacing && spacings.mb0
       ]}
     >
-      <Text
-        style={[
-          styles.buttonText,
-          buttonTextStyles[type],
-          buttonTextStylesSizes[size],
-          !!accentColor && { color: accentColor },
-          textStyle
-        ]}
-      >
-        {text}
-      </Text>
+      {!!text && (
+        <Text
+          style={[
+            styles.buttonText,
+            buttonTextStyles[type],
+            buttonTextStylesSizes[size],
+            !!accentColor && { color: accentColor },
+            textStyle
+          ]}
+        >
+          {text}
+        </Text>
+      )}
+      {children}
     </LinearGradient>
   </TouchableOpacity>
 )
