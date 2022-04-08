@@ -4,7 +4,7 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
-  activityIndicator: ViewStyle
+  loadingContainer: ViewStyle
   otherBalancesContainer: ViewStyle
   button: ViewStyle
   buttonIcon: ViewStyle
@@ -20,9 +20,10 @@ const styles = StyleSheet.create<Style>({
   buttonIcon: {
     marginRight: 3
   },
-  activityIndicator: {
-    marginBottom: 15,
-    marginLeft: 15
+  loadingContainer: {
+    // Reserves some initial height, so that it covers the common space,
+    // which every user (even with balance 0) will have.
+    height: 200
   },
   otherBalancesContainer: {
     flexDirection: 'row',

@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ActivityIndicator, LayoutAnimation, TouchableOpacity, View } from 'react-native'
 
 import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import networks from '@modules/common/constants/networks'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -31,8 +32,12 @@ const Balances = () => {
   const handleGoToSend = () => navigation.navigate('send')
   const handleGoToReceive = () => navigation.navigate('receive')
 
-  return (
-    <View style={[spacings.mb, flexboxStyles.alignCenter]}>
+  useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+  }, [isBalanceLoading])
+
+  const content = (
+    <>
       <Rewards />
 
       <Text fontSize={42} weight="regular" style={spacings.mbSm}>
@@ -113,6 +118,18 @@ const Balances = () => {
             )
           })}
         </View>
+      )}
+    </>
+  )
+
+  return (
+    <View style={[spacings.mbSm, flexboxStyles.alignCenter]}>
+      {isBalanceLoading ? (
+        <View style={[styles.loadingContainer, flexboxStyles.center]}>
+          <Spinner />
+        </View>
+      ) : (
+        content
       )}
     </View>
   )
