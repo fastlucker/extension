@@ -15,6 +15,7 @@ import useToast from '@modules/common/hooks/useToast'
 import approveToken from '@modules/common/services/approveToken/approveToken'
 import { getProvider } from '@modules/common/services/provider'
 import Card from '@modules/earn/components/Card'
+import { CARDS } from '@modules/earn/contexts/cardsVisibilityContext'
 import { getDefaultTokensItems } from '@modules/earn/services/defaultTokens'
 
 const AAVELendingPool = new Interface(AAVELendingPoolAbi)
@@ -244,6 +245,7 @@ const AAVECard = () => {
 
   return (
     <Card
+      name={CARDS.AAVE}
       Icon={AAVELogo}
       loading={isLoading}
       unavailable={unavailable}

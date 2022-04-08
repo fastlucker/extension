@@ -39,7 +39,7 @@ export const colorPalette = {
   chetwode: '#6770B3',
   baileyBells: '#898DCB',
   titan: '#EBECFF',
-  titan_05: '#ebecff7f',
+  titan_05: 'rgba(235, 236, 255, 0.05)',
 
   white: '#FFFFFF',
   black: '#000000'
