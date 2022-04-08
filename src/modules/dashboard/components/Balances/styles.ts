@@ -1,12 +1,25 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import spacings from '@modules/common/styles/spacings'
+
 interface Style {
   otherBalancesTextHighlight: TextStyle
   activityIndicator: ViewStyle
   otherBalancesContainer: ViewStyle
+  button: ViewStyle
+  buttonIcon: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
+  button: {
+    minWidth: 100,
+    alignItems: 'flex-end',
+    ...spacings.mhMi,
+    ...spacings.ph0
+  },
+  buttonIcon: {
+    marginRight: 3
+  },
   activityIndicator: {
     marginBottom: 15,
     marginLeft: 15

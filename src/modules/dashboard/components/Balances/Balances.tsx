@@ -1,6 +1,8 @@
 import React from 'react'
 import { ActivityIndicator, LayoutAnimation, View } from 'react-native'
 
+import ReceiveIcon from '@assets/svg/ReceiveIcon'
+import SendIcon from '@assets/svg/SendIcon'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
@@ -53,20 +55,34 @@ const Balances = () => {
 
       <View style={flexboxStyles.directionRow}>
         <Button
-          style={[spacings.mhMi, spacings.pr0, { minWidth: 100, alignItems: 'flex-end' }]}
+          style={styles.button}
           textStyle={[{ color: colors.titan }, flexboxStyles.alignSelfCenter]}
           type="secondary"
           onPress={handleGoToSend}
         >
-          <Text style={textStyles.right}>{t('Send')}</Text>
+          <View style={[flexboxStyles.directionRow, flexboxStyles.center]}>
+            <Text
+              style={[textStyles.center, flexboxStyles.flex1, flexboxStyles.center, spacings.mlMi]}
+            >
+              {t('Send')}
+            </Text>
+            <SendIcon width={22} height={22} style={styles.buttonIcon} />
+          </View>
         </Button>
         <Button
-          style={[spacings.mhMi, spacings.pr0, { minWidth: 100, alignItems: 'flex-end' }]}
+          style={styles.button}
           textStyle={[{ color: colors.titan }, flexboxStyles.alignSelfCenter]}
           type="secondary"
           onPress={handleGoToReceive}
         >
-          <Text>{t('Receive')}</Text>
+          <View style={[flexboxStyles.directionRow, flexboxStyles.center]}>
+            <Text
+              style={[textStyles.center, flexboxStyles.flex1, flexboxStyles.center, spacings.mlMi]}
+            >
+              {t('Receive')}
+            </Text>
+            <ReceiveIcon width={22} height={22} style={styles.buttonIcon} />
+          </View>
         </Button>
       </View>
 
