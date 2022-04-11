@@ -5,30 +5,18 @@ import spacings from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
 
 interface Style {
-  container: ViewStyle
-  listItem: ViewStyle
-  expandedContainer: ViewStyle
+  itemContainer: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  container: {
-    ...spacings.mbTy,
-    backgroundColor: colors.howl,
-    ...commonStyles.borderRadiusPrimary
-  },
-  listItem: {
+  itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.howl,
     ...commonStyles.borderRadiusPrimary,
     ...spacings.phTy,
-    ...spacings.pvTy
-  },
-  expandedContainer: {
-    opacity: 0.5,
-    ...spacings.phTy,
-    ...spacings.pbTy,
-    backgroundColor: 'transparent'
+    ...spacings.pvTy,
+    ...spacings.mbMi
   }
 })
 

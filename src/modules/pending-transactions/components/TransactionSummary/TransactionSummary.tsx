@@ -2,13 +2,12 @@ import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { FontAwesome5 } from '@expo/vector-icons'
+import InfoIcon from '@assets/svg/InfoIcon'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import useRequests from '@modules/common/hooks/useRequests'
-import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -21,17 +20,9 @@ const TransactionSummary = ({ bundle, estimation }: any) => {
 
   return (
     <Panel>
-      <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
-        <FontAwesome5
-          style={spacings.mrTy}
-          name="glasses"
-          size={18}
-          color={colors.primaryAccentColor}
-        />
-        <Title hasBottomSpacing={false} color={colors.primaryAccentColor}>
-          {t('Transaction summary')}
-        </Title>
-      </View>
+      <Title type="small" style={textStyles.center}>
+        {t('Transaction summary')}
+      </Title>
       <View>
         {bundle.txns.map((txn: any, i: number) => {
           const isFirstFailing = estimation && !estimation.success && estimation.firstFailing === i
@@ -54,27 +45,19 @@ const TransactionSummary = ({ bundle, estimation }: any) => {
           )
         })}
 
-        <View>
-          <Text>
-            {bundle.requestIds ? (
-              <Trans>
-                <Text>
-                  <Text style={textStyles.bold}>{'DEGEN TIP: '}</Text>
-                  <Text>
-                    You can sign multiple transactions at once. Add more transactions to this batch
-                    by interacting with a connected dApp right now.
-                  </Text>
-                </Text>
-              </Trans>
-            ) : (
-              <Trans>
-                <Text>
-                  <Text style={textStyles.bold}>{'NOTE: '}</Text>
-                  <Text>You are currently replacing a pending transaction.</Text>
-                </Text>
-              </Trans>
-            )}
-          </Text>
+        <View style={[flexboxStyles.directionRow, spacings.phSm]}>
+          <InfoIcon />
+          {bundle.requestIds ? (
+            <Text fontSize={12} style={[flexboxStyles.flex1, spacings.plTy]}>
+              {t(
+                'DEGEN TIP: You can sign multiple transactions at once. Add more transactions to this batch by interacting with a connected dApp right now.'
+              )}
+            </Text>
+          ) : (
+            <Text fontSize={12} style={[flexboxStyles.flex1, spacings.plTy]}>
+              {t('NOTE: You are currently replacing a pending transaction.')}
+            </Text>
+          )}
         </View>
       </View>
     </Panel>
