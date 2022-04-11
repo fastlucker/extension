@@ -32,7 +32,7 @@ const Balances = () => {
     // the animation executes, but then the whole screen fades away
     // and fades back in in a couple of seconds. Assuming this is a bug
     // in the `LayoutAnimation` module when executed in `useLayoutEffect` or
-    // `useEffect` hooks. Blah.
+    // `useEffect` hooks. Or in general - animation executed near initial render
     if (isiOS) {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
     }
@@ -43,7 +43,7 @@ const Balances = () => {
     // the animation executes, but then the whole screen fades away
     // and fades back in in a couple of seconds. Assuming this is a bug
     // in the `LayoutAnimation` module when executed in `useLayoutEffect` or
-    // `useEffect` hooks. Blah.
+    // `useEffect` hooks. Or in general - animation executed near initial render
     if (isiOS) {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
     }
