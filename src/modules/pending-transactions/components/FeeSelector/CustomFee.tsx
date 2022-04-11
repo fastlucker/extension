@@ -17,9 +17,10 @@ type Props = {
   isEditEnabled: boolean
   setEnableEdit: () => void
   symbol: string
+  info?: any
 }
 
-const CustomFee = ({ setCustomFee, value, isEditEnabled, setEnableEdit, symbol }: Props) => {
+const CustomFee = ({ setCustomFee, value, isEditEnabled, setEnableEdit, symbol, info }: Props) => {
   const { t } = useTranslation()
 
   const handleEnableEdit = () => {
@@ -46,6 +47,8 @@ const CustomFee = ({ setCustomFee, value, isEditEnabled, setEnableEdit, symbol }
         onChangeText={setCustomFee}
         value={value}
         autoCorrect={false}
+        info={info}
+        containerStyle={spacings.mbMi}
       />
     </View>
   )
