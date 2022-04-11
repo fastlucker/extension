@@ -6,7 +6,6 @@ import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
 interface Style {
-  buttonWrapper: ViewStyle
   buttonContainer: ViewStyle
 
   buttonContainerPrimary: ViewStyle
@@ -33,15 +32,8 @@ interface Style {
 }
 
 const styles = StyleSheet.create<Style>({
-  // Touchable element wrapper
-  buttonWrapper: {
-    width: '100%',
-    overflow: 'hidden'
-  },
-
   // Default button container styles
   buttonContainer: {
-    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
@@ -68,12 +60,14 @@ const styles = StyleSheet.create<Style>({
 
   // Button sizes (regular/small)
   buttonContainerStylesSizeRegular: {
-    height: 50,
+    minHeight: 50,
+    ...spacings.pvMi,
     ...spacings.phSm,
     ...spacings.mb
   },
   buttonContainerStylesSizeSmall: {
-    height: 40,
+    minHeight: 40,
+    ...spacings.pvMi,
     ...spacings.phTy,
     ...spacings.mbTy
   },

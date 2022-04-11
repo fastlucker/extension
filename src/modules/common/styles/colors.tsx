@@ -41,6 +41,7 @@ export const colorPalette = {
   baileyBells: '#898DCB',
   titan: '#EBECFF',
   titan_05: 'rgba(235, 236, 255, 0.05)',
+  titan_50: 'rgba(235, 236, 255, 0.5)',
 
   white: '#FFFFFF',
   black: '#000000'

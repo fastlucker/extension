@@ -10,8 +10,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import { isValidAddress } from '@modules/common/services/address'
 import spacings from '@modules/common/styles/spacings'
-
-import styles from './styles'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Props {
   onSubmit: (fieldValues: SubmitHandler<FieldValues>) => void
@@ -44,8 +43,8 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
   }, [isSubmitSuccessful, reset])
 
   return (
-    <View>
-      <View style={styles.formTitleWrapper}>
+    <>
+      <View style={[spacings.mbSm, flexboxStyles.alignCenter]}>
         <Title>{t('Add New Address')}</Title>
       </View>
       <Controller
@@ -54,6 +53,7 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             onBlur={onBlur}
+            containerStyle={spacings.mbTy}
             placeholder={t('My Address')}
             onChangeText={onChange}
             value={value}
@@ -67,6 +67,7 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
         render={({ field: { onChange, onBlur, value } }) => (
           <InputOrScan
             onBlur={onBlur}
+            containerStyle={spacings.mbTy}
             placeholder={t('0x')}
             onChangeText={onChange}
             value={value}
@@ -80,8 +81,13 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
         </Text>
       )}
 
-      <Button onPress={handleSubmit(onSubmit)} text={t('➕ Add Address')} disabled={!isValid} />
-    </View>
+      <Button
+        onPress={handleSubmit(onSubmit)}
+        type="outline"
+        text={t('Add Address')}
+        disabled={!isValid}
+      />
+    </>
   )
 }
 

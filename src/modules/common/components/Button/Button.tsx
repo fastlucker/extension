@@ -21,7 +21,7 @@ type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
 
 type ButtonSizes = 'regular' | 'small'
 interface Props extends TouchableOpacityProps {
-  text: string
+  text?: string
   type?: ButtonTypes
   size?: ButtonSizes
   textStyle?: any
@@ -110,6 +110,7 @@ const Button = ({
   textStyle = {},
   disabled = false,
   hasBottomSpacing = true,
+  children,
   ...rest
 }: Props) => {
   const animated = new Animated.Value(1)
@@ -122,7 +123,6 @@ const Button = ({
   return (
     <Pressable
       disabled={disabled}
-      style={styles.buttonWrapper}
       {...rest}
       // Animates all other components to mimic the TouchableOpacity effect
       onPressIn={type === 'primary' ? null : fadeIn}
@@ -156,17 +156,20 @@ const Button = ({
               { opacity: animated }
             ]}
           >
-            <Text
-              style={[
-                styles.buttonText,
-                buttonTextStyles[type],
-                buttonTextStylesSizes[size],
-                !!accentColor && { color: accentColor },
-                textStyle
-              ]}
-            >
-              {text}
-            </Text>
+            {!!text && (
+              <Text
+                style={[
+                  styles.buttonText,
+                  buttonTextStyles[type],
+                  buttonTextStylesSizes[size],
+                  !!accentColor && { color: accentColor },
+                  textStyle
+                ]}
+              >
+                {text}
+              </Text>
+            )}
+            {children}
           </AnimatedLinearGradient>
         )
       }}

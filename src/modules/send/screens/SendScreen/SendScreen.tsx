@@ -4,24 +4,30 @@ import {
   ActivityIndicator,
   Keyboard,
   StyleSheet,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View
 } from 'react-native'
 
+import DownArrowIcon from '@assets/svg/DownArrowIcon'
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import Input from '@modules/common/components/Input'
 import InputOrScan from '@modules/common/components/InputOrScan/InputOrScan'
+import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import Wrapper from '@modules/common/components/Wrapper'
+import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
-import spacings from '@modules/common/styles/spacings'
+import useKeyboard from '@modules/common/hooks/useKeybard'
+import spacings, { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
+import textStyles from '@modules/common/styles/utils/text'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
@@ -44,6 +50,7 @@ const SendScreen = () => {
     isOpen: isOpenBottomSheetAddrDisplay
   } = useBottomSheet()
   const { addAddress } = useAddressBook()
+  const { keyboardShown } = useKeyboard()
   const {
     asset,
     amount,
@@ -73,7 +80,12 @@ const SendScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper keyboardDismissMode="on-drag" hasBottomTabNav>
+      <Wrapper
+        keyboardDismissMode="on-drag"
+        type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
+        extraHeight={250}
+        hasBottomTabNav
+      >
         {isBalanceLoading && (
           <View style={StyleSheet.absoluteFill}>
             <ActivityIndicator style={StyleSheet.absoluteFill} size="large" />
@@ -85,11 +97,13 @@ const SendScreen = () => {
               Keyboard.dismiss()
             }}
           >
-            <>
-              {assetsItems.length ? (
-                <Panel>
-                  <Title>{t('Send')}</Title>
-                  <Select value={asset} items={assetsItems} setValue={setAsset} />
+            {assetsItems.length ? (
+              <>
+                <Panel style={spacings.mb0}>
+                  <Title style={textStyles.center}>{t('Send')}</Title>
+                  <View style={spacings.mbMi}>
+                    <Select value={asset} items={assetsItems} setValue={setAsset} />
+                  </View>
                   <View style={styles.amountContainer}>
                     <Text>{t('Available Amount:')}</Text>
                     <Text style={styles.amountValue}>
@@ -98,6 +112,7 @@ const SendScreen = () => {
                   </View>
                   <NumberInput
                     onChangeText={onAmountChange}
+                    containerStyle={spacings.mbTy}
                     value={amount.toString()}
                     buttonText={t('MAX')}
                     placeholder={t('0')}
@@ -109,6 +124,7 @@ const SendScreen = () => {
                     </Text>
                   )}
                   <InputOrScan
+                    containerStyle={spacings.mb}
                     placeholder={t('Recipient')}
                     info={t(
                       'Please double-check the recipient address, blockchain transactions are not reversible.'
@@ -128,14 +144,26 @@ const SendScreen = () => {
                       onAddToAddressBook={openBottomSheetAddrAdd}
                     />
                   )}
-                  <Button
-                    type="secondary"
+                  <TouchableOpacity
                     onPress={() => {
                       Keyboard.dismiss()
                       openBottomSheetAddrDisplay()
                     }}
-                    text={t('Address Book')}
-                  />
+                  >
+                    <View pointerEvents="none">
+                      <Input
+                        value={t('Address Book')}
+                        containerStyle={spacings.mbSm}
+                        buttonText={
+                          <NavIconWrapper onPress={() => null}>
+                            <DownArrowIcon width={34} height={34} />
+                          </NavIconWrapper>
+                        }
+                      />
+                    </View>
+                  </TouchableOpacity>
+                </Panel>
+                <View style={[spacings.phSm, spacings.mbMd]}>
                   <Button
                     text={t('Send')}
                     disabled={disabled}
@@ -144,17 +172,21 @@ const SendScreen = () => {
                       sendTransaction()
                     }}
                   />
+                </View>
+                <Panel>
+                  <AddressList
+                    onSelectAddress={(item): any => setAddress(item.address)}
+                    onOpenBottomSheet={openBottomSheetAddrAdd}
+                  />
                 </Panel>
-              ) : (
-                <Text style={spacings.mbSm}>{t("You don't have any funds on this account.")}</Text>
-              )}
-              <Panel>
-                <AddressList
-                  onSelectAddress={(item): any => setAddress(item.address)}
-                  onOpenBottomSheet={openBottomSheetAddrAdd}
-                />
+              </>
+            ) : (
+              <Panel style={{ flexGrow: 1 }}>
+                <Text fontSize={16} style={textStyles.center}>
+                  {t("You don't have any funds on this account.")}
+                </Text>
               </Panel>
-            </>
+            )}
           </TouchableWithoutFeedback>
         )}
         <BottomSheet
@@ -164,10 +196,8 @@ const SendScreen = () => {
           dynamicInitialHeight={false}
         >
           <AddressList
-            onSelectAddress={(item): any => {
-              closeBottomSheetAddrDisplay()
-              setAddress(item.address)
-            }}
+            onSelectAddress={(item): any => setAddress(item.address)}
+            onCloseBottomSheet={closeBottomSheetAddrDisplay}
             onOpenBottomSheet={openBottomSheetAddrAdd}
           />
         </BottomSheet>
@@ -175,8 +205,8 @@ const SendScreen = () => {
           sheetRef={sheetRefAddrAdd}
           isOpen={isOpenBottomSheetAddrAdd}
           closeBottomSheet={closeBottomSheetAddrAdd}
-          maxInitialHeightPercentage={1}
           dynamicInitialHeight={false}
+          height={keyboardShown && DEVICE_HEIGHT * 0.88}
         >
           <AddAddressForm
             onSubmit={handleAddNewAddress}
