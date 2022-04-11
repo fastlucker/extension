@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import {
+  Animated,
   ColorValue,
   Pressable,
   Text,
@@ -13,6 +14,8 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 import styles from './styles'
+
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
 
 type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
 
@@ -108,50 +111,67 @@ const Button = ({
   disabled = false,
   hasBottomSpacing = true,
   ...rest
-}: Props) => (
-  <Pressable disabled={disabled} style={styles.buttonWrapper} {...rest}>
-    {({ pressed }) => {
-      const colorsIfPressed = pressed ? gradientColorsPressed[type] : gradientColors[type]
-      const currentColors = disabled ? gradientDisabledColors[type] : colorsIfPressed
+}: Props) => {
+  const animated = new Animated.Value(1)
 
-      const locationsIfPressed = pressed
-        ? gradientColorsLocationsPressed[type]
-        : gradientColorsLocations[type]
-      const currentLocations = disabled
-        ? gradientColorsLocationsDisabledPressed[type]
-        : locationsIfPressed
+  const fadeIn = () =>
+    Animated.timing(animated, { toValue: 0.7, duration: 100, useNativeDriver: true }).start()
+  const fadeOut = () =>
+    Animated.timing(animated, { toValue: 1, duration: 200, useNativeDriver: true }).start()
 
-      return (
-        <LinearGradient
-          colors={currentColors}
-          locations={currentLocations}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={[
-            styles.buttonContainer,
-            containerStyles[type],
-            containerStylesSizes[size],
-            disabled && styles.disabled,
-            style,
-            !!accentColor && { borderColor: accentColor },
-            !hasBottomSpacing && spacings.mb0
-          ]}
-        >
-          <Text
+  return (
+    <Pressable
+      disabled={disabled}
+      style={styles.buttonWrapper}
+      {...rest}
+      // Animates all other components to mimic the TouchableOpacity effect
+      onPressIn={type === 'primary' ? null : fadeIn}
+      onPressOut={type === 'primary' ? null : fadeOut}
+    >
+      {({ pressed }) => {
+        const colorsIfPressed = pressed ? gradientColorsPressed[type] : gradientColors[type]
+        const currentColors = disabled ? gradientDisabledColors[type] : colorsIfPressed
+
+        const locationsIfPressed = pressed
+          ? gradientColorsLocationsPressed[type]
+          : gradientColorsLocations[type]
+        const currentLocations = disabled
+          ? gradientColorsLocationsDisabledPressed[type]
+          : locationsIfPressed
+
+        return (
+          <AnimatedLinearGradient
+            colors={currentColors}
+            locations={currentLocations}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
             style={[
-              styles.buttonText,
-              buttonTextStyles[type],
-              buttonTextStylesSizes[size],
-              !!accentColor && { color: accentColor },
-              textStyle
+              styles.buttonContainer,
+              containerStyles[type],
+              containerStylesSizes[size],
+              disabled && styles.disabled,
+              style,
+              !!accentColor && { borderColor: accentColor },
+              !hasBottomSpacing && spacings.mb0,
+              { opacity: animated }
             ]}
           >
-            {text}
-          </Text>
-        </LinearGradient>
-      )
-    }}
-  </Pressable>
-)
+            <Text
+              style={[
+                styles.buttonText,
+                buttonTextStyles[type],
+                buttonTextStylesSizes[size],
+                !!accentColor && { color: accentColor },
+                textStyle
+              ]}
+            >
+              {text}
+            </Text>
+          </AnimatedLinearGradient>
+        )
+      }}
+    </Pressable>
+  )
+}
 
 export default Button
