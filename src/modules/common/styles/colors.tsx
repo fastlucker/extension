@@ -13,6 +13,7 @@ export const colorPalette = {
   lightViolet: '#904DFF',
   violet: '#6000FF',
   darkViolet: '#35008C',
+  electricViolet: '#923DFF',
 
   lightMustard: '#FFD04D',
   mustard: '#FFBC00',
