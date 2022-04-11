@@ -104,22 +104,6 @@ const Rewards = () => {
 
   const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
 
-  const claimButton = (
-    <>
-      <Button
-        type="secondary"
-        accentColor={colors.primaryAccentColor}
-        disabled
-        size="small"
-        text={t('Claim')}
-        style={styles.buttonClaim}
-      />
-      <Text fontSize={14} style={textStyles.right}>
-        {t('Claiming will be available after the official token launch')}
-      </Text>
-    </>
-  )
-
   return (
     <>
       <Button
@@ -143,7 +127,18 @@ const Rewards = () => {
         closeBottomSheet={closeBottomSheet}
         cancelText={t('Close')}
       >
-        <Title>{t('Wallet')}</Title>
+        <Title>{t('Wallet token distribution')}</Title>
+
+        <Text type="caption" style={[spacings.mbSm, textStyles.center]}>
+          <Text type="caption">
+            {t(
+              'You are receiving $WALLETS for holding funds on your Ambire wallet as an early user.'
+            )}
+          </Text>
+          <Text onPress={handleReadMore} underline type="caption">
+            {t('Read More')}
+          </Text>
+        </Text>
 
         <Row index={0}>
           <View style={[spacings.prTy, flexboxStyles.flex1]}>
@@ -153,10 +148,9 @@ const Rewards = () => {
             <Text color={colors.primaryAccentColor} style={[textStyles.right, spacings.mbTy]}>
               {rewards[RewardIds.BALANCE_REWARDS]}
             </Text>
-            {claimButton}
           </View>
         </Row>
-        <Row index={1} style={spacings.mb}>
+        <Row index={1}>
           <View style={[spacings.prTy, flexboxStyles.flex1]}>
             <Text>{t('ADX Staking Bonus')}</Text>
           </View>
@@ -164,7 +158,27 @@ const Rewards = () => {
             <Text color={colors.primaryAccentColor} style={[textStyles.right, spacings.mbTy]}>
               {rewards[RewardIds.ADX_REWARDS]}
             </Text>
-            {claimButton}
+          </View>
+        </Row>
+        <Row index={2}>
+          <View style={flexboxStyles.directionRow}>
+            <Button disabled size="small" text={t('Claim with Burn')} style={spacings.mrMi} />
+            <Button disabled size="small" text={t('Claim in xWALLET')} style={spacings.mlMi} />
+          </View>
+        </Row>
+        <Row index={3}>
+          <View style={[spacings.prTy, flexboxStyles.flex1]}>
+            <Text>{t('Claimable early supporters vesting')}</Text>
+          </View>
+          <View style={[spacings.plTy, { width: 200 }]}>
+            <Text color={colors.primaryAccentColor} style={[textStyles.right, spacings.mbTy]}>
+              {rewards[RewardIds.ADX_REWARDS]}
+            </Text>
+          </View>
+        </Row>
+        <Row index={4} style={spacings.mb}>
+          <View style={flexboxStyles.flex1}>
+            <Button disabled size="small" text={t('Claim')} />
           </View>
         </Row>
 
@@ -177,12 +191,6 @@ const Rewards = () => {
             key={name}
           />
         ))}
-        <Text style={spacings.mbSm}>
-          {t(
-            'You are receiving $WALLETS for holding funds on your Ambire wallet as an early user. Have in mind that $WALLET has not launched yet.'
-          )}
-        </Text>
-        <Button onPress={handleReadMore} text={t('Read more')} />
       </BottomSheet>
     </>
   )
