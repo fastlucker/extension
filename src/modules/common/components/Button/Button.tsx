@@ -77,6 +77,14 @@ const gradientColorsLocationsPressed: { [key in ButtonTypes]: number[] | undefin
   ghost: undefined
 }
 
+const gradientColorsLocationsDisabledPressed: { [key in ButtonTypes]: number[] | undefined } = {
+  primary: [0, 1],
+  secondary: undefined,
+  danger: undefined,
+  outline: undefined,
+  ghost: undefined
+}
+
 const buttonTextStyles: { [key in ButtonTypes]: TextStyle } = {
   primary: styles.buttonTextPrimary,
   secondary: styles.buttonTextSecondary,
@@ -102,41 +110,47 @@ const Button = ({
   ...rest
 }: Props) => (
   <Pressable disabled={disabled} style={styles.buttonWrapper} {...rest}>
-    {({ pressed }) => (
-      <LinearGradient
-        colors={
-          disabled
-            ? gradientDisabledColors[type]
-            : pressed
-            ? gradientColorsPressed[type]
-            : gradientColors[type]
-        }
-        start={{ x: 0, y: 0.5 }}
-        end={{ x: 1, y: 0.5 }}
-        locations={pressed ? gradientColorsLocationsPressed[type] : gradientColorsLocations[type]}
-        style={[
-          styles.buttonContainer,
-          containerStyles[type],
-          containerStylesSizes[size],
-          disabled && styles.disabled,
-          style,
-          !!accentColor && { borderColor: accentColor },
-          !hasBottomSpacing && spacings.mb0
-        ]}
-      >
-        <Text
+    {({ pressed }) => {
+      const colorsIfPressed = pressed ? gradientColorsPressed[type] : gradientColors[type]
+      const currentColors = disabled ? gradientDisabledColors[type] : colorsIfPressed
+
+      const locationsIfPressed = pressed
+        ? gradientColorsLocationsPressed[type]
+        : gradientColorsLocations[type]
+      const currentLocations = disabled
+        ? gradientColorsLocationsDisabledPressed[type]
+        : locationsIfPressed
+
+      return (
+        <LinearGradient
+          colors={currentColors}
+          locations={currentLocations}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
           style={[
-            styles.buttonText,
-            buttonTextStyles[type],
-            buttonTextStylesSizes[size],
-            !!accentColor && { color: accentColor },
-            textStyle
+            styles.buttonContainer,
+            containerStyles[type],
+            containerStylesSizes[size],
+            disabled && styles.disabled,
+            style,
+            !!accentColor && { borderColor: accentColor },
+            !hasBottomSpacing && spacings.mb0
           ]}
         >
-          {text}
-        </Text>
-      </LinearGradient>
-    )}
+          <Text
+            style={[
+              styles.buttonText,
+              buttonTextStyles[type],
+              buttonTextStylesSizes[size],
+              !!accentColor && { color: accentColor },
+              textStyle
+            ]}
+          >
+            {text}
+          </Text>
+        </LinearGradient>
+      )
+    }}
   </Pressable>
 )
 
