@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react'
+import React, { useEffect } from 'react'
 import { LayoutAnimation, TouchableOpacity, View } from 'react-native'
 
 import ReceiveIcon from '@assets/svg/ReceiveIcon'
@@ -26,20 +26,28 @@ const Balances = () => {
   const navigation: any = useNavigation()
   const { balance, isBalanceLoading, otherBalances } = usePortfolio()
   const { network: selectedNetwork, setNetwork } = useNetwork()
-  const prevIsBalanceLoading = usePrevious(isBalanceLoading)
 
-  useLayoutEffect(() => {
-    if (!isBalanceLoading && prevIsBalanceLoading) {
-      // Restrict this for iOS only, because on Android,
-      // the animation executes, but then the whole screen fades away
-      // and fades back in in a couple of seconds. Assuming this is a bug
-      // in the `LayoutAnimation` module when executed in `useLayoutEffect` or
-      // `useEffect` hooks. Blah.
-      if (isiOS) {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
-      }
+  useEffect(() => {
+    // Restrict this for iOS only, because on Android,
+    // the animation executes, but then the whole screen fades away
+    // and fades back in in a couple of seconds. Assuming this is a bug
+    // in the `LayoutAnimation` module when executed in `useLayoutEffect` or
+    // `useEffect` hooks. Blah.
+    if (isiOS) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
     }
-  }, [isBalanceLoading, prevIsBalanceLoading])
+  }, [isBalanceLoading])
+
+  useEffect(() => {
+    // Restrict this for iOS only, because on Android,
+    // the animation executes, but then the whole screen fades away
+    // and fades back in in a couple of seconds. Assuming this is a bug
+    // in the `LayoutAnimation` module when executed in `useLayoutEffect` or
+    // `useEffect` hooks. Blah.
+    if (isiOS) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+    }
+  }, [selectedNetwork])
 
   const otherPositiveBalances = otherBalances.filter(
     ({ network, total }: any) => network !== selectedNetwork?.id && total.full > 0
