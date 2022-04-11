@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Linking, View } from 'react-native'
+import { Linking, TouchableOpacity, View } from 'react-native'
 
 import CONFIG from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -47,6 +47,25 @@ const rewardsInitialState = {
   'balance-rewards': 0,
   multipliers: []
 }
+
+const multiplierBadges = [
+  {
+    id: 'beta-tester',
+    name: 'Beta Testers',
+    icon: '🧪',
+    color: '#6000FF',
+    multiplier: 1.25,
+    link: 'https://blog.ambire.com/announcing-the-wallet-token-a137aeda9747'
+  },
+  {
+    id: 'lobsters',
+    name: 'Lobsters',
+    icon: '🦞',
+    color: '#E82949',
+    multiplier: 1.5,
+    link: 'https://blog.ambire.com/ambire-wallet-to-partner-with-lobsterdao-10b57e6da0-53c59c88726b'
+  }
+]
 
 const Rewards = () => {
   const { t } = useTranslation()
@@ -104,6 +123,27 @@ const Rewards = () => {
 
   const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
 
+  const renderBadge = ({ id, multiplier, icon, name, color }) => {
+    const isUnlocked =
+      rewards.multipliers && rewards.multipliers.map(({ name }) => name).includes(id)
+
+    return (
+      <TouchableOpacity
+        disabled={!isUnlocked}
+        key={name}
+        style={[
+          flexboxStyles.center,
+          spacings.mhMi,
+          { backgroundColor: color, width: 72, height: 85 },
+          !isUnlocked && { opacity: 0.3 }
+        ]}
+      >
+        <Text>{icon}</Text>
+        <Text>x {multiplier}</Text>
+      </TouchableOpacity>
+    )
+  }
+
   return (
     <>
       <Button
@@ -128,6 +168,10 @@ const Rewards = () => {
         cancelText={t('Close')}
       >
         <Title>{t('Wallet token distribution')}</Title>
+
+        <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
+          {multiplierBadges.map(renderBadge)}
+        </View>
 
         <Text type="caption" style={[spacings.mbSm, textStyles.center]}>
           <Text type="caption">
@@ -181,16 +225,6 @@ const Rewards = () => {
             <Button disabled size="small" text={t('Claim')} />
           </View>
         </Row>
-
-        {rewards?.multipliers?.map(({ mul, name }) => (
-          <Button
-            accentColor={colors.primaryAccentColor}
-            type="secondary"
-            text={t('{{mul}}x {{name}} multiplier', { mul, name })}
-            disabled
-            key={name}
-          />
-        ))}
       </BottomSheet>
     </>
   )
