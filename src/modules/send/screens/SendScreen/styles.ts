@@ -11,7 +11,7 @@ const styles = StyleSheet.create<Style>({
   amountContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    ...spacings.mbTy
+    ...spacings.mbMi
   },
   amountValue: {
     opacity: 0.8,

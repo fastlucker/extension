@@ -38,7 +38,7 @@ const styles = StyleSheet.create<Style>({
     fontFamily: 'Poppins_300Light',
     flex: 1,
     height: 50,
-    ...spacings.ph
+    ...spacings.phTy
   },
   focused: {
     borderBottomColor: colors.titan
@@ -67,7 +67,7 @@ const styles = StyleSheet.create<Style>({
     // Centers the content (used because of the borderBottomWidth)
     paddingTop: 2,
     justifyContent: 'center',
-    ...spacings.phSm
+    ...spacings.phTy
   },
   disabled: {
     opacity: 0.5

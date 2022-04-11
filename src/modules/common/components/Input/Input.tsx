@@ -24,6 +24,7 @@ export interface InputProps extends TextInputProps {
   buttonText?: string | JSX.Element
   onButtonPress?: () => void
   disabled?: boolean
+  containerStyle?: any
 }
 
 const Input = ({
@@ -36,6 +37,7 @@ const Input = ({
   onFocus = () => {},
   onButtonPress = () => {},
   disabled,
+  containerStyle,
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
@@ -52,7 +54,7 @@ const Input = ({
   const hasButton = !!buttonText
 
   return (
-    <View style={[styles.inputContainer]}>
+    <View style={[styles.inputContainer, containerStyle]}>
       {!!label && <Text style={styles.label}>{label}</Text>}
 
       <View
