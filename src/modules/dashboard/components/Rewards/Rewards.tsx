@@ -91,33 +91,24 @@ const Rewards = () => {
   useEffect(() => {
     if (errMsg || !data || !data.success) return
 
-    if (!data?.rewards?.length) return
+    const { rewards, multipliers } = data
+    if (!rewards?.length) return
 
-    // @ts-ignore not sure why this type is complaining, types mismatch a bit.
-    // but the end result matches this structure:
-    // {
-    //   [RewardIds.ADX_REWARDS]: number
-    //   [RewardIds.BALANCE_REWARDS]: number
-    // }
-    const rewardsDetails: {
-      [RewardIds.ADX_REWARDS]: number
-      [RewardIds.BALANCE_REWARDS]: number
-    } = Object.fromEntries<RewardsData[]>(
-      data?.rewards?.map(({ _id, rewards: _rewards }: RewardsData) => [
-        _id,
-        _rewards[account?.id || null] || 0
-      ])
+    const rewardsDetails = Object.fromEntries(
+      rewards.map(({ _id, rewards }) => [_id, rewards[account.id] || 0])
     )
-
-    const total = Object.values(rewardsDetails).reduce((acc, curr) => acc + curr, 0)
-    const rewardsDetailsWithMultipliers: RewardsType = {
-      ...rewardsDetails,
-      multipliers: data.multipliers
-    }
-
-    setRewardsTotal(total)
-    setRewards(rewardsDetailsWithMultipliers)
+    rewardsDetails.multipliers = multipliers
+    rewardsDetails.walletTokenAPY = data.walletTokenAPY
+    rewardsDetails.adxTokenAPY = data.adxTokenAPY
+    rewardsDetails.walletUsdPrice = data.usdPrice
+    rewardsDetails.xWALLETAPY = data.xWALLETAPY
+    setRewards(rewardsDetails)
   }, [data, errMsg, account])
+
+  const walletTokenAPY = rewards.walletTokenAPY ? (rewards.walletTokenAPY * 100).toFixed(2) : '...'
+  const adxTokenAPY = rewards.adxTokenAPY ? (rewards.adxTokenAPY * 100).toFixed(2) : '...'
+  const xWALLETAPY = rewards.xWALLETAPY ? (rewards.xWALLETAPY * 100).toFixed(2) : '...'
+  const walletTokenUSDPrice = rewards.walletUsdPrice || 0
 
   const walletTokensAmount = rewardsTotal.toFixed(3)
 
@@ -192,6 +183,7 @@ const Rewards = () => {
             <Text color={colors.primaryAccentColor} style={[textStyles.right, spacings.mbTy]}>
               {rewards[RewardIds.BALANCE_REWARDS]}
             </Text>
+            <Text>{walletTokenAPY}%</Text>
           </View>
         </Row>
         <Row index={1}>
@@ -202,6 +194,7 @@ const Rewards = () => {
             <Text color={colors.primaryAccentColor} style={[textStyles.right, spacings.mbTy]}>
               {rewards[RewardIds.ADX_REWARDS]}
             </Text>
+            <Text>{adxTokenAPY}%</Text>
           </View>
         </Row>
         <Row index={2}>
