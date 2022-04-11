@@ -61,7 +61,7 @@ const styles = StyleSheet.create<Style>({
     backgroundColor: colors.howl,
     borderWidth: 0,
     fontSize: 16,
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
     color: colors.titan
   },
   modalContentContainerStyle: {
