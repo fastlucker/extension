@@ -352,7 +352,7 @@ const FeeSelector = ({
   }
 
   return (
-    <Panel>
+    <Panel type="filled">
       <Title type="small" style={textStyles.center}>
         {t('Fee')}
       </Title>
