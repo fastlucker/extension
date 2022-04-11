@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, TouchableOpacity, View } from 'react-native'
+import Svg, { Path } from 'react-native-svg'
 
 import CONFIG from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -125,12 +126,21 @@ const Rewards = () => {
         style={[
           flexboxStyles.center,
           spacings.mhMi,
-          { backgroundColor: color, width: 72, height: 85 },
+          { width: 73.409, height: 84.533 },
           !isUnlocked && { opacity: 0.3 }
         ]}
       >
-        <Text>{icon}</Text>
-        <Text>x {multiplier}</Text>
+        <Text fontSize={25}>{icon}</Text>
+        <Text fontSize={16} weight="semiBold">
+          x{multiplier}
+        </Text>
+        <Svg
+          width="73.409"
+          height="84.533"
+          style={{ position: 'absolute', top: 0, left: 0, zIndex: -1 }}
+        >
+          <Path d="M.5.5v72.234l36.2 11.271 36.2-11.271V.495Z" fill={color} stroke="#ebecff" />
+        </Svg>
       </TouchableOpacity>
     )
   }
