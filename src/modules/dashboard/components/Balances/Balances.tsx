@@ -1,9 +1,9 @@
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useLayoutEffect } from 'react'
 import { LayoutAnimation, TouchableOpacity, View } from 'react-native'
 
 import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
-import { isAndroid } from '@config/env'
+import { isiOS } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Spinner from '@modules/common/components/Spinner'
@@ -11,6 +11,7 @@ import Text from '@modules/common/components/Text'
 import networks from '@modules/common/constants/networks'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import usePrevious from '@modules/common/hooks/usePrevious'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -25,20 +26,20 @@ const Balances = () => {
   const navigation: any = useNavigation()
   const { balance, isBalanceLoading, otherBalances } = usePortfolio()
   const { network: selectedNetwork, setNetwork } = useNetwork()
-  const [isFirstAnimation, setIsFirstAnimation] = useState(true)
+  const prevIsBalanceLoading = usePrevious(isBalanceLoading)
 
   useLayoutEffect(() => {
-    // There is an ongoing issue with Android and calling `LayoutAnimation.configureNext`
-    // during the first render. It does not render the component if executed.
-    // However, on the second time onwards - all good.
-    if (isAndroid && isFirstAnimation) {
-      return
+    if (!isBalanceLoading && prevIsBalanceLoading) {
+      // Restrict this for iOS only, because on Android,
+      // the animation executes, but then the whole screen fades away
+      // and fades back in in a couple of seconds. Assuming this is a bug
+      // in the `LayoutAnimation` module when executed in `useLayoutEffect` or
+      // `useEffect` hooks. Blah.
+      if (isiOS) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+      }
     }
-
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
-
-    if (isFirstAnimation) setIsFirstAnimation(false)
-  }, [isBalanceLoading, selectedNetwork, isFirstAnimation])
+  }, [isBalanceLoading, prevIsBalanceLoading])
 
   const otherPositiveBalances = otherBalances.filter(
     ({ network, total }: any) => network !== selectedNetwork?.id && total.full > 0
