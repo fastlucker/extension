@@ -133,7 +133,6 @@
     "url": "~0.10.1",
     "util": "~0.10.3",
     "validator": "^13.7.0",
-    "victory-native": "^36.2.0",
     "vm-browserify": "0.0.4"
   },
   "devDependencies": {
