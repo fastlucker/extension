@@ -117,12 +117,12 @@ const SendScreen = () => {
                     buttonText={t('MAX')}
                     placeholder={t('0')}
                     onButtonPress={setMaxAmount}
+                    error={
+                      validationFormMgs.messages?.amount
+                        ? validationFormMgs.messages.amount
+                        : undefined
+                    }
                   />
-                  {!!validationFormMgs.messages?.amount && (
-                    <Text appearance="danger" style={spacings.mbSm}>
-                      {validationFormMgs.messages.amount}
-                    </Text>
-                  )}
                   <InputOrScan
                     containerStyle={spacings.mb}
                     placeholder={t('Recipient')}

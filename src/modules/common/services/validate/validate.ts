@@ -94,7 +94,7 @@ const validateSendTransferAmount = (amount: any, selectedAsset: any) => {
 
 const isValidCode = (code: string) => code.length === 6
 
-const isValidPassword = (password: string) => password.length === 8
+const isValidPassword = (password: string) => password.length >= 8
 
 export {
   isEmail,
