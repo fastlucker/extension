@@ -25,7 +25,8 @@ import useTransactions from '@modules/transactions/hooks/useTransactions'
 import styles from './styles'
 
 const TransactionsScreen = () => {
-  const { data, errMsg, isLoading, speedup, cancel, firstPending, showSendTxns } = useTransactions()
+  const { data, errMsg, isLoading, speedup, replace, cancel, firstPending, showSendTxns } =
+    useTransactions()
   const { eligibleRequests } = useRequests()
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
@@ -54,18 +55,26 @@ const TransactionsScreen = () => {
       bundle={firstPending}
       hasBottomSpacing
       actions={
-        <View style={flexboxStyles.directionRow}>
+        <View>
           <Button
-            type="danger"
-            onPress={() => cancel(firstPending)}
-            text={t('Cancel')}
+            type="outline"
+            onPress={() => replace(firstPending)}
+            text={t('Replace or modify')}
             style={[flexboxStyles.flex1, spacings.mrTy]}
           />
-          <Button
-            onPress={() => speedup(firstPending)}
-            text={t('Speed up')}
-            style={flexboxStyles.flex1}
-          />
+          <View style={flexboxStyles.directionRow}>
+            <Button
+              type="danger"
+              onPress={() => cancel(firstPending)}
+              text={t('Cancel')}
+              style={[flexboxStyles.flex1, spacings.mrTy]}
+            />
+            <Button
+              onPress={() => speedup(firstPending)}
+              text={t('Speed up')}
+              style={flexboxStyles.flex1}
+            />
+          </View>
         </View>
       }
     />

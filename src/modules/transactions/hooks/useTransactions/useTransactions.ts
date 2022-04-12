@@ -1,6 +1,6 @@
 import { Bundle } from 'adex-protocol-eth/js'
 // TODO: add types
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
@@ -19,14 +19,39 @@ const useTransactions = () => {
   const { setSendTxnState } = useRequests()
   const { network }: any = useNetwork()
   const { t } = useTranslation()
+  const { addRequest } = useRequests()
 
   const [cacheBreak, setCacheBreak] = useState(() => Date.now())
+
+  const showSendTxns = (bundle: any) =>
+    setSendTxnState({ showing: true, replacementBundle: bundle })
 
   useEffect(() => {
     if (Date.now() - cacheBreak > 5000) setCacheBreak(Date.now())
     const intvl = setTimeout(() => setCacheBreak(Date.now()), 10000)
     return () => clearTimeout(intvl)
   }, [cacheBreak])
+
+  const showSendTxnsForReplacement = useCallback(
+    (bundle) => {
+      bundle.txns.slice(0, -1).forEach((txn: any, index: any) => {
+        addRequest({
+          id: index,
+          chainId: network.chainId,
+          account: selectedAcc,
+          type: 'eth_sendTransaction',
+          txn: {
+            to: txn[0].toLowerCase(),
+            value: txn[1] === '0x' ? '0x0' : txn[1],
+            data: txn[2]
+          }
+        })
+      })
+      // Wouldn't need to be called cause it will happen autoamtically, except we need `replaceByDefault`
+      setSendTxnState({ showing: true, replaceByDefault: true })
+    },
+    [addRequest, network, selectedAcc, setSendTxnState]
+  )
 
   const url = CONFIG.RELAYER_URL
     ? `${CONFIG.RELAYER_URL}/identity/${selectedAcc}/${network.id}/transactions?cacheBreak=${cacheBreak}`
@@ -44,9 +69,6 @@ const useTransactions = () => {
       minFeeInUSDPerGas: relayerBundle.feeInUSDPerGas * RBF_THRESHOLD,
       ...extra
     })
-
-  const showSendTxns = (bundle: any) =>
-    setSendTxnState({ showing: true, replacementBundle: bundle })
 
   const cancelByReplacing = (relayerBundle: any) =>
     showSendTxns(
@@ -81,12 +103,15 @@ const useTransactions = () => {
   const speedup = (relayerBundle: any) =>
     showSendTxns(mapToBundle(relayerBundle, { txns: relayerBundle.txns.slice(0, -1) }))
 
+  const replace = (relayerBundle: any) => showSendTxnsForReplacement(mapToBundle(relayerBundle))
+
   return {
     data,
     errMsg,
     isLoading,
     firstPending,
     speedup,
+    replace,
     cancel,
     showSendTxns
   }

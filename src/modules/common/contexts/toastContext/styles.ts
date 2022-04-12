@@ -8,6 +8,8 @@ interface Style {
   toastWrapper: ViewStyle
   toast: ViewStyle
   error: ViewStyle
+  badge: ViewStyle
+  errorBadge: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -40,6 +42,17 @@ const styles = StyleSheet.create<Style>({
   error: {
     backgroundColor: colors.pigPink,
     borderLeftColor: colors.pink
+  },
+  badge: {
+    width: 18,
+    height: 18,
+    borderRadius: 50,
+    backgroundColor: colors.turquoise,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  errorBadge: {
+    backgroundColor: colors.pink
   }
 })
 
