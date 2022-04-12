@@ -31,7 +31,7 @@ export default function useStakedWalletToken() {
         formatUnits(balanceOf.toString(), 18).toString() * formatUnits(shareValue, 18).toString()
       setStakedAmount(stakedAmount)
     } catch (e) {
-      console.error(e)
+      // Fail silently
     }
   }, [account.id])
 
