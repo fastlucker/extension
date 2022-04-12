@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Keyboard, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
 import Button from '@modules/common/components/Button'
@@ -13,7 +13,6 @@ import Title from '@modules/common/components/Title'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
 import { isValidCode, isValidPassword } from '@modules/common/services/validate'
-import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -169,6 +168,7 @@ const SignActions = ({
               keyboardType="numeric"
               disabled={signingStatus.inProgress}
               autoCorrect={false}
+              isValid={isValidCode(value)}
               value={value}
               autoFocus={selectedAccHasPassword}
               error={errors.code && (t('Invalid confirmation code.') as string)}
@@ -186,7 +186,13 @@ const SignActions = ({
                   : t('Send')
               }
               disabled={signingStatus.inProgress || !watch('password', '') || !watch('code', '')}
-              onPress={handleSubmit(onSubmit)}
+              onPress={() => {
+                Keyboard.dismiss()
+                // Needed because of the async animation of the keyboard aware scroll view after keyboard dismiss
+                setTimeout(() => {
+                  handleSubmit(onSubmit)()
+                }, 100)
+              }}
             />
           </View>
         </View>
