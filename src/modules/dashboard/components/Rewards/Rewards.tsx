@@ -152,7 +152,6 @@ const Rewards = () => {
       />
       <BottomSheet
         id="rewards"
-        dynamicInitialHeight={false}
         sheetRef={sheetRef}
         isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
