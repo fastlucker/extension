@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, TouchableOpacity, View } from 'react-native'
-import Svg, { Path } from 'react-native-svg'
 
+import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
@@ -93,9 +93,7 @@ const Rewards = () => {
         <Text fontSize={16} weight="semiBold">
           x{multiplier}
         </Text>
-        <Svg width="73" height="84" style={{ position: 'absolute', top: 0, left: 0, zIndex: -1 }}>
-          <Path d="M.5.5v72.234l36.2 11.271 36.2-11.271V.495Z" fill={color} stroke={colors.titan} />
-        </Svg>
+        <RewardsFlag color={color} style={styles.rewardFlag} />
       </TouchableOpacity>
     )
   }
