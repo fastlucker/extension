@@ -1,11 +1,10 @@
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
+import EditIcon from '@assets/svg/EditIcon'
 import { useTranslation } from '@config/localization'
-import { FontAwesome5 } from '@expo/vector-icons'
 import NumberInput from '@modules/common/components/NumberInput'
 import Text from '@modules/common/components/Text'
-import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -30,11 +29,13 @@ const CustomFee = ({ setCustomFee, value, isEditEnabled, setEnableEdit, symbol, 
   if (!isEditEnabled) {
     return (
       <TouchableOpacity
-        style={[spacings.mb, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
+        style={[spacings.mbTy, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
         onPress={handleEnableEdit}
       >
-        <FontAwesome5 style={spacings.mrMi} name="edit" size={18} color={colors.textColor} />
-        <Text>{t('Edit fee')}</Text>
+        <View style={spacings.mrMi}>
+          <EditIcon />
+        </View>
+        <Text weight="regular">{t('Edit fee')}</Text>
       </TouchableOpacity>
     )
   }
@@ -48,6 +49,9 @@ const CustomFee = ({ setCustomFee, value, isEditEnabled, setEnableEdit, symbol, 
         value={value}
         autoCorrect={false}
         info={info}
+        infoTextStyle={{
+          opacity: 1
+        }}
         containerStyle={spacings.mbMi}
       />
     </View>

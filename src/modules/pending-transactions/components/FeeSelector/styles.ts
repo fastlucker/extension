@@ -16,7 +16,7 @@ const styles = StyleSheet.create<Style>({
   selectorsContainer: {
     flexDirection: 'row',
     flex: 1,
-    ...spacings.mb,
+    ...spacings.mbLg,
     marginHorizontal: -2.5
   },
   feeSelector: {
