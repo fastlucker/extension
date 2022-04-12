@@ -113,14 +113,21 @@ const ToastProvider = ({ children }: any) => {
     >
       <View style={[styles.container, { bottom: bottomInset }]}>
         {/* eslint-disable-next-line @typescript-eslint/no-shadow */}
-        {[...toasts].reverse().map(({ id, url, error, sticky, text, onClick }) => (
+        {[...toasts].reverse().map(({ id, url, error, sticky, badge, text, onClick }) => (
           <View style={styles.toastWrapper} key={id}>
             <TouchableOpacity
               style={[styles.toast, error && styles.error]}
               onPress={() => onToastPress(id, onClick, url)}
               activeOpacity={0.9}
             >
-              <View style={spacings.prTy}>{error ? <ErrorIcon /> : <CheckIcon />}</View>
+              {!!badge && (
+                <View style={[styles.badge, spacings.mrTy, error && styles.errorBadge]}>
+                  <Text fontSize={10} weight="medium" color={colors.white}>
+                    {badge}
+                  </Text>
+                </View>
+              )}
+              {!badge && <View style={spacings.prTy}>{error ? <ErrorIcon /> : <CheckIcon />}</View>}
               <View style={flexboxStyles.flex1}>
                 <Text weight="medium" color={colors.patriotBlue} fontSize={12}>
                   {error ? t('Oops') : t('Success')}
