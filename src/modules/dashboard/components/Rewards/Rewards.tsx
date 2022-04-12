@@ -6,7 +6,6 @@ import Svg, { Path } from 'react-native-svg'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
-import { Row } from '@modules/common/components/Table'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import colors from '@modules/common/styles/colors'
@@ -68,6 +67,9 @@ const Rewards = () => {
     walletTokenUSDPrice && !currentClaimStatus.loading && currentClaimStatus.mintableVesting
       ? (walletTokenUSDPrice * currentClaimStatus.mintableVesting).toFixed(2)
       : '...'
+
+  const shouldDisplayVesting = !!currentClaimStatus.mintableVesting && !!vestingEntry
+  const shouldDisplayStaked = !!stakedAmount
 
   const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
 
@@ -141,94 +143,98 @@ const Rewards = () => {
           </Text>
         </Text>
 
-        <Row index={0}>
-          <View style={[spacings.prTy, flexboxStyles.flex1]}>
-            <Text>{t('Early users Incentive')}</Text>
-          </View>
-          <View style={[spacings.plTy, { width: 160 }]}>
-            <Text color={colors.primaryAccentColor} style={textStyles.right}>
-              {rewards[RewardIds.BALANCE_REWARDS]}
-            </Text>
-            <Text type="small" style={textStyles.right}>
-              {walletTokenAPY}% APY
-            </Text>
-          </View>
-        </Row>
-        <Row index={1}>
-          <View style={[spacings.prTy, flexboxStyles.flex1]}>
-            <Text>{t('ADX Staking Bonus')}</Text>
-          </View>
-          <View style={[spacings.plTy, { width: 160 }]}>
-            <Text color={colors.primaryAccentColor} style={textStyles.right}>
-              {rewards[RewardIds.ADX_REWARDS]}
-            </Text>
-            <Text type="small" style={textStyles.right}>
-              {adxTokenAPY}% APY
-            </Text>
-          </View>
-        </Row>
-        <Row index={2}>
-          <View style={[spacings.prTy, flexboxStyles.flex1]}>
-            <Text>{t('Claimable now: early users + ADX Staking bonus')}</Text>
-          </View>
-          <View style={[spacings.plTy, { width: 160 }]}>
-            <Text color={colors.primaryAccentColor} style={textStyles.right}>
-              {currentClaimStatus.loading ? '...' : claimableNow}
-            </Text>
-            <Text type="small" style={textStyles.right}>
-              <Text type="small" color={colors.secondaryAccentColor}>
-                $
+        <View style={styles.tableContainer}>
+          <View style={[styles.tableRow, flexboxStyles.directionRow, styles.tableRowBorder]}>
+            <View style={[spacings.prTy, flexboxStyles.flex1]}>
+              <Text>{t('Early users Incentive')}</Text>
+            </View>
+            <View style={[spacings.plTy, styles.tableRowValue]}>
+              <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                {rewards[RewardIds.BALANCE_REWARDS]}
               </Text>
-              {claimableNowUsd}
-            </Text>
+              <Text type="small" style={textStyles.right}>
+                {walletTokenAPY}% APY
+              </Text>
+            </View>
           </View>
-        </Row>
-        <Row index={3}>
-          <View style={flexboxStyles.directionRow}>
-            <Button disabled size="small" text={t('Claim with Burn')} style={spacings.mrMi} />
-            <Button disabled size="small" text={t('Claim in xWALLET')} style={spacings.mlMi} />
+          <View style={[styles.tableRow, flexboxStyles.directionRow, styles.tableRowBorder]}>
+            <View style={[spacings.prTy, flexboxStyles.flex1]}>
+              <Text>{t('ADX Staking Bonus')}</Text>
+            </View>
+            <View style={[spacings.plTy, styles.tableRowValue]}>
+              <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                {rewards[RewardIds.ADX_REWARDS]}
+              </Text>
+              <Text type="small" style={textStyles.right}>
+                {adxTokenAPY}% APY
+              </Text>
+            </View>
           </View>
-        </Row>
-        {!!currentClaimStatus.mintableVesting && !!vestingEntry && (
-          <>
-            <Row index={4}>
+          <View
+            style={[
+              styles.tableRow,
+              (shouldDisplayVesting || shouldDisplayStaked) && styles.tableRowBorder
+            ]}
+          >
+            <View style={[flexboxStyles.directionRow, spacings.mb]}>
               <View style={[spacings.prTy, flexboxStyles.flex1]}>
-                <Text>{t('Claimable early supporters vesting')}</Text>
+                <Text>{t('Claimable now: early users + ADX Staking bonus')}</Text>
               </View>
-              <View style={[spacings.plTy, { width: 160 }]}>
+              <View style={[spacings.plTy, styles.tableRowValue]}>
                 <Text color={colors.primaryAccentColor} style={textStyles.right}>
-                  {currentClaimStatus.mintableVesting}
+                  {currentClaimStatus.loading ? '...' : claimableNow}
                 </Text>
                 <Text type="small" style={textStyles.right}>
                   <Text type="small" color={colors.secondaryAccentColor}>
                     $
                   </Text>
-                  {mintableVestingUsd}
+                  {claimableNowUsd}
                 </Text>
               </View>
-            </Row>
-            <Row index={5} style={spacings.mb}>
-              <View style={flexboxStyles.flex1}>
-                <Button disabled size="small" text={t('Claim')} />
+            </View>
+            <View style={flexboxStyles.directionRow}>
+              <Button disabled size="small" text={t('Claim with Burn')} style={spacings.mrMi} />
+              <Button disabled size="small" text={t('Claim in xWALLET')} style={spacings.mlMi} />
+            </View>
+          </View>
+
+          {shouldDisplayVesting && (
+            <View style={[styles.tableRow, shouldDisplayStaked && styles.tableRowBorder]}>
+              <View style={[flexboxStyles.directionRow, spacings.mb]}>
+                <View style={[spacings.prTy, flexboxStyles.flex1]}>
+                  <Text>{t('Claimable early supporters vesting')}</Text>
+                </View>
+                <View style={[spacings.plTy, styles.tableRowValue]}>
+                  <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                    {currentClaimStatus.mintableVesting}
+                  </Text>
+                  <Text type="small" style={textStyles.right}>
+                    <Text type="small" color={colors.secondaryAccentColor}>
+                      $
+                    </Text>
+                    {mintableVestingUsd}
+                  </Text>
+                </View>
               </View>
-            </Row>
-          </>
-        )}
-        {!!stakedAmount && (
-          <Row index={0}>
-            <View style={[spacings.prTy, flexboxStyles.flex1]}>
-              <Text>{t('Staked WALLET')}</Text>
+              <Button disabled size="small" text={t('Claim')} />
             </View>
-            <View style={[spacings.plTy, { width: 160 }]}>
-              <Text color={colors.primaryAccentColor} style={textStyles.right}>
-                {stakedAmount}
-              </Text>
-              <Text type="small" style={textStyles.right}>
-                {xWALLETAPY}% APY
-              </Text>
+          )}
+          {shouldDisplayStaked && (
+            <View style={[styles.tableRow, flexboxStyles.directionRow]}>
+              <View style={[spacings.prTy, flexboxStyles.flex1]}>
+                <Text>{t('Staked WALLET')}</Text>
+              </View>
+              <View style={[spacings.plTy, styles.tableRowValue]}>
+                <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                  {stakedAmount}
+                </Text>
+                <Text type="small" style={textStyles.right}>
+                  {xWALLETAPY}% APY
+                </Text>
+              </View>
             </View>
-          </Row>
-        )}
+          )}
+        </View>
       </BottomSheet>
     </>
   )
