@@ -1,10 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import {
+  Animated,
   ColorValue,
+  Pressable,
   Text,
   TextStyle,
-  TouchableOpacity,
   TouchableOpacityProps,
   ViewStyle
 } from 'react-native'
@@ -13,6 +14,8 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 import styles from './styles'
+
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
 
 type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
 
@@ -42,17 +45,47 @@ const containerStylesSizes: { [key in ButtonSizes]: ViewStyle } = {
 const noGradient = ['transparent', 'transparent']
 
 const gradientColors: { [key in ButtonTypes]: string[] } = {
-  primary: [colors.violet, colors.heliotrope],
+  primary: [colors.violet, colors.violet, colors.electricViolet],
   secondary: noGradient,
   danger: noGradient,
   outline: noGradient,
   ghost: noGradient
 }
 
+const gradientColorsPressed: { [key in ButtonTypes]: string[] } = {
+  ...gradientColors,
+  primary: [colors.violet, colors.heliotrope],
+  outline: [colors.martinique, colors.martinique]
+}
+
 // Gradient colors applied when button is disabled
 const gradientDisabledColors: { [key in ButtonTypes]: string[] } = {
   ...gradientColors,
   primary: [colors.darkViolet, colors.violet]
+}
+
+const gradientColorsLocations: { [key in ButtonTypes]: number[] | undefined } = {
+  primary: [0, 0.25, 1],
+  secondary: undefined,
+  danger: undefined,
+  outline: undefined,
+  ghost: undefined
+}
+
+const gradientColorsLocationsPressed: { [key in ButtonTypes]: number[] | undefined } = {
+  primary: [0, 1],
+  secondary: undefined,
+  danger: undefined,
+  outline: undefined,
+  ghost: undefined
+}
+
+const gradientColorsLocationsDisabledPressed: { [key in ButtonTypes]: number[] | undefined } = {
+  primary: [0, 1],
+  secondary: undefined,
+  danger: undefined,
+  outline: undefined,
+  ghost: undefined
 }
 
 const buttonTextStyles: { [key in ButtonTypes]: TextStyle } = {
@@ -79,38 +112,69 @@ const Button = ({
   hasBottomSpacing = true,
   children,
   ...rest
-}: Props) => (
-  <TouchableOpacity disabled={disabled} {...rest}>
-    <LinearGradient
-      colors={disabled ? gradientDisabledColors[type] : gradientColors[type]}
-      start={{ x: 0, y: 0.5 }}
-      end={{ x: 1, y: 0.5 }}
-      style={[
-        styles.buttonContainer,
-        containerStyles[type],
-        containerStylesSizes[size],
-        disabled && styles.disabled,
-        style,
-        !!accentColor && { borderColor: accentColor },
-        !hasBottomSpacing && spacings.mb0
-      ]}
+}: Props) => {
+  const animated = new Animated.Value(1)
+
+  const fadeIn = () =>
+    Animated.timing(animated, { toValue: 0.7, duration: 100, useNativeDriver: true }).start()
+  const fadeOut = () =>
+    Animated.timing(animated, { toValue: 1, duration: 200, useNativeDriver: true }).start()
+
+  return (
+    <Pressable
+      disabled={disabled}
+      {...rest}
+      // Animates all other components to mimic the TouchableOpacity effect
+      onPressIn={type === 'primary' ? null : fadeIn}
+      onPressOut={type === 'primary' ? null : fadeOut}
     >
-      {!!text && (
-        <Text
-          style={[
-            styles.buttonText,
-            buttonTextStyles[type],
-            buttonTextStylesSizes[size],
-            !!accentColor && { color: accentColor },
-            textStyle
-          ]}
-        >
-          {text}
-        </Text>
-      )}
-      {children}
-    </LinearGradient>
-  </TouchableOpacity>
-)
+      {({ pressed }) => {
+        const colorsIfPressed = pressed ? gradientColorsPressed[type] : gradientColors[type]
+        const currentColors = disabled ? gradientDisabledColors[type] : colorsIfPressed
+
+        const locationsIfPressed = pressed
+          ? gradientColorsLocationsPressed[type]
+          : gradientColorsLocations[type]
+        const currentLocations = disabled
+          ? gradientColorsLocationsDisabledPressed[type]
+          : locationsIfPressed
+
+        return (
+          <AnimatedLinearGradient
+            colors={currentColors}
+            locations={currentLocations}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={[
+              styles.buttonContainer,
+              containerStyles[type],
+              containerStylesSizes[size],
+              disabled && styles.disabled,
+              style,
+              !!accentColor && { borderColor: accentColor },
+              !hasBottomSpacing && spacings.mb0,
+              { opacity: animated }
+            ]}
+          >
+            {!!text && (
+              <Text
+                style={[
+                  styles.buttonText,
+                  buttonTextStyles[type],
+                  buttonTextStylesSizes[size],
+                  !!accentColor && { color: accentColor },
+                  textStyle
+                ]}
+              >
+                {text}
+              </Text>
+            )}
+            {children}
+          </AnimatedLinearGradient>
+        )
+      }}
+    </Pressable>
+  )
+}
 
 export default Button
