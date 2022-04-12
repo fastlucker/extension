@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Linking, TouchableOpacity, View } from 'react-native'
+import { Alert, Linking, TouchableOpacity, View } from 'react-native'
 
 import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -70,6 +70,32 @@ const Rewards = () => {
 
   const shouldDisplayVesting = !!currentClaimStatus.mintableVesting && !!vestingEntry
   const shouldDisplayStaked = !!stakedAmount
+
+  const claimWithBurnDisabled = !!(claimDisabledReason || disabledReason)
+  const handleClaimWithBurn = () => {
+    const handleConfirm = () => {
+      closeBottomSheet()
+      claimEarlyRewards(false)
+    }
+
+    Alert.alert(
+      t('Are you sure?'),
+      t(
+        'This procedure will claim 70% of your outstanding rewards as $WALLET, and permanently burn the other 30%'
+      ),
+      [
+        {
+          text: t('Confirm'),
+          onPress: handleConfirm,
+          style: 'destructive'
+        },
+        {
+          text: t('Cancel'),
+          style: 'cancel'
+        }
+      ]
+    )
+  }
 
   const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
 
@@ -188,7 +214,13 @@ const Rewards = () => {
               </View>
             </View>
             <View style={flexboxStyles.directionRow}>
-              <Button disabled size="small" text={t('Claim with Burn')} style={spacings.mrMi} />
+              <Button
+                disabled={claimWithBurnDisabled}
+                onPress={handleClaimWithBurn}
+                size="small"
+                text={t('Claim with Burn')}
+                style={spacings.mrMi}
+              />
               <Button disabled size="small" text={t('Claim in xWALLET')} style={spacings.mlMi} />
             </View>
           </View>
