@@ -51,13 +51,12 @@ export default function useRewards() {
   useEffect(() => {
     if (errMsg || !data || !data.success) return
 
-    const { rewards, multipliers } = data
-    if (!rewards.length) return
+    if (!data.rewards.length) return
 
     const rewardsDetails = Object.fromEntries(
-      rewards.map(({ _id, rewards }) => [_id, rewards[account.id] || 0])
+      data.rewards.map(({ _id, rewards }) => [_id, rewards[account.id] || 0])
     )
-    rewardsDetails.multipliers = multipliers
+    rewardsDetails.multipliers = data.multipliers
     rewardsDetails.walletTokenAPY = data.walletTokenAPY
     rewardsDetails.adxTokenAPY = data.adxTokenAPY
     rewardsDetails.walletUsdPrice = data.usdPrice
