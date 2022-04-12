@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import WALLETInitialClaimableRewards from '@modules/common/constants/WALLETInitialClaimableRewards.json'
 import WALLETSupplyControllerABI from '@modules/common/constants/WALLETSupplyControllerABI.json'
-// import { getProvider } from 'lib/provider'
 import WALLETVestings from '@modules/common/constants/WALLETVestings.json'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
