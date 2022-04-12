@@ -103,6 +103,11 @@ const Rewards = () => {
     claimEarlyRewards()
   }
 
+  const handleClaimVesting = () => {
+    closeBottomSheet()
+    claimVesting()
+  }
+
   const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
 
   const renderBadge = ({ id, multiplier, icon, name, color, link }) => {
@@ -255,7 +260,12 @@ const Rewards = () => {
                   </Text>
                 </View>
               </View>
-              <Button disabled size="small" text={t('Claim')} />
+              <Button
+                onPress={handleClaimVesting}
+                disabled={!!disabledReason}
+                size="small"
+                text={t('Claim')}
+              />
             </View>
           )}
           {shouldDisplayStaked && (
