@@ -4,17 +4,18 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, TouchableOpacity, View } from 'react-native'
 
-import { MaterialIcons } from '@expo/vector-icons'
+import CloseIcon from '@assets/svg/CloseIcon'
+import DownArrowIcon from '@assets/svg/DownArrowIcon'
+import UpArrowIcon from '@assets/svg/UpArrowIcon'
+import NavIconWrapper from '@modules/common/components/NavIconWrapper'
+import Text from '@modules/common/components/Text'
 import networks from '@modules/common/constants/networks'
 import { formatFloatTokenAmount } from '@modules/common/services/formatters'
 import { getName, isKnown } from '@modules/common/services/humanReadableTransactions'
 import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
-import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 
-import Text from '../Text'
 import styles from './styles'
 
 function getNetworkSymbol(networkId: any) {
@@ -31,17 +32,21 @@ function getTokenIcon(network: any, address: any) {
 function parseExtendedSummaryItem(item: any, i: any, networkDetails: any, t: any) {
   if (item === '') return null
 
-  if (item.length === 1) return <Text>{`${item} `}</Text>
+  if (item.length === 1) return <Text fontSize={12}>{`${item} `}</Text>
 
-  if (i === 0) return <Text key={`item-${i}`}>{`${item} `}</Text>
+  if (i === 0) return <Text key={`item-${i}`} fontSize={12}>{`${item} `}</Text>
 
-  if (!item.type) return <Text key={`item-${i}`}>{`${item} `}</Text>
+  if (!item.type) return <Text key={`item-${i}`} fontSize={12}>{`${item} `}</Text>
 
   if (item.type === 'token')
     return (
       <>
         {item.amount > 0 ? (
-          <Text>{`${formatFloatTokenAmount(item.amount, true, item.decimals)} `}</Text>
+          <Text fontSize={12}>{`${formatFloatTokenAmount(
+            item.amount,
+            true,
+            item.decimals
+          )} `}</Text>
         ) : null}
         {/* eslint-disable-next-line no-nested-ternary */}
         {item.decimals !== null && item.symbol ? (
@@ -49,23 +54,24 @@ function parseExtendedSummaryItem(item: any, i: any, networkDetails: any, t: any
             {item.address ? (
               <Image
                 source={{ uri: getTokenIcon(networkDetails.id, item.address) }}
-                style={{ width: 24, height: 24 }}
+                style={{ width: 18, height: 18 }}
               />
             ) : null}
-            <Text> </Text>
-            <Text>{`${item.symbol || ''} `}</Text>
+            <Text fontSize={12}> </Text>
+            <Text fontSize={12}>{`${item.symbol || ''} `}</Text>
           </>
         ) : item.amount > 0 ? (
-          <Text>{t('units of unknown token')}</Text>
+          <Text fontSize={12}>{t('units of unknown token')}</Text>
         ) : null}
       </>
     )
 
-  if (item.type === 'address') return <Text>{`${item.name ? item.name : item.address} `}</Text>
+  if (item.type === 'address')
+    return <Text fontSize={12}>{`${item.name ? item.name : item.address} `}</Text>
 
   if (item.type === 'network')
     return (
-      <Text key={`item-${i}`}>
+      <Text key={`item-${i}`} fontSize={12}>
         {item.icon ? <Image source={{ uri: item.icon }} style={{ width: 20, height: 20 }} /> : null}
         {` ${item.name} `}
       </Text>
@@ -99,7 +105,7 @@ const TxnPreview = ({
     Array.isArray(entry) ? (
       entry.map((item, i) => parseExtendedSummaryItem(item, i, networkDetails, t))
     ) : (
-      <Text>{entry}</Text>
+      <Text fontSize={12}>{entry}</Text>
     )
   )
 
@@ -111,57 +117,52 @@ const TxnPreview = ({
         activeOpacity={0.75}
       >
         {!disableExpand && (
-          <MaterialIcons
-            style={spacings.mrTy}
-            name={isExpanded ? 'expand-less' : 'expand-more'}
-            size={26}
-            color={colors.primaryIconColor}
-          />
+          <NavIconWrapper disabled style={spacings.mrTy} onPress={() => null}>
+            {isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
+          </NavIconWrapper>
         )}
         <View style={[flexboxStyles.flex1, spacings.mrTy]}>
           <View style={[flexboxStyles.directionRow, flexboxStyles.wrap, flexboxStyles.alignCenter]}>
             {summary}
           </View>
           {isFirstFailing && (
-            <Text appearance="danger" style={[spacings.ptTy, textStyles.bold]}>
+            <Text appearance="danger" fontSize={10}>
               {t('This is the first failing transaction.')}
             </Text>
           )}
           {!isFirstFailing && !mined && !isKnown(txn, account) && (
-            <Text appearance="danger" style={[spacings.ptTy, textStyles.bold]}>
+            <Text appearance="danger" fontSize={10}>
               {t('Warning: interacting with an unknown contract or address.')}
             </Text>
           )}
         </View>
         {!!onDismiss && (
-          <TouchableOpacity onPress={onDismiss}>
-            <MaterialIcons name="close" size={26} color={colors.primaryIconColor} />
-          </TouchableOpacity>
+          <NavIconWrapper onPress={onDismiss}>
+            <CloseIcon />
+          </NavIconWrapper>
         )}
       </TouchableOpacity>
       {isExpanded ? (
         <View style={styles.expandedContainer}>
-          <View style={spacings.mbTy}>
-            <Text fontSize={13} style={textStyles.bold}>
-              {t('Interacting with (to):')}
-            </Text>
-            <Text fontSize={13}>
+          <View style={spacings.mbMi}>
+            <Text fontSize={10}>{t('Interacting with (to): ')}</Text>
+            <Text fontSize={10}>
               {txn[0]}
-              <Text fontSize={13}>{contractName ? ` (${contractName})` : ''}</Text>
+              <Text fontSize={10}>{contractName ? ` (${contractName})` : ''}</Text>
             </Text>
           </View>
-          <View style={spacings.mbTy}>
+          <View style={spacings.mbMi}>
             <Text>
               <Text>
-                <Text fontSize={13}>{`${getNetworkSymbol(network)} `}</Text>
-                <Text fontSize={13}>{t('to be sent value ')}</Text>
+                <Text fontSize={10}>{`${getNetworkSymbol(network)} `}</Text>
+                <Text fontSize={10}>{t('to be sent value ')}</Text>
               </Text>
-              <Text fontSize={13}>{formatUnits(txn[1] || '0x0', 18)}</Text>
+              <Text fontSize={10}>{formatUnits(txn[1] || '0x0', 18)}</Text>
             </Text>
           </View>
           <View>
-            <Text fontSize={13}>{t('Data:')}</Text>
-            <Text fontSize={13}>{txn[2]}</Text>
+            <Text fontSize={10}>{t('Data: ')}</Text>
+            <Text fontSize={10}>{txn[2]}</Text>
           </View>
         </View>
       ) : null}

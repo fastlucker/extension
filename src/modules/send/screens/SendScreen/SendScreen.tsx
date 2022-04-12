@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 
 import DownArrowIcon from '@assets/svg/DownArrowIcon'
+import { isiOS } from '@config/env'
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
@@ -82,7 +83,7 @@ const SendScreen = () => {
     <GradientBackgroundWrapper>
       <Wrapper
         keyboardDismissMode="on-drag"
-        type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
+        type={isiOS ? WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW : WRAPPER_TYPES.SCROLL_VIEW}
         extraHeight={250}
         hasBottomTabNav
       >
@@ -117,12 +118,12 @@ const SendScreen = () => {
                     buttonText={t('MAX')}
                     placeholder={t('0')}
                     onButtonPress={setMaxAmount}
+                    error={
+                      validationFormMgs.messages?.amount
+                        ? validationFormMgs.messages.amount
+                        : undefined
+                    }
                   />
-                  {!!validationFormMgs.messages?.amount && (
-                    <Text appearance="danger" style={spacings.mbSm}>
-                      {validationFormMgs.messages.amount}
-                    </Text>
-                  )}
                   <InputOrScan
                     containerStyle={spacings.mb}
                     placeholder={t('Recipient')}

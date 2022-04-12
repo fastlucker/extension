@@ -22,7 +22,7 @@ const styles = StyleSheet.create<Styles>({
   },
   separator: {
     height: 1,
-    borderBottomWidth: 0.5,
+    borderBottomWidth: 1,
     borderColor: colors.waikawaGray
   }
 })

@@ -9,6 +9,7 @@ interface Styles {
   center: TextStyle
   right: TextStyle
   uppercase: TextStyle
+  capitalize: TextStyle
   italic: TextStyle
 }
 
@@ -30,6 +31,9 @@ const textStyles = StyleSheet.create<Styles>({
   },
   uppercase: {
     textTransform: 'uppercase'
+  },
+  capitalize: {
+    textTransform: 'capitalize'
   },
   italic: {
     fontStyle: 'italic'

@@ -9,6 +9,7 @@ import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -51,7 +52,7 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet, onCloseBottomSheet }:
           <Text style={spacings.mbMi} fontSize={12} numberOfLines={1} ellipsizeMode="middle">
             {item.address}
           </Text>
-          <Text fontSize={10} numberOfLines={1}>
+          <Text fontSize={10} numberOfLines={1} color={colors.titan_50}>
             {item.name}
           </Text>
         </View>
