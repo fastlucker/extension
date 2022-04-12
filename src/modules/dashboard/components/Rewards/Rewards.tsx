@@ -97,6 +97,12 @@ const Rewards = () => {
     )
   }
 
+  const claimInxWalletDisabled = !!(claimDisabledReason || disabledReason)
+  const handleClaimInxWallet = () => {
+    closeBottomSheet()
+    claimEarlyRewards()
+  }
+
   const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
 
   const renderBadge = ({ id, multiplier, icon, name, color, link }) => {
@@ -221,7 +227,13 @@ const Rewards = () => {
                 text={t('Claim with Burn')}
                 style={spacings.mrMi}
               />
-              <Button disabled size="small" text={t('Claim in xWALLET')} style={spacings.mlMi} />
+              <Button
+                disabled={claimInxWalletDisabled}
+                onPress={handleClaimInxWallet}
+                size="small"
+                text={t('Claim in xWALLET')}
+                style={spacings.mlMi}
+              />
             </View>
           </View>
 
