@@ -73,18 +73,19 @@ const Rewards = () => {
 
   const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
 
-  const renderBadge = ({ id, multiplier, icon, name, color }) => {
+  const renderBadge = ({ id, multiplier, icon, name, color, link }) => {
     const isUnlocked =
       rewards.multipliers && rewards.multipliers.map(({ name }) => name).includes(id)
+    const handleLinkOpen = () => Linking.openURL(link)
 
     return (
       <TouchableOpacity
-        disabled={!isUnlocked}
+        onPress={handleLinkOpen}
         key={name}
         style={[
           flexboxStyles.center,
           spacings.mhMi,
-          { width: 73.409, height: 84.533 },
+          { width: 73, height: 84 },
           !isUnlocked && { opacity: 0.3 }
         ]}
       >
@@ -92,11 +93,7 @@ const Rewards = () => {
         <Text fontSize={16} weight="semiBold">
           x{multiplier}
         </Text>
-        <Svg
-          width="73.409"
-          height="84.533"
-          style={{ position: 'absolute', top: 0, left: 0, zIndex: -1 }}
-        >
+        <Svg width="73" height="84" style={{ position: 'absolute', top: 0, left: 0, zIndex: -1 }}>
           <Path d="M.5.5v72.234l36.2 11.271 36.2-11.271V.495Z" fill={color} stroke={colors.titan} />
         </Svg>
       </TouchableOpacity>
