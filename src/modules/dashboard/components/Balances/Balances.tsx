@@ -21,6 +21,8 @@ import { useNavigation } from '@react-navigation/native'
 import Rewards from '../Rewards'
 import styles from './styles'
 
+const networkDetails = (network: any) => networks.find(({ id }) => id === network)
+
 const Balances = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
@@ -49,10 +51,10 @@ const Balances = () => {
     }
   }, [selectedNetwork])
 
-  const otherPositiveBalances = otherBalances.filter(
-    ({ network, total }: any) => network !== selectedNetwork?.id && total.full > 0
-  )
-  const networkDetails = (network: any) => networks.find(({ id }) => id === network)
+  const otherPositiveBalances = otherBalances
+    .filter(({ network, total }: any) => network !== selectedNetwork?.id && total.full > 0)
+    // Exclude displaying balances for networks we don't support
+    .filter(({ network }) => !!networkDetails(network))
 
   const handleGoToSend = () => navigation.navigate('send')
   const handleGoToReceive = () => navigation.navigate('receive')
