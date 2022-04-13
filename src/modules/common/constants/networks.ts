@@ -6,6 +6,12 @@ import BinanceLogo from '@assets/svg/BinanceLogo'
 import BinanceMonochromeIcon from '@assets/svg/BinanceMonochromeIcon'
 import EthereumLogo from '@assets/svg/EthereumLogo'
 import EthereumMonochromeIcon from '@assets/svg/EthereumMonochromeIcon'
+import FantomLogo from '@assets/svg/FantomLogo'
+import FantomMonochromeIcon from '@assets/svg/FantomMonochromeIcon'
+import MoonbeamLogo from '@assets/svg/MoonbeamLogo'
+import MoonbeamMonochromeIcon from '@assets/svg/MoonbeamMonochromeIcon'
+import MoonriverLogo from '@assets/svg/MoonriverLogo'
+import MoonriverMonochromeIcon from '@assets/svg/MoonriverMonochromeIcon'
 import PolygonLogo from '@assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@assets/svg/PolygonMonochromeIcon'
 
@@ -18,6 +24,7 @@ export type NetworkType = {
   Icon: React.FC
   IconMonochrome: React.FC
   explorerUrl: string
+  unstoppableDomainsChain: string
 }
 
 const networks: NetworkType[] = [
@@ -29,7 +36,8 @@ const networks: NetworkType[] = [
     name: 'Ethereum',
     Icon: EthereumLogo,
     IconMonochrome: EthereumMonochromeIcon,
-    explorerUrl: 'https://etherscan.io'
+    explorerUrl: 'https://etherscan.io',
+    unstoppableDomainsChain: 'ERC20'
   },
   {
     id: 'polygon',
@@ -39,7 +47,8 @@ const networks: NetworkType[] = [
     name: 'Polygon',
     Icon: PolygonLogo,
     IconMonochrome: PolygonMonochromeIcon,
-    explorerUrl: 'https://polygonscan.com'
+    explorerUrl: 'https://polygonscan.com',
+    unstoppableDomainsChain: 'MATIC'
   },
   {
     id: 'avalanche',
@@ -49,7 +58,8 @@ const networks: NetworkType[] = [
     name: 'Avalanche',
     Icon: AvalancheLogo,
     IconMonochrome: AvalancheMonochromeIcon,
-    explorerUrl: 'https://snowtrace.io'
+    explorerUrl: 'https://snowtrace.io',
+    unstoppableDomainsChain: 'ERC20'
   },
   {
     // to match the zapper ID
@@ -60,15 +70,50 @@ const networks: NetworkType[] = [
     name: 'Binance',
     Icon: BinanceLogo,
     IconMonochrome: BinanceMonochromeIcon,
-    explorerUrl: 'https://bscscan.com'
+    explorerUrl: 'https://bscscan.com',
+    unstoppableDomainsChain: 'BEP20'
+  },
+  {
+    id: 'fantom',
+    chainId: 250,
+    rpc: 'https://rpc.ftm.tools',
+    nativeAssetSymbol: 'FTM',
+    name: 'Fantom Opera',
+    Icon: FantomLogo,
+    IconMonochrome: FantomMonochromeIcon,
+    explorerUrl: 'https://ftmscan.com',
+    unstoppableDomainsChain: 'ERC20'
+  },
+  {
+    id: 'moonbeam',
+    chainId: 1284,
+    rpc: 'https://rpc.api.moonbeam.network',
+    nativeAssetSymbol: 'GLMR',
+    name: 'Moonbeam',
+    Icon: MoonbeamLogo,
+    IconMonochrome: MoonbeamMonochromeIcon,
+    explorerUrl: 'https://moonscan.io/',
+    unstoppableDomainsChain: 'ERC20'
+  },
+  {
+    id: 'moonriver',
+    chainId: 1285,
+    rpc: 'https://rpc.api.moonriver.moonbeam.network',
+    nativeAssetSymbol: 'MOVR',
+    name: 'Moonriver',
+    Icon: MoonriverLogo,
+    IconMonochrome: MoonriverMonochromeIcon,
+    explorerUrl: 'https://moonriver.moonscan.io/',
+    unstoppableDomainsChain: 'ERC20'
   } /* , {
-  id: 'arbitrum',
-  chainId: 42161,
-  rpc: 'https://arb1.arbitrum.io/rpc',
-  nativeAssetSymbol: 'AETH',
-  name: 'Arbitrum',
-  icon: '/resources/networks/arbitrum.svg',
-  explorerUrl: 'https://arbiscan.io'
+		id: 'arbitrum',
+		chainId: 42161,
+		rpc: 'https://arb1.arbitrum.io/rpc',
+		nativeAssetSymbol: 'AETH',
+		name: 'Arbitrum',
+		icon: '/resources/networks/arbitrum.svg',
+		explorerUrl: 'https://arbiscan.io',
+		unstoppableDomainsChain: 'ERC20
 } */
 ]
 
