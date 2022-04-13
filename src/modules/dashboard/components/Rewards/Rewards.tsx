@@ -229,14 +229,14 @@ const Rewards = () => {
                 onPress={handleClaimWithBurn}
                 size="small"
                 text={t('Claim with Burn')}
-                style={spacings.mrMi}
+                containerStyle={[spacings.mrMi, flexboxStyles.flex1]}
               />
               <Button
                 disabled={claimInxWalletDisabled}
                 onPress={handleClaimInxWallet}
                 size="small"
                 text={t('Claim in xWALLET')}
-                style={spacings.mlMi}
+                containerStyle={[spacings.mlMi, flexboxStyles.flex1]}
               />
             </View>
           </View>

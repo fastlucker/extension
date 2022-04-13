@@ -4,6 +4,7 @@ import {
   Animated,
   ColorValue,
   Pressable,
+  PressableProps,
   Text,
   TextStyle,
   TouchableOpacityProps,
@@ -27,6 +28,7 @@ interface Props extends TouchableOpacityProps {
   textStyle?: any
   accentColor?: ColorValue
   hasBottomSpacing?: boolean
+  containerStyle?: PressableProps['style']
 }
 
 const containerStyles: { [key in ButtonTypes]: ViewStyle } = {
@@ -107,6 +109,7 @@ const Button = ({
   accentColor,
   text,
   style = {},
+  containerStyle = {},
   textStyle = {},
   disabled = false,
   hasBottomSpacing = true,
@@ -123,10 +126,11 @@ const Button = ({
   return (
     <Pressable
       disabled={disabled}
-      {...rest}
+      style={containerStyle}
       // Animates all other components to mimic the TouchableOpacity effect
       onPressIn={type === 'primary' ? null : fadeIn}
       onPressOut={type === 'primary' ? null : fadeOut}
+      {...rest}
     >
       {({ pressed }) => {
         const colorsIfPressed = pressed ? gradientColorsPressed[type] : gradientColors[type]
