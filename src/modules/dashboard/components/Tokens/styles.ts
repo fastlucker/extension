@@ -10,7 +10,6 @@ interface Style {
   headerTitle: ViewStyle
   rowItemMain: ViewStyle
   img: ImageStyle
-  fallbackImage: TextStyle
   balance: TextStyle
   balanceFiat: TextStyle
   symbol: TextStyle
@@ -45,9 +44,6 @@ const styles = StyleSheet.create<Style>({
   img: {
     width: 35,
     height: 35
-  },
-  fallbackImage: {
-    fontSize: 32
   },
   balance: {
     fontSize: 18
