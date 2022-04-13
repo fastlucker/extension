@@ -3,37 +3,41 @@
 const suportedProtocols = [
   {
     network: 'ethereum',
-    protocols: [
-      '1inch',
-      'aave-v2',
-      'alchemix',
-      'badger',
-      'balancer-v2',
-      'compound',
-      'cream',
-      'curve',
-      'sushiswap',
-      'uniswap-v2',
-      'uniswap-v3',
-      'nft'
-    ],
+    // protocols: [
+    //   '1inch',
+    //   'aave-v2',
+    //   'alchemix',
+    //   'badger',
+    //   'balancer-v2',
+    //   'compound',
+    //   'cream',
+    //   'curve',
+    //   'sushiswap',
+    //   'uniswap-v2',
+    //   'uniswap-v3',
+    //   'nft'
+    // ],
+    protocols: ['nft'],
     balancesProvider: 'velcro',
     nftsProvider: 'velcro'
   },
   {
     network: 'polygon',
-    protocols: ['aave-v2', 'quickswap', 'sushiswap', 'nft'],
+    // protocols: ['aave-v2', 'quickswap', 'sushiswap', 'nft'],
+    protocols: ['nft'],
     balancesProvider: 'velcro',
     nftsProvider: 'velcro'
   },
   {
     network: 'avalanche',
-    protocols: ['aave-v2'],
+    // protocols: ['aave-v2'],
+    protocols: [],
     balancesProvider: 'velcro'
   },
   {
     network: 'binance-smart-chain',
-    protocols: ['pancakeswap'],
+    // protocols: ['pancakeswap'],
+    protocols: [],
     balancesProvider: 'velcro'
   },
   {
@@ -43,6 +47,11 @@ const suportedProtocols = [
   },
   {
     network: 'moonbeam',
+    protocols: [],
+    balancesProvider: 'velcro'
+  },
+  {
+    network: 'moonriver',
     protocols: [],
     balancesProvider: 'velcro'
   } /* ,
