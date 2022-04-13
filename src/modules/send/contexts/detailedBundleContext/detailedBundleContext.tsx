@@ -1,13 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { View } from 'react-native'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
-import { BOTTOM_SHEET_FULL_HEIGHT } from '@modules/common/components/BottomSheet/styles'
-import Panel from '@modules/common/components/Panel'
-import Wrapper from '@modules/common/components/Wrapper'
 import BundleDetailedPreview from '@modules/transactions/components/BundleDetailedPreview'
-import BundleSimplePreview from '@modules/transactions/components/BundleSimplePreview'
 
 type DetailedBundleContextData = {
   openedBundle: any
@@ -32,8 +27,6 @@ const DetailedBundleProvider = ({ children }: any) => {
       openBottomSheet()
     }
   }, [openedBundle])
-
-  console.log(openedBundle)
 
   return (
     <DetailedBundleContext.Provider
