@@ -7,8 +7,11 @@ import BinanceMonochromeIcon from '@assets/svg/BinanceMonochromeIcon'
 import EthereumLogo from '@assets/svg/EthereumLogo'
 import EthereumMonochromeIcon from '@assets/svg/EthereumMonochromeIcon'
 import FantomLogo from '@assets/svg/FantomLogo'
+import FantomMonochromeIcon from '@assets/svg/FantomMonochromeIcon'
 import MoonbeamLogo from '@assets/svg/MoonbeamLogo'
+import MoonbeamMonochromeIcon from '@assets/svg/MoonbeamMonochromeIcon'
 import MoonriverLogo from '@assets/svg/MoonriverLogo'
+import MoonriverMonochromeIcon from '@assets/svg/MoonriverMonochromeIcon'
 import PolygonLogo from '@assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@assets/svg/PolygonMonochromeIcon'
 
@@ -77,7 +80,7 @@ const networks: NetworkType[] = [
     nativeAssetSymbol: 'FTM',
     name: 'Fantom Opera',
     Icon: FantomLogo,
-    IconMonochrome: FantomLogo,
+    IconMonochrome: FantomMonochromeIcon,
     explorerUrl: 'https://ftmscan.com',
     unstoppableDomainsChain: 'ERC20'
   },
@@ -88,7 +91,7 @@ const networks: NetworkType[] = [
     nativeAssetSymbol: 'GLMR',
     name: 'Moonbeam',
     Icon: MoonbeamLogo,
-    IconMonochrome: MoonbeamLogo,
+    IconMonochrome: MoonbeamMonochromeIcon,
     explorerUrl: 'https://moonscan.io/',
     unstoppableDomainsChain: 'ERC20'
   },
@@ -99,7 +102,7 @@ const networks: NetworkType[] = [
     nativeAssetSymbol: 'MOVR',
     name: 'Moonriver',
     Icon: MoonriverLogo,
-    IconMonochrome: MoonriverLogo,
+    IconMonochrome: MoonriverMonochromeIcon,
     explorerUrl: 'https://moonriver.moonscan.io/',
     unstoppableDomainsChain: 'ERC20'
   } /* , {
