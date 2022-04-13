@@ -1,10 +1,9 @@
 import React from 'react'
-import { ActivityIndicator, TouchableOpacity } from 'react-native'
+import { TouchableOpacity } from 'react-native'
 
 import styles from '@modules/common/components/Button/styles'
 import Text from '@modules/common/components/Text'
 import useLoader from '@modules/common/hooks/useLoader'
-import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 const DeviceItem = ({ device, onSelect }: any) => {

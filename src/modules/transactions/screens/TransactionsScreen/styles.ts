@@ -5,10 +5,12 @@ import spacings from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
 
 const styles = StyleSheet.create({
-  scrollContainerStyle: {
-    borderRadius: 13,
+  sectionViewWrapper: {
+    borderTopLeftRadius: 13,
+    borderTopRightRadius: 13,
+    overflow: 'hidden',
     marginHorizontal: 20,
-    paddingHorizontal: 0
+    flex: 1
   },
   sectionTitleWrapper: {
     backgroundColor: colors.valhalla,

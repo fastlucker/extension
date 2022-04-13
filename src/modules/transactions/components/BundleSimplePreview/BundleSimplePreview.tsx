@@ -17,7 +17,7 @@ import styles from './styles'
 
 const HIT_SLOP = { bottom: 15, left: 12, right: 15, top: 15 }
 
-const BundleSimplePreview = ({ bundle, mined = false }: any) => {
+const BundleSimplePreview = ({ bundle, mined = false, actions }: any) => {
   const { t } = useTranslation()
   const { setOpenedBundle, setMined } = useContext(DetailedBundleContext)
 
@@ -43,26 +43,28 @@ const BundleSimplePreview = ({ bundle, mined = false }: any) => {
 
   return (
     <Panel contentContainerStyle={styles.panel} type="filled">
-      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.pbTy]}>
-        <Text fontSize={12} style={spacings.mrSm}>
-          {t('Transactions: {{numOfDisplayedTxns}} out of {{totalNumTxns}}', {
-            numOfDisplayedTxns,
-            totalNumTxns: txns.length
-          })}
-        </Text>
-        <Text style={flexboxStyles.flex1} numberOfLines={1} fontSize={10}>
-          {bundle.submittedAt && toLocaleDateTime(new Date(bundle.submittedAt)).toString()}
-        </Text>
-        <TouchableOpacity
-          onPress={() => {
-            setOpenedBundle(bundle)
-            setMined(mined)
-          }}
-          hitSlop={HIT_SLOP}
-        >
-          <OpenIcon />
-        </TouchableOpacity>
-      </View>
+      {!!mined && (
+        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.pbTy]}>
+          <Text fontSize={12} style={spacings.mrSm}>
+            {t('Transactions: {{numOfDisplayedTxns}} out of {{totalNumTxns}}', {
+              numOfDisplayedTxns,
+              totalNumTxns: txns.length
+            })}
+          </Text>
+          <Text style={flexboxStyles.flex1} numberOfLines={1} fontSize={10}>
+            {bundle.submittedAt && toLocaleDateTime(new Date(bundle.submittedAt)).toString()}
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              setOpenedBundle(bundle)
+              setMined(mined)
+            }}
+            hitSlop={HIT_SLOP}
+          >
+            <OpenIcon />
+          </TouchableOpacity>
+        </View>
+      )}
       {txns.slice(0, 2).map((txn: any, i: number) => (
         <TxnPreview
           // eslint-disable-next-line react/no-array-index-key
@@ -83,6 +85,7 @@ const BundleSimplePreview = ({ bundle, mined = false }: any) => {
           </Trans>
         </View>
       )}
+      {!!actions && actions}
     </Panel>
   )
 }
