@@ -37,7 +37,7 @@ const Balances = () => {
     <Row index={index} key={`token-${address}-${index}`}>
       <View style={spacings.pr}>
         {failedImg.includes(img) ? (
-          <Text style={styles.fallbackImage}>🪙</Text>
+          <Text fontSize={34}>🪙</Text>
         ) : (
           <Image
             style={styles.img}
