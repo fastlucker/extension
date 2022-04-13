@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 
 import CONFIG from '@config/env'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
-
-import useClaimableWalletToken from '../useClaimableWalletToken'
+import useClaimableWalletToken from '@modules/dashboard/hooks/useClaimableWalletToken'
 
 export enum RewardIds {
   ADX_REWARDS = 'adx-rewards',
@@ -14,13 +14,8 @@ export enum RewardIds {
 export default function useRewards() {
   const claimableWalletToken = useClaimableWalletToken()
   const { account, selectedAcc } = useAccounts()
+  const { cacheBreak } = useCacheBreak({})
 
-  const [cacheBreak, setCacheBreak] = useState(() => Date.now())
-  useEffect(() => {
-    if (Date.now() - cacheBreak > 5000) setCacheBreak(Date.now())
-    const intvl = setTimeout(() => setCacheBreak(Date.now()), 30000)
-    return () => clearTimeout(intvl)
-  }, [cacheBreak])
   const rewardsUrl =
     CONFIG.RELAYER_URL && selectedAcc
       ? `${CONFIG.RELAYER_URL}/wallet-token/rewards/${selectedAcc}?cacheBreak=${cacheBreak}`
