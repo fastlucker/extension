@@ -83,7 +83,13 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       <TouchableOpacity
         onPress={onChangeAccount}
         key={account?.id}
-        style={[flexboxStyles.directionRow, spacings.mb, isActive && styles.accountContainerActive]}
+        style={[
+          flexboxStyles.directionRow,
+          spacings.mbTy,
+          spacings.phSm,
+          spacings.pvTy,
+          isActive && styles.accountContainerActive
+        ]}
       >
         <View>
           <Blockies size={8} borderRadius={30} borderColor={colors.valhalla} seed={account?.id} />

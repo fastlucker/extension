@@ -11,9 +11,7 @@ interface Styles {
 const styles = StyleSheet.create<Styles>({
   accountContainerActive: {
     backgroundColor: colors.howl,
-    borderRadius: 13,
-    ...spacings.pvTy,
-    ...spacings.phSm
+    borderRadius: 13
   },
   activeBlockieStyle: {
     borderWidth: 3,
