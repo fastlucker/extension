@@ -20,7 +20,8 @@ import { toBundleTxn } from '@modules/common/services/requestToBundleTxn'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import BundlePreview from '@modules/transactions/components/BundlePreview'
+import { DetailedBundleProvider } from '@modules/send/contexts/detailedBundleContext'
+import BundleSimplePreview from '@modules/transactions/components/BundleSimplePreview'
 import useTransactions from '@modules/transactions/hooks/useTransactions'
 
 import styles from './styles'
@@ -46,42 +47,39 @@ const TransactionsScreen = () => {
         </TouchableOpacity>
       ))}
       <View style={spacings.ptSm}>
-        <Button onPress={() => showSendTxns(null)} text={t('Sign or reject')} />
+        <Button onPress={() => showSendTxns(null)} text={t('Sign or Reject')} />
       </View>
     </Panel>
   )
 
-  const renderPendingSentTxns = () => (
-    <BundlePreview
-      bundle={firstPending}
-      hasBottomSpacing
-      actions={
-        <View>
+  const renderPendingSentTxns = ({ item }: any) => (
+    <>
+      <BundleSimplePreview bundle={item} mined />
+      <View>
+        <Button
+          type="outline"
+          onPress={() => replace(firstPending)}
+          text={t('Replace or modify')}
+          style={[flexboxStyles.flex1, spacings.mrTy]}
+        />
+        <View style={flexboxStyles.directionRow}>
           <Button
-            type="outline"
-            onPress={() => replace(firstPending)}
-            text={t('Replace or modify')}
+            type="danger"
+            onPress={() => cancel(firstPending)}
+            text={t('Cancel')}
             style={[flexboxStyles.flex1, spacings.mrTy]}
           />
-          <View style={flexboxStyles.directionRow}>
-            <Button
-              type="danger"
-              onPress={() => cancel(firstPending)}
-              text={t('Cancel')}
-              style={[flexboxStyles.flex1, spacings.mrTy]}
-            />
-            <Button
-              onPress={() => speedup(firstPending)}
-              text={t('Speed up')}
-              style={flexboxStyles.flex1}
-            />
-          </View>
+          <Button
+            onPress={() => speedup(firstPending)}
+            text={t('Speed up')}
+            style={flexboxStyles.flex1}
+          />
         </View>
-      }
-    />
+      </View>
+    </>
   )
 
-  const renderConfirmedTxns = ({ item }: any) => <BundlePreview bundle={item} mined />
+  const renderConfirmedTxns = ({ item }: any) => <BundleSimplePreview bundle={item} mined />
 
   const renderConfirmedTxnsEmptyState = () => {
     return (
@@ -152,42 +150,44 @@ const TransactionsScreen = () => {
   }
 
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper
-        hasBottomTabNav
-        // The sticky title is with rounded top corners
-        // and the same corner radius should be applied on the main scrollable container
-        // otherwise when scrolling the content is visible beneath the sticky title
-        style={styles.scrollContainerStyle}
-        // a horizontal margin is applied to the main scrollable container instead of padding
-        // because we need its border radius to overlap with the sticky title
-        // thus the scroll indicator is rendered on top of the content and there is no way
-        // to position it outside the scroll view
-        // Leaving it hidden for now
-        showsVerticalScrollIndicator={false}
-        type={WRAPPER_TYPES.SECTION_LIST}
-        sections={SECTIONS_DATA}
-        keyExtractor={(item, index) => item + index}
-        renderItem={({ section: { renderItem } }: any) => renderItem}
-        stickySectionHeadersEnabled
-        renderSectionHeader={({ section: { title, titleIcon, shouldRenderTitle } }) =>
-          shouldRenderTitle ? (
-            <View
-              style={[
-                styles.sectionTitleWrapper,
-                flexboxStyles.directionRow,
-                flexboxStyles.alignCenter
-              ]}
-            >
-              {!!titleIcon && titleIcon}
-              <Text fontSize={16} weight="medium">
-                {title}
-              </Text>
-            </View>
-          ) : null
-        }
-      />
-    </GradientBackgroundWrapper>
+    <DetailedBundleProvider>
+      <GradientBackgroundWrapper>
+        <Wrapper
+          hasBottomTabNav
+          // The sticky title is with rounded top corners
+          // and the same corner radius should be applied on the main scrollable container
+          // otherwise when scrolling the content is visible beneath the sticky title
+          style={styles.scrollContainerStyle}
+          // a horizontal margin is applied to the main scrollable container instead of padding
+          // because we need its border radius to overlap with the sticky title
+          // thus the scroll indicator is rendered on top of the content and there is no way
+          // to position it outside the scroll view
+          // Leaving it hidden for now
+          showsVerticalScrollIndicator={false}
+          type={WRAPPER_TYPES.SECTION_LIST}
+          sections={SECTIONS_DATA}
+          keyExtractor={(item, index) => item + index}
+          renderItem={({ section: { renderItem } }: any) => renderItem}
+          stickySectionHeadersEnabled
+          renderSectionHeader={({ section: { title, titleIcon, shouldRenderTitle } }) =>
+            shouldRenderTitle ? (
+              <View
+                style={[
+                  styles.sectionTitleWrapper,
+                  flexboxStyles.directionRow,
+                  flexboxStyles.alignCenter
+                ]}
+              >
+                {!!titleIcon && titleIcon}
+                <Text fontSize={16} weight="medium">
+                  {title}
+                </Text>
+              </View>
+            ) : null
+          }
+        />
+      </GradientBackgroundWrapper>
+    </DetailedBundleProvider>
   )
 }
 

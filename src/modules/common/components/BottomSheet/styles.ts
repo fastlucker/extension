@@ -16,7 +16,7 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
   containerWrapper: {
-    backgroundColor: colors.clay,
+    backgroundColor: colors.valhalla,
     // Required in order for the wrapper to cover
     // the bottom bars and to extend all the way to full screen
     minHeight: BOTTOM_SHEET_FULL_HEIGHT
@@ -24,7 +24,7 @@ const styles = StyleSheet.create<Styles>({
   containerInnerWrapper: {
     paddingTop: 35,
     paddingBottom: 35,
-    paddingHorizontal: 35
+    paddingHorizontal: 20
   },
   closeBtn: {
     position: 'absolute',

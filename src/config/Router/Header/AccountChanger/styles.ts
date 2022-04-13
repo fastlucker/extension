@@ -1,7 +1,7 @@
 import { StyleSheet, ViewProps } from 'react-native'
 
 import { colorPalette as colors } from '@modules/common/styles/colors'
-import spacings, { SPACING_SM } from '@modules/common/styles/spacings'
+import spacings from '@modules/common/styles/spacings'
 
 interface Styles {
   accountContainerActive: ViewProps
@@ -12,8 +12,6 @@ const styles = StyleSheet.create<Styles>({
   accountContainerActive: {
     backgroundColor: colors.howl,
     borderRadius: 13,
-    // Because the content goes beyond the parent wrapper
-    marginHorizontal: -1 * SPACING_SM,
     ...spacings.pvTy,
     ...spacings.phSm
   },

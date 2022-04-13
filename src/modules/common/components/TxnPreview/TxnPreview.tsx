@@ -54,7 +54,7 @@ function parseExtendedSummaryItem(item: any, i: any, networkDetails: any, t: any
             {item.address ? (
               <Image
                 source={{ uri: getTokenIcon(networkDetails.id, item.address) }}
-                style={{ width: 18, height: 18 }}
+                style={{ width: 22, height: 22 }}
               />
             ) : null}
             <Text fontSize={12}> </Text>
