@@ -2,20 +2,17 @@ import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 
-import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
+import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import accountPresets from '@modules/common/constants/accountPresets'
 import networks from '@modules/common/constants/networks'
 import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
-import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
-import styles from './styles'
-
-const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any) => {
+const BundleDetailedPreview = ({ bundle, mined = false, hasBottomSpacing }: any) => {
   const network: any = networks.find((x) => x.id === bundle.network)
   const { t } = useTranslation()
 
@@ -37,8 +34,14 @@ const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any
     `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
 
   return (
-    // Here is better to use Panel for consistency but there is some interference between the expandable content and the Panel's flex props
-    <View style={styles.container}>
+    <Panel type="filled" contentContainerStyle={{ flex: 0 }} style={{ flex: 0 }}>
+      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.pbTy]}>
+        <Text fontSize={12} style={spacings.mrSm}>
+          {t('Transactions: {{totalNumTxns}} out of {{totalNumTxns}}', {
+            totalNumTxns: txns.length
+          })}
+        </Text>
+      </View>
       {txns.map((txn: any, i: number) => (
         <TxnPreview
           // eslint-disable-next-line react/no-array-index-key
@@ -60,30 +63,18 @@ const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any
       )}
       <View style={[spacings.ptSm, hasBottomSpacing && spacings.pbMd]}>
         {hasFeeMatch ? (
-          <View style={[flexboxStyles.directionRow, spacings.mbSm, flexboxStyles.alignCenter]}>
-            <FontAwesome5
-              style={spacings.mrMi}
-              name="hand-holding-usd"
-              size={17}
-              color={colors.primaryIconColor}
-            />
-            <Text style={[textStyles.bold, flexboxStyles.flex1]} fontSize={17}>
+          <View style={[flexboxStyles.directionRow, spacings.mbTy, flexboxStyles.alignCenter]}>
+            <Text style={flexboxStyles.flex1} weight="medium" fontSize={12}>
               {t('Fee')}
             </Text>
-            <Text>{lastTxnSummary.slice(5, -hasFeeMatch[0].length)}</Text>
+            <Text fontSize={12}>{lastTxnSummary.slice(5, -hasFeeMatch[0].length)}</Text>
           </View>
         ) : null}
-        <View style={[flexboxStyles.directionRow, spacings.mbSm, flexboxStyles.alignCenter]}>
-          <FontAwesome
-            style={spacings.mrMi}
-            name="calendar"
-            size={17}
-            color={colors.primaryIconColor}
-          />
-          <Text style={[textStyles.bold, flexboxStyles.flex1]} fontSize={17}>
+        <View style={[flexboxStyles.directionRow, spacings.mbTy, flexboxStyles.alignCenter]}>
+          <Text style={flexboxStyles.flex1} fontSize={12} weight="medium">
             {t('Submitted on')}
           </Text>
-          <Text>
+          <Text fontSize={12}>
             {bundle.submittedAt && toLocaleDateTime(new Date(bundle.submittedAt)).toString()}
           </Text>
         </View>
@@ -96,27 +87,21 @@ const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any
         ) : null}
         {bundle.txId ? (
           <View style={[flexboxStyles.directionRow, spacings.mbSm, flexboxStyles.alignCenter]}>
-            <FontAwesome
-              style={spacings.mrMi}
-              name="globe"
-              size={18}
-              color={colors.primaryIconColor}
-            />
-            <Text style={[textStyles.bold, flexboxStyles.flex1]} fontSize={17}>
+            <Text style={flexboxStyles.flex1} weight="medium" fontSize={12}>
               {t('Block Explorer')}
             </Text>
             <Text
               onPress={() => Linking.openURL(`${network.explorerUrl}/tx/${bundle.txId}`)}
               underline
+              fontSize={12}
             >
               {network.explorerUrl?.split('/')[2]}
             </Text>
           </View>
         ) : null}
       </View>
-      {!!actions && actions}
-    </View>
+    </Panel>
   )
 }
 
-export default BundlePreview
+export default BundleDetailedPreview

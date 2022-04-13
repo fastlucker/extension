@@ -1,7 +1,7 @@
 import { StyleSheet, ViewProps } from 'react-native'
 
 import { colorPalette as colors } from '@modules/common/styles/colors'
-import spacings, { SPACING_MD, SPACING_SM } from '@modules/common/styles/spacings'
+import spacings, { SPACING_MD } from '@modules/common/styles/spacings'
 
 interface Styles {
   networksContainer: ViewProps
@@ -13,10 +13,7 @@ interface Styles {
 const ICON_WRAPPER_SIZE = 32
 
 const styles = StyleSheet.create<Styles>({
-  networksContainer: {
-    // Because the content goes beyond the parent wrapper
-    marginHorizontal: -1 * SPACING_SM
-  },
+  networksContainer: {},
   networkBtnContainer: {
     width: '100%',
     borderRadius: 13,

@@ -9,6 +9,12 @@ const styles = StyleSheet.create({
     ...spacings.ph,
     ...spacings.mbSm,
     backgroundColor: colors.panelBackgroundColor
+  },
+  panel: {
+    borderTopRightRadius: 0,
+    borderTopLeftRadius: 0,
+    borderBottomRightRadius: 13,
+    borderBottomLeftRadius: 13
   }
 })
 

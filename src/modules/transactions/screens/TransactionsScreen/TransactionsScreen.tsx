@@ -2,24 +2,26 @@ import React from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
+import ConfirmedIcon from '@assets/svg/ConfirmedIcon'
+import PendingIcon from '@assets/svg/PendingIcon'
+import SignIcon from '@assets/svg/SignIcon'
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
-import { FontAwesome, FontAwesome5 } from '@expo/vector-icons'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import { toBundleTxn } from '@modules/common/services/requestToBundleTxn'
-import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import BundlePreview from '@modules/transactions/components/BundlePreview'
+import textStyles from '@modules/common/styles/utils/text'
+import { DetailedBundleProvider } from '@modules/send/contexts/detailedBundleContext'
+import BundleSimplePreview from '@modules/transactions/components/BundleSimplePreview'
 import useTransactions from '@modules/transactions/hooks/useTransactions'
 
 import styles from './styles'
@@ -33,7 +35,7 @@ const TransactionsScreen = () => {
   const { t } = useTranslation()
 
   const renderPendingTxns = () => (
-    <Panel>
+    <Panel contentContainerStyle={styles.panel} type="filled">
       {eligibleRequests.map((req) => (
         <TouchableOpacity onPress={() => showSendTxns(null)} activeOpacity={0.8} key={req.id}>
           <TxnPreview
@@ -45,21 +47,20 @@ const TransactionsScreen = () => {
         </TouchableOpacity>
       ))}
       <View style={spacings.ptSm}>
-        <Button onPress={() => showSendTxns(null)} text={t('Sign or reject')} />
+        <Button onPress={() => showSendTxns(null)} text={t('Sign or Reject')} />
       </View>
     </Panel>
   )
 
-  const renderPendingSentTxns = () => (
-    <BundlePreview
-      bundle={firstPending}
-      hasBottomSpacing
+  const renderPendingSentTxns = ({ item }: any) => (
+    <BundleSimplePreview
+      bundle={item}
+      mined={false}
       actions={
-        <View>
+        <View style={spacings.ptTy}>
           <Button
-            type="outline"
             onPress={() => replace(firstPending)}
-            text={t('Replace or modify')}
+            text={t('Replace or Modify')}
             style={[flexboxStyles.flex1, spacings.mrTy]}
           />
           <View style={flexboxStyles.directionRow}>
@@ -67,12 +68,15 @@ const TransactionsScreen = () => {
               type="danger"
               onPress={() => cancel(firstPending)}
               text={t('Cancel')}
-              style={[flexboxStyles.flex1, spacings.mrTy]}
+              containerStyle={flexboxStyles.flex1}
+              style={[spacings.mrMi]}
             />
             <Button
+              type="outline"
               onPress={() => speedup(firstPending)}
-              text={t('Speed up')}
-              style={flexboxStyles.flex1}
+              text={t('Speed Up')}
+              containerStyle={flexboxStyles.flex1}
+              style={[spacings.mlMi]}
             />
           </View>
         </View>
@@ -80,11 +84,11 @@ const TransactionsScreen = () => {
     />
   )
 
-  const renderConfirmedTxns = ({ item }: any) => <BundlePreview bundle={item} mined />
+  const renderConfirmedTxns = ({ item }: any) => <BundleSimplePreview bundle={item} mined />
 
   const renderConfirmedTxnsEmptyState = () => {
     return (
-      <View>
+      <Panel type="filled" contentContainerStyle={styles.panel}>
         {!CONFIG.RELAYER_URL && (
           <Text>{t('Unsupported: not currently connected to a relayer.')}</Text>
         )}
@@ -93,7 +97,12 @@ const TransactionsScreen = () => {
             {t('Error getting list of transactions:')} {errMsg}
           </Text>
         )}
-      </View>
+        {!!CONFIG.RELAYER_URL && !errMsg && (
+          <Text style={textStyles.center} fontSize={16}>
+            {t("You don't have any transactions on this account.")}
+          </Text>
+        )}
+      </Panel>
     )
   }
 
@@ -101,12 +110,9 @@ const TransactionsScreen = () => {
     {
       title: t('Waiting to be signed (current batch)'),
       titleIcon: (
-        <FontAwesome5
-          style={spacings.mrTy}
-          name="signature"
-          size={19}
-          color={colors.primaryIconColor}
-        />
+        <View style={spacings.mrTy}>
+          <SignIcon />
+        </View>
       ),
       shouldRenderTitle: !!eligibleRequests.length,
       renderItem: renderPendingTxns,
@@ -115,30 +121,26 @@ const TransactionsScreen = () => {
     {
       title: t('Pending transaction bundle'),
       titleIcon: (
-        <FontAwesome
-          style={spacings.mrTy}
-          name="clock-o"
-          size={20}
-          color={colors.primaryIconColor}
-        />
+        <View style={spacings.mrTy}>
+          <PendingIcon />
+        </View>
       ),
       shouldRenderTitle: !!firstPending,
       renderItem: renderPendingSentTxns,
       data: firstPending ? ['render-only-one-item'] : []
     },
     {
-      title: data?.txns?.length ? t('Confirmed transactions') : t('No transactions yet.'),
+      title: data?.txns?.length ? t('Confirmed transactions') : t('No confirmed transactions yet'),
       titleIcon: (
-        <FontAwesome5
-          style={spacings.mrTy}
-          name="check-double"
-          size={18}
-          color={colors.primaryIconColor}
-        />
+        <View style={spacings.mrTy}>
+          <ConfirmedIcon />
+        </View>
       ),
       shouldRenderTitle: true,
       renderItem: data?.txns?.length ? renderConfirmedTxns : renderConfirmedTxnsEmptyState,
-      data: data?.txns?.filter((x: any) => x.executed) || ['render-only-one-item']
+      data: data?.txns?.filter((x: any) => x.executed)?.length
+        ? data?.txns?.filter((x: any) => x.executed)
+        : ['render-only-one-item']
     }
   ]
 
@@ -153,32 +155,46 @@ const TransactionsScreen = () => {
   }
 
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper
-        hasBottomTabNav
-        type={WRAPPER_TYPES.SECTION_LIST}
-        sections={SECTIONS_DATA}
-        keyExtractor={(item, index) => item + index}
-        renderItem={({ section: { renderItem } }: any) => renderItem}
-        stickySectionHeadersEnabled
-        renderSectionHeader={({ section: { title, titleIcon, shouldRenderTitle } }) =>
-          shouldRenderTitle ? (
-            <View
-              style={[
-                styles.sectionTitleWrapper,
-                flexboxStyles.directionRow,
-                flexboxStyles.alignCenter
-              ]}
-            >
-              {!!titleIcon && titleIcon}
-              <Title hasBottomSpacing={false} style={flexboxStyles.flex1}>
-                {title}
-              </Title>
-            </View>
-          ) : null
-        }
-      />
-    </GradientBackgroundWrapper>
+    <DetailedBundleProvider>
+      <GradientBackgroundWrapper>
+        <View style={styles.sectionViewWrapper}>
+          <Wrapper
+            hasBottomTabNav
+            // The sticky title is with rounded top corners
+            // and the same corner radius should be applied on the main scrollable container
+            // otherwise when scrolling the content is visible beneath the sticky title
+            style={spacings.ph0}
+            // a horizontal margin is applied to the wrapper of the scrollable container instead of padding
+            // because we need its border radius to overlap with the sticky title
+            // thus the scroll indicator is rendered on top of the content and there is no way
+            // to position it outside the scroll view
+            // Leaving it hidden for now
+            showsVerticalScrollIndicator={false}
+            type={WRAPPER_TYPES.SECTION_LIST}
+            sections={SECTIONS_DATA}
+            keyExtractor={(item, index) => item + index}
+            renderItem={({ section: { renderItem } }: any) => renderItem}
+            stickySectionHeadersEnabled
+            renderSectionHeader={({ section: { title, titleIcon, shouldRenderTitle } }) =>
+              shouldRenderTitle ? (
+                <View
+                  style={[
+                    styles.sectionTitleWrapper,
+                    flexboxStyles.directionRow,
+                    flexboxStyles.alignCenter
+                  ]}
+                >
+                  {!!titleIcon && titleIcon}
+                  <Text fontSize={16} weight="medium">
+                    {title}
+                  </Text>
+                </View>
+              ) : null
+            }
+          />
+        </View>
+      </GradientBackgroundWrapper>
+    </DetailedBundleProvider>
   )
 }
 

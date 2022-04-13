@@ -12,6 +12,7 @@ type PanelTypes = 'filled' | 'gradient'
 interface Props extends ViewProps {
   type?: PanelTypes
   horizontalSpacing?: 'small' | 'tiny' | 'micro'
+  contentContainerStyle?: any
 }
 
 const Panel: React.FC<Props> = ({
@@ -19,13 +20,14 @@ const Panel: React.FC<Props> = ({
   style,
   type = 'gradient',
   horizontalSpacing = 'small',
+  contentContainerStyle,
   ...rest
 }) => {
   return (
     <View style={[styles.container, style]} {...rest}>
       {type === 'gradient' && (
         <LinearGradient
-          style={styles.gradient}
+          style={[styles.gradient, style]}
           colors={[colors.valhalla, 'transparent']}
           locations={[0, 0.96]}
           start={{ x: 0.5, y: 0 }}
@@ -40,7 +42,8 @@ const Panel: React.FC<Props> = ({
           type === 'filled' && { backgroundColor: colors.clay },
           horizontalSpacing === 'small' && spacings.phSm,
           horizontalSpacing === 'tiny' && spacings.phTy,
-          horizontalSpacing === 'micro' && spacings.phMi
+          horizontalSpacing === 'micro' && spacings.phMi,
+          contentContainerStyle
         ]}
       >
         {children}
