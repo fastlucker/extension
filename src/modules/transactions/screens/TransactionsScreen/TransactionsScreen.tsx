@@ -155,7 +155,15 @@ const TransactionsScreen = () => {
     <GradientBackgroundWrapper>
       <Wrapper
         hasBottomTabNav
+        // The sticky title is with rounded top corners
+        // and the same corner radius should be applied on the main scrollable container
+        // otherwise when scrolling the content is visible beneath the sticky title
         style={styles.scrollContainerStyle}
+        // a horizontal margin is applied to the main scrollable container instead of padding
+        // because we need its border radius to overlap with the sticky title
+        // thus the scroll indicator is rendered on top of the content and there is no way
+        // to position it outside the scroll view
+        // Leaving it hidden for now
         showsVerticalScrollIndicator={false}
         type={WRAPPER_TYPES.SECTION_LIST}
         sections={SECTIONS_DATA}
