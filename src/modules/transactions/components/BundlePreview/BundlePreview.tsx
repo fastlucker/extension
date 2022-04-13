@@ -39,7 +39,7 @@ const BundlePreview = ({ bundle, mined = false, hasBottomSpacing, actions }: any
 
   return (
     // Here is better to use Panel for consistency but there is some interference between the expandable content and the Panel's flex props
-    <Panel style={styles.panel}>
+    <Panel contentContainerStyle={styles.panel} type="filled">
       {txns.map((txn: any, i: number) => (
         <TxnPreview
           // eslint-disable-next-line react/no-array-index-key
