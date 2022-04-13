@@ -1,10 +1,11 @@
 import { Bundle } from 'adex-protocol-eth/js'
 // TODO: add types
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useRequests from '@modules/common/hooks/useRequests'
@@ -20,17 +21,10 @@ const useTransactions = () => {
   const { network }: any = useNetwork()
   const { t } = useTranslation()
   const { addRequest } = useRequests()
-
-  const [cacheBreak, setCacheBreak] = useState(() => Date.now())
+  const { cacheBreak } = useCacheBreak({ breakPoint: 5000, refreshInterval: 10000 })
 
   const showSendTxns = (bundle: any) =>
     setSendTxnState({ showing: true, replacementBundle: bundle })
-
-  useEffect(() => {
-    if (Date.now() - cacheBreak > 5000) setCacheBreak(Date.now())
-    const intvl = setTimeout(() => setCacheBreak(Date.now()), 10000)
-    return () => clearTimeout(intvl)
-  }, [cacheBreak])
 
   const showSendTxnsForReplacement = useCallback(
     (bundle) => {
