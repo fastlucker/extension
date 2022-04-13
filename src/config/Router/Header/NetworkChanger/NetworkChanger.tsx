@@ -42,7 +42,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       >
         <Text
           weight="regular"
-          color={isActive ? colors.titan : colors.titan_05}
+          color={isActive ? colors.titan : colors.titan_50}
           style={[flexboxStyles.flex1, textStyles.center]}
           numberOfLines={1}
         >

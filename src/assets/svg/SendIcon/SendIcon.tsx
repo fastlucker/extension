@@ -8,8 +8,8 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const SendIcon: React.FC<Props> = ({ width = 24, height = 24, color }) => (
-  <Svg width={width} height={height} viewBox="0 0 24 24">
+const SendIcon: React.FC<Props> = ({ width = 24, height = 24, color, ...rest }) => (
+  <Svg width={width} height={height} viewBox="0 0 24 24" {...rest}>
     <Path fill="none" d="M0 24V0h24v24z" />
     <Path
       data-name="Path 93"

@@ -13,6 +13,7 @@ export const colorPalette = {
   lightViolet: '#904DFF',
   violet: '#6000FF',
   darkViolet: '#35008C',
+  electricViolet: '#923DFF',
 
   lightMustard: '#FFD04D',
   mustard: '#FFBC00',
@@ -40,6 +41,7 @@ export const colorPalette = {
   baileyBells: '#898DCB',
   titan: '#EBECFF',
   titan_05: 'rgba(235, 236, 255, 0.05)',
+  titan_50: 'rgba(235, 236, 255, 0.5)',
 
   white: '#FFFFFF',
   black: '#000000'

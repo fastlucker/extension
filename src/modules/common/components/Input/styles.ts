@@ -27,7 +27,8 @@ const styles = StyleSheet.create<Style>({
     flexDirection: 'row',
     backgroundColor: colors.howl,
     borderBottomWidth: 2,
-    borderBottomColor: colors.howl
+    borderBottomColor: colors.howl,
+    height: 50
   },
   input: {
     // Centers the content (used because of the borderBottomWidth)
@@ -37,8 +38,8 @@ const styles = StyleSheet.create<Style>({
     fontSize: 16,
     fontFamily: 'Poppins_300Light',
     flex: 1,
-    height: 50,
-    ...spacings.ph
+    height: 48,
+    ...spacings.phTy
   },
   focused: {
     borderBottomColor: colors.titan
@@ -67,7 +68,7 @@ const styles = StyleSheet.create<Style>({
     // Centers the content (used because of the borderBottomWidth)
     paddingTop: 2,
     justifyContent: 'center',
-    ...spacings.phSm
+    ...spacings.phTy
   },
   disabled: {
     opacity: 0.5

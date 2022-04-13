@@ -33,6 +33,7 @@ interface Props {
   displayCancel?: boolean
   maxInitialHeightPercentage?: number
   dynamicInitialHeight?: boolean
+  height?: number | false | undefined
 }
 
 const BottomSheet: React.FC<Props> = ({
@@ -43,6 +44,7 @@ const BottomSheet: React.FC<Props> = ({
   cancelText: _cancelText,
   maxInitialHeightPercentage = 0.75,
   dynamicInitialHeight = true,
+  height,
   closeBottomSheet = () => {},
   isOpen = false
 }) => {
@@ -167,6 +169,8 @@ const BottomSheet: React.FC<Props> = ({
   // and right in the vertical middle of the nav.
   const notchInset = insets.top + 10
 
+  const headerHeight = height || BOTTOM_SHEET_FULL_HEIGHT
+
   const backdrop = isiOS ? (
     // The blurred view works on iOS only
     <AnimatedBlurView
@@ -207,11 +211,7 @@ const BottomSheet: React.FC<Props> = ({
       {!!isOpen && <TouchableOpacity style={styles.backDrop} onPress={closeBottomSheet} />}
       <ReanimatedBottomSheet
         ref={sheetRef}
-        snapPoints={
-          dynamicInitialHeight
-            ? [0, contentHeight, BOTTOM_SHEET_FULL_HEIGHT]
-            : [0, BOTTOM_SHEET_FULL_HEIGHT]
-        }
+        snapPoints={dynamicInitialHeight ? [0, contentHeight, headerHeight] : [0, headerHeight]}
         renderContent={renderContent}
         // So that the content is tap-able on Android
         enabledContentTapInteraction={false}
