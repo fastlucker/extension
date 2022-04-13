@@ -2,6 +2,7 @@ import {
   Poppins_300Light,
   Poppins_400Regular,
   Poppins_500Medium,
+  Poppins_600SemiBold,
   useFonts as useFontsRn
 } from '@expo-google-fonts/poppins'
 
@@ -9,7 +10,8 @@ import {
 export enum FONT_FAMILIES {
   LIGHT = 'Poppins_300Light',
   REGULAR = 'Poppins_400Regular',
-  MEDIUM = 'Poppins_500Medium'
+  MEDIUM = 'Poppins_500Medium',
+  SEMI_BOLD = 'Poppins_600SemiBold'
 }
 
 export default function useFonts() {
@@ -24,9 +26,9 @@ export default function useFonts() {
     // Poppins_300Light_Italic,
     Poppins_400Regular,
     // Poppins_400Regular_Italic,
-    Poppins_500Medium
+    Poppins_500Medium,
     // Poppins_500Medium_Italic,
-    // Poppins_600SemiBold,
+    Poppins_600SemiBold
     // Poppins_600SemiBold_Italic,
     // Poppins_700Bold,
     // Poppins_700Bold_Italic,
