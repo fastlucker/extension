@@ -63,9 +63,9 @@ const Input = ({
         <View
           style={[
             styles.inputWrapper,
-            isFocused && styles.focused,
             disabled && styles.disabled,
             !!error && styles.error,
+            isFocused && styles.focused,
             isValid && styles.valid
           ]}
         >
@@ -89,19 +89,19 @@ const Input = ({
             </TouchableOpacity>
           )}
         </View>
-
-        {!!error && (
-          <Text style={styles.errorText} fontSize={12} appearance="danger">
-            {error}
-          </Text>
-        )}
-
-        {!!info && (
-          <Text style={[styles.infoText, infoTextStyle]} fontSize={12}>
-            {info}
-          </Text>
-        )}
       </View>
+
+      {!!error && (
+        <Text style={styles.errorText} fontSize={12} appearance="danger">
+          {error}
+        </Text>
+      )}
+
+      {!!info && (
+        <Text style={[styles.infoText, infoTextStyle]} fontSize={12}>
+          {info}
+        </Text>
+      )}
     </View>
   )
 }
