@@ -57,7 +57,7 @@ export default function useRequestTransaction() {
   const assetsItems = tokens.map(({ label, symbol, address, img, tokenImageUrl }: any) => ({
     label: label || symbol,
     value: address,
-    icon: () => <Image source={{ uri: img || tokenImageUrl }} style={{ width: 30, height: 30 }} />
+    icon: () => <Image source={{ uri: img || tokenImageUrl }} style={{ width: 16, height: 16 }} />
   }))
 
   const maxAmount = useMemo(() => {

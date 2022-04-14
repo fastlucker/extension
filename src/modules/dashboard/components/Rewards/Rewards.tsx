@@ -1,186 +1,288 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Linking, View } from 'react-native'
+import { Alert, Linking, TouchableOpacity, View } from 'react-native'
 
-import CONFIG from '@config/env'
+import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
-import Button, { BUTTON_SIZES, BUTTON_TYPES } from '@modules/common/components/Button'
-import P from '@modules/common/components/P'
-import { Row } from '@modules/common/components/Table'
+import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useRelayerData from '@modules/common/hooks/useRelayerData'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import useRewards, { RewardIds } from '@modules/dashboard/hooks/useRewards'
+import useStakedWalletToken from '@modules/dashboard/hooks/useStakedWalletToken'
 
 import styles from './styles'
 
 const BLOG_POST_URL = 'https://blog.ambire.com/announcing-the-wallet-token-a137aeda9747'
 
-type Multiplier = {
-  mul: number
-  name: string
-}
-
-enum RewardIds {
-  ADX_REWARDS = 'adx-rewards',
-  BALANCE_REWARDS = 'balance-rewards'
-}
-
-type RewardsType = {
-  [RewardIds.ADX_REWARDS]: number
-  [RewardIds.BALANCE_REWARDS]: number
-  multipliers: Multiplier[]
-}
-
-type RewardsData = {
-  _id: RewardIds
-  rewards: { [accountId: string]: number }
-  updated: string // timestamp, example: "2022-01-20T08:49:56.333Z"
-}
-
-const rewardsInitialState = {
-  'adx-rewards': 0,
-  'balance-rewards': 0,
-  multipliers: []
-}
+const multiplierBadges = [
+  {
+    id: 'beta-tester',
+    name: 'Beta Testers',
+    icon: '🧪',
+    color: '#6000FF',
+    multiplier: 1.25,
+    link: 'https://blog.ambire.com/announcing-the-wallet-token-a137aeda9747'
+  },
+  {
+    id: 'lobsters',
+    name: 'Lobsters',
+    icon: '🦞',
+    color: '#E82949',
+    multiplier: 1.5,
+    link: 'https://blog.ambire.com/ambire-wallet-to-partner-with-lobsterdao-10b57e6da0-53c59c88726b'
+  }
+]
 
 const Rewards = () => {
   const { t } = useTranslation()
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
-  const { account, selectedAcc } = useAccounts()
-  const [cacheBreak, setCacheBreak] = useState(() => Date.now())
+  const { rewards, pendingTokensTotal, claimableWalletToken, isLoading } = useRewards()
+  const { stakedAmount } = useStakedWalletToken()
 
-  useEffect(() => {
-    if (Date.now() - cacheBreak > 5000) setCacheBreak(Date.now())
-    const intvl = setTimeout(() => setCacheBreak(Date.now()), 30000)
-    return () => clearTimeout(intvl)
-  }, [cacheBreak])
+  const {
+    vestingEntry,
+    currentClaimStatus,
+    claimableNow,
+    disabledReason,
+    claimDisabledReason,
+    claimEarlyRewards,
+    claimVesting
+  } = claimableWalletToken
 
-  const url =
-    CONFIG.RELAYER_URL && selectedAcc
-      ? `${CONFIG.RELAYER_URL}/wallet-token/rewards/${selectedAcc}?cacheBreak=${cacheBreak}`
-      : null
+  const walletTokenAPY = rewards.walletTokenAPY ? (rewards.walletTokenAPY * 100).toFixed(2) : '...'
+  const adxTokenAPY = rewards.adxTokenAPY ? (rewards.adxTokenAPY * 100).toFixed(2) : '...'
+  const xWALLETAPY = rewards.xWALLETAPY ? (rewards.xWALLETAPY * 100).toFixed(2) : '...'
+  const walletTokenUSDPrice = rewards.walletUsdPrice || 0
 
-  const { isLoading, data, errMsg } = useRelayerData(url)
-  const [rewards, setRewards] = useState<RewardsType>(rewardsInitialState)
-  const [rewardsTotal, setRewardsTotal] = useState<number>(0)
+  const claimableNowUsd =
+    walletTokenUSDPrice && !currentClaimStatus.loading && claimableNow
+      ? (walletTokenUSDPrice * claimableNow).toFixed(2)
+      : '...'
+  const mintableVestingUsd =
+    walletTokenUSDPrice && !currentClaimStatus.loading && currentClaimStatus.mintableVesting
+      ? (walletTokenUSDPrice * currentClaimStatus.mintableVesting).toFixed(2)
+      : '...'
 
-  useEffect(() => {
-    if (errMsg || !data || !data.success) return
+  const shouldDisplayVesting = !!currentClaimStatus.mintableVesting && !!vestingEntry
+  const shouldDisplayStaked = !!stakedAmount
 
-    if (!data?.rewards?.length) return
-
-    // @ts-ignore not sure why this type is complaining, types mismatch a bit.
-    // but the end result matches this structure:
-    // {
-    //   [RewardIds.ADX_REWARDS]: number
-    //   [RewardIds.BALANCE_REWARDS]: number
-    // }
-    const rewardsDetails: {
-      [RewardIds.ADX_REWARDS]: number
-      [RewardIds.BALANCE_REWARDS]: number
-    } = Object.fromEntries<RewardsData[]>(
-      data?.rewards?.map(({ _id, rewards: _rewards }: RewardsData) => [
-        _id,
-        _rewards[account?.id || null] || 0
-      ])
-    )
-
-    const total = Object.values(rewardsDetails).reduce((acc, curr) => acc + curr, 0)
-    const rewardsDetailsWithMultipliers: RewardsType = {
-      ...rewardsDetails,
-      multipliers: data.multipliers
+  const claimWithBurnDisabled = !!(claimDisabledReason || disabledReason)
+  const handleClaimWithBurn = () => {
+    const handleConfirm = () => {
+      closeBottomSheet()
+      claimEarlyRewards(false)
     }
 
-    setRewardsTotal(total)
-    setRewards(rewardsDetailsWithMultipliers)
-  }, [data, errMsg, account])
+    Alert.alert(
+      t('Are you sure?'),
+      t(
+        'This procedure will claim 70% of your outstanding rewards as $WALLET, and permanently burn the other 30%'
+      ),
+      [
+        {
+          text: t('Confirm'),
+          onPress: handleConfirm,
+          style: 'destructive'
+        },
+        {
+          text: t('Cancel'),
+          style: 'cancel'
+        }
+      ]
+    )
+  }
 
-  const walletTokensAmount = rewardsTotal.toFixed(3)
+  const claimInxWalletDisabled = !!(claimDisabledReason || disabledReason)
+  const handleClaimInxWallet = () => {
+    closeBottomSheet()
+    claimEarlyRewards()
+  }
+
+  const handleClaimVesting = () => {
+    closeBottomSheet()
+    claimVesting()
+  }
 
   const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
 
-  const claimButton = (
-    <>
-      <Button
-        type={BUTTON_TYPES.SECONDARY}
-        accentColor={colors.primaryAccentColor}
-        disabled
-        size={BUTTON_SIZES.SMALL}
-        text={t('Claim')}
-        style={styles.buttonClaim}
-      />
-      <Text fontSize={14} style={textStyles.right}>
-        {t('Claiming will be available after the official token launch')}
-      </Text>
-    </>
-  )
+  const renderBadge = ({ id, multiplier, icon, name, color, link }) => {
+    const isUnlocked =
+      rewards.multipliers && rewards.multipliers.map(({ name }) => name).includes(id)
+    const handleLinkOpen = () => Linking.openURL(link)
+
+    return (
+      <TouchableOpacity
+        onPress={handleLinkOpen}
+        key={name}
+        style={[
+          flexboxStyles.center,
+          spacings.mhMi,
+          { width: 73, height: 84 },
+          !isUnlocked && { opacity: 0.3 }
+        ]}
+      >
+        <Text fontSize={25}>{icon}</Text>
+        <Text fontSize={16} weight="semiBold">
+          x{multiplier}
+        </Text>
+        <RewardsFlag color={color} style={styles.rewardFlag} />
+      </TouchableOpacity>
+    )
+  }
 
   return (
     <>
       <Button
         onPress={openBottomSheet}
-        type={BUTTON_TYPES.SECONDARY}
-        accentColor={colors.primaryAccentColor}
+        type="outline"
+        size="small"
         text={
-          isLoading ? t('Updating...') : t('{{walletTokensAmount}} WALLET', { walletTokensAmount })
+          isLoading
+            ? t('Updating...')
+            : t('{{pendingTokensTotal}} WALLET Rewards', {
+                pendingTokensTotal
+              })
         }
-        style={styles.button}
-        size={BUTTON_SIZES.SMALL}
+        style={flexboxStyles.alignSelfCenter}
       />
       <BottomSheet
         id="rewards"
-        dynamicInitialHeight={false}
         sheetRef={sheetRef}
         isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
-        cancelText={t('Close')}
+        displayCancel={false}
       >
-        <Title>{t('Wallet')}</Title>
+        <Title>{t('Wallet token distribution')}</Title>
 
-        <Row index={0}>
-          <View style={[spacings.prTy, flexboxStyles.flex1]}>
-            <Text>{t('Early users Incentive')}</Text>
-          </View>
-          <View style={[spacings.plTy, { width: 200 }]}>
-            <Text color={colors.primaryAccentColor} style={[textStyles.right, spacings.mbTy]}>
-              {rewards[RewardIds.BALANCE_REWARDS]}
-            </Text>
-            {claimButton}
-          </View>
-        </Row>
-        <Row index={1} style={spacings.mb}>
-          <View style={[spacings.prTy, flexboxStyles.flex1]}>
-            <Text>{t('ADX Staking Bonus')}</Text>
-          </View>
-          <View style={[spacings.plTy, { width: 200 }]}>
-            <Text color={colors.primaryAccentColor} style={[textStyles.right, spacings.mbTy]}>
-              {rewards[RewardIds.ADX_REWARDS]}
-            </Text>
-            {claimButton}
-          </View>
-        </Row>
+        <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
+          {multiplierBadges.map(renderBadge)}
+        </View>
 
-        {rewards?.multipliers?.map(({ mul, name }) => (
-          <Button
-            accentColor={colors.primaryAccentColor}
-            type={BUTTON_TYPES.SECONDARY}
-            text={t('{{mul}}x {{name}} multiplier', { mul, name })}
-            disabled
-            key={name}
-          />
-        ))}
-        <P>
-          {t(
-            'You are receiving $WALLETS for holding funds on your Ambire wallet as an early user. Have in mind that $WALLET has not launched yet.'
+        <Text type="caption" style={[spacings.mbSm, textStyles.center]}>
+          <Text type="caption">
+            {t(
+              'You are receiving $WALLETS for holding funds on your Ambire wallet as an early user. '
+            )}
+          </Text>
+          <Text onPress={handleReadMore} underline type="caption">
+            {t('Read More')}
+          </Text>
+        </Text>
+
+        <View style={styles.tableContainer}>
+          <View style={[styles.tableRow, flexboxStyles.directionRow, styles.tableRowBorder]}>
+            <View style={[spacings.prTy, flexboxStyles.flex1]}>
+              <Text>{t('Early users Incentive')}</Text>
+            </View>
+            <View style={[spacings.plTy, styles.tableRowValue]}>
+              <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                {rewards[RewardIds.BALANCE_REWARDS]}
+              </Text>
+              <Text type="small" style={textStyles.right}>
+                {walletTokenAPY}% APY
+              </Text>
+            </View>
+          </View>
+          <View style={[styles.tableRow, flexboxStyles.directionRow, styles.tableRowBorder]}>
+            <View style={[spacings.prTy, flexboxStyles.flex1]}>
+              <Text>{t('ADX Staking Bonus')}</Text>
+            </View>
+            <View style={[spacings.plTy, styles.tableRowValue]}>
+              <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                {rewards[RewardIds.ADX_REWARDS]}
+              </Text>
+              <Text type="small" style={textStyles.right}>
+                {adxTokenAPY}% APY
+              </Text>
+            </View>
+          </View>
+          <View
+            style={[
+              styles.tableRow,
+              (shouldDisplayVesting || shouldDisplayStaked) && styles.tableRowBorder
+            ]}
+          >
+            <View style={[flexboxStyles.directionRow, spacings.mb]}>
+              <View style={[spacings.prTy, flexboxStyles.flex1]}>
+                <Text>{t('Claimable now: early users + ADX Staking bonus')}</Text>
+              </View>
+              <View style={[spacings.plTy, styles.tableRowValue]}>
+                <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                  {currentClaimStatus.loading ? '...' : claimableNow}
+                </Text>
+                <Text type="small" style={textStyles.right}>
+                  <Text type="small" color={colors.secondaryAccentColor}>
+                    $
+                  </Text>
+                  {claimableNowUsd}
+                </Text>
+              </View>
+            </View>
+            <View style={flexboxStyles.directionRow}>
+              <Button
+                disabled={claimWithBurnDisabled}
+                onPress={handleClaimWithBurn}
+                size="small"
+                text={t('Claim with Burn')}
+                containerStyle={[spacings.mrMi, flexboxStyles.flex1]}
+              />
+              <Button
+                disabled={claimInxWalletDisabled}
+                onPress={handleClaimInxWallet}
+                size="small"
+                text={t('Claim in xWALLET')}
+                containerStyle={[spacings.mlMi, flexboxStyles.flex1]}
+              />
+            </View>
+          </View>
+
+          {shouldDisplayVesting && (
+            <View style={[styles.tableRow, shouldDisplayStaked && styles.tableRowBorder]}>
+              <View style={[flexboxStyles.directionRow, spacings.mb]}>
+                <View style={[spacings.prTy, flexboxStyles.flex1]}>
+                  <Text>{t('Claimable early supporters vesting')}</Text>
+                </View>
+                <View style={[spacings.plTy, styles.tableRowValue]}>
+                  <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                    {currentClaimStatus.mintableVesting}
+                  </Text>
+                  <Text type="small" style={textStyles.right}>
+                    <Text type="small" color={colors.secondaryAccentColor}>
+                      $
+                    </Text>
+                    {mintableVestingUsd}
+                  </Text>
+                </View>
+              </View>
+              <Button
+                onPress={handleClaimVesting}
+                disabled={!!disabledReason}
+                size="small"
+                text={t('Claim')}
+              />
+            </View>
           )}
-        </P>
-        <Button onPress={handleReadMore} text={t('Read more')} />
+          {shouldDisplayStaked && (
+            <View style={[styles.tableRow, flexboxStyles.directionRow]}>
+              <View style={[spacings.prTy, flexboxStyles.flex1]}>
+                <Text>{t('Staked WALLET')}</Text>
+              </View>
+              <View style={[spacings.plTy, styles.tableRowValue]}>
+                <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                  {stakedAmount}
+                </Text>
+                <Text type="small" style={textStyles.right}>
+                  {xWALLETAPY}% APY
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
       </BottomSheet>
     </>
   )

@@ -111,7 +111,7 @@ async function supplementTokensDataFromNetwork({
 
   // tokensNotInList: call separately to prevent errors from non-erc20 tokens
   // NOTE about err handling: errors are caught for each call in balanceOracle, and we retain the original token entry, which contains the balance
-  const calls = paginateArray(tokens, 100).concat(paginateArray(tokensNotInList, 100))
+  const calls = paginateArray([...new Set(tokens)], 100).concat(paginateArray(tokensNotInList, 100))
 
   const tokenBalances = (
     await Promise.all(
@@ -388,6 +388,18 @@ const PortfolioProvider: React.FC = ({ children }) => {
     )
   }
 
+  const removeDuplicatedAssets = (tokens) => {
+    const lookup = tokens.reduce((a, e) => {
+      a[e.address] = ++a[e.address] || 0
+      return a
+    }, {})
+
+    // filters by non duplicated objects or takes the one of dup but with a price greater than 0
+    tokens = tokens.filter((e) => !lookup[e.address] || (lookup[e.address] && e.price))
+
+    return tokens
+  }
+
   // Fetch balances and protocols on account change
   useEffect(() => {
     currentAccount.current = account
@@ -413,7 +425,11 @@ const PortfolioProvider: React.FC = ({ children }) => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-shadow
       const tokens = tokensByNetworks.find(({ network }: any) => network === currentNetwork)
-      if (tokens) setTokens(tokens.assets)
+
+      if (tokens) {
+        tokens.assets = removeDuplicatedAssets(tokens.assets)
+        setTokens(tokens.assets)
+      }
 
       const balanceByNetworks = tokensByNetworks.map(({ network, meta, assets }: any) => {
         const totalUSD = assets.reduce((acc: any, curr: any) => acc + curr.balanceUSD, 0)

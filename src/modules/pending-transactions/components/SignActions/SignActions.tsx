@@ -1,20 +1,18 @@
 import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Keyboard, View } from 'react-native'
 
-import { FontAwesome5 } from '@expo/vector-icons'
-import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
+import InfoIcon from '@assets/svg/InfoIcon'
+import Button from '@modules/common/components/Button'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
-import P from '@modules/common/components/P'
 import Panel from '@modules/common/components/Panel'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
-import { isValidCode } from '@modules/common/services/validate'
-import colors from '@modules/common/styles/colors'
+import { isValidCode, isValidPassword } from '@modules/common/services/validate'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -34,6 +32,7 @@ const SignActions = ({
     control,
     handleSubmit,
     resetField,
+    watch,
     formState: { errors }
   } = useForm({
     mode: 'onSubmit',
@@ -54,18 +53,19 @@ const SignActions = ({
     [signingStatus]
   )
 
-  const rejectButton = rejectTxn && (
-    <Button type={BUTTON_TYPES.DANGER} text={t('Reject')} onPress={rejectTxn} />
-  )
+  const rejectButton = rejectTxn && <Button type="danger" text={t('Reject')} onPress={rejectTxn} />
 
   const feeNote =
     estimation?.success && estimation?.isDeployed === false && bundle.gasLimit ? (
-      <Text style={spacings.mbSm} color={colors.secondaryTextColor}>
-        {t(
-          'Note: Because this is your first Ambire transaction, this fee is {{fee}}% higher than usual because we have to deploy your smart wallet. Subsequent transactions will be cheaper',
-          { fee: ((60000 / bundle.gasLimit) * 100).toFixed() }
-        )}
-      </Text>
+      <View style={[flexboxStyles.directionRow, spacings.phSm, spacings.mbSm]}>
+        <InfoIcon />
+        <Text fontSize={12} style={[flexboxStyles.flex1, spacings.plTy]}>
+          {t(
+            'NOTE: Because this is your first Ambire transaction, this fee is {{fee}}% higher than usual because we have to deploy your smart wallet. Subsequent transactions will be cheaper.',
+            { fee: ((60000 / bundle.gasLimit) * 100).toFixed() }
+          )}
+        </Text>
+      </View>
     ) : null
 
   const insufficientFee =
@@ -77,17 +77,9 @@ const SignActions = ({
 
   const renderTitle = () => {
     return (
-      <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
-        <FontAwesome5
-          style={spacings.mrTy}
-          name="signature"
-          size={20}
-          color={colors.primaryAccentColor}
-        />
-        <Title hasBottomSpacing={false} color={colors.primaryAccentColor}>
-          {t('Sign')}
-        </Title>
-      </View>
+      <Title type="small" style={textStyles.center}>
+        {t('Sign')}
+      </Title>
     )
   }
 
@@ -129,7 +121,7 @@ const SignActions = ({
         {feeNote}
         <View>
           {signingStatus.confCodeRequired === 'otp' ? (
-            <Text style={spacings.mbTy}>
+            <Text style={spacings.mbSm}>
               {selectedAccHasPassword
                 ? t('Please enter your OTP code.')
                 : t('Please enter your OTP code and your password.')}
@@ -146,7 +138,7 @@ const SignActions = ({
         {!isRecoveryMode && !selectedAccHasPassword && (
           <Controller
             control={control}
-            rules={{ required: true }}
+            rules={{ validate: isValidPassword }}
             render={({ field: { onChange, onBlur, value } }) => (
               <InputPassword
                 placeholder={t('Password')}
@@ -154,14 +146,13 @@ const SignActions = ({
                 onChangeText={onChange}
                 value={value}
                 disabled={signingStatus.inProgress}
+                containerStyle={spacings.mbTy}
+                error={errors.password && (t('Please fill in a valid password.') as string)}
               />
             )}
             name="password"
           />
         )}
-
-        {!!errors.password && <P type={TEXT_TYPES.DANGER}>{t('Password is required.')}</P>}
-
         <Controller
           control={control}
           rules={{ validate: isValidCode }}
@@ -177,22 +168,31 @@ const SignActions = ({
               keyboardType="numeric"
               disabled={signingStatus.inProgress}
               autoCorrect={false}
+              isValid={isValidCode(value)}
               value={value}
               autoFocus={selectedAccHasPassword}
+              error={errors.code && (t('Invalid confirmation code.') as string)}
             />
           )}
           name="code"
         />
-
-        {!!errors.code && <P type={TEXT_TYPES.DANGER}>{t('Invalid confirmation code.')}</P>}
-
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonWrapper}>{rejectButton}</View>
           <View style={styles.buttonWrapper}>
             <Button
-              text={signingStatus.inProgress ? t('Sending...') : t('Sign and send')}
-              disabled={signingStatus.inProgress}
-              onPress={handleSubmit(onSubmit)}
+              text={signingStatus.inProgress && !!watch('code', '') ? t('Sending...') : t('Send')}
+              disabled={
+                signingStatus.inProgress ||
+                (!selectedAccHasPassword && !watch('password', '')) ||
+                !watch('code', '')
+              }
+              onPress={() => {
+                Keyboard.dismiss()
+                // Needed because of the async animation of the keyboard aware scroll view after keyboard dismiss
+                setTimeout(() => {
+                  handleSubmit(onSubmit)()
+                }, 100)
+              }}
             />
           </View>
         </View>

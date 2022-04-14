@@ -11,25 +11,25 @@ export enum THEME_TYPES {
 }
 
 export type ThemeProps = {
-  [key in keyof typeof ThemeColors]: ColorValue
+  [key in keyof typeof ThemeColors]: ColorValue | ColorValue[]
 }
 
 const ThemeColors = {
-  background: {
-    [THEME_TYPES.LIGHT]: colors.white,
-    [THEME_TYPES.DARK]: colors.salute
+  backgroundGradient: {
+    [THEME_TYPES.LIGHT]: [colors.white, colors.white],
+    [THEME_TYPES.DARK]: [colors.wooed, colors.clay]
   },
   primaryText: {
     [THEME_TYPES.LIGHT]: colors.black,
     [THEME_TYPES.DARK]: colors.white
   },
   secondaryText: {
-    [THEME_TYPES.LIGHT]: colors.aluminumSilver,
-    [THEME_TYPES.DARK]: colors.aluminumSilver
+    [THEME_TYPES.LIGHT]: colors.white,
+    [THEME_TYPES.DARK]: colors.black
   },
   panelBackground: {
-    [THEME_TYPES.LIGHT]: colors.washedBlack,
-    [THEME_TYPES.DARK]: colors.washedBlack
+    [THEME_TYPES.LIGHT]: colors.white,
+    [THEME_TYPES.DARK]: colors.black
   }
 }
 

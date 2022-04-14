@@ -36,6 +36,7 @@ const useSignMessage = (
   const toSign = everythingToSign[0]
 
   const [isLoading, setLoading] = useState<boolean>(false)
+  const [confirmationType, setConfirmationType] = useState(null)
 
   const resolve = (outcome: any) => resolveMany([everythingToSign[0].id], outcome)
 
@@ -89,6 +90,7 @@ const useSignMessage = (
         return
       }
       if (confCodeRequired) {
+        setConfirmationType(confCodeRequired)
         quickAccBottomSheet.openBottomSheet()
         setLoading(false)
 
@@ -156,7 +158,8 @@ const useSignMessage = (
     approve,
     approveQuickAcc,
     isLoading,
-    resolve
+    resolve,
+    confirmationType
   }
 }
 

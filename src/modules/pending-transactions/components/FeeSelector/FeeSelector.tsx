@@ -3,14 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
-import { FontAwesome5 } from '@expo/vector-icons'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import { formatFloatTokenAmount } from '@modules/common/services/formatters'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -68,7 +67,7 @@ const FeeSelector = ({
       !isTokenEligible(estimation.selectedFeeToken, feeSpeed, estimation)
     if (estimation && !estimation.success)
       return (
-        <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
+        <Text appearance="danger" fontSize={14}>
           {t('The current transaction batch cannot be sent because it will fail: {{msg}}', {
             msg: mapTxnErrMsg(estimation.message)
           })}
@@ -79,7 +78,7 @@ const FeeSelector = ({
 
     if (estimation && !estimation.feeInUSD && estimation.gasLimit < 40000) {
       return (
-        <Text>
+        <Text fontSize={14}>
           {t(
             "WARNING: Fee estimation unavailable when you're doing your first account transaction and you are not connected to a relayer. You will pay the fee from {{address}}, make sure you have {{symbol}} there.",
             { address: signer.address, symbol: network.nativeAssetSymbol }
@@ -89,7 +88,7 @@ const FeeSelector = ({
     }
     if (estimation && estimation.feeInUSD && !estimation.remainingFeeTokenBalances) {
       return (
-        <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
+        <Text fontSize={14} appearance="danger">
           {t(
             'Internal error: fee balances not available. This should never happen, please report this on help.ambire.com'
           )}
@@ -109,10 +108,12 @@ const FeeSelector = ({
     }))
 
     const feeCurrencySelect = estimation.feeInUSD ? (
-      <>
-        <Text style={spacings.pbMi}>{t('Fee Currency')}</Text>
-        <Select value={currency} setValue={setCurrency} items={assetsItems} />
-      </>
+      <Select
+        value={currency}
+        setValue={setCurrency}
+        items={assetsItems}
+        label={t('Fee currency')}
+      />
     ) : null
 
     const { discount = 0, symbol, nativeRate, decimals } = estimation.selectedFeeToken
@@ -167,13 +168,13 @@ const FeeSelector = ({
           >
             <Text
               numberOfLines={1}
-              fontSize={13}
-              style={[spacings.mbMi, textStyles.uppercase, textStyles.bold]}
-              color={colors.textColor}
+              fontSize={12}
+              weight="regular"
+              style={[spacings.mbTy, textStyles.capitalize]}
             >
               {speed}
             </Text>
-            <Text numberOfLines={2} fontSize={15} color={colors.secondaryTextColor}>
+            <Text numberOfLines={2} fontSize={12}>
               {(isETH ? 'Ξ ' : '') +
                 (showInUSD
                   ? `$${formatFloatTokenAmount(baseFeeInFeeUSD, true, 4)}`
@@ -181,7 +182,7 @@ const FeeSelector = ({
                 (!isETH && !showInUSD ? ` ${estimation.selectedFeeToken.symbol}` : '')}
             </Text>
             {!isETH && !showInUSD && (
-              <Text fontSize={12} color={colors.secondaryTextColor}>
+              <Text fontSize={10} weight="regular" color={colors.titan_50}>
                 {estimation.selectedFeeToken.symbol}
               </Text>
             )}
@@ -237,15 +238,17 @@ const FeeSelector = ({
     return (
       <>
         {insufficientFee ? (
-          <Text fontSize={17} type={TEXT_TYPES.DANGER} style={[textStyles.bold, spacings.mbTy]}>
+          <Text fontSize={14} appearance="danger" style={spacings.mbTy}>
             {t('Insufficient balance for the fee. Accepted tokens: ')}
             {(estimation.remainingFeeTokenBalances || []).map((x: any) => x.symbol).join(', ')}
           </Text>
         ) : (
-          feeCurrencySelect
+          <View style={spacings.mbTy}>{feeCurrencySelect}</View>
         )}
 
-        <Text style={spacings.pbMi}>{t('Transaction Speed')}</Text>
+        <Text style={spacings.pbMi} fontSize={14}>
+          {t('Transaction speed')}
+        </Text>
         <View style={styles.selectorsContainer}>{feeAmountSelectors}</View>
 
         <CustomFee
@@ -254,58 +257,77 @@ const FeeSelector = ({
           setCustomFee={setCustomFee}
           value={estimation.customFee}
           symbol={symbol}
+          info={
+            (isUnderpriced || isOverpriced) && (
+              <>
+                {isUnderpriced && (
+                  <>
+                    <Text fontSize={12} color={colors.mustard} style={spacings.mbMi}>
+                      {t(
+                        'Custom Fee too low. You can try to "sign and send" the transaction but most probably it will fail.'
+                      )}
+                    </Text>
+                    {'\n'}
+                    <Text fontSize={12} color={colors.mustard}>
+                      {t('Min estimated fee: ')}
+                      {'\n'}
+
+                      <Text
+                        underline
+                        fontSize={12}
+                        onPress={() => setCustomFee(baseMinFee.toString())}
+                        weight="regular"
+                      >
+                        {baseMinFee} {symbol}
+                      </Text>
+                      {!Number.isNaN(baseMinFeeUSD) && (
+                        <Text fontSize={12} color={colors.mustard}>
+                          {' '}
+                          (~${formatFloatTokenAmount(baseMinFeeUSD, true, 4)}){' '}
+                        </Text>
+                      )}
+                    </Text>
+                  </>
+                )}
+                {isOverpriced && (
+                  <>
+                    <Text fontSize={12} color={colors.mustard} style={spacings.mbMi}>
+                      {t(
+                        'Custom Fee is higher than the APE speed. You will pay more than probably needed. Make sure you know what are you doing!'
+                      )}
+                    </Text>
+                    {'\n'}
+                    <Text fontSize={12} color={colors.mustard}>
+                      {t('Recommended max fee: ')}
+                      {'\n'}
+
+                      <Text
+                        underline
+                        fontSize={12}
+                        onPress={() => setCustomFee(baseMaxFee.toString())}
+                        weight="regular"
+                      >
+                        {baseMaxFee} {symbol}
+                      </Text>
+                      {!Number.isNaN(baseMaxFeeUSD) && (
+                        <Text fontSize={12} color={colors.mustard}>
+                          {' '}
+                          (~${formatFloatTokenAmount(baseMaxFeeUSD, true, 4)}){' '}
+                        </Text>
+                      )}
+                    </Text>
+                  </>
+                )}
+              </>
+            )
+          }
         />
-
-        {isUnderpriced && (
-          <View style={[{ marginTop: -15 }, spacings.mbSm]}>
-            <Text fontSize={14} color={colors.warningColor} style={spacings.mbMi}>
-              {t(
-                'Custom Fee too low. You can try to "sign and send" the transaction but most probably it will fail.'
-              )}
-            </Text>
-            <Text fontSize={14} color={colors.warningColor}>
-              {t('Min estimated fee: ')}
-              <Text underline fontSize={15} onPress={() => setCustomFee(baseMaxFee.toString())}>
-                {baseMinFee} {symbol}
-              </Text>
-              {!Number.isNaN(baseMinFeeUSD) && (
-                <Text fontSize={14} color={colors.warningColor}>
-                  &nbsp; (~${formatFloatTokenAmount(baseMinFeeUSD, true, 4)}){' '}
-                </Text>
-              )}
-            </Text>
-          </View>
-        )}
-
-        {isOverpriced && (
-          <View style={[{ marginTop: -15 }, spacings.mbSm]}>
-            <Text fontSize={14} color={colors.warningColor} style={spacings.mbMi}>
-              {t(
-                'Custom Fee is higher than the APE speed. You will pay more than probably needed. Make sure you know what are you doing!'
-              )}
-            </Text>
-            <Text fontSize={14} color={colors.warningColor}>
-              {t('Recommended max fee: ')}
-              <Text underline fontSize={15} onPress={() => setCustomFee(baseMaxFee.toString())}>
-                {baseMaxFee} {symbol}
-              </Text>
-              <Text />
-              {!Number.isNaN(baseMaxFeeUSD) && (
-                <Text fontSize={14} color={colors.warningColor}>
-                  &nbsp; (~${formatFloatTokenAmount(baseMaxFeeUSD, true, 4)}){' '}
-                </Text>
-              )}
-            </Text>
-          </View>
-        )}
 
         <View style={styles.unstableFeeContainer}>
           <Text style={flexboxStyles.flex1}>{t('Fee: ')}</Text>
           <View style={flexboxStyles.alignEnd}>
             {!Number.isNaN(baseFeeInUSD) && (
-              <Text style={spacings.mbMi}>
-                {`~ $${formatFloatTokenAmount(baseFeeInUSD, true, 4)}`}
-              </Text>
+              <Text>{`~ $${formatFloatTokenAmount(baseFeeInUSD, true, 4)}`}</Text>
             )}
             {!Number.isNaN(baseFeeInFeeToken) && (
               <Text numberOfLines={2} fontSize={12}>
@@ -330,18 +352,10 @@ const FeeSelector = ({
   }
 
   return (
-    <Panel>
-      <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
-        <FontAwesome5
-          style={spacings.mrTy}
-          name="hand-holding-usd"
-          size={20}
-          color={colors.primaryAccentColor}
-        />
-        <Title hasBottomSpacing={false} color={colors.primaryAccentColor}>
-          {t('Fee')}
-        </Title>
-      </View>
+    <Panel type="filled">
+      <Title type="small" style={textStyles.center}>
+        {t('Fee')}
+      </Title>
 
       {renderFeeSelector()}
     </Panel>

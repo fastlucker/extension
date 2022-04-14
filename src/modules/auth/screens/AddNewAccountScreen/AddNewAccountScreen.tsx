@@ -1,21 +1,22 @@
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
-import { Keyboard, Linking, TouchableWithoutFeedback } from 'react-native'
+import { Keyboard, Linking, TouchableWithoutFeedback, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import { ambireCloudURL, termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import useAddNewAccount from '@modules/auth/hooks/useAddNewAccount'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
-import P from '@modules/common/components/P'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
-import Wrapper from '@modules/common/components/Wrapper'
+import Text from '@modules/common/components/Text'
+import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import accountPresets from '@modules/common/constants/accountPresets'
-import { isEmail } from '@modules/common/services/validate'
+import { isEmail, isValidPassword } from '@modules/common/services/validate'
+import spacings from '@modules/common/styles/spacings'
 
 const days = Math.ceil(accountPresets.quickAccTimelock / 86400)
 
@@ -25,10 +26,10 @@ const AddNewAccountScreen = () => {
   const {
     control,
     handleSubmit,
-    getValues,
     watch,
     formState: { errors, isSubmitting }
   } = useForm({
+    reValidateMode: 'onChange',
     defaultValues: {
       email: '',
       password: '',
@@ -40,141 +41,172 @@ const AddNewAccountScreen = () => {
   })
 
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        Keyboard.dismiss()
-      }}
-    >
-      <Wrapper keyboardDismissMode="on-drag">
-        <Title>{t('Create a new account')}</Title>
-        <Controller
-          control={control}
-          rules={{ validate: isEmail }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              onBlur={onBlur}
-              placeholder={t('Email')}
-              onChangeText={onChange}
-              value={value}
-              keyboardType="email-address"
-            />
-          )}
-          name="email"
-        />
-        {!!errors.email && <P type={TEXT_TYPES.DANGER}>{t('Please fill in a valid email.')}</P>}
-        <Controller
-          control={control}
-          rules={{
-            required: true
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <InputPassword
-              onBlur={onBlur}
-              placeholder={t('Password')}
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-          name="password"
-        />
-        {!!errors.password && (
-          <P type={TEXT_TYPES.DANGER}>{t('Please fill in a valid password.')}</P>
-        )}
-        <Controller
-          control={control}
-          rules={{
-            validate: (field) => getValues('password') === field
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              onBlur={onBlur}
-              placeholder={t('Confirm password')}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry
-              autoCorrect={false}
-            />
-          )}
-          name="confirmPassword"
-        />
-        {!!errors.confirmPassword && <P type={TEXT_TYPES.DANGER}>{t("Passwords don't match.")}</P>}
-        <Controller
-          control={control}
-          rules={{
-            required: true
-          }}
-          render={({ field: { onChange, value } }) => (
-            <Checkbox value={value} onValueChange={() => onChange(!value)}>
-              <Trans t={t}>
-                <Text>
-                  <Text onPress={() => onChange(!value)}>{'I agree to the '}</Text>
-                  <Text onPress={() => Linking.openURL(termsAndPrivacyURL)} underline>
-                    Terms of Service and Privacy policy.
-                  </Text>
-                </Text>
-              </Trans>
-            </Checkbox>
-          )}
-          name="terms"
-        />
-
-        {!!errors.terms && (
-          <P type={TEXT_TYPES.DANGER}>
-            {t('Please agree to our Terms of Service and Privacy policy')}
-          </P>
-        )}
-
-        <Controller
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <Checkbox value={value} onValueChange={() => onChange(!value)}>
-              <Trans t={t}>
-                <Text>
-                  <Text onPress={() => onChange(!value)}>{'Backup on '}</Text>
-                  <Text onPress={() => Linking.openURL(ambireCloudURL)} underline>
-                    Ambire Cloud.
-                  </Text>
-                </Text>
-              </Trans>
-            </Checkbox>
-          )}
-          name="backup"
-        />
-        <Controller
-          control={control}
-          rules={{
-            required: watch('backup', true) === false
-          }}
-          render={({ field: { onChange, value } }) =>
-            watch('backup', true) === false ? (
+    <GradientBackgroundWrapper>
+      <TouchableWithoutFeedback
+        onPress={() => {
+          Keyboard.dismiss()
+        }}
+      >
+        <Wrapper
+          keyboardDismissMode="on-drag"
+          contentContainerStyle={spacings.pbLg}
+          type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
+          extraHeight={200}
+        >
+          <AmbireLogo />
+          <Controller
+            control={control}
+            rules={{ validate: isEmail }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                onBlur={onBlur}
+                placeholder={t('Email')}
+                onChangeText={onChange}
+                value={value}
+                isValid={isEmail(value)}
+                error={errors.email && (t('Please fill in a valid email.') as string)}
+                keyboardType="email-address"
+              />
+            )}
+            name="email"
+          />
+          <Controller
+            control={control}
+            rules={{ validate: isValidPassword }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <InputPassword
+                onBlur={onBlur}
+                placeholder={t('Password')}
+                onChangeText={onChange}
+                isValid={isValidPassword(value)}
+                value={value}
+                error={errors.password && (t('Please fill in a valid password.') as string)}
+              />
+            )}
+            name="password"
+          />
+          <Controller
+            control={control}
+            rules={{
+              validate: (value) => watch('password', '') === value
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                onBlur={onBlur}
+                placeholder={t('Confirm password')}
+                onChangeText={onChange}
+                value={value}
+                isValid={!!value && watch('password', '') === value}
+                secureTextEntry
+                error={errors.confirmPassword && (t("Passwords don't match.") as string)}
+                autoCorrect={false}
+              />
+            )}
+            name="confirmPassword"
+          />
+          <Controller
+            control={control}
+            rules={{
+              required: true
+            }}
+            render={({ field: { onChange, value } }) => (
               <Checkbox value={value} onValueChange={() => onChange(!value)}>
-                <Text onPress={() => onChange(!value)}>
-                  {t(
-                    'In case you forget your password or lose your backup, you will have to wait {{days}} days and pay the recovery fee to restore access to your account.',
-                    { days }
-                  )}
-                </Text>
+                <Trans t={t}>
+                  <Text fontSize={12}>
+                    <Text fontSize={12} onPress={() => onChange(!value)}>
+                      {'I agree to the '}
+                    </Text>
+                    <Text
+                      fontSize={12}
+                      onPress={() => Linking.openURL(termsAndPrivacyURL)}
+                      underline
+                    >
+                      Terms of Service and Privacy policy.
+                    </Text>
+                  </Text>
+                </Trans>
               </Checkbox>
-            ) : (
-              // eslint-disable-next-line react/jsx-no-useless-fragment
-              <></>
-            )
-          }
-          name="noBackup"
-        />
-        {!!errors.noBackup && watch('backup', true) === false && (
-          <P type={TEXT_TYPES.DANGER}>{t('Please tick this box if you want to proceed.')}</P>
-        )}
+            )}
+            name="terms"
+          />
 
-        <Button
-          disabled={isSubmitting}
-          text={isSubmitting ? t('Signing up...') : t('Sign up')}
-          onPress={handleSubmit(handleAddNewAccount)}
-        />
-        {!!err && <P type={TEXT_TYPES.DANGER}>{err}</P>}
-        {!!addAccErr && <P type={TEXT_TYPES.DANGER}>{addAccErr}</P>}
-      </Wrapper>
-    </TouchableWithoutFeedback>
+          {!!errors.terms && (
+            <Text appearance="danger" fontSize={12} style={spacings.mb}>
+              {t('Please agree to our Terms of Service and Privacy policy.')}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <Checkbox value={value} onValueChange={() => onChange(!value)}>
+                <Trans t={t}>
+                  <Text fontSize={12}>
+                    <Text fontSize={12} onPress={() => onChange(!value)}>
+                      {'Backup on '}
+                    </Text>
+                    <Text fontSize={12} onPress={() => Linking.openURL(ambireCloudURL)} underline>
+                      Ambire Cloud.
+                    </Text>
+                  </Text>
+                </Trans>
+              </Checkbox>
+            )}
+            name="backup"
+          />
+          <Controller
+            control={control}
+            rules={{
+              required: watch('backup', true) === false
+            }}
+            render={({ field: { onChange, value } }) =>
+              watch('backup', true) === false ? (
+                <Checkbox value={value} onValueChange={() => onChange(!value)}>
+                  <Text fontSize={12} onPress={() => onChange(!value)}>
+                    {t(
+                      'In case you forget your password or lose your backup, you will have to wait {{days}} days and pay the recovery fee to restore access to your account.',
+                      { days }
+                    )}
+                  </Text>
+                </Checkbox>
+              ) : (
+                // eslint-disable-next-line react/jsx-no-useless-fragment
+                <></>
+              )
+            }
+            name="noBackup"
+          />
+          {!!errors.noBackup && watch('backup', true) === false && (
+            <Text appearance="danger" style={spacings.mb} fontSize={12}>
+              {t('Please tick this box if you want to proceed.')}
+            </Text>
+          )}
+
+          <View style={spacings.ptSm}>
+            <Button
+              disabled={
+                isSubmitting ||
+                !watch('email', '') ||
+                !watch('password', '') ||
+                !watch('confirmPassword', '')
+              }
+              text={isSubmitting ? t('Signing Up...') : t('Sign Up')}
+              onPress={handleSubmit(handleAddNewAccount)}
+            />
+          </View>
+          {!!err && (
+            <Text appearance="danger" style={spacings.mbSm}>
+              {err}
+            </Text>
+          )}
+          {!!addAccErr && (
+            <Text appearance="danger" style={spacings.mbSm}>
+              {addAccErr}
+            </Text>
+          )}
+        </Wrapper>
+      </TouchableWithoutFeedback>
+    </GradientBackgroundWrapper>
   )
 }
 

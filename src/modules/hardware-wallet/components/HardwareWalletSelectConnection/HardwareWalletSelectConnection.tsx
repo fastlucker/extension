@@ -28,7 +28,7 @@ const HardwareWalletSelectConnection = ({
   return (
     <>
       {isAndroid && (
-        <View style={[spacings.mbMi, shouldWrap && spacings.ptSm]}>
+        <View style={[spacings.mbLg, shouldWrap && spacings.ptSm, spacings.ph]}>
           <Segments
             defaultValue={connectionType}
             segments={segments}

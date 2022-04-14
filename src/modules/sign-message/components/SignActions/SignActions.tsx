@@ -4,11 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
-import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
+import Button from '@modules/common/components/Button'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
-import P from '@modules/common/components/P'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import spacings from '@modules/common/styles/spacings'
@@ -27,6 +26,7 @@ interface Props {
   resolve: any
   quickAccBottomSheet: QuickAccBottomSheetType
   hardwareWalletBottomSheet: HardwareWalletBottomSheetType
+  confirmationType: string | null
 }
 
 const SignActions = ({
@@ -35,7 +35,8 @@ const SignActions = ({
   approveQuickAcc,
   resolve,
   quickAccBottomSheet,
-  hardwareWalletBottomSheet
+  hardwareWalletBottomSheet,
+  confirmationType
 }: Props) => {
   const { t } = useTranslation()
   const { account } = useAccounts()
@@ -75,11 +76,15 @@ const SignActions = ({
             />
           </View>
         )}
-        {!!errors.password && <P type={TEXT_TYPES.DANGER}>{t('Password is required.')}</P>}
+        {!!errors.password && (
+          <Text appearance="danger" style={spacings.mbSm}>
+            {t('Password is required.')}
+          </Text>
+        )}
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonWrapper}>
             <Button
-              type={BUTTON_TYPES.DANGER}
+              type="danger"
               text={t('Reject')}
               onPress={() => resolve({ message: t('signature denied') })}
             />
@@ -100,13 +105,18 @@ const SignActions = ({
         dynamicInitialHeight={false}
       >
         <Title>{t('Confirmation code')}</Title>
-        <Text style={spacings.mb}>
-          {t(
-            'A confirmation code has been sent to your email, it is valid for 3 minutes. Please enter it here:'
-          )}
-        </Text>
+        {(confirmationType === 'email' || !confirmationType) && (
+          <Text style={spacings.mb}>
+            {t('A confirmation code has been sent to your email, it is valid for 3 minutes.')}
+          </Text>
+        )}
+        {confirmationType === 'otp' && (
+          <Text style={spacings.mb}>{t('Please enter your OTP code.')}</Text>
+        )}
         <NumberInput
-          placeholder={t('Confirmation code')}
+          placeholder={
+            confirmationType === 'otp' ? t('Authenticator OTP code') : t('Confirmation code')
+          }
           onChangeText={(val) => setValue('code', val)}
           keyboardType="numeric"
           autoCorrect={false}

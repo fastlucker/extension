@@ -1,7 +1,8 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
+import commonStyles from '@modules/common/styles/utils/common'
 
 interface Style {
   container: ViewStyle
@@ -11,20 +12,22 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   container: {
-    backgroundColor: colors.inputBackgroundColor,
-    ...spacings.mbTy
+    ...spacings.mbTy,
+    backgroundColor: colors.howl,
+    ...commonStyles.borderRadiusPrimary
   },
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.listEvenColor,
-    ...spacings.phSm,
-    ...spacings.pvSm
+    backgroundColor: colors.howl,
+    ...commonStyles.borderRadiusPrimary,
+    ...spacings.phTy,
+    ...spacings.pvTy
   },
   expandedContainer: {
-    opacity: 0.7,
-    ...spacings.phSm,
-    ...spacings.pvSm,
+    opacity: 0.5,
+    ...spacings.phTy,
+    ...spacings.pbTy,
     backgroundColor: 'transparent'
   }
 })

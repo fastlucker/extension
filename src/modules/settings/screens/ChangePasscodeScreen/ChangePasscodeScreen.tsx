@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 
 import { useTranslation } from '@config/localization'
-import Button, { BUTTON_TYPES } from '@modules/common/components/Button'
+import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
-import P from '@modules/common/components/P'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
@@ -41,7 +41,7 @@ const ChangePasscodeScreen: React.FC = () => {
     const added = await addPasscode(code)
     if (added) {
       addToast(t('Passcode configured!') as string, { timeout: 2000 })
-      navigation.navigate('settings')
+      navigation.navigate('dashboard')
     }
   }
 
@@ -49,7 +49,7 @@ const ChangePasscodeScreen: React.FC = () => {
     await removePasscode()
 
     addToast(t('Passcode removed!') as string, { timeout: 2000 })
-    navigation.navigate('settings')
+    navigation.navigate('dashboard')
   }
 
   const renderContent = () => {
@@ -57,7 +57,7 @@ const ChangePasscodeScreen: React.FC = () => {
       return (
         <>
           <Title>{t('Confirm new passcode')}</Title>
-          <P>{t('Please type the passcode again, to confirm it.')}</P>
+          <Text style={spacings.mbSm}>{t('Please type the passcode again, to confirm it.')}</Text>
         </>
       )
     }
@@ -66,7 +66,7 @@ const ChangePasscodeScreen: React.FC = () => {
       return (
         <>
           <Title>{t('Create passcode')}</Title>
-          <P>{t('Choose a passcode to protect your app.')}</P>
+          <Text style={spacings.mbSm}>{t('Choose a passcode to protect your app.')}</Text>
         </>
       )
     }
@@ -74,30 +74,32 @@ const ChangePasscodeScreen: React.FC = () => {
     return (
       <>
         <Title>{t('Change your passcode')}</Title>
-        <P>{t('Please enter a new passcode.')}</P>
+        <Text style={spacings.mbSm}>{t('Please enter a new passcode.')}</Text>
       </>
     )
   }
 
   return (
-    <Wrapper>
-      {renderContent()}
-      {passcodeConfirmFailed && <P type={TEXT_TYPES.DANGER}>{t("Passcodes don't match!")}</P>}
-      {step === STEPS.NEW_PASSCODE && <CodeInput autoFocus onFulfill={handleOnFulfillStep1} />}
-      {step === STEPS.CONFIRM_NEW_PASSCODE && (
-        <CodeInput autoFocus onFulfill={handleOnFulfillStep2} />
-      )}
-      {state !== PASSCODE_STATES.NO_PASSCODE && (
-        <>
-          <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
-          <Button
-            type={BUTTON_TYPES.SECONDARY}
-            text={t('Remove passcode')}
-            onPress={handleOnRemovePasscode}
-          />
-        </>
-      )}
-    </Wrapper>
+    <GradientBackgroundWrapper>
+      <Wrapper>
+        {renderContent()}
+        {passcodeConfirmFailed && (
+          <Text appearance="danger" style={spacings.mbSm}>
+            {t("Passcodes don't match!")}
+          </Text>
+        )}
+        {step === STEPS.NEW_PASSCODE && <CodeInput autoFocus onFulfill={handleOnFulfillStep1} />}
+        {step === STEPS.CONFIRM_NEW_PASSCODE && (
+          <CodeInput autoFocus onFulfill={handleOnFulfillStep2} />
+        )}
+        {state !== PASSCODE_STATES.NO_PASSCODE && (
+          <>
+            <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
+            <Button type="secondary" text={t('Remove passcode')} onPress={handleOnRemovePasscode} />
+          </>
+        )}
+      </Wrapper>
+    </GradientBackgroundWrapper>
   )
 }
 

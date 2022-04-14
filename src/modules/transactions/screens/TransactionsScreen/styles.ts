@@ -1,15 +1,34 @@
 import { StyleSheet } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
+import commonStyles from '@modules/common/styles/utils/common'
 
 const styles = StyleSheet.create({
+  sectionViewWrapper: {
+    borderTopLeftRadius: 13,
+    borderTopRightRadius: 13,
+    overflow: 'hidden',
+    marginHorizontal: 20,
+    flex: 1
+  },
   sectionTitleWrapper: {
-    backgroundColor: colors.backgroundColor,
-    width: '100%',
-    ...spacings.ptTy,
+    backgroundColor: colors.valhalla,
+    ...commonStyles.shadowSecondary,
+    ...spacings.phSm,
     ...spacings.pvSm,
-    ...spacings.mbMi
+    width: '100%',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    zIndex: 3,
+    borderTopLeftRadius: 13,
+    borderTopRightRadius: 13
+  },
+  panel: {
+    borderTopRightRadius: 0,
+    borderTopLeftRadius: 0,
+    borderBottomRightRadius: 13,
+    borderBottomLeftRadius: 13
   }
 })
 

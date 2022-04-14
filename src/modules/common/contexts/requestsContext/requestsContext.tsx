@@ -99,7 +99,7 @@ const RequestsProvider: React.FC = ({ children }) => {
     }
     setSentTxn((txn: any) => [...txn, { confirmed: false, hash }])
     addToast(t('Transaction signed and sent successfully!') as string, {
-      onClick: () => navigate('transactions-tab'),
+      onClick: () => navigate('transactions'),
       timeout: 15000
     })
   }
@@ -137,7 +137,7 @@ const RequestsProvider: React.FC = ({ children }) => {
   }, [everythingToSign.length])
 
   useEffect(() => {
-    if (sendTxnState.showing && !prevSendTxnState.showing) {
+    if (sendTxnState?.showing && !prevSendTxnState?.showing) {
       navigate('pending-transactions')
     }
   }, [sendTxnState?.showing, prevSendTxnState?.showing])

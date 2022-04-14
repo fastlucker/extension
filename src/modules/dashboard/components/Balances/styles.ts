@@ -1,32 +1,36 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
+
+import { colorPalette as colors } from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
 
 interface Style {
-  text: TextStyle
-  otherBalancesText: TextStyle
-  otherBalancesTextHighlight: TextStyle
-  activityIndicator: ViewStyle
+  loadingContainer: ViewStyle
   otherBalancesContainer: ViewStyle
+  button: ViewStyle
+  buttonIcon: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  text: {
-    fontSize: 40
+  button: {
+    minWidth: 100,
+    alignItems: 'flex-end',
+    backgroundColor: colors.martinique,
+    ...spacings.mhMi,
+    ...spacings.ph0
   },
-  activityIndicator: {
-    marginBottom: 15,
-    marginLeft: 15
+  buttonIcon: {
+    marginRight: 3
+  },
+  loadingContainer: {
+    // Reserves some initial height, so that it covers the common space,
+    // which every user (even with balance 0) will have.
+    height: 200
   },
   otherBalancesContainer: {
-    marginTop: 20,
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    opacity: 0.8
-  },
-  otherBalancesText: {
-    fontSize: 20
-  },
-  otherBalancesTextHighlight: {
-    fontWeight: '500'
+    width: 275,
+    borderBottomColor: colors.waikawaGray,
+    borderBottomWidth: 1
   }
 })
 

@@ -4,7 +4,8 @@ import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import usePrevious from '@modules/common/hooks/usePrevious'
@@ -88,60 +89,64 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
 
   if (!account || !bundle?.txns?.length)
     return (
-      <Wrapper>
-        <Text style={{ color: 'red' }}>
-          {t('SendTransactions: No account or no requests: should never happen.')}
-        </Text>
-      </Wrapper>
+      <GradientBackgroundWrapper>
+        <Wrapper>
+          <Text style={{ color: 'red' }}>
+            {t('SendTransactions: No account or no requests: should never happen.')}
+          </Text>
+        </Wrapper>
+      </GradientBackgroundWrapper>
     )
 
   return (
-    <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={220}>
-      <SigningWithAccount />
-      <TransactionSummary bundle={bundle} estimation={estimation} />
-      <FeeSelector
-        disabled={
-          signingStatus && signingStatus.finalBundle && !(estimation && !estimation.success)
-        }
-        signer={bundle.signer}
-        estimation={estimation}
-        setEstimation={setEstimation}
-        feeSpeed={feeSpeed}
-        setFeeSpeed={setFeeSpeed}
-      />
-      {!!bundle?.signer?.quickAccManager && !CONFIG.RELAYER_URL ? (
-        <Text fontSize={17} type={TEXT_TYPES.DANGER} style={textStyles.bold}>
-          {t(
-            'Signing transactions with an email/password account without being connected to the relayer is unsupported.'
-          )}
-        </Text>
-      ) : (
-        <SignActions
-          bundle={bundle}
+    <GradientBackgroundWrapper>
+      <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={190}>
+        <SigningWithAccount />
+        <TransactionSummary bundle={bundle} estimation={estimation} />
+        <FeeSelector
+          disabled={
+            signingStatus && signingStatus.finalBundle && !(estimation && !estimation.success)
+          }
+          signer={bundle.signer}
           estimation={estimation}
-          approveTxn={approveTxn}
-          rejectTxn={rejectTxn}
-          signingStatus={signingStatus}
+          setEstimation={setEstimation}
           feeSpeed={feeSpeed}
+          setFeeSpeed={setFeeSpeed}
         />
-      )}
-      <BottomSheet
-        sheetRef={sheetRef}
-        isOpen={isOpen}
-        closeBottomSheet={() => {
-          closeBottomSheet()
-        }}
-        dynamicInitialHeight={false}
-      >
-        <HardwareWalletSelectConnection
-          onSelectDevice={(device: any) => {
-            approveTxn({ device })
+        {!!bundle?.signer?.quickAccManager && !CONFIG.RELAYER_URL ? (
+          <Text fontSize={17} appearance="danger" style={textStyles.bold}>
+            {t(
+              'Signing transactions with an email/password account without being connected to the relayer is unsupported.'
+            )}
+          </Text>
+        ) : (
+          <SignActions
+            bundle={bundle}
+            estimation={estimation}
+            approveTxn={approveTxn}
+            rejectTxn={rejectTxn}
+            signingStatus={signingStatus}
+            feeSpeed={feeSpeed}
+          />
+        )}
+        <BottomSheet
+          sheetRef={sheetRef}
+          isOpen={isOpen}
+          closeBottomSheet={() => {
             closeBottomSheet()
           }}
-          shouldWrap={false}
-        />
-      </BottomSheet>
-    </Wrapper>
+          dynamicInitialHeight={false}
+        >
+          <HardwareWalletSelectConnection
+            onSelectDevice={(device: any) => {
+              approveTxn({ device })
+              closeBottomSheet()
+            }}
+            shouldWrap={false}
+          />
+        </BottomSheet>
+      </Wrapper>
+    </GradientBackgroundWrapper>
   )
 }
 

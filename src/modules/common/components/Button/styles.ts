@@ -1,83 +1,112 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
 interface Style {
   buttonContainer: ViewStyle
-  buttonContainerStylesSizeRegular: ViewStyle
-  buttonContainerStylesSizeSmall: ViewStyle
+
   buttonContainerPrimary: ViewStyle
   buttonContainerSecondary: ViewStyle
   buttonContainerDanger: ViewStyle
   buttonContainerOutline: ViewStyle
+  buttonContainerGhost: ViewStyle
+
+  buttonContainerStylesSizeRegular: ViewStyle
+  buttonContainerStylesSizeSmall: ViewStyle
+
   buttonText: TextStyle
-  buttonTextStylesSizeRegular: TextStyle
-  buttonTextStylesSizeSmall: TextStyle
+
   buttonTextPrimary: TextStyle
   buttonTextSecondary: TextStyle
   buttonTextDanger: TextStyle
   buttonTextOutline: TextStyle
+  buttonTextGhost: TextStyle
+
+  buttonTextStylesSizeRegular: TextStyle
+  buttonTextStylesSizeSmall: TextStyle
+
   disabled: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
+  // Default button container styles
   buttonContainer: {
-    width: '100%',
-    borderRadius: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
+    borderRadius: 13,
     borderColor: 'transparent'
   },
+
+  // Button container styles by type
+  buttonContainerPrimary: {
+    backgroundColor: 'transparent'
+  },
+  buttonContainerSecondary: {
+    backgroundColor: colors.howl
+  },
+  buttonContainerDanger: {
+    borderColor: colors.pink
+  },
+  buttonContainerOutline: {
+    borderColor: colors.turquoise
+  },
+  buttonContainerGhost: {
+    backgroundColor: 'transparent'
+  },
+
+  // Button sizes (regular/small)
   buttonContainerStylesSizeRegular: {
-    height: 52,
+    minHeight: 50,
+    ...spacings.pvMi,
     ...spacings.phSm,
-    ...spacings.mbSm
+    ...spacings.mb
   },
   buttonContainerStylesSizeSmall: {
-    height: 30,
+    minHeight: 40,
+    ...spacings.pvMi,
     ...spacings.phTy,
     ...spacings.mbTy
   },
-  buttonContainerPrimary: {
-    backgroundColor: colors.primaryButtonContainerColor
-  },
-  buttonContainerSecondary: {
-    backgroundColor: colors.secondaryButtonContainerColor
-  },
-  buttonContainerDanger: {
-    backgroundColor: colors.dangerButtonContainerColor
-  },
-  buttonContainerOutline: {
-    borderColor: colors.outlineButtonColor
-  },
+
+  // Default button text styles
   buttonText: {
-    textTransform: 'uppercase',
+    fontFamily: FONT_FAMILIES.REGULAR,
     ...textStyles.bold,
     textAlign: 'center'
   },
+
+  // Button text styles by type
+  buttonTextPrimary: {
+    color: colors.titan
+  },
+  buttonTextSecondary: {
+    color: colors.titan
+  },
+  buttonTextDanger: {
+    color: colors.pink
+  },
+  buttonTextOutline: {
+    color: colors.turquoise
+  },
+  buttonTextGhost: {
+    color: colors.titan
+  },
+
+  // Button text sizes (regular/small)
   buttonTextStylesSizeRegular: {
-    fontSize: 17
+    fontSize: 16
   },
   buttonTextStylesSizeSmall: {
     fontSize: 14
   },
-  buttonTextPrimary: {
-    color: colors.primaryButtonTextColor
-  },
-  buttonTextSecondary: {
-    color: colors.secondaryButtonTextColor
-  },
-  buttonTextDanger: {
-    color: colors.dangerButtonTextColor
-  },
-  buttonTextOutline: {
-    color: colors.outlineButtonTextColor
-  },
+
+  // Default button disabled styles
   disabled: {
-    opacity: 0.2
+    opacity: 0.4
   }
 })
 

@@ -1,24 +1,24 @@
-import React, { useState } from 'react'
-import { ActivityIndicator, TouchableOpacity } from 'react-native'
+import React from 'react'
+import { TouchableOpacity } from 'react-native'
 
 import styles from '@modules/common/components/Button/styles'
 import Text from '@modules/common/components/Text'
-import colors from '@modules/common/styles/colors'
+import useLoader from '@modules/common/hooks/useLoader'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 const DeviceItem = ({ device, onSelect }: any) => {
-  const [pending, setPending] = useState(false)
+  const { showLoader, hideLoader } = useLoader()
 
   const handleSelectDevice = async () => {
-    setPending(true)
+    showLoader()
     try {
       await onSelect(device)
 
       setTimeout(() => {
-        setPending(false)
+        hideLoader()
       }, 15000)
     } finally {
-      setPending(false)
+      hideLoader()
     }
   }
 
@@ -35,7 +35,6 @@ const DeviceItem = ({ device, onSelect }: any) => {
       <Text style={[styles.buttonTextOutline, styles.buttonTextStylesSizeRegular]}>
         {` ${device?.name} `}
       </Text>
-      {pending ? <ActivityIndicator color={colors.primaryIconColor} /> : null}
     </TouchableOpacity>
   )
 }

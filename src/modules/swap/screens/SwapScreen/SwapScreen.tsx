@@ -3,6 +3,7 @@ import { ActivityIndicator, Platform, View } from 'react-native'
 import WebView from 'react-native-webview'
 
 import CONFIG from '@config/env'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
 import colors from '@modules/common/styles/colors'
@@ -75,34 +76,36 @@ const SwapScreen = () => {
   }, [isFocused])
 
   return (
-    <Wrapper>
-      <WebView
-        key={hash}
-        ref={sushiSwapIframeRef}
-        originWhitelist={['*']}
-        source={{
-          uri: CONFIG.SUSHI_SWAP_URL
-        }}
-        javaScriptEnabled
-        injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
-        injectedJavaScript={INJECTED_JAVASCRIPT}
-        containerStyle={styles.container}
-        style={styles.webview}
-        bounces={false}
-        setBuiltInZoomControls={false}
-        overScrollMode="never" // prevents the Android bounce effect (blue shade when scroll to end)
-        startInLoadingState
-        renderLoading={() => (
-          <View style={styles.loadingWrapper}>
-            <ActivityIndicator size="large" color="#fff" />
-          </View>
-        )}
-        onMessage={(event) => {
-          const msg = JSON.parse(event.nativeEvent.data)
-          handleIncomingMessage(msg)
-        }}
-      />
-    </Wrapper>
+    <GradientBackgroundWrapper>
+      <Wrapper hasBottomTabNav>
+        <WebView
+          key={hash}
+          ref={sushiSwapIframeRef}
+          originWhitelist={['*']}
+          source={{
+            uri: CONFIG.SUSHI_SWAP_URL
+          }}
+          javaScriptEnabled
+          injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
+          injectedJavaScript={INJECTED_JAVASCRIPT}
+          containerStyle={styles.container}
+          style={styles.webview}
+          bounces={false}
+          setBuiltInZoomControls={false}
+          overScrollMode="never" // prevents the Android bounce effect (blue shade when scroll to end)
+          startInLoadingState
+          renderLoading={() => (
+            <View style={styles.loadingWrapper}>
+              <ActivityIndicator size="large" color="#fff" />
+            </View>
+          )}
+          onMessage={(event) => {
+            const msg = JSON.parse(event.nativeEvent.data)
+            handleIncomingMessage(msg)
+          }}
+        />
+      </Wrapper>
+    </GradientBackgroundWrapper>
   )
 }
 

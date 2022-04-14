@@ -6,12 +6,11 @@ import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 
 import { isAndroid } from '@config/env'
 import Button from '@modules/common/components/Button'
-import P from '@modules/common/components/P'
 import RequireLocation from '@modules/common/components/RequireLocation'
-import { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
 
-const RequireBluetooth: React.FC = ({ children }) => {
+const RequireBluetooth: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
   const [isBluetoothTurningOn, setIsBluetoothTurningOn] = useState(false)
   const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState<boolean | null>(null)
@@ -41,10 +40,10 @@ const RequireBluetooth: React.FC = ({ children }) => {
   return isBluetoothPoweredOn ? (
     state
   ) : (
-    <View style={[spacings.mh, spacings.mv]}>
-      <P type={TEXT_TYPES.DANGER}>
-        {t('Please turn on the Bluetooth first, in order to connect to hardware wallet devices.')}
-      </P>
+    <View style={[spacings.ph]}>
+      <Text style={spacings.mbSm} fontSize={12}>
+        {t('Please turn on Bluetooth first, in order to connect to hardware wallet devices.')}
+      </Text>
       {isAndroid && (
         <Button
           disabled={isBluetoothTurningOn}

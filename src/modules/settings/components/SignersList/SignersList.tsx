@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator } from 'react-native'
 
 import CONFIG from '@config/env'
-import P from '@modules/common/components/P'
-import Text, { TEXT_TYPES } from '@modules/common/components/Text'
+import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useToast from '@modules/common/hooks/useToast'
@@ -16,20 +16,12 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
-const REFRESH_INTVL = 40000
-
 const SignersList = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { selectedAcc, account: selectedAccount, onAddAccount } = useAccounts()
   const { network: selectedNetwork } = useNetwork()
-  const [cacheBreak, setCacheBreak] = useState(() => Date.now())
-
-  useEffect(() => {
-    if (Date.now() - cacheBreak > 30000) setCacheBreak(Date.now())
-    const intvl = setTimeout(() => setCacheBreak(Date.now()), REFRESH_INTVL)
-    return () => clearTimeout(intvl)
-  }, [cacheBreak])
+  const { cacheBreak } = useCacheBreak({ breakPoint: 30000, refreshInterval: 40000 })
 
   const url = CONFIG.RELAYER_URL
     ? `${CONFIG.RELAYER_URL}/identity/${selectedAcc}/${selectedNetwork?.id}/privileges?cacheBreak=${cacheBreak}`
@@ -64,11 +56,11 @@ const SignersList = () => {
       const addressName = getName(addr) || null
       const isQuickAcc = addr === accountPresets.quickAccManager
       const privText = isQuickAcc
-        ? `Email/password signer (${selectedAccount.email || 'unknown email'})`
+        ? `Email/password signer (${selectedAccount?.email || 'unknown email'})`
         : `${addr} ${addressName && addressName !== addr ? `(${addressName})` : ''}`
       const signerAddress = isQuickAcc
-        ? selectedAccount.signer.quickAccManager
-        : selectedAccount.signer.address
+        ? selectedAccount?.signer?.quickAccManager
+        : selectedAccount?.signer?.address
       const isSelected = signerAddress === addr
 
       const handleOnMakeDefaultBtnClicked = () =>
@@ -99,9 +91,9 @@ const SignersList = () => {
       <Title>{t('Authorized signers')}</Title>
       {showLoading && <ActivityIndicator />}
       {!!errMsg && (
-        <P type={TEXT_TYPES.DANGER}>
+        <Text appearance="danger" style={spacings.mbSm}>
           {t('Error getting authorized signers: {{errMsg}}', { errMsg })}
-        </P>
+        </Text>
       )}
       {privList}
     </>

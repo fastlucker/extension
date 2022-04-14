@@ -11,23 +11,20 @@ const DevicesList = ({ onSelectDevice, devices, refreshing, onRefresh }: any) =>
   const { t } = useTranslation()
 
   return (
-    <>
-      {!!devices.length && (
-        <View>
-          {devices.map((device: any) => (
-            <DeviceItem key={device.id} device={device} onSelect={onSelectDevice} />
-          ))}
-        </View>
-      )}
+    <View>
+      {!!devices.length &&
+        devices.map((device: any) => (
+          <DeviceItem key={device.id} device={device} onSelect={onSelectDevice} />
+        ))}
       {!devices.length && !refreshing && (
-        <View style={spacings.mv}>
-          <Text fontSize={18} style={spacings.mbTy}>
+        <View style={[spacings.mtMd]}>
+          <Text fontSize={14} style={spacings.mbSm}>
             {t('No devices found')}
           </Text>
           <Button text={t('Scan')} onPress={onRefresh} />
         </View>
       )}
-    </>
+    </View>
   )
 }
 
