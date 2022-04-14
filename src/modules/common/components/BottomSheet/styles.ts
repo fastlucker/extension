@@ -3,8 +3,6 @@ import { StyleSheet, ViewStyle } from 'react-native'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT, DEVICE_WIDTH } from '@modules/common/styles/spacings'
 
-export const BOTTOM_SHEET_FULL_HEIGHT = DEVICE_HEIGHT * 0.8
-
 interface Styles {
   containerWrapper: ViewStyle
   containerInnerWrapper: ViewStyle
@@ -16,10 +14,7 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
   containerWrapper: {
-    backgroundColor: colors.valhalla,
-    // Required in order for the wrapper to cover
-    // the bottom bars and to extend all the way to full screen
-    minHeight: BOTTOM_SHEET_FULL_HEIGHT
+    backgroundColor: colors.valhalla
   },
   containerInnerWrapper: {
     paddingTop: 35,

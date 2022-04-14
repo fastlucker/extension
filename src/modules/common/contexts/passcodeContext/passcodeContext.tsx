@@ -490,6 +490,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       )}
 
       <BottomSheet
+        id="passcode"
         sheetRef={sheetRef}
         isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
