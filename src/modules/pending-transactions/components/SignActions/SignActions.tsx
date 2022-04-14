@@ -180,12 +180,12 @@ const SignActions = ({
           <View style={styles.buttonWrapper}>{rejectButton}</View>
           <View style={styles.buttonWrapper}>
             <Button
-              text={
-                signingStatus.inProgress && !!watch('password', '') && !!watch('code', '')
-                  ? t('Sending...')
-                  : t('Send')
+              text={signingStatus.inProgress && !!watch('code', '') ? t('Sending...') : t('Send')}
+              disabled={
+                signingStatus.inProgress ||
+                (!selectedAccHasPassword && !watch('password', '')) ||
+                !watch('code', '')
               }
-              disabled={signingStatus.inProgress || !watch('password', '') || !watch('code', '')}
               onPress={() => {
                 Keyboard.dismiss()
                 // Needed because of the async animation of the keyboard aware scroll view after keyboard dismiss

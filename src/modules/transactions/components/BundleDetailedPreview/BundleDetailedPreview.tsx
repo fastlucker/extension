@@ -10,7 +10,6 @@ import networks from '@modules/common/constants/networks'
 import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 
 const BundleDetailedPreview = ({ bundle, mined = false, hasBottomSpacing }: any) => {
   const network: any = networks.find((x) => x.id === bundle.network)
@@ -18,9 +17,9 @@ const BundleDetailedPreview = ({ bundle, mined = false, hasBottomSpacing }: any)
 
   if (!Array.isArray(bundle.txns)) {
     return (
-      <Text appearance="danger" style={textStyles.bold}>
-        {t('Bundle has no transactions (should never happen)')}
-      </Text>
+      <Panel type="filled">
+        <Text appearance="danger">{t('Bundle has no transactions (should never happen)')}</Text>
+      </Panel>
     )
   }
 
@@ -53,9 +52,9 @@ const BundleDetailedPreview = ({ bundle, mined = false, hasBottomSpacing }: any)
         />
       ))}
       {!!bundle.executed && !bundle.executed?.success && (
-        <View style={spacings.mbTy}>
+        <View>
           <Trans>
-            <Text appearance="danger" style={textStyles.bold}>
+            <Text appearance="danger">
               {'Error: '} {bundle.executed?.errorMsg || 'unknown error'}
             </Text>
           </Trans>

@@ -10,7 +10,6 @@ import accountPresets from '@modules/common/constants/accountPresets'
 import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 import { DetailedBundleContext } from '@modules/send/contexts/detailedBundleContext'
 
 import styles from './styles'
@@ -23,9 +22,9 @@ const BundleSimplePreview = ({ bundle, mined = false, actions }: any) => {
 
   if (!Array.isArray(bundle.txns)) {
     return (
-      <Text appearance="danger" style={textStyles.bold}>
-        {t('Bundle has no transactions (should never happen)')}
-      </Text>
+      <Panel contentContainerStyle={styles.panel} type="filled">
+        <Text appearance="danger">{t('Bundle has no transactions (should never happen)')}</Text>
+      </Panel>
     )
   }
 
@@ -77,9 +76,9 @@ const BundleSimplePreview = ({ bundle, mined = false, actions }: any) => {
         />
       ))}
       {!!bundle.executed && !bundle.executed?.success && (
-        <View style={spacings.mbTy}>
+        <View>
           <Trans>
-            <Text appearance="danger" style={textStyles.bold}>
+            <Text appearance="danger">
               {'Error: '} {bundle.executed?.errorMsg || 'unknown error'}
             </Text>
           </Trans>
