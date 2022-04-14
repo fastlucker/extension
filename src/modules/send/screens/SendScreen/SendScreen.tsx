@@ -202,7 +202,7 @@ const SendScreen = () => {
             onOpenBottomSheet={openBottomSheetAddrAdd}
           />
         </BottomSheet>
-        {/* <BottomSheet
+        <BottomSheet
           sheetRef={sheetRefAddrAdd}
           isOpen={isOpenBottomSheetAddrAdd}
           closeBottomSheet={closeBottomSheetAddrAdd}
@@ -213,7 +213,7 @@ const SendScreen = () => {
             onSubmit={handleAddNewAddress}
             address={!smartContractWarning && !!unknownWarning && !!address ? address : ''}
           />
-        </BottomSheet> */}
+        </BottomSheet>
       </Wrapper>
     </GradientBackgroundWrapper>
   )

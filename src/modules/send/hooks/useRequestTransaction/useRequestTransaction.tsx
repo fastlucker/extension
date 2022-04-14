@@ -29,7 +29,7 @@ export default function useRequestTransaction() {
   const { addToast } = useToast()
   const { isKnownAddress } = useAddressBook()
   const tokenAddressOrSymbol = route.params?.tokenAddressOrSymbol
-  console.log(tokenAddressOrSymbol)
+
   const tokenAddress = isValidAddress(tokenAddressOrSymbol)
     ? tokenAddressOrSymbol
     : tokens.find(({ symbol }: any) => symbol === tokenAddressOrSymbol)?.address || null
