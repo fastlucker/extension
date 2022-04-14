@@ -27,7 +27,7 @@ import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useKeyboard from '@modules/common/hooks/useKeybard'
-import spacings, { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
+import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
@@ -191,6 +191,7 @@ const SendScreen = () => {
           </TouchableWithoutFeedback>
         )}
         <BottomSheet
+          id="addresses-list"
           sheetRef={sheetRefAddrDisplay}
           isOpen={isOpenBottomSheetAddrDisplay}
           closeBottomSheet={closeBottomSheetAddrDisplay}
@@ -203,11 +204,11 @@ const SendScreen = () => {
           />
         </BottomSheet>
         <BottomSheet
+          id="add-address"
           sheetRef={sheetRefAddrAdd}
           isOpen={isOpenBottomSheetAddrAdd}
           closeBottomSheet={closeBottomSheetAddrAdd}
           dynamicInitialHeight={false}
-          height={keyboardShown && DEVICE_HEIGHT * 0.88}
         >
           <AddAddressForm
             onSubmit={handleAddNewAddress}
