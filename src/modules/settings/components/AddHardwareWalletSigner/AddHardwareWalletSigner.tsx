@@ -28,6 +28,7 @@ const AddHardwareWalletSigner = () => {
         {t('For accessing the full signers management options, please visit the web app.')}
       </Text>
       <BottomSheet
+        id="hardware-wallet-signer"
         sheetRef={sheetRef}
         isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
