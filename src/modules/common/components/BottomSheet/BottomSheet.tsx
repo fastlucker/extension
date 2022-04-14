@@ -15,7 +15,7 @@ import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Button from '../Button'
 import NavIconWrapper from '../NavIconWrapper'
-import styles, { BOTTOM_SHEET_FULL_HEIGHT } from './styles'
+import styles from './styles'
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView)
 
@@ -33,18 +33,16 @@ interface Props {
   displayCancel?: boolean
   maxInitialHeightPercentage?: number
   dynamicInitialHeight?: boolean
-  height?: number | false | undefined
 }
 
 const BottomSheet: React.FC<Props> = ({
-  // id,
+  id,
   sheetRef,
   children,
   displayCancel = true,
   cancelText: _cancelText,
   maxInitialHeightPercentage = 0.75,
   dynamicInitialHeight = true,
-  height,
   closeBottomSheet = () => {},
   isOpen = false
 }) => {
@@ -82,6 +80,11 @@ const BottomSheet: React.FC<Props> = ({
       sheetRef.current?.snapTo(0)
     }
   }, [isOpen, prevIsOpen, sheetRef])
+
+  // The header should start a little bit below the end of the notch,
+  // and right in the vertical middle of the nav.
+  const notchInset = insets.top + 10
+  const BOTTOM_SHEET_FULL_HEIGHT = DEVICE_HEIGHT - notchInset
 
   /**
    * Get the content height, so that the modal pops out dynamically,
@@ -126,7 +129,16 @@ const BottomSheet: React.FC<Props> = ({
     }
 
     return (
-      <View style={styles.containerWrapper}>
+      <View
+        style={[
+          styles.containerWrapper,
+          {
+            // Required in order for the wrapper to cover
+            // the bottom bars and to extend all the way to full screen
+            minHeight: BOTTOM_SHEET_FULL_HEIGHT
+          }
+        ]}
+      >
         <View style={styles.containerInnerWrapper} onLayout={handleOnLayout}>
           <View style={styles.dragger} />
           {children}
@@ -165,12 +177,6 @@ const BottomSheet: React.FC<Props> = ({
     'auto' // misleadingly, but it actually DISABLES pointer events
   )
 
-  // The header should start a little bit below the end of the notch,
-  // and right in the vertical middle of the nav.
-  const notchInset = insets.top + 10
-
-  const headerHeight = height || BOTTOM_SHEET_FULL_HEIGHT
-
   const backdrop = isiOS ? (
     // The blurred view works on iOS only
     <AnimatedBlurView
@@ -207,11 +213,18 @@ const BottomSheet: React.FC<Props> = ({
         </NavIconWrapper>
       )}
       {/* Don't base it on the `isOpen` flag, because otherwise - the animation is not fluid */}
-      {backdrop}
+      {!!isOpen && backdrop}
       {!!isOpen && <TouchableOpacity style={styles.backDrop} onPress={closeBottomSheet} />}
       <ReanimatedBottomSheet
         ref={sheetRef}
-        snapPoints={dynamicInitialHeight ? [0, contentHeight, headerHeight] : [0, headerHeight]}
+        // TODO: Figure out why this logic breaks
+        // snapPoints={
+        //   dynamicInitialHeight
+        //     ? [0, contentHeight, BOTTOM_SHEET_FULL_HEIGHT]
+        //     : [0, BOTTOM_SHEET_FULL_HEIGHT]
+        // }
+        snapPoints={[0, BOTTOM_SHEET_FULL_HEIGHT * 0.8, BOTTOM_SHEET_FULL_HEIGHT]}
+        // snapPoints={[0, 700]}
         renderContent={renderContent}
         // So that the content is tap-able on Android
         enabledContentTapInteraction={false}
