@@ -22,8 +22,6 @@ const styles = StyleSheet.create<Style>({
     ...spacings.mbLg
   },
   inputWrapper: {
-    overflow: 'hidden',
-    borderRadius: 13,
     flexDirection: 'row',
     backgroundColor: colors.howl,
     borderBottomWidth: 2,
