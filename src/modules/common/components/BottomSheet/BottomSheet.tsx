@@ -42,7 +42,6 @@ const BottomSheet: React.FC<Props> = ({
   displayCancel = true,
   cancelText: _cancelText,
   maxInitialHeightPercentage = 0.8,
-  // TODO: Temporary disable.
   // dynamicInitialHeight = true,
   closeBottomSheet = () => {},
   isOpen = false
@@ -52,7 +51,10 @@ const BottomSheet: React.FC<Props> = ({
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
   const prevIsOpen = usePrevious(isOpen)
-  // TODO: Temporary disable.
+  // TODO: Temporary disable, because it is causing glitches.
+  // Here's now to reproduce them:
+  // 1) On the Polygon network 2) Send transaction 3) Tap back from Pending transaction
+  // 4) Go to transactions and open one details 5) Change networks.
   const dynamicInitialHeight = false
 
   useEffect(() => {
@@ -215,6 +217,10 @@ const BottomSheet: React.FC<Props> = ({
           </Animated.View>
         </NavIconWrapper>
       )}
+      {/* If the backdrop hide/show is not based on the `isOpen` flag,
+        the animation on close goes smoothly. However, there is a glitch on iOS
+        and the backdrop sometimes stays visible. So, show/hiding it based on the
+        `isOpen` flag was the only solution to the glitch */}
       {!!isOpen && backdrop}
       {!!isOpen && <TouchableOpacity style={styles.backDrop} onPress={closeBottomSheet} />}
       <ReanimatedBottomSheet
