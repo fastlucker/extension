@@ -11,6 +11,7 @@ import {
 import Text from '@modules/common/components/Text'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
+import commonStyles from '@modules/common/styles/utils/common'
 import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
@@ -58,35 +59,36 @@ const Input = ({
   return (
     <View style={[styles.inputContainer, containerStyle]}>
       {!!label && <Text style={styles.label}>{label}</Text>}
-
-      <View
-        style={[
-          styles.inputWrapper,
-          isFocused && styles.focused,
-          disabled && styles.disabled,
-          !!error && styles.error,
-          isValid && styles.valid
-        ]}
-      >
-        <TextInput
-          placeholderTextColor={colors.waikawaGray}
-          style={[styles.input, hasButton && spacings.pr0]}
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!disabled}
-          onBlur={handleOnBlur}
-          onFocus={handleOnFocus}
-          {...rest}
-        />
-        {hasButton && (
-          <TouchableOpacity onPress={onButtonPress} disabled={disabled} style={styles.button}>
-            {typeof buttonText === 'string' || buttonText instanceof String ? (
-              <Text style={textStyles.bold}>{buttonText}</Text>
-            ) : (
-              buttonText
-            )}
-          </TouchableOpacity>
-        )}
+      <View style={[commonStyles.borderRadiusPrimary, commonStyles.hidden]}>
+        <View
+          style={[
+            styles.inputWrapper,
+            disabled && styles.disabled,
+            !!error && styles.error,
+            isFocused && styles.focused,
+            isValid && styles.valid
+          ]}
+        >
+          <TextInput
+            placeholderTextColor={colors.waikawaGray}
+            style={[styles.input, hasButton && spacings.pr0]}
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!disabled}
+            onBlur={handleOnBlur}
+            onFocus={handleOnFocus}
+            {...rest}
+          />
+          {hasButton && (
+            <TouchableOpacity onPress={onButtonPress} disabled={disabled} style={styles.button}>
+              {typeof buttonText === 'string' || buttonText instanceof String ? (
+                <Text style={textStyles.bold}>{buttonText}</Text>
+              ) : (
+                buttonText
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {!!error && (
