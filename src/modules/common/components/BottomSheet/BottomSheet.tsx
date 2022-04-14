@@ -41,7 +41,7 @@ const BottomSheet: React.FC<Props> = ({
   children,
   displayCancel = true,
   cancelText: _cancelText,
-  maxInitialHeightPercentage = 0.75,
+  maxInitialHeightPercentage = 0.8,
   // TODO: Temporary disable.
   // dynamicInitialHeight = true,
   closeBottomSheet = () => {},
@@ -215,7 +215,6 @@ const BottomSheet: React.FC<Props> = ({
           </Animated.View>
         </NavIconWrapper>
       )}
-      {/* Don't base it on the `isOpen` flag, because otherwise - the animation is not fluid */}
       {!!isOpen && backdrop}
       {!!isOpen && <TouchableOpacity style={styles.backDrop} onPress={closeBottomSheet} />}
       <ReanimatedBottomSheet
