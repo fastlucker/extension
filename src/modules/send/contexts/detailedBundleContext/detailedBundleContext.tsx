@@ -41,6 +41,7 @@ const DetailedBundleProvider = ({ children }: any) => {
     >
       {children}
       <BottomSheet
+        id="transactions"
         sheetRef={sheetRef}
         isOpen={isOpen}
         closeBottomSheet={() => {

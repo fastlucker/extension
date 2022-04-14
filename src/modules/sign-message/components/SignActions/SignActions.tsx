@@ -99,6 +99,7 @@ const SignActions = ({
         </View>
       </View>
       <BottomSheet
+        id="sign"
         closeBottomSheet={quickAccBottomSheet.closeBottomSheet}
         isOpen={quickAccBottomSheet.isOpen}
         sheetRef={quickAccBottomSheet.sheetRef}
@@ -133,6 +134,7 @@ const SignActions = ({
         />
       </BottomSheet>
       <BottomSheet
+        id="hardware-wallet-sign"
         sheetRef={hardwareWalletBottomSheet.sheetRef}
         isOpen={hardwareWalletBottomSheet.isOpen}
         closeBottomSheet={hardwareWalletBottomSheet.closeBottomSheet}

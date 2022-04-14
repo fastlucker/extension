@@ -130,6 +130,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
           />
         )}
         <BottomSheet
+          id="pending-transactions-hardware-wallet"
           sheetRef={sheetRef}
           isOpen={isOpen}
           closeBottomSheet={() => {
