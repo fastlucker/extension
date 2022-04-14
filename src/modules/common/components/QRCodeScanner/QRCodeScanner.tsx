@@ -4,6 +4,7 @@ import * as IntentLauncher from 'expo-intent-launcher'
 import LottieView from 'lottie-react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { Linking, Platform, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import CameraCorners from '@assets/svg/CameraCorners'
 import { APP_ID, isiOS } from '@config/env'
@@ -15,7 +16,6 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings, { DEVICE_WIDTH } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import { useHeaderHeight } from '@react-navigation/elements'
 
 import Button from '../Button'
 import Wrapper from '../Wrapper'
@@ -55,7 +55,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
   const [hasPermission, setHasPermission] = useState<null | boolean>(null)
   const [scanned, setScanned] = useState<boolean>(false)
   const [ratio, setRatio] = useState<string | null>(null)
-  const headerHeight = useHeaderHeight()
+  const insets = useSafeAreaInsets()
 
   const { t } = useTranslation()
 
@@ -110,7 +110,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
         flexboxStyles.flex1,
         !!hasPermission && flexboxStyles.alignCenter,
         !!hasPermission && flexboxStyles.justifyCenter,
-        !!hasPermission && { paddingBottom: headerHeight },
+        !!hasPermission && { marginBottom: insets.bottom },
         !hasPermission && spacings.mbLg
       ]}
     >
