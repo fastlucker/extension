@@ -51,7 +51,7 @@ const BottomSheet: React.FC<Props> = ({
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
   const prevIsOpen = usePrevious(isOpen)
-  // TODO: Temporary disable, because it is causing glitches.
+  // FIXME: Temporary disable, because it is causing glitches.
   // Here's now to reproduce them:
   // 1) On the Polygon network 2) Send transaction 3) Tap back from Pending transaction
   // 4) Go to transactions and open one details 5) Change networks.
