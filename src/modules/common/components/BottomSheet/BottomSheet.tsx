@@ -42,7 +42,8 @@ const BottomSheet: React.FC<Props> = ({
   displayCancel = true,
   cancelText: _cancelText,
   maxInitialHeightPercentage = 0.75,
-  dynamicInitialHeight = true,
+  // TODO: Temporary disable.
+  // dynamicInitialHeight = true,
   closeBottomSheet = () => {},
   isOpen = false
 }) => {
@@ -51,6 +52,8 @@ const BottomSheet: React.FC<Props> = ({
   const [contentHeight, setContentHeight] = useState(0)
   const [bottomSheetY] = useState(new Animated.Value(1))
   const prevIsOpen = usePrevious(isOpen)
+  // TODO: Temporary disable.
+  const dynamicInitialHeight = false
 
   useEffect(() => {
     if (!isOpen) {
@@ -217,14 +220,11 @@ const BottomSheet: React.FC<Props> = ({
       {!!isOpen && <TouchableOpacity style={styles.backDrop} onPress={closeBottomSheet} />}
       <ReanimatedBottomSheet
         ref={sheetRef}
-        // TODO: Figure out why this logic breaks
-        // snapPoints={
-        //   dynamicInitialHeight
-        //     ? [0, contentHeight, BOTTOM_SHEET_FULL_HEIGHT]
-        //     : [0, BOTTOM_SHEET_FULL_HEIGHT]
-        // }
-        snapPoints={[0, BOTTOM_SHEET_FULL_HEIGHT * 0.8, BOTTOM_SHEET_FULL_HEIGHT]}
-        // snapPoints={[0, 700]}
+        snapPoints={
+          dynamicInitialHeight
+            ? [0, contentHeight, BOTTOM_SHEET_FULL_HEIGHT]
+            : [0, BOTTOM_SHEET_FULL_HEIGHT * 0.8, BOTTOM_SHEET_FULL_HEIGHT]
+        }
         renderContent={renderContent}
         // So that the content is tap-able on Android
         enabledContentTapInteraction={false}
