@@ -144,7 +144,7 @@ const AccountsProvider: React.FC = ({ children }) => {
           onSelectAcc,
           onAddAccount,
           onRemoveAccount,
-          account: accounts.find((x) => x.id === selectedAcc)
+          account: accounts.find((x) => x.id === selectedAcc) || {}
         }),
         [accounts, selectedAcc, onSelectAcc, onAddAccount, onRemoveAccount]
       )}
