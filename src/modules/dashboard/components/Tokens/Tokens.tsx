@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ActivityIndicator, Image, Linking, View } from 'react-native'
+import { ActivityIndicator, Image, Linking, TouchableOpacity, View } from 'react-native'
 
 import { Trans, useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
@@ -19,7 +19,7 @@ import styles from './styles'
 
 const Balances = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
+  const navigation: any = useNavigation()
   const { areProtocolsLoading, protocols, tokens } = usePortfolio()
   const { selectedAcc } = useAccounts()
   const { network: selectedNetwork } = useNetwork()
@@ -29,7 +29,8 @@ const Balances = () => {
   const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')
 
   const handleGoToDeposit = () => navigation.navigate('receive')
-  const handleGoToSend = (symbol) => navigation.navigate('send', { symbol: symbol.toString() })
+  const handleGoToSend = (symbol: string) =>
+    navigation.navigate('send', { tokenAddressOrSymbol: symbol.toString() })
   const handleGoToBlockExplorer = () =>
     Linking.openURL(`${selectedNetwork?.explorerUrl}/address/${selectedAcc}`)
 
@@ -57,14 +58,13 @@ const Balances = () => {
         </Text>
       </View>
 
-      <View style={spacings.pl}>
-        <Text
-          style={[styles.symbol, textStyles.highlightPrimary]}
-          onPress={() => handleGoToSend(symbol)}
-        >
-          {symbol}
-        </Text>
-      </View>
+      <TouchableOpacity
+        style={spacings.pl}
+        onPress={() => handleGoToSend(symbol)}
+        hitSlop={{ top: 10, bottom: 10 }}
+      >
+        <Text style={[styles.symbol, textStyles.highlightPrimary]}>{symbol}</Text>
+      </TouchableOpacity>
     </Row>
   )
 

@@ -51,7 +51,7 @@ export default function useRequestTransaction() {
   })
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  const selectedAsset = tokens.find(({ address }: any) => address === asset)
+  const selectedAsset = useMemo(() => tokens.find(({ address }: any) => address === asset), [asset])
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const assetsItems = tokens.map(({ label, symbol, address, img, tokenImageUrl }: any) => ({
@@ -59,6 +59,23 @@ export default function useRequestTransaction() {
     value: address,
     icon: () => <Image source={{ uri: img || tokenImageUrl }} style={{ width: 16, height: 16 }} />
   }))
+
+  useEffect(() => {
+    if (!selectedAsset) return
+    navigation.setParams({
+      tokenAddressOrSymbol: +asset !== 0 ? asset : selectedAsset.symbol
+    })
+  }, [selectedAsset])
+
+  useEffect(() => {
+    if (tokenAddress && assetsItems.length) {
+      setAsset(tokenAddress)
+    }
+  }, [tokenAddress])
+
+  useEffect(() => {
+    if (assetsItems.length && !asset) setAsset(assetsItems[0]?.value)
+  }, [assetsItems, asset])
 
   const maxAmount = useMemo(() => {
     if (!selectedAsset) return 0
@@ -119,13 +136,6 @@ export default function useRequestTransaction() {
   const smartContractWarning = useMemo(() => isKnownTokenOrContract(address), [address])
 
   useEffect(() => {
-    if (!selectedAsset) return
-    navigation.setParams({
-      tokenAddressOrSymbol: +asset !== 0 ? asset : selectedAsset.symbol
-    })
-  }, [asset, selectedAsset])
-
-  useEffect(() => {
     const isValidRecipientAddress = validateSendTransferAddress(
       address,
       selectedAcc,
@@ -152,10 +162,6 @@ export default function useRequestTransaction() {
     setAmount(0)
     setBigNumberHexAmount('')
   }, [asset])
-
-  useEffect(() => {
-    if (assetsItems.length && !asset) setAsset(assetsItems[0]?.value)
-  }, [assetsItems])
 
   return {
     maxAmount,
