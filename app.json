@@ -3,7 +3,9 @@
   "expo": {
     "slug": "ambire-mobile-wallet",
     "version": "1.4.1",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "runtimeVersion": "6",
     "updates": {
       "enabled": true,
@@ -20,6 +22,9 @@
           }
         }
       ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.ambire.wallet"
     }
   }
 }
