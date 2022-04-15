@@ -103,7 +103,7 @@ const ChangeLocalAuthStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <ChangeLocalAuthStack.Navigator screenOptions={{ header: headerAlpha }}>
+    <ChangeLocalAuthStack.Navigator screenOptions={{ header: headerBeta }}>
       <ChangeLocalAuthStack.Screen
         name="local-auth-change-screen"
         component={ChangeLocalAuthScreen}
