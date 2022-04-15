@@ -87,7 +87,7 @@ const ChangePasscodeStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <ChangePasscodeStack.Navigator screenOptions={{ header: headerAlpha }}>
+    <ChangePasscodeStack.Navigator screenOptions={{ header: headerBeta }}>
       <ChangePasscodeStack.Screen
         name="passcode-change-screen"
         component={ChangePasscodeScreen}
