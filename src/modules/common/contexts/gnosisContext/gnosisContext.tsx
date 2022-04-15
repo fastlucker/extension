@@ -2,6 +2,7 @@
 /* eslint-disable no-restricted-syntax */
 import React, { createContext, useEffect, useMemo, useRef, useState } from 'react'
 
+import CONFIG from '@config/env'
 import { getSDKVersion, MessageFormatter, Methods } from '@gnosis.pm/safe-apps-sdk'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -39,8 +40,6 @@ const isValidMessage = (msg: any) => {
 
 const STORAGE_KEY = 'gnosis_safe_state'
 
-const url = 'https://sushiswap-interface-ten.vercel.app/swap'
-
 const GnosisProvider: React.FC = ({ children }) => {
   const sushiSwapIframeRef: any = useRef(null)
   const [hash, setHash] = useState('')
@@ -55,9 +54,9 @@ const GnosisProvider: React.FC = ({ children }) => {
   })
 
   useEffect(() => {
-    const newHash = url + network.chainId + selectedAcc
+    const newHash = CONFIG.SUSHI_SWAP_URL + network.chainId + selectedAcc
     setHash(newHash)
-  }, [network.chainId, selectedAcc, url])
+  }, [network.chainId, selectedAcc, CONFIG.SUSHI_SWAP_URL])
 
   const handlePersonalSign = (msg: any) => {
     verbose > 0 && console.log('DApp requested signMessage', msg)
