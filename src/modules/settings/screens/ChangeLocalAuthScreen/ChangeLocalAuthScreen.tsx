@@ -47,7 +47,7 @@ const ChangeLocalAuthScreen = () => {
   const renderContent = () => {
     if (!isLocalAuthSupported) {
       return (
-        <Text appearance="danger" style={spacings.mbSm}>
+        <Text type="small" appearance="danger" style={spacings.mb}>
           {t(
             'Nor a face, nor a fingerprint scanner is available on the device. Therefore, enabling local authentication is not possible.'
           )}
@@ -57,7 +57,7 @@ const ChangeLocalAuthScreen = () => {
 
     if (deviceSecurityLevel === DEVICE_SECURITY_LEVEL.NONE) {
       return (
-        <Text appearance="danger" style={spacings.mbSm}>
+        <Text type="small" appearance="danger" style={spacings.mb}>
           {t(
             'No local authentication is enrolled on your device. Therefore, enabling local authentication is not possible.'
           )}
@@ -68,7 +68,7 @@ const ChangeLocalAuthScreen = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <Text appearance="danger" style={spacings.mbSm}>
+          <Text type="small" appearance="danger" style={spacings.mbLg}>
             {t('In order to enable it, first you need to create a passcode.')}
           </Text>
           <Button
@@ -88,9 +88,9 @@ const ChangeLocalAuthScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper>
+      <Wrapper style={spacings.mt}>
         <>
-          <Text style={spacings.mbSm}>
+          <Text type="small" style={spacings.mb}>
             {deviceSupportedAuthTypesLabel
               ? t(
                   'Enabling local authentication allows you to use your {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
