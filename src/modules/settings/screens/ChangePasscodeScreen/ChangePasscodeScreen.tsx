@@ -40,7 +40,8 @@ const ChangePasscodeScreen: React.FC = () => {
 
     const added = await addPasscode(code)
     if (added) {
-      addToast(t('Passcode configured!') as string, { timeout: 2000 })
+      addToast(t('Passcode configured!') as string, { timeout: 5000 })
+      setStep(STEPS.NEW_PASSCODE)
       navigation.navigate('dashboard')
     }
   }
@@ -48,7 +49,7 @@ const ChangePasscodeScreen: React.FC = () => {
   const handleOnRemovePasscode = async () => {
     await removePasscode()
 
-    addToast(t('Passcode removed!') as string, { timeout: 2000 })
+    addToast(t('Passcode removed!') as string, { timeout: 5000 })
     navigation.navigate('dashboard')
   }
 
@@ -56,8 +57,10 @@ const ChangePasscodeScreen: React.FC = () => {
     if (step === STEPS.CONFIRM_NEW_PASSCODE) {
       return (
         <>
-          <Title>{t('Confirm new passcode')}</Title>
-          <Text style={spacings.mbSm}>{t('Please type the passcode again, to confirm it.')}</Text>
+          <Title style={textStyles.center}>{t('Confirm new passcode')}</Title>
+          <Text type="small" style={spacings.mbSm}>
+            {t('Please type the passcode again, to confirm it.')}
+          </Text>
         </>
       )
     }
@@ -65,26 +68,30 @@ const ChangePasscodeScreen: React.FC = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <Title>{t('Create passcode')}</Title>
-          <Text style={spacings.mbSm}>{t('Choose a passcode to protect your app.')}</Text>
+          <Title style={textStyles.center}>{t('Create passcode')}</Title>
+          <Text type="small" style={spacings.mbSm}>
+            {t('Choose a passcode to protect your app.')}
+          </Text>
         </>
       )
     }
 
     return (
       <>
-        <Title>{t('Change your passcode')}</Title>
-        <Text style={spacings.mbSm}>{t('Please enter a new passcode.')}</Text>
+        <Title style={textStyles.center}>{t('Change your passcode')}</Title>
+        <Text type="small" style={spacings.mbSm}>
+          {t('Please enter a new passcode.')}
+        </Text>
       </>
     )
   }
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper>
+      <Wrapper style={spacings.mt}>
         {renderContent()}
         {passcodeConfirmFailed && (
-          <Text appearance="danger" style={spacings.mbSm}>
+          <Text type="small" appearance="danger" style={spacings.mbSm}>
             {t("Passcodes don't match!")}
           </Text>
         )}
@@ -94,7 +101,9 @@ const ChangePasscodeScreen: React.FC = () => {
         )}
         {state !== PASSCODE_STATES.NO_PASSCODE && (
           <>
-            <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
+            <Text type="small" style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>
+              {t('– or –')}
+            </Text>
             <Button type="secondary" text={t('Remove passcode')} onPress={handleOnRemovePasscode} />
           </>
         )}
