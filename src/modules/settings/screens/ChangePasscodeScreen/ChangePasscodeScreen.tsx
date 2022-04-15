@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
@@ -12,7 +12,7 @@ import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
-import { useNavigation } from '@react-navigation/native'
+import { useIsFocused, useNavigation } from '@react-navigation/native'
 
 enum STEPS {
   NEW_PASSCODE = 'NEW_PASSCODE',
@@ -27,6 +27,18 @@ const ChangePasscodeScreen: React.FC = () => {
   const [step, setStep] = useState<STEPS>(STEPS.NEW_PASSCODE)
   const [newPasscode, setNewPasscode] = useState('')
   const [passcodeConfirmFailed, setPasscodeConfirmFailed] = useState(false)
+  const isFocused = useIsFocused()
+
+  // On going back (loosing routing focus), reset state, otherwise there is
+  // no way for the user to reset this flow (other than kill the app).
+  // Also, resets the state upon initial successful passcode configuring.
+  useEffect(() => {
+    return () => {
+      setNewPasscode('')
+      setPasscodeConfirmFailed(false)
+      setStep(STEPS.NEW_PASSCODE)
+    }
+  }, [isFocused])
 
   const handleOnFulfillStep1 = (code: string) => {
     setStep(STEPS.CONFIRM_NEW_PASSCODE)
@@ -41,7 +53,6 @@ const ChangePasscodeScreen: React.FC = () => {
     const added = await addPasscode(code)
     if (added) {
       addToast(t('Passcode configured!') as string, { timeout: 5000 })
-      setStep(STEPS.NEW_PASSCODE)
       navigation.navigate('dashboard')
     }
   }
