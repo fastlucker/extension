@@ -1,30 +1,30 @@
+/* eslint-disable no-nested-ternary */
 import ERC20ABI from 'adex-protocol-eth/abi/ERC20.json'
-import { BigNumber, constants, Contract, ethers, utils } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { BigNumber, constants, Contract, utils } from 'ethers'
+import { formatUnits, Interface, parseUnits } from 'ethers/lib/utils'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Image } from 'react-native'
 
 import AmbireLogo from '@assets/images/Ambire-Wallet-logo-colored-white-hor.png'
+import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
-import AAVELendingPoolAbi from '@modules/common/constants/AAVELendingPoolAbi'
-import AAVELendingPoolProviders from '@modules/common/constants/AAVELendingPoolProviders'
+import Button from '@modules/common/components/Button'
+import Text from '@modules/common/components/Text'
 import AdexStakingPool from '@modules/common/constants/AdexStakingPool.json'
+import supplyControllerABI from '@modules/common/constants/ADXSupplyController.json'
 import networks from '@modules/common/constants/networks'
 import WalletStakingPoolABI from '@modules/common/constants/WalletStakingPoolABI.json'
+import walletABI from '@modules/common/constants/walletTokenABI.json'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useRequests from '@modules/common/hooks/useRequests'
-import useToast from '@modules/common/hooks/useToast'
-import approveToken from '@modules/common/services/approveToken/approveToken'
+import { getTokenIcon } from '@modules/common/services/icons'
 import { getProvider } from '@modules/common/services/provider'
 import Card from '@modules/earn/components/Card'
 import { CARDS } from '@modules/earn/contexts/cardsVisibilityContext'
-import { getDefaultTokensItems } from '@modules/earn/services/defaultTokens'
-
-const AAVELendingPool = new Interface(AAVELendingPoolAbi)
-const RAY = 10 ** 27
-let lendingPoolAddress: any = null
 
 const ADX_TOKEN_ADDRESS = '0xade00c28244d5ce17d72e40330b1c318cd12b7c3'
 const ADX_STAKING_TOKEN_ADDRESS = '0xb6456b57f03352be48bf101b46c1752a0813491a'
@@ -48,245 +48,440 @@ const msToDaysHours = (ms: any) => {
 }
 
 const AmbireCard = () => {
-  const currentNetwork = useRef()
   const [isLoading, setLoading] = useState<any>(true)
-  const [details, setDetails] = useState([])
-  const [customInfo, setCustomInfo] = useState(null)
-  const [stakingTokenContract, setStakingTokenContract] = useState(null)
-  const [shareValue, setShareValue] = useState(ZERO)
-  const [stakingTokenBalanceRaw, SetStakingTokenBalanceRaw] = useState(null)
-  const [leaveLog, setLeaveLog] = useState(null)
-  const [lockedRemainingTime, setLockedRemainingTime] = useState(0)
-  const [addresses, setAddresses] = useState({
+  const [details, setDetails] = useState<any>([])
+  const [customInfo, setCustomInfo] = useState<any>(null)
+  const [stakingTokenContract, setStakingTokenContract] = useState<any>(null)
+  const [shareValue, setShareValue] = useState<any>(ZERO)
+  const [stakingTokenBalanceRaw, SetStakingTokenBalanceRaw] = useState<any>(null)
+  const [leaveLog, setLeaveLog] = useState<any>(null)
+  const [lockedRemainingTime, setLockedRemainingTime] = useState<any>(0)
+  const [addresses, setAddresses] = useState<any>({
     tokenAddress: '',
     stakingTokenAddress: '',
     stakingPoolInterface: '',
     stakingPoolAbi: '',
     tokenAbi: ''
   })
-  const [selectedToken, setSelectedToken] = useState({ label: '' })
-  const [adxCurrentAPY, setAdxCurrentAPY] = useState(0.0)
-
-  const unavailable = networkId !== 'ethereum'
+  const [selectedToken, setSelectedToken] = useState<any>({ label: '' })
+  const [adxCurrentAPY, setAdxCurrentAPY] = useState<any>(0.0)
 
   const { t } = useTranslation()
-  const { addToast } = useToast()
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()
-  const { protocols, tokens } = usePortfolio()
+  const { tokens } = usePortfolio()
+  const { cacheBreak } = useCacheBreak({})
 
-  const onTokenSelect = useCallback(
-    async (value) => {
-      const token = tokensItems.find(({ address }: any) => address === value)
-      if (token) {
-        setDetails([
-          [t('Annual Percentage Rate (APR)'), `${token.apr}%`],
-          [t('Lock'), t('No Lock')],
-          [t('Type'), t('Variable Rate')]
-        ])
-      }
-    },
-    [tokensItems]
-  )
+  const unavailable = network.id !== 'ethereum'
 
-  const networkDetails: any = networks.find(({ id }) => id === network?.id)
-  const defaultTokens = useMemo(() => getDefaultTokensItems(networkDetails.id), [networkDetails.id])
-  const getToken = (type: any, address: any) =>
-    tokensItems
-      .filter((token: any) => token.type === type)
-      .find((token: any) => token.address === address)
+  const networkDetails: any = networks.find(({ id }) => id === network.id)
+
   const addRequestTxn = useCallback(
     (id, txn, extraGas = 0) =>
       addRequest({
         id,
         type: 'eth_sendTransaction',
         chainId: networkDetails.chainId,
-        account: accountId,
+        account: selectedAcc,
         txn,
         extraGas
       }),
-    [networkDetails.chainId, accountId, addRequest]
+    [networkDetails.chainId, selectedAcc, addRequest]
   )
 
-  // Synced with web up to this line
+  const balanceRaw = useMemo(
+    () =>
+      stakingTokenBalanceRaw
+        ? BigNumber.from(stakingTokenBalanceRaw)
+            .mul(shareValue)
+            .div(BigNumber.from((1e18).toString()))
+            .toString()
+        : 0,
+    [stakingTokenBalanceRaw, shareValue]
+  )
 
-  const onValidate = async (type: any, tokenAddress: any, amount: any) => {
+  const rewardsUrl =
+    CONFIG.RELAYER_URL && selectedAcc
+      ? `${CONFIG.RELAYER_URL}/wallet-token/rewards/${selectedAcc}?cacheBreak=${cacheBreak}`
+      : null
+  const rewardsData = useRelayerData(rewardsUrl)
+
+  const walletTokenAPY =
+    // eslint-disable-next-line no-unsafe-optional-chaining
+    !rewardsData.isLoading && rewardsData.data ? (rewardsData.data?.xWALLETAPY * 100).toFixed(2) : 0
+
+  const walletToken = useMemo(
+    () => tokens.find(({ address }: any) => address === WALLET_TOKEN_ADDRESS),
+    [tokens]
+  )
+  const xWalletToken = useMemo(
+    () => tokens.find(({ address }: any) => address === WALLET_STAKING_ADDRESS),
+    [tokens]
+  )
+  const adexToken = useMemo(
+    () => tokens.find(({ address }: any) => address === ADX_TOKEN_ADDRESS),
+    [tokens]
+  )
+  const adexStakingToken = useMemo(
+    () => tokens.find(({ address }: any) => address === ADX_STAKING_TOKEN_ADDRESS),
+    [tokens]
+  )
+
+  const depositTokenItems = useMemo(
+    () => [
+      {
+        type: 'deposit',
+        icon: getTokenIcon(network.id, WALLET_TOKEN_ADDRESS),
+        label: 'WALLET',
+        value: WALLET_TOKEN_ADDRESS,
+        symbol: 'WALLET',
+        balance:
+          walletToken?.balanceRaw && walletToken?.decimals
+            ? formatUnits(walletToken?.balanceRaw, walletToken?.decimals)
+            : 0,
+        balanceRaw: walletToken?.balanceRaw || 0
+      },
+      {
+        type: 'deposit',
+        icon: getTokenIcon(network.id, ADX_TOKEN_ADDRESS),
+        label: 'ADX',
+        value: ADX_TOKEN_ADDRESS,
+        symbol: 'ADX',
+        balance:
+          adexToken?.balanceRaw && adexToken?.decimals
+            ? formatUnits(adexToken?.balanceRaw, adexToken?.decimals)
+            : 0,
+        balanceRaw: adexToken?.balanceRaw || 0
+      }
+    ],
+    [
+      adexToken?.balanceRaw,
+      adexToken?.decimals,
+      network.id,
+      walletToken?.balanceRaw,
+      walletToken?.decimals
+    ]
+  )
+
+  const withdrawTokenItems = useMemo(
+    () => [
+      {
+        type: 'withdraw',
+        icon: getTokenIcon(network.id, WALLET_TOKEN_ADDRESS),
+        label: 'WALLET',
+        value: WALLET_STAKING_ADDRESS,
+        symbol: 'WALLET',
+        balance: formatUnits(balanceRaw, xWalletToken?.decimals),
+        balanceRaw
+      },
+      {
+        type: 'withdraw',
+        icon: getTokenIcon(network.id, ADX_TOKEN_ADDRESS),
+        label: 'ADX',
+        value: ADX_STAKING_TOKEN_ADDRESS,
+        symbol: 'ADX',
+        balance: formatUnits(balanceRaw, adexStakingToken?.decimals),
+        balanceRaw
+      }
+    ],
+    [adexStakingToken?.decimals, balanceRaw, network.id, xWalletToken?.decimals]
+  )
+
+  const tokensItems = useMemo(
+    () => [
+      ...depositTokenItems.sort((x, y) =>
+        // eslint-disable-next-line no-nested-ternary
+        x.value === addresses.tokenAddress ? -1 : y.value === addresses.tokenAddress ? 1 : 0
+      ),
+      ...withdrawTokenItems.sort((x, y) =>
+        // eslint-disable-next-line no-nested-ternary
+        x.value === addresses.stakingTokenAddress
+          ? -1
+          : y.value === addresses.stakingTokenAddress
+          ? 1
+          : 0
+      )
+    ],
+    [addresses.stakingTokenAddress, addresses.tokenAddress, depositTokenItems, withdrawTokenItems]
+  )
+
+  const onWithdraw = useCallback(() => {
+    const { shares, unlocksAt }: any = leaveLog
+    addRequestTxn(`withdraw_staking_pool_${Date.now()}`, {
+      to: WALLET_STAKING_ADDRESS,
+      value: '0x0',
+      data: WALLET_STAKING_POOL_INTERFACE.encodeFunctionData('withdraw', [
+        shares.toHexString(),
+        unlocksAt.toHexString(),
+        false
+      ])
+    })
+  }, [leaveLog, addRequestTxn])
+
+  const onTokenSelect = useCallback(
+    (tokenAddress) => {
+      setCustomInfo(null)
+
+      const token = tokensItems.find(({ value }) => value === tokenAddress)
+
+      setSelectedToken({ label: token?.label })
+      if (token && token.type === 'withdraw' && leaveLog && parseFloat(leaveLog.walletValue) > 0) {
+        setCustomInfo(
+          <>
+            <Text>
+              {msToDaysHours(lockedRemainingTime)}
+              <Text>{' until '}</Text>
+              <Text>
+                {parseFloat(leaveLog.walletValue).toFixed(4)} {selectedToken.label}
+              </Text>
+              <Text>{' becomes available for withdraw'}</Text>
+            </Text>
+            <Text>{`* Because of pending to withdraw, you are not able to unstaking more ${selectedToken.label} until unbond period is end.`}</Text>
+
+            <Button
+              type="outline"
+              disabled={lockedRemainingTime > 0}
+              onPress={() => onWithdraw()}
+              text="Withdraw"
+            />
+          </>
+        )
+      }
+      setDetails([
+        [
+          'APY',
+          selectedToken.label === 'ADX'
+            ? `${adxCurrentAPY.toFixed(2)}%`
+            : rewardsData.isLoading
+            ? '...'
+            : `${walletTokenAPY}%`
+        ],
+        ['Lock', '20 day unbond period'],
+        ['Type', 'Variable Rate']
+      ])
+    },
+    [
+      adxCurrentAPY,
+      leaveLog,
+      lockedRemainingTime,
+      onWithdraw,
+      rewardsData.isLoading,
+      selectedToken.label,
+      tokensItems,
+      walletTokenAPY
+    ]
+  )
+
+  const onValidate = async (type: any, tokenAddress: any, amount: any, isMaxAmount: any) => {
+    const bigNumberAmount = parseUnits(amount, 18)
+
     if (type === 'Deposit') {
-      const token = getToken('deposit', tokenAddress)
-      const bigNumberHexAmount = ethers.utils
-        .parseUnits(amount.toString(), token.decimals)
-        .toHexString()
-      await approveToken(
-        'Aave Pool',
-        networkDetails.id,
+      const allowance = await stakingTokenContract.allowance(
         selectedAcc,
-        lendingPoolAddress,
-        tokenAddress,
-        addRequestTxn,
-        addToast
+        addresses.stakingTokenAddress
       )
 
-      try {
-        addRequestTxn(
-          `aave_pool_deposit_${Date.now()}`,
-          {
-            to: lendingPoolAddress,
-            value: '0x0',
-            data: AAVELendingPool.encodeFunctionData('deposit', [
-              tokenAddress,
-              bigNumberHexAmount,
-              selectedAcc,
-              0
-            ])
-          },
-          60000
-        )
-      } catch (e: any) {
-        console.error(e)
-        addToast(t('Aave Withdraw Error: {{message}}', { message: e.message || e }) as string, {
-          error: true
+      if (allowance.lt(constants.MaxUint256)) {
+        addRequestTxn(`approve_staking_pool_${Date.now()}`, {
+          to: addresses.tokenAddress,
+          value: '0x0',
+          data: ERC20_INTERFACE.encodeFunctionData('approve', [
+            addresses.stakingTokenAddress,
+            constants.MaxUint256
+          ])
         })
       }
-    } else if (type === 'Withdraw') {
-      const token = getToken('withdraw', tokenAddress)
-      const bigNumberHexAmount = ethers.utils
-        .parseUnits(amount.toString(), token.decimals)
-        .toHexString()
-      await approveToken(
-        'Aave Pool',
-        networkDetails.id,
-        selectedAcc,
-        lendingPoolAddress,
-        tokenAddress,
-        addRequestTxn,
-        addToast
-      )
 
-      try {
-        addRequestTxn(
-          `aave_pool_withdraw_${Date.now()}`,
-          {
-            to: lendingPoolAddress,
-            value: '0x0',
-            data: AAVELendingPool.encodeFunctionData('withdraw', [
-              tokenAddress,
-              bigNumberHexAmount,
-              selectedAcc
-            ])
-          },
-          60000
-        )
-      } catch (e: any) {
-        console.error(e)
-        addToast(t('Aave Withdraw Error: {{message}}', { message: e.message || e }) as string, {
-          error: true
-        })
+      addRequestTxn(`enter_staking_pool_${Date.now()}`, {
+        to: addresses.stakingTokenAddress,
+        value: '0x0',
+        data: addresses.stakingPoolInterface.encodeFunctionData('enter', [
+          bigNumberAmount.toHexString()
+        ])
+      })
+    }
+
+    if (type === 'Withdraw') {
+      let xWalletAmount
+      // In case of withdrawing the max amount of xWallet tokens, get the latest balance of xWallet.
+      // Otherwise, `stakingTokenBalanceRaw` may be outdated.
+      if (isMaxAmount) {
+        xWalletAmount = await stakingTokenContract.balanceOf(selectedAcc)
+      } else {
+        xWalletAmount = bigNumberAmount.mul(BigNumber.from((1e18).toString())).div(shareValue)
       }
+
+      addRequestTxn(`leave_staking_pool_${Date.now()}`, {
+        to: addresses.stakingTokenAddress,
+        value: '0x0',
+        data: addresses.stakingPoolInterface.encodeFunctionData('leave', [
+          xWalletAmount.toHexString(),
+          false
+        ])
+      })
     }
   }
 
-  const loadPool: any = useCallback(async () => {
-    const providerAddress = AAVELendingPoolProviders[networkDetails.id]
-    if (!providerAddress) {
-      setLoading(false)
-      setUnavailable(true)
-      return
-    }
+  useEffect(() => {
+    async function init() {
+      try {
+        // Prevent init if the card is unavailable for current network
+        if (network.id !== 'ethereum') return
 
-    try {
-      const provider = getProvider(networkDetails.id)
-      const lendingPoolProviderContract = new ethers.Contract(
-        providerAddress,
-        AAVELendingPool,
-        provider
-      )
-      lendingPoolAddress = await lendingPoolProviderContract.getLendingPool()
+        const provider = getProvider(network.id)
 
-      const lendingPoolContract = new ethers.Contract(lendingPoolAddress, AAVELendingPool, provider)
-      const reserves = await lendingPoolContract.getReservesList()
-      const reservesAddresses = reserves.map((reserve: any) => reserve.toLowerCase())
-
-      const withdrawTokens = (protocols.find(({ label }: any) => label === 'Aave V2')?.assets || [])
-        .map(
-          // eslint-disable-next-line @typescript-eslint/no-shadow
-          ({ symbol, tokens }: any) =>
-            tokens &&
-            tokens.map((token: any) => ({
-              ...token,
-              symbol,
-              type: 'withdraw'
-            }))
+        const tokenAddress =
+          selectedToken.label === 'ADX' ? ADX_TOKEN_ADDRESS : WALLET_TOKEN_ADDRESS
+        const stakingTokenAddress =
+          selectedToken.label === 'ADX' ? ADX_STAKING_TOKEN_ADDRESS : WALLET_STAKING_ADDRESS
+        const stakingPoolInterface =
+          selectedToken.label === 'ADX' ? ADX_STAKING_POOL_INTERFACE : WALLET_STAKING_POOL_INTERFACE
+        const stakingPoolAbi =
+          selectedToken.label === 'ADX' ? AdexStakingPool : WalletStakingPoolABI
+        const tokenAbi = selectedToken.label === 'ADX' ? ERC20ABI : walletABI
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const stakingTokenContract = new Contract(
+          stakingTokenAddress,
+          stakingPoolInterface,
+          provider
         )
-        .flat(1)
-        .filter((token: any) => token)
+        const tokenContract = new Contract(tokenAddress, tokenAbi, provider)
+        const supplyController = new Contract(
+          ADDR_ADX_SUPPLY_CONTROLLER,
+          supplyControllerABI,
+          provider
+        )
+        setStakingTokenContract(stakingTokenContract)
 
-      const depositTokens = tokens
-        .filter(({ address }: any) => reservesAddresses.includes(address))
-        .map((token: any) => ({
-          ...token,
-          type: 'deposit'
-        }))
-        .filter((token: any) => token)
+        setAddresses({
+          tokenAddress,
+          stakingTokenAddress,
+          stakingPoolInterface,
+          stakingPoolAbi,
+          tokenAbi
+        })
 
-      const allTokens = await Promise.all([
-        ...defaultTokens.filter(
-          ({ type, address }) =>
-            type === 'deposit' &&
-            // eslint-disable-next-line @typescript-eslint/no-shadow
-            !depositTokens.map(({ address }: any) => address).includes(address)
-        ),
-        ...defaultTokens.filter(
-          ({ type, address }) =>
-            type === 'withdraw' &&
-            // eslint-disable-next-line @typescript-eslint/no-shadow
-            !withdrawTokens.map(({ address }: any) => address).includes(address)
-        ),
-        ...withdrawTokens,
-        ...depositTokens
-      ])
+        const [timeToUnbond, shareValue, sharesTotalSupply, stakingTokenBalanceRaw] =
+          await Promise.all([
+            stakingTokenContract.timeToUnbond(),
+            stakingTokenContract.shareValue(),
+            stakingTokenContract.totalSupply(),
+            stakingTokenContract.balanceOf(selectedAcc)
+          ])
 
-      const uniqueTokenAddresses = [...new Set(allTokens.map(({ address }) => address))]
-      const tokensAPR = Object.fromEntries(
-        await Promise.all(
-          uniqueTokenAddresses.map(async (address) => {
-            const data = await lendingPoolContract.getReserveData(address)
-            const { liquidityRate } = data
-            const apr = ((liquidityRate / RAY) * 100).toFixed(2)
-            return [address, apr]
+        if (selectedToken.label === 'ADX') {
+          const [incentivePerSecond, poolTotalStaked] = await Promise.all([
+            supplyController.incentivePerSecond(ADX_STAKING_TOKEN_ADDRESS),
+            tokenContract.balanceOf(stakingTokenAddress)
+          ])
+
+          const currentAPY =
+            incentivePerSecond.mul(PRECISION).mul(secondsInYear).div(poolTotalStaked).toNumber() /
+            PRECISION
+
+          setAdxCurrentAPY(currentAPY * 100)
+        }
+
+        setShareValue(shareValue)
+        SetStakingTokenBalanceRaw(stakingTokenBalanceRaw)
+
+        const [leaveLogs, withdrawLogs] = await Promise.all([
+          provider.getLogs({
+            fromBlock: 0,
+            ...stakingTokenContract.filters.LogLeave(selectedAcc, null, null, null)
+          }),
+          provider.getLogs({
+            fromBlock: 0,
+            ...stakingTokenContract.filters.LogWithdraw(selectedAcc, null, null, null, null)
+          })
+        ])
+
+        const userWithdraws = withdrawLogs.map((log: any) => {
+          const parsedWithdrawLog = stakingTokenContract.interface.parseLog(log)
+          const { shares, unlocksAt, maxTokens, receivedTokens } = parsedWithdrawLog.args
+
+          return {
+            transactionHash: log.transactionHash,
+            type: 'withdraw',
+            shares,
+            unlocksAt,
+            maxTokens,
+            receivedTokens,
+            blockNumber: log.blockNumber
+          }
+        })
+
+        const now: any = new Date() / 1000
+        const userLeaves = await Promise.all(
+          leaveLogs.map(async (log: any) => {
+            const parsedLog = stakingTokenContract.interface.parseLog(log)
+            const { maxTokens, shares, unlocksAt } = parsedLog.args
+
+            const withdrawTx = userWithdraws.find(
+              (event: any) =>
+                event.unlocksAt.toString() === unlocksAt.toString() &&
+                event.shares.toString() === shares.toString() &&
+                event.maxTokens.toString() === maxTokens.toString()
+            )
+
+            const walletValue = sharesTotalSupply.isZero()
+              ? ZERO
+              : await stakingTokenContract.unbondingCommitmentWorth(selectedAcc, shares, unlocksAt)
+
+            return {
+              transactionHash: log.transactionHash,
+              type: 'leave',
+              maxTokens,
+              shares,
+              unlocksAt,
+              blockNumber: log.blockNumber,
+              walletValue,
+              withdrawTx
+            }
           })
         )
-      )
+        const leavesPendingToUnlock = [...userLeaves].filter((event: any) => event.unlocksAt > now)
 
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      const tokensItems = allTokens.map((token) => ({
-        ...token,
-        apr: tokensAPR[token.address],
-        icon: token.img || token.tokenImageUrl,
-        label: `${token.symbol} (${tokensAPR[token.address]}% APR)`,
-        value: token.address
-      }))
+        const leavesReadyToWithdraw = [...userLeaves].filter(
+          (event: any) => event.unlocksAt < now && !event.withdrawTx
+        )
 
-      // Prevent race conditions
-      if (currentNetwork.current !== networkDetails.id) return
+        let leavePendingToUnlockOrReadyToWithdraw = null
+        if (leavesReadyToWithdraw.length)
+          leavePendingToUnlockOrReadyToWithdraw = leavesReadyToWithdraw[0]
+        else if (leavesPendingToUnlock.length)
+          leavePendingToUnlockOrReadyToWithdraw = leavesPendingToUnlock[0]
 
-      setTokensItems(tokensItems)
-      setLoading(false)
-      setUnavailable(false)
-    } catch (e: any) {
-      console.error(e)
-      addToast(t('Aave load pool error: {{message}}', { message: e.message || e }) as string, {
-        error: true
-      })
+        if (leavePendingToUnlockOrReadyToWithdraw) {
+          const { maxTokens, shares, unlocksAt, blockNumber, walletValue }: any =
+            leavePendingToUnlockOrReadyToWithdraw
+
+          setLeaveLog({
+            tokens: maxTokens,
+            shares,
+            unlocksAt,
+            walletValue: utils.formatUnits(walletValue.toString(), 18)
+          })
+
+          const { timestamp } = await provider.getBlock(blockNumber)
+          let remainingTime = timeToUnbond.toString() * 1000 - (Date.now() - timestamp * 1000)
+          if (remainingTime <= 0) remainingTime = 0
+          setLockedRemainingTime(remainingTime)
+        } else {
+          setLeaveLog(null)
+        }
+      } catch (e) {
+        console.error(e)
+      }
     }
-  }, [addToast, protocols, tokens, defaultTokens, networkDetails])
+    init()
+    return () => {
+      setShareValue(ZERO)
+    }
+  }, [network.id, selectedAcc, selectedToken.label])
 
-  useEffect(() => loadPool(), [loadPool])
-
-  useEffect(() => {
-    currentNetwork.current = network.id
-    setLoading(true)
-  }, [network.id])
+  useEffect(() => setLoading(false), [])
 
   return (
     <Card
@@ -294,6 +489,7 @@ const AmbireCard = () => {
       Icon={() => <Image source={AmbireLogo} style={{ width: 125, height: 58 }} />}
       loading={isLoading}
       unavailable={unavailable}
+      customInfo={customInfo}
       details={details}
       tokensItems={tokensItems}
       onTokenSelect={onTokenSelect}

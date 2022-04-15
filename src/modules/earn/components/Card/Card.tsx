@@ -102,8 +102,14 @@ const Card = ({
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
-      <Text style={flexboxStyles.flex1}>{t('Available Amount:')}</Text>
-      <Text>{!disabled ? `${getMaxAmount()} ${currentToken?.symbol}` : '0'}</Text>
+      <Text style={spacings.mr}>{t('Available Amount:')}</Text>
+
+      <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
+        <Text numberOfLines={1} style={{ flex: 1, textAlign: 'right' }} ellipsizeMode="tail">
+          {!disabled ? `${getMaxAmount()}` : '0.0'}
+        </Text>
+        {currentToken && <Text>{` ${currentToken?.symbol}`}</Text>}
+      </View>
     </View>
   )
 
