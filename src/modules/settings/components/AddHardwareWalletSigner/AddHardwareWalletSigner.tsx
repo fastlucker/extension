@@ -7,6 +7,7 @@ import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import spacings from '@modules/common/styles/spacings'
+import textStyles from '@modules/common/styles/utils/text'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import useHardwareWalletActions from '@modules/hardware-wallet/hooks/useHardwareWalletActions'
 
@@ -22,9 +23,11 @@ const AddHardwareWalletSigner = () => {
 
   return (
     <>
-      <Title>{t('Add new hardware wallet signer')}</Title>
+      <Title hasBottomSpacing={false} style={[spacings.mbTy, textStyles.center]}>
+        {t('Add new hardware wallet signer')}
+      </Title>
       <Button text={t('Add signer')} onPress={openBottomSheet} />
-      <Text style={spacings.mbSm}>
+      <Text type="small" style={spacings.mbSm}>
         {t('For accessing the full signers management options, please visit the web app.')}
       </Text>
       <BottomSheet
