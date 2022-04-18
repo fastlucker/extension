@@ -5,6 +5,7 @@ import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
+import TextWarning from '@modules/common/components/TextWarning'
 import Title from '@modules/common/components/Title'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
@@ -23,13 +24,13 @@ const AddHardwareWalletSigner = () => {
 
   return (
     <>
-      <Title hasBottomSpacing={false} style={[spacings.mbTy, textStyles.center]}>
+      <Title hasBottomSpacing={false} style={[spacings.mbTy, spacings.mtTy, textStyles.center]}>
         {t('Add new hardware wallet signer')}
       </Title>
-      <Button text={t('Add signer')} onPress={openBottomSheet} />
-      <Text type="small" style={spacings.mbSm}>
+      <Button text={t('Add signer')} onPress={openBottomSheet} style={spacings.mbLg} />
+      <TextWarning appearance="info">
         {t('For accessing the full signers management options, please visit the web app.')}
-      </Text>
+      </TextWarning>
       <BottomSheet
         id="hardware-wallet-signer"
         sheetRef={sheetRef}
