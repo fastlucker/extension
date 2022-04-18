@@ -135,7 +135,7 @@ const AppLockingStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <AppLockingStack.Navigator screenOptions={{ header: headerAlpha }}>
+    <AppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
       <AppLockingStack.Screen
         name="app-locking-screen"
         component={ChangeAppLockingScreen}
