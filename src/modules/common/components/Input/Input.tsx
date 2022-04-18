@@ -19,7 +19,7 @@ import styles from './styles'
 export interface InputProps extends TextInputProps {
   info?: string
   // Error message - Active if there is some error message string passed
-  error?: string
+  error?: string | boolean
   label?: string
   isValid?: boolean
   buttonText?: string | JSX.Element

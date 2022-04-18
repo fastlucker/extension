@@ -1,13 +1,15 @@
 import { Wallet } from 'ethers'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
 
+import InfoIcon from '@assets/svg/InfoIcon'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
+import TextWarning from '@modules/common/components/TextWarning'
 import Wrapper from '@modules/common/components/Wrapper'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -16,7 +18,7 @@ import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import { delayPromise } from '@modules/common/utils/promises'
-import { useNavigation } from '@react-navigation/native'
+import { useIsFocused, useNavigation } from '@react-navigation/native'
 
 interface FormValues {
   password: string
@@ -28,18 +30,27 @@ const BiometricsSignScreen = () => {
   const { addToast } = useToast()
   const { state } = usePasscode()
   const { account } = useAccounts()
+  const isFocused = useIsFocused()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
     useAccountsPasswords()
   const {
     control,
     handleSubmit,
     setError,
+    reset,
     formState: { errors, isSubmitting }
   } = useForm<FormValues>({
     defaultValues: {
       password: ''
     }
   })
+
+  // On going back (loosing routing focus), reset state, otherwise there is
+  // no way for the user to reset this form (other than kill the app).
+  // Also, resets the state upon initial successful passcode configuring.
+  useEffect(() => {
+    return () => reset()
+  }, [isFocused])
 
   const handleEnable = async ({ password }: FormValues) => {
     // Dismiss the keyboard, because the validation process sometimes takes longer,
@@ -82,9 +93,9 @@ const BiometricsSignScreen = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <Text appearance="danger" style={spacings.mbSm}>
+          <TextWarning>
             {t('In order to enable it, first you need to create a passcode.')}
-          </Text>
+          </TextWarning>
           <Button
             text={t('Create passcode')}
             onPress={() => navigation.navigate('passcode-change')}
@@ -96,9 +107,9 @@ const BiometricsSignScreen = () => {
     if (state === PASSCODE_STATES.PASSCODE_ONLY) {
       return (
         <>
-          <Text appearance="danger" style={spacings.mbSm}>
+          <TextWarning>
             {t('In order to enable it, first you need to enable local auth.')}
-          </Text>
+          </TextWarning>
           <Button
             text={t('Enable local auth')}
             onPress={() => navigation.navigate('local-auth-change')}
@@ -110,7 +121,9 @@ const BiometricsSignScreen = () => {
     if (selectedAccHasPassword) {
       return (
         <>
-          <Text style={spacings.mbSm}>{t('Enabled!')}</Text>
+          <Text type="small" weight="medium" style={spacings.mb}>
+            {t('Enabled!')}
+          </Text>
           <Button text={t('Disable')} onPress={handleDisable} />
         </>
       )
@@ -118,7 +131,9 @@ const BiometricsSignScreen = () => {
 
     return (
       <>
-        <Text style={spacings.mbSm}>{t('To enable it, enter your Ambire account password.')}</Text>
+        <Text type="small" style={spacings.mb}>
+          {t('To enable it, enter your Ambire account password.')}
+        </Text>
         <Controller
           control={control}
           rules={{ required: t('Please fill in a password.') as string }}
@@ -129,16 +144,11 @@ const BiometricsSignScreen = () => {
               onChangeText={onChange}
               value={value}
               disabled={isSubmitting}
+              error={!!errors.password && errors.password.message}
             />
           )}
           name="password"
         />
-        {!!errors.password && (
-          <Text appearance="danger" style={spacings.mbSm}>
-            {errors.password.message}
-          </Text>
-        )}
-
         <Button
           disabled={isSubmitting}
           text={isSubmitting ? t('Validating...') : t('Enable')}
@@ -150,8 +160,8 @@ const BiometricsSignScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper>
-        <Text style={spacings.mbSm}>
+      <Wrapper style={spacings.mt}>
+        <Text type="small" style={spacings.mbLg}>
           {t(
             'You can opt-in to use your phone biometrics to sign transactions instead of your Ambire account password.'
           )}

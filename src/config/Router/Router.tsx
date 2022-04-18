@@ -119,7 +119,7 @@ const BiometricsStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <BiometricsStack.Navigator screenOptions={{ header: headerAlpha }}>
+    <BiometricsStack.Navigator screenOptions={{ header: headerBeta }}>
       <BiometricsStack.Screen
         name="biometrics-sign-change-screen"
         component={BiometricsSignScreen}
