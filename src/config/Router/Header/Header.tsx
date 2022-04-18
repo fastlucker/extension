@@ -45,7 +45,7 @@ const Header: React.FC<Props> = ({
     if (canGoBack) {
       return (
         <NavIconWrapper onPress={navigation.goBack}>
-          <LeftArrowIcon />
+          <LeftArrowIcon withRect={mode !== 'bottom-sheet'} />
         </NavIconWrapper>
       )
     }
