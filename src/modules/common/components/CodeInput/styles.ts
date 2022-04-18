@@ -7,8 +7,8 @@ const styles = StyleSheet.create({
   codeFieldRoot: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    ...spacings.mt,
-    ...spacings.mbLg
+    ...spacings.pv,
+    ...spacings.mvLg
   },
   cellRoot: {
     width: 40,
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   },
   focusCell: {
     borderBottomColor: colors.primaryAccentColor,
-    borderBottomWidth: 2
+    borderBottomWidth: 1
   }
 })
 
