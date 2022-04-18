@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { LayoutAnimation, View } from 'react-native'
 
 import CONFIG from '@config/env'
 import Spinner from '@modules/common/components/Spinner'
@@ -31,6 +31,11 @@ const SignersList = () => {
   const { data, errMsg, isLoading } = useRelayerData(url)
 
   const privileges = data ? data.privileges : {}
+  const showLoading = isLoading && !data
+
+  useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+  }, [showLoading, selectedNetwork, selectedAcc])
 
   const onMakeDefaultBtnClicked = async (account, address, isQuickAccount) => {
     if (isQuickAccount) {
@@ -88,8 +93,6 @@ const SignersList = () => {
       )
     })
     .filter((x) => x)
-
-  const showLoading = isLoading && !data
 
   return (
     <>
