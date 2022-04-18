@@ -112,7 +112,9 @@ const BiometricsSignScreen = () => {
     if (selectedAccHasPassword) {
       return (
         <>
-          <Text style={spacings.mbSm}>{t('Enabled!')}</Text>
+          <Text type="small" weight="medium" style={spacings.mb}>
+            {t('Enabled!')}
+          </Text>
           <Button text={t('Disable')} onPress={handleDisable} />
         </>
       )
