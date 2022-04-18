@@ -1,11 +1,11 @@
 import React from 'react'
-import { View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Text from '@modules/common/components/Text'
+import TextWarning from '@modules/common/components/TextWarning'
 import Wrapper from '@modules/common/components/Wrapper'
 import {
   DEVICE_SECURITY_LEVEL,
@@ -13,7 +13,6 @@ import {
 } from '@modules/common/contexts/passcodeContext/constants'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
-import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { useNavigation } from '@react-navigation/native'
@@ -72,12 +71,9 @@ const ChangeLocalAuthScreen = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbLg]}>
-            <InfoIcon color={colors.pink} width={24} height={24} style={spacings.mrTy} />
-            <Text type="small" appearance="danger" style={flexboxStyles.flex1}>
-              {t('In order to enable it, first you need to create a passcode.')}
-            </Text>
-          </View>
+          <TextWarning>
+            {t('In order to enable it, first you need to create a passcode.')}
+          </TextWarning>
           <Button
             text={t('Create passcode')}
             onPress={() => navigation.navigate('passcode-change')}

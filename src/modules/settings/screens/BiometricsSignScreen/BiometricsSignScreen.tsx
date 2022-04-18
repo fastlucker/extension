@@ -3,11 +3,13 @@ import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
 
+import InfoIcon from '@assets/svg/InfoIcon'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
+import TextWarning from '@modules/common/components/TextWarning'
 import Wrapper from '@modules/common/components/Wrapper'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -82,9 +84,9 @@ const BiometricsSignScreen = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <Text appearance="danger" style={spacings.mbSm}>
+          <TextWarning>
             {t('In order to enable it, first you need to create a passcode.')}
-          </Text>
+          </TextWarning>
           <Button
             text={t('Create passcode')}
             onPress={() => navigation.navigate('passcode-change')}
@@ -96,9 +98,9 @@ const BiometricsSignScreen = () => {
     if (state === PASSCODE_STATES.PASSCODE_ONLY) {
       return (
         <>
-          <Text appearance="danger" style={spacings.mbSm}>
+          <TextWarning>
             {t('In order to enable it, first you need to enable local auth.')}
-          </Text>
+          </TextWarning>
           <Button
             text={t('Enable local auth')}
             onPress={() => navigation.navigate('local-auth-change')}
@@ -150,8 +152,8 @@ const BiometricsSignScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper>
-        <Text style={spacings.mbSm}>
+      <Wrapper style={spacings.mt}>
+        <Text type="small" style={spacings.mb}>
           {t(
             'You can opt-in to use your phone biometrics to sign transactions instead of your Ambire account password.'
           )}
