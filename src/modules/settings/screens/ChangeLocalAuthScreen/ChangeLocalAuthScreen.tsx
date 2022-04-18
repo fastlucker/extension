@@ -1,5 +1,7 @@
 import React from 'react'
+import { View } from 'react-native'
 
+import InfoIcon from '@assets/svg/InfoIcon'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -11,7 +13,9 @@ import {
 } from '@modules/common/contexts/passcodeContext/constants'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { useNavigation } from '@react-navigation/native'
 
 const ChangeLocalAuthScreen = () => {
@@ -32,7 +36,7 @@ const ChangeLocalAuthScreen = () => {
     const enabled = await addLocalAuth()
 
     if (enabled) {
-      addToast(t('Local auth enabled!') as string, { timeout: 2000 })
+      addToast(t('Local auth enabled!') as string, { timeout: 5000 })
       navigation.navigate('dashboard')
     }
   }
@@ -40,14 +44,14 @@ const ChangeLocalAuthScreen = () => {
   const handleDisable = async () => {
     await removeLocalAuth()
 
-    addToast(t('Local auth disabled!') as string, { timeout: 2000 })
+    addToast(t('Local auth disabled!') as string, { timeout: 5000 })
     navigation.navigate('dashboard')
   }
 
   const renderContent = () => {
     if (!isLocalAuthSupported) {
       return (
-        <Text appearance="danger" style={spacings.mbSm}>
+        <Text type="small" appearance="danger" style={spacings.mb}>
           {t(
             'Nor a face, nor a fingerprint scanner is available on the device. Therefore, enabling local authentication is not possible.'
           )}
@@ -57,7 +61,7 @@ const ChangeLocalAuthScreen = () => {
 
     if (deviceSecurityLevel === DEVICE_SECURITY_LEVEL.NONE) {
       return (
-        <Text appearance="danger" style={spacings.mbSm}>
+        <Text type="small" appearance="danger" style={spacings.mb}>
           {t(
             'No local authentication is enrolled on your device. Therefore, enabling local authentication is not possible.'
           )}
@@ -68,9 +72,12 @@ const ChangeLocalAuthScreen = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <Text appearance="danger" style={spacings.mbSm}>
-            {t('In order to enable it, first you need to create a passcode.')}
-          </Text>
+          <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbLg]}>
+            <InfoIcon color={colors.pink} width={24} height={24} style={spacings.mrTy} />
+            <Text type="small" appearance="danger" style={flexboxStyles.flex1}>
+              {t('In order to enable it, first you need to create a passcode.')}
+            </Text>
+          </View>
           <Button
             text={t('Create passcode')}
             onPress={() => navigation.navigate('passcode-change')}
@@ -88,9 +95,9 @@ const ChangeLocalAuthScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper>
+      <Wrapper style={spacings.mt}>
         <>
-          <Text style={spacings.mbSm}>
+          <Text type="small" style={spacings.mb}>
             {deviceSupportedAuthTypesLabel
               ? t(
                   'Enabling local authentication allows you to use your {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
