@@ -120,7 +120,9 @@ const BiometricsSignScreen = () => {
 
     return (
       <>
-        <Text style={spacings.mbSm}>{t('To enable it, enter your Ambire account password.')}</Text>
+        <Text type="small" style={spacings.mb}>
+          {t('To enable it, enter your Ambire account password.')}
+        </Text>
         <Controller
           control={control}
           rules={{ required: t('Please fill in a password.') as string }}
@@ -131,16 +133,11 @@ const BiometricsSignScreen = () => {
               onChangeText={onChange}
               value={value}
               disabled={isSubmitting}
+              error={!!errors.password && errors.password.message}
             />
           )}
           name="password"
         />
-        {!!errors.password && (
-          <Text appearance="danger" style={spacings.mbSm}>
-            {errors.password.message}
-          </Text>
-        )}
-
         <Button
           disabled={isSubmitting}
           text={isSubmitting ? t('Validating...') : t('Enable')}
@@ -153,7 +150,7 @@ const BiometricsSignScreen = () => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper style={spacings.mt}>
-        <Text type="small" style={spacings.mb}>
+        <Text type="small" style={spacings.mbLg}>
           {t(
             'You can opt-in to use your phone biometrics to sign transactions instead of your Ambire account password.'
           )}
