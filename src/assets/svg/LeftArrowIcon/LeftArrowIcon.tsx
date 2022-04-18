@@ -14,7 +14,6 @@ const LeftArrowIcon: React.FC<Props> = ({ width = 40, height = 40, withRect = tr
     <G data-name="left-arrow icon" transform="translate(157 -213) rotate(90)">
       {withRect && (
         <Rect
-          id="Rectangle_57"
           width="40"
           height="40"
           rx="13"
