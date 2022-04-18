@@ -1,5 +1,5 @@
 import { Wallet } from 'ethers'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
 
@@ -18,7 +18,7 @@ import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import { delayPromise } from '@modules/common/utils/promises'
-import { useNavigation } from '@react-navigation/native'
+import { useIsFocused, useNavigation } from '@react-navigation/native'
 
 interface FormValues {
   password: string
@@ -30,18 +30,27 @@ const BiometricsSignScreen = () => {
   const { addToast } = useToast()
   const { state } = usePasscode()
   const { account } = useAccounts()
+  const isFocused = useIsFocused()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
     useAccountsPasswords()
   const {
     control,
     handleSubmit,
     setError,
+    reset,
     formState: { errors, isSubmitting }
   } = useForm<FormValues>({
     defaultValues: {
       password: ''
     }
   })
+
+  // On going back (loosing routing focus), reset state, otherwise there is
+  // no way for the user to reset this form (other than kill the app).
+  // Also, resets the state upon initial successful passcode configuring.
+  useEffect(() => {
+    return () => reset()
+  }, [isFocused])
 
   const handleEnable = async ({ password }: FormValues) => {
     // Dismiss the keyboard, because the validation process sometimes takes longer,
