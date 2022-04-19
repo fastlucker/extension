@@ -19,7 +19,7 @@ const AppVersion: React.FC = () => {
   return (
     <>
       <Text style={styles.text} fontSize={10}>
-        {t('Ambire Wallet app v{{APP_VERSION}}', { APP_VERSION })}
+        {t('Ambire v{{APP_VERSION}}', { APP_VERSION })}
       </Text>
       <Text style={styles.text} fontSize={10}>
         {t('build #{{BUILD_NUMBER}} (SDK v{{EXPO_SDK}})', {
