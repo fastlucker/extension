@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
-import { ActivityIndicator, Image, Linking, TouchableOpacity, View } from 'react-native'
+import { Linking, TouchableOpacity, View } from 'react-native'
 
+import SendIcon from '@assets/svg/SendIcon'
 import { Trans, useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
-import { Row } from '@modules/common/components/Table'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
+import TextWarning from '@modules/common/components/TextWarning'
 import Title from '@modules/common/components/Title'
+import TokenIcon from '@modules/common/components/TokenIcon'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
@@ -35,37 +38,39 @@ const Balances = () => {
     Linking.openURL(`${selectedNetwork?.explorerUrl}/address/${selectedAcc}`)
 
   const tokenItem = (index, img, symbol, balance, balanceUSD, address, send = false) => (
-    <Row index={index} key={`token-${address}-${index}`}>
-      <View style={spacings.pr}>
+    <View key={`token-${address}-${index}`} style={styles.tokenItemContainer}>
+      <View style={spacings.prSm}>
         {failedImg.includes(img) ? (
           <Text fontSize={34}>🪙</Text>
         ) : (
-          <Image
-            style={styles.img}
+          <TokenIcon
             source={{ uri: img }}
             onError={() => setFailedImg((failed) => [...failed, img])}
           />
         )}
       </View>
 
-      <View style={[spacings.ph, styles.rowItemMain]}>
-        <Text style={styles.balance} numberOfLines={1}>
+      <Text fontSize={16} style={spacings.prSm}>
+        {symbol}
+      </Text>
+
+      <View style={styles.tokenValue}>
+        <Text fontSize={16} numberOfLines={1}>
           {balance}
         </Text>
-        <Text style={styles.balanceFiat}>
-          <Text style={[styles.balanceFiat, textStyles.highlightSecondary]}>$</Text>{' '}
-          {balanceUSD.toFixed(2)}
-        </Text>
+        <Text style={textStyles.highlightSecondary}>${balanceUSD.toFixed(2)}</Text>
       </View>
 
-      <TouchableOpacity
-        style={spacings.pl}
-        onPress={() => handleGoToSend(symbol)}
-        hitSlop={{ top: 10, bottom: 10 }}
-      >
-        <Text style={[styles.symbol, textStyles.highlightPrimary]}>{symbol}</Text>
-      </TouchableOpacity>
-    </Row>
+      <View style={spacings.plSm}>
+        <TouchableOpacity
+          onPress={() => handleGoToSend(symbol)}
+          hitSlop={{ bottom: 10, top: 10, left: 5, right: 5 }}
+          style={styles.sendContainer}
+        >
+          <SendIcon />
+        </TouchableOpacity>
+      </View>
+    </View>
   )
 
   const emptyState = (
@@ -79,13 +84,8 @@ const Balances = () => {
 
   return (
     <>
-      <View style={styles.header}>
-        <Title style={styles.headerTitle}>{t('Tokens')}</Title>
-        <AddToken />
-      </View>
-
       {areProtocolsLoading ? (
-        <ActivityIndicator />
+        <Spinner />
       ) : sortedTokens.length ? (
         sortedTokens.map(({ address, symbol, tokenImageUrl, balance, balanceUSD }, i) =>
           tokenItem(i, tokenImageUrl, symbol, balance, balanceUSD, address, true)
@@ -97,9 +97,6 @@ const Balances = () => {
       {!!otherProtocols.length &&
         otherProtocols.map(({ label, assets }, i) => (
           <View key={`category-${i}`}>
-            <View style={styles.header}>
-              <Title style={styles.headerTitle}>{label}</Title>
-            </View>
             {assets.map(({ category, symbol, tokenImageUrl, balance, balanceUSD, address }, i) =>
               tokenItem(
                 i,
@@ -114,22 +111,18 @@ const Balances = () => {
           </View>
         ))}
 
-      <View style={styles.footer}>
-        <View style={flexboxStyles.directionRow}>
-          <Text>ℹ️</Text>
-          <Trans>
-            <Text style={styles.infoText}>
-              If you don't see a specific token that you own, please check the{' '}
-              <Text onPress={handleGoToBlockExplorer} style={textStyles.bold}>
-                Block Explorer
-              </Text>
+      <TextWarning appearance="info" style={spacings.mbSm}>
+        <Trans>
+          <Text type="caption">
+            If you don't see a specific token that you own, please check the{' '}
+            <Text weight="medium" type="caption" onPress={handleGoToBlockExplorer}>
+              Block Explorer
             </Text>
-          </Trans>
-        </View>
-        {!areProtocolsLoading && !!protocols.length && (
-          <Text style={styles.subInfoText}>{t('Powered by Velcro')}</Text>
-        )}
-      </View>
+          </Text>
+        </Trans>
+      </TextWarning>
+
+      <AddToken />
     </>
   )
 }
