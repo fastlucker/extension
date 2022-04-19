@@ -27,7 +27,7 @@ const AddHardwareWalletSigner = () => {
       <Title hasBottomSpacing={false} style={[spacings.mbTy, spacings.mtTy, textStyles.center]}>
         {t('Add new hardware wallet signer')}
       </Title>
-      <Button text={t('Add signer')} onPress={openBottomSheet} style={spacings.mbLg} />
+      <Button text={t('Add Signer')} onPress={openBottomSheet} style={spacings.mbLg} />
       <TextWarning appearance="info">
         {t('For accessing the full signers management options, please visit the web app.')}
       </TextWarning>
