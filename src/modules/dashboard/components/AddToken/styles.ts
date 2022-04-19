@@ -1,25 +1,24 @@
-import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
-import textStyles from '@modules/common/styles/utils/text'
+import commonStyles from '@modules/common/styles/utils/common'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Style {
   btnContainer: ViewStyle
-  btn: TextStyle
   img: ImageStyle
 }
 
 const styles = StyleSheet.create<Style>({
   btnContainer: {
-    backgroundColor: colors.secondaryButtonContainerColor,
+    ...flexboxStyles.center,
     ...spacings.phTy,
-    ...spacings.pvTy
-  },
-  btn: {
-    fontSize: 14,
-    textTransform: 'uppercase',
-    ...textStyles.bold
+    ...spacings.ptMd,
+    ...spacings.pbLg,
+    ...commonStyles.borderRadiusPrimary,
+    borderWidth: 1,
+    borderColor: colors.waikawaGray
   },
   img: {
     width: 40,
