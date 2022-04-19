@@ -1,8 +1,11 @@
+import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
+import InfoIcon from '@assets/svg/InfoIcon'
+import Button from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
@@ -19,12 +22,78 @@ import {
   isTokenEligible,
   mapTxnErrMsg
 } from '@modules/pending-transactions/services/helpers'
+import { useNavigation } from '@react-navigation/native'
 
 import CustomFee from './CustomFee'
 import styles from './styles'
 
 const SPEEDS = ['slow', 'medium', 'fast', 'ape']
 const OVERPRICED_MULTIPLIER = 1.2
+
+// NOTE: Order matters for for secondary fort after the one by discount
+const DISCOUNT_TOKENS_SYMBOLS = ['xWALLET', 'WALLET-STAKING', 'WALLET']
+
+function getBalance(token: any) {
+  const { balance, decimals, priceInUSD } = token
+  return (balance / decimals) * priceInUSD
+}
+
+const WalletDiscountBanner = ({ assetsItems, tokens, estimation, setCurrency, navigate }: any) => {
+  if (
+    estimation.selectedFeeToken?.symbol &&
+    (DISCOUNT_TOKENS_SYMBOLS.includes(estimation.selectedFeeToken?.symbol) ||
+      estimation.selectedFeeToken?.discount)
+  ) {
+    return null
+  }
+  const walletDiscountTokens = [...tokens]
+    .filter((x) => DISCOUNT_TOKENS_SYMBOLS.includes(x.symbol) && x.discount)
+    .sort(
+      (a, b) =>
+        b.discount - a.discount ||
+        // eslint-disable-next-line radix
+        (!parseInt(a.balance) || !parseInt(b.balance) ? getBalance(b) - getBalance(a) : 0) ||
+        DISCOUNT_TOKENS_SYMBOLS.indexOf(a.symbol) - DISCOUNT_TOKENS_SYMBOLS.indexOf(b.symbol)
+    )
+
+  if (!walletDiscountTokens.length) return null
+
+  const discountToken = walletDiscountTokens[0]
+
+  const { discount } = discountToken
+  const eligibleWalletToken = assetsItems.find(
+    (x: any) => x.value && (x.value === 'WALLET' || x.value === discountToken.address)
+  )
+  const action = eligibleWalletToken ? () => setCurrency(eligibleWalletToken.value) : () => null
+  // TODO: implement go to swap when not eligible
+  const actionTxt = eligibleWalletToken
+    ? t('USE {{symbol}}', { symbol: discountToken.symbol })
+    : t('BUY {{symbol}}', { symbol: discountToken.symbol })
+
+  return (
+    <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
+      <InfoIcon />
+      <View style={flexboxStyles.flex1}>
+        <Text fontSize={12}>{`Get ${discount * 100} fees discount`}</Text>
+        <Text>
+          <Text fontSize={12}>with</Text>
+          <Text weight="medium" fontSize={12}>
+            $WALLET
+          </Text>
+        </Text>
+      </View>
+      <Button
+        text={actionTxt}
+        // TODO: remove when navigate to swap is implemented
+        disabled={!eligibleWalletToken}
+        type="outline"
+        hasBottomSpacing={false}
+        size="small"
+        onPress={action}
+      />
+    </View>
+  )
+}
 
 const FeeSelector = ({
   disabled,
@@ -38,6 +107,7 @@ const FeeSelector = ({
   const { network }: any = useNetwork()
   const [currency, setCurrency] = useState<any>(null)
   const [editCustomFee, setEditCustomFee] = useState(false)
+  const { navigate } = useNavigation()
 
   // Initially sets a value in the Select
   useEffect(() => {
@@ -101,14 +171,22 @@ const FeeSelector = ({
       { symbol: nativeAssetSymbol, decimals: 18 }
     ]
 
-    const assetsItems = tokens.map((token: any) => ({
-      label: token.symbol,
-      value: token.symbol,
-      disabled: !isTokenEligible(token, feeSpeed, estimation)
-    }))
+    const assetsItems = tokens
+      .sort(
+        (a: any, b: any) =>
+          // @ts-ignore
+          isTokenEligible(b, SPEEDS[0], estimation) - isTokenEligible(a, SPEEDS[0], estimation) ||
+          DISCOUNT_TOKENS_SYMBOLS.indexOf(b.symbol) - DISCOUNT_TOKENS_SYMBOLS.indexOf(a.symbol) ||
+          (b.discount || 0) - (a.discount || 0) ||
+          a?.symbol.toUpperCase().localeCompare(b?.symbol.toUpperCase())
+      )
+      .map((token: any) => ({
+        label: token.symbol,
+        value: token.symbol,
+        disabled: !isTokenEligible(token, feeSpeed, estimation)
+      }))
 
     const { discount = 0, symbol, nativeRate, decimals } = estimation.selectedFeeToken
-
     const feeCurrencySelect = estimation.feeInUSD ? (
       <Select
         value={currency}
@@ -242,6 +320,15 @@ const FeeSelector = ({
         ) : (
           <View style={spacings.mbTy}>{feeCurrencySelect}</View>
         )}
+
+        {WalletDiscountBanner({
+          assetsItems,
+          selectedFeeToken: estimation.selectedFeeToken,
+          tokens,
+          estimation,
+          setCurrency,
+          navigate
+        })}
 
         <Text style={spacings.pbMi} fontSize={14}>
           {t('Transaction speed')}

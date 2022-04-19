@@ -45,7 +45,7 @@ const TransactionSummary = ({ bundle, estimation }: any) => {
           )
         })}
 
-        <View style={[flexboxStyles.directionRow, spacings.phSm]}>
+        <View style={[flexboxStyles.directionRow]}>
           <InfoIcon />
           {bundle.requestIds ? (
             <Text fontSize={12} style={[flexboxStyles.flex1, spacings.plTy]}>

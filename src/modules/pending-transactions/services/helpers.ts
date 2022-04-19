@@ -46,10 +46,11 @@ export function getFeesData(feeToken: any, estimation: any, speed: any) {
   }
 }
 
-export function isTokenEligible(token: any, speed: any, estimation: any) {
+export function isTokenEligible(token, speed, estimation) {
+  if (estimation?.relayerless && token?.address === '0x0000000000000000000000000000000000000000')
+    return true
   if (!token) return false
   const { feeInFeeToken } = getFeesData(token, estimation, speed)
-  // eslint-disable-next-line radix
   const balanceInFeeToken = parseInt(token.balance) / 10 ** token.decimals
   return balanceInFeeToken > feeInFeeToken
 }
