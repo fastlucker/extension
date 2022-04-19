@@ -132,7 +132,7 @@ const Balances = () => {
                 </Text>
                 <Text>{` ${t('on')} `}</Text>
                 <Icon width={24} height={24} />
-                <Text numberOfLines={1} style={flexboxStyles.flex1}>{` ${name}`}</Text>
+                <Text numberOfLines={1}>{` ${name}`}</Text>
               </TouchableOpacity>
             )
           })}
