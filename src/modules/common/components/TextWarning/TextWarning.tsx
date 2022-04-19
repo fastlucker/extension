@@ -1,5 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
 import Text from '@modules/common/components/Text'
@@ -11,6 +11,7 @@ type Appearances = 'danger' | 'info'
 
 interface Props {
   appearance: Appearances
+  style?: ViewStyle
 }
 
 const appearanceColors: { [key in Appearances]: string } = {
@@ -23,8 +24,8 @@ const appearanceText: { [key in Appearances]: any } = {
   info: undefined
 }
 
-const TextWarning: React.FC<Props> = ({ appearance = 'danger', children }) => (
-  <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbLg]}>
+const TextWarning: React.FC<Props> = ({ appearance = 'danger', style, children }) => (
+  <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, style]}>
     <InfoIcon color={appearanceColors[appearance]} width={24} height={24} style={spacings.mrTy} />
     <Text type="small" appearance={appearanceText[appearance]} style={flexboxStyles.flex1}>
       {children}
