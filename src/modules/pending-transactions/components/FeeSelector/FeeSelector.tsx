@@ -1,7 +1,6 @@
 import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, Image, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import InfoIcon from '@assets/svg/InfoIcon'
@@ -12,6 +11,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import { formatFloatTokenAmount } from '@modules/common/services/formatters'
+import { getTokenIcon } from '@modules/common/services/icons'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -67,16 +67,16 @@ const WalletDiscountBanner = ({ assetsItems, tokens, estimation, setCurrency, na
   const action = eligibleWalletToken ? () => setCurrency(eligibleWalletToken.value) : () => null
   // TODO: implement go to swap when not eligible
   const actionTxt = eligibleWalletToken
-    ? t('USE {{symbol}}', { symbol: discountToken.symbol })
-    : t('BUY {{symbol}}', { symbol: discountToken.symbol })
+    ? t('Use {{symbol}}', { symbol: discountToken.symbol })
+    : t('Buy {{symbol}}', { symbol: discountToken.symbol })
 
   return (
     <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
       <InfoIcon />
-      <View style={flexboxStyles.flex1}>
-        <Text fontSize={12}>{`Get ${discount * 100} fees discount`}</Text>
+      <View style={[flexboxStyles.flex1, spacings.plTy]}>
+        <Text fontSize={12}>{`Get ${discount * 100}% fees discount`}</Text>
         <Text>
-          <Text fontSize={12}>with</Text>
+          <Text fontSize={12}>{'with '}</Text>
           <Text weight="medium" fontSize={12}>
             $WALLET
           </Text>
@@ -103,7 +103,6 @@ const FeeSelector = ({
   feeSpeed,
   setFeeSpeed
 }: any) => {
-  const { t } = useTranslation()
   const { network }: any = useNetwork()
   const [currency, setCurrency] = useState<any>(null)
   const [editCustomFee, setEditCustomFee] = useState(false)
@@ -183,7 +182,13 @@ const FeeSelector = ({
       .map((token: any) => ({
         label: token.symbol,
         value: token.symbol,
-        disabled: !isTokenEligible(token, feeSpeed, estimation)
+        disabled: !isTokenEligible(token, feeSpeed, estimation),
+        icon: () => (
+          <Image
+            source={{ uri: token.address ? getTokenIcon(network.id, token.address) : '' }}
+            style={{ width: 16, height: 16, borderRadius: 50 }}
+          />
+        )
       }))
 
     const { discount = 0, symbol, nativeRate, decimals } = estimation.selectedFeeToken

@@ -77,7 +77,7 @@ const Select = ({
         containerProps={{ style: containerPropsStyle }}
         modalContentContainerStyle={styles.modalContentContainerStyle}
         disabledItemLabelStyle={{
-          opacity: 0.5
+          opacity: 0.2
         }}
         // So it displays 4 and a half items (indicating there is a scroll)
         maxHeight={290}
