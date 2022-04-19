@@ -2,7 +2,7 @@ import { StyleSheet, TextProps, ViewProps } from 'react-native'
 
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import { colorPalette as colors } from '@modules/common/styles/colors'
-import spacings, { SPACING, SPACING_TY } from '@modules/common/styles/spacings'
+import spacings from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
 
 interface Style {
@@ -15,6 +15,7 @@ interface Style {
   labelStyle: TextProps
   listItemLabelStyle: TextProps
   iconContainerStyle: ViewProps
+  extra: ViewProps
 }
 
 const styles = StyleSheet.create<Style>({
@@ -73,6 +74,12 @@ const styles = StyleSheet.create<Style>({
     width: 34,
     height: 34,
     alignItems: 'center',
+    justifyContent: 'center'
+  },
+  extra: {
+    position: 'absolute',
+    height: '100%',
+    right: 45,
     justifyContent: 'center'
   }
 })

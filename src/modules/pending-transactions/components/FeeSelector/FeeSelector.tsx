@@ -107,16 +107,17 @@ const FeeSelector = ({
       disabled: !isTokenEligible(token, feeSpeed, estimation)
     }))
 
+    const { discount = 0, symbol, nativeRate, decimals } = estimation.selectedFeeToken
+
     const feeCurrencySelect = estimation.feeInUSD ? (
       <Select
         value={currency}
         setValue={setCurrency}
         items={assetsItems}
         label={t('Fee currency')}
+        extraText={discount ? `-${discount * 100}%` : ''}
       />
     ) : null
-
-    const { discount = 0, symbol, nativeRate, decimals } = estimation.selectedFeeToken
 
     const setCustomFee = (value: any) =>
       setEstimation((prevEstimation: any) => ({
@@ -137,8 +138,6 @@ const FeeSelector = ({
     }
 
     const feeAmountSelectors = SPEEDS.map((speed) => {
-      const isETH = symbol === 'ETH' && nativeAssetSymbol === 'ETH'
-
       const {
         feeInFeeToken,
         feeInUSD
@@ -175,13 +174,11 @@ const FeeSelector = ({
               {speed}
             </Text>
             <Text numberOfLines={2} fontSize={12}>
-              {(isETH ? 'Ξ ' : '') +
-                (showInUSD
-                  ? `$${formatFloatTokenAmount(baseFeeInFeeUSD, true, 4)}`
-                  : formatFloatTokenAmount(baseFeeInFeeToken, true, decimals)) +
-                (!isETH && !showInUSD ? ` ${estimation.selectedFeeToken.symbol}` : '')}
+              {showInUSD
+                ? `$${formatFloatTokenAmount(baseFeeInFeeUSD, true, 4)}`
+                : formatFloatTokenAmount(baseFeeInFeeToken, true, decimals)}
             </Text>
-            {!isETH && !showInUSD && (
+            {!showInUSD && (
               <Text fontSize={10} weight="regular" color={colors.titan_50}>
                 {estimation.selectedFeeToken.symbol}
               </Text>
@@ -323,21 +320,49 @@ const FeeSelector = ({
           }
         />
 
-        <View style={styles.unstableFeeContainer}>
-          <Text style={flexboxStyles.flex1}>{t('Fee: ')}</Text>
-          <View style={flexboxStyles.alignEnd}>
+        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}>
+          <Text style={spacings.mrMi} fontSize={12}>
+            {t('Fee: ')}
+          </Text>
+          {!Number.isNaN(baseFeeInFeeToken) && (
+            <Text numberOfLines={2} fontSize={12}>
+              {`${formatFloatTokenAmount(baseFeeInFeeToken, true, decimals)} ${
+                estimation.selectedFeeToken.symbol
+              }`}
+            </Text>
+          )}
+          <View style={[flexboxStyles.alignEnd, flexboxStyles.flex1]}>
             {!Number.isNaN(baseFeeInUSD) && (
-              <Text>{`~ $${formatFloatTokenAmount(baseFeeInUSD, true, 4)}`}</Text>
-            )}
-            {!Number.isNaN(baseFeeInFeeToken) && (
-              <Text numberOfLines={2} fontSize={12}>
-                {`${formatFloatTokenAmount(baseFeeInFeeToken, true, decimals)} ${
-                  estimation.selectedFeeToken.symbol
-                }`}
-              </Text>
+              <Text fontSize={12}>{`~ $${formatFloatTokenAmount(baseFeeInUSD, true, 4)}`}</Text>
             )}
           </View>
         </View>
+
+        {!!discount && (
+          <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}>
+            <Text fontSize={12} color={colors.heliotrope}>
+              You save ({discount * 100}%):
+            </Text>
+            <View style={[flexboxStyles.alignEnd, flexboxStyles.flex1]}>
+              <Text fontSize={12} color={colors.heliotrope}>
+                ~${formatFloatTokenAmount(discountInUSD, true, 4)}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {!!discount && (
+          <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}>
+            <Text fontSize={12} color={colors.heliotrope}>
+              You pay:
+            </Text>
+            <View style={[flexboxStyles.alignEnd, flexboxStyles.flex1]}>
+              <Text fontSize={12} color={colors.heliotrope}>
+                ~${formatFloatTokenAmount(feeInUSD, true, 4)}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {!estimation.feeInUSD ? (
           <Text>
