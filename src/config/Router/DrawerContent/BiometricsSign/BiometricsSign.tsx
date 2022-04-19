@@ -17,9 +17,7 @@ const BiometricsSign = () => {
   return (
     <TouchableOpacity onPress={() => navigation.navigate('biometrics-sign-change')}>
       <Text style={spacings.mbSm}>
-        {selectedAccHasPassword
-          ? t('Biometrics sign (enabled)')
-          : t('Biometrics sign (not enabled)')}
+        {selectedAccHasPassword ? t('Biometrics sign (enabled)') : t('Biometrics sign (disabled)')}
       </Text>
     </TouchableOpacity>
   )
