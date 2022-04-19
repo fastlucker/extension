@@ -23,10 +23,12 @@ import styles from './styles'
 const Balances = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
-  const { areProtocolsLoading, protocols, tokens } = usePortfolio()
+  const { areProtocolsLoading, isBalanceLoading, protocols, tokens } = usePortfolio()
   const { selectedAcc } = useAccounts()
   const { network: selectedNetwork } = useNetwork()
   const [failedImg, setFailedImg] = useState<string[]>([])
+
+  const isLoading = isBalanceLoading || areProtocolsLoading
 
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
   const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')
@@ -84,15 +86,19 @@ const Balances = () => {
 
   return (
     <>
-      {areProtocolsLoading ? (
-        <Spinner />
-      ) : sortedTokens.length ? (
+      {isLoading && (
+        <View style={[flexboxStyles.center, spacings.pbLg]}>
+          <Spinner />
+        </View>
+      )}
+
+      {!isLoading && !sortedTokens.length && emptyState}
+
+      {!isLoading &&
+        !!sortedTokens.length &&
         sortedTokens.map(({ address, symbol, tokenImageUrl, balance, balanceUSD }, i) =>
           tokenItem(i, tokenImageUrl, symbol, balance, balanceUSD, address, true)
-        )
-      ) : (
-        emptyState
-      )}
+        )}
 
       {!!otherProtocols.length &&
         otherProtocols.map(({ label, assets }, i) => (
