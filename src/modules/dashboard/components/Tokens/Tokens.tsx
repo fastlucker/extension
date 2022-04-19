@@ -39,41 +39,54 @@ const Balances = () => {
   const handleGoToBlockExplorer = () =>
     Linking.openURL(`${selectedNetwork?.explorerUrl}/address/${selectedAcc}`)
 
-  const tokenItem = (index, img, symbol, balance, balanceUSD, address, send = false) => (
-    <View key={`token-${address}-${index}`} style={styles.tokenItemContainer}>
-      <View style={spacings.prSm}>
-        {failedImg.includes(img) ? (
-          <Text fontSize={34}>🪙</Text>
-        ) : (
-          <TokenIcon
-            source={{ uri: img }}
-            onError={() => setFailedImg((failed) => [...failed, img])}
-          />
-        )}
-      </View>
+  const tokenItem = (
+    index,
+    img,
+    tokenImageUrl,
+    symbol,
+    balance,
+    balanceUSD,
+    address,
+    send = false
+  ) => {
+    const displayImg = img || tokenImageUrl
 
-      <Text fontSize={16} style={spacings.prSm}>
-        {symbol}
-      </Text>
+    return (
+      <View key={`token-${address}-${index}`} style={styles.tokenItemContainer}>
+        <View style={spacings.prSm}>
+          {failedImg.includes(displayImg) ? (
+            <Text fontSize={34}>🪙</Text>
+          ) : (
+            <TokenIcon
+              source={{ uri: displayImg }}
+              onError={() => setFailedImg((failed) => [...failed, displayImg])}
+            />
+          )}
+        </View>
 
-      <View style={styles.tokenValue}>
-        <Text fontSize={16} numberOfLines={1}>
-          {balance}
+        <Text fontSize={16} style={spacings.prSm}>
+          {symbol}
         </Text>
-        <Text style={textStyles.highlightSecondary}>${balanceUSD.toFixed(2)}</Text>
-      </View>
 
-      <View style={spacings.plSm}>
-        <TouchableOpacity
-          onPress={() => handleGoToSend(symbol)}
-          hitSlop={{ bottom: 10, top: 10, left: 5, right: 5 }}
-          style={styles.sendContainer}
-        >
-          <SendIcon />
-        </TouchableOpacity>
+        <View style={styles.tokenValue}>
+          <Text fontSize={16} numberOfLines={1}>
+            {balance}
+          </Text>
+          <Text style={textStyles.highlightSecondary}>${balanceUSD.toFixed(2)}</Text>
+        </View>
+
+        <View style={spacings.plSm}>
+          <TouchableOpacity
+            onPress={() => handleGoToSend(symbol)}
+            hitSlop={{ bottom: 10, top: 10, left: 5, right: 5 }}
+            style={styles.sendContainer}
+          >
+            <SendIcon />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  )
+    )
+  }
 
   const emptyState = (
     <View style={[spacings.phLg, spacings.mbSm, flexboxStyles.center]}>
@@ -103,23 +116,25 @@ const Balances = () => {
 
       {!isLoading &&
         !!sortedTokens.length &&
-        sortedTokens.map(({ address, symbol, tokenImageUrl, balance, balanceUSD }, i) =>
-          tokenItem(i, tokenImageUrl, symbol, balance, balanceUSD, address, true)
+        sortedTokens.map(({ address, symbol, img, tokenImageUrl, balance, balanceUSD }, i) =>
+          tokenItem(i, img, tokenImageUrl, symbol, balance, balanceUSD, address, true)
         )}
 
       {!!otherProtocols.length &&
         otherProtocols.map(({ label, assets }, i) => (
           <View key={`category-${i}`}>
-            {assets.map(({ category, symbol, tokenImageUrl, balance, balanceUSD, address }, i) =>
-              tokenItem(
-                i,
-                tokenImageUrl,
-                symbol,
-                balance,
-                balanceUSD,
-                address,
-                category !== 'claimable'
-              )
+            {assets.map(
+              ({ category, symbol, img, tokenImageUrl, balance, balanceUSD, address }, i) =>
+                tokenItem(
+                  i,
+                  img,
+                  tokenImageUrl,
+                  symbol,
+                  balance,
+                  balanceUSD,
+                  address,
+                  category !== 'claimable'
+                )
             )}
           </View>
         ))}
