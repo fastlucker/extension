@@ -2,6 +2,7 @@ import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import commonStyles from '@modules/common/styles/utils/common'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
@@ -14,11 +15,13 @@ const styles = StyleSheet.create<Style>({
     height: 34,
     backgroundColor: colors.titan_05,
     overflow: 'hidden',
-    ...commonStyles.borderRadiusPrimary
+    ...commonStyles.borderRadiusPrimary,
+    ...flexboxStyles.center
   },
   img: {
-    width: 34,
-    height: 34
+    width: 22,
+    height: 22,
+    borderRadius: 22
   }
 })
 
