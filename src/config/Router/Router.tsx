@@ -66,12 +66,13 @@ const AppLockingStack = createNativeStackNavigator()
 
 const headerAlpha = (props) => <Header withHamburger withScanner {...props} />
 const headerBeta = (props) => <Header mode="title" {...props} />
+const headerGamma = (props) => <Header {...props} withScanner />
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <SignersStack.Navigator screenOptions={{ header: headerAlpha }}>
+    <SignersStack.Navigator screenOptions={{ header: headerGamma }}>
       <SignersStack.Screen
         name="signers-screen"
         component={SignersScreen}
