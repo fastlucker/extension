@@ -29,8 +29,8 @@ const styles = StyleSheet.create<Style>({
   },
   sendContainer: {
     backgroundColor: colors.titan_05,
-    width: 34,
-    height: 34,
+    width: 36,
+    height: 36,
     ...flexboxStyles.center,
     ...commonStyles.borderRadiusPrimary
   },
