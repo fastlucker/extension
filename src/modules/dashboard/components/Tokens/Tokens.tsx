@@ -119,7 +119,7 @@ const Balances = () => {
 
       <AddToken />
 
-      <TextWarning appearance="info" style={spacings.mbSm}>
+      <TextWarning appearance="info" style={spacings.mb0}>
         <Trans>
           <Text type="caption">
             If you don't see a specific token that you own, please check the{' '}
