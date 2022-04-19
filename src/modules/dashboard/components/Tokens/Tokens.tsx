@@ -117,6 +117,8 @@ const Balances = () => {
           </View>
         ))}
 
+      <AddToken />
+
       <TextWarning appearance="info" style={spacings.mbSm}>
         <Trans>
           <Text type="caption">
@@ -127,8 +129,6 @@ const Balances = () => {
           </Text>
         </Trans>
       </TextWarning>
-
-      <AddToken />
     </>
   )
 }

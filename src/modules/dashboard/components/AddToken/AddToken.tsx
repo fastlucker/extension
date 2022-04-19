@@ -7,6 +7,7 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import spacings from '@modules/common/styles/spacings'
 
 import AddTokenForm from './AddTokenForm'
 import styles from './styles'
@@ -24,8 +25,8 @@ const AddToken = () => {
 
   return (
     <>
-      <TouchableOpacity style={styles.btnContainer} onPress={openBottomSheet}>
-        <Text style={styles.btn}>{t('+ Add token')}</Text>
+      <TouchableOpacity style={[styles.btnContainer, spacings.mbTy]} onPress={openBottomSheet}>
+        <Text fontSize={16}>{t('Add Token')}</Text>
       </TouchableOpacity>
 
       <BottomSheet
