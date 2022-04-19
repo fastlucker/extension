@@ -1,4 +1,4 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -10,8 +10,6 @@ interface Style {
   tokenItemContainer: ViewStyle
   tokenValue: ViewStyle
   sendContainer: ViewStyle
-  emptyStateContainer: TextStyle
-  emptyStateText: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -33,16 +31,6 @@ const styles = StyleSheet.create<Style>({
     height: 36,
     ...flexboxStyles.center,
     ...commonStyles.borderRadiusPrimary
-  },
-  emptyStateContainer: {
-    ...spacings.ptSm,
-    ...spacings.phSm
-  },
-  emptyStateText: {
-    fontSize: 18,
-    textAlign: 'center',
-    ...textStyles.bold,
-    ...spacings.mbSm
   }
 })
 

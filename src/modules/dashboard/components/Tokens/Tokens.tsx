@@ -76,11 +76,11 @@ const Balances = () => {
   )
 
   const emptyState = (
-    <View style={styles.emptyStateContainer}>
-      <Text style={styles.emptyStateText}>
+    <View style={[spacings.phLg, spacings.mbSm]}>
+      <Text style={[spacings.mbSm, textStyles.center]}>
         {t("Welcome! You don't have any funds on this account.")}
       </Text>
-      <Button onPress={handleGoToDeposit} text={t('💸 Deposit')} />
+      <Button onPress={handleGoToDeposit} text={t('Deposit')} />
     </View>
   )
 
