@@ -4,7 +4,6 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 
 interface Style {
   tokenItemContainer: ViewStyle
