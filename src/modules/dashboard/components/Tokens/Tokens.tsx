@@ -76,11 +76,18 @@ const Balances = () => {
   )
 
   const emptyState = (
-    <View style={[spacings.phLg, spacings.mbSm]}>
+    <View style={[spacings.phLg, spacings.mbSm, flexboxStyles.center]}>
       <Text style={[spacings.mbSm, textStyles.center]}>
         {t("Welcome! You don't have any funds on this account.")}
       </Text>
-      <Button onPress={handleGoToDeposit} text={t('Deposit')} />
+      <Button
+        style={{
+          // So visually it matches the combined width of the Send and Receive buttons
+          width: 210
+        }}
+        onPress={handleGoToDeposit}
+        text={t('Deposit')}
+      />
     </View>
   )
 
