@@ -1,6 +1,6 @@
 import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, Image, View } from 'react-native'
+import { ActivityIndicator, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import InfoIcon from '@assets/svg/InfoIcon'
@@ -9,9 +9,9 @@ import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import TokenIcon from '@modules/common/components/TokenIcon'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import { formatFloatTokenAmount } from '@modules/common/services/formatters'
-import { getTokenIcon } from '@modules/common/services/icons'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -183,12 +183,7 @@ const FeeSelector = ({
         label: token.symbol,
         value: token.symbol,
         disabled: !isTokenEligible(token, feeSpeed, estimation),
-        icon: () => (
-          <Image
-            source={{ uri: token.address ? getTokenIcon(network.id, token.address) : '' }}
-            style={{ width: 16, height: 16, borderRadius: 50 }}
-          />
-        )
+        icon: () => <TokenIcon withContainer networkId={network.id} address={token.address} />
       }))
 
     const { discount = 0, symbol, nativeRate, decimals } = estimation.selectedFeeToken
