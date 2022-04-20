@@ -165,11 +165,11 @@ const Card = ({
             value={amount.toString()}
             buttonText={t('MAX')}
             onButtonPress={setMaxAmount}
-            disabled={!currentToken?.balance}
+            disabled={Number(currentToken?.balance || 0) === 0}
             labelComponent={amountLabel}
           />
           <Button
-            disabled={disabled || amount <= 0 || amount > currentToken?.balance}
+            disabled={disabled || amount <= 0 || amount > Number(currentToken?.balance || 0)}
             onPress={() => onValidate(segment, token, amount)}
             text={segment}
           />
