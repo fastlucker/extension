@@ -9,6 +9,8 @@ import { isAndroid } from '@config/env'
 //   UIManager.setLayoutAnimationEnabledExperimental(true)
 // }
 
+export const LINEAR_OPACITY_ANIMATION = LayoutAnimation.create(450, 'linear', 'opacity')
+
 export const triggerLayoutAnimation = (
   config: LayoutAnimationConfig = LayoutAnimation.Presets.spring
 ) => {
