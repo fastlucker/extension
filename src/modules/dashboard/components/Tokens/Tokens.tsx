@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 
+import MissingTokenIcon from '@assets/svg/MissingTokenIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import { Trans, useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
@@ -55,7 +56,7 @@ const Balances = () => {
       <View key={`token-${address}-${index}`} style={styles.tokenItemContainer}>
         <View style={spacings.prSm}>
           {failedImg.includes(displayImg) ? (
-            <Text fontSize={34}>🪙</Text>
+            <MissingTokenIcon />
           ) : (
             <TokenIcon
               source={{ uri: displayImg }}
