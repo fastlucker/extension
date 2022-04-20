@@ -36,7 +36,7 @@ const ERC20_INTERFACE = new Interface(ERC20ABI)
 const ZERO = BigNumber.from(0)
 
 const secondsInYear = 60 * 60 * 24 * 365
-const PRECISION = 1_000_000_000_000
+const PRECISION = '1_000_000_000_000'
 
 const msToDaysHours = (ms: any) => {
   const day = 24 * 60 * 60 * 1000
@@ -375,7 +375,7 @@ const AmbireCard = () => {
 
           const currentAPY =
             incentivePerSecond.mul(PRECISION).mul(secondsInYear).div(poolTotalStaked).toNumber() /
-            PRECISION
+            +PRECISION
 
           setAdxCurrentAPY(currentAPY * 100)
         }
