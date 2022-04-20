@@ -10,8 +10,6 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   container: {
-    width: 34,
-    height: 34,
     backgroundColor: colors.titan_05,
     overflow: 'hidden',
     ...commonStyles.borderRadiusPrimary,
