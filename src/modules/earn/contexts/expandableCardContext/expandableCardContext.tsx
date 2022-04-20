@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { BackHandler, LayoutAnimation, View } from 'react-native'
+import { BackHandler, View } from 'react-native'
 
 import Panel from '@modules/common/components/Panel'
+import {
+  LINEAR_OPACITY_ANIMATION,
+  triggerLayoutAnimation
+} from '@modules/common/services/layoutAnimation'
 
 import { CARDS, CardsVisibilityContext } from '../cardsVisibilityContext'
 
@@ -29,7 +33,7 @@ const ExpandableCardProvider: React.FC<any> = ({ children, cardName: name }) => 
 
     const backAction = () => {
       if (isExpanded) {
-        LayoutAnimation.configureNext(LayoutAnimation.create(450, 'linear', 'opacity'))
+        triggerLayoutAnimation(LINEAR_OPACITY_ANIMATION)
         setIsExpanded(false)
         setVisibleCard(null)
         // Returning true prevents execution of the default native back handling
@@ -45,13 +49,13 @@ const ExpandableCardProvider: React.FC<any> = ({ children, cardName: name }) => 
   }, [isExpanded, setVisibleCard])
 
   const expand = (cardName: CARDS) => {
-    LayoutAnimation.configureNext(LayoutAnimation.create(450, 'linear', 'opacity'))
+    triggerLayoutAnimation(LINEAR_OPACITY_ANIMATION)
     setVisibleCard(cardName)
     setIsExpanded(true)
   }
 
   const collapse = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.create(450, 'linear', 'opacity'))
+    triggerLayoutAnimation(LINEAR_OPACITY_ANIMATION)
     setIsExpanded(false)
     setVisibleCard(null)
   }
