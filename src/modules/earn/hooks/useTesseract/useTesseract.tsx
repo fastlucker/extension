@@ -2,8 +2,8 @@ import ERC20ABI from 'adex-protocol-eth/abi/ERC20.json'
 import { Contract } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
+import TesseractLogo from '@assets/images/tesseract.png'
 import i18n from '@config/localization/localization'
-import TesseractLogo from '@modules/common/assets/svg/icons/TesseractLogo'
 import TesseractVaultABI from '@modules/common/constants/YearnTesseractVaultABI'
 import useToast from '@modules/common/hooks/useToast'
 

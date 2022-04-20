@@ -9,6 +9,7 @@ import DownArrowIcon from '@assets/svg/DownArrowIcon'
 import UpArrowIcon from '@assets/svg/UpArrowIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
+import TokenIcon from '@modules/common/components/TokenIcon'
 import networks from '@modules/common/constants/networks'
 import { formatFloatTokenAmount } from '@modules/common/services/formatters'
 import { getName, isKnown } from '@modules/common/services/humanReadableTransactions'
@@ -21,12 +22,6 @@ import styles from './styles'
 function getNetworkSymbol(networkId: any) {
   const network = networks.find((x) => x.id === networkId)
   return network ? network.nativeAssetSymbol : 'UNKNW'
-}
-
-const zapperStorageTokenIcons = 'https://storage.googleapis.com/zapper-fi-assets/tokens'
-
-function getTokenIcon(network: any, address: any) {
-  return `${zapperStorageTokenIcons}/${network}/${address}.png`
 }
 
 function parseExtendedSummaryItem(item: any, i: any, networkDetails: any, t: any) {
@@ -52,9 +47,11 @@ function parseExtendedSummaryItem(item: any, i: any, networkDetails: any, t: any
         {item.decimals !== null && item.symbol ? (
           <>
             {item.address ? (
-              <Image
-                source={{ uri: getTokenIcon(networkDetails.id, item.address) }}
-                style={{ width: 22, height: 22 }}
+              <TokenIcon
+                width={20}
+                height={20}
+                networkId={networkDetails.id}
+                address={item.address}
               />
             ) : null}
             <Text fontSize={12}> </Text>

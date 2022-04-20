@@ -64,6 +64,17 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { Icon: TelegramIcon, url: TELEGRAM_URL }
   ]
 
+  const handleNavigate = (route: string) => {
+    // FIXME: This makes the issue mentioned here even worse:
+    // {@link https://github.com/AmbireTech/ambire-mobile-wallet/issues/419}
+    // For routes that are Screens part of the main stack navigator (like the
+    // `ReceiveScreen`), the drawer doesn't automatically close itself.
+    // Therefore, always trigger a close after route change.
+    // navigation.closeDrawer()
+
+    navigation.navigate(route)
+  }
+
   return (
     <DrawerContentScrollView
       {...props}
@@ -78,7 +89,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         {menu.map(({ Icon, name, route }) => (
           <TouchableOpacity
             key={name}
-            onPress={() => navigation.navigate(route)}
+            onPress={() => handleNavigate(route)}
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}
           >
             {Icon && <Icon />}
@@ -97,7 +108,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         <AppLocking />
         <Theme />
         {settings.map((s) => (
-          <TouchableOpacity key={s.name} onPress={() => navigation.navigate(s.route)}>
+          <TouchableOpacity key={s.name} onPress={() => handleNavigate(s.route)}>
             <Text style={spacings.mbSm}>{s.name}</Text>
           </TouchableOpacity>
         ))}

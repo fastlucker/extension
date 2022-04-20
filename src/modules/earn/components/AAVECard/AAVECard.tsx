@@ -2,8 +2,8 @@ import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import AAVELogo from '@assets/images/AAVE.png'
 import { useTranslation } from '@config/localization'
-import AAVELogo from '@modules/common/assets/svg/icons/AAVELogo'
 import AAVELendingPoolAbi from '@modules/common/constants/AAVELendingPoolAbi'
 import AAVELendingPoolProviders from '@modules/common/constants/AAVELendingPoolProviders'
 import networks from '@modules/common/constants/networks'
@@ -246,7 +246,7 @@ const AAVECard = () => {
   return (
     <Card
       name={CARDS.AAVE}
-      Icon={AAVELogo}
+      icon={AAVELogo}
       loading={isLoading}
       unavailable={unavailable}
       details={details}

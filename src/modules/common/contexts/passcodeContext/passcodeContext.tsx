@@ -476,7 +476,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           <SafeAreaView>
             <PasscodeAuth
               autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
-              title={t('Unlock Ambire Wallet')}
+              title={t('Unlock Ambire')}
               message={t('Entering your passcode.')}
               onFulfill={handleOnValidatePasscode}
               onValidateLocalAuth={triggerValidateLocalAuth}

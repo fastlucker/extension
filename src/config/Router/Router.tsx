@@ -66,12 +66,13 @@ const AppLockingStack = createNativeStackNavigator()
 
 const headerAlpha = (props) => <Header withHamburger withScanner {...props} />
 const headerBeta = (props) => <Header mode="title" {...props} />
+const headerGamma = (props) => <Header {...props} withScanner />
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <SignersStack.Navigator screenOptions={{ header: headerAlpha }}>
+    <SignersStack.Navigator screenOptions={{ header: headerGamma }}>
       <SignersStack.Screen
         name="signers-screen"
         component={SignersScreen}
@@ -87,7 +88,7 @@ const ChangePasscodeStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <ChangePasscodeStack.Navigator screenOptions={{ header: headerAlpha }}>
+    <ChangePasscodeStack.Navigator screenOptions={{ header: headerBeta }}>
       <ChangePasscodeStack.Screen
         name="passcode-change-screen"
         component={ChangePasscodeScreen}
@@ -103,7 +104,7 @@ const ChangeLocalAuthStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <ChangeLocalAuthStack.Navigator screenOptions={{ header: headerAlpha }}>
+    <ChangeLocalAuthStack.Navigator screenOptions={{ header: headerBeta }}>
       <ChangeLocalAuthStack.Screen
         name="local-auth-change-screen"
         component={ChangeLocalAuthScreen}
@@ -119,7 +120,7 @@ const BiometricsStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <BiometricsStack.Navigator screenOptions={{ header: headerAlpha }}>
+    <BiometricsStack.Navigator screenOptions={{ header: headerBeta }}>
       <BiometricsStack.Screen
         name="biometrics-sign-change-screen"
         component={BiometricsSignScreen}
@@ -135,7 +136,7 @@ const AppLockingStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <AppLockingStack.Navigator screenOptions={{ header: headerAlpha }}>
+    <AppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
       <AppLockingStack.Screen
         name="app-locking-screen"
         component={ChangeAppLockingScreen}

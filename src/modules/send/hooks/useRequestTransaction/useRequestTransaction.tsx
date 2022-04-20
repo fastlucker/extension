@@ -2,8 +2,9 @@ import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useEffect, useMemo, useState } from 'react'
-import { Image } from 'react-native'
 
+import TokenIcon from '@modules/common/components/TokenIcon'
+import networks from '@modules/common/constants/networks'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -23,7 +24,7 @@ export default function useRequestTransaction() {
   const { tokens, isBalanceLoading } = usePortfolio()
   const route: any = useRoute()
   const navigation: any = useNavigation()
-  const { network } = useNetwork()
+  const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()
   const { addToast } = useToast()
@@ -39,6 +40,7 @@ export default function useRequestTransaction() {
   const [address, setAddress] = useState('')
   const [disabled, setDisabled] = useState(true)
   const [addressConfirmed, setAddressConfirmed] = useState(false)
+  const [sWAddressConfirmed, setSWAddressConfirmed] = useState(false)
   const [validationFormMgs, setValidationFormMgs] = useState({
     success: {
       amount: false,
@@ -57,7 +59,14 @@ export default function useRequestTransaction() {
   const assetsItems = tokens.map(({ label, symbol, address, img, tokenImageUrl }: any) => ({
     label: label || symbol,
     value: address,
-    icon: () => <Image source={{ uri: img || tokenImageUrl }} style={{ width: 16, height: 16 }} />
+    icon: () => (
+      <TokenIcon
+        uri={img || tokenImageUrl}
+        networkId={network.id}
+        address={selectedAcc}
+        withContainer
+      />
+    )
   }))
 
   useEffect(() => {
@@ -158,6 +167,16 @@ export default function useRequestTransaction() {
     setDisabled(!(isValidRecipientAddress.success && isValidSendTransferAmount.success))
   }, [address, amount, selectedAcc, selectedAsset, addressConfirmed, isKnownAddress])
 
+  const showSWAddressWarning = useMemo(
+    () =>
+      Number(tokenAddress) === 0 &&
+      networks
+        .map(({ id }) => id)
+        .filter((id) => id !== 'ethereum')
+        .includes(network.id),
+    [tokenAddress, network]
+  )
+
   useEffect(() => {
     setAmount(0)
     setBigNumberHexAmount('')
@@ -182,6 +201,9 @@ export default function useRequestTransaction() {
     setAddressConfirmed,
     unknownWarning,
     smartContractWarning,
-    onAmountChange
+    onAmountChange,
+    showSWAddressWarning,
+    sWAddressConfirmed,
+    setSWAddressConfirmed
   }
 }

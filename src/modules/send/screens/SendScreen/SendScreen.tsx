@@ -15,6 +15,7 @@ import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
+import Checkbox from '@modules/common/components/Checkbox'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Input from '@modules/common/components/Input'
 import InputOrScan from '@modules/common/components/InputOrScan/InputOrScan'
@@ -26,15 +27,15 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
-import useKeyboard from '@modules/common/hooks/useKeybard'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
 import useRequestTransaction from '@modules/send/hooks/useRequestTransaction'
 
-import styles from './styles'
+const unsupportedSWPlatforms = ['Binance', 'Huobi', 'KuCoin', 'Gate.io', 'FTX']
 
 const SendScreen = () => {
   const { t } = useTranslation()
@@ -51,7 +52,6 @@ const SendScreen = () => {
     isOpen: isOpenBottomSheetAddrDisplay
   } = useBottomSheet()
   const { addAddress } = useAddressBook()
-  const { keyboardShown } = useKeyboard()
   const {
     asset,
     amount,
@@ -70,14 +70,31 @@ const SendScreen = () => {
     setAddressConfirmed,
     validationFormMgs,
     unknownWarning,
-    smartContractWarning
+    smartContractWarning,
+    showSWAddressWarning,
+    sWAddressConfirmed,
+    setSWAddressConfirmed
   } = useRequestTransaction()
 
   const handleAddNewAddress = (fieldValues: SubmitHandler<FieldValues>) => {
     // @ts-ignore
     addAddress(fieldValues.name, fieldValues.address)
     closeBottomSheetAddrAdd()
+    openBottomSheetAddrDisplay()
   }
+
+  const amountLabel = (
+    <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
+      <Text style={spacings.mr}>{t('Available Amount:')}</Text>
+
+      <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
+        <Text numberOfLines={1} style={{ flex: 1, textAlign: 'right' }} ellipsizeMode="tail">
+          {maxAmount}
+        </Text>
+        {selectedAsset && <Text>{` ${selectedAsset?.symbol}`}</Text>}
+      </View>
+    </View>
+  )
 
   return (
     <GradientBackgroundWrapper>
@@ -105,12 +122,7 @@ const SendScreen = () => {
                   <View style={spacings.mbMi}>
                     <Select value={asset} items={assetsItems} setValue={setAsset} />
                   </View>
-                  <View style={styles.amountContainer}>
-                    <Text>{t('Available Amount:')}</Text>
-                    <Text style={styles.amountValue}>
-                      {maxAmount} {selectedAsset?.symbol}
-                    </Text>
-                  </View>
+                  {amountLabel}
                   <NumberInput
                     onChangeText={onAmountChange}
                     containerStyle={spacings.mbTy}
@@ -163,23 +175,38 @@ const SendScreen = () => {
                       />
                     </View>
                   </TouchableOpacity>
+                  {showSWAddressWarning && (
+                    <Checkbox
+                      value={sWAddressConfirmed}
+                      onValueChange={() => setSWAddressConfirmed(!sWAddressConfirmed)}
+                    >
+                      <Text
+                        fontSize={12}
+                        onPress={() => setSWAddressConfirmed(!sWAddressConfirmed)}
+                      >
+                        {
+                          t(
+                            'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
+                            {
+                              platforms: unsupportedSWPlatforms.join(' / '),
+                              token: selectedAsset?.symbol
+                            }
+                          ) as string
+                        }
+                      </Text>
+                    </Checkbox>
+                  )}
                 </Panel>
                 <View style={[spacings.phSm, spacings.mbMd]}>
                   <Button
                     text={t('Send')}
-                    disabled={disabled}
+                    disabled={disabled || (showSWAddressWarning && !sWAddressConfirmed)}
                     onPress={() => {
                       Keyboard.dismiss()
                       sendTransaction()
                     }}
                   />
                 </View>
-                <Panel>
-                  <AddressList
-                    onSelectAddress={(item): any => setAddress(item.address)}
-                    onOpenBottomSheet={openBottomSheetAddrAdd}
-                  />
-                </Panel>
               </>
             ) : (
               <Panel style={{ flexGrow: 1 }}>

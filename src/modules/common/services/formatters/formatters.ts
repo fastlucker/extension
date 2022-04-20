@@ -1,18 +1,14 @@
-export function formatFloatTokenAmount(
-  amount: any,
-  useGrouping = true,
-  maximumFractionDigits = 18
-) {
+export function formatFloatTokenAmount(amount, useGrouping = true, maximumFractionDigits = 18) {
   if (
-    Number.isNaN(amount) ||
-    Number.isNaN(parseFloat(amount)) ||
+    isNaN(amount) ||
+    isNaN(parseFloat(amount)) ||
     !(typeof amount === 'number' || typeof amount === 'string')
   )
     return amount
 
   try {
     const minimumFractionDigits = Math.min(2, maximumFractionDigits || 0)
-    return (typeof amount === 'number' ? amount : parseFloat(amount)).toLocaleString(undefined, {
+    return (typeof amount === 'number' ? amount : parseFloat(amount)).toLocaleString(['en-US'], {
       useGrouping,
       maximumFractionDigits: Math.max(minimumFractionDigits, maximumFractionDigits),
       minimumFractionDigits
@@ -21,4 +17,11 @@ export function formatFloatTokenAmount(
     console.error(err)
     return amount
   }
+}
+
+// Round a floating point number to a specific decimal places, i.e. 1.156 => 1.16
+export function roundFloatingNumber(number, places = 2) {
+  const decimals = 10 ** places
+
+  return Math.round((number + Number.EPSILON) * decimals) / decimals
 }

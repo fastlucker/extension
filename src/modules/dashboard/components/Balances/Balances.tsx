@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react'
-import { LayoutAnimation, TouchableOpacity, View } from 'react-native'
+import React, { useLayoutEffect } from 'react'
+import { TouchableOpacity, View } from 'react-native'
 
 import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
-import { isiOS } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Spinner from '@modules/common/components/Spinner'
@@ -11,7 +10,7 @@ import Text from '@modules/common/components/Text'
 import networks from '@modules/common/constants/networks'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
-import usePrevious from '@modules/common/hooks/usePrevious'
+import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -29,26 +28,12 @@ const Balances = () => {
   const { balance, isBalanceLoading, otherBalances } = usePortfolio()
   const { network: selectedNetwork, setNetwork } = useNetwork()
 
-  useEffect(() => {
-    // Restrict this for iOS only, because on Android,
-    // the animation executes, but then the whole screen fades away
-    // and fades back in in a couple of seconds. Assuming this is a bug
-    // in the `LayoutAnimation` module when executed in `useLayoutEffect` or
-    // `useEffect` hooks. Or in general - animation executed near initial render
-    if (isiOS) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
-    }
+  useLayoutEffect(() => {
+    triggerLayoutAnimation()
   }, [isBalanceLoading])
 
-  useEffect(() => {
-    // Restrict this for iOS only, because on Android,
-    // the animation executes, but then the whole screen fades away
-    // and fades back in in a couple of seconds. Assuming this is a bug
-    // in the `LayoutAnimation` module when executed in `useLayoutEffect` or
-    // `useEffect` hooks. Or in general - animation executed near initial render
-    if (isiOS) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
-    }
+  useLayoutEffect(() => {
+    triggerLayoutAnimation()
   }, [selectedNetwork])
 
   const otherPositiveBalances = otherBalances
@@ -116,7 +101,7 @@ const Balances = () => {
             const isLast = i + 1 === otherPositiveBalances.length
 
             const onNetworkChange = () => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+              triggerLayoutAnimation()
               setNetwork(network)
             }
 
@@ -132,7 +117,7 @@ const Balances = () => {
                 </Text>
                 <Text>{` ${t('on')} `}</Text>
                 <Icon width={24} height={24} />
-                <Text numberOfLines={1} style={flexboxStyles.flex1}>{` ${name}`}</Text>
+                <Text numberOfLines={1}>{` ${name}`}</Text>
               </TouchableOpacity>
             )
           })}

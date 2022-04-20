@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator } from 'react-native'
+import { View } from 'react-native'
 
 import CONFIG from '@config/env'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import accountPresets from '@modules/common/constants/accountPresets'
@@ -12,8 +13,10 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useToast from '@modules/common/hooks/useToast'
 import { getName } from '@modules/common/services/humanReadableTransactions'
+import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
 const SignersList = () => {
@@ -29,6 +32,11 @@ const SignersList = () => {
   const { data, errMsg, isLoading } = useRelayerData(url)
 
   const privileges = data ? data.privileges : {}
+  const showLoading = isLoading && !data
+
+  useEffect(() => {
+    triggerLayoutAnimation()
+  }, [showLoading, selectedNetwork, selectedAcc])
 
   const onMakeDefaultBtnClicked = async (account, address, isQuickAccount) => {
     if (isQuickAccount) {
@@ -67,12 +75,15 @@ const SignersList = () => {
         onMakeDefaultBtnClicked(selectedAccount, addr, isQuickAcc)
 
       return (
-        <Text key={addr} style={spacings.mb}>
+        <Text type="small" key={addr} style={spacings.mb}>
           {privText}{' '}
           {isSelected ? (
-            <Text style={textStyles.bold}>{t('(default signer)')}</Text>
+            <Text type="small" style={textStyles.bold}>
+              {t('(default signer)')}
+            </Text>
           ) : (
             <Text
+              type="small"
               style={[textStyles.bold, { color: colors.primaryAccentColor }]}
               onPress={handleOnMakeDefaultBtnClicked}
             >
@@ -84,14 +95,19 @@ const SignersList = () => {
     })
     .filter((x) => x)
 
-  const showLoading = isLoading && !data
-
   return (
     <>
-      <Title>{t('Authorized signers')}</Title>
-      {showLoading && <ActivityIndicator />}
+      <Title hasBottomSpacing={false} style={[textStyles.center, spacings.mbSm]}>
+        {t('Authorized signers')}
+      </Title>
+      {showLoading && (
+        <View style={[flexboxStyles.center, spacings.pv]}>
+          <Spinner />
+        </View>
+      )}
+
       {!!errMsg && (
-        <Text appearance="danger" style={spacings.mbSm}>
+        <Text type="small" appearance="danger" style={spacings.mbSm}>
           {t('Error getting authorized signers: {{errMsg}}', { errMsg })}
         </Text>
       )}
