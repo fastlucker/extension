@@ -1,22 +1,24 @@
 import { ethers } from 'ethers'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, Image, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { ActivityIndicator, BackHandler, Image, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import NumberInput from '@modules/common/components/NumberInput'
+import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
+import {
+  LINEAR_OPACITY_ANIMATION,
+  triggerLayoutAnimation
+} from '@modules/common/services/layoutAnimation'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import {
-  ExpandableCardContext,
-  ExpandableCardProvider
-} from '@modules/earn/contexts/expandableCardContext'
+import { CardsVisibilityContext } from '@modules/earn/contexts/cardsVisibilityContext'
 
 import styles from './styles'
 
@@ -38,6 +40,42 @@ const Card = ({
   const [amount, setAmount] = useState<any>(0)
   const [disabled, setDisabled] = useState<any>(true)
   const { t } = useTranslation()
+  const [isExpanded, setIsExpanded] = useState<boolean>(false)
+  const { visibleCard, setVisibleCard } = useContext(CardsVisibilityContext)
+
+  useEffect(() => {
+    if (!isExpanded) {
+      return
+    }
+
+    const backAction = () => {
+      if (isExpanded) {
+        triggerLayoutAnimation(LINEAR_OPACITY_ANIMATION, true)
+        setIsExpanded(false)
+        setVisibleCard(null)
+        // Returning true prevents execution of the default native back handling
+        return true
+      }
+
+      return false
+    }
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction)
+
+    return () => backHandler.remove()
+  }, [isExpanded])
+
+  const expand = () => {
+    triggerLayoutAnimation(LINEAR_OPACITY_ANIMATION, true)
+    setVisibleCard(name)
+    setIsExpanded(true)
+  }
+
+  const collapse = () => {
+    triggerLayoutAnimation(LINEAR_OPACITY_ANIMATION, true)
+    setVisibleCard(null)
+    setIsExpanded(false)
+  }
 
   const currentToken = useMemo(
     () => tokens.find(({ value }: any) => value === token),
@@ -205,39 +243,41 @@ const Card = ({
   )
 
   return (
-    <ExpandableCardProvider cardName={name}>
-      <ExpandableCardContext.Consumer>
-        {({ isExpanded, expand, collapse }) => (
-          <>
-            <View
-              style={[
-                !isExpanded && flexboxStyles.flex1,
-                isExpanded && { width: '100%', marginBottom: 40 }
-              ]}
-            >
-              {isExpanded && (
-                <NavIconWrapper style={styles.backButton} onPress={collapse}>
-                  <LeftArrowIcon />
-                </NavIconWrapper>
-              )}
-              <TouchableOpacity
-                style={[
-                  flexboxStyles.alignCenter,
-                  isExpanded && spacings.ptMi,
-                  !isExpanded && flexboxStyles.flex1,
-                  !isExpanded && flexboxStyles.justifyCenter
-                ]}
-                activeOpacity={isExpanded ? 1 : 0.7}
-                onPress={() => (isExpanded ? null : expand(name))}
-              >
-                {!!icon && <Image source={icon} />}
-              </TouchableOpacity>
-            </View>
-            {isExpanded && expandedContent}
-          </>
-        )}
-      </ExpandableCardContext.Consumer>
-    </ExpandableCardProvider>
+    <View>
+      <Panel
+        type="filled"
+        style={[
+          !isExpanded && { minHeight: 120 },
+          !!visibleCard && visibleCard !== name && { display: 'none' }
+        ]}
+      >
+        <View
+          style={[
+            !isExpanded && flexboxStyles.flex1,
+            isExpanded && { width: '100%', marginBottom: 40 }
+          ]}
+        >
+          {isExpanded && (
+            <NavIconWrapper style={styles.backButton} onPress={collapse}>
+              <LeftArrowIcon />
+            </NavIconWrapper>
+          )}
+          <TouchableOpacity
+            style={[
+              flexboxStyles.alignCenter,
+              isExpanded && spacings.ptMi,
+              !isExpanded && flexboxStyles.flex1,
+              !isExpanded && flexboxStyles.justifyCenter
+            ]}
+            activeOpacity={isExpanded ? 1 : 0.7}
+            onPress={() => (isExpanded ? null : expand())}
+          >
+            {!!icon && <Image source={icon} />}
+          </TouchableOpacity>
+        </View>
+        {isExpanded && expandedContent}
+      </Panel>
+    </View>
   )
 }
 
