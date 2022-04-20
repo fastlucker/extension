@@ -1,6 +1,6 @@
 import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, LayoutAnimation, Linking, TouchableOpacity, View } from 'react-native'
+import { Alert, Linking, TouchableOpacity, View } from 'react-native'
 
 import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -8,6 +8,7 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -47,7 +48,7 @@ const Rewards = () => {
   useLayoutEffect(() => {
     // Solves 2 issues: 1) the annoying jump in the beginning between the
     // loading and the loaded state; 2) the annoying jump when value updates.
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+    triggerLayoutAnimation()
   }, [pendingTokensTotal])
 
   const {

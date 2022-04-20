@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LayoutAnimation, View } from 'react-native'
+import { View } from 'react-native'
 
 import CONFIG from '@config/env'
 import Spinner from '@modules/common/components/Spinner'
@@ -13,6 +13,7 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useToast from '@modules/common/hooks/useToast'
 import { getName } from '@modules/common/services/humanReadableTransactions'
+import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -34,7 +35,7 @@ const SignersList = () => {
   const showLoading = isLoading && !data
 
   useEffect(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+    triggerLayoutAnimation()
   }, [showLoading, selectedNetwork, selectedAcc])
 
   const onMakeDefaultBtnClicked = async (account, address, isQuickAccount) => {
