@@ -183,7 +183,7 @@ const FeeSelector = ({
         label: token.symbol,
         value: token.symbol,
         disabled: !isTokenEligible(token, feeSpeed, estimation),
-        icon: () => <TokenIcon withContainer networkId={network.id} address={token.address} />
+        icon: () => <TokenIcon withContainer networkId={network?.id} address={token.address} />
       }))
 
     const { discount = 0, symbol, nativeRate, decimals } = estimation.selectedFeeToken
