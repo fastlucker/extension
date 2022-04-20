@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 
 import MissingTokenIcon from '@assets/svg/MissingTokenIcon'
@@ -27,7 +27,6 @@ const Balances = () => {
   const { areProtocolsLoading, isBalanceLoading, protocols, tokens } = usePortfolio()
   const { selectedAcc } = useAccounts()
   const { network: selectedNetwork } = useNetwork()
-  const [failedImg, setFailedImg] = useState<string[]>([])
 
   const isLoading = isBalanceLoading || areProtocolsLoading
 
@@ -55,14 +54,12 @@ const Balances = () => {
     return (
       <View key={`token-${address}-${index}`} style={styles.tokenItemContainer}>
         <View style={spacings.prSm}>
-          {failedImg.includes(displayImg) ? (
-            <MissingTokenIcon />
-          ) : (
-            <TokenIcon
-              source={{ uri: displayImg }}
-              onError={() => setFailedImg((failed) => [...failed, displayImg])}
-            />
-          )}
+          <TokenIcon
+            withContainer
+            uri={displayImg}
+            networkId={selectedNetwork?.id}
+            address={address}
+          />
         </View>
 
         <Text fontSize={16} style={spacings.prSm}>
