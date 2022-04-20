@@ -28,13 +28,12 @@ import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
 import useRequestTransaction from '@modules/send/hooks/useRequestTransaction'
-
-import styles from './styles'
 
 const unsupportedSWPlatforms = ['Binance', 'Huobi', 'KuCoin', 'Gate.io', 'FTX']
 
@@ -83,6 +82,19 @@ const SendScreen = () => {
     closeBottomSheetAddrAdd()
   }
 
+  const amountLabel = (
+    <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
+      <Text style={spacings.mr}>{t('Available Amount:')}</Text>
+
+      <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
+        <Text numberOfLines={1} style={{ flex: 1, textAlign: 'right' }} ellipsizeMode="tail">
+          {maxAmount}
+        </Text>
+        {selectedAsset && <Text>{` ${selectedAsset?.symbol}`}</Text>}
+      </View>
+    </View>
+  )
+
   return (
     <GradientBackgroundWrapper>
       <Wrapper
@@ -109,12 +121,7 @@ const SendScreen = () => {
                   <View style={spacings.mbMi}>
                     <Select value={asset} items={assetsItems} setValue={setAsset} />
                   </View>
-                  <View style={styles.amountContainer}>
-                    <Text>{t('Available Amount:')}</Text>
-                    <Text style={styles.amountValue}>
-                      {maxAmount} {selectedAsset?.symbol}
-                    </Text>
-                  </View>
+                  {amountLabel}
                   <NumberInput
                     onChangeText={onAmountChange}
                     containerStyle={spacings.mbTy}

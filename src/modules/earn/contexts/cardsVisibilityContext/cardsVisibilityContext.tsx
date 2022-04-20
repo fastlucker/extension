@@ -1,6 +1,7 @@
 import React, { createContext, useMemo, useState } from 'react'
 
 export enum CARDS {
+  Ambire = 'Ambire',
   AAVE = 'AAVE',
   YearnTesseract = 'YearnTesseract'
 }

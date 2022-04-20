@@ -29,7 +29,7 @@ const Card = ({
   loading,
   unavailable,
   tokensItems,
-  Icon,
+  icon,
   details,
   onTokenSelect,
   onValidate
@@ -140,8 +140,14 @@ const Card = ({
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
-      <Text style={flexboxStyles.flex1}>{t('Available Amount:')}</Text>
-      <Text>{!disabled ? `${getMaxAmount()} ${currentToken?.symbol}` : '0'}</Text>
+      <Text style={spacings.mr}>{t('Available Amount:')}</Text>
+
+      <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
+        <Text numberOfLines={1} style={{ flex: 1, textAlign: 'right' }} ellipsizeMode="tail">
+          {!disabled ? `${getMaxAmount()}` : '0.0'}
+        </Text>
+        {currentToken && <Text>{` ${currentToken?.symbol}`}</Text>}
+      </View>
     </View>
   )
 
@@ -197,11 +203,11 @@ const Card = ({
             value={amount.toString()}
             buttonText={t('MAX')}
             onButtonPress={setMaxAmount}
-            disabled={!currentToken?.balance}
+            disabled={Number(currentToken?.balance || 0) === 0}
             labelComponent={amountLabel}
           />
           <Button
-            disabled={disabled || amount <= 0 || amount > currentToken?.balance}
+            disabled={disabled || amount <= 0 || amount > Number(currentToken?.balance || 0)}
             onPress={() => onValidate(segment, token, amount)}
             text={segment}
           />
@@ -237,39 +243,41 @@ const Card = ({
   )
 
   return (
-    <Panel
-      type="filled"
-      style={[
-        !isExpanded && { minHeight: 120 },
-        !!visibleCard && visibleCard !== name && { display: 'none' }
-      ]}
-    >
-      <View
+    <View>
+      <Panel
+        type="filled"
         style={[
-          !isExpanded && flexboxStyles.flex1,
-          isExpanded && { width: '100%', marginBottom: 40 }
+          !isExpanded && { minHeight: 120 },
+          !!visibleCard && visibleCard !== name && { display: 'none' }
         ]}
       >
-        {isExpanded && (
-          <NavIconWrapper style={styles.backButton} onPress={collapse}>
-            <LeftArrowIcon />
-          </NavIconWrapper>
-        )}
-        <TouchableOpacity
+        <View
           style={[
-            flexboxStyles.alignCenter,
-            isExpanded && spacings.ptMi,
             !isExpanded && flexboxStyles.flex1,
-            !isExpanded && flexboxStyles.justifyCenter
+            isExpanded && { width: '100%', marginBottom: 40 }
           ]}
-          activeOpacity={isExpanded ? 1 : 0.7}
-          onPress={() => (isExpanded ? null : expand())}
         >
-          {!!Icon && <Icon />}
-        </TouchableOpacity>
-      </View>
-      {isExpanded && expandedContent}
-    </Panel>
+          {isExpanded && (
+            <NavIconWrapper style={styles.backButton} onPress={collapse}>
+              <LeftArrowIcon />
+            </NavIconWrapper>
+          )}
+          <TouchableOpacity
+            style={[
+              flexboxStyles.alignCenter,
+              isExpanded && spacings.ptMi,
+              !isExpanded && flexboxStyles.flex1,
+              !isExpanded && flexboxStyles.justifyCenter
+            ]}
+            activeOpacity={isExpanded ? 1 : 0.7}
+            onPress={() => (isExpanded ? null : expand())}
+          >
+            {!!icon && <Image source={icon} />}
+          </TouchableOpacity>
+        </View>
+        {isExpanded && expandedContent}
+      </Panel>
+    </View>
   )
 }
 

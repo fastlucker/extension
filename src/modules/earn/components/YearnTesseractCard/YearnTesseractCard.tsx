@@ -147,7 +147,7 @@ const YearnTesseractCard = () => {
     <Card
       name={CARDS.YearnTesseract}
       loading={loading}
-      Icon={Icon}
+      icon={Icon}
       unavailable={unavailable}
       tokensItems={tokensItems}
       details={details}

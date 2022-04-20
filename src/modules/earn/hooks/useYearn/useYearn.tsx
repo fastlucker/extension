@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 
-import YearnLogo from '@modules/common/assets/svg/icons/YearnLogo'
+import YearnLogo from '@assets/images/yearn.png'
 import { Yearn } from '@yfi/sdk'
 
 const v2VaultsAddresses: any = {
