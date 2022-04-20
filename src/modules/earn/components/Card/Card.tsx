@@ -28,6 +28,7 @@ const Card = ({
   unavailable,
   tokensItems,
   Icon,
+  iconImage,
   details,
   onTokenSelect,
   onValidate
@@ -230,7 +231,8 @@ const Card = ({
                 activeOpacity={isExpanded ? 1 : 0.7}
                 onPress={() => (isExpanded ? null : expand(name))}
               >
-                {!!Icon && <Icon />}
+                {!!iconImage && iconImage}
+                {!!Icon && !iconImage && <Icon />}
               </TouchableOpacity>
             </View>
             {isExpanded && expandedContent}

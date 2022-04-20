@@ -45,7 +45,7 @@ const Header: React.FC<Props> = ({
     if (canGoBack) {
       return (
         <NavIconWrapper onPress={navigation.goBack}>
-          <LeftArrowIcon />
+          <LeftArrowIcon withRect={mode !== 'bottom-sheet'} />
         </NavIconWrapper>
       )
     }
@@ -62,9 +62,8 @@ const Header: React.FC<Props> = ({
   // On the left and on the right side, there is always reserved space
   // for the nav bar buttons. And so that in case a title is present,
   // it is centered always in the logical horizontal middle.
-  const navIconContainer = withHamburger
-    ? styles.navIconContainerSmall
-    : styles.navIconContainerRegular
+  const navIconContainer =
+    mode === 'bottom-sheet' ? styles.navIconContainerSmall : styles.navIconContainerRegular
 
   // The header should start a little bit below the end of the notch
   const notchInset = insets.top + 5

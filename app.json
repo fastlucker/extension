@@ -1,12 +1,10 @@
 {
-  "name": "Ambire Wallet",
+  "name": "Ambire",
   "expo": {
     "slug": "ambire-mobile-wallet",
-    "version": "1.4.1",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "runtimeVersion": "6",
+    "version": "1.5.0",
+    "assetBundlePatterns": ["**/*"],
+    "runtimeVersion": "7",
     "updates": {
       "enabled": true,
       "fallbackToCacheTimeout": 45000
@@ -22,9 +20,6 @@
           }
         }
       ]
-    },
-    "ios": {
-      "bundleIdentifier": "com.ambire.wallet"
     }
   }
 }

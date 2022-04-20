@@ -20,7 +20,7 @@ const LocalAuth = () => {
       <Text style={spacings.mbSm}>
         {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
           ? t('Local auth (enabled)')
-          : t('Local auth (not enabled)')}
+          : t('Local auth (disabled)')}
       </Text>
     </TouchableOpacity>
   )

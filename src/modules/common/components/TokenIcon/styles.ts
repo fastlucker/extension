@@ -1,29 +1,27 @@
 import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
 import { colorPalette as colors } from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Style {
-  btnContainer: ViewStyle
+  container: ViewStyle
   img: ImageStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  btnContainer: {
-    ...flexboxStyles.center,
-    ...spacings.phTy,
-    ...spacings.ptMd,
-    ...spacings.pbLg,
+  container: {
+    width: 34,
+    height: 34,
+    backgroundColor: colors.titan_05,
+    overflow: 'hidden',
     ...commonStyles.borderRadiusPrimary,
-    borderWidth: 1,
-    borderColor: colors.waikawaGray
+    ...flexboxStyles.center
   },
   img: {
-    width: 40,
-    height: 40,
-    ...spacings.mbSm
+    width: 22,
+    height: 22,
+    borderRadius: 22
   }
 })
 

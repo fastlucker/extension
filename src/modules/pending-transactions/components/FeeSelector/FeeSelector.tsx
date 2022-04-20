@@ -1,14 +1,17 @@
+import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, Image, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
+import InfoIcon from '@assets/svg/InfoIcon'
+import Button from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import { formatFloatTokenAmount } from '@modules/common/services/formatters'
+import { getTokenIcon } from '@modules/common/services/icons'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -19,12 +22,78 @@ import {
   isTokenEligible,
   mapTxnErrMsg
 } from '@modules/pending-transactions/services/helpers'
+import { useNavigation } from '@react-navigation/native'
 
 import CustomFee from './CustomFee'
 import styles from './styles'
 
 const SPEEDS = ['slow', 'medium', 'fast', 'ape']
 const OVERPRICED_MULTIPLIER = 1.2
+
+// NOTE: Order matters for for secondary fort after the one by discount
+const DISCOUNT_TOKENS_SYMBOLS = ['xWALLET', 'WALLET-STAKING', 'WALLET']
+
+function getBalance(token: any) {
+  const { balance, decimals, priceInUSD } = token
+  return (balance / decimals) * priceInUSD
+}
+
+const WalletDiscountBanner = ({ assetsItems, tokens, estimation, setCurrency, navigate }: any) => {
+  if (
+    estimation.selectedFeeToken?.symbol &&
+    (DISCOUNT_TOKENS_SYMBOLS.includes(estimation.selectedFeeToken?.symbol) ||
+      estimation.selectedFeeToken?.discount)
+  ) {
+    return null
+  }
+  const walletDiscountTokens = [...tokens]
+    .filter((x) => DISCOUNT_TOKENS_SYMBOLS.includes(x.symbol) && x.discount)
+    .sort(
+      (a, b) =>
+        b.discount - a.discount ||
+        // eslint-disable-next-line radix
+        (!parseInt(a.balance) || !parseInt(b.balance) ? getBalance(b) - getBalance(a) : 0) ||
+        DISCOUNT_TOKENS_SYMBOLS.indexOf(a.symbol) - DISCOUNT_TOKENS_SYMBOLS.indexOf(b.symbol)
+    )
+
+  if (!walletDiscountTokens.length) return null
+
+  const discountToken = walletDiscountTokens[0]
+
+  const { discount } = discountToken
+  const eligibleWalletToken = assetsItems.find(
+    (x: any) => x.value && (x.value === 'WALLET' || x.value === discountToken.address)
+  )
+  const action = eligibleWalletToken ? () => setCurrency(eligibleWalletToken.value) : () => null
+  // TODO: implement go to swap when not eligible
+  const actionTxt = eligibleWalletToken
+    ? t('Use {{symbol}}', { symbol: discountToken.symbol })
+    : t('Buy {{symbol}}', { symbol: discountToken.symbol })
+
+  return (
+    <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
+      <InfoIcon />
+      <View style={[flexboxStyles.flex1, spacings.plTy]}>
+        <Text fontSize={12}>{`Get ${discount * 100}% fees discount`}</Text>
+        <Text>
+          <Text fontSize={12}>{'with '}</Text>
+          <Text weight="medium" fontSize={12}>
+            $WALLET
+          </Text>
+        </Text>
+      </View>
+      <Button
+        text={actionTxt}
+        // TODO: remove when navigate to swap is implemented
+        disabled={!eligibleWalletToken}
+        type="outline"
+        hasBottomSpacing={false}
+        size="small"
+        onPress={action}
+      />
+    </View>
+  )
+}
 
 const FeeSelector = ({
   disabled,
@@ -34,10 +103,10 @@ const FeeSelector = ({
   feeSpeed,
   setFeeSpeed
 }: any) => {
-  const { t } = useTranslation()
   const { network }: any = useNetwork()
   const [currency, setCurrency] = useState<any>(null)
   const [editCustomFee, setEditCustomFee] = useState(false)
+  const { navigate } = useNavigation()
 
   // Initially sets a value in the Select
   useEffect(() => {
@@ -101,22 +170,37 @@ const FeeSelector = ({
       { symbol: nativeAssetSymbol, decimals: 18 }
     ]
 
-    const assetsItems = tokens.map((token: any) => ({
-      label: token.symbol,
-      value: token.symbol,
-      disabled: !isTokenEligible(token, feeSpeed, estimation)
-    }))
+    const assetsItems = tokens
+      .sort(
+        (a: any, b: any) =>
+          // @ts-ignore
+          isTokenEligible(b, SPEEDS[0], estimation) - isTokenEligible(a, SPEEDS[0], estimation) ||
+          DISCOUNT_TOKENS_SYMBOLS.indexOf(b.symbol) - DISCOUNT_TOKENS_SYMBOLS.indexOf(a.symbol) ||
+          (b.discount || 0) - (a.discount || 0) ||
+          a?.symbol.toUpperCase().localeCompare(b?.symbol.toUpperCase())
+      )
+      .map((token: any) => ({
+        label: token.symbol,
+        value: token.symbol,
+        disabled: !isTokenEligible(token, feeSpeed, estimation),
+        icon: () => (
+          <Image
+            source={{ uri: token.address ? getTokenIcon(network.id, token.address) : '' }}
+            style={{ width: 16, height: 16, borderRadius: 50 }}
+          />
+        )
+      }))
 
+    const { discount = 0, symbol, nativeRate, decimals } = estimation.selectedFeeToken
     const feeCurrencySelect = estimation.feeInUSD ? (
       <Select
         value={currency}
         setValue={setCurrency}
         items={assetsItems}
         label={t('Fee currency')}
+        extraText={discount ? `-${discount * 100}%` : ''}
       />
     ) : null
-
-    const { discount = 0, symbol, nativeRate, decimals } = estimation.selectedFeeToken
 
     const setCustomFee = (value: any) =>
       setEstimation((prevEstimation: any) => ({
@@ -137,8 +221,6 @@ const FeeSelector = ({
     }
 
     const feeAmountSelectors = SPEEDS.map((speed) => {
-      const isETH = symbol === 'ETH' && nativeAssetSymbol === 'ETH'
-
       const {
         feeInFeeToken,
         feeInUSD
@@ -175,13 +257,11 @@ const FeeSelector = ({
               {speed}
             </Text>
             <Text numberOfLines={2} fontSize={12}>
-              {(isETH ? 'Ξ ' : '') +
-                (showInUSD
-                  ? `$${formatFloatTokenAmount(baseFeeInFeeUSD, true, 4)}`
-                  : formatFloatTokenAmount(baseFeeInFeeToken, true, decimals)) +
-                (!isETH && !showInUSD ? ` ${estimation.selectedFeeToken.symbol}` : '')}
+              {showInUSD
+                ? `$${formatFloatTokenAmount(baseFeeInFeeUSD, true, 4)}`
+                : formatFloatTokenAmount(baseFeeInFeeToken, true, decimals)}
             </Text>
-            {!isETH && !showInUSD && (
+            {!showInUSD && (
               <Text fontSize={10} weight="regular" color={colors.titan_50}>
                 {estimation.selectedFeeToken.symbol}
               </Text>
@@ -245,6 +325,15 @@ const FeeSelector = ({
         ) : (
           <View style={spacings.mbTy}>{feeCurrencySelect}</View>
         )}
+
+        {WalletDiscountBanner({
+          assetsItems,
+          selectedFeeToken: estimation.selectedFeeToken,
+          tokens,
+          estimation,
+          setCurrency,
+          navigate
+        })}
 
         <Text style={spacings.pbMi} fontSize={14}>
           {t('Transaction speed')}
@@ -323,21 +412,49 @@ const FeeSelector = ({
           }
         />
 
-        <View style={styles.unstableFeeContainer}>
-          <Text style={flexboxStyles.flex1}>{t('Fee: ')}</Text>
-          <View style={flexboxStyles.alignEnd}>
+        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}>
+          <Text style={spacings.mrMi} fontSize={12}>
+            {t('Fee: ')}
+          </Text>
+          {!Number.isNaN(baseFeeInFeeToken) && (
+            <Text numberOfLines={2} fontSize={12}>
+              {`${formatFloatTokenAmount(baseFeeInFeeToken, true, decimals)} ${
+                estimation.selectedFeeToken.symbol
+              }`}
+            </Text>
+          )}
+          <View style={[flexboxStyles.alignEnd, flexboxStyles.flex1]}>
             {!Number.isNaN(baseFeeInUSD) && (
-              <Text>{`~ $${formatFloatTokenAmount(baseFeeInUSD, true, 4)}`}</Text>
-            )}
-            {!Number.isNaN(baseFeeInFeeToken) && (
-              <Text numberOfLines={2} fontSize={12}>
-                {`${formatFloatTokenAmount(baseFeeInFeeToken, true, decimals)} ${
-                  estimation.selectedFeeToken.symbol
-                }`}
-              </Text>
+              <Text fontSize={12}>{`~ $${formatFloatTokenAmount(baseFeeInUSD, true, 4)}`}</Text>
             )}
           </View>
         </View>
+
+        {!!discount && (
+          <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}>
+            <Text fontSize={12} color={colors.heliotrope}>
+              You save ({discount * 100}%):
+            </Text>
+            <View style={[flexboxStyles.alignEnd, flexboxStyles.flex1]}>
+              <Text fontSize={12} color={colors.heliotrope}>
+                ~${formatFloatTokenAmount(discountInUSD, true, 4)}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {!!discount && (
+          <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}>
+            <Text fontSize={12} color={colors.heliotrope}>
+              You pay:
+            </Text>
+            <View style={[flexboxStyles.alignEnd, flexboxStyles.flex1]}>
+              <Text fontSize={12} color={colors.heliotrope}>
+                ~${formatFloatTokenAmount(feeInUSD, true, 4)}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {!estimation.feeInUSD ? (
           <Text>

@@ -486,7 +486,7 @@ const AmbireCard = () => {
   return (
     <Card
       name={CARDS.Ambire}
-      Icon={() => <Image source={AmbireLogo} style={{ width: 125, height: 58 }} />}
+      iconImage={<Image source={AmbireLogo} style={{ width: 125, height: 58 }} />}
       loading={isLoading}
       unavailable={unavailable}
       customInfo={customInfo}

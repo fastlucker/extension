@@ -26,6 +26,8 @@ const styles = StyleSheet.create<Style>({
     marginHorizontal: 2.5,
     overflow: 'hidden',
     backgroundColor: colors.martinique,
+    borderWidth: 2,
+    borderColor: colors.martinique,
     alignItems: 'center',
     justifyContent: 'center',
     ...commonStyles.borderRadiusPrimary
@@ -42,7 +44,7 @@ const styles = StyleSheet.create<Style>({
     alignItems: 'center'
   },
   selected: {
-    backgroundColor: colors.heliotrope
+    borderColor: colors.heliotrope
   }
 })
 

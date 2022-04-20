@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Linking, TouchableOpacity, View } from 'react-native'
+import { Alert, LayoutAnimation, Linking, TouchableOpacity, View } from 'react-native'
 
 import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -41,8 +41,14 @@ const multiplierBadges = [
 const Rewards = () => {
   const { t } = useTranslation()
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
-  const { rewards, pendingTokensTotal, claimableWalletToken, isLoading } = useRewards()
+  const { rewards, pendingTokensTotal, claimableWalletToken } = useRewards()
   const { stakedAmount } = useStakedWalletToken()
+
+  useLayoutEffect(() => {
+    // Solves 2 issues: 1) the annoying jump in the beginning between the
+    // loading and the loaded state; 2) the annoying jump when value updates.
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+  }, [pendingTokensTotal])
 
   const {
     vestingEntry,
@@ -141,13 +147,12 @@ const Rewards = () => {
         onPress={openBottomSheet}
         type="outline"
         size="small"
-        text={
-          isLoading
-            ? t('Updating...')
-            : t('{{pendingTokensTotal}} WALLET Rewards', {
-                pendingTokensTotal
-              })
-        }
+        text={t('{{pendingTokensTotal}} WALLET Rewards', {
+          // Technically, the fallback should be set in the hook,
+          // but sometimes the hook returns `pendingTokensTotal` as undefined,
+          // so double check it.
+          pendingTokensTotal: pendingTokensTotal || '...'
+        })}
         style={flexboxStyles.alignSelfCenter}
       />
       <BottomSheet
