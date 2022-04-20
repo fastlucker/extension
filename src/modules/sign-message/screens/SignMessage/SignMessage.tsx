@@ -100,12 +100,14 @@ const SignScreen = ({ navigation }: any) => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={180}>
-        <Panel>
-          <Title>{t('Signing with account')}</Title>
+        <Title style={[textStyles.center, spacings.mbTy]} hasBottomSpacing={false}>
+          {t('Signing with account')}
+        </Title>
+        <Panel type="filled" contentContainerStyle={[spacings.pvTy, spacings.phTy]}>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
             <Blockies seed={account?.id} />
             <View style={flexboxStyles.flex1}>
-              <Text style={[spacings.plTy, textStyles.bold]} fontSize={15}>
+              <Text style={[spacings.plTy]} numberOfLines={1} ellipsizeMode="middle" fontSize={12}>
                 {account.id}
               </Text>
             </View>
