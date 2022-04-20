@@ -80,6 +80,7 @@ const SendScreen = () => {
     // @ts-ignore
     addAddress(fieldValues.name, fieldValues.address)
     closeBottomSheetAddrAdd()
+    openBottomSheetAddrDisplay()
   }
 
   const amountLabel = (
