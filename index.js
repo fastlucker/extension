@@ -1,16 +1,11 @@
 import './shim'
 import './global'
-import './src/config/analytics/CrashAnalytics'
+import '@config/analytics/CrashAnalytics'
+import '@modules/common/services/layoutAnimation'
 import 'react-native-gesture-handler'
 import 'expo-asset'
-import { Platform, UIManager } from 'react-native'
-import { registerRootComponent } from 'expo'
 
-// In order to get Layout API to work on Android.
-// {@link https://reactnative.dev/docs/layoutanimation}
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true)
-}
+import { registerRootComponent } from 'expo'
 
 import { LogBox } from 'react-native'
 // Ignore the Android specific warnings for setting long timers
