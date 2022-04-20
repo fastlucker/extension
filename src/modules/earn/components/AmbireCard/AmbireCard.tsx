@@ -3,11 +3,9 @@ import ERC20ABI from 'adex-protocol-eth/abi/ERC20.json'
 import { BigNumber, constants, Contract, utils } from 'ethers'
 import { formatUnits, Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Image } from 'react-native'
 
-import AmbireLogo from '@assets/images/Ambire-Wallet-logo-colored-white-hor.png'
+import AmbireLogo from '@assets/images/Ambire.png'
 import CONFIG from '@config/env'
-import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import AdexStakingPool from '@modules/common/constants/AdexStakingPool.json'
@@ -66,7 +64,6 @@ const AmbireCard = () => {
   const [selectedToken, setSelectedToken] = useState<any>({ label: '' })
   const [adxCurrentAPY, setAdxCurrentAPY] = useState<any>(0.0)
 
-  const { t } = useTranslation()
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()
@@ -486,7 +483,7 @@ const AmbireCard = () => {
   return (
     <Card
       name={CARDS.Ambire}
-      iconImage={<Image source={AmbireLogo} style={{ width: 125, height: 58 }} />}
+      icon={AmbireLogo}
       loading={isLoading}
       unavailable={unavailable}
       customInfo={customInfo}
