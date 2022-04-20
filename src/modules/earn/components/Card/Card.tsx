@@ -10,6 +10,8 @@ import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
+import TokenIcon from '@modules/common/components/TokenIcon'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import {
   LINEAR_OPACITY_ANIMATION,
   triggerLayoutAnimation
@@ -35,6 +37,7 @@ const Card = ({
   onValidate
 }: any) => {
   const [segment, setSegment] = useState<Segment>('Deposit')
+  const { network }: any = useNetwork()
   const [tokens, setTokens] = useState<any>([])
   const [token, setToken] = useState<any>()
   const [amount, setAmount] = useState<any>(0)
@@ -126,10 +129,10 @@ const Card = ({
 
   const assetsItems = useMemo(
     () =>
-      tokens.map(({ label, symbol, value, icon }: any) => ({
+      tokens.map(({ label, symbol, value, icon, address }: any) => ({
         label: label || symbol,
         value,
-        icon: () => <Image source={{ uri: icon }} style={{ width: 16, height: 16 }} />
+        icon: () => <TokenIcon withContainer uri={icon} networkId={network?.id} address={address} />
       })),
     [tokens]
   )
