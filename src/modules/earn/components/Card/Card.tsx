@@ -263,7 +263,7 @@ const Card = ({
             !isExpanded && flexboxStyles.justifyCenter
           ]}
           activeOpacity={isExpanded ? 1 : 0.7}
-          onPress={() => (isExpanded ? null : expand(name))}
+          onPress={() => (isExpanded ? null : expand())}
         >
           {!!Icon && <Icon />}
         </TouchableOpacity>
