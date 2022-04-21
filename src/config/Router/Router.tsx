@@ -22,9 +22,11 @@ import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
+import useScreenOrientation from '@modules/common/hooks/useScreenOrientation'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import { colorPalette as colors } from '@modules/common/styles/colors'
+import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
@@ -47,6 +49,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import styles, {
   drawerStyle,
+  landscapeTabBarLabelStyle,
   navigationContainerDarkTheme,
   tabBarItemStyle,
   tabBarLabelStyle,
@@ -207,6 +210,11 @@ const NoConnectionStack = () => {
 
 const AppTabs = () => {
   const { t } = useTranslation()
+  const orientation = useScreenOrientation()
+
+  const tabsIconSize =
+    // eslint-disable-next-line no-nested-ternary
+    orientation === 'landscape' ? (IS_SCREEN_SIZE_L ? 44 : 32) : IS_SCREEN_SIZE_L ? 44 : 24
 
   return (
     <Tab.Navigator
@@ -216,7 +224,10 @@ const AppTabs = () => {
         tabBarInactiveTintColor: colors.titan,
         tabBarActiveBackgroundColor: colors.howl_65,
         tabBarStyle,
-        tabBarLabelStyle,
+        tabBarLabelStyle:
+          orientation === 'landscape' || IS_SCREEN_SIZE_L
+            ? landscapeTabBarLabelStyle
+            : tabBarLabelStyle,
         tabBarItemStyle
       }}
       tabBar={(props: any) => (
@@ -234,7 +245,9 @@ const AppTabs = () => {
         options={{
           tabBarLabel: t('Dashboard'),
           headerTitle: t('Dashboard'),
-          tabBarIcon: ({ color }) => <DashboardIcon color={color} />
+          tabBarIcon: ({ color }) => (
+            <DashboardIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
         }}
         component={DashboardScreen}
       />
@@ -243,7 +256,9 @@ const AppTabs = () => {
         options={{
           tabBarLabel: t('Earn'),
           headerTitle: t('Earn'),
-          tabBarIcon: ({ color }) => <EarnIcon color={color} />
+          tabBarIcon: ({ color }) => (
+            <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
         }}
         component={EarnScreen}
       />
@@ -252,7 +267,9 @@ const AppTabs = () => {
         options={{
           tabBarLabel: t('Send'),
           headerTitle: t('Send'),
-          tabBarIcon: ({ color }) => <SendIcon color={color} />
+          tabBarIcon: ({ color }) => (
+            <SendIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
         }}
         component={SendScreen}
       />
@@ -261,7 +278,9 @@ const AppTabs = () => {
         options={{
           tabBarLabel: t('Swap'),
           headerTitle: t('Swap'),
-          tabBarIcon: ({ color }) => <SwapIcon color={color} />
+          tabBarIcon: ({ color }) => (
+            <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
         }}
         component={SwapScreen}
       />
@@ -270,7 +289,9 @@ const AppTabs = () => {
         options={{
           tabBarLabel: t('Transactions'),
           headerTitle: t('Transactions'),
-          tabBarIcon: ({ color }) => <TransferIcon color={color} />
+          tabBarIcon: ({ color }) => (
+            <TransferIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
         }}
         component={TransactionsScreen}
       />
