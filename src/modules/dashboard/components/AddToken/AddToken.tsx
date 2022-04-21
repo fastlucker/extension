@@ -8,6 +8,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import spacings from '@modules/common/styles/spacings'
+import textStyles from '@modules/common/styles/utils/text'
 
 import AddTokenForm from './AddTokenForm'
 import styles from './styles'
@@ -36,7 +37,7 @@ const AddToken = () => {
         closeBottomSheet={closeBottomSheet}
         dynamicInitialHeight={false}
       >
-        <Title>{t('Add Token')}</Title>
+        <Title style={textStyles.center}>{t('Add Token')}</Title>
 
         <AddTokenForm onSubmit={handleOnSubmit} />
       </BottomSheet>
