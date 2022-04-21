@@ -118,6 +118,13 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
               return onChange(text)
             }}
             value={value}
+            error={
+              showError &&
+              (t(
+                'The address you entered does not appear to correspond to {{tokenStandard}} token on {{networkName}}.',
+                { tokenStandard, networkName: network?.name }
+              ) as string)
+            }
           />
         )}
         name="address"
@@ -125,18 +132,14 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
 
       {loading && <ActivityIndicator style={spacings.mb} />}
 
-      {showError && (
-        <Text style={spacings.mb} appearance="danger">
-          {t(
-            'The address you entered does not appear to correspond to {{tokenStandard}} token on {{networkName}}.',
-            { tokenStandard, networkName: network?.name }
-          )}
-        </Text>
-      )}
-
       {!showError && tokenDetails && (
-        <View style={[flexboxStyles.directionRow, spacings.mbLg, spacings.phTy]}>
-          <TokenIcon withContainer uri={tokenDetails.tokenImageUrl} />
+        <View style={[flexboxStyles.directionRow, spacings.mbLg]}>
+          <TokenIcon
+            withContainer
+            uri={tokenDetails.tokenImageUrl}
+            address={tokenDetails.address}
+            networkId={tokenDetails.network}
+          />
 
           <View style={spacings.mlTy}>
             <Text>
