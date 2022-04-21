@@ -10,7 +10,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 type Appearances = 'danger' | 'info'
 
 interface Props {
-  appearance: Appearances
+  appearance?: Appearances
   style?: ViewStyle
 }
 
@@ -24,7 +24,11 @@ const appearanceText: { [key in Appearances]: any } = {
   info: undefined
 }
 
-const TextWarning: React.FC<Props> = ({ appearance = 'danger', style, children }) => (
+const TextWarning: React.FC<Props> = ({
+  appearance = 'danger',
+  style = spacings.mbLg,
+  children
+}) => (
   <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, style]}>
     <InfoIcon color={appearanceColors[appearance]} width={24} height={24} style={spacings.mrTy} />
     <Text type="small" appearance={appearanceText[appearance]} style={flexboxStyles.flex1}>
