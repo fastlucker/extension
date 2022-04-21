@@ -10,7 +10,9 @@ import NumberInput from '@modules/common/components/NumberInput'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import { isValidPassword } from '@modules/common/services/validate'
 import spacings from '@modules/common/styles/spacings'
+import textStyles from '@modules/common/styles/utils/text'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import {
   HardwareWalletBottomSheetType,
@@ -60,26 +62,21 @@ const SignActions = ({
     <>
       <View>
         {!!account.signer?.quickAccManager && (
-          <View style={spacings.mbTy}>
-            <Controller
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <InputPassword
-                  placeholder={t('Account password')}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                />
-              )}
-              name="password"
-            />
-          </View>
-        )}
-        {!!errors.password && (
-          <Text appearance="danger" style={spacings.mbSm}>
-            {t('Password is required.')}
-          </Text>
+          <Controller
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <InputPassword
+                placeholder={t('Account password')}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                isValid={isValidPassword(value)}
+                error={errors.password && (t('Please fill in a valid password.') as string)}
+              />
+            )}
+            name="password"
+          />
         )}
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonWrapper}>
@@ -93,7 +90,7 @@ const SignActions = ({
             <Button
               text={isLoading ? t('Signing...') : t('Sign')}
               onPress={account.signer?.quickAccManager ? handleSubmit(approve) : approve}
-              disabled={isLoading}
+              disabled={isLoading || !watch('password', '')}
             />
           </View>
         </View>
@@ -105,14 +102,14 @@ const SignActions = ({
         sheetRef={quickAccBottomSheet.sheetRef}
         dynamicInitialHeight={false}
       >
-        <Title>{t('Confirmation code')}</Title>
+        <Title style={textStyles.center}>{t('Confirmation code')}</Title>
         {(confirmationType === 'email' || !confirmationType) && (
           <Text style={spacings.mb}>
             {t('A confirmation code has been sent to your email, it is valid for 3 minutes.')}
           </Text>
         )}
         {confirmationType === 'otp' && (
-          <Text style={spacings.mb}>{t('Please enter your OTP code.')}</Text>
+          <Text style={spacings.mbTy}>{t('Please enter your OTP code.')}</Text>
         )}
         <NumberInput
           placeholder={
@@ -126,6 +123,7 @@ const SignActions = ({
         />
         <Button
           text={t('Confirm')}
+          disabled={!watch('code', '')}
           onPress={() => {
             handleSubmit(approveQuickAcc)()
             setValue('code', '')

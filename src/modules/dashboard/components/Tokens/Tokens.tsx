@@ -13,6 +13,7 @@ import TokenIcon from '@modules/common/components/TokenIcon'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import { formatFloatTokenAmount } from '@modules/common/services/formatters'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -46,6 +47,7 @@ const Balances = () => {
     symbol,
     balance,
     balanceUSD,
+    decimals,
     address,
     send = false
   ) => {
@@ -62,13 +64,13 @@ const Balances = () => {
           />
         </View>
 
-        <Text fontSize={16} style={spacings.prSm}>
+        <Text fontSize={16} style={[spacings.prSm, styles.tokenSymbol]} numberOfLines={2}>
           {symbol}
         </Text>
 
-        <View style={styles.tokenValue}>
+        <View style={[styles.tokenValue, flexboxStyles.flex1]}>
           <Text fontSize={16} numberOfLines={1}>
-            {balance}
+            {formatFloatTokenAmount(balance, true, decimals)}
           </Text>
           <Text style={textStyles.highlightSecondary}>${balanceUSD.toFixed(2)}</Text>
         </View>
@@ -114,15 +116,19 @@ const Balances = () => {
 
       {!isLoading &&
         !!sortedTokens.length &&
-        sortedTokens.map(({ address, symbol, img, tokenImageUrl, balance, balanceUSD }, i) =>
-          tokenItem(i, img, tokenImageUrl, symbol, balance, balanceUSD, address, true)
+        sortedTokens.map(
+          ({ address, symbol, img, tokenImageUrl, balance, balanceUSD, decimals }, i) =>
+            tokenItem(i, img, tokenImageUrl, symbol, balance, balanceUSD, decimals, address, true)
         )}
 
       {!!otherProtocols.length &&
         otherProtocols.map(({ label, assets }, i) => (
           <View key={`category-${i}`}>
             {assets.map(
-              ({ category, symbol, img, tokenImageUrl, balance, balanceUSD, address }, i) =>
+              (
+                { category, symbol, img, tokenImageUrl, balance, balanceUSD, decimals, address },
+                i
+              ) =>
                 tokenItem(
                   i,
                   img,
@@ -130,6 +136,7 @@ const Balances = () => {
                   symbol,
                   balance,
                   balanceUSD,
+                  decimals,
                   address,
                   category !== 'claimable'
                 )

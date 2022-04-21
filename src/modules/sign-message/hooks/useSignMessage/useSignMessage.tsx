@@ -80,6 +80,7 @@ const useSignMessage = (
         }
       )
       if (!success) {
+        setLoading(false)
         if (!message) throw new Error('Secondary key: no success but no error message')
         if (message.includes('invalid confirmation code')) {
           addToast(i18n.t('Unable to sign: wrong confirmation code') as string, { error: true })
@@ -90,9 +91,9 @@ const useSignMessage = (
         return
       }
       if (confCodeRequired) {
+        setLoading(false)
         setConfirmationType(confCodeRequired)
         quickAccBottomSheet.openBottomSheet()
-        setLoading(false)
 
         return
       }
