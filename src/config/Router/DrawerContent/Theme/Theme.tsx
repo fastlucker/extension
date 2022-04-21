@@ -22,9 +22,9 @@ const Theme = () => {
   }
 
   const themeNames = {
-    [THEME_TYPES.AUTO]: t('Auto'),
+    [THEME_TYPES.AUTO]: t('Auto (coming soon)'),
     [THEME_TYPES.DARK]: t('Dark Mode'),
-    [THEME_TYPES.LIGHT]: t('Light Mode')
+    [THEME_TYPES.LIGHT]: t('Light Mode (coming soon)')
   }
 
   return (
@@ -43,7 +43,12 @@ const Theme = () => {
         <Title>{t('Change app theme')}</Title>
 
         {Object.values(THEME_TYPES).map((type) => (
-          <Button key={type} text={themeNames[type]} onPress={() => handleOnThemeChange(type)} />
+          <Button
+            key={type}
+            text={themeNames[type]}
+            disabled={type !== THEME_TYPES.DARK}
+            onPress={() => handleOnThemeChange(type)}
+          />
         ))}
       </BottomSheet>
     </>
