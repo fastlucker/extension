@@ -106,7 +106,7 @@ const styles = StyleSheet.create<Style>({
 
   // Default button disabled styles
   disabled: {
-    opacity: 0.4
+    opacity: 0.5
   }
 })
 
