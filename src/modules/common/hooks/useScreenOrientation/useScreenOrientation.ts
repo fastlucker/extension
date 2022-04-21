@@ -7,13 +7,17 @@ function useScreenOrientation() {
   const [orientation, setOrientation] = useState<OrientationType>('portrait')
 
   useEffect(() => {
-    Dimensions.addEventListener('change', ({ window: { width, height } }) => {
+    const onChange = ({ window: { width, height } }: any) => {
       if (width < height) {
         setOrientation('portrait')
       } else {
         setOrientation('landscape')
       }
-    })
+    }
+
+    Dimensions.addEventListener('change', onChange)
+
+    return () => Dimensions.removeEventListener('change', onChange)
   }, [])
 
   return orientation
