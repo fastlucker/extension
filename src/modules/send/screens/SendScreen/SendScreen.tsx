@@ -222,7 +222,7 @@ const SendScreen = () => {
           sheetRef={sheetRefAddrDisplay}
           isOpen={isOpenBottomSheetAddrDisplay}
           closeBottomSheet={closeBottomSheetAddrDisplay}
-          dynamicInitialHeight={false}
+          // dynamicInitialHeight={false}
         >
           <AddressList
             onSelectAddress={(item): any => setAddress(item.address)}

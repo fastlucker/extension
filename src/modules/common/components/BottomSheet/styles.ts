@@ -4,7 +4,7 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT, DEVICE_WIDTH } from '@modules/common/styles/spacings'
 
 interface Styles {
-  containerWrapper: ViewStyle
+  bottomSheet: ViewStyle
   containerInnerWrapper: ViewStyle
   closeBtn: ViewStyle
   cancelBtn: ViewStyle
@@ -13,8 +13,9 @@ interface Styles {
 }
 
 const styles = StyleSheet.create<Styles>({
-  containerWrapper: {
-    backgroundColor: colors.valhalla
+  bottomSheet: {
+    backgroundColor: colors.clay,
+    borderRadius: 15
   },
   containerInnerWrapper: {
     paddingTop: 35,
