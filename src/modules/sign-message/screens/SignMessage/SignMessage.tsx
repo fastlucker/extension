@@ -14,7 +14,7 @@ import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useRequests from '@modules/common/hooks/useRequests'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -29,6 +29,13 @@ function getMessageAsText(msg: any) {
   } catch (_) {
     return msg
   }
+}
+
+const shortenedAddress = (address: any) => `${address.slice(0, 5)}...${address.slice(-3)}`
+const walletType = (signerExtra: any) => {
+  if (signerExtra && signerExtra.type === 'ledger') return 'Ledger'
+  if (signerExtra && signerExtra.type === 'trezor') return 'Trezor'
+  return 'Web3'
 }
 
 const SignScreen = ({ navigation }: any) => {
@@ -106,37 +113,38 @@ const SignScreen = ({ navigation }: any) => {
         <Panel type="filled" contentContainerStyle={[spacings.pvTy, spacings.phTy]}>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
             <Blockies seed={account?.id} />
-            <View style={flexboxStyles.flex1}>
-              <Text style={[spacings.plTy]} numberOfLines={1} ellipsizeMode="middle" fontSize={12}>
+            <View style={[flexboxStyles.flex1, spacings.plTy]}>
+              <Text style={spacings.mbMi} numberOfLines={1} ellipsizeMode="middle" fontSize={12}>
                 {account.id}
+              </Text>
+              <Text type="info" color={colors.titan_50}>
+                {account.email
+                  ? t('Email/Password account ({{email}})', { email: account?.email })
+                  : `${walletType(account?.signerExtra)} (${shortenedAddress(
+                      account?.signer?.address
+                    )})`}
               </Text>
             </View>
           </View>
         </Panel>
         <Panel>
-          <Title>{t('Sign message')}</Title>
+          <Title type="small">{t('Sign message')}</Title>
           {!!dApp && (
-            <View style={[flexboxStyles.flex1, spacings.mbTy]}>
-              <Text>
-                {dApp.icons?.[0] && (
-                  <>
-                    <Image source={{ uri: dApp.icons[0] }} style={styles.image} />{' '}
-                  </>
-                )}
+            <View style={[flexboxStyles.flex1, spacings.mbTy, flexboxStyles.directionRow]}>
+              {!!dApp.icons?.[0] && <Image source={{ uri: dApp.icons[0] }} style={styles.image} />}
+              <Text style={flexboxStyles.flex1} fontSize={14}>
                 {t('{{name}} is requesting your signature.', { name: dApp.name })}
               </Text>
             </View>
           )}
           {!dApp && <Text style={spacings.mbTy}>{t('A dApp is requesting your signature.')}</Text>}
-          <Text style={spacings.mbSm} color={colors.secondaryTextColor}>
+          <Text style={spacings.mbTy} color={colors.titan_50} fontSize={14}>
             {totalRequests > 1
               ? t('You have {{number}} more pending requests.', { number: totalRequests - 1 })
               : ''}
           </Text>
           <View style={styles.textarea}>
-            <Text fontSize={13} color="#ccc">
-              {getMessageAsText(toSign.txn)}
-            </Text>
+            <Text fontSize={12}>{getMessageAsText(toSign.txn)}</Text>
           </View>
           <SignActions
             isLoading={isLoading}
