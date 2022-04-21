@@ -19,9 +19,9 @@ const EmailLoginScreen = () => {
   const {
     control,
     handleSubmit,
-    watch,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting, isValid }
   } = useForm({
+    mode: 'onChange',
     reValidateMode: 'onChange',
     defaultValues: {
       email: ''
@@ -50,9 +50,9 @@ const EmailLoginScreen = () => {
                 rules={{ validate: isEmail }}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
-                    onBlur={onBlur}
                     placeholder={t('Email')}
                     onChangeText={onChange}
+                    onSubmitEditing={handleSubmit(handleLogin)}
                     value={value}
                     isValid={isEmail(value)}
                     keyboardType="email-address"
@@ -63,7 +63,7 @@ const EmailLoginScreen = () => {
               />
               <View style={spacings.mbTy}>
                 <Button
-                  disabled={isSubmitting || !watch('email', '')}
+                  disabled={isSubmitting || !isValid}
                   type="outline"
                   text={isSubmitting ? t('Logging in...') : t('Log In')}
                   onPress={handleSubmit(handleLogin)}
