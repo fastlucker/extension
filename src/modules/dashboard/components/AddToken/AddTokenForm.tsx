@@ -18,8 +18,6 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
-import styles from './styles'
-
 const ERC20Interface = new Interface(ERC20ABI)
 
 interface Props {
@@ -158,7 +156,6 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
 
       <Button
         text={isSubmitting ? t('Adding...') : t('Add')}
-        style={spacings.mb0}
         disabled={isSubmitting || disabled}
         onPress={handleOnPress}
       />
