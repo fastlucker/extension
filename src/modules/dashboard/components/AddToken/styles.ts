@@ -13,8 +13,7 @@ const styles = StyleSheet.create<Style>({
   btnContainer: {
     ...flexboxStyles.center,
     ...spacings.phTy,
-    ...spacings.ptMd,
-    ...spacings.pbLg,
+    ...spacings.pvLg,
     ...commonStyles.borderRadiusPrimary,
     borderWidth: 1,
     borderColor: colors.waikawaGray
