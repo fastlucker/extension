@@ -14,6 +14,8 @@ export const SPACING_LG: number = 30
 export const DEVICE_WIDTH = Dimensions.get('window').width
 export const DEVICE_HEIGHT = Dimensions.get('window').height
 
+export const IS_SCREEN_SIZE_L = DEVICE_WIDTH >= 768
+
 const spacings = StyleSheet.create<Style>({
   mb0: { marginBottom: 0 },
   mbMi: { marginBottom: SPACING_MI },
