@@ -3,12 +3,13 @@ import { Contract, getDefaultProvider } from 'ethers'
 import { formatUnits, Interface } from 'ethers/lib/utils'
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { ActivityIndicator, Image, View } from 'react-native'
+import { ActivityIndicator, View } from 'react-native'
 
 import { Trans, useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import Text from '@modules/common/components/Text'
+import TokenIcon from '@modules/common/components/TokenIcon'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
@@ -16,8 +17,6 @@ import { isValidAddress } from '@modules/common/services/address'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-
-import styles from './styles'
 
 const ERC20Interface = new Interface(ERC20ABI)
 
@@ -117,6 +116,13 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
               return onChange(text)
             }}
             value={value}
+            error={
+              showError &&
+              (t(
+                'The address you entered does not appear to correspond to {{tokenStandard}} token on {{networkName}}.',
+                { tokenStandard, networkName: network?.name }
+              ) as string)
+            }
           />
         )}
         name="address"
@@ -124,33 +130,32 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
 
       {loading && <ActivityIndicator style={spacings.mb} />}
 
-      {showError && (
-        <Text style={spacings.mb} appearance="danger">
-          {t(
-            'The address you entered does not appear to correspond to {{tokenStandard}} token on {{networkName}}.',
-            { tokenStandard, networkName: network?.name }
-          )}
-        </Text>
-      )}
-
       {!showError && tokenDetails && (
-        <View style={[flexboxStyles.center, spacings.mb]}>
-          <Image style={styles.img} source={{ uri: tokenDetails.tokenImageUrl }} />
-          <Text style={[spacings.mbTy]}>
-            {tokenDetails.name} ({tokenDetails.symbol})
-          </Text>
-          <Trans>
+        <View style={[flexboxStyles.directionRow, spacings.mbLg]}>
+          <TokenIcon
+            withContainer
+            uri={tokenDetails.tokenImageUrl}
+            address={tokenDetails.address}
+            networkId={tokenDetails.network}
+          />
+
+          <View style={spacings.mlTy}>
             <Text>
-              Balance: <Text style={textStyles.highlightPrimary}>{tokenDetails.balance}</Text>{' '}
-              <Text style={textStyles.bold}>{tokenDetails.symbol}</Text>
+              {tokenDetails.name} ({tokenDetails.symbol})
             </Text>
-          </Trans>
+
+            <Trans>
+              <Text>
+                Balance: <Text style={textStyles.highlightSecondary}>{tokenDetails.balance}</Text>{' '}
+                <Text style={textStyles.bold}>{tokenDetails.symbol}</Text>
+              </Text>
+            </Trans>
+          </View>
         </View>
       )}
 
       <Button
-        text={isSubmitting ? t('Adding...') : t('➕ Add')}
-        style={spacings.mb0}
+        text={isSubmitting ? t('Adding...') : t('Add')}
         disabled={isSubmitting || disabled}
         onPress={handleOnPress}
       />
