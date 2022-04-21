@@ -90,6 +90,16 @@ const BiometricsSignScreen = () => {
   }
 
   const renderContent = () => {
+    if (!account.email) {
+      return (
+        <TextWarning appearance="info">
+          {t(
+            'This option is available only for accounts having Email/Password as a default signer.'
+          )}
+        </TextWarning>
+      )
+    }
+
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
