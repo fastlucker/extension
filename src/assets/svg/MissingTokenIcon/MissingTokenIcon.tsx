@@ -6,18 +6,26 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 interface Props extends SvgProps {
   width?: number
   height?: number
+  withRect?: boolean
 }
 
-const MissingTokenIcon: React.FC<Props> = ({ width = 34, height = 34, ...rest }) => (
+const MissingTokenIcon: React.FC<Props> = ({
+  width = 34,
+  height = 34,
+  withRect = false,
+  ...rest
+}) => (
   <Svg width={width} height={height} viewBox="0 0 34 34" {...rest}>
-    <Rect
-      width="34"
-      height="34"
-      rx="13"
-      transform="rotate(-90 17 17)"
-      fill={colors.titan}
-      opacity=".05"
-    />
+    {withRect && (
+      <Rect
+        width="34"
+        height="34"
+        rx="13"
+        transform="rotate(-90 17 17)"
+        fill={colors.titan}
+        opacity=".05"
+      />
+    )}
     <G transform="translate(-420 -531)">
       <Circle cx="11" cy="11" r="11" transform="translate(426 537)" fill="#d49c00" />
       <Path

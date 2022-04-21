@@ -68,14 +68,7 @@ const styles = StyleSheet.create<Style>({
   modalContentContainerStyle: {
     backgroundColor: colors.valhalla
   },
-  iconContainerStyle: {
-    backgroundColor: colors.titan_05,
-    ...commonStyles.borderRadiusPrimary,
-    width: 34,
-    height: 34,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
+  iconContainerStyle: {},
   extra: {
     position: 'absolute',
     height: '100%',
