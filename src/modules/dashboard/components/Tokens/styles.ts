@@ -1,4 +1,4 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -9,6 +9,7 @@ interface Style {
   tokenItemContainer: ViewStyle
   tokenValue: ViewStyle
   sendContainer: ViewStyle
+  tokenSymbol: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -20,8 +21,14 @@ const styles = StyleSheet.create<Style>({
     ...spacings.mbTy,
     ...commonStyles.borderRadiusPrimary
   },
+  tokenSymbol: {
+    // Magic number, so that the token name always takes up to 35% of the row,
+    // otherwise - aligning the symbol and value with flex 1 both
+    // results inconsistent rendering behavior with edge cases - long token name
+    // and very tiny value (with many decimals). So this is the sweet spot.
+    maxWidth: '35%'
+  },
   tokenValue: {
-    flex: 1,
     alignItems: 'flex-end'
   },
   sendContainer: {

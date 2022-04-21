@@ -64,11 +64,11 @@ const Balances = () => {
           />
         </View>
 
-        <Text fontSize={16} style={[spacings.prSm, flexboxStyles.flex1]}>
+        <Text fontSize={16} style={[spacings.prSm, styles.tokenSymbol]} numberOfLines={2}>
           {symbol}
         </Text>
 
-        <View style={styles.tokenValue}>
+        <View style={[styles.tokenValue, flexboxStyles.flex1]}>
           <Text fontSize={16} numberOfLines={1}>
             {formatFloatTokenAmount(balance, true, decimals)}
           </Text>
