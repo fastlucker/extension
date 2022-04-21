@@ -50,6 +50,7 @@ const EmailLoginScreen = () => {
                 rules={{ validate: isEmail }}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
+                    onBlur={onBlur}
                     placeholder={t('Email')}
                     onChangeText={onChange}
                     onSubmitEditing={handleSubmit(handleLogin)}
