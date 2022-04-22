@@ -1,18 +1,16 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BackHandler, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import CloseIcon from '@assets/svg/CloseIcon'
 import RNBottomSheet, {
-  BottomSheetView,
+  BottomSheetScrollView,
   useBottomSheetDynamicSnapPoints
 } from '@gorhom/bottom-sheet'
 import { Portal } from '@gorhom/portal'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Button from '../Button'
-import NavIconWrapper from '../NavIconWrapper'
 import Backdrop from './Backdrop'
 import styles from './styles'
 
@@ -35,15 +33,25 @@ const BottomSheet: React.FC<Props> = ({
   displayCancel = true,
   cancelText: _cancelText,
   dynamicInitialHeight = true,
-  closeBottomSheet = () => {},
-  isOpen = false
+  closeBottomSheet = () => {}
 }) => {
   const { t } = useTranslation()
   const insets = useSafeAreaInsets()
-  const initialSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], [])
+  // The header should start a little bit below the end of the notch,
+  // and right in the vertical middle of the nav.
+  const notchInset = insets.top + 10
+  const BOTTOM_SHEET_FULL_HEIGHT = DEVICE_HEIGHT - notchInset
+  const [isOpen, setIsOpen] = useState(false)
+  const initialSnapPoints = useMemo(() => [BOTTOM_SHEET_FULL_HEIGHT * 0.9], [])
 
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialSnapPoints)
+
+  const handleSheetAnimate = useCallback((fromIndex: number, toIndex: number) => {
+    if (toIndex !== -1) {
+      setIsOpen(true)
+    } else setIsOpen(false)
+  }, [])
 
   useEffect(() => {
     if (!isOpen) {
@@ -67,24 +75,19 @@ const BottomSheet: React.FC<Props> = ({
 
   const cancelText = _cancelText || (t('Cancel') as string)
 
-  // The header should start a little bit below the end of the notch,
-  // and right in the vertical middle of the nav.
-  const notchInset = insets.top + 10
-  const BOTTOM_SHEET_FULL_HEIGHT = DEVICE_HEIGHT - notchInset
-
   const renderContent = () => {
     // Prevent rendering the bottom sheet content if the bottom sheet is closed,
     // otherwise - children gets mounted behind the scenes (invisible),
-    // and this create some complications for the 1) focusing elements
-    // when they appear on screen; 2) performance
+    // and this create some complications for:
+    // 1) focusing elements when they appear on screen
+    // 2) performance
     if (!isOpen) {
       return null
     }
 
     return (
-      <BottomSheetView onLayout={handleContentLayout}>
+      <BottomSheetScrollView onLayout={handleContentLayout} alwaysBounceVertical={false}>
         <View style={styles.containerInnerWrapper}>
-          <View style={styles.dragger} />
           {children}
           {displayCancel && (
             <Button
@@ -95,28 +98,28 @@ const BottomSheet: React.FC<Props> = ({
             />
           )}
         </View>
-      </BottomSheetView>
+      </BottomSheetScrollView>
     )
   }
 
+  const staticSnapPoints = useMemo(() => [BOTTOM_SHEET_FULL_HEIGHT * 0.9], [])
+
   return (
     <Portal hostName="global">
-      {!!isOpen && (
-        <NavIconWrapper onPress={closeBottomSheet} style={[styles.closeBtn, { top: notchInset }]}>
-          <CloseIcon />
-        </NavIconWrapper>
-      )}
       <RNBottomSheet
         ref={sheetRef}
         index={-1}
-        snapPoints={dynamicInitialHeight ? animatedSnapPoints : [BOTTOM_SHEET_FULL_HEIGHT * 0.9]}
+        topInset={notchInset}
+        snapPoints={dynamicInitialHeight ? animatedSnapPoints : staticSnapPoints}
         {...(dynamicInitialHeight ? { handleHeight: animatedHandleHeight } : {})}
         {...(dynamicInitialHeight ? { contentHeight: animatedContentHeight } : {})}
         enablePanDownToClose
         enableOverDrag={false}
         animateOnMount
         backgroundStyle={styles.bottomSheet}
+        handleIndicatorStyle={styles.dragger}
         backdropComponent={Backdrop}
+        onAnimate={handleSheetAnimate}
         onClose={closeBottomSheet}
       >
         {renderContent}

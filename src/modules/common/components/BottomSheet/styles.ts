@@ -20,7 +20,8 @@ const styles = StyleSheet.create<Styles>({
   containerInnerWrapper: {
     paddingTop: 35,
     paddingBottom: 35,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
+    flex: 1
   },
   closeBtn: {
     position: 'absolute',
@@ -33,7 +34,7 @@ const styles = StyleSheet.create<Styles>({
   },
   dragger: {
     width: 50,
-    height: 4,
+    height: 3,
     borderRadius: 4,
     backgroundColor: colors.titan,
     alignSelf: 'center',
