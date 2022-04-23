@@ -17,7 +17,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import styles from './styles'
 
 const HeaderBottomSheet: React.FC = () => {
-  const { sheetRef, isOpen, closeBottomSheet, openBottomSheet } = useBottomSheet()
+  const { sheetRef, closeBottomSheet, openBottomSheet } = useBottomSheet()
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
 
@@ -38,7 +38,6 @@ const HeaderBottomSheet: React.FC = () => {
       <BottomSheet
         id="header-switcher"
         sheetRef={sheetRef}
-        isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
         displayCancel={false}
       >
