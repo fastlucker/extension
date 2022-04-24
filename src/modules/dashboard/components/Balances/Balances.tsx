@@ -139,4 +139,4 @@ const Balances = () => {
   )
 }
 
-export default Balances
+export default React.memo(Balances)

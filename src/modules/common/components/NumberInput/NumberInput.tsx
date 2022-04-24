@@ -54,4 +54,4 @@ const NumberInput = ({
   )
 }
 
-export default NumberInput
+export default React.memo(NumberInput)

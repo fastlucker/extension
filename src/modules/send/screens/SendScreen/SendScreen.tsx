@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { FieldValues, SubmitHandler } from 'react-hook-form'
 import {
   ActivityIndicator,
@@ -95,7 +95,6 @@ const SendScreen = () => {
       </View>
     </View>
   )
-
   return (
     <GradientBackgroundWrapper>
       <Wrapper

@@ -10,7 +10,6 @@ const DashboardScreen = () => {
     <GradientBackgroundWrapper>
       <Wrapper hasBottomTabNav>
         <Balances />
-
         <Assets />
       </Wrapper>
     </GradientBackgroundWrapper>
