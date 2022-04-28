@@ -83,6 +83,11 @@ const SendScreen = () => {
     openBottomSheetAddrDisplay()
   }
 
+  const handleSend = useCallback(() => {
+    Keyboard.dismiss()
+    sendTransaction()
+  }, [])
+
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
       <Text style={spacings.mr}>{t('Available Amount:')}</Text>
@@ -95,6 +100,7 @@ const SendScreen = () => {
       </View>
     </View>
   )
+
   return (
     <GradientBackgroundWrapper>
       <Wrapper
@@ -200,10 +206,7 @@ const SendScreen = () => {
                   <Button
                     text={t('Send')}
                     disabled={disabled || (showSWAddressWarning && !sWAddressConfirmed)}
-                    onPress={() => {
-                      Keyboard.dismiss()
-                      sendTransaction()
-                    }}
+                    onPress={handleSend}
                   />
                 </View>
               </>

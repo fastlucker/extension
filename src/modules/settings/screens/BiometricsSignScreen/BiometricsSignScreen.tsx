@@ -107,7 +107,7 @@ const BiometricsSignScreen = () => {
             {t('In order to enable it, first you need to create a passcode.')}
           </TextWarning>
           <Button
-            text={t('Create passcode')}
+            text={t('Create Passcode')}
             onPress={() => navigation.navigate('passcode-change')}
           />
         </>
@@ -121,7 +121,7 @@ const BiometricsSignScreen = () => {
             {t('In order to enable it, first you need to enable local auth.')}
           </TextWarning>
           <Button
-            text={t('Enable local auth')}
+            text={t('Enable Local Auth')}
             onPress={() => navigation.navigate('local-auth-change')}
           />
         </>
