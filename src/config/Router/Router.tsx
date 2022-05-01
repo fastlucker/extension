@@ -22,7 +22,6 @@ import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
-import useScreenOrientation from '@modules/common/hooks/useScreenOrientation'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import { colorPalette as colors } from '@modules/common/styles/colors'
@@ -49,7 +48,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import styles, {
   drawerStyle,
-  landscapeTabBarLabelStyle,
+  horizontalTabBarLabelStyle,
   navigationContainerDarkTheme,
   tabBarItemStyle,
   tabBarLabelStyle,
@@ -210,11 +209,8 @@ const NoConnectionStack = () => {
 
 const AppTabs = () => {
   const { t } = useTranslation()
-  const orientation = useScreenOrientation()
 
-  const tabsIconSize =
-    // eslint-disable-next-line no-nested-ternary
-    orientation === 'landscape' ? (IS_SCREEN_SIZE_L ? 44 : 32) : IS_SCREEN_SIZE_L ? 44 : 24
+  const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
 
   return (
     <Tab.Navigator
@@ -224,10 +220,7 @@ const AppTabs = () => {
         tabBarInactiveTintColor: colors.titan,
         tabBarActiveBackgroundColor: colors.howl_65,
         tabBarStyle,
-        tabBarLabelStyle:
-          orientation === 'landscape' || IS_SCREEN_SIZE_L
-            ? landscapeTabBarLabelStyle
-            : tabBarLabelStyle,
+        tabBarLabelStyle: IS_SCREEN_SIZE_L ? horizontalTabBarLabelStyle : tabBarLabelStyle,
         tabBarItemStyle
       }}
       tabBar={(props: any) => (
