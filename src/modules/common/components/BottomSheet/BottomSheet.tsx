@@ -11,8 +11,7 @@ import RNBottomSheet, {
 } from '@gorhom/bottom-sheet'
 import { Portal } from '@gorhom/portal'
 import Button from '@modules/common/components/Button'
-import useScreenOrientation from '@modules/common/hooks/useScreenOrientation'
-import { DEVICE_HEIGHT, DEVICE_WIDTH } from '@modules/common/styles/spacings'
+import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Backdrop from './Backdrop'
 import styles from './styles'
@@ -22,7 +21,6 @@ interface Props {
   // Required in order all bottom sheet related events to click
   sheetRef: React.RefObject<any>
   closeBottomSheet: () => void
-  isOpen: boolean
   children: React.ReactNode
   // Preferences
   cancelText?: string
@@ -39,28 +37,24 @@ const BottomSheet: React.FC<Props> = ({
   cancelText: _cancelText,
   // WIP: TODO: should be enabled
   // currently there is an issue with initial renders
-  dynamicInitialHeight = false,
+  dynamicInitialHeight = true,
   closeBottomSheet = () => {}
 }) => {
   const { t } = useTranslation()
   const insets = useSafeAreaInsets()
   // The header should start a little bit below the end of the notch,
   // and right in the vertical middle of the nav.
-  const orientation = useScreenOrientation()
   const notchInset = insets.top + 10
 
-  const BOTTOM_SHEET_FULL_HEIGHT = useMemo(
-    () => (orientation === 'portrait' ? (DEVICE_HEIGHT - notchInset) * 0.9 : DEVICE_WIDTH * 0.8),
-    [orientation]
-  )
+  const BOTTOM_SHEET_FULL_HEIGHT = useMemo(() => (DEVICE_HEIGHT - notchInset) * 0.9, [])
   const [isOpen, setIsOpen] = useState(false)
 
-  const initialSnapPoints = useMemo(() => [BOTTOM_SHEET_FULL_HEIGHT], [BOTTOM_SHEET_FULL_HEIGHT])
+  const initialDynamicSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], [])
 
   const staticSnapPoints = useMemo(() => [BOTTOM_SHEET_FULL_HEIGHT], [BOTTOM_SHEET_FULL_HEIGHT])
 
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
-    useBottomSheetDynamicSnapPoints(initialSnapPoints)
+    useBottomSheetDynamicSnapPoints(initialDynamicSnapPoints)
 
   const handleSheetAnimate = useCallback((fromIndex: number, toIndex: number) => {
     if (toIndex !== -1) setIsOpen(true)
@@ -103,7 +97,11 @@ const BottomSheet: React.FC<Props> = ({
     }
 
     return (
-      <BottomSheetScrollView onLayout={handleContentLayout} alwaysBounceVertical={false}>
+      <BottomSheetScrollView
+        onLayout={handleContentLayout}
+        style={{ maxHeight: BOTTOM_SHEET_FULL_HEIGHT }}
+        alwaysBounceVertical={false}
+      >
         <View style={styles.containerInnerWrapper}>
           {children}
           {displayCancel && (
@@ -120,7 +118,7 @@ const BottomSheet: React.FC<Props> = ({
   }
 
   const animationConfigs = useBottomSheetTimingConfigs({
-    duration: 350,
+    duration: 400,
     easing: Easing.exp
   })
 
@@ -129,7 +127,7 @@ const BottomSheet: React.FC<Props> = ({
       <RNBottomSheet
         ref={sheetRef}
         index={-1}
-        topInset={notchInset}
+        topInset={DEVICE_HEIGHT - BOTTOM_SHEET_FULL_HEIGHT}
         snapPoints={dynamicInitialHeight ? animatedSnapPoints : staticSnapPoints}
         {...(dynamicInitialHeight ? { handleHeight: animatedHandleHeight } : {})}
         {...(dynamicInitialHeight ? { contentHeight: animatedContentHeight } : {})}
