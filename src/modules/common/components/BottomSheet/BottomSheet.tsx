@@ -136,7 +136,7 @@ const BottomSheet: React.FC<Props> = ({
         animateOnMount
         backgroundStyle={styles.bottomSheet}
         handleIndicatorStyle={styles.dragger}
-        backdropComponent={isOpen ? (props) => <Backdrop {...props} /> : null}
+        backdropComponent={isOpen ? Backdrop : null}
         onAnimate={handleSheetAnimate}
         onChange={handleSheetChange}
         onClose={closeBottomSheet}

@@ -21,7 +21,7 @@ const Backdrop = (props: BottomSheetBackdropProps) => {
       {...props}
       opacity={1}
       disappearsOnIndex={-1}
-      appearsOnIndex={-0.99}
+      appearsOnIndex={0}
       style={[StyleSheet.absoluteFill, { backgroundColor: 'transparent' }]}
     >
       <>
