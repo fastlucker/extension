@@ -92,6 +92,7 @@ const BottomSheet: React.FC<Props> = ({
     // and this create some complications for:
     // 1) focusing elements when they appear on screen
     // 2) performance
+
     if (!isOpen) {
       return null
     }
@@ -127,8 +128,8 @@ const BottomSheet: React.FC<Props> = ({
       <RNBottomSheet
         ref={sheetRef}
         index={-1}
-        topInset={DEVICE_HEIGHT - BOTTOM_SHEET_FULL_HEIGHT}
         snapPoints={dynamicInitialHeight ? animatedSnapPoints : staticSnapPoints}
+        {...(dynamicInitialHeight ? { topInset: DEVICE_HEIGHT - BOTTOM_SHEET_FULL_HEIGHT } : {})}
         {...(dynamicInitialHeight ? { handleHeight: animatedHandleHeight } : {})}
         {...(dynamicInitialHeight ? { contentHeight: animatedContentHeight } : {})}
         animationConfigs={animationConfigs}
