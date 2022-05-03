@@ -35,8 +35,6 @@ const BottomSheet: React.FC<Props> = ({
   children,
   displayCancel = true,
   cancelText: _cancelText,
-  // WIP: TODO: should be enabled
-  // currently there is an issue with initial renders
   dynamicInitialHeight = true,
   closeBottomSheet = () => {}
 }) => {
@@ -138,7 +136,7 @@ const BottomSheet: React.FC<Props> = ({
         animateOnMount
         backgroundStyle={styles.bottomSheet}
         handleIndicatorStyle={styles.dragger}
-        backdropComponent={isOpen ? Backdrop : null}
+        backdropComponent={isOpen ? (props) => <Backdrop {...props} /> : null}
         onAnimate={handleSheetAnimate}
         onChange={handleSheetChange}
         onClose={closeBottomSheet}

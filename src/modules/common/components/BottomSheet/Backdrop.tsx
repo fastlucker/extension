@@ -13,7 +13,6 @@ import styles from './styles'
 
 const Backdrop = (props: BottomSheetBackdropProps) => {
   const insets = useSafeAreaInsets()
-
   // The header should start a little bit below the end of the notch,
   // and right in the vertical middle of the nav.
   const notchInset = insets.top + 10
@@ -22,7 +21,7 @@ const Backdrop = (props: BottomSheetBackdropProps) => {
       {...props}
       opacity={1}
       disappearsOnIndex={-1}
-      appearsOnIndex={0}
+      appearsOnIndex={-0.99}
       style={[StyleSheet.absoluteFill, { backgroundColor: 'transparent' }]}
     >
       <>
