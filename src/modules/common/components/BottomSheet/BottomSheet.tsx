@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BackHandler, View } from 'react-native'
 import { Easing } from 'react-native-reanimated'
@@ -27,6 +27,7 @@ interface Props {
   displayCancel?: boolean
   maxInitialHeightPercentage?: number
   dynamicInitialHeight?: boolean
+  isOpen: boolean
 }
 
 const BottomSheet: React.FC<Props> = ({
@@ -36,6 +37,7 @@ const BottomSheet: React.FC<Props> = ({
   displayCancel = true,
   cancelText: _cancelText,
   dynamicInitialHeight = true,
+  isOpen = false,
   closeBottomSheet = () => {}
 }) => {
   const { t } = useTranslation()
@@ -47,7 +49,6 @@ const BottomSheet: React.FC<Props> = ({
   const BOTTOM_SHEET_DRAGGER_HEIGHT = 20
   const BOTTOM_SHEET_MAX_HEIGHT = useMemo(() => (DEVICE_HEIGHT - notchInset) * 0.9, [])
   const BOTTOM_SHEET_MAX_CONTENT_HEIGHT = BOTTOM_SHEET_MAX_HEIGHT - BOTTOM_SHEET_DRAGGER_HEIGHT
-  const [isOpen, setIsOpen] = useState(false)
 
   const initialDynamicSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], [])
 
@@ -56,12 +57,8 @@ const BottomSheet: React.FC<Props> = ({
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialDynamicSnapPoints)
 
-  const handleSheetAnimate = useCallback((fromIndex: number, toIndex: number) => {
-    if (toIndex !== -1) setIsOpen(true)
-  }, [])
-
   const handleSheetChange = useCallback((index: number) => {
-    if (isOpen && index === -1) setIsOpen(false)
+    if (isOpen && index === -1) !!closeBottomSheet && closeBottomSheet()
   }, [])
 
   useEffect(() => {
@@ -157,7 +154,6 @@ const BottomSheet: React.FC<Props> = ({
         backgroundStyle={styles.bottomSheet}
         handleIndicatorStyle={styles.dragger}
         backdropComponent={isOpen ? Backdrop : null}
-        onAnimate={handleSheetAnimate}
         onChange={handleSheetChange}
         onClose={closeBottomSheet}
       >
