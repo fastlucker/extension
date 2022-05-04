@@ -266,7 +266,8 @@ const AppTabs = () => {
         }}
         component={SendScreen}
       />
-      <Tab.Screen
+      {/* TODO: Temporary disabled since v1.6.0 as part of the Apple app review feedback */}
+      {/* <Tab.Screen
         name="swap"
         options={{
           tabBarLabel: t('Swap'),
@@ -276,7 +277,7 @@ const AppTabs = () => {
           )
         }}
         component={SwapScreen}
-      />
+      /> */}
       <Tab.Screen
         name="transactions"
         options={{
