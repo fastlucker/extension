@@ -134,6 +134,7 @@ const BottomSheet: React.FC<Props> = ({
         enablePanDownToClose
         enableOverDrag={false}
         animateOnMount
+        keyboardBlurBehavior="restore"
         backgroundStyle={styles.bottomSheet}
         handleIndicatorStyle={styles.dragger}
         backdropComponent={isOpen ? Backdrop : null}
