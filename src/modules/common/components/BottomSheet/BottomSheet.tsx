@@ -44,12 +44,14 @@ const BottomSheet: React.FC<Props> = ({
   // and right in the vertical middle of the nav.
   const notchInset = insets.top + 10
 
-  const BOTTOM_SHEET_FULL_HEIGHT = useMemo(() => (DEVICE_HEIGHT - notchInset) * 0.9, [])
+  const BOTTOM_SHEET_DRAGGER_HEIGHT = 20
+  const BOTTOM_SHEET_MAX_HEIGHT = useMemo(() => (DEVICE_HEIGHT - notchInset) * 0.9, [])
+  const BOTTOM_SHEET_MAX_CONTENT_HEIGHT = BOTTOM_SHEET_MAX_HEIGHT - BOTTOM_SHEET_DRAGGER_HEIGHT
   const [isOpen, setIsOpen] = useState(false)
 
   const initialDynamicSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], [])
 
-  const staticSnapPoints = useMemo(() => [BOTTOM_SHEET_FULL_HEIGHT], [BOTTOM_SHEET_FULL_HEIGHT])
+  const staticSnapPoints = useMemo(() => [BOTTOM_SHEET_MAX_HEIGHT], [BOTTOM_SHEET_MAX_HEIGHT])
 
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(initialDynamicSnapPoints)
@@ -97,8 +99,23 @@ const BottomSheet: React.FC<Props> = ({
 
     return (
       <BottomSheetScrollView
-        onLayout={handleContentLayout}
-        style={{ maxHeight: BOTTOM_SHEET_FULL_HEIGHT }}
+        onLayout={({
+          nativeEvent: {
+            layout: { height }
+          }
+        }: any) => {
+          handleContentLayout({
+            nativeEvent: {
+              layout: {
+                height:
+                  height > BOTTOM_SHEET_MAX_CONTENT_HEIGHT || !height
+                    ? BOTTOM_SHEET_MAX_CONTENT_HEIGHT
+                    : height
+              }
+            }
+          })
+        }}
+        style={{ maxHeight: BOTTOM_SHEET_MAX_HEIGHT }}
         alwaysBounceVertical={false}
       >
         <View style={styles.containerInnerWrapper}>
@@ -127,9 +144,11 @@ const BottomSheet: React.FC<Props> = ({
         ref={sheetRef}
         index={-1}
         snapPoints={dynamicInitialHeight ? animatedSnapPoints : staticSnapPoints}
-        {...(dynamicInitialHeight ? { topInset: DEVICE_HEIGHT - BOTTOM_SHEET_FULL_HEIGHT } : {})}
+        {...(dynamicInitialHeight ? { topInset: DEVICE_HEIGHT - BOTTOM_SHEET_MAX_HEIGHT } : {})}
         {...(dynamicInitialHeight ? { handleHeight: animatedHandleHeight } : {})}
-        contentHeight={dynamicInitialHeight ? animatedContentHeight : BOTTOM_SHEET_FULL_HEIGHT}
+        contentHeight={
+          dynamicInitialHeight ? animatedContentHeight : BOTTOM_SHEET_MAX_CONTENT_HEIGHT
+        }
         animationConfigs={animationConfigs}
         enablePanDownToClose
         enableOverDrag={false}
