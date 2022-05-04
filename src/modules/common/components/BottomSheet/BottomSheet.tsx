@@ -129,7 +129,7 @@ const BottomSheet: React.FC<Props> = ({
         snapPoints={dynamicInitialHeight ? animatedSnapPoints : staticSnapPoints}
         {...(dynamicInitialHeight ? { topInset: DEVICE_HEIGHT - BOTTOM_SHEET_FULL_HEIGHT } : {})}
         {...(dynamicInitialHeight ? { handleHeight: animatedHandleHeight } : {})}
-        {...(dynamicInitialHeight ? { contentHeight: animatedContentHeight } : {})}
+        contentHeight={dynamicInitialHeight ? animatedContentHeight : BOTTOM_SHEET_FULL_HEIGHT}
         animationConfigs={animationConfigs}
         enablePanDownToClose
         enableOverDrag={false}
