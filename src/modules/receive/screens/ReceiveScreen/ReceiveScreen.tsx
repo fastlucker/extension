@@ -21,7 +21,7 @@ const ReceiveScreen = () => {
     <GradientBackgroundWrapper>
       <Wrapper hasBottomTabNav={false}>
         <DepositTokens />
-        {/* TODO: Temporary disabled since v1.6.0 */}
+        {/* TODO: Temporary disabled since v1.6.0 as part of the Apple app review feedback */}
         {/* <Panel>
           <Text style={spacings.mb} fontSize={16} weight="medium" color={colors.turquoise}>
             {t('Credit Card & Bank Transfer')}

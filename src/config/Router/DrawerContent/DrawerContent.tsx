@@ -39,7 +39,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard' },
     { Icon: EarnIcon, name: t('Earn'), route: 'earn' },
     { Icon: SendIcon, name: t('Send'), route: 'send' },
-    // TODO: Temporary disabled since v1.6.0
+    // TODO: Temporary disabled since v1.6.0 as part of the Apple app review feedback
     // { Icon: SwapIcon, name: t('Swap'), route: 'swap' },
     { Icon: TransferIcon, name: t('Transactions'), route: 'transactions' },
     // TODO: Not implemented yet.

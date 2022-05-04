@@ -266,7 +266,7 @@ const AppTabs = () => {
         }}
         component={SendScreen}
       />
-      {/* TODO: Temporary disabled since v1.6.0 */}
+      {/* TODO: Temporary disabled since v1.6.0 as part of the Apple app review feedback */}
       {/* <Tab.Screen
         name="swap"
         options={{
