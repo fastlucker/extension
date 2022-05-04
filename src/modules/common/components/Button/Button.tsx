@@ -153,11 +153,11 @@ const Button = ({
               styles.buttonContainer,
               containerStyles[type],
               containerStylesSizes[size],
-              disabled && styles.disabled,
               style,
               !!accentColor && { borderColor: accentColor },
               !hasBottomSpacing && spacings.mb0,
-              { opacity: animated }
+              { opacity: animated },
+              disabled && styles.disabled
             ]}
           >
             {!!text && (

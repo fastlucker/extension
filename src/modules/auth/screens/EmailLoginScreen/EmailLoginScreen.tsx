@@ -53,6 +53,7 @@ const EmailLoginScreen = () => {
                     onBlur={onBlur}
                     placeholder={t('Email')}
                     onChangeText={onChange}
+                    onSubmitEditing={handleSubmit(handleLogin)}
                     value={value}
                     isValid={isEmail(value)}
                     keyboardType="email-address"
