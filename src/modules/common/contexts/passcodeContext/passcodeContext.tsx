@@ -2,8 +2,9 @@ import { BlurView } from 'expo-blur'
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import { Platform, StyleSheet, Vibration } from 'react-native'
+import { Platform, StyleSheet, Vibration, View } from 'react-native'
 
+import { isAndroid } from '@config/env'
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
@@ -426,6 +427,23 @@ const PasscodeProvider: React.FC = ({ children }) => {
     setHasEnteredValidPasscode(null)
   }
 
+  const lockedContainerFullScreen = (
+    <SafeAreaView>
+      <AmbireLogo shouldExpand={false} />
+      <PasscodeAuth
+        autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
+        title={t('Unlock Ambire')}
+        message={t('Entering your passcode.')}
+        onFulfill={handleOnValidatePasscode}
+        onValidateLocalAuth={triggerValidateLocalAuth}
+        error={passcodeError}
+        state={state}
+        deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}
+        fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}
+      />
+    </SafeAreaView>
+  )
+
   return (
     <PasscodeContext.Provider
       value={useMemo(
@@ -473,28 +491,20 @@ const PasscodeProvider: React.FC = ({ children }) => {
     >
       {children}
 
-      {isAppLocked && (
-        <BlurView
-          intensity={55}
-          tint="dark"
-          style={[StyleSheet.absoluteFill, styles.lockedContainer]}
-        >
-          <SafeAreaView>
-            <AmbireLogo shouldExpand={false} />
-            <PasscodeAuth
-              autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
-              title={t('Unlock Ambire')}
-              message={t('Entering your passcode.')}
-              onFulfill={handleOnValidatePasscode}
-              onValidateLocalAuth={triggerValidateLocalAuth}
-              error={passcodeError}
-              state={state}
-              deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}
-              fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}
-            />
-          </SafeAreaView>
-        </BlurView>
-      )}
+      {isAppLocked &&
+        (isAndroid ? (
+          <View style={[StyleSheet.absoluteFill, styles.lockedContainerAndroid]}>
+            {lockedContainerFullScreen}
+          </View>
+        ) : (
+          <BlurView
+            intensity={100}
+            tint="dark"
+            style={[StyleSheet.absoluteFill, styles.lockedContainer]}
+          >
+            {lockedContainerFullScreen}
+          </BlurView>
+        ))}
 
       <BottomSheet
         id="passcode"
