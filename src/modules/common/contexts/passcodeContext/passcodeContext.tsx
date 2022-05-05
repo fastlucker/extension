@@ -1,10 +1,12 @@
+import { BlurView } from 'expo-blur'
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import { Platform, StyleSheet, Vibration, View } from 'react-native'
+import { Platform, StyleSheet, Vibration } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
+import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -472,8 +474,13 @@ const PasscodeProvider: React.FC = ({ children }) => {
       {children}
 
       {isAppLocked && (
-        <View style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
+        <BlurView
+          intensity={55}
+          tint="dark"
+          style={[StyleSheet.absoluteFill, styles.lockedContainer]}
+        >
           <SafeAreaView>
+            <AmbireLogo shouldExpand={false} />
             <PasscodeAuth
               autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
               title={t('Unlock Ambire')}
@@ -486,7 +493,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
               fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}
             />
           </SafeAreaView>
-        </View>
+        </BlurView>
       )}
 
       <BottomSheet
