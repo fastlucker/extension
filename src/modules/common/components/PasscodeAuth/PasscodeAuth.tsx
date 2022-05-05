@@ -37,8 +37,12 @@ const PasscodeAuth: React.FC<Props> = ({
 
   return (
     <>
-      {title && <Title style={textStyles.center}>{title}</Title>}
-      <Text style={[textStyles.center, spacings.mbSm]} type="small">
+      {title && (
+        <Title hasBottomSpacing={false} style={textStyles.center}>
+          {title}
+        </Title>
+      )}
+      <Text style={[textStyles.center, spacings.mbSm, spacings.mt]} type="small">
         {message || t('In order to proceed, please authenticate by entering the app passcode.')}
       </Text>
       {!!error && (
