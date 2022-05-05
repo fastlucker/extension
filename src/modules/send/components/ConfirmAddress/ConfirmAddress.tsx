@@ -31,7 +31,7 @@ const ConfirmAddress = ({ onAddToAddressBook, addressConfirmed, setAddressConfir
         style={[flexboxStyles.directionRow, spacings.mbSm]}
       >
         <FontAwesome style={spacings.mrMi} name="plus" size={18} color={colors.primaryIconColor} />
-        <Text style={[textStyles.bold]}>{t('Add it to the address book')}</Text>
+        <Text>{t('Add it to the address book')}</Text>
       </TouchableOpacity>
     </>
   )

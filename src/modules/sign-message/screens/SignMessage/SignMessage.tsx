@@ -91,7 +91,7 @@ const SignScreen = ({ navigation }: any) => {
     return (
       <Wrapper>
         <Panel>
-          <Text fontSize={17} appearance="danger" style={[textStyles.bold, spacings.mb]}>
+          <Text fontSize={17} appearance="danger" style={spacings.mb}>
             {t('Invalid signing request: .txn has to be a hex string')}
           </Text>
           <Button
