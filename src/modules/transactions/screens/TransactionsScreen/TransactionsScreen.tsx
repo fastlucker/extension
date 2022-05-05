@@ -1,5 +1,5 @@
 import React from 'react'
-import { ActivityIndicator, RefreshControl, View } from 'react-native'
+import { RefreshControl, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import ConfirmedIcon from '@assets/svg/ConfirmedIcon'
