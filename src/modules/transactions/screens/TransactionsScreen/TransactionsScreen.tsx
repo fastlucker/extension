@@ -1,5 +1,5 @@
 import React from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, RefreshControl, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import ConfirmedIcon from '@assets/svg/ConfirmedIcon'
@@ -10,6 +10,7 @@ import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
@@ -17,6 +18,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import { toBundleTxn } from '@modules/common/services/requestToBundleTxn'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -27,8 +29,17 @@ import useTransactions from '@modules/transactions/hooks/useTransactions'
 import styles from './styles'
 
 const TransactionsScreen = () => {
-  const { data, errMsg, isLoading, speedup, replace, cancel, firstPending, showSendTxns } =
-    useTransactions()
+  const {
+    data,
+    errMsg,
+    isLoading,
+    speedup,
+    replace,
+    cancel,
+    firstPending,
+    showSendTxns,
+    forceRefresh
+  } = useTransactions()
   const { eligibleRequests } = useRequests()
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
@@ -146,11 +157,15 @@ const TransactionsScreen = () => {
 
   if (isLoading && !data) {
     return (
-      <Wrapper>
-        <View style={[flexboxStyles.flex1, flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}>
-          <ActivityIndicator size="large" />
-        </View>
-      </Wrapper>
+      <GradientBackgroundWrapper>
+        <Wrapper>
+          <View
+            style={[flexboxStyles.flex1, flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}
+          >
+            <Spinner />
+          </View>
+        </Wrapper>
+      </GradientBackgroundWrapper>
     )
   }
 
@@ -160,6 +175,15 @@ const TransactionsScreen = () => {
         <View style={styles.sectionViewWrapper}>
           <Wrapper
             hasBottomTabNav
+            refreshControl={
+              <RefreshControl
+                refreshing={false}
+                onRefresh={forceRefresh}
+                tintColor={colors.titan}
+                progressBackgroundColor={colors.titan}
+                enabled={!isLoading}
+              />
+            }
             // The sticky title is with rounded top corners
             // and the same corner radius should be applied on the main scrollable container
             // otherwise when scrolling the content is visible beneath the sticky title
