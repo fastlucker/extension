@@ -75,7 +75,6 @@ const styles = StyleSheet.create<Style>({
   // Default button text styles
   buttonText: {
     fontFamily: FONT_FAMILIES.REGULAR,
-    ...textStyles.bold,
     textAlign: 'center'
   },
 

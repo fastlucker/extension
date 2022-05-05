@@ -78,13 +78,12 @@ const SignersList = () => {
         <Text type="small" key={addr} style={spacings.mb}>
           {privText}{' '}
           {isSelected ? (
-            <Text type="small" style={textStyles.bold}>
-              {t('(default signer)')}
-            </Text>
+            <Text type="small">{t('(default signer)')}</Text>
           ) : (
             <Text
               type="small"
-              style={[textStyles.bold, { color: colors.primaryAccentColor }]}
+              weight="medium"
+              style={{ color: colors.primaryAccentColor }}
               onPress={handleOnMakeDefaultBtnClicked}
             >
               {t('Make default')}
