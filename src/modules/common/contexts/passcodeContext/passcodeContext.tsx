@@ -498,7 +498,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           </View>
         ) : (
           <BlurView
-            intensity={100}
+            intensity={55}
             tint="dark"
             style={[StyleSheet.absoluteFill, styles.lockedContainer]}
           >
