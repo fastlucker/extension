@@ -5757,9 +5757,9 @@ address@1.1.2, address@^1.0.1:
   resolved "https://registry.yarnpkg.com/address/-/address-1.1.2.tgz#bf1116c9c758c51b7a933d296b72c221ed9428b6"
   integrity sha512-aT6camzM4xEA54YVJYSqxz1kv4IHnQZRtThJJHhUMRExaU5spC7jX5ugSwTaTgJliIgs4VhZOk7htClvQ/LmRA==
 
-"adex-protocol-eth@git+https://git@github.com/AmbireTech/adex-protocol-eth.git#e9a9aa2b2c28c67352daf4c00be83b0fe21554d4":
+"adex-protocol-eth@git+https://git@github.com/AmbireTech/adex-protocol-eth.git#773e55f90a77121cc9c5f3210c915b10b21d7245":
   version "5.2.18"
-  resolved "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#e9a9aa2b2c28c67352daf4c00be83b0fe21554d4"
+  resolved "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#773e55f90a77121cc9c5f3210c915b10b21d7245"
   dependencies:
     "@openzeppelin/test-helpers" "^0.5.10"
     "@truffle/hdwallet-provider" "^1.4.2"
