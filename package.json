@@ -57,7 +57,7 @@
     "@tradle/react-native-http": "^2.0.0",
     "@walletconnect/client": "^1.7.1",
     "@yfi/sdk": "1.0.11",
-    "adex-protocol-eth": "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#e9a9aa2b2c28c67352daf4c00be83b0fe21554d4",
+    "adex-protocol-eth": "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#773e55f90a77121cc9c5f3210c915b10b21d7245",
     "babel-plugin-module-resolver": "4.1.0",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "browserify-zlib": "~0.1.4",
