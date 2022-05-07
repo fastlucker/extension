@@ -66,9 +66,9 @@ const ChangeLocalAuthStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
 
-const headerAlpha = (props) => <Header withHamburger withScanner {...props} />
-const headerBeta = (props) => <Header mode="title" {...props} />
-const headerGamma = (props) => <Header {...props} withScanner />
+const headerAlpha = (props: any) => <Header withHamburger withScanner {...props} />
+const headerBeta = (props: any) => <Header mode="title" {...props} />
+const headerGamma = (props: any) => <Header {...props} withScanner />
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
@@ -79,7 +79,7 @@ const SignersStackScreen = () => {
         name="signers-screen"
         component={SignersScreen}
         options={{
-          title: t('Manage signers')
+          title: t('Manage Signers')
         }}
       />
     </SignersStack.Navigator>
@@ -111,7 +111,7 @@ const ChangeLocalAuthStackScreen = () => {
         name="local-auth-change-screen"
         component={ChangeLocalAuthScreen}
         options={{
-          title: t('Local auth')
+          title: t('Local Auth')
         }}
       />
     </ChangeLocalAuthStack.Navigator>
@@ -143,7 +143,7 @@ const AppLockingStackScreen = () => {
         name="app-locking-screen"
         component={ChangeAppLockingScreen}
         options={{
-          title: t('App Locking')
+          title: t('Manage App Locking')
         }}
       />
     </AppLockingStack.Navigator>
