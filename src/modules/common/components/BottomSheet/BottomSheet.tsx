@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BackHandler, View } from 'react-native'
-import { Easing } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import RNBottomSheet, {
   BottomSheetScrollView,
-  useBottomSheetDynamicSnapPoints,
-  useBottomSheetTimingConfigs
+  useBottomSheetDynamicSnapPoints
 } from '@gorhom/bottom-sheet'
 import { Portal } from '@gorhom/portal'
 import Button from '@modules/common/components/Button'
@@ -130,11 +128,6 @@ const BottomSheet: React.FC<Props> = ({
     )
   }
 
-  const animationConfigs = useBottomSheetTimingConfigs({
-    duration: 400,
-    easing: Easing.exp
-  })
-
   return (
     <Portal hostName="global">
       <RNBottomSheet
@@ -146,7 +139,6 @@ const BottomSheet: React.FC<Props> = ({
         contentHeight={
           dynamicInitialHeight ? animatedContentHeight : BOTTOM_SHEET_MAX_CONTENT_HEIGHT
         }
-        animationConfigs={animationConfigs}
         enablePanDownToClose
         enableOverDrag={false}
         animateOnMount
