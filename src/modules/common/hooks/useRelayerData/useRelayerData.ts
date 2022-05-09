@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { fetchCaught } from '@modules/common/services/fetch'
 
 // 250ms after we've triggered a load of another URL, we will clear the data
-//  so that the component that uses this hook cann display the loading spinner
+//  so that the component that uses this hook can display the loading spinner
 const RESET_DATA_AFTER = 250
 
 export default function useRelayerData(url: string | null) {
@@ -14,11 +14,9 @@ export default function useRelayerData(url: string | null) {
 
   const updateData = useCallback(async () => {
     const { resp, body, errMsg } = await fetchCaught(url)
-
     if (resp && resp.status === 200) {
       return body
     }
-    console.log('relayerData error', { resp, body, errMsg })
     throw new Error(errMsg || `status code ${resp && resp.status}`)
   }, [url])
 
@@ -50,5 +48,24 @@ export default function useRelayerData(url: string | null) {
     }
   }, [url, updateData])
 
-  return { data, isLoading, errMsg: err }
+  // In case we want to refetch the data without changing the url prop
+  // e.g. pull to refresh
+  const forceRefresh = () => {
+    if (!url) return
+
+    // Data reset: if some time passes before we load the next piece of data, and the URL is different,
+    // we will reset the data so that the UI knows to display a loading indicator
+    const resetDataTimer: any = setTimeout(() => setData(null), RESET_DATA_AFTER)
+    setLoading(true)
+    setErr(null)
+    updateData()
+      .then((d: any) => prevUrl.current === url && setData(d))
+      .catch((e) => setErr(e.message || e))
+      .then(() => {
+        clearTimeout(resetDataTimer)
+        setLoading(false)
+      })
+  }
+
+  return { data, isLoading, errMsg: err, forceRefresh }
 }
