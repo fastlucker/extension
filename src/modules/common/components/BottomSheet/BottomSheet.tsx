@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { BackHandler, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { HEADER_HEIGHT } from '@config/Router/Header/style'
 import RNBottomSheet, {
   BottomSheetScrollView,
   useBottomSheetDynamicSnapPoints
@@ -45,7 +46,7 @@ const BottomSheet: React.FC<Props> = ({
   const notchInset = insets.top + 10
 
   const BOTTOM_SHEET_DRAGGER_HEIGHT = 20
-  const BOTTOM_SHEET_MAX_HEIGHT = useMemo(() => (DEVICE_HEIGHT - notchInset) * 0.9, [])
+  const BOTTOM_SHEET_MAX_HEIGHT = useMemo(() => DEVICE_HEIGHT - notchInset - HEADER_HEIGHT, [])
   const BOTTOM_SHEET_MAX_CONTENT_HEIGHT = BOTTOM_SHEET_MAX_HEIGHT - BOTTOM_SHEET_DRAGGER_HEIGHT
 
   const initialDynamicSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], [])
