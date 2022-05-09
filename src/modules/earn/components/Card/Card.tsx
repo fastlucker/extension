@@ -229,7 +229,8 @@ const Card = ({
                     ]}
                   >
                     <Text
-                      style={[textStyles.bold, flexboxStyles.flex1, spacings.prTy]}
+                      weight="medium"
+                      style={[flexboxStyles.flex1, spacings.prTy]}
                       numberOfLines={1}
                     >
                       {type}

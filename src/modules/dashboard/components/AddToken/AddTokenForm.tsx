@@ -147,7 +147,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
             <Trans>
               <Text>
                 Balance: <Text style={textStyles.highlightSecondary}>{tokenDetails.balance}</Text>{' '}
-                <Text style={textStyles.bold}>{tokenDetails.symbol}</Text>
+                <Text weight="medium">{tokenDetails.symbol}</Text>
               </Text>
             </Trans>
           </View>

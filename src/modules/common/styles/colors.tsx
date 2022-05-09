@@ -9,6 +9,7 @@ export const colorPalette = {
   lightHeliotrope: '#C790FF',
   heliotrope: '#AE60FF',
   darkHeliotrope: '#60358C',
+  heliotrope_40: '#AE60FF61',
 
   lightViolet: '#904DFF',
   violet: '#6000FF',

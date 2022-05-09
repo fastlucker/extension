@@ -42,7 +42,10 @@ type PortfolioContextData = {
   protocols: any
   collectibles: any
   requestOtherProtocolsRefresh: () => void
+  refreshTokensIfVisible: () => void
   onAddExtraToken: (token: Token) => void
+  loadBalance: () => void
+  loadProtocols: () => void
 }
 
 const PortfolioContext = createContext<PortfolioContextData>({
@@ -61,7 +64,10 @@ const PortfolioContext = createContext<PortfolioContextData>({
   protocols: [],
   collectibles: [],
   requestOtherProtocolsRefresh: () => {},
-  onAddExtraToken: () => {}
+  refreshTokensIfVisible: () => {},
+  onAddExtraToken: () => {},
+  loadBalance: () => {},
+  loadProtocols: () => {}
 })
 
 const getBalances = (apiKey: any, network: any, protocol: any, address: any, provider?: any) =>
@@ -400,21 +406,21 @@ const PortfolioProvider: React.FC = ({ children }) => {
     return tokens
   }
 
+  async function loadBalance() {
+    if (!account) return
+    setBalanceLoading(true)
+    if (await fetchTokens(account)) setBalanceLoading(false)
+  }
+
+  async function loadProtocols() {
+    if (!account) return
+    setProtocolsLoading(true)
+    if (await fetchOtherProtocols(account)) setProtocolsLoading(false)
+  }
+
   // Fetch balances and protocols on account change
   useEffect(() => {
     currentAccount.current = account
-
-    async function loadBalance() {
-      if (!account) return
-      setBalanceLoading(true)
-      if (await fetchTokens(account)) setBalanceLoading(false)
-    }
-
-    async function loadProtocols() {
-      if (!account) return
-      setProtocolsLoading(true)
-      if (await fetchOtherProtocols(account)) setProtocolsLoading(false)
-    }
 
     loadBalance()
     loadProtocols()
@@ -594,7 +600,10 @@ const PortfolioProvider: React.FC = ({ children }) => {
           protocols,
           collectibles,
           requestOtherProtocolsRefresh,
-          onAddExtraToken
+          refreshTokensIfVisible,
+          onAddExtraToken,
+          loadBalance,
+          loadProtocols
         }),
         [
           isBalanceLoading,
@@ -605,6 +614,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
           protocols,
           collectibles,
           requestOtherProtocolsRefresh,
+          refreshTokensIfVisible,
           onAddExtraToken
         ]
       )}

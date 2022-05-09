@@ -50,7 +50,7 @@ const useTransactions = () => {
   const url = CONFIG.RELAYER_URL
     ? `${CONFIG.RELAYER_URL}/identity/${selectedAcc}/${network.id}/transactions?cacheBreak=${cacheBreak}`
     : null
-  const { data, errMsg, isLoading } = useRelayerData(url)
+  const { data, errMsg, isLoading, forceRefresh } = useRelayerData(url)
   // @TODO: visualize other pending bundles
   const firstPending = data && data.txns?.find((x: any) => !x.executed && !x.replaced)
 
@@ -107,7 +107,8 @@ const useTransactions = () => {
     speedup,
     replace,
     cancel,
-    showSendTxns
+    showSendTxns,
+    forceRefresh
   }
 }
 
