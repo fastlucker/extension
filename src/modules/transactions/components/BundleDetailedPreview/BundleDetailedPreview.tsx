@@ -1,4 +1,5 @@
 import React from 'react'
+import isEqual from 'react-fast-compare'
 import { Trans, useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 
@@ -103,4 +104,6 @@ const BundleDetailedPreview = ({ bundle, mined = false, hasBottomSpacing }: any)
   )
 }
 
-export default BundleDetailedPreview
+const MemoizedBundleDetailedPreview = React.memo(BundleDetailedPreview, isEqual)
+
+export default MemoizedBundleDetailedPreview
