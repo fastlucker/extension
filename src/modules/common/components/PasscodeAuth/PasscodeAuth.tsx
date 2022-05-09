@@ -37,8 +37,12 @@ const PasscodeAuth: React.FC<Props> = ({
 
   return (
     <>
-      {title && <Title style={[textStyles.center, spacings.mt]}>{title}</Title>}
-      <Text style={[textStyles.center, spacings.mtLg, spacings.mbSm]}>
+      {title && (
+        <Title hasBottomSpacing={false} style={textStyles.center}>
+          {title}
+        </Title>
+      )}
+      <Text style={[textStyles.center, spacings.mbSm, spacings.mt]} type="small">
         {message || t('In order to proceed, please authenticate by entering the app passcode.')}
       </Text>
       {!!error && (
@@ -49,8 +53,10 @@ const PasscodeAuth: React.FC<Props> = ({
       <CodeInput autoFocus={autoFocus} onFulfill={onFulfill} />
       {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && (
         <>
-          <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
-          <Text style={[textStyles.center, spacings.mbSm]}>
+          <Text type="small" style={[textStyles.center, spacings.mtTy, spacings.mb]}>
+            {t('– or –')}
+          </Text>
+          <Text type="small" style={[textStyles.center, spacings.mb]}>
             {deviceSupportedAuthTypesLabel
               ? t(
                   'Authenticate with {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}}.',

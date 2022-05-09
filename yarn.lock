@@ -5757,9 +5757,9 @@ address@1.1.2, address@^1.0.1:
   resolved "https://registry.yarnpkg.com/address/-/address-1.1.2.tgz#bf1116c9c758c51b7a933d296b72c221ed9428b6"
   integrity sha512-aT6camzM4xEA54YVJYSqxz1kv4IHnQZRtThJJHhUMRExaU5spC7jX5ugSwTaTgJliIgs4VhZOk7htClvQ/LmRA==
 
-"adex-protocol-eth@git+https://git@github.com/AmbireTech/adex-protocol-eth.git#e9a9aa2b2c28c67352daf4c00be83b0fe21554d4":
+"adex-protocol-eth@git+https://git@github.com/AmbireTech/adex-protocol-eth.git#773e55f90a77121cc9c5f3210c915b10b21d7245":
   version "5.2.18"
-  resolved "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#e9a9aa2b2c28c67352daf4c00be83b0fe21554d4"
+  resolved "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#773e55f90a77121cc9c5f3210c915b10b21d7245"
   dependencies:
     "@openzeppelin/test-helpers" "^0.5.10"
     "@truffle/hdwallet-provider" "^1.4.2"
@@ -19100,7 +19100,7 @@ prompts@2.4.2, prompts@^2.3.2, prompts@^2.4.0:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@^15.5.10, prop-types@^15.6.2:
+prop-types@^15.5.10, prop-types@^15.5.7, prop-types@^15.6.2:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -22370,6 +22370,13 @@ to-through@^2.0.0:
   integrity sha1-/JKtq6ByZHvAtn1rA2ZKoZUJOvY=
   dependencies:
     through2 "^2.0.3"
+
+toggle-switch-react-native@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/toggle-switch-react-native/-/toggle-switch-react-native-3.3.0.tgz#4c7ef67576154adb7f118d18d19dc9b1caece51c"
+  integrity sha512-DE0UjTOvUpUXjrRjF5r06dqzp/XrbDvJ6hYAwTp6ZgNrxn5Z7bDqe9Rs7axaRbWr7MXe5FdSGkCmfmK6tL7esw==
+  dependencies:
+    prop-types "^15.5.7"
 
 toidentifier@1.0.0:
   version "1.0.0"

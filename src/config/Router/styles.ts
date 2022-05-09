@@ -49,7 +49,7 @@ export const tabBarItemStyle = {
   paddingBottom: 12
 }
 
-export const landscapeTabBarLabelStyle = {
+export const horizontalTabBarLabelStyle = {
   fontSize: 16,
   paddingLeft: IS_SCREEN_SIZE_L ? 10 : 0
 }

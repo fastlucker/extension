@@ -22,7 +22,6 @@ import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
-import useScreenOrientation from '@modules/common/hooks/useScreenOrientation'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import { colorPalette as colors } from '@modules/common/styles/colors'
@@ -49,7 +48,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import styles, {
   drawerStyle,
-  landscapeTabBarLabelStyle,
+  horizontalTabBarLabelStyle,
   navigationContainerDarkTheme,
   tabBarItemStyle,
   tabBarLabelStyle,
@@ -67,9 +66,9 @@ const ChangeLocalAuthStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
 
-const headerAlpha = (props) => <Header withHamburger withScanner {...props} />
-const headerBeta = (props) => <Header mode="title" {...props} />
-const headerGamma = (props) => <Header {...props} withScanner />
+const headerAlpha = (props: any) => <Header withHamburger withScanner {...props} />
+const headerBeta = (props: any) => <Header mode="title" {...props} />
+const headerGamma = (props: any) => <Header {...props} withScanner />
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
@@ -80,7 +79,7 @@ const SignersStackScreen = () => {
         name="signers-screen"
         component={SignersScreen}
         options={{
-          title: t('Manage signers')
+          title: t('Manage Signers')
         }}
       />
     </SignersStack.Navigator>
@@ -112,7 +111,7 @@ const ChangeLocalAuthStackScreen = () => {
         name="local-auth-change-screen"
         component={ChangeLocalAuthScreen}
         options={{
-          title: t('Local auth')
+          title: t('Local Auth')
         }}
       />
     </ChangeLocalAuthStack.Navigator>
@@ -144,7 +143,7 @@ const AppLockingStackScreen = () => {
         name="app-locking-screen"
         component={ChangeAppLockingScreen}
         options={{
-          title: t('App Locking')
+          title: t('Manage App Locking')
         }}
       />
     </AppLockingStack.Navigator>
@@ -210,11 +209,8 @@ const NoConnectionStack = () => {
 
 const AppTabs = () => {
   const { t } = useTranslation()
-  const orientation = useScreenOrientation()
 
-  const tabsIconSize =
-    // eslint-disable-next-line no-nested-ternary
-    orientation === 'landscape' ? (IS_SCREEN_SIZE_L ? 44 : 32) : IS_SCREEN_SIZE_L ? 44 : 24
+  const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
 
   return (
     <Tab.Navigator
@@ -224,10 +220,7 @@ const AppTabs = () => {
         tabBarInactiveTintColor: colors.titan,
         tabBarActiveBackgroundColor: colors.howl_65,
         tabBarStyle,
-        tabBarLabelStyle:
-          orientation === 'landscape' || IS_SCREEN_SIZE_L
-            ? landscapeTabBarLabelStyle
-            : tabBarLabelStyle,
+        tabBarLabelStyle: IS_SCREEN_SIZE_L ? horizontalTabBarLabelStyle : tabBarLabelStyle,
         tabBarItemStyle
       }}
       tabBar={(props: any) => (
@@ -273,7 +266,8 @@ const AppTabs = () => {
         }}
         component={SendScreen}
       />
-      <Tab.Screen
+      {/* TODO: Temporary disabled since v1.6.0 as part of the Apple app review feedback */}
+      {/* <Tab.Screen
         name="swap"
         options={{
           tabBarLabel: t('Swap'),
@@ -283,7 +277,7 @@ const AppTabs = () => {
           )
         }}
         component={SwapScreen}
-      />
+      /> */}
       <Tab.Screen
         name="transactions"
         options={{
