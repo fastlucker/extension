@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
 import { Keyboard, Linking, TouchableWithoutFeedback, View } from 'react-native'
@@ -39,6 +39,10 @@ const AddNewAccountScreen = () => {
       noBackup: false
     }
   })
+
+  const handleFormSubmit = useCallback(() => {
+    handleSubmit(handleAddNewAccount)()
+  }, [])
 
   return (
     <GradientBackgroundWrapper>
@@ -191,7 +195,7 @@ const AddNewAccountScreen = () => {
                 !watch('confirmPassword', '')
               }
               text={isSubmitting ? t('Signing Up...') : t('Sign Up')}
-              onPress={handleSubmit(handleAddNewAccount)}
+              onPress={handleFormSubmit}
             />
           </View>
           {!!err && (

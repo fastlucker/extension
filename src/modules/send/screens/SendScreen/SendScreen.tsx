@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { FieldValues, SubmitHandler } from 'react-hook-form'
 import {
   ActivityIndicator,
@@ -82,6 +82,11 @@ const SendScreen = () => {
     closeBottomSheetAddrAdd()
     openBottomSheetAddrDisplay()
   }
+
+  const handleSend = useCallback(() => {
+    Keyboard.dismiss()
+    sendTransaction()
+  }, [])
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
@@ -201,10 +206,7 @@ const SendScreen = () => {
                   <Button
                     text={t('Send')}
                     disabled={disabled || (showSWAddressWarning && !sWAddressConfirmed)}
-                    onPress={() => {
-                      Keyboard.dismiss()
-                      sendTransaction()
-                    }}
+                    onPress={handleSend}
                   />
                 </View>
               </>

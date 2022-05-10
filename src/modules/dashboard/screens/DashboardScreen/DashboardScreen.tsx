@@ -31,7 +31,6 @@ const DashboardScreen = () => {
         }
       >
         <Balances />
-
         <Assets />
       </Wrapper>
     </GradientBackgroundWrapper>

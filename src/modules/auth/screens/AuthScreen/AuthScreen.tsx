@@ -1,9 +1,8 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
-import AppVersion from '@modules/common/components/AppVersion'
-import Button from '@modules/common/components/Button'
+import Button, { Props as ButtonDefaultProps } from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
@@ -13,40 +12,62 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 interface Props extends NativeStackScreenProps<any, 'auth'> {}
 
+interface ButtonProps extends Omit<ButtonDefaultProps, 'onPress'> {
+  routeName: string
+  onPress: (routeName: string) => void
+}
+
+const AuthButton = ({ text, type = 'primary', routeName, onPress }: ButtonProps) => {
+  const handleButtonPress = useCallback(() => {
+    !!onPress && onPress(routeName)
+  }, [])
+
+  return <Button text={text} type={type} onPress={handleButtonPress} />
+}
+
 const AuthScreen = ({ navigation }: Props) => {
   const { t } = useTranslation()
+
+  const handleAuthButtonPress = (routeName: string) => {
+    navigation.navigate(routeName)
+  }
 
   return (
     <GradientBackgroundWrapper>
       <Wrapper>
         <AmbireLogo />
-        <Button
+        <AuthButton
           text={t('Create New Account')}
-          onPress={() => navigation.navigate('addNewAccount')}
+          routeName="addNewAccount"
+          onPress={handleAuthButtonPress}
           hasBottomSpacing={false}
         />
         <Text style={[textStyles.center, spacings.pvLg]} weight="regular" fontSize={18}>
           {t('– or –')}
         </Text>
-        <Button
+        <AuthButton
           text={t('Login With Email')}
           type="outline"
-          onPress={() => navigation.navigate('emailLogin')}
+          routeName="emailLogin"
+          onPress={handleAuthButtonPress}
         />
-        <Button
+        <AuthButton
           text={t('Import From JSON')}
           type="outline"
-          onPress={() => navigation.navigate('jsonLogin')}
+          routeName="jsonLogin"
+          onPress={handleAuthButtonPress}
         />
-        <Button
+        <AuthButton
           text={t('Login By QR Code')}
           type="outline"
-          onPress={() => navigation.navigate('qrCodeLogin')}
+          routeName="qrCodeLogin"
+          onPress={handleAuthButtonPress}
         />
-        <Button
+        <AuthButton
           text={t('Hardware Wallet')}
           type="outline"
-          onPress={() => navigation.navigate('hardwareWallet')}
+          routeName="hardwareWallet"
+          onPress={handleAuthButtonPress}
           style={spacings.mbLg}
         />
       </Wrapper>

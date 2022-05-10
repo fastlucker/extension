@@ -21,7 +21,7 @@ const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
 type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
 
 type ButtonSizes = 'regular' | 'small'
-interface Props extends TouchableOpacityProps {
+export interface Props extends TouchableOpacityProps {
   text?: string
   type?: ButtonTypes
   size?: ButtonSizes
@@ -181,4 +181,4 @@ const Button = ({
   )
 }
 
-export default Button
+export default React.memo(Button)

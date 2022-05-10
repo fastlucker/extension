@@ -106,4 +106,4 @@ const Input = ({
   )
 }
 
-export default Input
+export default React.memo(Input)

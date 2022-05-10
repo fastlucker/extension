@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
@@ -30,6 +30,10 @@ const EmailLoginScreen = () => {
 
   const { handleLogin, requiresEmailConfFor, err } = useEmailLogin()
 
+  const handleFormSubmit = useCallback(() => {
+    handleSubmit(handleLogin)()
+  }, [])
+
   return (
     <GradientBackgroundWrapper>
       <TouchableWithoutFeedback
@@ -53,7 +57,7 @@ const EmailLoginScreen = () => {
                     onBlur={onBlur}
                     placeholder={t('Email')}
                     onChangeText={onChange}
-                    onSubmitEditing={handleSubmit(handleLogin)}
+                    onSubmitEditing={handleFormSubmit}
                     value={value}
                     isValid={isEmail(value)}
                     keyboardType="email-address"
@@ -67,7 +71,7 @@ const EmailLoginScreen = () => {
                   disabled={isSubmitting || !watch('email', '')}
                   type="outline"
                   text={isSubmitting ? t('Logging in...') : t('Log In')}
-                  onPress={handleSubmit(handleLogin)}
+                  onPress={handleFormSubmit}
                 />
               </View>
               {!!err && (

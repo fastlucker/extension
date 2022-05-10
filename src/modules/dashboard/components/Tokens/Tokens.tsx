@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 
 import MissingTokenIcon from '@assets/svg/MissingTokenIcon'
@@ -21,8 +21,9 @@ import AddToken from '@modules/dashboard/components/AddToken'
 import { useNavigation } from '@react-navigation/native'
 
 import styles from './styles'
+import TokenItem from './TokenItem'
 
-const Balances = () => {
+const Tokens = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { areProtocolsLoading, isBalanceLoading, protocols, tokens } = usePortfolio()
@@ -35,58 +36,12 @@ const Balances = () => {
   const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')
 
   const handleGoToDeposit = () => navigation.navigate('receive')
-  const handleGoToSend = (symbol: string) =>
-    navigation.navigate('send', { tokenAddressOrSymbol: symbol.toString() })
+  const handleGoToSend = useCallback(
+    (symbol: string) => navigation.navigate('send', { tokenAddressOrSymbol: symbol.toString() }),
+    []
+  )
   const handleGoToBlockExplorer = () =>
     Linking.openURL(`${selectedNetwork?.explorerUrl}/address/${selectedAcc}`)
-
-  const tokenItem = (
-    index,
-    img,
-    tokenImageUrl,
-    symbol,
-    balance,
-    balanceUSD,
-    decimals,
-    address,
-    send = false
-  ) => {
-    const displayImg = img || tokenImageUrl
-
-    return (
-      <View key={`token-${address}-${index}`} style={styles.tokenItemContainer}>
-        <View style={spacings.prSm}>
-          <TokenIcon
-            withContainer
-            uri={displayImg}
-            networkId={selectedNetwork?.id}
-            address={address}
-          />
-        </View>
-
-        <Text fontSize={16} style={[spacings.prSm, styles.tokenSymbol]} numberOfLines={2}>
-          {symbol}
-        </Text>
-
-        <View style={[styles.tokenValue, flexboxStyles.flex1]}>
-          <Text fontSize={16} numberOfLines={1}>
-            {formatFloatTokenAmount(balance, true, decimals)}
-          </Text>
-          <Text style={textStyles.highlightSecondary}>${balanceUSD.toFixed(2)}</Text>
-        </View>
-
-        <View style={spacings.plSm}>
-          <TouchableOpacity
-            onPress={() => handleGoToSend(symbol)}
-            hitSlop={{ bottom: 10, top: 10, left: 5, right: 5 }}
-            style={styles.sendContainer}
-          >
-            <SendIcon />
-          </TouchableOpacity>
-        </View>
-      </View>
-    )
-  }
 
   const emptyState = (
     <View style={[spacings.phLg, spacings.mbSm, flexboxStyles.center]}>
@@ -117,8 +72,22 @@ const Balances = () => {
       {!isLoading &&
         !!sortedTokens.length &&
         sortedTokens.map(
-          ({ address, symbol, img, tokenImageUrl, balance, balanceUSD, decimals }, i) =>
-            tokenItem(i, img, tokenImageUrl, symbol, balance, balanceUSD, decimals, address, true)
+          (
+            { address, symbol, img, tokenImageUrl, balance, balanceUSD, decimals }: any,
+            i: number
+          ) => (
+            <TokenItem
+              key={`token-${address}-${i}`}
+              img={img || tokenImageUrl}
+              symbol={symbol}
+              balance={balance}
+              balanceUSD={balanceUSD}
+              decimals={decimals}
+              address={address}
+              networkId={selectedNetwork?.id}
+              onPress={handleGoToSend}
+            />
+          )
         )}
 
       {!!otherProtocols.length &&
@@ -126,20 +95,21 @@ const Balances = () => {
           <View key={`category-${i}`}>
             {assets.map(
               (
-                { category, symbol, img, tokenImageUrl, balance, balanceUSD, decimals, address },
-                i
-              ) =>
-                tokenItem(
-                  i,
-                  img,
-                  tokenImageUrl,
-                  symbol,
-                  balance,
-                  balanceUSD,
-                  decimals,
-                  address,
-                  category !== 'claimable'
-                )
+                { symbol, img, tokenImageUrl, balance, balanceUSD, decimals, address }: any,
+                i: number
+              ) => (
+                <TokenItem
+                  key={`token-${address}-${i}`}
+                  img={img || tokenImageUrl}
+                  symbol={symbol}
+                  balance={balance}
+                  balanceUSD={balanceUSD}
+                  decimals={decimals}
+                  address={address}
+                  networkId={selectedNetwork?.id}
+                  onPress={handleGoToSend}
+                />
+              )
             )}
           </View>
         ))}
@@ -160,4 +130,4 @@ const Balances = () => {
   )
 }
 
-export default Balances
+export default Tokens
