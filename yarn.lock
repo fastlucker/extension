@@ -5858,6 +5858,12 @@ alphanum-sort@^1.0.0:
   resolved "https://registry.yarnpkg.com/alphanum-sort/-/alphanum-sort-1.0.2.tgz#97a1119649b211ad33691d9f9f486a8ec9fbe0a3"
   integrity sha1-l6ERlkmyEa0zaR2fn0hqjsn74KM=
 
+"ambire-common@git+https://github.com/AmbireTech/ambire-common.git":
+  version "1.0.0"
+  resolved "git+https://github.com/AmbireTech/ambire-common.git#ffb6c46962f126cc8bbc04270db80209b7d43af1"
+  dependencies:
+    react "17.0.1"
+
 anser@^1.4.9:
   version "1.4.10"
   resolved "https://registry.npmjs.org/anser/-/anser-1.4.10.tgz"

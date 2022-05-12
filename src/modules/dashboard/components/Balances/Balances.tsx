@@ -5,6 +5,7 @@ import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
+import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import networks from '@modules/common/constants/networks'
@@ -97,7 +98,7 @@ const Balances = () => {
         <View style={spacings.mb}>
           <Text style={[textStyles.center, spacings.mbTy]}>{t('You also have')}</Text>
           {otherPositiveBalances.map(({ network, total }: any, i: number) => {
-            const { chainId, name, Icon }: any = networkDetails(network)
+            const { chainId, name, id }: any = networkDetails(network)
             const isLast = i + 1 === otherPositiveBalances.length
 
             const onNetworkChange = () => {
@@ -116,7 +117,7 @@ const Balances = () => {
                   {total.truncated}.{total.decimals}
                 </Text>
                 <Text>{` ${t('on')} `}</Text>
-                <Icon width={24} height={24} />
+                <NetworkIcon name={id} width={24} height={24} />
                 <Text numberOfLines={1}>{` ${name}`}</Text>
               </TouchableOpacity>
             )

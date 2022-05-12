@@ -2,6 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
+import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import { NetworkType } from '@modules/common/constants/networks'
@@ -26,7 +27,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     closeBottomSheet()
   }
 
-  const renderNetwork = ({ name, Icon, chainId }: NetworkType, i: number) => {
+  const renderNetwork = ({ name, chainId, id }: NetworkType, i: number) => {
     const isActive = chainId === network?.chainId
     const isLast = i + 1 === allNetworks.length
 
@@ -49,7 +50,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
           {name}
         </Text>
         <View style={styles.networkBtnIcon}>
-          <Icon />
+          <NetworkIcon name={id} />
         </View>
       </TouchableOpacity>
     )

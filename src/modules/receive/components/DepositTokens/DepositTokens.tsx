@@ -5,6 +5,7 @@ import { TouchableOpacity, View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
 
 import CopyIcon from '@assets/svg/CopyIcon'
+import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -82,10 +83,10 @@ const DepositTokens = () => {
           {t('Following networks supported on this address:')}
         </Text>
         <View style={[flexboxStyles.directionRow, flexboxStyles.wrap, flexboxStyles.justifyCenter]}>
-          {networks.map(({ id, IconMonochrome, name }: any) => (
+          {networks.map(({ id, name }: any) => (
             <View key={id} style={styles.supportedNetworksContainer}>
               <View style={{ marginBottom: 3 }}>
-                <IconMonochrome />
+                <NetworkIcon name={id} type="monochrome" />
               </View>
               <Text
                 style={spacings.plMi}
