@@ -1,3 +1,4 @@
+import networks from 'ambire-common/src/constants/networks'
 import React, { useLayoutEffect } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
@@ -8,7 +9,6 @@ import Button from '@modules/common/components/Button'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
-import networks from '@modules/common/constants/networks'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'

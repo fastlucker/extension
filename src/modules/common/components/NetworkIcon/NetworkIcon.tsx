@@ -1,6 +1,5 @@
 import { NETWORKS } from 'ambire-common/src/constants/networks'
 import React from 'react'
-import { View } from 'react-native'
 
 import AvalancheLogo from '@assets/svg/AvalancheLogo'
 import AvalancheMonochromeIcon from '@assets/svg/AvalancheMonochromeIcon'

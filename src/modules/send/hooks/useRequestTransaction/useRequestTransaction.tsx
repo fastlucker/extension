@@ -1,10 +1,10 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
+import networks from 'ambire-common/src/constants/networks'
 import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import TokenIcon from '@modules/common/components/TokenIcon'
-import networks from '@modules/common/constants/networks'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useNetwork from '@modules/common/hooks/useNetwork'

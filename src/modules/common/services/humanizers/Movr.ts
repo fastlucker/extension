@@ -1,7 +1,7 @@
+import networks from 'ambire-common/src/constants/networks'
 import { Interface } from 'ethers/lib/utils'
 
 import { abis } from '@modules/common/constants/humanizerInfo.json'
-import networks from '@modules/common/constants/networks'
 import { formatNativeTokenAddress, token } from '@modules/common/services/humanReadableTransactions'
 
 const MovrAnyswapInterface = new Interface(abis.MovrAnyswap)

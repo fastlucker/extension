@@ -1,10 +1,10 @@
 // TODO: add types
 // TODO: fix ignored linter warnings
 import oracle from 'adex-protocol-eth/abi/RemainingBalancesOracle.json'
+import networks from 'ambire-common/src/constants/networks'
 import { ethers, getDefaultProvider } from 'ethers'
 
 import i18n from '@config/localization/localization'
-import networks from '@modules/common/constants/networks'
 import tokenList from '@modules/common/constants/tokensList.json'
 
 const { Interface, AbiCoder, formatUnits, hexlify, isAddress } = ethers.utils
