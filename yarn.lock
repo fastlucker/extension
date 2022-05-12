@@ -5859,8 +5859,8 @@ alphanum-sort@^1.0.0:
   integrity sha1-l6ERlkmyEa0zaR2fn0hqjsn74KM=
 
 "ambire-common@git+https://github.com/AmbireTech/ambire-common.git":
-  version "1.0.0"
-  resolved "git+https://github.com/AmbireTech/ambire-common.git#ffb6c46962f126cc8bbc04270db80209b7d43af1"
+  version "0.1.0"
+  resolved "git+https://github.com/AmbireTech/ambire-common.git#1e36c6795d8d6527678bda34fec82955916031a0"
   dependencies:
     react "17.0.1"
 

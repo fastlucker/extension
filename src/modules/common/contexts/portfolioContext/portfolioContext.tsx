@@ -1,11 +1,11 @@
 // TODO: add types
+import supportedProtocols from 'ambire-common/src/constants/supportedProtocols'
 // TODO: fix ignored linter warnings
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState } from 'react-native'
 
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
-import supportedProtocols from '@modules/common/constants/supportedProtocols'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
