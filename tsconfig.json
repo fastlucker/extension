@@ -4,8 +4,7 @@
     "paths": {
       "@assets/*": ["assets/*"],
       "@modules/*": ["modules/*"],
-      "@config/*": ["config/*"],
-      "@shared/*": ["shared/*"]
+      "@config/*": ["config/*"]
     },
     "noEmit": false,
     "noEmitOnError": true,

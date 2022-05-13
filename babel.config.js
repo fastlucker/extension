@@ -23,8 +23,7 @@ module.exports = function (api) {
           alias: {
             '@assets': './src/assets',
             '@modules': './src/modules',
-            '@config': './src/config',
-            '@shared': './src/shared'
+            '@config': './src/config'
           }
         }
       ]
