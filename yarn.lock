@@ -5858,9 +5858,9 @@ alphanum-sort@^1.0.0:
   resolved "https://registry.yarnpkg.com/alphanum-sort/-/alphanum-sort-1.0.2.tgz#97a1119649b211ad33691d9f9f486a8ec9fbe0a3"
   integrity sha1-l6ERlkmyEa0zaR2fn0hqjsn74KM=
 
-"ambire-common@git+https://github.com/AmbireTech/ambire-common.git#0.2.1":
+"ambire-common@git+ssh://git@github.com:AmbireTech/ambire-common.git#0.2.1":
   version "0.2.1"
-  resolved "git+https://github.com/AmbireTech/ambire-common.git#826da00e7910714c2c82d174639c7530468bf1bd"
+  resolved "git+ssh://git@github.com:AmbireTech/ambire-common.git#826da00e7910714c2c82d174639c7530468bf1bd"
   dependencies:
     react "17.0.1"
 
