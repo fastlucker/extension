@@ -20,22 +20,24 @@ interface Props {
   // Required in order all bottom sheet related events to click
   sheetRef: React.RefObject<any>
   closeBottomSheet: () => void
+  isOpen: boolean
   children: React.ReactNode
   // Preferences
   cancelText?: string
   displayCancel?: boolean
   maxInitialHeightPercentage?: number
   dynamicInitialHeight?: boolean
-  isOpen: boolean
 }
 
 const BottomSheet: React.FC<Props> = ({
+  // Useful for debugging and generally knowing which bottom sheet is triggered
+  // eslint-disable-next-line
   id,
   sheetRef,
   children,
   displayCancel = true,
   cancelText: _cancelText,
-  dynamicInitialHeight = true,
+  // dynamicInitialHeight = true,
   isOpen = false,
   closeBottomSheet = () => {}
 }) => {
@@ -128,6 +130,12 @@ const BottomSheet: React.FC<Props> = ({
       </BottomSheetScrollView>
     )
   }
+
+  // FIXME: Temporary disable, because it is causing glitches.
+  // Here's now to reproduce them:
+  // 1) On the Polygon network 2) Send transaction 3) Tap back from Pending transaction
+  // 4) Go to transactions and open one details 5) Change networks.
+  const dynamicInitialHeight = false
 
   return (
     <Portal hostName="global">
