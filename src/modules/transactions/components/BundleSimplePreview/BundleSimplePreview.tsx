@@ -28,7 +28,9 @@ const BundleSimplePreview = ({
   if (!Array.isArray(bundle.txns)) {
     return (
       <Panel contentContainerStyle={styles.panel} type="filled">
-        <Text appearance="danger">{t('Bundle has no transactions (should never happen)')}</Text>
+        <Text appearance="danger" fontSize={12}>
+          {t('Bundle has no transactions (should never happen)')}
+        </Text>
       </Panel>
     )
   }
@@ -82,7 +84,7 @@ const BundleSimplePreview = ({
       {!!bundle.executed && !bundle.executed?.success && (
         <View>
           <Trans>
-            <Text appearance="danger">
+            <Text appearance="danger" fontSize={12}>
               {'Error: '} {bundle.executed?.errorMsg || 'unknown error'}
             </Text>
           </Trans>
