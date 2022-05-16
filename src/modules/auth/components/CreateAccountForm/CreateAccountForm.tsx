@@ -55,6 +55,7 @@ const AddNewAccountScreen = () => {
             isValid={isEmail(value)}
             error={errors.email && (t('Please fill in a valid email.') as string)}
             keyboardType="email-address"
+            containerStyle={spacings.mbTy}
           />
         )}
         name="email"
@@ -70,6 +71,7 @@ const AddNewAccountScreen = () => {
             isValid={isValidPassword(value)}
             value={value}
             error={errors.password && (t('Please fill in a valid password.') as string)}
+            containerStyle={spacings.mbTy}
           />
         )}
         name="password"

@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useLayoutEffect, useState } from 'react'
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
+import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import CreateAccountForm from '@modules/auth/components/CreateAccountForm'
 import EmailLoginForm from '@modules/auth/components/EmailLoginForm'
@@ -18,8 +19,16 @@ export enum FORM_TYPE {
 
 const segments = [{ value: FORM_TYPE.EMAIL_LOGIN }, { value: FORM_TYPE.CREATE_ACCOUNT }]
 
-const EmailLoginScreen = () => {
+const EmailLoginScreen = ({ navigation }: any) => {
+  const { t } = useTranslation()
+
   const [formType, setFormType] = useState<FORM_TYPE>(FORM_TYPE.EMAIL_LOGIN)
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: formType === FORM_TYPE.CREATE_ACCOUNT ? t('Create new Account') : t('Login')
+    })
+  }, [formType])
 
   return (
     <GradientBackgroundWrapper>
