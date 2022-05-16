@@ -61,7 +61,7 @@ const BundleSimplePreview = ({
             })}
           </Text>
           <Text style={flexboxStyles.flex1} numberOfLines={1} fontSize={10}>
-            {bundle.submittedAt && toLocaleDateTime(new Date(bundle.submittedAt)).toString()}
+            {!!bundle.submittedAt && toLocaleDateTime(new Date(bundle.submittedAt)).toString()}
           </Text>
           <TouchableOpacity onPress={handleOpenDetailedBundle} hitSlop={HIT_SLOP}>
             <OpenIcon />
