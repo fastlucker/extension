@@ -2,6 +2,8 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { colorPalette as colors } from '@modules/common/styles/colors'
 
+export const HEADER_HEIGHT = 60
+
 interface Styles {
   container: ViewStyle
   navIconContainerRegular: ViewStyle

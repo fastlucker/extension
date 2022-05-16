@@ -43,13 +43,13 @@ const SendScreen = () => {
     sheetRef: sheetRefAddrAdd,
     openBottomSheet: openBottomSheetAddrAdd,
     closeBottomSheet: closeBottomSheetAddrAdd,
-    isOpen: isOpenBottomSheetAddrAdd
+    isOpen: isOpenAddrAdd
   } = useBottomSheet()
   const {
     sheetRef: sheetRefAddrDisplay,
     openBottomSheet: openBottomSheetAddrDisplay,
     closeBottomSheet: closeBottomSheetAddrDisplay,
-    isOpen: isOpenBottomSheetAddrDisplay
+    isOpen: isOpenAddrDisplay
   } = useBottomSheet()
   const { addAddress } = useAddressBook()
   const {
@@ -221,10 +221,9 @@ const SendScreen = () => {
         )}
         <BottomSheet
           id="addresses-list"
+          isOpen={isOpenAddrDisplay}
           sheetRef={sheetRefAddrDisplay}
-          isOpen={isOpenBottomSheetAddrDisplay}
           closeBottomSheet={closeBottomSheetAddrDisplay}
-          dynamicInitialHeight={false}
         >
           <AddressList
             onSelectAddress={(item): any => setAddress(item.address)}
@@ -234,8 +233,8 @@ const SendScreen = () => {
         </BottomSheet>
         <BottomSheet
           id="add-address"
+          isOpen={isOpenAddrAdd}
           sheetRef={sheetRefAddrAdd}
-          isOpen={isOpenBottomSheetAddrAdd}
           closeBottomSheet={closeBottomSheetAddrAdd}
           dynamicInitialHeight={false}
         >
