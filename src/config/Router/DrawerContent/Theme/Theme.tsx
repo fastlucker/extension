@@ -14,7 +14,7 @@ import { THEME_TYPES } from '@modules/common/styles/themeConfig'
 const Theme = () => {
   const { t } = useTranslation()
   const { setThemeType, themeType } = useTheme()
-  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
+  const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
 
   const handleOnThemeChange = (type: THEME_TYPES) => {
     setThemeType(type)
@@ -36,8 +36,8 @@ const Theme = () => {
       </TouchableOpacity>
       <BottomSheet
         id="change-theme"
-        isOpen={isOpen}
         sheetRef={sheetRef}
+        isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
       >
         <Title>{t('Change app theme')}</Title>
