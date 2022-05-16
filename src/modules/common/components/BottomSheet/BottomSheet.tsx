@@ -131,10 +131,9 @@ const BottomSheet: React.FC<Props> = ({
     )
   }
 
-  // FIXME: Temporary disable, because it is causing glitches.
-  // Here's now to reproduce them:
-  // 1) On the Polygon network 2) Send transaction 3) Tap back from Pending transaction
-  // 4) Go to transactions and open one details 5) Change networks.
+  // FIXME: Temporary disable, because it is causing glitches with
+  // the animation when the bottom sheet gets open for the first time.
+  // From the second time onwards - it's all good.
   const dynamicInitialHeight = false
 
   return (
