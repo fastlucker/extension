@@ -134,6 +134,7 @@ const BottomSheet: React.FC<Props> = ({
   // FIXME: Temporary disable, because it is causing glitches with
   // the animation when the bottom sheet gets open for the first time.
   // From the second time onwards - it's all good.
+  // Search for: #dynamicheightfix
   const dynamicInitialHeight = false
 
   return (
