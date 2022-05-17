@@ -15,6 +15,7 @@ export const DEVICE_WIDTH = Dimensions.get('window').width
 export const DEVICE_HEIGHT = Dimensions.get('window').height
 
 export const IS_SCREEN_SIZE_L = DEVICE_WIDTH >= 768
+export const IS_SCREEN_SIZE_S = DEVICE_HEIGHT <= 670 || DEVICE_WIDTH <= 370
 
 const spacings = StyleSheet.create<Style>({
   mb0: { marginBottom: 0 },

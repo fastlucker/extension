@@ -1,38 +1,35 @@
-import React, { useCallback } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
+import React, { useLayoutEffect, useState } from 'react'
+import { Keyboard, LayoutAnimation, TouchableWithoutFeedback, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
-import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
-import Button from '@modules/common/components/Button'
+import CreateAccountForm from '@modules/auth/components/CreateAccountForm'
+import EmailLoginForm from '@modules/auth/components/EmailLoginForm'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Input from '@modules/common/components/Input'
-import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
+import Segments from '@modules/common/components/Segments'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import { isEmail } from '@modules/common/services/validate'
+import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
-const EmailLoginScreen = () => {
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export enum FORM_TYPE {
+  EMAIL_LOGIN = 'Login with Email',
+  CREATE_ACCOUNT = 'Create Account'
+}
+
+const segments = [{ value: FORM_TYPE.EMAIL_LOGIN }, { value: FORM_TYPE.CREATE_ACCOUNT }]
+
+const EmailLoginScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors, isSubmitting }
-  } = useForm({
-    reValidateMode: 'onChange',
-    defaultValues: {
-      email: ''
-    }
-  })
 
-  const { handleLogin, requiresEmailConfFor, err } = useEmailLogin()
+  const [formType, setFormType] = useState<FORM_TYPE>(FORM_TYPE.EMAIL_LOGIN)
 
-  const handleFormSubmit = useCallback(() => {
-    handleSubmit(handleLogin)()
-  }, [])
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: formType === FORM_TYPE.CREATE_ACCOUNT ? t('Create new Account') : t('Login')
+    })
+  }, [formType])
 
   return (
     <GradientBackgroundWrapper>
@@ -46,59 +43,25 @@ const EmailLoginScreen = () => {
           type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
           extraHeight={220}
         >
-          <AmbireLogo />
-          {!requiresEmailConfFor && (
-            <>
-              <Controller
-                control={control}
-                rules={{ validate: isEmail }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    onBlur={onBlur}
-                    placeholder={t('Email')}
-                    onChangeText={onChange}
-                    onSubmitEditing={handleFormSubmit}
-                    value={value}
-                    isValid={isEmail(value)}
-                    keyboardType="email-address"
-                    error={errors.email && (t('Please fill in a valid email.') as string)}
-                  />
-                )}
-                name="email"
-              />
-              <View style={spacings.mbTy}>
-                <Button
-                  disabled={isSubmitting || !watch('email', '')}
-                  type="outline"
-                  text={isSubmitting ? t('Logging in...') : t('Log In')}
-                  onPress={handleFormSubmit}
-                />
-              </View>
-              {!!err && (
-                <Text appearance="danger" style={spacings.mbSm}>
-                  {err}
-                </Text>
-              )}
-              <Text style={spacings.mbSm} fontSize={12}>
-                {t(
-                  'A password will not be required, we will send a magic login link to your email.'
-                )}
-              </Text>
-            </>
-          )}
-          {!!requiresEmailConfFor && (
-            <>
-              <Title hasBottomSpacing={false} style={spacings.mbSm}>
-                {t('Email Login')}
-              </Title>
-              <Text style={spacings.mbSm} fontSize={12}>
-                {t(
-                  'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
-                  { email: requiresEmailConfFor?.email }
-                )}
-              </Text>
-            </>
-          )}
+          <AmbireLogo shouldExpand={false} />
+          <View style={[spacings.mbLg, spacings.ph]}>
+            <Segments
+              defaultValue={formType}
+              segments={segments}
+              onChange={(value: FORM_TYPE) => {
+                setFormType(value)
+                triggerLayoutAnimation({
+                  forceAnimate: true,
+                  config: LayoutAnimation.create(300, 'linear', 'opacity')
+                })
+              }}
+              fontSize={14}
+            />
+          </View>
+          <View style={[flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
+            {formType === FORM_TYPE.EMAIL_LOGIN && <EmailLoginForm />}
+            {formType === FORM_TYPE.CREATE_ACCOUNT && <CreateAccountForm />}
+          </View>
         </Wrapper>
       </TouchableWithoutFeedback>
     </GradientBackgroundWrapper>

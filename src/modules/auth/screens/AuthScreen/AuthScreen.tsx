@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react'
+import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
@@ -7,6 +8,7 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
@@ -36,40 +38,35 @@ const AuthScreen = ({ navigation }: Props) => {
     <GradientBackgroundWrapper>
       <Wrapper>
         <AmbireLogo />
-        <AuthButton
-          text={t('Create New Account')}
-          routeName="addNewAccount"
-          onPress={handleAuthButtonPress}
-          hasBottomSpacing={false}
-        />
-        <Text style={[textStyles.center, spacings.pvLg]} weight="regular" fontSize={18}>
-          {t('– or –')}
-        </Text>
-        <AuthButton
-          text={t('Login With Email')}
-          type="outline"
-          routeName="emailLogin"
-          onPress={handleAuthButtonPress}
-        />
-        <AuthButton
-          text={t('Import From JSON')}
-          type="outline"
-          routeName="jsonLogin"
-          onPress={handleAuthButtonPress}
-        />
-        <AuthButton
-          text={t('Login By QR Code')}
-          type="outline"
-          routeName="qrCodeLogin"
-          onPress={handleAuthButtonPress}
-        />
-        <AuthButton
-          text={t('Hardware Wallet')}
-          type="outline"
-          routeName="hardwareWallet"
-          onPress={handleAuthButtonPress}
-          style={spacings.mbLg}
-        />
+        <View style={flexboxStyles.flex1}>
+          <AuthButton
+            text={t('Login With Email')}
+            routeName="emailLogin"
+            onPress={handleAuthButtonPress}
+            hasBottomSpacing={false}
+          />
+          <AuthButton
+            text={t('Hardware Wallet')}
+            routeName="hardwareWallet"
+            onPress={handleAuthButtonPress}
+            style={spacings.mbLg}
+          />
+          <Text style={[textStyles.center, spacings.mb]} weight="regular" fontSize={18}>
+            {t('– or –')}
+          </Text>
+          <AuthButton
+            text={t('Import From JSON')}
+            type="outline"
+            routeName="jsonLogin"
+            onPress={handleAuthButtonPress}
+          />
+          <AuthButton
+            text={t('Login By QR Code')}
+            type="outline"
+            routeName="qrCodeLogin"
+            onPress={handleAuthButtonPress}
+          />
+        </View>
       </Wrapper>
     </GradientBackgroundWrapper>
   )

@@ -10,6 +10,7 @@ interface Styles {
   justifyCenter: ViewStyle
   wrap: ViewStyle
   justifySpaceBetween: ViewStyle
+  justifyEnd: ViewStyle
 }
 
 const flexboxStyles = StyleSheet.create<Styles>({
@@ -40,6 +41,9 @@ const flexboxStyles = StyleSheet.create<Styles>({
   },
   justifySpaceBetween: {
     justifyContent: 'space-between'
+  },
+  justifyEnd: {
+    justifyContent: 'flex-end'
   }
 })
 

@@ -13,7 +13,6 @@ import DrawerContent from '@config/Router/DrawerContent'
 import Header from '@config/Router/Header'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
-import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
@@ -160,11 +159,6 @@ const AuthStack = () => {
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
-      <Stack.Screen
-        name="addNewAccount"
-        options={{ title: t('Create new Account') }}
-        component={AddNewAccountScreen}
-      />
       <Stack.Screen
         name="emailLogin"
         options={{ title: t('Login') }}
