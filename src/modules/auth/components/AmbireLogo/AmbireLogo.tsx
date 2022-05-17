@@ -25,7 +25,7 @@ const AmbireLogo = ({
       <TouchableWithoutFeedback onPress={handleOnLogoPress}>
         <Image
           source={logo}
-          style={{ height: isResponsive && IS_SCREEN_SIZE_S ? 104 : 136 }}
+          style={{ height: isResponsive && IS_SCREEN_SIZE_S ? 96 : 136 }}
           resizeMode="contain"
         />
       </TouchableWithoutFeedback>

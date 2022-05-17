@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useState } from 'react'
-import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
+import { Keyboard, LayoutAnimation, TouchableWithoutFeedback, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
@@ -8,6 +8,7 @@ import EmailLoginForm from '@modules/auth/components/EmailLoginForm'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Segments from '@modules/common/components/Segments'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -43,11 +44,17 @@ const EmailLoginScreen = ({ navigation }: any) => {
           extraHeight={220}
         >
           <AmbireLogo shouldExpand={false} />
-          <View style={[spacings.mbLg, spacings.ptSm, spacings.ph]}>
+          <View style={[spacings.mbLg, spacings.ph]}>
             <Segments
               defaultValue={formType}
               segments={segments}
-              onChange={(value: FORM_TYPE) => setFormType(value)}
+              onChange={(value: FORM_TYPE) => {
+                setFormType(value)
+                triggerLayoutAnimation({
+                  forceAnimate: true,
+                  config: LayoutAnimation.create(300, 'linear', 'opacity')
+                })
+              }}
               fontSize={14}
             />
           </View>
