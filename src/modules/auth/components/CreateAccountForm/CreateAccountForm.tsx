@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
-import { Linking, View } from 'react-native'
+import { LayoutAnimation, Linking, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import { ambireCloudURL, termsAndPrivacyURL } from '@modules/auth/constants/URLs'
@@ -12,6 +12,7 @@ import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import accountPresets from '@modules/common/constants/accountPresets'
+import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import { isEmail, isValidPassword } from '@modules/common/services/validate'
 import spacings from '@modules/common/styles/spacings'
 
@@ -126,7 +127,16 @@ const AddNewAccountScreen = () => {
       <Controller
         control={control}
         render={({ field: { onChange, value } }) => (
-          <Checkbox value={value} onValueChange={() => onChange(!value)}>
+          <Checkbox
+            value={value}
+            onValueChange={() => {
+              onChange(!value)
+              triggerLayoutAnimation({
+                forceAnimate: true,
+                config: LayoutAnimation.create(300, 'linear', 'opacity')
+              })
+            }}
+          >
             <Trans t={t}>
               <Text fontSize={12}>
                 <Text fontSize={12} onPress={() => onChange(!value)}>
