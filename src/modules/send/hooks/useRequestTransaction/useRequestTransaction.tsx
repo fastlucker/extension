@@ -1,7 +1,7 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import TokenIcon from '@modules/common/components/TokenIcon'
 import networks from '@modules/common/constants/networks'
@@ -92,19 +92,22 @@ export default function useRequestTransaction() {
     return ethers.utils.formatUnits(balanceRaw, decimals)
   }, [selectedAsset])
 
-  const onAmountChange = (value: any) => {
-    if (value) {
-      const { decimals } = selectedAsset
-      const bigNumberAmount = ethers.utils.parseUnits(value, decimals).toHexString()
-      setBigNumberHexAmount(bigNumberAmount)
-    }
+  const onAmountChange = useCallback(
+    (value: any) => {
+      if (value) {
+        const { decimals } = selectedAsset
+        const bigNumberAmount = ethers.utils.parseUnits(value, decimals).toHexString()
+        setBigNumberHexAmount(bigNumberAmount)
+      }
 
-    setAmount(value)
-  }
+      setAmount(value)
+    },
+    [selectedAsset]
+  )
 
-  const setMaxAmount = () => onAmountChange(maxAmount)
+  const setMaxAmount = useCallback(() => onAmountChange(maxAmount), [onAmountChange, maxAmount])
 
-  const sendTransaction = () => {
+  const sendTransaction = useCallback(() => {
     try {
       const txn = {
         to: selectedAsset.address,
@@ -136,7 +139,7 @@ export default function useRequestTransaction() {
       console.error(e)
       addToast(`Error: ${e.message || e}`, { error: true })
     }
-  }
+  }, [selectedAcc, address, selectedAsset, bigNumberHexAmount, network?.chainId])
 
   const unknownWarning = useMemo(
     () => isValidAddress(address) && !isKnownAddress(address),

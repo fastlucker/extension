@@ -1,4 +1,5 @@
-import React, { useContext } from 'react'
+import React from 'react'
+import isEqual from 'react-fast-compare'
 import { Trans, useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
@@ -10,20 +11,26 @@ import accountPresets from '@modules/common/constants/accountPresets'
 import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import { DetailedBundleContext } from '@modules/send/contexts/detailedBundleContext'
 
 import styles from './styles'
 
 const HIT_SLOP = { bottom: 15, left: 12, right: 15, top: 15 }
 
-const BundleSimplePreview = ({ bundle, mined = false, actions }: any) => {
+const BundleSimplePreview = ({
+  bundle,
+  mined = false,
+  actions,
+  setOpenedBundle,
+  setMined
+}: any) => {
   const { t } = useTranslation()
-  const { setOpenedBundle, setMined } = useContext(DetailedBundleContext)
 
   if (!Array.isArray(bundle.txns)) {
     return (
       <Panel contentContainerStyle={styles.panel} type="filled">
-        <Text appearance="danger">{t('Bundle has no transactions (should never happen)')}</Text>
+        <Text appearance="danger" fontSize={12}>
+          {t('Bundle has no transactions (should never happen)')}
+        </Text>
       </Panel>
     )
   }
@@ -40,6 +47,11 @@ const BundleSimplePreview = ({ bundle, mined = false, actions }: any) => {
   const toLocaleDateTime = (date: any) =>
     `${date.toLocaleDateString()} (${date.toLocaleTimeString()})`
 
+  const handleOpenDetailedBundle = () => {
+    !!setOpenedBundle && setOpenedBundle(bundle)
+    !!setMined && setMined(mined)
+  }
+
   return (
     <Panel contentContainerStyle={styles.panel} type="filled">
       {!!mined && (
@@ -51,15 +63,9 @@ const BundleSimplePreview = ({ bundle, mined = false, actions }: any) => {
             })}
           </Text>
           <Text style={flexboxStyles.flex1} numberOfLines={1} fontSize={10}>
-            {bundle.submittedAt && toLocaleDateTime(new Date(bundle.submittedAt)).toString()}
+            {!!bundle.submittedAt && toLocaleDateTime(new Date(bundle.submittedAt)).toString()}
           </Text>
-          <TouchableOpacity
-            onPress={() => {
-              setOpenedBundle(bundle)
-              setMined(mined)
-            }}
-            hitSlop={HIT_SLOP}
-          >
+          <TouchableOpacity onPress={handleOpenDetailedBundle} hitSlop={HIT_SLOP}>
             <OpenIcon />
           </TouchableOpacity>
         </View>
@@ -78,7 +84,7 @@ const BundleSimplePreview = ({ bundle, mined = false, actions }: any) => {
       {!!bundle.executed && !bundle.executed?.success && (
         <View>
           <Trans>
-            <Text appearance="danger">
+            <Text appearance="danger" fontSize={12}>
               {'Error: '} {bundle.executed?.errorMsg || 'unknown error'}
             </Text>
           </Trans>
@@ -89,4 +95,6 @@ const BundleSimplePreview = ({ bundle, mined = false, actions }: any) => {
   )
 }
 
-export default BundleSimplePreview
+const MemoizedBundleSimplePreview = React.memo(BundleSimplePreview, isEqual)
+
+export default MemoizedBundleSimplePreview

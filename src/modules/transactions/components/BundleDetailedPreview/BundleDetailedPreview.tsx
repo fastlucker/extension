@@ -1,4 +1,5 @@
 import React from 'react'
+import isEqual from 'react-fast-compare'
 import { Trans, useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 
@@ -11,11 +12,11 @@ import { getTransactionSummary } from '@modules/common/services/humanReadableTra
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
-const BundleDetailedPreview = ({ bundle, mined = false, hasBottomSpacing }: any) => {
-  const network: any = networks.find((x) => x.id === bundle.network)
+const BundleDetailedPreview = ({ bundle = {}, mined = false, hasBottomSpacing }: any) => {
+  const network: any = networks?.find((x) => x.id === bundle?.network)
   const { t } = useTranslation()
 
-  if (!Array.isArray(bundle.txns)) {
+  if (!Array.isArray(bundle?.txns)) {
     return (
       <Panel type="filled">
         <Text appearance="danger">{t('Bundle has no transactions (should never happen)')}</Text>
@@ -23,7 +24,8 @@ const BundleDetailedPreview = ({ bundle, mined = false, hasBottomSpacing }: any)
     )
   }
 
-  const lastTxn = bundle.txns[bundle.txns.length - 1]
+  // eslint-disable-next-line no-unsafe-optional-chaining
+  const lastTxn = bundle?.txns[bundle?.txns?.length - 1]
   // terribly hacky; @TODO fix
   // all of the values are prob checksummed so we may not need toLowerCase
   const lastTxnSummary = getTransactionSummary(lastTxn, bundle.network, bundle.identity)
@@ -103,4 +105,6 @@ const BundleDetailedPreview = ({ bundle, mined = false, hasBottomSpacing }: any)
   )
 }
 
-export default BundleDetailedPreview
+const MemoizedBundleDetailedPreview = React.memo(BundleDetailedPreview, isEqual)
+
+export default MemoizedBundleDetailedPreview

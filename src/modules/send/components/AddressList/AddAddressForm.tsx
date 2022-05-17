@@ -3,6 +3,7 @@ import { Controller, FieldValues, SubmitHandler, useForm } from 'react-hook-form
 import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import { useBottomSheetInternal } from '@gorhom/bottom-sheet'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import InputOrScan from '@modules/common/components/InputOrScan'
@@ -34,6 +35,8 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
     }
   })
 
+  const { shouldHandleKeyboardEvents } = useBottomSheetInternal()
+
   useEffect(() => {
     setValue('address', address)
   }, [address])
@@ -52,7 +55,13 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
         rules={{ required: true }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            onBlur={onBlur}
+            onBlur={() => {
+              shouldHandleKeyboardEvents.value = false
+              !!onBlur && onBlur()
+            }}
+            onFocus={() => {
+              shouldHandleKeyboardEvents.value = true
+            }}
             containerStyle={spacings.mbTy}
             placeholder={t('My Address')}
             onChangeText={onChange}
@@ -66,7 +75,13 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
         rules={{ validate: isValidAddress }}
         render={({ field: { onChange, onBlur, value } }) => (
           <InputOrScan
-            onBlur={onBlur}
+            onBlur={() => {
+              shouldHandleKeyboardEvents.value = false
+              !!onBlur && onBlur()
+            }}
+            onFocus={() => {
+              shouldHandleKeyboardEvents.value = true
+            }}
             containerStyle={spacings.mbTy}
             placeholder={t('0x')}
             onChangeText={onChange}

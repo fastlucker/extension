@@ -61,4 +61,4 @@ const InputOrScan: React.FC<Props> = ({ onChangeText, ...rest }) => {
   )
 }
 
-export default InputOrScan
+export default React.memo(InputOrScan)

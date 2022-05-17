@@ -13,7 +13,6 @@ import DrawerContent from '@config/Router/DrawerContent'
 import Header from '@config/Router/Header'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
-import AddNewAccountScreen from '@modules/auth/screens/AddNewAccountScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
@@ -66,9 +65,9 @@ const ChangeLocalAuthStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
 
-const headerAlpha = (props) => <Header withHamburger withScanner {...props} />
-const headerBeta = (props) => <Header mode="title" {...props} />
-const headerGamma = (props) => <Header {...props} withScanner />
+const headerAlpha = (props: any) => <Header withHamburger withScanner {...props} />
+const headerBeta = (props: any) => <Header mode="title" {...props} />
+const headerGamma = (props: any) => <Header {...props} withScanner />
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
@@ -79,7 +78,7 @@ const SignersStackScreen = () => {
         name="signers-screen"
         component={SignersScreen}
         options={{
-          title: t('Manage signers')
+          title: t('Manage Signers')
         }}
       />
     </SignersStack.Navigator>
@@ -111,7 +110,7 @@ const ChangeLocalAuthStackScreen = () => {
         name="local-auth-change-screen"
         component={ChangeLocalAuthScreen}
         options={{
-          title: t('Local auth')
+          title: t('Local Auth')
         }}
       />
     </ChangeLocalAuthStack.Navigator>
@@ -143,7 +142,7 @@ const AppLockingStackScreen = () => {
         name="app-locking-screen"
         component={ChangeAppLockingScreen}
         options={{
-          title: t('App Locking')
+          title: t('Manage App Locking')
         }}
       />
     </AppLockingStack.Navigator>
@@ -160,11 +159,6 @@ const AuthStack = () => {
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
-      <Stack.Screen
-        name="addNewAccount"
-        options={{ title: t('Create new Account') }}
-        component={AddNewAccountScreen}
-      />
       <Stack.Screen
         name="emailLogin"
         options={{ title: t('Login') }}

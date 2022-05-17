@@ -53,7 +53,10 @@ const Card = ({
 
     const backAction = () => {
       if (isExpanded) {
-        triggerLayoutAnimation(LINEAR_OPACITY_ANIMATION, true)
+        triggerLayoutAnimation({
+          config: LINEAR_OPACITY_ANIMATION,
+          forceAnimate: true
+        })
         setIsExpanded(false)
         setVisibleCard(null)
         // Returning true prevents execution of the default native back handling
@@ -69,13 +72,19 @@ const Card = ({
   }, [isExpanded])
 
   const expand = () => {
-    triggerLayoutAnimation(LINEAR_OPACITY_ANIMATION, true)
+    triggerLayoutAnimation({
+      config: LINEAR_OPACITY_ANIMATION,
+      forceAnimate: true
+    })
     setVisibleCard(name)
     setIsExpanded(true)
   }
 
   const collapse = () => {
-    triggerLayoutAnimation(LINEAR_OPACITY_ANIMATION, true)
+    triggerLayoutAnimation({
+      config: LINEAR_OPACITY_ANIMATION,
+      forceAnimate: true
+    })
     setVisibleCard(null)
     setIsExpanded(false)
   }
@@ -229,7 +238,8 @@ const Card = ({
                     ]}
                   >
                     <Text
-                      style={[textStyles.bold, flexboxStyles.flex1, spacings.prTy]}
+                      weight="medium"
+                      style={[flexboxStyles.flex1, spacings.prTy]}
                       numberOfLines={1}
                     >
                       {type}

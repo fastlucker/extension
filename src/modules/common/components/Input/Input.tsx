@@ -82,7 +82,7 @@ const Input = ({
           {hasButton && (
             <TouchableOpacity onPress={onButtonPress} disabled={disabled} style={styles.button}>
               {typeof buttonText === 'string' || buttonText instanceof String ? (
-                <Text style={textStyles.bold}>{buttonText}</Text>
+                <Text weight="medium">{buttonText}</Text>
               ) : (
                 buttonText
               )}
@@ -106,4 +106,4 @@ const Input = ({
   )
 }
 
-export default Input
+export default React.memo(Input)

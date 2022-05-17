@@ -7,8 +7,9 @@ const styles = StyleSheet.create({
   codeFieldRoot: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    ...spacings.pv,
-    ...spacings.mvLg
+    ...spacings.pbSm,
+    ...spacings.mbLg,
+    ...spacings.mt
   },
   cellRoot: {
     width: 40,
