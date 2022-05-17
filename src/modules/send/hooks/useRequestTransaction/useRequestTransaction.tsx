@@ -107,7 +107,7 @@ export default function useRequestTransaction() {
 
   const setMaxAmount = useCallback(() => onAmountChange(maxAmount), [onAmountChange, maxAmount])
 
-  const sendTransaction = () => {
+  const sendTransaction = useCallback(() => {
     try {
       const txn = {
         to: selectedAsset.address,
@@ -139,7 +139,7 @@ export default function useRequestTransaction() {
       console.error(e)
       addToast(`Error: ${e.message || e}`, { error: true })
     }
-  }
+  }, [selectedAcc, address, selectedAsset, bigNumberHexAmount, network?.chainId])
 
   const unknownWarning = useMemo(
     () => isValidAddress(address) && !isKnownAddress(address),

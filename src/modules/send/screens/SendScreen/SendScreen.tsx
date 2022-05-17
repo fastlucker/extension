@@ -86,7 +86,7 @@ const SendScreen = () => {
   const handleSend = useCallback(() => {
     Keyboard.dismiss()
     sendTransaction()
-  }, [])
+  }, [sendTransaction])
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
