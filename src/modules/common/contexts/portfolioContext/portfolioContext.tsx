@@ -1,5 +1,9 @@
 // TODO: add types
 import supportedProtocols from 'ambire-common/src/constants/supportedProtocols'
+import {
+  setKnownAddresses,
+  setKnownTokens
+} from 'ambire-common/src/services/humanReadableTransactions'
 // TODO: fix ignored linter warnings
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState } from 'react-native'
@@ -15,10 +19,6 @@ import {
   tokenList
 } from '@modules/common/services/balanceOracle'
 import { fetchGet } from '@modules/common/services/fetch'
-import {
-  setKnownAddresses,
-  setKnownTokens
-} from '@modules/common/services/humanReadableTransactions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type Token = {
