@@ -1,4 +1,6 @@
 import networks from 'ambire-common/src/constants/networks'
+import { getName, isKnown } from 'ambire-common/src/services/humanReadableTransactions'
+import { getTransactionSummary } from 'ambire-common/src/services/humanReadableTransactions/transactionSummary'
 import { formatUnits } from 'ethers/lib/utils'
 // TODO: add types
 import React, { useState } from 'react'
@@ -12,8 +14,6 @@ import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import TokenIcon from '@modules/common/components/TokenIcon'
 import { formatFloatTokenAmount } from '@modules/common/services/formatters'
-import { getName, isKnown } from '@modules/common/services/humanReadableTransactions'
-import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 

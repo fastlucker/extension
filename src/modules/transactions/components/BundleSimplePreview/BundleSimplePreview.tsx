@@ -1,4 +1,5 @@
 import accountPresets from 'ambire-common/src/constants/accountPresets'
+import { getTransactionSummary } from 'ambire-common/src/services/humanReadableTransactions/transactionSummary'
 import React from 'react'
 import isEqual from 'react-fast-compare'
 import { Trans, useTranslation } from 'react-i18next'
@@ -8,7 +9,6 @@ import OpenIcon from '@assets/svg/OpenIcon'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
-import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
