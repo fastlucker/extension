@@ -1,9 +1,9 @@
 // @ts-nocheck
 
+import { abis } from 'ambire-common/src/constants/humanizerInfo.json'
 import { constants } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 
-import { abis } from '@modules/common/constants/humanizerInfo.json'
 import { getName, token } from '@modules/common/services/humanReadableTransactions'
 
 const iface = new Interface(abis.ERC20)

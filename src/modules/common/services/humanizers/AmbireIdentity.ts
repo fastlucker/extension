@@ -1,7 +1,7 @@
+import accountPresets from 'ambire-common/src/constants/accountPresets'
+import privilegesOptions from 'ambire-common/src/constants/privilegesOptions'
 import { Interface } from 'ethers/lib/utils'
 
-import accountPresets from '@modules/common/constants/accountPresets'
-import privilegesOptions from '@modules/common/constants/privilegesOptions'
 import { getName } from '@modules/common/services/humanReadableTransactions'
 
 const iface = new Interface(require('adex-protocol-eth/abi/Identity5.2'))

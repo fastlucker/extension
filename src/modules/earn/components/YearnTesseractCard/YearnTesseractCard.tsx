@@ -1,10 +1,10 @@
+import YEARN_TESSERACT_VAULT_ABI from 'ambire-common/src/constants/abis/YearnTesseractVaultABI'
 import networks from 'ambire-common/src/constants/networks'
 import { Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
 import { getDefaultProvider } from '@ethersproject/providers'
-import YEARN_TESSERACT_VAULT_ABI from '@modules/common/constants/YearnTesseractVaultABI'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'

@@ -1,10 +1,10 @@
+import WALLETSupplyControllerABI from 'ambire-common/src/constants/abis/WALLETSupplyControllerABI.json'
+import WALLETInitialClaimableRewards from 'ambire-common/src/constants/WALLETInitialClaimableRewards.json'
+import WALLETVestings from 'ambire-common/src/constants/WALLETVestings.json'
 import { Contract } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import WALLETInitialClaimableRewards from '@modules/common/constants/WALLETInitialClaimableRewards.json'
-import WALLETSupplyControllerABI from '@modules/common/constants/WALLETSupplyControllerABI.json'
-import WALLETVestings from '@modules/common/constants/WALLETVestings.json'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'

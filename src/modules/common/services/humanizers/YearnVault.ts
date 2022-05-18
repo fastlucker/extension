@@ -1,6 +1,6 @@
+import { abis, yearnVaults } from 'ambire-common/src/constants/humanizerInfo.json'
 import { Interface } from 'ethers/lib/utils'
 
-import { abis, yearnVaults } from '@modules/common/constants/humanizerInfo.json'
 import { token } from '@modules/common/services/humanReadableTransactions'
 
 const iface = new Interface(abis.YearnVault)

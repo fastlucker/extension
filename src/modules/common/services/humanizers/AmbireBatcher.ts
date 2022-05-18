@@ -1,6 +1,5 @@
+import { abis } from 'ambire-common/src/constants/humanizerInfo.json'
 import { Interface } from 'ethers/lib/utils'
-
-import { abis } from '@modules/common/constants/humanizerInfo.json'
 
 // eslint-disable-next-line import/no-useless-path-segments
 import humanizers from './'
