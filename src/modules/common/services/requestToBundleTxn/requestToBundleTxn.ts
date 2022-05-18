@@ -1,7 +1,6 @@
 import IdentityFactoryABI from 'adex-protocol-eth/abi/IdentityFactory'
+import accountPresets from 'ambire-common/src/constants/accountPresets'
 import { Interface } from 'ethers/lib/utils'
-
-import accountPresets from '@modules/common/constants/accountPresets'
 
 const IdentityFactory = new Interface(IdentityFactoryABI)
 

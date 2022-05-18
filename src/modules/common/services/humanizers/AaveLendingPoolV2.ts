@@ -1,7 +1,7 @@
+import { abis } from 'ambire-common/src/constants/humanizerInfo.json'
 // @ts-nocheck
 import { Interface } from 'ethers/lib/utils'
 
-import { abis } from '@modules/common/constants/humanizerInfo.json'
 import { token } from '@modules/common/services/humanReadableTransactions'
 
 const iface = new Interface(abis.AaveLendingPoolV2)

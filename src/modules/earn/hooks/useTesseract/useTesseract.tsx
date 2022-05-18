@@ -1,10 +1,10 @@
 import ERC20ABI from 'adex-protocol-eth/abi/ERC20.json'
+import TesseractVaultABI from 'ambire-common/src/constants/abis/YearnTesseractVaultABI'
 import { Contract } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
 import TesseractLogo from '@assets/images/tesseract.png'
 import i18n from '@config/localization/localization'
-import TesseractVaultABI from '@modules/common/constants/YearnTesseractVaultABI'
 import useToast from '@modules/common/hooks/useToast'
 
 const POLYGON_SCAN_IMAGES = 'https://polygonscan.com/token/images'

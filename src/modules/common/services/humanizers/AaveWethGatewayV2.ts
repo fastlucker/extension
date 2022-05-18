@@ -1,6 +1,6 @@
+import { abis } from 'ambire-common/src/constants/humanizerInfo.json'
 import { Interface } from 'ethers/lib/utils'
 
-import { abis } from '@modules/common/constants/humanizerInfo.json'
 import { nativeToken } from '@modules/common/services/humanReadableTransactions'
 
 const iface = new Interface(abis.AaveWethGatewayV2)

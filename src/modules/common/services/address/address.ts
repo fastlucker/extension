@@ -1,6 +1,6 @@
 // TODO: add types
 
-import { names, tokens } from '@modules/common/constants/humanizerInfo.json'
+import { names, tokens } from 'ambire-common/src/constants/humanizerInfo.json'
 
 const isValidAddress = (address: any) => /^0x[a-fA-F0-9]{40}$/.test(address)
 

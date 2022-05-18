@@ -1,9 +1,8 @@
 // @ts-nocheck
 
+import { names, tokens } from 'ambire-common/src/constants/humanizerInfo.json'
 import { constants } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-
-import { names, tokens } from '@modules/common/constants/humanizerInfo.json'
 
 const knownAliases = {}
 // address (lowercase) => [symbol, decimals]
