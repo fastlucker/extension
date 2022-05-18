@@ -1,7 +1,8 @@
 // @ts-nocheck
 
+import networks from 'ambire-common/src/constants/networks'
+
 import { names, tokens } from '@modules/common/constants/humanizerInfo.json'
-import networks from '@modules/common/constants/networks'
 import humanizers from '@modules/common/services/humanizers'
 
 import { getName, nativeToken } from './humanReadableTransactions'

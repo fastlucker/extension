@@ -6,7 +6,7 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const MoonbeamLogo: React.FC<Props> = ({ width = 32, height = 32, ...rest }) => (
+const MoonriverLogo: React.FC<Props> = ({ width = 32, height = 32, ...rest }) => (
   <Svg width={width} height={height} viewBox="0 0 32 32" {...rest}>
     <Path
       d="M19.978 16.144a5.326 5.326 0 0 1-1.929-.378 7.658 7.658 0 0 1-2.016-1.2 5.352 5.352 0 0 0-3.4-1.164 5.775 5.775 0 0 0-4.016 1.555 7.436 7.436 0 0 1 .006-2.936 7.323 7.323 0 0 1 1.108-2.633 7.385 7.385 0 0 1 3.24-2.668 7.327 7.327 0 0 1 1.38-.426 7.435 7.435 0 0 1 2.968 0 7.323 7.323 0 0 1 2.633 1.108 7.385 7.385 0 0 1 2.668 3.242 7.326 7.326 0 0 1 .429 1.382 7.436 7.436 0 0 1 0 2.952 4.649 4.649 0 0 1-3.071 1.166Z"
@@ -19,4 +19,4 @@ const MoonbeamLogo: React.FC<Props> = ({ width = 32, height = 32, ...rest }) => 
   </Svg>
 )
 
-export default MoonbeamLogo
+export default MoonriverLogo

@@ -1,3 +1,4 @@
+import networks from 'ambire-common/src/constants/networks'
 import * as Clipboard from 'expo-clipboard'
 import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -5,10 +6,10 @@ import { TouchableOpacity, View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
 
 import CopyIcon from '@assets/svg/CopyIcon'
+import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import networks from '@modules/common/constants/networks'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
@@ -82,10 +83,10 @@ const DepositTokens = () => {
           {t('Following networks supported on this address:')}
         </Text>
         <View style={[flexboxStyles.directionRow, flexboxStyles.wrap, flexboxStyles.justifyCenter]}>
-          {networks.map(({ id, IconMonochrome, name }: any) => (
+          {networks.map(({ id, name }: any) => (
             <View key={id} style={styles.supportedNetworksContainer}>
               <View style={{ marginBottom: 3 }}>
-                <IconMonochrome />
+                <NetworkIcon name={id} type="monochrome" />
               </View>
               <Text
                 style={spacings.plMi}
