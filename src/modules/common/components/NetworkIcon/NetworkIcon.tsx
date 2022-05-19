@@ -9,10 +9,13 @@ import EthereumLogo from '@assets/svg/EthereumLogo'
 import EthereumMonochromeIcon from '@assets/svg/EthereumMonochromeIcon'
 import FantomLogo from '@assets/svg/FantomLogo'
 import FantomMonochromeIcon from '@assets/svg/FantomMonochromeIcon'
+import GnosisLogo from '@assets/svg/GnosisLogo'
+import KCCKuCoinLogo from '@assets/svg/KCCKuCoinLogo'
 import MoonbeamLogo from '@assets/svg/MoonbeamLogo'
 import MoonbeamMonochromeIcon from '@assets/svg/MoonbeamMonochromeIcon'
 import MoonriverLogo from '@assets/svg/MoonriverLogo'
 import MoonriverMonochromeIcon from '@assets/svg/MoonriverMonochromeIcon'
+import OptimismLogo from '@assets/svg/OptimismLogo'
 import PolygonLogo from '@assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@assets/svg/PolygonMonochromeIcon'
 
@@ -31,7 +34,10 @@ const icons: { [key: string]: any } = {
   [NETWORKS['binance-smart-chain']]: BinanceLogo,
   [NETWORKS.fantom]: FantomLogo,
   [NETWORKS.moonbeam]: MoonbeamLogo,
-  [NETWORKS.moonriver]: MoonriverLogo
+  [NETWORKS.moonriver]: MoonriverLogo,
+  [NETWORKS.optimism]: OptimismLogo,
+  [NETWORKS.gnosis]: GnosisLogo,
+  [NETWORKS.kucoin]: KCCKuCoinLogo
 }
 
 const iconsMonochrome: { [key: string]: any } = {
