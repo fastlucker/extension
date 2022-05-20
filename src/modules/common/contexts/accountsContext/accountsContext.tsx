@@ -1,4 +1,7 @@
-import useAccounts from 'ambire-common/src/hooks/accounts'
+import useAccounts, {
+  onAddAccountOptions,
+  UseAccountsReturnType
+} from 'ambire-common/src/hooks/accounts'
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
@@ -8,16 +11,7 @@ import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 
-type AccountsContextData = {
-  account: any
-  accounts: any[]
-  selectedAcc: any
-  onSelectAcc: (selected: any) => void
-  onAddAccount: (acc: any, opts: any) => void
-  onRemoveAccount: (id: string) => void
-}
-
-const AccountsContext = createContext<AccountsContextData>({
+const AccountsContext = createContext<UseAccountsReturnType>({
   accounts: [],
   account: {},
   selectedAcc: '',
@@ -30,13 +24,16 @@ const AccountsProvider: React.FC = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
   const { addToast } = useToast()
 
-  const onAdd = useCallback((opts) => {
-    if (authStatus === AUTH_STATUS.AUTHENTICATED) {
+  const onAdd = useCallback(
+    (opts: onAddAccountOptions) => {
+      if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
+        setAuthStatus(AUTH_STATUS.AUTHENTICATED)
+      }
+
       if (opts.shouldRedirect) navigate('dashboard')
-    } else {
-      setAuthStatus(AUTH_STATUS.AUTHENTICATED)
-    }
-  }, [])
+    },
+    [authStatus, setAuthStatus]
+  )
 
   const onRemoveLastAccount = useCallback(() => {
     setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
@@ -57,15 +54,8 @@ const AccountsProvider: React.FC = ({ children }) => {
   return (
     <AccountsContext.Provider
       value={useMemo(
-        () => ({
-          accounts,
-          selectedAcc,
-          onSelectAcc,
-          onAddAccount,
-          onRemoveAccount,
-          account
-        }),
-        [accounts, selectedAcc, onSelectAcc, onAddAccount, onRemoveAccount]
+        () => ({ accounts, account, selectedAcc, onSelectAcc, onAddAccount, onRemoveAccount }),
+        [accounts, account, selectedAcc, onSelectAcc, onAddAccount, onRemoveAccount]
       )}
     >
       {children}
