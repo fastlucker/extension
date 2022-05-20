@@ -10,12 +10,15 @@ import EthereumMonochromeIcon from '@assets/svg/EthereumMonochromeIcon'
 import FantomLogo from '@assets/svg/FantomLogo'
 import FantomMonochromeIcon from '@assets/svg/FantomMonochromeIcon'
 import GnosisLogo from '@assets/svg/GnosisLogo'
+import GnosisMonochromeIcon from '@assets/svg/GnosisMonochromeIcon'
 import KCCKuCoinLogo from '@assets/svg/KCCKuCoinLogo'
+import KCCKuCoinMonochromeIcon from '@assets/svg/KCCKuCoinMonochromeIcon'
 import MoonbeamLogo from '@assets/svg/MoonbeamLogo'
 import MoonbeamMonochromeIcon from '@assets/svg/MoonbeamMonochromeIcon'
 import MoonriverLogo from '@assets/svg/MoonriverLogo'
 import MoonriverMonochromeIcon from '@assets/svg/MoonriverMonochromeIcon'
 import OptimismLogo from '@assets/svg/OptimismLogo'
+import OptimismMonochromeIcon from '@assets/svg/OptimismMonochromeIcon'
 import PolygonLogo from '@assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@assets/svg/PolygonMonochromeIcon'
 
@@ -47,7 +50,10 @@ const iconsMonochrome: { [key: string]: any } = {
   [NETWORKS['binance-smart-chain']]: BinanceMonochromeIcon,
   [NETWORKS.fantom]: FantomMonochromeIcon,
   [NETWORKS.moonbeam]: MoonbeamMonochromeIcon,
-  [NETWORKS.moonriver]: MoonriverMonochromeIcon
+  [NETWORKS.moonriver]: MoonriverMonochromeIcon,
+  [NETWORKS.optimism]: OptimismMonochromeIcon,
+  [NETWORKS.gnosis]: GnosisMonochromeIcon,
+  [NETWORKS.kucoin]: KCCKuCoinMonochromeIcon
 }
 
 const NetworkIcon = ({ name, type = 'regular', ...rest }: Props) => {
