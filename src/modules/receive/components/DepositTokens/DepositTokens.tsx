@@ -82,9 +82,9 @@ const DepositTokens = () => {
         <Text fontSize={12} style={[spacings.mbMi, textStyles.center]}>
           {t('Following networks supported on this address:')}
         </Text>
-        <View style={[flexboxStyles.directionRow, flexboxStyles.wrap, flexboxStyles.justifyCenter]}>
+        <View style={styles.supportedNetworksContainer}>
           {networks.map(({ id, name }: any) => (
-            <View key={id} style={styles.supportedNetworksContainer}>
+            <View key={id} style={styles.supportedNetworksItem}>
               <View style={{ marginBottom: 3 }}>
                 <NetworkIcon name={id} type="monochrome" />
               </View>
