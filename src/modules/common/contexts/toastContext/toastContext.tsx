@@ -56,7 +56,7 @@ const ToastProvider: React.FC = ({ children }) => {
     (text, options) => {
       const toast: ToastType = {
         id: id++,
-        text: text || '',
+        text,
         ...defaultOptions,
         ...options
       }
