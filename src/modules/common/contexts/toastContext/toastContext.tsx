@@ -18,7 +18,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import styles from './styles'
 
 const ToastContext = React.createContext<UseToastsReturnType>({
-  addToast: () => {},
+  addToast: () => -1,
   removeToast: () => {}
 })
 
