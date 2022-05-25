@@ -1,6 +1,8 @@
 import { NETWORKS } from 'ambire-common/src/constants/networks'
 import React from 'react'
 
+import ArbitrumLogo from '@assets/svg/ArbitrumLogo'
+import ArbitrumMonochromeIcon from '@assets/svg/ArbitrumMonochromeIcon'
 import AvalancheLogo from '@assets/svg/AvalancheLogo'
 import AvalancheMonochromeIcon from '@assets/svg/AvalancheMonochromeIcon'
 import BinanceLogo from '@assets/svg/BinanceLogo'
@@ -38,6 +40,7 @@ const icons: { [key: string]: any } = {
   [NETWORKS.fantom]: FantomLogo,
   [NETWORKS.moonbeam]: MoonbeamLogo,
   [NETWORKS.moonriver]: MoonriverLogo,
+  [NETWORKS.arbitrum]: ArbitrumLogo,
   [NETWORKS.optimism]: OptimismLogo,
   [NETWORKS.gnosis]: GnosisLogo,
   [NETWORKS.kucoin]: KCCKuCoinLogo
@@ -51,6 +54,7 @@ const iconsMonochrome: { [key: string]: any } = {
   [NETWORKS.fantom]: FantomMonochromeIcon,
   [NETWORKS.moonbeam]: MoonbeamMonochromeIcon,
   [NETWORKS.moonriver]: MoonriverMonochromeIcon,
+  [NETWORKS.arbitrum]: ArbitrumMonochromeIcon,
   [NETWORKS.optimism]: OptimismMonochromeIcon,
   [NETWORKS.gnosis]: GnosisMonochromeIcon,
   [NETWORKS.kucoin]: KCCKuCoinMonochromeIcon
