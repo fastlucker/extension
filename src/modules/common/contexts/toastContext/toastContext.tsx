@@ -70,14 +70,13 @@ const ToastProvider: React.FC = ({ children }) => {
     [setToasts, removeToast]
   )
 
-  const onToastPress = (
-    _id: ToastType['id'],
-    onClick?: ToastType['onClick'],
-    url?: ToastType['url']
-  ) => {
-    if (url) Linking.openURL(url)
-    onClick ? onClick() : removeToast(_id)
-  }
+  const onToastPress = useCallback(
+    (_id: ToastType['id'], onClick?: ToastType['onClick'], url?: ToastType['url']) => {
+      if (url) Linking.openURL(url)
+      onClick ? onClick() : removeToast(_id)
+    },
+    [removeToast]
+  )
 
   // -4 is a magic number
   // 44 is the height of the bottom tab navigation
