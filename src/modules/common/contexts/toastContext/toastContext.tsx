@@ -1,3 +1,4 @@
+import { ToastType, UseToastsOptions, UseToastsReturnType } from 'ambire-common/src/hooks/toasts'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -16,30 +17,21 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 
-type OptionsProps = {
-  id?: string
-  url?: string
-  error?: boolean
-  sticky?: boolean
-  badge?: any
-  timeout?: number
-  onClick?: () => any
-}
-
-type ToastContextData = {
-  addToast: (text: string | number, options?: OptionsProps) => any
-  removeToast: (id: string) => any
-}
-
-const ToastContext = React.createContext<ToastContextData>({
-  addToast: () => {},
+const ToastContext = React.createContext<UseToastsReturnType>({
+  addToast: () => -1,
   removeToast: () => {}
 })
 
+const defaultOptions: Partial<UseToastsOptions> = {
+  timeout: 8000,
+  error: false,
+  sticky: false
+}
+
 let id = 0
 
-const ToastProvider = ({ children }: any) => {
-  const [toasts, setToasts] = useState<any[]>([])
+const ToastProvider: React.FC = ({ children }) => {
+  const [toasts, setToasts] = useState<ToastType[]>([])
   const [hasTabBar, setHasTabBar] = useState(false)
   const insets = useSafeAreaInsets()
   const { t } = useTranslation()
@@ -56,31 +48,20 @@ const ToastProvider = ({ children }: any) => {
     return unsubscribe
   }, [])
 
-  const removeToast = useCallback((tId) => {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    setToasts((toasts: any) => toasts.filter((t: any) => t.id !== tId))
+  const removeToast = useCallback<UseToastsReturnType['removeToast']>((tId) => {
+    setToasts((_toasts) => _toasts.filter((_t) => _t.id !== tId))
   }, [])
 
-  const addToast = useCallback(
+  const addToast = useCallback<UseToastsReturnType['addToast']>(
     (text, options) => {
-      const defaultOptions = {
-        timeout: 8000,
-        error: false,
-        sticky: false,
-        badge: null,
-        onClick: null,
-        url: null
-      }
-
-      const toast = {
+      const toast: ToastType = {
         id: id++,
         text,
         ...defaultOptions,
         ...options
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      setToasts((toasts: any) => [...toasts, toast])
+      setToasts((_toasts) => [..._toasts, toast])
 
       !toast.sticky && setTimeout(() => removeToast(toast.id), toast.timeout)
 
@@ -89,11 +70,13 @@ const ToastProvider = ({ children }: any) => {
     [setToasts, removeToast]
   )
 
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  const onToastPress = (id?: string, onClick?: () => any, url?: string) => {
-    if (url) Linking.openURL(url)
-    onClick ? onClick() : removeToast(id)
-  }
+  const onToastPress = useCallback(
+    (_id: ToastType['id'], onClick?: ToastType['onClick'], url?: ToastType['url']) => {
+      if (url) Linking.openURL(url)
+      onClick ? onClick() : removeToast(_id)
+    },
+    [removeToast]
+  )
 
   // -4 is a magic number
   // 44 is the height of the bottom tab navigation
