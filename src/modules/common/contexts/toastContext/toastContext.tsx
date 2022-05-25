@@ -1,4 +1,4 @@
-import { UseToastsReturnType } from 'ambire-common/src/hooks/toasts'
+import { ToastType, UseToastsOptions, UseToastsReturnType } from 'ambire-common/src/hooks/toasts'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -22,19 +22,16 @@ const ToastContext = React.createContext<UseToastsReturnType>({
   removeToast: () => {}
 })
 
-const defaultOptions = {
+const defaultOptions: Partial<UseToastsOptions> = {
   timeout: 8000,
   error: false,
-  sticky: false,
-  badge: null,
-  onClick: null,
-  url: null
+  sticky: false
 }
 
 let id = 0
 
-const ToastProvider = ({ children }: any) => {
-  const [toasts, setToasts] = useState<any[]>([])
+const ToastProvider: React.FC = ({ children }) => {
+  const [toasts, setToasts] = useState<ToastType[]>([])
   const [hasTabBar, setHasTabBar] = useState(false)
   const insets = useSafeAreaInsets()
   const { t } = useTranslation()
@@ -52,19 +49,19 @@ const ToastProvider = ({ children }: any) => {
   }, [])
 
   const removeToast = useCallback<UseToastsReturnType['removeToast']>((tId) => {
-    setToasts((_toasts: any) => _toasts.filter((_t: any) => _t.id !== tId))
+    setToasts((_toasts) => _toasts.filter((_t) => _t.id !== tId))
   }, [])
 
   const addToast = useCallback<UseToastsReturnType['addToast']>(
     (text, options) => {
-      const toast = {
+      const toast: ToastType = {
         id: id++,
         text: text || '',
         ...defaultOptions,
         ...options
       }
 
-      setToasts((_toasts: any) => [..._toasts, toast])
+      setToasts((_toasts) => [..._toasts, toast])
 
       !toast.sticky && setTimeout(() => removeToast(toast.id), toast.timeout)
 
@@ -73,10 +70,13 @@ const ToastProvider = ({ children }: any) => {
     [setToasts, removeToast]
   )
 
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  const onToastPress = (id?: string, onClick?: () => any, url?: string) => {
+  const onToastPress = (
+    _id: ToastType['id'],
+    onClick?: ToastType['onClick'],
+    url?: ToastType['url']
+  ) => {
     if (url) Linking.openURL(url)
-    onClick ? onClick() : removeToast(id)
+    onClick ? onClick() : removeToast(_id)
   }
 
   // -4 is a magic number
