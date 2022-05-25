@@ -8,7 +8,7 @@ import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useStorage from '@modules/common/hooks/useStorage'
-import useToast from '@modules/common/hooks/useToast'
+import useToasts from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 
 const AccountsContext = createContext<UseAccountsReturnType>({
@@ -22,7 +22,6 @@ const AccountsContext = createContext<UseAccountsReturnType>({
 
 const AccountsProvider: React.FC = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
-  const { addToast } = useToast()
 
   const onAdd = useCallback(
     (opts: onAddAccountOptions) => {
@@ -44,7 +43,7 @@ const AccountsProvider: React.FC = ({ children }) => {
       useStorage,
       onRemoveLastAccount,
       onAdd,
-      addToast
+      useToasts
     })
 
   useEffect(() => {
