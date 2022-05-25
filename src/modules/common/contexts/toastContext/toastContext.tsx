@@ -1,3 +1,4 @@
+import { UseToastsReturnType } from 'ambire-common/src/hooks/toasts'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -16,25 +17,19 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 
-type OptionsProps = {
-  id?: string
-  url?: string
-  error?: boolean
-  sticky?: boolean
-  badge?: any
-  timeout?: number
-  onClick?: () => any
-}
-
-type ToastContextData = {
-  addToast: (text: string | number, options?: OptionsProps) => any
-  removeToast: (id: string) => any
-}
-
-const ToastContext = React.createContext<ToastContextData>({
+const ToastContext = React.createContext<UseToastsReturnType>({
   addToast: () => {},
   removeToast: () => {}
 })
+
+const defaultOptions = {
+  timeout: 8000,
+  error: false,
+  sticky: false,
+  badge: null,
+  onClick: null,
+  url: null
+}
 
 let id = 0
 
@@ -56,31 +51,20 @@ const ToastProvider = ({ children }: any) => {
     return unsubscribe
   }, [])
 
-  const removeToast = useCallback((tId) => {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    setToasts((toasts: any) => toasts.filter((t: any) => t.id !== tId))
+  const removeToast = useCallback<UseToastsReturnType['removeToast']>((tId) => {
+    setToasts((_toasts: any) => _toasts.filter((_t: any) => _t.id !== tId))
   }, [])
 
-  const addToast = useCallback(
+  const addToast = useCallback<UseToastsReturnType['addToast']>(
     (text, options) => {
-      const defaultOptions = {
-        timeout: 8000,
-        error: false,
-        sticky: false,
-        badge: null,
-        onClick: null,
-        url: null
-      }
-
       const toast = {
         id: id++,
-        text,
+        text: text || '',
         ...defaultOptions,
         ...options
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      setToasts((toasts: any) => [...toasts, toast])
+      setToasts((_toasts: any) => [..._toasts, toast])
 
       !toast.sticky && setTimeout(() => removeToast(toast.id), toast.timeout)
 
