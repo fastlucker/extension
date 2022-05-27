@@ -10,13 +10,13 @@ import YearnTesseractCard from '@modules/earn/components/YearnTesseractCard'
 import { CardsVisibilityProvider } from '@modules/earn/contexts/cardsVisibilityContext'
 
 const EarnScreen = () => {
-  const { isBalanceLoading } = usePortfolio()
+  const { isCurrNetworkBalanceLoading } = usePortfolio()
 
   return (
     <GradientBackgroundWrapper>
       <Wrapper hasBottomTabNav>
-        {!!isBalanceLoading && <ActivityIndicator />}
-        {!isBalanceLoading && (
+        {!!isCurrNetworkBalanceLoading && <ActivityIndicator />}
+        {!isCurrNetworkBalanceLoading && (
           <CardsVisibilityProvider>
             <>
               <AmbireCard />

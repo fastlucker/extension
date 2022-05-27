@@ -1,10 +1,10 @@
+import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import SendIcon from '@assets/svg/SendIcon'
 import Text from '@modules/common/components/Text'
 import TokenIcon from '@modules/common/components/TokenIcon'
-import { formatFloatTokenAmount } from '@modules/common/services/formatters'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'

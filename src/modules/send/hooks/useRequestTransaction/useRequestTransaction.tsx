@@ -21,7 +21,7 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 const ERC20 = new Interface(erc20Abi)
 
 export default function useRequestTransaction() {
-  const { tokens, isBalanceLoading } = usePortfolio()
+  const { tokens, isCurrNetworkBalanceLoading } = usePortfolio()
   const route: any = useRoute()
   const navigation: any = useNavigation()
   const { network }: any = useNetwork()
@@ -197,7 +197,7 @@ export default function useRequestTransaction() {
     setAddress,
     assetsItems,
     sendTransaction,
-    isBalanceLoading,
+    isCurrNetworkBalanceLoading,
     disabled,
     validationFormMgs,
     addressConfirmed,

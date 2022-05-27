@@ -26,12 +26,12 @@ const networkDetails = (network: any) => networks.find(({ id }) => id === networ
 const Balances = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
-  const { balance, isBalanceLoading, otherBalances } = usePortfolio()
+  const { balance, isCurrNetworkBalanceLoading, otherBalances } = usePortfolio()
   const { network: selectedNetwork, setNetwork } = useNetwork()
 
   useLayoutEffect(() => {
     triggerLayoutAnimation()
-  }, [isBalanceLoading])
+  }, [isCurrNetworkBalanceLoading])
 
   useLayoutEffect(() => {
     triggerLayoutAnimation()
@@ -129,7 +129,7 @@ const Balances = () => {
 
   return (
     <View style={flexboxStyles.alignCenter}>
-      {isBalanceLoading ? (
+      {isCurrNetworkBalanceLoading ? (
         <View style={[styles.loadingContainer, flexboxStyles.center]}>
           <Spinner />
         </View>

@@ -1,36 +1,31 @@
-import React, { useCallback, useMemo } from 'react'
-import { Linking, TouchableOpacity, View } from 'react-native'
+import React, { useCallback } from 'react'
+import { Linking, View } from 'react-native'
 
-import MissingTokenIcon from '@assets/svg/MissingTokenIcon'
-import SendIcon from '@assets/svg/SendIcon'
 import { Trans, useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import TextWarning from '@modules/common/components/TextWarning'
-import Title from '@modules/common/components/Title'
-import TokenIcon from '@modules/common/components/TokenIcon'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
-import { formatFloatTokenAmount } from '@modules/common/services/formatters'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import AddToken from '@modules/dashboard/components/AddToken'
 import { useNavigation } from '@react-navigation/native'
 
-import styles from './styles'
 import TokenItem from './TokenItem'
 
 const Tokens = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
-  const { areProtocolsLoading, isBalanceLoading, protocols, tokens } = usePortfolio()
+  const { isCurrNetworkProtocolsLoading, isCurrNetworkBalanceLoading, protocols, tokens } =
+    usePortfolio()
   const { selectedAcc } = useAccounts()
   const { network: selectedNetwork } = useNetwork()
 
-  const isLoading = isBalanceLoading || areProtocolsLoading
+  const isLoading = isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading
 
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
   const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')

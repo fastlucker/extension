@@ -9,7 +9,8 @@ import Assets from '@modules/dashboard/components/Assets'
 import Balances from '@modules/dashboard/components/Balances'
 
 const DashboardScreen = () => {
-  const { loadBalance, loadProtocols, isBalanceLoading, areProtocolsLoading } = usePortfolio()
+  const { loadBalance, loadProtocols, isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading } =
+    usePortfolio()
 
   const handleRefresh = () => {
     loadBalance()
@@ -26,7 +27,7 @@ const DashboardScreen = () => {
             onRefresh={handleRefresh}
             tintColor={colors.titan}
             progressBackgroundColor={colors.titan}
-            enabled={!isBalanceLoading && !areProtocolsLoading}
+            enabled={!isCurrNetworkBalanceLoading && !isCurrNetworkProtocolsLoading}
           />
         }
       >
