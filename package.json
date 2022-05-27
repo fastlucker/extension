@@ -59,7 +59,7 @@
     "@walletconnect/client": "^1.7.1",
     "@yfi/sdk": "1.0.11",
     "adex-protocol-eth": "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#773e55f90a77121cc9c5f3210c915b10b21d7245",
-    "ambire-common": "git+ssh://git@github.com:AmbireTech/ambire-common.git#0af7fe23752825a26f5cc4027984aaaa8771b26a",
+    "ambire-common": "git+ssh://git@github.com:AmbireTech/ambire-common.git#a847047733dd08e96f84cf2f9e082239476827f2",
     "babel-plugin-module-resolver": "4.1.0",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "browserify-zlib": "~0.1.4",
