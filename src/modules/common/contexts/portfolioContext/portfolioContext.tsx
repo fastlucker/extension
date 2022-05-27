@@ -25,7 +25,7 @@ const PortfolioContext = createContext<UsePortfolioReturnTypes>({
   extraTokens: [],
   hiddenTokens: [],
   collectibles: [],
-  requestOtherProtocolsRefresh: () => null,
+  requestOtherProtocolsRefresh: () => Promise.resolve(null),
   onAddExtraToken: () => {},
   onRemoveExtraToken: () => {},
   onAddHiddenToken: () => {},
@@ -93,7 +93,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
     loadBalance,
     loadProtocols
   } = usePortfolio({
-    currentNetwork: network.id,
+    currentNetwork: network?.id,
     account: selectedAcc,
     useStorage,
     isVisible: appStateVisible === 'active',
