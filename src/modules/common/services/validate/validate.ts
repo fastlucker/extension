@@ -1,7 +1,6 @@
+import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
 import { parseUnits } from 'ethers/lib/utils'
 import isEmail from 'validator/es/lib/isEmail'
-
-import { isKnownTokenOrContract, isValidAddress } from '@modules/common/services/address'
 
 const validateAddress = (address: string) => {
   if (!(address && address.length)) {

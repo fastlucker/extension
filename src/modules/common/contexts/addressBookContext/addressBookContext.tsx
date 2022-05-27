@@ -1,3 +1,4 @@
+import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
 import { setKnownAddresses } from 'ambire-common/src/services/humanReadableTransactions'
 import { sha256 } from 'ethers/lib/utils'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
@@ -6,7 +7,6 @@ import i18n from '@config/localization/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
-import { isKnownTokenOrContract, isValidAddress } from '@modules/common/services/address'
 
 type AddressBookContextData = {
   addresses: any
