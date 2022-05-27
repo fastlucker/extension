@@ -1,4 +1,5 @@
 import networks from 'ambire-common/src/constants/networks'
+import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
 import { getName, isKnown } from 'ambire-common/src/services/humanReadableTransactions'
 import { getTransactionSummary } from 'ambire-common/src/services/humanReadableTransactions/transactionSummary'
 import { formatUnits } from 'ethers/lib/utils'
@@ -13,7 +14,6 @@ import UpArrowIcon from '@assets/svg/UpArrowIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import TokenIcon from '@modules/common/components/TokenIcon'
-import { formatFloatTokenAmount } from '@modules/common/services/formatters'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
