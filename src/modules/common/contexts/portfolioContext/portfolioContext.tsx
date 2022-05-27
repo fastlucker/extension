@@ -6,7 +6,7 @@ import CONFIG from '@config/env'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
-import useToast from '@modules/common/hooks/useToast'
+import useToasts from '@modules/common/hooks/useToast'
 import { fetchGet } from '@modules/common/services/fetch'
 
 const PortfolioContext = createContext<UsePortfolioReturnTypes>({
@@ -52,7 +52,6 @@ const PortfolioProvider: React.FC = ({ children }) => {
 
   const [appStateVisible, setAppStateVisible] = useState<any>(appState.current)
 
-  const { addToast } = useToast()
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
 
@@ -94,7 +93,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
     account: selectedAcc,
     useStorage,
     isVisible: appStateVisible === 'active',
-    onMessage: addToast,
+    useToasts,
     getBalances
   })
 
