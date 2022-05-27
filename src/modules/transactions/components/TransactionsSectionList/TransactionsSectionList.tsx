@@ -1,3 +1,4 @@
+import { toBundleTxn } from 'ambire-common/src/services/requestToBundleTxn'
 import React, { useCallback, useContext } from 'react'
 import { RefreshControl, TouchableOpacity, View } from 'react-native'
 
@@ -11,7 +12,6 @@ import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import { toBundleTxn } from '@modules/common/services/requestToBundleTxn'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'

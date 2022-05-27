@@ -1,3 +1,4 @@
+import { isValidAddress } from 'ambire-common/src/services/address'
 import React, { useEffect } from 'react'
 import { Controller, FieldValues, SubmitHandler, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -9,7 +10,6 @@ import Input from '@modules/common/components/Input'
 import InputOrScan from '@modules/common/components/InputOrScan'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import { isValidAddress } from '@modules/common/services/address'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
