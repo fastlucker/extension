@@ -1,6 +1,7 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import { Bundle } from 'adex-protocol-eth/js'
 import accountPresets from 'ambire-common/src/constants/accountPresets'
+import { toBundleTxn } from 'ambire-common/src/services/requestToBundleTxn'
 import { Wallet } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -15,7 +16,6 @@ import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { getProvider } from '@modules/common/services/provider'
-import { toBundleTxn } from '@modules/common/services/requestToBundleTxn'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import {
   getFeePaymentConsequences,
