@@ -1,5 +1,4 @@
 import usePortfolio, { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio'
-// TODO: fix ignored linter warnings
 import React, { createContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState } from 'react-native'
 
@@ -123,7 +122,6 @@ const PortfolioProvider: React.FC = ({ children }) => {
           loadBalance,
           loadProtocols
         }),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         [
           balance,
           otherBalances,
@@ -141,7 +139,9 @@ const PortfolioProvider: React.FC = ({ children }) => {
           isCurrNetworkBalanceLoading,
           areAllNetworksBalancesLoading,
           otherProtocolsByNetworksLoading,
-          isCurrNetworkProtocolsLoading
+          isCurrNetworkProtocolsLoading,
+          loadBalance,
+          loadProtocols
         ]
       )}
     >
