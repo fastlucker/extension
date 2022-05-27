@@ -59,16 +59,14 @@ const PortfolioProvider: React.FC = ({ children }) => {
 
   // Refresh balance when app is focused
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
+    const handleAppStateChange = (nextAppState: any) => {
       appState.current = nextAppState
       setAppStateVisible(appState.current)
-    })
+    }
+
+    AppState.addEventListener('change', handleAppStateChange)
     return () => {
-      try {
-        subscription?.remove()
-      } catch (error) {
-        console.log('App state unsubscribe failed')
-      }
+      AppState.removeEventListener('change', handleAppStateChange)
     }
   }, [])
 
