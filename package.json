@@ -28,7 +28,8 @@
     "publish:staging": "APP_ENV=staging expo publish --release-channel staging",
     "publish:production": "APP_ENV=production expo publish --release-channel default",
     "translations:scan": "i18next-scanner --config ./scripts/i18next-scanner.config.js './src/**/*.{js,jsx,ts,tsx}'",
-    "lint:fix": "eslint ./src/** --ext .js,.jsx,.ts,.tsx --fix"
+    "lint:fix": "eslint ./src/** --ext .js,.jsx,.ts,.tsx --fix",
+    "doctor": "expo doctor"
   },
   "engines": {
     "node": "16.13.0"
@@ -160,7 +161,7 @@
     "eslint-plugin-react": "7.27.1",
     "eslint-plugin-react-hooks": "4.3.0",
     "eslint-plugin-react-native": "3.11.0",
-    "expo-cli": "5.3.0",
+    "expo-cli": "5.4.7",
     "i18next-scanner": "^3.1.0",
     "i18next-scanner-typescript": "^1.0.6",
     "prettier": "2.5.0",
