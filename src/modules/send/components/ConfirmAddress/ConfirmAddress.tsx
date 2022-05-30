@@ -8,7 +8,6 @@ import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 
 type Props = {
   onAddToAddressBook: () => any

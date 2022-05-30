@@ -18,10 +18,10 @@ import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Input from '@modules/common/components/Input'
-import InputOrScan from '@modules/common/components/InputOrScan/InputOrScan'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
+import RecipientInput from '@modules/common/components/RecipientInput'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -64,7 +64,7 @@ const SendScreen = () => {
     setMaxAmount,
     setAddress,
     sendTransaction,
-    isBalanceLoading,
+    isCurrNetworkBalanceLoading,
     disabled,
     addressConfirmed,
     setAddressConfirmed,
@@ -73,7 +73,8 @@ const SendScreen = () => {
     smartContractWarning,
     showSWAddressWarning,
     sWAddressConfirmed,
-    setSWAddressConfirmed
+    setSWAddressConfirmed,
+    uDAddress
   } = useRequestTransaction()
 
   const handleAddNewAddress = (fieldValues: SubmitHandler<FieldValues>) => {
@@ -109,12 +110,12 @@ const SendScreen = () => {
         extraHeight={250}
         hasBottomTabNav
       >
-        {isBalanceLoading && (
+        {isCurrNetworkBalanceLoading && (
           <View style={StyleSheet.absoluteFill}>
             <ActivityIndicator style={StyleSheet.absoluteFill} size="large" />
           </View>
         )}
-        {!isBalanceLoading && (
+        {!isCurrNetworkBalanceLoading && (
           <TouchableWithoutFeedback
             onPress={() => {
               Keyboard.dismiss()
@@ -132,7 +133,7 @@ const SendScreen = () => {
                     onChangeText={onAmountChange}
                     containerStyle={spacings.mbTy}
                     value={amount.toString()}
-                    buttonText={t('MAX')}
+                    button={t('MAX')}
                     placeholder={t('0')}
                     onButtonPress={setMaxAmount}
                     error={
@@ -141,20 +142,20 @@ const SendScreen = () => {
                         : undefined
                     }
                   />
-                  <InputOrScan
+                  <RecipientInput
                     containerStyle={spacings.mb}
+                    isValidUDomain={!!uDAddress}
                     placeholder={t('Recipient')}
                     info={t(
                       'Please double-check the recipient address, blockchain transactions are not reversible.'
                     )}
+                    isValid={address.length > 1 && !validationFormMgs.messages?.address?.length}
+                    validLabel={uDAddress ? t('Valid Unstoppable domainsⓇ domain') : ''}
+                    error={validationFormMgs.messages?.address}
                     value={address}
                     onChangeText={setAddress}
                   />
-                  {!!validationFormMgs.messages?.address && (
-                    <Text appearance="danger" style={spacings.mbSm}>
-                      {validationFormMgs.messages.address}
-                    </Text>
-                  )}
+
                   {!smartContractWarning && !!unknownWarning && (
                     <ConfirmAddress
                       addressConfirmed={addressConfirmed}
@@ -172,7 +173,7 @@ const SendScreen = () => {
                       <Input
                         value={t('Address Book')}
                         containerStyle={spacings.mbSm}
-                        buttonText={
+                        button={
                           <NavIconWrapper onPress={() => null}>
                             <DownArrowIcon width={34} height={34} />
                           </NavIconWrapper>

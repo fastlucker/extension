@@ -7,7 +7,7 @@ import { useTranslation } from '@config/localization'
 import { useBottomSheetInternal } from '@gorhom/bottom-sheet'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
-import InputOrScan from '@modules/common/components/InputOrScan'
+import RecipientInput from '@modules/common/components/RecipientInput'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import spacings from '@modules/common/styles/spacings'
@@ -74,7 +74,7 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
         control={control}
         rules={{ validate: isValidAddress }}
         render={({ field: { onChange, onBlur, value } }) => (
-          <InputOrScan
+          <RecipientInput
             onBlur={() => {
               shouldHandleKeyboardEvents.value = false
               !!onBlur && onBlur()

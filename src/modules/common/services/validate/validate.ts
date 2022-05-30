@@ -21,10 +21,11 @@ const validateAddress = (address: string) => {
 }
 
 const validateSendTransferAddress = (
-  address: string,
+  address: any,
   selectedAcc: any,
   addressConfirmed: any,
-  isKnownAddress: any
+  isKnownAddress: any,
+  isUDAddress?: boolean
 ) => {
   const isValidAddr = validateAddress(address)
   if (!isValidAddr.success) return isValidAddr
@@ -43,11 +44,19 @@ const validateSendTransferAddress = (
     }
   }
 
-  if (address && !isKnownAddress(address) && !addressConfirmed) {
+  if (address && !isKnownAddress(address) && !addressConfirmed && !isUDAddress) {
     return {
       success: false,
       message:
         "You're trying to send to an unknown address. If you're really sure, confirm using the checkbox below."
+    }
+  }
+
+  if (address && !isKnownAddress(address) && !addressConfirmed && isUDAddress) {
+    return {
+      success: false,
+      message:
+        "You're trying to send to an unknown unstoppable domain. If you really trust the person who gave it to you, confirm using the checkbox below."
     }
   }
 
