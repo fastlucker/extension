@@ -26,7 +26,7 @@ const AccountsProvider: React.FC = ({ children }) => {
   const onAdd = useCallback(
     (opts: onAddAccountOptions) => {
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
-        setAuthStatus(AUTH_STATUS.AUTHENTICATED)
+        return setAuthStatus(AUTH_STATUS.AUTHENTICATED)
       }
 
       if (opts.shouldRedirect) navigate('dashboard')
