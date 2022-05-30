@@ -23,8 +23,11 @@ const AccountsContext = createContext<UseAccountsReturnType>({
 const AccountsProvider: React.FC = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
 
+  console.log('outside', authStatus)
   const onAdd = useCallback(
     (opts: onAddAccountOptions) => {
+      // TODO: Figure out why the memoized one is cashed :(
+      console.log('memoized', authStatus)
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
         return setAuthStatus(AUTH_STATUS.AUTHENTICATED)
       }
