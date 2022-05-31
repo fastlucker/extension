@@ -15,7 +15,7 @@ export const SINGLE_ITEM_HEIGHT = 52
 
 const styles = StyleSheet.create<Styles>({
   networksContainer: {
-    height: 250
+    height: SINGLE_ITEM_HEIGHT * 5
   },
   networkBtnContainer: {
     borderRadius: 13,
