@@ -1,7 +1,7 @@
 import { NetworkType } from 'ambire-common/src/constants/networks'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity, View } from 'react-native'
+import { ScrollView, TouchableOpacity, View } from 'react-native'
 
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Text from '@modules/common/components/Text'
@@ -12,7 +12,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
-import styles from './styles'
+import styles, { SINGLE_ITEM_HEIGHT } from './styles'
 
 interface Props {
   closeBottomSheet: () => void
@@ -28,7 +28,9 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   }
 
   const renderNetwork = ({ name, chainId, id }: NetworkType, i: number) => {
-    const isActive = chainId === network?.chainId
+    // TODO:
+    // const isActive = chainId === network?.chainId
+    const isActive = false
     const isLast = i + 1 === allNetworks.length
 
     return (
@@ -61,7 +63,19 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       <Title style={textStyles.center} type="small">
         {t('Change network')}
       </Title>
-      <View style={styles.networksContainer}>{allNetworks.map(renderNetwork)}</View>
+      <View style={styles.networksContainer}>
+        <View style={styles.networkBtnContainerActive} />
+        <ScrollView
+          pagingEnabled
+          snapToInterval={SINGLE_ITEM_HEIGHT}
+          contentContainerStyle={{
+            paddingTop: SINGLE_ITEM_HEIGHT * 2,
+            paddingBottom: SINGLE_ITEM_HEIGHT * 2
+          }}
+        >
+          {allNetworks.map(renderNetwork)}
+        </ScrollView>
+      </View>
     </>
   )
 }

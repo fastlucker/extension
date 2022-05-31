@@ -11,11 +11,13 @@ interface Styles {
 }
 
 const ICON_WRAPPER_SIZE = 32
+export const SINGLE_ITEM_HEIGHT = 52
 
 const styles = StyleSheet.create<Styles>({
-  networksContainer: {},
+  networksContainer: {
+    height: 250
+  },
   networkBtnContainer: {
-    width: '100%',
     borderRadius: 13,
     flexDirection: 'row',
     alignItems: 'center',
@@ -24,7 +26,12 @@ const styles = StyleSheet.create<Styles>({
     ...spacings.pvTy
   },
   networkBtnContainerActive: {
-    backgroundColor: colors.howl
+    backgroundColor: colors.howl,
+    position: 'absolute',
+    width: '100%',
+    top: SINGLE_ITEM_HEIGHT * 2,
+    left: 0,
+    height: SINGLE_ITEM_HEIGHT
   },
   networkBtnIcon: {
     width: ICON_WRAPPER_SIZE,
