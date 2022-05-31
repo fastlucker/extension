@@ -147,7 +147,9 @@ const SendScreen = () => {
                     info={t(
                       'Please double-check the recipient address, blockchain transactions are not reversible.'
                     )}
-                    isValid={address.length > 1 && !validationFormMgs.messages?.address?.length}
+                    isValid={
+                      address.length > 1 && !validationFormMgs.messages?.address && !!uDAddress
+                    }
                     validLabel={uDAddress ? t('Valid Unstoppable domainsⓇ domain') : ''}
                     error={validationFormMgs.messages?.address}
                     value={address}
