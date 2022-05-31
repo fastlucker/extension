@@ -2,19 +2,24 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, View } from 'react-native'
 
-import { MaterialIcons } from '@expo/vector-icons'
+import ScanIcon from '@assets/svg/ScanIcon'
+import UnstoppableDomainIcon from '@assets/svg/UnstoppableDomainIcon'
+import { TouchableOpacity } from '@gorhom/bottom-sheet'
 import Input, { InputProps } from '@modules/common/components/Input'
 import Title from '@modules/common/components/Title'
 import colors from '@modules/common/styles/colors'
-import { DEVICE_HEIGHT, DEVICE_WIDTH, SPACING } from '@modules/common/styles/spacings'
+import spacings, { DEVICE_HEIGHT, DEVICE_WIDTH, SPACING } from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import BottomSheet from '../BottomSheet'
 import useBottomSheet from '../BottomSheet/hooks/useBottomSheet'
 import QRCodeScanner from '../QRCodeScanner'
 
-interface Props extends InputProps {}
+interface Props extends InputProps {
+  isValidUDomain?: boolean
+}
 
-const InputOrScan: React.FC<Props> = ({ onChangeText, ...rest }) => {
+const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, ...rest }) => {
   const { t } = useTranslation()
   const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
 
@@ -41,8 +46,19 @@ const InputOrScan: React.FC<Props> = ({ onChangeText, ...rest }) => {
   return (
     <>
       <Input
-        buttonText={<MaterialIcons name="crop-free" size={25} color={colors.inputColor} />}
-        onButtonPress={handleOnButtonPress}
+        button={
+          <View style={flexboxStyles.directionRow}>
+            <UnstoppableDomainIcon isActive={isValidUDomain} />
+            <TouchableOpacity style={spacings.plTy} onPress={handleOnButtonPress}>
+              <ScanIcon isFilled={false} />
+            </TouchableOpacity>
+          </View>
+        }
+        buttonProps={{
+          activeOpacity: 1,
+          disabled: true
+        }}
+        onButtonPress={() => null}
         onChangeText={onChangeText}
         {...rest}
       />
@@ -61,4 +77,4 @@ const InputOrScan: React.FC<Props> = ({ onChangeText, ...rest }) => {
   )
 }
 
-export default React.memo(InputOrScan)
+export default React.memo(RecipientInput)

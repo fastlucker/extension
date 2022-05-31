@@ -13,7 +13,7 @@ interface Props extends CheckBoxProps {
   bottomSpacing?: number
 }
 
-const Checkbox = ({ label, children, ...rest }: Props) => (
+const Checkbox = ({ label, children, onValueChange, value, ...rest }: Props) => (
   <View style={styles.container}>
     <View style={styles.checkboxWrapper}>
       <RNCheckBox
@@ -29,10 +29,20 @@ const Checkbox = ({ label, children, ...rest }: Props) => (
         onAnimationType="fade"
         offAnimationType="fade"
         boxType="square"
+        value={value}
+        onValueChange={onValueChange}
         {...rest}
       />
     </View>
-    <View style={flexboxStyles.flex1}>{label ? <Text fontSize={12}>{label}</Text> : children}</View>
+    <View style={flexboxStyles.flex1}>
+      {label ? (
+        <Text onPress={onValueChange} fontSize={12}>
+          {label}
+        </Text>
+      ) : (
+        children
+      )}
+    </View>
   </View>
 )
 
