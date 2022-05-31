@@ -1,9 +1,14 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import networks from 'ambire-common/src/constants/networks'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
+import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
+import {
+  validateSendTransferAddress,
+  validateSendTransferAmount
+} from 'ambire-common/src/services/validations'
 import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import TokenIcon from '@modules/common/components/TokenIcon'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -12,10 +17,6 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
-import {
-  validateSendTransferAddress,
-  validateSendTransferAmount
-} from '@modules/common/services/validate'
 import { useNavigation, useRoute } from '@react-navigation/native'
 
 const ERC20 = new Interface(erc20Abi)
@@ -31,6 +32,7 @@ export default function useRequestTransaction() {
   const { isKnownAddress } = useAddressBook()
   const tokenAddressOrSymbol = route.params?.tokenAddressOrSymbol
 
+  const timer: any = useRef(null)
   const tokenAddress = isValidAddress(tokenAddressOrSymbol)
     ? tokenAddressOrSymbol
     : tokens.find(({ symbol }: any) => symbol === tokenAddressOrSymbol)?.address || null
@@ -38,6 +40,7 @@ export default function useRequestTransaction() {
   const [asset, setAsset] = useState(tokenAddress)
   const [amount, setAmount] = useState<number>(0)
   const [address, setAddress] = useState('')
+  const [uDAddress, setUDAddress] = useState('')
   const [disabled, setDisabled] = useState(true)
   const [addressConfirmed, setAddressConfirmed] = useState(false)
   const [sWAddressConfirmed, setSWAddressConfirmed] = useState(false)
@@ -109,25 +112,39 @@ export default function useRequestTransaction() {
 
   const sendTransaction = useCallback(() => {
     try {
+      const recipientAddress = uDAddress || address
+
       const txn = {
         to: selectedAsset.address,
         value: '0',
-        data: ERC20.encodeFunctionData('transfer', [address, bigNumberHexAmount])
+        data: ERC20.encodeFunctionData('transfer', [recipientAddress, bigNumberHexAmount])
       }
 
       if (Number(selectedAsset.address) === 0) {
-        txn.to = address
+        txn.to = recipientAddress
         txn.value = bigNumberHexAmount
         txn.data = '0x'
       }
 
-      addRequest({
+      const req: any = {
         id: `transfer_${Date.now()}`,
         type: 'eth_sendTransaction',
         chainId: network?.chainId,
         account: selectedAcc,
-        txn
-      })
+        txn,
+        meta: null
+      }
+
+      if (uDAddress) {
+        req.meta = {
+          addressLabel: {
+            addressLabel: address,
+            address: uDAddress
+          }
+        }
+      }
+
+      addRequest(req)
 
       // Timeout of 500ms because of the animated transition between screens (addRequest opens PendingTransactions screen)
       setTimeout(() => {
@@ -141,34 +158,12 @@ export default function useRequestTransaction() {
     }
   }, [selectedAcc, address, selectedAsset, bigNumberHexAmount, network?.chainId])
 
-  const unknownWarning = useMemo(
-    () => isValidAddress(address) && !isKnownAddress(address),
-    [address, isKnownAddress]
-  )
+  const unknownWarning = useMemo(() => {
+    const addr = uDAddress || address
+    return isValidAddress(addr) && !isKnownAddress(addr)
+  }, [address, uDAddress, isKnownAddress])
+
   const smartContractWarning = useMemo(() => isKnownTokenOrContract(address), [address])
-
-  useEffect(() => {
-    const isValidRecipientAddress = validateSendTransferAddress(
-      address,
-      selectedAcc,
-      addressConfirmed,
-      isKnownAddress
-    )
-    const isValidSendTransferAmount = validateSendTransferAmount(amount, selectedAsset)
-
-    setValidationFormMgs({
-      success: {
-        amount: isValidSendTransferAmount.success,
-        address: isValidRecipientAddress.success
-      },
-      messages: {
-        amount: isValidSendTransferAmount.message ? isValidSendTransferAmount.message : '',
-        address: isValidRecipientAddress.message ? isValidRecipientAddress.message : ''
-      }
-    })
-
-    setDisabled(!(isValidRecipientAddress.success && isValidSendTransferAmount.success))
-  }, [address, amount, selectedAcc, selectedAsset, addressConfirmed, isKnownAddress])
 
   const showSWAddressWarning = useMemo(
     () =>
@@ -179,6 +174,93 @@ export default function useRequestTransaction() {
         .includes(network.id),
     [tokenAddress, network]
   )
+
+  useEffect(() => {
+    const isValidSendTransferAmount = validateSendTransferAmount(amount, selectedAsset)
+
+    if (address.startsWith('0x') && address.indexOf('.') === -1) {
+      if (uDAddress !== '') setUDAddress('')
+      const isValidRecipientAddress = validateSendTransferAddress(
+        address,
+        selectedAcc,
+        addressConfirmed,
+        isKnownAddress
+      )
+
+      setValidationFormMgs({
+        success: {
+          amount: isValidSendTransferAmount.success,
+          address: isValidRecipientAddress.success
+        },
+        messages: {
+          amount: isValidSendTransferAmount.message ? isValidSendTransferAmount.message : '',
+          address: isValidRecipientAddress.message ? isValidRecipientAddress.message : ''
+        }
+      })
+
+      setDisabled(
+        !isValidRecipientAddress.success ||
+          !isValidSendTransferAmount.success ||
+          (showSWAddressWarning && !sWAddressConfirmed)
+      )
+    } else {
+      if (timer.current) {
+        clearTimeout(timer.current)
+      }
+
+      const validateForm = async () => {
+        const UDAddress = await resolveUDomain(
+          address,
+          selectedAsset ? selectedAsset.symbol : null,
+          network.unstoppableDomainsChain
+        )
+        timer.current = null
+        const isUDAddress = !!UDAddress
+        const isValidRecipientAddress = validateSendTransferAddress(
+          UDAddress || address,
+          selectedAcc,
+          addressConfirmed,
+          isKnownAddress,
+          isUDAddress
+        )
+
+        setUDAddress(UDAddress)
+        setValidationFormMgs({
+          success: {
+            amount: isValidSendTransferAmount.success,
+            address: isValidRecipientAddress.success
+          },
+          messages: {
+            amount: isValidSendTransferAmount.message ? isValidSendTransferAmount.message : '',
+            address: isValidRecipientAddress.message ? isValidRecipientAddress.message : ''
+          }
+        })
+
+        setDisabled(
+          !isValidRecipientAddress.success ||
+            !isValidSendTransferAmount.success ||
+            (showSWAddressWarning && !sWAddressConfirmed)
+        )
+      }
+
+      timer.current = setTimeout(async () => {
+        return validateForm().catch(console.error)
+      }, 300)
+    }
+    return () => clearTimeout(timer.current)
+  }, [
+    address,
+    amount,
+    selectedAcc,
+    selectedAsset,
+    addressConfirmed,
+    showSWAddressWarning,
+    sWAddressConfirmed,
+    isKnownAddress,
+    addToast,
+    network.id,
+    uDAddress
+  ])
 
   useEffect(() => {
     setAmount(0)
@@ -207,6 +289,7 @@ export default function useRequestTransaction() {
     onAmountChange,
     showSWAddressWarning,
     sWAddressConfirmed,
-    setSWAddressConfirmed
+    setSWAddressConfirmed,
+    uDAddress
   }
 }

@@ -43,6 +43,7 @@ const BottomSheet: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const insets = useSafeAreaInsets()
+
   // The header should start a little bit below the end of the notch,
   // and right in the vertical middle of the nav.
   const notchInset = insets.top + 10
@@ -115,6 +116,7 @@ const BottomSheet: React.FC<Props> = ({
         }}
         style={{ maxHeight: BOTTOM_SHEET_MAX_HEIGHT }}
         alwaysBounceVertical={false}
+        keyboardShouldPersistTaps="handled"
       >
         <View style={styles.containerInnerWrapper}>
           {children}
