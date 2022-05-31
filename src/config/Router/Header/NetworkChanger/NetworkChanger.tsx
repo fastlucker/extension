@@ -1,5 +1,5 @@
 import { NetworkType } from 'ambire-common/src/constants/networks'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
 
@@ -36,6 +36,11 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     }
   }
 
+  const currentNetworkIndex = useMemo(
+    () => allNetworks.map((n) => n.chainId).indexOf(network?.chainId || 0),
+    [network?.chainId]
+  )
+
   const renderNetwork = ({ name, chainId, id }: NetworkType, i: number) => {
     // TODO:
     // const isActive = chainId === network?.chainId
@@ -67,6 +72,10 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
         <ScrollView
           pagingEnabled
           snapToInterval={SINGLE_ITEM_HEIGHT}
+          contentOffset={{
+            y: SINGLE_ITEM_HEIGHT * currentNetworkIndex,
+            x: 0
+          }}
           contentContainerStyle={{
             paddingTop: SINGLE_ITEM_HEIGHT * 2,
             paddingBottom: SINGLE_ITEM_HEIGHT * 2
