@@ -1,3 +1,4 @@
+import { isEmail } from 'ambire-common/src/services/validations'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -8,7 +9,6 @@ import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import { isEmail } from '@modules/common/services/validate'
 import spacings from '@modules/common/styles/spacings'
 
 const EmailLoginScreen = () => {

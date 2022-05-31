@@ -2,6 +2,10 @@ import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import networks from 'ambire-common/src/constants/networks'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
 import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
+import {
+  validateSendTransferAddress,
+  validateSendTransferAmount
+} from 'ambire-common/src/services/validations'
 import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -13,10 +17,6 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
-import {
-  validateSendTransferAddress,
-  validateSendTransferAmount
-} from '@modules/common/services/validate'
 import { useNavigation, useRoute } from '@react-navigation/native'
 
 const ERC20 = new Interface(erc20Abi)
