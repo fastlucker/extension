@@ -18,7 +18,6 @@ const styles = StyleSheet.create<Styles>({
     height: SINGLE_ITEM_HEIGHT * 5
   },
   networkBtnContainer: {
-    borderRadius: 13,
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: ICON_WRAPPER_SIZE + SPACING_MD,
@@ -26,6 +25,7 @@ const styles = StyleSheet.create<Styles>({
     ...spacings.pvTy
   },
   networkBtnContainerActive: {
+    borderRadius: 13,
     backgroundColor: colors.howl,
     position: 'absolute',
     width: '100%',
