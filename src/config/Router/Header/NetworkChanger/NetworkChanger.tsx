@@ -68,6 +68,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
         key={_network.chainId}
         style={[styles.networkBtnContainer]}
         onPress={handleChangeNetworkByPressing}
+        disabled={isActive}
       >
         <Text
           weight="regular"
@@ -113,4 +114,4 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   )
 }
 
-export default NetworkChanger
+export default React.memo(NetworkChanger)
