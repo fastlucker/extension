@@ -23,15 +23,16 @@ const AccountsContext = createContext<UseAccountsReturnType>({
 const AccountsProvider: React.FC = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
 
-  console.log('outside', authStatus)
   const onAdd = useCallback(
     (opts: onAddAccountOptions) => {
-      // TODO: Figure out why the memoized one is cashed :(
-      console.log('memoized', authStatus)
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
+        // Flipping the flag is all it's needed, because it changes the
+        // Router state that redirects the user to the logged-in state screens.
         return setAuthStatus(AUTH_STATUS.AUTHENTICATED)
       }
 
+      // If the user is authenticated, a manual redirect is needed,
+      // because the logged-in state screens were already mounted.
       if (opts.shouldRedirect) navigate('dashboard')
     },
     [authStatus, setAuthStatus]
