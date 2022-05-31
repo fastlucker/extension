@@ -37,11 +37,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       <TouchableOpacity
         key={chainId}
         onPress={() => handleChangeNetwork(chainId)}
-        style={[
-          styles.networkBtnContainer,
-          isActive && styles.networkBtnContainerActive,
-          isLast && spacings.mbTy
-        ]}
+        style={[styles.networkBtnContainer, isActive && styles.networkBtnContainerActive]}
       >
         <Text
           weight="regular"
