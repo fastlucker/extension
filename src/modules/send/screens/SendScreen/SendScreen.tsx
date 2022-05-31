@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react'
-import { FieldValues, SubmitHandler } from 'react-hook-form'
 import {
   ActivityIndicator,
   Keyboard,
@@ -77,8 +76,8 @@ const SendScreen = () => {
     uDAddress
   } = useRequestTransaction()
 
-  const handleAddNewAddress = (fieldValues: SubmitHandler<FieldValues>) => {
-    // @ts-ignore
+  const handleAddNewAddress = (fieldValues) => {
+    console.log(fieldValues)
     addAddress(fieldValues.name, fieldValues.address)
     closeBottomSheetAddrAdd()
     openBottomSheetAddrDisplay()
