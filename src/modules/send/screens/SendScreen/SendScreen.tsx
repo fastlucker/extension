@@ -76,8 +76,7 @@ const SendScreen = () => {
     uDAddress
   } = useRequestTransaction()
 
-  const handleAddNewAddress = (fieldValues) => {
-    console.log(fieldValues)
+  const handleAddNewAddress = (fieldValues: { name: string; address: string }) => {
     addAddress(fieldValues.name, fieldValues.address)
     closeBottomSheetAddrAdd()
     openBottomSheetAddrDisplay()
