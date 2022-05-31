@@ -11,11 +11,14 @@ interface Styles {
 }
 
 const ICON_WRAPPER_SIZE = 32
+// Active item height is a bit smaller than the item itself
+const ACTIVE_ITEM_HEIGHT_GAP = 10
 export const SINGLE_ITEM_HEIGHT = 52
 
 const styles = StyleSheet.create<Styles>({
   networksContainer: {
-    height: SINGLE_ITEM_HEIGHT * 5
+    height: SINGLE_ITEM_HEIGHT * 5,
+    ...spacings.mbTy
   },
   networkBtnContainer: {
     flexDirection: 'row',
@@ -29,9 +32,9 @@ const styles = StyleSheet.create<Styles>({
     backgroundColor: colors.howl,
     position: 'absolute',
     width: '100%',
-    top: SINGLE_ITEM_HEIGHT * 2,
+    top: SINGLE_ITEM_HEIGHT * 2 + ACTIVE_ITEM_HEIGHT_GAP / 2,
     left: 0,
-    height: SINGLE_ITEM_HEIGHT
+    height: SINGLE_ITEM_HEIGHT - ACTIVE_ITEM_HEIGHT_GAP
   },
   networkBtnIcon: {
     width: ICON_WRAPPER_SIZE,

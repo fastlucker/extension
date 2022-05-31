@@ -1,14 +1,15 @@
 import { NetworkType } from 'ambire-common/src/constants/networks'
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
+import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
+import { ScrollView } from 'react-native-gesture-handler'
 
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import useToast from '@modules/common/hooks/useToast'
 import { colorPalette as colors } from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
@@ -20,8 +21,8 @@ interface Props {
 
 const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { t } = useTranslation()
-  const [pos, setPos] = React.useState(0)
   const { network, setNetwork, allNetworks } = useNetwork()
+  const { addToast } = useToast()
 
   const handleChangeNetwork = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     // Get the currently selected network index, based on the idea from this
@@ -30,10 +31,16 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     const index = event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT
     const selectedNetwork = allNetworks[index]
 
-    if (selectedNetwork) {
-      setNetwork(selectedNetwork.chainId)
-      closeBottomSheet()
-    }
+    if (!selectedNetwork) return
+    if (selectedNetwork.chainId === network?.chainId) return
+
+    setNetwork(selectedNetwork.chainId)
+    addToast(t('Network changed to {{network}}', { network: selectedNetwork.name }) as string, {
+      timeout: 2500
+    })
+    // Closing the bottom sheet immediately is kind of cool,
+    // but sometimes it's not really clear what happens. Therefore, skip it.
+    // closeBottomSheet()
   }
 
   const currentNetworkIndex = useMemo(
@@ -41,15 +48,14 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     [network?.chainId]
   )
 
-  const renderNetwork = ({ name, chainId, id }: NetworkType, i: number) => {
-    // TODO:
-    // const isActive = chainId === network?.chainId
+  const renderNetwork = ({ name, chainId, id }: NetworkType) => {
+    const isActive = chainId === network?.chainId
 
     return (
       <View key={chainId} style={[styles.networkBtnContainer]}>
         <Text
           weight="regular"
-          color={colors.titan_50}
+          color={isActive ? colors.titan : colors.titan_50}
           style={[flexboxStyles.flex1, textStyles.center]}
           numberOfLines={1}
         >
