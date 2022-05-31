@@ -1,7 +1,7 @@
 import { NetworkType } from 'ambire-common/src/constants/networks'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScrollView, TouchableOpacity, View } from 'react-native'
+import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
 
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Text from '@modules/common/components/Text'
@@ -20,28 +20,31 @@ interface Props {
 
 const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { t } = useTranslation()
+  const [pos, setPos] = React.useState(0)
   const { network, setNetwork, allNetworks } = useNetwork()
 
-  const handleChangeNetwork = (chainId: any) => {
-    setNetwork(chainId)
-    closeBottomSheet()
+  const handleChangeNetwork = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    // Get the currently selected network index, based on the idea from this
+    // thread, but implemented vertically and based on our fixed item height.
+    // {@link https://stackoverflow.com/a/56736109/1333836}
+    const index = event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT
+    const selectedNetwork = allNetworks[index]
+
+    if (selectedNetwork) {
+      setNetwork(selectedNetwork.chainId)
+      closeBottomSheet()
+    }
   }
 
   const renderNetwork = ({ name, chainId, id }: NetworkType, i: number) => {
     // TODO:
     // const isActive = chainId === network?.chainId
-    const isActive = false
-    const isLast = i + 1 === allNetworks.length
 
     return (
-      <TouchableOpacity
-        key={chainId}
-        onPress={() => handleChangeNetwork(chainId)}
-        style={[styles.networkBtnContainer, isActive && styles.networkBtnContainerActive]}
-      >
+      <View key={chainId} style={[styles.networkBtnContainer]}>
         <Text
           weight="regular"
-          color={isActive ? colors.titan : colors.titan_50}
+          color={colors.titan_50}
           style={[flexboxStyles.flex1, textStyles.center]}
           numberOfLines={1}
         >
@@ -50,7 +53,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
         <View style={styles.networkBtnIcon}>
           <NetworkIcon name={id} />
         </View>
-      </TouchableOpacity>
+      </View>
     )
   }
 
@@ -68,6 +71,9 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
             paddingTop: SINGLE_ITEM_HEIGHT * 2,
             paddingBottom: SINGLE_ITEM_HEIGHT * 2
           }}
+          showsVerticalScrollIndicator={false}
+          onMomentumScrollEnd={handleChangeNetwork}
+          scrollEventThrottle={16}
         >
           {allNetworks.map(renderNetwork)}
         </ScrollView>
