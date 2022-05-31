@@ -26,9 +26,13 @@ const AccountsProvider: React.FC = ({ children }) => {
   const onAdd = useCallback(
     (opts: onAddAccountOptions) => {
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
-        setAuthStatus(AUTH_STATUS.AUTHENTICATED)
+        // Flipping the flag is all it's needed, because it changes the
+        // Router state that redirects the user to the logged-in state screens.
+        return setAuthStatus(AUTH_STATUS.AUTHENTICATED)
       }
 
+      // If the user is authenticated, a manual redirect is needed,
+      // because the logged-in state screens were already mounted.
       if (opts.shouldRedirect) navigate('dashboard')
     },
     [authStatus, setAuthStatus]

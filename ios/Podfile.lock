@@ -10,7 +10,7 @@ PODS:
     - ZXingObjC/PDF417
   - EXBlur (11.0.0):
     - ExpoModulesCore
-  - EXCamera (12.1.1):
+  - EXCamera (12.1.2):
     - ExpoModulesCore
   - EXClipboard (2.1.1):
     - ExpoModulesCore
@@ -18,17 +18,17 @@ PODS:
     - ExpoModulesCore
   - EXDevice (4.1.1):
     - ExpoModulesCore
-  - EXDocumentPicker (10.1.2):
+  - EXDocumentPicker (10.1.3):
     - ExpoModulesCore
   - EXErrorRecovery (3.0.5):
     - ExpoModulesCore
-  - EXFaceDetector (11.1.2):
+  - EXFaceDetector (11.1.3):
     - ExpoModulesCore
     - GoogleMLKit/FaceDetection (= 2.1.0)
     - MLKitCommon (= 2.1.0)
     - MLKitFaceDetection (= 1.2.0)
     - MLKitVision (= 1.2.0)
-  - EXFileSystem (13.1.3):
+  - EXFileSystem (13.1.4):
     - ExpoModulesCore
   - EXFont (10.0.5):
     - ExpoModulesCore
@@ -57,7 +57,7 @@ PODS:
     - ExpoModulesCore
     - React-Core
   - EXStructuredHeaders (2.1.1)
-  - EXUpdates (0.11.6):
+  - EXUpdates (0.11.7):
     - EXManifests
     - ExpoModulesCore
     - EXStructuredHeaders
@@ -339,7 +339,7 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.3.2):
     - React-Core
-  - react-native-webview (11.17.2):
+  - react-native-webview (11.15.0):
     - React-Core
   - React-perflogger (0.64.3)
   - React-RCTActionSheet (0.64.3):
@@ -708,14 +708,14 @@ SPEC CHECKSUMS:
   EXApplication: 54fe5bd6268d697771645e8f1aef8b806a65247a
   EXBarCodeScanner: e5ca0062d8ad1c4c1d2e386d6a308d5a32213020
   EXBlur: 82055865de17cf2cf797ff064c50fb59fcbe703f
-  EXCamera: 74da18e906cbc261e3cfc9c3223673d0e79e4ee4
+  EXCamera: 4a0d00d6d1e4703c31a75514d8bc804a2eab27bd
   EXClipboard: 8123fcda680538bb0e1f4e6511106553e52d3760
   EXConstants: 88bf79622fbd9b476c96d8ec57fe97ca44fe8e3c
   EXDevice: aa5e1edbf350481a948c3258b750dd11e6e4579e
-  EXDocumentPicker: 9bc5eb42714af25dd59513102a622d4c2c4efc47
+  EXDocumentPicker: d3eb6a207e1f370e496bea959b3ac145126560f5
   EXErrorRecovery: b0d7582714a2cc896e94a2308a356f94dbf14ef7
-  EXFaceDetector: bb7534d77448536eda91896fc7b47d758119d6f9
-  EXFileSystem: c7187bfe9ed1eda11e7fda5953125695d791a24b
+  EXFaceDetector: 72732ce766a52e5842cb4c77133fbd681c817827
+  EXFileSystem: 08a3033ac372b6346becf07839e1ccef26fb1058
   EXFont: 2597c10ac85a69d348d44d7873eccf5a7576ef5e
   EXImageLoader: 347b72c2ec2df65120ccec40ea65a4c4f24317ff
   EXJSONUtils: f515cf71710855d7ba5bfc6752af3b9a6f6aad01
@@ -729,7 +729,7 @@ SPEC CHECKSUMS:
   EXSecureStore: b80c74c5ee29d0160c2aace3fd9a24a5edc20015
   EXSplashScreen: 21669e598804ee810547dbb6692c8deb5dd8dbf3
   EXStructuredHeaders: 4993087b2010dbcc510f5d92555b36f523425e8d
-  EXUpdates: bd5fa64f02685ed3e96be86b5ca350cdc2cd8d02
+  EXUpdates: a83e036243b0f6ece53a8c1cb883b6751c88a5f8
   EXUpdatesInterface: a9814f422d3cd6e7cfd260d13c27786148ece20e
   FBLazyVector: c71c5917ec0ad2de41d5d06a5855f6d5eda06971
   FBReactNativeSpec: a8888c06487386bb5dbe191f71c6fa8f6fbeb241
@@ -766,7 +766,7 @@ SPEC CHECKSUMS:
   react-native-performance: f4b6604a9d5a8a7407e34a82fab6c641d9a3ec12
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
-  react-native-webview: 380c1a03ec94b7ed764dac8db1e7c9952d08c93a
+  react-native-webview: e89bf2dba26a04cda967814df3ed1be99f291233
   React-perflogger: cc76a4254d19640f1d8ad1c66fdee800414b805c
   React-RCTActionSheet: 7448f049318d8d7e8a9a1ebb742ada721757eea8
   React-RCTAnimation: fb9b3fa1a4a9f5e6ab01b3368693ce69860ba76a
