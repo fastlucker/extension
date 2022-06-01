@@ -14,32 +14,36 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
 import AddTokenForm from './AddTokenForm'
+import { MODES } from './constants'
 import styles from './styles'
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-enum FORM_TYPE {
-  ADD_TOKEN = 'Add Token',
-  HIDE_TOKEN = 'Hide Token'
-}
-
-const segments = [{ value: FORM_TYPE.ADD_TOKEN }, { value: FORM_TYPE.HIDE_TOKEN }]
+const segments = [{ value: MODES.ADD_TOKEN }, { value: MODES.HIDE_TOKEN }]
 
 const AddToken = () => {
   const { t } = useTranslation()
-  const { onAddExtraToken } = usePortfolio()
+  const { onAddExtraToken, onAddHiddenToken } = usePortfolio()
   const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
-  const [formType, setFormType] = useState<FORM_TYPE>(FORM_TYPE.ADD_TOKEN)
+  const [formType, setFormType] = useState<MODES>(MODES.ADD_TOKEN)
 
-  const handleOnSubmit = (token) => {
-    onAddExtraToken(token)
+  const handleOnSubmit = (token, formMode: MODES) => {
+    const cases: { [key in MODES]: () => void } = {
+      [MODES.ADD_TOKEN]: () => {
+        onAddExtraToken(token)
+        closeBottomSheet()
+      },
+      [MODES.HIDE_TOKEN]: () => {
+        onAddHiddenToken(token)
+        closeBottomSheet()
+      }
+    }
 
-    closeBottomSheet()
+    return cases[formMode]()
   }
 
   return (
     <>
       <TouchableOpacity style={[styles.btnContainer, spacings.mbTy]} onPress={openBottomSheet}>
-        <Text fontSize={16}>{t('Add Token')}</Text>
+        <Text fontSize={16}>{t('Add or Hide Token')}</Text>
       </TouchableOpacity>
 
       <BottomSheet
@@ -52,7 +56,7 @@ const AddToken = () => {
         <Segments
           defaultValue={formType}
           segments={segments}
-          onChange={(value: FORM_TYPE) => {
+          onChange={(value: MODES) => {
             setFormType(value)
             triggerLayoutAnimation({
               forceAnimate: true,
@@ -62,22 +66,22 @@ const AddToken = () => {
           fontSize={14}
         />
         <View style={[flexboxStyles.flex1, flexboxStyles.justifyEnd, spacings.mtMd]}>
-          {formType === FORM_TYPE.ADD_TOKEN && (
+          {formType === MODES.ADD_TOKEN && (
             <>
               <Title type="small" style={textStyles.center}>
                 {t('Add Token')}
               </Title>
 
-              <AddTokenForm onSubmit={handleOnSubmit} />
+              <AddTokenForm mode={MODES.ADD_TOKEN} onSubmit={handleOnSubmit} />
             </>
           )}
-          {formType === FORM_TYPE.HIDE_TOKEN && (
+          {formType === MODES.HIDE_TOKEN && (
             <>
               <Title type="small" style={textStyles.center}>
                 {t('Hide Token')}
               </Title>
 
-              {/* TODO: Form. */}
+              <AddTokenForm mode={MODES.HIDE_TOKEN} onSubmit={handleOnSubmit} />
             </>
           )}
         </View>

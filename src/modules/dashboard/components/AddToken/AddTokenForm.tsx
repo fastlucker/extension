@@ -18,13 +18,16 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
+import { MODES } from './constants'
+
 const ERC20Interface = new Interface(ERC20ABI)
 
 interface Props {
-  onSubmit: (t: any) => void
+  mode: MODES
+  onSubmit: (token: any, formMode: MODES) => void
 }
 
-const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
+const AddTokenForm: React.FC<Props> = ({ mode, onSubmit }) => {
   const { t } = useTranslation()
   const { selectedAcc: account } = useAccounts()
   const { network }: any = useNetwork()
@@ -94,7 +97,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
   }
 
   const handleOnPress = handleSubmit(() => {
-    onSubmit(tokenDetails)
+    onSubmit(tokenDetails, mode)
     reset()
     setTokenDetails(null)
     setShowError(false)
