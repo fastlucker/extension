@@ -63,7 +63,6 @@ const SendScreen = () => {
     setMaxAmount,
     setAddress,
     sendTransaction,
-    isCurrNetworkBalanceLoading,
     disabled,
     addressConfirmed,
     setAddressConfirmed,
@@ -108,12 +107,12 @@ const SendScreen = () => {
         extraHeight={250}
         hasBottomTabNav
       >
-        {isCurrNetworkBalanceLoading && (
+        {!assetsItems.length && (
           <View style={StyleSheet.absoluteFill}>
             <ActivityIndicator style={StyleSheet.absoluteFill} size="large" />
           </View>
         )}
-        {!isCurrNetworkBalanceLoading && (
+        {!!assetsItems.length && (
           <TouchableWithoutFeedback
             onPress={() => {
               Keyboard.dismiss()

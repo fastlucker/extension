@@ -15,14 +15,16 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import usePrevious from '@modules/common/hooks/usePrevious'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
-import { useNavigation, useRoute } from '@react-navigation/native'
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 
 const ERC20 = new Interface(erc20Abi)
 
 export default function useRequestTransaction() {
-  const { tokens, isCurrNetworkBalanceLoading } = usePortfolio()
+  const isFocused = useIsFocused()
+  const { tokens } = usePortfolio()
   const route: any = useRoute()
   const navigation: any = useNavigation()
   const { network }: any = useNetwork()
@@ -31,7 +33,7 @@ export default function useRequestTransaction() {
   const { addToast } = useToast()
   const { isKnownAddress } = useAddressBook()
   const tokenAddressOrSymbol = route.params?.tokenAddressOrSymbol
-
+  const prevNetworkId = usePrevious(network.id)
   const timer: any = useRef(null)
   const tokenAddress = isValidAddress(tokenAddressOrSymbol)
     ? tokenAddressOrSymbol
@@ -77,16 +79,34 @@ export default function useRequestTransaction() {
     [tokens, selectedAcc, network.id]
   )
 
+  // Needed for the cases when the network is changed from another screen
+  // In this case a state update doesn't work but setting a flag in a ref and updating the state
+  // when screen is focused works just fine
+  const shouldUpdate = useRef(false)
   useEffect(() => {
-    if (!asset && assetsItems.length) setAsset(assetsItems[0]?.value)
-  }, [assetsItems, asset])
+    if (prevNetworkId && network.id !== prevNetworkId) {
+      shouldUpdate.current = true
+    }
+  }, [prevNetworkId, network.id])
+
+  // Update the selected asset in the token selector after the screen is being focused
+  useEffect(() => {
+    if (isFocused && shouldUpdate.current) {
+      setAsset(tokens[0]?.address)
+      shouldUpdate.current = false
+    }
+  }, [isFocused])
+
+  useEffect(() => {
+    if (!selectedAsset && tokens) setAsset(tokens[0]?.address)
+  }, [tokens, selectedAsset])
 
   useEffect(() => {
     if (!selectedAsset) return
     navigation.setParams({
       tokenAddressOrSymbol: +asset !== 0 ? asset : selectedAsset.symbol
     })
-  }, [selectedAsset])
+  }, [selectedAsset, asset])
 
   useEffect(() => {
     const addrOrSymbol = route.params?.tokenAddressOrSymbol
@@ -289,7 +309,6 @@ export default function useRequestTransaction() {
     setAddress,
     assetsItems,
     sendTransaction,
-    isCurrNetworkBalanceLoading,
     disabled,
     validationFormMgs,
     addressConfirmed,
