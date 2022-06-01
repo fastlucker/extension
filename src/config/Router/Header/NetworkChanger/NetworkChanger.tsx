@@ -1,8 +1,8 @@
 import { NetworkType } from 'ambire-common/src/constants/networks'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
-import { ScrollView } from 'react-native-gesture-handler'
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler'
 
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Text from '@modules/common/components/Text'
@@ -24,47 +24,64 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { network, setNetwork, allNetworks } = useNetwork()
   const { addToast } = useToast()
 
-  const handleChangeNetwork = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    // Get the currently selected network index, based on the idea from this
-    // thread, but implemented vertically and based on our fixed item height.
-    // {@link https://stackoverflow.com/a/56736109/1333836}
-    const index = event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT
-    const selectedNetwork = allNetworks[index]
-
-    if (!selectedNetwork) return
-    if (selectedNetwork.chainId === network?.chainId) return
-
-    setNetwork(selectedNetwork.chainId)
-    addToast(t('Network changed to {{network}}', { network: selectedNetwork.name }) as string, {
-      timeout: 2500
-    })
-    // Closing the bottom sheet immediately is kind of cool,
-    // but sometimes it's not really clear what happens. Therefore, skip it.
-    // closeBottomSheet()
-  }
-
   const currentNetworkIndex = useMemo(
     () => allNetworks.map((n) => n.chainId).indexOf(network?.chainId || 0),
     [network?.chainId]
   )
 
-  const renderNetwork = ({ name, chainId, id }: NetworkType) => {
-    const isActive = chainId === network?.chainId
+  const handleChangeNetwork = useCallback(
+    (_network: NetworkType) => {
+      if (!_network) return
+      if (_network.chainId === network?.chainId) return
+
+      setNetwork(_network.chainId)
+      addToast(t('Network changed to {{network}}', { network: _network.name }) as string, {
+        timeout: 2500
+      })
+      // Closing the bottom sheet immediately is kind of cool,
+      // but sometimes it's not really clear what happens. Therefore, skip it.
+      // closeBottomSheet()
+    },
+    [network?.chainId, setNetwork, addToast]
+  )
+
+  const handleChangeNetworkByScrolling = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      // Get the currently selected network index, based on the idea from this
+      // thread, but implemented vertically and based on our fixed item height.
+      // {@link https://stackoverflow.com/a/56736109/1333836}
+      const index = event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT
+      const selectedNetwork = allNetworks[index]
+
+      return handleChangeNetwork(selectedNetwork)
+    },
+    [handleChangeNetwork, allNetworks.length]
+  )
+
+  const renderNetwork = (_network: NetworkType) => {
+    const isActive = _network.chainId === network?.chainId
+
+    const handleChangeNetworkByPressing = () => handleChangeNetwork(_network)
 
     return (
-      <View key={chainId} style={[styles.networkBtnContainer]}>
+      <TouchableOpacity
+        key={_network.chainId}
+        style={[styles.networkBtnContainer]}
+        onPress={handleChangeNetworkByPressing}
+        disabled={isActive}
+      >
         <Text
           weight="regular"
           color={isActive ? colors.titan : colors.titan_50}
           style={[flexboxStyles.flex1, textStyles.center]}
           numberOfLines={1}
         >
-          {name}
+          {_network.name}
         </Text>
         <View style={styles.networkBtnIcon}>
-          <NetworkIcon name={id} />
+          <NetworkIcon name={_network.id} />
         </View>
-      </View>
+      </TouchableOpacity>
     )
   }
 
@@ -87,7 +104,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
             paddingBottom: SINGLE_ITEM_HEIGHT * 2
           }}
           showsVerticalScrollIndicator={false}
-          onMomentumScrollEnd={handleChangeNetwork}
+          onMomentumScrollEnd={handleChangeNetworkByScrolling}
           scrollEventThrottle={16}
         >
           {allNetworks.map(renderNetwork)}
@@ -97,4 +114,4 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   )
 }
 
-export default NetworkChanger
+export default React.memo(NetworkChanger)
