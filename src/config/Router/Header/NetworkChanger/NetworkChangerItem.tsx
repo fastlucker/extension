@@ -28,6 +28,7 @@ const NetworkChangerItem = ({ idx, name, iconName, isActive, onPress }: Props) =
       style={[styles.networkBtnContainer]}
       onPress={handlePress}
       disabled={isActive}
+      activeOpacity={0.6}
     >
       <Text
         weight="regular"
