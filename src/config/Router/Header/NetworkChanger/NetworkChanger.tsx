@@ -1,59 +1,98 @@
 import { NetworkType } from 'ambire-common/src/constants/networks'
-import React from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity, View } from 'react-native'
+import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
+import { ScrollView } from 'react-native-gesture-handler'
 
-import NetworkIcon from '@modules/common/components/NetworkIcon'
-import Text from '@modules/common/components/Text'
+import { isAndroid } from '@config/env'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
-import { colorPalette as colors } from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import useToast from '@modules/common/hooks/useToast'
 import textStyles from '@modules/common/styles/utils/text'
 
-import styles from './styles'
+import NetworkChangerItem from './NetworkChangerItem'
+import styles, { SINGLE_ITEM_HEIGHT } from './styles'
 
-interface Props {
-  closeBottomSheet: () => void
-}
+interface Props {}
 
-const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
+const NetworkChanger: React.FC<Props> = () => {
   const { t } = useTranslation()
   const { network, setNetwork, allNetworks } = useNetwork()
+  const { addToast } = useToast()
+  const scrollRef: any = useRef(null)
+  // Flags, needed for the #android-onMomentumScrollEnd-fix
+  const scrollY = useRef(0)
+  const onScrollEndCallbackTargetOffset = useRef(-1)
 
-  const handleChangeNetwork = (chainId: any) => {
-    setNetwork(chainId)
-    closeBottomSheet()
-  }
+  const currentNetworkIndex = useMemo(
+    () => allNetworks.map((n) => n.chainId).indexOf(network?.chainId || 0),
+    [network?.chainId]
+  )
 
-  const renderNetwork = ({ name, chainId, id }: NetworkType, i: number) => {
-    const isActive = chainId === network?.chainId
-    const isLast = i + 1 === allNetworks.length
+  const handleChangeNetwork = useCallback(
+    (_network: NetworkType) => {
+      if (!_network) return
+      if (_network.chainId === network?.chainId) return
+
+      setNetwork(_network.chainId)
+      addToast(t('Network changed to {{network}}', { network: _network.name }) as string, {
+        timeout: 2500
+      })
+    },
+    [network?.chainId, setNetwork, addToast]
+  )
+
+  const handleChangeNetworkByScrolling = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      // Get the currently selected network index, based on the idea from this
+      // thread, but implemented vertically and based on our fixed item height.
+      // {@link https://stackoverflow.com/a/56736109/1333836}
+      const index = event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT
+      const selectedNetwork = allNetworks[index]
+
+      return handleChangeNetwork(selectedNetwork)
+    },
+    [handleChangeNetwork, allNetworks.length]
+  )
+
+  const renderNetwork = (_network: NetworkType, idx: number) => {
+    const isActive = _network.chainId === network?.chainId
+
+    const handleChangeNetworkByPressing = useCallback((itemIndex: number) => {
+      scrollRef?.current?.scrollTo({ x: 0, y: itemIndex * SINGLE_ITEM_HEIGHT, animated: true })
+
+      // Part of the #android-onMomentumScrollEnd-fix
+      if (isAndroid) {
+        onScrollEndCallbackTargetOffset.current = itemIndex * SINGLE_ITEM_HEIGHT
+      }
+    }, [])
 
     return (
-      <TouchableOpacity
-        key={chainId}
-        onPress={() => handleChangeNetwork(chainId)}
-        style={[
-          styles.networkBtnContainer,
-          isActive && styles.networkBtnContainerActive,
-          isLast && spacings.mbTy
-        ]}
-      >
-        <Text
-          weight="regular"
-          color={isActive ? colors.titan : colors.titan_50}
-          style={[flexboxStyles.flex1, textStyles.center]}
-          numberOfLines={1}
-        >
-          {name}
-        </Text>
-        <View style={styles.networkBtnIcon}>
-          <NetworkIcon name={id} />
-        </View>
-      </TouchableOpacity>
+      <NetworkChangerItem
+        key={_network.chainId}
+        idx={idx}
+        name={_network.name}
+        iconName={_network.id}
+        isActive={isActive}
+        onPress={handleChangeNetworkByPressing}
+      />
     )
+  }
+
+  /**
+   * Calling `.scrollTo` on Android doesn't trigger the `onMomentumScrollEnd`
+   * event. So this additional handler is needed, only for Android,
+   * in order to apply the #android-onMomentumScrollEnd-fix
+   * that manually triggers `handleChangeNetworkByScrolling`.
+   * {@link https://stackoverflow.com/a/46788635/1333836}
+   */
+  const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset } = event.nativeEvent
+    scrollY.current = contentOffset.y
+
+    if (contentOffset.y === onScrollEndCallbackTargetOffset.current) {
+      handleChangeNetworkByScrolling(event)
+    }
   }
 
   return (
@@ -61,9 +100,30 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       <Title style={textStyles.center} type="small">
         {t('Change network')}
       </Title>
-      <View style={styles.networksContainer}>{allNetworks.map(renderNetwork)}</View>
+      <View style={styles.networksContainer}>
+        <View style={styles.networkBtnContainerActive} />
+        <ScrollView
+          ref={scrollRef}
+          onScroll={isAndroid ? onScroll : undefined}
+          pagingEnabled
+          snapToInterval={SINGLE_ITEM_HEIGHT}
+          contentOffset={{
+            y: SINGLE_ITEM_HEIGHT * currentNetworkIndex,
+            x: 0
+          }}
+          contentContainerStyle={{
+            paddingTop: SINGLE_ITEM_HEIGHT * 2,
+            paddingBottom: SINGLE_ITEM_HEIGHT * 2
+          }}
+          showsVerticalScrollIndicator={false}
+          onMomentumScrollEnd={handleChangeNetworkByScrolling}
+          scrollEventThrottle={16}
+        >
+          {allNetworks.map(renderNetwork)}
+        </ScrollView>
+      </View>
     </>
   )
 }
 
-export default NetworkChanger
+export default React.memo(NetworkChanger)

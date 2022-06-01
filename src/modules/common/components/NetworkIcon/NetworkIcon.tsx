@@ -24,10 +24,10 @@ import OptimismMonochromeIcon from '@assets/svg/OptimismMonochromeIcon'
 import PolygonLogo from '@assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@assets/svg/PolygonMonochromeIcon'
 
-type NameType = keyof typeof NETWORKS
+export type NetworkIconNameType = keyof typeof NETWORKS
 
 type Props = {
-  name: NameType
+  name: NetworkIconNameType
   type?: 'regular' | 'monochrome'
   [key: string]: any
 }
