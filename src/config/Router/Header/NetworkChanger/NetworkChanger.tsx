@@ -1,5 +1,5 @@
 import { NetworkType } from 'ambire-common/src/constants/networks'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler'
@@ -23,6 +23,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { t } = useTranslation()
   const { network, setNetwork, allNetworks } = useNetwork()
   const { addToast } = useToast()
+  const scrollRef: any = useRef(null)
 
   const currentNetworkIndex = useMemo(
     () => allNetworks.map((n) => n.chainId).indexOf(network?.chainId || 0),
@@ -58,16 +59,18 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     [handleChangeNetwork, allNetworks.length]
   )
 
-  const renderNetwork = (_network: NetworkType) => {
+  const renderNetwork = (_network: NetworkType, idx: number) => {
     const isActive = _network.chainId === network?.chainId
 
-    const handleChangeNetworkByPressing = () => handleChangeNetwork(_network)
+    const handleChangeNetworkByPressing = (itemIndex: number) => {
+      scrollRef?.current?.scrollTo({ x: 0, y: itemIndex * SINGLE_ITEM_HEIGHT, animated: true })
+    }
 
     return (
       <TouchableOpacity
         key={_network.chainId}
         style={[styles.networkBtnContainer]}
-        onPress={handleChangeNetworkByPressing}
+        onPress={() => handleChangeNetworkByPressing(idx)}
         disabled={isActive}
       >
         <Text
@@ -93,6 +96,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       <View style={styles.networksContainer}>
         <View style={styles.networkBtnContainerActive} />
         <ScrollView
+          ref={scrollRef}
           pagingEnabled
           snapToInterval={SINGLE_ITEM_HEIGHT}
           contentOffset={{
