@@ -15,7 +15,7 @@ const InputPassword: React.FC<Props> = ({ onChangeText, ...rest }) => {
     <Input
       secureTextEntry={secureTextEntry}
       autoCorrect={false}
-      buttonText={secureTextEntry ? <VisibilityIcon /> : <InvisibilityIcon />}
+      button={secureTextEntry ? <VisibilityIcon /> : <InvisibilityIcon />}
       onButtonPress={handleToggleSecureTextEntry}
       onChangeText={onChangeText}
       {...rest}

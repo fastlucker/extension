@@ -213,7 +213,7 @@ const Card = ({
             keyboardType="numeric"
             autoCorrect={false}
             value={amount.toString()}
-            buttonText={t('MAX')}
+            button={t('MAX')}
             onButtonPress={setMaxAmount}
             disabled={Number(currentToken?.balance || 0) === 0}
             labelComponent={amountLabel}

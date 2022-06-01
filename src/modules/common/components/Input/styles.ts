@@ -13,6 +13,7 @@ interface Style {
   valid: ViewStyle
   infoText: TextStyle
   errorText: TextStyle
+  validText: TextStyle
   label: TextStyle
   disabled: ViewStyle
 }
@@ -55,6 +56,11 @@ const styles = StyleSheet.create<Style>({
     ...spacings.ph
   },
   errorText: {
+    paddingHorizontal: 5,
+    ...spacings.ptMi,
+    ...spacings.ph
+  },
+  validText: {
     paddingHorizontal: 5,
     ...spacings.ptMi,
     ...spacings.ph
