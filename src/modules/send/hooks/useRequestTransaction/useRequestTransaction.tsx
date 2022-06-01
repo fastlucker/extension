@@ -55,22 +55,31 @@ export default function useRequestTransaction() {
     }
   })
 
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  const selectedAsset = useMemo(() => tokens.find(({ address }: any) => address === asset), [asset])
+  const selectedAsset = useMemo(
+    () => tokens.find(({ address }: any) => address === asset),
+    [asset, tokens]
+  )
 
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  const assetsItems = tokens.map(({ label, symbol, address, img, tokenImageUrl }: any) => ({
-    label: label || symbol,
-    value: address,
-    icon: () => (
-      <TokenIcon
-        uri={img || tokenImageUrl}
-        networkId={network.id}
-        address={selectedAcc}
-        withContainer
-      />
-    )
-  }))
+  const assetsItems = useMemo(
+    () =>
+      tokens.map(({ label, symbol, address, img, tokenImageUrl }: any) => ({
+        label: label || symbol,
+        value: address,
+        icon: () => (
+          <TokenIcon
+            uri={img || tokenImageUrl}
+            networkId={network.id}
+            address={selectedAcc}
+            withContainer
+          />
+        )
+      })),
+    [tokens, selectedAcc, network.id]
+  )
+
+  useEffect(() => {
+    if (!asset && assetsItems.length) setAsset(assetsItems[0]?.value)
+  }, [assetsItems, asset])
 
   useEffect(() => {
     if (!selectedAsset) return
@@ -80,14 +89,14 @@ export default function useRequestTransaction() {
   }, [selectedAsset])
 
   useEffect(() => {
-    if (tokenAddress && assetsItems.length) {
-      setAsset(tokenAddress)
+    const addrOrSymbol = route.params?.tokenAddressOrSymbol
+    const addr = isValidAddress(addrOrSymbol)
+      ? addrOrSymbol
+      : tokens.find(({ symbol }: any) => symbol === addrOrSymbol)?.address || null
+    if (addr) {
+      setAsset(addr)
     }
-  }, [tokenAddress])
-
-  useEffect(() => {
-    if (assetsItems.length && !asset) setAsset(assetsItems[0]?.value)
-  }, [assetsItems, asset])
+  }, [route.params?.tokenAddressOrSymbol, tokens])
 
   const maxAmount = useMemo(() => {
     if (!selectedAsset) return 0
@@ -156,7 +165,7 @@ export default function useRequestTransaction() {
       console.error(e)
       addToast(`Error: ${e.message || e}`, { error: true })
     }
-  }, [selectedAcc, address, selectedAsset, bigNumberHexAmount, network?.chainId])
+  }, [selectedAcc, address, selectedAsset, bigNumberHexAmount, network?.chainId, uDAddress])
 
   const unknownWarning = useMemo(() => {
     const addr = uDAddress || address
@@ -259,7 +268,8 @@ export default function useRequestTransaction() {
     isKnownAddress,
     addToast,
     network.id,
-    uDAddress
+    uDAddress,
+    network.unstoppableDomainsChain
   ])
 
   useEffect(() => {
