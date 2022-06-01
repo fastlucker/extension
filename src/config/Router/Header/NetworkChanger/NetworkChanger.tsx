@@ -1,28 +1,28 @@
 import { NetworkType } from 'ambire-common/src/constants/networks'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler'
+import { ScrollView } from 'react-native-gesture-handler'
 
-import NetworkIcon from '@modules/common/components/NetworkIcon'
-import Text from '@modules/common/components/Text'
+import { isAndroid } from '@config/env'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
-import { colorPalette as colors } from '@modules/common/styles/colors'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
+import NetworkChangerItem from './NetworkChangerItem'
 import styles, { SINGLE_ITEM_HEIGHT } from './styles'
 
-interface Props {
-  closeBottomSheet: () => void
-}
+interface Props {}
 
-const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
+const NetworkChanger: React.FC<Props> = () => {
   const { t } = useTranslation()
   const { network, setNetwork, allNetworks } = useNetwork()
   const { addToast } = useToast()
+  const scrollRef: any = useRef(null)
+  // Flags, needed for the #android-onMomentumScrollEnd-fix
+  const scrollY = useRef(0)
+  const onScrollEndCallbackTargetOffset = useRef(-1)
 
   const currentNetworkIndex = useMemo(
     () => allNetworks.map((n) => n.chainId).indexOf(network?.chainId || 0),
@@ -38,9 +38,6 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       addToast(t('Network changed to {{network}}', { network: _network.name }) as string, {
         timeout: 2500
       })
-      // Closing the bottom sheet immediately is kind of cool,
-      // but sometimes it's not really clear what happens. Therefore, skip it.
-      // closeBottomSheet()
     },
     [network?.chainId, setNetwork, addToast]
   )
@@ -58,31 +55,44 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     [handleChangeNetwork, allNetworks.length]
   )
 
-  const renderNetwork = (_network: NetworkType) => {
+  const renderNetwork = (_network: NetworkType, idx: number) => {
     const isActive = _network.chainId === network?.chainId
 
-    const handleChangeNetworkByPressing = () => handleChangeNetwork(_network)
+    const handleChangeNetworkByPressing = useCallback((itemIndex: number) => {
+      scrollRef?.current?.scrollTo({ x: 0, y: itemIndex * SINGLE_ITEM_HEIGHT, animated: true })
+
+      // Part of the #android-onMomentumScrollEnd-fix
+      if (isAndroid) {
+        onScrollEndCallbackTargetOffset.current = itemIndex * SINGLE_ITEM_HEIGHT
+      }
+    }, [])
 
     return (
-      <TouchableOpacity
+      <NetworkChangerItem
         key={_network.chainId}
-        style={[styles.networkBtnContainer]}
+        idx={idx}
+        name={_network.name}
+        iconName={_network.id}
+        isActive={isActive}
         onPress={handleChangeNetworkByPressing}
-        disabled={isActive}
-      >
-        <Text
-          weight="regular"
-          color={isActive ? colors.titan : colors.titan_50}
-          style={[flexboxStyles.flex1, textStyles.center]}
-          numberOfLines={1}
-        >
-          {_network.name}
-        </Text>
-        <View style={styles.networkBtnIcon}>
-          <NetworkIcon name={_network.id} />
-        </View>
-      </TouchableOpacity>
+      />
     )
+  }
+
+  /**
+   * Calling `.scrollTo` on Android doesn't trigger the `onMomentumScrollEnd`
+   * event. So this additional handler is needed, only for Android,
+   * in order to apply the #android-onMomentumScrollEnd-fix
+   * that manually triggers `handleChangeNetworkByScrolling`.
+   * {@link https://stackoverflow.com/a/46788635/1333836}
+   */
+  const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset } = event.nativeEvent
+    scrollY.current = contentOffset.y
+
+    if (contentOffset.y === onScrollEndCallbackTargetOffset.current) {
+      handleChangeNetworkByScrolling(event)
+    }
   }
 
   return (
@@ -93,6 +103,8 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       <View style={styles.networksContainer}>
         <View style={styles.networkBtnContainerActive} />
         <ScrollView
+          ref={scrollRef}
+          onScroll={isAndroid ? onScroll : undefined}
           pagingEnabled
           snapToInterval={SINGLE_ITEM_HEIGHT}
           contentOffset={{

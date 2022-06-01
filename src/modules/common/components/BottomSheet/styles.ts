@@ -18,8 +18,8 @@ const styles = StyleSheet.create<Styles>({
     borderRadius: 15
   },
   containerInnerWrapper: {
-    paddingTop: 35,
-    paddingBottom: 35,
+    paddingTop: 25,
+    paddingBottom: 25,
     paddingHorizontal: 20,
     flex: 1
   },
