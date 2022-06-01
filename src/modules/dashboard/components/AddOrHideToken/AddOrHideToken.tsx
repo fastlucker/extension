@@ -13,13 +13,13 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
-import AddTokenForm from './AddTokenForm'
+import AddOrHideTokenForm from './AddOrHideTokenForm'
 import { MODES } from './constants'
 import styles from './styles'
 
 const segments = [{ value: MODES.ADD_TOKEN }, { value: MODES.HIDE_TOKEN }]
 
-const AddToken = () => {
+const AddOrHideToken = () => {
   const { t } = useTranslation()
   const { onAddExtraToken, onAddHiddenToken } = usePortfolio()
   const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
@@ -72,7 +72,7 @@ const AddToken = () => {
                 {t('Add Token')}
               </Title>
 
-              <AddTokenForm mode={MODES.ADD_TOKEN} onSubmit={handleOnSubmit} />
+              <AddOrHideTokenForm mode={MODES.ADD_TOKEN} onSubmit={handleOnSubmit} />
             </>
           )}
           {formType === MODES.HIDE_TOKEN && (
@@ -81,7 +81,7 @@ const AddToken = () => {
                 {t('Hide Token')}
               </Title>
 
-              <AddTokenForm mode={MODES.HIDE_TOKEN} onSubmit={handleOnSubmit} />
+              <AddOrHideTokenForm mode={MODES.HIDE_TOKEN} onSubmit={handleOnSubmit} />
             </>
           )}
         </View>
@@ -90,4 +90,4 @@ const AddToken = () => {
   )
 }
 
-export default AddToken
+export default AddOrHideToken

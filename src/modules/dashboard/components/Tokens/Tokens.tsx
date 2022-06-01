@@ -12,7 +12,7 @@ import usePortfolio from '@modules/common/hooks/usePortfolio'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import AddToken from '@modules/dashboard/components/AddToken'
+import AddOrHideToken from '@modules/dashboard/components/AddOrHideToken'
 import { useNavigation } from '@react-navigation/native'
 
 import TokenItem from './TokenItem'
@@ -109,7 +109,7 @@ const Tokens = () => {
           </View>
         ))}
 
-      <AddToken />
+      <AddOrHideToken />
 
       <TextWarning appearance="info" style={spacings.mb0}>
         <Trans>

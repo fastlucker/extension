@@ -27,7 +27,7 @@ interface Props {
   onSubmit: (token: any, formMode: MODES) => void
 }
 
-const AddTokenForm: React.FC<Props> = ({ mode, onSubmit }) => {
+const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit }) => {
   const { t } = useTranslation()
   const { selectedAcc: account } = useAccounts()
   const { network }: any = useNetwork()
@@ -166,4 +166,4 @@ const AddTokenForm: React.FC<Props> = ({ mode, onSubmit }) => {
   )
 }
 
-export default AddTokenForm
+export default AddOrHideTokenForm
