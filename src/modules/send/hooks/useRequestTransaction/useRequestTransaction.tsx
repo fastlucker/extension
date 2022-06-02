@@ -24,7 +24,7 @@ const ERC20 = new Interface(erc20Abi)
 
 export default function useRequestTransaction() {
   const isFocused = useIsFocused()
-  const { tokens } = usePortfolio()
+  const { tokens, isCurrNetworkBalanceLoading } = usePortfolio()
   const route: any = useRoute()
   const navigation: any = useNavigation()
   const { network }: any = useNetwork()
@@ -57,11 +57,6 @@ export default function useRequestTransaction() {
     }
   })
 
-  const selectedAsset = useMemo(
-    () => tokens.find(({ address }: any) => address === asset),
-    [asset, tokens]
-  )
-
   const assetsItems = useMemo(
     () =>
       tokens.map(({ label, symbol, address, img, tokenImageUrl }: any) => ({
@@ -79,9 +74,14 @@ export default function useRequestTransaction() {
     [tokens, selectedAcc, network.id]
   )
 
+  const selectedAsset = useMemo(
+    () => tokens.find(({ address }: any) => address === asset),
+    [tokens, asset]
+  )
+
   // Needed for the cases when the network is changed from another screen
-  // In this case a state update doesn't work but setting a flag in a ref and updating the state
-  // when screen is focused works just fine
+  // In this case a state update doesn't work
+  // but setting a flag in a ref and updating the state when screen is focused works just fine
   const shouldUpdate = useRef(false)
   useEffect(() => {
     if (prevNetworkId && network.id !== prevNetworkId) {
@@ -97,9 +97,13 @@ export default function useRequestTransaction() {
     }
   }, [isFocused])
 
+  // TODO: setting the list of deps doesn't trigger a proper asset update
+  // should be fixed
   useEffect(() => {
-    if (!selectedAsset && tokens) setAsset(tokens[0]?.address)
-  }, [tokens, selectedAsset])
+    if (!selectedAsset && !!tokens && tokens?.[0]?.address !== asset) {
+      setAsset(tokens[0]?.address)
+    }
+  })
 
   useEffect(() => {
     if (!selectedAsset) return
@@ -196,6 +200,7 @@ export default function useRequestTransaction() {
 
   const showSWAddressWarning = useMemo(
     () =>
+      !!tokenAddress &&
       Number(tokenAddress) === 0 &&
       networks
         .map(({ id }) => id)
@@ -205,55 +210,18 @@ export default function useRequestTransaction() {
   )
 
   useEffect(() => {
-    const isValidSendTransferAmount = validateSendTransferAmount(amount, selectedAsset)
+    if (isFocused) {
+      const isValidSendTransferAmount = validateSendTransferAmount(amount, selectedAsset)
 
-    if (address.startsWith('0x') && address.indexOf('.') === -1) {
-      if (uDAddress !== '') setUDAddress('')
-      const isValidRecipientAddress = validateSendTransferAddress(
-        address,
-        selectedAcc,
-        addressConfirmed,
-        isKnownAddress
-      )
-
-      setValidationFormMgs({
-        success: {
-          amount: isValidSendTransferAmount.success,
-          address: isValidRecipientAddress.success
-        },
-        messages: {
-          amount: isValidSendTransferAmount.message ? isValidSendTransferAmount.message : '',
-          address: isValidRecipientAddress.message ? isValidRecipientAddress.message : ''
-        }
-      })
-
-      setDisabled(
-        !isValidRecipientAddress.success ||
-          !isValidSendTransferAmount.success ||
-          (showSWAddressWarning && !sWAddressConfirmed)
-      )
-    } else {
-      if (timer.current) {
-        clearTimeout(timer.current)
-      }
-
-      const validateForm = async () => {
-        const UDAddress = await resolveUDomain(
-          address,
-          selectedAsset ? selectedAsset.symbol : null,
-          network.unstoppableDomainsChain
-        )
-        timer.current = null
-        const isUDAddress = !!UDAddress
+      if (address.startsWith('0x') && address.indexOf('.') === -1) {
+        if (uDAddress !== '') setUDAddress('')
         const isValidRecipientAddress = validateSendTransferAddress(
-          UDAddress || address,
+          address,
           selectedAcc,
           addressConfirmed,
-          isKnownAddress,
-          isUDAddress
+          isKnownAddress
         )
 
-        setUDAddress(UDAddress)
         setValidationFormMgs({
           success: {
             amount: isValidSendTransferAmount.success,
@@ -270,11 +238,50 @@ export default function useRequestTransaction() {
             !isValidSendTransferAmount.success ||
             (showSWAddressWarning && !sWAddressConfirmed)
         )
-      }
+      } else {
+        if (timer.current) {
+          clearTimeout(timer.current)
+        }
 
-      timer.current = setTimeout(async () => {
-        return validateForm().catch(console.error)
-      }, 300)
+        const validateForm = async () => {
+          const UDAddress = await resolveUDomain(
+            address,
+            selectedAsset ? selectedAsset.symbol : null,
+            network.unstoppableDomainsChain
+          )
+          timer.current = null
+          const isUDAddress = !!UDAddress
+          const isValidRecipientAddress = validateSendTransferAddress(
+            UDAddress || address,
+            selectedAcc,
+            addressConfirmed,
+            isKnownAddress,
+            isUDAddress
+          )
+
+          setUDAddress(UDAddress)
+          setValidationFormMgs({
+            success: {
+              amount: isValidSendTransferAmount.success,
+              address: isValidRecipientAddress.success
+            },
+            messages: {
+              amount: isValidSendTransferAmount.message ? isValidSendTransferAmount.message : '',
+              address: isValidRecipientAddress.message ? isValidRecipientAddress.message : ''
+            }
+          })
+
+          setDisabled(
+            !isValidRecipientAddress.success ||
+              !isValidSendTransferAmount.success ||
+              (showSWAddressWarning && !sWAddressConfirmed)
+          )
+        }
+
+        timer.current = setTimeout(async () => {
+          return validateForm().catch(console.error)
+        }, 300)
+      }
     }
     return () => clearTimeout(timer.current)
   }, [
@@ -289,7 +296,8 @@ export default function useRequestTransaction() {
     addToast,
     network.id,
     uDAddress,
-    network.unstoppableDomainsChain
+    network.unstoppableDomainsChain,
+    isFocused
   ])
 
   useEffect(() => {
@@ -319,6 +327,7 @@ export default function useRequestTransaction() {
     showSWAddressWarning,
     sWAddressConfirmed,
     setSWAddressConfirmed,
-    uDAddress
+    uDAddress,
+    isCurrNetworkBalanceLoading
   }
 }
