@@ -1,5 +1,3 @@
-// TODO: reduce the number of rerenders on network change
-// TODO: reduce the number of rerenders when the screen is not focused
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import networks from 'ambire-common/src/constants/networks'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
@@ -35,7 +33,7 @@ export default function useRequestTransaction() {
   const { isKnownAddress } = useAddressBook()
   const timer: any = useRef(null)
   const [bigNumberHexAmount, setBigNumberHexAmount] = useState('')
-  const [asset, setAsset] = useState(null)
+  const [asset, setAsset] = useState<string | null>(null)
   const [amount, setAmount] = useState<number>(0)
   const [address, setAddress] = useState('')
   const [uDAddress, setUDAddress] = useState('')
@@ -157,7 +155,7 @@ export default function useRequestTransaction() {
 
       // Timeout of 500ms because of the animated transition between screens (addRequest opens PendingTransactions screen)
       setTimeout(() => {
-        setAsset('')
+        setAsset(null)
         setAmount(0)
         setAddress('')
       }, 500)
