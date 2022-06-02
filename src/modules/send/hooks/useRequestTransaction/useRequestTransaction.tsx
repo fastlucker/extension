@@ -1,3 +1,5 @@
+// TODO: reduce the number of rerenders on network change
+// TODO: reduce the number of rerenders when the screen is not focused
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import networks from 'ambire-common/src/constants/networks'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
@@ -57,6 +59,7 @@ export default function useRequestTransaction() {
     }
   })
 
+  // <Select items={assetsItems} />
   const assetsItems = useMemo(
     () =>
       tokens.map(({ label, symbol, address, img, tokenImageUrl }: any) => ({
@@ -74,6 +77,7 @@ export default function useRequestTransaction() {
     [tokens, selectedAcc, network.id]
   )
 
+  // returns the whole token object of the selected asset
   const selectedAsset = useMemo(
     () => tokens.find(({ address }: any) => address === asset),
     [tokens, asset]
