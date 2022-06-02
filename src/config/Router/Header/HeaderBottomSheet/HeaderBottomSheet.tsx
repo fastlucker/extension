@@ -42,7 +42,7 @@ const HeaderBottomSheet: React.FC = () => {
         closeBottomSheet={closeBottomSheet}
         displayCancel={false}
       >
-        <NetworkChanger />
+        <NetworkChanger closeBottomSheet={closeBottomSheet} />
         <View style={[styles.separator, spacings.mb]} />
         <AccountChanger closeBottomSheet={closeBottomSheet} />
       </BottomSheet>
