@@ -1,4 +1,5 @@
 import ERC20ABI from 'adex-protocol-eth/abi/ERC20'
+import { Token } from 'ambire-common/src/hooks/usePortfolio'
 import { isValidAddress } from 'ambire-common/src/services/address'
 import { Contract, getDefaultProvider } from 'ethers'
 import { formatUnits, Interface } from 'ethers/lib/utils'
@@ -21,7 +22,7 @@ const ERC20Interface = new Interface(ERC20ABI)
 
 interface Props {
   mode: MODES
-  onSubmit: (token: any, formMode: MODES) => void
+  onSubmit: (token: Token, formMode: MODES) => void
 }
 
 const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit }) => {
@@ -54,7 +55,7 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit }) => {
       ? 'an ERC20'
       : 'a valid'
 
-  const onInput = async (address: string) => {
+  const onInput = async (address: Token['address']) => {
     setTokenDetails(null)
 
     if (!isValidAddress(address)) return

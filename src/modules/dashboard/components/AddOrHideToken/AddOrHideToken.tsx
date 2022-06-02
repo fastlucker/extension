@@ -1,3 +1,4 @@
+import { Token } from 'ambire-common/src/hooks/usePortfolio'
 import React, { useState } from 'react'
 import { LayoutAnimation, TouchableOpacity, View } from 'react-native'
 
@@ -26,7 +27,7 @@ const AddOrHideToken = () => {
   const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const [formType, setFormType] = useState<MODES>(MODES.ADD_TOKEN)
 
-  const handleOnSubmit = (token, formMode: MODES) => {
+  const handleOnSubmit = (token: Token, formMode: MODES) => {
     const cases: { [key in MODES]: () => void } = {
       [MODES.ADD_TOKEN]: () => {
         onAddExtraToken(token)
