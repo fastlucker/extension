@@ -1,30 +1,31 @@
 import ERC20ABI from 'adex-protocol-eth/abi/ERC20'
+import { Token } from 'ambire-common/src/hooks/usePortfolio'
 import { isValidAddress } from 'ambire-common/src/services/address'
 import { Contract, getDefaultProvider } from 'ethers'
 import { formatUnits, Interface } from 'ethers/lib/utils'
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator } from 'react-native'
 
-import { Trans, useTranslation } from '@config/localization'
+import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
-import Text from '@modules/common/components/Text'
-import TokenIcon from '@modules/common/components/TokenIcon'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
+
+import { MODES } from './constants'
+import TokenItem from './TokenItem'
 
 const ERC20Interface = new Interface(ERC20ABI)
 
 interface Props {
-  onSubmit: (t: any) => void
+  mode: MODES
+  onSubmit: (token: Token, formMode: MODES) => void
 }
 
-const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
+const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit }) => {
   const { t } = useTranslation()
   const { selectedAcc: account } = useAccounts()
   const { network }: any = useNetwork()
@@ -54,7 +55,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
       ? 'an ERC20'
       : 'a valid'
 
-  const onInput = async (address: string) => {
+  const onInput = async (address: Token['address']) => {
     setTokenDetails(null)
 
     if (!isValidAddress(address)) return
@@ -94,7 +95,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
   }
 
   const handleOnPress = handleSubmit(() => {
-    onSubmit(tokenDetails)
+    onSubmit(tokenDetails, mode)
     reset()
     setTokenDetails(null)
     setShowError(false)
@@ -130,29 +131,7 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
 
       {loading && <ActivityIndicator style={spacings.mb} />}
 
-      {!showError && tokenDetails && (
-        <View style={[flexboxStyles.directionRow, spacings.mbLg]}>
-          <TokenIcon
-            withContainer
-            uri={tokenDetails.tokenImageUrl}
-            address={tokenDetails.address}
-            networkId={tokenDetails.network}
-          />
-
-          <View style={spacings.mlTy}>
-            <Text>
-              {tokenDetails.name} ({tokenDetails.symbol})
-            </Text>
-
-            <Trans>
-              <Text>
-                Balance: <Text style={textStyles.highlightSecondary}>{tokenDetails.balance}</Text>{' '}
-                <Text weight="medium">{tokenDetails.symbol}</Text>
-              </Text>
-            </Trans>
-          </View>
-        </View>
-      )}
+      {!showError && tokenDetails && <TokenItem {...tokenDetails} />}
 
       <Button
         text={isSubmitting ? t('Adding...') : t('Add')}
@@ -163,4 +142,4 @@ const AddTokenForm: React.FC<Props> = ({ onSubmit }) => {
   )
 }
 
-export default AddTokenForm
+export default AddOrHideTokenForm
