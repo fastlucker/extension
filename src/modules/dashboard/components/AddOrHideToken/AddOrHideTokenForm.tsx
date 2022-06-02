@@ -12,6 +12,7 @@ import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 
@@ -20,15 +21,20 @@ import TokenItem from './TokenItem'
 
 const ERC20Interface = new Interface(ERC20ABI)
 
+const ADDRESS_LENGTH = 42
+const TOKEN_SYMBOL_MIN_LENGTH = 3
+
 interface Props {
   mode: MODES
   onSubmit: (token: Token, formMode: MODES) => void
+  enableSymbolSearch?: boolean
 }
 
-const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit }) => {
+const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearch = false }) => {
   const { t } = useTranslation()
   const { selectedAcc: account } = useAccounts()
   const { network }: any = useNetwork()
+  const { tokens } = usePortfolio()
   const [loading, setLoading] = useState<boolean>(false)
   const [tokenDetails, setTokenDetails] = useState<any>(null)
   const [showError, setShowError] = useState<boolean>(false)
@@ -55,16 +61,36 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit }) => {
       ? 'an ERC20'
       : 'a valid'
 
-  const onInput = async (address: Token['address']) => {
+  const onInput = async (_inputText: string) => {
+    let inputText = _inputText
     setTokenDetails(null)
 
-    if (!isValidAddress(address)) return
+    if (!enableSymbolSearch && !isValidAddress(inputText)) return
+
+    if (inputText.length === ADDRESS_LENGTH && !isValidAddress(inputText))
+      return addToast(`Invalid address: ${inputText}`, { error: true })
+
+    if (enableSymbolSearch) {
+      const foundByAddressOrSymbol = tokens.find(
+        (i) =>
+          i.symbol.toLowerCase() === inputText.toLowerCase() ||
+          i.address.toLowerCase() === inputText.toLowerCase()
+      )
+
+      if (foundByAddressOrSymbol) {
+        inputText = foundByAddressOrSymbol?.address
+        // setTokenDetails(foundByAddressOrSymbol)
+      } else if (inputText.length >= TOKEN_SYMBOL_MIN_LENGTH) {
+        setShowError(true)
+      }
+    }
+
     setLoading(true)
     setShowError(false)
 
     try {
       const provider = getDefaultProvider(network.rpc)
-      const tokenContract = new Contract(address, ERC20Interface, provider)
+      const tokenContract = new Contract(inputText, ERC20Interface, provider)
 
       const [balanceOf, name, symbol, decimals] = await Promise.all([
         tokenContract.balanceOf(account),
@@ -76,11 +102,11 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit }) => {
       const balance = formatUnits(balanceOf, decimals)
       setTokenDetails({
         account,
-        address,
+        address: inputText,
         network: network.id,
         balance,
         balanceRaw: balanceOf.toString(),
-        tokenImageUrl: `https://storage.googleapis.com/zapper-fi-assets/tokens/${network.id}/${address}.png`,
+        tokenImageUrl: `https://storage.googleapis.com/zapper-fi-assets/tokens/${network.id}/${inputText}.png`,
         name,
         symbol,
         decimals
