@@ -116,7 +116,6 @@ const BottomSheet: React.FC<Props> = ({
         }}
         style={{ maxHeight: BOTTOM_SHEET_MAX_HEIGHT }}
         alwaysBounceVertical={false}
-        keyboardShouldPersistTaps="handled"
       >
         <View style={styles.containerInnerWrapper}>
           {children}

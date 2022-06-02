@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react'
 import {
-  ActivityIndicator,
   Keyboard,
   StyleSheet,
   TouchableOpacity,
@@ -22,11 +21,13 @@ import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
 import RecipientInput from '@modules/common/components/RecipientInput'
 import Select from '@modules/common/components/Select'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import spacings from '@modules/common/styles/spacings'
+import commonStyles from '@modules/common/styles/utils/common'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import AddressList from '@modules/send/components/AddressList'
@@ -63,7 +64,6 @@ const SendScreen = () => {
     setMaxAmount,
     setAddress,
     sendTransaction,
-    isCurrNetworkBalanceLoading,
     disabled,
     addressConfirmed,
     setAddressConfirmed,
@@ -73,7 +73,8 @@ const SendScreen = () => {
     showSWAddressWarning,
     sWAddressConfirmed,
     setSWAddressConfirmed,
-    uDAddress
+    uDAddress,
+    isCurrNetworkBalanceLoading
   } = useRequestTransaction()
 
   const handleAddNewAddress = (fieldValues: { name: string; address: string }) => {
@@ -109,117 +110,133 @@ const SendScreen = () => {
         hasBottomTabNav
       >
         {isCurrNetworkBalanceLoading && (
-          <View style={StyleSheet.absoluteFill}>
-            <ActivityIndicator style={StyleSheet.absoluteFill} size="large" />
+          <View
+            style={[
+              StyleSheet.absoluteFill,
+              flexboxStyles.alignCenter,
+              flexboxStyles.justifyCenter
+            ]}
+          >
+            <Spinner />
           </View>
         )}
-        {!isCurrNetworkBalanceLoading && (
-          <TouchableWithoutFeedback
-            onPress={() => {
-              Keyboard.dismiss()
-            }}
-          >
-            {assetsItems.length ? (
-              <>
-                <Panel style={spacings.mb0}>
-                  <Title style={textStyles.center}>{t('Send')}</Title>
-                  <View style={spacings.mbMi}>
-                    <Select value={asset} items={assetsItems} setValue={setAsset} />
-                  </View>
-                  {amountLabel}
-                  <NumberInput
-                    onChangeText={onAmountChange}
-                    containerStyle={spacings.mbTy}
-                    value={amount.toString()}
-                    button={t('MAX')}
-                    placeholder={t('0')}
-                    onButtonPress={setMaxAmount}
-                    error={
-                      validationFormMgs.messages?.amount
-                        ? validationFormMgs.messages.amount
-                        : undefined
-                    }
-                  />
-                  <RecipientInput
-                    containerStyle={spacings.mb}
-                    isValidUDomain={!!uDAddress}
-                    placeholder={t('Recipient')}
-                    info={t(
-                      'Please double-check the recipient address, blockchain transactions are not reversible.'
-                    )}
-                    isValid={
-                      address.length > 1 && !validationFormMgs.messages?.address && !!uDAddress
-                    }
-                    validLabel={uDAddress ? t('Valid Unstoppable domainsⓇ domain') : ''}
-                    error={validationFormMgs.messages?.address}
-                    value={address}
-                    onChangeText={setAddress}
-                  />
 
-                  {!smartContractWarning && !!unknownWarning && (
-                    <ConfirmAddress
-                      addressConfirmed={addressConfirmed}
-                      setAddressConfirmed={setAddressConfirmed}
-                      onAddToAddressBook={openBottomSheetAddrAdd}
-                    />
-                  )}
-                  <TouchableOpacity
-                    onPress={() => {
-                      Keyboard.dismiss()
-                      openBottomSheetAddrDisplay()
-                    }}
-                  >
-                    <View pointerEvents="none">
-                      <Input
-                        value={t('Address Book')}
-                        containerStyle={spacings.mbSm}
-                        button={
-                          <NavIconWrapper onPress={() => null}>
-                            <DownArrowIcon width={34} height={34} />
-                          </NavIconWrapper>
-                        }
-                      />
-                    </View>
-                  </TouchableOpacity>
-                  {showSWAddressWarning && (
-                    <Checkbox
-                      value={sWAddressConfirmed}
-                      onValueChange={() => setSWAddressConfirmed(!sWAddressConfirmed)}
-                    >
-                      <Text
-                        fontSize={12}
-                        onPress={() => setSWAddressConfirmed(!sWAddressConfirmed)}
-                      >
-                        {
-                          t(
-                            'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
-                            {
-                              platforms: unsupportedSWPlatforms.join(' / '),
-                              token: selectedAsset?.symbol
-                            }
-                          ) as string
-                        }
-                      </Text>
-                    </Checkbox>
-                  )}
-                </Panel>
-                <View style={[spacings.phSm, spacings.mbMd]}>
-                  <Button
-                    text={t('Send')}
-                    disabled={disabled || (showSWAddressWarning && !sWAddressConfirmed)}
-                    onPress={handleSend}
-                  />
+        <TouchableWithoutFeedback
+          onPress={() => {
+            Keyboard.dismiss()
+          }}
+        >
+          {assetsItems.length ? (
+            <>
+              <Panel
+                style={[spacings.mb0, isCurrNetworkBalanceLoading && commonStyles.visibilityHidden]}
+              >
+                <Title style={textStyles.center}>{t('Send')}</Title>
+                <View style={spacings.mbMi}>
+                  <Select value={asset} items={assetsItems} setValue={setAsset} />
                 </View>
-              </>
-            ) : (
-              <Panel style={{ flexGrow: 1 }}>
-                <Text fontSize={16} style={textStyles.center}>
-                  {t("You don't have any funds on this account.")}
-                </Text>
+                {amountLabel}
+                <NumberInput
+                  onChangeText={onAmountChange}
+                  containerStyle={spacings.mbTy}
+                  value={amount.toString()}
+                  button={t('MAX')}
+                  placeholder={t('0')}
+                  onButtonPress={setMaxAmount}
+                  error={
+                    validationFormMgs.messages?.amount
+                      ? validationFormMgs.messages.amount
+                      : undefined
+                  }
+                />
+                <RecipientInput
+                  containerStyle={spacings.mb}
+                  isValidUDomain={!!uDAddress}
+                  placeholder={t('Recipient')}
+                  info={t(
+                    'Please double-check the recipient address, blockchain transactions are not reversible.'
+                  )}
+                  isValid={
+                    address.length > 1 && !validationFormMgs.messages?.address && !!uDAddress
+                  }
+                  validLabel={uDAddress ? t('Valid Unstoppable domainsⓇ domain') : ''}
+                  error={validationFormMgs.messages?.address}
+                  value={address}
+                  onChangeText={setAddress}
+                />
+
+                {!smartContractWarning && !!unknownWarning && (
+                  <ConfirmAddress
+                    addressConfirmed={addressConfirmed}
+                    setAddressConfirmed={setAddressConfirmed}
+                    onAddToAddressBook={openBottomSheetAddrAdd}
+                  />
+                )}
+                <TouchableOpacity
+                  onPress={() => {
+                    Keyboard.dismiss()
+                    openBottomSheetAddrDisplay()
+                  }}
+                >
+                  <View pointerEvents="none">
+                    <Input
+                      value={t('Address Book')}
+                      containerStyle={spacings.mbSm}
+                      button={
+                        <NavIconWrapper onPress={() => null}>
+                          <DownArrowIcon width={34} height={34} />
+                        </NavIconWrapper>
+                      }
+                    />
+                  </View>
+                </TouchableOpacity>
+                {showSWAddressWarning && (
+                  <Checkbox
+                    value={sWAddressConfirmed}
+                    onValueChange={() => setSWAddressConfirmed(!sWAddressConfirmed)}
+                  >
+                    <Text fontSize={12} onPress={() => setSWAddressConfirmed(!sWAddressConfirmed)}>
+                      {
+                        t(
+                          'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
+                          {
+                            platforms: unsupportedSWPlatforms.join(' / '),
+                            token: selectedAsset?.symbol
+                          }
+                        ) as string
+                      }
+                    </Text>
+                  </Checkbox>
+                )}
               </Panel>
-            )}
-          </TouchableWithoutFeedback>
-        )}
+              <View
+                style={[
+                  spacings.phSm,
+                  spacings.mbMd,
+                  isCurrNetworkBalanceLoading && commonStyles.visibilityHidden
+                ]}
+              >
+                <Button
+                  text={t('Send')}
+                  disabled={disabled || (showSWAddressWarning && !sWAddressConfirmed)}
+                  onPress={handleSend}
+                />
+              </View>
+            </>
+          ) : (
+            <Panel
+              style={[
+                { flexGrow: 1 },
+                isCurrNetworkBalanceLoading && commonStyles.visibilityHidden
+              ]}
+            >
+              <Text fontSize={16} style={textStyles.center}>
+                {t("You don't have any funds on this account.")}
+              </Text>
+            </Panel>
+          )}
+        </TouchableWithoutFeedback>
+
         <BottomSheet
           id="addresses-list"
           isOpen={isOpenAddrDisplay}
