@@ -65,8 +65,6 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
     let inputText = _inputText
     setTokenDetails(null)
 
-    if (!enableSymbolSearch && !isValidAddress(inputText)) return
-
     if (inputText.length === ADDRESS_LENGTH && !isValidAddress(inputText))
       return addToast(`Invalid address: ${inputText}`, { error: true })
 
@@ -79,11 +77,12 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
 
       if (foundByAddressOrSymbol) {
         inputText = foundByAddressOrSymbol?.address
-        // setTokenDetails(foundByAddressOrSymbol)
       } else if (inputText.length >= TOKEN_SYMBOL_MIN_LENGTH) {
         setShowError(true)
       }
     }
+
+    if (!isValidAddress(inputText)) return
 
     setLoading(true)
     setShowError(false)
@@ -112,7 +111,6 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
         decimals
       })
     } catch (e) {
-      console.error(e)
       addToast('Failed to load token info', { error: true })
       setShowError(true)
     }
