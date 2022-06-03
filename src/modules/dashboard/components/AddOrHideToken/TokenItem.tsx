@@ -36,13 +36,15 @@ const TokenItem: React.FC<Props> = ({
         </Text>
 
         <Trans>
-          <Text>
+          <Text numberOfLines={1}>
             Balance: <Text style={textStyles.highlightSecondary}>{balance}</Text>{' '}
             <Text weight="medium">{symbol}</Text>
           </Text>
         </Trans>
       </View>
-      {!!onPress && <Button size="small" onPress={onPress} text={t('Restore')} />}
+      {!!onPress && (
+        <Button size="small" onPress={onPress} text={t('Restore')} style={spacings.mlSm} />
+      )}
     </View>
   )
 }
