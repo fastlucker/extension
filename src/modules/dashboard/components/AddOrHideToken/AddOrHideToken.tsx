@@ -16,7 +16,7 @@ import textStyles from '@modules/common/styles/utils/text'
 
 import AddOrHideTokenForm from './AddOrHideTokenForm'
 import { MODES } from './constants'
-import HiddenTokens from './HiddenTokens'
+import HiddenOrExtraTokens from './HiddenOrExtraTokens'
 import styles from './styles'
 
 const segments = [{ value: MODES.ADD_TOKEN }, { value: MODES.HIDE_TOKEN }]
@@ -75,6 +75,7 @@ const AddOrHideToken = () => {
               </Title>
 
               <AddOrHideTokenForm mode={MODES.ADD_TOKEN} onSubmit={handleOnSubmit} />
+              <HiddenOrExtraTokens mode={MODES.ADD_TOKEN} />
             </>
           )}
           {formType === MODES.HIDE_TOKEN && (
@@ -88,7 +89,7 @@ const AddOrHideToken = () => {
                 mode={MODES.HIDE_TOKEN}
                 onSubmit={handleOnSubmit}
               />
-              <HiddenTokens />
+              <HiddenOrExtraTokens mode={MODES.HIDE_TOKEN} />
             </>
           )}
         </View>
