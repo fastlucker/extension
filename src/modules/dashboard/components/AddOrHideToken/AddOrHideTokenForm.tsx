@@ -34,10 +34,10 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
   const { t } = useTranslation()
   const { selectedAcc: account } = useAccounts()
   const { network }: any = useNetwork()
-  const { tokens, hiddenTokens } = usePortfolio()
+  const { tokens, extraTokens, hiddenTokens } = usePortfolio()
   const [loading, setLoading] = useState<boolean>(false)
   const [tokenDetails, setTokenDetails] = useState<any>(null)
-  const [showError, setShowError] = useState<boolean>(false)
+  const [showError, setShowError] = useState<string>('')
   const { addToast } = useToast()
 
   const {
@@ -78,14 +78,18 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
       if (foundByAddressOrSymbol) {
         inputText = foundByAddressOrSymbol?.address
       } else if (inputText.length >= TOKEN_SYMBOL_MIN_LENGTH) {
-        setShowError(true)
+        setShowError(
+          t(
+            "The address/symbol you entered does not appear to correspond to you assets list or it's already hidden."
+          ) as string
+        )
       }
     }
 
     if (!isValidAddress(inputText)) return
 
     setLoading(true)
-    setShowError(false)
+    setShowError('')
 
     try {
       const provider = getDefaultProvider(network.rpc)
@@ -98,11 +102,15 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
         tokenContract.decimals()
       ])
 
-      const isAlreadyHandled = (mode === MODES.ADD_TOKEN ? tokens : hiddenTokens).find(
+      const isAlreadyHandled = (mode === MODES.ADD_TOKEN ? extraTokens : hiddenTokens).find(
         (token) => token.address === inputText
       )
       if (isAlreadyHandled) {
-        setShowError(true)
+        setShowError(
+          mode === MODES.ADD_TOKEN
+            ? (t('The address you entered is already added.') as string)
+            : (t('The address/symbol you entered is already hidden.') as string)
+        )
       } else {
         const balance = formatUnits(balanceOf, decimals)
         setTokenDetails({
@@ -119,7 +127,12 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
       }
     } catch (e) {
       addToast('Failed to load token info', { error: true })
-      setShowError(true)
+      setShowError(
+        t(
+          'The address you entered does not appear to correspond to {{tokenStandard}} token on {{networkName}}.',
+          { tokenStandard, networkName: network?.name }
+        ) as string
+      )
     }
 
     setLoading(false)
@@ -129,7 +142,7 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
     onSubmit(tokenDetails, mode)
     reset()
     setTokenDetails(null)
-    setShowError(false)
+    setShowError('')
   })
 
   return (
@@ -148,17 +161,7 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
               return onChange(text)
             }}
             value={value}
-            error={
-              showError &&
-              (enableSymbolSearch
-                ? (t(
-                    'The address/symbol you entered does not appear to correspond to you assets list or its already hidden.'
-                  ) as string)
-                : (t(
-                    'The address you entered does not appear to correspond to {{tokenStandard}} token on {{networkName}}.',
-                    { tokenStandard, networkName: network?.name }
-                  ) as string))
-            }
+            error={showError}
           />
         )}
         name="address"
