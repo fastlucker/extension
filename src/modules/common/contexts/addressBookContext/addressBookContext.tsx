@@ -11,7 +11,7 @@ import useToast from '@modules/common/hooks/useToast'
 type AddressBookContextData = {
   addresses: any
   addAddress: any
-  removeAddress: (name: string, address: string) => void
+  removeAddress: (name: string, address: string, isUD: boolean) => void
   isKnownAddress: (address: string) => any
 }
 
@@ -75,29 +75,51 @@ const AddressBookProvider: React.FC = ({ children }) => {
   )
 
   const isKnownAddress = useCallback(
-    (address) =>
-      [
+    (address) => {
+      return [
         // eslint-disable-next-line @typescript-eslint/no-shadow
-        ...addresses.map(({ address }: any) => sha256(address)),
+        ...addresses.map(({ address }) => {
+          return address.startsWith('0x') && address.indexOf('.') === -1 ? sha256(address) : address
+        }),
         ...accounts.map(({ id }) => sha256(id))
-      ].includes(sha256(address)),
+      ].includes(
+        address.startsWith('0x') && address.indexOf('.') === -1 ? sha256(address) : address
+      )
+    },
     [addresses, accounts]
   )
 
   const addAddress = useCallback(
-    (name, address) => {
+    (name, address, isUD = false) => {
       if (!name || !address) throw new Error('Address Book: invalid arguments supplied')
-      if (!isValidAddress(address)) throw new Error('Address Book: invalid address format')
-      if (isKnownTokenOrContract(address))
-        return addToast(i18n.t("The address you're trying to add is a smart contract.") as string, {
-          error: true
-        })
+
+      if (isUD) {
+        const isFound = addresses.find(
+          (item) => item.address.toLowerCase() === address.toLowerCase()
+        )
+        if (isFound)
+          return addToast('Address Book: The UD is already added to the Address book', {
+            error: true
+          })
+      } else {
+        const isFound = addresses.find(
+          (item) => item.address.toLowerCase() === address.toLowerCase()
+        )
+        if (isFound)
+          return addToast('Address Book: The address is already added to the Address book', {
+            error: true
+          })
+        if (!isValidAddress(address)) throw new Error('Address Book: invalid address format')
+        if (isKnownTokenOrContract(address))
+          return addToast("The address you're trying to add is a smart contract.", { error: true })
+      }
 
       const newAddresses = [
         ...addresses,
         {
           name,
-          address
+          address,
+          isUD
         }
       ]
 
@@ -109,9 +131,12 @@ const AddressBookProvider: React.FC = ({ children }) => {
   )
 
   const removeAddress = useCallback(
-    (name, address) => {
+    (name, address, isUD) => {
       if (!name || !address) throw new Error('Address Book: invalid arguments supplied')
-      if (!isValidAddress(address)) throw new Error('Address Book: invalid address format')
+
+      if (!isUD) {
+        if (!isValidAddress(address)) throw new Error('Address Book: invalid address format')
+      }
 
       const newAddresses = addresses.filter((a) => !(a.name === name && a.address === address))
 
