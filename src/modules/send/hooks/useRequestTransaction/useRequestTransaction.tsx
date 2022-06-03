@@ -1,5 +1,3 @@
-// TODO: reduce the number of rerenders on network change
-// TODO: reduce the number of rerenders when the screen is not focused
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import networks from 'ambire-common/src/constants/networks'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
@@ -17,7 +15,6 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
-import usePrevious from '@modules/common/hooks/usePrevious'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
@@ -27,21 +24,16 @@ const ERC20 = new Interface(erc20Abi)
 export default function useRequestTransaction() {
   const isFocused = useIsFocused()
   const { tokens, isCurrNetworkBalanceLoading } = usePortfolio()
-  const route: any = useRoute()
+  const { params }: any = useRoute()
   const navigation: any = useNavigation()
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()
   const { addToast } = useToast()
   const { isKnownAddress } = useAddressBook()
-  const tokenAddressOrSymbol = route.params?.tokenAddressOrSymbol
-  const prevNetworkId = usePrevious(network.id)
   const timer: any = useRef(null)
-  const tokenAddress = isValidAddress(tokenAddressOrSymbol)
-    ? tokenAddressOrSymbol
-    : tokens.find(({ symbol }: any) => symbol === tokenAddressOrSymbol)?.address || null
   const [bigNumberHexAmount, setBigNumberHexAmount] = useState('')
-  const [asset, setAsset] = useState(tokenAddress)
+  const [asset, setAsset] = useState<string | null>(null)
   const [amount, setAmount] = useState<number>(0)
   const [address, setAddress] = useState('')
   const [uDAddress, setUDAddress] = useState('')
@@ -83,48 +75,26 @@ export default function useRequestTransaction() {
     [tokens, asset]
   )
 
-  // Needed for the cases when the network is changed from another screen
-  // In this case a state update doesn't work
-  // but setting a flag in a ref and updating the state when screen is focused works just fine
-  const shouldUpdate = useRef(false)
-  useEffect(() => {
-    if (prevNetworkId && network.id !== prevNetworkId) {
-      shouldUpdate.current = true
-    }
-  }, [prevNetworkId, network.id])
-
-  // Update the selected asset in the token selector after the screen is being focused
-  useEffect(() => {
-    if (isFocused && shouldUpdate.current) {
-      setAsset(tokens[0]?.address)
-      shouldUpdate.current = false
-    }
-  }, [isFocused])
-
-  // TODO: setting the list of deps doesn't trigger a proper asset update
-  // should be fixed
   useEffect(() => {
     if (!selectedAsset && !!tokens && tokens?.[0]?.address !== asset) {
       setAsset(tokens[0]?.address)
     }
-  })
+  }, [selectedAsset, tokens, asset])
 
   useEffect(() => {
-    if (!selectedAsset) return
-    navigation.setParams({
-      tokenAddressOrSymbol: +asset !== 0 ? asset : selectedAsset.symbol
-    })
-  }, [selectedAsset, asset])
-
-  useEffect(() => {
-    const addrOrSymbol = route.params?.tokenAddressOrSymbol
-    const addr = isValidAddress(addrOrSymbol)
-      ? addrOrSymbol
-      : tokens.find(({ symbol }: any) => symbol === addrOrSymbol)?.address || null
-    if (addr) {
-      setAsset(addr)
+    if (params?.tokenAddressOrSymbol) {
+      const addrOrSymbol = params?.tokenAddressOrSymbol
+      const addr = isValidAddress(addrOrSymbol)
+        ? addrOrSymbol
+        : tokens.find(({ symbol }: any) => symbol === addrOrSymbol)?.address || null
+      if (addr) {
+        setAsset(addr)
+      }
+      navigation.setParams({
+        tokenAddressOrSymbol: undefined
+      })
     }
-  }, [route.params?.tokenAddressOrSymbol, tokens])
+  }, [params?.tokenAddressOrSymbol, tokens])
 
   const maxAmount = useMemo(() => {
     if (!selectedAsset) return 0
@@ -185,7 +155,7 @@ export default function useRequestTransaction() {
 
       // Timeout of 500ms because of the animated transition between screens (addRequest opens PendingTransactions screen)
       setTimeout(() => {
-        setAsset('')
+        setAsset(null)
         setAmount(0)
         setAddress('')
       }, 500)
@@ -204,13 +174,13 @@ export default function useRequestTransaction() {
 
   const showSWAddressWarning = useMemo(
     () =>
-      !!tokenAddress &&
-      Number(tokenAddress) === 0 &&
+      !!selectedAsset?.address &&
+      Number(selectedAsset?.address) === 0 &&
       networks
         .map(({ id }) => id)
         .filter((id) => id !== 'ethereum')
         .includes(network.id),
-    [tokenAddress, network]
+    [selectedAsset?.address, network]
   )
 
   useEffect(() => {
