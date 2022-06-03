@@ -34,7 +34,7 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
   const { t } = useTranslation()
   const { selectedAcc: account } = useAccounts()
   const { network }: any = useNetwork()
-  const { tokens } = usePortfolio()
+  const { tokens, hiddenTokens } = usePortfolio()
   const [loading, setLoading] = useState<boolean>(false)
   const [tokenDetails, setTokenDetails] = useState<any>(null)
   const [showError, setShowError] = useState<boolean>(false)
@@ -98,18 +98,25 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
         tokenContract.decimals()
       ])
 
-      const balance = formatUnits(balanceOf, decimals)
-      setTokenDetails({
-        account,
-        address: inputText,
-        network: network.id,
-        balance,
-        balanceRaw: balanceOf.toString(),
-        tokenImageUrl: `https://storage.googleapis.com/zapper-fi-assets/tokens/${network.id}/${inputText}.png`,
-        name,
-        symbol,
-        decimals
-      })
+      const isAlreadyHandled = (mode === MODES.ADD_TOKEN ? tokens : hiddenTokens).find(
+        (token) => token.address === inputText
+      )
+      if (isAlreadyHandled) {
+        setShowError(true)
+      } else {
+        const balance = formatUnits(balanceOf, decimals)
+        setTokenDetails({
+          account,
+          address: inputText,
+          network: network.id,
+          balance,
+          balanceRaw: balanceOf.toString(),
+          tokenImageUrl: `https://storage.googleapis.com/zapper-fi-assets/tokens/${network.id}/${inputText}.png`,
+          name,
+          symbol,
+          decimals
+        })
+      }
     } catch (e) {
       addToast('Failed to load token info', { error: true })
       setShowError(true)
