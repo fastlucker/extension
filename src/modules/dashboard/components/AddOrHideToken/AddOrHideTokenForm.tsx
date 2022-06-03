@@ -132,7 +132,7 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
         rules={{ validate: isValidAddress }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            label={t('Token Address')}
+            label={enableSymbolSearch ? t('Token Address or Symbol') : t('Token Address')}
             placeholder={t('0x...')}
             autoFocus
             onBlur={onBlur}
@@ -143,10 +143,14 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
             value={value}
             error={
               showError &&
-              (t(
-                'The address you entered does not appear to correspond to {{tokenStandard}} token on {{networkName}}.',
-                { tokenStandard, networkName: network?.name }
-              ) as string)
+              (enableSymbolSearch
+                ? (t(
+                    'The address/symbol you entered does not appear to correspond to you assets list or its already hidden.'
+                  ) as string)
+                : (t(
+                    'The address you entered does not appear to correspond to {{tokenStandard}} token on {{networkName}}.',
+                    { tokenStandard, networkName: network?.name }
+                  ) as string))
             }
           />
         )}
