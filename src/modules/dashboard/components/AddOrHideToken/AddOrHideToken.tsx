@@ -84,7 +84,7 @@ const AddOrHideToken = () => {
               </Title>
 
               <AddOrHideTokenForm
-                enableSymbolSearch={true}
+                enableSymbolSearch
                 mode={MODES.HIDE_TOKEN}
                 onSubmit={handleOnSubmit}
               />
