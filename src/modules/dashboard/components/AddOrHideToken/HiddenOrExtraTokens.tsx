@@ -11,7 +11,7 @@ interface Props {
   mode: MODES
 }
 
-const HiddenTokens: React.FC<Props> = ({ mode }) => {
+const HiddenOrExtraTokens: React.FC<Props> = ({ mode }) => {
   const { hiddenTokens, extraTokens, onRemoveHiddenToken, onRemoveExtraToken } = usePortfolio()
 
   const tokens = {
@@ -37,4 +37,4 @@ const HiddenTokens: React.FC<Props> = ({ mode }) => {
   )
 }
 
-export default HiddenTokens
+export default HiddenOrExtraTokens
