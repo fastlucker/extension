@@ -14,7 +14,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Props {
-  onSubmit: ({ name, address }: { name: string; address: string }) => void
+  onSubmit: ({ name, address, isUD }: { name: string; address: string; isUD: boolean }) => void
   address?: string
 }
 
@@ -68,7 +68,8 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
   const handleSubmit = () => {
     onSubmit({
       name: addrName,
-      address: uDAddress || addr
+      address: addr,
+      isUD: !!uDAddress
     })
   }
 

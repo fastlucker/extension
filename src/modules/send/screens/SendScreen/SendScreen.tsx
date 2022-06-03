@@ -77,8 +77,8 @@ const SendScreen = () => {
     isCurrNetworkBalanceLoading
   } = useRequestTransaction()
 
-  const handleAddNewAddress = (fieldValues: { name: string; address: string }) => {
-    addAddress(fieldValues.name, fieldValues.address)
+  const handleAddNewAddress = (fieldValues: { name: string; address: string; isUD: boolean }) => {
+    addAddress(fieldValues.name, fieldValues.address, fieldValues.isUD)
     closeBottomSheetAddrAdd()
     openBottomSheetAddrDisplay()
   }

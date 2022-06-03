@@ -33,7 +33,7 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet, onCloseBottomSheet }:
 
   const renderItem: any = (item: any, i: number) => {
     const isLast = items.length - 1 === i
-    const onRemoveAddress = () => removeAddress(item.name, item.address)
+    const onRemoveAddress = () => removeAddress(item.name, item.address, item.isUD)
 
     const onPressAddress = () => {
       !!onSelectAddress && onSelectAddress(item)
