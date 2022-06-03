@@ -75,6 +75,7 @@ const AddOrHideToken = () => {
               </Title>
 
               <AddOrHideTokenForm mode={MODES.ADD_TOKEN} onSubmit={handleOnSubmit} />
+              <HiddenTokens mode={MODES.ADD_TOKEN} />
             </>
           )}
           {formType === MODES.HIDE_TOKEN && (
@@ -88,7 +89,7 @@ const AddOrHideToken = () => {
                 mode={MODES.HIDE_TOKEN}
                 onSubmit={handleOnSubmit}
               />
-              <HiddenTokens />
+              <HiddenTokens mode={MODES.HIDE_TOKEN} />
             </>
           )}
         </View>
