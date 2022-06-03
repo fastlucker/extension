@@ -129,7 +129,7 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
     <>
       <Controller
         control={control}
-        rules={{ validate: isValidAddress }}
+        rules={enableSymbolSearch ? undefined : { validate: isValidAddress }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             label={enableSymbolSearch ? t('Token Address or Symbol') : t('Token Address')}
