@@ -37,4 +37,4 @@ const HiddenOrExtraTokens: React.FC<Props> = ({ mode }) => {
   )
 }
 
-export default HiddenOrExtraTokens
+export default React.memo(HiddenOrExtraTokens)
