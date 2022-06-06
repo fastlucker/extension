@@ -21,7 +21,6 @@ const DashboardScreen = () => {
     protocols,
     tokens
   } = usePortfolio()
-
   const { network, setNetwork } = useNetwork()
   const { selectedAcc } = useAccounts()
 
