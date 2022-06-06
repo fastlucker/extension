@@ -8,17 +8,14 @@ import networks from 'ambire-common/src/constants/networks'
 import { BigNumber, constants, Contract, utils } from 'ethers'
 import { formatUnits, Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import isEqual from 'react-fast-compare'
 
 import AmbireLogo from '@assets/images/Ambire.png'
 import CONFIG from '@config/env'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
-import useAccounts from '@modules/common/hooks/useAccounts'
 import useCacheBreak from '@modules/common/hooks/useCacheBreak'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
-import useRequests from '@modules/common/hooks/useRequests'
 import { getTokenIcon } from '@modules/common/services/icons'
 import { getProvider } from '@modules/common/services/provider'
 import Card from '@modules/earn/components/Card'
@@ -45,7 +42,14 @@ const msToDaysHours = (ms: any) => {
   return days < 1 ? `${hours} hours` : `${days} days`
 }
 
-const AmbireCard = () => {
+interface Props {
+  tokens: any[]
+  networkId?: string
+  selectedAcc: string
+  addRequest: (req: any) => any
+}
+
+const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
   const [isLoading, setLoading] = useState<any>(true)
   const [details, setDetails] = useState<any>([])
   const [customInfo, setCustomInfo] = useState<any>(null)
@@ -64,15 +68,11 @@ const AmbireCard = () => {
   const [selectedToken, setSelectedToken] = useState<any>({ label: '' })
   const [adxCurrentAPY, setAdxCurrentAPY] = useState<any>(0.0)
 
-  const { network }: any = useNetwork()
-  const { selectedAcc } = useAccounts()
-  const { addRequest } = useRequests()
-  const { tokens } = usePortfolio()
   const { cacheBreak } = useCacheBreak({})
 
-  const unavailable = network.id !== 'ethereum'
+  const unavailable = networkId !== 'ethereum'
 
-  const networkDetails: any = networks.find(({ id }) => id === network.id)
+  const networkDetails: any = networks.find(({ id }) => id === networkId)
 
   const addRequestTxn = useCallback(
     (id, txn, extraGas = 0) =>
@@ -129,7 +129,7 @@ const AmbireCard = () => {
     () => [
       {
         type: 'deposit',
-        icon: getTokenIcon(network.id, WALLET_TOKEN_ADDRESS),
+        icon: getTokenIcon(networkId, WALLET_TOKEN_ADDRESS),
         label: 'WALLET',
         value: WALLET_TOKEN_ADDRESS,
         symbol: 'WALLET',
@@ -141,7 +141,7 @@ const AmbireCard = () => {
       },
       {
         type: 'deposit',
-        icon: getTokenIcon(network.id, ADX_TOKEN_ADDRESS),
+        icon: getTokenIcon(networkId, ADX_TOKEN_ADDRESS),
         label: 'ADX',
         value: ADX_TOKEN_ADDRESS,
         symbol: 'ADX',
@@ -155,7 +155,7 @@ const AmbireCard = () => {
     [
       adexToken?.balanceRaw,
       adexToken?.decimals,
-      network.id,
+      networkId,
       walletToken?.balanceRaw,
       walletToken?.decimals
     ]
@@ -165,7 +165,7 @@ const AmbireCard = () => {
     () => [
       {
         type: 'withdraw',
-        icon: getTokenIcon(network.id, WALLET_TOKEN_ADDRESS),
+        icon: getTokenIcon(networkId, WALLET_TOKEN_ADDRESS),
         label: 'WALLET',
         value: WALLET_STAKING_ADDRESS,
         symbol: 'WALLET',
@@ -174,7 +174,7 @@ const AmbireCard = () => {
       },
       {
         type: 'withdraw',
-        icon: getTokenIcon(network.id, ADX_TOKEN_ADDRESS),
+        icon: getTokenIcon(networkId, ADX_TOKEN_ADDRESS),
         label: 'ADX',
         value: ADX_STAKING_TOKEN_ADDRESS,
         symbol: 'ADX',
@@ -182,7 +182,7 @@ const AmbireCard = () => {
         balanceRaw
       }
     ],
-    [adexStakingToken?.decimals, balanceRaw, network.id, xWalletToken?.decimals]
+    [adexStakingToken?.decimals, balanceRaw, networkId, xWalletToken?.decimals]
   )
 
   const tokensItems = useMemo(
@@ -324,9 +324,9 @@ const AmbireCard = () => {
     async function init() {
       try {
         // Prevent init if the card is unavailable for current network
-        if (network.id !== 'ethereum') return
+        if (networkId !== 'ethereum') return
 
-        const provider = getProvider(network.id)
+        const provider = getProvider(networkId)
 
         const tokenAddress =
           selectedToken.label === 'ADX' ? ADX_TOKEN_ADDRESS : WALLET_TOKEN_ADDRESS
@@ -476,7 +476,7 @@ const AmbireCard = () => {
     return () => {
       setShareValue(ZERO)
     }
-  }, [network.id, selectedAcc, selectedToken.label])
+  }, [networkId, selectedAcc, selectedToken.label])
 
   useEffect(() => setLoading(false), [])
 
@@ -495,4 +495,4 @@ const AmbireCard = () => {
   )
 }
 
-export default AmbireCard
+export default React.memo(AmbireCard, isEqual)

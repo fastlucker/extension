@@ -6,9 +6,6 @@ import Button from '@modules/common/components/Button'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import TextWarning from '@modules/common/components/TextWarning'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import usePortfolio from '@modules/common/hooks/usePortfolio'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -17,15 +14,18 @@ import { useNavigation } from '@react-navigation/native'
 
 import TokenItem from './TokenItem'
 
-const Tokens = () => {
+interface Props {
+  tokens: any[]
+  protocols: any[]
+  isLoading: boolean
+  explorerUrl?: string
+  networkId?: string
+  selectedAcc: string
+}
+
+const Tokens = ({ tokens, protocols, isLoading, explorerUrl, networkId, selectedAcc }: Props) => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
-  const { isCurrNetworkProtocolsLoading, isCurrNetworkBalanceLoading, protocols, tokens } =
-    usePortfolio()
-  const { selectedAcc } = useAccounts()
-  const { network: selectedNetwork } = useNetwork()
-
-  const isLoading = isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading
 
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
   const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')
@@ -35,8 +35,7 @@ const Tokens = () => {
     (symbol: string) => navigation.navigate('send', { tokenAddressOrSymbol: symbol.toString() }),
     []
   )
-  const handleGoToBlockExplorer = () =>
-    Linking.openURL(`${selectedNetwork?.explorerUrl}/address/${selectedAcc}`)
+  const handleGoToBlockExplorer = () => Linking.openURL(`${explorerUrl}/address/${selectedAcc}`)
 
   const emptyState = (
     <View style={[spacings.phLg, spacings.mbSm, flexboxStyles.center]}>
@@ -79,7 +78,7 @@ const Tokens = () => {
               balanceUSD={balanceUSD}
               decimals={decimals}
               address={address}
-              networkId={selectedNetwork?.id}
+              networkId={networkId}
               onPress={handleGoToSend}
             />
           )
@@ -101,7 +100,7 @@ const Tokens = () => {
                   balanceUSD={balanceUSD}
                   decimals={decimals}
                   address={address}
-                  networkId={selectedNetwork?.id}
+                  networkId={networkId}
                   onPress={handleGoToSend}
                 />
               )
