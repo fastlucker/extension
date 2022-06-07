@@ -1,4 +1,5 @@
-import networks from 'ambire-common/src/constants/networks'
+import networks, { NetworkId } from 'ambire-common/src/constants/networks'
+import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useLayoutEffect } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
@@ -9,8 +10,6 @@ import Button from '@modules/common/components/Button'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import usePortfolio from '@modules/common/hooks/usePortfolio'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -23,22 +22,36 @@ import styles from './styles'
 
 const networkDetails = (network: any) => networks.find(({ id }) => id === network)
 
-const Balances = () => {
+interface Props {
+  balanceTruncated: any
+  balanceDecimals: any
+  otherBalances: UsePortfolioReturnTypes['otherBalances']
+  isLoading: boolean
+  networkId: NetworkId
+  setNetwork: (networkIdentifier: string | number) => void
+}
+
+const Balances = ({
+  balanceTruncated,
+  balanceDecimals,
+  otherBalances,
+  isLoading,
+  networkId,
+  setNetwork
+}: Props) => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
-  const { balance, isCurrNetworkBalanceLoading, otherBalances } = usePortfolio()
-  const { network: selectedNetwork, setNetwork } = useNetwork()
 
   useLayoutEffect(() => {
     triggerLayoutAnimation()
-  }, [isCurrNetworkBalanceLoading])
+  }, [isLoading])
 
   useLayoutEffect(() => {
     triggerLayoutAnimation()
-  }, [selectedNetwork])
+  }, [networkId])
 
   const otherPositiveBalances = otherBalances
-    .filter(({ network, total }: any) => network !== selectedNetwork?.id && total.full > 0)
+    .filter(({ network, total }: any) => network !== networkId && total.full > 0)
     // Exclude displaying balances for networks we don't support
     .filter(({ network }) => !!networkDetails(network))
 
@@ -53,9 +66,9 @@ const Balances = () => {
         <Text fontSize={26} weight="regular" style={[textStyles.highlightSecondary]}>
           ${' '}
         </Text>
-        {balance.total?.truncated}
+        {balanceTruncated}
         <Text fontSize={26} weight="regular">
-          .{balance.total?.decimals}
+          .{balanceDecimals}
         </Text>
       </Text>
 
@@ -129,7 +142,7 @@ const Balances = () => {
 
   return (
     <View style={flexboxStyles.alignCenter}>
-      {isCurrNetworkBalanceLoading ? (
+      {isLoading ? (
         <View style={[styles.loadingContainer, flexboxStyles.center]}>
           <Spinner />
         </View>

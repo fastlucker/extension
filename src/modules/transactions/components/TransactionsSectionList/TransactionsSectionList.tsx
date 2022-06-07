@@ -1,5 +1,6 @@
 import { toBundleTxn } from 'ambire-common/src/services/requestToBundleTxn'
 import React, { useCallback, useContext } from 'react'
+import isEqual from 'react-fast-compare'
 import { RefreshControl, TouchableOpacity, View } from 'react-native'
 
 import ConfirmedIcon from '@assets/svg/ConfirmedIcon'
@@ -32,7 +33,7 @@ const TransactionsSectionList = ({
   showSendTxns,
   forceRefresh,
   eligibleRequests,
-  network,
+  networkId,
   selectedAcc
 }: any) => {
   const { t } = useTranslation()
@@ -46,7 +47,7 @@ const TransactionsSectionList = ({
       {eligibleRequests.map((req) => (
         <TouchableOpacity onPress={() => showSendTxns(null)} activeOpacity={0.8} key={req.id}>
           <TxnPreview
-            network={network.id}
+            network={networkId}
             account={selectedAcc}
             disableExpand
             txn={toBundleTxn(req.txn, selectedAcc)}
@@ -207,4 +208,4 @@ const TransactionsSectionList = ({
   )
 }
 
-export default TransactionsSectionList
+export default React.memo(TransactionsSectionList, isEqual)

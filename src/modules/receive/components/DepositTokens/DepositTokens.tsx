@@ -10,8 +10,6 @@ import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings, { DEVICE_WIDTH } from '@modules/common/styles/spacings'
@@ -20,13 +18,16 @@ import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
 
-const DepositTokens = () => {
+interface Props {
+  networkId?: string
+  selectedAcc: string
+}
+
+const DepositTokens = ({ selectedAcc, networkId }: Props) => {
   const { t } = useTranslation()
-  const { selectedAcc } = useAccounts()
-  const { network }: any = useNetwork()
   const qrCodeRef: any = useRef(null)
   const { addToast } = useToast()
-  const networkDetails = networks.find(({ id }) => id === network.id)
+  const networkDetails = networks.find(({ id }) => id === networkId)
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
 
   const handleCopyAddress = () => {
@@ -104,4 +105,4 @@ const DepositTokens = () => {
   )
 }
 
-export default DepositTokens
+export default React.memo(DepositTokens)
