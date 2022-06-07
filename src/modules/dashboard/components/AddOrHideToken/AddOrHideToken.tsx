@@ -1,4 +1,7 @@
+import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
+import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
 import { Token } from 'ambire-common/src/hooks/usePortfolio'
+import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useState } from 'react'
 import { LayoutAnimation, TouchableOpacity, View } from 'react-native'
 
@@ -21,17 +24,17 @@ import styles from './styles'
 const segments = [{ value: MODES.ADD_TOKEN }, { value: MODES.HIDE_TOKEN }]
 
 interface Props {
-  tokens: any[]
-  extraTokens: any[]
-  hiddenTokens: any[]
-  networkId?: string
-  networkRpc?: string
-  networkName?: string
-  selectedAcc: string
-  onAddExtraToken: (extraToken: any) => void
-  onAddHiddenToken: (hiddenToken: any) => void
-  onRemoveExtraToken: (address: string) => void
-  onRemoveHiddenToken: (address: string) => void
+  tokens: UsePortfolioReturnTypes['tokens']
+  extraTokens: UsePortfolioReturnTypes['extraTokens']
+  hiddenTokens: UsePortfolioReturnTypes['hiddenTokens']
+  networkId?: NetworkId
+  networkRpc?: NetworkType['rpc']
+  networkName?: NetworkType['name']
+  selectedAcc: UseAccountsReturnType['selectedAcc']
+  onAddExtraToken: UsePortfolioReturnTypes['onAddExtraToken']
+  onAddHiddenToken: UsePortfolioReturnTypes['onAddHiddenToken']
+  onRemoveExtraToken: UsePortfolioReturnTypes['onRemoveExtraToken']
+  onRemoveHiddenToken: UsePortfolioReturnTypes['onRemoveHiddenToken']
 }
 
 const AddOrHideToken = ({
@@ -136,7 +139,13 @@ const AddOrHideToken = ({
                 networkName={networkName}
                 selectedAcc={selectedAcc}
               />
-              <HiddenOrExtraTokens mode={MODES.HIDE_TOKEN} />
+              <HiddenOrExtraTokens
+                mode={MODES.HIDE_TOKEN}
+                hiddenTokens={hiddenTokens}
+                extraTokens={extraTokens}
+                onRemoveExtraToken={onRemoveExtraToken}
+                onRemoveHiddenToken={onRemoveHiddenToken}
+              />
             </>
           )}
         </View>

@@ -1,3 +1,4 @@
+import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
 import React from 'react'
 import { View } from 'react-native'
 
@@ -8,10 +9,10 @@ import TokenItem from './TokenItem'
 
 interface Props {
   mode: MODES
-  extraTokens: any[]
-  hiddenTokens: any[]
-  onRemoveExtraToken: (address: string) => void
-  onRemoveHiddenToken: (address: string) => void
+  extraTokens: UsePortfolioReturnTypes['extraTokens']
+  hiddenTokens: UsePortfolioReturnTypes['hiddenTokens']
+  onRemoveExtraToken: UsePortfolioReturnTypes['onRemoveExtraToken']
+  onRemoveHiddenToken: UsePortfolioReturnTypes['onRemoveHiddenToken']
 }
 
 const HiddenOrExtraTokens: React.FC<Props> = ({

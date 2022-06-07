@@ -1,3 +1,6 @@
+import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
+import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
+import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
 import React from 'react'
 
 import { useTranslation } from '@config/localization'
@@ -7,20 +10,20 @@ import Title from '@modules/common/components/Title'
 import Tokens from '../Tokens'
 
 interface Props {
-  tokens: any[]
-  extraTokens: any[]
-  hiddenTokens: any[]
-  protocols: any[]
+  tokens: UsePortfolioReturnTypes['tokens']
+  extraTokens: UsePortfolioReturnTypes['extraTokens']
+  hiddenTokens: UsePortfolioReturnTypes['hiddenTokens']
+  protocols: UsePortfolioReturnTypes['protocols']
   isLoading: boolean
-  explorerUrl?: string
-  networkId?: string
-  networkRpc?: string
-  networkName?: string
-  selectedAcc: string
-  onAddExtraToken: (extraToken: any) => void
-  onAddHiddenToken: (hiddenToken: any) => void
-  onRemoveExtraToken: (address: string) => void
-  onRemoveHiddenToken: (address: string) => void
+  explorerUrl?: NetworkType['explorerUrl']
+  networkId?: NetworkId
+  networkRpc?: NetworkType['rpc']
+  networkName?: NetworkType['name']
+  selectedAcc: UseAccountsReturnType['selectedAcc']
+  onAddExtraToken: UsePortfolioReturnTypes['onAddExtraToken']
+  onAddHiddenToken: UsePortfolioReturnTypes['onAddHiddenToken']
+  onRemoveExtraToken: UsePortfolioReturnTypes['onRemoveExtraToken']
+  onRemoveHiddenToken: UsePortfolioReturnTypes['onRemoveHiddenToken']
 }
 
 const Assets = ({

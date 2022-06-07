@@ -1,5 +1,8 @@
 import ERC20ABI from 'adex-protocol-eth/abi/ERC20'
+import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
+import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
 import { Token } from 'ambire-common/src/hooks/usePortfolio'
+import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
 import { isValidAddress } from 'ambire-common/src/services/address'
 import { Contract, getDefaultProvider } from 'ethers'
 import { formatUnits, Interface } from 'ethers/lib/utils'
@@ -25,13 +28,13 @@ interface Props {
   mode: MODES
   onSubmit: (token: Token, formMode: MODES) => void
   enableSymbolSearch?: boolean
-  tokens: any[]
-  extraTokens: any[]
-  hiddenTokens: any[]
-  networkId?: string
-  networkRpc?: string
-  networkName?: string
-  selectedAcc: string
+  tokens: UsePortfolioReturnTypes['tokens']
+  extraTokens: UsePortfolioReturnTypes['extraTokens']
+  hiddenTokens: UsePortfolioReturnTypes['hiddenTokens']
+  networkId?: NetworkId
+  networkRpc?: NetworkType['rpc']
+  networkName?: NetworkType['name']
+  selectedAcc: UseAccountsReturnType['selectedAcc']
 }
 
 const AddOrHideTokenForm: React.FC<Props> = ({
