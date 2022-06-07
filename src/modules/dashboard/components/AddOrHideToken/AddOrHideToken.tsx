@@ -8,7 +8,6 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import Segments from '@modules/common/components/Segments'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import usePortfolio from '@modules/common/hooks/usePortfolio'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -21,9 +20,34 @@ import styles from './styles'
 
 const segments = [{ value: MODES.ADD_TOKEN }, { value: MODES.HIDE_TOKEN }]
 
-const AddOrHideToken = () => {
+interface Props {
+  tokens: any[]
+  extraTokens: any[]
+  hiddenTokens: any[]
+  networkId?: string
+  networkRpc?: string
+  networkName?: string
+  selectedAcc: string
+  onAddExtraToken: (extraToken: any) => void
+  onAddHiddenToken: (hiddenToken: any) => void
+  onRemoveExtraToken: (address: string) => void
+  onRemoveHiddenToken: (address: string) => void
+}
+
+const AddOrHideToken = ({
+  tokens,
+  extraTokens,
+  hiddenTokens,
+  networkId,
+  networkRpc,
+  networkName,
+  selectedAcc,
+  onAddExtraToken,
+  onAddHiddenToken,
+  onRemoveExtraToken,
+  onRemoveHiddenToken
+}: Props) => {
   const { t } = useTranslation()
-  const { onAddExtraToken, onAddHiddenToken } = usePortfolio()
   const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
   const [formType, setFormType] = useState<MODES>(MODES.ADD_TOKEN)
 
@@ -74,8 +98,24 @@ const AddOrHideToken = () => {
                 {t('Add Token')}
               </Title>
 
-              <AddOrHideTokenForm mode={MODES.ADD_TOKEN} onSubmit={handleOnSubmit} />
-              <HiddenOrExtraTokens mode={MODES.ADD_TOKEN} />
+              <AddOrHideTokenForm
+                mode={MODES.ADD_TOKEN}
+                onSubmit={handleOnSubmit}
+                tokens={tokens}
+                extraTokens={extraTokens}
+                hiddenTokens={hiddenTokens}
+                networkId={networkId}
+                networkRpc={networkRpc}
+                networkName={networkName}
+                selectedAcc={selectedAcc}
+              />
+              <HiddenOrExtraTokens
+                mode={MODES.ADD_TOKEN}
+                hiddenTokens={hiddenTokens}
+                extraTokens={extraTokens}
+                onRemoveExtraToken={onRemoveExtraToken}
+                onRemoveHiddenToken={onRemoveHiddenToken}
+              />
             </>
           )}
           {formType === MODES.HIDE_TOKEN && (
@@ -88,6 +128,13 @@ const AddOrHideToken = () => {
                 enableSymbolSearch
                 mode={MODES.HIDE_TOKEN}
                 onSubmit={handleOnSubmit}
+                tokens={tokens}
+                extraTokens={extraTokens}
+                hiddenTokens={hiddenTokens}
+                networkId={networkId}
+                networkRpc={networkRpc}
+                networkName={networkName}
+                selectedAcc={selectedAcc}
               />
               <HiddenOrExtraTokens mode={MODES.HIDE_TOKEN} />
             </>

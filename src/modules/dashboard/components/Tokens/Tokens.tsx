@@ -16,14 +16,37 @@ import TokenItem from './TokenItem'
 
 interface Props {
   tokens: any[]
+  extraTokens: any[]
+  hiddenTokens: any[]
   protocols: any[]
   isLoading: boolean
   explorerUrl?: string
   networkId?: string
+  networkRpc?: string
+  networkName?: string
   selectedAcc: string
+  onAddExtraToken: (extraToken: any) => void
+  onAddHiddenToken: (hiddenToken: any) => void
+  onRemoveExtraToken: (address: string) => void
+  onRemoveHiddenToken: (address: string) => void
 }
 
-const Tokens = ({ tokens, protocols, isLoading, explorerUrl, networkId, selectedAcc }: Props) => {
+const Tokens = ({
+  tokens,
+  extraTokens,
+  hiddenTokens,
+  protocols,
+  isLoading,
+  explorerUrl,
+  networkId,
+  networkRpc,
+  networkName,
+  selectedAcc,
+  onAddExtraToken,
+  onAddHiddenToken,
+  onRemoveExtraToken,
+  onRemoveHiddenToken
+}: Props) => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
 
@@ -108,7 +131,19 @@ const Tokens = ({ tokens, protocols, isLoading, explorerUrl, networkId, selected
           </View>
         ))}
 
-      <AddOrHideToken />
+      <AddOrHideToken
+        tokens={tokens}
+        networkId={networkId}
+        networkRpc={networkRpc}
+        networkName={networkName}
+        selectedAcc={selectedAcc}
+        extraTokens={extraTokens}
+        hiddenTokens={hiddenTokens}
+        onAddExtraToken={onAddExtraToken}
+        onAddHiddenToken={onAddHiddenToken}
+        onRemoveExtraToken={onRemoveExtraToken}
+        onRemoveHiddenToken={onRemoveHiddenToken}
+      />
 
       <TextWarning appearance="info" style={spacings.mb0}>
         <Trans>

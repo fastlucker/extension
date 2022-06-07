@@ -27,7 +27,7 @@ const TransactionsScreen = () => {
     forceRefresh
   } = useTransactions()
   const { eligibleRequests } = useRequests()
-  const { network }: any = useNetwork()
+  const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
 
   if (isLoading && !data) {
@@ -59,7 +59,7 @@ const TransactionsScreen = () => {
             showSendTxns={showSendTxns}
             forceRefresh={forceRefresh}
             eligibleRequests={eligibleRequests}
-            network={network}
+            networkId={network?.id}
             selectedAcc={selectedAcc}
           />
         </View>

@@ -87,6 +87,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     }
   })
 
+  console.log('rerender')
   if (!account || !bundle?.txns?.length)
     return (
       <GradientBackgroundWrapper>

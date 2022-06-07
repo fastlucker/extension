@@ -19,7 +19,13 @@ const DashboardScreen = () => {
     balance,
     otherBalances,
     protocols,
-    tokens
+    tokens,
+    extraTokens,
+    hiddenTokens,
+    onAddExtraToken,
+    onAddHiddenToken,
+    onRemoveExtraToken,
+    onRemoveHiddenToken
   } = usePortfolio()
   const { network, setNetwork } = useNetwork()
   const { selectedAcc } = useAccounts()
@@ -53,11 +59,19 @@ const DashboardScreen = () => {
         />
         <Assets
           tokens={tokens}
+          extraTokens={extraTokens}
+          hiddenTokens={hiddenTokens}
           protocols={protocols}
           isLoading={isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading}
           explorerUrl={network?.explorerUrl}
           networkId={network?.id}
+          networkRpc={network?.rpc}
+          networkName={network?.name}
           selectedAcc={selectedAcc}
+          onAddExtraToken={onAddExtraToken}
+          onAddHiddenToken={onAddHiddenToken}
+          onRemoveExtraToken={onRemoveExtraToken}
+          onRemoveHiddenToken={onRemoveHiddenToken}
         />
       </Wrapper>
     </GradientBackgroundWrapper>

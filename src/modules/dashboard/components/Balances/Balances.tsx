@@ -1,6 +1,5 @@
 import networks from 'ambire-common/src/constants/networks'
 import React, { useLayoutEffect } from 'react'
-import isEqual from 'react-fast-compare'
 import { TouchableOpacity, View } from 'react-native'
 
 import ReceiveIcon from '@assets/svg/ReceiveIcon'
@@ -153,4 +152,4 @@ const Balances = ({
   )
 }
 
-export default React.memo(Balances, isEqual)
+export default React.memo(Balances)

@@ -1,7 +1,6 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import usePortfolio from '@modules/common/hooks/usePortfolio'
 import spacings from '@modules/common/styles/spacings'
 
 import { MODES } from './constants'
@@ -9,11 +8,19 @@ import TokenItem from './TokenItem'
 
 interface Props {
   mode: MODES
+  extraTokens: any[]
+  hiddenTokens: any[]
+  onRemoveExtraToken: (address: string) => void
+  onRemoveHiddenToken: (address: string) => void
 }
 
-const HiddenOrExtraTokens: React.FC<Props> = ({ mode }) => {
-  const { hiddenTokens, extraTokens, onRemoveHiddenToken, onRemoveExtraToken } = usePortfolio()
-
+const HiddenOrExtraTokens: React.FC<Props> = ({
+  mode,
+  extraTokens,
+  hiddenTokens,
+  onRemoveExtraToken,
+  onRemoveHiddenToken
+}: Props) => {
   const tokens = {
     [MODES.ADD_TOKEN]: extraTokens,
     [MODES.HIDE_TOKEN]: hiddenTokens

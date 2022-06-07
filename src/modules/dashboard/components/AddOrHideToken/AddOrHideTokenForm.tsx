@@ -10,9 +10,6 @@ import { ActivityIndicator } from 'react-native'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 
@@ -28,13 +25,28 @@ interface Props {
   mode: MODES
   onSubmit: (token: Token, formMode: MODES) => void
   enableSymbolSearch?: boolean
+  tokens: any[]
+  extraTokens: any[]
+  hiddenTokens: any[]
+  networkId?: string
+  networkRpc?: string
+  networkName?: string
+  selectedAcc: string
 }
 
-const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearch = false }) => {
+const AddOrHideTokenForm: React.FC<Props> = ({
+  mode,
+  onSubmit,
+  enableSymbolSearch = false,
+  tokens,
+  extraTokens,
+  hiddenTokens,
+  networkId,
+  networkRpc,
+  networkName,
+  selectedAcc
+}) => {
   const { t } = useTranslation()
-  const { selectedAcc: account } = useAccounts()
-  const { network }: any = useNetwork()
-  const { tokens, extraTokens, hiddenTokens } = usePortfolio()
   const [loading, setLoading] = useState<boolean>(false)
   const [tokenDetails, setTokenDetails] = useState<any>(null)
   const [showError, setShowError] = useState<string>('')
@@ -55,9 +67,9 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
 
   const tokenStandard =
     // eslint-disable-next-line no-nested-ternary
-    network?.id === 'binance-smart-chain'
+    networkId === 'binance-smart-chain'
       ? 'a BEP20'
-      : network?.id === 'ethereum'
+      : networkId === 'ethereum'
       ? 'an ERC20'
       : 'a valid'
 
@@ -92,11 +104,11 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
     setShowError('')
 
     try {
-      const provider = getDefaultProvider(network.rpc)
+      const provider = getDefaultProvider(networkRpc)
       const tokenContract = new Contract(inputText, ERC20Interface, provider)
 
       const [balanceOf, name, symbol, decimals] = await Promise.all([
-        tokenContract.balanceOf(account),
+        tokenContract.balanceOf(selectedAcc),
         tokenContract.name(),
         tokenContract.symbol(),
         tokenContract.decimals()
@@ -114,12 +126,12 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
       } else {
         const balance = formatUnits(balanceOf, decimals)
         setTokenDetails({
-          account,
+          account: selectedAcc,
           address: inputText,
-          network: network.id,
+          network: networkId,
           balance,
           balanceRaw: balanceOf.toString(),
-          tokenImageUrl: `https://storage.googleapis.com/zapper-fi-assets/tokens/${network.id}/${inputText}.png`,
+          tokenImageUrl: `https://storage.googleapis.com/zapper-fi-assets/tokens/${networkId}/${inputText}.png`,
           name,
           symbol,
           decimals
@@ -130,7 +142,7 @@ const AddOrHideTokenForm: React.FC<Props> = ({ mode, onSubmit, enableSymbolSearc
       setShowError(
         t(
           'The address you entered does not appear to correspond to {{tokenStandard}} token on {{networkName}}.',
-          { tokenStandard, networkName: network?.name }
+          { tokenStandard, networkName }
         ) as string
       )
     }
