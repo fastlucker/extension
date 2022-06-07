@@ -26,9 +26,11 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const scrollY = useRef(0)
   const onScrollEndCallbackTargetOffset = useRef(-1)
 
+  const allVisibleNetworks = useMemo(() => allNetworks.filter((n) => !n.hide), [allNetworks])
+
   const currentNetworkIndex = useMemo(
-    () => allNetworks.map((n) => n.chainId).indexOf(network?.chainId || 0),
-    [network?.chainId]
+    () => allVisibleNetworks.map((n) => n.chainId).indexOf(network?.chainId || 0),
+    [network?.chainId, allVisibleNetworks]
   )
 
   const handleChangeNetwork = useCallback(
@@ -47,7 +49,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       // animations fulfills and the network visually gets centered for a moment
       setTimeout(() => closeBottomSheet(), 100)
     },
-    [network?.chainId, setNetwork, addToast]
+    [network?.chainId, setNetwork, addToast, closeBottomSheet, t]
   )
 
   const handleChangeNetworkByScrolling = useCallback(
@@ -56,11 +58,11 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       // thread, but implemented vertically and based on our fixed item height.
       // {@link https://stackoverflow.com/a/56736109/1333836}
       const index = event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT
-      const selectedNetwork = allNetworks[index]
+      const selectedNetwork = allVisibleNetworks[index]
 
       return handleChangeNetwork(selectedNetwork)
     },
-    [handleChangeNetwork, allNetworks.length]
+    [handleChangeNetwork, allVisibleNetworks]
   )
 
   const renderNetwork = (_network: NetworkType, idx: number) => {
@@ -127,7 +129,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
           onMomentumScrollEnd={handleChangeNetworkByScrolling}
           scrollEventThrottle={16}
         >
-          {allNetworks.map(renderNetwork)}
+          {allVisibleNetworks.map(renderNetwork)}
         </ScrollView>
       </View>
     </>
