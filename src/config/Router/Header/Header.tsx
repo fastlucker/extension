@@ -30,8 +30,7 @@ const Header: React.FC<Props> = ({
   const insets = useSafeAreaInsets()
   const canGoBack = navigation.canGoBack()
   const title = getHeaderTitle(options, route.name)
-
-  const renderHeaderBottomSheet = () => <HeaderBottomSheet />
+  const renderHeaderBottomSheet = <HeaderBottomSheet />
 
   const renderHeaderLeft = () => {
     if (withHamburger) {
@@ -52,12 +51,11 @@ const Header: React.FC<Props> = ({
     return null
   }
 
-  const renderHeaderRight = () =>
-    withScanner ? (
-      <NavIconWrapper onPress={() => navigation.navigate('connect')}>
-        <ScanIcon />
-      </NavIconWrapper>
-    ) : null
+  const renderHeaderRight = withScanner ? (
+    <NavIconWrapper onPress={() => navigation.navigate('connect')}>
+      <ScanIcon />
+    </NavIconWrapper>
+  ) : null
 
   // On the left and on the right side, there is always reserved space
   // for the nav bar buttons. And so that in case a title is present,
@@ -79,14 +77,14 @@ const Header: React.FC<Props> = ({
     <View style={[styles.container, { paddingTop: notchInset }]}>
       <View style={navIconContainer}>{renderHeaderLeft()}</View>
 
-      {mode === 'bottom-sheet' && renderHeaderBottomSheet()}
+      {mode === 'bottom-sheet' && renderHeaderBottomSheet}
       {mode === 'title' && (
         <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={1}>
           {title}
         </Text>
       )}
 
-      <View style={navIconContainer}>{renderHeaderRight()}</View>
+      <View style={navIconContainer}>{renderHeaderRight}</View>
     </View>
   )
 }

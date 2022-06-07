@@ -474,4 +474,4 @@ const FeeSelector = ({
   )
 }
 
-export default FeeSelector
+export default React.memo(FeeSelector)
