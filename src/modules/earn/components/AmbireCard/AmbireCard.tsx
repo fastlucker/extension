@@ -4,7 +4,9 @@ import WalletStakingPoolABI from 'ambire-common/src/constants/abis/WalletStaking
 import walletABI from 'ambire-common/src/constants/abis/walletTokenABI.json'
 import AdexStakingPool from 'ambire-common/src/constants/AdexStakingPool.json'
 import supplyControllerABI from 'ambire-common/src/constants/ADXSupplyController.json'
-import networks from 'ambire-common/src/constants/networks'
+import networks, { NetworkId } from 'ambire-common/src/constants/networks'
+import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
+import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
 import { BigNumber, constants, Contract, utils } from 'ethers'
 import { formatUnits, Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -43,9 +45,9 @@ const msToDaysHours = (ms: any) => {
 }
 
 interface Props {
-  tokens: any[]
-  networkId?: string
-  selectedAcc: string
+  tokens: UsePortfolioReturnTypes['tokens']
+  networkId?: NetworkId
+  selectedAcc: UseAccountsReturnType['selectedAcc']
   addRequest: (req: any) => any
 }
 
