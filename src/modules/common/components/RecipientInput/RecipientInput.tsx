@@ -7,7 +7,6 @@ import UnstoppableDomainIcon from '@assets/svg/UnstoppableDomainIcon'
 import { TouchableOpacity } from '@gorhom/bottom-sheet'
 import Input, { InputProps } from '@modules/common/components/Input'
 import Title from '@modules/common/components/Title'
-import colors from '@modules/common/styles/colors'
 import spacings, { DEVICE_HEIGHT, DEVICE_WIDTH, SPACING } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
