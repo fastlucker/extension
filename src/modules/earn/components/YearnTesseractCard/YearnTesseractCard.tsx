@@ -2,7 +2,7 @@ import YEARN_TESSERACT_VAULT_ABI from 'ambire-common/src/constants/abis/YearnTes
 import networks, { NetworkId } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
 import { UseToastsReturnType } from 'ambire-common/src/hooks/toasts/'
-import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
+import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import approveToken from 'ambire-common/src/services/approveToken'
 import { Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
@@ -18,7 +18,7 @@ import useYearn from '@modules/earn/hooks/useYearn'
 const VaultInterface = new Interface(YEARN_TESSERACT_VAULT_ABI)
 
 interface Props {
-  tokens: UsePortfolioReturnTypes['tokens']
+  tokens: UsePortfolioReturnType['tokens']
   networkId?: NetworkId
   selectedAcc: UseAccountsReturnType['selectedAcc']
   addRequest: (req: any) => any

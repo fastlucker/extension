@@ -5,6 +5,7 @@ import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 
 import { isAndroid } from '@config/env'
+import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
@@ -14,7 +15,7 @@ import NetworkChangerItem from './NetworkChangerItem'
 import styles, { SINGLE_ITEM_HEIGHT } from './styles'
 
 interface Props {
-  closeBottomSheet: () => void
+  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
 }
 
 const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {

@@ -8,7 +8,7 @@ import { requestLocalAuthFlagging } from '@modules/common/services/requestPermis
 import { SECURE_STORE_KEY_ACCOUNT } from '@modules/settings/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-type AccountsPasswordsContextData = {
+export interface AccountsPasswordsContextReturnType {
   isLoading: boolean
   selectedAccHasPassword: boolean
   addSelectedAccPassword: (password: string) => Promise<boolean>
@@ -16,7 +16,7 @@ type AccountsPasswordsContextData = {
   getSelectedAccPassword: () => Promise<string>
 }
 
-const defaults: AccountsPasswordsContextData = {
+const defaults: AccountsPasswordsContextReturnType = {
   isLoading: true,
   selectedAccHasPassword: false,
   addSelectedAccPassword: () => Promise.resolve(false),
@@ -24,7 +24,7 @@ const defaults: AccountsPasswordsContextData = {
   getSelectedAccPassword: () => Promise.resolve('')
 }
 
-const AccountsPasswordsContext = createContext<AccountsPasswordsContextData>(defaults)
+const AccountsPasswordsContext = createContext<AccountsPasswordsContextReturnType>(defaults)
 
 // The secure key is separate for each account. This way, it appears as a
 // separate value in the Keychain / Keystore, suffixed by the account id.

@@ -11,7 +11,7 @@ import WalletConnectCore from '@walletconnect/core'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as cryptoLib from '@walletconnect/iso-crypto'
 
-type WalletConnectContextData = {
+export interface WalletConnectContextReturnType {
   connections: any[]
   requests: any[]
   resolveMany: (ids: any, resolution: any) => void
@@ -20,7 +20,7 @@ type WalletConnectContextData = {
   handleConnect: (uri: string) => void
 }
 
-const WalletConnectContext = createContext<WalletConnectContextData>({
+const WalletConnectContext = createContext<WalletConnectContextReturnType>({
   connections: [],
   requests: [],
   resolveMany: () => {},

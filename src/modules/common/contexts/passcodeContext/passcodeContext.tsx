@@ -30,7 +30,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
 import styles from './styles'
 
-type PasscodeContextData = {
+export interface PasscodeContextReturnType {
   state: PASSCODE_STATES
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL
   deviceSupportedAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
@@ -59,7 +59,7 @@ type PasscodeContextData = {
   lockWhenInactive: boolean
 }
 
-const defaults: PasscodeContextData = {
+const defaults: PasscodeContextReturnType = {
   state: PASSCODE_STATES.NO_PASSCODE,
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE,
   deviceSupportedAuthTypes: [],
@@ -84,7 +84,7 @@ const defaults: PasscodeContextData = {
   lockWhenInactive: false
 }
 
-const PasscodeContext = createContext<PasscodeContextData>(defaults)
+const PasscodeContext = createContext<PasscodeContextReturnType>(defaults)
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()

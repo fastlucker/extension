@@ -1,12 +1,12 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { Keyboard, KeyboardEventListener } from 'react-native'
 
-type KeyboardContextData = {
+export interface KeyboardContextReturnType {
   keyboardShown: boolean
   keyboardHeight: number
 }
 
-const KeyboardContext = createContext<KeyboardContextData>({
+const KeyboardContext = createContext<KeyboardContextReturnType>({
   keyboardShown: false,
   keyboardHeight: 0
 })

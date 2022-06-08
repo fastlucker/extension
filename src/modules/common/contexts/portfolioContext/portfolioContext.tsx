@@ -1,4 +1,4 @@
-import usePortfolio, { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio'
+import usePortfolio, { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio'
 import React, { createContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState } from 'react-native'
 
@@ -9,18 +9,18 @@ import useStorage from '@modules/common/hooks/useStorage'
 import useToasts from '@modules/common/hooks/useToast'
 import { fetchGet } from '@modules/common/services/fetch'
 
-const PortfolioContext = createContext<UsePortfolioReturnTypes>({
+const PortfolioContext = createContext<UsePortfolioReturnType>({
   balance: {
     total: {
       full: 0,
-      truncated: 0,
+      truncated: '0',
       decimals: '00'
     },
-    tokens: []
+    network: ''
   },
   otherBalances: [],
   tokens: [],
-  protocols: [],
+  protocols: [] as any,
   extraTokens: [],
   hiddenTokens: [],
   collectibles: [],
@@ -89,7 +89,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
     loadBalance,
     loadProtocols
   } = usePortfolio({
-    currentNetwork: network?.id,
+    currentNetwork: network?.id as string,
     account: selectedAcc,
     useStorage,
     isVisible: appStateVisible === 'active',

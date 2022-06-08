@@ -1,8 +1,7 @@
 import ERC20ABI from 'adex-protocol-eth/abi/ERC20'
 import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
-import { Token } from 'ambire-common/src/hooks/usePortfolio'
-import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
+import { Token, UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio'
 import { isValidAddress } from 'ambire-common/src/services/address'
 import { Contract, getDefaultProvider } from 'ethers'
 import { formatUnits, Interface } from 'ethers/lib/utils'
@@ -28,9 +27,9 @@ interface Props {
   mode: MODES
   onSubmit: (token: Token, formMode: MODES) => void
   enableSymbolSearch?: boolean
-  tokens: UsePortfolioReturnTypes['tokens']
-  extraTokens: UsePortfolioReturnTypes['extraTokens']
-  hiddenTokens: UsePortfolioReturnTypes['hiddenTokens']
+  tokens: UsePortfolioReturnType['tokens']
+  extraTokens: UsePortfolioReturnType['extraTokens']
+  hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   networkId?: NetworkId
   networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']

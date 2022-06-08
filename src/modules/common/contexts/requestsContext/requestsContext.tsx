@@ -10,7 +10,7 @@ import useToast from '@modules/common/hooks/useToast'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import { navigate } from '@modules/common/services/navigation'
 
-type RequestsContextData = {
+export interface RequestsContextReturnType {
   internalRequests: any
   addRequest: (req: any) => any
   sendTxnState: {
@@ -29,7 +29,7 @@ type RequestsContextData = {
   everythingToSign: any[]
 }
 
-const RequestsContext = createContext<RequestsContextData>({
+const RequestsContext = createContext<RequestsContextReturnType>({
   internalRequests: [],
   addRequest: () => {},
   sendTxnState: {

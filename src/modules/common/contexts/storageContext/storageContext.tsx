@@ -2,11 +2,11 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-type StorageContextData = {
+export interface StorageContextReturnType {
   storageLoaded: boolean
 }
 
-const StorageContext = createContext<StorageContextData>({
+const StorageContext = createContext<StorageContextReturnType>({
   storageLoaded: false
 })
 

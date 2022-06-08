@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
+import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
@@ -14,16 +15,16 @@ import { navigate } from '@modules/common/services/navigation'
 
 export type QuickAccBottomSheetType = {
   sheetRef: any
-  openBottomSheet: any
-  closeBottomSheet: any
-  isOpen: any
+  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
+  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
+  isOpen: boolean
 }
 
 export type HardwareWalletBottomSheetType = {
   sheetRef: any
-  openBottomSheet: any
-  closeBottomSheet: any
-  isOpen: any
+  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
+  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
+  isOpen: boolean
 }
 
 const useSignMessage = (

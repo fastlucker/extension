@@ -13,13 +13,14 @@ import Button from '@modules/common/components/Button'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Backdrop from './Backdrop'
+import { UseBottomSheetReturnType } from './hooks/useBottomSheet'
 import styles from './styles'
 
 interface Props {
   id?: string
   // Required in order all bottom sheet related events to click
   sheetRef: React.RefObject<any>
-  closeBottomSheet: () => void
+  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
   isOpen: boolean
   children: React.ReactNode
   // Preferences

@@ -9,6 +9,7 @@ import { Alert } from 'react-native'
 
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
+import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
@@ -24,9 +25,9 @@ import {
 
 type HardwareWalletBottomSheetType = {
   sheetRef: any
-  openBottomSheet: any
-  closeBottomSheet: any
-  isOpen: any
+  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
+  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
+  isOpen: boolean
 }
 
 const DEFAULT_SPEED = 'fast'
