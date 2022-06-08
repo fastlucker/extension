@@ -3,13 +3,32 @@ import { RefreshControl } from 'react-native'
 
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Wrapper from '@modules/common/components/Wrapper'
+import useAccounts from '@modules/common/hooks/useAccounts'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import Assets from '@modules/dashboard/components/Assets'
 import Balances from '@modules/dashboard/components/Balances'
 
 const DashboardScreen = () => {
-  const { loadBalance, loadProtocols, isBalanceLoading, areProtocolsLoading } = usePortfolio()
+  const {
+    loadBalance,
+    loadProtocols,
+    isCurrNetworkBalanceLoading,
+    isCurrNetworkProtocolsLoading,
+    balance,
+    otherBalances,
+    protocols,
+    tokens,
+    extraTokens,
+    hiddenTokens,
+    onAddExtraToken,
+    onAddHiddenToken,
+    onRemoveExtraToken,
+    onRemoveHiddenToken
+  } = usePortfolio()
+  const { network, setNetwork } = useNetwork()
+  const { selectedAcc } = useAccounts()
 
   const handleRefresh = () => {
     loadBalance()
@@ -26,12 +45,34 @@ const DashboardScreen = () => {
             onRefresh={handleRefresh}
             tintColor={colors.titan}
             progressBackgroundColor={colors.titan}
-            enabled={!isBalanceLoading && !areProtocolsLoading}
+            enabled={!isCurrNetworkBalanceLoading && !isCurrNetworkProtocolsLoading}
           />
         }
       >
-        <Balances />
-        <Assets />
+        <Balances
+          balanceTruncated={balance.total?.truncated}
+          balanceDecimals={balance.total?.decimals}
+          otherBalances={otherBalances}
+          isLoading={isCurrNetworkBalanceLoading}
+          networkId={network?.id}
+          setNetwork={setNetwork}
+        />
+        <Assets
+          tokens={tokens}
+          extraTokens={extraTokens}
+          hiddenTokens={hiddenTokens}
+          protocols={protocols}
+          isLoading={isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading}
+          explorerUrl={network?.explorerUrl}
+          networkId={network?.id}
+          networkRpc={network?.rpc}
+          networkName={network?.name}
+          selectedAcc={selectedAcc}
+          onAddExtraToken={onAddExtraToken}
+          onAddHiddenToken={onAddHiddenToken}
+          onRemoveExtraToken={onRemoveExtraToken}
+          onRemoveHiddenToken={onRemoveHiddenToken}
+        />
       </Wrapper>
     </GradientBackgroundWrapper>
   )

@@ -1,3 +1,4 @@
+import accountPresets from 'ambire-common/src/constants/accountPresets'
 import { generateAddress2 } from 'ethereumjs-util'
 import { Wallet } from 'ethers'
 import { AbiCoder, getAddress, id, keccak256 } from 'ethers/lib/utils'
@@ -7,7 +8,6 @@ import performance from 'react-native-performance'
 
 import CONFIG from '@config/env'
 import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
-import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import { fetchPost } from '@modules/common/services/fetch'
 

@@ -1,42 +1,13 @@
 {
+  "extends": "ambire-common/tsconfig.json",
   "compilerOptions": {
     "baseUrl": "src/",
+    "jsx": "react-native",
     "paths": {
       "@assets/*": ["assets/*"],
       "@modules/*": ["modules/*"],
-      "@config/*": ["config/*"],
-      "@shared/*": ["shared/*"]
-    },
-    "noEmit": false,
-    "noEmitOnError": true,
-    "noEmitHelpers": true,
-    "target": "es2021",
-    "lib": ["es2021"],
-    "jsx": "react-native",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "checkJs": false,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "forceConsistentCasingInFileNames": true,
-    "importHelpers": true,
-    "noFallthroughCasesInSwitch": true,
-    "inlineSources": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "removeComments": false,
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "strict": true,
-    "strictPropertyInitialization": true
+      "@config/*": ["config/*"]
+    }
   },
-  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js", "index.js"],
-  "extends": "expo/tsconfig.base"
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js", "index.js"]
 }

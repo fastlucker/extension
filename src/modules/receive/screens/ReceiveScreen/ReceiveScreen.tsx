@@ -4,8 +4,8 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 // import Panel from '@modules/common/components/Panel'
 // import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
-// import useAccounts from '@modules/common/hooks/useAccounts'
-// import useNetwork from '@modules/common/hooks/useNetwork'
+import useAccounts from '@modules/common/hooks/useAccounts'
+import useNetwork from '@modules/common/hooks/useNetwork'
 // import { colorPalette as colors } from '@modules/common/styles/colors'
 // import spacings from '@modules/common/styles/spacings'
 import DepositTokens from '@modules/receive/components/DepositTokens'
@@ -14,13 +14,13 @@ import DepositTokens from '@modules/receive/components/DepositTokens'
 
 const ReceiveScreen = () => {
   // const { t } = useTranslation()
-  // const { selectedAcc } = useAccounts()
-  // const { network }: any = useNetwork()
+  const { selectedAcc } = useAccounts()
+  const { network } = useNetwork()
 
   return (
     <GradientBackgroundWrapper>
       <Wrapper hasBottomTabNav={false}>
-        <DepositTokens />
+        <DepositTokens selectedAcc={selectedAcc} networkId={network?.id} />
         {/* TODO: Temporary disabled since v1.6.0 as part of the Apple app review feedback */}
         {/* <Panel>
           <Text style={spacings.mb} fontSize={16} weight="medium" color={colors.turquoise}>

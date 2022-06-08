@@ -1,5 +1,5 @@
 // TODO: add types
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -56,7 +56,10 @@ const RequestsProvider: React.FC = ({ children }) => {
   const [internalRequests, setInternalRequests] = useState<any>([])
   const [sentTxn, setSentTxn] = useState<any[]>([])
 
-  const addRequest = (req: any) => setInternalRequests((reqs: any) => [...reqs, req])
+  const addRequest = useCallback(
+    (req: any) => setInternalRequests((reqs: any) => [...reqs, req]),
+    []
+  )
 
   const requests = useMemo(
     () =>

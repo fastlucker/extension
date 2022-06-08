@@ -1,3 +1,4 @@
+import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
 import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
@@ -11,7 +12,6 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import TokenIcon from '@modules/common/components/TokenIcon'
 import useNetwork from '@modules/common/hooks/useNetwork'
-import { formatFloatTokenAmount } from '@modules/common/services/formatters'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -474,4 +474,4 @@ const FeeSelector = ({
   )
 }
 
-export default FeeSelector
+export default React.memo(FeeSelector)

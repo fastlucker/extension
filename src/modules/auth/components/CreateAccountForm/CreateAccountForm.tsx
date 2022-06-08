@@ -1,3 +1,5 @@
+import accountPresets from 'ambire-common/src/constants/accountPresets'
+import { isEmail, isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
@@ -11,9 +13,7 @@ import Checkbox from '@modules/common/components/Checkbox'
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
-import accountPresets from '@modules/common/constants/accountPresets'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
-import { isEmail, isValidPassword } from '@modules/common/services/validate'
 import spacings from '@modules/common/styles/spacings'
 
 const days = Math.ceil(accountPresets.quickAccTimelock / 86400)

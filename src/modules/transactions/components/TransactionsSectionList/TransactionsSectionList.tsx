@@ -1,4 +1,6 @@
+import { toBundleTxn } from 'ambire-common/src/services/requestToBundleTxn'
 import React, { useCallback, useContext } from 'react'
+import isEqual from 'react-fast-compare'
 import { RefreshControl, TouchableOpacity, View } from 'react-native'
 
 import ConfirmedIcon from '@assets/svg/ConfirmedIcon'
@@ -11,7 +13,6 @@ import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import { toBundleTxn } from '@modules/common/services/requestToBundleTxn'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -32,7 +33,7 @@ const TransactionsSectionList = ({
   showSendTxns,
   forceRefresh,
   eligibleRequests,
-  network,
+  networkId,
   selectedAcc
 }: any) => {
   const { t } = useTranslation()
@@ -46,7 +47,7 @@ const TransactionsSectionList = ({
       {eligibleRequests.map((req) => (
         <TouchableOpacity onPress={() => showSendTxns(null)} activeOpacity={0.8} key={req.id}>
           <TxnPreview
-            network={network.id}
+            network={networkId}
             account={selectedAcc}
             disableExpand
             txn={toBundleTxn(req.txn, selectedAcc)}
@@ -207,4 +208,4 @@ const TransactionsSectionList = ({
   )
 }
 
-export default TransactionsSectionList
+export default React.memo(TransactionsSectionList, isEqual)

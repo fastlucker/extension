@@ -1,10 +1,17 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
 
-const styles = StyleSheet.create({
+interface Style {
+  addressCopyContainer: ViewStyle
+  qrCodeWrapper: ViewStyle
+  supportedNetworksContainer: ViewStyle
+  supportedNetworksItem: ViewStyle
+}
+
+const styles = StyleSheet.create<Style>({
   addressCopyContainer: {
     flexDirection: 'row',
     ...spacings.ph,
@@ -18,6 +25,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden'
   },
   supportedNetworksContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    // So that, ideally, 4 network items fit on a row (if their name is not huge)
+    marginHorizontal: -1
+  },
+  supportedNetworksItem: {
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.valhalla_66,

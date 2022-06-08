@@ -6,6 +6,7 @@ interface Styles {
   borderRadiusPrimary: ViewStyle
   borderRadiusSecondary: ViewStyle
   hidden: ViewStyle
+  visibilityHidden: ViewStyle
 }
 
 export const BORDER_RADIUS_PRIMARY = 13
@@ -40,6 +41,9 @@ const commonStyles = StyleSheet.create<Styles>({
   },
   hidden: {
     overflow: 'hidden'
+  },
+  visibilityHidden: {
+    opacity: 0
   }
 })
 
