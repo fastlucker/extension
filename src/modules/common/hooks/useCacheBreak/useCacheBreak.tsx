@@ -5,7 +5,14 @@ interface Props {
   refreshInterval?: number
 }
 
-export default function useCacheBreak({ breakPoint = 5000, refreshInterval = 30000 }: Props) {
+export interface UseCacheBreakReturnType {
+  cacheBreak: number
+}
+
+export default function useCacheBreak({
+  breakPoint = 5000,
+  refreshInterval = 30000
+}: Props): UseCacheBreakReturnType {
   const [cacheBreak, setCacheBreak] = useState(() => Date.now())
 
   useEffect(() => {

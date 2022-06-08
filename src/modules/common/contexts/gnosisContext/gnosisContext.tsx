@@ -8,8 +8,8 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
 import { getProvider } from '@modules/common/services/provider'
 
-type GnosisContextData = {
-  sushiSwapIframeRef: any
+export interface GnosisContextReturnType {
+  sushiSwapIframeRef: React.RefObject<any> | null
   hash: string
   requests: any[]
   resolveMany: (ids: any, resolution: any) => any
@@ -19,7 +19,7 @@ type GnosisContextData = {
   handleIncomingMessage: (msg: any) => any
 }
 
-const GnosisContext = createContext<GnosisContextData>({
+const GnosisContext = createContext<GnosisContextReturnType>({
   sushiSwapIframeRef: null,
   hash: '',
   requests: [],

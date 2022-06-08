@@ -1,5 +1,5 @@
 import networks, { NetworkId } from 'ambire-common/src/constants/networks'
-import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
+import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useLayoutEffect } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
@@ -25,7 +25,7 @@ const networkDetails = (network: any) => networks.find(({ id }) => id === networ
 interface Props {
   balanceTruncated: any
   balanceDecimals: any
-  otherBalances: UsePortfolioReturnTypes['otherBalances']
+  otherBalances: UsePortfolioReturnType['otherBalances']
   isLoading: boolean
   networkId: NetworkId
   setNetwork: (networkIdentifier: string | number) => void

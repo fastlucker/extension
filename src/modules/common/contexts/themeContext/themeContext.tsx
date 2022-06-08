@@ -4,13 +4,13 @@ import { useColorScheme } from 'react-native'
 import useStorage from '@modules/common/hooks/useStorage'
 import ThemeColors, { THEME_TYPES, ThemeProps } from '@modules/common/styles/themeConfig'
 
-type ThemeContextData = {
+export interface ThemeContextReturnType {
   theme?: ThemeProps
   themeType: THEME_TYPES
   setThemeType: (item: any) => void
 }
 
-const ThemeContext = createContext<ThemeContextData>({
+const ThemeContext = createContext<ThemeContextReturnType>({
   themeType: THEME_TYPES.DARK,
   setThemeType: () => {}
 })

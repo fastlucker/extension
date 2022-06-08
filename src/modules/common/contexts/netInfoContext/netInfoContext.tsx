@@ -8,11 +8,11 @@ enum ConnectionStates {
   NOT_CONNECTED = 'NOT_CONNECTED'
 }
 
-type NetInfoContextData = {
+export interface NetInfoContextReturnType {
   connectionState: ConnectionStates
 }
 
-const NetInfoContext = createContext<NetInfoContextData>({
+const NetInfoContext = createContext<NetInfoContextReturnType>({
   connectionState: ConnectionStates.LOADING
 })
 

@@ -1,7 +1,7 @@
 import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
 import { Token } from 'ambire-common/src/hooks/usePortfolio'
-import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
+import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useState } from 'react'
 import { LayoutAnimation, TouchableOpacity, View } from 'react-native'
 
@@ -24,17 +24,17 @@ import styles from './styles'
 const segments = [{ value: MODES.ADD_TOKEN }, { value: MODES.HIDE_TOKEN }]
 
 interface Props {
-  tokens: UsePortfolioReturnTypes['tokens']
-  extraTokens: UsePortfolioReturnTypes['extraTokens']
-  hiddenTokens: UsePortfolioReturnTypes['hiddenTokens']
+  tokens: UsePortfolioReturnType['tokens']
+  extraTokens: UsePortfolioReturnType['extraTokens']
+  hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   networkId?: NetworkId
   networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']
   selectedAcc: UseAccountsReturnType['selectedAcc']
-  onAddExtraToken: UsePortfolioReturnTypes['onAddExtraToken']
-  onAddHiddenToken: UsePortfolioReturnTypes['onAddHiddenToken']
-  onRemoveExtraToken: UsePortfolioReturnTypes['onRemoveExtraToken']
-  onRemoveHiddenToken: UsePortfolioReturnTypes['onRemoveHiddenToken']
+  onAddExtraToken: UsePortfolioReturnType['onAddExtraToken']
+  onAddHiddenToken: UsePortfolioReturnType['onAddHiddenToken']
+  onRemoveExtraToken: UsePortfolioReturnType['onRemoveExtraToken']
+  onRemoveHiddenToken: UsePortfolioReturnType['onRemoveHiddenToken']
 }
 
 const AddOrHideToken = ({

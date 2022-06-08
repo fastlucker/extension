@@ -4,7 +4,14 @@ import { Keyboard } from 'react-native'
 import BottomSheet from '@gorhom/bottom-sheet'
 import usePrevious from '@modules/common/hooks/usePrevious'
 
-export default function useBottomSheet() {
+export interface UseBottomSheetReturnType {
+  sheetRef: React.RefObject<BottomSheet>
+  isOpen: boolean
+  openBottomSheet: () => void
+  closeBottomSheet: () => void
+}
+
+export default function useBottomSheet(): UseBottomSheetReturnType {
   // const isInitialOpen = useRef<boolean>(true)
   const sheetRef = useRef<BottomSheet>(null)
   const [isOpen, setIsOpen] = useState(false)

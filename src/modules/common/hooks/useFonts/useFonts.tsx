@@ -14,7 +14,11 @@ export enum FONT_FAMILIES {
   SEMI_BOLD = 'Poppins_600SemiBold'
 }
 
-export default function useFonts() {
+export interface UseFontsReturnType {
+  fontsLoaded: boolean
+}
+
+export default function useFonts(): UseFontsReturnType {
   // Import only the ones that are used, because having all could lead to a performance
   // penalty, since loading of the fonts take some time during initial app open.
   const [fontsLoaded] = useFontsRn({

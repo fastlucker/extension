@@ -6,7 +6,7 @@ import AdexStakingPool from 'ambire-common/src/constants/AdexStakingPool.json'
 import supplyControllerABI from 'ambire-common/src/constants/ADXSupplyController.json'
 import networks, { NetworkId } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
-import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
+import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import { BigNumber, constants, Contract, utils } from 'ethers'
 import { formatUnits, Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -45,7 +45,7 @@ const msToDaysHours = (ms: any) => {
 }
 
 interface Props {
-  tokens: UsePortfolioReturnTypes['tokens']
+  tokens: UsePortfolioReturnType['tokens']
   networkId?: NetworkId
   selectedAcc: UseAccountsReturnType['selectedAcc']
   addRequest: (req: any) => any
