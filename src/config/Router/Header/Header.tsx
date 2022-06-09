@@ -11,6 +11,7 @@ import CopyText from '@modules/common/components/CopyText'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useHeaderBottomSheet from '@modules/common/hooks/useHeaderBottomSheet'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -24,7 +25,6 @@ interface Props extends DrawerHeaderProps {
   mode?: 'title' | 'bottom-sheet'
   withHamburger?: boolean
   withScanner?: boolean
-  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
 }
 
 const Header: React.FC<Props> = ({
@@ -33,16 +33,17 @@ const Header: React.FC<Props> = ({
   withScanner = false,
   navigation,
   route,
-  options,
-  openBottomSheet
+  options
 }) => {
   const insets = useSafeAreaInsets()
   const canGoBack = navigation.canGoBack()
   const title = getHeaderTitle(options, route.name)
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
+  const { openHeaderBottomSheet } = useHeaderBottomSheet()
+
   const renderBottomSheetSwitcher = (
-    <TouchableOpacity style={styles.switcherContainer} onPress={openBottomSheet}>
+    <TouchableOpacity style={styles.switcherContainer} onPress={openHeaderBottomSheet}>
       <Blockies borderRadius={13} seed={selectedAcc} />
 
       <View style={[flexboxStyles.flex1, spacings.mhTy]}>
