@@ -302,7 +302,6 @@ export default function useRequestTransaction() {
     sWAddressConfirmed,
     setSWAddressConfirmed,
     uDAddress,
-    isCurrNetworkBalanceLoading,
-    dataLoaded
+    isLoading: isCurrNetworkBalanceLoading && !dataLoaded
   }
 }
