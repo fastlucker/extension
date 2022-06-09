@@ -8,6 +8,7 @@ import EarnIcon from '@assets/svg/EarnIcon'
 import SendIcon from '@assets/svg/SendIcon'
 // import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
+import HeaderBottomSheet from '@config/Router/Header/HeaderBottomSheet'
 import { headerAlpha } from '@config/Router/HeadersConfig'
 import styles, {
   horizontalTabBarLabelStyle,
@@ -25,8 +26,6 @@ import SendScreen from '@modules/send/screens/SendScreen'
 // import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-
-import HeaderBottomSheet from '../Header/HeaderBottomSheet'
 
 const Tab = createBottomTabNavigator()
 
