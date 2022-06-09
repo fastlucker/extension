@@ -20,6 +20,7 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
@@ -38,7 +39,7 @@ const TabsScreens = () => {
 
   const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
   return (
-    <View style={{ flex: 1 }}>
+    <>
       <Tab.Navigator
         screenOptions={{
           header: (props) => headerAlpha({ ...props, openBottomSheet }),
@@ -117,7 +118,7 @@ const TabsScreens = () => {
         />
       </Tab.Navigator>
       <HeaderBottomSheet sheetRef={sheetRef} isOpen={isOpen} closeBottomSheet={closeBottomSheet} />
-    </View>
+    </>
   )
 }
 
