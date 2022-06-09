@@ -1,22 +1,30 @@
 import React from 'react'
-import { View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
-import HeaderBottomSheet from '@config/Router/Header/HeaderBottomSheet'
+import Blockies from '@modules/common/components/Blockies'
+import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
+import CopyText from '@modules/common/components/CopyText'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
+import useAccounts from '@modules/common/hooks/useAccounts'
+import useNetwork from '@modules/common/hooks/useNetwork'
+import { colorPalette as colors } from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import { DrawerHeaderProps } from '@react-navigation/drawer'
 import { getHeaderTitle } from '@react-navigation/elements'
-import { NativeStackHeaderProps } from '@react-navigation/native-stack'
 
 import styles from './style'
 
-interface Props extends NativeStackHeaderProps {
+interface Props extends DrawerHeaderProps {
   mode?: 'title' | 'bottom-sheet'
   withHamburger?: boolean
   withScanner?: boolean
+  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
 }
 
 const Header: React.FC<Props> = ({
@@ -25,12 +33,28 @@ const Header: React.FC<Props> = ({
   withScanner = false,
   navigation,
   route,
-  options
+  options,
+  openBottomSheet
 }) => {
   const insets = useSafeAreaInsets()
   const canGoBack = navigation.canGoBack()
   const title = getHeaderTitle(options, route.name)
-  const renderHeaderBottomSheet = <HeaderBottomSheet />
+  const { network } = useNetwork()
+  const { selectedAcc } = useAccounts()
+  const renderBottomSheetSwitcher = (
+    <TouchableOpacity style={styles.switcherContainer} onPress={openBottomSheet}>
+      <Blockies borderRadius={13} seed={selectedAcc} />
+
+      <View style={[flexboxStyles.flex1, spacings.mhTy]}>
+        <Text weight="regular">{network?.name}</Text>
+        <Text color={colors.baileyBells} fontSize={12} numberOfLines={1} ellipsizeMode="middle">
+          {selectedAcc}
+        </Text>
+      </View>
+
+      <CopyText text={selectedAcc} />
+    </TouchableOpacity>
+  )
 
   const renderHeaderLeft = () => {
     if (withHamburger) {
@@ -77,7 +101,7 @@ const Header: React.FC<Props> = ({
     <View style={[styles.container, { paddingTop: notchInset }]}>
       <View style={navIconContainer}>{renderHeaderLeft()}</View>
 
-      {mode === 'bottom-sheet' && renderHeaderBottomSheet}
+      {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
       {mode === 'title' && (
         <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={1}>
           {title}
@@ -89,4 +113,4 @@ const Header: React.FC<Props> = ({
   )
 }
 
-export default Header
+export default React.memo(Header)

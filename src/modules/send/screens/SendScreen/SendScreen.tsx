@@ -34,7 +34,7 @@ const SendScreen = () => {
     sWAddressConfirmed,
     setSWAddressConfirmed,
     uDAddress,
-    isCurrNetworkBalanceLoading
+    isLoading
   } = useRequestTransaction()
 
   const handleSend = useCallback(() => {
@@ -50,7 +50,7 @@ const SendScreen = () => {
         extraHeight={250}
         hasBottomTabNav
       >
-        {isCurrNetworkBalanceLoading && (
+        {isLoading && (
           <View
             style={[
               StyleSheet.absoluteFill,
@@ -63,7 +63,7 @@ const SendScreen = () => {
         )}
 
         <SendForm
-          isHidden={isCurrNetworkBalanceLoading}
+          isHidden={isLoading}
           asset={asset}
           address={address}
           amount={amount}

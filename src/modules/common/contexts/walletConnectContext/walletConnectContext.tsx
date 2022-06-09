@@ -323,7 +323,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
             )
           connector.rejectRequest({
             id: payload.id,
-            error: { message: `METHOD_NOT_SUPPORTED: ${payload.method}` }
+            error: { message: `Method not found: ${payload.method}`, code: -32601 }
           })
           return
         }
