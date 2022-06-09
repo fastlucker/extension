@@ -9,6 +9,7 @@ interface Styles {
   navIconContainerRegular: ViewStyle
   navIconContainerSmall: ViewStyle
   title: TextStyle
+  switcherContainer: ViewStyle
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -33,6 +34,18 @@ const styles = StyleSheet.create<Styles>({
     // So it is vertically aligned well with the nav buttons,
     // even when there are none.
     paddingVertical: 7
+  },
+  switcherContainer: {
+    backgroundColor: colors.valhalla,
+    height: 50,
+    borderRadius: 13,
+    paddingLeft: 10,
+    paddingRight: 15,
+    marginHorizontal: 10,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row'
   }
 })
 
