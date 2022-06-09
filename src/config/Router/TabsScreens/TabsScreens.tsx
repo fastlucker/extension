@@ -28,18 +28,18 @@ import SendScreen from '@modules/send/screens/SendScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
-const Tab = createBottomTabNavigator()
-
 const TabsScreens = () => {
   const { t } = useTranslation()
   // We need the bottom sheet defined globally (not in the Header component)
   // Otherwise there are multiple instances of the same bottom sheet that interfere with each other cause react navigation
   // passes new Header component to each screen
   const { sheetRef, isOpen, closeBottomSheet, openBottomSheet } = useBottomSheet()
-
+  const Tab = createBottomTabNavigator()
   const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
   return (
-    <>
+    <View style={flexboxStyles.flex1}>
+      <HeaderBottomSheet sheetRef={sheetRef} isOpen={isOpen} closeBottomSheet={closeBottomSheet} />
+
       <Tab.Navigator
         screenOptions={{
           header: (props) => headerAlpha({ ...props, openBottomSheet }),
@@ -117,8 +117,7 @@ const TabsScreens = () => {
           component={TransactionsScreen}
         />
       </Tab.Navigator>
-      <HeaderBottomSheet sheetRef={sheetRef} isOpen={isOpen} closeBottomSheet={closeBottomSheet} />
-    </>
+    </View>
   )
 }
 
