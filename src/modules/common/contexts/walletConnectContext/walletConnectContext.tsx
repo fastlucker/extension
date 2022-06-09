@@ -11,7 +11,7 @@ import WalletConnectCore from '@walletconnect/core'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as cryptoLib from '@walletconnect/iso-crypto'
 
-type WalletConnectContextData = {
+export interface WalletConnectContextReturnType {
   connections: any[]
   requests: any[]
   resolveMany: (ids: any, resolution: any) => void
@@ -20,7 +20,7 @@ type WalletConnectContextData = {
   handleConnect: (uri: string) => void
 }
 
-const WalletConnectContext = createContext<WalletConnectContextData>({
+const WalletConnectContext = createContext<WalletConnectContextReturnType>({
   connections: [],
   requests: [],
   resolveMany: () => {},
@@ -323,7 +323,7 @@ const WalletConnectProvider: React.FC = ({ children }) => {
             )
           connector.rejectRequest({
             id: payload.id,
-            error: { message: `METHOD_NOT_SUPPORTED: ${payload.method}` }
+            error: { message: `Method not found: ${payload.method}`, code: -32601 }
           })
           return
         }

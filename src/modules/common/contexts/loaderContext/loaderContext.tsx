@@ -6,7 +6,7 @@ import { View } from 'react-native'
 import LoaderAnimation from './loader-animation.json'
 import styles from './styles'
 
-type LoaderContextData = {
+export interface LoaderContextReturnType {
   showLoader: () => void
   hideLoader: () => void
   isVisible: boolean
@@ -14,7 +14,7 @@ type LoaderContextData = {
 
 export const LOADER_BACKGROUND_BLUR = 45
 
-const LoaderContext = React.createContext<LoaderContextData>({
+const LoaderContext = React.createContext<LoaderContextReturnType>({
   showLoader: () => {},
   hideLoader: () => {},
   isVisible: false

@@ -9,13 +9,12 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 
-const AmbireLogo = ({
-  shouldExpand = true,
-  isResponsive = true
-}: {
+type Props = {
   shouldExpand?: boolean
   isResponsive?: boolean
-}) => {
+}
+
+const AmbireLogo = ({ shouldExpand = true, isResponsive = true }: Props) => {
   const [tapCount, setTapCount] = useState(0)
 
   const handleOnLogoPress = () => setTapCount((c) => c + 1)

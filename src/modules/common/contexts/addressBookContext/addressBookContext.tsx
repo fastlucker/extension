@@ -1,22 +1,15 @@
-import useAddressBook from 'ambire-common/src/hooks/useAddressBook'
+import useAddressBook, { UseAddressBookReturnType } from 'ambire-common/src/hooks/useAddressBook'
 import React, { createContext, useMemo } from 'react'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToasts from '@modules/common/hooks/useToast'
 
-type AddressBookContextData = {
-  addresses: any
-  addAddress: any
-  removeAddress: (name: string, address: string, isUD: boolean) => void
-  isKnownAddress: (address: string) => any
-}
-
-const AddressBookContext = createContext<AddressBookContextData>({
+const AddressBookContext = createContext<UseAddressBookReturnType>({
   addresses: [],
   addAddress: () => {},
   removeAddress: () => {},
-  isKnownAddress: () => {}
+  isKnownAddress: () => false
 })
 
 const AddressBookProvider: React.FC = ({ children }) => {

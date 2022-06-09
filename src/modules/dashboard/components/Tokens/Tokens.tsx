@@ -1,6 +1,6 @@
 import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
-import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
+import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useCallback } from 'react'
 import { Linking, View } from 'react-native'
 
@@ -18,20 +18,20 @@ import { useNavigation } from '@react-navigation/native'
 import TokenItem from './TokenItem'
 
 interface Props {
-  tokens: UsePortfolioReturnTypes['tokens']
-  extraTokens: UsePortfolioReturnTypes['extraTokens']
-  hiddenTokens: UsePortfolioReturnTypes['hiddenTokens']
-  protocols: UsePortfolioReturnTypes['protocols']
+  tokens: UsePortfolioReturnType['tokens']
+  extraTokens: UsePortfolioReturnType['extraTokens']
+  hiddenTokens: UsePortfolioReturnType['hiddenTokens']
+  protocols: UsePortfolioReturnType['protocols']
   isLoading: boolean
   explorerUrl?: NetworkType['explorerUrl']
   networkId?: NetworkId
   networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']
   selectedAcc: UseAccountsReturnType['selectedAcc']
-  onAddExtraToken: UsePortfolioReturnTypes['onAddExtraToken']
-  onAddHiddenToken: UsePortfolioReturnTypes['onAddHiddenToken']
-  onRemoveExtraToken: UsePortfolioReturnTypes['onRemoveExtraToken']
-  onRemoveHiddenToken: UsePortfolioReturnTypes['onRemoveHiddenToken']
+  onAddExtraToken: UsePortfolioReturnType['onAddExtraToken']
+  onAddHiddenToken: UsePortfolioReturnType['onAddHiddenToken']
+  onRemoveExtraToken: UsePortfolioReturnType['onRemoveExtraToken']
+  onRemoveHiddenToken: UsePortfolioReturnType['onRemoveHiddenToken']
 }
 
 const Tokens = ({

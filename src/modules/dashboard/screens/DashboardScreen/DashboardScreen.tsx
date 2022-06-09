@@ -25,12 +25,15 @@ const DashboardScreen = () => {
     onAddExtraToken,
     onAddHiddenToken,
     onRemoveExtraToken,
-    onRemoveHiddenToken
+    onRemoveHiddenToken,
+    setDataLoaded,
+    dataLoaded
   } = usePortfolio()
   const { network, setNetwork } = useNetwork()
   const { selectedAcc } = useAccounts()
 
   const handleRefresh = () => {
+    setDataLoaded(false)
     loadBalance()
     loadProtocols()
   }
@@ -53,7 +56,7 @@ const DashboardScreen = () => {
           balanceTruncated={balance.total?.truncated}
           balanceDecimals={balance.total?.decimals}
           otherBalances={otherBalances}
-          isLoading={isCurrNetworkBalanceLoading}
+          isLoading={isCurrNetworkBalanceLoading && !dataLoaded}
           networkId={network?.id}
           setNetwork={setNetwork}
         />
@@ -62,7 +65,7 @@ const DashboardScreen = () => {
           extraTokens={extraTokens}
           hiddenTokens={hiddenTokens}
           protocols={protocols}
-          isLoading={isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading}
+          isLoading={(isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading) && !dataLoaded}
           explorerUrl={network?.explorerUrl}
           networkId={network?.id}
           networkRpc={network?.rpc}

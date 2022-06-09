@@ -6,7 +6,14 @@ import { fetchCaught } from '@modules/common/services/fetch'
 //  so that the component that uses this hook can display the loading spinner
 const RESET_DATA_AFTER = 250
 
-export default function useRelayerData(url: string | null) {
+export interface UseRelayerDataReturnType {
+  data: any
+  isLoading: boolean
+  errMsg: string | null
+  forceRefresh: () => void
+}
+
+export default function useRelayerData(url: string | null): UseRelayerDataReturnType {
   const [isLoading, setLoading] = useState<boolean>(true)
   const [data, setData] = useState<any>(null)
   const [err, setErr] = useState<any>(null)

@@ -3,7 +3,7 @@ import AAVELendingPoolAbi from 'ambire-common/src/constants/abis/AAVELendingPool
 import networks, { NetworkId } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
 import { UseToastsReturnType } from 'ambire-common/src/hooks/toasts/'
-import { UsePortfolioReturnTypes } from 'ambire-common/src/hooks/usePortfolio/types'
+import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import approveToken from 'ambire-common/src/services/approveToken'
 import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
@@ -22,8 +22,8 @@ const RAY = 10 ** 27
 let lendingPoolAddress: any = null
 
 interface Props {
-  tokens: UsePortfolioReturnTypes['tokens']
-  protocols: UsePortfolioReturnTypes['protocols']
+  tokens: UsePortfolioReturnType['tokens']
+  protocols: UsePortfolioReturnType['protocols']
   networkId?: NetworkId
   selectedAcc: UseAccountsReturnType['selectedAcc']
   addRequest: (req: any) => any

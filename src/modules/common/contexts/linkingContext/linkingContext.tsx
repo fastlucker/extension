@@ -3,9 +3,9 @@ import React, { createContext, useEffect } from 'react'
 
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 
-type LinkingContextData = {}
+export interface LinkingContextReturnType {}
 
-const LinkingContext = createContext<LinkingContextData>({})
+const LinkingContext = createContext<LinkingContextReturnType>({})
 
 const LinkingProvider: React.FC<any> = ({ children }) => {
   const { handleConnect } = useWalletConnect()
