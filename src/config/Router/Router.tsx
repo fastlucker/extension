@@ -175,10 +175,6 @@ const NoConnectionStack = () => {
   )
 }
 
-const AppTabsScreens = () => {
-  return <TabsScreens />
-}
-
 const AppDrawer = () => {
   return (
     <Drawer.Navigator
@@ -189,7 +185,7 @@ const AppDrawer = () => {
         drawerStyle
       })}
     >
-      <Drawer.Screen name="tabs" component={AppTabsScreens} />
+      <Drawer.Screen name="tabs" component={TabsScreens} />
       <Drawer.Screen name="passcode-change" component={ChangePasscodeStackScreen} />
       <Drawer.Screen name="local-auth-change" component={ChangeLocalAuthStackScreen} />
       <Drawer.Screen name="biometrics-sign-change" component={BiometricsStackScreen} />

@@ -110,4 +110,4 @@ const TabsScreens = () => {
   )
 }
 
-export default React.memo(TabsScreens)
+export default TabsScreens
