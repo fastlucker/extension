@@ -128,4 +128,4 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   )
 }
 
-export default AccountChanger
+export default React.memo(AccountChanger)

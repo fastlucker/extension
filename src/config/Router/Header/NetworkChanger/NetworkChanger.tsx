@@ -5,7 +5,6 @@ import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 
 import { isAndroid } from '@config/env'
-import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
@@ -14,11 +13,7 @@ import textStyles from '@modules/common/styles/utils/text'
 import NetworkChangerItem from './NetworkChangerItem'
 import styles, { SINGLE_ITEM_HEIGHT } from './styles'
 
-interface Props {
-  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
-}
-
-const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
+const NetworkChanger: React.FC = () => {
   const { t } = useTranslation()
   const { network, setNetwork, allNetworks } = useNetwork()
   const { addToast } = useToast()
@@ -43,14 +38,8 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       addToast(t('Network changed to {{network}}', { network: _network.name }) as string, {
         timeout: 3000
       })
-
-      // FIXME: Not closing the bottom sheet results bugs.
-      // For example if you change network on the Send or Earn screens.
-      // Adds a slight delay before closing, so that the newly selected network
-      // animations fulfills and the network visually gets centered for a moment
-      setTimeout(() => closeBottomSheet(), 100)
     },
-    [network?.chainId, setNetwork, addToast, closeBottomSheet, t]
+    [network?.chainId, setNetwork, addToast, t]
   )
 
   const handleChangeNetworkByScrolling = useCallback(
