@@ -41,8 +41,7 @@
   bridge.surfacePresenter = _bridgeAdapter.surfacePresenter;
 #endif
 
-  // FIXME: Figure out why "ambire" name is not the right one.
-  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"ambire", nil);
+  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"main", nil);
 
   if (@available(iOS 13.0, *)) {
     rootView.backgroundColor = [UIColor systemBackgroundColor];
