@@ -28,6 +28,7 @@ interface Props {
   displayCancel?: boolean
   maxInitialHeightPercentage?: number
   dynamicInitialHeight?: boolean
+  initialIndex?: number
 }
 
 const BottomSheet: React.FC<Props> = ({
@@ -40,6 +41,7 @@ const BottomSheet: React.FC<Props> = ({
   cancelText: _cancelText,
   // dynamicInitialHeight = true,
   isOpen = false,
+  initialIndex,
   closeBottomSheet = () => {}
 }) => {
   const { t } = useTranslation()
@@ -126,6 +128,7 @@ const BottomSheet: React.FC<Props> = ({
               onPress={closeBottomSheet}
               style={styles.cancelBtn}
               text={cancelText}
+              hitSlop={{ top: 15, bottom: 15 }}
             />
           )}
         </View>
@@ -143,7 +146,7 @@ const BottomSheet: React.FC<Props> = ({
     <Portal hostName="global">
       <RNBottomSheet
         ref={sheetRef}
-        index={-1}
+        index={initialIndex !== undefined || null ? initialIndex : -1}
         snapPoints={dynamicInitialHeight ? animatedSnapPoints : staticSnapPoints}
         {...(dynamicInitialHeight ? { topInset: DEVICE_HEIGHT - BOTTOM_SHEET_MAX_HEIGHT } : {})}
         {...(dynamicInitialHeight ? { handleHeight: animatedHandleHeight } : {})}
