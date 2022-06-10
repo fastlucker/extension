@@ -473,8 +473,9 @@ yarn-error.log
 # Bundle artifacts
 *.jsbundle
 
-# CocoaPods
+# Ruby / CocoaPods
 /ios/Pods/
+/vendor/bundle/
 
 # iOS local certificates & credentials
 ios/certs/*
