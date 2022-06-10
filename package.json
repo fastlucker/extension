@@ -72,7 +72,6 @@
     "ethers": "^5.5.2",
     "events": "^1.0.0",
     "expo": "^45.0.0",
-    "expo-app-loading": "~2.0.0",
     "expo-application": "~4.1.0",
     "expo-asset": "~8.5.0",
     "expo-barcode-scanner": "~11.3.0",
