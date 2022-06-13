@@ -40,7 +40,7 @@ const ConnectedDapps = () => {
           </View>
         )}
         {!!connections.length &&
-          connections.map(({ session, uri, isOffline }: any) => {
+          connections.map(({ session, uri, isOffline }: any, i: nulber) => {
             const icon = session?.peerMeta?.icons?.filter(
               (x: any) => !x?.endsWith('favicon.ico')
             )[0]
@@ -55,6 +55,7 @@ const ConnectedDapps = () => {
                 isOffline={isOffline}
                 disconnect={disconnect}
                 uri={uri}
+                isLast={connections.length - 1 === i}
               />
             )
           })}

@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { Image, Linking, TouchableOpacity, View } from 'react-native'
 
+import DisconnectIcon from '@assets/svg/DisconnectIcon'
 import MissingIcon from '@assets/svg/MissingIcon'
-import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -17,9 +18,19 @@ type Props = {
   isOffline?: boolean
   disconnect: (uri: string) => void
   uri: string
+  isLast: boolean
 }
 
-const ConnectedDAppItem = ({ name, icon, url, isLegacy, isOffline, disconnect, uri }: Props) => {
+const ConnectedDAppItem = ({
+  name,
+  icon,
+  url,
+  isLegacy,
+  isOffline,
+  disconnect,
+  uri,
+  isLast
+}: Props) => {
   const [showFallbackImg, setShowFallbackImg] = useState(false)
 
   const renderIcon =
@@ -38,23 +49,33 @@ const ConnectedDAppItem = ({ name, icon, url, isLegacy, isOffline, disconnect, u
   return (
     <TouchableOpacity
       onPress={() => Linking.openURL(url)}
-      style={[flexboxStyles.directionRow, spacings.pvTy, spacings.phTy, flexboxStyles.alignCenter]}
+      style={[styles.itemContainer, isLast && spacings.mb]}
     >
-      <View style={[flexboxStyles.flex1, flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-        {renderIcon}
-        <Text numberOfLines={1} style={[flexboxStyles.flex1, spacings.mrMi]}>
-          {name}
-        </Text>
+      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+        <View style={[flexboxStyles.flex1, flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+          {renderIcon}
+          <Text numberOfLines={1} style={[flexboxStyles.flex1, spacings.mrMi]}>
+            {name}
+          </Text>
+        </View>
+        <TouchableOpacity onPress={() => disconnect(uri)}>
+          <DisconnectIcon />
+        </TouchableOpacity>
       </View>
-      <Button
-        size="small"
-        type="secondary"
-        hitSlop={{ bottom: 10, top: 10, left: 5, right: 5 }}
-        text="Disconnect"
-        textStyle={{ fontSize: 11 }}
-        hasBottomSpacing={false}
-        onPress={() => disconnect(uri)}
-      />
+      <View style={[spacings.phTy, (isLegacy || isOffline) && spacings.ptTy]}>
+        {!!isLegacy && (
+          <Text fontSize={10} style={isOffline && spacings.mbTy} color={colors.mustard}>
+            dApp uses legacy WalletConnect bridge which is unreliable and often doesn't work. Please
+            tell the dApp to update to the latest WalletConnect version.
+          </Text>
+        )}
+        {!!isOffline && (
+          <Text fontSize={10} color={colors.pink}>
+            WalletConnect connection may be offline. Check again later. If this warning persist try
+            to disconnect and connect WalletConnect.
+          </Text>
+        )}
+      </View>
     </TouchableOpacity>
   )
 }
