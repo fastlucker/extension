@@ -150,9 +150,9 @@ const Button = ({
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.5 }}
             style={[
+              containerStylesSizes[size],
               styles.buttonContainer,
               containerStyles[type],
-              containerStylesSizes[size],
               style,
               !!accentColor && { borderColor: accentColor },
               !hasBottomSpacing && spacings.mb0,
