@@ -31,6 +31,9 @@ const UnsupportedDAppsBottomSheetProvider: React.FC = ({ children }) => {
   const { connections, disconnect } = useWalletConnect()
   const { t } = useTranslation()
   const [advancedMode, setAdvancedMode] = useState<boolean>(false)
+  // TODO: implement multi tokens support in an expandable list if there is some actual use case for that
+  // Currently, it is not possible to interact with the app if there is an unconfirmed unsupported connection (accepted or canceled) in order to connect a second dapp
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isExpanded, setIsExpanded] = useState(false)
 
   const [advancedModeList, setAdvancedModeList] = useStorage({
@@ -84,10 +87,10 @@ const UnsupportedDAppsBottomSheetProvider: React.FC = ({ children }) => {
           initialIndex={0}
         >
           <View style={[spacings.mbTy, flexboxStyles.alignCenter]}>
-            <Title>{t('Unsupported dApps')}</Title>
+            <Title>{t('Unsupported dApp')}</Title>
           </View>
           <Text fontSize={12} style={spacings.mbTy}>
-            {t('These dApps does not fully support smart wallets and/or WalletConnect:')}
+            {t('This dApp does not fully support smart wallets and/or WalletConnect:')}
           </Text>
           {unsupported.map(({ session }, i) => (
             <UnsupportedDAppItem
@@ -103,7 +106,7 @@ const UnsupportedDAppsBottomSheetProvider: React.FC = ({ children }) => {
               <Text>
                 <Text fontSize={12}>
                   {
-                    'For more information on why these dApps do not support Ambire, please read this '
+                    'For more information on why this dApp does not support Ambire, please read this '
                   }
                 </Text>
                 <Text

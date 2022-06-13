@@ -43,4 +43,4 @@ const UnsupportedDAppItem = ({ name, icon, url }: Props) => {
   )
 }
 
-export default UnsupportedDAppItem
+export default React.memo(UnsupportedDAppItem)

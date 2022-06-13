@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Image, Linking, TouchableOpacity, View } from 'react-native'
 
 import DisconnectIcon from '@assets/svg/DisconnectIcon'
@@ -31,6 +32,8 @@ const ConnectedDAppItem = ({
   uri,
   isLast
 }: Props) => {
+  const { t } = useTranslation()
+
   const [showFallbackImg, setShowFallbackImg] = useState(false)
 
   const renderIcon =
@@ -65,14 +68,16 @@ const ConnectedDAppItem = ({
       <View style={[spacings.phTy, (isLegacy || isOffline) && spacings.ptTy]}>
         {!!isLegacy && (
           <Text fontSize={10} style={isOffline && spacings.mbTy} color={colors.mustard}>
-            dApp uses legacy WalletConnect bridge which is unreliable and often doesn't work. Please
-            tell the dApp to update to the latest WalletConnect version.
+            {t(
+              "dApp uses legacy WalletConnect bridge which is unreliable and often doesn't work. Please tell the dApp to update to the latest WalletConnect version."
+            )}
           </Text>
         )}
         {!!isOffline && (
           <Text fontSize={10} color={colors.pink}>
-            WalletConnect connection may be offline. Check again later. If this warning persist try
-            to disconnect and connect WalletConnect.
+            {t(
+              'WalletConnect connection may be offline. Check again later. If this warning persist try to disconnect and connect WalletConnect.'
+            )}
           </Text>
         )}
       </View>
@@ -80,4 +85,4 @@ const ConnectedDAppItem = ({
   )
 }
 
-export default ConnectedDAppItem
+export default React.memo(ConnectedDAppItem)
