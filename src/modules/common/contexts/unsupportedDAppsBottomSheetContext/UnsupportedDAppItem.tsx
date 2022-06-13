@@ -36,7 +36,9 @@ const UnsupportedDAppItem = ({ name, icon, url }: Props) => {
       style={[flexboxStyles.directionRow, spacings.pvTy, spacings.phTy, flexboxStyles.alignCenter]}
     >
       {renderIcon}
-      <Text>{name}</Text>
+      <Text style={flexboxStyles.flex1} numberOfLines={1}>
+        {name}
+      </Text>
     </TouchableOpacity>
   )
 }

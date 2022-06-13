@@ -42,7 +42,9 @@ const ConnectedDAppItem = ({ name, icon, url, isLegacy, isOffline, disconnect, u
     >
       <View style={[flexboxStyles.flex1, flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
         {renderIcon}
-        <Text>{name}</Text>
+        <Text numberOfLines={1} style={[flexboxStyles.flex1, spacings.mrMi]}>
+          {name}
+        </Text>
       </View>
       <Button
         size="small"
