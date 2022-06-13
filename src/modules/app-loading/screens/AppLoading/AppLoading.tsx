@@ -21,6 +21,7 @@ import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 import { StorageContext } from '@modules/common/contexts/storageContext'
 import { ThemeProvider } from '@modules/common/contexts/themeContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
+import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/unsupportedDAppsBottomSheetContext'
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 import useFonts from '@modules/common/hooks/useFonts'
 
@@ -49,11 +50,13 @@ const AppLoading = () => {
                                   <PortalProvider>
                                     <PasscodeProvider>
                                       <AttentionGrabberProvider>
-                                        <LinkingProvider>
+                                        <UnsupportedDAppsBottomSheetProvider>
                                           <HeaderBottomSheetProvider>
-                                            <Router />
+                                            <LinkingProvider>
+                                              <Router />
+                                            </LinkingProvider>
                                           </HeaderBottomSheetProvider>
-                                        </LinkingProvider>
+                                        </UnsupportedDAppsBottomSheetProvider>
                                       </AttentionGrabberProvider>
                                       <PortalHost name="global" />
                                     </PasscodeProvider>
