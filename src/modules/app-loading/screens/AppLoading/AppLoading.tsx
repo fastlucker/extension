@@ -9,6 +9,7 @@ import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AccountsPasswordsProvider } from '@modules/common/contexts/accountsPasswordsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
 import { GnosisProvider } from '@modules/common/contexts/gnosisContext'
+import { HeaderBottomSheetProvider } from '@modules/common/contexts/headerBottomSheetContext'
 import { KeyboardProvider } from '@modules/common/contexts/keyboardContext'
 import { LinkingProvider } from '@modules/common/contexts/linkingContext'
 import { LoaderProvider } from '@modules/common/contexts/loaderContext'
@@ -50,9 +51,11 @@ const AppLoading = () => {
                                     <PasscodeProvider>
                                       <AttentionGrabberProvider>
                                         <UnsupportedDAppsBottomSheetProvider>
-                                          <LinkingProvider>
-                                            <Router />
-                                          </LinkingProvider>
+                                          <HeaderBottomSheetProvider>
+                                            <LinkingProvider>
+                                              <Router />
+                                            </LinkingProvider>
+                                          </HeaderBottomSheetProvider>
                                         </UnsupportedDAppsBottomSheetProvider>
                                       </AttentionGrabberProvider>
                                       <PortalHost name="global" />
