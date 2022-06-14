@@ -1,4 +1,8 @@
-import { MultiplierBadge, multiplierBadges } from 'ambire-common/src/constants/multiplierBadges'
+import {
+  MultiplierBadge,
+  multiplierBadges,
+  MULTIPLIERS_READ_MORE_URL
+} from 'ambire-common/src/constants/multiplierBadges'
 import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Linking, TouchableOpacity, View } from 'react-native'
@@ -18,8 +22,6 @@ import useRewards, { RewardIds } from '@modules/dashboard/hooks/useRewards'
 import useStakedWalletToken from '@modules/dashboard/hooks/useStakedWalletToken'
 
 import styles from './styles'
-
-const BLOG_POST_URL = 'https://blog.ambire.com/announcing-the-wallet-token-a137aeda9747'
 
 const Rewards = () => {
   const { t } = useTranslation()
@@ -97,7 +99,7 @@ const Rewards = () => {
     claimVesting()
   }
 
-  const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
+  const handleReadMore = () => Linking.openURL(MULTIPLIERS_READ_MORE_URL).finally(closeBottomSheet)
 
   const renderBadge = ({ id, multiplier, icon, name, color, link }: MultiplierBadge) => {
     const isUnlocked =
