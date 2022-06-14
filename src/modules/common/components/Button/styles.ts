@@ -55,7 +55,9 @@ const styles = StyleSheet.create<Style>({
     borderColor: colors.turquoise
   },
   buttonContainerGhost: {
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
+    minHeight: 'auto',
+    ...spacings.pv0
   },
 
   // Button sizes (regular/small)
