@@ -21,6 +21,7 @@ import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-nav
 
 import AppLocking from './AppLocking'
 import BiometricsSign from './BiometricsSign'
+import ConnectedDapps from './ConnectedDapps'
 import LocalAuth from './LocalAuth'
 import Passcode from './Passcode'
 import Theme from './Theme'
@@ -103,6 +104,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         {t('Settings')}
       </Text>
       <View style={[spacings.mlTy, spacings.mbSm]}>
+        <ConnectedDapps />
         <Passcode />
         <LocalAuth />
         <BiometricsSign />
