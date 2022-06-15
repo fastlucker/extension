@@ -504,8 +504,6 @@ PODS:
     - React-Core
   - RNGestureHandler (2.2.1):
     - React-Core
-  - RNOS (1.2.6):
-    - React
   - RNReanimated (2.8.0):
     - DoubleConversion
     - FBLazyVector
@@ -649,7 +647,6 @@ DEPENDENCIES:
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
-  - RNOS (from `../node_modules/react-native-os`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
@@ -832,8 +829,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/checkbox"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
-  RNOS:
-    :path: "../node_modules/react-native-os"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -944,7 +939,6 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 466b9df1a14bccda91da86e0b7d9a345d78e1673
   RNCCheckbox: ed1b4ca295475b41e7251ebae046360a703b6eb5
   RNGestureHandler: 1dc1ea9d4b64f999042afafbaccf5b143f0b2fa2
-  RNOS: 6f2f9a70895bbbfbdad7196abd952e7b01d45027
   RNReanimated: 64573e25e078ae6bec03b891586d50b9ec284393
   RNScreens: 4d83613b50b74ed277026375dc0810893b0c347f
   RNSentry: 0aa1567f66c20390f3834637fc4f73380dcd0774

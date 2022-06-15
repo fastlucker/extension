@@ -2,7 +2,6 @@ apply plugin: "com.android.application"
 
 import com.android.build.OutputFile
 import org.apache.tools.ant.taskdefs.condition.Os
-
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
  * and bundleReleaseJsAndAssets).
@@ -78,17 +77,14 @@ import org.apache.tools.ant.taskdefs.condition.Os
  * ]
  */
 
-def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
-
 project.ext.react = [
-    entryFile: ["node", "-e", "require('expo/scripts/resolveAppEntry')", projectRoot, "android"].execute(null, rootDir).text.trim(),
     enableHermes: (findProperty('expo.jsEngine') ?: "jsc") == "hermes",
     cliPath: new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsolutePath() + "/cli.js",
     hermesCommand: new File(["node", "--print", "require.resolve('hermes-engine/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsolutePath() + "/%OS-BIN%/hermesc",
     composeSourceMapsPath: new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsolutePath() + "/scripts/compose-source-maps.js",
 ]
 
-apply from: "../../node_modules/react-native/react.gradle"
+apply from: new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim(), "../react.gradle")
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -103,7 +99,7 @@ def enableSeparateBuildPerCPUArchitecture = false
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
  */
-def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInReleaseBuilds') ?: false).toBoolean()
+def enableProguardInReleaseBuilds = false
 
 /**
  * The preferred build flavor of JavaScriptCore.
@@ -136,7 +132,6 @@ def reactNativeArchitectures() {
 }
 
 android {
-    ndkVersion rootProject.ext.ndkVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
@@ -175,7 +170,6 @@ android {
             }
         }
     }
-
     if (isNewArchitectureEnabled()) {
         // We configure the NDK build only if you decide to opt-in for the New Architecture.
         externalNativeBuild {
@@ -215,7 +209,6 @@ android {
             }
         }
     }
-
     splits {
         abi {
             reset()
@@ -261,26 +254,6 @@ android {
     }
 }
 
-// Apply static values from `gradle.properties` to the `android.packagingOptions`
-// Accepts values in comma delimited lists, example:
-// android.packagingOptions.pickFirsts=/LICENSE,**/picasa.ini
-["pickFirsts", "excludes", "merges", "doNotStrip"].each { prop ->
-    // Split option: 'foo,bar' -> ['foo', 'bar']
-    def options = (findProperty("android.packagingOptions.$prop") ?: "").split(",");
-    // Trim all elements in place.
-    for (i in 0..<options.size()) options[i] = options[i].trim();
-    // `[] - ""` is essentially `[""].filter(Boolean)` removing all empty strings.
-    options -= ""
-
-    if (options.length > 0) {
-        println "android.packagingOptions.$prop += $options ($options.length)"
-        // Ex: android.packagingOptions.pickFirsts += '**/SCCS/**'
-        options.each {
-            android.packagingOptions[prop] += it
-        }
-    }
-}
-
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
@@ -289,26 +262,25 @@ dependencies {
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
     def isWebpAnimatedEnabled = (findProperty('expo.webp.animated') ?: "") == "true";
-    def frescoVersion = rootProject.ext.frescoVersion
 
     // If your app supports Android versions before Ice Cream Sandwich (API level 14)
     // All fresco packages should use the same version
     if (isGifEnabled || isWebpEnabled) {
-        implementation "com.facebook.fresco:fresco:${frescoVersion}"
-        implementation "com.facebook.fresco:imagepipeline-okhttp3:${frescoVersion}"
+        implementation 'com.facebook.fresco:fresco:2.0.0'
+        implementation 'com.facebook.fresco:imagepipeline-okhttp3:2.0.0'
     }
 
     if (isGifEnabled) {
         // For animated gif support
-        implementation "com.facebook.fresco:animated-gif:${frescoVersion}"
+        implementation 'com.facebook.fresco:animated-gif:2.0.0'
     }
 
     if (isWebpEnabled) {
         // For webp support
-        implementation "com.facebook.fresco:webpsupport:${frescoVersion}"
+        implementation 'com.facebook.fresco:webpsupport:2.0.0'
         if (isWebpAnimatedEnabled) {
             // Animated webp support
-            implementation "com.facebook.fresco:animated-webp:${frescoVersion}"
+            implementation 'com.facebook.fresco:animated-webp:2.0.0'
         }
     }
 
@@ -325,9 +297,8 @@ dependencies {
     }
 
     if (enableHermes) {
-        def hermesPath = "../../node_modules/hermes-engine/android/";
-        debugImplementation files(hermesPath + "hermes-debug.aar")
-        releaseImplementation files(hermesPath + "hermes-release.aar")
+        debugImplementation files(new File(["node", "--print", "require.resolve('hermes-engine/package.json')"].execute(null, rootDir).text.trim(), "../android/hermes-debug.aar"))
+        releaseImplementation files(new File(["node", "--print", "require.resolve('hermes-engine/package.json')"].execute(null, rootDir).text.trim(), "../android/hermes-release.aar"))
     } else {
         implementation jscFlavor
     }
@@ -353,7 +324,6 @@ task copyDownloadableDepsToLibs(type: Copy) {
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
-applyNativeModulesAppBuildGradle(project)
 
 def isNewArchitectureEnabled() {
     // To opt-in for the New Architecture, you can either:
