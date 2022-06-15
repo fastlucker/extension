@@ -1,4 +1,4 @@
-package com.ambire.newarchitecture.components;
+package com.ambire.wallet.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
