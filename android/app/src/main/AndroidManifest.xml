@@ -21,7 +21,7 @@
     <meta-data android:name="expo.modules.updates.ENABLED" android:value="true"/>
     <meta-data android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH" android:value="ALWAYS"/>
     <meta-data android:name="expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS" android:value="45000"/>
-    <meta-data android:name="expo.modules.updates.EXPO_RUNTIME_VERSION" android:value="9"/>
+    <meta-data android:name="expo.modules.updates.EXPO_RUNTIME_VERSION" android:value="1"/>
     <!-- Using android:windowSoftInputMode="adjustPan" resolves an issue -->
     <!-- with the keyboard when having input fields in the Bottom Sheet -->
     <!-- https://github.com/osdnk/react-native-reanimated-bottom-sheet/issues/203#issuecomment-609712288 -->
