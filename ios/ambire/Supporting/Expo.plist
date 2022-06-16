@@ -4,6 +4,8 @@
   <dict>
     <key>EXUpdatesURL</key>
     <string>https://exp.host/@ambire/ambire-mobile-wallet</string>
+    <key>EXUpdatesAutoSetup</key>
+    <false/>
     <key>EXUpdatesEnabled</key>
     <true/>
     <key>EXUpdatesCheckOnLaunch</key>
