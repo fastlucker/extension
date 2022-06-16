@@ -26,7 +26,7 @@ import java.util.List;
 public class MainApplication extends Application implements ReactApplication {
   private final ReactNativeHost mReactNativeHost = new ReactNativeHostWrapper(
     this,
-    new ReactNativeHost(this) {
+    new ReactNativeHostWrapper(this, new ReactNativeHost(this) {
     @Override
     public boolean getUseDeveloperSupport() {
       return BuildConfig.DEBUG;
@@ -50,10 +50,10 @@ public class MainApplication extends Application implements ReactApplication {
     protected JSIModulePackage getJSIModulePackage() {
       return new ReanimatedJSIModulePackage();
     }
-  });
+  }));
 
   private final ReactNativeHost mNewArchitectureNativeHost =
-    new MainApplicationReactNativeHost(this);
+    new ReactNativeHostWrapper(this, new MainApplicationReactNativeHost(this));
 
   @Override
   public ReactNativeHost getReactNativeHost() {

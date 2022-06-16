@@ -1,4 +1,5 @@
 package com.ambire.wallet;
+import expo.modules.ReactActivityDelegateWrapper;
 
 import android.os.Bundle;
 
@@ -6,8 +7,6 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
-
-import expo.modules.ReactActivityDelegateWrapper;
 
 public class MainActivity extends ReactActivity {
   @Override
@@ -34,7 +33,7 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected ReactActivityDelegate createReactActivityDelegate() {
-    return new MainActivityDelegate(this, getMainComponentName());
+    return new ReactActivityDelegateWrapper(this, new MainActivityDelegate(this, getMainComponentName()));
   }
   public static class MainActivityDelegate extends ReactActivityDelegate {
     public MainActivityDelegate(ReactActivity activity, String mainComponentName) {
