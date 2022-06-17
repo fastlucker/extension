@@ -70,8 +70,6 @@ const customVaultMetadata: any = {
   }
 }
 
-// Ethereum mainnet
-
 const useYearn: any = ({ tokens, networkDetails, provider, currentNetwork }: any) => {
   const [tokensItems, setTokensItems] = useState<any>([])
   const [details, setDetails] = useState<any>([])
