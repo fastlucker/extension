@@ -4,12 +4,12 @@ import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
 import { UseToastsReturnType } from 'ambire-common/src/hooks/toasts/'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import approveToken from 'ambire-common/src/services/approveToken'
+import { getProvider } from 'ambire-common/src/services/provider'
 import { Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
 
 import { useTranslation } from '@config/localization'
-import { getDefaultProvider } from '@ethersproject/providers'
 import Card from '@modules/earn/components/Card'
 import { CARDS } from '@modules/earn/contexts/cardsVisibilityContext'
 import useTesseract from '@modules/earn/hooks/useTesseract'
@@ -47,7 +47,7 @@ const YearnTesseractCard = ({ tokens, networkId, selectedAcc, addRequest, addToa
       txn,
       extraGas
     })
-  const provider = useMemo(() => getDefaultProvider(networkDetails.rpc), [networkDetails.rpc])
+  const provider = useMemo(() => getProvider(networkId), [networkId])
 
   const yearn = useYearn({
     tokens,
@@ -129,15 +129,18 @@ const YearnTesseractCard = ({ tokens, networkId, selectedAcc, addRequest, addToa
   }
 
   useEffect(() => {
-    if (unavailable) {
-      setLoading(false)
-      return
-    }
-    async function load() {
-      await loadVaults()
-      setLoading(false)
-    }
-    load()
+    ;(() => {
+      if (unavailable) {
+        setLoading(false)
+        return
+      }
+
+      async function load() {
+        await loadVaults()
+        setLoading(false)
+      }
+      load()
+    })()
   }, [unavailable, loadVaults])
 
   useEffect(() => {
