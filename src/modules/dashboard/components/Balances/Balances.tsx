@@ -1,6 +1,5 @@
 import networks, { NetworkId } from 'ambire-common/src/constants/networks'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
-import usePrivateMode from 'ambire-common/src/hooks/usePrivateMode'
 import React, { useLayoutEffect } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
@@ -12,7 +11,7 @@ import Button from '@modules/common/components/Button'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
-import useStorage from '@modules/common/hooks/useStorage'
+import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -44,7 +43,7 @@ const Balances = ({
 }: Props) => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
-  const { isPrivateMode, togglePrivateMode } = usePrivateMode({ useStorage })
+  const { isPrivateMode, togglePrivateMode, hidePrivateValue } = usePrivateMode()
 
   useLayoutEffect(() => {
     triggerLayoutAnimation()
@@ -165,7 +164,7 @@ const Balances = ({
               >
                 <Text numberOfLines={1} style={flexboxStyles.flex1}>
                   <Text style={textStyles.highlightSecondary}>{'$ '}</Text>
-                  {total.truncated}.{total.decimals}
+                  {hidePrivateValue(`${total.truncated}.${total.decimals}`)}
                 </Text>
                 <Text>{` ${t('on')} `}</Text>
                 <NetworkIcon name={id} width={24} height={24} />
