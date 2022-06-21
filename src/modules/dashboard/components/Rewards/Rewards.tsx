@@ -1,3 +1,8 @@
+import {
+  MultiplierBadge,
+  multiplierBadges,
+  MULTIPLIERS_READ_MORE_URL
+} from 'ambire-common/src/constants/multiplierBadges'
 import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Linking, TouchableOpacity, View } from 'react-native'
@@ -17,27 +22,6 @@ import useRewards, { RewardIds } from '@modules/dashboard/hooks/useRewards'
 import useStakedWalletToken from '@modules/dashboard/hooks/useStakedWalletToken'
 
 import styles from './styles'
-
-const BLOG_POST_URL = 'https://blog.ambire.com/announcing-the-wallet-token-a137aeda9747'
-
-const multiplierBadges = [
-  {
-    id: 'beta-tester',
-    name: 'Beta Testers',
-    icon: '🧪',
-    color: '#6000FF',
-    multiplier: 1.25,
-    link: 'https://blog.ambire.com/announcing-the-wallet-token-a137aeda9747'
-  },
-  {
-    id: 'lobsters',
-    name: 'Lobsters',
-    icon: '🦞',
-    color: '#E82949',
-    multiplier: 1.5,
-    link: 'https://blog.ambire.com/ambire-wallet-to-partner-with-lobsterdao-10b57e6da0-53c59c88726b'
-  }
-]
 
 const Rewards = () => {
   const { t } = useTranslation()
@@ -115,9 +99,9 @@ const Rewards = () => {
     claimVesting()
   }
 
-  const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
+  const handleReadMore = () => Linking.openURL(MULTIPLIERS_READ_MORE_URL).finally(closeBottomSheet)
 
-  const renderBadge = ({ id, multiplier, icon, name, color, link }) => {
+  const renderBadge = ({ id, multiplier, icon, name, color, link }: MultiplierBadge) => {
     const isUnlocked =
       rewards.multipliers && rewards.multipliers.map(({ name }) => name).includes(id)
     const handleLinkOpen = () => Linking.openURL(link)
