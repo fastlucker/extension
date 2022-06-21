@@ -1,5 +1,5 @@
 import networks from 'ambire-common/src/constants/networks'
-import useNetwork, { UseNetworkReturnType } from 'ambire-common/src/hooks/network'
+import useNetwork, { UseNetworkReturnType } from 'ambire-common/src/hooks/useNetwork'
 import React, { createContext, useMemo } from 'react'
 
 import useStorage from '@modules/common/hooks/useStorage'
