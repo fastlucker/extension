@@ -1,12 +1,15 @@
-import { signMsgHash } from 'adex-protocol-eth/js/Bundle'
+import { Bundle, signMessage, signMessage712 } from 'adex-protocol-eth/js/Bundle'
+import { getProvider } from 'ambire-common/src/services/provider'
 import { Wallet } from 'ethers'
-import { arrayify, keccak256 } from 'ethers/lib/utils'
-import { useState } from 'react'
+import { _TypedDataEncoder, arrayify, isHexString, keccak256, toUtf8Bytes } from 'ethers/lib/utils'
+import { useCallback, useEffect, useState } from 'react'
 
+import { verifyMessage } from '@ambire/signature-validator'
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
 import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
@@ -27,6 +30,16 @@ export type HardwareWalletBottomSheetType = {
   isOpen: boolean
 }
 
+function getMessageAsBytes(msg) {
+  // Transforming human message / hex string to bytes
+  if (!isHexString(msg)) {
+    return toUtf8Bytes(msg)
+  }
+  return arrayify(msg)
+}
+
+const SIGNATURE_VERIFIER_DEBUGGER = (CONFIG.SIGNATURE_VERIFIER_DEBUGGER * 1 && true) || false
+
 const useSignMessage = (
   quickAccBottomSheet: QuickAccBottomSheetType,
   hardwareWalletBottomSheet: HardwareWalletBottomSheetType
@@ -34,10 +47,48 @@ const useSignMessage = (
   const { addToast } = useToast()
   const { account } = useAccounts()
   const { everythingToSign, resolveMany } = useRequests()
+  const { network } = useNetwork()
   const toSign = everythingToSign[0]
-
+  const totalRequests = everythingToSign.length
   const [isLoading, setLoading] = useState<boolean>(false)
+  const [isDeployed, setIsDeployed] = useState(null)
   const [confirmationType, setConfirmationType] = useState(null)
+
+  let dataV4: any
+  const isTypedData = ['eth_signTypedData_v4', 'eth_signTypedData'].indexOf(toSign?.type) !== -1
+  let typeDataErr
+  if (isTypedData) {
+    dataV4 = toSign.txn
+    if (typeof dataV4 === 'object' && dataV4 !== null) {
+      try {
+        if (dataV4?.types?.EIP712Domain) {
+          // Avoids failure in case some dapps explicitly add this (redundant) prop
+          delete dataV4?.types?.EIP712Domain
+        }
+        _TypedDataEncoder.hash(dataV4?.domain, dataV4.types, dataV4?.message)
+      } catch {
+        typeDataErr = '.txn has Invalid TypedData object. Should be {domain, types, message}'
+      }
+    } else {
+      typeDataErr = '.txn should be a TypedData object'
+    }
+  }
+
+  const checkIsDeployed = useCallback(async () => {
+    const bundle = new Bundle({
+      network: network?.id,
+      identity: account.id,
+      signer: account.signer
+    })
+
+    const provider = await getProvider(network?.id)
+    const isDep = await provider.getCode(bundle.identity).then((code: any) => code !== '0x')
+    setIsDeployed(isDep)
+  }, [account, network])
+
+  useEffect(() => {
+    checkIsDeployed()
+  }, [checkIsDeployed])
 
   const resolve = (outcome: any) => resolveMany([everythingToSign[0].id], outcome)
 
@@ -57,6 +108,27 @@ const useSignMessage = (
     }
   }
 
+  const verifySignatureDebug = (toSign, sig) => {
+    const provider = getProvider(network?.id)
+    verifyMessage({
+      provider,
+      signer: account.id,
+      message: isTypedData ? null : getMessageAsBytes(toSign.txn),
+      typedData: isTypedData ? dataV4 : null,
+      signature: sig
+    })
+      .then((verificationResult: any) => {
+        if (verificationResult) {
+          addToast(`${toSign.type} SIGNATURE VALID`)
+        } else {
+          addToast(`${toSign.type} SIGNATURE INVALID`, { error: true })
+        }
+      })
+      .catch((e: any) => {
+        addToast(`${toSign.type} SIGNATURE INVALID: ${e.message}`, { error: true })
+      })
+  }
+
   const approveQuickAcc = async (credentials: any) => {
     if (!CONFIG.RELAYER_URL) {
       addToast(i18n.t('Email/pass accounts not supported without a relayer connection') as string, {
@@ -70,13 +142,14 @@ const useSignMessage = (
     }
     setLoading(true)
     try {
-      const hash = keccak256(arrayify(toSign.txn))
-
       const { signature, success, message, confCodeRequired } = await fetchPost(
         // network doesn't matter when signing
-        `${CONFIG.RELAYER_URL}/second-key/${account.id}/ethereum/sign`,
+        // if it does tho, we can use ${network.id}
+        `${CONFIG.RELAYER_URL}/second-key/${account.id}/ethereum/sign${
+          isTypedData ? '?typedData=true' : ''
+        }`,
         {
-          toSign: hash,
+          toSign: toSign.txn,
           code: credentials.code?.length ? credentials.code : undefined
         }
       )
@@ -107,7 +180,22 @@ const useSignMessage = (
         JSON.parse(account.primaryKeyBackup),
         credentials.password
       )
-      const sig = await signMsgHash(wallet, account.id, account.signer, arrayify(hash), signature)
+      const sig = await (isTypedData
+        ? signMessage712(
+            wallet,
+            account.id,
+            account.signer,
+            dataV4.domain,
+            dataV4.types,
+            dataV4.message,
+            signature
+          )
+        : signMessage(wallet, account.id, account.signer, getMessageAsBytes(toSign.txn), signature))
+
+      if (SIGNATURE_VERIFIER_DEBUGGER) {
+        verifySignatureDebug(toSign, sig)
+      }
+
       resolve({ success: true, result: sig })
       addToast(i18n.t('Successfully signed!') as string)
       if (everythingToSign.length === 1) {
@@ -146,8 +234,23 @@ const useSignMessage = (
       // It would be great if we could pass the full data cause then web3 wallets/hw wallets can display the full text
       // Unfortunately that isn't possible, because isValidSignature only takes a bytes32 hash; so to sign this with
       // a personal message, we need to be signing the hash itself as binary data such that we match 'Ethereum signed message:\n32<hash binary data>' on the contract
-      const hash = keccak256(arrayify(toSign.txn)) // hacky equivalent is: id(toUtf8String(toSign.txn))
-      const sig = await signMsgHash(wallet, account.id, account.signer, arrayify(hash))
+
+      const sig = await (toSign.type === 'eth_signTypedData_v4' ||
+      toSign.type === 'eth_signTypedData'
+        ? signMessage712(
+            wallet,
+            account.id,
+            account.signer,
+            dataV4.domain,
+            dataV4.types,
+            dataV4.message
+          )
+        : signMessage(wallet, account.id, account.signer, getMessageAsBytes(toSign.txn)))
+
+      if (SIGNATURE_VERIFIER_DEBUGGER) {
+        verifySignatureDebug(toSign, sig)
+      }
+
       resolve({ success: true, result: sig })
       addToast(i18n.t('Successfully signed!') as string)
     } catch (e) {
@@ -161,7 +264,11 @@ const useSignMessage = (
     approveQuickAcc,
     isLoading,
     resolve,
-    confirmationType
+    confirmationType,
+    toSign,
+    totalRequests,
+    typeDataErr,
+    isDeployed
   }
 }
 
