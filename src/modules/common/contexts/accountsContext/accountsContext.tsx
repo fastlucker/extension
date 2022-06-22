@@ -1,7 +1,7 @@
 import useAccounts, {
   onAddAccountOptions,
   UseAccountsReturnType
-} from 'ambire-common/src/hooks/accounts'
+} from 'ambire-common/src/hooks/useAccounts'
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import * as CrashAnalytics from '@config/analytics/CrashAnalytics'

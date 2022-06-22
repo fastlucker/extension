@@ -1,6 +1,6 @@
 import ERC20ABI from 'adex-protocol-eth/abi/ERC20'
 import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
-import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
+import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { Token, UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio'
 import { isValidAddress } from 'ambire-common/src/services/address'
 import { Contract, getDefaultProvider } from 'ethers'
