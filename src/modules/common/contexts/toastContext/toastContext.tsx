@@ -1,4 +1,4 @@
-import { ToastType, UseToastsOptions, UseToastsReturnType } from 'ambire-common/src/hooks/toasts'
+import { ToastType, UseToastsOptions, UseToastsReturnType } from 'ambire-common/src/hooks/useToasts'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
