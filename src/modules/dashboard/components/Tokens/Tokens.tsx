@@ -9,6 +9,7 @@ import Button from '@modules/common/components/Button'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import TextWarning from '@modules/common/components/TextWarning'
+import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -52,7 +53,7 @@ const Tokens = ({
 }: Props) => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
-
+  const { hidePrivateValue } = usePrivateMode()
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
   const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')
 
@@ -106,6 +107,7 @@ const Tokens = ({
               address={address}
               networkId={networkId}
               onPress={handleGoToSend}
+              hidePrivateValue={hidePrivateValue}
             />
           )
         )}
