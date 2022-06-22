@@ -1,4 +1,4 @@
-import { isHexString, toUtf8String } from 'ethers/lib/utils'
+import { toUtf8String } from 'ethers/lib/utils'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
@@ -12,7 +12,6 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useRequests from '@modules/common/hooks/useRequests'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -42,7 +41,6 @@ const SignScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { account } = useAccounts()
   const { connections } = useWalletConnect()
-  const { everythingToSign } = useRequests()
 
   const {
     sheetRef: sheetRefQickAcc,
@@ -58,7 +56,18 @@ const SignScreen = ({ navigation }: any) => {
     isOpen: isOpenBottomSheetHardwareWallet
   } = useBottomSheet()
 
-  const { approve, approveQuickAcc, isLoading, resolve, confirmationType } = useSignMessage(
+  const {
+    approve,
+    approveQuickAcc,
+    isLoading,
+    resolve,
+    confirmationType,
+    totalRequests,
+    toSign,
+    typeDataErr,
+    isDeployed,
+    dataV4
+  } = useSignMessage(
     {
       sheetRef: sheetRefQickAcc,
       openBottomSheet: openBottomSheetQickAcc,
@@ -73,9 +82,6 @@ const SignScreen = ({ navigation }: any) => {
     }
   )
 
-  const toSign = everythingToSign[0]
-  const totalRequests = everythingToSign.length
-
   const connection = connections?.find(({ uri }: any) => uri === toSign?.wcUri)
   const dApp = connection ? connection?.session?.peerMeta || null : null
 
@@ -83,16 +89,16 @@ const SignScreen = ({ navigation }: any) => {
     if (!connection) {
       navigation.goBack()
     }
-  }, [connection])
+  }, [connection, navigation])
 
   if (!toSign || !account) return null
 
-  if (toSign && !isHexString(toSign?.txn)) {
+  if (typeDataErr) {
     return (
       <Wrapper>
         <Panel>
           <Text fontSize={17} appearance="danger" style={spacings.mb}>
-            {t('Invalid signing request: .txn has to be a hex string')}
+            {t('Invalid signing request: {{typeDataErr}}', { typeDataErr })}
           </Text>
           <Button
             type="danger"
@@ -144,7 +150,9 @@ const SignScreen = ({ navigation }: any) => {
               : ''}
           </Text>
           <View style={styles.textarea}>
-            <Text fontSize={12}>{getMessageAsText(toSign.txn)}</Text>
+            <Text fontSize={12}>
+              {dataV4 ? JSON.stringify(dataV4, '\n', ' ') : getMessageAsText(toSign.txn)}
+            </Text>
           </View>
           <SignActions
             isLoading={isLoading}
@@ -152,6 +160,7 @@ const SignScreen = ({ navigation }: any) => {
             approveQuickAcc={approveQuickAcc}
             confirmationType={confirmationType}
             resolve={resolve}
+            isDeployed={!!isDeployed}
             quickAccBottomSheet={{
               sheetRef: sheetRefQickAcc,
               openBottomSheet: openBottomSheetQickAcc,
