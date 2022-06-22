@@ -13,6 +13,7 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -28,6 +29,7 @@ const Rewards = () => {
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
   const { rewards, pendingTokensTotal, claimableWalletToken } = useRewards()
   const { stakedAmount } = useStakedWalletToken()
+  const { hidePrivateValue } = usePrivateMode()
 
   useLayoutEffect(() => {
     // Solves 2 issues: 1) the annoying jump in the beginning between the
@@ -136,7 +138,7 @@ const Rewards = () => {
           // Technically, the fallback should be set in the hook,
           // but sometimes the hook returns `pendingTokensTotal` as undefined,
           // so double check it.
-          pendingTokensTotal: pendingTokensTotal || '...'
+          pendingTokensTotal: hidePrivateValue(pendingTokensTotal) || '...'
         })}
         style={flexboxStyles.alignSelfCenter}
       />

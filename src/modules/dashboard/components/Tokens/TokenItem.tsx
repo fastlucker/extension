@@ -1,3 +1,4 @@
+import { UsePrivateModeReturnType } from 'ambire-common/src/hooks/usePrivateMode'
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
@@ -20,6 +21,7 @@ type Props = {
   address: string
   networkId: string | undefined
   onPress: (symbol: string) => any
+  hidePrivateValue: UsePrivateModeReturnType['hidePrivateValue']
 }
 
 const TokenItem = ({
@@ -30,7 +32,8 @@ const TokenItem = ({
   decimals,
   address,
   networkId,
-  onPress
+  onPress,
+  hidePrivateValue
 }: Props) => {
   return (
     <View style={styles.tokenItemContainer}>
@@ -44,9 +47,11 @@ const TokenItem = ({
 
       <View style={[styles.tokenValue, flexboxStyles.flex1]}>
         <Text fontSize={16} numberOfLines={1}>
-          {formatFloatTokenAmount(balance, true, decimals)}
+          {hidePrivateValue(formatFloatTokenAmount(balance, true, decimals))}
         </Text>
-        <Text style={textStyles.highlightSecondary}>${balanceUSD.toFixed(2)}</Text>
+        <Text style={textStyles.highlightSecondary}>
+          ${hidePrivateValue(balanceUSD.toFixed(2))}
+        </Text>
       </View>
 
       <View style={spacings.plSm}>

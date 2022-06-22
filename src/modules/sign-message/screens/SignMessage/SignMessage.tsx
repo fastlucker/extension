@@ -65,7 +65,8 @@ const SignScreen = ({ navigation }: any) => {
     totalRequests,
     toSign,
     typeDataErr,
-    isDeployed
+    isDeployed,
+    dataV4
   } = useSignMessage(
     {
       sheetRef: sheetRefQickAcc,
@@ -149,7 +150,9 @@ const SignScreen = ({ navigation }: any) => {
               : ''}
           </Text>
           <View style={styles.textarea}>
-            <Text fontSize={12}>{getMessageAsText(toSign.txn)}</Text>
+            <Text fontSize={12}>
+              {dataV4 ? JSON.stringify(dataV4, '\n', ' ') : getMessageAsText(toSign.txn)}
+            </Text>
           </View>
           <SignActions
             isLoading={isLoading}

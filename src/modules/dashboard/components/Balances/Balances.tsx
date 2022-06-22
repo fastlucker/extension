@@ -3,6 +3,7 @@ import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/typ
 import React, { useLayoutEffect } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
+import PrivacyIcon from '@assets/svg/PrivacyIcon'
 import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import { useTranslation } from '@config/localization'
@@ -10,6 +11,7 @@ import Button from '@modules/common/components/Button'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
+import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -41,6 +43,7 @@ const Balances = ({
 }: Props) => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
+  const { isPrivateMode, togglePrivateMode, hidePrivateValue } = usePrivateMode()
 
   useLayoutEffect(() => {
     triggerLayoutAnimation()
@@ -60,16 +63,50 @@ const Balances = ({
 
   const content = (
     <>
-      <Rewards />
+      <View style={flexboxStyles.directionRow}>
+        <View
+          style={[
+            flexboxStyles.flex1,
+            flexboxStyles.alignEnd,
+            flexboxStyles.justifyCenter,
+            spacings.mbTy
+          ]}
+        >
+          <TouchableOpacity
+            style={spacings.mrSm}
+            onPress={togglePrivateMode}
+            hitSlop={{ top: 10, bottom: 10, left: 2, right: 2 }}
+          >
+            <PrivacyIcon isActive={isPrivateMode} />
+          </TouchableOpacity>
+        </View>
+        <Rewards />
+        <View style={flexboxStyles.flex1} />
+      </View>
 
       <Text fontSize={42} weight="regular" style={spacings.mbTy}>
         <Text fontSize={26} weight="regular" style={[textStyles.highlightSecondary]}>
           ${' '}
         </Text>
-        {balanceTruncated}
-        <Text fontSize={26} weight="regular">
-          .{balanceDecimals}
-        </Text>
+        {isPrivateMode ? (
+          <>
+            <Text fontSize={42} weight="regular">
+              **
+            </Text>
+            <Text fontSize={26} weight="regular">
+              .**
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text fontSize={42} weight="regular">
+              {balanceTruncated}
+            </Text>
+            <Text fontSize={26} weight="regular">
+              .{balanceDecimals}
+            </Text>
+          </>
+        )}
       </Text>
 
       <View style={[flexboxStyles.directionRow, spacings.mb]}>
@@ -127,7 +164,7 @@ const Balances = ({
               >
                 <Text numberOfLines={1} style={flexboxStyles.flex1}>
                   <Text style={textStyles.highlightSecondary}>{'$ '}</Text>
-                  {total.truncated}.{total.decimals}
+                  {hidePrivateValue(`${total.truncated}.${total.decimals}`)}
                 </Text>
                 <Text>{` ${t('on')} `}</Text>
                 <NetworkIcon name={id} width={24} height={24} />

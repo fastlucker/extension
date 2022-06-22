@@ -268,7 +268,8 @@ const useSignMessage = (
     toSign,
     totalRequests,
     typeDataErr,
-    isDeployed
+    isDeployed,
+    dataV4
   }
 }
 
