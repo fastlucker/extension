@@ -32,6 +32,10 @@ const NetworkChanger: React.FC = () => {
   useEffect(() => {
     // FIXME: For some reason the `contentOffset` prop doesn't work on Android,
     // so we have to use the `scrollTo` method instead to scroll to the current network.
+    // Could be a bug on the React Native side, because it was working just fine
+    // with React Native v0.64.3 (Expo SDK v44), but fails
+    // with v0.68.2 (Expo SDK v45). bug report:
+    // {@link https://github.com/facebook/react-native/issues/33994}
     if (isAndroid) {
       scrollRef?.current?.scrollTo({
         x: 0,
