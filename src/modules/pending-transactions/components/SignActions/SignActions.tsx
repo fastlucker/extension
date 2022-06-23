@@ -47,11 +47,9 @@ const SignActions = ({
   const { addToast } = useToast()
 
   // reset this every time the signing status changes
-  useEffect(
-    // @ts-ignore
-    () => !signingStatus && resetField('code'),
-    [signingStatus]
-  )
+  useEffect(() => {
+    !signingStatus && resetField('code')
+  }, [signingStatus])
 
   const rejectButton = rejectTxn && <Button type="danger" text={t('Reject')} onPress={rejectTxn} />
 
