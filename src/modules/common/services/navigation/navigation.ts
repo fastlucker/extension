@@ -10,5 +10,20 @@ export const routeNameRef: React.RefObject<string> = React.createRef()
 // Mechanism for being able to navigate without the navigation prop.
 // {@link https://reactnavigation.org/docs/navigating-without-navigation-prop/}
 export function navigate(name: string, params?: object): void {
-  navigationRef?.current?.navigate(name, params)
+  if (navigationRef?.current?.isReady()) {
+    return navigationRef?.current?.navigate(name, params)
+  }
+
+  // Tries to perform navigation when react navigation is ready to handle
+  // actions (is mounted). Otherwise, calling `navigate()` immediately returns
+  // error: "The 'navigation' object hasn't been initialized yet."
+  // Since there is no listener when the navigation object is initialized,
+  // keep trying (by interval) until the redirect clicks.
+  // {@link https://reactnavigation.org/docs/navigating-without-navigation-prop/#handling-initialization}
+  const redirectInterval = setInterval(() => {
+    if (navigationRef?.current?.isReady()) {
+      navigationRef?.current?.navigate(name, params)
+      clearInterval(redirectInterval)
+    }
+  }, 1000)
 }

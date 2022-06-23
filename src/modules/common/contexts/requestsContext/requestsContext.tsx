@@ -148,18 +148,7 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (everythingToSign.length) {
-      // Performs navigation if the react navigation is ready to handle actions
-      // (is mounted). Otherwise, calling `navigate()` immediately returns
-      // error: "The 'navigation' object hasn't been initialized yet."
-      // Since there is no listener when the navigation object is initialized,
-      // keep trying (by interval) until the redirect clicks.
-      // {@link https://reactnavigation.org/docs/navigating-without-navigation-prop/#handling-initialization}
-      const redirectInterval = setInterval(() => {
-        if (navigationRef?.current?.isReady()) {
-          navigate('sign-message')
-          clearInterval(redirectInterval)
-        }
-      }, 1000)
+      navigate('sign-message')
     }
   }, [everythingToSign.length])
 
