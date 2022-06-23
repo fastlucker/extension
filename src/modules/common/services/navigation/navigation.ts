@@ -3,7 +3,7 @@ import * as React from 'react'
 import { NavigationContainerRef } from '@react-navigation/native'
 
 // TODO: switch from <any> to <RootParamList>
-export const navigationRef: React.Ref<NavigationContainerRef<any>> =
+export const navigationRef: React.RefObject<NavigationContainerRef<any>> =
   React.createRef<NavigationContainerRef<any>>()
 export const routeNameRef: React.RefObject<string> = React.createRef()
 
