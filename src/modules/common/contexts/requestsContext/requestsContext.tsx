@@ -8,7 +8,7 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useToast from '@modules/common/hooks/useToast'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
-import { navigate } from '@modules/common/services/navigation'
+import { navigate, navigationRef } from '@modules/common/services/navigation'
 
 export interface RequestsContextReturnType {
   internalRequests: any
@@ -148,7 +148,18 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (everythingToSign.length) {
-      navigate('sign-message')
+      // Performs navigation if the react navigation is ready to handle actions
+      // (is mounted). Otherwise, calling `navigate()` immediately returns
+      // error: "The 'navigation' object hasn't been initialized yet."
+      // Since there is no listener when the navigation object is initialized,
+      // keep trying (by interval) until the redirect clicks.
+      // {@link https://reactnavigation.org/docs/navigating-without-navigation-prop/#handling-initialization}
+      const redirectInterval = setInterval(() => {
+        if (navigationRef?.current?.isReady()) {
+          navigate('sign-message')
+          clearInterval(redirectInterval)
+        }
+      }, 1000)
     }
   }, [everythingToSign.length])
 
