@@ -40,7 +40,16 @@ export default function useRequestTransaction() {
   const [disabled, setDisabled] = useState(true)
   const [addressConfirmed, setAddressConfirmed] = useState(false)
   const [sWAddressConfirmed, setSWAddressConfirmed] = useState(false)
-  const [validationFormMgs, setValidationFormMgs] = useState({
+  const [validationFormMgs, setValidationFormMgs] = useState<{
+    success: {
+      amount: boolean
+      address: boolean
+    }
+    messages: {
+      amount: string | null
+      address: string | null
+    }
+  }>({
     success: {
       amount: false,
       address: false
@@ -50,7 +59,6 @@ export default function useRequestTransaction() {
       address: ''
     }
   })
-
   // <Select items={assetsItems} />
   const assetsItems = useMemo(
     () =>
@@ -166,9 +174,23 @@ export default function useRequestTransaction() {
   }, [selectedAcc, address, selectedAsset, bigNumberHexAmount, network?.chainId, uDAddress])
 
   const unknownWarning = useMemo(() => {
-    const addr = uDAddress || address
-    return isValidAddress(addr) && !isKnownAddress(addr)
+    if (uDAddress) {
+      return !isKnownAddress(address)
+    }
+    return isValidAddress(address) && !isKnownAddress(address)
   }, [address, uDAddress, isKnownAddress])
+
+  useEffect(() => {
+    if (uDAddress && !unknownWarning && validationFormMgs.messages?.address) {
+      setValidationFormMgs((prev) => ({
+        ...prev,
+        messages: {
+          amount: prev.messages.amount,
+          address: null
+        }
+      }))
+    }
+  }, [unknownWarning, uDAddress, validationFormMgs.messages?.address])
 
   const smartContractWarning = useMemo(() => isKnownTokenOrContract(address), [address])
 
