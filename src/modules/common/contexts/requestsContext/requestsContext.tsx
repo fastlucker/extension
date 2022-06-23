@@ -8,7 +8,7 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useToast from '@modules/common/hooks/useToast'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
-import { navigate, navigationRef } from '@modules/common/services/navigation'
+import { navigate } from '@modules/common/services/navigation'
 
 export interface RequestsContextReturnType {
   internalRequests: any
@@ -88,10 +88,9 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   const prevSendTxnState: any = usePrevious(sendTxnState)
 
-  useEffect(
-    () => setSendTxnState({ showing: !!eligibleRequests.length }),
-    [eligibleRequests.length]
-  )
+  useEffect(() => {
+    setSendTxnState({ showing: !!eligibleRequests.length })
+  }, [eligibleRequests.length])
 
   const onBroadcastedTxn = useCallback(
     (hash: any) => {

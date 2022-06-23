@@ -129,7 +129,9 @@ const Card = ({
       setTokens(sortedTokenItems.filter(({ type }) => type === 'withdraw'))
   }, [segment, sortedTokenItems])
 
-  useEffect(() => setAmount(0), [token, segment])
+  useEffect(() => {
+    setAmount(0)
+  }, [token, segment])
 
   useEffect(() => {
     onTokenSelect(token)
