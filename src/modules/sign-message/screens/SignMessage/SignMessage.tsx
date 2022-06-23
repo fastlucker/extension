@@ -12,6 +12,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useDisableHardwareBackPress from '@modules/common/hooks/useDisableHardwareBackPress'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -41,6 +42,8 @@ const SignScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { account } = useAccounts()
   const { connections } = useWalletConnect()
+
+  useDisableHardwareBackPress()
 
   const {
     sheetRef: sheetRefQickAcc,
