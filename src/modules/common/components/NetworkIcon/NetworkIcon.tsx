@@ -1,6 +1,8 @@
 import { NETWORKS } from 'ambire-common/src/constants/networks'
 import React from 'react'
 
+import AndromedaLogo from '@assets/svg/AndromedaLogo'
+import AndromedaMonochromeIcon from '@assets/svg/AndromedaMonochromeIcon'
 import ArbitrumLogo from '@assets/svg/ArbitrumLogo'
 import ArbitrumMonochromeIcon from '@assets/svg/ArbitrumMonochromeIcon'
 import AvalancheLogo from '@assets/svg/AvalancheLogo'
@@ -34,6 +36,7 @@ type Props = {
 
 const icons: { [key: string]: any } = {
   [NETWORKS.ethereum]: EthereumLogo,
+  [NETWORKS.rinkeby]: EthereumLogo,
   [NETWORKS.polygon]: PolygonLogo,
   [NETWORKS.avalanche]: AvalancheLogo,
   [NETWORKS['binance-smart-chain']]: BinanceLogo,
@@ -43,11 +46,13 @@ const icons: { [key: string]: any } = {
   [NETWORKS.arbitrum]: ArbitrumLogo,
   [NETWORKS.optimism]: OptimismLogo,
   [NETWORKS.gnosis]: GnosisLogo,
-  [NETWORKS.kucoin]: KCCKuCoinLogo
+  [NETWORKS.kucoin]: KCCKuCoinLogo,
+  [NETWORKS.andromeda]: AndromedaLogo
 }
 
 const iconsMonochrome: { [key: string]: any } = {
   [NETWORKS.ethereum]: EthereumMonochromeIcon,
+  [NETWORKS.rinkeby]: EthereumMonochromeIcon,
   [NETWORKS.polygon]: PolygonMonochromeIcon,
   [NETWORKS.avalanche]: AvalancheMonochromeIcon,
   [NETWORKS['binance-smart-chain']]: BinanceMonochromeIcon,
@@ -57,7 +62,8 @@ const iconsMonochrome: { [key: string]: any } = {
   [NETWORKS.arbitrum]: ArbitrumMonochromeIcon,
   [NETWORKS.optimism]: OptimismMonochromeIcon,
   [NETWORKS.gnosis]: GnosisMonochromeIcon,
-  [NETWORKS.kucoin]: KCCKuCoinMonochromeIcon
+  [NETWORKS.kucoin]: KCCKuCoinMonochromeIcon,
+  [NETWORKS.andromeda]: AndromedaMonochromeIcon
 }
 
 const NetworkIcon = ({ name, type = 'regular', ...rest }: Props) => {
