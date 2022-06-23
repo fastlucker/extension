@@ -6,7 +6,6 @@ import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
 import Blockies from '@modules/common/components/Blockies'
-import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import CopyText from '@modules/common/components/CopyText'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
@@ -59,6 +58,10 @@ const Header: React.FC<Props> = ({
   )
 
   const renderHeaderLeft = () => {
+    if (typeof options.headerLeft === 'function') {
+      return options.headerLeft({})
+    }
+
     if (withHamburger) {
       return (
         <NavIconWrapper onPress={navigation.openDrawer}>
