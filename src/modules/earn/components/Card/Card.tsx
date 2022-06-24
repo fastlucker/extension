@@ -186,6 +186,19 @@ const Card = ({
             //  disabled={disabled}
             label={t('Choose Token')}
           />
+          <View style={spacings.mbSm}>
+            <Text>
+              Tesseract is closing. You will still be able to withdraw your funds indefinitely, but
+              there will be no more earning strategies.{' '}
+              <Text
+                onPress={() => {
+                  // https://medium.com/@tesseract_fi/the-omega-of-tesseract-finance-36d6a75d7310
+                }}
+              >
+                Learn more.
+              </Text>
+            </Text>
+          </View>
           <View style={[flexboxStyles.directionRow, spacings.mbTy]}>
             <View style={[flexboxStyles.flex1, spacings.prTy]}>
               <Button
