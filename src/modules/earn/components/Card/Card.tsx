@@ -34,9 +34,11 @@ const Card = ({
   icon,
   details,
   onTokenSelect,
-  onValidate
+  onValidate,
+  warning,
+  areDepositsDisabled
 }: any) => {
-  const [segment, setSegment] = useState<Segment>('Deposit')
+  const [segment, setSegment] = useState<Segment>(areDepositsDisabled ? 'Withdraw' : 'Deposit')
   const { network }: any = useNetwork()
   const [tokens, setTokens] = useState<any>([])
   const [token, setToken] = useState<any>()
@@ -188,6 +190,7 @@ const Card = ({
             //  disabled={disabled}
             label={t('Choose Token')}
           />
+          {warning && <View style={spacings.mbMd}>{warning}</View>}
           <View style={[flexboxStyles.directionRow, spacings.mbTy]}>
             <View style={[flexboxStyles.flex1, spacings.prTy]}>
               <Button
@@ -198,6 +201,7 @@ const Card = ({
                 ]}
                 type={segment === 'Deposit' ? 'outline' : 'secondary'}
                 onPress={() => setSegment('Deposit')}
+                disabled={areDepositsDisabled}
               />
             </View>
             <View style={[flexboxStyles.flex1, spacings.plTy]}>
@@ -223,7 +227,12 @@ const Card = ({
             labelComponent={amountLabel}
           />
           <Button
-            disabled={disabled || amount <= 0 || amount > Number(currentToken?.balance || 0)}
+            disabled={
+              disabled ||
+              amount <= 0 ||
+              amount > Number(currentToken?.balance || 0) ||
+              (areDepositsDisabled && segment === 'Deposit')
+            }
             onPress={() => onValidate(segment, token, amount)}
             text={segment}
           />
