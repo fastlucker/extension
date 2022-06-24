@@ -8,6 +8,7 @@ import { getProvider } from 'ambire-common/src/services/provider'
 import { Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
+import { Linking } from 'react-native'
 
 import { Trans, useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
@@ -160,9 +161,11 @@ const YearnTesseractCard = ({ tokens, networkId, selectedAcc, addRequest, addToa
             type="small"
             appearance="warning"
             weight="medium"
-            onPress={() => {
-              // https://medium.com/@tesseract_fi/the-omega-of-tesseract-finance-36d6a75d7310
-            }}
+            onPress={() =>
+              Linking.openURL(
+                'https://medium.com/@tesseract_fi/the-omega-of-tesseract-finance-36d6a75d7310'
+              )
+            }
           >
             Learn more.
           </Text>
