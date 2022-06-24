@@ -9,7 +9,9 @@ import { Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
 
-import { useTranslation } from '@config/localization'
+import { Trans, useTranslation } from '@config/localization'
+import Text from '@modules/common/components/Text'
+import textStyles from '@modules/common/styles/utils/text'
 import Card from '@modules/earn/components/Card'
 import { CARDS } from '@modules/earn/contexts/cardsVisibilityContext'
 import useTesseract from '@modules/earn/hooks/useTesseract'
@@ -148,9 +150,33 @@ const YearnTesseractCard = ({ tokens, networkId, selectedAcc, addRequest, addToa
     if (!unavailable) setLoading(true)
   }, [networkId, unavailable])
 
+  const warning = useMemo(
+    () => (
+      <Trans>
+        <Text type="small" appearance="warning">
+          Tesseract is closing. You will still be able to withdraw your funds indefinitely, but
+          there will be no more earning strategies.{' '}
+          <Text
+            type="small"
+            appearance="warning"
+            weight="medium"
+            onPress={() => {
+              // https://medium.com/@tesseract_fi/the-omega-of-tesseract-finance-36d6a75d7310
+            }}
+          >
+            Learn more.
+          </Text>
+        </Text>
+      </Trans>
+    ),
+    []
+  )
+
   return (
     <Card
       name={CARDS.YearnTesseract}
+      areDepositsDisabled={networkId === 'polygon'}
+      warning={networkId === 'polygon' ? warning : undefined}
       loading={loading}
       icon={Icon}
       unavailable={unavailable}
