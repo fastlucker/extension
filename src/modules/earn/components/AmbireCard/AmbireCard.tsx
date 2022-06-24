@@ -480,7 +480,9 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
     }
   }, [networkId, selectedAcc, selectedToken.label])
 
-  useEffect(() => setLoading(false), [])
+  useEffect(() => {
+    setLoading(false)
+  }, [])
 
   return (
     <Card
