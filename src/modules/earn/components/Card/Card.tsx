@@ -34,7 +34,9 @@ const Card = ({
   icon,
   details,
   onTokenSelect,
-  onValidate
+  onValidate,
+  warning,
+  areDepositsDisabled
 }: any) => {
   const [segment, setSegment] = useState<Segment>('Deposit')
   const { network }: any = useNetwork()
@@ -186,19 +188,7 @@ const Card = ({
             //  disabled={disabled}
             label={t('Choose Token')}
           />
-          <View style={spacings.mbSm}>
-            <Text>
-              Tesseract is closing. You will still be able to withdraw your funds indefinitely, but
-              there will be no more earning strategies.{' '}
-              <Text
-                onPress={() => {
-                  // https://medium.com/@tesseract_fi/the-omega-of-tesseract-finance-36d6a75d7310
-                }}
-              >
-                Learn more.
-              </Text>
-            </Text>
-          </View>
+          {warning && <View style={spacings.mbMd}>{warning}</View>}
           <View style={[flexboxStyles.directionRow, spacings.mbTy]}>
             <View style={[flexboxStyles.flex1, spacings.prTy]}>
               <Button
@@ -209,6 +199,7 @@ const Card = ({
                 ]}
                 type={segment === 'Deposit' ? 'outline' : 'secondary'}
                 onPress={() => setSegment('Deposit')}
+                disabled={areDepositsDisabled}
               />
             </View>
             <View style={[flexboxStyles.flex1, spacings.plTy]}>
