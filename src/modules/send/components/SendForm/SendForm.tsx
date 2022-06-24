@@ -91,7 +91,6 @@ const SendForm = ({
   setSWAddressConfirmed
 }: Props) => {
   const { t } = useTranslation()
-
   const {
     sheetRef: sheetRefAddrAdd,
     openBottomSheet: openBottomSheetAddrAdd,
@@ -136,7 +135,13 @@ const SendForm = ({
             <Panel style={[spacings.mb0, isHidden && commonStyles.visibilityHidden]}>
               <Title style={textStyles.center}>{t('Send')}</Title>
               <View style={spacings.mbMi}>
-                <Select value={asset} items={assetsItems} setValue={setAsset} />
+                <Select
+                  value={asset}
+                  items={assetsItems.sort((a, b) =>
+                    a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
+                  )}
+                  setValue={setAsset}
+                />
               </View>
               {amountLabel}
               <NumberInput
@@ -209,11 +214,7 @@ const SendForm = ({
               )}
             </Panel>
             <View style={[spacings.phSm, spacings.mbMd, isHidden && commonStyles.visibilityHidden]}>
-              <Button
-                text={t('Send')}
-                disabled={disabled || (showSWAddressWarning && !sWAddressConfirmed)}
-                onPress={onSendPress}
-              />
+              <Button text={t('Send')} disabled={disabled} onPress={onSendPress} />
             </View>
           </>
         ) : (

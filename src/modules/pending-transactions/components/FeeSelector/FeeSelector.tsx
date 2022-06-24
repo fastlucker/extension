@@ -180,7 +180,7 @@ const FeeSelector = ({
           a?.symbol.toUpperCase().localeCompare(b?.symbol.toUpperCase())
       )
       .map((token: any) => ({
-        label: token.symbol,
+        label: token.label || token.symbol,
         value: token.symbol,
         disabled: !isTokenEligible(token, feeSpeed, estimation),
         icon: () => <TokenIcon withContainer networkId={network?.id} address={token.address} />
@@ -191,7 +191,7 @@ const FeeSelector = ({
       <Select
         value={currency}
         setValue={setCurrency}
-        items={assetsItems}
+        items={assetsItems.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1))}
         label={t('Fee currency')}
         extraText={discount ? `-${discount * 100}%` : ''}
       />
