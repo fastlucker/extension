@@ -6,13 +6,13 @@ import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
 import Blockies from '@modules/common/components/Blockies'
-import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import CopyText from '@modules/common/components/CopyText'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useHeaderBottomSheet from '@modules/common/hooks/useHeaderBottomSheet'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -41,7 +41,7 @@ const Header: React.FC<Props> = ({
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
   const { openHeaderBottomSheet } = useHeaderBottomSheet()
-
+  const { hidePrivateValue } = usePrivateMode()
   const renderBottomSheetSwitcher = (
     <TouchableOpacity style={styles.switcherContainer} onPress={openHeaderBottomSheet}>
       <Blockies borderRadius={13} seed={selectedAcc} />
@@ -49,7 +49,7 @@ const Header: React.FC<Props> = ({
       <View style={[flexboxStyles.flex1, spacings.mhTy]}>
         <Text weight="regular">{network?.name}</Text>
         <Text color={colors.baileyBells} fontSize={12} numberOfLines={1} ellipsizeMode="middle">
-          {selectedAcc}
+          {hidePrivateValue(selectedAcc)}
         </Text>
       </View>
 
@@ -58,6 +58,10 @@ const Header: React.FC<Props> = ({
   )
 
   const renderHeaderLeft = () => {
+    if (typeof options.headerLeft === 'function') {
+      return options.headerLeft({})
+    }
+
     if (withHamburger) {
       return (
         <NavIconWrapper onPress={navigation.openDrawer}>

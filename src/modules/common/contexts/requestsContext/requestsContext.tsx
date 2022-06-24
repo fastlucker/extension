@@ -88,47 +88,59 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   const prevSendTxnState: any = usePrevious(sendTxnState)
 
-  useEffect(
-    () => setSendTxnState({ showing: !!eligibleRequests.length }),
-    [eligibleRequests.length]
-  )
+  useEffect(() => {
+    setSendTxnState({ showing: !!eligibleRequests.length })
+  }, [eligibleRequests.length])
 
-  const onBroadcastedTxn = (hash: any) => {
-    if (!hash) {
-      addToast(t('Transaction signed but not broadcasted to the network!') as string, {
+  const onBroadcastedTxn = useCallback(
+    (hash: any) => {
+      if (!hash) {
+        addToast(t('Transaction signed but not broadcasted to the network!') as string, {
+          timeout: 15000
+        })
+        return
+      }
+      setSentTxn((txn: any) => [...txn, { confirmed: false, hash }])
+      addToast(t('Transaction signed and sent successfully!') as string, {
+        onClick: () => navigate('transactions'),
         timeout: 15000
       })
-      return
-    }
-    setSentTxn((txn: any) => [...txn, { confirmed: false, hash }])
-    addToast(t('Transaction signed and sent successfully!') as string, {
-      onClick: () => navigate('transactions'),
-      timeout: 15000
-    })
-  }
+    },
+    [addToast, t]
+  )
 
-  const confirmSentTx = (txHash: any) =>
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    setSentTxn((sentTxn) => {
+  const confirmSentTx = useCallback(
+    (txHash: any) =>
       // eslint-disable-next-line @typescript-eslint/no-shadow
-      const tx = sentTxn.find((tx: any) => tx.hash === txHash)
-      tx.confirmed = true
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      return [...sentTxn.filter((tx: any) => tx.hash !== txHash), tx]
-    })
+      setSentTxn((sentTxn) => {
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const tx = sentTxn.find((tx: any) => tx.hash === txHash)
+        tx.confirmed = true
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        return [...sentTxn.filter((tx: any) => tx.hash !== txHash), tx]
+      }),
+    []
+  )
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const resolveMany = (ids: any, resolution: any) => {
-    gnosisResolveMany(ids, resolution)
-    wcResolveMany(ids, resolution)
-    setInternalRequests((reqs: any) => reqs.filter((x: any) => !ids.includes(x.id)))
-  }
+  const resolveMany = useCallback(
+    (ids: any, resolution: any) => {
+      gnosisResolveMany(ids, resolution)
+      wcResolveMany(ids, resolution)
+      setInternalRequests((reqs: any) => reqs.filter((x: any) => !ids.includes(x.id)))
+    },
+    [gnosisResolveMany, wcResolveMany]
+  )
 
   const everythingToSign = useMemo(
     () =>
       requests.filter(
         ({ type, account }) =>
-          (type === 'personal_sign' || type === 'eth_sign') && account === selectedAcc
+          (type === 'personal_sign' ||
+            type === 'eth_sign' ||
+            type === 'eth_signTypedData_v4' ||
+            type === 'eth_signTypedData') &&
+          account === selectedAcc
       ),
     [requests, selectedAcc]
   )

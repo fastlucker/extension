@@ -29,6 +29,7 @@ interface Props {
   quickAccBottomSheet: QuickAccBottomSheetType
   hardwareWalletBottomSheet: HardwareWalletBottomSheetType
   confirmationType: string | null
+  isDeployed: boolean
 }
 
 const SignActions = ({
@@ -38,7 +39,8 @@ const SignActions = ({
   resolve,
   quickAccBottomSheet,
   hardwareWalletBottomSheet,
-  confirmationType
+  confirmationType,
+  isDeployed
 }: Props) => {
   const { t } = useTranslation()
   const { account } = useAccounts()
@@ -61,7 +63,7 @@ const SignActions = ({
   return (
     <>
       <View>
-        {!!account.signer?.quickAccManager && (
+        {!!account.signer?.quickAccManager && isDeployed && (
           <Controller
             control={control}
             rules={{ required: true }}
@@ -78,6 +80,16 @@ const SignActions = ({
             name="password"
           />
         )}
+        {!isDeployed && (
+          <View style={spacings.mbMd}>
+            <Text appearance="danger" fontSize={12}>
+              {t("You can't sign this message yet.")}
+            </Text>
+            <Text appearance="danger" fontSize={12}>
+              {t('You need to complete your first transaction to be able to sign messages.')}
+            </Text>
+          </View>
+        )}
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonWrapper}>
             <Button
@@ -90,7 +102,7 @@ const SignActions = ({
             <Button
               text={isLoading ? t('Signing...') : t('Sign')}
               onPress={account.signer?.quickAccManager ? handleSubmit(approve) : approve}
-              disabled={isLoading || !watch('password', '')}
+              disabled={isLoading || !watch('password', '') || !isDeployed}
             />
           </View>
         </View>

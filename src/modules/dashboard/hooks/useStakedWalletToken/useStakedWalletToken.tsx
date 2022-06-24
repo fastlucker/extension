@@ -35,7 +35,9 @@ export default function useStakedWalletToken() {
     }
   }, [account.id])
 
-  useEffect(() => fetchStakedWalletData(), [fetchStakedWalletData])
+  useEffect(() => {
+    fetchStakedWalletData()
+  }, [fetchStakedWalletData])
 
   return { stakedAmount }
 }

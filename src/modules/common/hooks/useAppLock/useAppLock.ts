@@ -50,13 +50,20 @@ const useAppLock = (
         }
         return nextAppState
       }),
-    [triggerValidateLocalAuth, isAppLocked, setIsAppLocked, lockWhenInactive, state]
+    [
+      triggerValidateLocalAuth,
+      isAppLocked,
+      setIsAppLocked,
+      lockWhenInactive,
+      state,
+      setPasscodeError
+    ]
   )
 
   useEffect(() => {
-    AppState.addEventListener('change', handleAppStateChange)
+    const stateChange = AppState.addEventListener('change', handleAppStateChange)
 
-    return () => AppState.removeEventListener('change', handleAppStateChange)
+    return () => stateChange.remove()
   }, [handleAppStateChange])
 }
 

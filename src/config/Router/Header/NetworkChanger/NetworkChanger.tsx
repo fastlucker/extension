@@ -1,5 +1,5 @@
 import { NetworkType } from 'ambire-common/src/constants/networks'
-import React, { useCallback, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
@@ -28,6 +28,22 @@ const NetworkChanger: React.FC = () => {
     () => allVisibleNetworks.map((n) => n.chainId).indexOf(network?.chainId || 0),
     [network?.chainId, allVisibleNetworks]
   )
+
+  useEffect(() => {
+    // FIXME: For some reason the `contentOffset` prop doesn't work on Android,
+    // so we have to use the `scrollTo` method instead to scroll to the current network.
+    // Could be a bug on the React Native side, because it was working just fine
+    // with React Native v0.64.3 (Expo SDK v44), but fails
+    // with v0.68.2 (Expo SDK v45). bug report:
+    // {@link https://github.com/facebook/react-native/issues/33994}
+    if (isAndroid) {
+      scrollRef?.current?.scrollTo({
+        x: 0,
+        y: SINGLE_ITEM_HEIGHT * currentNetworkIndex,
+        animated: true
+      })
+    }
+  }, [])
 
   const handleChangeNetwork = useCallback(
     (_network: NetworkType) => {

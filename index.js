@@ -8,9 +8,19 @@ import 'expo-asset'
 import { registerRootComponent } from 'expo'
 
 import { LogBox } from 'react-native'
-// Ignore the Android specific warnings for setting long timers
-// {@link https://stackoverflow.com/a/64832663/1333836}
-LogBox.ignoreLogs(['Setting a timer'])
+
+LogBox.ignoreLogs([
+  // Ignore the Android specific warnings for setting long timers
+  // {@link https://stackoverflow.com/a/64832663/1333836}
+  'Setting a timer',
+  // Ignores the warning: "ViewPropTypes will be removed from React Native.
+  // Migrate to ViewPropTypes exported from 'deprecated-react-native-prop-types'."
+  // It is coming from the "lottie-react-native" package.
+  // Updating it to v5.1.3 removes the warn, but the "expected version"
+  // (based on expo doctor) is v5.0.1. Therefore, we keep using v5.0.1 for now,
+  // and ignore the warning temporarily.
+  "exported from 'deprecated-react-native-prop-types'."
+])
 
 // eslint-disable-next-line
 import App from './App'

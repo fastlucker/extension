@@ -84,21 +84,23 @@ const DepositTokens = ({ selectedAcc, networkId }: Props) => {
           {t('Following networks supported on this address:')}
         </Text>
         <View style={styles.supportedNetworksContainer}>
-          {networks.map(({ id, name }: any) => (
-            <View key={id} style={styles.supportedNetworksItem}>
-              <View style={{ marginBottom: 3 }}>
-                <NetworkIcon name={id} type="monochrome" />
+          {networks
+            .filter(({ hide }) => !hide)
+            .map(({ id, name }: any) => (
+              <View key={id} style={styles.supportedNetworksItem}>
+                <View style={{ marginBottom: 3 }}>
+                  <NetworkIcon name={id} type="monochrome" />
+                </View>
+                <Text
+                  style={spacings.plMi}
+                  fontSize={10}
+                  numberOfLines={1}
+                  color={colors.waikawaGray}
+                >
+                  {name}
+                </Text>
               </View>
-              <Text
-                style={spacings.plMi}
-                fontSize={10}
-                numberOfLines={1}
-                color={colors.waikawaGray}
-              >
-                {name}
-              </Text>
-            </View>
-          ))}
+            ))}
         </View>
       </View>
     </>

@@ -5,7 +5,7 @@ import walletABI from 'ambire-common/src/constants/abis/walletTokenABI.json'
 import AdexStakingPool from 'ambire-common/src/constants/AdexStakingPool.json'
 import supplyControllerABI from 'ambire-common/src/constants/ADXSupplyController.json'
 import networks, { NetworkId } from 'ambire-common/src/constants/networks'
-import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
+import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import { BigNumber, constants, Contract, utils } from 'ethers'
 import { formatUnits, Interface, parseUnits } from 'ethers/lib/utils'
@@ -480,7 +480,9 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
     }
   }, [networkId, selectedAcc, selectedToken.label])
 
-  useEffect(() => setLoading(false), [])
+  useEffect(() => {
+    setLoading(false)
+  }, [])
 
   return (
     <Card

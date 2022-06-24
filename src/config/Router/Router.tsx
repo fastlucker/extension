@@ -237,7 +237,7 @@ const AppStack = () => {
       <MainStack.Screen
         name="sign-message"
         component={SignMessage}
-        options={{ title: t('Sign') }}
+        options={{ title: t('Sign'), headerLeft: () => null, gestureEnabled: false }}
       />
     </MainStack.Navigator>
   )

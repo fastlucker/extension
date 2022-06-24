@@ -1,15 +1,18 @@
 import YEARN_TESSERACT_VAULT_ABI from 'ambire-common/src/constants/abis/YearnTesseractVaultABI'
 import networks, { NetworkId } from 'ambire-common/src/constants/networks'
-import { UseAccountsReturnType } from 'ambire-common/src/hooks/accounts'
-import { UseToastsReturnType } from 'ambire-common/src/hooks/toasts/'
+import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
+import { UseToastsReturnType } from 'ambire-common/src/hooks/useToasts'
 import approveToken from 'ambire-common/src/services/approveToken'
+import { getProvider } from 'ambire-common/src/services/provider'
 import { Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
+import { Linking } from 'react-native'
 
-import { useTranslation } from '@config/localization'
-import { getDefaultProvider } from '@ethersproject/providers'
+import { Trans, useTranslation } from '@config/localization'
+import Text from '@modules/common/components/Text'
+import textStyles from '@modules/common/styles/utils/text'
 import Card from '@modules/earn/components/Card'
 import { CARDS } from '@modules/earn/contexts/cardsVisibilityContext'
 import useTesseract from '@modules/earn/hooks/useTesseract'
@@ -47,7 +50,7 @@ const YearnTesseractCard = ({ tokens, networkId, selectedAcc, addRequest, addToa
       txn,
       extraGas
     })
-  const provider = useMemo(() => getDefaultProvider(networkDetails.rpc), [networkDetails.rpc])
+  const provider = useMemo(() => getProvider(networkId), [networkId])
 
   const yearn = useYearn({
     tokens,
@@ -129,15 +132,18 @@ const YearnTesseractCard = ({ tokens, networkId, selectedAcc, addRequest, addToa
   }
 
   useEffect(() => {
-    if (unavailable) {
-      setLoading(false)
-      return
-    }
-    async function load() {
-      await loadVaults()
-      setLoading(false)
-    }
-    load()
+    ;(() => {
+      if (unavailable) {
+        setLoading(false)
+        return
+      }
+
+      async function load() {
+        await loadVaults()
+        setLoading(false)
+      }
+      load()
+    })()
   }, [unavailable, loadVaults])
 
   useEffect(() => {
@@ -145,9 +151,35 @@ const YearnTesseractCard = ({ tokens, networkId, selectedAcc, addRequest, addToa
     if (!unavailable) setLoading(true)
   }, [networkId, unavailable])
 
+  const warning = useMemo(
+    () => (
+      <Trans>
+        <Text type="small" appearance="warning">
+          Tesseract is closing. You will still be able to withdraw your funds indefinitely, but
+          there will be no more earning strategies.{' '}
+          <Text
+            type="small"
+            appearance="warning"
+            weight="medium"
+            onPress={() =>
+              Linking.openURL(
+                'https://medium.com/@tesseract_fi/the-omega-of-tesseract-finance-36d6a75d7310'
+              )
+            }
+          >
+            Learn more.
+          </Text>
+        </Text>
+      </Trans>
+    ),
+    []
+  )
+
   return (
     <Card
       name={CARDS.YearnTesseract}
+      areDepositsDisabled={networkId === 'polygon'}
+      warning={networkId === 'polygon' ? warning : undefined}
       loading={loading}
       icon={Icon}
       unavailable={unavailable}

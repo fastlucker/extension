@@ -117,7 +117,13 @@ const BottomSheet: React.FC<Props> = ({
             }
           })
         }}
-        style={{ maxHeight: BOTTOM_SHEET_MAX_HEIGHT }}
+        // minHeight should only be used while the dynamic height is disabled
+        // minHeight extends the content's wrapper to the bottom of the screen which allows closing the bottom sheet
+        // by swiping down anywhere on the sheet area
+        style={{
+          maxHeight: BOTTOM_SHEET_MAX_CONTENT_HEIGHT,
+          minHeight: BOTTOM_SHEET_MAX_CONTENT_HEIGHT
+        }}
         alwaysBounceVertical={false}
       >
         <View style={styles.containerInnerWrapper}>
