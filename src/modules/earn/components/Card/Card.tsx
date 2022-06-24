@@ -225,7 +225,12 @@ const Card = ({
             labelComponent={amountLabel}
           />
           <Button
-            disabled={disabled || amount <= 0 || amount > Number(currentToken?.balance || 0)}
+            disabled={
+              disabled ||
+              amount <= 0 ||
+              amount > Number(currentToken?.balance || 0) ||
+              (areDepositsDisabled && segment === 'Deposit')
+            }
             onPress={() => onValidate(segment, token, amount)}
             text={segment}
           />
