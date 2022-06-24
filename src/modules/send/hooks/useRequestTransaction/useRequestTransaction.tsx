@@ -171,7 +171,16 @@ export default function useRequestTransaction() {
       console.error(e)
       addToast(`Error: ${e.message || e}`, { error: true })
     }
-  }, [selectedAcc, address, selectedAsset, bigNumberHexAmount, network?.chainId, uDAddress])
+  }, [
+    selectedAcc,
+    address,
+    selectedAsset,
+    bigNumberHexAmount,
+    network?.chainId,
+    uDAddress,
+    addRequest,
+    addToast
+  ])
 
   const unknownWarning = useMemo(() => {
     if (uDAddress) {
@@ -179,18 +188,6 @@ export default function useRequestTransaction() {
     }
     return isValidAddress(address) && !isKnownAddress(address)
   }, [address, uDAddress, isKnownAddress])
-
-  useEffect(() => {
-    if (uDAddress && !unknownWarning && validationFormMgs.messages?.address) {
-      setValidationFormMgs((prev) => ({
-        ...prev,
-        messages: {
-          amount: prev.messages.amount,
-          address: null
-        }
-      }))
-    }
-  }, [unknownWarning, uDAddress, validationFormMgs.messages?.address])
 
   const smartContractWarning = useMemo(() => isKnownTokenOrContract(address), [address])
 
@@ -204,6 +201,31 @@ export default function useRequestTransaction() {
         .includes(network.id),
     [selectedAsset?.address, network]
   )
+
+  useEffect(() => {
+    if (uDAddress && !unknownWarning && validationFormMgs.messages?.address) {
+      setValidationFormMgs((prev) => ({
+        success: {
+          amount: prev.success.amount,
+          address: true
+        },
+        messages: {
+          amount: prev.messages.amount,
+          address: null
+        }
+      }))
+      setDisabled(
+        !validationFormMgs.success.amount || (showSWAddressWarning && !sWAddressConfirmed)
+      )
+    }
+  }, [
+    unknownWarning,
+    uDAddress,
+    validationFormMgs.messages?.address,
+    validationFormMgs.success.amount,
+    sWAddressConfirmed,
+    showSWAddressWarning
+  ])
 
   useEffect(() => {
     if (isFocused) {

@@ -179,7 +179,9 @@ const Card = ({
         <View>
           <Select
             value={token}
-            items={assetsItems}
+            items={assetsItems.sort((a, b) =>
+              a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
+            )}
             setValue={setToken}
             containerPropsStyle={spacings.mbSm}
             // TODO:
