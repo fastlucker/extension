@@ -38,7 +38,7 @@ const Card = ({
   warning,
   areDepositsDisabled
 }: any) => {
-  const [segment, setSegment] = useState<Segment>('Deposit')
+  const [segment, setSegment] = useState<Segment>(areDepositsDisabled ? 'Withdraw' : 'Deposit')
   const { network }: any = useNetwork()
   const [tokens, setTokens] = useState<any>([])
   const [token, setToken] = useState<any>()
