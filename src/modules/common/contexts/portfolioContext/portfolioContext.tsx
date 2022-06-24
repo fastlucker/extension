@@ -71,10 +71,8 @@ const PortfolioProvider: React.FC = ({ children }) => {
       setAppStateVisible(appState.current)
     }
 
-    AppState.addEventListener('change', handleAppStateChange)
-    return () => {
-      AppState.removeEventListener('change', handleAppStateChange)
-    }
+    const stateChange = AppState.addEventListener('change', handleAppStateChange)
+    return () => stateChange.remove()
   }, [])
 
   const {
