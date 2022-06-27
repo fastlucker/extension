@@ -16,6 +16,7 @@ import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
+import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
@@ -42,6 +43,7 @@ const ChangePasscodeStack = createNativeStackNavigator()
 const ChangeLocalAuthStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
+const GasTankStack = createNativeStackNavigator()
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
@@ -56,6 +58,22 @@ const SignersStackScreen = () => {
         }}
       />
     </SignersStack.Navigator>
+  )
+}
+
+const GasTankStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <GasTankStack.Navigator screenOptions={{ header: headerBeta }}>
+      <GasTankStack.Screen
+        name="gas-tank-screen"
+        component={GasTankScreen}
+        options={{
+          title: t('Gas Tank')
+        }}
+      />
+    </GasTankStack.Navigator>
   )
 }
 
@@ -191,6 +209,7 @@ const AppDrawer = () => {
       <Drawer.Screen name="biometrics-sign-change" component={BiometricsStackScreen} />
       <Drawer.Screen name="app-locking" component={AppLockingStackScreen} />
       <Drawer.Screen name="signers" component={SignersStackScreen} />
+      <Drawer.Screen name="gas-tank" component={GasTankStackScreen} />
     </Drawer.Navigator>
   )
 }

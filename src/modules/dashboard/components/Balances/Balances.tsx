@@ -174,6 +174,7 @@ const Balances = ({
           })}
         </View>
       )}
+      <Button text="Gas Tank" onPress={() => navigation.navigate('gas-tank')} />
     </>
   )
 
