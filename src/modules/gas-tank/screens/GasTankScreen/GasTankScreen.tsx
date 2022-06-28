@@ -14,12 +14,14 @@ import useGasTankData from '@modules/gas-tank/hooks/useGasTankData'
 const GasTankScreen = () => {
   const { t } = useTranslation()
   const { data } = useGasTankData()
+
   const balanceLabel = !data
     ? '0.00'
     : data
         .map(({ balanceInUSD }: any) => balanceInUSD)
         .reduce((a: any, b: any) => a + b, 0)
         .toFixed(2)
+
   return (
     <GradientBackgroundWrapper>
       <Wrapper hasBottomTabNav={false}>
