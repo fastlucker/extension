@@ -8,6 +8,7 @@ import AttentionGrabberProvider from '@modules/common/components/AttentionGrabbe
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AccountsPasswordsProvider } from '@modules/common/contexts/accountsPasswordsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
+import { GasTankProvider } from '@modules/common/contexts/gasTankContext'
 import { GnosisProvider } from '@modules/common/contexts/gnosisContext'
 import { HeaderBottomSheetProvider } from '@modules/common/contexts/headerBottomSheetContext'
 import { KeyboardProvider } from '@modules/common/contexts/keyboardContext'
@@ -52,13 +53,15 @@ const AppLoading = () => {
                                     <PasscodeProvider>
                                       <AttentionGrabberProvider>
                                         <PrivateModeProvider>
-                                          <UnsupportedDAppsBottomSheetProvider>
-                                            <HeaderBottomSheetProvider>
-                                              <LinkingProvider>
-                                                <Router />
-                                              </LinkingProvider>
-                                            </HeaderBottomSheetProvider>
-                                          </UnsupportedDAppsBottomSheetProvider>
+                                          <GasTankProvider>
+                                            <UnsupportedDAppsBottomSheetProvider>
+                                              <HeaderBottomSheetProvider>
+                                                <LinkingProvider>
+                                                  <Router />
+                                                </LinkingProvider>
+                                              </HeaderBottomSheetProvider>
+                                            </UnsupportedDAppsBottomSheetProvider>
+                                          </GasTankProvider>
                                         </PrivateModeProvider>
                                       </AttentionGrabberProvider>
                                       <PortalHost name="global" />

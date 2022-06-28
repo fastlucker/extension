@@ -65,7 +65,7 @@ const GasTankStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <GasTankStack.Navigator screenOptions={{ header: headerBeta }}>
+    <GasTankStack.Navigator screenOptions={{ header: headerGamma }}>
       <GasTankStack.Screen
         name="gas-tank-screen"
         component={GasTankScreen}
