@@ -45,13 +45,18 @@ const GasTankProvider: React.FC = ({ children }) => {
     }
   }, [gasTankState, selectedAcc, setGasTankState, network?.isGasTankAvailable])
 
-  const currentAccGasTankState = useMemo(
-    () =>
-      gasTankState.length
-        ? gasTankState.find((i) => i.account === selectedAcc)
-        : setGasTankState([...gasTankState, { account: selectedAcc, isEnabled: false }]),
-    [gasTankState, selectedAcc, setGasTankState]
-  )
+  const currentAccGasTankState = useMemo(() => {
+    if (gasTankState.length) {
+      return (
+        gasTankState.find((i) => i.account === selectedAcc) || {
+          account: selectedAcc,
+          isEnabled: false
+        }
+      )
+    }
+    setGasTankState([...gasTankState, { account: selectedAcc, isEnabled: false }])
+    return { account: selectedAcc, isEnabled: false }
+  }, [gasTankState, selectedAcc, setGasTankState])
 
   return (
     <GasTankContext.Provider
