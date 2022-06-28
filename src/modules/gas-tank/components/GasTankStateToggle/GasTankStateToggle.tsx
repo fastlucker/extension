@@ -63,4 +63,4 @@ const GasTankStateToggle = () => {
   )
 }
 
-export default GasTankStateToggle
+export default React.memo(GasTankStateToggle)
