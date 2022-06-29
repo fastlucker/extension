@@ -11,9 +11,10 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   container: {
     borderWidth: 1,
-    borderColor: colors.titan_25,
+    borderColor: colors.heliotrope,
     ...commonStyles.borderRadiusPrimary,
-    ...spacings.pvTy,
+    ...spacings.ptTy,
+    ...spacings.pbMi,
     ...spacings.phTy,
     flex: 1,
     alignItems: 'center'
