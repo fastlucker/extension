@@ -1,5 +1,8 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import accountPresets from 'ambire-common/src/constants/accountPresets'
+import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
+import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
+import { UseToastsReturnType } from 'ambire-common/src/hooks/useToasts'
 import { validateSendTransferAmount } from 'ambire-common/src/services/validations'
 import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
@@ -14,10 +17,6 @@ import NumberInput from '@modules/common/components/NumberInput'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import TokenIcon from '@modules/common/components/TokenIcon'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import useRequests from '@modules/common/hooks/useRequests'
-import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -26,24 +25,36 @@ import styles from './styles'
 
 const ERC20 = new Interface(erc20Abi)
 
-type DepositTokenContextData = {
+type DepositTokenBottomSheetContextProps = {
+  children: any
+  networkId?: NetworkId
+  chainId?: NetworkType['chainId']
+  selectedAcc: UseAccountsReturnType['selectedAcc']
+  addRequest: any
+  addToast: UseToastsReturnType['addToast']
+}
+
+type DepositTokenBottomSheetContextData = {
   openDepositToken: (tokenToDeposit: any) => void
 }
 
-const DepositTokenContext = React.createContext<DepositTokenContextData>({
+const DepositTokenBottomSheetContext = React.createContext<DepositTokenBottomSheetContextData>({
   openDepositToken: () => {}
 })
 
-const DepositTokenProvider = ({ children, networkId }: any) => {
+const DepositTokenBottomSheetProvider = ({
+  children,
+  selectedAcc,
+  networkId,
+  chainId,
+  addRequest,
+  addToast
+}: DepositTokenBottomSheetContextProps) => {
   const { t } = useTranslation()
 
   const [token, setToken] = useState<any>(null)
   const [amount, setAmount] = useState<number | string>('')
   const [bigNumberHexAmount, setBigNumberHexAmount] = useState('')
-  const { selectedAcc } = useAccounts()
-  const { network } = useNetwork()
-  const { addRequest } = useRequests()
-  const { addToast } = useToast()
 
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
 
@@ -99,7 +110,7 @@ const DepositTokenProvider = ({ children, networkId }: any) => {
       const req: any = {
         id: `transfer_${Date.now()}`,
         type: 'eth_sendTransaction',
-        chainId: network?.chainId,
+        chainId,
         account: selectedAcc,
         txn,
         meta: null
@@ -115,15 +126,7 @@ const DepositTokenProvider = ({ children, networkId }: any) => {
       console.error(e)
       addToast(`Error: ${e.message || e}`, { error: true })
     }
-  }, [
-    selectedAcc,
-    token,
-    bigNumberHexAmount,
-    network?.chainId,
-    addRequest,
-    addToast,
-    closeBottomSheet
-  ])
+  }, [selectedAcc, token, bigNumberHexAmount, chainId, addRequest, addToast, closeBottomSheet])
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
@@ -139,7 +142,7 @@ const DepositTokenProvider = ({ children, networkId }: any) => {
   )
 
   return (
-    <DepositTokenContext.Provider
+    <DepositTokenBottomSheetContext.Provider
       value={useMemo(
         () => ({
           openDepositToken
@@ -193,8 +196,8 @@ const DepositTokenProvider = ({ children, networkId }: any) => {
           </>
         )}
       </BottomSheet>
-    </DepositTokenContext.Provider>
+    </DepositTokenBottomSheetContext.Provider>
   )
 }
 
-export { DepositTokenContext, DepositTokenProvider }
+export { DepositTokenBottomSheetContext, DepositTokenBottomSheetProvider }

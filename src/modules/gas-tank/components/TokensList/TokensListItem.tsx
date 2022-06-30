@@ -6,7 +6,7 @@ import Text from '@modules/common/components/Text'
 import TokenIcon from '@modules/common/components/TokenIcon'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import { DepositTokenContext } from '@modules/gas-tank/contexts/depositTokenContext'
+import { DepositTokenBottomSheetContext } from '@modules/gas-tank/contexts/depositTokenBottomSheetContext'
 
 import styles from './styles'
 
@@ -16,7 +16,7 @@ type Props = {
 }
 
 const TokensListItem = ({ token, networkId }: Props) => {
-  const { openDepositToken } = useContext(DepositTokenContext)
+  const { openDepositToken } = useContext(DepositTokenBottomSheetContext)
 
   return (
     <View style={styles.tokenItemContainer}>
