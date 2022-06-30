@@ -36,7 +36,7 @@ const UnsupportedDAppsBottomSheetProvider: React.FC = ({ children }) => {
   const [advancedMode, setAdvancedMode] = useState<boolean>(false)
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const [advancedModeList, setAdvancedModeList] = useStorage({
+  const [advancedModeList, setAdvancedModeList] = useStorage<string[]>({
     key: 'dAppsAdvancedMode',
     defaultValue: []
   })
@@ -48,7 +48,7 @@ const UnsupportedDAppsBottomSheetProvider: React.FC = ({ children }) => {
           session &&
           session.peerMeta &&
           unsupportedDApps.includes(session.peerMeta?.url) &&
-          !advancedModeList.includes(session.peerMeta?.url)
+          !advancedModeList?.includes(session.peerMeta?.url)
       ),
     [connections, advancedModeList]
   )
@@ -70,7 +70,7 @@ const UnsupportedDAppsBottomSheetProvider: React.FC = ({ children }) => {
 
   const handleContinue = useCallback(() => {
     setAdvancedModeList([
-      ...advancedModeList,
+      ...(advancedModeList || []),
       ...unsupportedRaw.map(({ session }) => session.peerMeta.url)
     ])
     closeBottomSheet()
