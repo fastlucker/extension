@@ -15,6 +15,7 @@ import GasTankBalance from '@modules/gas-tank/components/GasTankBalance'
 import GasTankStateToggle from '@modules/gas-tank/components/GasTankStateToggle'
 import GasTankTotalSave from '@modules/gas-tank/components/GasTankTotalSave'
 import TokensList from '@modules/gas-tank/components/TokensList'
+import { DepositTokenProvider } from '@modules/gas-tank/contexts/depositTokenContext'
 import useGasTankData from '@modules/gas-tank/hooks/useGasTankData'
 
 const GasTankScreen = () => {
@@ -45,28 +46,32 @@ const GasTankScreen = () => {
   )
 
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav={false}>
-        <GasTankStateToggle />
-        <Text style={[spacings.mbSm, spacings.mhSm]} fontSize={12}>
-          {t('The Ambire Gas Tank is your special account for paying gas and saving on gas fees.')}
-          <Text color={colors.heliotrope} fontSize={12}>{`   ${t('learn more...')}`}</Text>
-        </Text>
-        <Panel>
-          <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbLg]}>
-            <GasTankBalance balance={balanceLabel} />
-            <GasTankTotalSave totalSave={totalSaveLabel} />
-          </View>
-          <TokensList
-            tokens={sortedTokens}
-            isLoading={
-              (isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading) && !dataLoaded
-            }
-            networkId={network?.id}
-          />
-        </Panel>
-      </Wrapper>
-    </GradientBackgroundWrapper>
+    <DepositTokenProvider networkId={network?.id}>
+      <GradientBackgroundWrapper>
+        <Wrapper hasBottomTabNav={false}>
+          <GasTankStateToggle />
+          <Text style={[spacings.mbSm, spacings.mhSm]} fontSize={12}>
+            {t(
+              'The Ambire Gas Tank is your special account for paying gas and saving on gas fees.'
+            )}
+            <Text color={colors.heliotrope} fontSize={12}>{`   ${t('learn more...')}`}</Text>
+          </Text>
+          <Panel>
+            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
+              <GasTankBalance balance={balanceLabel} />
+              <GasTankTotalSave totalSave={totalSaveLabel} />
+            </View>
+            <TokensList
+              tokens={sortedTokens}
+              isLoading={
+                (isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading) && !dataLoaded
+              }
+              networkId={network?.id}
+            />
+          </Panel>
+        </Wrapper>
+      </GradientBackgroundWrapper>
+    </DepositTokenProvider>
   )
 }
 

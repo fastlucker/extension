@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { View } from 'react-native'
 
 import Button from '@modules/common/components/Button'
@@ -6,31 +6,35 @@ import Text from '@modules/common/components/Text'
 import TokenIcon from '@modules/common/components/TokenIcon'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import { DepositTokenContext } from '@modules/gas-tank/contexts/depositTokenContext'
 
 import styles from './styles'
 
 type Props = {
-  img: any
-  symbol: string
-  balanceUSD: number
-  address: string
+  token: any
   networkId: string | undefined
-  onPress: (symbol: string) => any
 }
 
-const TokensListItem = ({ img, symbol, balanceUSD, address, networkId, onPress }: Props) => {
+const TokensListItem = ({ token, networkId }: Props) => {
+  const { openDepositToken } = useContext(DepositTokenContext)
+
   return (
     <View style={styles.tokenItemContainer}>
       <View style={spacings.prTy}>
-        <TokenIcon withContainer uri={img} networkId={networkId} address={address} />
+        <TokenIcon
+          withContainer
+          uri={token.img || token.tokenImageUrl}
+          networkId={networkId}
+          address={token.address}
+        />
       </View>
 
       <Text fontSize={14} style={[spacings.prSm, styles.tokenSymbol]} numberOfLines={2}>
-        {symbol}
+        {token.symbol}
       </Text>
 
       <View style={[flexboxStyles.flex1]}>
-        <Text fontSize={14}>${balanceUSD.toFixed(2)}</Text>
+        <Text fontSize={14}>${token.balanceUSD.toFixed(2)}</Text>
       </View>
 
       <View style={spacings.plTy}>
@@ -41,8 +45,8 @@ const TokensListItem = ({ img, symbol, balanceUSD, address, networkId, onPress }
           hasBottomSpacing={false}
           style={styles.depositButton}
           textStyle={styles.depositButtonText}
-          disabled={balanceUSD === 0}
-          onPress={() => null}
+          disabled={token.balanceUSD === 0}
+          onPress={() => openDepositToken(token)}
         />
       </View>
     </View>

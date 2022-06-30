@@ -13,7 +13,7 @@ import TokensListItem from './TokensListItem'
 interface Props {
   tokens: any[]
   isLoading: boolean
-  networkId: NetworkId
+  networkId?: NetworkId
 }
 
 const TokensList = ({ tokens, isLoading, networkId }: Props) => {
@@ -36,16 +36,12 @@ const TokensList = ({ tokens, isLoading, networkId }: Props) => {
         {t('Available fee tokens')}
       </Text>
       {!!tokens &&
-        tokens.map(({ address, symbol, img, tokenImageUrl, balanceUSD }, i: number) => (
+        tokens.map((token, i: number) => (
           <TokensListItem
             // eslint-disable-next-line react/no-array-index-key
-            key={`token-${address}-${i}`}
-            img={img || tokenImageUrl}
-            symbol={symbol}
-            balanceUSD={balanceUSD}
-            address={address}
+            key={`token-${token.address}-${i}`}
+            token={token}
             networkId={networkId}
-            // onPress={handleGoToSend}
           />
         ))}
     </View>
