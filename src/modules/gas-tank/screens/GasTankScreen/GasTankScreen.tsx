@@ -29,17 +29,6 @@ const GasTankScreen = () => {
   const { addRequest } = useRequests()
   const { addToast } = useToast()
 
-  const balanceLabel = useMemo(
-    () =>
-      !data
-        ? '0.00'
-        : data
-            .map(({ balanceInUSD }: any) => balanceInUSD)
-            .reduce((a: any, b: any) => a + b, 0)
-            .toFixed(2),
-    [data]
-  )
-
   const totalSaveLabel = useMemo(
     () =>
       gasTankTxns && gasTankTxns.length
@@ -61,7 +50,7 @@ const GasTankScreen = () => {
         </Text>
         <Panel>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
-            <GasTankBalance balance={balanceLabel} />
+            <GasTankBalance data={data || []} networkId={network?.id} />
             <GasTankTotalSave totalSave={totalSaveLabel} />
           </View>
           <TokensList

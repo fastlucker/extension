@@ -22,7 +22,7 @@ const styles = StyleSheet.create<Style>({
     ...commonStyles.borderRadiusPrimary
   },
   tokenSymbol: {
-    width: '33%'
+    width: '30%'
   },
   depositButton: {
     minHeight: 34,
