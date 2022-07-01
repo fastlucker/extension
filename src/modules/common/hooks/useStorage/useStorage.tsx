@@ -7,7 +7,7 @@ export default function useSyncStorage<ValueType>({
   defaultValue,
   isStringStorage,
   setInit
-}: Partial<UseStorageProps<ValueType>>) {
+}: Omit<UseStorageProps<ValueType>, 'storage'>) {
   return useStorage<ValueType>({
     storage: SyncStorage,
     key,
