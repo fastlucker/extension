@@ -1,17 +1,17 @@
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
-import { t } from 'i18next'
+import { ethers } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import InfoIcon from '@assets/svg/InfoIcon'
+import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import TokenIcon from '@modules/common/components/TokenIcon'
-import useNetwork from '@modules/common/hooks/useNetwork'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -38,7 +38,16 @@ function getBalance(token: any) {
   return (balance / decimals) * priceInUSD
 }
 
-const WalletDiscountBanner = ({ assetsItems, tokens, estimation, setCurrency, navigate }: any) => {
+const WalletDiscountBanner = ({
+  assetsItems,
+  tokens,
+  estimation,
+  setCurrency,
+  navigate,
+  feeSpeed,
+  isGasTankEnabled,
+  network
+}: any) => {
   if (
     estimation.selectedFeeToken?.symbol &&
     (DISCOUNT_TOKENS_SYMBOLS.includes(estimation.selectedFeeToken?.symbol) ||
@@ -47,7 +56,12 @@ const WalletDiscountBanner = ({ assetsItems, tokens, estimation, setCurrency, na
     return null
   }
   const walletDiscountTokens = [...tokens]
-    .filter((x) => DISCOUNT_TOKENS_SYMBOLS.includes(x.symbol) && x.discount)
+    .filter(
+      (x) =>
+        DISCOUNT_TOKENS_SYMBOLS.includes(x.symbol) &&
+        x.discount &&
+        isTokenEligible(x, feeSpeed, estimation, isGasTankEnabled, network)
+    )
     .sort(
       (a, b) =>
         b.discount - a.discount ||
@@ -101,12 +115,14 @@ const FeeSelector = ({
   estimation,
   setEstimation,
   feeSpeed,
-  setFeeSpeed
+  setFeeSpeed,
+  network,
+  isGasTankEnabled
 }: any) => {
-  const { network }: any = useNetwork()
   const [currency, setCurrency] = useState<any>(null)
   const [editCustomFee, setEditCustomFee] = useState(false)
   const { navigate } = useNavigation()
+  const { t } = useTranslation()
 
   // Initially sets a value in the Select
   useEffect(() => {
@@ -133,7 +149,7 @@ const FeeSelector = ({
     const insufficientFee =
       estimation &&
       estimation.feeInUSD &&
-      !isTokenEligible(estimation.selectedFeeToken, feeSpeed, estimation)
+      !isTokenEligible(estimation.selectedFeeToken, feeSpeed, estimation, isGasTankEnabled, network)
     if (estimation && !estimation.success)
       return (
         <Text appearance="danger" fontSize={14}>
@@ -166,27 +182,55 @@ const FeeSelector = ({
     }
 
     const { nativeAssetSymbol } = network
-    const tokens = estimation.remainingFeeTokenBalances || [
-      { symbol: nativeAssetSymbol, decimals: 18 }
-    ]
+    const gasTankTokens = estimation.gasTank?.map((item) => {
+      const nativeRate =
+        item.address === '0x0000000000000000000000000000000000000000'
+          ? null
+          : estimation.nativeAssetPriceInUSD / item.price
+      return {
+        ...item,
+        symbol: item.symbol.toUpperCase(),
+        balance: ethers.utils
+          .parseUnits(item.balance.toFixed(item.decimals).toString(), item.decimals)
+          .toString(),
+        nativeRate
+      }
+    })
+
+    const tokens =
+      isGasTankEnabled && gasTankTokens.length
+        ? gasTankTokens
+        : estimation.remainingFeeTokenBalances || [
+            {
+              symbol: nativeAssetSymbol,
+              decimals: 18,
+              address: '0x0000000000000000000000000000000000000000'
+            }
+          ]
 
     const assetsItems = tokens
       .sort(
         (a: any, b: any) =>
-          // @ts-ignore
-          isTokenEligible(b, SPEEDS[0], estimation) - isTokenEligible(a, SPEEDS[0], estimation) ||
+          isTokenEligible(b, SPEEDS[0], estimation, isGasTankEnabled, network) -
+            isTokenEligible(a, SPEEDS[0], estimation, isGasTankEnabled, network) ||
           DISCOUNT_TOKENS_SYMBOLS.indexOf(b.symbol) - DISCOUNT_TOKENS_SYMBOLS.indexOf(a.symbol) ||
           (b.discount || 0) - (a.discount || 0) ||
           a?.symbol.toUpperCase().localeCompare(b?.symbol.toUpperCase())
       )
-      .map((token: any) => ({
-        label: token.label || token.symbol,
-        value: token.symbol,
-        disabled: !isTokenEligible(token, feeSpeed, estimation),
-        icon: () => <TokenIcon withContainer networkId={network?.id} address={token.address} />
+      .map(({ address, label, symbol, discount, ...rest }: any) => ({
+        label: label || symbol,
+        value: symbol,
+        disabled: !isTokenEligible(
+          { address, symbol, discount, ...rest },
+          SPEEDS[0],
+          estimation,
+          isGasTankEnabled,
+          network
+        ),
+        icon: () => <TokenIcon withContainer networkId={network?.id} address={address} />
       }))
 
-    const { discount = 0, symbol, nativeRate, decimals } = estimation.selectedFeeToken
+    const { discount = 0, symbol, nativeRate = null, decimals } = estimation.selectedFeeToken
     const feeCurrencySelect = estimation.feeInUSD ? (
       <Select
         value={currency}
@@ -211,7 +255,13 @@ const FeeSelector = ({
 
     const checkIsSelectorDisabled = (speed: any) => {
       // eslint-disable-next-line @typescript-eslint/no-shadow
-      const insufficientFee = !isTokenEligible(estimation.selectedFeeToken, speed, estimation)
+      const insufficientFee = !isTokenEligible(
+        estimation.selectedFeeToken,
+        speed,
+        estimation,
+        isGasTankEnabled,
+        network
+      )
       return disabled || insufficientFee
     }
 
@@ -220,7 +270,13 @@ const FeeSelector = ({
         feeInFeeToken,
         feeInUSD
         // NOTE: get the estimation res data w/o custom fee for the speeds
-      } = getFeesData({ ...estimation.selectedFeeToken }, { ...estimation, customFee: null }, speed)
+      } = getFeesData(
+        { ...estimation.selectedFeeToken },
+        { ...estimation, customFee: null },
+        speed,
+        isGasTankEnabled,
+        network
+      )
 
       const discountInFeeToken = getDiscountApplied(feeInFeeToken, discount)
       const discountInFeeInUSD = getDiscountApplied(feeInUSD, discount)
@@ -266,22 +322,28 @@ const FeeSelector = ({
       )
     })
 
-    const { feeInFeeToken, feeInUSD } = getFeesData(
+    const { feeInFeeToken, feeInUSD, savedGas } = getFeesData(
       estimation.selectedFeeToken,
       estimation,
-      feeSpeed
+      feeSpeed,
+      isGasTankEnabled,
+      network
     )
 
     const { feeInFeeToken: minFee, feeInUSD: minFeeUSD } = getFeesData(
       { ...estimation.selectedFeeToken },
       { ...estimation, customFee: null },
-      'slow'
+      'slow',
+      isGasTankEnabled,
+      network
     )
 
     const { feeInFeeToken: maxFee, feeInUSD: maxFeeUSD } = getFeesData(
       { ...estimation.selectedFeeToken },
       { ...estimation, customFee: null },
-      'ape'
+      'ape',
+      isGasTankEnabled,
+      network
     )
 
     const discountMin = getDiscountApplied(minFee, discount)
@@ -316,6 +378,11 @@ const FeeSelector = ({
           <Text fontSize={14} appearance="danger" style={spacings.mbTy}>
             {t('Insufficient balance for the fee. Accepted tokens: ')}
             {(estimation.remainingFeeTokenBalances || []).map((x: any) => x.symbol).join(', ')}
+            {isGasTankEnabled && (
+              <Text fontSize={14} appearance="danger">
+                {t('Disable your Gas Tank to use the default fee tokens.')}
+              </Text>
+            )}
           </Text>
         ) : (
           <View style={spacings.mbTy}>{feeCurrencySelect}</View>
@@ -327,12 +394,22 @@ const FeeSelector = ({
           tokens,
           estimation,
           setCurrency,
-          navigate
+          navigate,
+          feeSpeed,
+          isGasTankEnabled,
+          network
         })}
-
-        <Text style={spacings.pbMi} fontSize={14}>
-          {t('Transaction speed')}
-        </Text>
+        <View
+          style={[spacings.mbMi, flexboxStyles.directionRow, flexboxStyles.justifySpaceBetween]}
+        >
+          <Text fontSize={14}>{t('Transaction speed')}</Text>
+          <Text fontSize={14}>
+            {t('Gas Tank: ')}
+            <Text fontSize={14} color={isGasTankEnabled ? colors.turquoise : colors.pink}>
+              {isGasTankEnabled ? t('Enabled') : t('Disabled')}
+            </Text>
+          </Text>
+        </View>
         <View style={styles.selectorsContainer}>{feeAmountSelectors}</View>
 
         <CustomFee
@@ -424,6 +501,34 @@ const FeeSelector = ({
             )}
           </View>
         </View>
+        {isGasTankEnabled && (
+          <>
+            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}>
+              <Text style={spacings.mrMi} fontSize={12} color={colors.turquoise}>
+                {t('Fee token balance: ')}
+              </Text>
+              <View style={[flexboxStyles.alignEnd, flexboxStyles.flex1]}>
+                <Text fontSize={12} color={colors.turquoise}>{`$${formatFloatTokenAmount(
+                  estimation.selectedFeeToken.balanceInUSD,
+                  true,
+                  4
+                )}`}</Text>
+              </View>
+            </View>
+            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}>
+              <Text style={spacings.mrMi} fontSize={12} color={colors.turquoise}>
+                {t('You save: ')}
+              </Text>
+              <View style={[flexboxStyles.alignEnd, flexboxStyles.flex1]}>
+                <Text fontSize={12} color={colors.turquoise}>{`$${formatFloatTokenAmount(
+                  (feeInUSD / estimation.gasLimit) * savedGas,
+                  true,
+                  4
+                )}`}</Text>
+              </View>
+            </View>
+          </>
+        )}
 
         {!!discount && (
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}>

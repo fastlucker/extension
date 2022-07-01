@@ -18,6 +18,7 @@ import GasTankBalance from '@modules/gas-tank/components/GasTankBalance'
 import GasTankStateToggle from '@modules/gas-tank/components/GasTankStateToggle'
 import GasTankTotalSave from '@modules/gas-tank/components/GasTankTotalSave'
 import TokensList from '@modules/gas-tank/components/TokensList'
+import TransactionHistoryList from '@modules/gas-tank/components/TransactionsHistoryList'
 import useGasTankData from '@modules/gas-tank/hooks/useGasTankData'
 
 const GasTankScreen = () => {
@@ -64,6 +65,9 @@ const GasTankScreen = () => {
             addRequest={addRequest}
             addToast={addToast}
           />
+        </Panel>
+        <Panel>
+          <TransactionHistoryList gasTankTxns={gasTankTxns || []} />
         </Panel>
       </Wrapper>
     </GradientBackgroundWrapper>

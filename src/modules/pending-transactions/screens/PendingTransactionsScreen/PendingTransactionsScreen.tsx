@@ -1,13 +1,18 @@
 import React, { useEffect, useLayoutEffect } from 'react'
+import { View } from 'react-native'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
+import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useGasTank from '@modules/common/hooks/useGasTank'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useRequests from '@modules/common/hooks/useRequests'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
@@ -22,7 +27,8 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
   const { account } = useAccounts()
-
+  const { network } = useNetwork()
+  const { currentAccGasTankState } = useGasTank()
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
 
   const {
@@ -33,7 +39,10 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     setEstimation,
     setFeeSpeed,
     approveTxn,
-    rejectTxn
+    rejectTxn,
+    canProceed,
+    replacementBundle,
+    rejectTxnReplace
   } = useSendTransaction({
     sheetRef,
     openBottomSheet,
@@ -47,7 +56,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     navigation.setOptions({
       headerTitle: t('Pending Transactions: {{numTxns}}', { numTxns: bundle?.txns?.length })
     })
-  }, [navigation, bundle?.txns?.length])
+  }, [navigation, bundle?.txns?.length, t])
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', () => {
@@ -102,31 +111,69 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
       <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={190}>
         <SigningWithAccount />
         <TransactionSummary bundle={bundle} estimation={estimation} />
-        <FeeSelector
-          disabled={
-            signingStatus && signingStatus.finalBundle && !(estimation && !estimation.success)
-          }
-          signer={bundle.signer}
-          estimation={estimation}
-          setEstimation={setEstimation}
-          feeSpeed={feeSpeed}
-          setFeeSpeed={setFeeSpeed}
-        />
-        {!!bundle?.signer?.quickAccManager && !CONFIG.RELAYER_URL ? (
-          <Text fontSize={17} appearance="danger">
-            {t(
-              'Signing transactions with an email/password account without being connected to the relayer is unsupported.'
-            )}
-          </Text>
-        ) : (
-          <SignActions
-            bundle={bundle}
+        {!!canProceed && (
+          <FeeSelector
+            disabled={
+              signingStatus && signingStatus.finalBundle && !(estimation && !estimation.success)
+            }
+            signer={bundle.signer}
             estimation={estimation}
-            approveTxn={approveTxn}
-            rejectTxn={rejectTxn}
-            signingStatus={signingStatus}
+            setEstimation={setEstimation}
             feeSpeed={feeSpeed}
+            setFeeSpeed={setFeeSpeed}
+            network={network}
+            isGasTankEnabled={!!currentAccGasTankState.isEnabled}
           />
+        )}
+        {!!replacementBundle && (
+          <>
+            {(!!canProceed || canProceed === null) && (
+              <View>
+                <Text>{t('This transaction will replace the current pending transaction')}</Text>
+              </View>
+            )}
+
+            {canProceed === null && (
+              <View>
+                <Spinner />
+              </View>
+            )}
+
+            {canProceed === false && (
+              <View>
+                <View>
+                  <Text>
+                    {t("The transaction you're trying to replace has already been confirmed")}
+                  </Text>
+                </View>
+
+                <Button type="danger" text={t('Close')} onPress={rejectTxnReplace} />
+              </View>
+            )}
+          </>
+        )}
+        {!!canProceed && (
+          // eslint-disable-next-line react/jsx-no-useless-fragment
+          <>
+            {!!bundle?.signer?.quickAccManager && !CONFIG.RELAYER_URL ? (
+              <Text fontSize={16} appearance="danger">
+                {t(
+                  'Signing transactions with an email/password account without being connected to the relayer is unsupported.'
+                )}
+              </Text>
+            ) : (
+              <SignActions
+                bundle={bundle}
+                estimation={estimation}
+                approveTxn={approveTxn}
+                rejectTxn={rejectTxn}
+                signingStatus={signingStatus}
+                feeSpeed={feeSpeed}
+                isGasTankEnabled={currentAccGasTankState.isEnabled}
+                network={network}
+              />
+            )}
+          </>
         )}
         <BottomSheet
           id="pending-transactions-hardware-wallet"

@@ -5,15 +5,21 @@
 const ADDED_GAS_TOKEN = 30000
 const ADDED_GAS_NATIVE = 12000
 
+export function getAddedGas(token) {
+  return !token?.address || token?.address === '0x0000000000000000000000000000000000000000'
+    ? ADDED_GAS_NATIVE
+    : ADDED_GAS_TOKEN
+}
+
 // can't think of a less funny name for that
-export function getFeePaymentConsequences(token: any, estimation: any) {
+export function getFeePaymentConsequences(token, estimation, isGasTankEnabled) {
   // Relayerless mode
-  if (!estimation.feeInUSD) return { multiplier: 1, addedGas: 0 }
+  if (!estimation?.feeInUSD || !token) return { multiplier: 1, addedGas: 0 }
   // Relayer mode
-  const addedGas =
-    !token.address || token.address === '0x0000000000000000000000000000000000000000'
-      ? ADDED_GAS_NATIVE
-      : ADDED_GAS_TOKEN
+  const addedGas = getAddedGas(token)
+  // If Gas Tank enabled
+  if (isGasTankEnabled) return { addedGas: 0, multiplier: 1 }
+
   return {
     // otherwise we get very long floating point numbers with trailing .999999
     multiplier: parseFloat(((estimation.gasLimit + addedGas) / estimation.gasLimit).toFixed(4)),
@@ -22,35 +28,45 @@ export function getFeePaymentConsequences(token: any, estimation: any) {
 }
 
 // Returns feeToken data with all multipliers applied
-export function getFeesData(feeToken: any, estimation: any, speed: any) {
-  const { addedGas, multiplier } = getFeePaymentConsequences(feeToken, estimation)
-  const discountMultiplier = 1 - (feeToken.discount || 0)
+export function getFeesData(feeToken, estimation, speed, isGasTankEnabled, network) {
+  const { addedGas, multiplier } = getFeePaymentConsequences(feeToken, estimation, isGasTankEnabled)
+  const savedGas = getAddedGas(feeToken)
+  const discountMultiplier = 1 - (feeToken?.discount || 0)
   const totalMultiplier = multiplier * discountMultiplier
-  const nativeRate = feeToken.nativeRate || 1
-
+  const nativeRate = feeToken?.nativeRate || 1
+  const isCrossChainNativeSelected =
+    isGasTankEnabled &&
+    feeToken.address === '0x0000000000000000000000000000000000000000' &&
+    network.id !== feeToken.network
+  // eslint-disable-next-line no-nested-ternary
   const feeInNative = estimation.customFee
     ? (estimation.customFee * discountMultiplier) / nativeRate
-    : estimation.feeInNative[speed] * totalMultiplier
-
+    : !isCrossChainNativeSelected
+    ? estimation.feeInNative[speed] * totalMultiplier
+    : (((estimation.feeInNative[speed] * totalMultiplier) / nativeRate) *
+        estimation.nativeAssetPriceInUSD) /
+      feeToken.price
+  // eslint-disable-next-line no-nested-ternary
   const feeInUSD = !Number.isNaN(estimation.nativeAssetPriceInUSD)
-    ? feeInNative * estimation.nativeAssetPriceInUSD
+    ? !isCrossChainNativeSelected
+      ? feeInNative * estimation.nativeAssetPriceInUSD
+      : feeInNative * feeToken.price
     : undefined
-
   const feeInFeeToken = feeInNative * nativeRate
 
   return {
     feeInNative,
     feeInUSD,
     feeInFeeToken,
-    addedGas // use it bundle data
+    addedGas, // use it bundle data
+    savedGas
   }
 }
-
-export function isTokenEligible(token, speed, estimation) {
+export function isTokenEligible(token, speed, estimation, isGasTankEnabled, network) {
   if (estimation?.relayerless && token?.address === '0x0000000000000000000000000000000000000000')
     return true
   if (!token) return false
-  const { feeInFeeToken } = getFeesData(token, estimation, speed)
+  const { feeInFeeToken } = getFeesData(token, estimation, speed, isGasTankEnabled, network)
   const balanceInFeeToken = parseInt(token.balance) / 10 ** token.decimals
   return balanceInFeeToken > feeInFeeToken
 }
