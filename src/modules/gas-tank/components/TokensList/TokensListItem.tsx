@@ -19,7 +19,7 @@ type Props = {
 
 const TokensListItem = ({ type = 'deposit', token, networkId }: Props) => {
   const { openDepositToken } = useContext(DepositTokenBottomSheetContext)
-  const balanceUSD = token.balanceUSD || token.balanceInUSD
+  const balanceUSD = token.balanceUSD || token.balanceInUSD || 0.0
   return (
     <View style={styles.tokenItemContainer}>
       <View style={spacings.prTy}>
@@ -42,7 +42,7 @@ const TokensListItem = ({ type = 'deposit', token, networkId }: Props) => {
             </Text>
           </View>
           <View>
-            <Text fontSize={14}>${balanceUSD.toFixed(2)}</Text>
+            <Text fontSize={14}>${balanceUSD?.toFixed(2)}</Text>
           </View>
         </>
       )}
@@ -53,7 +53,7 @@ const TokensListItem = ({ type = 'deposit', token, networkId }: Props) => {
             {token.symbol.toUpperCase()}
           </Text>
           <View style={flexboxStyles.flex1}>
-            <Text fontSize={14}>${balanceUSD.toFixed(2)}</Text>
+            <Text fontSize={14}>${balanceUSD?.toFixed(2)}</Text>
           </View>
         </>
       )}

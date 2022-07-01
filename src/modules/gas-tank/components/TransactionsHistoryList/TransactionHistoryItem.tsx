@@ -21,7 +21,7 @@ const HIT_SLOP = { bottom: 15, left: 12, right: 15, top: 15 }
 
 const toLocaleDateTime = (date: any) => `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
 
-const TokensListItem = ({ txn, data, explorerUrl }: Props) => {
+const TransactionHistoryItem = ({ txn, data, explorerUrl }: Props) => {
   const { t } = useTranslation()
   const feeTokenDetails = data?.find((e: any) => e.id === txn?.gasTankFee?.assetId) || null
   const savedGas = getAddedGas(feeTokenDetails)
@@ -80,4 +80,4 @@ const TokensListItem = ({ txn, data, explorerUrl }: Props) => {
   )
 }
 
-export default React.memo(TokensListItem)
+export default React.memo(TransactionHistoryItem)
