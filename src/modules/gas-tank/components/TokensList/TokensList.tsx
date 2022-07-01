@@ -36,11 +36,13 @@ const TokensList = ({
 
   if (isLoading) {
     return (
-      <View style={[flexboxStyles.center, spacings.pbLg]}>
+      <View>
         <Text style={spacings.mbTy} fontSize={12}>
           {t('Available fee tokens')}
         </Text>
-        <Spinner />
+        <View style={[flexboxStyles.center, spacings.ptMd, spacings.pbLg]}>
+          <Spinner />
+        </View>
       </View>
     )
   }
