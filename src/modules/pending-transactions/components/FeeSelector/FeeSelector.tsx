@@ -374,20 +374,6 @@ const FeeSelector = ({
 
     return (
       <>
-        {insufficientFee ? (
-          <Text fontSize={14} appearance="danger" style={spacings.mbTy}>
-            {t('Insufficient balance for the fee. Accepted tokens: ')}
-            {(estimation.remainingFeeTokenBalances || []).map((x: any) => x.symbol).join(', ')}
-            {isGasTankEnabled && (
-              <Text fontSize={14} appearance="danger">
-                {t('Disable your Gas Tank to use the default fee tokens.')}
-              </Text>
-            )}
-          </Text>
-        ) : (
-          <View style={spacings.mbTy}>{feeCurrencySelect}</View>
-        )}
-
         {WalletDiscountBanner({
           assetsItems,
           selectedFeeToken: estimation.selectedFeeToken,
@@ -484,6 +470,20 @@ const FeeSelector = ({
           }
         />
 
+        {insufficientFee ? (
+          <Text fontSize={12} appearance="danger" style={[spacings.mbTy, spacings.phSm]}>
+            {t('Insufficient balance for the fee. Accepted tokens: ')}
+            {(estimation.remainingFeeTokenBalances || []).map((x: any) => x.symbol).join(', ')}
+            {isGasTankEnabled && (
+              <Text fontSize={12} appearance="danger">
+                {t('. Disable your Gas Tank to use the default fee tokens.')}
+              </Text>
+            )}
+          </Text>
+        ) : (
+          <View style={spacings.mbTy}>{feeCurrencySelect}</View>
+        )}
+
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}>
           <Text style={spacings.mrMi} fontSize={12}>
             {t('Fee: ')}
@@ -557,7 +557,7 @@ const FeeSelector = ({
         )}
 
         {!estimation.feeInUSD ? (
-          <Text>
+          <Text style={spacings.phSm} fontSize={12} color={colors.mustard}>
             {t(
               'WARNING: Paying fees in tokens other than {{symbol}} is unavailable because you are not connected to a relayer. You will pay the fee from {{address}}.',
               { symbol: nativeAssetSymbol, address: signer.address }

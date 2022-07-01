@@ -15,6 +15,8 @@ import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrevious from '@modules/common/hooks/usePrevious'
 import useRequests from '@modules/common/hooks/useRequests'
+import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
 import SignActions from '@modules/pending-transactions/components/SignActions'
@@ -128,13 +130,13 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         {!!replacementBundle && (
           <>
             {(!!canProceed || canProceed === null) && (
-              <View>
-                <Text>{t('This transaction will replace the current pending transaction')}</Text>
-              </View>
+              <Text style={[spacings.mbTy, spacings.phSm]} fontSize={12}>
+                {t('This transaction will replace the current pending transaction.')}
+              </Text>
             )}
 
             {canProceed === null && (
-              <View>
+              <View style={flexboxStyles.alignCenter}>
                 <Spinner />
               </View>
             )}
@@ -142,8 +144,8 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
             {canProceed === false && (
               <View>
                 <View>
-                  <Text>
-                    {t("The transaction you're trying to replace has already been confirmed")}
+                  <Text style={[spacings.mbSm, spacings.phSm]} fontSize={12}>
+                    {t("The transaction you're trying to replace has already been confirmed.")}
                   </Text>
                 </View>
 
