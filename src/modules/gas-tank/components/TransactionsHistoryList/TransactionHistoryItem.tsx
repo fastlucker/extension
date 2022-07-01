@@ -1,77 +1,81 @@
-import React, { useContext } from 'react'
-import { View } from 'react-native'
+import React from 'react'
+import { Linking, TouchableOpacity, View } from 'react-native'
 
-import Button from '@modules/common/components/Button'
+import OpenIcon from '@assets/svg/OpenIcon'
+import { useTranslation } from '@config/localization'
+import { formatUnits } from '@ethersproject/units'
 import Text from '@modules/common/components/Text'
-import TokenIcon from '@modules/common/components/TokenIcon'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
-import { DepositTokenBottomSheetContext } from '@modules/gas-tank/contexts/depositTokenBottomSheetContext'
+import { getAddedGas } from '@modules/pending-transactions/services/helpers'
 
 import styles from './styles'
 
 type Props = {
-  type?: 'deposit' | 'balance'
-  token: any
-  networkId: string | undefined
+  txn: any
+  data: any[]
+  explorerUrl: string
 }
+const HIT_SLOP = { bottom: 15, left: 12, right: 15, top: 15 }
 
-const TokensListItem = ({ type = 'deposit', token, networkId }: Props) => {
-  const { openDepositToken } = useContext(DepositTokenBottomSheetContext)
-  const balanceUSD = token.balanceUSD || token.balanceInUSD
+const toLocaleDateTime = (date: any) => `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
+
+const TokensListItem = ({ txn, data, explorerUrl }: Props) => {
+  const { t } = useTranslation()
+  const feeTokenDetails = data?.find((e: any) => e.id === txn?.gasTankFee?.assetId) || null
+  const savedGas = getAddedGas(feeTokenDetails)
   return (
     <View style={styles.tokenItemContainer}>
-      <View style={spacings.prTy}>
-        <TokenIcon
-          withContainer
-          uri={token.img || token.tokenImageUrl}
-          networkId={networkId}
-          address={token.address}
-        />
+      <View
+        style={[
+          flexboxStyles.directionRow,
+          flexboxStyles.alignCenter,
+          flexboxStyles.justifySpaceBetween,
+          spacings.mbTy
+        ]}
+      >
+        <Text fontSize={12} color={colors.titan_50} numberOfLines={1}>
+          {txn.submittedAt && toLocaleDateTime(new Date(txn.submittedAt)).toString()}
+        </Text>
+        <TouchableOpacity
+          onPress={() => Linking.openURL(`${explorerUrl}/tx/${txn.txId}`)}
+          hitSlop={HIT_SLOP}
+        >
+          <OpenIcon />
+        </TouchableOpacity>
       </View>
-
-      {type === 'balance' && (
-        <>
-          <Text fontSize={14} style={[spacings.prSm]} numberOfLines={2}>
-            {token.symbol.toUpperCase()}
+      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+        <View style={[flexboxStyles.flex1, spacings.prMi]}>
+          <Text fontSize={11} weight="medium" numberOfLines={1}>
+            {t('Gas payed: ')}
           </Text>
-          <View style={[flexboxStyles.flex1, spacings.mrSm]}>
-            <Text fontSize={14} style={textStyles.center} numberOfLines={1}>
-              ${token.balance}
-            </Text>
-          </View>
-          <View>
-            <Text fontSize={14}>${balanceUSD.toFixed(2)}</Text>
-          </View>
-        </>
-      )}
-
-      {type === 'deposit' && (
-        <>
-          <Text fontSize={14} style={[spacings.prSm, styles.tokenSymbol]} numberOfLines={2}>
-            {token.symbol.toUpperCase()}
-          </Text>
-          <View style={flexboxStyles.flex1}>
-            <Text fontSize={14}>${balanceUSD.toFixed(2)}</Text>
-          </View>
-        </>
-      )}
-
-      {type === 'deposit' && (
-        <View style={spacings.plTy}>
-          <Button
-            text="Deposit"
-            size="small"
-            type="outline"
-            hasBottomSpacing={false}
-            style={styles.depositButton}
-            textStyle={styles.depositButtonText}
-            disabled={!balanceUSD || balanceUSD === 0}
-            onPress={() => openDepositToken(token)}
-          />
+          <Text fontSize={11} numberOfLines={1}>{`$${(txn.feeInUSDPerGas * txn.gasLimit).toFixed(
+            6
+          )}`}</Text>
         </View>
-      )}
+        <View style={[flexboxStyles.flex1, spacings.prMi]}>
+          <Text fontSize={11} weight="medium" numberOfLines={1}>
+            {t('Saved: ')}
+          </Text>
+          <Text fontSize={11} numberOfLines={1}>{`$${(txn.feeInUSDPerGas * savedGas).toFixed(
+            6
+          )}`}</Text>
+        </View>
+        <View style={flexboxStyles.flex1}>
+          <Text fontSize={11} weight="medium" numberOfLines={1}>
+            {t('Cashback: ')}
+          </Text>
+          <Text fontSize={11} numberOfLines={1}>{`$${
+            txn.gasTankFee.cashback && feeTokenDetails
+              ? (
+                  formatUnits(txn.gasTankFee.cashback.toString(), feeTokenDetails.decimals) *
+                  feeTokenDetails?.price
+                ).toFixed(6)
+              : '0.00'
+          }`}</Text>
+        </View>
+      </View>
     </View>
   )
 }

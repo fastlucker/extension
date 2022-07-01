@@ -46,6 +46,7 @@ const GasTankScreen = () => {
       <Wrapper hasBottomTabNav={false}>
         <GasTankStateToggle />
         <Text style={[spacings.mbSm, spacings.mhSm]} fontSize={12}>
+          {/* TODO: learn more... should be clickable and should open detailed info in a modal */}
           {t('The Ambire Gas Tank is your special account for paying gas and saving on gas fees.')}
           <Text color={colors.heliotrope} fontSize={12}>{`   ${t('learn more...')}`}</Text>
         </Text>
@@ -67,7 +68,11 @@ const GasTankScreen = () => {
           />
         </Panel>
         <Panel>
-          <TransactionHistoryList gasTankTxns={gasTankTxns || []} />
+          <TransactionHistoryList
+            gasTankTxns={gasTankTxns || []}
+            data={data || []}
+            explorerUrl={network?.explorerUrl || ''}
+          />
         </Panel>
       </Wrapper>
     </GradientBackgroundWrapper>
