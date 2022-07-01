@@ -16,7 +16,8 @@ const styles = StyleSheet.create<Style>({
     ...spacings.pvTy,
     ...spacings.phTy,
     ...spacings.mb,
-    ...commonStyles.borderRadiusPrimary
+    ...commonStyles.borderRadiusPrimary,
+    maxHeight: 50
   }
 })
 

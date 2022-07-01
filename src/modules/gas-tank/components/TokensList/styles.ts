@@ -19,7 +19,8 @@ const styles = StyleSheet.create<Style>({
     ...spacings.pvTy,
     ...spacings.phTy,
     ...spacings.mbMi,
-    ...commonStyles.borderRadiusPrimary
+    ...commonStyles.borderRadiusPrimary,
+    maxHeight: 50
   },
   tokenSymbol: {
     width: '30%'
