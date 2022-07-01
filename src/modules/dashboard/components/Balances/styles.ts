@@ -31,7 +31,8 @@ const styles = StyleSheet.create<Style>({
     width: 275,
     borderBottomColor: colors.waikawaGray,
     borderBottomWidth: 1,
-    paddingVertical: 2
+    paddingVertical: 2,
+    alignItems: 'center'
   }
 })
 
