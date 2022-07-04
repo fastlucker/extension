@@ -7,7 +7,6 @@ import { View } from 'react-native'
 import { useTranslation } from '@config/localization'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
-import useGasTank from '@modules/common/hooks/useGasTank'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { DepositTokenBottomSheetProvider } from '@modules/gas-tank/contexts/depositTokenBottomSheetContext'
@@ -34,10 +33,9 @@ const TokensList = ({
   addToast
 }: Props) => {
   const { t } = useTranslation()
-  const { currentAccGasTankState } = useGasTank()
   if (isLoading) {
     return (
-      <View style={!currentAccGasTankState.isEnabled && { opacity: 0.2 }}>
+      <View>
         <Text style={spacings.mbTy} fontSize={12}>
           {t('Available fee tokens')}
         </Text>
@@ -56,10 +54,7 @@ const TokensList = ({
       addRequest={addRequest}
       addToast={addToast}
     >
-      <View
-        style={!currentAccGasTankState.isEnabled && { opacity: 0.2 }}
-        pointerEvents={!currentAccGasTankState.isEnabled ? 'none' : 'auto'}
-      >
+      <View>
         <Text style={spacings.mbTy} fontSize={12}>
           {t('Available fee tokens')}
         </Text>
