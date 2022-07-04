@@ -30,7 +30,7 @@ const GasTankScreen = () => {
   const { addRequest } = useRequests()
   const { addToast } = useToast()
 
-  const totalSaveLabel = useMemo(
+  const totalSave = useMemo(
     () =>
       gasTankTxns && gasTankTxns.length
         ? gasTankTxns
@@ -44,7 +44,7 @@ const GasTankScreen = () => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper hasBottomTabNav={false}>
-        <GasTankStateToggle />
+        <GasTankStateToggle disabled={Number(totalSave) === 0} />
         <Text style={[spacings.mbSm, spacings.mhSm]} fontSize={12}>
           {/* TODO: learn more... should be clickable and should open detailed info in a modal */}
           {t('The Ambire Gas Tank is your special account for paying gas and saving on gas fees.')}
@@ -53,7 +53,7 @@ const GasTankScreen = () => {
         <Panel>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
             <GasTankBalance data={data || []} networkId={network?.id} />
-            <GasTankTotalSave totalSave={totalSaveLabel} />
+            <GasTankTotalSave totalSave={Number(totalSave).toFixed(2)} />
           </View>
           <TokensList
             tokens={sortedTokens}

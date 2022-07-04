@@ -10,7 +10,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 
-const GasTankStateToggle = () => {
+const GasTankStateToggle = ({ disabled }: { disabled: boolean }) => {
   const { currentAccGasTankState, gasTankState, setGasTankState } = useGasTank()
   const { t } = useTranslation()
 
@@ -33,6 +33,7 @@ const GasTankStateToggle = () => {
       <View style={styles.toggleWrapper}>
         <Button
           text={t('Enabled')}
+          disabled={disabled}
           hasBottomSpacing={false}
           size="small"
           type={currentAccGasTankState.isEnabled ? 'outline' : 'secondary'}
