@@ -22,6 +22,7 @@ import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-nav
 import AppLocking from './AppLocking'
 import BiometricsSign from './BiometricsSign'
 import ConnectedDapps from './ConnectedDapps'
+import GasIndicator from './GasIndicator/GasIndicator'
 import LocalAuth from './LocalAuth'
 import Passcode from './Passcode'
 import Theme from './Theme'
@@ -82,8 +83,9 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       {...props}
       alwaysBounceVertical={false}
       contentContainerStyle={spacings.mhLg}
-      style={spacings.mvLg}
+      style={spacings.mt}
     >
+      <GasIndicator />
       <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
         {t('Menu')}
       </Text>
