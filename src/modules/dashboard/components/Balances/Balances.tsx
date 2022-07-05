@@ -173,9 +173,8 @@ const Balances = ({
       {otherPositiveBalances.length > 0 && (
         <View style={spacings.mb}>
           <Text style={[textStyles.center, spacings.mbTy]}>{t('You also have')}</Text>
-          {otherPositiveBalances.map(({ network, total }: any, i: number) => {
+          {otherPositiveBalances.map(({ network, total }: any) => {
             const { chainId, name, id }: any = networkDetails(network)
-            const isLast = i + 1 === otherPositiveBalances.length
 
             const onNetworkChange = () => {
               triggerLayoutAnimation()
