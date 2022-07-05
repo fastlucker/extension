@@ -67,14 +67,14 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   ]
 
   const handleNavigate = (route: string) => {
-    // FIXME: This makes the issue mentioned here even worse:
-    // {@link https://github.com/AmbireTech/ambire-mobile-wallet/issues/419}
     // For routes that are Screens part of the main stack navigator (like the
     // `ReceiveScreen`), the drawer doesn't automatically close itself.
     // Therefore, always trigger a close after route change.
-    // navigation.closeDrawer()
-
-    navigation.navigate(route)
+    navigation.closeDrawer()
+    // After a short timeout for the drawer animation to finish, navigate
+    // otherwise - closing the Drawer fails and the animation for opening
+    // new screen conflicts with the animation of closing the drawer.
+    setTimeout(() => navigation.navigate(route), 100)
   }
 
   return (
