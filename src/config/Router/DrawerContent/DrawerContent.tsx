@@ -111,7 +111,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         <Passcode handleNavigate={handleNavigate} />
         <LocalAuth handleNavigate={handleNavigate} />
         <BiometricsSign handleNavigate={handleNavigate} />
-        <AppLocking />
+        <AppLocking handleNavigate={handleNavigate} />
         <Theme />
         {settings.map((s) => (
           <TouchableOpacity key={s.name} onPress={() => handleNavigate(s.route)}>
