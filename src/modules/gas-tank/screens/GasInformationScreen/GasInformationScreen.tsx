@@ -1,11 +1,12 @@
 import { ACTION_GAS_COSTS, AMBIRE_OVERHEAD_COST } from 'ambire-common/src/constants/actionGasCosts'
 import { GAS_SPEEDS } from 'ambire-common/src/constants/gasSpeeds'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
+import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
@@ -18,6 +19,7 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import { useNavigation } from '@react-navigation/native'
 
 import styles from './styles'
 
@@ -26,6 +28,7 @@ const relayerURL = CONFIG.RELAYER_URL
 const GasInformationScreen = () => {
   const { t } = useTranslation()
   const { network } = useNetwork()
+  const { navigate } = useNavigation()
   const { cacheBreak } = useCacheBreak({})
   const url = relayerURL ? `${relayerURL}/gasPrice/${network?.id}?cacheBreak=${cacheBreak}` : null
   const { data, errMsg, isLoading } = useRelayerData(url)
@@ -50,6 +53,10 @@ const GasInformationScreen = () => {
       }, {}),
     [gasData]
   )
+
+  const handleDepositButtonPress = () => {
+    navigate('gas-tank')
+  }
 
   const LoadingContent = !!isLoading && !loaded && (
     <View style={[flexboxStyles.alignCenter, flexboxStyles.justifyCenter, flexboxStyles.flex1]}>
@@ -123,7 +130,7 @@ const GasInformationScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav={false}>
+      <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pb0}>
         <View
           style={[
             flexboxStyles.directionRow,
@@ -146,6 +153,9 @@ const GasInformationScreen = () => {
         {ErrorContent}
         {GasFeesContent}
       </Wrapper>
+      <View style={[spacings.pt, spacings.ph]}>
+        <Button text={t('Deposit to Gas Tank')} onPress={handleDepositButtonPress} />
+      </View>
     </GradientBackgroundWrapper>
   )
 }
