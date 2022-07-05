@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -36,6 +36,20 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const { t } = useTranslation()
   const { navigation } = props
 
+  const handleNavigate = useCallback(
+    (route: string) => {
+      // For routes that are Screens part of the main stack navigator (like the
+      // `ReceiveScreen`), the drawer doesn't automatically close itself.
+      // Therefore, always trigger a close after route change.
+      navigation.closeDrawer()
+      // After a short timeout for the drawer animation to finish, navigate
+      // otherwise - closing the Drawer fails and the animation for opening
+      // new screen conflicts with the animation of closing the drawer.
+      setTimeout(() => navigation.navigate(route), 100)
+    },
+    [navigation]
+  )
+
   const menu = [
     { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard' },
     { Icon: EarnIcon, name: t('Earn'), route: 'earn' },
@@ -66,17 +80,6 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { Icon: TelegramIcon, url: TELEGRAM_URL }
   ]
 
-  const handleNavigate = (route: string) => {
-    // For routes that are Screens part of the main stack navigator (like the
-    // `ReceiveScreen`), the drawer doesn't automatically close itself.
-    // Therefore, always trigger a close after route change.
-    navigation.closeDrawer()
-    // After a short timeout for the drawer animation to finish, navigate
-    // otherwise - closing the Drawer fails and the animation for opening
-    // new screen conflicts with the animation of closing the drawer.
-    setTimeout(() => navigation.navigate(route), 100)
-  }
-
   return (
     <DrawerContentScrollView
       {...props}
@@ -105,7 +108,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       </Text>
       <View style={[spacings.mlTy, spacings.mbSm]}>
         <ConnectedDapps />
-        <Passcode />
+        <Passcode handleNavigate={handleNavigate} />
         <LocalAuth />
         <BiometricsSign />
         <AppLocking />
