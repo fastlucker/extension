@@ -25,7 +25,7 @@ import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScre
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
-import { createDrawerNavigator, DrawerNavigationOptions } from '@react-navigation/drawer'
+import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
@@ -179,18 +179,13 @@ const AppDrawer = () => {
   return (
     <Drawer.Navigator
       drawerContent={DrawerContent}
-      screenOptions={(): DrawerNavigationOptions => ({
+      screenOptions={{
         headerShown: false,
         drawerType: 'front',
         drawerStyle
-      })}
+      }}
     >
       <Drawer.Screen name="tabs" component={TabsScreens} />
-      <Drawer.Screen name="passcode-change" component={ChangePasscodeStackScreen} />
-      <Drawer.Screen name="local-auth-change" component={ChangeLocalAuthStackScreen} />
-      <Drawer.Screen name="biometrics-sign-change" component={BiometricsStackScreen} />
-      <Drawer.Screen name="app-locking" component={AppLockingStackScreen} />
-      <Drawer.Screen name="signers" component={SignersStackScreen} />
     </Drawer.Navigator>
   )
 }
@@ -213,6 +208,31 @@ const AppStack = () => {
         options={{
           headerShown: false
         }}
+      />
+      <MainStack.Screen
+        options={{ headerShown: false }}
+        name="app-locking"
+        component={AppLockingStackScreen}
+      />
+      <MainStack.Screen
+        options={{ headerShown: false }}
+        name="signers"
+        component={SignersStackScreen}
+      />
+      <MainStack.Screen
+        options={{ headerShown: false }}
+        name="passcode-change"
+        component={ChangePasscodeStackScreen}
+      />
+      <MainStack.Screen
+        options={{ headerShown: false }}
+        name="local-auth-change"
+        component={ChangeLocalAuthStackScreen}
+      />
+      <MainStack.Screen
+        options={{ headerShown: false }}
+        name="biometrics-sign-change"
+        component={BiometricsStackScreen}
       />
       <MainStack.Screen
         name="auth-add-account"

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -36,6 +36,18 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const { t } = useTranslation()
   const { navigation } = props
 
+  const handleNavigate = useCallback(
+    (route: string) => {
+      // For routes that are Screens part of the main stack navigator (like the
+      // Receive screen and all Settings screens), the drawer doesn't
+      // automatically close itself.
+      // Therefore, always trigger a close before a route change
+      navigation.closeDrawer()
+      navigation.navigate(route)
+    },
+    [navigation]
+  )
+
   const menu = [
     { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard' },
     { Icon: EarnIcon, name: t('Earn'), route: 'earn' },
@@ -66,17 +78,6 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { Icon: TelegramIcon, url: TELEGRAM_URL }
   ]
 
-  const handleNavigate = (route: string) => {
-    // FIXME: This makes the issue mentioned here even worse:
-    // {@link https://github.com/AmbireTech/ambire-mobile-wallet/issues/419}
-    // For routes that are Screens part of the main stack navigator (like the
-    // `ReceiveScreen`), the drawer doesn't automatically close itself.
-    // Therefore, always trigger a close after route change.
-    // navigation.closeDrawer()
-
-    navigation.navigate(route)
-  }
-
   return (
     <DrawerContentScrollView
       {...props}
@@ -105,10 +106,10 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       </Text>
       <View style={[spacings.mlTy, spacings.mbSm]}>
         <ConnectedDapps />
-        <Passcode />
-        <LocalAuth />
-        <BiometricsSign />
-        <AppLocking />
+        <Passcode handleNavigate={handleNavigate} />
+        <LocalAuth handleNavigate={handleNavigate} />
+        <BiometricsSign handleNavigate={handleNavigate} />
+        <AppLocking handleNavigate={handleNavigate} />
         <Theme />
         {settings.map((s) => (
           <TouchableOpacity key={s.name} onPress={() => handleNavigate(s.route)}>
