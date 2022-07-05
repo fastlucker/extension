@@ -109,7 +109,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       <View style={[spacings.mlTy, spacings.mbSm]}>
         <ConnectedDapps />
         <Passcode handleNavigate={handleNavigate} />
-        <LocalAuth />
+        <LocalAuth handleNavigate={handleNavigate} />
         <BiometricsSign />
         <AppLocking />
         <Theme />
