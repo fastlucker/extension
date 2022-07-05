@@ -16,6 +16,7 @@ import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
+import GasInformationScreen from '@modules/gas-tank/screens/GasInformationScreen'
 import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
@@ -44,6 +45,7 @@ const ChangeLocalAuthStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
+const GasInformationStack = createNativeStackNavigator()
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
@@ -62,18 +64,18 @@ const SignersStackScreen = () => {
 }
 
 const GasTankStackScreen = () => {
-  const { t } = useTranslation()
-
   return (
     <GasTankStack.Navigator screenOptions={{ header: headerGamma }}>
-      <GasTankStack.Screen
-        name="gas-tank-screen"
-        component={GasTankScreen}
-        options={{
-          title: t('Gas Tank')
-        }}
-      />
+      <GasTankStack.Screen name="gas-tank-screen" component={GasTankScreen} />
     </GasTankStack.Navigator>
+  )
+}
+
+const GasInformationStackScreen = () => {
+  return (
+    <GasInformationStack.Navigator screenOptions={{ header: headerGamma }}>
+      <GasInformationStack.Screen name="gas-information-screen" component={GasInformationScreen} />
+    </GasInformationStack.Navigator>
   )
 }
 
@@ -210,6 +212,7 @@ const AppDrawer = () => {
       <Drawer.Screen name="app-locking" component={AppLockingStackScreen} />
       <Drawer.Screen name="signers" component={SignersStackScreen} />
       <Drawer.Screen name="gas-tank" component={GasTankStackScreen} />
+      <Drawer.Screen name="gas-information" component={GasInformationStackScreen} />
     </Drawer.Navigator>
   )
 }

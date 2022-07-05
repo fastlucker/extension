@@ -1,6 +1,6 @@
 import { ACTION_GAS_COSTS, AMBIRE_OVERHEAD_COST } from 'ambire-common/src/constants/actionGasCosts'
 import React, { useEffect, useState } from 'react'
-import { View } from 'react-native'
+import { TouchableOpacity } from 'react-native'
 
 import GasTankIcon from '@assets/svg/GasTankIcon'
 import CONFIG from '@config/env'
@@ -11,16 +11,18 @@ import { fetchGet } from '@modules/common/services/fetch'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import { useNavigation } from '@react-navigation/native'
 
 const relayerURL = CONFIG.RELAYER_URL
 
 const GAS_COST_ERC20_TRANSFER =
   ACTION_GAS_COSTS?.find((c) => c.name === 'ERC20: Transfer')?.gas + AMBIRE_OVERHEAD_COST
 
-const GasIndicator = ({ match }: any) => {
+const GasIndicator = () => {
   const [gasData, setGasData] = useState<any>(null)
   const { cacheBreak } = useCacheBreak({})
   const { network } = useNetwork()
+  const { navigate } = useNavigation()
   useEffect(() => {
     let unmounted = false
     const url = `${relayerURL}/gasPrice/${network?.id}?cacheBreak=${cacheBreak}`
@@ -42,7 +44,17 @@ const GasIndicator = ({ match }: any) => {
 
   if (gasData) {
     return (
-      <View style={[spacings.mbSm, flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+      <TouchableOpacity
+        style={[spacings.mbSm, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
+        activeOpacity={0.6}
+        hitSlop={{
+          left: 5,
+          right: 5,
+          top: 10,
+          bottom: 5
+        }}
+        onPress={() => navigate('gas-information')}
+      >
         <Text fontSize={14} color={colors.titan_50}>
           {network?.nativeAssetSymbol}
           {': '}
@@ -65,7 +77,7 @@ const GasIndicator = ({ match }: any) => {
             gasData.gasFeeAssets.native
           ).toFixed(2)}
         </Text>
-      </View>
+      </TouchableOpacity>
     )
   }
   return null

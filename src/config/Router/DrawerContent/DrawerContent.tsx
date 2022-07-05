@@ -22,7 +22,7 @@ import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-nav
 import AppLocking from './AppLocking'
 import BiometricsSign from './BiometricsSign'
 import ConnectedDapps from './ConnectedDapps'
-import GasIndicator from './GasIndicator/GasIndicator'
+import GasIndicator from './GasIndicator'
 import LocalAuth from './LocalAuth'
 import Passcode from './Passcode'
 import Theme from './Theme'
