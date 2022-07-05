@@ -110,7 +110,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         <ConnectedDapps />
         <Passcode handleNavigate={handleNavigate} />
         <LocalAuth handleNavigate={handleNavigate} />
-        <BiometricsSign />
+        <BiometricsSign handleNavigate={handleNavigate} />
         <AppLocking />
         <Theme />
         {settings.map((s) => (
