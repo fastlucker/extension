@@ -50,7 +50,7 @@ const TokenItem = ({
           {hidePrivateValue(formatFloatTokenAmount(balance, true, decimals))}
         </Text>
         <Text style={textStyles.highlightSecondary}>
-          ${hidePrivateValue(balanceUSD.toFixed(2))}
+          ${hidePrivateValue(balanceUSD?.toFixed(2))}
         </Text>
       </View>
 

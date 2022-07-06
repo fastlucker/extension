@@ -59,6 +59,7 @@ const DashboardScreen = () => {
           isLoading={isCurrNetworkBalanceLoading && !dataLoaded}
           networkId={network?.id}
           setNetwork={setNetwork}
+          account={selectedAcc}
         />
         <Assets
           tokens={tokens}

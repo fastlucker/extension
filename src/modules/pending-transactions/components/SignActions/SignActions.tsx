@@ -26,7 +26,9 @@ const SignActions = ({
   approveTxn,
   rejectTxn,
   signingStatus,
-  bundle
+  bundle,
+  isGasTankEnabled,
+  network
 }: any) => {
   const {
     control,
@@ -69,7 +71,7 @@ const SignActions = ({
   const insufficientFee =
     estimation &&
     estimation.feeInUSD &&
-    !isTokenEligible(estimation.selectedFeeToken, feeSpeed, estimation)
+    !isTokenEligible(estimation.selectedFeeToken, feeSpeed, estimation, isGasTankEnabled, network)
 
   const willFail = (estimation && !estimation.success) || insufficientFee
 
@@ -126,7 +128,7 @@ const SignActions = ({
             </Text>
           ) : null}
           {signingStatus.confCodeRequired === 'email' ? (
-            <Text style={[textStyles.bold, spacings.mbSm]}>
+            <Text style={spacings.mbSm} weight="medium">
               {t(
                 'A confirmation code was sent to your email, please enter it along with your password.'
               )}
