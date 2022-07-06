@@ -2,6 +2,7 @@ import { ACTION_GAS_COSTS, AMBIRE_OVERHEAD_COST } from 'ambire-common/src/consta
 import { GAS_SPEEDS } from 'ambire-common/src/constants/gasSpeeds'
 import React, { useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import InfoIcon from '@assets/svg/InfoIcon'
 import CONFIG from '@config/env'
@@ -33,6 +34,7 @@ const GasInformationScreen = () => {
   const url = relayerURL ? `${relayerURL}/gasPrice/${network?.id}?cacheBreak=${cacheBreak}` : null
   const { data, errMsg, isLoading } = useRelayerData(url)
   const [loaded, setLoaded] = useState<boolean>(false)
+  const insets = useSafeAreaInsets()
 
   useEffect(() => {
     if (!loaded && !isLoading) {
@@ -96,7 +98,7 @@ const GasInformationScreen = () => {
             </Text>
           </View>
           {GAS_SPEEDS.map((speed) => (
-            <View style={flexboxStyles.flex1}>
+            <View key={speed} style={flexboxStyles.flex1}>
               <Text key={speed} fontSize={11} weight="medium" style={textStyles.capitalize}>
                 {speed === 'medium' ? 'med' : speed}
               </Text>
@@ -153,7 +155,8 @@ const GasInformationScreen = () => {
         {ErrorContent}
         {GasFeesContent}
       </Wrapper>
-      <View style={[spacings.pt, spacings.ph]}>
+
+      <View style={[spacings.pt, spacings.ph, { paddingBottom: insets.bottom }]}>
         <Button text={t('Deposit to Gas Tank')} onPress={handleDepositButtonPress} />
       </View>
     </GradientBackgroundWrapper>
