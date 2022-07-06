@@ -11,18 +11,20 @@ import { fetchGet } from '@modules/common/services/fetch'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import { useNavigation } from '@react-navigation/native'
 
+interface Props {
+  handleNavigate: (route: string) => void
+}
 const relayerURL = CONFIG.RELAYER_URL
 
 const GAS_COST_ERC20_TRANSFER =
   ACTION_GAS_COSTS?.find((c) => c.name === 'ERC20: Transfer')?.gas + AMBIRE_OVERHEAD_COST
 
-const GasIndicator = () => {
+const GasIndicator = ({ handleNavigate }: Props) => {
   const [gasData, setGasData] = useState<any>(null)
   const { cacheBreak } = useCacheBreak({})
   const { network } = useNetwork()
-  const { navigate } = useNavigation()
+
   useEffect(() => {
     let unmounted = false
     const url = `${relayerURL}/gasPrice/${network?.id}?cacheBreak=${cacheBreak}`
@@ -53,7 +55,7 @@ const GasIndicator = () => {
           top: 10,
           bottom: 5
         }}
-        onPress={() => navigate('gas-information')}
+        onPress={() => handleNavigate('gas-information')}
       >
         <Text fontSize={14} color={colors.titan_50}>
           {network?.nativeAssetSymbol}

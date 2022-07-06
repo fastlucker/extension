@@ -23,8 +23,9 @@ export default function useRewards() {
   const rewardsData = useRelayerData(rewardsUrl)
 
   const totalLifetimeRewards = rewardsData.data?.rewards
-    ?.map((x) => x.rewards[account.id] || 0)
+    ?.map((x) => (typeof x.rewards[account.id] === 'number' ? x.rewards[account.id] : 0))
     .reduce((a, b) => a + b, 0)
+
   const pendingTokensTotal =
     claimableWalletToken.currentClaimStatus && !claimableWalletToken.currentClaimStatus.loading
       ? (

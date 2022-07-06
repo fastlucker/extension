@@ -6,17 +6,19 @@ import Text from '@modules/common/components/Text'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import spacings from '@modules/common/styles/spacings'
-import { useNavigation } from '@react-navigation/native'
 
-const LocalAuth = () => {
+interface Props {
+  handleNavigate: (route: string) => void
+}
+
+const LocalAuth: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
-  const navigation: any = useNavigation()
   const { state, isLoading } = usePasscode()
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('local-auth-change')}>
+    <TouchableOpacity onPress={() => handleNavigate('local-auth-change')}>
       <Text style={spacings.mbSm}>
         {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
           ? t('Local auth (enabled)')
@@ -26,4 +28,4 @@ const LocalAuth = () => {
   )
 }
 
-export default LocalAuth
+export default React.memo(LocalAuth)
