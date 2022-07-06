@@ -30,7 +30,7 @@ const GasTankBalance = ({ data, totalBalance, networkId }: Props) => {
     <>
       <TouchableOpacity style={styles.container} activeOpacity={0.6} onPress={openBottomSheet}>
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-          <GasTankIcon width={21} height={21} viewBoxWidth={20} />
+          <GasTankIcon width={21} height={21} />
           <Text fontSize={10} style={[textStyles.uppercase, spacings.plMi]}>
             {t('Gas Tank Balance')}
           </Text>
