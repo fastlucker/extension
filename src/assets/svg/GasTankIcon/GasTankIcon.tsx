@@ -9,7 +9,7 @@ interface Props extends SvgProps {
   height?: number
   color?: ColorValue
 }
-// 12.8 15.3
+
 const GasTankIcon: React.FC<Props> = ({ width = 24, height = 24, color }) => (
   <Svg width={width} height={height} viewBox="0 0 24 24">
     <Rect width="24" height="24" transform="translate(0 24) rotate(-90)" fill="none" />
