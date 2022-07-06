@@ -142,7 +142,7 @@ const FeeSelector = ({
   }, [currency])
 
   const renderFeeSelector = () => {
-    if (!estimation && !estimation.selectedFeeToken) return <ActivityIndicator />
+    if (!estimation || !estimation?.selectedFeeToken) return <ActivityIndicator />
 
     // Only check for insufficient fee in relayer mode (.feeInUSD is available)
     // Otherwise we don't care whether the user has enough for fees, their signer wallet will take care of it
