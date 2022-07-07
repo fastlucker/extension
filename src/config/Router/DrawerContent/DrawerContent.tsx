@@ -7,6 +7,7 @@ import DashboardIcon from '@assets/svg/DashboardIcon'
 import DepositIcon from '@assets/svg/DepositIcon'
 import DiscordIcon from '@assets/svg/DiscordIcon'
 import EarnIcon from '@assets/svg/EarnIcon'
+import GasTankIcon from '@assets/svg/GasTankIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TelegramIcon from '@assets/svg/TelegramIcon'
@@ -15,6 +16,7 @@ import TwitterIcon from '@assets/svg/TwitterIcon'
 import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import AppVersion from '@modules/common/components/AppVersion'
 import Text from '@modules/common/components/Text'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer'
@@ -22,6 +24,7 @@ import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-nav
 import AppLocking from './AppLocking'
 import BiometricsSign from './BiometricsSign'
 import ConnectedDapps from './ConnectedDapps'
+import GasIndicator from './GasIndicator'
 import LocalAuth from './LocalAuth'
 import Passcode from './Passcode'
 import Theme from './Theme'
@@ -49,15 +52,16 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   )
 
   const menu = [
-    { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard' },
-    { Icon: EarnIcon, name: t('Earn'), route: 'earn' },
-    { Icon: SendIcon, name: t('Send'), route: 'send' },
+    { Icon: <DashboardIcon />, name: t('Dashboard'), route: 'dashboard' },
+    { Icon: <EarnIcon />, name: t('Earn'), route: 'earn' },
+    { Icon: <SendIcon />, name: t('Send'), route: 'send' },
     // TODO: Temporary disabled since v1.6.0 as part of the Apple app review feedback
     // { Icon: SwapIcon, name: t('Swap'), route: 'swap' },
-    { Icon: TransferIcon, name: t('Transactions'), route: 'transactions' },
+    { Icon: <TransferIcon />, name: t('Transactions'), route: 'transactions' },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
-    { Icon: DepositIcon, name: t('Deposit'), route: 'receive' }
+    { Icon: <DepositIcon />, name: t('Deposit'), route: 'receive' },
+    { Icon: <GasTankIcon color={colors.titan} />, name: t('Gas Tank'), route: 'gas-tank' }
   ]
 
   const help = [
@@ -83,8 +87,9 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       {...props}
       alwaysBounceVertical={false}
       contentContainerStyle={spacings.mhLg}
-      style={spacings.mvLg}
+      style={spacings.mt}
     >
+      <GasIndicator handleNavigate={handleNavigate} />
       <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
         {t('Menu')}
       </Text>
@@ -95,7 +100,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
             onPress={() => handleNavigate(route)}
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}
           >
-            {Icon && <Icon />}
+            {!!Icon && Icon}
             <Text style={spacings.mlTy}>{name}</Text>
           </TouchableOpacity>
         ))}

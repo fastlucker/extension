@@ -207,8 +207,10 @@ const Balances = ({
                 {balanceLabel}
               </Text>
             )}
-            <GasTankIcon />
-            <Text numberOfLines={1}>{t('Gas Tank Balance')}</Text>
+            <GasTankIcon width={22} height={22} />
+            <Text numberOfLines={1} style={spacings.plMi}>
+              {t('Gas Tank Balance')}
+            </Text>
           </TouchableOpacity>
         </View>
       )}

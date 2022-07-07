@@ -1,5 +1,5 @@
 import { NetworkId } from 'ambire-common/src/constants/networks'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import GasTankIcon from '@assets/svg/GasTankIcon'
@@ -17,30 +17,20 @@ import styles from './styles'
 
 interface Props {
   data: any
+  totalBalance: string
   networkId?: NetworkId
 }
 
-const GasTankBalance = ({ data, networkId }: Props) => {
+const GasTankBalance = ({ data, totalBalance, networkId }: Props) => {
   const { t } = useTranslation()
 
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
-
-  const balanceLabel = useMemo(
-    () =>
-      !data
-        ? '0.00'
-        : data
-            .map(({ balanceInUSD }: any) => balanceInUSD)
-            .reduce((a: any, b: any) => a + b, 0)
-            .toFixed(2),
-    [data]
-  )
 
   return (
     <>
       <TouchableOpacity style={styles.container} activeOpacity={0.6} onPress={openBottomSheet}>
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-          <GasTankIcon width={21} height={21} viewBoxWidth={20} />
+          <GasTankIcon width={21} height={21} />
           <Text fontSize={10} style={[textStyles.uppercase, spacings.plMi]}>
             {t('Gas Tank Balance')}
           </Text>
@@ -49,7 +39,7 @@ const GasTankBalance = ({ data, networkId }: Props) => {
           <Text fontSize={20} weight="regular" style={textStyles.highlightSecondary}>
             ${' '}
           </Text>
-          {balanceLabel}
+          {Number(totalBalance).toFixed(2)}
         </Text>
       </TouchableOpacity>
       <BottomSheet

@@ -1,6 +1,9 @@
 import React from 'react'
-import { Platform, StatusBar, StyleSheet, ViewProps } from 'react-native'
-import { SafeAreaView as SafeAreaViewRN } from 'react-native-safe-area-context'
+import { Platform, StatusBar, StyleSheet } from 'react-native'
+import {
+  NativeSafeAreaViewProps,
+  SafeAreaView as SafeAreaViewRN
+} from 'react-native-safe-area-context'
 
 import spacings from '@modules/common/styles/spacings'
 
@@ -15,7 +18,7 @@ const styles = StyleSheet.create({
   }
 })
 
-interface Props extends ViewProps {}
+interface Props extends NativeSafeAreaViewProps {}
 
 const SafeAreaView: React.FC<Props> = ({ children, ...rest }) => (
   <SafeAreaViewRN {...rest} style={[styles.wrapper, rest.style]}>
