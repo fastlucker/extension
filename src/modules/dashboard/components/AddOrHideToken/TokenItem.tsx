@@ -37,7 +37,7 @@ const TokenItem: React.FC<Props> = ({
 
         <Trans>
           <Text numberOfLines={1}>
-            Balance: <Text style={textStyles.highlightSecondary}>{balance}</Text>{' '}
+            Balance: <Text style={textStyles.highlightPrimary}>{balance}</Text>{' '}
             <Text weight="medium">{symbol}</Text>
           </Text>
         </Trans>

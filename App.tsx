@@ -8,7 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import AppLoading from '@modules/app-loading/screens/AppLoading'
 import { StorageProvider } from '@modules/common/contexts/storageContext'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry error
@@ -16,7 +16,7 @@ SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry er
 const App = () => {
   return (
     <GestureHandlerRootView
-      style={[flexboxStyles.flex1, { backgroundColor: colors.backgroundColor }]}
+      style={[flexboxStyles.flex1, { backgroundColor: colors.hauntedDreams }]}
     >
       <StatusBar style="light" />
 

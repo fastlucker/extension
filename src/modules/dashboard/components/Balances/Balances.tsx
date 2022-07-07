@@ -111,7 +111,7 @@ const Balances = ({
       </View>
 
       <Text fontSize={42} weight="regular" style={spacings.mbTy}>
-        <Text fontSize={26} weight="regular" style={[textStyles.highlightSecondary]}>
+        <Text fontSize={26} weight="regular" style={[textStyles.highlightPrimary]}>
           ${' '}
         </Text>
         {isPrivateMode ? (
@@ -188,7 +188,7 @@ const Balances = ({
                 style={styles.otherBalancesContainer}
               >
                 <Text numberOfLines={1} style={flexboxStyles.flex1}>
-                  <Text style={textStyles.highlightSecondary}>{'$ '}</Text>
+                  <Text style={textStyles.highlightPrimary}>{'$ '}</Text>
                   {hidePrivateValue(`${total.truncated}.${total.decimals}`)}
                 </Text>
                 <Text>{` ${t('on')} `}</Text>
@@ -203,7 +203,7 @@ const Balances = ({
           >
             {!!data && (
               <Text numberOfLines={1} style={flexboxStyles.flex1}>
-                <Text style={textStyles.highlightSecondary}>{'$ '}</Text>
+                <Text style={textStyles.highlightPrimary}>{'$ '}</Text>
                 {balanceLabel}
               </Text>
             )}

@@ -14,7 +14,7 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useToast from '@modules/common/hooks/useToast'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -83,7 +83,7 @@ const SignersList = () => {
             <Text
               type="small"
               weight="medium"
-              style={{ color: colors.primaryAccentColor }}
+              style={{ color: colors.turquoise }}
               onPress={handleOnMakeDefaultBtnClicked}
             >
               {t('Make default')}

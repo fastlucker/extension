@@ -25,7 +25,7 @@ const GasTankTotalSave = ({ totalSave }: Props) => {
         </Text>
       </View>
       <Text fontSize={32} weight="regular" numberOfLines={1}>
-        <Text fontSize={20} weight="regular" style={textStyles.highlightSecondary}>
+        <Text fontSize={20} weight="regular" style={textStyles.highlightPrimary}>
           ${' '}
         </Text>
         {totalSave}

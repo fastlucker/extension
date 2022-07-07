@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 const styles = StyleSheet.create({
@@ -16,17 +16,17 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderBottomColor: colors.textColor,
+    borderBottomColor: colors.titan,
     borderBottomWidth: 1,
     ...spacings.mhMi
   },
   cellText: {
-    color: colors.textColor,
+    color: colors.titan,
     fontSize: 25,
     textAlign: 'center'
   },
   focusCell: {
-    borderBottomColor: colors.primaryAccentColor,
+    borderBottomColor: colors.turquoise,
     borderBottomWidth: 1
   }
 })

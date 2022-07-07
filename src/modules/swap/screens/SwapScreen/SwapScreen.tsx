@@ -6,7 +6,7 @@ import CONFIG from '@config/env'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import { useIsFocused } from '@react-navigation/native'
 
 import styles from './styles'
@@ -37,14 +37,14 @@ const DISABLE_ZOOM = `
 // Set a better matching the mobile UI text selection color
 // {@link https://stackoverflow.com/a/311437/1333836}
 const TEXT_SELECTION_COLOR = `
-  document.styleSheets[0].insertRule('::selection { background-color: ${colors.backgroundColor}; }', 0);
+  document.styleSheets[0].insertRule('::selection { background-color: ${colors.hauntedDreams}; }', 0);
 `
 
 // Set a better matching the mobile UI tap highlighting color,
 // a bit transparent so the elements below gets visible.
 // {@link https://stackoverflow.com/a/8092444/1333836}
 const HIGHLIGHT_COLOR = `
-  document.styleSheets[0].insertRule('* { -webkit-tap-highlight-color: ${colors.secondaryButtonContainerColor}; }', 0);
+  document.styleSheets[0].insertRule('* { -webkit-tap-highlight-color: ${colors.vulcan}; }', 0);
 `
 
 // The switch tokens button has animation, that gets triggered via
@@ -96,7 +96,7 @@ const SwapScreen = () => {
           startInLoadingState
           renderLoading={() => (
             <View style={styles.loadingWrapper}>
-              <ActivityIndicator size="large" color="#fff" />
+              <ActivityIndicator size="large" color={colors.titan} />
             </View>
           )}
           onMessage={(event) => {

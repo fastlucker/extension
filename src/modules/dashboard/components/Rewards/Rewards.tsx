@@ -15,7 +15,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
-import colors from '@modules/common/styles/colors'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -172,7 +172,7 @@ const Rewards = () => {
               <Text>{t('Early users Incentive')}</Text>
             </View>
             <View style={[spacings.plTy, styles.tableRowValue]}>
-              <Text color={colors.primaryAccentColor} style={textStyles.right}>
+              <Text color={colors.turquoise} style={textStyles.right}>
                 {rewards[RewardIds.BALANCE_REWARDS]}
               </Text>
               <Text type="small" style={textStyles.right}>
@@ -185,7 +185,7 @@ const Rewards = () => {
               <Text>{t('ADX Staking Bonus')}</Text>
             </View>
             <View style={[spacings.plTy, styles.tableRowValue]}>
-              <Text color={colors.primaryAccentColor} style={textStyles.right}>
+              <Text color={colors.turquoise} style={textStyles.right}>
                 {rewards[RewardIds.ADX_REWARDS]}
               </Text>
               <Text type="small" style={textStyles.right}>
@@ -204,11 +204,11 @@ const Rewards = () => {
                 <Text>{t('Claimable now: early users + ADX Staking bonus')}</Text>
               </View>
               <View style={[spacings.plTy, styles.tableRowValue]}>
-                <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                <Text color={colors.turquoise} style={textStyles.right}>
                   {currentClaimStatus.loading ? '...' : claimableNow}
                 </Text>
                 <Text type="small" style={textStyles.right}>
-                  <Text type="small" color={colors.secondaryAccentColor}>
+                  <Text type="small" color={colors.heliotrope}>
                     $
                   </Text>
                   {claimableNowUsd}
@@ -240,11 +240,11 @@ const Rewards = () => {
                   <Text>{t('Claimable early supporters vesting')}</Text>
                 </View>
                 <View style={[spacings.plTy, styles.tableRowValue]}>
-                  <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                  <Text color={colors.turquoise} style={textStyles.right}>
                     {currentClaimStatus.mintableVesting}
                   </Text>
                   <Text type="small" style={textStyles.right}>
-                    <Text type="small" color={colors.secondaryAccentColor}>
+                    <Text type="small" color={colors.heliotrope}>
                       $
                     </Text>
                     {mintableVestingUsd}
@@ -265,7 +265,7 @@ const Rewards = () => {
                 <Text>{t('Staked WALLET')}</Text>
               </View>
               <View style={[spacings.plTy, styles.tableRowValue]}>
-                <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                <Text color={colors.turquoise} style={textStyles.right}>
                   {stakedAmount}
                 </Text>
                 <Text type="small" style={textStyles.right}>

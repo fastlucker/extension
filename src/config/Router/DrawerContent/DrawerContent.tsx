@@ -20,6 +20,7 @@ import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer'
+import { useRoute } from '@react-navigation/native'
 
 import AppLocking from './AppLocking'
 import BiometricsSign from './BiometricsSign'

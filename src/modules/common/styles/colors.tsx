@@ -34,6 +34,7 @@ export const colorPalette = {
   valhalla_95: 'rgba(39, 42, 66, 0.95)',
   valhalla_66: 'rgba(39, 42, 66, 0.66)',
   martinique: '#2D314D',
+  hauntedDreams: '#313555',
   patriotBlue: '#333757',
   patriotBlue_75: 'rgba(51, 55, 87, 0.75)',
   wooed: '#3E436B',
