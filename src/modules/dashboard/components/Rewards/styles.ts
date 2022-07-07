@@ -1,6 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings, { SPACING_TY } from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
 

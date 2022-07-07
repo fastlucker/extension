@@ -6,7 +6,7 @@ import CONFIG from '@config/env'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import { useIsFocused } from '@react-navigation/native'
 
 import styles from './styles'

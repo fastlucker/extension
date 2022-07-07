@@ -1,6 +1,6 @@
 import { StyleSheet, TextStyle } from 'react-native'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 
 interface Style {
   text: TextStyle

@@ -2,7 +2,7 @@ import React from 'react'
 import { ColorValue } from 'react-native'
 import Svg, { G, Path, Rect, SvgProps } from 'react-native-svg'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 
 interface Props extends SvgProps {
   width?: number

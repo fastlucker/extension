@@ -1,6 +1,6 @@
 import { StyleSheet, TextStyle } from 'react-native'
 
-import { colorPalette as colors } from '../colors'
+import colors from '../colors'
 
 interface Styles {
   highlightPrimary: TextStyle
