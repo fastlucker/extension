@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -16,10 +16,15 @@ import TwitterIcon from '@assets/svg/TwitterIcon'
 import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import AppVersion from '@modules/common/components/AppVersion'
 import Text from '@modules/common/components/Text'
+import usePrevious from '@modules/common/hooks/usePrevious'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer'
+import {
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+  useDrawerStatus
+} from '@react-navigation/drawer'
 
 import AppLocking from './AppLocking'
 import BiometricsSign from './BiometricsSign'
@@ -38,6 +43,17 @@ const DISCORD_URL = 'https://discord.gg/nMBGJsb'
 const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const { t } = useTranslation()
   const { navigation } = props
+
+  const scrollRef: any = useRef(null)
+
+  const isDrawerOpen = useDrawerStatus() === 'open'
+  const prevIsDrawerOpen = usePrevious(isDrawerOpen)
+  // Resets drawer scroll position on every drawer close
+  useEffect(() => {
+    if (prevIsDrawerOpen && !isDrawerOpen) {
+      scrollRef?.current?.scrollTo({ x: 0, y: 0 })
+    }
+  }, [isDrawerOpen, prevIsDrawerOpen])
 
   const handleNavigate = useCallback(
     (route: string) => {
@@ -88,6 +104,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       alwaysBounceVertical={false}
       contentContainerStyle={spacings.mhLg}
       style={spacings.mt}
+      ref={scrollRef}
     >
       <GasIndicator handleNavigate={handleNavigate} />
       <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
