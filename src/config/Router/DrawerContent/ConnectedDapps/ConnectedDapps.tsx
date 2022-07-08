@@ -7,6 +7,7 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
+import { colorPalette as colors } from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -23,7 +24,9 @@ const ConnectedDapps = () => {
   return (
     <>
       <TouchableOpacity onPress={openBottomSheet}>
-        <Text style={spacings.mbSm}>{t('Connected dApps')}</Text>
+        <Text style={spacings.mbSm} color={colors.titan_50}>
+          {t('Connected dApps')}
+        </Text>
       </TouchableOpacity>
       <BottomSheet
         id="connected-dapps"
