@@ -1,11 +1,11 @@
 import { Bundle } from 'adex-protocol-eth/js'
+import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 // TODO: add types
 import { useCallback } from 'react'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useRequests from '@modules/common/hooks/useRequests'
@@ -21,7 +21,7 @@ const useTransactions = () => {
   const { network }: any = useNetwork()
   const { t } = useTranslation()
   const { addRequest } = useRequests()
-  const { cacheBreak } = useCacheBreak({ breakPoint: 5000, refreshInterval: 10000 })
+  const { cacheBreak } = useCacheBreak(5000, 10000)
 
   const showSendTxns = (bundle: any) =>
     setSendTxnState({ showing: true, replacementBundle: bundle })

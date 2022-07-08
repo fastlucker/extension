@@ -1,8 +1,8 @@
+import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import { useMemo } from 'react'
 
 import CONFIG from '@config/env'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
@@ -10,7 +10,7 @@ import useRelayerData from '@modules/common/hooks/useRelayerData'
 const relayerURL = CONFIG.RELAYER_URL
 
 export default function useGasTankData() {
-  const { cacheBreak } = useCacheBreak({})
+  const { cacheBreak } = useCacheBreak()
   const { selectedAcc: account } = useAccounts()
   const { network } = useNetwork()
   const { tokens } = usePortfolio()

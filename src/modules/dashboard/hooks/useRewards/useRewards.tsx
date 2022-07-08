@@ -1,8 +1,8 @@
+import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import { useEffect, useState } from 'react'
 
 import CONFIG from '@config/env'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useClaimableWalletToken from '@modules/dashboard/hooks/useClaimableWalletToken'
 
@@ -14,7 +14,7 @@ export enum RewardIds {
 export default function useRewards() {
   const claimableWalletToken = useClaimableWalletToken()
   const { account, selectedAcc } = useAccounts()
-  const { cacheBreak } = useCacheBreak({})
+  const { cacheBreak } = useCacheBreak()
 
   const rewardsUrl =
     CONFIG.RELAYER_URL && selectedAcc
