@@ -118,6 +118,7 @@
     "react-native-get-random-values": "~1.8.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-level-fs": "^3.0.0",
+    "react-native-modal": "^13.0.1",
     "react-native-performance": "^2.1.0",
     "react-native-qrcode-svg": "^6.1.2",
     "react-native-randombytes": "^3.0.0",
