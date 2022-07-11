@@ -1,5 +1,6 @@
 import networks, { NetworkId } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
+import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useLayoutEffect, useMemo } from 'react'
 import { TouchableOpacity, View } from 'react-native'
@@ -14,7 +15,6 @@ import Button from '@modules/common/components/Button'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
-import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
@@ -53,7 +53,7 @@ const Balances = ({
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { isPrivateMode, togglePrivateMode, hidePrivateValue } = usePrivateMode()
-  const { cacheBreak } = useCacheBreak({})
+  const { cacheBreak } = useCacheBreak()
   const urlGetBalance = relayerURL
     ? `${relayerURL}/gas-tank/${account}/getBalance?cacheBreak=${cacheBreak}`
     : null

@@ -1,5 +1,6 @@
 import { ACTION_GAS_COSTS, AMBIRE_OVERHEAD_COST } from 'ambire-common/src/constants/actionGasCosts'
 import { GAS_SPEEDS } from 'ambire-common/src/constants/gasSpeeds'
+import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import React, { useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -13,7 +14,6 @@ import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
-import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import { colorPalette as colors } from '@modules/common/styles/colors'
@@ -30,7 +30,7 @@ const GasInformationScreen = () => {
   const { t } = useTranslation()
   const { network } = useNetwork()
   const { navigate } = useNavigation()
-  const { cacheBreak } = useCacheBreak({})
+  const { cacheBreak } = useCacheBreak()
   const url = relayerURL ? `${relayerURL}/gasPrice/${network?.id}?cacheBreak=${cacheBreak}` : null
   const { data, errMsg, isLoading } = useRelayerData(url)
   const [loaded, setLoaded] = useState<boolean>(false)

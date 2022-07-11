@@ -6,6 +6,7 @@ import AdexStakingPool from 'ambire-common/src/constants/AdexStakingPool.json'
 import supplyControllerABI from 'ambire-common/src/constants/ADXSupplyController.json'
 import networks, { NetworkId } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
+import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import { BigNumber, constants, Contract, utils } from 'ethers'
 import { formatUnits, Interface, parseUnits } from 'ethers/lib/utils'
@@ -16,7 +17,6 @@ import AmbireLogo from '@assets/images/Ambire.png'
 import CONFIG from '@config/env'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
-import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import { getTokenIcon } from '@modules/common/services/icons'
 import { getProvider } from '@modules/common/services/provider'
@@ -70,7 +70,7 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
   const [selectedToken, setSelectedToken] = useState<any>({ label: '' })
   const [adxCurrentAPY, setAdxCurrentAPY] = useState<any>(0.0)
 
-  const { cacheBreak } = useCacheBreak({})
+  const { cacheBreak } = useCacheBreak()
 
   const unavailable = networkId !== 'ethereum'
 

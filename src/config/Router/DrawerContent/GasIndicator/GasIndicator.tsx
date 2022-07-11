@@ -1,11 +1,11 @@
 import { ACTION_GAS_COSTS, AMBIRE_OVERHEAD_COST } from 'ambire-common/src/constants/actionGasCosts'
+import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import React, { useEffect, useState } from 'react'
 import { TouchableOpacity } from 'react-native'
 
 import GasTankIcon from '@assets/svg/GasTankIcon'
 import CONFIG from '@config/env'
 import Text from '@modules/common/components/Text'
-import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import { fetchGet } from '@modules/common/services/fetch'
 import { colorPalette as colors } from '@modules/common/styles/colors'
@@ -22,7 +22,7 @@ const GAS_COST_ERC20_TRANSFER =
 
 const GasIndicator = ({ handleNavigate }: Props) => {
   const [gasData, setGasData] = useState<any>(null)
-  const { cacheBreak } = useCacheBreak({})
+  const { cacheBreak } = useCacheBreak()
   const { network } = useNetwork()
 
   useEffect(() => {
