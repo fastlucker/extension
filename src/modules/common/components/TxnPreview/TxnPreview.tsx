@@ -6,10 +6,11 @@ import { formatUnits } from 'ethers/lib/utils'
 // TODO: add types
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, TouchableOpacity, View } from 'react-native'
+import { Image, Linking, TouchableOpacity, View } from 'react-native'
 
 import CloseIcon from '@assets/svg/CloseIcon'
 import DownArrowIcon from '@assets/svg/DownArrowIcon'
+import OpenIcon from '@assets/svg/OpenIcon'
 import UpArrowIcon from '@assets/svg/UpArrowIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
@@ -64,7 +65,19 @@ function parseExtendedSummaryItem(item: any, i: any, networkDetails: any, t: any
     )
 
   if (item.type === 'address')
-    return <Text fontSize={12}>{`${item.name ? item.name : item.address} `}</Text>
+    return (
+      <>
+        <Text fontSize={12}>{`${item.name ? item.name : item.address} `}</Text>
+        {!!item.address && (
+          <TouchableOpacity
+            onPress={() => Linking.openURL(`${networkDetails.explorerUrl}/address/${item.address}`)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <OpenIcon width={14} height={14} />
+          </TouchableOpacity>
+        )}
+      </>
+    )
 
   if (item.type === 'network')
     return (
