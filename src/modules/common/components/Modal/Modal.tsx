@@ -22,6 +22,7 @@ const Modal = ({ isVisible, hideModal, children }: Props) => {
         backdropTransitionOutTiming={0}
         customBackdrop={
           <Backdrop
+            isVisible={isVisible}
             onPress={() => {
               hideModal()
             }}
