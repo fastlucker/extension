@@ -4,7 +4,7 @@ import { ActivityIndicator, TouchableOpacity } from 'react-native'
 import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Props {

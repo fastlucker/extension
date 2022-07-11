@@ -18,7 +18,7 @@ import Text from '@modules/common/components/Text'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -111,7 +111,7 @@ const Balances = ({
       </View>
 
       <Text fontSize={42} weight="regular" style={spacings.mbTy}>
-        <Text fontSize={26} weight="regular" style={[textStyles.highlightSecondary]}>
+        <Text fontSize={26} weight="regular" style={[textStyles.highlightPrimary]}>
           ${' '}
         </Text>
         {isPrivateMode ? (
@@ -188,7 +188,7 @@ const Balances = ({
                 style={styles.otherBalancesContainer}
               >
                 <Text numberOfLines={1} style={flexboxStyles.flex1}>
-                  <Text style={textStyles.highlightSecondary}>{'$ '}</Text>
+                  <Text style={textStyles.highlightPrimary}>{'$ '}</Text>
                   {hidePrivateValue(`${total.truncated}.${total.decimals}`)}
                 </Text>
                 <Text>{` ${t('on')} `}</Text>
@@ -203,7 +203,7 @@ const Balances = ({
           >
             {!!data && (
               <Text numberOfLines={1} style={flexboxStyles.flex1}>
-                <Text style={textStyles.highlightSecondary}>{'$ '}</Text>
+                <Text style={textStyles.highlightPrimary}>{'$ '}</Text>
                 {balanceLabel}
               </Text>
             )}

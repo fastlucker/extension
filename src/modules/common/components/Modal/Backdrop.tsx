@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import CloseIcon from '@assets/svg/CloseIcon'
 import { isiOS } from '@config/env'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 
 import styles from './styles'
 

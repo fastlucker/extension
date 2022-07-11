@@ -1,7 +1,7 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import RNCheckBox, { CheckBoxProps } from '@react-native-community/checkbox'
 

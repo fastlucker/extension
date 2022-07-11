@@ -4,7 +4,7 @@ import { View } from 'react-native'
 import WalletIcon from '@assets/svg/WalletIcon'
 import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -25,7 +25,7 @@ const GasTankTotalSave = ({ totalSave }: Props) => {
         </Text>
       </View>
       <Text fontSize={32} weight="regular" numberOfLines={1}>
-        <Text fontSize={20} weight="regular" style={textStyles.highlightSecondary}>
+        <Text fontSize={20} weight="regular" style={textStyles.highlightPrimary}>
           ${' '}
         </Text>
         {totalSave}

@@ -1,6 +1,6 @@
 import { StyleSheet, ViewProps } from 'react-native'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import commonStyles from '@modules/common/styles/utils/common'
 
 interface Style {

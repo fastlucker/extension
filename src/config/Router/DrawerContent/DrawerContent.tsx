@@ -17,7 +17,7 @@ import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import AppVersion from '@modules/common/components/AppVersion'
 import Text from '@modules/common/components/Text'
 import usePrevious from '@modules/common/hooks/usePrevious'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import {

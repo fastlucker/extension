@@ -11,7 +11,7 @@ import Text from '@modules/common/components/Text'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import { navigationRef } from '@modules/common/services/navigation'
 import { isRouteWithTabBar } from '@modules/common/services/router'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 

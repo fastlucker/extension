@@ -5,7 +5,7 @@ import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import usePasscode from '@modules/common/hooks/usePasscode'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import { useIsFocused } from '@react-navigation/native'
 

@@ -7,7 +7,7 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'

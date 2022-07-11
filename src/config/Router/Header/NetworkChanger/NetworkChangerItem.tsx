@@ -4,7 +4,7 @@ import { TouchableOpacity, View } from 'react-native'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import { NetworkIconNameType } from '@modules/common/components/NetworkIcon/NetworkIcon'
 import Text from '@modules/common/components/Text'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 

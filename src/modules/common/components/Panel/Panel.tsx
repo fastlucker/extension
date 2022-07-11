@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import { View, ViewProps } from 'react-native'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 

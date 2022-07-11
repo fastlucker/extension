@@ -16,7 +16,7 @@ import styles, {
   tabBarStyle
 } from '@config/Router/styles'
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'

@@ -8,7 +8,7 @@ import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useTheme from '@modules/common/hooks/useTheme'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import { THEME_TYPES } from '@modules/common/styles/themeConfig'
 

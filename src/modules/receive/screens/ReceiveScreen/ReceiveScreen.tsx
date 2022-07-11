@@ -6,7 +6,7 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import Wrapper from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
-// import { colorPalette as colors } from '@modules/common/styles/colors'
+// import colors from '@modules/common/styles/colors'
 // import spacings from '@modules/common/styles/spacings'
 import DepositTokens from '@modules/receive/components/DepositTokens'
 

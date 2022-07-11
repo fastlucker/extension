@@ -83,7 +83,7 @@ const SignersList = () => {
             <Text
               type="small"
               weight="medium"
-              style={{ color: colors.primaryAccentColor }}
+              style={{ color: colors.turquoise }}
               onPress={handleOnMakeDefaultBtnClicked}
             >
               {t('Make default')}
