@@ -5,6 +5,7 @@ import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import usePasscode from '@modules/common/hooks/usePasscode'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import { useIsFocused } from '@react-navigation/native'
 
@@ -34,11 +35,15 @@ const Passcode: React.FC<Props> = ({ handleNavigate }) => {
 
   return state === PASSCODE_STATES.NO_PASSCODE ? (
     <TouchableOpacity onPress={() => handleNavigate('passcode-change')}>
-      <Text style={spacings.mbSm}>{t('App Passcode (not added)')}</Text>
+      <Text style={spacings.mbSm} color={colors.titan_50}>
+        {t('App Passcode (not added)')}
+      </Text>
     </TouchableOpacity>
   ) : (
     <TouchableOpacity onPress={triggerEnteringPasscode}>
-      <Text style={spacings.mbSm}>{t('App Passcode (added)')}</Text>
+      <Text style={spacings.mbSm} color={colors.titan_50}>
+        {t('App Passcode (added)')}
+      </Text>
     </TouchableOpacity>
   )
 }

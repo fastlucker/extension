@@ -5,6 +5,7 @@ import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import usePasscode from '@modules/common/hooks/usePasscode'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Props {
@@ -19,7 +20,7 @@ const LocalAuth: React.FC<Props> = ({ handleNavigate }) => {
 
   return (
     <TouchableOpacity onPress={() => handleNavigate('local-auth-change')}>
-      <Text style={spacings.mbSm}>
+      <Text style={spacings.mbSm} color={colors.titan_50}>
         {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
           ? t('Local auth (enabled)')
           : t('Local auth (disabled)')}

@@ -7,6 +7,7 @@ import commonStyles from '@modules/common/styles/utils/common'
 interface Style {
   container: ViewProps
   closeBtn: ViewProps
+  backDropWrapper: ViewProps
   backDrop: ViewProps
 }
 
@@ -15,20 +16,23 @@ const styles = StyleSheet.create<Style>({
     ...commonStyles.borderRadiusPrimary,
     backgroundColor: colors.clay,
     ...spacings.pv,
-    ...spacings.ph
+    ...spacings.ph,
+    ...commonStyles.shadowPrimary
   },
   closeBtn: {
     position: 'absolute',
     right: 20,
     zIndex: 2
   },
+  backDropWrapper: {
+    zIndex: 1
+  },
   backDrop: {
     width: DEVICE_WIDTH,
     height: DEVICE_HEIGHT,
     position: 'absolute',
     backgroundColor: 'transparent',
-    zIndex: 1,
-    ...commonStyles.shadowPrimary
+    zIndex: 1
   }
 })
 

@@ -1,8 +1,11 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
+import GasTankIcon from '@assets/svg/GasTankIcon'
 import { useTranslation } from '@config/localization'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import Modal from '@modules/common/components/Modal'
+import useModal from '@modules/common/components/Modal/hooks/useModal'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
@@ -29,6 +32,7 @@ const GasTankScreen = () => {
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()
   const { addToast } = useToast()
+  const { isModalVisible, showModal, hideModal } = useModal()
 
   const totalBalance = useMemo(
     () =>
@@ -56,7 +60,9 @@ const GasTankScreen = () => {
         <Text style={[spacings.mbSm, spacings.mhSm]} fontSize={12}>
           {/* TODO: learn more... should be clickable and should open detailed info in a modal */}
           {t('The Ambire Gas Tank is your special account for paying gas and saving on gas fees.')}
-          <Text color={colors.heliotrope} fontSize={12}>{`   ${t('learn more...')}`}</Text>
+          <Text color={colors.heliotrope} fontSize={12} onPress={showModal}>{`   ${t(
+            'learn more...'
+          )}`}</Text>
         </Text>
         <Panel>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
@@ -83,6 +89,31 @@ const GasTankScreen = () => {
           />
         </Panel>
       </Wrapper>
+      <Modal isVisible={isModalVisible} hideModal={hideModal}>
+        <View
+          style={[
+            flexboxStyles.directionRow,
+            flexboxStyles.alignCenter,
+            flexboxStyles.justifyCenter,
+            spacings.mb
+          ]}
+        >
+          <GasTankIcon />
+          <Text fontSize={16} style={spacings.plMi}>
+            {t('Ambire Gas Tank')}
+          </Text>
+        </View>
+        <Text style={spacings.mbSm} fontSize={12} weight="regular">
+          {t(
+            'The Ambire Gas Tank is your special account for paying gas and saving on gas fees. By filling up your Gas Tank, you are setting aside, or prepaying for network fees. You can add more tokens to your Gas Tank at any time.'
+          )}
+        </Text>
+        <Text fontSize={12} weight="regular">
+          {t(
+            'Please note that only the tokens listed below are eligible for filling up your gas tank.'
+          )}
+        </Text>
+      </Modal>
     </GradientBackgroundWrapper>
   )
 }
