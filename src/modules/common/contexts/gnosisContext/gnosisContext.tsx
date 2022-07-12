@@ -230,6 +230,7 @@ const GnosisProvider: React.FC = ({ children }) => {
 
     // Alternative way to send message if an iframe is used instead of url in the webview
     // document.getElementById("${hash}").contentWindow.postMessage(${JSON.stringify(msg)}, '*');
+    // FIXME: Figure out why this never gets triggered
     sushiSwapIframeRef?.current?.injectJavaScript(`
       (function() {
         window.postMessage(${JSON.stringify(msg)}, '*');
