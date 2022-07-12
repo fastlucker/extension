@@ -43,7 +43,7 @@
     "@ethersproject/units": "5.5.0",
     "@expo-google-fonts/poppins": "0.2.2",
     "@expo/vector-icons": "^13.0.0",
-    "@gnosis.pm/safe-apps-sdk": "^6.0.0",
+    "@gnosis.pm/safe-apps-sdk": "^6.2.0",
     "@gorhom/bottom-sheet": "4.1.6",
     "@gorhom/portal": "^1.0.11",
     "@ledgerhq/hw-app-eth": "^6.26.1",
