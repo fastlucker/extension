@@ -162,7 +162,7 @@ const DepositTokenBottomSheetProvider = ({
           setBigNumberHexAmount('')
         }}
       >
-        <Title style={textStyles.center}>{t('Deposit to Gas Tank')}</Title>
+        <Title style={textStyles.center}>{t('Top up Gas Tank')}</Title>
         {!!token && (
           <>
             <View style={styles.tokenContainer}>

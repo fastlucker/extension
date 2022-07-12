@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react'
+import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
+import React from 'react'
 import { View } from 'react-native'
 
 import GasTankIcon from '@assets/svg/GasTankIcon'
@@ -26,7 +27,14 @@ import useGasTankData from '@modules/gas-tank/hooks/useGasTankData'
 
 const GasTankScreen = () => {
   const { t } = useTranslation()
-  const { data, gasTankTxns, sortedTokens } = useGasTankData()
+  const {
+    balancesRes,
+    gasTankBalances,
+    sortedTokens,
+    totalSavedResult,
+    gasTankFilledTxns,
+    feeAssetsRes
+  } = useGasTankData()
   const { isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading, dataLoaded } = usePortfolio()
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
@@ -34,31 +42,13 @@ const GasTankScreen = () => {
   const { addToast } = useToast()
   const { isModalVisible, showModal, hideModal } = useModal()
 
-  const totalBalance = useMemo(
-    () =>
-      !data
-        ? '0.00'
-        : data.map(({ balanceInUSD }: any) => balanceInUSD).reduce((a: any, b: any) => a + b, 0),
-    [data]
-  )
-
-  const totalSave = useMemo(
-    () =>
-      gasTankTxns && gasTankTxns.length
-        ? gasTankTxns
-            .map((item: any) => item.feeInUSDPerGas * item.gasLimit)
-            .reduce((a: any, b: any) => a + b)
-            .toFixed(2)
-        : '0.00',
-    [gasTankTxns]
-  )
+  const totalSaved = formatFloatTokenAmount(totalSavedResult, true, 2)
 
   return (
     <GradientBackgroundWrapper>
       <Wrapper hasBottomTabNav={false}>
-        <GasTankStateToggle disabled={Number(totalBalance) === 0} />
+        <GasTankStateToggle disabled={!gasTankBalances && !gasTankBalances?.length} />
         <Text style={[spacings.mbSm, spacings.mhSm]} fontSize={12}>
-          {/* TODO: learn more... should be clickable and should open detailed info in a modal */}
           {t('The Ambire Gas Tank is your special account for paying gas and saving on gas fees.')}
           <Text color={colors.heliotrope} fontSize={12} onPress={showModal}>{`   ${t(
             'learn more...'
@@ -66,8 +56,14 @@ const GasTankScreen = () => {
         </Text>
         <Panel>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
-            <GasTankBalance data={data || []} totalBalance={totalBalance} networkId={network?.id} />
-            <GasTankTotalSave totalSave={Number(totalSave).toFixed(2)} />
+            <GasTankBalance
+              data={balancesRes && balancesRes.length ? balancesRes : []}
+              totalBalance={
+                gasTankBalances ? formatFloatTokenAmount(gasTankBalances, true, 2) : '0.00'
+              }
+              networkId={network?.id}
+            />
+            <GasTankTotalSave totalSave={totalSaved || '0.00'} />
           </View>
           <TokensList
             tokens={sortedTokens}
@@ -83,9 +79,10 @@ const GasTankScreen = () => {
         </Panel>
         <Panel>
           <TransactionHistoryList
-            gasTankTxns={gasTankTxns || []}
-            data={data || []}
+            gasTankFilledTxns={gasTankFilledTxns || []}
+            feeAssetsRes={feeAssetsRes || []}
             explorerUrl={network?.explorerUrl || ''}
+            networkId={network?.id}
           />
         </Panel>
       </Wrapper>
@@ -109,9 +106,7 @@ const GasTankScreen = () => {
           )}
         </Text>
         <Text fontSize={12} weight="regular">
-          {t(
-            'Please note that only the tokens listed below are eligible for filling up your gas tank.'
-          )}
+          {t('Please note that only the listed tokens are eligible for filling up your gas tank.')}
         </Text>
       </Modal>
     </GradientBackgroundWrapper>

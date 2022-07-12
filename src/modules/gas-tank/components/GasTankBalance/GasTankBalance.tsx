@@ -39,7 +39,7 @@ const GasTankBalance = ({ data, totalBalance, networkId }: Props) => {
           <Text fontSize={20} weight="regular" style={textStyles.highlightPrimary}>
             ${' '}
           </Text>
-          {Number(totalBalance).toFixed(2)}
+          {totalBalance}
         </Text>
       </TouchableOpacity>
       <BottomSheet

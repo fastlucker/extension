@@ -6,6 +6,8 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
+import { getGasTankFilledTxns } from '@modules/common/services/isFeeCollectorTxn'
+import { getAddedGas } from '@modules/pending-transactions/services/helpers'
 
 const relayerURL = CONFIG.RELAYER_URL
 
@@ -25,21 +27,38 @@ export default function useGasTankData() {
     ? `${relayerURL}/identity/${account}/${network?.id}/transactions`
     : null
 
-  const { data, isLoading } = useRelayerData(urlGetBalance)
-  const feeAssetsRes = useRelayerData(urlGetFeeAssets)
-  const executedTxnsRes = useRelayerData(urlGetTransactions)
+  const { data: balancesRes, isLoading } = useRelayerData(urlGetBalance)
+  const { data: feeAssetsRes } = useRelayerData(urlGetFeeAssets)
+  const { data: executedTxnsRes } = useRelayerData(urlGetTransactions)
 
-  const feeAssetsPerNetwork = useMemo(
-    () => feeAssetsRes.data?.filter((item: any) => item.network === network?.id),
-    [feeAssetsRes.data, network?.id]
+  const gasTankBalances = useMemo(
+    () =>
+      balancesRes &&
+      balancesRes.length &&
+      balancesRes.map(({ balanceInUSD }: any) => balanceInUSD).reduce((a: any, b: any) => a + b, 0),
+    [balancesRes]
   )
 
   const gasTankTxns = useMemo(
     () =>
       executedTxnsRes &&
-      executedTxnsRes.data?.txns?.length &&
-      executedTxnsRes.data?.txns?.filter((item: any) => !!item.gasTankFee),
+      executedTxnsRes.txns.length &&
+      executedTxnsRes.txns.filter((item: any) => !!item.gasTankFee),
     [executedTxnsRes]
+  )
+
+  const feeAssetsPerNetwork = useMemo(
+    () =>
+      feeAssetsRes &&
+      feeAssetsRes.length &&
+      feeAssetsRes.filter((item: any) => item.network === network?.id),
+    [feeAssetsRes, network?.id]
+  )
+
+  const executedTxns = executedTxnsRes && executedTxnsRes.txns.length && executedTxnsRes.txns
+  const gasTankFilledTxns = useMemo(
+    () => executedTxns && executedTxns.length && getGasTankFilledTxns(executedTxns),
+    [executedTxns]
   )
 
   const availableFeeAssets = useMemo(
@@ -62,10 +81,30 @@ export default function useGasTankData() {
     [availableFeeAssets]
   )
 
+  const totalSavedResult = useMemo(
+    () =>
+      gasTankTxns &&
+      gasTankTxns.length &&
+      gasTankTxns
+        .map((item: any) => {
+          const feeTokenDetails = feeAssetsRes
+            ? feeAssetsRes.find((i: any) => i.symbol === item.feeToken)
+            : null
+          const savedGas = feeTokenDetails ? getAddedGas(feeTokenDetails) : null
+          return savedGas ? item.feeInUSDPerGas * savedGas : 0.0
+        })
+        .reduce((a: any, b: any) => a + b),
+    [feeAssetsRes, gasTankTxns]
+  )
+
   return {
-    data,
+    balancesRes,
+    gasTankBalances,
     isLoading,
     sortedTokens,
-    gasTankTxns
+    gasTankTxns,
+    feeAssetsRes,
+    gasTankFilledTxns,
+    totalSavedResult
   }
 }
