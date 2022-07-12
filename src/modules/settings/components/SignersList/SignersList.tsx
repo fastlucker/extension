@@ -1,19 +1,22 @@
-import React from 'react'
+import accountPresets from 'ambire-common/src/constants/accountPresets'
+import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
+import { getName } from 'ambire-common/src/services/humanReadableTransactions'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator } from 'react-native'
+import { View } from 'react-native'
 
 import CONFIG from '@config/env'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import accountPresets from '@modules/common/constants/accountPresets'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useToast from '@modules/common/hooks/useToast'
-import { getName } from '@modules/common/services/humanReadableTransactions'
+import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
 const SignersList = () => {
@@ -21,7 +24,7 @@ const SignersList = () => {
   const { addToast } = useToast()
   const { selectedAcc, account: selectedAccount, onAddAccount } = useAccounts()
   const { network: selectedNetwork } = useNetwork()
-  const { cacheBreak } = useCacheBreak({ breakPoint: 30000, refreshInterval: 40000 })
+  const { cacheBreak } = useCacheBreak(30000, 40000)
 
   const url = CONFIG.RELAYER_URL
     ? `${CONFIG.RELAYER_URL}/identity/${selectedAcc}/${selectedNetwork?.id}/privileges?cacheBreak=${cacheBreak}`
@@ -29,6 +32,11 @@ const SignersList = () => {
   const { data, errMsg, isLoading } = useRelayerData(url)
 
   const privileges = data ? data.privileges : {}
+  const showLoading = isLoading && !data
+
+  useEffect(() => {
+    triggerLayoutAnimation()
+  }, [showLoading, selectedNetwork, selectedAcc])
 
   const onMakeDefaultBtnClicked = async (account, address, isQuickAccount) => {
     if (isQuickAccount) {
@@ -67,13 +75,15 @@ const SignersList = () => {
         onMakeDefaultBtnClicked(selectedAccount, addr, isQuickAcc)
 
       return (
-        <Text key={addr} style={spacings.mb}>
+        <Text type="small" key={addr} style={spacings.mb}>
           {privText}{' '}
           {isSelected ? (
-            <Text style={textStyles.bold}>{t('(default signer)')}</Text>
+            <Text type="small">{t('(default signer)')}</Text>
           ) : (
             <Text
-              style={[textStyles.bold, { color: colors.primaryAccentColor }]}
+              type="small"
+              weight="medium"
+              style={{ color: colors.turquoise }}
               onPress={handleOnMakeDefaultBtnClicked}
             >
               {t('Make default')}
@@ -84,14 +94,19 @@ const SignersList = () => {
     })
     .filter((x) => x)
 
-  const showLoading = isLoading && !data
-
   return (
     <>
-      <Title>{t('Authorized signers')}</Title>
-      {showLoading && <ActivityIndicator />}
+      <Title hasBottomSpacing={false} style={[textStyles.center, spacings.mbSm]}>
+        {t('Authorized signers')}
+      </Title>
+      {showLoading && (
+        <View style={[flexboxStyles.center, spacings.pv]}>
+          <Spinner />
+        </View>
+      )}
+
       {!!errMsg && (
-        <Text appearance="danger" style={spacings.mbSm}>
+        <Text type="small" appearance="danger" style={spacings.mbSm}>
           {t('Error getting authorized signers: {{errMsg}}', { errMsg })}
         </Text>
       )}

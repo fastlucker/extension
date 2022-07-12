@@ -1,22 +1,26 @@
 import { ethers } from 'ethers'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, Image, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { ActivityIndicator, BackHandler, Image, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import NumberInput from '@modules/common/components/NumberInput'
+import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
 import Text from '@modules/common/components/Text'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import TokenIcon from '@modules/common/components/TokenIcon'
+import useNetwork from '@modules/common/hooks/useNetwork'
+import {
+  LINEAR_OPACITY_ANIMATION,
+  triggerLayoutAnimation
+} from '@modules/common/services/layoutAnimation'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import {
-  ExpandableCardContext,
-  ExpandableCardProvider
-} from '@modules/earn/contexts/expandableCardContext'
+import { CardsVisibilityContext } from '@modules/earn/contexts/cardsVisibilityContext'
 
 import styles from './styles'
 
@@ -27,17 +31,65 @@ const Card = ({
   loading,
   unavailable,
   tokensItems,
-  Icon,
+  icon,
   details,
   onTokenSelect,
-  onValidate
+  onValidate,
+  warning,
+  areDepositsDisabled
 }: any) => {
-  const [segment, setSegment] = useState<Segment>('Deposit')
+  const [segment, setSegment] = useState<Segment>(areDepositsDisabled ? 'Withdraw' : 'Deposit')
+  const { network }: any = useNetwork()
   const [tokens, setTokens] = useState<any>([])
   const [token, setToken] = useState<any>()
   const [amount, setAmount] = useState<any>(0)
   const [disabled, setDisabled] = useState<any>(true)
   const { t } = useTranslation()
+  const [isExpanded, setIsExpanded] = useState<boolean>(false)
+  const { visibleCard, setVisibleCard } = useContext(CardsVisibilityContext)
+
+  useEffect(() => {
+    if (!isExpanded) {
+      return
+    }
+
+    const backAction = () => {
+      if (isExpanded) {
+        triggerLayoutAnimation({
+          config: LINEAR_OPACITY_ANIMATION,
+          forceAnimate: true
+        })
+        setIsExpanded(false)
+        setVisibleCard(null)
+        // Returning true prevents execution of the default native back handling
+        return true
+      }
+
+      return false
+    }
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction)
+
+    return () => backHandler.remove()
+  }, [isExpanded])
+
+  const expand = () => {
+    triggerLayoutAnimation({
+      config: LINEAR_OPACITY_ANIMATION,
+      forceAnimate: true
+    })
+    setVisibleCard(name)
+    setIsExpanded(true)
+  }
+
+  const collapse = () => {
+    triggerLayoutAnimation({
+      config: LINEAR_OPACITY_ANIMATION,
+      forceAnimate: true
+    })
+    setVisibleCard(null)
+    setIsExpanded(false)
+  }
 
   const currentToken = useMemo(
     () => tokens.find(({ value }: any) => value === token),
@@ -79,7 +131,9 @@ const Card = ({
       setTokens(sortedTokenItems.filter(({ type }) => type === 'withdraw'))
   }, [segment, sortedTokenItems])
 
-  useEffect(() => setAmount(0), [token, segment])
+  useEffect(() => {
+    setAmount(0)
+  }, [token, segment])
 
   useEffect(() => {
     onTokenSelect(token)
@@ -88,10 +142,10 @@ const Card = ({
 
   const assetsItems = useMemo(
     () =>
-      tokens.map(({ label, symbol, value, icon }: any) => ({
+      tokens.map(({ label, symbol, value, icon, address }: any) => ({
         label: label || symbol,
         value,
-        icon: () => <Image source={{ uri: icon }} style={{ width: 16, height: 16 }} />
+        icon: () => <TokenIcon withContainer uri={icon} networkId={network?.id} address={address} />
       })),
     [tokens]
   )
@@ -102,8 +156,14 @@ const Card = ({
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
-      <Text style={flexboxStyles.flex1}>{t('Available Amount:')}</Text>
-      <Text>{!disabled ? `${getMaxAmount()} ${currentToken?.symbol}` : '0'}</Text>
+      <Text style={spacings.mr}>{t('Available Amount:')}</Text>
+
+      <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
+        <Text numberOfLines={1} style={{ flex: 1, textAlign: 'right' }} ellipsizeMode="tail">
+          {!disabled ? `${getMaxAmount()}` : '0.0'}
+        </Text>
+        {currentToken && <Text>{` ${currentToken?.symbol}`}</Text>}
+      </View>
     </View>
   )
 
@@ -121,13 +181,16 @@ const Card = ({
         <View>
           <Select
             value={token}
-            items={assetsItems}
+            items={assetsItems.sort((a, b) =>
+              a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
+            )}
             setValue={setToken}
             containerPropsStyle={spacings.mbSm}
             // TODO:
             //  disabled={disabled}
             label={t('Choose Token')}
           />
+          {warning && <View style={spacings.mbMd}>{warning}</View>}
           <View style={[flexboxStyles.directionRow, spacings.mbTy]}>
             <View style={[flexboxStyles.flex1, spacings.prTy]}>
               <Button
@@ -138,6 +201,7 @@ const Card = ({
                 ]}
                 type={segment === 'Deposit' ? 'outline' : 'secondary'}
                 onPress={() => setSegment('Deposit')}
+                disabled={areDepositsDisabled}
               />
             </View>
             <View style={[flexboxStyles.flex1, spacings.plTy]}>
@@ -157,13 +221,18 @@ const Card = ({
             keyboardType="numeric"
             autoCorrect={false}
             value={amount.toString()}
-            buttonText={t('MAX')}
+            button={t('MAX')}
             onButtonPress={setMaxAmount}
-            disabled={!currentToken?.balance}
+            disabled={Number(currentToken?.balance || 0) === 0}
             labelComponent={amountLabel}
           />
           <Button
-            disabled={disabled || amount <= 0 || amount > currentToken?.balance}
+            disabled={
+              disabled ||
+              amount <= 0 ||
+              amount > Number(currentToken?.balance || 0) ||
+              (areDepositsDisabled && segment === 'Deposit')
+            }
             onPress={() => onValidate(segment, token, amount)}
             text={segment}
           />
@@ -182,7 +251,8 @@ const Card = ({
                     ]}
                   >
                     <Text
-                      style={[textStyles.bold, flexboxStyles.flex1, spacings.prTy]}
+                      weight="medium"
+                      style={[flexboxStyles.flex1, spacings.prTy]}
                       numberOfLines={1}
                     >
                       {type}
@@ -199,39 +269,41 @@ const Card = ({
   )
 
   return (
-    <ExpandableCardProvider cardName={name}>
-      <ExpandableCardContext.Consumer>
-        {({ isExpanded, expand, collapse }) => (
-          <>
-            <View
-              style={[
-                !isExpanded && flexboxStyles.flex1,
-                isExpanded && { width: '100%', marginBottom: 40 }
-              ]}
-            >
-              {isExpanded && (
-                <NavIconWrapper style={styles.backButton} onPress={collapse}>
-                  <LeftArrowIcon />
-                </NavIconWrapper>
-              )}
-              <TouchableOpacity
-                style={[
-                  flexboxStyles.alignCenter,
-                  isExpanded && spacings.ptMi,
-                  !isExpanded && flexboxStyles.flex1,
-                  !isExpanded && flexboxStyles.justifyCenter
-                ]}
-                activeOpacity={isExpanded ? 1 : 0.7}
-                onPress={() => (isExpanded ? null : expand(name))}
-              >
-                {!!Icon && <Icon />}
-              </TouchableOpacity>
-            </View>
-            {isExpanded && expandedContent}
-          </>
-        )}
-      </ExpandableCardContext.Consumer>
-    </ExpandableCardProvider>
+    <View>
+      <Panel
+        type="filled"
+        style={[
+          !isExpanded && { minHeight: 120 },
+          !!visibleCard && visibleCard !== name && { display: 'none' }
+        ]}
+      >
+        <View
+          style={[
+            !isExpanded && flexboxStyles.flex1,
+            isExpanded && { width: '100%', marginBottom: 40 }
+          ]}
+        >
+          {isExpanded && (
+            <NavIconWrapper style={styles.backButton} onPress={collapse}>
+              <LeftArrowIcon />
+            </NavIconWrapper>
+          )}
+          <TouchableOpacity
+            style={[
+              flexboxStyles.alignCenter,
+              isExpanded && spacings.ptMi,
+              !isExpanded && flexboxStyles.flex1,
+              !isExpanded && flexboxStyles.justifyCenter
+            ]}
+            activeOpacity={isExpanded ? 1 : 0.7}
+            onPress={() => (isExpanded ? null : expand())}
+          >
+            {!!icon && <Image source={icon} />}
+          </TouchableOpacity>
+        </View>
+        {isExpanded && expandedContent}
+      </Panel>
+    </View>
   )
 }
 

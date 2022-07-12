@@ -115,13 +115,13 @@ When releasing a new version, here are the steps:
 
 1. Native version: X.X (example: `1.4`). This one is mostly for labeling within the App Store and Google Play. Keep synced with our internal app version when creating a new build. But it could also be behind, if the next internal version we're about to ship doesn't require creating a new build.
 
-   iOS: Change `CFBundleShortVersionString` in the `ios/ambiremobilewallet/Info.plist` file
+   iOS: Change `CFBundleShortVersionString` in the `ios/ambire/Info.plist` file
 
    Android: Change `versionName` string in the `android/app/build.gradle` file
 
 1. Native build version. Integer. Bump up If the next internal version we're about to ship requires creating a new build (example: `4`):
 
-   iOS: `CFBundleVersion` in the `ios/ambiremobilewallet/Info.plist` file
+   iOS: `CFBundleVersion` in the `ios/ambire/Info.plist` file
 
    Android: `versionCode` in the `android/app/build.gradle` file
 

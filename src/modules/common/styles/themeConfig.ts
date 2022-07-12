@@ -1,6 +1,6 @@
 import { ColorValue } from 'react-native'
 
-import { colorPalette as colors } from './colors'
+import colors from './colors'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum THEME_TYPES {

@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, Text as RNText, TextProps, TextStyle } from 'react-native'
 
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 
 import styles from './styles'
 

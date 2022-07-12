@@ -1,10 +1,10 @@
+import { validateImportedAccountProps } from 'ambire-common/src/services/validations'
 import * as DocumentPicker from 'expo-document-picker'
 import * as FileSystem from 'expo-file-system'
 import { useState } from 'react'
 
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import { validateImportedAccountProps } from '@modules/common/services/validate/imported-account-props'
 
 export default function useJsonLogin() {
   const { t } = useTranslation()

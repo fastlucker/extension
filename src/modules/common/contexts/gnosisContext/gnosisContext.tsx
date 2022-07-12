@@ -1,6 +1,6 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
-import React, { createContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import CONFIG from '@config/env'
 import { getSDKVersion, MessageFormatter, Methods } from '@gnosis.pm/safe-apps-sdk'
@@ -9,8 +9,8 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
 import { getProvider } from '@modules/common/services/provider'
 
-type GnosisContextData = {
-  sushiSwapIframeRef: any
+export interface GnosisContextReturnType {
+  sushiSwapIframeRef: React.RefObject<any> | null
   hash: string
   requests: any[]
   resolveMany: (ids: any, resolution: any) => any
@@ -20,7 +20,7 @@ type GnosisContextData = {
   handleIncomingMessage: (msg: any) => any
 }
 
-const GnosisContext = createContext<GnosisContextData>({
+const GnosisContext = createContext<GnosisContextReturnType>({
   sushiSwapIframeRef: null,
   hash: '',
   requests: [],
@@ -259,39 +259,42 @@ const GnosisProvider: React.FC = ({ children }) => {
     }
   }
 
-  const resolveMany = (ids: any, resolution: any) => {
-    for (const req of requests.filter((x: any) => ids.includes(x.id))) {
-      if (!req.isBatch || req.id.endsWith(':0')) {
-        const replyData: any = {
-          id: req.forwardId,
-          success: null,
-          txId: null,
-          error: null
-        }
-        if (!resolution) {
-          replyData.error = 'Nothing to resolve'
-          replyData.success = false
-        } else if (!resolution.success) {
-          replyData.error = resolution.message
-          replyData.success = false
-        } else {
-          // onSuccess
-          replyData.success = true
-          replyData.txId = resolution.result
-          replyData.safeTxHash = resolution.result
-        }
-        if (!sushiSwapIframeRef) {
-          // soft error handling: sendTransaction has issues
-          // throw new Error("gnosis safe connector not set")
-          console.error('gnosis safe connector not set')
-        } else {
-          send(replyData, req.forwardId, replyData.error)
+  const resolveMany = useCallback(
+    (ids: any, resolution: any) => {
+      for (const req of requests.filter((x: any) => ids.includes(x.id))) {
+        if (!req.isBatch || req.id.endsWith(':0')) {
+          const replyData: any = {
+            id: req.forwardId,
+            success: null,
+            txId: null,
+            error: null
+          }
+          if (!resolution) {
+            replyData.error = 'Nothing to resolve'
+            replyData.success = false
+          } else if (!resolution.success) {
+            replyData.error = resolution.message
+            replyData.success = false
+          } else {
+            // onSuccess
+            replyData.success = true
+            replyData.txId = resolution.result
+            replyData.safeTxHash = resolution.result
+          }
+          if (!sushiSwapIframeRef) {
+            // soft error handling: sendTransaction has issues
+            // throw new Error("gnosis safe connector not set")
+            console.error('gnosis safe connector not set')
+          } else {
+            send(replyData, req.forwardId, replyData.error)
+          }
         }
       }
-    }
 
-    setRequests((prevRequests: any) => prevRequests.filter((x: any) => !ids.includes(x.id)))
-  }
+      setRequests((prevRequests: any) => prevRequests.filter((x: any) => !ids.includes(x.id)))
+    },
+    [requests, setRequests]
+  )
 
   return (
     <GnosisContext.Provider
@@ -304,7 +307,7 @@ const GnosisProvider: React.FC = ({ children }) => {
           handlers,
           handleIncomingMessage
         }),
-        [requests, hash]
+        [requests, hash, resolveMany]
       )}
     >
       {children}

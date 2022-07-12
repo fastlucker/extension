@@ -17,9 +17,10 @@ interface Props {
   defaultValue: string
   segments: SegmentsProps
   onChange: (val: any) => any
+  fontSize?: number
 }
 
-const Segments = ({ defaultValue, segments, onChange }: Props) => {
+const Segments = ({ defaultValue, segments, onChange, fontSize = 16 }: Props) => {
   const [value, setValue] = useState<any>(defaultValue)
 
   const setSegment = useCallback(
@@ -48,7 +49,7 @@ const Segments = ({ defaultValue, segments, onChange }: Props) => {
           onPress={() => setSegment(segment.value)}
         >
           {!!segment.icon && segment.icon}
-          <Text fontSize={16} weight={segment.value === value ? 'medium' : 'regular'}>
+          <Text fontSize={fontSize} weight={segment.value === value ? 'medium' : 'regular'}>
             {segment.value}
           </Text>
         </TouchableOpacity>

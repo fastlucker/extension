@@ -1,10 +1,13 @@
+import { BlurView } from 'expo-blur'
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { Platform, StyleSheet, Vibration, View } from 'react-native'
 
+import { isAndroid } from '@config/env'
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
+import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -27,7 +30,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
 import styles from './styles'
 
-type PasscodeContextData = {
+export interface PasscodeContextReturnType {
   state: PASSCODE_STATES
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL
   deviceSupportedAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
@@ -56,7 +59,7 @@ type PasscodeContextData = {
   lockWhenInactive: boolean
 }
 
-const defaults: PasscodeContextData = {
+const defaults: PasscodeContextReturnType = {
   state: PASSCODE_STATES.NO_PASSCODE,
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE,
   deviceSupportedAuthTypes: [],
@@ -81,7 +84,7 @@ const defaults: PasscodeContextData = {
   lockWhenInactive: false
 }
 
-const PasscodeContext = createContext<PasscodeContextData>(defaults)
+const PasscodeContext = createContext<PasscodeContextReturnType>(defaults)
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
@@ -233,7 +236,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     setPasscodeError
   )
 
-  const enableLockOnStartup = async () => {
+  const enableLockOnStartup = useCallback(async () => {
     try {
       await AsyncStorage.setItem(LOCK_ON_STARTUP_KEY, 'true')
       setLockOnStartup(true)
@@ -246,8 +249,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
         error: true
       })
     }
-  }
-  const disableLockOnStartup = async () => {
+  }, [addToast, t])
+
+  const disableLockOnStartup = useCallback(async () => {
     try {
       await AsyncStorage.removeItem(LOCK_ON_STARTUP_KEY)
       setLockOnStartup(false)
@@ -260,9 +264,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
         error: true
       })
     }
-  }
+  }, [addToast, t])
 
-  const enableLockWhenInactive = async () => {
+  const enableLockWhenInactive = useCallback(async () => {
     try {
       await AsyncStorage.setItem(LOCK_WHEN_INACTIVE_KEY, 'true')
       setLockWhenInactive(true)
@@ -275,8 +279,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
         error: true
       })
     }
-  }
-  const disableLockWhenInactive = async () => {
+  }, [addToast, t])
+  const disableLockWhenInactive = useCallback(async () => {
     try {
       await AsyncStorage.removeItem(LOCK_WHEN_INACTIVE_KEY)
       setLockWhenInactive(false)
@@ -289,9 +293,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
         error: true
       })
     }
-  }
+  }, [addToast, t])
 
-  const addLocalAuth = async () => {
+  const addLocalAuth = useCallback(async () => {
     try {
       const { success } = await requestLocalAuthFlagging(() =>
         LocalAuthentication.authenticateAsync({
@@ -311,8 +315,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
       })
       return false
     }
-  }
-  const removeLocalAuth = async () => {
+  }, [addToast, t])
+  const removeLocalAuth = useCallback(async () => {
     try {
       await AsyncStorage.removeItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
 
@@ -322,87 +326,108 @@ const PasscodeProvider: React.FC = ({ children }) => {
         error: true
       })
     }
-  }
+  }, [addToast, t])
 
-  const addPasscode = async (code: string) => {
-    try {
-      await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code)
+  const addPasscode = useCallback(
+    async (code: string) => {
+      try {
+        await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code)
 
-      setPasscode(code)
+        setPasscode(code)
 
-      if (state === PASSCODE_STATES.NO_PASSCODE) {
-        enableLockOnStartup()
+        if (state === PASSCODE_STATES.NO_PASSCODE) {
+          enableLockOnStartup()
+        }
+
+        setState(
+          // Covers the case coming from a state with passcode already set
+          state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+            ? PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
+            : PASSCODE_STATES.PASSCODE_ONLY
+        )
+
+        return true
+      } catch (e) {
+        return false
+      }
+    },
+    [setPasscode, state, enableLockOnStartup]
+  )
+  const removePasscode = useCallback(
+    async (accountId?: string) => {
+      // In case the remove `passcode` is called with another account,
+      // than the currently selected one, removing the account password
+      // has already happened. So skip it.
+      if (!accountId) {
+        // Remove the account password stored, because without passcode,
+        // this is not allowed.
+        if (selectedAccHasPassword) {
+          await removeSelectedAccPassword()
+        }
       }
 
-      setState(
-        // Covers the case coming from a state with passcode already set
-        state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-          ? PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-          : PASSCODE_STATES.PASSCODE_ONLY
-      )
-
-      return true
-    } catch (e) {
-      return false
-    }
-  }
-  const removePasscode = async (accountId?: string) => {
-    // In case the remove `passcode` is called with another account,
-    // than the currently selected one, removing the account password
-    // has already happened. So skip it.
-    if (!accountId) {
-      // Remove the account password stored, because without passcode,
-      // this is not allowed.
-      if (selectedAccHasPassword) {
-        await removeSelectedAccPassword()
+      // First, remove the local auth (if set), because without passcode
+      // using local auth is not allowed.
+      if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
+        await removeLocalAuth()
       }
-    }
 
-    // First, remove the local auth (if set), because without passcode
-    // using local auth is not allowed.
-    if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
-      await removeLocalAuth()
-    }
+      // Disable lock on startup and when inactive, , because without passcode
+      // these are no longer relevant.
+      if (lockOnStartup) {
+        disableLockOnStartup()
+      }
+      if (lockWhenInactive) {
+        disableLockWhenInactive()
+      }
 
-    // Disable lock on startup and when inactive, , because without passcode
-    // these are no longer relevant.
-    if (lockOnStartup) {
-      disableLockOnStartup()
-    }
-    if (lockWhenInactive) {
-      disableLockWhenInactive()
-    }
+      try {
+        await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE)
+      } catch (e) {
+        addToast(t('Passcode got removed, but this setting failed to save.') as string, {
+          error: true
+        })
+      }
 
-    try {
-      await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE)
-    } catch (e) {
-      addToast(t('Passcode got removed, but this setting failed to save.') as string, {
-        error: true
-      })
-    }
+      setPasscode(null)
 
-    setPasscode(null)
+      return setState(PASSCODE_STATES.NO_PASSCODE)
+    },
+    [
+      addToast,
+      t,
+      setState,
+      selectedAccHasPassword,
+      removeLocalAuth,
+      removeSelectedAccPassword,
+      lockOnStartup,
+      lockWhenInactive,
+      disableLockOnStartup,
+      disableLockWhenInactive,
+      state
+    ]
+  )
+  const isValidPasscode = useCallback(
+    (code: string) => {
+      const isValid = code === passcode
 
-    return setState(PASSCODE_STATES.NO_PASSCODE)
-  }
-  const isValidPasscode = (code: string) => {
-    const isValid = code === passcode
+      if (!isValid) {
+        setPasscodeError(t('Wrong passcode.'))
+        Vibration.vibrate(200)
+      }
 
-    if (!isValid) {
-      setPasscodeError(t('Wrong passcode.'))
-      Vibration.vibrate(200)
-    }
+      return isValid
+    },
+    [passcode, setPasscodeError, t]
+  )
 
-    return isValid
-  }
-
-  const triggerEnteringPasscode = () => {
+  const triggerEnteringPasscode = useCallback(() => {
     openBottomSheet()
 
     if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
       triggerValidateLocalAuth()
     }
-  }
+  }, [openBottomSheet, state, triggerValidateLocalAuth])
 
   const fallbackSupportedAuthTypesLabel =
     Platform.select({
@@ -410,19 +435,39 @@ const PasscodeProvider: React.FC = ({ children }) => {
       android: i18n.t('PIN / pattern')
     }) || defaults.fallbackSupportedAuthTypesLabel
 
-  const handleOnValidatePasscode = (code: string) => {
-    const isValid = isValidPasscode(code)
+  const handleOnValidatePasscode = useCallback(
+    (code: string) => {
+      const isValid = isValidPasscode(code)
 
-    if (!isValid) {
-      return setHasEnteredValidPasscode(false)
-    }
+      if (!isValid) {
+        return setHasEnteredValidPasscode(false)
+      }
 
-    handleValidationSuccess()
-  }
+      handleValidationSuccess()
+    },
+    [isValidPasscode, handleValidationSuccess]
+  )
 
-  const resetValidPasscodeEntered = () => {
+  const resetValidPasscodeEntered = useCallback(() => {
     setHasEnteredValidPasscode(null)
-  }
+  }, [setHasEnteredValidPasscode])
+
+  const lockedContainerFullScreen = (
+    <SafeAreaView>
+      <AmbireLogo shouldExpand={false} />
+      <PasscodeAuth
+        autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
+        title={t('Unlock Ambire')}
+        message={t('Entering your passcode.')}
+        onFulfill={handleOnValidatePasscode}
+        onValidateLocalAuth={triggerValidateLocalAuth}
+        error={passcodeError}
+        state={state}
+        deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}
+        fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}
+      />
+    </SafeAreaView>
+  )
 
   return (
     <PasscodeContext.Provider
@@ -459,35 +504,40 @@ const PasscodeProvider: React.FC = ({ children }) => {
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
           state,
-          isAppLocked,
           hasEnteredValidPasscode,
-          // By including this, when calling the `removePasscode` method,
-          // it makes the `useAccountsPasswords` context re-render too.
-          selectedAccHasPassword,
           lockOnStartup,
-          lockWhenInactive
+          lockWhenInactive,
+          addLocalAuth,
+          addPasscode,
+          disableLockOnStartup,
+          disableLockWhenInactive,
+          enableLockOnStartup,
+          enableLockWhenInactive,
+          isValidLocalAuth,
+          isValidPasscode,
+          removeLocalAuth,
+          removePasscode,
+          triggerEnteringPasscode,
+          resetValidPasscodeEntered
         ]
       )}
     >
       {children}
 
-      {isAppLocked && (
-        <View style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
-          <SafeAreaView>
-            <PasscodeAuth
-              autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
-              title={t('Unlock Ambire Wallet')}
-              message={t('Entering your passcode.')}
-              onFulfill={handleOnValidatePasscode}
-              onValidateLocalAuth={triggerValidateLocalAuth}
-              error={passcodeError}
-              state={state}
-              deviceSupportedAuthTypesLabel={deviceSupportedAuthTypesLabel}
-              fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}
-            />
-          </SafeAreaView>
-        </View>
-      )}
+      {isAppLocked &&
+        (isAndroid ? (
+          <View style={[StyleSheet.absoluteFill, styles.lockedContainerAndroid]}>
+            {lockedContainerFullScreen}
+          </View>
+        ) : (
+          <BlurView
+            intensity={55}
+            tint="dark"
+            style={[StyleSheet.absoluteFill, styles.lockedContainer]}
+          >
+            {lockedContainerFullScreen}
+          </BlurView>
+        ))}
 
       <BottomSheet
         id="passcode"

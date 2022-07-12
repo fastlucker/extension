@@ -1,16 +1,18 @@
+import YEARN_TESSERACT_VAULT_ABI from 'ambire-common/src/constants/abis/YearnTesseractVaultABI'
+import networks, { NetworkId } from 'ambire-common/src/constants/networks'
+import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
+import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
+import { UseToastsReturnType } from 'ambire-common/src/hooks/useToasts'
+import approveToken from 'ambire-common/src/services/approveToken'
+import { getProvider } from 'ambire-common/src/services/provider'
 import { Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import isEqual from 'react-fast-compare'
+import { Linking } from 'react-native'
 
-import { useTranslation } from '@config/localization'
-import { getDefaultProvider } from '@ethersproject/providers'
-import networks from '@modules/common/constants/networks'
-import YEARN_TESSERACT_VAULT_ABI from '@modules/common/constants/YearnTesseractVaultABI'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import usePortfolio from '@modules/common/hooks/usePortfolio'
-import useRequests from '@modules/common/hooks/useRequests'
-import useToast from '@modules/common/hooks/useToast'
-import approveToken from '@modules/common/services/approveToken/approveToken'
+import { Trans, useTranslation } from '@config/localization'
+import Text from '@modules/common/components/Text'
+import textStyles from '@modules/common/styles/utils/text'
 import Card from '@modules/earn/components/Card'
 import { CARDS } from '@modules/earn/contexts/cardsVisibilityContext'
 import useTesseract from '@modules/earn/hooks/useTesseract'
@@ -18,24 +20,27 @@ import useYearn from '@modules/earn/hooks/useYearn'
 
 const VaultInterface = new Interface(YEARN_TESSERACT_VAULT_ABI)
 
-const YearnTesseractCard = () => {
-  const currentNetwork = useRef()
+interface Props {
+  tokens: UsePortfolioReturnType['tokens']
+  networkId?: NetworkId
+  selectedAcc: UseAccountsReturnType['selectedAcc']
+  addRequest: (req: any) => any
+  addToast: UseToastsReturnType['addToast']
+}
+
+const YearnTesseractCard = ({ tokens, networkId, selectedAcc, addRequest, addToast }: Props) => {
+  const currentNetwork: any = useRef()
   const [loading, setLoading] = useState<any>([])
 
   const { t } = useTranslation()
-  const { addToast } = useToast()
-  const { network }: any = useNetwork()
-  const { selectedAcc } = useAccounts()
-  const { addRequest } = useRequests()
-  const { tokens } = usePortfolio()
 
   const unavailable = !(
-    network.id === 'ethereum' ||
-    network.id === 'polygon' ||
-    network.id === 'fantom'
+    networkId === 'ethereum' ||
+    networkId === 'polygon' ||
+    networkId === 'fantom'
   )
-  const name = network.id === 'ethereum' ? 'Yearn' : 'Tesseract'
-  const networkDetails: any = networks.find(({ id }) => id === network.id)
+  const name = networkId === 'ethereum' ? 'Yearn' : 'Tesseract'
+  const networkDetails: any = networks.find(({ id }) => id === networkId)
   const addRequestTxn = (id: any, txn: any, extraGas = 0) =>
     addRequest({
       id,
@@ -45,7 +50,7 @@ const YearnTesseractCard = () => {
       txn,
       extraGas
     })
-  const provider = useMemo(() => getDefaultProvider(networkDetails.rpc), [networkDetails.rpc])
+  const provider = useMemo(() => getProvider(networkId), [networkId])
 
   const yearn = useYearn({
     tokens,
@@ -57,13 +62,13 @@ const YearnTesseractCard = () => {
   const tesseract = useTesseract({
     tokens,
     provider,
-    networkId: network.id,
+    networkId,
     currentNetwork
   })
 
   const { Icon, loadVaults, tokensItems, details, onTokenSelect } = useMemo(
-    () => (network.id === 'polygon' ? tesseract : yearn),
-    [network.id, yearn, tesseract]
+    () => (networkId === 'polygon' ? tesseract : yearn),
+    [networkId, yearn, tesseract]
   )
 
   const onValidate = async (type: any, value: any, amount: any) => {
@@ -78,7 +83,7 @@ const YearnTesseractCard = () => {
     if (type === 'Deposit') {
       await approveToken(
         name,
-        network.id,
+        networkId,
         selectedAcc,
         vaultAddress,
         item.tokenAddress,
@@ -127,27 +132,56 @@ const YearnTesseractCard = () => {
   }
 
   useEffect(() => {
-    if (unavailable) {
-      setLoading(false)
-      return
-    }
-    async function load() {
-      await loadVaults()
-      setLoading(false)
-    }
-    load()
+    ;(() => {
+      if (unavailable) {
+        setLoading(false)
+        return
+      }
+
+      async function load() {
+        await loadVaults()
+        setLoading(false)
+      }
+      load()
+    })()
   }, [unavailable, loadVaults])
 
   useEffect(() => {
-    currentNetwork.current = network.id
+    currentNetwork.current = networkId
     if (!unavailable) setLoading(true)
-  }, [network.id, unavailable])
+  }, [networkId, unavailable])
+
+  const warning = useMemo(
+    () => (
+      <Trans>
+        <Text type="small" appearance="warning">
+          Tesseract is closing. You will still be able to withdraw your funds indefinitely, but
+          there will be no more earning strategies.{' '}
+          <Text
+            type="small"
+            appearance="warning"
+            weight="medium"
+            onPress={() =>
+              Linking.openURL(
+                'https://medium.com/@tesseract_fi/the-omega-of-tesseract-finance-36d6a75d7310'
+              )
+            }
+          >
+            Learn more.
+          </Text>
+        </Text>
+      </Trans>
+    ),
+    []
+  )
 
   return (
     <Card
       name={CARDS.YearnTesseract}
+      areDepositsDisabled={networkId === 'polygon'}
+      warning={networkId === 'polygon' ? warning : undefined}
       loading={loading}
-      Icon={Icon}
+      icon={Icon}
       unavailable={unavailable}
       tokensItems={tokensItems}
       details={details}
@@ -157,4 +191,4 @@ const YearnTesseractCard = () => {
   )
 }
 
-export default YearnTesseractCard
+export default React.memo(YearnTesseractCard, isEqual)

@@ -1,14 +1,12 @@
 import React from 'react'
-import { TouchableOpacity } from 'react-native-gesture-handler'
+import { TouchableOpacity, View } from 'react-native'
 
+import AddIcon from '@assets/svg/AddIcon'
 import { useTranslation } from '@config/localization'
-import { FontAwesome } from '@expo/vector-icons'
 import Checkbox from '@modules/common/components/Checkbox'
 import Text from '@modules/common/components/Text'
-import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 
 type Props = {
   onAddToAddressBook: () => any
@@ -28,10 +26,12 @@ const ConfirmAddress = ({ onAddToAddressBook, addressConfirmed, setAddressConfir
       />
       <TouchableOpacity
         onPress={onAddToAddressBook}
-        style={[flexboxStyles.directionRow, spacings.mbSm]}
+        style={[flexboxStyles.directionRow, spacings.mb]}
       >
-        <FontAwesome style={spacings.mrMi} name="plus" size={18} color={colors.primaryIconColor} />
-        <Text style={[textStyles.bold]}>{t('Add it to the address book')}</Text>
+        <View style={spacings.mrMi}>
+          <AddIcon />
+        </View>
+        <Text underline>{t('Add it to the address book')}</Text>
       </TouchableOpacity>
     </>
   )

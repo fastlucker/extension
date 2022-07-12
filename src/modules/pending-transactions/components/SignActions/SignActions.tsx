@@ -1,3 +1,4 @@
+import { isValidCode, isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -12,7 +13,6 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
-import { isValidCode, isValidPassword } from '@modules/common/services/validate'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -26,7 +26,9 @@ const SignActions = ({
   approveTxn,
   rejectTxn,
   signingStatus,
-  bundle
+  bundle,
+  isGasTankEnabled,
+  network
 }: any) => {
   const {
     control,
@@ -47,11 +49,9 @@ const SignActions = ({
   const { addToast } = useToast()
 
   // reset this every time the signing status changes
-  useEffect(
-    // @ts-ignore
-    () => !signingStatus && resetField('code'),
-    [signingStatus]
-  )
+  useEffect(() => {
+    !signingStatus && resetField('code')
+  }, [signingStatus])
 
   const rejectButton = rejectTxn && <Button type="danger" text={t('Reject')} onPress={rejectTxn} />
 
@@ -71,7 +71,7 @@ const SignActions = ({
   const insufficientFee =
     estimation &&
     estimation.feeInUSD &&
-    !isTokenEligible(estimation.selectedFeeToken, feeSpeed, estimation)
+    !isTokenEligible(estimation.selectedFeeToken, feeSpeed, estimation, isGasTankEnabled, network)
 
   const willFail = (estimation && !estimation.success) || insufficientFee
 
@@ -128,7 +128,7 @@ const SignActions = ({
             </Text>
           ) : null}
           {signingStatus.confCodeRequired === 'email' ? (
-            <Text style={[textStyles.bold, spacings.mbSm]}>
+            <Text style={spacings.mbSm} weight="medium">
               {t(
                 'A confirmation code was sent to your email, please enter it along with your password.'
               )}

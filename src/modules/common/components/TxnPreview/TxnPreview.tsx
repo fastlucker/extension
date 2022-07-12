@@ -1,18 +1,20 @@
+import networks from 'ambire-common/src/constants/networks'
+import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
+import { getName, isKnown } from 'ambire-common/src/services/humanReadableTransactions'
+import { getTransactionSummary } from 'ambire-common/src/services/humanReadableTransactions/transactionSummary'
 import { formatUnits } from 'ethers/lib/utils'
 // TODO: add types
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, TouchableOpacity, View } from 'react-native'
+import { Image, Linking, TouchableOpacity, View } from 'react-native'
 
 import CloseIcon from '@assets/svg/CloseIcon'
 import DownArrowIcon from '@assets/svg/DownArrowIcon'
+import OpenIcon from '@assets/svg/OpenIcon'
 import UpArrowIcon from '@assets/svg/UpArrowIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
-import networks from '@modules/common/constants/networks'
-import { formatFloatTokenAmount } from '@modules/common/services/formatters'
-import { getName, isKnown } from '@modules/common/services/humanReadableTransactions'
-import { getTransactionSummary } from '@modules/common/services/humanReadableTransactions/transactionSummary'
+import TokenIcon from '@modules/common/components/TokenIcon'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -23,20 +25,14 @@ function getNetworkSymbol(networkId: any) {
   return network ? network.nativeAssetSymbol : 'UNKNW'
 }
 
-const zapperStorageTokenIcons = 'https://storage.googleapis.com/zapper-fi-assets/tokens'
-
-function getTokenIcon(network: any, address: any) {
-  return `${zapperStorageTokenIcons}/${network}/${address}.png`
-}
-
 function parseExtendedSummaryItem(item: any, i: any, networkDetails: any, t: any) {
   if (item === '') return null
 
   if (item.length === 1) return <Text fontSize={12}>{`${item} `}</Text>
 
-  if (i === 0) return <Text key={`item-${i}`} fontSize={12}>{`${item} `}</Text>
+  if (i === 0) return <Text fontSize={12}>{`${item} `}</Text>
 
-  if (!item.type) return <Text key={`item-${i}`} fontSize={12}>{`${item} `}</Text>
+  if (!item.type) return <Text fontSize={12}>{`${item} `}</Text>
 
   if (item.type === 'token')
     return (
@@ -52,26 +48,40 @@ function parseExtendedSummaryItem(item: any, i: any, networkDetails: any, t: any
         {item.decimals !== null && item.symbol ? (
           <>
             {item.address ? (
-              <Image
-                source={{ uri: getTokenIcon(networkDetails.id, item.address) }}
-                style={{ width: 22, height: 22 }}
+              <TokenIcon
+                width={20}
+                height={20}
+                networkId={networkDetails.id}
+                address={item.address}
               />
             ) : null}
             <Text fontSize={12}> </Text>
             <Text fontSize={12}>{`${item.symbol || ''} `}</Text>
           </>
         ) : item.amount > 0 ? (
-          <Text fontSize={12}>{t('units of unknown token')}</Text>
+          <Text fontSize={12}>{t('units of unknown token ')}</Text>
         ) : null}
       </>
     )
 
   if (item.type === 'address')
-    return <Text fontSize={12}>{`${item.name ? item.name : item.address} `}</Text>
+    return (
+      <>
+        <Text fontSize={12}>{`${item.name ? item.name : item.address} `}</Text>
+        {!!item.address && (
+          <TouchableOpacity
+            onPress={() => Linking.openURL(`${networkDetails.explorerUrl}/address/${item.address}`)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <OpenIcon width={14} height={14} />
+          </TouchableOpacity>
+        )}
+      </>
+    )
 
   if (item.type === 'network')
     return (
-      <Text key={`item-${i}`} fontSize={12}>
+      <Text fontSize={12}>
         {item.icon ? <Image source={{ uri: item.icon }} style={{ width: 20, height: 20 }} /> : null}
         {` ${item.name} `}
       </Text>
@@ -101,13 +111,29 @@ const TxnPreview = ({
 
   const extendedSummary = getTransactionSummary(txn, network, account, { mined, extended: true })
 
-  const summary = extendedSummary.map((entry: any) =>
-    Array.isArray(entry) ? (
-      entry.map((item, i) => parseExtendedSummaryItem(item, i, networkDetails, t))
-    ) : (
-      <Text fontSize={12}>{entry}</Text>
+  const summary = extendedSummary.map((entry: any, idx: number) => {
+    if (Array.isArray(entry)) {
+      return entry.map((item, i) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <React.Fragment key={`item-${i}`}>
+          {parseExtendedSummaryItem(item, i, networkDetails, t)}
+        </React.Fragment>
+      ))
+    }
+    if (typeof entry === 'object') {
+      return (
+        // eslint-disable-next-line react/no-array-index-key
+        <React.Fragment key={`item-${idx}`}>
+          {parseExtendedSummaryItem(entry, idx, networkDetails, t)}
+        </React.Fragment>
+      )
+    }
+    return (
+      <Text fontSize={12} key={entry}>
+        {entry}
+      </Text>
     )
-  )
+  })
 
   return (
     <View style={styles.container}>
@@ -125,7 +151,7 @@ const TxnPreview = ({
           <View style={[flexboxStyles.directionRow, flexboxStyles.wrap, flexboxStyles.alignCenter]}>
             {summary}
           </View>
-          {isFirstFailing && (
+          {!!isFirstFailing && (
             <Text appearance="danger" fontSize={10}>
               {t('This is the first failing transaction.')}
             </Text>

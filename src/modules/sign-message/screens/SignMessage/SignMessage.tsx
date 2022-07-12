@@ -1,4 +1,4 @@
-import { isHexString, toUtf8String } from 'ethers/lib/utils'
+import { toUtf8String } from 'ethers/lib/utils'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
@@ -12,7 +12,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useRequests from '@modules/common/hooks/useRequests'
+import useDisableHardwareBackPress from '@modules/common/hooks/useDisableHardwareBackPress'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -31,11 +31,19 @@ function getMessageAsText(msg: any) {
   }
 }
 
+const shortenedAddress = (address: any) => `${address.slice(0, 5)}...${address.slice(-3)}`
+const walletType = (signerExtra: any) => {
+  if (signerExtra && signerExtra.type === 'ledger') return 'Ledger'
+  if (signerExtra && signerExtra.type === 'trezor') return 'Trezor'
+  return 'Web3'
+}
+
 const SignScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { account } = useAccounts()
   const { connections } = useWalletConnect()
-  const { everythingToSign } = useRequests()
+
+  useDisableHardwareBackPress()
 
   const {
     sheetRef: sheetRefQickAcc,
@@ -51,7 +59,18 @@ const SignScreen = ({ navigation }: any) => {
     isOpen: isOpenBottomSheetHardwareWallet
   } = useBottomSheet()
 
-  const { approve, approveQuickAcc, isLoading, resolve, confirmationType } = useSignMessage(
+  const {
+    approve,
+    approveQuickAcc,
+    isLoading,
+    resolve,
+    confirmationType,
+    totalRequests,
+    toSign,
+    typeDataErr,
+    isDeployed,
+    dataV4
+  } = useSignMessage(
     {
       sheetRef: sheetRefQickAcc,
       openBottomSheet: openBottomSheetQickAcc,
@@ -66,9 +85,6 @@ const SignScreen = ({ navigation }: any) => {
     }
   )
 
-  const toSign = everythingToSign[0]
-  const totalRequests = everythingToSign.length
-
   const connection = connections?.find(({ uri }: any) => uri === toSign?.wcUri)
   const dApp = connection ? connection?.session?.peerMeta || null : null
 
@@ -76,16 +92,16 @@ const SignScreen = ({ navigation }: any) => {
     if (!connection) {
       navigation.goBack()
     }
-  }, [connection])
+  }, [connection, navigation])
 
   if (!toSign || !account) return null
 
-  if (toSign && !isHexString(toSign?.txn)) {
+  if (typeDataErr) {
     return (
       <Wrapper>
         <Panel>
-          <Text fontSize={17} appearance="danger" style={[textStyles.bold, spacings.mb]}>
-            {t('Invalid signing request: .txn has to be a hex string')}
+          <Text fontSize={17} appearance="danger" style={spacings.mb}>
+            {t('Invalid signing request: {{typeDataErr}}', { typeDataErr })}
           </Text>
           <Button
             type="danger"
@@ -100,40 +116,45 @@ const SignScreen = ({ navigation }: any) => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={180}>
-        <Panel>
-          <Title>{t('Signing with account')}</Title>
+        <Title style={[textStyles.center, spacings.mbTy]} hasBottomSpacing={false}>
+          {t('Signing with account')}
+        </Title>
+        <Panel type="filled" contentContainerStyle={[spacings.pvTy, spacings.phTy]}>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
             <Blockies seed={account?.id} />
-            <View style={flexboxStyles.flex1}>
-              <Text style={[spacings.plTy, textStyles.bold]} fontSize={15}>
+            <View style={[flexboxStyles.flex1, spacings.plTy]}>
+              <Text style={spacings.mbMi} numberOfLines={1} ellipsizeMode="middle" fontSize={12}>
                 {account.id}
+              </Text>
+              <Text type="info" color={colors.titan_50}>
+                {account.email
+                  ? t('Email/Password account ({{email}})', { email: account?.email })
+                  : `${walletType(account?.signerExtra)} (${shortenedAddress(
+                      account?.signer?.address
+                    )})`}
               </Text>
             </View>
           </View>
         </Panel>
         <Panel>
-          <Title>{t('Sign message')}</Title>
+          <Title type="small">{t('Sign message')}</Title>
           {!!dApp && (
-            <View style={[flexboxStyles.flex1, spacings.mbTy]}>
-              <Text>
-                {dApp.icons?.[0] && (
-                  <>
-                    <Image source={{ uri: dApp.icons[0] }} style={styles.image} />{' '}
-                  </>
-                )}
+            <View style={[flexboxStyles.flex1, spacings.mbTy, flexboxStyles.directionRow]}>
+              {!!dApp.icons?.[0] && <Image source={{ uri: dApp.icons[0] }} style={styles.image} />}
+              <Text style={flexboxStyles.flex1} fontSize={14}>
                 {t('{{name}} is requesting your signature.', { name: dApp.name })}
               </Text>
             </View>
           )}
           {!dApp && <Text style={spacings.mbTy}>{t('A dApp is requesting your signature.')}</Text>}
-          <Text style={spacings.mbSm} color={colors.secondaryTextColor}>
+          <Text style={spacings.mbTy} color={colors.titan_50} fontSize={14}>
             {totalRequests > 1
               ? t('You have {{number}} more pending requests.', { number: totalRequests - 1 })
               : ''}
           </Text>
           <View style={styles.textarea}>
-            <Text fontSize={13} color="#ccc">
-              {getMessageAsText(toSign.txn)}
+            <Text fontSize={12}>
+              {dataV4 ? JSON.stringify(dataV4, '\n', ' ') : getMessageAsText(toSign.txn)}
             </Text>
           </View>
           <SignActions
@@ -142,6 +163,7 @@ const SignScreen = ({ navigation }: any) => {
             approveQuickAcc={approveQuickAcc}
             confirmationType={confirmationType}
             resolve={resolve}
+            isDeployed={!!isDeployed}
             quickAccBottomSheet={{
               sheetRef: sheetRefQickAcc,
               openBottomSheet: openBottomSheetQickAcc,

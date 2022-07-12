@@ -7,26 +7,27 @@ const styles = StyleSheet.create({
   codeFieldRoot: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    ...spacings.mt,
-    ...spacings.mbLg
+    ...spacings.pbSm,
+    ...spacings.mbLg,
+    ...spacings.mt
   },
   cellRoot: {
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderBottomColor: colors.textColor,
+    borderBottomColor: colors.titan,
     borderBottomWidth: 1,
     ...spacings.mhMi
   },
   cellText: {
-    color: colors.textColor,
+    color: colors.titan,
     fontSize: 25,
     textAlign: 'center'
   },
   focusCell: {
-    borderBottomColor: colors.primaryAccentColor,
-    borderBottomWidth: 2
+    borderBottomColor: colors.turquoise,
+    borderBottomWidth: 1
   }
 })
 

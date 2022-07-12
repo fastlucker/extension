@@ -3,7 +3,8 @@ import { StyleSheet, ViewStyle } from 'react-native'
 import { isiOS } from '@config/env'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
+import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 
 interface Style {
   tabBarContainer: ViewStyle
@@ -44,12 +45,16 @@ export const tabBarStyle = {
 }
 
 export const tabBarItemStyle = {
-  paddingTop: 5
+  paddingTop: 8,
+  paddingBottom: 12
+}
+
+export const horizontalTabBarLabelStyle = {
+  fontSize: 16,
+  paddingLeft: IS_SCREEN_SIZE_L ? 10 : 0
 }
 
 export const tabBarLabelStyle = {
-  paddingBottom: 12,
-  marginTop: -4,
   fontSize: 9
 }
 

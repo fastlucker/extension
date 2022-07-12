@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import Blockies from '@modules/common/components/Blockies'
+import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -19,7 +20,7 @@ const SigningWithAccount = () => {
   const { t } = useTranslation()
   const { account } = useAccounts()
   const { network } = useNetwork()
-  const Icon: any = network?.Icon
+
   return (
     <Panel>
       <Title style={textStyles.center} type="small">
@@ -38,7 +39,7 @@ const SigningWithAccount = () => {
                 {t('on')}
               </Text>
             )}
-            <Icon width={18} height={18} />
+            <NetworkIcon name={network?.id} width={18} height={18} />
             <Text fontSize={10} color={colors.titan_50}>{`${network?.name}`}</Text>
           </View>
         </View>

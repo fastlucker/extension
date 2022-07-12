@@ -11,7 +11,7 @@ import {
   ViewStyle
 } from 'react-native'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 import styles from './styles'
@@ -21,7 +21,7 @@ const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
 type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
 
 type ButtonSizes = 'regular' | 'small'
-interface Props extends TouchableOpacityProps {
+export interface Props extends TouchableOpacityProps {
   text?: string
   type?: ButtonTypes
   size?: ButtonSizes
@@ -150,14 +150,14 @@ const Button = ({
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.5 }}
             style={[
+              containerStylesSizes[size],
               styles.buttonContainer,
               containerStyles[type],
-              containerStylesSizes[size],
-              disabled && styles.disabled,
               style,
               !!accentColor && { borderColor: accentColor },
               !hasBottomSpacing && spacings.mb0,
-              { opacity: animated }
+              { opacity: animated },
+              disabled && styles.disabled
             ]}
           >
             {!!text && (
@@ -181,4 +181,4 @@ const Button = ({
   )
 }
 
-export default Button
+export default React.memo(Button)

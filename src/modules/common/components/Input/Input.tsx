@@ -5,24 +5,26 @@ import {
   TextInputFocusEventData,
   TextInputProps,
   TouchableOpacity,
+  TouchableOpacityProps,
   View
 } from 'react-native'
 
 import Text from '@modules/common/components/Text'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
-import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
 
 export interface InputProps extends TextInputProps {
   info?: string
   // Error message - Active if there is some error message string passed
-  error?: string
+  error?: string | boolean
   label?: string
   isValid?: boolean
-  buttonText?: string | JSX.Element
+  validLabel?: string
+  button?: string | JSX.Element
+  buttonProps?: TouchableOpacityProps
   onButtonPress?: () => void
   disabled?: boolean
   containerStyle?: any
@@ -31,10 +33,12 @@ export interface InputProps extends TextInputProps {
 
 const Input = ({
   label,
-  buttonText,
+  button,
+  buttonProps,
   info,
   error,
   isValid,
+  validLabel,
   onBlur = () => {},
   onFocus = () => {},
   onButtonPress = () => {},
@@ -54,7 +58,7 @@ const Input = ({
     return onBlur(e)
   }
 
-  const hasButton = !!buttonText
+  const hasButton = !!button
 
   return (
     <View style={[styles.inputContainer, containerStyle]}>
@@ -71,7 +75,7 @@ const Input = ({
         >
           <TextInput
             placeholderTextColor={colors.waikawaGray}
-            style={[styles.input, hasButton && spacings.pr0]}
+            style={[styles.input, !!hasButton && spacings.pr0]}
             autoCapitalize="none"
             autoCorrect={false}
             editable={!disabled}
@@ -79,12 +83,17 @@ const Input = ({
             onFocus={handleOnFocus}
             {...rest}
           />
-          {hasButton && (
-            <TouchableOpacity onPress={onButtonPress} disabled={disabled} style={styles.button}>
-              {typeof buttonText === 'string' || buttonText instanceof String ? (
-                <Text style={textStyles.bold}>{buttonText}</Text>
+          {!!hasButton && (
+            <TouchableOpacity
+              onPress={onButtonPress}
+              disabled={disabled}
+              style={styles.button}
+              {...buttonProps}
+            >
+              {typeof button === 'string' || button instanceof String ? (
+                <Text weight="medium">{button}</Text>
               ) : (
-                buttonText
+                button
               )}
             </TouchableOpacity>
           )}
@@ -97,6 +106,12 @@ const Input = ({
         </Text>
       )}
 
+      {!!isValid && !!validLabel && !error && (
+        <Text style={[styles.validText]} fontSize={12} color={colors.turquoise}>
+          {validLabel}
+        </Text>
+      )}
+
       {!!info && (
         <Text style={[styles.infoText, infoTextStyle]} fontSize={12}>
           {info}
@@ -106,4 +121,4 @@ const Input = ({
   )
 }
 
-export default Input
+export default React.memo(Input)

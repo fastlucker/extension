@@ -6,7 +6,7 @@ import useAuth from '@modules/auth/hooks/useAuth'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 
-const stickyIds: string[] = []
+const stickyIds: number[] = []
 
 const AttentionGrabber = ({ children }: any) => {
   const { addToast, removeToast } = useToast()

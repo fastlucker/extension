@@ -1,8 +1,8 @@
+import WalletStakingPoolABI from 'ambire-common/src/constants/abis/WalletStakingPoolABI.json'
 import { Contract } from 'ethers'
 import { formatUnits, Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useState } from 'react'
 
-import WalletStakingPoolABI from '@modules/common/constants/WalletStakingPoolABI.json'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import { getProvider } from '@modules/common/services/provider'
 
@@ -35,7 +35,9 @@ export default function useStakedWalletToken() {
     }
   }, [account.id])
 
-  useEffect(() => fetchStakedWalletData(), [fetchStakedWalletData])
+  useEffect(() => {
+    fetchStakedWalletData()
+  }, [fetchStakedWalletData])
 
   return { stakedAmount }
 }

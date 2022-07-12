@@ -1,56 +1,31 @@
-import React, { createContext, useCallback, useMemo } from 'react'
+import networks from 'ambire-common/src/constants/networks'
+import useNetwork, { UseNetworkReturnType } from 'ambire-common/src/hooks/useNetwork'
+import React, { createContext, useMemo } from 'react'
 
-import networks, { NetworkType } from '@modules/common/constants/networks'
 import useStorage from '@modules/common/hooks/useStorage'
 
 const defaultNetwork = 'ethereum'
 
-type NetworkContextData = {
-  setNetwork: (networkIdentifier: string | number) => void
-  network: NetworkType | undefined
-  allNetworks: NetworkType[]
-}
-
-const NetworkContext = createContext<NetworkContextData>({
+const NetworkContext = createContext<UseNetworkReturnType>({
   setNetwork: () => {},
   network: networks.find((n) => n.id === defaultNetwork),
   allNetworks: networks
 })
 
 const NetworkProvider: React.FC = ({ children }) => {
-  const [networkId, setNetworkId] = useStorage({
-    key: 'network',
-    defaultValue: defaultNetwork,
-    isStringStorage: true,
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    setInit: (networkId: any) =>
-      networks.find((n) => n.id === networkId) ? networkId : defaultNetwork
+  const { setNetwork, network, allNetworks } = useNetwork({
+    useStorage
   })
-
-  const setNetwork = useCallback(
-    (networkIdentifier) => {
-      const network = networks.find(
-        (n) =>
-          n.id === networkIdentifier ||
-          n.name === networkIdentifier ||
-          n.chainId === networkIdentifier
-      )
-      if (!network) throw new Error(`no network found: ${networkIdentifier}`)
-
-      setNetworkId(network.id)
-    },
-    [setNetworkId]
-  )
 
   return (
     <NetworkContext.Provider
       value={useMemo(
         () => ({
           setNetwork,
-          network: networks.find((n) => n.id === networkId),
-          allNetworks: networks
+          network,
+          allNetworks
         }),
-        [setNetwork, networks, networkId]
+        [setNetwork, networks, network?.id]
       )}
     >
       {children}

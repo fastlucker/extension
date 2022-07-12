@@ -1,81 +1,42 @@
-import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
-import textStyles from '@modules/common/styles/utils/text'
+import commonStyles from '@modules/common/styles/utils/common'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Style {
-  header: ViewStyle
-  footer: ViewStyle
-  headerTitle: ViewStyle
-  rowItemMain: ViewStyle
-  img: ImageStyle
-  balance: TextStyle
-  balanceFiat: TextStyle
-  symbol: TextStyle
-  infoText: TextStyle
-  subInfoText: TextStyle
-  emptyStateContainer: TextStyle
-  emptyStateText: TextStyle
+  tokenItemContainer: ViewStyle
+  tokenValue: ViewStyle
+  sendContainer: ViewStyle
+  tokenSymbol: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  header: {
-    backgroundColor: colors.headerColor,
+  tokenItemContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    ...spacings.ph,
-    ...spacings.pv
+    backgroundColor: colors.howl,
+    ...spacings.pv,
+    ...spacings.phSm,
+    ...spacings.mbTy,
+    ...commonStyles.borderRadiusPrimary
   },
-  footer: {
-    ...spacings.phTy,
-    ...spacings.pvSm,
-    ...spacings.pb0
+  tokenSymbol: {
+    // Magic number, so that the token name always takes up to 35% of the row,
+    // otherwise - aligning the symbol and value with flex 1 both
+    // results inconsistent rendering behavior with edge cases - long token name
+    // and very tiny value (with many decimals). So this is the sweet spot.
+    maxWidth: '35%'
   },
-  headerTitle: {
-    fontSize: 20,
-    ...spacings.pb0
+  tokenValue: {
+    alignItems: 'flex-end'
   },
-  rowItemMain: {
-    flex: 1,
-    ...spacings.ph0
-  },
-  img: {
-    width: 35,
-    height: 35
-  },
-  balance: {
-    fontSize: 18
-  },
-  balanceFiat: {
-    fontSize: 14
-  },
-  symbol: {
-    fontSize: 18,
-    ...textStyles.bold
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 15,
-    opacity: 0.5,
-    ...spacings.pbTy,
-    ...spacings.plTy
-  },
-  subInfoText: {
-    fontSize: 12,
-    opacity: 0.5,
-    textAlign: 'center'
-  },
-  emptyStateContainer: {
-    ...spacings.ptSm,
-    ...spacings.phSm
-  },
-  emptyStateText: {
-    fontSize: 18,
-    textAlign: 'center',
-    ...textStyles.bold,
-    ...spacings.mbSm
+  sendContainer: {
+    backgroundColor: colors.titan_05,
+    width: 36,
+    height: 36,
+    ...flexboxStyles.center,
+    ...commonStyles.borderRadiusPrimary
   }
 })
 

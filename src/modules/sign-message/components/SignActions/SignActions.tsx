@@ -1,3 +1,4 @@
+import { isValidPassword } from 'ambire-common/src/services/validations'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -11,6 +12,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import spacings from '@modules/common/styles/spacings'
+import textStyles from '@modules/common/styles/utils/text'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import {
   HardwareWalletBottomSheetType,
@@ -27,6 +29,7 @@ interface Props {
   quickAccBottomSheet: QuickAccBottomSheetType
   hardwareWalletBottomSheet: HardwareWalletBottomSheetType
   confirmationType: string | null
+  isDeployed: boolean
 }
 
 const SignActions = ({
@@ -36,7 +39,8 @@ const SignActions = ({
   resolve,
   quickAccBottomSheet,
   hardwareWalletBottomSheet,
-  confirmationType
+  confirmationType,
+  isDeployed
 }: Props) => {
   const { t } = useTranslation()
   const { account } = useAccounts()
@@ -59,27 +63,32 @@ const SignActions = ({
   return (
     <>
       <View>
-        {!!account.signer?.quickAccManager && (
-          <View style={spacings.mbTy}>
-            <Controller
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <InputPassword
-                  placeholder={t('Account password')}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                />
-              )}
-              name="password"
-            />
-          </View>
+        {!!account.signer?.quickAccManager && isDeployed && (
+          <Controller
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <InputPassword
+                placeholder={t('Account password')}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                isValid={isValidPassword(value)}
+                error={errors.password && (t('Please fill in a valid password.') as string)}
+              />
+            )}
+            name="password"
+          />
         )}
-        {!!errors.password && (
-          <Text appearance="danger" style={spacings.mbSm}>
-            {t('Password is required.')}
-          </Text>
+        {!isDeployed && (
+          <View style={spacings.mbMd}>
+            <Text appearance="danger" fontSize={12}>
+              {t("You can't sign this message yet.")}
+            </Text>
+            <Text appearance="danger" fontSize={12}>
+              {t('You need to complete your first transaction to be able to sign messages.')}
+            </Text>
+          </View>
         )}
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonWrapper}>
@@ -93,7 +102,7 @@ const SignActions = ({
             <Button
               text={isLoading ? t('Signing...') : t('Sign')}
               onPress={account.signer?.quickAccManager ? handleSubmit(approve) : approve}
-              disabled={isLoading}
+              disabled={isLoading || !watch('password', '') || !isDeployed}
             />
           </View>
         </View>
@@ -105,14 +114,14 @@ const SignActions = ({
         sheetRef={quickAccBottomSheet.sheetRef}
         dynamicInitialHeight={false}
       >
-        <Title>{t('Confirmation code')}</Title>
+        <Title style={textStyles.center}>{t('Confirmation code')}</Title>
         {(confirmationType === 'email' || !confirmationType) && (
           <Text style={spacings.mb}>
             {t('A confirmation code has been sent to your email, it is valid for 3 minutes.')}
           </Text>
         )}
         {confirmationType === 'otp' && (
-          <Text style={spacings.mb}>{t('Please enter your OTP code.')}</Text>
+          <Text style={spacings.mbTy}>{t('Please enter your OTP code.')}</Text>
         )}
         <NumberInput
           placeholder={
@@ -126,6 +135,7 @@ const SignActions = ({
         />
         <Button
           text={t('Confirm')}
+          disabled={!watch('code', '')}
           onPress={() => {
             handleSubmit(approveQuickAcc)()
             setValue('code', '')

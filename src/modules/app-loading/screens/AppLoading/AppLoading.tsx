@@ -8,7 +8,9 @@ import AttentionGrabberProvider from '@modules/common/components/AttentionGrabbe
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AccountsPasswordsProvider } from '@modules/common/contexts/accountsPasswordsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
+import { GasTankProvider } from '@modules/common/contexts/gasTankContext'
 import { GnosisProvider } from '@modules/common/contexts/gnosisContext'
+import { HeaderBottomSheetProvider } from '@modules/common/contexts/headerBottomSheetContext'
 import { KeyboardProvider } from '@modules/common/contexts/keyboardContext'
 import { LinkingProvider } from '@modules/common/contexts/linkingContext'
 import { LoaderProvider } from '@modules/common/contexts/loaderContext'
@@ -16,10 +18,12 @@ import { NetInfoProvider } from '@modules/common/contexts/netInfoContext'
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
 import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
+import { PrivateModeProvider } from '@modules/common/contexts/privateModeContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
 import { StorageContext } from '@modules/common/contexts/storageContext'
 import { ThemeProvider } from '@modules/common/contexts/themeContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
+import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/unsupportedDAppsBottomSheetContext'
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 import useFonts from '@modules/common/hooks/useFonts'
 
@@ -48,9 +52,17 @@ const AppLoading = () => {
                                   <PortalProvider>
                                     <PasscodeProvider>
                                       <AttentionGrabberProvider>
-                                        <LinkingProvider>
-                                          <Router />
-                                        </LinkingProvider>
+                                        <PrivateModeProvider>
+                                          <GasTankProvider>
+                                            <UnsupportedDAppsBottomSheetProvider>
+                                              <HeaderBottomSheetProvider>
+                                                <LinkingProvider>
+                                                  <Router />
+                                                </LinkingProvider>
+                                              </HeaderBottomSheetProvider>
+                                            </UnsupportedDAppsBottomSheetProvider>
+                                          </GasTankProvider>
+                                        </PrivateModeProvider>
                                       </AttentionGrabberProvider>
                                       <PortalHost name="global" />
                                     </PasscodeProvider>

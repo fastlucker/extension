@@ -1,6 +1,8 @@
 import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
+import commonStyles from '@modules/common/styles/utils/common'
 
 interface Style {
   image: ImageStyle
@@ -10,16 +12,17 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   image: {
     ...spacings.mrTy,
-    width: 20,
-    height: 20
+    width: 22,
+    height: 22
   },
   textarea: {
-    minHeight: 220,
+    minHeight: 120,
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: colors.mirage,
+    ...commonStyles.borderRadiusPrimary,
     ...spacings.ph,
-    ...spacings.pvSm,
-    ...spacings.mbMd
+    ...spacings.pv,
+    ...spacings.mbLg
   }
 })
 

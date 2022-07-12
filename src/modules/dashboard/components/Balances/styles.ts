@@ -1,6 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
@@ -30,7 +30,9 @@ const styles = StyleSheet.create<Style>({
     flexDirection: 'row',
     width: 275,
     borderBottomColor: colors.waikawaGray,
-    borderBottomWidth: 1
+    borderBottomWidth: 1,
+    paddingVertical: 2,
+    alignItems: 'center'
   }
 })
 

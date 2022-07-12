@@ -1,8 +1,7 @@
 // @ts-nocheck
 
+import networks from 'ambire-common/src/constants/networks'
 import { providers } from 'ethers'
-
-import networks from '@modules/common/constants/networks'
 
 // Cache provider instances by a network id
 // For instance: { 'ethereum': new providers.StaticJsonRpcProvider }

@@ -1,4 +1,9 @@
-import React from 'react'
+import {
+  MultiplierBadge,
+  multiplierBadges,
+  MULTIPLIERS_READ_MORE_URL
+} from 'ambire-common/src/constants/multiplierBadges'
+import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Linking, TouchableOpacity, View } from 'react-native'
 
@@ -8,6 +13,8 @@ import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBott
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import usePrivateMode from '@modules/common/hooks/usePrivateMode'
+import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -17,32 +24,18 @@ import useStakedWalletToken from '@modules/dashboard/hooks/useStakedWalletToken'
 
 import styles from './styles'
 
-const BLOG_POST_URL = 'https://blog.ambire.com/announcing-the-wallet-token-a137aeda9747'
-
-const multiplierBadges = [
-  {
-    id: 'beta-tester',
-    name: 'Beta Testers',
-    icon: '🧪',
-    color: '#6000FF',
-    multiplier: 1.25,
-    link: 'https://blog.ambire.com/announcing-the-wallet-token-a137aeda9747'
-  },
-  {
-    id: 'lobsters',
-    name: 'Lobsters',
-    icon: '🦞',
-    color: '#E82949',
-    multiplier: 1.5,
-    link: 'https://blog.ambire.com/ambire-wallet-to-partner-with-lobsterdao-10b57e6da0-53c59c88726b'
-  }
-]
-
 const Rewards = () => {
   const { t } = useTranslation()
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
-  const { rewards, pendingTokensTotal, claimableWalletToken, isLoading } = useRewards()
+  const { rewards, pendingTokensTotal, claimableWalletToken } = useRewards()
   const { stakedAmount } = useStakedWalletToken()
+  const { hidePrivateValue } = usePrivateMode()
+
+  useLayoutEffect(() => {
+    // Solves 2 issues: 1) the annoying jump in the beginning between the
+    // loading and the loaded state; 2) the annoying jump when value updates.
+    triggerLayoutAnimation()
+  }, [pendingTokensTotal])
 
   const {
     vestingEntry,
@@ -108,9 +101,9 @@ const Rewards = () => {
     claimVesting()
   }
 
-  const handleReadMore = () => Linking.openURL(BLOG_POST_URL).finally(closeBottomSheet)
+  const handleReadMore = () => Linking.openURL(MULTIPLIERS_READ_MORE_URL).finally(closeBottomSheet)
 
-  const renderBadge = ({ id, multiplier, icon, name, color, link }) => {
+  const renderBadge = ({ id, multiplier, icon, name, color, link }: MultiplierBadge) => {
     const isUnlocked =
       rewards.multipliers && rewards.multipliers.map(({ name }) => name).includes(id)
     const handleLinkOpen = () => Linking.openURL(link)
@@ -141,13 +134,12 @@ const Rewards = () => {
         onPress={openBottomSheet}
         type="outline"
         size="small"
-        text={
-          isLoading
-            ? t('Updating...')
-            : t('{{pendingTokensTotal}} WALLET Rewards', {
-                pendingTokensTotal
-              })
-        }
+        text={t('{{pendingTokensTotal}} WALLET Rewards', {
+          // Technically, the fallback should be set in the hook,
+          // but sometimes the hook returns `pendingTokensTotal` as undefined,
+          // so double check it.
+          pendingTokensTotal: hidePrivateValue(pendingTokensTotal) || '...'
+        })}
         style={flexboxStyles.alignSelfCenter}
       />
       <BottomSheet
@@ -180,7 +172,7 @@ const Rewards = () => {
               <Text>{t('Early users Incentive')}</Text>
             </View>
             <View style={[spacings.plTy, styles.tableRowValue]}>
-              <Text color={colors.primaryAccentColor} style={textStyles.right}>
+              <Text color={colors.turquoise} style={textStyles.right}>
                 {rewards[RewardIds.BALANCE_REWARDS]}
               </Text>
               <Text type="small" style={textStyles.right}>
@@ -193,7 +185,7 @@ const Rewards = () => {
               <Text>{t('ADX Staking Bonus')}</Text>
             </View>
             <View style={[spacings.plTy, styles.tableRowValue]}>
-              <Text color={colors.primaryAccentColor} style={textStyles.right}>
+              <Text color={colors.turquoise} style={textStyles.right}>
                 {rewards[RewardIds.ADX_REWARDS]}
               </Text>
               <Text type="small" style={textStyles.right}>
@@ -212,11 +204,11 @@ const Rewards = () => {
                 <Text>{t('Claimable now: early users + ADX Staking bonus')}</Text>
               </View>
               <View style={[spacings.plTy, styles.tableRowValue]}>
-                <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                <Text color={colors.turquoise} style={textStyles.right}>
                   {currentClaimStatus.loading ? '...' : claimableNow}
                 </Text>
                 <Text type="small" style={textStyles.right}>
-                  <Text type="small" color={colors.secondaryAccentColor}>
+                  <Text type="small" color={colors.heliotrope}>
                     $
                   </Text>
                   {claimableNowUsd}
@@ -248,11 +240,11 @@ const Rewards = () => {
                   <Text>{t('Claimable early supporters vesting')}</Text>
                 </View>
                 <View style={[spacings.plTy, styles.tableRowValue]}>
-                  <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                  <Text color={colors.turquoise} style={textStyles.right}>
                     {currentClaimStatus.mintableVesting}
                   </Text>
                   <Text type="small" style={textStyles.right}>
-                    <Text type="small" color={colors.secondaryAccentColor}>
+                    <Text type="small" color={colors.heliotrope}>
                       $
                     </Text>
                     {mintableVestingUsd}
@@ -273,7 +265,7 @@ const Rewards = () => {
                 <Text>{t('Staked WALLET')}</Text>
               </View>
               <View style={[spacings.plTy, styles.tableRowValue]}>
-                <Text color={colors.primaryAccentColor} style={textStyles.right}>
+                <Text color={colors.turquoise} style={textStyles.right}>
                   {stakedAmount}
                 </Text>
                 <Text type="small" style={textStyles.right}>

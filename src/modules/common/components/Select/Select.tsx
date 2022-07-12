@@ -6,6 +6,7 @@ import CheckIcon from '@assets/svg/CheckIcon'
 import CloseIcon from '@assets/svg/CloseIcon'
 import i18n from '@config/localization/localization'
 import Text from '@modules/common/components/Text'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -29,6 +30,7 @@ interface Props {
   searchable?: boolean
   onChangeValue?: (value: any) => void
   label?: string
+  extraText?: string
   containerPropsStyle?: ViewProps['style']
 }
 
@@ -40,6 +42,7 @@ const Select = ({
   searchable = true,
   onChangeValue,
   label,
+  extraText,
   containerPropsStyle
 }: Props) => {
   const [open, setOpen] = useState(false)
@@ -74,7 +77,7 @@ const Select = ({
         containerProps={{ style: containerPropsStyle }}
         modalContentContainerStyle={styles.modalContentContainerStyle}
         disabledItemLabelStyle={{
-          opacity: 0.5
+          opacity: 0.2
         }}
         // So it displays 4 and a half items (indicating there is a scroll)
         maxHeight={290}
@@ -93,6 +96,13 @@ const Select = ({
         listMode="MODAL"
         ArrowDownIconComponent={() => (
           <View pointerEvents="none">
+            {!!extraText && (
+              <View style={styles.extra}>
+                <Text fontSize={12} color={colors.heliotrope}>
+                  {extraText}
+                </Text>
+              </View>
+            )}
             <NavIconWrapper onPress={() => null}>
               <DownArrowIcon width={34} height={34} />
             </NavIconWrapper>

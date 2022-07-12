@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
@@ -12,7 +12,7 @@ import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
-import { useNavigation } from '@react-navigation/native'
+import { useIsFocused, useNavigation } from '@react-navigation/native'
 
 enum STEPS {
   NEW_PASSCODE = 'NEW_PASSCODE',
@@ -27,6 +27,18 @@ const ChangePasscodeScreen: React.FC = () => {
   const [step, setStep] = useState<STEPS>(STEPS.NEW_PASSCODE)
   const [newPasscode, setNewPasscode] = useState('')
   const [passcodeConfirmFailed, setPasscodeConfirmFailed] = useState(false)
+  const isFocused = useIsFocused()
+
+  // On going back (loosing routing focus), reset state, otherwise there is
+  // no way for the user to reset this flow (other than kill the app).
+  // Also, resets the state upon initial successful passcode configuring.
+  useEffect(() => {
+    return () => {
+      setNewPasscode('')
+      setPasscodeConfirmFailed(false)
+      setStep(STEPS.NEW_PASSCODE)
+    }
+  }, [isFocused])
 
   const handleOnFulfillStep1 = (code: string) => {
     setStep(STEPS.CONFIRM_NEW_PASSCODE)
@@ -40,7 +52,7 @@ const ChangePasscodeScreen: React.FC = () => {
 
     const added = await addPasscode(code)
     if (added) {
-      addToast(t('Passcode configured!') as string, { timeout: 2000 })
+      addToast(t('Passcode configured!') as string, { timeout: 5000 })
       navigation.navigate('dashboard')
     }
   }
@@ -48,7 +60,7 @@ const ChangePasscodeScreen: React.FC = () => {
   const handleOnRemovePasscode = async () => {
     await removePasscode()
 
-    addToast(t('Passcode removed!') as string, { timeout: 2000 })
+    addToast(t('Passcode removed!') as string, { timeout: 5000 })
     navigation.navigate('dashboard')
   }
 
@@ -56,8 +68,10 @@ const ChangePasscodeScreen: React.FC = () => {
     if (step === STEPS.CONFIRM_NEW_PASSCODE) {
       return (
         <>
-          <Title>{t('Confirm new passcode')}</Title>
-          <Text style={spacings.mbSm}>{t('Please type the passcode again, to confirm it.')}</Text>
+          <Title style={textStyles.center}>{t('Confirm new passcode')}</Title>
+          <Text type="small" style={spacings.mbSm}>
+            {t('Please type the passcode again, to confirm it.')}
+          </Text>
         </>
       )
     }
@@ -65,26 +79,30 @@ const ChangePasscodeScreen: React.FC = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <Title>{t('Create passcode')}</Title>
-          <Text style={spacings.mbSm}>{t('Choose a passcode to protect your app.')}</Text>
+          <Title style={textStyles.center}>{t('Create passcode')}</Title>
+          <Text type="small" style={spacings.mbSm}>
+            {t('Choose a passcode to protect your app.')}
+          </Text>
         </>
       )
     }
 
     return (
       <>
-        <Title>{t('Change your passcode')}</Title>
-        <Text style={spacings.mbSm}>{t('Please enter a new passcode.')}</Text>
+        <Title style={textStyles.center}>{t('Change your passcode')}</Title>
+        <Text type="small" style={spacings.mbSm}>
+          {t('Please enter a new passcode.')}
+        </Text>
       </>
     )
   }
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper>
+      <Wrapper style={spacings.mt}>
         {renderContent()}
         {passcodeConfirmFailed && (
-          <Text appearance="danger" style={spacings.mbSm}>
+          <Text type="small" appearance="danger" style={spacings.mbSm}>
             {t("Passcodes don't match!")}
           </Text>
         )}
@@ -94,7 +112,9 @@ const ChangePasscodeScreen: React.FC = () => {
         )}
         {state !== PASSCODE_STATES.NO_PASSCODE && (
           <>
-            <Text style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>{t('– or –')}</Text>
+            <Text type="small" style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>
+              {t('– or –')}
+            </Text>
             <Button type="secondary" text={t('Remove passcode')} onPress={handleOnRemovePasscode} />
           </>
         )}

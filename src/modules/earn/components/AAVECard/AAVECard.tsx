@@ -1,18 +1,17 @@
+import AAVELendingPoolProviders from 'ambire-common/src/constants/AAVELendingPoolProviders'
+import AAVELendingPoolAbi from 'ambire-common/src/constants/abis/AAVELendingPoolAbi'
+import networks, { NetworkId } from 'ambire-common/src/constants/networks'
+import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
+import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
+import { UseToastsReturnType } from 'ambire-common/src/hooks/useToasts'
+import approveToken from 'ambire-common/src/services/approveToken'
 import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import isEqual from 'react-fast-compare'
 
+import AAVELogo from '@assets/images/AAVE.png'
 import { useTranslation } from '@config/localization'
-import AAVELogo from '@modules/common/assets/svg/icons/AAVELogo'
-import AAVELendingPoolAbi from '@modules/common/constants/AAVELendingPoolAbi'
-import AAVELendingPoolProviders from '@modules/common/constants/AAVELendingPoolProviders'
-import networks from '@modules/common/constants/networks'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import usePortfolio from '@modules/common/hooks/usePortfolio'
-import useRequests from '@modules/common/hooks/useRequests'
-import useToast from '@modules/common/hooks/useToast'
-import approveToken from '@modules/common/services/approveToken/approveToken'
 import { getProvider } from '@modules/common/services/provider'
 import Card from '@modules/earn/components/Card'
 import { CARDS } from '@modules/earn/contexts/cardsVisibilityContext'
@@ -22,19 +21,23 @@ const AAVELendingPool = new Interface(AAVELendingPoolAbi)
 const RAY = 10 ** 27
 let lendingPoolAddress: any = null
 
-const AAVECard = () => {
-  const currentNetwork = useRef()
+interface Props {
+  tokens: UsePortfolioReturnType['tokens']
+  protocols: UsePortfolioReturnType['protocols']
+  networkId?: NetworkId
+  selectedAcc: UseAccountsReturnType['selectedAcc']
+  addRequest: (req: any) => any
+  addToast: UseToastsReturnType['addToast']
+}
+
+const AAVECard = ({ tokens, protocols, networkId, selectedAcc, addRequest, addToast }: Props) => {
+  const currentNetwork: any = useRef()
   const [isLoading, setLoading] = useState<any>(true)
   const [unavailable, setUnavailable] = useState<any>(false)
   const [tokensItems, setTokensItems] = useState<any>([])
   const [details, setDetails] = useState<any>([])
 
   const { t } = useTranslation()
-  const { addToast } = useToast()
-  const { network }: any = useNetwork()
-  const { selectedAcc } = useAccounts()
-  const { addRequest } = useRequests()
-  const { protocols, tokens } = usePortfolio()
 
   const onTokenSelect = useCallback(
     async (value) => {
@@ -50,7 +53,7 @@ const AAVECard = () => {
     [tokensItems]
   )
 
-  const networkDetails: any = networks.find(({ id }) => id === network?.id)
+  const networkDetails: any = networks.find(({ id }) => id === networkId)
   const defaultTokens = useMemo(() => getDefaultTokensItems(networkDetails.id), [networkDetails.id])
   const getToken = (type: any, address: any) =>
     tokensItems
@@ -236,17 +239,19 @@ const AAVECard = () => {
     }
   }, [addToast, protocols, tokens, defaultTokens, networkDetails])
 
-  useEffect(() => loadPool(), [loadPool])
+  useEffect(() => {
+    loadPool()
+  }, [loadPool])
 
   useEffect(() => {
-    currentNetwork.current = network.id
+    currentNetwork.current = networkId
     setLoading(true)
-  }, [network.id])
+  }, [networkId])
 
   return (
     <Card
       name={CARDS.AAVE}
-      Icon={AAVELogo}
+      icon={AAVELogo}
       loading={isLoading}
       unavailable={unavailable}
       details={details}
@@ -257,4 +262,4 @@ const AAVECard = () => {
   )
 }
 
-export default AAVECard
+export default React.memo(AAVECard, isEqual)

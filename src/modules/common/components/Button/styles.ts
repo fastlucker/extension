@@ -1,7 +1,7 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
@@ -55,7 +55,9 @@ const styles = StyleSheet.create<Style>({
     borderColor: colors.turquoise
   },
   buttonContainerGhost: {
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
+    minHeight: 'auto',
+    ...spacings.pv0
   },
 
   // Button sizes (regular/small)
@@ -75,7 +77,6 @@ const styles = StyleSheet.create<Style>({
   // Default button text styles
   buttonText: {
     fontFamily: FONT_FAMILIES.REGULAR,
-    ...textStyles.bold,
     textAlign: 'center'
   },
 
@@ -106,7 +107,7 @@ const styles = StyleSheet.create<Style>({
 
   // Default button disabled styles
   disabled: {
-    opacity: 0.4
+    opacity: 0.5
   }
 })
 

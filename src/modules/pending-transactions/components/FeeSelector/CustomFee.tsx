@@ -11,12 +11,12 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import styles from './styles'
 
 type Props = {
-  setCustomFee: (val: any) => any
   value: string
   isEditEnabled: boolean
-  setEnableEdit: () => void
   symbol: string
   info?: any
+  setCustomFee: (val: any) => any
+  setEnableEdit: () => void
 }
 
 const CustomFee = ({ setCustomFee, value, isEditEnabled, setEnableEdit, symbol, info }: Props) => {

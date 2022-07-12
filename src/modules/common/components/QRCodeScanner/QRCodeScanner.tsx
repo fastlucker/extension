@@ -12,7 +12,7 @@ import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Text from '@modules/common/components/Text'
 import requestPermissionFlagging from '@modules/common/services/requestPermissionFlagging'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings, { DEVICE_WIDTH } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -170,14 +170,14 @@ const QRCodeScanner = ({ onScan }: Props) => {
           {Platform.OS === 'ios' && (
             <Text style={spacings.mbSm} fontSize={12}>
               {t(
-                'To be able to scan the login QR code, go to: Settings/Ambire Wallet app and check Alow Camera Access.'
+                'To be able to scan the login QR code, go to: Settings/Ambire app and check Alow Camera Access.'
               )}
             </Text>
           )}
           {Platform.OS === 'android' && (
             <Text fontSize={12}>
               {t(
-                "Or if you've previously chosen don't ask again - to be able to scan the login QR code, first go to Settings. Then - select Ambire Wallet app from the list of installed apps. Finally, check alow camera access."
+                "Or if you've previously chosen don't ask again - to be able to scan the login QR code, first go to Settings. Then - select Ambire app from the list of installed apps. Finally, check alow camera access."
               )}
             </Text>
           )}

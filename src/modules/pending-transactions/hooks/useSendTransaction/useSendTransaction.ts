@@ -1,49 +1,104 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import { Bundle } from 'adex-protocol-eth/js'
-import { Wallet } from 'ethers'
+import accountPresets from 'ambire-common/src/constants/accountPresets'
+import { toBundleTxn } from 'ambire-common/src/services/requestToBundleTxn'
+import { ethers, Wallet } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert } from 'react-native'
 
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
-import accountPresets from '@modules/common/constants/accountPresets'
+import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { getProvider } from '@modules/common/services/provider'
-import { toBundleTxn } from '@modules/common/services/requestToBundleTxn'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import {
-  getFeePaymentConsequences,
-  isTokenEligible
+  getFeesData,
+  isTokenEligible,
+  toHexAmount
 } from '@modules/pending-transactions/services/helpers'
 
 type HardwareWalletBottomSheetType = {
   sheetRef: any
-  openBottomSheet: any
-  closeBottomSheet: any
-  isOpen: any
+  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
+  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
+  isOpen: boolean
 }
 
+const relayerURL = CONFIG.RELAYER_URL
 const DEFAULT_SPEED = 'fast'
 const REESTIMATE_INTERVAL = 15000
 const REJECT_MSG = 'Ambire user rejected the request'
 
 const ERC20 = new Interface(erc20Abi)
 
+const WALLET_TOKEN_SYMBOLS = ['xWALLET', 'WALLET']
+
+const getDefaultFeeToken = (
+  remainingFeeTokenBalances: any,
+  network: any,
+  feeSpeed: any,
+  estimation: any,
+  currentAccGasTankState: any
+) => {
+  if (!remainingFeeTokenBalances?.length) {
+    return {
+      symbol: network.nativeAssetSymbol,
+      decimals: 18,
+      address: '0x0000000000000000000000000000000000000000'
+    }
+  }
+
+  return (
+    remainingFeeTokenBalances
+      .sort(
+        (a, b) =>
+          WALLET_TOKEN_SYMBOLS.indexOf(b?.symbol) - WALLET_TOKEN_SYMBOLS.indexOf(a?.symbol) ||
+          (b?.discount || 0) - (a?.discount || 0) ||
+          a?.symbol.toUpperCase().localeCompare(b?.symbol.toUpperCase())
+      )
+      .find((token: any) =>
+        isTokenEligible(token, feeSpeed, estimation, currentAccGasTankState, network)
+      ) || remainingFeeTokenBalances[0]
+  )
+}
+
 function makeBundle(account: any, networkId: any, requests: any) {
   const bundle = new Bundle({
     network: networkId,
     identity: account.id,
-    txns: requests.map(({ txn }: any) => toBundleTxn(txn, account.id)),
+    // checking txn isArray because sometimes we receive txn in array from walletconnect. Also we use Array.isArray because txn object can have prop 0
+    txns: requests.map(({ txn }: any) =>
+      toBundleTxn(Array.isArray(txn) ? txn[0] : txn, account.id)
+    ),
     signer: account.signer
   })
   bundle.extraGas = requests.map((x: any) => x.extraGas || 0).reduce((a: any, b: any) => a + b, 0)
   bundle.requestIds = requests.map((x: any) => x.id)
+
+  // Attach bundle's meta
+  if (requests.some((item: any) => item.meta)) {
+    bundle.meta = {}
+
+    if (requests.some((item: any) => item.meta?.addressLabel)) {
+      bundle.meta.addressLabel = requests.map((x: any) =>
+        x.meta?.addressLabel ? x.meta.addressLabel : { addressLabel: '', address: '' }
+      )
+    }
+
+    const xWalletReq = requests.find((x: any) => x.meta?.xWallet)
+    if (xWalletReq) {
+      bundle.meta.xWallet = xWalletReq.meta.xWallet
+    }
+  }
+
   return bundle
 }
 
@@ -61,6 +116,9 @@ function getErrorMessage(e: any) {
       'Invalid signature. This may happen if you used password/derivation path on your hardware wallet.'
     )
   }
+  if (e && e.message === 'INSUFFICIENT_PRIVILEGE') {
+    return 'Wrong signature. This may happen if you used password/derivation path on your hardware wallet.'
+  }
   return e.message || e
 }
 
@@ -71,6 +129,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
   const { addToast } = useToast()
   const { network }: any = useNetwork()
   const { account } = useAccounts()
+  const { gasTankState, currentAccGasTankState } = useGasTank()
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
 
@@ -92,6 +151,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
   currentBundle.current = bundle
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     // We don't need to reestimate the fee when a signing process is in progress
     if (signingStatus) return
     // nor when there are no txns in the bundle, if this is even possible
@@ -100,43 +160,72 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     // track whether the effect has been unmounted
     let unmounted = false
 
+    // Note: currently, there's no point of getting the nonce if the bundle already has a nonce
+    // We may want to change this if we make a check if the currently replaced txn was already mined
     const reestimate = () =>
-      (CONFIG.RELAYER_URL
+      (relayerURL
         ? bundle.estimate({
-            relayerURL: CONFIG.RELAYER_URL,
+            relayerURL,
             fetch,
             replacing: !!bundle.minFeeInUSDPerGas,
-            getNextNonce: true
+            getNextNonce: true,
+            gasTank: currentAccGasTankState.isEnabled
           })
         : bundle.estimateNoRelayer({ provider: getProvider(network.id) })
       )
         // eslint-disable-next-line @typescript-eslint/no-shadow
         .then((estimation: any) => {
           if (unmounted || bundle !== currentBundle.current) return
-          // eslint-disable-next-line no-param-reassign
-          estimation.selectedFeeToken = { symbol: network.nativeAssetSymbol }
-          setEstimation((prevEstimation: any) => {
+          estimation.relayerless = !relayerURL
+          const gasTankTokens = estimation.gasTank?.map((item) => {
+            return {
+              ...item,
+              symbol: item.symbol.toUpperCase(),
+              balance: ethers.utils
+                .parseUnits(item.balance.toFixed(item.decimals).toString(), item.decimals)
+                .toString(),
+              nativeRate:
+                item.address === '0x0000000000000000000000000000000000000000'
+                  ? null
+                  : estimation.nativeAssetPriceInUSD / item.price
+            }
+          })
+          if (currentAccGasTankState.isEnabled) estimation.remainingFeeTokenBalances = gasTankTokens
+          estimation.selectedFeeToken = getDefaultFeeToken(
+            estimation.remainingFeeTokenBalances,
+            network,
+            feeSpeed,
+            estimation,
+            currentAccGasTankState.isEnabled
+          )
+          setEstimation((prevEstimation) => {
             if (prevEstimation && prevEstimation.customFee) return prevEstimation
             if (estimation.remainingFeeTokenBalances) {
               // If there's no eligible token, set it to the first one cause it looks more user friendly (it's the preferred one, usually a stablecoin)
-              // eslint-disable-next-line no-param-reassign
               estimation.selectedFeeToken =
                 (prevEstimation &&
-                  isTokenEligible(prevEstimation.selectedFeeToken, feeSpeed, estimation) &&
+                  isTokenEligible(
+                    prevEstimation.selectedFeeToken,
+                    feeSpeed,
+                    estimation,
+                    currentAccGasTankState.isEnabled,
+                    network
+                  ) &&
                   prevEstimation.selectedFeeToken) ||
-                estimation.remainingFeeTokenBalances.find((token: any) =>
-                  isTokenEligible(token, feeSpeed, estimation)
-                ) ||
-                estimation.remainingFeeTokenBalances[0]
+                getDefaultFeeToken(
+                  estimation.remainingFeeTokenBalances,
+                  network,
+                  feeSpeed,
+                  estimation,
+                  currentAccGasTankState.isEnabled
+                )
             }
             return estimation
           })
-          if (estimation.nextNonce && !estimation.nextNonce.pendingBundle) {
-            setReplaceTx(false)
-          }
         })
         .catch((e: any) => {
           if (unmounted) return
+          console.log('estimation error', e)
           addToast(`Estimation error: ${e.message || e}`, { error: true })
         })
 
@@ -153,16 +242,14 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     feeSpeed,
     addToast,
     network,
-    CONFIG.RELAYER_URL,
     signingStatus,
-    replaceTx,
-    setReplaceTx
+    currentAccGasTankState.isEnabled
   ])
 
   // The final bundle is used when signing + sending it
   // the bundle before that is used for estimating
   const getFinalBundle = useCallback(() => {
-    if (!CONFIG.RELAYER_URL) {
+    if (!relayerURL) {
       return new Bundle({
         ...bundle,
         gasLimit: estimation.gasLimit
@@ -170,27 +257,24 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     }
 
     const feeToken = estimation.selectedFeeToken
-    const { addedGas, multiplier } = getFeePaymentConsequences(feeToken, estimation)
-    const toHexAmount = (amnt: any) => `0x${Math.round(amnt).toString(16)}`
+
+    const {
+      feeInNative,
+      // feeInUSD, // don't need fee in USD for stables as it will work with feeInFeeToken
+      // Also it can be stable but not in USD
+      feeInFeeToken,
+      addedGas
+    } = getFeesData(feeToken, estimation, feeSpeed, currentAccGasTankState.isEnabled, network)
     const feeTxn =
       feeToken.symbol === network.nativeAssetSymbol
-        ? [
-            accountPresets.feeCollector,
-            toHexAmount(estimation.feeInNative[feeSpeed] * multiplier * 1e18),
-            '0x'
-          ]
+        ? // TODO: check native decimals
+          [accountPresets.feeCollector, toHexAmount(feeInNative, 18), '0x']
         : [
             feeToken.address,
             '0x0',
             ERC20.encodeFunctionData('transfer', [
               accountPresets.feeCollector,
-              toHexAmount(
-                (feeToken.isStable
-                  ? estimation.feeInUSD[feeSpeed]
-                  : estimation.feeInNative[feeSpeed]) *
-                  multiplier *
-                  10 ** feeToken.decimals
-              )
+              toHexAmount(feeInFeeToken, feeToken.decimals)
             ])
           ]
 
@@ -198,13 +282,51 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     const nextFreeNonce = estimation.nextNonce?.nonce
     const nextNonMinedNonce = estimation.nextNonce?.nextNonMinedNonce
 
+    if (currentAccGasTankState.isEnabled) {
+      let gasLimit
+      if (bundle.txns.length > 1) gasLimit = estimation.gasLimit + (bundle.extraGas || 0)
+      else gasLimit = estimation.gasLimit
+
+      let value
+      if (feeToken.address === '0x0000000000000000000000000000000000000000') value = feeInNative
+      else {
+        const fToken = estimation.remainingFeeTokenBalances.find((i) => i.id === feeToken.id)
+        value = fToken && estimation.feeInNative[feeSpeed] * fToken.nativeRate
+      }
+
+      return new Bundle({
+        ...bundle,
+        gasTankFee: {
+          assetId: feeToken.id,
+          value: ethers.utils
+            .parseUnits(value.toFixed(feeToken.decimals), feeToken.decimals)
+            .toString()
+        },
+        txns: [...bundle.txns],
+        gasLimit,
+        nonce:
+          bundle.nonce ||
+          (sendTxnState.replacementBundle && pendingBundle ? nextNonMinedNonce : nextFreeNonce)
+      })
+    }
+
     return new Bundle({
       ...bundle,
       txns: [...bundle.txns, feeTxn],
+      gasTankFee: null,
       gasLimit: estimation.gasLimit + addedGas + (bundle.extraGas || 0),
-      nonce: replaceTx && pendingBundle ? nextNonMinedNonce : nextFreeNonce
+      nonce:
+        bundle.nonce ||
+        (sendTxnState.replacementBundle && pendingBundle ? nextNonMinedNonce : nextFreeNonce)
     })
-  }, [CONFIG.RELAYER_URL, bundle, estimation, feeSpeed, network.nativeAssetSymbol, replaceTx])
+  }, [
+    bundle,
+    estimation,
+    feeSpeed,
+    network,
+    sendTxnState.replacementBundle,
+    currentAccGasTankState.isEnabled
+  ])
 
   const approveTxnImpl = async (device: any) => {
     if (!estimation) throw new Error('no estimation: should never happen')
@@ -212,6 +334,10 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     const finalBundle = getFinalBundle()
     const provider = getProvider(network.id)
     const signer = finalBundle.signer
+
+    // a bit redundant cause we already called it at the beginning of approveTxn, but
+    // we need to freeze finalBundle in the UI in case signing takes a long time (currently only to freeze the fee selector)
+    setSigningStatus({ inProgress: true, finalBundle })
 
     addToast(i18n.t('Please confirm this transaction on your Ledger device.') as string, {
       timeout: 5000
@@ -226,13 +352,13 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
       device
     )
 
-    if (CONFIG.RELAYER_URL) {
+    if (relayerURL) {
       // Temporary way of debugging the fee cost
       // const initialLimit = finalBundle.gasLimit - getFeePaymentConsequences(estimation.selectedFeeToken, estimation).addedGas
       // finalBundle.estimate({ relayerURL, fetch }).then(estimation => console.log('fee costs: ', estimation.gasLimit - initialLimit), estimation.selectedFeeToken).catch(console.error)
       await finalBundle.sign(wallet)
       // eslint-disable-next-line @typescript-eslint/return-await
-      return await finalBundle.submit({ relayerURL: CONFIG.RELAYER_URL, fetch })
+      return await finalBundle.submit({ relayerURL, fetch })
     }
     // eslint-disable-next-line @typescript-eslint/return-await
     return await sendNoRelayer({
@@ -248,7 +374,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
 
   const approveTxnImplQuickAcc = async ({ quickAccCredentials }: any) => {
     if (!estimation) throw new Error('no estimation: should never happen')
-    if (!CONFIG.RELAYER_URL)
+    if (!relayerURL)
       throw new Error('Email/Password account signing without the relayer is not supported yet')
 
     const finalBundle = (signingStatus && signingStatus.finalBundle) || getFinalBundle()
@@ -259,7 +385,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     }
 
     const { signature, success, message, confCodeRequired } = await fetchPost(
-      `${CONFIG.RELAYER_URL}/second-key/${bundle.identity}/${network.id}/sign`,
+      `${relayerURL}/second-key/${bundle.identity}/${network.id}/sign`,
       {
         signer,
         txns: finalBundle.txns,
@@ -301,7 +427,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
       }
       finalBundle.signatureTwo = signature
       // eslint-disable-next-line @typescript-eslint/return-await
-      return await finalBundle.submit({ relayerURL: CONFIG.RELAYER_URL, fetch })
+      return await finalBundle.submit({ relayerURL, fetch })
     }
   }
 
@@ -385,16 +511,32 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
       resolveMany(bundle.requestIds, { message: REJECT_MSG })
     })
 
+  // Only for replacement flow
+  const rejectTxnReplace = () => {
+    resolveMany(sendTxnState.replacementBundle.replacedRequestIds, { message: REJECT_MSG })
+  }
+
+  // Allow actions either on regular tx or replacement/speed tx, when not mined
+  // eslint-disable-next-line no-nested-ternary
+  const canProceed = sendTxnState.replacementBundle
+    ? !Number.isNaN(estimation?.nextNonce?.nextNonMinedNonce)
+      ? bundle.nonce >= estimation?.nextNonce?.nextNonMinedNonce
+      : null // null = waiting to get nonce data from relayer
+    : true
+
   return {
     bundle,
     rejectTxn,
     estimation,
     signingStatus,
     feeSpeed,
+    canProceed,
+    replacementBundle: sendTxnState.replacementBundle,
     approveTxn,
     setFeeSpeed,
     setEstimation,
-    setSigningStatus
+    setSigningStatus,
+    rejectTxnReplace
   }
 }
 

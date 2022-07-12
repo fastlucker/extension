@@ -41,6 +41,7 @@ interface Config {
   TRANSAK_ENV: string
   SUSHI_SWAP_URL: string
   SENTRY_DSN: string
+  SIGNATURE_VERIFIER_DEBUGGER: number
 }
 
 const CONFIG: Config = {
@@ -54,7 +55,8 @@ const CONFIG: Config = {
   TRANSAK_API_KEY: '325625ed-5a85-4131-ae50-ea7906332fb3',
   TRANSAK_ENV: 'STAGING',
   SUSHI_SWAP_URL: 'https://sushiswap-interface-jfomtc62l-ambire.vercel.app/en/swap',
-  SENTRY_DSN: 'https://8e5d690e5de843b4bf3cf22a563ee7fc@o1152360.ingest.sentry.io/6230367'
+  SENTRY_DSN: 'https://8e5d690e5de843b4bf3cf22a563ee7fc@o1152360.ingest.sentry.io/6230367',
+  SIGNATURE_VERIFIER_DEBUGGER: 0
 }
 
 if (isProd) {

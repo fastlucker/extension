@@ -1,3 +1,4 @@
+import networks from 'ambire-common/src/constants/networks'
 import * as Clipboard from 'expo-clipboard'
 import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -5,27 +6,28 @@ import { TouchableOpacity, View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
 
 import CopyIcon from '@assets/svg/CopyIcon'
+import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import networks from '@modules/common/constants/networks'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings, { DEVICE_WIDTH } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
 
-const DepositTokens = () => {
+interface Props {
+  networkId?: string
+  selectedAcc: string
+}
+
+const DepositTokens = ({ selectedAcc, networkId }: Props) => {
   const { t } = useTranslation()
-  const { selectedAcc } = useAccounts()
-  const { network }: any = useNetwork()
   const qrCodeRef: any = useRef(null)
   const { addToast } = useToast()
-  const networkDetails = networks.find(({ id }) => id === network.id)
+  const networkDetails = networks.find(({ id }) => id === networkId)
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
 
   const handleCopyAddress = () => {
@@ -81,26 +83,28 @@ const DepositTokens = () => {
         <Text fontSize={12} style={[spacings.mbMi, textStyles.center]}>
           {t('Following networks supported on this address:')}
         </Text>
-        <View style={[flexboxStyles.directionRow, flexboxStyles.wrap, flexboxStyles.justifyCenter]}>
-          {networks.map(({ id, IconMonochrome, name }: any) => (
-            <View key={id} style={styles.supportedNetworksContainer}>
-              <View style={{ marginBottom: 3 }}>
-                <IconMonochrome />
+        <View style={styles.supportedNetworksContainer}>
+          {networks
+            .filter(({ hide }) => !hide)
+            .map(({ id, name }: any) => (
+              <View key={id} style={styles.supportedNetworksItem}>
+                <View style={{ marginBottom: 3 }}>
+                  <NetworkIcon name={id} type="monochrome" />
+                </View>
+                <Text
+                  style={spacings.plMi}
+                  fontSize={10}
+                  numberOfLines={1}
+                  color={colors.waikawaGray}
+                >
+                  {name}
+                </Text>
               </View>
-              <Text
-                style={spacings.plMi}
-                fontSize={10}
-                numberOfLines={1}
-                color={colors.waikawaGray}
-              >
-                {name}
-              </Text>
-            </View>
-          ))}
+            ))}
         </View>
       </View>
     </>
   )
 }
 
-export default DepositTokens
+export default React.memo(DepositTokens)

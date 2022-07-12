@@ -4,8 +4,6 @@ import colors from '../colors'
 
 interface Styles {
   highlightPrimary: TextStyle
-  highlightSecondary: TextStyle
-  bold: TextStyle
   center: TextStyle
   right: TextStyle
   uppercase: TextStyle
@@ -15,13 +13,7 @@ interface Styles {
 
 const textStyles = StyleSheet.create<Styles>({
   highlightPrimary: {
-    color: colors.primaryAccentColor
-  },
-  highlightSecondary: {
-    color: colors.secondaryAccentColor
-  },
-  bold: {
-    fontWeight: '700'
+    color: colors.heliotrope
   },
   center: {
     textAlign: 'center'

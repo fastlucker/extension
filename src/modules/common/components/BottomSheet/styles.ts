@@ -1,10 +1,10 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT, DEVICE_WIDTH } from '@modules/common/styles/spacings'
 
 interface Styles {
-  containerWrapper: ViewStyle
+  bottomSheet: ViewStyle
   containerInnerWrapper: ViewStyle
   closeBtn: ViewStyle
   cancelBtn: ViewStyle
@@ -13,13 +13,15 @@ interface Styles {
 }
 
 const styles = StyleSheet.create<Styles>({
-  containerWrapper: {
-    backgroundColor: colors.valhalla
+  bottomSheet: {
+    backgroundColor: colors.clay,
+    borderRadius: 15
   },
   containerInnerWrapper: {
-    paddingTop: 35,
-    paddingBottom: 35,
-    paddingHorizontal: 20
+    paddingTop: 25,
+    paddingBottom: 25,
+    paddingHorizontal: 20,
+    flex: 1
   },
   closeBtn: {
     position: 'absolute',
@@ -32,7 +34,7 @@ const styles = StyleSheet.create<Styles>({
   },
   dragger: {
     width: 50,
-    height: 4,
+    height: 3,
     borderRadius: 4,
     backgroundColor: colors.titan,
     alignSelf: 'center',
