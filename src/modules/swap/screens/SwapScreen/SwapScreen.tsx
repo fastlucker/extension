@@ -100,7 +100,9 @@ const SwapScreen = () => {
             </View>
           )}
           onMessage={(event) => {
+            // FIXME: No message is received.
             const msg = JSON.parse(event.nativeEvent.data)
+            // console.log('Message incoming!!!', msg)
             handleIncomingMessage(msg)
           }}
         />
