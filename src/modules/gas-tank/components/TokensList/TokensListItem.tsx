@@ -38,7 +38,7 @@ const TokensListItem = ({ type = 'deposit', token, networkId }: Props) => {
           </Text>
           <View style={[flexboxStyles.flex1, spacings.mrSm]}>
             <Text fontSize={14} style={textStyles.center} numberOfLines={1}>
-              ${token.balance}
+              {token.balance}
             </Text>
           </View>
           <View>
@@ -61,7 +61,7 @@ const TokensListItem = ({ type = 'deposit', token, networkId }: Props) => {
       {type === 'deposit' && (
         <View style={spacings.plTy}>
           <Button
-            text="Deposit"
+            text="Top Up"
             size="small"
             type="outline"
             hasBottomSpacing={false}
