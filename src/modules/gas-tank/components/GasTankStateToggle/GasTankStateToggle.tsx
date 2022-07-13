@@ -4,6 +4,7 @@ import { View } from 'react-native'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import useGasTank from '@modules/common/hooks/useGasTank'
+import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -13,8 +14,16 @@ import styles from './styles'
 const GasTankStateToggle = ({ disabled }: { disabled: boolean }) => {
   const { currentAccGasTankState, gasTankState, setGasTankState } = useGasTank()
   const { t } = useTranslation()
+  const { addToast } = useToast()
 
   const handleGasTankEnable = () => {
+    if (disabled) {
+      addToast(t('You should add assets in the Gas Tank to be able to enable it!') as string, {
+        error: true
+      })
+      return
+    }
+
     const updatedGasTankDetails = gasTankState.map((item) =>
       item.account === currentAccGasTankState.account ? { ...item, isEnabled: true } : item
     )
@@ -33,7 +42,6 @@ const GasTankStateToggle = ({ disabled }: { disabled: boolean }) => {
       <View style={styles.toggleWrapper}>
         <Button
           text={t('Enabled')}
-          disabled={disabled}
           hasBottomSpacing={false}
           size="small"
           type={currentAccGasTankState.isEnabled ? 'outline' : 'secondary'}

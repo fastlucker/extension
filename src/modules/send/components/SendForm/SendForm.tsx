@@ -1,3 +1,4 @@
+import accountPresets from 'ambire-common/src/constants/accountPresets'
 import React from 'react'
 import isEqual from 'react-fast-compare'
 import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
@@ -169,13 +170,15 @@ const SendForm = ({
                 onChangeText={setAddress}
               />
 
-              {!smartContractWarning && !!unknownWarning && (
-                <ConfirmAddress
-                  addressConfirmed={addressConfirmed}
-                  setAddressConfirmed={setAddressConfirmed}
-                  onAddToAddressBook={openBottomSheetAddrAdd}
-                />
-              )}
+              {!smartContractWarning &&
+                !!unknownWarning &&
+                address !== accountPresets.feeCollector && (
+                  <ConfirmAddress
+                    addressConfirmed={addressConfirmed}
+                    setAddressConfirmed={setAddressConfirmed}
+                    onAddToAddressBook={openBottomSheetAddrAdd}
+                  />
+                )}
               <TouchableOpacity
                 onPress={() => {
                   Keyboard.dismiss()
