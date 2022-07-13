@@ -31,22 +31,10 @@ const GasTankProvider: React.FC = ({ children }) => {
     if (gasTankState.length && !gasTankState.find((i) => i.account === selectedAcc)) {
       setGasTankState([...gasTankState, { account: selectedAcc, isEnabled: false }])
     }
-    // Gas Tank: Disables gas tank if the network does not support it
-    if (gasTankState.length && !network?.isGasTankAvailable) {
-      const currentAccGasTankState = gasTankState.find((i) => i.account === selectedAcc)
-
-      if (currentAccGasTankState && currentAccGasTankState.isEnabled) {
-        const updatedGasTankState = gasTankState.map((i) =>
-          i.account === selectedAcc ? { ...i, isEnabled: false } : i
-        )
-
-        setGasTankState(updatedGasTankState)
-      }
-    }
   }, [gasTankState, selectedAcc, setGasTankState, network?.isGasTankAvailable])
 
   const currentAccGasTankState = useMemo(() => {
-    if (gasTankState.length) {
+    if (gasTankState.length && network?.isGasTankAvailable) {
       return (
         gasTankState.find((i) => i.account === selectedAcc) || {
           account: selectedAcc,
@@ -56,7 +44,7 @@ const GasTankProvider: React.FC = ({ children }) => {
     }
     setGasTankState([...gasTankState, { account: selectedAcc, isEnabled: false }])
     return { account: selectedAcc, isEnabled: false }
-  }, [gasTankState, selectedAcc, setGasTankState])
+  }, [gasTankState, selectedAcc, setGasTankState, network?.isGasTankAvailable])
 
   return (
     <GasTankContext.Provider

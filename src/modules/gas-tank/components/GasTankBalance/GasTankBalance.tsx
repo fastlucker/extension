@@ -18,17 +18,22 @@ import styles from './styles'
 interface Props {
   data: any
   totalBalance: string
+  balanceByTokensDisabled: boolean
   networkId?: NetworkId
 }
 
-const GasTankBalance = ({ data, totalBalance, networkId }: Props) => {
+const GasTankBalance = ({ data, totalBalance, balanceByTokensDisabled, networkId }: Props) => {
   const { t } = useTranslation()
 
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
 
   return (
     <>
-      <TouchableOpacity style={styles.container} activeOpacity={0.6} onPress={openBottomSheet}>
+      <TouchableOpacity
+        style={styles.container}
+        activeOpacity={balanceByTokensDisabled ? 1 : 0.6}
+        onPress={!balanceByTokensDisabled ? openBottomSheet : () => null}
+      >
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
           <GasTankIcon width={21} height={21} />
           <Text fontSize={10} style={[textStyles.uppercase, spacings.plMi]}>

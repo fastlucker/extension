@@ -1,8 +1,10 @@
+import useGasTankData from 'ambire-common/src/hooks/useGasTankData'
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
 import React from 'react'
 import { View } from 'react-native'
 
 import GasTankIcon from '@assets/svg/GasTankIcon'
+import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Modal from '@modules/common/components/Modal'
@@ -13,6 +15,7 @@ import Wrapper from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
+import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
@@ -23,10 +26,18 @@ import GasTankStateToggle from '@modules/gas-tank/components/GasTankStateToggle'
 import GasTankTotalSave from '@modules/gas-tank/components/GasTankTotalSave'
 import TokensList from '@modules/gas-tank/components/TokensList'
 import TransactionHistoryList from '@modules/gas-tank/components/TransactionsHistoryList'
-import useGasTankData from '@modules/gas-tank/hooks/useGasTankData'
+
+const relayerURL = CONFIG.RELAYER_URL
 
 const GasTankScreen = () => {
   const { t } = useTranslation()
+
+  const { isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading, dataLoaded } = usePortfolio()
+  const { network } = useNetwork()
+  const { selectedAcc } = useAccounts()
+  const { addRequest } = useRequests()
+  const { addToast } = useToast()
+  const { isModalVisible, showModal, hideModal } = useModal()
   const {
     balancesRes,
     gasTankBalances,
@@ -34,13 +45,13 @@ const GasTankScreen = () => {
     totalSavedResult,
     gasTankFilledTxns,
     feeAssetsRes
-  } = useGasTankData()
-  const { isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading, dataLoaded } = usePortfolio()
-  const { network } = useNetwork()
-  const { selectedAcc } = useAccounts()
-  const { addRequest } = useRequests()
-  const { addToast } = useToast()
-  const { isModalVisible, showModal, hideModal } = useModal()
+  } = useGasTankData({
+    relayerURL,
+    useAccounts,
+    useNetwork,
+    usePortfolio,
+    useRelayerData
+  })
 
   const totalSaved = formatFloatTokenAmount(totalSavedResult, true, 2)
 
@@ -62,6 +73,7 @@ const GasTankScreen = () => {
                 gasTankBalances ? formatFloatTokenAmount(gasTankBalances, true, 2) : '0.00'
               }
               networkId={network?.id}
+              balanceByTokensDisabled={!gasTankBalances && !gasTankBalances?.length}
             />
             <GasTankTotalSave totalSave={totalSaved || '0.00'} />
           </View>

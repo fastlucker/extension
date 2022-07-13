@@ -52,9 +52,9 @@ const TransactionHistoryList = ({
           />
         ))}
       {!gasTankFilledTxns.length && (
-        <View style={spacings.pv}>
+        <View style={spacings.pvSm}>
           <Text fontSize={12} style={[spacings.phSm, textStyles.center]}>
-            {t('No top ups were are made via Gas Tank on {{network}}.', {
+            {t('No top ups were made via Gas Tank on {{network}}.', {
               network: networkId?.toLocaleUpperCase()
             })}
           </Text>
