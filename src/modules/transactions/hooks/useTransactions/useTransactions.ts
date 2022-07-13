@@ -21,7 +21,10 @@ const useTransactions = () => {
   const { network }: any = useNetwork()
   const { t } = useTranslation()
   const { addRequest } = useRequests()
-  const { cacheBreak } = useCacheBreak(5000, 10000)
+  const { cacheBreak } = useCacheBreak({
+    breakPoint: 5000,
+    refreshInterval: 10000
+  })
 
   const showSendTxns = (bundle: any) =>
     setSendTxnState({ showing: true, replacementBundle: bundle })
