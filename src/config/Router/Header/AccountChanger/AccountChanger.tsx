@@ -123,7 +123,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
         {t('Change account')}
       </Title>
       {accounts.map(renderAccount)}
-      <Button onPress={handleGoToAddAccount} style={spacings.mt} text={t('Add account')} />
+      <Button onPress={handleGoToAddAccount} style={spacings.mt} text={t('Add Account')} />
     </>
   )
 }

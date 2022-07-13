@@ -13,6 +13,8 @@ interface Props extends Partial<ImageProps> {
   withContainer?: boolean
   containerWidth?: number
   containerHeight?: number
+  width?: number
+  height?: number
 }
 
 const TokenIcon: React.FC<Props> = ({

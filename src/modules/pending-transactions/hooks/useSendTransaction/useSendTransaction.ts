@@ -1,6 +1,7 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import { Bundle } from 'adex-protocol-eth/js'
 import accountPresets from 'ambire-common/src/constants/accountPresets'
+import { getFeesData, isTokenEligible, toHexAmount } from 'ambire-common/src/helpers/sendTxnHelpers'
 import { toBundleTxn } from 'ambire-common/src/services/requestToBundleTxn'
 import { ethers, Wallet } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
@@ -19,11 +20,6 @@ import { fetchPost } from '@modules/common/services/fetch'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { getProvider } from '@modules/common/services/provider'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
-import {
-  getFeesData,
-  isTokenEligible,
-  toHexAmount
-} from '@modules/pending-transactions/services/helpers'
 
 type HardwareWalletBottomSheetType = {
   sheetRef: any

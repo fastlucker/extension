@@ -24,7 +24,10 @@ const SignersList = () => {
   const { addToast } = useToast()
   const { selectedAcc, account: selectedAccount, onAddAccount } = useAccounts()
   const { network: selectedNetwork } = useNetwork()
-  const { cacheBreak } = useCacheBreak(30000, 40000)
+  const { cacheBreak } = useCacheBreak({
+    breakPoint: 30000,
+    refreshInterval: 40000
+  })
 
   const url = CONFIG.RELAYER_URL
     ? `${CONFIG.RELAYER_URL}/identity/${selectedAcc}/${selectedNetwork?.id}/privileges?cacheBreak=${cacheBreak}`
