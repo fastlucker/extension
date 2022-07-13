@@ -56,15 +56,17 @@ const GasTankBalance = ({ data, totalBalance, balanceByTokensDisabled, networkId
         }}
       >
         <Title style={textStyles.center}>{t('Gas tank balance by tokens')}</Title>
-        {data.map((token: any, i: number) => (
-          <TokensListItem
-            // eslint-disable-next-line react/no-array-index-key
-            key={`token-${token.address}-${i}`}
-            type="balance"
-            token={token}
-            networkId={networkId}
-          />
-        ))}
+        {data
+          ?.sort((a: any, b: any) => b.balance - a.balance)
+          ?.map((token: any, i: number) => (
+            <TokensListItem
+              // eslint-disable-next-line react/no-array-index-key
+              key={`token-${token.address}-${i}`}
+              type="balance"
+              token={token}
+              networkId={networkId}
+            />
+          ))}
       </BottomSheet>
     </>
   )
