@@ -1,3 +1,9 @@
+import {
+  getDiscountApplied,
+  getFeesData,
+  isTokenEligible,
+  mapTxnErrMsg
+} from 'ambire-common/src/helpers/sendTxnHelpers'
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
 import { ethers } from 'ethers'
 import React, { useEffect, useState } from 'react'
@@ -16,12 +22,6 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import {
-  getDiscountApplied,
-  getFeesData,
-  isTokenEligible,
-  mapTxnErrMsg
-} from '@modules/pending-transactions/services/helpers'
 import { useNavigation } from '@react-navigation/native'
 
 import CustomFee from './CustomFee'

@@ -1,3 +1,4 @@
+import { isTokenEligible } from 'ambire-common/src/helpers/sendTxnHelpers'
 import { isValidCode, isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -16,7 +17,6 @@ import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import { isTokenEligible } from '@modules/pending-transactions/services/helpers'
 
 import styles from './styles'
 
