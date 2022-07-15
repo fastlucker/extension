@@ -23,7 +23,7 @@ const INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED = `(function() {
 
 // Scales the webview a little bit, in order for the content to fit
 // based on all spacings in our app, and to prevent horizontal scroll.
-const WEB_VIEW_SCALE = 0.85
+const WEB_VIEW_SCALE = 1
 
 // Disables zoom in and pinch on the WebView for iOS
 // {@link https://stackoverflow.com/a/49121982/1333836}
@@ -64,6 +64,18 @@ const INJECTED_JAVASCRIPT = `
   ${DISABLE_SWITCH_TOKENS_HOVER_ANIMATION}
 `
 
+// Set the iframe height with 100% and no scroll (Scroll-y in body).
+// https://stackoverflow.com/a/5956269/1333836
+const INJECTED_WRAPPING_CSS = `
+  <style type="text/css" media="screen">
+    body, html { width: 100%; height: 100%; overflow: hidden; }
+
+    * { padding: 0; margin: 0; }
+
+    iframe { width: 100%; height: 100%; overflow: hidden; border: none; }
+  </style>
+`
+
 const SwapScreen = () => {
   const { sushiSwapIframeRef, hash, handleIncomingMessage } = useGnosis()
   const isFocused = useIsFocused()
@@ -82,11 +94,13 @@ const SwapScreen = () => {
           key={hash}
           ref={sushiSwapIframeRef}
           originWhitelist={['*']}
-          // source={{
-          //   uri: CONFIG.SUSHI_SWAP_URL
-          // }}
           source={{
-            html: `<iframe id=${hash} width="100%" height="100%" src="${CONFIG.SUSHI_SWAP_URL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`
+            html: `<!DOCTYPE html><html>
+              <head>${INJECTED_WRAPPING_CSS}</head>
+              <body>
+                <iframe id=${hash} src="${CONFIG.SUSHI_SWAP_URL}" scrolling="no" allow="autoplay; encrypted-media"></iframe>
+              </body>
+            </html>`
           }}
           javaScriptEnabled
           injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
