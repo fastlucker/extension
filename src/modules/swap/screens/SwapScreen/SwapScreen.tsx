@@ -12,7 +12,7 @@ import { useIsFocused } from '@react-navigation/native'
 import styles from './styles'
 
 const INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED = `(function() {
-  document.addEventListener('message', function (event) {
+  document.addEventListener('message', function (msg) {
     document.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
   });
 
@@ -82,8 +82,11 @@ const SwapScreen = () => {
           key={hash}
           ref={sushiSwapIframeRef}
           originWhitelist={['*']}
+          // source={{
+          //   uri: CONFIG.SUSHI_SWAP_URL
+          // }}
           source={{
-            uri: CONFIG.SUSHI_SWAP_URL
+            html: `<iframe id=${hash} width="100%" height="100%" src="${CONFIG.SUSHI_SWAP_URL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`
           }}
           javaScriptEnabled
           injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
@@ -100,9 +103,7 @@ const SwapScreen = () => {
             </View>
           )}
           onMessage={(event) => {
-            // FIXME: No message is received.
             const msg = JSON.parse(event.nativeEvent.data)
-            // console.log('Message incoming!!!', msg)
             handleIncomingMessage(msg)
           }}
         />
