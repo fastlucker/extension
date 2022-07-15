@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import WebView from 'react-native-webview'
 
@@ -66,6 +66,20 @@ const INJECTED_WRAPPING_CSS = `
 
 const SwapScreen = () => {
   const { sushiSwapIframeRef, hash, handleIncomingMessage } = useGnosis()
+  const [loaded, setLoaded] = useState<any>()
+
+  const webviewHtml = useMemo(
+    () => `
+    <!DOCTYPE html>
+      <html>
+        <head>${INJECTED_WRAPPING_CSS}</head>
+        <body>
+          <iframe id=${hash} src="${CONFIG.SUSHI_SWAP_URL}" scrolling="no" allow="autoplay; encrypted-media"></iframe>
+        </body>
+      </html>
+    `,
+    [hash]
+  )
 
   return (
     <GradientBackgroundWrapper>
@@ -74,20 +88,21 @@ const SwapScreen = () => {
           key={hash}
           ref={sushiSwapIframeRef}
           originWhitelist={['*']}
-          source={{
-            html: `<!DOCTYPE html><html>
-              <head>${INJECTED_WRAPPING_CSS}</head>
-              <body>
-                <iframe id=${hash} src="${CONFIG.SUSHI_SWAP_URL}" scrolling="no" allow="autoplay; encrypted-media"></iframe>
-              </body>
-            </html>`
-          }}
+          source={loaded ? { html: webviewHtml } : { uri: CONFIG.SUSHI_SWAP_URL }}
+          injectedJavaScriptForMainFrameOnly
+          injectedJavaScriptBeforeContentLoadedForMainFrameOnly
+          setSupportMultipleWindows
           javaScriptEnabled
           injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
           injectedJavaScript={INJECTED_JAVASCRIPT}
           containerStyle={styles.container}
           style={styles.webview}
           bounces={false}
+          onLoadEnd={() => {
+            if (!loaded) {
+              setLoaded(true)
+            }
+          }}
           setBuiltInZoomControls={false}
           overScrollMode="never" // prevents the Android bounce effect (blue shade when scroll to end)
           startInLoadingState
