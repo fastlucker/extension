@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { ActivityIndicator, Platform, View } from 'react-native'
+import React from 'react'
+import { ActivityIndicator, View } from 'react-native'
 import WebView from 'react-native-webview'
 
 import CONFIG from '@config/env'
@@ -7,7 +7,6 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
 import colors from '@modules/common/styles/colors'
-import { useIsFocused } from '@react-navigation/native'
 
 import styles from './styles'
 
@@ -78,14 +77,6 @@ const INJECTED_WRAPPING_CSS = `
 
 const SwapScreen = () => {
   const { sushiSwapIframeRef, hash, handleIncomingMessage } = useGnosis()
-  const isFocused = useIsFocused()
-
-  // Reload webview when entering the screen because of some strange webview caching on Android
-  useEffect(() => {
-    if (isFocused && Platform.OS === 'android') {
-      sushiSwapIframeRef.current?.reload()
-    }
-  }, [isFocused])
 
   return (
     <GradientBackgroundWrapper>
