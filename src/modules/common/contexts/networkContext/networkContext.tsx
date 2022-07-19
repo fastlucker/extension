@@ -8,8 +8,7 @@ const defaultNetwork = 'ethereum'
 
 const NetworkContext = createContext<UseNetworkReturnType>({
   setNetwork: () => {},
-  network: networks.find((n) => n.id === defaultNetwork),
-  allNetworks: networks
+  network: networks.find((n) => n.id === defaultNetwork)
 })
 
 const NetworkProvider: React.FC = ({ children }) => {
