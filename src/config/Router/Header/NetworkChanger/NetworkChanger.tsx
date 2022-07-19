@@ -1,4 +1,4 @@
-import { NetworkType } from 'ambire-common/src/constants/networks'
+import networks, { NetworkType } from 'ambire-common/src/constants/networks'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
@@ -15,14 +15,14 @@ import styles, { SINGLE_ITEM_HEIGHT } from './styles'
 
 const NetworkChanger: React.FC = () => {
   const { t } = useTranslation()
-  const { network, setNetwork, allNetworks } = useNetwork()
+  const { network, setNetwork } = useNetwork()
   const { addToast } = useToast()
   const scrollRef: any = useRef(null)
   // Flags, needed for the #android-onMomentumScrollEnd-fix
   const scrollY = useRef(0)
   const onScrollEndCallbackTargetOffset = useRef(-1)
 
-  const allVisibleNetworks = useMemo(() => allNetworks.filter((n) => !n.hide), [allNetworks])
+  const allVisibleNetworks = useMemo(() => networks.filter((n) => !n.hide), [])
 
   const currentNetworkIndex = useMemo(
     () => allVisibleNetworks.map((n) => n.chainId).indexOf(network?.chainId || 0),
