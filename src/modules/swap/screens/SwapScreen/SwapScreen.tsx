@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, Platform, View } from 'react-native'
 import WebView from 'react-native-webview'
 
 import CONFIG from '@config/env'
@@ -66,7 +66,7 @@ const INJECTED_WRAPPING_CSS = `
 
 const SwapScreen = () => {
   const { sushiSwapIframeRef, hash, handleIncomingMessage } = useGnosis()
-  const [loaded, setLoaded] = useState<any>()
+  const [loaded, setLoaded] = useState<boolean>(false)
 
   const webviewHtml = useMemo(
     () => `
@@ -81,6 +81,15 @@ const SwapScreen = () => {
     [hash]
   )
 
+  const webviewSource = useMemo(() => {
+    // Workaround: In order for the webview to load properly sushiswap on iOS, the url should be loaded first as a uri source and instantly after that as a html(iframe) source
+    if (Platform.OS === 'ios') {
+      return loaded ? { html: webviewHtml } : { uri: CONFIG.SUSHI_SWAP_URL }
+    }
+
+    return { uri: CONFIG.SUSHI_SWAP_URL }
+  }, [loaded, webviewHtml])
+
   return (
     <GradientBackgroundWrapper>
       <Wrapper hasBottomTabNav>
@@ -88,7 +97,7 @@ const SwapScreen = () => {
           key={hash}
           ref={sushiSwapIframeRef}
           originWhitelist={['*']}
-          source={loaded ? { html: webviewHtml } : { uri: CONFIG.SUSHI_SWAP_URL }}
+          source={webviewSource}
           injectedJavaScriptForMainFrameOnly
           injectedJavaScriptBeforeContentLoadedForMainFrameOnly
           setSupportMultipleWindows
@@ -100,7 +109,10 @@ const SwapScreen = () => {
           bounces={false}
           onLoadEnd={() => {
             if (!loaded) {
-              setLoaded(true)
+              // Just to make sure the url loads first on iOS before the html
+              setTimeout(() => {
+                setLoaded(true)
+              }, 50)
             }
           }}
           setBuiltInZoomControls={false}
