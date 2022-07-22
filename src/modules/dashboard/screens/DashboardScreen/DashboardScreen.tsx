@@ -21,6 +21,7 @@ const DashboardScreen = () => {
     otherBalances,
     protocols,
     tokens,
+    collectibles,
     extraTokens,
     hiddenTokens,
     onAddExtraToken,
@@ -65,6 +66,7 @@ const DashboardScreen = () => {
         <AssetsToggleProvider>
           <Assets
             tokens={tokens}
+            collectibles={collectibles}
             extraTokens={extraTokens}
             hiddenTokens={hiddenTokens}
             protocols={protocols}

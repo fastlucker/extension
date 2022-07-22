@@ -11,6 +11,7 @@ import Tokens from '../Tokens'
 
 interface Props {
   tokens: UsePortfolioReturnType['tokens']
+  collectibles: UsePortfolioReturnType['collectibles']
   extraTokens: UsePortfolioReturnType['extraTokens']
   hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   protocols: UsePortfolioReturnType['protocols']
@@ -28,6 +29,7 @@ interface Props {
 
 const Assets = ({
   tokens,
+  collectibles,
   extraTokens,
   hiddenTokens,
   protocols,
@@ -69,7 +71,7 @@ const Assets = ({
           onRemoveHiddenToken={onRemoveHiddenToken}
         />
       )}
-      {type === 'collectibles' && <Collectibles />}
+      {type === 'collectibles' && <Collectibles collectibles={collectibles} />}
     </Panel>
   )
 }
