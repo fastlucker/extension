@@ -9,6 +9,7 @@ import usePortfolio from '@modules/common/hooks/usePortfolio'
 import colors from '@modules/common/styles/colors'
 import Assets from '@modules/dashboard/components/Assets'
 import Balances from '@modules/dashboard/components/Balances'
+import { AssetsToggleProvider } from '@modules/dashboard/contexts/assetsToggleContext'
 
 const DashboardScreen = () => {
   const {
@@ -61,22 +62,26 @@ const DashboardScreen = () => {
           setNetwork={setNetwork}
           account={selectedAcc}
         />
-        <Assets
-          tokens={tokens}
-          extraTokens={extraTokens}
-          hiddenTokens={hiddenTokens}
-          protocols={protocols}
-          isLoading={(isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading) && !dataLoaded}
-          explorerUrl={network?.explorerUrl}
-          networkId={network?.id}
-          networkRpc={network?.rpc}
-          networkName={network?.name}
-          selectedAcc={selectedAcc}
-          onAddExtraToken={onAddExtraToken}
-          onAddHiddenToken={onAddHiddenToken}
-          onRemoveExtraToken={onRemoveExtraToken}
-          onRemoveHiddenToken={onRemoveHiddenToken}
-        />
+        <AssetsToggleProvider>
+          <Assets
+            tokens={tokens}
+            extraTokens={extraTokens}
+            hiddenTokens={hiddenTokens}
+            protocols={protocols}
+            isLoading={
+              (isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading) && !dataLoaded
+            }
+            explorerUrl={network?.explorerUrl}
+            networkId={network?.id}
+            networkRpc={network?.rpc}
+            networkName={network?.name}
+            selectedAcc={selectedAcc}
+            onAddExtraToken={onAddExtraToken}
+            onAddHiddenToken={onAddHiddenToken}
+            onRemoveExtraToken={onRemoveExtraToken}
+            onRemoveHiddenToken={onRemoveHiddenToken}
+          />
+        </AssetsToggleProvider>
       </Wrapper>
     </GradientBackgroundWrapper>
   )

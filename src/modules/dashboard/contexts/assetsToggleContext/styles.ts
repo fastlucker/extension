@@ -1,11 +1,12 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
   toggleContainer: ViewStyle
+  toggleItemWrapper: ViewStyle
   toggleItem: ViewStyle
+  invertedRadiusWrapper: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -13,12 +14,21 @@ const styles = StyleSheet.create<Style>({
     flexDirection: 'row',
     width: '100%'
   },
-  toggleItem: {
+  toggleItemWrapper: {
     width: '50%',
-    alignItems: 'center',
-    ...spacings.pvTy,
     borderTopStartRadius: 13,
     borderTopRightRadius: 13
+  },
+  toggleItem: {
+    flex: 1,
+    alignItems: 'center',
+    ...spacings.pvTy
+  },
+  invertedRadiusWrapper: {
+    height: '100%',
+    position: 'absolute',
+    justifyContent: 'flex-end',
+    left: '50%'
   }
 })
 
