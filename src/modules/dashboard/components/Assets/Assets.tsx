@@ -50,7 +50,8 @@ const Assets = ({
     <Panel
       style={{
         borderTopStartRadius: type === 'tokens' ? 0 : 13,
-        borderTopEndRadius: type === 'collectibles' ? 0 : 13
+        borderTopEndRadius: type === 'collectibles' ? 0 : 13,
+        marginBottom: type === 'collectibles' && !!collectibles.length ? 0 : 10
       }}
     >
       {type === 'tokens' && (

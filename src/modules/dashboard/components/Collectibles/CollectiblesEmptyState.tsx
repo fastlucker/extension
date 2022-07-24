@@ -20,12 +20,12 @@ const CollectiblesEmptyState = () => {
         spacings.mb
       ]}
     >
-      <View style={[styles.item, flexboxStyles.flex1, flexboxStyles.alignCenter]}>
+      <View style={[spacings.mhTy, flexboxStyles.flex1, flexboxStyles.alignCenter]}>
         <Text style={[spacings.phTy, textStyles.center]} fontSize={14}>
           {t("You don't have any collectables (NFTs) yet")}
         </Text>
       </View>
-      <View style={[styles.item, styles.emptyStateItem]}>
+      <View style={[styles.emptyStateItem]}>
         <Text fontSize={24} weight="regular">
           ?
         </Text>

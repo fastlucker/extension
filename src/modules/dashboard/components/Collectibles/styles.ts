@@ -1,4 +1,4 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { ImageProps, StyleSheet, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
 import spacings, { SPACING } from '@modules/common/styles/spacings'
@@ -8,6 +8,7 @@ interface Style {
   emptyStateItem: ViewStyle
   itemsContainer: ViewStyle
   item: ViewStyle
+  collectibleImage: ImageProps
 }
 
 const styles = StyleSheet.create<Style>({
@@ -19,13 +20,23 @@ const styles = StyleSheet.create<Style>({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.howl,
-    minHeight: 126
+    minHeight: 126,
+    ...spacings.mhTy
   },
   itemsContainer: {
-    marginHorizontal: -10
+    marginHorizontal: -10,
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    flex: 1
   },
   item: {
-    ...spacings.mhTy
+    width: '50%',
+    ...spacings.phTy,
+    ...spacings.pbTy
+  },
+  collectibleImage: {
+    width: '100%',
+    height: 126
   }
 })
 
