@@ -7,8 +7,10 @@ import commonStyles from '@modules/common/styles/utils/common'
 interface Style {
   emptyStateItem: ViewStyle
   itemsContainer: ViewStyle
+  itemWrapper: ViewStyle
   item: ViewStyle
   collectibleImage: ImageProps
+  collectionImage: ImageProps
 }
 
 const styles = StyleSheet.create<Style>({
@@ -29,14 +31,26 @@ const styles = StyleSheet.create<Style>({
     flexDirection: 'row',
     flex: 1
   },
-  item: {
+  itemWrapper: {
     width: '50%',
     ...spacings.phTy,
-    ...spacings.pbTy
+    ...spacings.pbSm
+  },
+  item: {
+    ...commonStyles.borderRadiusPrimary,
+    ...commonStyles.hidden,
+    backgroundColor: colors.howl
   },
   collectibleImage: {
     width: '100%',
-    height: 126
+    height: 126,
+    ...spacings.mbMi
+  },
+  collectionImage: {
+    width: 15,
+    height: 15,
+    borderRadius: 50,
+    ...spacings.mrMi
   }
 })
 

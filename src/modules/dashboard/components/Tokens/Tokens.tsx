@@ -4,11 +4,10 @@ import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/typ
 import React, { useCallback } from 'react'
 import { Linking, View } from 'react-native'
 
-import { Trans, useTranslation } from '@config/localization'
+import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
-import TextWarning from '@modules/common/components/TextWarning'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -24,7 +23,6 @@ interface Props {
   hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   protocols: UsePortfolioReturnType['protocols']
   isLoading: boolean
-  explorerUrl?: NetworkType['explorerUrl']
   networkId?: NetworkId
   networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']
@@ -41,7 +39,6 @@ const Tokens = ({
   hiddenTokens,
   protocols,
   isLoading,
-  explorerUrl,
   networkId,
   networkRpc,
   networkName,
@@ -62,7 +59,6 @@ const Tokens = ({
     (symbol: string) => navigation.navigate('send', { tokenAddressOrSymbol: symbol.toString() }),
     []
   )
-  const handleGoToBlockExplorer = () => Linking.openURL(`${explorerUrl}/address/${selectedAcc}`)
 
   const emptyState = (
     <View style={[spacings.phLg, spacings.mbSm, flexboxStyles.center]}>
@@ -149,17 +145,6 @@ const Tokens = ({
         onRemoveExtraToken={onRemoveExtraToken}
         onRemoveHiddenToken={onRemoveHiddenToken}
       />
-
-      <TextWarning appearance="info" style={spacings.mb0}>
-        <Trans>
-          <Text type="caption">
-            If you don't see a specific token that you own, please check the{' '}
-            <Text weight="medium" type="caption" onPress={handleGoToBlockExplorer}>
-              Block Explorer
-            </Text>
-          </Text>
-        </Trans>
-      </TextWarning>
     </>
   )
 }

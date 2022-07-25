@@ -2,8 +2,13 @@ import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useContext } from 'react'
+import { Linking } from 'react-native'
 
+import { Trans } from '@config/localization'
 import Panel from '@modules/common/components/Panel'
+import Text from '@modules/common/components/Text'
+import TextWarning from '@modules/common/components/TextWarning'
+import spacings from '@modules/common/styles/spacings'
 import { AssetsToggleContext } from '@modules/dashboard/contexts/assetsToggleContext'
 
 import Collectibles from '../Collectibles'
@@ -45,13 +50,13 @@ const Assets = ({
   onRemoveHiddenToken
 }: Props) => {
   const { type } = useContext(AssetsToggleContext)
+  const handleGoToBlockExplorer = () => Linking.openURL(`${explorerUrl}/address/${selectedAcc}`)
 
   return (
     <Panel
       style={{
         borderTopStartRadius: type === 'tokens' ? 0 : 13,
-        borderTopEndRadius: type === 'collectibles' ? 0 : 13,
-        marginBottom: type === 'collectibles' && !!collectibles.length ? 0 : 10
+        borderTopEndRadius: type === 'collectibles' ? 0 : 13
       }}
     >
       {type === 'tokens' && (
@@ -61,7 +66,6 @@ const Assets = ({
           hiddenTokens={hiddenTokens}
           protocols={protocols}
           isLoading={isLoading}
-          explorerUrl={explorerUrl}
           networkId={networkId}
           networkRpc={networkRpc}
           networkName={networkName}
@@ -73,6 +77,16 @@ const Assets = ({
         />
       )}
       {type === 'collectibles' && <Collectibles collectibles={collectibles} />}
+      <TextWarning appearance="info" style={spacings.mb0}>
+        <Trans>
+          <Text type="caption">
+            If you don't see a specific token that you own, please check the{' '}
+            <Text weight="medium" type="caption" onPress={handleGoToBlockExplorer}>
+              Block Explorer
+            </Text>
+          </Text>
+        </Trans>
+      </TextWarning>
     </Panel>
   )
 }

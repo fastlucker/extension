@@ -3,8 +3,8 @@ import React from 'react'
 import { Image, View } from 'react-native'
 
 import Text from '@modules/common/components/Text'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
-import commonStyles from '@modules/common/styles/utils/common'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import CollectiblesEmptyState from './CollectiblesEmptyState'
@@ -15,8 +15,9 @@ interface Props {
 }
 
 const Collectibles = ({ collectibles }: Props) => {
-  const handleUri = (uri) => {
+  const handleUri = (uri: string) => {
     if (!uri) return ''
+    // eslint-disable-next-line no-param-reassign
     uri = uri.startsWith('data:application/json')
       ? uri.replace('data:application/json;utf8,', '')
       : uri
@@ -38,23 +39,47 @@ const Collectibles = ({ collectibles }: Props) => {
     <View style={styles.itemsContainer}>
       {collectibles.map(({ network, address, collectionName, collectionImg, assets }) =>
         (assets || []).map(({ tokenId, assetName, assetImg, balanceUSD }) => (
-          <View style={styles.item} key={tokenId}>
-            <View style={[commonStyles.borderRadiusPrimary, commonStyles.hidden]}>
+          <View style={styles.itemWrapper} key={tokenId}>
+            <View style={styles.item}>
               <Image style={styles.collectibleImage} source={{ uri: handleUri(assetImg) }} />
-              <View>
-                <View style={flexboxStyles.directionRow}>
-                  {/* <div
-                className="collection-icon"
-                style={{ backgroundImage: `url(${collectionImg})` }}
-              /> */}
-                  <Text>{collectionName}</Text>
+              <View style={[spacings.phTy, spacings.pbTy]}>
+                <View
+                  style={[
+                    flexboxStyles.directionRow,
+                    flexboxStyles.alignCenter,
+                    flexboxStyles.flex1
+                  ]}
+                >
+                  <Image
+                    style={styles.collectionImage}
+                    source={{ uri: handleUri(collectionImg) }}
+                  />
+                  <Text numberOfLines={1} style={flexboxStyles.flex1} fontSize={10}>
+                    {collectionName}
+                  </Text>
                 </View>
-                {/* <div className="details">
-                <div className="name">{assetName}</div>
-                <div className="value">
-                  <span className="purple-highlight">$</span> {balanceUSD.toFixed(2)}
-                </div>
-              </div> */}
+                <View
+                  style={[
+                    flexboxStyles.directionRow,
+                    spacings.ptMi,
+                    flexboxStyles.flex1,
+                    flexboxStyles.alignCenter
+                  ]}
+                >
+                  <Text
+                    numberOfLines={1}
+                    fontSize={11}
+                    style={[flexboxStyles.flex1, spacings.mrMi]}
+                  >
+                    {assetName}
+                  </Text>
+                  <Text fontSize={10}>
+                    <Text fontSize={10} color={colors.heliotrope}>
+                      $
+                    </Text>
+                    <Text fontSize={10}>{balanceUSD.toFixed(2)}</Text>
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
