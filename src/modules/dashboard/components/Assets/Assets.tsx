@@ -26,6 +26,8 @@ interface Props {
   networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']
   selectedAcc: UseAccountsReturnType['selectedAcc']
+  isCurrNetworkBalanceLoading: boolean
+  isCurrNetworkProtocolsLoading: boolean
   onAddExtraToken: UsePortfolioReturnType['onAddExtraToken']
   onAddHiddenToken: UsePortfolioReturnType['onAddHiddenToken']
   onRemoveExtraToken: UsePortfolioReturnType['onRemoveExtraToken']
@@ -44,6 +46,8 @@ const Assets = ({
   networkRpc,
   networkName,
   selectedAcc,
+  isCurrNetworkBalanceLoading,
+  isCurrNetworkProtocolsLoading,
   onAddExtraToken,
   onAddHiddenToken,
   onRemoveExtraToken,
@@ -65,11 +69,12 @@ const Assets = ({
           extraTokens={extraTokens}
           hiddenTokens={hiddenTokens}
           protocols={protocols}
-          isLoading={isLoading}
           networkId={networkId}
           networkRpc={networkRpc}
           networkName={networkName}
           selectedAcc={selectedAcc}
+          isCurrNetworkBalanceLoading={!!isCurrNetworkBalanceLoading}
+          isCurrNetworkProtocolsLoading={!!isCurrNetworkProtocolsLoading}
           onAddExtraToken={onAddExtraToken}
           onAddHiddenToken={onAddHiddenToken}
           onRemoveExtraToken={onRemoveExtraToken}

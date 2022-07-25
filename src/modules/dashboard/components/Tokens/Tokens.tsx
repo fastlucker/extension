@@ -1,8 +1,8 @@
 import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
-import React, { useCallback } from 'react'
-import { Linking, View } from 'react-native'
+import React, { useCallback, useMemo } from 'react'
+import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
@@ -22,11 +22,12 @@ interface Props {
   extraTokens: UsePortfolioReturnType['extraTokens']
   hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   protocols: UsePortfolioReturnType['protocols']
-  isLoading: boolean
   networkId?: NetworkId
   networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']
   selectedAcc: UseAccountsReturnType['selectedAcc']
+  isCurrNetworkBalanceLoading: boolean
+  isCurrNetworkProtocolsLoading: boolean
   onAddExtraToken: UsePortfolioReturnType['onAddExtraToken']
   onAddHiddenToken: UsePortfolioReturnType['onAddHiddenToken']
   onRemoveExtraToken: UsePortfolioReturnType['onRemoveExtraToken']
@@ -38,11 +39,12 @@ const Tokens = ({
   extraTokens,
   hiddenTokens,
   protocols,
-  isLoading,
   networkId,
   networkRpc,
   networkName,
   selectedAcc,
+  isCurrNetworkBalanceLoading,
+  isCurrNetworkProtocolsLoading,
   onAddExtraToken,
   onAddHiddenToken,
   onRemoveExtraToken,
@@ -57,7 +59,21 @@ const Tokens = ({
   const handleGoToDeposit = () => navigation.navigate('receive')
   const handleGoToSend = useCallback(
     (symbol: string) => navigation.navigate('send', { tokenAddressOrSymbol: symbol.toString() }),
-    []
+    [navigation]
+  )
+
+  const shouldShowEmptyState = useMemo(
+    () =>
+      !isCurrNetworkBalanceLoading &&
+      !tokens.length &&
+      !isCurrNetworkProtocolsLoading &&
+      !otherProtocols.length,
+    [
+      isCurrNetworkBalanceLoading,
+      isCurrNetworkProtocolsLoading,
+      tokens?.length,
+      otherProtocols?.length
+    ]
   )
 
   const emptyState = (
@@ -78,15 +94,16 @@ const Tokens = ({
 
   return (
     <>
-      {isLoading && (
+      {!!isCurrNetworkBalanceLoading && (
         <View style={[flexboxStyles.center, spacings.pbLg]}>
           <Spinner />
         </View>
       )}
 
-      {!isLoading && !sortedTokens.length && emptyState}
+      {!!shouldShowEmptyState && emptyState}
 
-      {!isLoading &&
+      {!isCurrNetworkBalanceLoading &&
+        !shouldShowEmptyState &&
         !!sortedTokens.length &&
         sortedTokens.map(
           (

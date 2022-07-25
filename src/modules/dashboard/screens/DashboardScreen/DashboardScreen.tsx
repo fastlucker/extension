@@ -62,7 +62,8 @@ const DashboardScreen = () => {
           balanceDecimals={balance.total?.decimals}
           otherBalances={otherBalances}
           isLoading={isCurrNetworkBalanceLoading && !!otherBalancesLoading}
-          isCurrNetworkBalanceLoading={isCurrNetworkBalanceLoading}
+          isCurrNetworkBalanceLoading={!!isCurrNetworkBalanceLoading}
+          otherBalancesLoading={!!otherBalancesLoading}
           networkId={network?.id}
           setNetwork={setNetwork}
           account={selectedAcc}
@@ -75,6 +76,8 @@ const DashboardScreen = () => {
             hiddenTokens={hiddenTokens}
             protocols={protocols}
             isLoading={isCurrNetworkProtocolsLoading}
+            isCurrNetworkBalanceLoading={!!isCurrNetworkBalanceLoading}
+            isCurrNetworkProtocolsLoading={!!isCurrNetworkProtocolsLoading}
             explorerUrl={network?.explorerUrl}
             networkId={network?.id}
             networkRpc={network?.rpc}
