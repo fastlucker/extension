@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { RefreshControl } from 'react-native'
 
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -17,6 +17,7 @@ const DashboardScreen = () => {
     loadProtocols,
     isCurrNetworkBalanceLoading,
     isCurrNetworkProtocolsLoading,
+    balancesByNetworksLoading,
     balance,
     otherBalances,
     protocols,
@@ -27,15 +28,17 @@ const DashboardScreen = () => {
     onAddExtraToken,
     onAddHiddenToken,
     onRemoveExtraToken,
-    onRemoveHiddenToken,
-    setDataLoaded,
-    dataLoaded
+    onRemoveHiddenToken
   } = usePortfolio()
   const { network, setNetwork } = useNetwork()
   const { selectedAcc } = useAccounts()
 
+  const otherBalancesLoading = useMemo(
+    () => Object.entries(balancesByNetworksLoading).find((ntw) => ntw[0] !== network?.id && ntw[1]),
+    [balancesByNetworksLoading, network?.id]
+  )
+
   const handleRefresh = () => {
-    setDataLoaded(false)
     loadBalance()
     loadProtocols()
   }
@@ -58,7 +61,8 @@ const DashboardScreen = () => {
           balanceTruncated={balance.total?.truncated}
           balanceDecimals={balance.total?.decimals}
           otherBalances={otherBalances}
-          isLoading={isCurrNetworkBalanceLoading && !dataLoaded}
+          isLoading={isCurrNetworkBalanceLoading && !!otherBalancesLoading}
+          isCurrNetworkBalanceLoading={isCurrNetworkBalanceLoading}
           networkId={network?.id}
           setNetwork={setNetwork}
           account={selectedAcc}
@@ -70,7 +74,7 @@ const DashboardScreen = () => {
             extraTokens={extraTokens}
             hiddenTokens={hiddenTokens}
             protocols={protocols}
-            isLoading={isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading}
+            isLoading={isCurrNetworkProtocolsLoading}
             explorerUrl={network?.explorerUrl}
             networkId={network?.id}
             networkRpc={network?.rpc}

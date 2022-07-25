@@ -76,10 +76,13 @@ const Assets = ({
           onRemoveHiddenToken={onRemoveHiddenToken}
         />
       )}
-      {type === 'collectibles' && <Collectibles collectibles={collectibles} />}
+      {type === 'collectibles' && (
+        <Collectibles collectibles={collectibles} isLoading={isLoading} />
+      )}
       <TextWarning appearance="info" style={spacings.mb0}>
         <Trans>
           <Text type="caption">
+            {/* eslint-disable-next-line react/no-unescaped-entities */}
             If you don't see a specific token that you own, please check the{' '}
             <Text weight="medium" type="caption" onPress={handleGoToBlockExplorer}>
               Block Explorer

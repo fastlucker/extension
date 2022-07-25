@@ -5,15 +5,11 @@ import { AppState } from 'react-native'
 import CONFIG from '@config/env'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
-import usePrevious from '@modules/common/hooks/usePrevious'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToasts from '@modules/common/hooks/useToast'
 import { fetchGet } from '@modules/common/services/fetch'
 
-interface PortfolioContextReturnType extends UsePortfolioReturnType {
-  dataLoaded: boolean
-  setDataLoaded: React.Dispatch<React.SetStateAction<boolean>>
-}
+interface PortfolioContextReturnType extends UsePortfolioReturnType {}
 
 const PortfolioContext = createContext<PortfolioContextReturnType>({
   balance: {
@@ -41,9 +37,7 @@ const PortfolioContext = createContext<PortfolioContextReturnType>({
   otherProtocolsByNetworksLoading: {},
   isCurrNetworkProtocolsLoading: false,
   loadBalance: () => {},
-  loadProtocols: () => {},
-  dataLoaded: false,
-  setDataLoaded: () => {}
+  loadProtocols: () => {}
 })
 
 const getBalances = (network: any, protocol: any, address: any, provider?: any) =>
@@ -57,7 +51,6 @@ const getBalances = (network: any, protocol: any, address: any, provider?: any) 
 
 const PortfolioProvider: React.FC = ({ children }) => {
   const appState = useRef(AppState.currentState)
-  const [dataLoaded, setDataLoaded] = useState<boolean>(false)
 
   const [appStateVisible, setAppStateVisible] = useState<any>(appState.current)
 
@@ -104,18 +97,6 @@ const PortfolioProvider: React.FC = ({ children }) => {
     getBalances
   })
 
-  const prevIsCurrNetworkBalanceLoading = usePrevious(isCurrNetworkBalanceLoading)
-  const prevIsCurrNetworkProtocolsLoading = usePrevious(isCurrNetworkProtocolsLoading)
-
-  useEffect(() => {
-    if (
-      (prevIsCurrNetworkBalanceLoading && !isCurrNetworkBalanceLoading) ||
-      (prevIsCurrNetworkProtocolsLoading && !isCurrNetworkProtocolsLoading)
-    ) {
-      setDataLoaded(true)
-    }
-  }, [isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading])
-
   return (
     <PortfolioContext.Provider
       value={useMemo(
@@ -138,9 +119,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
           otherProtocolsByNetworksLoading,
           isCurrNetworkProtocolsLoading,
           loadBalance,
-          loadProtocols,
-          dataLoaded,
-          setDataLoaded
+          loadProtocols
         }),
         [
           balance,
@@ -161,9 +140,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
           otherProtocolsByNetworksLoading,
           isCurrNetworkProtocolsLoading,
           loadBalance,
-          loadProtocols,
-          dataLoaded,
-          setDataLoaded
+          loadProtocols
         ]
       )}
     >
