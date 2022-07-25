@@ -3,6 +3,7 @@ import React from 'react'
 import { View } from 'react-native'
 
 import Spinner from '@modules/common/components/Spinner'
+import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -12,11 +13,13 @@ import styles from './styles'
 
 interface Props {
   collectibles: UsePortfolioReturnType['collectibles']
-  isLoading: boolean
+  isCurrNetworkProtocolsLoading: boolean
 }
 
-const Collectibles = ({ collectibles, isLoading }: Props) => {
-  if (isLoading) {
+const Collectibles = ({ collectibles, isCurrNetworkProtocolsLoading }: Props) => {
+  const { isPrivateMode } = usePrivateMode()
+
+  if (isCurrNetworkProtocolsLoading) {
     return (
       <View style={[flexboxStyles.center, spacings.pbLg]}>
         <Spinner />
@@ -24,8 +27,13 @@ const Collectibles = ({ collectibles, isLoading }: Props) => {
     )
   }
 
-  if (!collectibles?.length) {
-    return <CollectiblesEmptyState />
+  if (!collectibles?.length || isPrivateMode) {
+    return (
+      <CollectiblesEmptyState
+        isPrivateMode={isPrivateMode}
+        collectiblesLength={collectibles.length || 0}
+      />
+    )
   }
 
   return (

@@ -9,7 +9,12 @@ import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
 
-const CollectiblesEmptyState = () => {
+interface Props {
+  isPrivateMode: boolean
+  collectiblesLength: number
+}
+
+const CollectiblesEmptyState = ({ isPrivateMode, collectiblesLength }: Props) => {
   const { t } = useTranslation()
   return (
     <View
@@ -22,7 +27,9 @@ const CollectiblesEmptyState = () => {
     >
       <View style={[spacings.mhTy, flexboxStyles.flex1, flexboxStyles.alignCenter]}>
         <Text style={[spacings.phTy, textStyles.center]} fontSize={14}>
-          {t("You don't have any collectables (NFTs) yet")}
+          {!!isPrivateMode && !!collectiblesLength
+            ? t("You can't see collectibles in private mode")
+            : t("You don't have any collectables (NFTs) yet")}
         </Text>
       </View>
       <View style={[styles.emptyStateItem]}>

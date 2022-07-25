@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Image, View } from 'react-native'
+import FastImage from 'react-native-fast-image'
 
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -23,6 +25,7 @@ const CollectibleItem = ({
   assetName,
   balanceUSD
 }: Props) => {
+  const [isAssetImageLoading, setIsAssetImageLoading] = useState(true)
   const handleUri = (uri: string) => {
     if (!uri) return ''
     // eslint-disable-next-line no-param-reassign
@@ -42,12 +45,24 @@ const CollectibleItem = ({
   return (
     <View style={styles.itemWrapper}>
       <View style={styles.item}>
-        <Image style={styles.collectibleImage} source={{ uri: handleUri(assetImg) }} />
+        {isAssetImageLoading ? (
+          <View style={styles.collectibleImageLoadingWrapper}>
+            <Spinner />
+          </View>
+        ) : (
+          <FastImage style={styles.collectibleImage} source={{ uri: handleUri(assetImg) }} />
+        )}
         <View style={[spacings.phTy, spacings.pbTy]}>
           <View
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, flexboxStyles.flex1]}
           >
-            <Image style={styles.collectionImage} source={{ uri: handleUri(collectionImg) }} />
+            <Image
+              style={styles.collectionImage}
+              source={{ uri: handleUri(collectionImg) }}
+              onLoad={() => setIsAssetImageLoading(false)}
+              onError={() => setIsAssetImageLoading(false)}
+            />
+
             <Text numberOfLines={1} style={flexboxStyles.flex1} fontSize={10}>
               {collectionName}
             </Text>
@@ -60,7 +75,12 @@ const CollectibleItem = ({
               flexboxStyles.alignCenter
             ]}
           >
-            <Text numberOfLines={1} fontSize={11} style={[flexboxStyles.flex1, spacings.mrMi]}>
+            <Text
+              numberOfLines={1}
+              weight="regular"
+              fontSize={11}
+              style={[flexboxStyles.flex1, spacings.mrMi]}
+            >
               {assetName}
             </Text>
             <Text fontSize={10}>

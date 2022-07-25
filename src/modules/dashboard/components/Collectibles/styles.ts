@@ -10,6 +10,7 @@ interface Style {
   itemWrapper: ViewStyle
   item: ViewStyle
   collectibleImage: ImageProps
+  collectibleImageLoadingWrapper: ViewStyle
   collectionImage: ImageProps
 }
 
@@ -51,6 +52,13 @@ const styles = StyleSheet.create<Style>({
     height: 15,
     borderRadius: 50,
     ...spacings.mrMi
+  },
+  collectibleImageLoadingWrapper: {
+    width: '100%',
+    height: 126,
+    ...spacings.mbMi,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
 

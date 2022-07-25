@@ -82,7 +82,10 @@ const Assets = ({
         />
       )}
       {type === 'collectibles' && (
-        <Collectibles collectibles={collectibles} isLoading={isLoading} />
+        <Collectibles
+          collectibles={collectibles}
+          isCurrNetworkProtocolsLoading={isCurrNetworkProtocolsLoading}
+        />
       )}
       <TextWarning appearance="info" style={spacings.mb0}>
         <Trans>
