@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Image, View } from 'react-native'
+import { Image, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 
 import Spinner from '@modules/common/components/Spinner'
@@ -7,10 +7,15 @@ import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import handleCollectibleUri from '@modules/dashboard/helpers/handleCollectibleUri'
+import { useNavigation } from '@react-navigation/native'
 
 import styles from './styles'
 
 type Props = {
+  tokenId: string
+  network: string
+  address: string
   assetImg: string
   collectionImg: string
   collectionName: string
@@ -19,6 +24,9 @@ type Props = {
 }
 
 const CollectibleItem = ({
+  tokenId,
+  network,
+  address,
   assetImg,
   collectionImg,
   collectionName,
@@ -26,31 +34,28 @@ const CollectibleItem = ({
   balanceUSD
 }: Props) => {
   const [isAssetImageLoading, setIsAssetImageLoading] = useState(true)
-  const handleUri = (uri: string) => {
-    if (!uri) return ''
-    // eslint-disable-next-line no-param-reassign
-    uri = uri.startsWith('data:application/json')
-      ? uri.replace('data:application/json;utf8,', '')
-      : uri
+  const { navigate } = useNavigation()
 
-    if (uri.split('/')[0] === 'data:image') return uri
-    if (uri.startsWith('ipfs://'))
-      return uri.replace(/ipfs:\/\/ipfs\/|ipfs:\/\//g, 'https://ipfs.io/ipfs/')
-    if (uri.split('/')[2].endsWith('mypinata.cloud'))
-      return `https://ipfs.io/ipfs/${uri.split('/').slice(4).join('/')}`
-
-    return uri
+  const handleCollectiblePress = () => {
+    navigate('collectible-screen', {
+      tokenId,
+      network,
+      address
+    })
   }
 
   return (
     <View style={styles.itemWrapper}>
-      <View style={styles.item}>
+      <TouchableOpacity style={styles.item} activeOpacity={0.6} onPress={handleCollectiblePress}>
         {isAssetImageLoading ? (
           <View style={styles.collectibleImageLoadingWrapper}>
             <Spinner />
           </View>
         ) : (
-          <FastImage style={styles.collectibleImage} source={{ uri: handleUri(assetImg) }} />
+          <FastImage
+            style={styles.collectibleImage}
+            source={{ uri: handleCollectibleUri(assetImg) }}
+          />
         )}
         <View style={[spacings.phTy, spacings.pbTy]}>
           <View
@@ -58,7 +63,7 @@ const CollectibleItem = ({
           >
             <Image
               style={styles.collectionImage}
-              source={{ uri: handleUri(collectionImg) }}
+              source={{ uri: handleCollectibleUri(collectionImg) }}
               onLoad={() => setIsAssetImageLoading(false)}
               onError={() => setIsAssetImageLoading(false)}
             />
@@ -91,7 +96,7 @@ const CollectibleItem = ({
             </Text>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     </View>
   )
 }

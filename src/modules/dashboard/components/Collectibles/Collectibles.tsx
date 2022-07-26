@@ -39,9 +39,12 @@ const Collectibles = ({ collectibles, isCurrNetworkProtocolsLoading }: Props) =>
   return (
     <View style={styles.itemsContainer}>
       {collectibles.map(({ network, address, collectionName, collectionImg, assets }) =>
-        (assets || []).map(({ tokenId, assetName, assetImg, balanceUSD }) => (
+        (assets || []).map(({ tokenId, assetName, assetImg, balanceUSD }: any) => (
           <CollectibleItem
             key={tokenId}
+            tokenId={tokenId}
+            network={network}
+            address={address}
             assetImg={assetImg}
             collectionImg={collectionImg}
             collectionName={collectionName}
