@@ -19,7 +19,7 @@ import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { colorPalette as colors } from '@modules/common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
-import EarnScreen from '@modules/earn/screens/EarnScreen'
+// import EarnScreen from '@modules/earn/screens/EarnScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
 // import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
@@ -61,7 +61,8 @@ const TabsScreens = () => {
         }}
         component={DashboardScreen}
       />
-      <Tab.Screen
+      {/* TODO: Temporary disabled since v1.9.2 as part of the Apple app review feedback */}
+      {/* <Tab.Screen
         name="earn"
         options={{
           tabBarLabel: t('Earn'),
@@ -71,7 +72,7 @@ const TabsScreens = () => {
           )
         }}
         component={EarnScreen}
-      />
+      /> */}
       <Tab.Screen
         name="send"
         options={{
