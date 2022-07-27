@@ -412,11 +412,9 @@ const CollectibleScreen = () => {
             info={t(
               'Please double-check the recipient address, blockchain transactions are not reversible.'
             )}
-            isValid={
-              recipientAddress.length > 1 && !validationFormMgs.messages?.address && !!uDAddress
-            }
+            isValid={recipientAddress.length > 1 && !validationFormMgs.message && !!uDAddress}
             validLabel={uDAddress ? t('Valid Unstoppable domainsⓇ domain') : ''}
-            error={validationFormMgs.messages?.address}
+            error={validationFormMgs.message}
             value={recipientAddress}
             onChangeText={setRecipientAddress}
           />

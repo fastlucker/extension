@@ -31,14 +31,14 @@ const ConfirmAddress = ({
 
   const unknownWarning = useMemo(() => {
     if (uDAddress) {
-      return !isKnownAddress(address)
+      return !(isKnownAddress(address) || isKnownAddress(uDAddress))
     }
     return isValidAddress(address) && !isKnownAddress(address)
   }, [address, uDAddress, isKnownAddress])
 
   const smartContractWarning = useMemo(() => isKnownTokenOrContract(address), [address])
 
-  return !smartContractWarning && unknownWarning && address !== accountPresets.feeCollector ? (
+  return !smartContractWarning && !!unknownWarning && address !== accountPresets.feeCollector ? (
     <>
       <Checkbox
         value={addressConfirmed}
