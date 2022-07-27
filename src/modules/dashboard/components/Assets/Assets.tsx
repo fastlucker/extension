@@ -2,13 +2,16 @@ import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useContext } from 'react'
-import { Linking } from 'react-native'
+import { Linking, View } from 'react-native'
 
 import { Trans } from '@config/localization'
+import AfterInteractions from '@modules/common/components/AfterInteractions'
 import Panel from '@modules/common/components/Panel'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import TextWarning from '@modules/common/components/TextWarning'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { AssetsToggleContext } from '@modules/dashboard/contexts/assetsToggleContext'
 
 import Collectibles from '../Collectibles'
@@ -64,28 +67,44 @@ const Assets = ({
       }}
     >
       {type === 'tokens' && (
-        <Tokens
-          tokens={tokens}
-          extraTokens={extraTokens}
-          hiddenTokens={hiddenTokens}
-          protocols={protocols}
-          networkId={networkId}
-          networkRpc={networkRpc}
-          networkName={networkName}
-          selectedAcc={selectedAcc}
-          isCurrNetworkBalanceLoading={!!isCurrNetworkBalanceLoading}
-          isCurrNetworkProtocolsLoading={!!isCurrNetworkProtocolsLoading}
-          onAddExtraToken={onAddExtraToken}
-          onAddHiddenToken={onAddHiddenToken}
-          onRemoveExtraToken={onRemoveExtraToken}
-          onRemoveHiddenToken={onRemoveHiddenToken}
-        />
+        <AfterInteractions
+          placeholder={
+            <View style={[flexboxStyles.center, spacings.pbLg]}>
+              <Spinner />
+            </View>
+          }
+        >
+          <Tokens
+            tokens={tokens}
+            extraTokens={extraTokens}
+            hiddenTokens={hiddenTokens}
+            protocols={protocols}
+            networkId={networkId}
+            networkRpc={networkRpc}
+            networkName={networkName}
+            selectedAcc={selectedAcc}
+            isCurrNetworkBalanceLoading={!!isCurrNetworkBalanceLoading}
+            isCurrNetworkProtocolsLoading={!!isCurrNetworkProtocolsLoading}
+            onAddExtraToken={onAddExtraToken}
+            onAddHiddenToken={onAddHiddenToken}
+            onRemoveExtraToken={onRemoveExtraToken}
+            onRemoveHiddenToken={onRemoveHiddenToken}
+          />
+        </AfterInteractions>
       )}
       {type === 'collectibles' && (
-        <Collectibles
-          collectibles={collectibles}
-          isCurrNetworkProtocolsLoading={isCurrNetworkProtocolsLoading}
-        />
+        <AfterInteractions
+          placeholder={
+            <View style={[flexboxStyles.center, spacings.pbLg]}>
+              <Spinner />
+            </View>
+          }
+        >
+          <Collectibles
+            collectibles={collectibles}
+            isCurrNetworkProtocolsLoading={isCurrNetworkProtocolsLoading}
+          />
+        </AfterInteractions>
       )}
       <TextWarning appearance="info" style={spacings.mb0}>
         <Trans>
