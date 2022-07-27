@@ -170,15 +170,14 @@ const SendForm = ({
                 onChangeText={setAddress}
               />
 
-              {!smartContractWarning &&
-                !!unknownWarning &&
-                address !== accountPresets.feeCollector && (
-                  <ConfirmAddress
-                    addressConfirmed={addressConfirmed}
-                    setAddressConfirmed={setAddressConfirmed}
-                    onAddToAddressBook={openBottomSheetAddrAdd}
-                  />
-                )}
+              <ConfirmAddress
+                address={address}
+                uDAddress={uDAddress}
+                addressConfirmed={addressConfirmed}
+                setAddressConfirmed={setAddressConfirmed}
+                onAddToAddressBook={openBottomSheetAddrAdd}
+              />
+
               <TouchableOpacity
                 onPress={() => {
                   Keyboard.dismiss()
@@ -248,10 +247,7 @@ const SendForm = ({
         closeBottomSheet={closeBottomSheetAddrAdd}
         dynamicInitialHeight={false}
       >
-        <AddAddressForm
-          onSubmit={handleAddNewAddress}
-          address={!smartContractWarning && !!unknownWarning && !!address ? address : ''}
-        />
+        <AddAddressForm onSubmit={handleAddNewAddress} address={address} uDAddr={uDAddress} />
       </BottomSheet>
     </>
   )

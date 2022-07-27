@@ -1,36 +1,56 @@
 import ERC721Abi from 'ambire-common/src/constants/abis/ERC721Abi'
 import networks from 'ambire-common/src/constants/networks'
 import { getProvider } from 'ambire-common/src/services/provider'
+import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
+import { validateSendNftAddress } from 'ambire-common/src/services/validations'
 import { ethers } from 'ethers'
-import React, { useCallback, useEffect, useState } from 'react'
-import { View } from 'react-native'
+import { Interface } from 'ethers/lib/utils'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Keyboard, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 
+import DownArrowIcon from '@assets/svg/DownArrowIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
-import CONFIG from '@config/env'
+import CONFIG, { isiOS } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Blockies from '@modules/common/components/Blockies'
+import BottomSheet from '@modules/common/components/BottomSheet'
+import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
+import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import Input from '@modules/common/components/Input'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Panel from '@modules/common/components/Panel'
+import RecipientInput from '@modules/common/components/RecipientInput'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
-import Wrapper from '@modules/common/components/Wrapper'
+import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useAddressBook from '@modules/common/hooks/useAddressBook'
+import useNetwork from '@modules/common/hooks/useNetwork'
+import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchGet } from '@modules/common/services/fetch'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import handleCollectibleUri from '@modules/dashboard/helpers/handleCollectibleUri'
+import AddressList from '@modules/send/components/AddressList'
+import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
+import ConfirmAddress from '@modules/send/components/ConfirmAddress'
 import { useNavigation, useRoute } from '@react-navigation/native'
 
 import styles from './styles'
 
+const ERC721 = new Interface(ERC721Abi)
+
 const CollectibleScreen = () => {
-  const { goBack } = useNavigation()
   const { t } = useTranslation()
+  const { goBack } = useNavigation()
+  const { addAddress, isKnownAddress } = useAddressBook()
   const { addToast } = useToast()
+  const { addRequest } = useRequests()
+  const { network: selectedNetwork } = useNetwork()
   const { params } = useRoute()
   const { tokenId, network, address: collectionAddr }: any = params
   const [isLoading, setLoading] = useState(true)
@@ -47,10 +67,152 @@ const CollectibleScreen = () => {
     collection: '',
     explorerUrl: ''
   })
+  const [recipientAddress, setRecipientAddress] = useState('')
+  const [uDAddress, setUDAddress] = useState('')
+  // const [ensAddress, setEnsAddress] = useState('')
+  const [isTransferDisabled, setTransferDisabled] = useState(true)
+  const [addressConfirmed, setAddressConfirmed] = useState(false)
+  const [validationFormMgs, setValidationFormMgs] = useState<any>({
+    success: false,
+    message: ''
+  })
+
+  const timer: any = useRef(null)
+
+  const {
+    sheetRef: sheetRefAddrAdd,
+    openBottomSheet: openBottomSheetAddrAdd,
+    closeBottomSheet: closeBottomSheetAddrAdd,
+    isOpen: isOpenAddrAdd
+  } = useBottomSheet()
+  const {
+    sheetRef: sheetRefAddrDisplay,
+    openBottomSheet: openBottomSheetAddrDisplay,
+    closeBottomSheet: closeBottomSheetAddrDisplay,
+    isOpen: isOpenAddrDisplay
+  } = useBottomSheet()
 
   const handleNavigateBack = () => {
     goBack()
   }
+
+  const handleAddNewAddress = (fieldValues: { name: string; address: string; isUD: boolean }) => {
+    addAddress(fieldValues.name, fieldValues.address, fieldValues.isUD)
+    closeBottomSheetAddrAdd()
+    openBottomSheetAddrDisplay()
+  }
+
+  const sendTransferTx = () => {
+    const recipAddress = uDAddress || recipientAddress
+
+    try {
+      const req: any = {
+        id: `transfer_nft_${Date.now()}`,
+        type: 'eth_sendTransaction',
+        chainId: selectedNetwork?.chainId,
+        account: selectedAcc,
+        txn: {
+          to: collectionAddr,
+          value: '0',
+          data: ERC721.encodeFunctionData('transferFrom', [
+            metadata.owner.address,
+            recipAddress,
+            tokenId
+          ])
+        },
+        meta: null
+      }
+
+      if (uDAddress) {
+        req.meta = {
+          addressLabel: {
+            addressLabel: recipientAddress,
+            address: uDAddress
+          }
+        }
+      }
+
+      addRequest(req)
+    } catch (e) {
+      addToast(`Error: ${e.message || e}`, { error: true })
+    }
+  }
+
+  useEffect(() => {
+    if (recipientAddress.startsWith('0x') && recipientAddress.indexOf('.') === -1) {
+      const isAddressValid = validateSendNftAddress(
+        recipientAddress,
+        selectedAcc,
+        addressConfirmed,
+        isKnownAddress,
+        metadata,
+        selectedNetwork,
+        network,
+        !!uDAddress
+      )
+
+      setTransferDisabled(!isAddressValid.success)
+      setValidationFormMgs({
+        success: isAddressValid.success,
+        message: isAddressValid.message ? isAddressValid.message : ''
+      })
+    } else {
+      if (timer.current) {
+        clearTimeout(timer.current)
+      }
+
+      const validateForm = async () => {
+        const UDAddress = await resolveUDomain(
+          recipientAddress,
+          null,
+          selectedNetwork?.unstoppableDomainsChain
+        )
+        // TODO:
+        // const bip44Item = getBip44Items(null)
+        // const ensAddress = await resolveENSDomain(recipientAddress, bip44Item)
+
+        timer.current = null
+        const isUDAddress = !!UDAddress
+        // const isEnsAddress = !!ensAddress
+        let selectedAddress = ''
+        // if (isEnsAddress) selectedAddress = ensAddress
+        if (isUDAddress) selectedAddress = UDAddress
+        else selectedAddress = recipientAddress
+
+        const isAddressValid = validateSendNftAddress(
+          selectedAddress,
+          selectedAcc,
+          addressConfirmed,
+          isKnownAddress,
+          metadata,
+          selectedNetwork,
+          network,
+          isUDAddress
+        )
+        setUDAddress(UDAddress)
+        // setEnsAddress(ensAddress)
+
+        setTransferDisabled(!isAddressValid.success)
+        setValidationFormMgs({
+          success: isAddressValid.success,
+          message: isAddressValid.message ? isAddressValid.message : ''
+        })
+      }
+
+      timer.current = setTimeout(async () => validateForm().catch(console.error), 300)
+    }
+
+    return () => clearTimeout(timer.current)
+  }, [
+    recipientAddress,
+    metadata,
+    selectedNetwork,
+    selectedAcc,
+    network,
+    addressConfirmed,
+    isKnownAddress,
+    uDAddress
+  ])
 
   const fetchMetadata = useCallback(async () => {
     setLoading(true)
@@ -103,7 +265,6 @@ const CollectibleScreen = () => {
         collection,
         owner: {
           address
-          // icon: blockies.create({ seed: address }).toDataURL()
         },
         explorerUrl
       }))
@@ -129,7 +290,6 @@ const CollectibleScreen = () => {
           name,
           owner: {
             address: owner
-            // icon: blockies.create({ seed: owner }).toDataURL()
           },
           explorerUrl
         }))
@@ -137,7 +297,6 @@ const CollectibleScreen = () => {
         setLoading(false)
         // eslint-disable-next-line @typescript-eslint/no-shadow
       } catch (e) {
-        console.error(e)
         addToast(`Collectible error: ${e.message || e}`, { error: true })
       }
     }
@@ -216,8 +375,13 @@ const CollectibleScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav>
-        <Panel type="filled" style={{ minHeight: 304 }}>
+      <Wrapper
+        keyboardDismissMode="on-drag"
+        type={isiOS ? WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW : WRAPPER_TYPES.SCROLL_VIEW}
+        extraHeight={250}
+        hasBottomTabNav
+      >
+        <Panel type="filled" style={{ minHeight: 309 }}>
           {!!isLoading && (
             <View style={[flexboxStyles.flex1, spacings.pbLg]}>
               <NavIconWrapper onPress={handleNavigateBack} style={spacings.mrSm}>
@@ -236,6 +400,85 @@ const CollectibleScreen = () => {
           )}
           {!isLoading && collectibleContent}
         </Panel>
+
+        <View>
+          <Text fontSize={16} weight="medium" style={spacings.mbTy}>
+            {t('Transfer to:')}
+          </Text>
+          <RecipientInput
+            containerStyle={spacings.mbSm}
+            isValidUDomain={!!uDAddress}
+            placeholder={t('Recipient')}
+            info={t(
+              'Please double-check the recipient address, blockchain transactions are not reversible.'
+            )}
+            isValid={
+              recipientAddress.length > 1 && !validationFormMgs.messages?.address && !!uDAddress
+            }
+            validLabel={uDAddress ? t('Valid Unstoppable domainsⓇ domain') : ''}
+            error={validationFormMgs.messages?.address}
+            value={recipientAddress}
+            onChangeText={setRecipientAddress}
+          />
+          <ConfirmAddress
+            address={recipientAddress}
+            uDAddress={uDAddress}
+            addressConfirmed={addressConfirmed}
+            setAddressConfirmed={setAddressConfirmed}
+            onAddToAddressBook={openBottomSheetAddrAdd}
+          />
+          <TouchableOpacity
+            onPress={() => {
+              Keyboard.dismiss()
+              openBottomSheetAddrDisplay()
+            }}
+          >
+            <View pointerEvents="none">
+              <Input
+                value={t('Address Book')}
+                containerStyle={spacings.mbSm}
+                button={
+                  <NavIconWrapper onPress={() => null}>
+                    <DownArrowIcon width={34} height={34} />
+                  </NavIconWrapper>
+                }
+              />
+            </View>
+          </TouchableOpacity>
+          <View style={[spacings.mbMd]}>
+            <Button
+              text={t('Send')}
+              disabled={isLoading || isTransferDisabled}
+              onPress={sendTransferTx}
+            />
+          </View>
+        </View>
+
+        <BottomSheet
+          id="addresses-list"
+          isOpen={isOpenAddrDisplay}
+          sheetRef={sheetRefAddrDisplay}
+          closeBottomSheet={closeBottomSheetAddrDisplay}
+        >
+          <AddressList
+            onSelectAddress={(item): any => setRecipientAddress(item.address)}
+            onCloseBottomSheet={closeBottomSheetAddrDisplay}
+            onOpenBottomSheet={openBottomSheetAddrAdd}
+          />
+        </BottomSheet>
+        <BottomSheet
+          id="add-address"
+          isOpen={isOpenAddrAdd}
+          sheetRef={sheetRefAddrAdd}
+          closeBottomSheet={closeBottomSheetAddrAdd}
+          dynamicInitialHeight={false}
+        >
+          <AddAddressForm
+            onSubmit={handleAddNewAddress}
+            address={recipientAddress}
+            uDAddr={uDAddress}
+          />
+        </BottomSheet>
       </Wrapper>
     </GradientBackgroundWrapper>
   )

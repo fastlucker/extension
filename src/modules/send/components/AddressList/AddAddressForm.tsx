@@ -1,6 +1,6 @@
-import { isValidAddress } from 'ambire-common/src/services/address'
+import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
 import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
@@ -9,20 +9,35 @@ import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import RecipientInput from '@modules/common/components/RecipientInput'
 import Title from '@modules/common/components/Title'
+import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Props {
   onSubmit: ({ name, address, isUD }: { name: string; address: string; isUD: boolean }) => void
-  address?: string
+  address: string
+  uDAddr: string
 }
 
-const AddAddressForm = ({ onSubmit, address }: Props) => {
+const AddAddressForm = ({ onSubmit, address, uDAddr }: Props) => {
   const { t } = useTranslation()
   const [addrName, setAddrName] = useState<string>('')
   const [addr, setAddr] = useState<string>('')
   const [uDAddress, setUDAddress] = useState<string>('')
+
+  const { isKnownAddress } = useAddressBook()
+
+  const parsedAddr = uDAddr || address || ''
+
+  const unknownWarning = useMemo(() => {
+    if (uDAddress || uDAddr) {
+      return !isKnownAddress(address)
+    }
+    return isValidAddress(address) && !isKnownAddress(address)
+  }, [address, uDAddress, isKnownAddress, uDAddr])
+
+  const smartContractWarning = useMemo(() => isKnownTokenOrContract(parsedAddr), [parsedAddr])
 
   const timer: any = useRef(null)
   const checkedIsUDAddress: any = useRef(false)
@@ -31,14 +46,15 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
 
   useEffect(() => {
     ;(async () => {
-      if (address) {
+      console.log(address, uDAddr, smartContractWarning, unknownWarning)
+      if (address && !smartContractWarning && !!unknownWarning) {
         setAddr(address)
-        const uDAddr = await resolveUDomain(addr, null, network.unstoppableDomainsChain)
+        // const uDAddr = await resolveUDomain(addr, null, network.unstoppableDomainsChain)
         setUDAddress(uDAddr)
         checkedIsUDAddress.current = true
       }
     })()
-  }, [address])
+  }, [address, uDAddr, smartContractWarning, unknownWarning])
 
   useEffect(() => {
     if (timer.current) {
@@ -48,7 +64,7 @@ const AddAddressForm = ({ onSubmit, address }: Props) => {
     const validate = async () => {
       const uDAddr = await resolveUDomain(addr, null, network.unstoppableDomainsChain)
       timer.current = null
-      setUDAddress(uDAddr)
+      setUDAddress(uDAddr || '')
       checkedIsUDAddress.current = true
     }
 
