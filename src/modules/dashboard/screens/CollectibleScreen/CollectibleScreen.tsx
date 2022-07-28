@@ -34,6 +34,7 @@ import { fetchGet } from '@modules/common/services/fetch'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import CollectibleLoader from '@modules/dashboard/components/CollectibleLoader'
 import handleCollectibleUri from '@modules/dashboard/helpers/handleCollectibleUri'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
@@ -390,19 +391,11 @@ const CollectibleScreen = () => {
       >
         <Panel type="filled" style={{ minHeight: 309 }}>
           {!!isLoading && (
-            <View style={[flexboxStyles.flex1, spacings.pbLg]}>
+            <View style={[flexboxStyles.flex1]}>
               <NavIconWrapper onPress={handleNavigateBack} style={spacings.mrSm}>
                 <LeftArrowIcon />
               </NavIconWrapper>
-              <View
-                style={[
-                  flexboxStyles.flex1,
-                  flexboxStyles.alignCenter,
-                  flexboxStyles.justifyCenter
-                ]}
-              >
-                <Spinner />
-              </View>
+              <CollectibleLoader height={309} />
             </View>
           )}
           {!isLoading && collectibleContent}
@@ -489,4 +482,4 @@ const CollectibleScreen = () => {
   )
 }
 
-export default CollectibleScreen
+export default React.memo(CollectibleScreen)

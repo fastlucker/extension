@@ -52,8 +52,6 @@ interface Props {
       address: string
     }
   }
-  smartContractWarning: boolean
-  unknownWarning: boolean
   onSendPress: () => void
   setAsset: React.Dispatch<React.SetStateAction<string | null>>
   onAmountChange: (value: any) => void
@@ -80,8 +78,6 @@ const SendForm = ({
   sWAddressConfirmed,
   showSWAddressWarning,
   validationFormMgs,
-  smartContractWarning,
-  unknownWarning,
   onSendPress,
   setAsset,
   addAddress,

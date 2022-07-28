@@ -23,7 +23,6 @@ interface Props {
   extraTokens: UsePortfolioReturnType['extraTokens']
   hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   protocols: UsePortfolioReturnType['protocols']
-  isLoading: boolean
   explorerUrl?: NetworkType['explorerUrl']
   networkId?: NetworkId
   networkRpc?: NetworkType['rpc']
@@ -43,7 +42,6 @@ const Assets = ({
   extraTokens,
   hiddenTokens,
   protocols,
-  isLoading,
   explorerUrl,
   networkId,
   networkRpc,

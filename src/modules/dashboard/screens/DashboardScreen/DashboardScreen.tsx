@@ -75,7 +75,6 @@ const DashboardScreen = () => {
             extraTokens={extraTokens}
             hiddenTokens={hiddenTokens}
             protocols={protocols}
-            isLoading={isCurrNetworkProtocolsLoading}
             isCurrNetworkBalanceLoading={!!isCurrNetworkBalanceLoading}
             isCurrNetworkProtocolsLoading={!!isCurrNetworkProtocolsLoading}
             explorerUrl={network?.explorerUrl}
