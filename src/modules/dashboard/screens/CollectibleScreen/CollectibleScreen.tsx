@@ -6,7 +6,7 @@ import { validateSendNftAddress } from 'ambire-common/src/services/validations'
 import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Keyboard, TouchableOpacity, View } from 'react-native'
+import { Keyboard, Linking, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 
 import DownArrowIcon from '@assets/svg/DownArrowIcon'
@@ -360,14 +360,21 @@ const CollectibleScreen = () => {
           <View style={spacings.mrMi}>
             <Blockies borderRadius={50} size={8} scale={2} seed={metadata?.owner?.address} />
           </View>
-          {metadata?.owner?.address === selectedAcc ? (
-            <Text>
-              <Text fontSize={10}>{'You '}</Text>
-              <Text fontSize={10} numberOfLines={1}>{`(${metadata?.owner?.address})`}</Text>
-            </Text>
-          ) : (
-            <Text fontSize={10}>{metadata?.owner?.address}</Text>
-          )}
+          <TouchableOpacity
+            activeOpacity={0.6}
+            onPress={() =>
+              Linking.openURL(`${metadata?.explorerUrl}/address/${metadata?.owner?.address}`)
+            }
+          >
+            {metadata?.owner?.address === selectedAcc ? (
+              <Text>
+                <Text fontSize={10}>{'You '}</Text>
+                <Text fontSize={10} numberOfLines={1}>{`(${metadata?.owner?.address})`}</Text>
+              </Text>
+            ) : (
+              <Text fontSize={10}>{metadata?.owner?.address}</Text>
+            )}
+          </TouchableOpacity>
         </View>
       </View>
     </>
