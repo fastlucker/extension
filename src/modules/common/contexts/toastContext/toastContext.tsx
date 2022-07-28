@@ -42,7 +42,7 @@ const ToastProvider: React.FC = ({ children }) => {
       // @ts-ignore
       const routeName = navigationRef?.current?.getCurrentRoute()?.name
 
-      setHasTabBar(isRouteWithTabBar(routeName))
+      setHasTabBar(isRouteWithTabBar(routeName as string))
     })
 
     return unsubscribe
