@@ -2,19 +2,19 @@ import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useContext } from 'react'
-import { Linking, View } from 'react-native'
+import { Linking } from 'react-native'
 
 import { Trans } from '@config/localization'
 import AfterInteractions from '@modules/common/components/AfterInteractions'
 import Panel from '@modules/common/components/Panel'
-import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import TextWarning from '@modules/common/components/TextWarning'
 import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { AssetsToggleContext } from '@modules/dashboard/contexts/assetsToggleContext'
 
 import Collectibles from '../Collectibles'
+import CollectiblesListLoader from '../Loaders/CollectiblesListLoader'
+import TokensListLoader from '../Loaders/TokensListLoader'
 import Tokens from '../Tokens'
 
 interface Props {
@@ -66,11 +66,9 @@ const Assets = ({
     >
       {type === 'tokens' && (
         <AfterInteractions
-          placeholder={
-            <View style={[flexboxStyles.center, spacings.pbLg]}>
-              <Spinner />
-            </View>
-          }
+          placeholder={<TokensListLoader />}
+          // Enabled only when the list contains multiple items that slow down the rendering/animations
+          enabled={tokens.length > 20}
         >
           <Tokens
             tokens={tokens}
@@ -92,11 +90,9 @@ const Assets = ({
       )}
       {type === 'collectibles' && (
         <AfterInteractions
-          placeholder={
-            <View style={[flexboxStyles.center, spacings.pbLg]}>
-              <Spinner />
-            </View>
-          }
+          placeholder={<CollectiblesListLoader />}
+          // Enabled only when the list contains multiple items that slow down the rendering/animations
+          enabled={collectibles.length > 5}
         >
           <Collectibles
             collectibles={collectibles}

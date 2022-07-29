@@ -6,7 +6,6 @@ import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
-import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import spacings from '@modules/common/styles/spacings'
@@ -15,6 +14,7 @@ import textStyles from '@modules/common/styles/utils/text'
 import AddOrHideToken from '@modules/dashboard/components/AddOrHideToken'
 import { useNavigation } from '@react-navigation/native'
 
+import TokensListLoader from '../Loaders/TokensListLoader'
 import TokenItem from './TokenItem'
 
 interface Props {
@@ -94,11 +94,7 @@ const Tokens = ({
 
   return (
     <>
-      {!!isCurrNetworkBalanceLoading && (
-        <View style={[flexboxStyles.center, spacings.pbLg]}>
-          <Spinner />
-        </View>
-      )}
+      {!!isCurrNetworkBalanceLoading && <TokensListLoader />}
 
       {!!shouldShowEmptyState && emptyState}
 

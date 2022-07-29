@@ -4,9 +4,10 @@ import { InteractionManager } from 'react-native'
 interface Props {
   children: any
   placeholder?: ReactNode
+  enabled?: boolean
 }
 
-const AfterInteractions = ({ children, placeholder }: Props) => {
+const AfterInteractions = ({ children, placeholder, enabled = true }: Props) => {
   const [interactionsComplete, setInteractionsComplete] = useState(false)
 
   const interactionHandle: any = useRef(null)
@@ -23,6 +24,10 @@ const AfterInteractions = ({ children, placeholder }: Props) => {
       }
     }
   }, [])
+
+  if (!enabled) {
+    return children
+  }
 
   if (interactionsComplete) {
     return children

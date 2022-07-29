@@ -2,11 +2,9 @@ import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/typ
 import React from 'react'
 import { View } from 'react-native'
 
-import Spinner from '@modules/common/components/Spinner'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
+import CollectiblesListLoader from '../Loaders/CollectiblesListLoader'
 import CollectibleItem from './CollectibleItem'
 import CollectiblesEmptyState from './CollectiblesEmptyState'
 import styles from './styles'
@@ -20,11 +18,7 @@ const Collectibles = ({ collectibles, isCurrNetworkProtocolsLoading }: Props) =>
   const { isPrivateMode } = usePrivateMode()
 
   if (isCurrNetworkProtocolsLoading) {
-    return (
-      <View style={[flexboxStyles.center, spacings.pbLg]}>
-        <Spinner />
-      </View>
-    )
+    return <CollectiblesListLoader />
   }
 
   if (!collectibles?.length || isPrivateMode) {

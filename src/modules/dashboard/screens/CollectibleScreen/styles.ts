@@ -26,9 +26,8 @@ const styles = StyleSheet.create<Style>({
     backgroundColor: colors.clay
   },
   collectibleImage: {
-    width: 148,
-    height: 148,
-    ...spacings.mrSm,
+    width: '100%',
+    aspectRatio: 1,
     ...commonStyles.borderRadiusPrimary
   }
 })

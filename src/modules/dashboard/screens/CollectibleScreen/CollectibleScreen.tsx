@@ -34,7 +34,7 @@ import { fetchGet } from '@modules/common/services/fetch'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import CollectibleLoader from '@modules/dashboard/components/CollectibleLoader'
+import CollectibleLoader from '@modules/dashboard/components/Loaders/CollectibleLoader'
 import handleCollectibleUri from '@modules/dashboard/helpers/handleCollectibleUri'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
@@ -331,7 +331,7 @@ const CollectibleScreen = () => {
         </Text>
       </View>
       <View style={[flexboxStyles.directionRow, spacings.mbTy]}>
-        <View>
+        <View style={[flexboxStyles.flex1, spacings.prTy]}>
           {!!isAssetImageLoading && (
             <View style={styles.collectibleImageLoadingWrapper}>
               <Spinner />
@@ -344,7 +344,7 @@ const CollectibleScreen = () => {
             onError={() => setIsAssetImageLoading(false)}
           />
         </View>
-        <View style={flexboxStyles.flex1}>
+        <View style={[flexboxStyles.flex1]}>
           <Text numberOfLines={2} weight="regular" fontSize={14} style={spacings.mbTy}>
             {metadata.name}
           </Text>
@@ -389,15 +389,8 @@ const CollectibleScreen = () => {
         extraHeight={250}
         hasBottomTabNav
       >
-        <Panel type="filled" style={{ minHeight: 309 }}>
-          {!!isLoading && (
-            <View style={[flexboxStyles.flex1]}>
-              <NavIconWrapper onPress={handleNavigateBack} style={spacings.mrSm}>
-                <LeftArrowIcon />
-              </NavIconWrapper>
-              <CollectibleLoader height={309} />
-            </View>
-          )}
+        <Panel type="filled">
+          {!!isLoading && <CollectibleLoader onPress={handleNavigateBack} />}
           {!isLoading && collectibleContent}
         </Panel>
 

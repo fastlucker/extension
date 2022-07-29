@@ -1,7 +1,7 @@
 import { ImageProps, StyleSheet, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
-import spacings, { SPACING } from '@modules/common/styles/spacings'
+import spacings from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
 
 interface Style {
@@ -44,21 +44,21 @@ const styles = StyleSheet.create<Style>({
   },
   collectibleImage: {
     width: '100%',
-    height: 126,
+    aspectRatio: 1,
     ...spacings.mbMi
+  },
+  collectibleImageLoadingWrapper: {
+    width: '100%',
+    aspectRatio: 1,
+    ...spacings.mbMi,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   collectionImage: {
     width: 15,
     height: 15,
     borderRadius: 50,
     ...spacings.mrMi
-  },
-  collectibleImageLoadingWrapper: {
-    width: '100%',
-    height: 126,
-    ...spacings.mbMi,
-    alignItems: 'center',
-    justifyContent: 'center'
   }
 })
 
