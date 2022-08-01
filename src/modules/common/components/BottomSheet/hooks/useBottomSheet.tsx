@@ -1,8 +1,8 @@
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Keyboard } from 'react-native'
 
 import BottomSheet from '@gorhom/bottom-sheet'
-import usePrevious from '@modules/common/hooks/usePrevious'
 
 export interface UseBottomSheetReturnType {
   sheetRef: React.RefObject<BottomSheet>
