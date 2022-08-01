@@ -6,8 +6,9 @@ import { View } from 'react-native'
 import DashboardIcon from '@assets/svg/DashboardIcon'
 import EarnIcon from '@assets/svg/EarnIcon'
 import SendIcon from '@assets/svg/SendIcon'
-// import SwapIcon from '@assets/svg/SwapIcon'
+import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
+import { isAndroid } from '@config/env'
 import { headerAlpha } from '@config/Router/HeadersConfig'
 import styles, {
   horizontalTabBarLabelStyle,
@@ -21,7 +22,7 @@ import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
-// import SwapScreen from '@modules/swap/screens/SwapScreen'
+import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
@@ -61,17 +62,20 @@ const TabsScreens = () => {
         }}
         component={DashboardScreen}
       />
-      <Tab.Screen
-        name="earn"
-        options={{
-          tabBarLabel: t('Earn'),
-          headerTitle: t('Earn'),
-          tabBarIcon: ({ color }) => (
-            <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-          )
-        }}
-        component={EarnScreen}
-      />
+      {/* TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback */}
+      {isAndroid && (
+        <Tab.Screen
+          name="earn"
+          options={{
+            tabBarLabel: t('Earn'),
+            headerTitle: t('Earn'),
+            tabBarIcon: ({ color }) => (
+              <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+            )
+          }}
+          component={EarnScreen}
+        />
+      )}
       <Tab.Screen
         name="send"
         options={{
@@ -83,18 +87,20 @@ const TabsScreens = () => {
         }}
         component={SendScreen}
       />
-      {/* TODO: Temporary disabled since v1.6.0 as part of the Apple app review feedback */}
-      {/* <Tab.Screen
-      name="swap"
-      options={{
-        tabBarLabel: t('Swap'),
-        headerTitle: t('Swap'),
-        tabBarIcon: ({ color }) => (
-          <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-        )
-      }}
-      component={SwapScreen}
-    /> */}
+      {/* TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback */}
+      {isAndroid && (
+        <Tab.Screen
+          name="swap"
+          options={{
+            tabBarLabel: t('Swap'),
+            headerTitle: t('Swap'),
+            tabBarIcon: ({ color }) => (
+              <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+            )
+          }}
+          component={SwapScreen}
+        />
+      )}
       <Tab.Screen
         name="transactions"
         options={{
