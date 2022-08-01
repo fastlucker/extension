@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react'
-import { ActivityIndicator, Platform, View } from 'react-native'
+import { ActivityIndicator, View } from 'react-native'
 import WebView from 'react-native-webview'
 
-import CONFIG from '@config/env'
+import CONFIG, { isiOS } from '@config/env'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
@@ -82,12 +82,14 @@ const SwapScreen = () => {
   )
 
   const webviewSource = useMemo(() => {
-    // Workaround: In order for the webview to load properly sushiswap on iOS, the url should be loaded first as a uri source and instantly after that as a html(iframe) source
-    if (Platform.OS === 'ios') {
+    // Workaround: In order for the webview to load properly SushiSwap on iOS,
+    // the url should be loaded first as a uri source
+    // and instantly after that as a html(iframe) source.
+    if (isiOS) {
       return loaded ? { html: webviewHtml } : { uri: CONFIG.SUSHI_SWAP_URL }
     }
 
-    return { uri: CONFIG.SUSHI_SWAP_URL }
+    return { html: webviewHtml }
   }, [loaded, webviewHtml])
 
   return (
