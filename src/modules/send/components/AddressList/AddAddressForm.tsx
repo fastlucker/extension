@@ -46,10 +46,8 @@ const AddAddressForm = ({ onSubmit, address, uDAddr }: Props) => {
 
   useEffect(() => {
     ;(async () => {
-      console.log(address, uDAddr, smartContractWarning, unknownWarning)
       if (address && !smartContractWarning && !!unknownWarning) {
         setAddr(address)
-        // const uDAddr = await resolveUDomain(addr, null, network.unstoppableDomainsChain)
         setUDAddress(uDAddr)
         checkedIsUDAddress.current = true
       }
