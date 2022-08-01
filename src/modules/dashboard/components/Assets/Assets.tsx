@@ -1,25 +1,35 @@
 import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
-import React from 'react'
+import React, { useContext } from 'react'
+import { Linking } from 'react-native'
 
-import { useTranslation } from '@config/localization'
+import { Trans } from '@config/localization'
+import AfterInteractions from '@modules/common/components/AfterInteractions'
 import Panel from '@modules/common/components/Panel'
-import Title from '@modules/common/components/Title'
+import Text from '@modules/common/components/Text'
+import TextWarning from '@modules/common/components/TextWarning'
+import spacings from '@modules/common/styles/spacings'
+import { AssetsToggleContext } from '@modules/dashboard/contexts/assetsToggleContext'
 
+import Collectibles from '../Collectibles'
+import CollectiblesListLoader from '../Loaders/CollectiblesListLoader'
+import TokensListLoader from '../Loaders/TokensListLoader'
 import Tokens from '../Tokens'
 
 interface Props {
   tokens: UsePortfolioReturnType['tokens']
+  collectibles: UsePortfolioReturnType['collectibles']
   extraTokens: UsePortfolioReturnType['extraTokens']
   hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   protocols: UsePortfolioReturnType['protocols']
-  isLoading: boolean
   explorerUrl?: NetworkType['explorerUrl']
   networkId?: NetworkId
   networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']
   selectedAcc: UseAccountsReturnType['selectedAcc']
+  isCurrNetworkBalanceLoading: boolean
+  isCurrNetworkProtocolsLoading: boolean
   onAddExtraToken: UsePortfolioReturnType['onAddExtraToken']
   onAddHiddenToken: UsePortfolioReturnType['onAddHiddenToken']
   onRemoveExtraToken: UsePortfolioReturnType['onRemoveExtraToken']
@@ -28,41 +38,79 @@ interface Props {
 
 const Assets = ({
   tokens,
+  collectibles,
   extraTokens,
   hiddenTokens,
   protocols,
-  isLoading,
   explorerUrl,
   networkId,
   networkRpc,
   networkName,
   selectedAcc,
+  isCurrNetworkBalanceLoading,
+  isCurrNetworkProtocolsLoading,
   onAddExtraToken,
   onAddHiddenToken,
   onRemoveExtraToken,
   onRemoveHiddenToken
 }: Props) => {
-  const { t } = useTranslation()
+  const { type } = useContext(AssetsToggleContext)
+  const handleGoToBlockExplorer = () => Linking.openURL(`${explorerUrl}/address/${selectedAcc}`)
 
   return (
-    <Panel>
-      <Title>{t('Assets')}</Title>
-      <Tokens
-        tokens={tokens}
-        extraTokens={extraTokens}
-        hiddenTokens={hiddenTokens}
-        protocols={protocols}
-        isLoading={isLoading}
-        explorerUrl={explorerUrl}
-        networkId={networkId}
-        networkRpc={networkRpc}
-        networkName={networkName}
-        selectedAcc={selectedAcc}
-        onAddExtraToken={onAddExtraToken}
-        onAddHiddenToken={onAddHiddenToken}
-        onRemoveExtraToken={onRemoveExtraToken}
-        onRemoveHiddenToken={onRemoveHiddenToken}
-      />
+    <Panel
+      style={{
+        borderTopStartRadius: type === 'tokens' ? 0 : 13,
+        borderTopEndRadius: type === 'collectibles' ? 0 : 13
+      }}
+    >
+      {type === 'tokens' && (
+        <AfterInteractions
+          placeholder={<TokensListLoader />}
+          // Enabled only when the list contains multiple items that slow down the rendering/animations
+          enabled={tokens.length > 20}
+        >
+          <Tokens
+            tokens={tokens}
+            extraTokens={extraTokens}
+            hiddenTokens={hiddenTokens}
+            protocols={protocols}
+            networkId={networkId}
+            networkRpc={networkRpc}
+            networkName={networkName}
+            selectedAcc={selectedAcc}
+            isCurrNetworkBalanceLoading={!!isCurrNetworkBalanceLoading}
+            isCurrNetworkProtocolsLoading={!!isCurrNetworkProtocolsLoading}
+            onAddExtraToken={onAddExtraToken}
+            onAddHiddenToken={onAddHiddenToken}
+            onRemoveExtraToken={onRemoveExtraToken}
+            onRemoveHiddenToken={onRemoveHiddenToken}
+          />
+        </AfterInteractions>
+      )}
+      {type === 'collectibles' && (
+        <AfterInteractions
+          placeholder={<CollectiblesListLoader />}
+          // Enabled only when the list contains multiple items that slow down the rendering/animations
+          enabled={collectibles.length > 5}
+        >
+          <Collectibles
+            collectibles={collectibles}
+            isCurrNetworkProtocolsLoading={isCurrNetworkProtocolsLoading}
+          />
+        </AfterInteractions>
+      )}
+      <TextWarning appearance="info" style={spacings.mb0}>
+        <Trans>
+          <Text type="caption">
+            {/* eslint-disable-next-line react/no-unescaped-entities */}
+            If you don't see a specific token that you own, please check the{' '}
+            <Text weight="medium" type="caption" onPress={handleGoToBlockExplorer}>
+              Block Explorer
+            </Text>
+          </Text>
+        </Trans>
+      </TextWarning>
     </Panel>
   )
 }

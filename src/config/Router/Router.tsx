@@ -1,44 +1,67 @@
+import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
 
+import DashboardIcon from '@assets/svg/DashboardIcon'
+import EarnIcon from '@assets/svg/EarnIcon'
+import SendIcon from '@assets/svg/SendIcon'
+import SwapIcon from '@assets/svg/SwapIcon'
+import TransferIcon from '@assets/svg/TransferIcon'
+import { isAndroid } from '@config/env'
 import DrawerContent from '@config/Router/DrawerContent'
-import { headerBeta, headerGamma } from '@config/Router/HeadersConfig'
+import { headerAlpha, headerBeta, headerGamma } from '@config/Router/HeadersConfig'
+import styles, {
+  horizontalTabBarLabelStyle,
+  tabBarItemStyle,
+  tabBarLabelStyle,
+  tabBarStyle
+} from '@config/Router/styles'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
+import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
+import colors from '@modules/common/styles/colors'
+import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
+import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
+import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
+import EarnScreen from '@modules/earn/screens/EarnScreen'
 import GasInformationScreen from '@modules/gas-tank/screens/GasInformationScreen'
 import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
+import SendScreen from '@modules/send/screens/SendScreen'
 import BiometricsSignScreen from '@modules/settings/screens/BiometricsSignScreen'
 import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessage from '@modules/sign-message/screens/SignMessage'
+import SwapScreen from '@modules/swap/screens/SwapScreen'
+import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
+import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import { drawerStyle, navigationContainerDarkTheme } from './styles'
-import TabsScreens from './TabsScreens'
 
+const Tab = createBottomTabNavigator()
 const Stack = createNativeStackNavigator()
-
 const Drawer = createDrawerNavigator()
-
 const MainStack = createNativeStackNavigator()
+const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
 const ChangePasscodeStack = createNativeStackNavigator()
 const ChangeLocalAuthStack = createNativeStackNavigator()
@@ -192,6 +215,105 @@ const NoConnectionStack = () => {
         component={NoConnectionScreen}
       />
     </Stack.Navigator>
+  )
+}
+
+const DashboardStackScreen = () => {
+  return (
+    <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
+      <DashboardStack.Screen name="dashboard-screen" component={DashboardScreen} />
+      <DashboardStack.Screen name="collectible-screen" component={CollectibleScreen} />
+    </DashboardStack.Navigator>
+  )
+}
+
+const TabsScreens = () => {
+  const { t } = useTranslation()
+
+  const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        header: headerAlpha,
+        tabBarActiveTintColor: colors.heliotrope,
+        tabBarInactiveTintColor: colors.titan,
+        tabBarActiveBackgroundColor: colors.howl_65,
+        tabBarStyle,
+        tabBarLabelStyle: IS_SCREEN_SIZE_L ? horizontalTabBarLabelStyle : tabBarLabelStyle,
+        tabBarItemStyle
+      }}
+      tabBar={(props: any) => (
+        <View style={[styles.tabBarContainer]}>
+          <BlurView intensity={TAB_BAR_BLUR} tint="dark" style={[styles.backdropBlurWrapper]}>
+            <View style={{ paddingBottom: props.insets.bottom }}>
+              <BottomTabBar {...props} insets={{ bottom: 0 }} />
+            </View>
+          </BlurView>
+        </View>
+      )}
+    >
+      <Tab.Screen
+        name="dashboard"
+        options={{
+          tabBarLabel: t('Dashboard'),
+          headerTitle: t('Dashboard'),
+          tabBarIcon: ({ color }) => (
+            <DashboardIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={DashboardStackScreen}
+      />
+      {/* TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback */}
+      {isAndroid && (
+        <Tab.Screen
+          name="earn"
+          options={{
+            tabBarLabel: t('Earn'),
+            headerTitle: t('Earn'),
+            tabBarIcon: ({ color }) => (
+              <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+            )
+          }}
+          component={EarnScreen}
+        />
+      )}
+      <Tab.Screen
+        name="send"
+        options={{
+          tabBarLabel: t('Send'),
+          headerTitle: t('Send'),
+          tabBarIcon: ({ color }) => (
+            <SendIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={SendScreen}
+      />
+      {/* TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback */}
+      {isAndroid && (
+        <Tab.Screen
+          name="swap"
+          options={{
+            tabBarLabel: t('Swap'),
+            headerTitle: t('Swap'),
+            tabBarIcon: ({ color }) => (
+              <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+            )
+          }}
+          component={SwapScreen}
+        />
+      )}
+      <Tab.Screen
+        name="transactions"
+        options={{
+          tabBarLabel: t('Transactions'),
+          headerTitle: t('Transactions'),
+          tabBarIcon: ({ color }) => (
+            <TransferIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={TransactionsScreen}
+      />
+    </Tab.Navigator>
   )
 }
 

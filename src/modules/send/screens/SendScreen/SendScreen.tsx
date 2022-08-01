@@ -28,8 +28,6 @@ const SendScreen = () => {
     addressConfirmed,
     setAddressConfirmed,
     validationFormMgs,
-    unknownWarning,
-    smartContractWarning,
     showSWAddressWarning,
     sWAddressConfirmed,
     setSWAddressConfirmed,
@@ -76,8 +74,6 @@ const SendScreen = () => {
           sWAddressConfirmed={sWAddressConfirmed}
           showSWAddressWarning={showSWAddressWarning}
           validationFormMgs={validationFormMgs}
-          smartContractWarning={smartContractWarning}
-          unknownWarning={unknownWarning}
           addAddress={addAddress}
           onSendPress={handleSend}
           setAsset={setAsset}

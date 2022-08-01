@@ -23,7 +23,7 @@ const ERC20 = new Interface(erc20Abi)
 
 export default function useRequestTransaction() {
   const isFocused = useIsFocused()
-  const { tokens, isCurrNetworkBalanceLoading, dataLoaded } = usePortfolio()
+  const { tokens, isCurrNetworkBalanceLoading } = usePortfolio()
   const { params }: any = useRoute()
   const navigation: any = useNavigation()
   const { network }: any = useNetwork()
@@ -346,6 +346,6 @@ export default function useRequestTransaction() {
     sWAddressConfirmed,
     setSWAddressConfirmed,
     uDAddress,
-    isLoading: isCurrNetworkBalanceLoading && !dataLoaded
+    isLoading: isCurrNetworkBalanceLoading
   }
 }

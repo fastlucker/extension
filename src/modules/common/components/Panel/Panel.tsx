@@ -29,7 +29,7 @@ const Panel: React.FC<Props> = ({
         <LinearGradient
           style={[styles.gradient, style]}
           colors={[colors.valhalla, 'transparent']}
-          locations={[0, 0.96]}
+          locations={[0, 1]}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         />
