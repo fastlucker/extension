@@ -6,22 +6,18 @@ import { validateSendNftAddress } from 'ambire-common/src/services/validations'
 import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Keyboard, Linking, TouchableOpacity, View } from 'react-native'
+import { Linking, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 
-import DownArrowIcon from '@assets/svg/DownArrowIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import CONFIG, { isiOS } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Blockies from '@modules/common/components/Blockies'
-import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Input from '@modules/common/components/Input'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Panel from '@modules/common/components/Panel'
-import RecipientInput from '@modules/common/components/RecipientInput'
+import Recipient from '@modules/common/components/Recipient'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
@@ -36,9 +32,6 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import CollectibleLoader from '@modules/dashboard/components/Loaders/CollectibleLoader'
 import handleCollectibleUri from '@modules/dashboard/helpers/handleCollectibleUri'
-import AddressList from '@modules/send/components/AddressList'
-import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
-import ConfirmAddress from '@modules/send/components/ConfirmAddress'
 import { useNavigation, useRoute } from '@react-navigation/native'
 
 import styles from './styles'
@@ -80,27 +73,8 @@ const CollectibleScreen = () => {
 
   const timer: any = useRef(null)
 
-  const {
-    sheetRef: sheetRefAddrAdd,
-    openBottomSheet: openBottomSheetAddrAdd,
-    closeBottomSheet: closeBottomSheetAddrAdd,
-    isOpen: isOpenAddrAdd
-  } = useBottomSheet()
-  const {
-    sheetRef: sheetRefAddrDisplay,
-    openBottomSheet: openBottomSheetAddrDisplay,
-    closeBottomSheet: closeBottomSheetAddrDisplay,
-    isOpen: isOpenAddrDisplay
-  } = useBottomSheet()
-
   const handleNavigateBack = () => {
     goBack()
-  }
-
-  const handleAddNewAddress = (fieldValues: { name: string; address: string; isUD: boolean }) => {
-    addAddress(fieldValues.name, fieldValues.address, fieldValues.isUD)
-    closeBottomSheetAddrAdd()
-    openBottomSheetAddrDisplay()
   }
 
   const sendTransferTx = () => {
@@ -398,44 +372,15 @@ const CollectibleScreen = () => {
           <Text fontSize={16} weight="medium" style={spacings.mbTy}>
             {t('Transfer to:')}
           </Text>
-          <RecipientInput
-            containerStyle={spacings.mbSm}
-            isValidUDomain={!!uDAddress}
-            placeholder={t('Recipient')}
-            info={t(
-              'Please double-check the recipient address, blockchain transactions are not reversible.'
-            )}
-            isValid={recipientAddress.length > 1 && !validationFormMgs.message && !!uDAddress}
-            validLabel={uDAddress ? t('Valid Unstoppable domainsⓇ domain') : ''}
-            error={validationFormMgs.message}
-            value={recipientAddress}
-            onChangeText={setRecipientAddress}
-          />
-          <ConfirmAddress
+          <Recipient
+            setAddress={setRecipientAddress}
+            addAddress={addAddress}
             address={recipientAddress}
             uDAddress={uDAddress}
-            addressConfirmed={addressConfirmed}
+            addressValidationMsg={validationFormMgs.message}
             setAddressConfirmed={setAddressConfirmed}
-            onAddToAddressBook={openBottomSheetAddrAdd}
+            addressConfirmed={addressConfirmed}
           />
-          <TouchableOpacity
-            onPress={() => {
-              Keyboard.dismiss()
-              openBottomSheetAddrDisplay()
-            }}
-          >
-            <View pointerEvents="none">
-              <Input
-                value={t('Address Book')}
-                containerStyle={spacings.mbSm}
-                button={
-                  <NavIconWrapper onPress={() => null}>
-                    <DownArrowIcon width={34} height={34} />
-                  </NavIconWrapper>
-                }
-              />
-            </View>
-          </TouchableOpacity>
           <View style={[spacings.mbMd]}>
             <Button
               text={t('Send')}
@@ -444,32 +389,6 @@ const CollectibleScreen = () => {
             />
           </View>
         </View>
-
-        <BottomSheet
-          id="addresses-list"
-          isOpen={isOpenAddrDisplay}
-          sheetRef={sheetRefAddrDisplay}
-          closeBottomSheet={closeBottomSheetAddrDisplay}
-        >
-          <AddressList
-            onSelectAddress={(item): any => setRecipientAddress(item.address)}
-            onCloseBottomSheet={closeBottomSheetAddrDisplay}
-            onOpenBottomSheet={openBottomSheetAddrAdd}
-          />
-        </BottomSheet>
-        <BottomSheet
-          id="add-address"
-          isOpen={isOpenAddrAdd}
-          sheetRef={sheetRefAddrAdd}
-          closeBottomSheet={closeBottomSheetAddrAdd}
-          dynamicInitialHeight={false}
-        >
-          <AddAddressForm
-            onSubmit={handleAddNewAddress}
-            address={recipientAddress}
-            uDAddr={uDAddress}
-          />
-        </BottomSheet>
       </Wrapper>
     </GradientBackgroundWrapper>
   )
