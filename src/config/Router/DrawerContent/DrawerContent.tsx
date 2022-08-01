@@ -42,8 +42,8 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     // TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback
     ...(isAndroid ? [{ Icon: EarnIcon, name: t('Earn'), route: 'earn' }] : []),
     { Icon: SendIcon, name: t('Send'), route: 'send' },
-    // TODO: Temporary disabled since v1.6.0 as part of the Apple app review feedback
-    // { Icon: SwapIcon, name: t('Swap'), route: 'swap' },
+    // TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback
+    ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: 'swap' }] : []),
     { Icon: TransferIcon, name: t('Transactions'), route: 'transactions' },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
