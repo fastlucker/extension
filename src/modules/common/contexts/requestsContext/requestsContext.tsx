@@ -1,3 +1,4 @@
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 // TODO: add types
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -5,7 +6,6 @@ import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useGnosisSafe from '@modules/common/hooks/useGnosis'
 import useNetwork from '@modules/common/hooks/useNetwork'
-import usePrevious from '@modules/common/hooks/usePrevious'
 import useToast from '@modules/common/hooks/useToast'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import { navigate } from '@modules/common/services/navigation'

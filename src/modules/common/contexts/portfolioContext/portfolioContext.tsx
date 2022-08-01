@@ -1,4 +1,5 @@
 import usePortfolio, { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio'
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { createContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState } from 'react-native'
 
