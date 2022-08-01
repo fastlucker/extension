@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { RefreshControl } from 'react-native'
 
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -9,6 +9,7 @@ import usePortfolio from '@modules/common/hooks/usePortfolio'
 import colors from '@modules/common/styles/colors'
 import Assets from '@modules/dashboard/components/Assets'
 import Balances from '@modules/dashboard/components/Balances'
+import { AssetsToggleProvider } from '@modules/dashboard/contexts/assetsToggleContext'
 
 const DashboardScreen = () => {
   const {
@@ -16,24 +17,28 @@ const DashboardScreen = () => {
     loadProtocols,
     isCurrNetworkBalanceLoading,
     isCurrNetworkProtocolsLoading,
+    balancesByNetworksLoading,
     balance,
     otherBalances,
     protocols,
     tokens,
+    collectibles,
     extraTokens,
     hiddenTokens,
     onAddExtraToken,
     onAddHiddenToken,
     onRemoveExtraToken,
-    onRemoveHiddenToken,
-    setDataLoaded,
-    dataLoaded
+    onRemoveHiddenToken
   } = usePortfolio()
   const { network, setNetwork } = useNetwork()
   const { selectedAcc } = useAccounts()
 
+  const otherBalancesLoading = useMemo(
+    () => Object.entries(balancesByNetworksLoading).find((ntw) => ntw[0] !== network?.id && ntw[1]),
+    [balancesByNetworksLoading, network?.id]
+  )
+
   const handleRefresh = () => {
-    setDataLoaded(false)
     loadBalance()
     loadProtocols()
   }
@@ -56,27 +61,33 @@ const DashboardScreen = () => {
           balanceTruncated={balance.total?.truncated}
           balanceDecimals={balance.total?.decimals}
           otherBalances={otherBalances}
-          isLoading={isCurrNetworkBalanceLoading && !dataLoaded}
+          isLoading={isCurrNetworkBalanceLoading && !!otherBalancesLoading}
+          isCurrNetworkBalanceLoading={!!isCurrNetworkBalanceLoading}
+          otherBalancesLoading={!!otherBalancesLoading}
           networkId={network?.id}
           setNetwork={setNetwork}
           account={selectedAcc}
         />
-        <Assets
-          tokens={tokens}
-          extraTokens={extraTokens}
-          hiddenTokens={hiddenTokens}
-          protocols={protocols}
-          isLoading={(isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading) && !dataLoaded}
-          explorerUrl={network?.explorerUrl}
-          networkId={network?.id}
-          networkRpc={network?.rpc}
-          networkName={network?.name}
-          selectedAcc={selectedAcc}
-          onAddExtraToken={onAddExtraToken}
-          onAddHiddenToken={onAddHiddenToken}
-          onRemoveExtraToken={onRemoveExtraToken}
-          onRemoveHiddenToken={onRemoveHiddenToken}
-        />
+        <AssetsToggleProvider>
+          <Assets
+            tokens={tokens}
+            collectibles={collectibles}
+            extraTokens={extraTokens}
+            hiddenTokens={hiddenTokens}
+            protocols={protocols}
+            isCurrNetworkBalanceLoading={!!isCurrNetworkBalanceLoading}
+            isCurrNetworkProtocolsLoading={!!isCurrNetworkProtocolsLoading}
+            explorerUrl={network?.explorerUrl}
+            networkId={network?.id}
+            networkRpc={network?.rpc}
+            networkName={network?.name}
+            selectedAcc={selectedAcc}
+            onAddExtraToken={onAddExtraToken}
+            onAddHiddenToken={onAddHiddenToken}
+            onRemoveExtraToken={onRemoveExtraToken}
+            onRemoveHiddenToken={onRemoveHiddenToken}
+          />
+        </AssetsToggleProvider>
       </Wrapper>
     </GradientBackgroundWrapper>
   )

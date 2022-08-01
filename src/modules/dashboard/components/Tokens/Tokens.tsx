@@ -1,14 +1,12 @@
 import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
-import React, { useCallback } from 'react'
-import { Linking, View } from 'react-native'
+import React, { useCallback, useMemo } from 'react'
+import { View } from 'react-native'
 
-import { Trans, useTranslation } from '@config/localization'
+import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
-import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
-import TextWarning from '@modules/common/components/TextWarning'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -16,6 +14,7 @@ import textStyles from '@modules/common/styles/utils/text'
 import AddOrHideToken from '@modules/dashboard/components/AddOrHideToken'
 import { useNavigation } from '@react-navigation/native'
 
+import TokensListLoader from '../Loaders/TokensListLoader'
 import TokenItem from './TokenItem'
 
 interface Props {
@@ -23,12 +22,12 @@ interface Props {
   extraTokens: UsePortfolioReturnType['extraTokens']
   hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   protocols: UsePortfolioReturnType['protocols']
-  isLoading: boolean
-  explorerUrl?: NetworkType['explorerUrl']
   networkId?: NetworkId
   networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']
   selectedAcc: UseAccountsReturnType['selectedAcc']
+  isCurrNetworkBalanceLoading: boolean
+  isCurrNetworkProtocolsLoading: boolean
   onAddExtraToken: UsePortfolioReturnType['onAddExtraToken']
   onAddHiddenToken: UsePortfolioReturnType['onAddHiddenToken']
   onRemoveExtraToken: UsePortfolioReturnType['onRemoveExtraToken']
@@ -40,12 +39,12 @@ const Tokens = ({
   extraTokens,
   hiddenTokens,
   protocols,
-  isLoading,
-  explorerUrl,
   networkId,
   networkRpc,
   networkName,
   selectedAcc,
+  isCurrNetworkBalanceLoading,
+  isCurrNetworkProtocolsLoading,
   onAddExtraToken,
   onAddHiddenToken,
   onRemoveExtraToken,
@@ -60,9 +59,22 @@ const Tokens = ({
   const handleGoToDeposit = () => navigation.navigate('receive')
   const handleGoToSend = useCallback(
     (symbol: string) => navigation.navigate('send', { tokenAddressOrSymbol: symbol.toString() }),
-    []
+    [navigation]
   )
-  const handleGoToBlockExplorer = () => Linking.openURL(`${explorerUrl}/address/${selectedAcc}`)
+
+  const shouldShowEmptyState = useMemo(
+    () =>
+      !isCurrNetworkBalanceLoading &&
+      !tokens.length &&
+      !isCurrNetworkProtocolsLoading &&
+      !otherProtocols.length,
+    [
+      isCurrNetworkBalanceLoading,
+      isCurrNetworkProtocolsLoading,
+      tokens?.length,
+      otherProtocols?.length
+    ]
+  )
 
   const emptyState = (
     <View style={[spacings.phLg, spacings.mbSm, flexboxStyles.center]}>
@@ -82,15 +94,12 @@ const Tokens = ({
 
   return (
     <>
-      {isLoading && (
-        <View style={[flexboxStyles.center, spacings.pbLg]}>
-          <Spinner />
-        </View>
-      )}
+      {!!isCurrNetworkBalanceLoading && <TokensListLoader />}
 
-      {!isLoading && !sortedTokens.length && emptyState}
+      {!!shouldShowEmptyState && emptyState}
 
-      {!isLoading &&
+      {!isCurrNetworkBalanceLoading &&
+        !shouldShowEmptyState &&
         !!sortedTokens.length &&
         sortedTokens.map(
           (
@@ -149,17 +158,6 @@ const Tokens = ({
         onRemoveExtraToken={onRemoveExtraToken}
         onRemoveHiddenToken={onRemoveHiddenToken}
       />
-
-      <TextWarning appearance="info" style={spacings.mb0}>
-        <Trans>
-          <Text type="caption">
-            If you don't see a specific token that you own, please check the{' '}
-            <Text weight="medium" type="caption" onPress={handleGoToBlockExplorer}>
-              Block Explorer
-            </Text>
-          </Text>
-        </Trans>
-      </TextWarning>
     </>
   )
 }

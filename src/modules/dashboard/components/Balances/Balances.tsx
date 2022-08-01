@@ -33,10 +33,12 @@ interface Props {
   balanceTruncated: any
   balanceDecimals: any
   otherBalances: UsePortfolioReturnType['otherBalances']
-  isLoading: boolean
-  networkId: NetworkId
+  networkId?: NetworkId
   account: UseAccountsReturnType['selectedAcc']
   setNetwork: (networkIdentifier: string | number) => void
+  isLoading: boolean
+  isCurrNetworkBalanceLoading: boolean
+  otherBalancesLoading: boolean
 }
 
 const relayerURL = CONFIG.RELAYER_URL
@@ -45,9 +47,11 @@ const Balances = ({
   balanceTruncated,
   balanceDecimals,
   otherBalances,
-  isLoading,
   networkId,
   account,
+  isLoading,
+  isCurrNetworkBalanceLoading,
+  otherBalancesLoading,
   setNetwork
 }: Props) => {
   const { t } = useTranslation()
@@ -110,30 +114,36 @@ const Balances = ({
         <View style={flexboxStyles.flex1} />
       </View>
 
-      <Text fontSize={42} weight="regular" style={spacings.mbTy}>
-        <Text fontSize={26} weight="regular" style={[textStyles.highlightPrimary]}>
-          ${' '}
+      {isCurrNetworkBalanceLoading ? (
+        <View style={styles.spinnerWrapper}>
+          <Spinner />
+        </View>
+      ) : (
+        <Text fontSize={42} weight="regular" style={spacings.mbTy}>
+          <Text fontSize={26} weight="regular" style={[textStyles.highlightPrimary]}>
+            ${' '}
+          </Text>
+          {isPrivateMode ? (
+            <>
+              <Text fontSize={42} weight="regular">
+                **
+              </Text>
+              <Text fontSize={26} weight="regular">
+                .**
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text fontSize={42} weight="regular">
+                {balanceTruncated}
+              </Text>
+              <Text fontSize={26} weight="regular">
+                .{balanceDecimals}
+              </Text>
+            </>
+          )}
         </Text>
-        {isPrivateMode ? (
-          <>
-            <Text fontSize={42} weight="regular">
-              **
-            </Text>
-            <Text fontSize={26} weight="regular">
-              .**
-            </Text>
-          </>
-        ) : (
-          <>
-            <Text fontSize={42} weight="regular">
-              {balanceTruncated}
-            </Text>
-            <Text fontSize={26} weight="regular">
-              .{balanceDecimals}
-            </Text>
-          </>
-        )}
-      </Text>
+      )}
 
       <View style={[flexboxStyles.directionRow, spacings.mb]}>
         <Button
@@ -170,49 +180,55 @@ const Balances = ({
         </Button>
       </View>
 
-      {otherPositiveBalances.length > 0 && (
+      {otherBalancesLoading ? (
         <View style={spacings.mb}>
-          <Text style={[textStyles.center, spacings.mbTy]}>{t('You also have')}</Text>
-          {otherPositiveBalances.map(({ network, total }: any) => {
-            const { chainId, name, id }: any = networkDetails(network)
+          <Spinner />
+        </View>
+      ) : (
+        otherPositiveBalances.length > 0 && (
+          <View style={spacings.mb}>
+            <Text style={[textStyles.center, spacings.mbTy]}>{t('You also have')}</Text>
+            {otherPositiveBalances.map(({ network, total }: any) => {
+              const { chainId, name, id }: any = networkDetails(network)
 
-            const onNetworkChange = () => {
-              triggerLayoutAnimation()
-              setNetwork(network)
-            }
+              const onNetworkChange = () => {
+                triggerLayoutAnimation()
+                setNetwork(network)
+              }
 
-            return (
-              <TouchableOpacity
-                key={chainId}
-                onPress={onNetworkChange}
-                style={styles.otherBalancesContainer}
-              >
+              return (
+                <TouchableOpacity
+                  key={chainId}
+                  onPress={onNetworkChange}
+                  style={styles.otherBalancesContainer}
+                >
+                  <Text numberOfLines={1} style={flexboxStyles.flex1}>
+                    <Text style={textStyles.highlightPrimary}>{'$ '}</Text>
+                    {hidePrivateValue(`${total.truncated}.${total.decimals}`)}
+                  </Text>
+                  <Text>{` ${t('on')} `}</Text>
+                  <NetworkIcon name={id} width={24} height={24} />
+                  <Text numberOfLines={1}>{` ${name}`}</Text>
+                </TouchableOpacity>
+              )
+            })}
+            <TouchableOpacity
+              onPress={handleGoToGasTank}
+              style={[styles.otherBalancesContainer, { borderBottomWidth: 0 }]}
+            >
+              {!!data && (
                 <Text numberOfLines={1} style={flexboxStyles.flex1}>
                   <Text style={textStyles.highlightPrimary}>{'$ '}</Text>
-                  {hidePrivateValue(`${total.truncated}.${total.decimals}`)}
+                  {balanceLabel}
                 </Text>
-                <Text>{` ${t('on')} `}</Text>
-                <NetworkIcon name={id} width={24} height={24} />
-                <Text numberOfLines={1}>{` ${name}`}</Text>
-              </TouchableOpacity>
-            )
-          })}
-          <TouchableOpacity
-            onPress={handleGoToGasTank}
-            style={[styles.otherBalancesContainer, { borderBottomWidth: 0 }]}
-          >
-            {!!data && (
-              <Text numberOfLines={1} style={flexboxStyles.flex1}>
-                <Text style={textStyles.highlightPrimary}>{'$ '}</Text>
-                {balanceLabel}
+              )}
+              <GasTankIcon width={22} height={22} />
+              <Text numberOfLines={1} style={spacings.plMi}>
+                {t('Gas Tank Balance')}
               </Text>
-            )}
-            <GasTankIcon width={22} height={22} />
-            <Text numberOfLines={1} style={spacings.plMi}>
-              {t('Gas Tank Balance')}
-            </Text>
-          </TouchableOpacity>
-        </View>
+            </TouchableOpacity>
+          </View>
+        )
       )}
     </>
   )

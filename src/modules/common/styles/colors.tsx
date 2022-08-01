@@ -40,6 +40,7 @@ const colors = {
   wooed: '#3E436B',
   waikawaGray: '#51588C',
   chetwode: '#6770B3',
+  chetwode_50: '#6770b37f',
   baileyBells: '#898DCB',
   titan: '#EBECFF',
   titan_05: 'rgba(235, 236, 255, 0.05)',
