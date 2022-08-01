@@ -1,4 +1,3 @@
-import accountPresets from 'ambire-common/src/constants/accountPresets'
 import { getTransactionSummary } from 'ambire-common/src/services/humanReadableTransactions/transactionSummary'
 import React from 'react'
 import isEqual from 'react-fast-compare'
@@ -15,6 +14,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import styles from './styles'
 
 const HIT_SLOP = { bottom: 15, left: 12, right: 15, top: 15 }
+const TO_GAS_TANK = 'to Gas Tank'
 
 const BundleSimplePreview = ({
   bundle,
@@ -39,8 +39,8 @@ const BundleSimplePreview = ({
   // terribly hacky; @TODO fix
   // all of the values are prob checksummed so we may not need toLowerCase
   const lastTxnSummary = getTransactionSummary(lastTxn, bundle.network, bundle.identity)
-  const hasFeeMatch = lastTxnSummary.match(new RegExp(`to ${accountPresets.feeCollector}`, 'i'))
-  const txns = hasFeeMatch ? bundle.txns.slice(0, -1) : bundle.txns
+  const hasFeeMatch = bundle.txns.length > 1 && lastTxnSummary.match(new RegExp(TO_GAS_TANK, 'i'))
+  const txns = hasFeeMatch && !bundle.gasTankFee ? bundle.txns.slice(0, -1) : bundle.txns
 
   const numOfDisplayedTxns = txns.length > 2 ? 2 : txns.length
 
@@ -79,6 +79,7 @@ const BundleSimplePreview = ({
           account={bundle.identity}
           mined={mined}
           disableExpand
+          hasBottomSpacing={i < numOfDisplayedTxns - 1}
         />
       ))}
       {!!bundle.executed && !bundle.executed?.success && (
