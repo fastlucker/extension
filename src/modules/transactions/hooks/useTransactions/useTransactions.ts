@@ -54,8 +54,14 @@ const useTransactions = () => {
     ? `${CONFIG.RELAYER_URL}/identity/${selectedAcc}/${network.id}/transactions?cacheBreak=${cacheBreak}`
     : null
   const { data, errMsg, isLoading, forceRefresh } = useRelayerData(url)
+  const urlGetFeeAssets = CONFIG.RELAYER_URL
+    ? `${CONFIG.RELAYER_URL}/gas-tank/assets?cacheBreak=${cacheBreak}`
+    : null
+  const { data: feeAssets } = useRelayerData(urlGetFeeAssets)
+
   // @TODO: visualize other pending bundles
-  const firstPending = data && data.txns?.find((x: any) => !x.executed && !x.replaced)
+  const allPending = data && data.txns.filter((x: any) => !x.executed && !x.replaced)
+  const firstPending = allPending && allPending[0]
 
   const mapToBundle = (relayerBundle: any, extra = {}) =>
     new Bundle({
@@ -104,6 +110,7 @@ const useTransactions = () => {
 
   return {
     data,
+    feeAssets,
     errMsg,
     isLoading,
     firstPending,
