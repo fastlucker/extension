@@ -97,6 +97,10 @@ const SwapScreen = () => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper hasBottomTabNav style={spacings.phTy}>
+        {/* Note: this doesn't work on Android emulator. */}
+        {/* It displays a blank screen only, no matter if the source is */}
+        {/* html or uri. Supposedly, its caused by the SushiSwap html */}
+        {/* because it works with other uri-s and it works with custom html */}
         <WebView
           key={hash}
           ref={sushiSwapIframeRef}
