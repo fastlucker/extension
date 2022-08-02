@@ -8,6 +8,7 @@ import Spinner from '@modules/common/components/Spinner'
 import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
 import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
 
 import styles from './styles'
 
@@ -95,7 +96,7 @@ const SwapScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav>
+      <Wrapper hasBottomTabNav style={spacings.phTy}>
         <WebView
           key={hash}
           ref={sushiSwapIframeRef}
