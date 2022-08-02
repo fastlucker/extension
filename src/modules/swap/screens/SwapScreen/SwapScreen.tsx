@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
 import CONFIG, { isiOS } from '@config/env'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import Spinner from '@modules/common/components/Spinner'
 import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
 import colors from '@modules/common/styles/colors'
@@ -122,7 +123,7 @@ const SwapScreen = () => {
           startInLoadingState
           renderLoading={() => (
             <View style={styles.loadingWrapper}>
-              <ActivityIndicator size="large" color={colors.titan} />
+              <Spinner />
             </View>
           )}
           onMessage={(event) => {
