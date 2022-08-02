@@ -16,7 +16,7 @@ const DetailedBundleContext = React.createContext<DetailedBundleContextData>({
   setMined: () => {}
 })
 
-const DetailedBundleProvider = ({ children }: any) => {
+const DetailedBundleProvider = ({ children, feeAssets }: any) => {
   const [openedBundle, setOpenedBundle] = useState<any>(null)
   const [mined, setMined] = useState<any>(false)
 
@@ -50,7 +50,7 @@ const DetailedBundleProvider = ({ children }: any) => {
           setMined(false)
         }}
       >
-        <BundleDetailedPreview bundle={openedBundle} mined={mined} />
+        <BundleDetailedPreview bundle={openedBundle} mined={mined} feeAssets={feeAssets} />
       </BottomSheet>
     </DetailedBundleContext.Provider>
   )

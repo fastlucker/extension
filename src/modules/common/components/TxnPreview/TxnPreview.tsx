@@ -66,17 +66,18 @@ function parseExtendedSummaryItem(item: any, i: any, networkDetails: any, t: any
 
   if (item.type === 'address')
     return (
-      <>
-        <Text fontSize={12}>{`${item.name ? item.name : item.address} `}</Text>
+      <Text fontSize={12}>
+        {`${item.name ? item.name : item.address} `}
         {!!item.address && (
           <TouchableOpacity
             onPress={() => Linking.openURL(`${networkDetails.explorerUrl}/address/${item.address}`)}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={styles.openIconWrapper}
           >
-            <OpenIcon width={14} height={14} />
+            <OpenIcon width={16} height={16} />
           </TouchableOpacity>
         )}
-      </>
+      </Text>
     )
 
   if (item.type === 'network')
@@ -101,7 +102,8 @@ const TxnPreview = ({
   account,
   isFirstFailing,
   mined,
-  disableExpand
+  disableExpand,
+  hasBottomSpacing = true
 }: any) => {
   const [isExpanded, setExpanded] = useState(false)
   const contractName = getName(txn[0], network)
@@ -136,7 +138,7 @@ const TxnPreview = ({
   })
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, hasBottomSpacing && spacings.mbTy]}>
       <TouchableOpacity
         onPress={() => !disableExpand && setExpanded((e) => !e)}
         style={styles.listItem}
