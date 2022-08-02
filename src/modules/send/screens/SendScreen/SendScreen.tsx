@@ -32,6 +32,7 @@ const SendScreen = () => {
     sWAddressConfirmed,
     setSWAddressConfirmed,
     uDAddress,
+    ensAddress,
     isLoading
   } = useRequestTransaction()
 
@@ -71,6 +72,7 @@ const SendScreen = () => {
           disabled={disabled}
           addressConfirmed={addressConfirmed}
           uDAddress={uDAddress}
+          ensAddress={ensAddress}
           sWAddressConfirmed={sWAddressConfirmed}
           showSWAddressWarning={showSWAddressWarning}
           validationFormMgs={validationFormMgs}

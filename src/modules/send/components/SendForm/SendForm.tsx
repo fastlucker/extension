@@ -31,6 +31,7 @@ interface Props {
   disabled: boolean
   addressConfirmed: boolean
   uDAddress: string
+  ensAddress: string
   sWAddressConfirmed: boolean
   showSWAddressWarning: boolean
   validationFormMgs: {
@@ -66,6 +67,7 @@ const SendForm = ({
   disabled,
   addressConfirmed,
   uDAddress,
+  ensAddress,
   sWAddressConfirmed,
   showSWAddressWarning,
   validationFormMgs,
@@ -129,6 +131,7 @@ const SendForm = ({
               addAddress={addAddress}
               address={address}
               uDAddress={uDAddress}
+              ensAddress={ensAddress}
               addressValidationMsg={validationFormMgs?.messages?.address}
               setAddressConfirmed={setAddressConfirmed}
               addressConfirmed={addressConfirmed}

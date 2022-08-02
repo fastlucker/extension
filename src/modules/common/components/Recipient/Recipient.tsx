@@ -20,6 +20,7 @@ interface Props extends InputProps {
   addAddress: (name: string, address: string, isUD: boolean) => void
   address: string
   uDAddress: string
+  ensAddress: string
   addressValidationMsg: string
   setAddressConfirmed: React.Dispatch<React.SetStateAction<boolean>>
   addressConfirmed: boolean
@@ -30,6 +31,7 @@ const Recipient: React.FC<Props> = ({
   addAddress,
   address,
   uDAddress,
+  ensAddress,
   addressValidationMsg,
   setAddressConfirmed,
   addressConfirmed
@@ -55,17 +57,28 @@ const Recipient: React.FC<Props> = ({
     openBottomSheetAddrDisplay()
   }
 
+  const setValidationLabel = () => {
+    if (uDAddress) {
+      return t('Valid Unstoppable domainsⓇ domain')
+    }
+    if (ensAddress) {
+      return t('Valid Ethereum Name ServicesⓇ domain')
+    }
+    return ''
+  }
+
   return (
     <>
       <RecipientInput
         containerStyle={spacings.mb}
         isValidUDomain={!!uDAddress}
+        isValidEns={!!ensAddress}
         placeholder={t('Recipient')}
         info={t(
           'Please double-check the recipient address, blockchain transactions are not reversible.'
         )}
-        isValid={address.length > 1 && !addressValidationMsg && !!uDAddress}
-        validLabel={uDAddress ? t('Valid Unstoppable domainsⓇ domain') : ''}
+        isValid={address.length > 1 && !addressValidationMsg && (!!uDAddress || !!ensAddress)}
+        validLabel={setValidationLabel()}
         error={addressValidationMsg}
         value={address}
         onChangeText={setAddress}
@@ -74,6 +87,7 @@ const Recipient: React.FC<Props> = ({
       <ConfirmAddress
         address={address}
         uDAddress={uDAddress}
+        ensAddress={ensAddress}
         addressConfirmed={addressConfirmed}
         setAddressConfirmed={setAddressConfirmed}
         onAddToAddressBook={openBottomSheetAddrAdd}
@@ -117,7 +131,12 @@ const Recipient: React.FC<Props> = ({
         closeBottomSheet={closeBottomSheetAddrAdd}
         dynamicInitialHeight={false}
       >
-        <AddAddressForm onSubmit={handleAddNewAddress} address={address} uDAddr={uDAddress} />
+        <AddAddressForm
+          onSubmit={handleAddNewAddress}
+          address={address}
+          uDAddr={uDAddress}
+          ensAddr={ensAddress}
+        />
       </BottomSheet>
     </>
   )
