@@ -16,6 +16,7 @@ type Props = {
   addressConfirmed: boolean
   setAddressConfirmed: (addressConfirmed: boolean) => any
   uDAddress: string
+  ensAddress: string
   address: string
 }
 
@@ -24,17 +25,18 @@ const ConfirmAddress = ({
   addressConfirmed,
   setAddressConfirmed,
   uDAddress,
+  ensAddress,
   address
 }: Props) => {
   const { t } = useTranslation()
   const { isKnownAddress } = useAddressBook()
 
   const unknownWarning = useMemo(() => {
-    if (uDAddress) {
-      return !(isKnownAddress(address) || isKnownAddress(uDAddress))
+    if (uDAddress || ensAddress) {
+      return !isKnownAddress(address)
     }
     return isValidAddress(address) && !isKnownAddress(address)
-  }, [address, uDAddress, isKnownAddress])
+  }, [address, uDAddress, ensAddress, isKnownAddress])
 
   const smartContractWarning = useMemo(() => isKnownTokenOrContract(address), [address])
 

@@ -31,6 +31,7 @@ interface Props {
   disabled: boolean
   addressConfirmed: boolean
   uDAddress: string
+  ensAddress: string
   sWAddressConfirmed: boolean
   showSWAddressWarning: boolean
   validationFormMgs: {
@@ -48,7 +49,6 @@ interface Props {
   onAmountChange: (value: any) => void
   setMaxAmount: () => void
   setAddress: React.Dispatch<React.SetStateAction<string>>
-  addAddress: any
   setAddressConfirmed: React.Dispatch<React.SetStateAction<boolean>>
   setSWAddressConfirmed: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -66,12 +66,12 @@ const SendForm = ({
   disabled,
   addressConfirmed,
   uDAddress,
+  ensAddress,
   sWAddressConfirmed,
   showSWAddressWarning,
   validationFormMgs,
   onSendPress,
   setAsset,
-  addAddress,
   onAmountChange,
   setMaxAmount,
   setAddress,
@@ -126,9 +126,9 @@ const SendForm = ({
             />
             <Recipient
               setAddress={setAddress}
-              addAddress={addAddress}
               address={address}
               uDAddress={uDAddress}
+              ensAddress={ensAddress}
               addressValidationMsg={validationFormMgs?.messages?.address}
               setAddressConfirmed={setAddressConfirmed}
               addressConfirmed={addressConfirmed}

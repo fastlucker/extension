@@ -1,5 +1,6 @@
 import ERC721Abi from 'ambire-common/src/constants/abis/ERC721Abi'
 import networks from 'ambire-common/src/constants/networks'
+import { getBip44Items, resolveENSDomain } from 'ambire-common/src/services/ensDomains'
 import { getProvider } from 'ambire-common/src/services/provider'
 import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
 import { validateSendNftAddress } from 'ambire-common/src/services/validations'
@@ -41,7 +42,7 @@ const ERC721 = new Interface(ERC721Abi)
 const CollectibleScreen = () => {
   const { t } = useTranslation()
   const { goBack } = useNavigation()
-  const { addAddress, isKnownAddress } = useAddressBook()
+  const { isKnownAddress } = useAddressBook()
   const { addToast } = useToast()
   const { addRequest } = useRequests()
   const { network: selectedNetwork } = useNetwork()
@@ -63,7 +64,7 @@ const CollectibleScreen = () => {
   })
   const [recipientAddress, setRecipientAddress] = useState('')
   const [uDAddress, setUDAddress] = useState('')
-  // const [ensAddress, setEnsAddress] = useState('')
+  const [ensAddress, setEnsAddress] = useState('')
   const [isTransferDisabled, setTransferDisabled] = useState(true)
   const [addressConfirmed, setAddressConfirmed] = useState(false)
   const [validationFormMgs, setValidationFormMgs] = useState<any>({
@@ -78,7 +79,7 @@ const CollectibleScreen = () => {
   }
 
   const sendTransferTx = () => {
-    const recipAddress = uDAddress || recipientAddress
+    const recipAddress = uDAddress || ensAddress || recipientAddress
 
     try {
       const req: any = {
@@ -105,6 +106,13 @@ const CollectibleScreen = () => {
             address: uDAddress
           }
         }
+      } else if (ensAddress) {
+        req.meta = {
+          addressLabel: {
+            addressLabel: recipientAddress,
+            address: ensAddress
+          }
+        }
       }
 
       addRequest(req)
@@ -122,8 +130,7 @@ const CollectibleScreen = () => {
         isKnownAddress,
         metadata,
         selectedNetwork,
-        network,
-        !!uDAddress
+        network
       )
 
       setTransferDisabled(!isAddressValid.success)
@@ -137,21 +144,20 @@ const CollectibleScreen = () => {
       }
 
       const validateForm = async () => {
-        const UDAddress = await resolveUDomain(
+        const uDAddr = await resolveUDomain(
           recipientAddress,
           null,
           selectedNetwork?.unstoppableDomainsChain
         )
-        // TODO:
-        // const bip44Item = getBip44Items(null)
-        // const ensAddress = await resolveENSDomain(recipientAddress, bip44Item)
+        const bip44Item = getBip44Items(null)
+        const ensAddr = await resolveENSDomain(recipientAddress, bip44Item)
 
         timer.current = null
-        const isUDAddress = !!UDAddress
-        // const isEnsAddress = !!ensAddress
+        const isUDAddress = !!uDAddr
+        const isEnsAddress = !!ensAddr
         let selectedAddress = ''
-        // if (isEnsAddress) selectedAddress = ensAddress
-        if (isUDAddress) selectedAddress = UDAddress
+        if (isUDAddress) selectedAddress = uDAddr
+        if (isEnsAddress) selectedAddress = ensAddr
         else selectedAddress = recipientAddress
 
         const isAddressValid = validateSendNftAddress(
@@ -162,10 +168,11 @@ const CollectibleScreen = () => {
           metadata,
           selectedNetwork,
           network,
-          isUDAddress
+          isUDAddress,
+          isEnsAddress
         )
-        setUDAddress(UDAddress)
-        // setEnsAddress(ensAddress)
+        setUDAddress(uDAddr)
+        setEnsAddress(ensAddr)
 
         setTransferDisabled(!isAddressValid.success)
         setValidationFormMgs({
@@ -185,8 +192,7 @@ const CollectibleScreen = () => {
     selectedAcc,
     network,
     addressConfirmed,
-    isKnownAddress,
-    uDAddress
+    isKnownAddress
   ])
 
   const fetchMetadata = useCallback(async () => {
@@ -374,9 +380,9 @@ const CollectibleScreen = () => {
           </Text>
           <Recipient
             setAddress={setRecipientAddress}
-            addAddress={addAddress}
             address={recipientAddress}
             uDAddress={uDAddress}
+            ensAddress={ensAddress}
             addressValidationMsg={validationFormMgs.message}
             setAddressConfirmed={setAddressConfirmed}
             addressConfirmed={addressConfirmed}

@@ -2,6 +2,7 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, View } from 'react-native'
 
+import EnsIcon from '@assets/svg/EnsIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
 import UnstoppableDomainIcon from '@assets/svg/UnstoppableDomainIcon'
 import { TouchableOpacity } from '@gorhom/bottom-sheet'
@@ -16,9 +17,10 @@ import QRCodeScanner from '../QRCodeScanner'
 
 interface Props extends InputProps {
   isValidUDomain?: boolean
+  isValidEns?: boolean
 }
 
-const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, ...rest }) => {
+const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValidEns, ...rest }) => {
   const { t } = useTranslation()
   const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
 
@@ -48,6 +50,9 @@ const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, ...rest
         button={
           <View style={flexboxStyles.directionRow}>
             <UnstoppableDomainIcon isActive={isValidUDomain} />
+            <View style={spacings.plTy}>
+              <EnsIcon isActive={isValidEns} />
+            </View>
             <TouchableOpacity style={spacings.plTy} onPress={handleOnButtonPress}>
               <ScanIcon isFilled={false} />
             </TouchableOpacity>

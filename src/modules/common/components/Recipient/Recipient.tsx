@@ -1,3 +1,4 @@
+import { Address } from 'ambire-common/src/hooks/useAddressBook'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, View } from 'react-native'
@@ -5,6 +6,7 @@ import { Keyboard, View } from 'react-native'
 import DownArrowIcon from '@assets/svg/DownArrowIcon'
 import { TouchableOpacity } from '@gorhom/bottom-sheet'
 import Input, { InputProps } from '@modules/common/components/Input'
+import useAddressBook from '@modules/common/hooks/useAddressBook'
 import spacings from '@modules/common/styles/spacings'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
@@ -17,9 +19,9 @@ import RecipientInput from '../RecipientInput'
 
 interface Props extends InputProps {
   setAddress: (text: string) => void
-  addAddress: (name: string, address: string, isUD: boolean) => void
   address: string
   uDAddress: string
+  ensAddress: string
   addressValidationMsg: string
   setAddressConfirmed: React.Dispatch<React.SetStateAction<boolean>>
   addressConfirmed: boolean
@@ -27,14 +29,15 @@ interface Props extends InputProps {
 
 const Recipient: React.FC<Props> = ({
   setAddress,
-  addAddress,
   address,
   uDAddress,
+  ensAddress,
   addressValidationMsg,
   setAddressConfirmed,
   addressConfirmed
 }) => {
   const { t } = useTranslation()
+  const { addAddress } = useAddressBook()
 
   const {
     sheetRef: sheetRefAddrAdd,
@@ -49,10 +52,20 @@ const Recipient: React.FC<Props> = ({
     isOpen: isOpenAddrDisplay
   } = useBottomSheet()
 
-  const handleAddNewAddress = (fieldValues: { name: string; address: string; isUD: boolean }) => {
-    addAddress(fieldValues.name, fieldValues.address, fieldValues.isUD)
+  const handleAddNewAddress = (fieldValues: Address) => {
+    addAddress(fieldValues.name, fieldValues.address, fieldValues.type)
     closeBottomSheetAddrAdd()
     openBottomSheetAddrDisplay()
+  }
+
+  const setValidationLabel = () => {
+    if (uDAddress) {
+      return t('Valid Unstoppable domainsⓇ domain')
+    }
+    if (ensAddress) {
+      return t('Valid Ethereum Name ServicesⓇ domain')
+    }
+    return ''
   }
 
   return (
@@ -60,13 +73,14 @@ const Recipient: React.FC<Props> = ({
       <RecipientInput
         containerStyle={spacings.mb}
         isValidUDomain={!!uDAddress}
+        isValidEns={!!ensAddress}
         placeholder={t('Recipient')}
         info={t(
           'Please double-check the recipient address, blockchain transactions are not reversible.'
         )}
-        isValid={address.length > 1 && !addressValidationMsg && !!uDAddress}
-        validLabel={uDAddress ? t('Valid Unstoppable domainsⓇ domain') : ''}
-        error={addressValidationMsg}
+        isValid={address.length > 1 && !addressValidationMsg && (!!uDAddress || !!ensAddress)}
+        validLabel={setValidationLabel()}
+        error={address.length > 1 && addressValidationMsg}
         value={address}
         onChangeText={setAddress}
       />
@@ -74,6 +88,7 @@ const Recipient: React.FC<Props> = ({
       <ConfirmAddress
         address={address}
         uDAddress={uDAddress}
+        ensAddress={ensAddress}
         addressConfirmed={addressConfirmed}
         setAddressConfirmed={setAddressConfirmed}
         onAddToAddressBook={openBottomSheetAddrAdd}
@@ -117,7 +132,12 @@ const Recipient: React.FC<Props> = ({
         closeBottomSheet={closeBottomSheetAddrAdd}
         dynamicInitialHeight={false}
       >
-        <AddAddressForm onSubmit={handleAddNewAddress} address={address} uDAddr={uDAddress} />
+        <AddAddressForm
+          onSubmit={handleAddNewAddress}
+          address={address}
+          uDAddr={uDAddress}
+          ensAddr={ensAddress}
+        />
       </BottomSheet>
     </>
   )

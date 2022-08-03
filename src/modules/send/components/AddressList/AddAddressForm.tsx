@@ -1,4 +1,6 @@
+import { Address } from 'ambire-common/src/hooks/useAddressBook'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
+import { getBip44Items, resolveENSDomain } from 'ambire-common/src/services/ensDomains'
 import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { View } from 'react-native'
@@ -15,27 +17,37 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Props {
-  onSubmit: ({ name, address, isUD }: { name: string; address: string; isUD: boolean }) => void
+  onSubmit: ({
+    name,
+    address,
+    type
+  }: {
+    name: Address['name']
+    address: Address['address']
+    type: Address['type']
+  }) => void
   address: string
   uDAddr: string
+  ensAddr: string
 }
 
-const AddAddressForm = ({ onSubmit, address, uDAddr }: Props) => {
+const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
   const { t } = useTranslation()
   const [addrName, setAddrName] = useState<string>('')
   const [addr, setAddr] = useState<string>('')
   const [uDAddress, setUDAddress] = useState<string>('')
+  const [ensAddress, setEnsAddress] = useState<string>('')
 
   const { isKnownAddress } = useAddressBook()
 
-  const parsedAddr = uDAddr || address || ''
+  const parsedAddr = uDAddr || ensAddr || address || ''
 
   const unknownWarning = useMemo(() => {
-    if (uDAddress || uDAddr) {
+    if (uDAddress || uDAddr || ensAddress || ensAddr) {
       return !isKnownAddress(address)
     }
     return isValidAddress(address) && !isKnownAddress(address)
-  }, [address, uDAddress, isKnownAddress, uDAddr])
+  }, [address, uDAddress, isKnownAddress, uDAddr, ensAddress, ensAddr])
 
   const smartContractWarning = useMemo(() => isKnownTokenOrContract(parsedAddr), [parsedAddr])
 
@@ -61,8 +73,11 @@ const AddAddressForm = ({ onSubmit, address, uDAddr }: Props) => {
 
     const validate = async () => {
       const uDAddr = await resolveUDomain(addr, null, network.unstoppableDomainsChain)
+      const bip44Item = getBip44Items(null)
+      const ensAddr = await resolveENSDomain(addr, bip44Item)
       timer.current = null
       setUDAddress(uDAddr || '')
+      setEnsAddress(ensAddr || '')
       checkedIsUDAddress.current = true
     }
 
@@ -83,8 +98,18 @@ const AddAddressForm = ({ onSubmit, address, uDAddr }: Props) => {
     onSubmit({
       name: addrName,
       address: addr,
-      isUD: !!uDAddress
+      type: uDAddress ? 'ud' : ensAddress ? 'ens' : 'pub'
     })
+  }
+
+  const setValidationLabel = () => {
+    if (uDAddress) {
+      return t('Valid Unstoppable domainsⓇ domain')
+    }
+    if (ensAddress) {
+      return t('Valid Ethereum Name ServicesⓇ domain')
+    }
+    return ''
   }
 
   return (
@@ -114,14 +139,15 @@ const AddAddressForm = ({ onSubmit, address, uDAddr }: Props) => {
         }}
         onChangeText={onAddrChange}
         isValidUDomain={!!uDAddress}
+        isValidEns={!!ensAddress}
         containerStyle={spacings.mbTy}
-        placeholder={t('Address / Unstoppable domainsⓇ')}
-        isValid={!!uDAddress}
-        validLabel={uDAddress ? t('Valid Unstoppable domainsⓇ domain') : ''}
+        placeholder={t('Address / Unstoppable domainsⓇ / Ethereum Name ServicesⓇ domain')}
+        isValid={!!uDAddress || !!ensAddress}
+        validLabel={setValidationLabel()}
         error={
           checkedIsUDAddress.current &&
           !!addr &&
-          !isValidAddress(uDAddress || addr) &&
+          !isValidAddress(uDAddress || ensAddress || addr) &&
           (t('Invalid address.') as string)
         }
         value={addr}
@@ -131,7 +157,7 @@ const AddAddressForm = ({ onSubmit, address, uDAddr }: Props) => {
         onPress={handleSubmit}
         type="outline"
         text={t('Add Address')}
-        disabled={!addrName || !isValidAddress(uDAddress || addr)}
+        disabled={!addrName || !isValidAddress(uDAddress || ensAddress || addr)}
       />
     </>
   )
