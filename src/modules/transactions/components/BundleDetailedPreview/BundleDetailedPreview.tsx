@@ -72,6 +72,7 @@ const BundleDetailedPreview = ({ bundle = {}, mined = false, feeAssets }: any) =
           network={bundle.network}
           account={bundle.identity}
           mined={mined}
+          addressLabel={!!bundle.meta && bundle?.meta?.addressLabel}
         />
       ))}
       {!!bundle.executed && !bundle.executed?.success && (

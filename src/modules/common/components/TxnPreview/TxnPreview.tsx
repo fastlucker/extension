@@ -1,10 +1,14 @@
 import networks from 'ambire-common/src/constants/networks'
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
-import { getName, isKnown } from 'ambire-common/src/services/humanReadableTransactions'
+import {
+  getName,
+  isKnown,
+  setKnownAddressNames
+} from 'ambire-common/src/services/humanReadableTransactions'
 import { getTransactionSummary } from 'ambire-common/src/services/humanReadableTransactions/transactionSummary'
 import { formatUnits } from 'ethers/lib/utils'
 // TODO: add types
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Linking, TouchableOpacity, View } from 'react-native'
 
@@ -103,11 +107,16 @@ const TxnPreview = ({
   isFirstFailing,
   mined,
   disableExpand,
-  hasBottomSpacing = true
+  hasBottomSpacing = true,
+  addressLabel = null
 }: any) => {
   const [isExpanded, setExpanded] = useState(false)
   const contractName = getName(txn[0], network)
   const { t } = useTranslation()
+
+  useEffect(() => {
+    !!addressLabel && setKnownAddressNames(addressLabel)
+  }, [addressLabel])
 
   const networkDetails = networks.find(({ id }) => id === network)
 
