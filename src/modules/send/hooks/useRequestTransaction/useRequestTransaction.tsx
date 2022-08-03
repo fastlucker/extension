@@ -366,6 +366,6 @@ export default function useRequestTransaction() {
     setSWAddressConfirmed,
     uDAddress,
     ensAddress,
-    isLoading: isCurrNetworkBalanceLoading
+    isLoading: isCurrNetworkBalanceLoading && !tokens
   }
 }
