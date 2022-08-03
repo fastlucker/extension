@@ -5,13 +5,11 @@ import { isiOS } from '@config/env'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Spinner from '@modules/common/components/Spinner'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import useAddressBook from '@modules/common/hooks/useAddressBook'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import SendForm from '@modules/send/components/SendForm'
 import useRequestTransaction from '@modules/send/hooks/useRequestTransaction'
 
 const SendScreen = () => {
-  const { addAddress } = useAddressBook()
   const {
     asset,
     amount,
@@ -76,7 +74,6 @@ const SendScreen = () => {
           sWAddressConfirmed={sWAddressConfirmed}
           showSWAddressWarning={showSWAddressWarning}
           validationFormMgs={validationFormMgs}
-          addAddress={addAddress}
           onSendPress={handleSend}
           setAsset={setAsset}
           onAmountChange={onAmountChange}

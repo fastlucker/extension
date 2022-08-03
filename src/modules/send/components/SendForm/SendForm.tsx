@@ -49,7 +49,6 @@ interface Props {
   onAmountChange: (value: any) => void
   setMaxAmount: () => void
   setAddress: React.Dispatch<React.SetStateAction<string>>
-  addAddress: any
   setAddressConfirmed: React.Dispatch<React.SetStateAction<boolean>>
   setSWAddressConfirmed: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -73,7 +72,6 @@ const SendForm = ({
   validationFormMgs,
   onSendPress,
   setAsset,
-  addAddress,
   onAmountChange,
   setMaxAmount,
   setAddress,
@@ -128,7 +126,6 @@ const SendForm = ({
             />
             <Recipient
               setAddress={setAddress}
-              addAddress={addAddress}
               address={address}
               uDAddress={uDAddress}
               ensAddress={ensAddress}

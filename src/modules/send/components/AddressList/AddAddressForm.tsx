@@ -1,3 +1,4 @@
+import { Address } from 'ambire-common/src/hooks/useAddressBook'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
 import { getBip44Items, resolveENSDomain } from 'ambire-common/src/services/ensDomains'
 import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
@@ -16,7 +17,15 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Props {
-  onSubmit: ({ name, address, isUD }: { name: string; address: string; isUD: boolean }) => void
+  onSubmit: ({
+    name,
+    address,
+    type
+  }: {
+    name: Address['name']
+    address: Address['address']
+    type: Address['type']
+  }) => void
   address: string
   uDAddr: string
   ensAddr: string
@@ -66,7 +75,6 @@ const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
       const uDAddr = await resolveUDomain(addr, null, network.unstoppableDomainsChain)
       const bip44Item = getBip44Items(null)
       const ensAddr = await resolveENSDomain(addr, bip44Item)
-      console.log(ensAddr)
       timer.current = null
       setUDAddress(uDAddr || '')
       setEnsAddress(ensAddr || '')
@@ -90,7 +98,7 @@ const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
     onSubmit({
       name: addrName,
       address: addr,
-      isUD: !!uDAddress
+      type: uDAddress ? 'ud' : ensAddress ? 'ens' : 'pub'
     })
   }
 

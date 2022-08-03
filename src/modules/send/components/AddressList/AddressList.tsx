@@ -1,3 +1,4 @@
+import { Address } from 'ambire-common/src/hooks/useAddressBook'
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -32,9 +33,9 @@ const AddressList = ({ onSelectAddress, onOpenBottomSheet, onCloseBottomSheet }:
     [addresses]
   )
 
-  const renderItem: any = (item: any, i: number) => {
+  const renderItem: any = (item: Address, i: number) => {
     const isLast = items.length - 1 === i
-    const onRemoveAddress = () => removeAddress(item.name, item.address, item.isUD)
+    const onRemoveAddress = () => removeAddress(item.name, item.address, item.type)
 
     const onPressAddress = () => {
       !!onSelectAddress && onSelectAddress(item)

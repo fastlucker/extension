@@ -4836,9 +4836,9 @@ alphanum-sort@^1.0.0:
   resolved "https://registry.yarnpkg.com/alphanum-sort/-/alphanum-sort-1.0.2.tgz#97a1119649b211ad33691d9f9f486a8ec9fbe0a3"
   integrity sha512-0FcBfdcmaumGPQ0qPn7Q5qTgz/ooXgIyp1rf8ik5bGX8mpE2YHjC0P/eyQvxu1GURYQgq9ozf2mteQ5ZD9YiyQ==
 
-"ambire-common@git+https://git@github.com/AmbireTech/ambire-common.git#d982b0d351ab2d3678b976f22fbd09b08d873991":
+"ambire-common@git+https://git@github.com/AmbireTech/ambire-common.git#c75dd5916fc627ac9267c011343c07b292fa2089":
   version "0.11.2"
-  resolved "git+https://git@github.com/AmbireTech/ambire-common.git#d982b0d351ab2d3678b976f22fbd09b08d873991"
+  resolved "git+https://git@github.com/AmbireTech/ambire-common.git#c75dd5916fc627ac9267c011343c07b292fa2089"
 
 anser@^1.4.9:
   version "1.4.10"

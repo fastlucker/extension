@@ -1,3 +1,4 @@
+import { Address } from 'ambire-common/src/hooks/useAddressBook'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, View } from 'react-native'
@@ -5,6 +6,7 @@ import { Keyboard, View } from 'react-native'
 import DownArrowIcon from '@assets/svg/DownArrowIcon'
 import { TouchableOpacity } from '@gorhom/bottom-sheet'
 import Input, { InputProps } from '@modules/common/components/Input'
+import useAddressBook from '@modules/common/hooks/useAddressBook'
 import spacings from '@modules/common/styles/spacings'
 import AddressList from '@modules/send/components/AddressList'
 import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
@@ -17,7 +19,6 @@ import RecipientInput from '../RecipientInput'
 
 interface Props extends InputProps {
   setAddress: (text: string) => void
-  addAddress: (name: string, address: string, isUD: boolean) => void
   address: string
   uDAddress: string
   ensAddress: string
@@ -28,7 +29,6 @@ interface Props extends InputProps {
 
 const Recipient: React.FC<Props> = ({
   setAddress,
-  addAddress,
   address,
   uDAddress,
   ensAddress,
@@ -37,6 +37,7 @@ const Recipient: React.FC<Props> = ({
   addressConfirmed
 }) => {
   const { t } = useTranslation()
+  const { addAddress } = useAddressBook()
 
   const {
     sheetRef: sheetRefAddrAdd,
@@ -51,8 +52,8 @@ const Recipient: React.FC<Props> = ({
     isOpen: isOpenAddrDisplay
   } = useBottomSheet()
 
-  const handleAddNewAddress = (fieldValues: { name: string; address: string; isUD: boolean }) => {
-    addAddress(fieldValues.name, fieldValues.address, fieldValues.isUD)
+  const handleAddNewAddress = (fieldValues: Address) => {
+    addAddress(fieldValues.name, fieldValues.address, fieldValues.type)
     closeBottomSheetAddrAdd()
     openBottomSheetAddrDisplay()
   }
@@ -79,7 +80,7 @@ const Recipient: React.FC<Props> = ({
         )}
         isValid={address.length > 1 && !addressValidationMsg && (!!uDAddress || !!ensAddress)}
         validLabel={setValidationLabel()}
-        error={addressValidationMsg}
+        error={address.length > 1 && addressValidationMsg}
         value={address}
         onChangeText={setAddress}
       />
