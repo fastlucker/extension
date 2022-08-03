@@ -10,6 +10,7 @@ import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -27,10 +28,11 @@ type Props = {
 const AddressList = ({ onSelectAddress, onOpenBottomSheet, onCloseBottomSheet }: Props) => {
   const { t } = useTranslation()
   const { addresses, removeAddress } = useAddressBook()
+  const { selectedAcc } = useAccounts()
 
   const items = useMemo(
-    () => addresses.filter(({ isAccount }: { isAccount: boolean }) => !isAccount),
-    [addresses]
+    () => addresses.filter((x) => x.address !== selectedAcc),
+    [addresses, selectedAcc]
   )
 
   const renderItem: any = (item: Address, i: number) => {
