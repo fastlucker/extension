@@ -17,6 +17,7 @@ import styles from './styles'
 const TransactionsScreen = () => {
   const {
     data,
+    feeAssets,
     errMsg,
     isLoading,
     speedup,
@@ -45,7 +46,7 @@ const TransactionsScreen = () => {
   }
 
   return (
-    <DetailedBundleProvider>
+    <DetailedBundleProvider feeAssets={feeAssets}>
       <GradientBackgroundWrapper>
         <View style={styles.sectionViewWrapper}>
           <TransactionsSectionList

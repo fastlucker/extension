@@ -5,7 +5,7 @@ import { Image, Linking, TouchableOpacity, View } from 'react-native'
 import DisconnectIcon from '@assets/svg/DisconnectIcon'
 import MissingIcon from '@assets/svg/MissingIcon'
 import Text from '@modules/common/components/Text'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 

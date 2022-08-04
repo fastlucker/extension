@@ -1,3 +1,4 @@
+import { isTokenEligible } from 'ambire-common/src/helpers/sendTxnHelpers'
 import { isValidCode, isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -16,7 +17,6 @@ import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import { isTokenEligible } from '@modules/pending-transactions/services/helpers'
 
 import styles from './styles'
 
@@ -26,7 +26,9 @@ const SignActions = ({
   approveTxn,
   rejectTxn,
   signingStatus,
-  bundle
+  bundle,
+  isGasTankEnabled,
+  network
 }: any) => {
   const {
     control,
@@ -69,7 +71,7 @@ const SignActions = ({
   const insufficientFee =
     estimation &&
     estimation.feeInUSD &&
-    !isTokenEligible(estimation.selectedFeeToken, feeSpeed, estimation)
+    !isTokenEligible(estimation.selectedFeeToken, feeSpeed, estimation, isGasTankEnabled, network)
 
   const willFail = (estimation && !estimation.success) || insufficientFee
 
@@ -126,7 +128,7 @@ const SignActions = ({
             </Text>
           ) : null}
           {signingStatus.confCodeRequired === 'email' ? (
-            <Text style={[textStyles.bold, spacings.mbSm]}>
+            <Text style={spacings.mbSm} weight="medium">
               {t(
                 'A confirmation code was sent to your email, please enter it along with your password.'
               )}

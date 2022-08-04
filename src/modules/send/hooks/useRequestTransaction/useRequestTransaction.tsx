@@ -1,6 +1,7 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import networks from 'ambire-common/src/constants/networks'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
+import { getBip44Items, resolveENSDomain } from 'ambire-common/src/services/ensDomains'
 import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
 import {
   validateSendTransferAddress,
@@ -23,7 +24,7 @@ const ERC20 = new Interface(erc20Abi)
 
 export default function useRequestTransaction() {
   const isFocused = useIsFocused()
-  const { tokens, isCurrNetworkBalanceLoading, dataLoaded } = usePortfolio()
+  const { tokens, isCurrNetworkBalanceLoading } = usePortfolio()
   const { params }: any = useRoute()
   const navigation: any = useNavigation()
   const { network }: any = useNetwork()
@@ -37,6 +38,7 @@ export default function useRequestTransaction() {
   const [amount, setAmount] = useState<number>(0)
   const [address, setAddress] = useState('')
   const [uDAddress, setUDAddress] = useState('')
+  const [ensAddress, setEnsAddress] = useState('')
   const [disabled, setDisabled] = useState(true)
   const [addressConfirmed, setAddressConfirmed] = useState(false)
   const [sWAddressConfirmed, setSWAddressConfirmed] = useState(false)
@@ -127,7 +129,7 @@ export default function useRequestTransaction() {
 
   const sendTransaction = useCallback(() => {
     try {
-      const recipientAddress = uDAddress || address
+      const recipientAddress = uDAddress || ensAddress || address
 
       const txn = {
         to: selectedAsset.address,
@@ -157,6 +159,13 @@ export default function useRequestTransaction() {
             address: uDAddress
           }
         }
+      } else if (ensAddress) {
+        req.meta = {
+          addressLabel: {
+            addressLabel: address,
+            address: ensAddress
+          }
+        }
       }
 
       addRequest(req)
@@ -178,16 +187,17 @@ export default function useRequestTransaction() {
     bigNumberHexAmount,
     network?.chainId,
     uDAddress,
+    ensAddress,
     addRequest,
     addToast
   ])
 
   const unknownWarning = useMemo(() => {
-    if (uDAddress) {
+    if (uDAddress || ensAddress) {
       return !isKnownAddress(address)
     }
     return isValidAddress(address) && !isKnownAddress(address)
-  }, [address, uDAddress, isKnownAddress])
+  }, [address, uDAddress, ensAddress, isKnownAddress])
 
   const smartContractWarning = useMemo(() => isKnownTokenOrContract(address), [address])
 
@@ -203,7 +213,7 @@ export default function useRequestTransaction() {
   )
 
   useEffect(() => {
-    if (uDAddress && !unknownWarning && validationFormMgs.messages?.address) {
+    if ((uDAddress || ensAddress) && !unknownWarning && validationFormMgs.messages?.address) {
       setValidationFormMgs((prev) => ({
         success: {
           amount: prev.success.amount,
@@ -221,6 +231,7 @@ export default function useRequestTransaction() {
   }, [
     unknownWarning,
     uDAddress,
+    ensAddress,
     validationFormMgs.messages?.address,
     validationFormMgs.success.amount,
     sWAddressConfirmed,
@@ -233,6 +244,7 @@ export default function useRequestTransaction() {
 
       if (address.startsWith('0x') && address.indexOf('.') === -1) {
         if (uDAddress !== '') setUDAddress('')
+        if (ensAddress !== '') setEnsAddress('')
         const isValidRecipientAddress = validateSendTransferAddress(
           address,
           selectedAcc,
@@ -267,17 +279,23 @@ export default function useRequestTransaction() {
             selectedAsset ? selectedAsset.symbol : null,
             network.unstoppableDomainsChain
           )
+          const bip44Item = getBip44Items(selectedAsset ? selectedAsset.symbol : null)
+          const ensAddr = await resolveENSDomain(address, bip44Item)
+
           timer.current = null
           const isUDAddress = !!UDAddress
+          const isEnsAddress = !!ensAddr
           const isValidRecipientAddress = validateSendTransferAddress(
-            UDAddress || address,
+            UDAddress || ensAddr || address,
             selectedAcc,
             addressConfirmed,
             isKnownAddress,
-            isUDAddress
+            isUDAddress,
+            isEnsAddress
           )
 
           setUDAddress(UDAddress)
+          setEnsAddress(ensAddr)
           setValidationFormMgs({
             success: {
               amount: isValidSendTransferAmount.success,
@@ -314,6 +332,7 @@ export default function useRequestTransaction() {
     addToast,
     network.id,
     uDAddress,
+    ensAddress,
     network.unstoppableDomainsChain,
     isFocused
   ])
@@ -346,6 +365,7 @@ export default function useRequestTransaction() {
     sWAddressConfirmed,
     setSWAddressConfirmed,
     uDAddress,
-    isLoading: isCurrNetworkBalanceLoading && !dataLoaded
+    ensAddress,
+    isLoading: isCurrNetworkBalanceLoading && !tokens
   }
 }

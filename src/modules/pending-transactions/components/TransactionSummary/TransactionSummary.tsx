@@ -41,6 +41,7 @@ const TransactionSummary = ({ bundle, estimation }: any) => {
               network={bundle.network}
               account={bundle.identity}
               isFirstFailing={isFirstFailing}
+              addressLabel={!!bundle.meta && bundle?.meta?.addressLabel}
             />
           )
         })}

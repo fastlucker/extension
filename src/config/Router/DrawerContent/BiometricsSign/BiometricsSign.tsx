@@ -4,23 +4,26 @@ import { ActivityIndicator, TouchableOpacity } from 'react-native'
 import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
-import { useNavigation } from '@react-navigation/native'
 
-const BiometricsSign = () => {
+interface Props {
+  handleNavigate: (route: string) => void
+}
+
+const BiometricsSign: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
-  const navigation: any = useNavigation()
   const { isLoading, selectedAccHasPassword } = useAccountsPasswords()
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('biometrics-sign-change')}>
-      <Text style={spacings.mbSm}>
+    <TouchableOpacity onPress={() => handleNavigate('biometrics-sign-change')}>
+      <Text style={spacings.mbSm} color={colors.titan_50}>
         {selectedAccHasPassword ? t('Biometrics sign (enabled)') : t('Biometrics sign (disabled)')}
       </Text>
     </TouchableOpacity>
   )
 }
 
-export default BiometricsSign
+export default React.memo(BiometricsSign)

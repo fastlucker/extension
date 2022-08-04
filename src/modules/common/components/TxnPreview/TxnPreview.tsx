@@ -1,15 +1,20 @@
 import networks from 'ambire-common/src/constants/networks'
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
-import { getName, isKnown } from 'ambire-common/src/services/humanReadableTransactions'
+import {
+  getName,
+  isKnown,
+  setKnownAddressNames
+} from 'ambire-common/src/services/humanReadableTransactions'
 import { getTransactionSummary } from 'ambire-common/src/services/humanReadableTransactions/transactionSummary'
 import { formatUnits } from 'ethers/lib/utils'
 // TODO: add types
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, TouchableOpacity, View } from 'react-native'
+import { Image, Linking, TouchableOpacity, View } from 'react-native'
 
 import CloseIcon from '@assets/svg/CloseIcon'
 import DownArrowIcon from '@assets/svg/DownArrowIcon'
+import OpenIcon from '@assets/svg/OpenIcon'
 import UpArrowIcon from '@assets/svg/UpArrowIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
@@ -64,7 +69,20 @@ function parseExtendedSummaryItem(item: any, i: any, networkDetails: any, t: any
     )
 
   if (item.type === 'address')
-    return <Text fontSize={12}>{`${item.name ? item.name : item.address} `}</Text>
+    return (
+      <Text fontSize={12}>
+        {`${item.name ? item.name : item.address} `}
+        {!!item.address && (
+          <TouchableOpacity
+            onPress={() => Linking.openURL(`${networkDetails.explorerUrl}/address/${item.address}`)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={styles.openIconWrapper}
+          >
+            <OpenIcon width={16} height={16} />
+          </TouchableOpacity>
+        )}
+      </Text>
+    )
 
   if (item.type === 'network')
     return (
@@ -88,11 +106,17 @@ const TxnPreview = ({
   account,
   isFirstFailing,
   mined,
-  disableExpand
+  disableExpand,
+  hasBottomSpacing = true,
+  addressLabel = null
 }: any) => {
   const [isExpanded, setExpanded] = useState(false)
   const contractName = getName(txn[0], network)
   const { t } = useTranslation()
+
+  useEffect(() => {
+    !!addressLabel && setKnownAddressNames(addressLabel)
+  }, [addressLabel])
 
   const networkDetails = networks.find(({ id }) => id === network)
 
@@ -123,7 +147,7 @@ const TxnPreview = ({
   })
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, hasBottomSpacing && spacings.mbTy]}>
       <TouchableOpacity
         onPress={() => !disableExpand && setExpanded((e) => !e)}
         style={styles.listItem}

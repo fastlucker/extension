@@ -1,4 +1,5 @@
 import accountPresets from 'ambire-common/src/constants/accountPresets'
+import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import { getName } from 'ambire-common/src/services/humanReadableTransactions'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -9,7 +10,6 @@ import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useCacheBreak from '@modules/common/hooks/useCacheBreak'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useToast from '@modules/common/hooks/useToast'
@@ -24,7 +24,10 @@ const SignersList = () => {
   const { addToast } = useToast()
   const { selectedAcc, account: selectedAccount, onAddAccount } = useAccounts()
   const { network: selectedNetwork } = useNetwork()
-  const { cacheBreak } = useCacheBreak({ breakPoint: 30000, refreshInterval: 40000 })
+  const { cacheBreak } = useCacheBreak({
+    breakPoint: 30000,
+    refreshInterval: 40000
+  })
 
   const url = CONFIG.RELAYER_URL
     ? `${CONFIG.RELAYER_URL}/identity/${selectedAcc}/${selectedNetwork?.id}/privileges?cacheBreak=${cacheBreak}`
@@ -83,7 +86,7 @@ const SignersList = () => {
             <Text
               type="small"
               weight="medium"
-              style={{ color: colors.primaryAccentColor }}
+              style={{ color: colors.turquoise }}
               onPress={handleOnMakeDefaultBtnClicked}
             >
               {t('Make default')}

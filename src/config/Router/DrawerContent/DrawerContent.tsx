@@ -1,4 +1,5 @@
-import React from 'react'
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -7,6 +8,7 @@ import DashboardIcon from '@assets/svg/DashboardIcon'
 import DepositIcon from '@assets/svg/DepositIcon'
 import DiscordIcon from '@assets/svg/DiscordIcon'
 import EarnIcon from '@assets/svg/EarnIcon'
+import GasTankIcon from '@assets/svg/GasTankIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TelegramIcon from '@assets/svg/TelegramIcon'
@@ -16,15 +18,23 @@ import { isAndroid } from '@config/env'
 import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import AppVersion from '@modules/common/components/AppVersion'
 import Text from '@modules/common/components/Text'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer'
+import {
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+  useDrawerStatus
+} from '@react-navigation/drawer'
 
+import useGetSelectedRoute from '../hooks/useGetSelectedRoute'
 import AppLocking from './AppLocking'
 import BiometricsSign from './BiometricsSign'
 import ConnectedDapps from './ConnectedDapps'
+import GasIndicator from './GasIndicator'
 import LocalAuth from './LocalAuth'
 import Passcode from './Passcode'
+import styles from './styles'
 import Theme from './Theme'
 
 const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/4404980091538-Ambire-Wallet'
@@ -36,6 +46,30 @@ const DISCORD_URL = 'https://discord.gg/nMBGJsb'
 const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const { t } = useTranslation()
   const { navigation } = props
+  const { name: routeName } = useGetSelectedRoute()
+
+  const scrollRef: any = useRef(null)
+
+  const isDrawerOpen = useDrawerStatus() === 'open'
+  const prevIsDrawerOpen = usePrevious(isDrawerOpen)
+  // Resets drawer scroll position on every drawer close
+  useEffect(() => {
+    if (prevIsDrawerOpen && !isDrawerOpen) {
+      scrollRef?.current?.scrollTo({ x: 0, y: 0 })
+    }
+  }, [isDrawerOpen, prevIsDrawerOpen])
+
+  const handleNavigate = useCallback(
+    (route: string) => {
+      // For routes that are Screens part of the main stack navigator (like the
+      // Receive screen and all Settings screens), the drawer doesn't
+      // automatically close itself.
+      // Therefore, always trigger a close before a route change
+      navigation.closeDrawer()
+      navigation.navigate(route)
+    },
+    [navigation]
+  )
 
   const menu = [
     { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard' },
@@ -47,7 +81,8 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { Icon: TransferIcon, name: t('Transactions'), route: 'transactions' },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
-    { Icon: DepositIcon, name: t('Deposit'), route: 'receive' }
+    { Icon: DepositIcon, name: t('Deposit'), route: 'receive' },
+    { Icon: GasTankIcon, name: t('Gas Tank'), route: 'gas-tank' }
   ]
 
   const help = [
@@ -68,38 +103,35 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { Icon: TelegramIcon, url: TELEGRAM_URL }
   ]
 
-  const handleNavigate = (route: string) => {
-    // FIXME: This makes the issue mentioned here even worse:
-    // {@link https://github.com/AmbireTech/ambire-mobile-wallet/issues/419}
-    // For routes that are Screens part of the main stack navigator (like the
-    // `ReceiveScreen`), the drawer doesn't automatically close itself.
-    // Therefore, always trigger a close after route change.
-    // navigation.closeDrawer()
-
-    navigation.navigate(route)
-  }
-
   return (
     <DrawerContentScrollView
       {...props}
       alwaysBounceVertical={false}
       contentContainerStyle={spacings.mhLg}
-      style={spacings.mvLg}
+      style={spacings.mt}
+      ref={scrollRef}
     >
+      <GasIndicator handleNavigate={handleNavigate} />
       <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
         {t('Menu')}
       </Text>
       <View style={[spacings.mlTy, spacings.mbMd]}>
-        {menu.map(({ Icon, name, route }) => (
-          <TouchableOpacity
-            key={name}
-            onPress={() => handleNavigate(route)}
-            style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mbTy]}
-          >
-            {Icon && <Icon />}
-            <Text style={spacings.mlTy}>{name}</Text>
-          </TouchableOpacity>
-        ))}
+        {menu.map(({ Icon, name, route }) => {
+          const isActive = routeName === route
+          return (
+            <TouchableOpacity
+              key={name}
+              onPress={() => handleNavigate(route)}
+              style={[styles.menuItem]}
+            >
+              {isActive && <View style={styles.activeMenuItem} />}
+              {!!Icon && <Icon color={isActive ? colors.titan : colors.titan_50} />}
+              <Text style={spacings.mlTy} color={isActive ? colors.titan : colors.titan_50}>
+                {name}
+              </Text>
+            </TouchableOpacity>
+          )
+        })}
       </View>
 
       <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
@@ -107,14 +139,16 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       </Text>
       <View style={[spacings.mlTy, spacings.mbSm]}>
         <ConnectedDapps />
-        <Passcode />
-        <LocalAuth />
-        <BiometricsSign />
-        <AppLocking />
+        <Passcode handleNavigate={handleNavigate} />
+        <LocalAuth handleNavigate={handleNavigate} />
+        <BiometricsSign handleNavigate={handleNavigate} />
+        <AppLocking handleNavigate={handleNavigate} />
         <Theme />
         {settings.map((s) => (
           <TouchableOpacity key={s.name} onPress={() => handleNavigate(s.route)}>
-            <Text style={spacings.mbSm}>{s.name}</Text>
+            <Text style={spacings.mbSm} color={colors.titan_50}>
+              {s.name}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>

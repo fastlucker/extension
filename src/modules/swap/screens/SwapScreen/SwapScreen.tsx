@@ -1,18 +1,19 @@
-import React, { useEffect } from 'react'
-import { ActivityIndicator, Platform, View } from 'react-native'
+import React, { useMemo, useState } from 'react'
+import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
-import CONFIG from '@config/env'
+import CONFIG, { isiOS } from '@config/env'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import Spinner from '@modules/common/components/Spinner'
 import Wrapper from '@modules/common/components/Wrapper'
 import useGnosis from '@modules/common/hooks/useGnosis'
 import colors from '@modules/common/styles/colors'
-import { useIsFocused } from '@react-navigation/native'
+import spacings from '@modules/common/styles/spacings'
 
 import styles from './styles'
 
 const INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED = `(function() {
-  document.addEventListener('message', function (event) {
+  document.addEventListener('message', function (msg) {
     document.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
   });
 
@@ -23,7 +24,7 @@ const INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED = `(function() {
 
 // Scales the webview a little bit, in order for the content to fit
 // based on all spacings in our app, and to prevent horizontal scroll.
-const WEB_VIEW_SCALE = 0.85
+const WEB_VIEW_SCALE = 1
 
 // Disables zoom in and pinch on the WebView for iOS
 // {@link https://stackoverflow.com/a/49121982/1333836}
@@ -37,66 +38,97 @@ const DISABLE_ZOOM = `
 // Set a better matching the mobile UI text selection color
 // {@link https://stackoverflow.com/a/311437/1333836}
 const TEXT_SELECTION_COLOR = `
-  document.styleSheets[0].insertRule('::selection { background-color: ${colors.backgroundColor}; }', 0);
+  document.styleSheets[0].insertRule('::selection { background-color: ${colors.hauntedDreams}; }', 0);
 `
 
 // Set a better matching the mobile UI tap highlighting color,
 // a bit transparent so the elements below gets visible.
 // {@link https://stackoverflow.com/a/8092444/1333836}
 const HIGHLIGHT_COLOR = `
-  document.styleSheets[0].insertRule('* { -webkit-tap-highlight-color: ${colors.secondaryButtonContainerColor}; }', 0);
-`
-
-// The switch tokens button has animation, that gets triggered via
-// `onMouseEnter` and `onMouseLeave` events (animated SVG).
-// These events however, on tap, trigger the animation, but don't fire
-// the actual event that switches token positions.
-// Therefore, turn off the `onMouseEnter` and `onMouseLeave` events with CSS
-// so that the button always fires the logic when tapped.
-const DISABLE_SWITCH_TOKENS_HOVER_ANIMATION = `
-  document.styleSheets[0].insertRule('button div.p-3.full.bg-ambire-input-background { pointer-events: none; }', 0);
+  document.styleSheets[0].insertRule('* { -webkit-tap-highlight-color: ${colors.vulcan}; }', 0);
 `
 
 const INJECTED_JAVASCRIPT = `
   ${DISABLE_ZOOM}
   ${TEXT_SELECTION_COLOR}
   ${HIGHLIGHT_COLOR}
-  ${DISABLE_SWITCH_TOKENS_HOVER_ANIMATION}
+`
+
+// Set the iframe height with 100% and no scroll (Scroll-y in body).
+// https://stackoverflow.com/a/5956269/1333836
+const INJECTED_WRAPPING_CSS = `
+  <style type="text/css" media="screen">
+    body, html { width: 100%; height: 100%; overflow: hidden; }
+
+    * { padding: 0; margin: 0; }
+
+    iframe { width: 100%; height: 100%; overflow: hidden; border: none; }
+  </style>
 `
 
 const SwapScreen = () => {
   const { sushiSwapIframeRef, hash, handleIncomingMessage } = useGnosis()
-  const isFocused = useIsFocused()
+  const [loaded, setLoaded] = useState<boolean>(false)
 
-  // Reload webview when entering the screen because of some strange webview caching on Android
-  useEffect(() => {
-    if (isFocused && Platform.OS === 'android') {
-      sushiSwapIframeRef.current?.reload()
+  const webviewHtml = useMemo(
+    () => `
+    <!DOCTYPE html>
+      <html>
+        <head>${INJECTED_WRAPPING_CSS}</head>
+        <body>
+          <iframe id=${hash} src="${CONFIG.SUSHI_SWAP_URL}" scrolling="no" allow="autoplay; encrypted-media"></iframe>
+        </body>
+      </html>
+    `,
+    [hash]
+  )
+
+  const webviewSource = useMemo(() => {
+    // Workaround: In order for the webview to load properly SushiSwap on iOS,
+    // the url should be loaded first as a uri source
+    // and instantly after that as a html(iframe) source.
+    if (isiOS) {
+      return loaded ? { html: webviewHtml } : { uri: CONFIG.SUSHI_SWAP_URL }
     }
-  }, [isFocused])
+
+    return { html: webviewHtml }
+  }, [loaded, webviewHtml])
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav>
+      <Wrapper hasBottomTabNav style={spacings.phTy}>
+        {/* Note: this doesn't work on Android emulator. */}
+        {/* It displays a blank screen only, no matter if the source is */}
+        {/* html or uri. Supposedly, its caused by the SushiSwap html */}
+        {/* because it works with other uri-s and it works with custom html */}
         <WebView
           key={hash}
           ref={sushiSwapIframeRef}
           originWhitelist={['*']}
-          source={{
-            uri: CONFIG.SUSHI_SWAP_URL
-          }}
+          source={webviewSource}
+          injectedJavaScriptForMainFrameOnly
+          injectedJavaScriptBeforeContentLoadedForMainFrameOnly
+          setSupportMultipleWindows
           javaScriptEnabled
           injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
           injectedJavaScript={INJECTED_JAVASCRIPT}
           containerStyle={styles.container}
           style={styles.webview}
           bounces={false}
+          onLoadEnd={() => {
+            if (!loaded) {
+              // Just to make sure the url loads first on iOS before the html
+              setTimeout(() => {
+                setLoaded(true)
+              }, 50)
+            }
+          }}
           setBuiltInZoomControls={false}
           overScrollMode="never" // prevents the Android bounce effect (blue shade when scroll to end)
           startInLoadingState
           renderLoading={() => (
             <View style={styles.loadingWrapper}>
-              <ActivityIndicator size="large" color="#fff" />
+              <Spinner />
             </View>
           )}
           onMessage={(event) => {

@@ -1,6 +1,6 @@
 import { StyleSheet, ViewProps } from 'react-native'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings, { SPACING_MD } from '@modules/common/styles/spacings'
 
 interface Styles {

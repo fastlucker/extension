@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import { View, ViewProps } from 'react-native'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -29,7 +29,7 @@ const Panel: React.FC<Props> = ({
         <LinearGradient
           style={[styles.gradient, style]}
           colors={[colors.valhalla, 'transparent']}
-          locations={[0, 0.96]}
+          locations={[0, 1]}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
         />

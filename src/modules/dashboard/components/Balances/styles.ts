@@ -1,10 +1,11 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
   loadingContainer: ViewStyle
+  spinnerWrapper: ViewStyle
   otherBalancesContainer: ViewStyle
   button: ViewStyle
   buttonIcon: ViewStyle
@@ -26,11 +27,19 @@ const styles = StyleSheet.create<Style>({
     // which every user (even with balance 0) will have.
     height: 200
   },
+  spinnerWrapper: {
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...spacings.mbTy
+  },
   otherBalancesContainer: {
     flexDirection: 'row',
     width: 275,
     borderBottomColor: colors.waikawaGray,
-    borderBottomWidth: 1
+    borderBottomWidth: 1,
+    paddingVertical: 2,
+    alignItems: 'center'
   }
 })
 

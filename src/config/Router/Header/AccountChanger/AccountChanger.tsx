@@ -14,7 +14,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import { navigate } from '@modules/common/services/navigation'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -123,7 +123,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
         {t('Change account')}
       </Title>
       {accounts.map(renderAccount)}
-      <Button onPress={handleGoToAddAccount} style={spacings.mt} text={t('Add account')} />
+      <Button onPress={handleGoToAddAccount} style={spacings.mt} text={t('Add Account')} />
     </>
   )
 }

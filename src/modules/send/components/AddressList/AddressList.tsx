@@ -1,3 +1,4 @@
+import { Address } from 'ambire-common/src/hooks/useAddressBook'
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -9,8 +10,9 @@ import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
-import { colorPalette as colors } from '@modules/common/styles/colors'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
@@ -26,15 +28,16 @@ type Props = {
 const AddressList = ({ onSelectAddress, onOpenBottomSheet, onCloseBottomSheet }: Props) => {
   const { t } = useTranslation()
   const { addresses, removeAddress } = useAddressBook()
+  const { selectedAcc } = useAccounts()
 
   const items = useMemo(
-    () => addresses.filter(({ isAccount }: { isAccount: boolean }) => !isAccount),
-    [addresses]
+    () => addresses.filter((x) => x.address !== selectedAcc),
+    [addresses, selectedAcc]
   )
 
-  const renderItem: any = (item: any, i: number) => {
+  const renderItem: any = (item: Address, i: number) => {
     const isLast = items.length - 1 === i
-    const onRemoveAddress = () => removeAddress(item.name, item.address, item.isUD)
+    const onRemoveAddress = () => removeAddress(item.name, item.address, item.type)
 
     const onPressAddress = () => {
       !!onSelectAddress && onSelectAddress(item)
