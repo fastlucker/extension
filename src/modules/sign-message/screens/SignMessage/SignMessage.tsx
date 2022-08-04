@@ -65,6 +65,8 @@ const SignScreen = ({ navigation }: any) => {
     isLoading,
     resolve,
     confirmationType,
+    hasPrivileges,
+    hasProviderError,
     totalRequests,
     toSign,
     typeDataErr,
@@ -163,7 +165,9 @@ const SignScreen = ({ navigation }: any) => {
             approveQuickAcc={approveQuickAcc}
             confirmationType={confirmationType}
             resolve={resolve}
-            isDeployed={!!isDeployed}
+            hasPrivileges={hasPrivileges}
+            isDeployed={isDeployed}
+            hasProviderError={hasProviderError}
             quickAccBottomSheet={{
               sheetRef: sheetRefQickAcc,
               openBottomSheet: openBottomSheetQickAcc,

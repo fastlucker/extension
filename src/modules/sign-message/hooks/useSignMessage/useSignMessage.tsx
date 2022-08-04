@@ -1,7 +1,15 @@
 import { Bundle, signMessage, signMessage712 } from 'adex-protocol-eth/js/Bundle'
+import accountPresets from 'ambire-common/src/constants/accountPresets'
 import { getProvider } from 'ambire-common/src/services/provider'
 import { Wallet } from 'ethers'
-import { _TypedDataEncoder, arrayify, isHexString, keccak256, toUtf8Bytes } from 'ethers/lib/utils'
+import {
+  _TypedDataEncoder,
+  AbiCoder,
+  arrayify,
+  isHexString,
+  keccak256,
+  toUtf8Bytes
+} from 'ethers/lib/utils'
 import { useCallback, useEffect, useState } from 'react'
 
 import { verifyMessage } from '@ambire/signature-validator'
@@ -15,6 +23,7 @@ import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { navigate } from '@modules/common/services/navigation'
+import { getNetworkByChainId } from '@modules/sign-message/services/getNetwork'
 
 export type QuickAccBottomSheetType = {
   sheetRef: any
@@ -30,15 +39,13 @@ export type HardwareWalletBottomSheetType = {
   isOpen: boolean
 }
 
-function getMessageAsBytes(msg) {
+function getMessageAsBytes(msg: string) {
   // Transforming human message / hex string to bytes
   if (!isHexString(msg)) {
     return toUtf8Bytes(msg)
   }
   return arrayify(msg)
 }
-
-const SIGNATURE_VERIFIER_DEBUGGER = (CONFIG.SIGNATURE_VERIFIER_DEBUGGER * 1 && true) || false
 
 const useSignMessage = (
   quickAccBottomSheet: QuickAccBottomSheetType,
@@ -48,15 +55,18 @@ const useSignMessage = (
   const { account } = useAccounts()
   const { everythingToSign, resolveMany } = useRequests()
   const { network } = useNetwork()
-  const toSign = everythingToSign[0]
-  const totalRequests = everythingToSign.length
+  const toSign = everythingToSign[0] || {}
+  const totalRequests = everythingToSign?.length
   const [isLoading, setLoading] = useState<boolean>(false)
-  const [isDeployed, setIsDeployed] = useState(null)
+  const [isDeployed, setIsDeployed] = useState<null | boolean>(null)
+  const [hasPrivileges, setHasPrivileges] = useState<null | boolean>(null)
+  const [hasProviderError, setHasProviderError] = useState(null)
   const [confirmationType, setConfirmationType] = useState(null)
 
-  let dataV4: any
-  const isTypedData = ['eth_signTypedData_v4', 'eth_signTypedData'].indexOf(toSign?.type) !== -1
   let typeDataErr
+  let dataV4: any
+  const requestedChainId = toSign.chainId
+  const isTypedData = ['eth_signTypedData_v4', 'eth_signTypedData'].indexOf(toSign?.type) !== -1
   if (isTypedData) {
     dataV4 = toSign.txn
     if (typeof dataV4 === 'object' && dataV4 !== null) {
@@ -74,21 +84,79 @@ const useSignMessage = (
     }
   }
 
-  const checkIsDeployed = useCallback(async () => {
+  const requestedNetwork = getNetworkByChainId(requestedChainId)
+
+  const checkIsDeployedAndHasPrivileges = useCallback(async () => {
+    if (!requestedNetwork) return
+
     const bundle = new Bundle({
       network: network?.id,
-      identity: account.id,
-      signer: account.signer
+      identity: account?.id,
+      signer: account?.signer
     })
 
     const provider = await getProvider(network?.id)
-    const isDep = await provider.getCode(bundle.identity).then((code: any) => code !== '0x')
-    setIsDeployed(isDep)
-  }, [account, network])
+
+    let privilegeAddress: any
+    let quickAccAccountHash: any
+    if (account?.signer?.quickAccManager) {
+      const { quickAccTimelock } = accountPresets
+      const quickAccountTuple = [quickAccTimelock, account?.signer?.one, account?.signer?.two]
+      const abiCoder = new AbiCoder()
+      quickAccAccountHash = keccak256(
+        abiCoder.encode(['tuple(uint, address, address)'], [quickAccountTuple])
+      )
+      privilegeAddress = account.signer?.quickAccManager
+    } else {
+      privilegeAddress = account.signer?.address
+    }
+
+    // to differenciate reverts and network issues
+    const callObject = {
+      method: 'eth_call',
+      params: [
+        {
+          to: bundle.identity,
+          data: `0xc066a5b1000000000000000000000000${privilegeAddress.toLowerCase().substring(2)}`
+        },
+        'latest'
+      ],
+      id: 1,
+      jsonrpc: '2.0'
+    }
+
+    fetchPost(provider?.connection?.url, callObject)
+      .then((result: any) => {
+        if (result.result && result.result !== '0x') {
+          setIsDeployed(true)
+          if (account?.signer?.quickAccManager) {
+            setHasPrivileges(result.result === quickAccAccountHash)
+          } else {
+            // TODO: To ask : in what cases it's more than 1?
+            // eslint-disable-next-line no-lonely-if
+            if (
+              result.result === '0x0000000000000000000000000000000000000000000000000000000000000001'
+            ) {
+              setHasPrivileges(true)
+            } else {
+              setHasPrivileges(false)
+            }
+          }
+        } else {
+          // result.error or anything else that does not have a .result prop, we assume it is not deployed
+          setIsDeployed(false)
+        }
+      })
+      .catch((err) => {
+        // as raw XHR calls, reverts are not caught, but only have .error prop
+        // this should be a netowrk error
+        setHasProviderError(err.message)
+      })
+  }, [account, network, requestedNetwork])
 
   useEffect(() => {
-    checkIsDeployed()
-  }, [checkIsDeployed])
+    checkIsDeployedAndHasPrivileges()
+  }, [checkIsDeployedAndHasPrivileges])
 
   const resolve = (outcome: any) => resolveMany([everythingToSign[0].id], outcome)
 
@@ -108,9 +176,9 @@ const useSignMessage = (
     }
   }
 
-  const verifySignatureDebug = (toSign, sig) => {
-    const provider = getProvider(network?.id)
-    verifyMessage({
+  const verifySignature = (toSign, sig, networkId) => {
+    const provider = getProvider(networkId)
+    return verifyMessage({
       provider,
       signer: account.id,
       message: isTypedData ? null : getMessageAsBytes(toSign.txn),
@@ -192,9 +260,7 @@ const useSignMessage = (
           )
         : signMessage(wallet, account.id, account.signer, getMessageAsBytes(toSign.txn), signature))
 
-      if (SIGNATURE_VERIFIER_DEBUGGER) {
-        verifySignatureDebug(toSign, sig)
-      }
+      await verifySignature(toSign, sig, requestedNetwork?.id)
 
       resolve({ success: true, result: sig })
       addToast(i18n.t('Successfully signed!') as string)
@@ -247,9 +313,7 @@ const useSignMessage = (
           )
         : signMessage(wallet, account.id, account.signer, getMessageAsBytes(toSign.txn)))
 
-      if (SIGNATURE_VERIFIER_DEBUGGER) {
-        verifySignatureDebug(toSign, sig)
-      }
+      await verifySignature(toSign, sig, requestedNetwork?.id)
 
       resolve({ success: true, result: sig })
       addToast(i18n.t('Successfully signed!') as string)
@@ -265,6 +329,8 @@ const useSignMessage = (
     isLoading,
     resolve,
     confirmationType,
+    hasPrivileges,
+    hasProviderError,
     toSign,
     totalRequests,
     typeDataErr,

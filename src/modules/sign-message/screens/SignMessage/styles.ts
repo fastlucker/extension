@@ -22,7 +22,7 @@ const styles = StyleSheet.create<Style>({
     ...commonStyles.borderRadiusPrimary,
     ...spacings.ph,
     ...spacings.pv,
-    ...spacings.mbLg
+    ...spacings.mbMd
   }
 })
 
