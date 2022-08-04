@@ -3,6 +3,7 @@ import {
   multiplierBadges,
   MULTIPLIERS_READ_MORE_URL
 } from 'ambire-common/src/constants/multiplierBadges'
+import { RewardIds } from 'ambire-common/src/hooks/useRewards/types'
 import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Linking, TouchableOpacity, View } from 'react-native'
@@ -19,7 +20,7 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import useRewards, { RewardIds } from '@modules/dashboard/hooks/useRewards'
+import useRewards from '@modules/dashboard/hooks/useRewards'
 import useStakedWalletToken from '@modules/dashboard/hooks/useStakedWalletToken'
 
 import styles from './styles'
