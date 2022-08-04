@@ -1,5 +1,7 @@
 import { Bundle, signMessage, signMessage712 } from 'adex-protocol-eth/js/Bundle'
 import accountPresets from 'ambire-common/src/constants/accountPresets'
+import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
+import { UseToastsReturnType } from 'ambire-common/src/hooks/useToasts'
 import { getProvider } from 'ambire-common/src/services/provider'
 import { Wallet } from 'ethers'
 import {
@@ -13,30 +15,21 @@ import {
 import { useCallback, useEffect, useState } from 'react'
 
 import { verifyMessage } from '@ambire/signature-validator'
-import CONFIG from '@config/env'
-import i18n from '@config/localization/localization'
-import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import useRequests from '@modules/common/hooks/useRequests'
-import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
-import { getWallet } from '@modules/common/services/getWallet/getWallet'
-import { navigate } from '@modules/common/services/navigation'
 import { getNetworkByChainId } from '@modules/sign-message/services/getNetwork'
 
-export type QuickAccBottomSheetType = {
-  sheetRef: any
-  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
-  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
-  isOpen: boolean
-}
-
-export type HardwareWalletBottomSheetType = {
-  sheetRef: any
-  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
-  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
-  isOpen: boolean
+interface Props {
+  account: UseAccountsReturnType['account']
+  everythingToSign: any[]
+  relayerURL?: string
+  addToast: UseToastsReturnType['addToast']
+  resolve: (outcome: any) => void
+  onConfirmationCodeRequired: (
+    confCodeRequired: 'email' | 'otp' | null,
+    approveQuickAcc?: (confCode: number) => void
+  ) => void
+  onLastMessageSign: () => void
+  getHardwareWallet: (device?: any) => any
 }
 
 function getMessageAsBytes(msg: string) {
@@ -47,25 +40,26 @@ function getMessageAsBytes(msg: string) {
   return arrayify(msg)
 }
 
-const useSignMessage = (
-  quickAccBottomSheet: QuickAccBottomSheetType,
-  hardwareWalletBottomSheet: HardwareWalletBottomSheetType
-) => {
-  const { addToast } = useToast()
-  const { account } = useAccounts()
-  const { everythingToSign, resolveMany } = useRequests()
-  const { network } = useNetwork()
-  const toSign = everythingToSign[0] || {}
-  const totalRequests = everythingToSign?.length
+const useSignMessage = ({
+  account,
+  everythingToSign,
+  relayerURL,
+  addToast,
+  resolve,
+  onConfirmationCodeRequired,
+  onLastMessageSign,
+  getHardwareWallet
+}: Props) => {
   const [isLoading, setLoading] = useState<boolean>(false)
   const [isDeployed, setIsDeployed] = useState<null | boolean>(null)
   const [hasPrivileges, setHasPrivileges] = useState<null | boolean>(null)
   const [hasProviderError, setHasProviderError] = useState(null)
-  const [confirmationType, setConfirmationType] = useState(null)
+
+  const toSign = everythingToSign[0] || {}
 
   let typeDataErr
   let dataV4: any
-  const requestedChainId = toSign.chainId
+  let requestedChainId = toSign.chainId
   const isTypedData = ['eth_signTypedData_v4', 'eth_signTypedData'].indexOf(toSign?.type) !== -1
   if (isTypedData) {
     dataV4 = toSign.txn
@@ -76,6 +70,10 @@ const useSignMessage = (
           delete dataV4?.types?.EIP712Domain
         }
         _TypedDataEncoder.hash(dataV4?.domain, dataV4.types, dataV4?.message)
+        // enforce chainId
+        if (dataV4.domain?.chainId) {
+          requestedChainId = dataV4.domain?.chainId
+        }
       } catch {
         typeDataErr = '.txn has Invalid TypedData object. Should be {domain, types, message}'
       }
@@ -90,12 +88,12 @@ const useSignMessage = (
     if (!requestedNetwork) return
 
     const bundle = new Bundle({
-      network: network?.id,
+      network: requestedNetwork?.id,
       identity: account?.id,
       signer: account?.signer
     })
 
-    const provider = await getProvider(network?.id)
+    const provider = await getProvider(requestedNetwork?.id)
 
     let privilegeAddress: any
     let quickAccAccountHash: any
@@ -152,25 +150,20 @@ const useSignMessage = (
         // this should be a netowrk error
         setHasProviderError(err.message)
       })
-  }, [account, network, requestedNetwork])
+  }, [account, requestedNetwork])
 
   useEffect(() => {
     checkIsDeployedAndHasPrivileges()
   }, [checkIsDeployedAndHasPrivileges])
 
-  const resolve = (outcome: any) => resolveMany([everythingToSign[0].id], outcome)
-
   const handleSigningErr = (e: any) => {
     if (e && e.message.includes('must provide an Ethereum address')) {
       addToast(
-        i18n.t(
-          "Signing error: not connected with the correct address. Make sure you're connected with {{address}}.",
-          { address: account.signer?.address }
-        ) as string,
+        `Signing error: not connected with the correct address. Make sure you're connected with ${account.signer?.address}.`,
         { error: true }
       )
     } else {
-      addToast(i18n.t('Signing error: {{message}}', { message: e.message || e }) as string, {
+      addToast(`Signing error: ${e.message || e}`, {
         error: true
       })
     }
@@ -198,14 +191,14 @@ const useSignMessage = (
   }
 
   const approveQuickAcc = async (credentials: any) => {
-    if (!CONFIG.RELAYER_URL) {
-      addToast(i18n.t('Email/pass accounts not supported without a relayer connection') as string, {
+    if (!relayerURL) {
+      addToast('Email/pass accounts not supported without a relayer connection', {
         error: true
       })
       return
     }
     if (!credentials.password) {
-      addToast(i18n.t('Password required to unlock the account') as string, { error: true })
+      addToast('Password required to unlock the account', { error: true })
       return
     }
     setLoading(true)
@@ -213,7 +206,7 @@ const useSignMessage = (
       const { signature, success, message, confCodeRequired } = await fetchPost(
         // network doesn't matter when signing
         // if it does tho, we can use ${network.id}
-        `${CONFIG.RELAYER_URL}/second-key/${account.id}/ethereum/sign${
+        `${relayerURL}/second-key/${account.id}/ethereum/sign${
           isTypedData ? '?typedData=true' : ''
         }`,
         {
@@ -225,17 +218,17 @@ const useSignMessage = (
         setLoading(false)
         if (!message) throw new Error('Secondary key: no success but no error message')
         if (message.includes('invalid confirmation code')) {
-          addToast(i18n.t('Unable to sign: wrong confirmation code') as string, { error: true })
+          addToast('Unable to sign: wrong confirmation code', { error: true })
         }
-        addToast(i18n.t('Second signature error: {{message}}', { message }) as string, {
+        addToast(`Second signature error: ${message}`, {
           error: true
         })
         return
       }
       if (confCodeRequired) {
         setLoading(false)
-        setConfirmationType(confCodeRequired)
-        quickAccBottomSheet.openBottomSheet()
+        !!onConfirmationCodeRequired &&
+          onConfirmationCodeRequired(confCodeRequired, approveQuickAcc)
 
         return
       }
@@ -263,40 +256,30 @@ const useSignMessage = (
       await verifySignature(toSign, sig, requestedNetwork?.id)
 
       resolve({ success: true, result: sig })
-      addToast(i18n.t('Successfully signed!') as string)
+      addToast('Successfully signed!')
       if (everythingToSign.length === 1) {
-        navigate('dashboard')
+        !!onLastMessageSign && onLastMessageSign()
       }
     } catch (e) {
       handleSigningErr(e)
     }
     setLoading(false)
   }
-
-  const approve = async (credentials: any, device: any) => {
+  // Passing hardware device is required only for the mobile app
+  const approve = async (credentials: any, device?: any) => {
     if (account.signer?.quickAccManager) {
       await approveQuickAcc(credentials)
       return
     }
-
     setLoading(true)
 
     try {
-      if (!hardwareWalletBottomSheet.isOpen && !device) {
-        hardwareWalletBottomSheet.openBottomSheet()
+      const wallet = await getHardwareWallet(device)
+
+      if (!wallet) {
         return
       }
 
-      // if quick account, wallet = await fromEncryptedBackup
-      // and just pass the signature as secondSig to signMsgHash
-      const wallet = getWallet(
-        {
-          signer: account.signer,
-          signerExtra: account.signerExtra,
-          chainId: 1 // does not matter
-        },
-        device
-      )
       // It would be great if we could pass the full data cause then web3 wallets/hw wallets can display the full text
       // Unfortunately that isn't possible, because isValidSignature only takes a bytes32 hash; so to sign this with
       // a personal message, we need to be signing the hash itself as binary data such that we match 'Ethereum signed message:\n32<hash binary data>' on the contract
@@ -316,7 +299,7 @@ const useSignMessage = (
       await verifySignature(toSign, sig, requestedNetwork?.id)
 
       resolve({ success: true, result: sig })
-      addToast(i18n.t('Successfully signed!') as string)
+      addToast('Successfully signed!')
     } catch (e) {
       handleSigningErr(e)
     }
@@ -326,13 +309,10 @@ const useSignMessage = (
   return {
     approve,
     approveQuickAcc,
+    toSign,
     isLoading,
-    resolve,
-    confirmationType,
     hasPrivileges,
     hasProviderError,
-    toSign,
-    totalRequests,
     typeDataErr,
     isDeployed,
     dataV4
