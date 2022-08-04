@@ -84,7 +84,7 @@ const BundleSimplePreview = ({
         />
       ))}
       {!!bundle.executed && !bundle.executed?.success && (
-        <View>
+        <View style={[spacings.phSm, spacings.ptMi]}>
           <Trans>
             <Text appearance="danger" fontSize={12}>
               {'Error: '} {bundle.executed?.errorMsg || 'unknown error'}

@@ -72,13 +72,14 @@ const BundleDetailedPreview = ({ bundle = {}, mined = false, feeAssets }: any) =
           network={bundle.network}
           account={bundle.identity}
           mined={mined}
+          hasBottomSpacing={i < txns - 1}
           addressLabel={!!bundle.meta && bundle?.meta?.addressLabel}
         />
       ))}
       {!!bundle.executed && !bundle.executed?.success && (
-        <View>
+        <View style={[spacings.phSm, spacings.ptMi]}>
           <Trans>
-            <Text appearance="danger">
+            <Text appearance="danger" fontSize={12}>
               {'Error: '} {bundle.executed?.errorMsg || 'unknown error'}
             </Text>
           </Trans>
