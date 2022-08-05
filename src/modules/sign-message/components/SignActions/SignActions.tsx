@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
+import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
@@ -16,12 +17,22 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
-import {
-  HardwareWalletBottomSheetType,
-  QuickAccBottomSheetType
-} from '@modules/sign-message/hooks/useSignMessage/useSignMessage'
 
 import styles from './styles'
+
+export type QuickAccBottomSheetType = {
+  sheetRef: any
+  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
+  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
+  isOpen: boolean
+}
+
+export type HardwareWalletBottomSheetType = {
+  sheetRef: any
+  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
+  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
+  isOpen: boolean
+}
 
 interface Props {
   isLoading: boolean
@@ -129,7 +140,9 @@ const SignActions = ({
             <Button
               text={isLoading ? t('Signing...') : t('Sign')}
               onPress={account.signer?.quickAccManager ? handleSubmit(approve) : approve}
-              disabled={isLoading || !watch('password', '') || !isDeployed}
+              disabled={
+                isLoading || (confirmationType === 'email' && !watch('password', '')) || !isDeployed
+              }
             />
           </View>
         </View>

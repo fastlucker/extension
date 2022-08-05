@@ -1,3 +1,4 @@
+import useSignMessage from 'ambire-common/src/hooks/useSignMessage'
 import { toUtf8String } from 'ethers/lib/utils'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -23,7 +24,6 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import SignActions from '@modules/sign-message/components/SignActions'
-import useSignMessage from '@modules/sign-message/hooks/useSignMessage'
 
 import styles from './styles'
 
@@ -44,7 +44,7 @@ const walletType = (signerExtra: any) => {
   return 'Web3'
 }
 
-const SignScreen = ({ navigation }: any) => {
+const SignScreenScreen = ({ navigation }: any) => {
   const [confirmationType, setConfirmationType] = useState<'email' | 'otp' | null>(null)
 
   const { t } = useTranslation()
@@ -111,6 +111,7 @@ const SignScreen = ({ navigation }: any) => {
     isDeployed,
     dataV4
   } = useSignMessage({
+    fetch,
     account,
     everythingToSign,
     relayerURL,
@@ -223,4 +224,4 @@ const SignScreen = ({ navigation }: any) => {
   )
 }
 
-export default SignScreen
+export default SignScreenScreen

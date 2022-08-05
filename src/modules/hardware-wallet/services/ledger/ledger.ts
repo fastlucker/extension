@@ -241,3 +241,43 @@ export async function ledgerSignMessage(hash: any, signerAddress: any, device: a
 
   return signedMsg
 }
+
+export async function ledgerSignMessage712(
+  domainSeparator: any,
+  hashStructMessage: any,
+  signerAddress: any,
+  device: any
+) {
+  const transport = await openTransport(device)
+
+  const accountsData = await getAccounts(transport)
+  if (accountsData.error) {
+    closeTransport(device)
+    throw new Error(accountsData.error)
+  }
+
+  // TODO: research how to implement for multiple accounts
+  const account = accountsData.accounts[0]
+
+  let signedMsg
+  if (account.address.toLowerCase() === signerAddress.toLowerCase()) {
+    try {
+      const rsvReply = await new AppEth(transport).signEIP712HashedMessage(
+        account.derivationPath,
+        domainSeparator,
+        hashStructMessage
+      )
+      signedMsg = `0x${rsvReply.r}${rsvReply.s}${rsvReply.v.toString(16)}`
+    } catch (e) {
+      closeTransport(device)
+      throw new Error(`Signature denied ${e.message}`)
+    }
+  } else {
+    closeTransport(device)
+    throw new Error('Incorrect address. Are you using the correct account/ledger?')
+  }
+
+  closeTransport(device)
+
+  return signedMsg
+}
