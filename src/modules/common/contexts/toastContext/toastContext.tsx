@@ -115,7 +115,7 @@ const ToastProvider: React.FC = ({ children }) => {
                 <Text weight="medium" color={colors.patriotBlue} fontSize={12}>
                   {error ? t('Oops') : t('Success')}
                 </Text>
-                <Text numberOfLines={5} color={colors.patriotBlue} fontSize={12}>
+                <Text numberOfLines={7} color={colors.patriotBlue} fontSize={12}>
                   {text}
                 </Text>
               </View>
