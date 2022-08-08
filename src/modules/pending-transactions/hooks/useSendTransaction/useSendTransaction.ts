@@ -37,6 +37,8 @@ const ERC20 = new Interface(erc20Abi)
 
 const WALLET_TOKEN_SYMBOLS = ['xWALLET', 'WALLET']
 
+const isInt = (x: any) => !isNaN(x) && x !== null
+
 const getDefaultFeeToken = (
   remainingFeeTokenBalances: any,
   network: any,
@@ -125,7 +127,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
   const { addToast } = useToast()
   const { network }: any = useNetwork()
   const { account } = useAccounts()
-  const { gasTankState, currentAccGasTankState } = useGasTank()
+  const { currentAccGasTankState } = useGasTank()
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
 
@@ -137,6 +139,29 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     [sendTxnState?.replacementBundle, network?.id, account, eligibleRequests]
   )
 
+  // Safety check: make sure our input parameters make sense
+  if (
+    isInt(sendTxnState.mustReplaceNonce) &&
+    !(sendTxnState.replaceByDefault || isInt(bundle.nonce))
+  ) {
+    console.error(
+      'ERROR: SendTransactionWithBundle: mustReplaceNonce is set but we are not using replacementBundle or replaceByDefault'
+    )
+    console.error(
+      'ERROR: SendTransactionWithBundle: This is a huge logical error as mustReplaceNonce is intended to be used only when we want to replace a txn'
+    )
+  }
+
+  // Keep track of unmounted: we need this to not try to modify state after async actions if the component is unmounted
+  const isMounted = useRef(false)
+  useEffect(() => {
+    isMounted.current = true
+    return () => {
+      isMounted.current = false
+    }
+  })
+
+  // Reset the estimation when there are no txns in the bundle
   useEffect(() => {
     if (!bundle?.txns?.length) return
     setEstimation(null)
@@ -147,7 +172,6 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
   currentBundle.current = bundle
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     // We don't need to reestimate the fee when a signing process is in progress
     if (signingStatus) return
     // nor when there are no txns in the bundle, if this is even possible
@@ -242,6 +266,21 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     currentAccGasTankState.isEnabled
   ])
 
+  // keep values such as replaceByDefault and mustReplaceNonce; those will be reset on any setSendTxnState/showSendTxns
+  // we DONT want to keep replacementBundle - closing the dialog means you've essentially dismissed it
+  // also, if you used to be on a replacementBundle, we DON'T want to keep those props
+  const onDismissSendTxns = () =>
+    // @ts-ignore
+    setSendTxnState((prev: any) =>
+      prev.replacementBundle
+        ? { showing: false }
+        : {
+            showing: false,
+            replaceByDefault: prev.replaceByDefault,
+            mustReplaceNonce: prev.mustReplaceNonce
+          }
+    )
+
   // The final bundle is used when signing + sending it
   // the bundle before that is used for estimating
   const getFinalBundle = useCallback(() => {
@@ -274,10 +313,13 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
             ])
           ]
 
-    const pendingBundle = estimation.nextNonce?.pendingBundle
     const nextFreeNonce = estimation.nextNonce?.nonce
     const nextNonMinedNonce = estimation.nextNonce?.nextNonMinedNonce
 
+    // If we've passed in a bundle, use it's nonce (when using a replacementBundle); else, depending on whether we want to replace the current pending bundle,
+    // either use the next non-mined nonce or the next free nonce
+    // eslint-disable-next-line no-nested-ternary
+    const nonce = isInt(bundle.nonce) ? bundle.nonce : replaceTx ? nextNonMinedNonce : nextFreeNonce
     if (currentAccGasTankState.isEnabled) {
       let gasLimit
       if (bundle.txns.length > 1) gasLimit = estimation.gasLimit + (bundle.extraGas || 0)
@@ -300,9 +342,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
         },
         txns: [...bundle.txns],
         gasLimit,
-        nonce:
-          bundle.nonce ||
-          (sendTxnState.replacementBundle && pendingBundle ? nextNonMinedNonce : nextFreeNonce)
+        nonce
       })
     }
 
@@ -311,18 +351,9 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
       txns: [...bundle.txns, feeTxn],
       gasTankFee: null,
       gasLimit: estimation.gasLimit + addedGas + (bundle.extraGas || 0),
-      nonce:
-        bundle.nonce ||
-        (sendTxnState.replacementBundle && pendingBundle ? nextNonMinedNonce : nextFreeNonce)
+      nonce
     })
-  }, [
-    bundle,
-    estimation,
-    feeSpeed,
-    network,
-    sendTxnState.replacementBundle,
-    currentAccGasTankState.isEnabled
-  ])
+  }, [bundle, estimation, feeSpeed, network, currentAccGasTankState.isEnabled, replaceTx])
 
   const approveTxnImpl = async (device: any) => {
     if (!estimation) throw new Error('no estimation: should never happen')
@@ -376,9 +407,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     const finalBundle = (signingStatus && signingStatus.finalBundle) || getFinalBundle()
     const signer = finalBundle.signer
 
-    if (typeof finalBundle.nonce !== 'number') {
-      await finalBundle.getNonce(getProvider(network.id))
-    }
+    const canSkip2FA = signingStatus && signingStatus.confCodeRequired === 'notRequired'
 
     const { signature, success, message, confCodeRequired } = await fetchPost(
       `${relayerURL}/second-key/${bundle.identity}/${network.id}/sign`,
@@ -387,9 +416,10 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
         txns: finalBundle.txns,
         nonce: finalBundle.nonce,
         gasLimit: finalBundle.gasLimit,
-        code: quickAccCredentials && quickAccCredentials.code,
+        ...(!canSkip2FA && { code: quickAccCredentials && quickAccCredentials.code }),
         // This can be a boolean but it can also contain the new signer/primaryKeyBackup, which instructs /second-key to update acc upon successful signature
-        recoveryMode: finalBundle.recoveryMode
+        recoveryMode: finalBundle.recoveryMode,
+        canSkip2FA
       }
     )
     if (!success) {
@@ -408,7 +438,11 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
         throw new Error(
           'No key backup found: you need to import the account from JSON or login again.'
         )
-      setSigningStatus({ quickAcc: true, inProgress: true })
+      setSigningStatus({
+        quickAcc: true,
+        inProgress: true,
+        confCodeRequired: canSkip2FA ? 'notRequired' : undefined
+      })
       if (!finalBundle.recoveryMode) {
         // Make sure we let React re-render without blocking (decrypting and signing will block)
         // eslint-disable-next-line no-promise-executor-return
@@ -446,8 +480,8 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
         // special case for approveTxnImplQuickAcc
         if (!bundleResult) return
 
-        // be careful not to call this after onDimiss, cause it might cause state to be changed post-unmount
-        setSigningStatus(null)
+        // do not to call this after onDismiss, cause it might cause state to be changed post-unmount
+        if (isMounted.current) setSigningStatus(null)
 
         // Inform everything that's waiting for the results (eg WalletConnect)
         const skipResolve =
@@ -463,17 +497,23 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
 
         if (bundleResult.success) {
           onBroadcastedTxn(bundleResult.txId)
-          setSendTxnState({ showing: false })
-        } else
+          onDismissSendTxns()
+        } else {
+          // to force replacementBundle to be null, so it's not filled from previous state change in App.js in useEffect
+          // basically close the modal if the txn was already mined
+          if (bundleResult.message.includes('was already mined')) {
+            onDismissSendTxns()
+          }
           addToast(
             i18n.t('Transaction error: {{error}}', {
               error: getErrorMessage(bundleResult)
             }) as string,
             { error: true }
           )
+        }
       })
       .catch((e) => {
-        setSigningStatus(null)
+        if (isMounted.current) setSigningStatus(null)
         if (e && e.message.includes('must provide an Ethereum address')) {
           addToast(
             i18n.t(
@@ -503,7 +543,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
   const rejectTxn =
     bundle.requestIds &&
     (() => {
-      setSendTxnState({ showing: false })
+      onDismissSendTxns()
       resolveMany(bundle.requestIds, { message: REJECT_MSG })
     })
 
@@ -512,11 +552,11 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     resolveMany(sendTxnState.replacementBundle.replacedRequestIds, { message: REJECT_MSG })
   }
 
-  // Allow actions either on regular tx or replacement/speed tx, when not mined
+  // `mustReplaceNonce` is set on speedup/cancel, to prevent the user from broadcasting the txn if the same nonce has been mined
   // eslint-disable-next-line no-nested-ternary
-  const canProceed = sendTxnState.replacementBundle
-    ? !Number.isNaN(estimation?.nextNonce?.nextNonMinedNonce)
-      ? bundle.nonce >= estimation?.nextNonce?.nextNonMinedNonce
+  const canProceed = isInt(sendTxnState.mustReplaceNonce)
+    ? isInt(estimation?.nextNonce?.nextNonMinedNonce)
+      ? sendTxnState.mustReplaceNonce >= estimation?.nextNonce?.nextNonMinedNonce
       : null // null = waiting to get nonce data from relayer
     : true
 

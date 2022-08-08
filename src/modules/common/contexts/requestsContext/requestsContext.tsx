@@ -78,7 +78,9 @@ const RequestsProvider: React.FC = ({ children }) => {
       ),
     [requests, network?.chainId, selectedAcc]
   )
-
+  // Docs: the state is { showing: bool, replacementBundle, replaceByDefault: bool, mustReplaceNonce: number }
+  // mustReplaceNonce is set when the end goal is to replace a particular transaction, and if that txn gets mined we should stop the user from doing anything
+  // mustReplaceNonce must always be used together with either replaceByDefault: true or replacementBundle
   const [sendTxnState, setSendTxnState] = useState<{
     showing: boolean
     [key: string]: any
@@ -89,7 +91,12 @@ const RequestsProvider: React.FC = ({ children }) => {
   const prevSendTxnState: any = usePrevious(sendTxnState)
 
   useEffect(() => {
-    setSendTxnState({ showing: !!eligibleRequests.length })
+    setSendTxnState((prev) => ({
+      showing: !!eligibleRequests.length,
+      // we only keep those if there are transactions, otherwise zero them
+      replaceByDefault: eligibleRequests.length ? prev.replaceByDefault : null,
+      mustReplaceNonce: eligibleRequests.length ? prev.mustReplaceNonce : null
+    }))
   }, [eligibleRequests.length])
 
   const onBroadcastedTxn = useCallback(
