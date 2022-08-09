@@ -20,6 +20,7 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import useClaimableWalletToken from '@modules/dashboard/hooks/useClaimableWalletToken'
 import useRewards from '@modules/dashboard/hooks/useRewards'
 import useStakedWalletToken from '@modules/dashboard/hooks/useStakedWalletToken'
 
@@ -28,33 +29,43 @@ import styles from './styles'
 const Rewards = () => {
   const { t } = useTranslation()
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
-  const { rewards, pendingTokensTotal, claimableWalletToken } = useRewards()
-  const { stakedAmount } = useStakedWalletToken()
-  const { hidePrivateValue } = usePrivateMode()
-
-  useLayoutEffect(() => {
-    // Solves 2 issues: 1) the annoying jump in the beginning between the
-    // loading and the loaded state; 2) the annoying jump when value updates.
-    triggerLayoutAnimation()
-  }, [pendingTokensTotal])
-
+  const { rewards } = useRewards()
   const {
-    vestingEntry,
     currentClaimStatus,
+    vestingEntry,
     claimableNow,
     disabledReason,
     claimDisabledReason,
     claimEarlyRewards,
     claimVesting
-  } = claimableWalletToken
+  } = useClaimableWalletToken()
+  const { stakedAmount } = useStakedWalletToken()
+  const { hidePrivateValue } = usePrivateMode()
 
   const {
     walletTokenAPYPercentage,
     adxTokenAPYPercentage,
     xWALLETAPYPercentage,
     walletUsdPrice,
-    multipliers
+    multipliers,
+    totalLifetimeRewards
   } = rewards
+
+  const pendingTokensTotal =
+    currentClaimStatus && !currentClaimStatus.loading
+      ? (
+          totalLifetimeRewards -
+          (currentClaimStatus.claimed || 0) -
+          (currentClaimStatus.claimedInitial || 0) +
+          (currentClaimStatus.mintableVesting || 0)
+        ).toFixed(3)
+      : '...'
+
+  useLayoutEffect(() => {
+    // Solves 2 issues: 1) the annoying jump in the beginning between the
+    // loading and the loaded state; 2) the annoying jump when value updates.
+    triggerLayoutAnimation()
+  }, [pendingTokensTotal])
 
   const claimableNowUsd =
     walletUsdPrice && !currentClaimStatus.loading && claimableNow
