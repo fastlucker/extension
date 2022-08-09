@@ -25,6 +25,8 @@ import TransactionSummary from '@modules/pending-transactions/components/Transac
 import useSendTransaction from '@modules/pending-transactions/hooks/useSendTransaction'
 import { StackActions } from '@react-navigation/native'
 
+const isInt = (x: any) => !isNaN(x) && x !== null
+
 const PendingTransactionsScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
@@ -38,13 +40,15 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     signingStatus,
     estimation,
     feeSpeed,
+    rejectTxn,
+    canProceed,
+    replaceTx,
+    mustReplaceNonce,
     setEstimation,
     setFeeSpeed,
     approveTxn,
-    rejectTxn,
-    canProceed,
-    replacementBundle,
-    rejectTxnReplace
+    rejectTxnReplace,
+    setReplaceTx
   } = useSendTransaction({
     sheetRef,
     openBottomSheet,
@@ -127,7 +131,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
             isGasTankEnabled={!!currentAccGasTankState.isEnabled}
           />
         )}
-        {!!replacementBundle && (
+        {isInt(mustReplaceNonce) && (
           <>
             {(!!canProceed || canProceed === null) && (
               <Text style={[spacings.mbTy, spacings.phSm]} fontSize={12}>
@@ -166,6 +170,9 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
             ) : (
               <SignActions
                 bundle={bundle}
+                mustReplaceNonce={mustReplaceNonce}
+                replaceTx={replaceTx}
+                setReplaceTx={setReplaceTx}
                 estimation={estimation}
                 approveTxn={approveTxn}
                 rejectTxn={rejectTxn}

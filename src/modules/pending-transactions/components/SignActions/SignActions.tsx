@@ -7,6 +7,7 @@ import { InteractionManager, Keyboard, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
 import Button from '@modules/common/components/Button'
+import Checkbox from '@modules/common/components/Checkbox'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
@@ -21,6 +22,8 @@ import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
 
+const isInt = (x: any) => !isNaN(x) && x !== null
+
 const SignActions = ({
   estimation,
   feeSpeed,
@@ -29,7 +32,10 @@ const SignActions = ({
   signingStatus,
   bundle,
   isGasTankEnabled,
-  network
+  network,
+  mustReplaceNonce,
+  replaceTx,
+  setReplaceTx
 }: any) => {
   const {
     control,
@@ -219,6 +225,19 @@ const SignActions = ({
     <Panel>
       {renderTitle()}
       {feeNote}
+      {
+        // If there's `bundle.nonce` set, it means we're cancelling or speeding up, so this shouldn't even be visible
+        // We also don't show this in any case in which we're forced to replace a particular transaction (mustReplaceNonce)
+        !isInt(bundle.nonce) && !isInt(mustReplaceNonce) && !!estimation?.nextNonce?.pendingBundle && (
+          <View style={spacings.mbTy}>
+            <Checkbox
+              value={replaceTx}
+              onValueChange={() => setReplaceTx((prev: any) => !prev)}
+              label={t('Replace currently pending transaction')}
+            />
+          </View>
+        )
+      }
       <View style={styles.buttonsContainer}>
         {!!rejectTxn && <View style={styles.buttonWrapper}>{rejectButton}</View>}
         <View style={styles.buttonWrapper}>
@@ -233,4 +252,4 @@ const SignActions = ({
   )
 }
 
-export default SignActions
+export default React.memo(SignActions)

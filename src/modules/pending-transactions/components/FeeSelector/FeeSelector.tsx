@@ -7,7 +7,7 @@ import {
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
 import { ethers } from 'ethers'
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import InfoIcon from '@assets/svg/InfoIcon'
@@ -15,6 +15,7 @@ import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import TokenIcon from '@modules/common/components/TokenIcon'
@@ -142,7 +143,19 @@ const FeeSelector = ({
   }, [currency])
 
   const renderFeeSelector = () => {
-    if (!estimation || !estimation?.selectedFeeToken) return <ActivityIndicator />
+    if (!estimation || !estimation?.selectedFeeToken)
+      return (
+        <View
+          style={[
+            spacings.pb,
+            spacings.ptTy,
+            flexboxStyles.alignCenter,
+            flexboxStyles.justifyCenter
+          ]}
+        >
+          <Spinner />
+        </View>
+      )
 
     // Only check for insufficient fee in relayer mode (.feeInUSD is available)
     // Otherwise we don't care whether the user has enough for fees, their signer wallet will take care of it
