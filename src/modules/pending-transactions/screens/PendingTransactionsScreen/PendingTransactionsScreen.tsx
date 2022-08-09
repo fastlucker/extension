@@ -17,6 +17,7 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import isInt from '@modules/common/utils/isInt'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
 import SignActions from '@modules/pending-transactions/components/SignActions'
@@ -24,8 +25,6 @@ import SigningWithAccount from '@modules/pending-transactions/components/Signing
 import TransactionSummary from '@modules/pending-transactions/components/TransactionSummary'
 import useSendTransaction from '@modules/pending-transactions/hooks/useSendTransaction'
 import { StackActions } from '@react-navigation/native'
-
-const isInt = (x: any) => !isNaN(x) && x !== null
 
 const PendingTransactionsScreen = ({ navigation }: any) => {
   const { t } = useTranslation()

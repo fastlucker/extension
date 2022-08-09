@@ -19,10 +19,9 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import isInt from '@modules/common/utils/isInt'
 
 import styles from './styles'
-
-const isInt = (x: any) => !isNaN(x) && x !== null
 
 const SignActions = ({
   estimation,

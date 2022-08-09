@@ -20,6 +20,7 @@ import { fetchPost } from '@modules/common/services/fetch'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { getProvider } from '@modules/common/services/provider'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
+import isInt from '@modules/common/utils/isInt'
 
 type HardwareWalletBottomSheetType = {
   sheetRef: any
@@ -36,8 +37,6 @@ const REJECT_MSG = 'Ambire user rejected the request'
 const ERC20 = new Interface(erc20Abi)
 
 const WALLET_TOKEN_SYMBOLS = ['xWALLET', 'WALLET']
-
-const isInt = (x: any) => !isNaN(x) && x !== null
 
 const getDefaultFeeToken = (
   remainingFeeTokenBalances: any,
@@ -124,15 +123,14 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
   const [estimation, setEstimation] = useState<any>(null)
   const [signingStatus, setSigningStatus] = useState<any>(false)
   const [feeSpeed, setFeeSpeed] = useState<any>(DEFAULT_SPEED)
+  const [replaceTx, setReplaceTx] = useState(false)
+
   const { addToast } = useToast()
   const { network }: any = useNetwork()
   const { account } = useAccounts()
   const { currentAccGasTankState } = useGasTank()
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
-
-  // TODO: implement the related functionality (should be applied in useTransactions)
-  const [replaceTx, setReplaceTx] = useState(false)
 
   const bundle = useMemo(
     () => sendTxnState.replacementBundle || makeBundle(account, network?.id, eligibleRequests),
@@ -245,7 +243,7 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
         })
         .catch((e: any) => {
           if (unmounted) return
-          console.log('estimation error', e)
+          console.error('estimation error', e)
           addToast(`Estimation error: ${e.message || e}`, { error: true })
         })
 
