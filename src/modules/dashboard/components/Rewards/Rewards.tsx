@@ -48,18 +48,21 @@ const Rewards = () => {
     claimVesting
   } = claimableWalletToken
 
-  const walletTokenAPY = rewards.walletTokenAPY ? (rewards.walletTokenAPY * 100).toFixed(2) : '...'
-  const adxTokenAPY = rewards.adxTokenAPY ? (rewards.adxTokenAPY * 100).toFixed(2) : '...'
-  const xWALLETAPY = rewards.xWALLETAPY ? (rewards.xWALLETAPY * 100).toFixed(2) : '...'
-  const walletTokenUSDPrice = rewards.walletUsdPrice || 0
+  const {
+    walletTokenAPYPercentage,
+    adxTokenAPYPercentage,
+    xWALLETAPYPercentage,
+    walletUsdPrice,
+    multipliers
+  } = rewards
 
   const claimableNowUsd =
-    walletTokenUSDPrice && !currentClaimStatus.loading && claimableNow
-      ? (walletTokenUSDPrice * claimableNow).toFixed(2)
+    walletUsdPrice && !currentClaimStatus.loading && claimableNow
+      ? (walletUsdPrice * claimableNow).toFixed(2)
       : '...'
   const mintableVestingUsd =
-    walletTokenUSDPrice && !currentClaimStatus.loading && currentClaimStatus.mintableVesting
-      ? (walletTokenUSDPrice * currentClaimStatus.mintableVesting).toFixed(2)
+    walletUsdPrice && !currentClaimStatus.loading && currentClaimStatus.mintableVesting
+      ? (walletUsdPrice * currentClaimStatus.mintableVesting).toFixed(2)
       : '...'
 
   const shouldDisplayVesting = !!currentClaimStatus.mintableVesting && !!vestingEntry
@@ -105,8 +108,7 @@ const Rewards = () => {
   const handleReadMore = () => Linking.openURL(MULTIPLIERS_READ_MORE_URL).finally(closeBottomSheet)
 
   const renderBadge = ({ id, multiplier, icon, name, color, link }: MultiplierBadge) => {
-    const isUnlocked =
-      rewards.multipliers && rewards.multipliers.map(({ name }) => name).includes(id)
+    const isUnlocked = multipliers && multipliers.map(({ name }) => name).includes(id)
     const handleLinkOpen = () => Linking.openURL(link)
 
     return (
@@ -177,7 +179,7 @@ const Rewards = () => {
                 {rewards[RewardIds.BALANCE_REWARDS]}
               </Text>
               <Text type="small" style={textStyles.right}>
-                {walletTokenAPY}% APY
+                {walletTokenAPYPercentage} APY
               </Text>
             </View>
           </View>
@@ -190,7 +192,7 @@ const Rewards = () => {
                 {rewards[RewardIds.ADX_REWARDS]}
               </Text>
               <Text type="small" style={textStyles.right}>
-                {adxTokenAPY}% APY
+                {adxTokenAPYPercentage} APY
               </Text>
             </View>
           </View>
@@ -270,7 +272,7 @@ const Rewards = () => {
                   {stakedAmount}
                 </Text>
                 <Text type="small" style={textStyles.right}>
-                  {xWALLETAPY}% APY
+                  {xWALLETAPYPercentage} APY
                 </Text>
               </View>
             </View>
