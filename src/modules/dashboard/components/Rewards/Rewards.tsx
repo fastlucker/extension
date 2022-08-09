@@ -55,9 +55,9 @@ const Rewards = () => {
     currentClaimStatus && !currentClaimStatus.loading
       ? (
           totalLifetimeRewards -
-          (currentClaimStatus.claimed || 0) -
-          (currentClaimStatus.claimedInitial || 0) +
-          (currentClaimStatus.mintableVesting || 0)
+          currentClaimStatus.claimed -
+          currentClaimStatus.claimedInitial +
+          currentClaimStatus.mintableVesting
         ).toFixed(3)
       : '...'
 
