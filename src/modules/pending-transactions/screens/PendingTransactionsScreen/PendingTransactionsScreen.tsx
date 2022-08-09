@@ -26,6 +26,8 @@ import TransactionSummary from '@modules/pending-transactions/components/Transac
 import useSendTransaction from '@modules/pending-transactions/hooks/useSendTransaction'
 import { StackActions } from '@react-navigation/native'
 
+const relayerURL = CONFIG.RELAYER_URL
+
 const PendingTransactionsScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
@@ -127,7 +129,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
             feeSpeed={feeSpeed}
             setFeeSpeed={setFeeSpeed}
             network={network}
-            isGasTankEnabled={!!currentAccGasTankState.isEnabled}
+            isGasTankEnabled={currentAccGasTankState.isEnabled && !!relayerURL}
           />
         )}
         {isInt(mustReplaceNonce) && (
@@ -177,7 +179,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
                 rejectTxn={rejectTxn}
                 signingStatus={signingStatus}
                 feeSpeed={feeSpeed}
-                isGasTankEnabled={currentAccGasTankState.isEnabled}
+                isGasTankEnabled={currentAccGasTankState.isEnabled && !!relayerURL}
                 network={network}
               />
             )}

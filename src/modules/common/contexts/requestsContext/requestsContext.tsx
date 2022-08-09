@@ -1,5 +1,5 @@
+// TODO: fill in the missing types
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
-// TODO: add types
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
@@ -12,7 +12,6 @@ import { navigate } from '@modules/common/services/navigation'
 
 export interface RequestsContextReturnType {
   internalRequests: any
-  addRequest: (req: any) => any
   sendTxnState: {
     showing: boolean
     [key: string]: any
@@ -22,16 +21,18 @@ export interface RequestsContextReturnType {
     [key: string]: any
   }
   eligibleRequests: any[]
+  everythingToSign: any[]
   setSendTxnState: (sendTxnState: { showing: boolean; [key: string]: any }) => any
+  addRequest: (req: any) => any
   onBroadcastedTxn: (hash: any) => void
   confirmSentTx: (txHash: any) => void
   resolveMany: (ids: any, resolution: any) => void
-  everythingToSign: any[]
+  showSendTxns: (replacementBundle: any, replaceByDefault?: boolean) => void
+  onDismissSendTxns: () => void
 }
 
 const RequestsContext = createContext<RequestsContextReturnType>({
   internalRequests: [],
-  addRequest: () => {},
   sendTxnState: {
     showing: false
   },
@@ -39,11 +40,14 @@ const RequestsContext = createContext<RequestsContextReturnType>({
     showing: false
   },
   eligibleRequests: [],
+  everythingToSign: [],
   setSendTxnState: () => {},
+  addRequest: () => {},
   onBroadcastedTxn: () => {},
   confirmSentTx: () => {},
   resolveMany: () => {},
-  everythingToSign: []
+  showSendTxns: () => {},
+  onDismissSendTxns: () => {}
 })
 
 const RequestsProvider: React.FC = ({ children }) => {
@@ -54,6 +58,7 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const [internalRequests, setInternalRequests] = useState<any>([])
+  // Keeping track of sent transactions
   const [sentTxn, setSentTxn] = useState<any[]>([])
 
   const addRequest = useCallback(
@@ -69,6 +74,7 @@ const RequestsProvider: React.FC = ({ children }) => {
     [internalRequests, wcRequests, gnosisRequests, accounts]
   )
 
+  // Handling transaction signing requests
   // Show the send transaction full-screen modal if we have a new txn
   const eligibleRequests = useMemo(
     () =>
@@ -139,6 +145,30 @@ const RequestsProvider: React.FC = ({ children }) => {
     [gnosisResolveMany, wcResolveMany]
   )
 
+  const showSendTxns = useCallback(
+    (replacementBundle: any, replaceByDefault = false) =>
+      setSendTxnState({ showing: true, replacementBundle, replaceByDefault }),
+    [setSendTxnState]
+  )
+  // keep values such as replaceByDefault and mustReplaceNonce; those will be reset on any setSendTxnState/showSendTxns
+  // we DONT want to keep replacementBundle - closing the dialog means you've essentially dismissed it
+  // also, if you used to be on a replacementBundle, we DON'T want to keep those props
+  const onDismissSendTxns = useCallback(
+    () =>
+      setSendTxnState((prev) =>
+        prev.replacementBundle
+          ? { showing: false }
+          : {
+              showing: false,
+              replaceByDefault: prev.replaceByDefault,
+              mustReplaceNonce: prev.mustReplaceNonce
+            }
+      ),
+    [setSendTxnState]
+  )
+
+  // Handling message signatures
+  // Network shouldn't matter here
   const everythingToSign = useMemo(
     () =>
       requests.filter(
@@ -169,27 +199,31 @@ const RequestsProvider: React.FC = ({ children }) => {
       value={useMemo(
         () => ({
           internalRequests,
-          addRequest,
           sendTxnState,
           eligibleRequests,
-          setSendTxnState,
+          everythingToSign,
           prevSendTxnState,
+          setSendTxnState,
+          addRequest,
           onBroadcastedTxn,
           confirmSentTx,
           resolveMany,
-          everythingToSign
+          showSendTxns,
+          onDismissSendTxns
         }),
         [
           internalRequests,
-          addRequest,
           sendTxnState,
           eligibleRequests,
-          setSendTxnState,
+          everythingToSign,
           prevSendTxnState,
+          setSendTxnState,
+          addRequest,
           onBroadcastedTxn,
           confirmSentTx,
           resolveMany,
-          everythingToSign
+          showSendTxns,
+          onDismissSendTxns
         ]
       )}
     >

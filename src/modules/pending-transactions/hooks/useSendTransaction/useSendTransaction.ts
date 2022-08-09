@@ -123,7 +123,6 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
   const [estimation, setEstimation] = useState<any>(null)
   const [signingStatus, setSigningStatus] = useState<any>(false)
   const [feeSpeed, setFeeSpeed] = useState<any>(DEFAULT_SPEED)
-  const [replaceTx, setReplaceTx] = useState(false)
 
   const { addToast } = useToast()
   const { network }: any = useNetwork()
@@ -131,6 +130,8 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
   const { currentAccGasTankState } = useGasTank()
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
+
+  const [replaceTx, setReplaceTx] = useState(!!sendTxnState.replaceByDefault)
 
   const bundle = useMemo(
     () => sendTxnState.replacementBundle || makeBundle(account, network?.id, eligibleRequests),
@@ -538,12 +539,10 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
   }
 
   // Not applicable when .requestIds is not defined (replacement bundle)
-  const rejectTxn =
-    bundle.requestIds &&
-    (() => {
-      onDismissSendTxns()
-      resolveMany(bundle.requestIds, { message: REJECT_MSG })
-    })
+  const rejectTxn = () => {
+    onDismissSendTxns()
+    bundle.requestIds && resolveMany(bundle.requestIds, { message: REJECT_MSG })
+  }
 
   // Only for replacement flow
   const rejectTxnReplace = () => {
@@ -560,13 +559,13 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
 
   return {
     bundle,
-    rejectTxn,
     estimation,
     signingStatus,
     feeSpeed,
     canProceed,
     mustReplaceNonce: sendTxnState.mustReplaceNonce,
     replaceTx,
+    rejectTxn,
     setReplaceTx,
     approveTxn,
     setFeeSpeed,

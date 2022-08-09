@@ -1,10 +1,9 @@
+// TODO: fill in the missing types
 import { Bundle } from 'adex-protocol-eth/js'
 import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
-// TODO: add types
 import { useCallback } from 'react'
 
 import CONFIG from '@config/env'
-import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
@@ -14,26 +13,24 @@ import useToast from '@modules/common/hooks/useToast'
 // 10% in geth and most EVM chain RPCs; relayer wants 12%
 const RBF_THRESHOLD = 1.14
 
+const relayerURL = CONFIG.RELAYER_URL
+
 const useTransactions = () => {
   const { addToast } = useToast()
   const { selectedAcc } = useAccounts()
-  const { setSendTxnState } = useRequests()
+  const { setSendTxnState, showSendTxns } = useRequests()
   const { network }: any = useNetwork()
-  const { t } = useTranslation()
   const { addRequest } = useRequests()
   const { cacheBreak } = useCacheBreak({
     breakPoint: 5000,
     refreshInterval: 10000
   })
 
-  const showSendTxns = (bundle: any) =>
-    setSendTxnState({ showing: true, replacementBundle: bundle })
-
   const showSendTxnsForReplacement = useCallback(
     (bundle) => {
       bundle.txns.slice(0, -1).forEach((txn: any, index: any) => {
         addRequest({
-          id: index,
+          id: `replace_${index}`,
           chainId: network.chainId,
           account: selectedAcc,
           type: 'eth_sendTransaction',
@@ -44,8 +41,7 @@ const useTransactions = () => {
           }
         })
       })
-      // Wouldn't need to be called cause it will happen autoamtically, except we need `replaceByDefault`
-      setSendTxnState({ showing: true, replaceByDefault: true })
+      setSendTxnState({ showing: true, replaceByDefault: true, mustReplaceNonce: bundle.nonce })
     },
     [addRequest, network, selectedAcc, setSendTxnState]
   )
@@ -63,6 +59,10 @@ const useTransactions = () => {
   const allPending = data && data.txns.filter((x: any) => !x.executed && !x.replaced)
   const firstPending = allPending && allPending[0]
 
+  // Removed fee txn if Gas tank is not used for payment method
+  const removeFeeTxnFromBundleIfGasTankDisabled = (bundle: any) =>
+    !bundle.gasTankFee ? { ...bundle, txns: bundle.txns.slice(0, -1) } : bundle
+
   const mapToBundle = (relayerBundle: any, extra = {}) =>
     new Bundle({
       ...relayerBundle,
@@ -74,26 +74,32 @@ const useTransactions = () => {
     })
 
   const cancelByReplacing = (relayerBundle: any) =>
-    showSendTxns(
-      mapToBundle(relayerBundle, {
+    setSendTxnState({
+      showing: true,
+      replacementBundle: mapToBundle(relayerBundle, {
         txns: [[selectedAcc, '0x0', '0x']]
-      })
-    )
+      }),
+      mustReplaceNonce: relayerBundle.nonce.num
+    })
 
   const cancel = (relayerBundle: any) => {
     // @TODO relayerless
     mapToBundle(relayerBundle)
-      .cancel({ relayerURL: CONFIG.RELAYER_URL, fetch })
-      .then(({ success }: any) => {
+      .cancel({ relayerURL, fetch })
+      .then(({ success, message }: any) => {
         if (!success) {
-          addToast(
-            t(
+          if (message.includes('not possible to cancel')) {
+            addToast(
               'Transaction already picked up by the network, you will need to pay a fee to replace it with a cancellation transaction.'
-            ) as string
-          )
+            )
+          } else {
+            addToast(
+              `Not possible to cancel: ${message}, you will need to pay a fee to replace it with a cancellation transaction.`
+            )
+          }
           cancelByReplacing(relayerBundle)
         } else {
-          addToast(t('Transaction cancelled successfully') as string)
+          addToast('Transaction cancelled successfully')
         }
       })
       .catch((e: any) => {
@@ -104,9 +110,14 @@ const useTransactions = () => {
 
   // @TODO: we are currently assuming the last txn is a fee; change that (detect it)
   const speedup = (relayerBundle: any) =>
-    showSendTxns(mapToBundle(relayerBundle, { txns: relayerBundle.txns.slice(0, -1) }))
+    setSendTxnState({
+      showing: true,
+      replacementBundle: mapToBundle(removeFeeTxnFromBundleIfGasTankDisabled(relayerBundle)),
+      mustReplaceNonce: relayerBundle.nonce.num
+    })
 
-  const replace = (relayerBundle: any) => showSendTxnsForReplacement(mapToBundle(relayerBundle))
+  const replace = (relayerBundle: any) =>
+    showSendTxnsForReplacement(mapToBundle(removeFeeTxnFromBundleIfGasTankDisabled(relayerBundle)))
 
   return {
     data,

@@ -110,6 +110,19 @@ const WalletDiscountBanner = ({
   )
 }
 
+const mapGasTankTokens = (nativePrice: number) => (item: any) => {
+  const nativeRate =
+    item.address === '0x0000000000000000000000000000000000000000' ? null : nativePrice / item.price
+  return {
+    ...item,
+    symbol: item.symbol.toUpperCase(),
+    balance: ethers.utils
+      .parseUnits(item.balance.toFixed(item.decimals).toString(), item.decimals)
+      .toString(),
+    nativeRate
+  }
+}
+
 const FeeSelector = ({
   disabled,
   signer,
@@ -195,25 +208,15 @@ const FeeSelector = ({
     }
 
     const { nativeAssetSymbol } = network
-    const gasTankTokens = estimation.gasTank?.map((item) => {
-      const nativeRate =
-        item.address === '0x0000000000000000000000000000000000000000'
-          ? null
-          : estimation.nativeAssetPriceInUSD / item.price
-      return {
-        ...item,
-        symbol: item.symbol.toUpperCase(),
-        balance: ethers.utils
-          .parseUnits(item.balance.toFixed(item.decimals).toString(), item.decimals)
-          .toString(),
-        nativeRate
-      }
-    })
+    const gasTankTokens = estimation.gasTank?.map(
+      mapGasTankTokens(estimation.nativeAssetPriceInUSD)
+    )
 
     const tokens =
-      isGasTankEnabled && gasTankTokens.length
+      isGasTankEnabled && gasTankTokens?.length
         ? gasTankTokens
-        : estimation.remainingFeeTokenBalances || [
+        : // fallback to the native asset if fee tokens cannot be retrieved for whatever reason
+          estimation.remainingFeeTokenBalances || [
             {
               symbol: nativeAssetSymbol,
               decimals: 18,
