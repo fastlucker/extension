@@ -5,21 +5,34 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
+import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
-import {
-  HardwareWalletBottomSheetType,
-  QuickAccBottomSheetType
-} from '@modules/sign-message/hooks/useSignMessage/useSignMessage'
 
 import styles from './styles'
+
+export type QuickAccBottomSheetType = {
+  sheetRef: any
+  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
+  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
+  isOpen: boolean
+}
+
+export type HardwareWalletBottomSheetType = {
+  sheetRef: any
+  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
+  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
+  isOpen: boolean
+}
 
 interface Props {
   isLoading: boolean
@@ -29,7 +42,9 @@ interface Props {
   quickAccBottomSheet: QuickAccBottomSheetType
   hardwareWalletBottomSheet: HardwareWalletBottomSheetType
   confirmationType: string | null
-  isDeployed: boolean
+  isDeployed: boolean | null
+  hasPrivileges: boolean | null
+  hasProviderError: any
 }
 
 const SignActions = ({
@@ -40,7 +55,9 @@ const SignActions = ({
   quickAccBottomSheet,
   hardwareWalletBottomSheet,
   confirmationType,
-  isDeployed
+  isDeployed,
+  hasPrivileges,
+  hasProviderError
 }: Props) => {
   const { t } = useTranslation()
   const { account } = useAccounts()
@@ -63,7 +80,7 @@ const SignActions = ({
   return (
     <>
       <View>
-        {!!account.signer?.quickAccManager && isDeployed && (
+        {!!account.signer?.quickAccManager && !!isDeployed && (
           <Controller
             control={control}
             rules={{ required: true }}
@@ -80,13 +97,34 @@ const SignActions = ({
             name="password"
           />
         )}
-        {!isDeployed && (
-          <View style={spacings.mbMd}>
+        {isDeployed === null && !hasProviderError && (
+          <View style={[spacings.mbMd, flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}>
+            <Spinner />
+          </View>
+        )}
+        {isDeployed === false && (
+          <View style={[spacings.mbMd, spacings.phSm]}>
             <Text appearance="danger" fontSize={12}>
               {t("You can't sign this message yet.")}
             </Text>
             <Text appearance="danger" fontSize={12}>
               {t('You need to complete your first transaction to be able to sign messages.')}
+            </Text>
+          </View>
+        )}
+        {!hasPrivileges && (
+          <View style={[spacings.mbMd, spacings.phSm]}>
+            <Text appearance="danger" fontSize={12}>
+              {t('You do not have the privileges to sign this message.')}
+            </Text>
+          </View>
+        )}
+        {!!hasProviderError && (
+          <View style={[spacings.mbMd, spacings.phSm]}>
+            <Text appearance="danger" fontSize={12}>
+              {t('There was an issue with the network provider: {{error}}', {
+                error: hasProviderError
+              })}
             </Text>
           </View>
         )}
@@ -102,7 +140,9 @@ const SignActions = ({
             <Button
               text={isLoading ? t('Signing...') : t('Sign')}
               onPress={account.signer?.quickAccManager ? handleSubmit(approve) : approve}
-              disabled={isLoading || !watch('password', '') || !isDeployed}
+              disabled={
+                isLoading || (confirmationType === 'email' && !watch('password', '')) || !isDeployed
+              }
             />
           </View>
         </View>

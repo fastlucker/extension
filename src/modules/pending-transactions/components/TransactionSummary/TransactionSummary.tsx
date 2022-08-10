@@ -65,4 +65,4 @@ const TransactionSummary = ({ bundle, estimation }: any) => {
   )
 }
 
-export default TransactionSummary
+export default React.memo(TransactionSummary)

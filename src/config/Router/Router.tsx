@@ -47,7 +47,7 @@ import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingSc
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
-import SignMessage from '@modules/sign-message/screens/SignMessage'
+import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -398,7 +398,7 @@ const AppStack = () => {
       />
       <MainStack.Screen
         name="sign-message"
-        component={SignMessage}
+        component={SignMessageScreen}
         options={{ title: t('Sign'), headerLeft: () => null, gestureEnabled: false }}
       />
       <MainStack.Screen
