@@ -8,7 +8,7 @@ export const SyncStorage: {
   removeItem(key: string): void
 } = {
   getItem: (key: string) => storage.getString(key),
-  setItem: (key: string, value: any) => {
+  setItem: (key: string, value: string) => {
     storage.set(key, value)
   },
   removeItem: (key: string) => {
