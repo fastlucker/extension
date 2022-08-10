@@ -31,18 +31,6 @@ const Rewards = () => {
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
   const { rewards } = useRewards()
   const {
-    currentClaimStatus,
-    vestingEntry,
-    claimableNow,
-    disabledReason,
-    claimDisabledReason,
-    claimEarlyRewards,
-    claimVesting
-  } = useClaimableWalletToken()
-  const { stakedAmount } = useStakedWalletToken()
-  const { hidePrivateValue } = usePrivateMode()
-
-  const {
     walletTokenAPYPercentage,
     adxTokenAPYPercentage,
     xWALLETAPYPercentage,
@@ -50,31 +38,26 @@ const Rewards = () => {
     multipliers,
     totalLifetimeRewards
   } = rewards
-
-  const pendingTokensTotal =
-    currentClaimStatus && !currentClaimStatus.loading
-      ? (
-          totalLifetimeRewards -
-          currentClaimStatus.claimed -
-          currentClaimStatus.claimedInitial +
-          currentClaimStatus.mintableVesting
-        ).toFixed(3)
-      : '...'
+  const {
+    currentClaimStatus,
+    vestingEntry,
+    claimableNow,
+    disabledReason,
+    claimDisabledReason,
+    claimEarlyRewards,
+    claimVesting,
+    pendingTokensTotal,
+    claimableNowUsd,
+    mintableVestingUsd
+  } = useClaimableWalletToken({ totalLifetimeRewards, walletUsdPrice })
+  const { stakedAmount } = useStakedWalletToken()
+  const { hidePrivateValue } = usePrivateMode()
 
   useLayoutEffect(() => {
     // Solves 2 issues: 1) the annoying jump in the beginning between the
     // loading and the loaded state; 2) the annoying jump when value updates.
     triggerLayoutAnimation()
   }, [pendingTokensTotal])
-
-  const claimableNowUsd =
-    walletUsdPrice && !currentClaimStatus.loading && claimableNow
-      ? (walletUsdPrice * claimableNow).toFixed(2)
-      : '...'
-  const mintableVestingUsd =
-    walletUsdPrice && !currentClaimStatus.loading && currentClaimStatus.mintableVesting
-      ? (walletUsdPrice * currentClaimStatus.mintableVesting).toFixed(2)
-      : '...'
 
   const shouldDisplayVesting = !!currentClaimStatus.mintableVesting && !!vestingEntry
   const shouldDisplayStaked = !!stakedAmount
@@ -152,7 +135,10 @@ const Rewards = () => {
           // Technically, the fallback should be set in the hook,
           // but sometimes the hook returns `pendingTokensTotal` as undefined,
           // so double check it.
-          pendingTokensTotal: hidePrivateValue(pendingTokensTotal) || '...'
+          pendingTokensTotal:
+            currentClaimStatus.loading && !pendingTokensTotal
+              ? '...'
+              : hidePrivateValue(pendingTokensTotal)
         })}
         style={flexboxStyles.alignSelfCenter}
       />
@@ -225,7 +211,7 @@ const Rewards = () => {
                   <Text type="small" color={colors.heliotrope}>
                     $
                   </Text>
-                  {claimableNowUsd}
+                  {currentClaimStatus.loading ? '...' : claimableNowUsd}
                 </Text>
               </View>
             </View>
@@ -261,7 +247,7 @@ const Rewards = () => {
                     <Text type="small" color={colors.heliotrope}>
                       $
                     </Text>
-                    {mintableVestingUsd}
+                    {currentClaimStatus.loading ? '...' : mintableVestingUsd}
                   </Text>
                 </View>
               </View>
