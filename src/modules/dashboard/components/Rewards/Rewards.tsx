@@ -48,7 +48,8 @@ const Rewards = () => {
     claimVesting,
     pendingTokensTotal,
     claimableNowUsd,
-    mintableVestingUsd
+    mintableVestingUsd,
+    shouldDisplayMintableVesting
   } = useClaimableWalletToken({ totalLifetimeRewards, walletUsdPrice })
   const { stakedAmount } = useStakedWalletToken()
   const { hidePrivateValue } = usePrivateMode()
@@ -58,9 +59,6 @@ const Rewards = () => {
     // loading and the loaded state; 2) the annoying jump when value updates.
     triggerLayoutAnimation()
   }, [pendingTokensTotal])
-
-  const shouldDisplayVesting = !!currentClaimStatus.mintableVesting && !!vestingEntry
-  const shouldDisplayStaked = !!stakedAmount
 
   const claimWithBurnDisabled = !!(claimDisabledReason || disabledReason)
   const handleClaimWithBurn = () => {
@@ -196,7 +194,7 @@ const Rewards = () => {
           <View
             style={[
               styles.tableRow,
-              (shouldDisplayVesting || shouldDisplayStaked) && styles.tableRowBorder
+              (shouldDisplayMintableVesting || !!stakedAmount) && styles.tableRowBorder
             ]}
           >
             <View style={[flexboxStyles.directionRow, spacings.mb]}>
@@ -233,8 +231,8 @@ const Rewards = () => {
             </View>
           </View>
 
-          {shouldDisplayVesting && (
-            <View style={[styles.tableRow, shouldDisplayStaked && styles.tableRowBorder]}>
+          {shouldDisplayMintableVesting && (
+            <View style={[styles.tableRow, !!stakedAmount && styles.tableRowBorder]}>
               <View style={[flexboxStyles.directionRow, spacings.mb]}>
                 <View style={[spacings.prTy, flexboxStyles.flex1]}>
                   <Text>{t('Claimable early supporters vesting')}</Text>
@@ -259,7 +257,7 @@ const Rewards = () => {
               />
             </View>
           )}
-          {shouldDisplayStaked && (
+          {!!stakedAmount && (
             <View style={[styles.tableRow, flexboxStyles.directionRow]}>
               <View style={[spacings.prTy, flexboxStyles.flex1]}>
                 <Text>{t('Staked WALLET')}</Text>
