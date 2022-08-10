@@ -40,7 +40,6 @@ const Rewards = () => {
   } = rewards
   const {
     currentClaimStatus,
-    vestingEntry,
     claimableNow,
     disabledReason,
     claimDisabledReason,
