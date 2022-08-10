@@ -7,16 +7,7 @@ export interface UseRelayerDataReturnType {
   forceRefresh: () => void
 }
 
-export default function useRelayerData(
-  url: string | null,
-  initialState: any
-): UseRelayerDataReturnType {
-  const {
-    data,
-    isLoading,
-    errMsg: err,
-    forceRefresh
-  } = commonUseRelayerData(fetch, url, initialState)
+const useRelayerData = (url: string | null, initialState: any) =>
+  commonUseRelayerData(fetch, url, initialState)
 
-  return { data, isLoading, errMsg: err, forceRefresh }
-}
+export default useRelayerData
