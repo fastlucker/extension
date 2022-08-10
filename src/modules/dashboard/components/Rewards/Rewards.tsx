@@ -49,7 +49,8 @@ const Rewards = () => {
     pendingTokensTotal,
     claimableNowUsd,
     mintableVestingUsd,
-    shouldDisplayMintableVesting
+    shouldDisplayMintableVesting,
+    claimingDisabled
   } = useClaimableWalletToken({ totalLifetimeRewards, walletUsdPrice })
   const { stakedAmount } = useStakedWalletToken()
   const { hidePrivateValue } = usePrivateMode()
@@ -60,7 +61,6 @@ const Rewards = () => {
     triggerLayoutAnimation()
   }, [pendingTokensTotal])
 
-  const claimWithBurnDisabled = !!(claimDisabledReason || disabledReason)
   const handleClaimWithBurn = () => {
     const handleConfirm = () => {
       closeBottomSheet()
@@ -86,7 +86,6 @@ const Rewards = () => {
     )
   }
 
-  const claimInxWalletDisabled = !!(claimDisabledReason || disabledReason)
   const handleClaimInxWallet = () => {
     closeBottomSheet()
     claimEarlyRewards()
@@ -215,20 +214,25 @@ const Rewards = () => {
             </View>
             <View style={flexboxStyles.directionRow}>
               <Button
-                disabled={claimWithBurnDisabled}
+                disabled={claimingDisabled}
                 onPress={handleClaimWithBurn}
                 size="small"
                 text={t('Claim with Burn')}
                 containerStyle={[spacings.mrMi, flexboxStyles.flex1]}
               />
               <Button
-                disabled={claimInxWalletDisabled}
+                disabled={claimingDisabled}
                 onPress={handleClaimInxWallet}
                 size="small"
                 text={t('Claim in xWALLET')}
                 containerStyle={[spacings.mlMi, flexboxStyles.flex1]}
               />
             </View>
+            {claimingDisabled && (
+              <Text type="caption" appearance="danger" style={spacings.mhTy}>
+                {claimDisabledReason || disabledReason}
+              </Text>
+            )}
           </View>
 
           {shouldDisplayMintableVesting && (
