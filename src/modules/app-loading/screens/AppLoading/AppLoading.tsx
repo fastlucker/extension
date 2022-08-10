@@ -20,7 +20,6 @@ import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { PrivateModeProvider } from '@modules/common/contexts/privateModeContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
-import { StorageContext } from '@modules/common/contexts/storageContext'
 import { ThemeProvider } from '@modules/common/contexts/themeContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
 import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/unsupportedDAppsBottomSheetContext'
@@ -28,10 +27,9 @@ import { WalletConnectProvider } from '@modules/common/contexts/walletConnectCon
 import useFonts from '@modules/common/hooks/useFonts'
 
 const AppLoading = () => {
-  const { storageLoaded } = useContext(StorageContext)
   const { fontsLoaded } = useFonts()
 
-  if (!storageLoaded || !fontsLoaded) return null
+  if (!fontsLoaded) return null
 
   return (
     <LoaderProvider>
