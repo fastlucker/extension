@@ -29,7 +29,7 @@ const CustomFee = ({ setCustomFee, value, isEditEnabled, setEnableEdit, symbol, 
   if (!isEditEnabled) {
     return (
       <TouchableOpacity
-        style={[spacings.mbTy, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
+        style={[spacings.mbSm, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
         onPress={handleEnableEdit}
       >
         <View style={spacings.mrMi}>

@@ -17,6 +17,7 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import isInt from '@modules/common/utils/isInt'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
 import SignActions from '@modules/pending-transactions/components/SignActions'
@@ -24,6 +25,8 @@ import SigningWithAccount from '@modules/pending-transactions/components/Signing
 import TransactionSummary from '@modules/pending-transactions/components/TransactionSummary'
 import useSendTransaction from '@modules/pending-transactions/hooks/useSendTransaction'
 import { StackActions } from '@react-navigation/native'
+
+const relayerURL = CONFIG.RELAYER_URL
 
 const PendingTransactionsScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
@@ -38,13 +41,15 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     signingStatus,
     estimation,
     feeSpeed,
+    rejectTxn,
+    canProceed,
+    replaceTx,
+    mustReplaceNonce,
     setEstimation,
     setFeeSpeed,
     approveTxn,
-    rejectTxn,
-    canProceed,
-    replacementBundle,
-    rejectTxnReplace
+    rejectTxnReplace,
+    setReplaceTx
   } = useSendTransaction({
     sheetRef,
     openBottomSheet,
@@ -124,10 +129,10 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
             feeSpeed={feeSpeed}
             setFeeSpeed={setFeeSpeed}
             network={network}
-            isGasTankEnabled={!!currentAccGasTankState.isEnabled}
+            isGasTankEnabled={currentAccGasTankState.isEnabled && !!relayerURL}
           />
         )}
-        {!!replacementBundle && (
+        {isInt(mustReplaceNonce) && (
           <>
             {(!!canProceed || canProceed === null) && (
               <Text style={[spacings.mbTy, spacings.phSm]} fontSize={12}>
@@ -166,12 +171,15 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
             ) : (
               <SignActions
                 bundle={bundle}
+                mustReplaceNonce={mustReplaceNonce}
+                replaceTx={replaceTx}
+                setReplaceTx={setReplaceTx}
                 estimation={estimation}
                 approveTxn={approveTxn}
                 rejectTxn={rejectTxn}
                 signingStatus={signingStatus}
                 feeSpeed={feeSpeed}
-                isGasTankEnabled={currentAccGasTankState.isEnabled}
+                isGasTankEnabled={currentAccGasTankState.isEnabled && !!relayerURL}
                 network={network}
               />
             )}
