@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import Router from '@config/Router'
+import { hasMigratedFromAsyncStorage, migrateFromAsyncStorage } from '@config/storage'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
@@ -27,9 +28,24 @@ import { WalletConnectProvider } from '@modules/common/contexts/walletConnectCon
 import useFonts from '@modules/common/hooks/useFonts'
 
 const AppLoading = () => {
+  // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
+  const [hasMigrated, setHasMigrated] = useState(hasMigratedFromAsyncStorage)
   const { fontsLoaded } = useFonts()
 
-  if (!fontsLoaded) return null
+  useEffect(() => {
+    ;(async () => {
+      if (!hasMigratedFromAsyncStorage) {
+        try {
+          await migrateFromAsyncStorage()
+          setHasMigrated(true)
+        } catch (e) {
+          throw new Error('AsyncStorage migration failed!')
+        }
+      }
+    })()
+  }, [])
+
+  if (!fontsLoaded || !hasMigrated) return null
 
   return (
     <LoaderProvider>
