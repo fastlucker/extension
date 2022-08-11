@@ -3,33 +3,38 @@ import {
   multiplierBadges,
   MULTIPLIERS_READ_MORE_URL
 } from 'ambire-common/src/constants/multiplierBadges'
+import useClaimableWalletToken from 'ambire-common/src/hooks/useClaimableWalletToken'
+import useRewards from 'ambire-common/src/hooks/useRewards'
 import { RewardIds } from 'ambire-common/src/hooks/useRewards/types'
+import useStakedWalletToken from 'ambire-common/src/hooks/useStakedWalletToken'
 import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Linking, TouchableOpacity, View } from 'react-native'
 
 import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
+import CONFIG from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import useAccounts from '@modules/common/hooks/useAccounts'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
+import useRelayerData from '@modules/common/hooks/useRelayerData'
+import useRequests from '@modules/common/hooks/useRequests'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import useClaimableWalletToken from '@modules/dashboard/hooks/useClaimableWalletToken'
-import useRewards from '@modules/dashboard/hooks/useRewards'
-import useStakedWalletToken from '@modules/dashboard/hooks/useStakedWalletToken'
 
 import styles from './styles'
 
 const Rewards = () => {
   const { t } = useTranslation()
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
-  const { rewards } = useRewards()
+  const { rewards } = useRewards({ relayerURL: CONFIG.RELAYER_URL, useAccounts, useRelayerData })
   const {
     walletTokenAPYPercentage,
     adxTokenAPYPercentage,
@@ -50,8 +55,14 @@ const Rewards = () => {
     mintableVestingUsd,
     shouldDisplayMintableVesting,
     claimingDisabled
-  } = useClaimableWalletToken({ totalLifetimeRewards, walletUsdPrice })
-  const { stakedAmount } = useStakedWalletToken()
+  } = useClaimableWalletToken({
+    useAccounts,
+    useNetwork,
+    useRequests,
+    totalLifetimeRewards,
+    walletUsdPrice
+  })
+  const { stakedAmount } = useStakedWalletToken({ useAccounts })
   const { hidePrivateValue } = usePrivateMode()
 
   useLayoutEffect(() => {
