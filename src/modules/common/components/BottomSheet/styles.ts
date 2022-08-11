@@ -9,7 +9,6 @@ interface Styles {
   closeBtn: ViewStyle
   cancelBtn: ViewStyle
   dragger: ViewStyle
-  backDropWrapper: ViewStyle
   backDrop: ViewStyle
 }
 
@@ -40,9 +39,6 @@ const styles = StyleSheet.create<Styles>({
     borderRadius: 4,
     backgroundColor: colors.titan,
     top: 10
-  },
-  backDropWrapper: {
-    zIndex: 1
   },
   backDrop: {
     width: DEVICE_WIDTH,

@@ -2,6 +2,7 @@ import { Address } from 'ambire-common/src/hooks/useAddressBook'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import DownArrowIcon from '@assets/svg/DownArrowIcon'
 import { TouchableOpacity } from '@gorhom/bottom-sheet'
@@ -13,7 +14,6 @@ import AddAddressForm from '@modules/send/components/AddressList/AddAddressForm'
 import ConfirmAddress from '@modules/send/components/ConfirmAddress'
 
 import BottomSheet from '../BottomSheet'
-import useBottomSheet from '../BottomSheet/hooks/useBottomSheet'
 import NavIconWrapper from '../NavIconWrapper'
 import RecipientInput from '../RecipientInput'
 
@@ -38,19 +38,16 @@ const Recipient: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const { addAddress } = useAddressBook()
-
   const {
-    sheetRef: sheetRefAddrAdd,
-    openBottomSheet: openBottomSheetAddrAdd,
-    closeBottomSheet: closeBottomSheetAddrAdd,
-    isOpen: isOpenAddrAdd
-  } = useBottomSheet()
+    ref: sheetRefAddrAdd,
+    open: openBottomSheetAddrAdd,
+    close: closeBottomSheetAddrAdd
+  } = useModalize()
   const {
-    sheetRef: sheetRefAddrDisplay,
-    openBottomSheet: openBottomSheetAddrDisplay,
-    closeBottomSheet: closeBottomSheetAddrDisplay,
-    isOpen: isOpenAddrDisplay
-  } = useBottomSheet()
+    ref: sheetRefAddrDisplay,
+    open: openBottomSheetAddrDisplay,
+    close: closeBottomSheetAddrDisplay
+  } = useModalize()
 
   const handleAddNewAddress = (fieldValues: Address) => {
     addAddress(fieldValues.name, fieldValues.address, fieldValues.type)
@@ -115,7 +112,6 @@ const Recipient: React.FC<Props> = ({
 
       <BottomSheet
         id="addresses-list"
-        isOpen={isOpenAddrDisplay}
         sheetRef={sheetRefAddrDisplay}
         closeBottomSheet={closeBottomSheetAddrDisplay}
       >
@@ -127,10 +123,8 @@ const Recipient: React.FC<Props> = ({
       </BottomSheet>
       <BottomSheet
         id="add-address"
-        isOpen={isOpenAddrAdd}
         sheetRef={sheetRefAddrAdd}
         closeBottomSheet={closeBottomSheetAddrAdd}
-        dynamicInitialHeight={false}
       >
         <AddAddressForm
           onSubmit={handleAddNewAddress}

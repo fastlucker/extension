@@ -1,11 +1,11 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Spinner from '@modules/common/components/Spinner'
@@ -34,7 +34,11 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const { account } = useAccounts()
   const { network } = useNetwork()
   const { currentAccGasTankState } = useGasTank()
-  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
+  const onOpenHardwareWalletBottomSheet = () => {
+    openBottomSheet()
+  }
 
   const {
     bundle,
@@ -51,10 +55,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     rejectTxnReplace,
     setReplaceTx
   } = useSendTransaction({
-    sheetRef,
-    openBottomSheet,
-    closeBottomSheet,
-    isOpen
+    onOpenHardwareWalletBottomSheet
   })
 
   const prevBundle: any = usePrevious(bundle)
@@ -188,11 +189,9 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         <BottomSheet
           id="pending-transactions-hardware-wallet"
           sheetRef={sheetRef}
-          isOpen={isOpen}
           closeBottomSheet={() => {
             closeBottomSheet()
           }}
-          dynamicInitialHeight={false}
         >
           <HardwareWalletSelectConnection
             onSelectDevice={(device: any) => {

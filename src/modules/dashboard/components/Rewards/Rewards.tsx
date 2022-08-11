@@ -6,10 +6,10 @@ import {
 import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Linking, TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -26,7 +26,7 @@ import styles from './styles'
 
 const Rewards = () => {
   const { t } = useTranslation()
-  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { rewards, pendingTokensTotal, claimableWalletToken } = useRewards()
   const { stakedAmount } = useStakedWalletToken()
   const { hidePrivateValue } = usePrivateMode()
@@ -145,7 +145,6 @@ const Rewards = () => {
       <BottomSheet
         id="rewards"
         sheetRef={sheetRef}
-        isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
         displayCancel={false}
       >

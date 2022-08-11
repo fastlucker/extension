@@ -1,11 +1,11 @@
 import unsupportedDApps from 'ambire-common/src/constants/unsupportedDApps'
 import React, { createContext, useCallback, useMemo, useState } from 'react'
 import { Linking, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { Trans, useTranslation } from '@config/localization'
 import { TouchableOpacity } from '@gorhom/bottom-sheet'
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet, { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import Text from '@modules/common/components/Text'
@@ -19,7 +19,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import UnsupportedDAppItem from './UnsupportedDAppItem'
 
 export interface UnsupportedDAppsBottomSheetContextReturnType {
-  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
+  closeBottomSheet: (dest?: 'default' | 'alwaysOpen' | undefined) => void
 }
 
 const UnsupportedDAppsBottomSheetContext =
@@ -30,7 +30,8 @@ const UnsupportedDAppsBottomSheetContext =
 const numOfItemsWhenNotExpanded = IS_SCREEN_SIZE_S ? 1 : 2
 
 const UnsupportedDAppsBottomSheetProvider: React.FC = ({ children }) => {
-  const { sheetRef, closeBottomSheet } = useBottomSheet()
+  const { ref: sheetRef, close: closeBottomSheet } = useModalize()
+
   const { connections, disconnect } = useWalletConnect()
   const { t } = useTranslation()
   const [advancedMode, setAdvancedMode] = useState<boolean>(false)
@@ -89,9 +90,7 @@ const UnsupportedDAppsBottomSheetProvider: React.FC = ({ children }) => {
         <BottomSheet
           id="unsupportedDAppsBottomSheet"
           sheetRef={sheetRef}
-          isOpen
           closeBottomSheet={handleCancel}
-          initialIndex={0}
         >
           <View style={[spacings.mbTy, flexboxStyles.alignCenter]}>
             <Title>{t('Unsupported dApps')}</Title>

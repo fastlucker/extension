@@ -10,7 +10,6 @@ import { Alert } from 'react-native'
 
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
-import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -22,11 +21,8 @@ import { getProvider } from '@modules/common/services/provider'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import isInt from '@modules/common/utils/isInt'
 
-type HardwareWalletBottomSheetType = {
-  sheetRef: any
-  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
-  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
-  isOpen: boolean
+type Props = {
+  onOpenHardwareWalletBottomSheet: () => void
 }
 
 const relayerURL = CONFIG.RELAYER_URL
@@ -119,7 +115,7 @@ function getErrorMessage(e: any) {
   return e.message || e
 }
 
-const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheetType) => {
+const useSendTransaction = ({ onOpenHardwareWalletBottomSheet }: Props) => {
   const [estimation, setEstimation] = useState<any>(null)
   const [signingStatus, setSigningStatus] = useState<any>(false)
   const [feeSpeed, setFeeSpeed] = useState<any>(DEFAULT_SPEED)
@@ -464,8 +460,8 @@ const useSendTransaction = (hardwareWalletBottomSheet: HardwareWalletBottomSheet
     if (signingStatus && signingStatus.inProgress) return
     setSigningStatus(signingStatus || { inProgress: true })
 
-    if (!bundle.signer.quickAccManager && !hardwareWalletBottomSheet.isOpen) {
-      hardwareWalletBottomSheet.openBottomSheet()
+    if (!bundle.signer.quickAccManager) {
+      !!onOpenHardwareWalletBottomSheet && onOpenHardwareWalletBottomSheet()
       setSigningStatus(null)
       return
     }

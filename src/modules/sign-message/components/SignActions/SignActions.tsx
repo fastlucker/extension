@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
-import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
@@ -22,16 +21,14 @@ import styles from './styles'
 
 export type QuickAccBottomSheetType = {
   sheetRef: any
-  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
-  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
-  isOpen: boolean
+  openBottomSheet: (dest?: 'top' | 'default' | undefined) => void
+  closeBottomSheet: (dest?: 'default' | 'alwaysOpen' | undefined) => void
 }
 
 export type HardwareWalletBottomSheetType = {
   sheetRef: any
-  openBottomSheet: UseBottomSheetReturnType['openBottomSheet']
-  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
-  isOpen: boolean
+  openBottomSheet: (dest?: 'top' | 'default' | undefined) => void
+  closeBottomSheet: (dest?: 'default' | 'alwaysOpen' | undefined) => void
 }
 
 interface Props {
@@ -150,9 +147,7 @@ const SignActions = ({
       <BottomSheet
         id="sign"
         closeBottomSheet={quickAccBottomSheet.closeBottomSheet}
-        isOpen={quickAccBottomSheet.isOpen}
         sheetRef={quickAccBottomSheet.sheetRef}
-        dynamicInitialHeight={false}
       >
         <Title style={textStyles.center}>{t('Confirmation code')}</Title>
         {(confirmationType === 'email' || !confirmationType) && (
@@ -186,9 +181,7 @@ const SignActions = ({
       <BottomSheet
         id="hardware-wallet-sign"
         sheetRef={hardwareWalletBottomSheet.sheetRef}
-        isOpen={hardwareWalletBottomSheet.isOpen}
         closeBottomSheet={hardwareWalletBottomSheet.closeBottomSheet}
-        dynamicInitialHeight={false}
       >
         <HardwareWalletSelectConnection
           onSelectDevice={(device: any) => {

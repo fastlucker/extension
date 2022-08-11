@@ -1,9 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
@@ -16,7 +16,7 @@ import ConnectedDAppItem from './ConnectedDAppItem'
 
 const ConnectedDapps = () => {
   const { t } = useTranslation()
-  const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { connections, disconnect } = useWalletConnect()
 
   const isLegacyWC = ({ bridge }: any) => /https:\/\/bridge.walletconnect.org/g.test(bridge)
@@ -28,12 +28,7 @@ const ConnectedDapps = () => {
           {t('Connected dApps')}
         </Text>
       </TouchableOpacity>
-      <BottomSheet
-        id="connected-dapps"
-        sheetRef={sheetRef}
-        isOpen={isOpen}
-        closeBottomSheet={closeBottomSheet}
-      >
+      <BottomSheet id="connected-dapps" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <View style={[spacings.mbTy, flexboxStyles.alignCenter]}>
           <Title>{t('Connected dApps')}</Title>
         </View>
