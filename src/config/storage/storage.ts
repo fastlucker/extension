@@ -23,10 +23,6 @@ export const hasMigratedFromAsyncStorage = storage.getBoolean('hasMigratedFromAs
 
 // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
 export async function migrateFromAsyncStorage(): Promise<void> {
-  console.log('Migrating from AsyncStorage -> MMKV...')
-  // @ts-ignore
-  const start = global.performance.now()
-
   const keys = await AsyncStorage.getAllKeys()
 
   // eslint-disable-next-line no-restricted-syntax
@@ -51,7 +47,4 @@ export async function migrateFromAsyncStorage(): Promise<void> {
   }
 
   storage.set('hasMigratedFromAsyncStorage', true)
-  // @ts-ignore
-  const end = global.performance.now()
-  console.log(`Migrated from AsyncStorage -> MMKV in ${end - start}ms!`)
 }
