@@ -1,6 +1,7 @@
 import useSignMessage from 'ambire-common/src/hooks/useSignMessage'
+import { UseSignMessageProps } from 'ambire-common/src/hooks/useSignMessage/types'
 import { toUtf8String } from 'ethers/lib/utils'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 
@@ -45,8 +46,6 @@ const walletType = (signerExtra: any) => {
 }
 
 const SignScreenScreen = ({ navigation }: any) => {
-  const [confirmationType, setConfirmationType] = useState<'email' | 'otp' | null>(null)
-
   const { t } = useTranslation()
   const { account } = useAccounts()
   const { addToast } = useToast()
@@ -91,9 +90,10 @@ const SignScreenScreen = ({ navigation }: any) => {
     return wallet
   }
 
-  const onConfirmationCodeRequired = (confCodeRequired: 'email' | 'otp' | null) => {
-    setConfirmationType(confCodeRequired)
+  const onConfirmationCodeRequired: UseSignMessageProps['onConfirmationCodeRequired'] = () => {
     openBottomSheetQickAcc()
+
+    return Promise.resolve()
   }
 
   const onLastMessageSign = () => {
@@ -109,7 +109,8 @@ const SignScreenScreen = ({ navigation }: any) => {
     hasProviderError,
     typeDataErr,
     isDeployed,
-    dataV4
+    dataV4,
+    confirmationType
   } = useSignMessage({
     fetch,
     account,
