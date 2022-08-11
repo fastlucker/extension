@@ -34,6 +34,9 @@ import styles from './styles'
 const Rewards = () => {
   const { t } = useTranslation()
   const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
+  const { selectedAcc } = useAccounts()
+  const { network } = useNetwork()
+  const { addRequest } = useRequests()
   const { rewards } = useRewards({ relayerURL: CONFIG.RELAYER_URL, useAccounts, useRelayerData })
   const {
     walletTokenAPYPercentage,
@@ -56,13 +59,13 @@ const Rewards = () => {
     shouldDisplayMintableVesting,
     claimingDisabled
   } = useClaimableWalletToken({
-    useAccounts,
-    useNetwork,
-    useRequests,
+    accountId: selectedAcc,
+    network,
+    addRequest,
     totalLifetimeRewards,
     walletUsdPrice
   })
-  const { stakedAmount } = useStakedWalletToken({ useAccounts })
+  const { stakedAmount } = useStakedWalletToken({ accountId: selectedAcc })
   const { hidePrivateValue } = usePrivateMode()
 
   useLayoutEffect(() => {
