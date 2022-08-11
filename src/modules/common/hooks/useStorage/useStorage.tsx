@@ -1,6 +1,6 @@
 import useStorage, { UseStorageProps } from 'ambire-common/src/hooks/useStorage'
 
-import { SyncStorage } from '@modules/common/contexts/storageContext'
+import { SyncStorage } from '@config/storage'
 
 export default function useSyncStorage<ValueType>({
   key,

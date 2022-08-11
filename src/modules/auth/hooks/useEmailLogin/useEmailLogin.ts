@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { Keyboard } from 'react-native'
 
 import CONFIG from '@config/env'
+import { SyncStorage } from '@config/storage'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import { fetchCaught } from '@modules/common/services/fetch'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type FormProps = {
   email: string
@@ -16,13 +16,12 @@ export default function useEmailLogin() {
   const [requiresEmailConfFor, setRequiresConfFor] = useState<FormProps | null>(null)
   const [err, setErr] = useState<string>('')
   const [inProgress, setInProgress] = useState<boolean>(false)
-
   const { onAddAccount } = useAccounts()
 
   const attemptLogin = async ({ email }: FormProps, ignoreEmailConfirmationRequired?: any) => {
     // try by-email first: if this returns data we can just move on to decrypting
     // does not matter which network we request
-    const loginSessionKey = await AsyncStorage.getItem('loginSessionKey')
+    const loginSessionKey = await SyncStorage.getItem('loginSessionKey')
     const { resp, body, errMsg }: any = await fetchCaught(
       `${CONFIG.RELAYER_URL}/identity/by-email/${encodeURIComponent(email)}`,
       {
@@ -53,7 +52,7 @@ export default function useEmailLogin() {
         return
       }
       const sessionKey = (await requestAuthResp.json()).sessionKey
-      AsyncStorage.setItem('loginSessionKey', sessionKey)
+      SyncStorage.setItem('loginSessionKey', sessionKey)
       setRequiresConfFor({ email })
       return
     }
@@ -84,7 +83,7 @@ export default function useEmailLogin() {
       )
 
       // Delete the key so that it can't be used anymore on this browser
-      AsyncStorage.removeItem('loginSessionKey')
+      SyncStorage.removeItem('loginSessionKey')
     } else {
       setErr(
         body.message ? `Relayer error: ${body.message}` : `Unknown no-message error: ${resp.status}`

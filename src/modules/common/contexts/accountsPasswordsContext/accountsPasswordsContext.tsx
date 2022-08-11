@@ -2,11 +2,11 @@ import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
+import { SyncStorage } from '@config/storage'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import { SECURE_STORE_KEY_ACCOUNT } from '@modules/settings/constants'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export interface AccountsPasswordsContextReturnType {
   isLoading: boolean
@@ -47,7 +47,7 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
         // Because otherwise, figuring out if the selected account has password
         // via the `SecureStore` requires the user every time to
         // authenticate via his phone local auth.
-        const accountHasPassword = await AsyncStorage.getItem(key)
+        const accountHasPassword = await SyncStorage.getItem(key)
 
         setSelectedAccHasPassword(!!accountHasPassword)
       } catch (e) {
@@ -76,7 +76,7 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
       // Because otherwise, figuring out if the selected account has password
       // via the `SecureStore` requires the user every time to
       // authenticate via his phone local auth.
-      await AsyncStorage.setItem(key, 'true')
+      SyncStorage.setItem(key, 'true')
 
       setSelectedAccHasPassword(true)
       return true
@@ -100,7 +100,7 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
         })
       )
 
-      await AsyncStorage.removeItem(key)
+      SyncStorage.removeItem(key)
 
       // If the change is made for the selected account, clean up the other flag too.
       const isForTheSelectedAccount = !accountId
