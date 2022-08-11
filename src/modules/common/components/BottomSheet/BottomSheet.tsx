@@ -1,13 +1,10 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BackHandler, View } from 'react-native'
+import { Modalize } from 'react-native-modalize'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { HEADER_HEIGHT } from '@config/Router/Header/style'
-import RNBottomSheet, {
-  BottomSheetScrollView,
-  useBottomSheetDynamicSnapPoints
-} from '@gorhom/bottom-sheet'
 import { Portal } from '@gorhom/portal'
 import Button from '@modules/common/components/Button'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
@@ -26,9 +23,6 @@ interface Props {
   // Preferences
   cancelText?: string
   displayCancel?: boolean
-  maxInitialHeightPercentage?: number
-  dynamicInitialHeight?: boolean
-  initialIndex?: number
 }
 
 const BottomSheet: React.FC<Props> = ({
@@ -39,9 +33,7 @@ const BottomSheet: React.FC<Props> = ({
   children,
   displayCancel = true,
   cancelText: _cancelText,
-  // dynamicInitialHeight = true,
   isOpen = false,
-  initialIndex,
   closeBottomSheet = () => {}
 }) => {
   const { t } = useTranslation()
@@ -51,20 +43,7 @@ const BottomSheet: React.FC<Props> = ({
   // and right in the vertical middle of the nav.
   const notchInset = insets.top + 10
 
-  const BOTTOM_SHEET_DRAGGER_HEIGHT = 20
-  const BOTTOM_SHEET_MAX_HEIGHT = useMemo(() => DEVICE_HEIGHT - notchInset - HEADER_HEIGHT, [])
-  const BOTTOM_SHEET_MAX_CONTENT_HEIGHT = BOTTOM_SHEET_MAX_HEIGHT - BOTTOM_SHEET_DRAGGER_HEIGHT
-
-  const initialDynamicSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], [])
-
-  const staticSnapPoints = useMemo(() => [BOTTOM_SHEET_MAX_HEIGHT], [BOTTOM_SHEET_MAX_HEIGHT])
-
-  const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
-    useBottomSheetDynamicSnapPoints(initialDynamicSnapPoints)
-
-  const handleSheetChange = useCallback((index: number) => {
-    if (isOpen && index === -1) !!closeBottomSheet && closeBottomSheet()
-  }, [])
+  const BOTTOM_SHEET_MAX_HEIGHT = DEVICE_HEIGHT - notchInset - HEADER_HEIGHT
 
   useEffect(() => {
     if (!isOpen) {
@@ -88,43 +67,23 @@ const BottomSheet: React.FC<Props> = ({
 
   const cancelText = _cancelText || (t('Cancel') as string)
 
-  const renderContent = () => {
-    // Prevent rendering the bottom sheet content if the bottom sheet is closed,
-    // otherwise - children gets mounted behind the scenes (invisible),
-    // and this create some complications for:
-    // 1) focusing elements when they appear on screen
-    // 2) performance
-
-    if (!isOpen) {
-      return null
-    }
-
-    return (
-      <BottomSheetScrollView
-        onLayout={({
-          nativeEvent: {
-            layout: { height }
-          }
-        }: any) => {
-          handleContentLayout({
-            nativeEvent: {
-              layout: {
-                height:
-                  height > BOTTOM_SHEET_MAX_CONTENT_HEIGHT || !height
-                    ? BOTTOM_SHEET_MAX_CONTENT_HEIGHT
-                    : height
-              }
-            }
-          })
+  return (
+    <Portal hostName="global">
+      <Modalize
+        ref={sheetRef}
+        modalStyle={styles.bottomSheet}
+        handleStyle={styles.dragger}
+        handlePosition="inside"
+        modalTopOffset={DEVICE_HEIGHT - BOTTOM_SHEET_MAX_HEIGHT}
+        threshold={100}
+        adjustToContentHeight
+        disableScrollIfPossible={false}
+        scrollViewProps={{
+          bounces: false
         }}
-        // minHeight should only be used while the dynamic height is disabled
-        // minHeight extends the content's wrapper to the bottom of the screen which allows closing the bottom sheet
-        // by swiping down anywhere on the sheet area
-        style={{
-          maxHeight: BOTTOM_SHEET_MAX_CONTENT_HEIGHT,
-          minHeight: BOTTOM_SHEET_MAX_CONTENT_HEIGHT
+        openAnimationConfig={{
+          timing: { duration: 250, delay: 0 }
         }}
-        alwaysBounceVertical={false}
       >
         <View style={styles.containerInnerWrapper}>
           {children}
@@ -138,39 +97,7 @@ const BottomSheet: React.FC<Props> = ({
             />
           )}
         </View>
-      </BottomSheetScrollView>
-    )
-  }
-
-  // FIXME: Temporary disable, because it is causing glitches with
-  // the animation when the bottom sheet gets open for the first time.
-  // From the second time onwards - it's all good.
-  // Search for: #dynamicheightfix
-  const dynamicInitialHeight = false
-
-  return (
-    <Portal hostName="global">
-      <RNBottomSheet
-        ref={sheetRef}
-        index={initialIndex !== undefined || null ? initialIndex : -1}
-        snapPoints={dynamicInitialHeight ? animatedSnapPoints : staticSnapPoints}
-        {...(dynamicInitialHeight ? { topInset: DEVICE_HEIGHT - BOTTOM_SHEET_MAX_HEIGHT } : {})}
-        {...(dynamicInitialHeight ? { handleHeight: animatedHandleHeight } : {})}
-        contentHeight={
-          dynamicInitialHeight ? animatedContentHeight : BOTTOM_SHEET_MAX_CONTENT_HEIGHT
-        }
-        enablePanDownToClose
-        enableOverDrag={false}
-        animateOnMount
-        keyboardBlurBehavior="restore"
-        backgroundStyle={styles.bottomSheet}
-        handleIndicatorStyle={styles.dragger}
-        backdropComponent={isOpen ? Backdrop : null}
-        onChange={handleSheetChange}
-        onClose={closeBottomSheet}
-      >
-        {renderContent}
-      </RNBottomSheet>
+      </Modalize>
     </Portal>
   )
 }

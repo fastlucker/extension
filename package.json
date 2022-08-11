@@ -125,6 +125,7 @@
     "react-native-linear-gradient": "^2.6.2",
     "react-native-mmkv": "^2.4.3",
     "react-native-modal": "^13.0.1",
+    "react-native-modalize": "^2.1.1",
     "react-native-performance": "^2.1.0",
     "react-native-qrcode-svg": "^6.1.2",
     "react-native-randombytes": "^3.0.0",

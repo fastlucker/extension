@@ -9,16 +9,18 @@ interface Styles {
   closeBtn: ViewStyle
   cancelBtn: ViewStyle
   dragger: ViewStyle
+  backDropWrapper: ViewStyle
   backDrop: ViewStyle
 }
 
 const styles = StyleSheet.create<Styles>({
   bottomSheet: {
     backgroundColor: colors.clay,
-    borderRadius: 15
+    borderTopStartRadius: 15,
+    borderTopEndRadius: 15,
+    paddingTop: 23
   },
   containerInnerWrapper: {
-    paddingTop: 25,
     paddingBottom: 25,
     paddingHorizontal: 20,
     flex: 1
@@ -37,9 +39,10 @@ const styles = StyleSheet.create<Styles>({
     height: 3,
     borderRadius: 4,
     backgroundColor: colors.titan,
-    alignSelf: 'center',
-    position: 'absolute',
     top: 10
+  },
+  backDropWrapper: {
+    zIndex: 1
   },
   backDrop: {
     width: DEVICE_WIDTH,

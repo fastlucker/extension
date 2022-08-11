@@ -1,6 +1,7 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Keyboard } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import BottomSheet from '@gorhom/bottom-sheet'
 
@@ -13,7 +14,7 @@ export interface UseBottomSheetReturnType {
 
 export default function useBottomSheet(): UseBottomSheetReturnType {
   // const isInitialOpen = useRef<boolean>(true)
-  const sheetRef = useRef<BottomSheet>(null)
+  const { ref, open, close } = useModalize()
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
 
@@ -28,21 +29,22 @@ export default function useBottomSheet(): UseBottomSheetReturnType {
       // }, 200)
       // isInitialOpen.current = false
       // } else {
-      sheetRef.current?.snapToIndex(0)
+      // sheetRef.current?.snapToIndex(0)
       // }
     }
   }, [isOpen])
 
   const openBottomSheet = useCallback(() => {
-    setIsOpen(true)
+    open()
   }, [])
 
   const closeBottomSheet = useCallback(() => {
     setIsOpen(false)
-    sheetRef.current?.close()
+    close()
+    // sheetRef.current?.close()
 
     Keyboard.dismiss()
   }, [])
 
-  return { sheetRef, isOpen, openBottomSheet, closeBottomSheet }
+  return { sheetRef: ref, isOpen, openBottomSheet, closeBottomSheet }
 }
