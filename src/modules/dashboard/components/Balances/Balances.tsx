@@ -62,7 +62,7 @@ const Balances = ({
     ? `${relayerURL}/gas-tank/${account}/getBalance?cacheBreak=${cacheBreak}`
     : null
 
-  const { data } = useRelayerData(urlGetBalance)
+  const { data } = useRelayerData({ url: urlGetBalance })
 
   const balanceLabel = useMemo(
     () =>

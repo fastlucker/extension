@@ -53,11 +53,11 @@ const useTransactions = () => {
   const url = CONFIG.RELAYER_URL
     ? `${CONFIG.RELAYER_URL}/identity/${selectedAcc}/${network.id}/transactions?cacheBreak=${cacheBreak}`
     : null
-  const { data, errMsg, isLoading, forceRefresh } = useRelayerData(url)
+  const { data, errMsg, isLoading, forceRefresh } = useRelayerData({ url })
   const urlGetFeeAssets = CONFIG.RELAYER_URL
     ? `${CONFIG.RELAYER_URL}/gas-tank/assets?cacheBreak=${cacheBreak}`
     : null
-  const { data: feeAssets } = useRelayerData(urlGetFeeAssets)
+  const { data: feeAssets } = useRelayerData({ url: urlGetFeeAssets })
 
   // @TODO: visualize other pending bundles
   const allPending = data && data.txns.filter((x: any) => !x.executed && !x.replaced)

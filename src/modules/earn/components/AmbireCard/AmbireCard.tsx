@@ -104,7 +104,7 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
     CONFIG.RELAYER_URL && selectedAcc
       ? `${CONFIG.RELAYER_URL}/wallet-token/rewards/${selectedAcc}?cacheBreak=${cacheBreak}`
       : null
-  const rewardsData = useRelayerData(rewardsUrl)
+  const rewardsData = useRelayerData({ url: rewardsUrl })
 
   const walletTokenAPY =
     // eslint-disable-next-line no-unsafe-optional-chaining
