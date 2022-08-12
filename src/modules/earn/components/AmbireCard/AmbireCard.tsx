@@ -40,6 +40,8 @@ const ERC20_INTERFACE = new Interface(ERC20ABI)
 const ZERO = BigNumber.from(0)
 
 const secondsInYear = 60 * 60 * 24 * 365
+// For some reason RN doesn't accept: 1_000_000_000_000 or '1_000_000_000_000'
+// setting precision as number works just fine
 const PRECISION = 1000000000000
 
 const msToDaysHours = (ms: any) => {
