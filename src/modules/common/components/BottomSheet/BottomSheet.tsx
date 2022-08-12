@@ -3,27 +3,24 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { Modalize } from 'react-native-modalize'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { HEADER_HEIGHT } from '@config/Router/Header/style'
 import { Portal } from '@gorhom/portal'
 import Button from '@modules/common/components/Button'
-import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Backdrop from './Backdrop'
-import { UseBottomSheetReturnType } from './hooks/useBottomSheet'
 import styles from './styles'
 
 interface Props {
   id?: string
   // Required in order all bottom sheet related events to click
   sheetRef: React.RefObject<any>
-  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
+  closeBottomSheet: (dest?: 'alwaysOpen' | 'default' | undefined) => void
   children: React.ReactNode
   // Preferences
   cancelText?: string
   displayCancel?: boolean
-  alwaysOpen?: number
+  adjustToContentHeight?: boolean
 }
 
 const ANIMATION_DURATION: number = 250
@@ -37,23 +34,18 @@ const BottomSheet: React.FC<Props> = ({
   displayCancel = true,
   cancelText: _cancelText,
   closeBottomSheet = () => {},
-  alwaysOpen
+  adjustToContentHeight = true
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
 
   const { t } = useTranslation()
-  const insets = useSafeAreaInsets()
-  // The header should start a little bit below the end of the notch,
-  // and right in the vertical middle of the nav.
-  const notchInset = insets.top + 10
-
-  const BOTTOM_SHEET_MAX_HEIGHT = DEVICE_HEIGHT - notchInset - HEADER_HEIGHT
 
   useEffect(() => {
     if (prevIsOpen && !isOpen) {
       setTimeout(() => {
+        // Delays the backdrop unmounting because of the closing animation duration
         setIsBackdropVisible(false)
       }, ANIMATION_DURATION)
     }
@@ -73,15 +65,15 @@ const BottomSheet: React.FC<Props> = ({
         modalStyle={styles.bottomSheet}
         handleStyle={styles.dragger}
         handlePosition="inside"
-        modalTopOffset={DEVICE_HEIGHT - BOTTOM_SHEET_MAX_HEIGHT}
+        modalTopOffset={HEADER_HEIGHT + 10}
         threshold={100}
-        adjustToContentHeight
+        adjustToContentHeight={adjustToContentHeight}
         disableScrollIfPossible={false}
-        alwaysOpen={alwaysOpen}
         withOverlay={false}
         onBackButtonPress={() => true}
         scrollViewProps={{
-          bounces: false
+          bounces: false,
+          keyboardShouldPersistTaps: 'handled'
         }}
         openAnimationConfig={{
           timing: { duration: ANIMATION_DURATION, delay: 0 }
