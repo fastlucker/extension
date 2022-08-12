@@ -26,16 +26,23 @@ import { CARDS } from '@modules/earn/contexts/cardsVisibilityContext'
 const ADX_TOKEN_ADDRESS = '0xade00c28244d5ce17d72e40330b1c318cd12b7c3'
 const ADX_STAKING_TOKEN_ADDRESS = '0xb6456b57f03352be48bf101b46c1752a0813491a'
 const ADX_STAKING_POOL_INTERFACE = new Interface(AdexStakingPool)
-const ADDR_ADX_SUPPLY_CONTROLLER = '0x9d47f1c6ba4d66d8aa5e19226191a8968bc9094e'
+const ADDR_ADX_SUPPLY_CONTROLLER = '0x515629338229dd5f8cea3f4f3cc8185ba21fa30b'
 
 const WALLET_TOKEN_ADDRESS = '0x88800092ff476844f74dc2fc427974bbee2794ae'
 const WALLET_STAKING_ADDRESS = '0x47cd7e91c3cbaaf266369fe8518345fc4fc12935'
+
+// polygon tests
+// const WALLET_TOKEN_ADDRESS = '0xe9415e904143e42007865e6864f7f632bd054a08'
+// const WALLET_STAKING_ADDRESS = '0xec3b10ce9cabab5dbf49f946a623e294963fbb4e'
+
 const WALLET_STAKING_POOL_INTERFACE = new Interface(WalletStakingPoolABI)
 const ERC20_INTERFACE = new Interface(ERC20ABI)
 const ZERO = BigNumber.from(0)
 
 const secondsInYear = 60 * 60 * 24 * 365
-const PRECISION = '1_000_000_000_000'
+// For some reason RN doesn't accept: 1_000_000_000_000 or '1_000_000_000_000'
+// setting precision as number works just fine
+const PRECISION = 1000000000000
 
 const msToDaysHours = (ms: any) => {
   const day = 24 * 60 * 60 * 1000
@@ -68,7 +75,7 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
     tokenAbi: ''
   })
   const [selectedToken, setSelectedToken] = useState<any>({ label: '' })
-  const [adxCurrentAPY, setAdxCurrentAPY] = useState<any>(0.0)
+  const [adxCurrentAPY, setAdxCurrentAPY] = useState<any>(null)
 
   const { cacheBreak } = useCacheBreak()
 
@@ -251,7 +258,9 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
         [
           'APY',
           selectedToken.label === 'ADX'
-            ? `${adxCurrentAPY.toFixed(2)}%`
+            ? adxCurrentAPY
+              ? `${adxCurrentAPY.toFixed(2)}%`
+              : '...'
             : rewardsData.isLoading
             ? '...'
             : `${walletTokenAPY}%`
