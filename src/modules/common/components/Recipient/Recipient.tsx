@@ -1,11 +1,10 @@
 import { Address } from 'ambire-common/src/hooks/useAddressBook'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Keyboard, View } from 'react-native'
+import { Keyboard, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import DownArrowIcon from '@assets/svg/DownArrowIcon'
-import { TouchableOpacity } from '@gorhom/bottom-sheet'
 import Input, { InputProps } from '@modules/common/components/Input'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import spacings from '@modules/common/styles/spacings'

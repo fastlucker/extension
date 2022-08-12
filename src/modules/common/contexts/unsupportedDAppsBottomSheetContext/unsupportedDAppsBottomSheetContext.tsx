@@ -1,11 +1,10 @@
 import unsupportedDApps from 'ambire-common/src/constants/unsupportedDApps'
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import { Linking, View } from 'react-native'
+import { Linking, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Trans, useTranslation } from '@config/localization'
-import { TouchableOpacity } from '@gorhom/bottom-sheet'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
