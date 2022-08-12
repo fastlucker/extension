@@ -6,8 +6,8 @@ import AdexStakingPool from 'ambire-common/src/constants/AdexStakingPool.json'
 import supplyControllerABI from 'ambire-common/src/constants/ADXSupplyController.json'
 import networks, { NetworkId } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
-import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
+import useRewards from 'ambire-common/src/hooks/useRewards'
 import { BigNumber, constants, Contract, utils } from 'ethers'
 import { formatUnits, Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -70,8 +70,6 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
   const [selectedToken, setSelectedToken] = useState<any>({ label: '' })
   const [adxCurrentAPY, setAdxCurrentAPY] = useState<any>(0.0)
 
-  const { cacheBreak } = useCacheBreak()
-
   const unavailable = networkId !== 'ethereum'
 
   const networkDetails: any = networks.find(({ id }) => id === networkId)
@@ -100,15 +98,10 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
     [stakingTokenBalanceRaw, shareValue]
   )
 
-  const rewardsUrl =
-    CONFIG.RELAYER_URL && selectedAcc
-      ? `${CONFIG.RELAYER_URL}/wallet-token/rewards/${selectedAcc}?cacheBreak=${cacheBreak}`
-      : null
-  const rewardsData = useRelayerData({ url: rewardsUrl })
-
-  const walletTokenAPY =
-    // eslint-disable-next-line no-unsafe-optional-chaining
-    !rewardsData.isLoading && rewardsData.data ? (rewardsData.data?.xWALLETAPY * 100).toFixed(2) : 0
+  const {
+    isLoading: isLoadingRewards,
+    rewards: { xWALLETAPYPercentage }
+  } = useRewards({ relayerURL: CONFIG.RELAYER_URL, accountId: selectedAcc, useRelayerData })
 
   const walletToken = useMemo(
     () => tokens.find(({ address }: any) => address === WALLET_TOKEN_ADDRESS),
@@ -252,9 +245,9 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
           'APY',
           selectedToken.label === 'ADX'
             ? `${adxCurrentAPY.toFixed(2)}%`
-            : rewardsData.isLoading
+            : isLoadingRewards
             ? '...'
-            : `${walletTokenAPY}%`
+            : xWALLETAPYPercentage
         ],
         ['Lock', '20 day unbond period'],
         ['Type', 'Variable Rate']
@@ -265,10 +258,10 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
       leaveLog,
       lockedRemainingTime,
       onWithdraw,
-      rewardsData.isLoading,
+      isLoadingRewards,
       selectedToken.label,
       tokensItems,
-      walletTokenAPY
+      xWALLETAPYPercentage
     ]
   )
 
