@@ -1,5 +1,5 @@
 import { BlurView } from 'expo-blur'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Animated, Easing, StyleSheet, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -20,8 +20,7 @@ interface Props {
 const ANIMATION_DURATION: number = 250
 
 const Backdrop = ({ isBottomSheetVisible, isVisible, onPress }: Props) => {
-  // const opacity = React.useRef(new Animated.Value(0)).current
-  const [opacity] = useState(new Animated.Value(0))
+  const opacity = React.useRef(new Animated.Value(0)).current
   const insets = useSafeAreaInsets()
   // The header should start a little bit below the end of the notch,
   // and right in the vertical middle of the nav.
