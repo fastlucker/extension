@@ -37,7 +37,11 @@ const Rewards = () => {
   const { selectedAcc } = useAccounts()
   const { network } = useNetwork()
   const { addRequest } = useRequests()
-  const { rewards } = useRewards({ relayerURL: CONFIG.RELAYER_URL, useAccounts, useRelayerData })
+  const { rewards } = useRewards({
+    relayerURL: CONFIG.RELAYER_URL,
+    accountId: selectedAcc,
+    useRelayerData
+  })
   const {
     walletTokenAPYPercentage,
     adxTokenAPYPercentage,
