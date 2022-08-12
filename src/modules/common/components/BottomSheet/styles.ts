@@ -4,6 +4,7 @@ import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT, DEVICE_WIDTH } from '@modules/common/styles/spacings'
 
 interface Styles {
+  root: ViewStyle
   bottomSheet: ViewStyle
   containerInnerWrapper: ViewStyle
   closeBtn: ViewStyle
@@ -13,6 +14,10 @@ interface Styles {
 }
 
 const styles = StyleSheet.create<Styles>({
+  root: {
+    // Lower number that the toasts' zIndex
+    zIndex: 900
+  },
   bottomSheet: {
     backgroundColor: colors.clay,
     borderTopStartRadius: 15,

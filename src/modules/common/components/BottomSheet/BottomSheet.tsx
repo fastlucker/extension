@@ -63,6 +63,7 @@ const BottomSheet: React.FC<Props> = ({
       <Modalize
         ref={sheetRef}
         modalStyle={styles.bottomSheet}
+        rootStyle={styles.root}
         handleStyle={styles.dragger}
         handlePosition="inside"
         modalTopOffset={HEADER_HEIGHT + 10}
