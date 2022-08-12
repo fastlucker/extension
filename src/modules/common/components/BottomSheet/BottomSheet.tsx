@@ -13,8 +13,7 @@ import styles from './styles'
 
 interface Props {
   id?: string
-  // Required in order all bottom sheet related events to click
-  sheetRef: React.RefObject<any>
+  sheetRef: React.RefObject<Modalize>
   closeBottomSheet: (dest?: 'alwaysOpen' | 'default' | undefined) => void
   children: React.ReactNode
   // Preferences
