@@ -1,7 +1,8 @@
-import React, { useContext } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import Router from '@config/Router'
+import { hasMigratedFromAsyncStorage, migrateFromAsyncStorage } from '@config/storage'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
@@ -20,7 +21,6 @@ import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { PrivateModeProvider } from '@modules/common/contexts/privateModeContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
-import { StorageContext } from '@modules/common/contexts/storageContext'
 import { ThemeProvider } from '@modules/common/contexts/themeContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
 import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/unsupportedDAppsBottomSheetContext'
@@ -28,10 +28,24 @@ import { WalletConnectProvider } from '@modules/common/contexts/walletConnectCon
 import useFonts from '@modules/common/hooks/useFonts'
 
 const AppLoading = () => {
-  const { storageLoaded } = useContext(StorageContext)
+  // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
+  const [hasMigrated, setHasMigrated] = useState(hasMigratedFromAsyncStorage)
   const { fontsLoaded } = useFonts()
 
-  if (!storageLoaded || !fontsLoaded) return null
+  useEffect(() => {
+    ;(async () => {
+      if (!hasMigratedFromAsyncStorage) {
+        try {
+          await migrateFromAsyncStorage()
+          setHasMigrated(true)
+        } catch (e) {
+          throw new Error('AsyncStorage migration failed!')
+        }
+      }
+    })()
+  }, [])
+
+  if (!fontsLoaded || !hasMigrated) return null
 
   return (
     <LoaderProvider>

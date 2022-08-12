@@ -48,4 +48,4 @@ const SigningWithAccount = () => {
   )
 }
 
-export default SigningWithAccount
+export default React.memo(SigningWithAccount)

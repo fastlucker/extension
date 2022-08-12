@@ -1,6 +1,13 @@
+import networks from 'ambire-common/src/constants/networks'
+import { getProvider } from 'ambire-common/src/services/provider'
 import { ethers } from 'ethers'
+import { _TypedDataEncoder } from 'ethers/lib/utils'
 
-import { ledgerSignMessage, ledgerSignTransaction } from '@modules/hardware-wallet/services/ledger'
+import {
+  ledgerSignMessage,
+  ledgerSignMessage712,
+  ledgerSignTransaction
+} from '@modules/hardware-wallet/services/ledger'
 
 const wallets: any = {}
 
@@ -9,7 +16,30 @@ function getWalletNew({ chainId, signer, signerExtra }: any, device: any) {
     return {
       signMessage: (hash: any) =>
         ledgerSignMessage(ethers.utils.hexlify(hash), signer.address, device),
-      signTransaction: (params: any) => ledgerSignTransaction(params, chainId, device)
+      signTransaction: (params: any) => ledgerSignTransaction(params, chainId, device),
+      sendTransaction: async (transaction: any) => {
+        const network = networks.find((n) => n.chainId === transaction.chainId)
+        if (!network) throw Error(`no network found for chainId : ${transaction.chainId}`)
+        const provider = await getProvider(network.id)
+        if (!provider) throw Error(`no provider found for network : ${network.id}`)
+
+        transaction.nonce = ethers.utils.hexlify(
+          await provider.getTransactionCount(transaction.from)
+        )
+
+        const signedTx = await ledgerSignTransaction(transaction, transaction.chainId, device)
+
+        return provider.sendTransaction(signedTx)
+      },
+      _signTypedData: (domain: any, types: any, value: any) => {
+        const domainSeparator = _TypedDataEncoder.hashDomain(domain)
+        const hashStructMessage = _TypedDataEncoder.hashStruct(
+          _TypedDataEncoder.getPrimaryType(types),
+          types,
+          value
+        )
+        return ledgerSignMessage712(domainSeparator, hashStructMessage, signer.address, device)
+      }
     }
   }
   // TODO: implement Trezor logic here

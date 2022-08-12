@@ -55,13 +55,14 @@ const Assets = ({
   onRemoveHiddenToken
 }: Props) => {
   const { type } = useContext(AssetsToggleContext)
+
   const handleGoToBlockExplorer = () => Linking.openURL(`${explorerUrl}/address/${selectedAcc}`)
 
   return (
     <Panel
       style={{
-        borderTopStartRadius: type === 'tokens' ? 0 : 13,
-        borderTopEndRadius: type === 'collectibles' ? 0 : 13
+        borderTopLeftRadius: type === 'tokens' ? 0 : 13,
+        borderTopRightRadius: type === 'collectibles' ? 0 : 13
       }}
     >
       {type === 'tokens' && (
