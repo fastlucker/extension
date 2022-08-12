@@ -7,8 +7,7 @@ import {
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
 import { ethers } from 'ethers'
 import React, { useEffect, useState } from 'react'
-import { View } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler'
+import { TouchableOpacity, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
 import { useTranslation } from '@config/localization'

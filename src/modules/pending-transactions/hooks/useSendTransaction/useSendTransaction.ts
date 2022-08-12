@@ -460,7 +460,7 @@ const useSendTransaction = ({ onOpenHardwareWalletBottomSheet }: Props) => {
     if (signingStatus && signingStatus.inProgress) return
     setSigningStatus(signingStatus || { inProgress: true })
 
-    if (!bundle.signer.quickAccManager) {
+    if (!bundle.signer.quickAccManager && !device) {
       !!onOpenHardwareWalletBottomSheet && onOpenHardwareWalletBottomSheet()
       setSigningStatus(null)
       return
