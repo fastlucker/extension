@@ -10,6 +10,7 @@ import Input, { InputProps } from '@modules/common/components/Input'
 import Title from '@modules/common/components/Title'
 import spacings, { DEVICE_HEIGHT, DEVICE_WIDTH, SPACING } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import textStyles from '@modules/common/styles/utils/text'
 
 import BottomSheet from '../BottomSheet'
 import QRCodeScanner from '../QRCodeScanner'
@@ -66,7 +67,7 @@ const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValid
         {...rest}
       />
       <BottomSheet id="add-token" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <Title>{t('Scan recipient QR code')}</Title>
+        <Title style={textStyles.center}>{t('Scan recipient QR code')}</Title>
         <View style={qrCodeScannerContainerStyle}>
           <QRCodeScanner onScan={handleOnScan} />
         </View>

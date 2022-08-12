@@ -9,7 +9,6 @@ import Title from '@modules/common/components/Title'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
 import ConnectedDAppItem from './ConnectedDAppItem'
@@ -29,9 +28,8 @@ const ConnectedDapps = () => {
         </Text>
       </TouchableOpacity>
       <BottomSheet id="connected-dapps" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <View style={[spacings.mbTy, flexboxStyles.alignCenter]}>
-          <Title>{t('Connected dApps')}</Title>
-        </View>
+        <Title style={textStyles.center}>{t('Connected dApps')}</Title>
+
         {!connections.length && (
           <View style={spacings.mb}>
             <Text style={textStyles.center}>{t('You have no connected dapps!')}</Text>

@@ -537,12 +537,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           </BlurView>
         ))}
 
-      <BottomSheet
-        id="passcode"
-        sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
-        dynamicInitialHeight={false}
-      >
+      <BottomSheet id="passcode" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <PasscodeAuth
           onFulfill={handleOnValidatePasscode}
           autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}

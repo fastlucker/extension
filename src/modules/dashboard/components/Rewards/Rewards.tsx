@@ -148,7 +148,7 @@ const Rewards = () => {
         closeBottomSheet={closeBottomSheet}
         displayCancel={false}
       >
-        <Title>{t('Wallet token distribution')}</Title>
+        <Title style={textStyles.center}>{t('Wallet token distribution')}</Title>
 
         <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
           {multiplierBadges.map(renderBadge)}

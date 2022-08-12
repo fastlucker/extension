@@ -11,6 +11,7 @@ import useTheme from '@modules/common/hooks/useTheme'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import { THEME_TYPES } from '@modules/common/styles/themeConfig'
+import textStyles from '@modules/common/styles/utils/text'
 
 const Theme = () => {
   const { t } = useTranslation()
@@ -36,7 +37,7 @@ const Theme = () => {
         </Text>
       </TouchableOpacity>
       <BottomSheet id="change-theme" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <Title>{t('Change app theme')}</Title>
+        <Title style={textStyles.center}>{t('Change app theme')}</Title>
 
         {Object.values(THEME_TYPES).map((type) => (
           <Button
