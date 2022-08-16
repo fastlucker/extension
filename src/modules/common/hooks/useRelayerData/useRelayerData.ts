@@ -1,4 +1,4 @@
-import commonUseRelayerData from 'ambire-common/src/hooks/useRelayerData'
+import commonUseRelayerData, { UseRelayerDataProps } from 'ambire-common/src/hooks/useRelayerData'
 
 export interface UseRelayerDataReturnType {
   data: any
@@ -7,8 +7,20 @@ export interface UseRelayerDataReturnType {
   forceRefresh: () => void
 }
 
-export default function useRelayerData(url: string | null): UseRelayerDataReturnType {
-  const { data, isLoading, errMsg: err, forceRefresh } = commonUseRelayerData(fetch, url)
+export default function useRelayerData({
+  url,
+  initialState = null
+}: Omit<UseRelayerDataProps, 'fetch'>): UseRelayerDataReturnType {
+  const {
+    data,
+    isLoading,
+    errMsg: err,
+    forceRefresh
+  } = commonUseRelayerData({
+    fetch,
+    url,
+    initialState
+  })
 
   return { data, isLoading, errMsg: err, forceRefresh }
 }

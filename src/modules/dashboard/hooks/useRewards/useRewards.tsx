@@ -20,7 +20,7 @@ export default function useRewards() {
     CONFIG.RELAYER_URL && selectedAcc
       ? `${CONFIG.RELAYER_URL}/wallet-token/rewards/${selectedAcc}?cacheBreak=${cacheBreak}`
       : null
-  const rewardsData = useRelayerData(rewardsUrl)
+  const rewardsData = useRelayerData({ url: rewardsUrl })
 
   const totalLifetimeRewards = rewardsData.data?.rewards
     ?.map((x) => (typeof x.rewards[account.id] === 'number' ? x.rewards[account.id] : 0))

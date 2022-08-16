@@ -32,7 +32,7 @@ const relayerURL = CONFIG.RELAYER_URL
 const GasTankScreen = () => {
   const { t } = useTranslation()
 
-  const { isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading, dataLoaded } = usePortfolio()
+  const { isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading } = usePortfolio()
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()
@@ -53,7 +53,23 @@ const GasTankScreen = () => {
     useRelayerData
   })
 
-  const totalSaved = formatFloatTokenAmount(totalSavedResult, true, 2)
+  const totalSaved =
+    totalSavedResult &&
+    totalSavedResult.length &&
+    formatFloatTokenAmount(
+      totalSavedResult.map((i: any) => i.saved).reduce((a: any, b: any) => a + b),
+      true,
+      2
+    )
+
+  const totalCashBack =
+    totalSavedResult &&
+    totalSavedResult.length &&
+    formatFloatTokenAmount(
+      totalSavedResult.map((i: any) => i.cashback).reduce((a: any, b: any) => a + b),
+      true,
+      2
+    )
 
   return (
     <GradientBackgroundWrapper>
@@ -75,13 +91,15 @@ const GasTankScreen = () => {
               networkId={network?.id}
               balanceByTokensDisabled={!gasTankBalances && !gasTankBalances?.length}
             />
-            <GasTankTotalSave totalSave={totalSaved || '0.00'} />
+            <GasTankTotalSave
+              totalSave={totalSaved || '0.00'}
+              totalCashBack={totalCashBack || '0.00'}
+              networkId={network?.id}
+            />
           </View>
           <TokensList
             tokens={sortedTokens}
-            isLoading={
-              (isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading) && !dataLoaded
-            }
+            isLoading={isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading}
             networkId={network?.id}
             chainId={network?.chainId}
             selectedAcc={selectedAcc}

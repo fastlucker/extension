@@ -1,35 +1,53 @@
+import { NetworkId } from 'ambire-common/src/constants/networks'
 import React from 'react'
 import { View } from 'react-native'
 
-import WalletIcon from '@assets/svg/WalletIcon'
 import { useTranslation } from '@config/localization'
 import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 
 interface Props {
   totalSave: string
+  totalCashBack: string
+  networkId?: NetworkId
 }
 
-const GasTankTotalSave = ({ totalSave }: Props) => {
+const GasTankTotalSave = ({ totalSave, totalCashBack, networkId }: Props) => {
   const { t } = useTranslation()
 
   return (
-    <View style={[flexboxStyles.alignCenter, flexboxStyles.flex1, spacings.phMi]}>
-      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-        <WalletIcon width={21} height={21} color={colors.turquoise} />
-        <Text fontSize={10} style={[textStyles.uppercase, spacings.plMi]}>
-          {t('Total Save')}
-        </Text>
+    <View style={flexboxStyles.flex1}>
+      <View style={[spacings.plSm, flexboxStyles.flex1, flexboxStyles.justifyCenter]}>
+        <View style={[flexboxStyles.directionRow, spacings.mbTy, flexboxStyles.alignCenter]}>
+          <Text fontSize={10} color={colors.turquoise} style={flexboxStyles.flex1}>
+            {t('Total Saved')}:
+          </Text>
+          <Text fontSize={10} weight="regular" numberOfLines={1}>
+            <Text fontSize={10} weight="regular" color={colors.turquoise}>
+              ${' '}
+            </Text>
+            {totalSave}
+          </Text>
+        </View>
+        <View style={[flexboxStyles.directionRow, spacings.mbTy, flexboxStyles.alignCenter]}>
+          <Text fontSize={10} color={colors.heliotrope} style={flexboxStyles.flex1}>
+            {t('Cashback')}:
+          </Text>
+          <Text fontSize={10} weight="regular" numberOfLines={1}>
+            <Text fontSize={10} weight="regular" color={colors.heliotrope}>
+              ${' '}
+            </Text>
+            {totalCashBack}
+          </Text>
+        </View>
+        {!!networkId && (
+          <Text color={colors.chetwode} fontSize={10}>
+            From gas fees on {networkId?.toUpperCase()}
+          </Text>
+        )}
       </View>
-      <Text fontSize={32} weight="regular" numberOfLines={1}>
-        <Text fontSize={20} weight="regular" style={textStyles.highlightPrimary}>
-          ${' '}
-        </Text>
-        {totalSave}
-      </Text>
     </View>
   )
 }

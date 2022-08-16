@@ -34,7 +34,8 @@ const styles = StyleSheet.create<Style>({
     width: 14,
     height: 14,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    paddingRight: 4
   }
 })
 
