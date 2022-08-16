@@ -44,7 +44,9 @@ const GasTankTotalSave = ({ totalSave, totalCashBack, networkId }: Props) => {
         </View>
         {!!networkId && (
           <Text color={colors.chetwode} fontSize={10}>
-            From gas fees on {networkId?.toUpperCase()}
+            {t('From gas fees on {{networkId}}', {
+              networkId: networkId?.toUpperCase()
+            })}
           </Text>
         )}
       </View>
