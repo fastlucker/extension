@@ -36,8 +36,8 @@ const GasTankBalance = ({ data, totalBalance, balanceByTokensDisabled, networkId
       >
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
           <GasTankIcon width={21} height={21} />
-          <Text fontSize={10} style={[textStyles.uppercase, spacings.plMi]}>
-            {t('Gas Tank Balance')}
+          <Text fontSize={10} style={[spacings.plMi]}>
+            {t('Balance on All Networks')}
           </Text>
         </View>
         <Text fontSize={32} weight="regular" numberOfLines={1}>
