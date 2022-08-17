@@ -151,7 +151,7 @@ const TxnPreview = ({
       <TouchableOpacity
         onPress={() => !disableExpand && setExpanded((e) => !e)}
         style={styles.listItem}
-        activeOpacity={0.75}
+        activeOpacity={disableExpand ? 1 : 0.75}
       >
         {!disableExpand && (
           <NavIconWrapper disabled style={spacings.mrTy} onPress={() => null}>

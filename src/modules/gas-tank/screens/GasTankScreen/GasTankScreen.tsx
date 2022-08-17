@@ -1,6 +1,6 @@
 import useGasTankData from 'ambire-common/src/hooks/useGasTankData'
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
 import GasTankIcon from '@assets/svg/GasTankIcon'
@@ -32,28 +32,55 @@ const relayerURL = CONFIG.RELAYER_URL
 const GasTankScreen = () => {
   const { t } = useTranslation()
 
-  const { isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading, dataLoaded } = usePortfolio()
+  const { isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading } = usePortfolio()
   const { network } = useNetwork()
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()
   const { addToast } = useToast()
+  const portfolio = usePortfolio()
   const { isModalVisible, showModal, hideModal } = useModal()
   const {
     balancesRes,
     gasTankBalances,
-    sortedTokens,
+    availableFeeAssets,
     totalSavedResult,
     gasTankFilledTxns,
     feeAssetsRes
   } = useGasTankData({
     relayerURL,
-    useAccounts,
-    useNetwork,
-    usePortfolio,
+    selectedAcc,
+    network,
+    portfolio,
     useRelayerData
   })
 
-  const totalSaved = formatFloatTokenAmount(totalSavedResult, true, 2)
+  const totalSaved =
+    totalSavedResult &&
+    totalSavedResult.length &&
+    formatFloatTokenAmount(
+      totalSavedResult.map((i: any) => i.saved).reduce((a: any, b: any) => a + b),
+      true,
+      2
+    )
+
+  const totalCashBack =
+    totalSavedResult &&
+    totalSavedResult.length &&
+    formatFloatTokenAmount(
+      totalSavedResult.map((i: any) => i.cashback).reduce((a: any, b: any) => a + b),
+      true,
+      2
+    )
+
+  const sortedTokens = useMemo(
+    () =>
+      availableFeeAssets?.sort((a: any, b: any) => {
+        const decreasing = b.balanceUSD - a.balanceUSD
+        if (decreasing === 0) return a.symbol.localeCompare(b.symbol)
+        return decreasing
+      }),
+    [availableFeeAssets]
+  )
 
   return (
     <GradientBackgroundWrapper>
@@ -75,13 +102,15 @@ const GasTankScreen = () => {
               networkId={network?.id}
               balanceByTokensDisabled={!gasTankBalances && !gasTankBalances?.length}
             />
-            <GasTankTotalSave totalSave={totalSaved || '0.00'} />
+            <GasTankTotalSave
+              totalSave={totalSaved || '0.00'}
+              totalCashBack={totalCashBack || '0.00'}
+              networkId={network?.id}
+            />
           </View>
           <TokensList
             tokens={sortedTokens}
-            isLoading={
-              (isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading) && !dataLoaded
-            }
+            isLoading={isCurrNetworkBalanceLoading || isCurrNetworkProtocolsLoading}
             networkId={network?.id}
             chainId={network?.chainId}
             selectedAcc={selectedAcc}

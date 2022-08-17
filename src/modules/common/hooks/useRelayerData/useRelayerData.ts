@@ -1,5 +1,4 @@
-import commonUseRelayerData from 'ambire-common/src/hooks/useRelayerData'
-import { UseRelayerDataProps } from 'ambire-common/src/hooks/useRelayerData/types'
+import commonUseRelayerData, { UseRelayerDataProps } from 'ambire-common/src/hooks/useRelayerData'
 
 const useRelayerData = (props: Omit<UseRelayerDataProps, 'fetch'>) =>
   commonUseRelayerData({ fetch, ...props })
