@@ -1,6 +1,6 @@
 import useGasTankData from 'ambire-common/src/hooks/useGasTankData'
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
 import GasTankIcon from '@assets/svg/GasTankIcon'
@@ -37,19 +37,20 @@ const GasTankScreen = () => {
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()
   const { addToast } = useToast()
+  const portfolio = usePortfolio()
   const { isModalVisible, showModal, hideModal } = useModal()
   const {
     balancesRes,
     gasTankBalances,
-    sortedTokens,
+    availableFeeAssets,
     totalSavedResult,
     gasTankFilledTxns,
     feeAssetsRes
   } = useGasTankData({
     relayerURL,
-    useAccounts,
-    useNetwork,
-    usePortfolio,
+    selectedAcc,
+    network,
+    portfolio,
     useRelayerData
   })
 
@@ -70,6 +71,16 @@ const GasTankScreen = () => {
       true,
       2
     )
+
+  const sortedTokens = useMemo(
+    () =>
+      availableFeeAssets?.sort((a: any, b: any) => {
+        const decreasing = b.balanceUSD - a.balanceUSD
+        if (decreasing === 0) return a.symbol.localeCompare(b.symbol)
+        return decreasing
+      }),
+    [availableFeeAssets]
+  )
 
   return (
     <GradientBackgroundWrapper>
