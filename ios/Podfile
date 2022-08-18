@@ -43,7 +43,17 @@ target 'ambire' do
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable the next line.
-  use_flipper!("Flipper" => "0.159.0")
+  #
+  # Using `"Flipper-DoubleConversion" => "1.1.7"` resolves the following warns:
+  #  ⚠️  ld: duplicate symbol 'folly::detail::str_to_bool(folly::Range<char const*>*)' in
+  #   ┌─ libFlipper-Folly.a(Conv.o)
+  #   └─ libRCT-Folly.a(Conv.o)
+  #
+  #  ⚠️  ld: duplicate symbol 'folly::makeConversionError(folly::ConversionCode, folly::Range<char const*>)' in
+  #   ┌─ libFlipper-Folly.a(Conv.o)
+  #   └─ libRCT-Folly.a(Conv.o)
+  # {@link https://github.com/facebook/react-native/issues/32016#issuecomment-979897732}
+  use_flipper!("Flipper" => "0.159.0", "Flipper-DoubleConversion" => "1.1.7")
 
   post_install do |installer|
     react_native_post_install(installer)
