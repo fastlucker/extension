@@ -1,31 +1,66 @@
 import { BlurView } from 'expo-blur'
-import React from 'react'
-import { Animated, StyleSheet } from 'react-native'
+import React, { useEffect } from 'react'
+import { Animated, Easing, StyleSheet, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import CloseIcon from '@assets/svg/CloseIcon'
 import { isiOS } from '@config/env'
-import { BottomSheetBackdrop, BottomSheetBackdropProps } from '@gorhom/bottom-sheet'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import colors from '@modules/common/styles/colors'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 
-const Backdrop = (props: BottomSheetBackdropProps) => {
+interface Props {
+  isBottomSheetVisible: boolean
+  isVisible: boolean
+  onPress: () => void
+}
+
+const ANIMATION_DURATION: number = 250
+
+const Backdrop = ({ isBottomSheetVisible, isVisible, onPress }: Props) => {
+  const opacity = React.useRef(new Animated.Value(0)).current
   const insets = useSafeAreaInsets()
   // The header should start a little bit below the end of the notch,
   // and right in the vertical middle of the nav.
   const notchInset = insets.top + 10
+
+  useEffect(() => {
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: ANIMATION_DURATION,
+      easing: Easing.linear,
+      useNativeDriver: true
+    }).start()
+  }, [])
+
+  useEffect(() => {
+    if (!isBottomSheetVisible) {
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: ANIMATION_DURATION,
+        easing: Easing.linear,
+        useNativeDriver: true
+      }).start()
+    }
+  }, [isBottomSheetVisible])
+
   return (
-    <BottomSheetBackdrop
-      {...props}
-      opacity={1}
-      disappearsOnIndex={-1}
-      appearsOnIndex={0}
-      style={[StyleSheet.absoluteFill, { backgroundColor: 'transparent' }]}
+    <Animated.View
+      style={[
+        styles.backDrop,
+        {
+          opacity: opacity.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 1]
+          })
+        }
+      ]}
+      pointerEvents={isVisible ? 'auto' : 'none'}
     >
-      <>
-        <NavIconWrapper onPress={() => null} style={[styles.closeBtn, { top: notchInset }]}>
+      <TouchableOpacity style={flexboxStyles.flex1} activeOpacity={1} onPress={onPress}>
+        <NavIconWrapper onPress={onPress} style={[styles.closeBtn, { top: notchInset }]}>
           <CloseIcon />
         </NavIconWrapper>
         {isiOS ? (
@@ -51,11 +86,9 @@ const Backdrop = (props: BottomSheetBackdropProps) => {
             ]}
           />
         )}
-      </>
-    </BottomSheetBackdrop>
+      </TouchableOpacity>
+    </Animated.View>
   )
 }
 
-const MemoizedBackdrop = React.memo(Backdrop)
-
-export default MemoizedBackdrop
+export default React.memo(Backdrop)

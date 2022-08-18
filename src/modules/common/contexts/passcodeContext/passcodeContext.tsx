@@ -3,6 +3,7 @@ import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { Platform, StyleSheet, Vibration, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { isAndroid } from '@config/env'
 import { useTranslation } from '@config/localization'
@@ -12,7 +13,6 @@ import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import PasscodeAuth from '@modules/common/components/PasscodeAuth'
 import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
@@ -89,7 +89,9 @@ const PasscodeContext = createContext<PasscodeContextReturnType>(defaults)
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { authStatus } = useAuth()
-  const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
+
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
   const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
   const [state, setState] = useState<PASSCODE_STATES>(defaults.state)
@@ -535,13 +537,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
           </BlurView>
         ))}
 
-      <BottomSheet
-        id="passcode"
-        sheetRef={sheetRef}
-        isOpen={isOpen}
-        closeBottomSheet={closeBottomSheet}
-        dynamicInitialHeight={false}
-      >
+      <BottomSheet id="passcode" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <PasscodeAuth
           onFulfill={handleOnValidatePasscode}
           autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}

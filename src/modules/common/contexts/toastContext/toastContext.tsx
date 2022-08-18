@@ -7,6 +7,7 @@ import CheckIcon from '@assets/svg/CheckIcon'
 import CloseIconRound from '@assets/svg/CloseIconRound'
 import ErrorIcon from '@assets/svg/ErrorIcon'
 import { useTranslation } from '@config/localization'
+import { Portal } from '@gorhom/portal'
 import Text from '@modules/common/components/Text'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import { navigationRef } from '@modules/common/services/navigation'
@@ -94,40 +95,44 @@ const ToastProvider: React.FC = ({ children }) => {
         [addToast, removeToast]
       )}
     >
-      <View style={[styles.container, { bottom: bottomInset }]}>
-        {/* eslint-disable-next-line @typescript-eslint/no-shadow */}
-        {[...toasts].reverse().map(({ id, url, error, sticky, badge, text, onClick }) => (
-          <View style={styles.toastWrapper} key={id}>
-            <TouchableOpacity
-              style={[styles.toast, error && styles.error]}
-              onPress={() => onToastPress(id, onClick, url)}
-              activeOpacity={0.9}
-            >
-              {!!badge && (
-                <View style={[styles.badge, spacings.mrTy, error && styles.errorBadge]}>
-                  <Text fontSize={10} weight="medium" color={colors.white}>
-                    {badge}
+      <Portal hostName="global">
+        <View style={[styles.container, { bottom: bottomInset }]}>
+          {/* eslint-disable-next-line @typescript-eslint/no-shadow */}
+          {[...toasts].reverse().map(({ id, url, error, sticky, badge, text, onClick }) => (
+            <View style={styles.toastWrapper} key={id}>
+              <TouchableOpacity
+                style={[styles.toast, error && styles.error]}
+                onPress={() => onToastPress(id, onClick, url)}
+                activeOpacity={0.9}
+              >
+                {!!badge && (
+                  <View style={[styles.badge, spacings.mrTy, error && styles.errorBadge]}>
+                    <Text fontSize={10} weight="medium" color={colors.white}>
+                      {badge}
+                    </Text>
+                  </View>
+                )}
+                {!badge && (
+                  <View style={spacings.prTy}>{error ? <ErrorIcon /> : <CheckIcon />}</View>
+                )}
+                <View style={flexboxStyles.flex1}>
+                  <Text weight="medium" color={colors.patriotBlue} fontSize={12}>
+                    {error ? t('Oops') : t('Success')}
+                  </Text>
+                  <Text numberOfLines={7} color={colors.patriotBlue} fontSize={12}>
+                    {text}
                   </Text>
                 </View>
-              )}
-              {!badge && <View style={spacings.prTy}>{error ? <ErrorIcon /> : <CheckIcon />}</View>}
-              <View style={flexboxStyles.flex1}>
-                <Text weight="medium" color={colors.patriotBlue} fontSize={12}>
-                  {error ? t('Oops') : t('Success')}
-                </Text>
-                <Text numberOfLines={7} color={colors.patriotBlue} fontSize={12}>
-                  {text}
-                </Text>
-              </View>
-              {!!sticky && (
-                <TouchableOpacity style={spacings.plTy} onPress={() => removeToast(id)}>
-                  <CloseIconRound color={error ? colors.pink : colors.turquoise} />
-                </TouchableOpacity>
-              )}
-            </TouchableOpacity>
-          </View>
-        ))}
-      </View>
+                {!!sticky && (
+                  <TouchableOpacity style={spacings.plTy} onPress={() => removeToast(id)}>
+                    <CloseIconRound color={error ? colors.pink : colors.turquoise} />
+                  </TouchableOpacity>
+                )}
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      </Portal>
       {children}
     </ToastContext.Provider>
   )

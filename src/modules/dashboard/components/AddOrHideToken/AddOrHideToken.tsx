@@ -4,10 +4,10 @@ import { Token } from 'ambire-common/src/hooks/usePortfolio'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useState } from 'react'
 import { LayoutAnimation, TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Segments from '@modules/common/components/Segments'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -51,7 +51,9 @@ const AddOrHideToken = ({
   onRemoveHiddenToken
 }: Props) => {
   const { t } = useTranslation()
-  const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
+
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
   const [formType, setFormType] = useState<MODES>(MODES.ADD_TOKEN)
 
   const handleOnSubmit = (token: Token, formMode: MODES) => {
@@ -75,13 +77,7 @@ const AddOrHideToken = ({
         <Text fontSize={16}>{t('Add or Hide Token')}</Text>
       </TouchableOpacity>
 
-      <BottomSheet
-        id="add-token"
-        sheetRef={sheetRef}
-        isOpen={isOpen}
-        closeBottomSheet={closeBottomSheet}
-        dynamicInitialHeight={false}
-      >
+      <BottomSheet id="add-token" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <Segments
           defaultValue={formType}
           segments={segments}

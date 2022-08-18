@@ -1,8 +1,7 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Linking, View } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler'
+import { Linking, TouchableOpacity, View } from 'react-native'
 
 import DashboardIcon from '@assets/svg/DashboardIcon'
 import DepositIcon from '@assets/svg/DepositIcon'

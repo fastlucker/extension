@@ -10,11 +10,11 @@ import useStakedWalletToken from 'ambire-common/src/hooks/useStakedWalletToken'
 import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Linking, TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
 import CONFIG from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -33,7 +33,7 @@ import styles from './styles'
 
 const Rewards = () => {
   const { t } = useTranslation()
-  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { selectedAcc } = useAccounts()
   const { network } = useNetwork()
   const { addRequest } = useRequests()
@@ -159,11 +159,10 @@ const Rewards = () => {
       <BottomSheet
         id="rewards"
         sheetRef={sheetRef}
-        isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
         displayCancel={false}
       >
-        <Title>{t('Wallet token distribution')}</Title>
+        <Title style={textStyles.center}>{t('Wallet token distribution')}</Title>
 
         <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
           {multiplierBadges.map(renderBadge)}

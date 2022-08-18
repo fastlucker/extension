@@ -4,7 +4,6 @@ import { Alert, TouchableOpacity, View } from 'react-native'
 
 import LogOutIcon from '@assets/svg/LogOutIcon'
 import Blockies from '@modules/common/components/Blockies'
-import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import CopyText from '@modules/common/components/CopyText'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
@@ -29,7 +28,7 @@ const walletType = (signerExtra: any) => {
 }
 
 interface Props {
-  closeBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
+  closeBottomSheet: (dest?: 'alwaysOpen' | 'default' | undefined) => void
 }
 
 const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {

@@ -48,22 +48,22 @@ const AppLoading = () => {
   if (!fontsLoaded || !hasMigrated) return null
 
   return (
-    <LoaderProvider>
-      <ThemeProvider>
-        <SafeAreaProvider>
-          <KeyboardProvider>
-            <NetInfoProvider>
-              <ToastProvider>
-                <AuthProvider>
-                  <AccountsProvider>
-                    <NetworkProvider>
-                      <PortfolioProvider>
-                        <GnosisProvider>
-                          <WalletConnectProvider>
-                            <RequestsProvider>
-                              <AddressBookProvider>
-                                <AccountsPasswordsProvider>
-                                  <PortalProvider>
+    <PortalProvider>
+      <LoaderProvider>
+        <ThemeProvider>
+          <SafeAreaProvider>
+            <KeyboardProvider>
+              <NetInfoProvider>
+                <ToastProvider>
+                  <AuthProvider>
+                    <AccountsProvider>
+                      <NetworkProvider>
+                        <PortfolioProvider>
+                          <GnosisProvider>
+                            <WalletConnectProvider>
+                              <RequestsProvider>
+                                <AddressBookProvider>
+                                  <AccountsPasswordsProvider>
                                     <PasscodeProvider>
                                       <AttentionGrabberProvider>
                                         <PrivateModeProvider>
@@ -80,22 +80,22 @@ const AppLoading = () => {
                                       </AttentionGrabberProvider>
                                       <PortalHost name="global" />
                                     </PasscodeProvider>
-                                  </PortalProvider>
-                                </AccountsPasswordsProvider>
-                              </AddressBookProvider>
-                            </RequestsProvider>
-                          </WalletConnectProvider>
-                        </GnosisProvider>
-                      </PortfolioProvider>
-                    </NetworkProvider>
-                  </AccountsProvider>
-                </AuthProvider>
-              </ToastProvider>
-            </NetInfoProvider>
-          </KeyboardProvider>
-        </SafeAreaProvider>
-      </ThemeProvider>
-    </LoaderProvider>
+                                  </AccountsPasswordsProvider>
+                                </AddressBookProvider>
+                              </RequestsProvider>
+                            </WalletConnectProvider>
+                          </GnosisProvider>
+                        </PortfolioProvider>
+                      </NetworkProvider>
+                    </AccountsProvider>
+                  </AuthProvider>
+                </ToastProvider>
+              </NetInfoProvider>
+            </KeyboardProvider>
+          </SafeAreaProvider>
+        </ThemeProvider>
+      </LoaderProvider>
+    </PortalProvider>
   )
 }
 

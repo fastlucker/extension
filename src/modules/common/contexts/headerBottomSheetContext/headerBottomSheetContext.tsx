@@ -1,31 +1,31 @@
 import React, { createContext, useMemo } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import AccountChanger from '@config/Router/Header/AccountChanger'
 import NetworkChanger from '@config/Router/Header/NetworkChanger'
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet, { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import spacings from '@modules/common/styles/spacings'
 
 import styles from './styles'
 
 export interface HeaderBottomSheetContextReturnType {
-  closeHeaderBottomSheet: UseBottomSheetReturnType['closeBottomSheet']
-  openHeaderBottomSheet: UseBottomSheetReturnType['openBottomSheet']
+  openHeaderBottomSheet: (dest?: 'top' | 'default' | undefined) => void
+  closeHeaderBottomSheet: (dest?: 'default' | 'alwaysOpen' | undefined) => void
 }
 
 const HeaderBottomSheetContext = createContext<HeaderBottomSheetContextReturnType>({
-  closeHeaderBottomSheet: () => {},
-  openHeaderBottomSheet: () => {}
+  openHeaderBottomSheet: () => {},
+  closeHeaderBottomSheet: () => {}
 })
 
 const HeaderBottomSheetProvider: React.FC = ({ children }) => {
   const {
-    sheetRef,
-    isOpen,
-    closeBottomSheet: closeHeaderBottomSheet,
-    openBottomSheet: openHeaderBottomSheet
-  } = useBottomSheet()
+    ref: sheetRef,
+    open: openHeaderBottomSheet,
+    close: closeHeaderBottomSheet
+  } = useModalize()
+
   return (
     <HeaderBottomSheetContext.Provider
       value={useMemo(
@@ -40,9 +40,9 @@ const HeaderBottomSheetProvider: React.FC = ({ children }) => {
       <BottomSheet
         id="header-switcher"
         sheetRef={sheetRef}
-        isOpen={isOpen}
         closeBottomSheet={closeHeaderBottomSheet}
         displayCancel={false}
+        adjustToContentHeight={false}
       >
         <NetworkChanger />
         <View style={[styles.separator, spacings.mb]} />

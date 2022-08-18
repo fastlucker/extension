@@ -1,18 +1,18 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Keyboard, View } from 'react-native'
+import { Keyboard, TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import EnsIcon from '@assets/svg/EnsIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
 import UnstoppableDomainIcon from '@assets/svg/UnstoppableDomainIcon'
-import { TouchableOpacity } from '@gorhom/bottom-sheet'
 import Input, { InputProps } from '@modules/common/components/Input'
 import Title from '@modules/common/components/Title'
 import spacings, { DEVICE_HEIGHT, DEVICE_WIDTH, SPACING } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import textStyles from '@modules/common/styles/utils/text'
 
 import BottomSheet from '../BottomSheet'
-import useBottomSheet from '../BottomSheet/hooks/useBottomSheet'
 import QRCodeScanner from '../QRCodeScanner'
 
 interface Props extends InputProps {
@@ -22,7 +22,7 @@ interface Props extends InputProps {
 
 const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValidEns, ...rest }) => {
   const { t } = useTranslation()
-  const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const handleOnScan = useCallback(
     (code: string) => {
@@ -66,13 +66,8 @@ const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValid
         onChangeText={onChangeText}
         {...rest}
       />
-      <BottomSheet
-        id="add-token"
-        sheetRef={sheetRef}
-        isOpen={isOpen}
-        closeBottomSheet={closeBottomSheet}
-      >
-        <Title>{t('Scan recipient QR code')}</Title>
+      <BottomSheet id="add-token" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+        <Title style={textStyles.center}>{t('Scan recipient QR code')}</Title>
         <View style={qrCodeScannerContainerStyle}>
           <QRCodeScanner onScan={handleOnScan} />
         </View>

@@ -4,10 +4,10 @@ import { toUtf8String } from 'ethers/lib/utils'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import CONFIG from '@config/env'
 import Blockies from '@modules/common/components/Blockies'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
@@ -57,21 +57,18 @@ const SignScreenScreen = ({ navigation }: any) => {
   useDisableHardwareBackPress()
 
   const {
-    sheetRef: sheetRefQickAcc,
-    openBottomSheet: openBottomSheetQickAcc,
-    closeBottomSheet: closeBottomSheetQickAcc,
-    isOpen: isOpenBottomSheetQickAcc
-  } = useBottomSheet()
-
+    ref: sheetRefQickAcc,
+    open: openBottomSheetQickAcc,
+    close: closeBottomSheetQickAcc
+  } = useModalize()
   const {
-    sheetRef: sheetRefHardwareWallet,
-    openBottomSheet: openBottomSheetHardwareWallet,
-    closeBottomSheet: closeBottomSheetHardwareWallet,
-    isOpen: isOpenBottomSheetHardwareWallet
-  } = useBottomSheet()
+    ref: sheetRefHardwareWallet,
+    open: openBottomSheetHardwareWallet,
+    close: closeBottomSheetHardwareWallet
+  } = useModalize()
 
   const getHardwareWallet = (device: any) => {
-    if (!isOpenBottomSheetHardwareWallet && !device) {
+    if (!device) {
       openBottomSheetHardwareWallet()
       return
     }
@@ -209,14 +206,12 @@ const SignScreenScreen = ({ navigation }: any) => {
             quickAccBottomSheet={{
               sheetRef: sheetRefQickAcc,
               openBottomSheet: openBottomSheetQickAcc,
-              closeBottomSheet: closeBottomSheetQickAcc,
-              isOpen: isOpenBottomSheetQickAcc
+              closeBottomSheet: closeBottomSheetQickAcc
             }}
             hardwareWalletBottomSheet={{
               sheetRef: sheetRefHardwareWallet,
               openBottomSheet: openBottomSheetHardwareWallet,
-              closeBottomSheet: closeBottomSheetHardwareWallet,
-              isOpen: isOpenBottomSheetHardwareWallet
+              closeBottomSheet: closeBottomSheetHardwareWallet
             }}
           />
         </Panel>

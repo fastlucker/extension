@@ -1,10 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { useModalize } from 'react-native-modalize'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
-import Text from '@modules/common/components/Text'
 import TextWarning from '@modules/common/components/TextWarning'
 import Title from '@modules/common/components/Title'
 import spacings from '@modules/common/styles/spacings'
@@ -14,7 +13,9 @@ import useHardwareWalletActions from '@modules/hardware-wallet/hooks/useHardware
 
 const AddHardwareWalletSigner = () => {
   const { t } = useTranslation()
-  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
+
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
   const { addSigner } = useHardwareWalletActions()
 
   const handleOnSelectDevice = async (device: any) => {
@@ -34,7 +35,6 @@ const AddHardwareWalletSigner = () => {
       <BottomSheet
         id="hardware-wallet-signer"
         sheetRef={sheetRef}
-        isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
         dynamicInitialHeight={false}
       >
