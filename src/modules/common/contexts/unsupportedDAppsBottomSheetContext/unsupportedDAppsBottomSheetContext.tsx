@@ -66,8 +66,7 @@ const UnsupportedDAppsBottomSheetProvider: React.FC = ({ children }) => {
     if (!advancedMode) {
       unsupportedRaw.map(({ uri }) => disconnect(uri))
     }
-    closeBottomSheet()
-  }, [closeBottomSheet, unsupportedRaw, disconnect, advancedMode])
+  }, [unsupportedRaw, disconnect, advancedMode])
 
   const handleContinue = useCallback(() => {
     setAdvancedModeList([
@@ -98,7 +97,8 @@ const UnsupportedDAppsBottomSheetProvider: React.FC = ({ children }) => {
       <BottomSheet
         id="unsupportedDAppsBottomSheet"
         sheetRef={sheetRef}
-        closeBottomSheet={handleCancel}
+        closeBottomSheet={closeBottomSheet}
+        onClosed={handleCancel}
       >
         <View style={[spacings.mbTy, flexboxStyles.alignCenter]}>
           <Title>{t('Unsupported dApps')}</Title>
