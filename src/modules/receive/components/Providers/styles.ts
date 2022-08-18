@@ -15,6 +15,9 @@ const styles = StyleSheet.create({
     ...commonStyles.borderRadiusPrimary,
     ...commonStyles.shadowPrimary
   },
+  disabled: {
+    opacity: 0.5
+  },
   descriptiveTextSpacing: {
     marginBottom: 3
   }

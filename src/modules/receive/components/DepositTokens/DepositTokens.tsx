@@ -31,17 +31,17 @@ const DepositTokens = ({ selectedAcc, networkId }: Props) => {
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
 
   const handleCopyAddress = () => {
-    Clipboard.setString(selectedAcc)
-    addToast(t('Address copied to clipboard!') as string, { timeout: 2000 })
+    Clipboard.setStringAsync(selectedAcc)
+    addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }
 
   return (
     <>
-      <Title hasBottomSpacing={false} style={[textStyles.center, spacings.mbSm]}>
+      <Title hasBottomSpacing={false} style={[textStyles.center, spacings.mbTy]}>
         {t('Deposit Tokens')}
       </Title>
       <Panel style={spacings.mb0}>
-        <Text style={spacings.mb} fontSize={16} weight="medium" color={colors.turquoise}>
+        <Text style={spacings.mbSm} fontSize={16} weight="medium" color={colors.turquoise}>
           {t('Direct Deposit')}
         </Text>
         <Text style={[spacings.mbTy, spacings.ph]} fontSize={12}>
@@ -64,7 +64,7 @@ const DepositTokens = ({ selectedAcc, networkId }: Props) => {
           </Text>
           <CopyIcon />
         </TouchableOpacity>
-        <View style={[flexboxStyles.alignCenter, spacings.pt, spacings.pbMd]}>
+        <View style={[flexboxStyles.alignCenter, spacings.pt, spacings.pbTy]}>
           {!!selectedAcc && !qrCodeError && (
             <View style={styles.qrCodeWrapper}>
               <QRCode
