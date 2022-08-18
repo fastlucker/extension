@@ -2,10 +2,13 @@ import { NetworkId } from 'ambire-common/src/constants/networks'
 import { FC } from 'react'
 import url from 'url'
 
+import KriptomatLogo from '@assets/svg/KriptomatLogo'
 import PayTrieLogo from '@assets/svg/PayTrieLogo'
 import RampLogo from '@assets/svg/RampLogo'
 import TransakLogo from '@assets/svg/TransakLogo'
 import CONFIG from '@config/env'
+import useToast from '@modules/common/hooks/useToast'
+import { fetchGet } from '@modules/common/services/fetch'
 import { useNavigation } from '@react-navigation/native'
 
 type UseProvidersProps = {
@@ -34,11 +37,13 @@ type NavigateProp = (
   }
 ) => void
 
-const { RAMP_HOST_API_KEY, PAYTRIE_PARTNER_URL, TRANSAK_API_KEY, TRANSAK_ENV } = CONFIG
+const { RAMP_HOST_API_KEY, PAYTRIE_PARTNER_URL, TRANSAK_API_KEY, TRANSAK_ENV, RELAYER_URL } = CONFIG
+
+const relayerURL = RELAYER_URL
 
 const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvidersReturnType => {
   const { navigate }: { navigate: NavigateProp } = useNavigation()
-
+  const { addToast } = useToast()
   const openRampNetwork = (name: string) => {
     const assetsList: { [key in NetworkId]?: string } = {
       ethereum: 'ERC20_*,ETH_*',
@@ -105,7 +110,33 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
     })
   }
 
+  const openKriptomat = async (name: string) => {
+    const kriptomatResponse = await fetchGet(
+      `${relayerURL}/kriptomat/${walletAddress}/${networkId}`
+    )
+    if (kriptomatResponse.success && kriptomatResponse?.data?.url) {
+      navigate('provider', {
+        name,
+        uri: url.format(kriptomatResponse.data.url)
+      })
+    } else {
+      addToast(`Error: ${kriptomatResponse.data ? kriptomatResponse.data : 'unexpected error'}`, {
+        error: true
+      })
+    }
+  }
+
   const providers = [
+    {
+      Icon: KriptomatLogo,
+      name: 'Kriptomat',
+      type: 'Credit Card',
+      fees: '2.45%',
+      limits: 'up to 5000 EUR/day',
+      currencies: 'USD, EUR, GBP',
+      networks: ['ethereum', 'polygon', 'avalanche', 'binance-smart-chain'],
+      onClick: () => openKriptomat('Kriptomat')
+    },
     {
       Icon: RampLogo,
       name: 'Ramp',
