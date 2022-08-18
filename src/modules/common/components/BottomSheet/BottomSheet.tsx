@@ -15,6 +15,7 @@ interface Props {
   id?: string
   sheetRef: React.RefObject<Modalize>
   closeBottomSheet: (dest?: 'alwaysOpen' | 'default' | undefined) => void
+  onClosed?: () => void
   children: React.ReactNode
   // Preferences
   cancelText?: string
@@ -33,7 +34,8 @@ const BottomSheet: React.FC<Props> = ({
   displayCancel = true,
   cancelText: _cancelText,
   closeBottomSheet = () => {},
-  adjustToContentHeight = true
+  adjustToContentHeight = true,
+  onClosed
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
@@ -86,6 +88,7 @@ const BottomSheet: React.FC<Props> = ({
           setIsBackdropVisible(true)
         }}
         onClose={() => setIsOpen(false)}
+        onClosed={() => !!onClosed && onClosed()}
       >
         <View style={styles.containerInnerWrapper}>
           {children}

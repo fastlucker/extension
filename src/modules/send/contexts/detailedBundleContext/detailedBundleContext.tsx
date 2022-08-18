@@ -43,8 +43,8 @@ const DetailedBundleProvider = ({ children, feeAssets }: any) => {
       <BottomSheet
         id="transactions"
         sheetRef={sheetRef}
-        closeBottomSheet={() => {
-          closeBottomSheet()
+        closeBottomSheet={closeBottomSheet}
+        onClosed={() => {
           setOpenedBundle(null)
           setMined(false)
         }}
