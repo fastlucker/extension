@@ -146,13 +146,9 @@ const Rewards = () => {
         type="outline"
         size="small"
         text={t('{{pendingTokensTotal}} WALLET Rewards', {
-          // Technically, the fallback should be set in the hook,
-          // but sometimes the hook returns `pendingTokensTotal` as undefined,
-          // so double check it.
-          pendingTokensTotal:
-            currentClaimStatus.loading && !pendingTokensTotal
-              ? '...'
-              : hidePrivateValue(pendingTokensTotal)
+          pendingTokensTotal: currentClaimStatus.loading
+            ? '...'
+            : hidePrivateValue(pendingTokensTotal)
         })}
         style={flexboxStyles.alignSelfCenter}
       />
