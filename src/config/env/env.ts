@@ -51,7 +51,7 @@ const CONFIG: Config = {
   ZAPPER_API_KEY: '96e0cc51-a62e-42ca-acee-910ea7d2a241',
   VELCRO_API_ENDPOINT: 'https://velcro.ambire.com/v1',
   RAMP_HOST_API_KEY: 'jfmvma5hxecxjht293qmbu7bc7jx3sc9tg48a2so',
-  PAYTRIE_PARTNER_URL: 'https://partner.paytrie.com/?app=876454',
+  PAYTRIE_PARTNER_URL: 'https://app.paytrie.com/?app=876454',
   TRANSAK_API_KEY: '325625ed-5a85-4131-ae50-ea7906332fb3',
   TRANSAK_ENV: 'STAGING',
   // SushiSwap v2. For v1, use 'https://sushiswap-interface-ten.vercel.app/swap'

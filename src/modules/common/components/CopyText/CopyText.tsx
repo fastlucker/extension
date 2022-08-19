@@ -15,8 +15,8 @@ const CopyText: React.FC<Props> = ({ text }) => {
   const { addToast } = useToast()
 
   const handleCopyText = () => {
-    Clipboard.setString(text)
-    addToast(t('Copied to clipboard!') as string, { timeout: 2000 })
+    Clipboard.setStringAsync(text)
+    addToast(t('Copied to clipboard!') as string, { timeout: 2500 })
   }
 
   return (

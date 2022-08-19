@@ -15,8 +15,20 @@ const styles = StyleSheet.create({
     ...commonStyles.borderRadiusPrimary,
     ...commonStyles.shadowPrimary
   },
+  disabled: {
+    opacity: 0.5
+  },
   descriptiveTextSpacing: {
     marginBottom: 3
+  },
+  providerLoadingWrapper: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    backgroundColor: colors.clay
   }
 })
 
