@@ -4,16 +4,17 @@ import '@config/analytics/CrashAnalytics'
 import '@modules/common/services/layoutAnimation'
 import 'react-native-gesture-handler'
 import 'expo-asset'
-
+import {isiOS} from './src/config/env'
 // Intl support for Hermes is not available yet for iOS. So these are polyfills.
 // PS: on RN v0.70.0 the missing support for iOS landed.
-// TODO: Import for iOS only.
-import '@formatjs/intl-getcanonicallocales/polyfill'
-import '@formatjs/intl-locale/polyfill'
-import '@formatjs/intl-pluralrules/polyfill'
-import '@formatjs/intl-pluralrules/locale-data/en' // locale-data for en
-import '@formatjs/intl-numberformat/polyfill'
-import '@formatjs/intl-numberformat/locale-data/en' // locale-data for en
+if (isiOS) {
+  import('@formatjs/intl-getcanonicallocales/polyfill')
+  import('@formatjs/intl-locale/polyfill')
+  import('@formatjs/intl-pluralrules/polyfill')
+  import('@formatjs/intl-pluralrules/locale-data/en') // locale-data for en
+  import('@formatjs/intl-numberformat/polyfill')
+  import('@formatjs/intl-numberformat/locale-data/en') // locale-data for en
+}
 
 import { registerRootComponent } from 'expo'
 
