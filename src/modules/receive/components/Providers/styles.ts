@@ -20,6 +20,15 @@ const styles = StyleSheet.create({
   },
   descriptiveTextSpacing: {
     marginBottom: 3
+  },
+  providerLoadingWrapper: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    backgroundColor: colors.clay
   }
 })
 

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -14,7 +15,7 @@ import styles from './styles'
 const Providers = ({ walletAddress, networkDetails }: any) => {
   const { t } = useTranslation()
 
-  const { providers } = useProviders({
+  const { providers, isLoading } = useProviders({
     walletAddress,
     networkId: networkDetails.id
   })
@@ -29,10 +30,15 @@ const Providers = ({ walletAddress, networkDetails }: any) => {
           onPress={onClick}
           disabled={isDisabled(networks)}
           style={[styles.providerContainer, !!isDisabled(networks) && styles.disabled]}
-          activeOpacity={0.8}
+          activeOpacity={0.6}
         >
           <View style={spacings.mrSm}>{!!Icon && <Icon />}</View>
           <View style={flexboxStyles.flex1}>
+            {!!isLoading.includes(name) && (
+              <View style={styles.providerLoadingWrapper}>
+                <Spinner />
+              </View>
+            )}
             <Text style={spacings.mbMi} fontSize={10}>
               {type}
             </Text>

@@ -1,5 +1,5 @@
 import { NetworkId } from 'ambire-common/src/constants/networks'
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import url from 'url'
 
 import KriptomatLogo from '@assets/svg/KriptomatLogo'
@@ -27,6 +27,7 @@ type UseProvidersReturnType = {
     networks: string[]
     onClick: () => void
   }[]
+  isLoading: any[]
 }
 
 type NavigateProp = (
@@ -44,6 +45,8 @@ const relayerURL = RELAYER_URL
 const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvidersReturnType => {
   const { navigate }: { navigate: NavigateProp } = useNavigation()
   const { addToast } = useToast()
+  const [isLoading, setLoading] = useState<any[]>([])
+
   const openRampNetwork = (name: string) => {
     const assetsList: { [key in NetworkId]?: string } = {
       ethereum: 'ERC20_*,ETH_*',
@@ -111,6 +114,7 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
   }
 
   const openKriptomat = async (name: string) => {
+    setLoading((prevState) => ['Kriptomat', ...prevState])
     const kriptomatResponse = await fetchGet(
       `${relayerURL}/kriptomat/${walletAddress}/${networkId}`
     )
@@ -124,6 +128,7 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
         error: true
       })
     }
+    setLoading((prevState) => prevState.filter((n) => n !== 'Kriptomat'))
   }
 
   const providers = [
@@ -179,7 +184,8 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
   ]
 
   return {
-    providers
+    providers,
+    isLoading
   }
 }
 
