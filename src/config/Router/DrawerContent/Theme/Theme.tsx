@@ -1,9 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -11,11 +11,12 @@ import useTheme from '@modules/common/hooks/useTheme'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import { THEME_TYPES } from '@modules/common/styles/themeConfig'
+import textStyles from '@modules/common/styles/utils/text'
 
 const Theme = () => {
   const { t } = useTranslation()
   const { setThemeType, themeType } = useTheme()
-  const { sheetRef, isOpen, openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const handleOnThemeChange = (type: THEME_TYPES) => {
     setThemeType(type)
@@ -35,13 +36,8 @@ const Theme = () => {
           {t('Theme: {{themeName}}', { themeName: themeNames[themeType] })}
         </Text>
       </TouchableOpacity>
-      <BottomSheet
-        id="change-theme"
-        sheetRef={sheetRef}
-        isOpen={isOpen}
-        closeBottomSheet={closeBottomSheet}
-      >
-        <Title>{t('Change app theme')}</Title>
+      <BottomSheet id="change-theme" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+        <Title style={textStyles.center}>{t('Change app theme')}</Title>
 
         {Object.values(THEME_TYPES).map((type) => (
           <Button

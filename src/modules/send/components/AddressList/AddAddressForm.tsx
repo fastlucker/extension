@@ -6,7 +6,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import { useBottomSheetInternal } from '@gorhom/bottom-sheet'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import RecipientInput from '@modules/common/components/RecipientInput'
@@ -53,7 +52,6 @@ const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
 
   const timer: any = useRef(null)
   const checkedIsUDAddress: any = useRef(false)
-  const { shouldHandleKeyboardEvents } = useBottomSheetInternal()
   const { network }: any = useNetwork()
 
   useEffect(() => {
@@ -119,24 +117,12 @@ const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
       </View>
 
       <Input
-        onBlur={() => {
-          shouldHandleKeyboardEvents.value = false
-        }}
-        onFocus={() => {
-          shouldHandleKeyboardEvents.value = true
-        }}
         containerStyle={spacings.mbTy}
         placeholder={t('Address Name')}
         onChangeText={onAddrNameChange}
       />
 
       <RecipientInput
-        onBlur={() => {
-          shouldHandleKeyboardEvents.value = false
-        }}
-        onFocus={() => {
-          shouldHandleKeyboardEvents.value = true
-        }}
         onChangeText={onAddrChange}
         isValidUDomain={!!uDAddress}
         isValidEns={!!ensAddress}

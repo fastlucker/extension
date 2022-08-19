@@ -1,11 +1,11 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Spinner from '@modules/common/components/Spinner'
@@ -17,6 +17,7 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import isInt from '@modules/common/utils/isInt'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
 import SignActions from '@modules/pending-transactions/components/SignActions'
@@ -25,31 +26,36 @@ import TransactionSummary from '@modules/pending-transactions/components/Transac
 import useSendTransaction from '@modules/pending-transactions/hooks/useSendTransaction'
 import { StackActions } from '@react-navigation/native'
 
+const relayerURL = CONFIG.RELAYER_URL
+
 const PendingTransactionsScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
   const { account } = useAccounts()
   const { network } = useNetwork()
   const { currentAccGasTankState } = useGasTank()
-  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
+  const onOpenHardwareWalletBottomSheet = () => {
+    openBottomSheet()
+  }
 
   const {
     bundle,
     signingStatus,
     estimation,
     feeSpeed,
+    rejectTxn,
+    canProceed,
+    replaceTx,
+    mustReplaceNonce,
     setEstimation,
     setFeeSpeed,
     approveTxn,
-    rejectTxn,
-    canProceed,
-    replacementBundle,
-    rejectTxnReplace
+    rejectTxnReplace,
+    setReplaceTx
   } = useSendTransaction({
-    sheetRef,
-    openBottomSheet,
-    closeBottomSheet,
-    isOpen
+    onOpenHardwareWalletBottomSheet
   })
 
   const prevBundle: any = usePrevious(bundle)
@@ -124,10 +130,10 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
             feeSpeed={feeSpeed}
             setFeeSpeed={setFeeSpeed}
             network={network}
-            isGasTankEnabled={!!currentAccGasTankState.isEnabled}
+            isGasTankEnabled={currentAccGasTankState.isEnabled && !!relayerURL}
           />
         )}
-        {!!replacementBundle && (
+        {isInt(mustReplaceNonce) && (
           <>
             {(!!canProceed || canProceed === null) && (
               <Text style={[spacings.mbTy, spacings.phSm]} fontSize={12}>
@@ -166,12 +172,15 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
             ) : (
               <SignActions
                 bundle={bundle}
+                mustReplaceNonce={mustReplaceNonce}
+                replaceTx={replaceTx}
+                setReplaceTx={setReplaceTx}
                 estimation={estimation}
                 approveTxn={approveTxn}
                 rejectTxn={rejectTxn}
                 signingStatus={signingStatus}
                 feeSpeed={feeSpeed}
-                isGasTankEnabled={currentAccGasTankState.isEnabled}
+                isGasTankEnabled={currentAccGasTankState.isEnabled && !!relayerURL}
                 network={network}
               />
             )}
@@ -180,11 +189,9 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         <BottomSheet
           id="pending-transactions-hardware-wallet"
           sheetRef={sheetRef}
-          isOpen={isOpen}
           closeBottomSheet={() => {
             closeBottomSheet()
           }}
-          dynamicInitialHeight={false}
         >
           <HardwareWalletSelectConnection
             onSelectDevice={(device: any) => {

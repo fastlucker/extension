@@ -3,10 +3,11 @@ import { isValidCode, isValidPassword } from 'ambire-common/src/services/validat
 import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Keyboard, View } from 'react-native'
+import { InteractionManager, Keyboard, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
 import Button from '@modules/common/components/Button'
+import Checkbox from '@modules/common/components/Checkbox'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
@@ -14,9 +15,11 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import isInt from '@modules/common/utils/isInt'
 
 import styles from './styles'
 
@@ -28,7 +31,10 @@ const SignActions = ({
   signingStatus,
   bundle,
   isGasTankEnabled,
-  network
+  network,
+  mustReplaceNonce,
+  replaceTx,
+  setReplaceTx
 }: any) => {
   const {
     control,
@@ -75,10 +81,10 @@ const SignActions = ({
 
   const willFail = (estimation && !estimation.success) || insufficientFee
 
-  const renderTitle = () => {
+  const renderTitle = (title: string = t('Sign')) => {
     return (
       <Title type="small" style={textStyles.center}>
-        {t('Sign')}
+        {title}
       </Title>
     )
   }
@@ -96,44 +102,56 @@ const SignActions = ({
   const isRecoveryMode =
     signingStatus && signingStatus.finalBundle && signingStatus.finalBundle.recoveryMode
 
-  const handleOnSign = () => approveTxn({})
+  const handleRequestSignConfirmation = () => approveTxn({})
 
   const onSubmit = async (values: { code: string; password: string }) => {
-    if (!selectedAccHasPassword) {
-      return approveTxn({ quickAccCredentials: values })
-    }
+    InteractionManager.runAfterInteractions(async () => {
+      if (!selectedAccHasPassword) {
+        return approveTxn({ quickAccCredentials: values })
+      }
 
-    try {
-      const password = await getSelectedAccPassword()
+      try {
+        const password = await getSelectedAccPassword()
 
-      return approveTxn({
-        quickAccCredentials: { code: values.code, password }
-      })
-    } catch (e) {
-      addToast(t('Failed to confirm your identity.') as string, { error: true })
-    }
+        return approveTxn({
+          quickAccCredentials: { code: values.code, password }
+        })
+      } catch (e) {
+        addToast(t('Failed to confirm your identity.') as string, { error: true })
+      }
+    })
   }
 
   if (signingStatus && signingStatus.quickAcc) {
     return (
       <Panel>
-        {renderTitle()}
+        {renderTitle(t('Confirmation'))}
         {feeNote}
         <View>
-          {signingStatus.confCodeRequired === 'otp' ? (
+          {signingStatus.confCodeRequired === 'otp' && (
             <Text style={spacings.mbSm}>
               {selectedAccHasPassword
                 ? t('Please enter your OTP code.')
                 : t('Please enter your OTP code and your password.')}
             </Text>
-          ) : null}
-          {signingStatus.confCodeRequired === 'email' ? (
+          )}
+          {signingStatus.confCodeRequired === 'notRequired' && (
+            <Text style={spacings.mbSm} fontSize={12} color={colors.turquoise}>
+              {t(
+                'You already sent 3 or more transactions to this address, confirmation code is not needed.'
+              )}
+            </Text>
+          )}
+          {signingStatus.confCodeRequired === 'notRequired' && !selectedAccHasPassword && (
+            <Text style={spacings.mbSm}>{t('Please enter your password.')}</Text>
+          )}
+          {signingStatus.confCodeRequired === 'email' && (
             <Text style={spacings.mbSm} weight="medium">
               {t(
                 'A confirmation code was sent to your email, please enter it along with your password.'
               )}
             </Text>
-          ) : null}
+          )}
         </View>
         {!isRecoveryMode && !selectedAccHasPassword && (
           <Controller
@@ -146,45 +164,47 @@ const SignActions = ({
                 onChangeText={onChange}
                 value={value}
                 disabled={signingStatus.inProgress}
-                containerStyle={spacings.mbTy}
+                containerStyle={signingStatus.confCodeRequired !== 'notRequired' && spacings.mbTy}
                 error={errors.password && (t('Please fill in a valid password.') as string)}
               />
             )}
             name="password"
           />
         )}
-        <Controller
-          control={control}
-          rules={{ validate: isValidCode }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <NumberInput
-              placeholder={
-                signingStatus.confCodeRequired === 'otp'
-                  ? t('Authenticator code')
-                  : t('Confirmation code')
-              }
-              onBlur={onBlur}
-              onChangeText={onChange}
-              keyboardType="numeric"
-              disabled={signingStatus.inProgress}
-              autoCorrect={false}
-              isValid={isValidCode(value)}
-              value={value}
-              autoFocus={selectedAccHasPassword}
-              error={errors.code && (t('Invalid confirmation code.') as string)}
-            />
-          )}
-          name="code"
-        />
+        {signingStatus.confCodeRequired !== 'notRequired' && (
+          <Controller
+            control={control}
+            rules={{ validate: isValidCode }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <NumberInput
+                placeholder={
+                  signingStatus.confCodeRequired === 'otp'
+                    ? t('Authenticator code')
+                    : t('Confirmation code')
+                }
+                onBlur={onBlur}
+                onChangeText={onChange}
+                keyboardType="numeric"
+                disabled={signingStatus.inProgress}
+                autoCorrect={false}
+                isValid={isValidCode(value)}
+                value={value}
+                autoFocus={selectedAccHasPassword}
+                error={errors.code && (t('Invalid confirmation code.') as string)}
+              />
+            )}
+            name="code"
+          />
+        )}
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonWrapper}>{rejectButton}</View>
           <View style={styles.buttonWrapper}>
             <Button
-              text={signingStatus.inProgress && !!watch('code', '') ? t('Sending...') : t('Send')}
+              text={signingStatus.inProgress ? t('Confirming...') : t('Confirm')}
               disabled={
                 signingStatus.inProgress ||
                 (!selectedAccHasPassword && !watch('password', '')) ||
-                !watch('code', '')
+                (signingStatus.confCodeRequired !== 'notRequired' && !watch('code', ''))
               }
               onPress={() => {
                 Keyboard.dismiss()
@@ -204,12 +224,25 @@ const SignActions = ({
     <Panel>
       {renderTitle()}
       {feeNote}
+      {
+        // If there's `bundle.nonce` set, it means we're cancelling or speeding up, so this shouldn't even be visible
+        // We also don't show this in any case in which we're forced to replace a particular transaction (mustReplaceNonce)
+        !isInt(bundle.nonce) && !isInt(mustReplaceNonce) && !!estimation?.nextNonce?.pendingBundle && (
+          <View style={spacings.mbTy}>
+            <Checkbox
+              value={replaceTx}
+              onValueChange={() => setReplaceTx((prev: any) => !prev)}
+              label={t('Replace currently pending transaction')}
+            />
+          </View>
+        )
+      }
       <View style={styles.buttonsContainer}>
         {!!rejectTxn && <View style={styles.buttonWrapper}>{rejectButton}</View>}
         <View style={styles.buttonWrapper}>
           <Button
-            text={!estimation || signingStatus ? t('Signing...') : t('Sign')}
-            onPress={handleOnSign}
+            text={t('Sign')}
+            onPress={handleRequestSignConfirmation}
             disabled={!estimation || signingStatus}
           />
         </View>
@@ -218,4 +251,4 @@ const SignActions = ({
   )
 }
 
-export default SignActions
+export default React.memo(SignActions)

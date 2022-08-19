@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { useModalize } from 'react-native-modalize'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import BundleDetailedPreview from '@modules/transactions/components/BundleDetailedPreview'
 
 type DetailedBundleContextData = {
@@ -20,7 +20,7 @@ const DetailedBundleProvider = ({ children, feeAssets }: any) => {
   const [openedBundle, setOpenedBundle] = useState<any>(null)
   const [mined, setMined] = useState<any>(false)
 
-  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   useEffect(() => {
     if (openedBundle) {
@@ -43,9 +43,8 @@ const DetailedBundleProvider = ({ children, feeAssets }: any) => {
       <BottomSheet
         id="transactions"
         sheetRef={sheetRef}
-        isOpen={isOpen}
-        closeBottomSheet={() => {
-          closeBottomSheet()
+        closeBottomSheet={closeBottomSheet}
+        onClosed={() => {
           setOpenedBundle(null)
           setMined(false)
         }}

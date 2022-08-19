@@ -72,7 +72,6 @@ const BundleDetailedPreview = ({ bundle = {}, mined = false, feeAssets }: any) =
           network={bundle.network}
           account={bundle.identity}
           mined={mined}
-          hasBottomSpacing={i < txns - 1}
           addressLabel={!!bundle.meta && bundle?.meta?.addressLabel}
         />
       ))}

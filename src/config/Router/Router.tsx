@@ -40,6 +40,7 @@ import GasInformationScreen from '@modules/gas-tank/screens/GasInformationScreen
 import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
+import ProviderScreen from '@modules/receive/screens/ProviderScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
 import BiometricsSignScreen from '@modules/settings/screens/BiometricsSignScreen'
@@ -47,7 +48,7 @@ import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingSc
 import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
-import SignMessage from '@modules/sign-message/screens/SignMessage'
+import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -388,8 +389,13 @@ const AppStack = () => {
       />
       <MainStack.Screen
         name="receive"
-        options={{ title: t('Receive') }}
+        options={{ header: headerGamma }}
         component={ReceiveScreen}
+      />
+      <MainStack.Screen
+        name="provider"
+        options={{ title: t('Receive') }}
+        component={ProviderScreen}
       />
       <MainStack.Screen
         name="pending-transactions"
@@ -398,7 +404,7 @@ const AppStack = () => {
       />
       <MainStack.Screen
         name="sign-message"
-        component={SignMessage}
+        component={SignMessageScreen}
         options={{ title: t('Sign'), headerLeft: () => null, gestureEnabled: false }}
       />
       <MainStack.Screen

@@ -32,7 +32,7 @@ const GasInformationScreen = () => {
   const { navigate } = useNavigation()
   const { cacheBreak } = useCacheBreak()
   const url = relayerURL ? `${relayerURL}/gasPrice/${network?.id}?cacheBreak=${cacheBreak}` : null
-  const { data, errMsg, isLoading } = useRelayerData(url)
+  const { data, errMsg, isLoading } = useRelayerData({ url })
   const [loaded, setLoaded] = useState<boolean>(false)
   const insets = useSafeAreaInsets()
 

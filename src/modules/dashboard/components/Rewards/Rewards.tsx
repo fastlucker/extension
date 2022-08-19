@@ -3,32 +3,73 @@ import {
   multiplierBadges,
   MULTIPLIERS_READ_MORE_URL
 } from 'ambire-common/src/constants/multiplierBadges'
+import useClaimableWalletToken from 'ambire-common/src/hooks/useClaimableWalletToken'
+import useRewards from 'ambire-common/src/hooks/useRewards'
+import { RewardIds } from 'ambire-common/src/hooks/useRewards/types'
+import useStakedWalletToken from 'ambire-common/src/hooks/useStakedWalletToken'
 import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Linking, TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
+import CONFIG from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
+import useAccounts from '@modules/common/hooks/useAccounts'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
+import useRelayerData from '@modules/common/hooks/useRelayerData'
+import useRequests from '@modules/common/hooks/useRequests'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import useRewards, { RewardIds } from '@modules/dashboard/hooks/useRewards'
-import useStakedWalletToken from '@modules/dashboard/hooks/useStakedWalletToken'
 
 import styles from './styles'
 
 const Rewards = () => {
   const { t } = useTranslation()
-  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
-  const { rewards, pendingTokensTotal, claimableWalletToken } = useRewards()
-  const { stakedAmount } = useStakedWalletToken()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { selectedAcc } = useAccounts()
+  const { network } = useNetwork()
+  const { addRequest } = useRequests()
+  const { rewards } = useRewards({
+    relayerURL: CONFIG.RELAYER_URL,
+    accountId: selectedAcc,
+    useRelayerData
+  })
+  const {
+    walletTokenAPYPercentage,
+    adxTokenAPYPercentage,
+    xWALLETAPYPercentage,
+    walletUsdPrice,
+    multipliers,
+    totalLifetimeRewards
+  } = rewards
+  const {
+    currentClaimStatus,
+    claimableNow,
+    disabledReason,
+    claimDisabledReason,
+    claimEarlyRewards,
+    claimVesting,
+    pendingTokensTotal,
+    claimableNowUsd,
+    mintableVestingUsd,
+    shouldDisplayMintableVesting,
+    claimingDisabled
+  } = useClaimableWalletToken({
+    accountId: selectedAcc,
+    network,
+    addRequest,
+    totalLifetimeRewards,
+    walletUsdPrice
+  })
+  const { stakedAmount } = useStakedWalletToken({ accountId: selectedAcc })
   const { hidePrivateValue } = usePrivateMode()
 
   useLayoutEffect(() => {
@@ -37,34 +78,6 @@ const Rewards = () => {
     triggerLayoutAnimation()
   }, [pendingTokensTotal])
 
-  const {
-    vestingEntry,
-    currentClaimStatus,
-    claimableNow,
-    disabledReason,
-    claimDisabledReason,
-    claimEarlyRewards,
-    claimVesting
-  } = claimableWalletToken
-
-  const walletTokenAPY = rewards.walletTokenAPY ? (rewards.walletTokenAPY * 100).toFixed(2) : '...'
-  const adxTokenAPY = rewards.adxTokenAPY ? (rewards.adxTokenAPY * 100).toFixed(2) : '...'
-  const xWALLETAPY = rewards.xWALLETAPY ? (rewards.xWALLETAPY * 100).toFixed(2) : '...'
-  const walletTokenUSDPrice = rewards.walletUsdPrice || 0
-
-  const claimableNowUsd =
-    walletTokenUSDPrice && !currentClaimStatus.loading && claimableNow
-      ? (walletTokenUSDPrice * claimableNow).toFixed(2)
-      : '...'
-  const mintableVestingUsd =
-    walletTokenUSDPrice && !currentClaimStatus.loading && currentClaimStatus.mintableVesting
-      ? (walletTokenUSDPrice * currentClaimStatus.mintableVesting).toFixed(2)
-      : '...'
-
-  const shouldDisplayVesting = !!currentClaimStatus.mintableVesting && !!vestingEntry
-  const shouldDisplayStaked = !!stakedAmount
-
-  const claimWithBurnDisabled = !!(claimDisabledReason || disabledReason)
   const handleClaimWithBurn = () => {
     const handleConfirm = () => {
       closeBottomSheet()
@@ -90,7 +103,6 @@ const Rewards = () => {
     )
   }
 
-  const claimInxWalletDisabled = !!(claimDisabledReason || disabledReason)
   const handleClaimInxWallet = () => {
     closeBottomSheet()
     claimEarlyRewards()
@@ -104,8 +116,7 @@ const Rewards = () => {
   const handleReadMore = () => Linking.openURL(MULTIPLIERS_READ_MORE_URL).finally(closeBottomSheet)
 
   const renderBadge = ({ id, multiplier, icon, name, color, link }: MultiplierBadge) => {
-    const isUnlocked =
-      rewards.multipliers && rewards.multipliers.map(({ name }) => name).includes(id)
+    const isUnlocked = multipliers && multipliers.map(({ name }) => name).includes(id)
     const handleLinkOpen = () => Linking.openURL(link)
 
     return (
@@ -135,21 +146,19 @@ const Rewards = () => {
         type="outline"
         size="small"
         text={t('{{pendingTokensTotal}} WALLET Rewards', {
-          // Technically, the fallback should be set in the hook,
-          // but sometimes the hook returns `pendingTokensTotal` as undefined,
-          // so double check it.
-          pendingTokensTotal: hidePrivateValue(pendingTokensTotal) || '...'
+          pendingTokensTotal: currentClaimStatus.loading
+            ? '...'
+            : hidePrivateValue(pendingTokensTotal)
         })}
         style={flexboxStyles.alignSelfCenter}
       />
       <BottomSheet
         id="rewards"
         sheetRef={sheetRef}
-        isOpen={isOpen}
         closeBottomSheet={closeBottomSheet}
         displayCancel={false}
       >
-        <Title>{t('Wallet token distribution')}</Title>
+        <Title style={textStyles.center}>{t('Wallet token distribution')}</Title>
 
         <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
           {multiplierBadges.map(renderBadge)}
@@ -176,7 +185,7 @@ const Rewards = () => {
                 {rewards[RewardIds.BALANCE_REWARDS]}
               </Text>
               <Text type="small" style={textStyles.right}>
-                {walletTokenAPY}% APY
+                {walletTokenAPYPercentage} APY
               </Text>
             </View>
           </View>
@@ -189,14 +198,14 @@ const Rewards = () => {
                 {rewards[RewardIds.ADX_REWARDS]}
               </Text>
               <Text type="small" style={textStyles.right}>
-                {adxTokenAPY}% APY
+                {adxTokenAPYPercentage} APY
               </Text>
             </View>
           </View>
           <View
             style={[
               styles.tableRow,
-              (shouldDisplayVesting || shouldDisplayStaked) && styles.tableRowBorder
+              (shouldDisplayMintableVesting || !!stakedAmount) && styles.tableRowBorder
             ]}
           >
             <View style={[flexboxStyles.directionRow, spacings.mb]}>
@@ -211,30 +220,35 @@ const Rewards = () => {
                   <Text type="small" color={colors.heliotrope}>
                     $
                   </Text>
-                  {claimableNowUsd}
+                  {currentClaimStatus.loading ? '...' : claimableNowUsd}
                 </Text>
               </View>
             </View>
             <View style={flexboxStyles.directionRow}>
               <Button
-                disabled={claimWithBurnDisabled}
+                disabled={claimingDisabled}
                 onPress={handleClaimWithBurn}
                 size="small"
                 text={t('Claim with Burn')}
                 containerStyle={[spacings.mrMi, flexboxStyles.flex1]}
               />
               <Button
-                disabled={claimInxWalletDisabled}
+                disabled={claimingDisabled}
                 onPress={handleClaimInxWallet}
                 size="small"
                 text={t('Claim in xWALLET')}
                 containerStyle={[spacings.mlMi, flexboxStyles.flex1]}
               />
             </View>
+            {claimingDisabled && (
+              <Text type="caption" appearance="danger" style={spacings.mhTy}>
+                {claimDisabledReason || disabledReason}
+              </Text>
+            )}
           </View>
 
-          {shouldDisplayVesting && (
-            <View style={[styles.tableRow, shouldDisplayStaked && styles.tableRowBorder]}>
+          {shouldDisplayMintableVesting && (
+            <View style={[styles.tableRow, !!stakedAmount && styles.tableRowBorder]}>
               <View style={[flexboxStyles.directionRow, spacings.mb]}>
                 <View style={[spacings.prTy, flexboxStyles.flex1]}>
                   <Text>{t('Claimable early supporters vesting')}</Text>
@@ -247,7 +261,7 @@ const Rewards = () => {
                     <Text type="small" color={colors.heliotrope}>
                       $
                     </Text>
-                    {mintableVestingUsd}
+                    {currentClaimStatus.loading ? '...' : mintableVestingUsd}
                   </Text>
                 </View>
               </View>
@@ -259,7 +273,7 @@ const Rewards = () => {
               />
             </View>
           )}
-          {shouldDisplayStaked && (
+          {!!stakedAmount && (
             <View style={[styles.tableRow, flexboxStyles.directionRow]}>
               <View style={[spacings.prTy, flexboxStyles.flex1]}>
                 <Text>{t('Staked WALLET')}</Text>
@@ -269,7 +283,7 @@ const Rewards = () => {
                   {stakedAmount}
                 </Text>
                 <Text type="small" style={textStyles.right}>
-                  {xWALLETAPY}% APY
+                  {xWALLETAPYPercentage} APY
                 </Text>
               </View>
             </View>

@@ -1,12 +1,10 @@
 import { Address } from 'ambire-common/src/hooks/useAddressBook'
 import React, { useMemo } from 'react'
-import { View } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler'
+import { TouchableOpacity, View } from 'react-native'
 
 import BinIcon from '@assets/svg/BinIcon'
 import { useTranslation } from '@config/localization'
 import Blockies from '@modules/common/components/Blockies'
-import { UseBottomSheetReturnType } from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -21,8 +19,8 @@ import styles from './styles'
 
 type Props = {
   onSelectAddress?: (item: { name: string; address: string }) => void
-  onOpenBottomSheet: UseBottomSheetReturnType['openBottomSheet']
-  onCloseBottomSheet?: UseBottomSheetReturnType['closeBottomSheet']
+  onOpenBottomSheet: (dest?: 'top' | 'default' | undefined) => void
+  onCloseBottomSheet?: (dest?: 'alwaysOpen' | 'default' | undefined) => void
 }
 
 const AddressList = ({ onSelectAddress, onOpenBottomSheet, onCloseBottomSheet }: Props) => {

@@ -36,7 +36,9 @@ const WalletConnectProvider: React.FC = ({ children }) => {
       if (uri.startsWith('wc:')) {
         connect({ uri })
       } else {
-        addToast(i18n.t('Invalid link. Refresh the dApp and try again.') as string)
+        addToast(i18n.t('Invalid link. Refresh the dApp and try again.') as string, {
+          error: true
+        })
       }
     },
     [connect, addToast]

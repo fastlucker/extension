@@ -8,10 +8,10 @@ import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useMemo, useState } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
-import useBottomSheet from '@modules/common/components/BottomSheet/hooks/useBottomSheet'
 import Button from '@modules/common/components/Button'
 import NumberInput from '@modules/common/components/NumberInput'
 import Text from '@modules/common/components/Text'
@@ -56,7 +56,7 @@ const DepositTokenBottomSheetProvider = ({
   const [amount, setAmount] = useState<number | string>('')
   const [bigNumberHexAmount, setBigNumberHexAmount] = useState('')
 
-  const { sheetRef, openBottomSheet, closeBottomSheet, isOpen } = useBottomSheet()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const onAmountChange = useCallback(
     (value: any) => {
@@ -154,7 +154,6 @@ const DepositTokenBottomSheetProvider = ({
       <BottomSheet
         id="deposit-token-bottom-sheet"
         sheetRef={sheetRef}
-        isOpen={isOpen}
         closeBottomSheet={() => {
           closeBottomSheet()
           setToken(null)

@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { Image, View } from 'react-native'
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { Image, TouchableWithoutFeedback, View } from 'react-native'
 
 import logo from '@assets/images/Ambire-Wallet-logo-colored-white-vertical.png'
 import AppVersion from '@modules/common/components/AppVersion'

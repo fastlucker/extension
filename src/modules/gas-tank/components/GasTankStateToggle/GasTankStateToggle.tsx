@@ -63,7 +63,7 @@ const GasTankStateToggle = ({ disabled }: { disabled: boolean }) => {
           style={[
             { borderWidth: 1 },
             currentAccGasTankState.isEnabled && { backgroundColor: 'transparent' },
-            !currentAccGasTankState.isEnabled && { borderColor: colors.waikawaGray }
+            !currentAccGasTankState.isEnabled && { borderColor: colors.pink }
           ]}
           textStyle={currentAccGasTankState.isEnabled && { color: colors.titan_50 }}
           onPress={handleGasTankDisable}
