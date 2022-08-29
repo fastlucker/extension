@@ -2,6 +2,7 @@ import React from 'react'
 import {
   FlatList,
   FlatListProps,
+  Platform,
   ScrollView,
   ScrollViewProps,
   SectionList,
@@ -13,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import useTheme from '@modules/common/hooks/useTheme'
+import spacings from '@modules/common/styles/spacings'
 
 import createStyles from './styles'
 
@@ -22,7 +24,7 @@ export enum WRAPPER_TYPES {
   KEYBOARD_AWARE_SCROLL_VIEW = 'keyboard-aware-scrollview',
   FLAT_LIST = 'flatlist',
   SECTION_LIST = 'sectionlist',
-  VIEW = 'view'
+  VIEW = 'view',
 }
 
 // @ts-ignore ignored because SectionList and FlatList receive props with same names
@@ -48,15 +50,19 @@ const Wrapper = ({
 }: Props) => {
   const { styles } = useTheme(createStyles)
   const insets = useSafeAreaInsets()
+
+  const horizontalSpacing =
+    Platform.OS === 'web' && !!rest.refreshControl ? spacings.phTy : spacings.ph
+
   if (type === WRAPPER_TYPES.FLAT_LIST) {
     return (
       // @ts-ignore
       <FlatList
-        style={[styles.wrapper, style]}
+        style={[styles.wrapper, horizontalSpacing, style]}
         contentContainerStyle={[
           styles.contentContainerStyle,
           !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-          contentContainerStyle
+          contentContainerStyle,
         ]}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
@@ -70,11 +76,11 @@ const Wrapper = ({
     return (
       // @ts-ignore
       <SectionList
-        style={[styles.wrapper, style]}
+        style={[styles.wrapper, horizontalSpacing, style]}
         contentContainerStyle={[
           styles.contentContainerStyle,
           !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-          contentContainerStyle
+          contentContainerStyle,
         ]}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
@@ -87,11 +93,11 @@ const Wrapper = ({
   if (type === WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW) {
     return (
       <KeyboardAwareScrollView
-        style={[styles.wrapper, style]}
+        style={[styles.wrapper, horizontalSpacing, style]}
         contentContainerStyle={[
           styles.contentContainerStyle,
           !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-          contentContainerStyle
+          contentContainerStyle,
         ]}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
@@ -114,11 +120,11 @@ const Wrapper = ({
 
   return (
     <ScrollView
-      style={[styles.wrapper, style]}
+      style={[styles.wrapper, horizontalSpacing, style]}
       contentContainerStyle={[
         styles.contentContainerStyle,
         !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-        contentContainerStyle
+        contentContainerStyle,
       ]}
       keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
       keyboardDismissMode={keyboardDismissMode || 'none'}

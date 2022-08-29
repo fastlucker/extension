@@ -11,13 +11,12 @@ const styles = () =>
   StyleSheet.create<Style>({
     wrapper: {
       flex: 1,
-      ...spacings.ph,
-      backgroundColor: 'transparent'
+      backgroundColor: 'transparent',
     },
     contentContainerStyle: {
       ...spacings.pbSm,
-      flexGrow: 1
-    }
+      flexGrow: 1,
+    },
   })
 
 export default styles

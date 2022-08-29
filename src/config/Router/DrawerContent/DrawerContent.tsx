@@ -13,7 +13,7 @@ import SwapIcon from '@assets/svg/SwapIcon'
 import TelegramIcon from '@assets/svg/TelegramIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
 import TwitterIcon from '@assets/svg/TwitterIcon'
-import { isAndroid } from '@config/env'
+import { isAndroid, isiOS } from '@config/env'
 import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import AppVersion from '@modules/common/components/AppVersion'
 import Text from '@modules/common/components/Text'
@@ -73,25 +73,25 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const menu = [
     { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard' },
     // TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback
-    ...(isAndroid ? [{ Icon: EarnIcon, name: t('Earn'), route: 'earn' }] : []),
+    ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: 'earn' }] : []),
     { Icon: SendIcon, name: t('Send'), route: 'send' },
     // TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback
-    ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: 'swap' }] : []),
+    ...(!isiOS ? [{ Icon: SwapIcon, name: t('Swap'), route: 'swap' }] : []),
     { Icon: TransferIcon, name: t('Transactions'), route: 'transactions' },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
     { Icon: DepositIcon, name: t('Deposit'), route: 'receive' },
-    { Icon: GasTankIcon, name: t('Gas Tank'), route: 'gas-tank' }
+    { Icon: GasTankIcon, name: t('Gas Tank'), route: 'gas-tank' },
   ]
 
   const help = [
     { name: t('Help Center'), url: HELP_CENTER_URL },
     { name: t('Report an issue'), url: REPORT_ISSUE_URL },
-    { name: t('Terms of Service'), url: termsAndPrivacyURL }
+    { name: t('Terms of Service'), url: termsAndPrivacyURL },
   ]
 
   const settings = [
-    { name: t('Signers'), route: 'signers' }
+    { name: t('Signers'), route: 'signers' },
     // TODO: Not implemented yet.
     // { name: t('Security'), route: 'security' }
   ]
@@ -99,7 +99,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const social = [
     { Icon: DiscordIcon, url: DISCORD_URL },
     { Icon: TwitterIcon, url: TWITTER_URL },
-    { Icon: TelegramIcon, url: TELEGRAM_URL }
+    { Icon: TelegramIcon, url: TELEGRAM_URL },
   ]
 
   return (

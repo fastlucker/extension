@@ -1,10 +1,7 @@
-import useAccounts, {
-  onAddAccountOptions,
-  UseAccountsReturnType
-} from 'ambire-common/src/hooks/useAccounts'
+import useAccounts, { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
-import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
+// import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useStorage from '@modules/common/hooks/useStorage'
@@ -17,14 +14,14 @@ const AccountsContext = createContext<UseAccountsReturnType>({
   selectedAcc: '',
   onSelectAcc: () => {},
   onAddAccount: () => false,
-  onRemoveAccount: () => {}
+  onRemoveAccount: () => {},
 })
 
 const AccountsProvider: React.FC = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
 
   const onAdd = useCallback(
-    (opts: onAddAccountOptions) => {
+    (opts) => {
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
         // Flipping the flag is all it's needed, because it changes the
         // Router state that redirects the user to the logged-in state screens.
@@ -47,11 +44,11 @@ const AccountsProvider: React.FC = ({ children }) => {
       useStorage,
       onRemoveLastAccount,
       onAdd,
-      useToasts
+      useToasts,
     })
 
   useEffect(() => {
-    CrashAnalytics.setUserContext({ id: selectedAcc || 'N/A' })
+    // CrashAnalytics.setUserContext({ id: selectedAcc || 'N/A' })
   }, [selectedAcc])
 
   return (

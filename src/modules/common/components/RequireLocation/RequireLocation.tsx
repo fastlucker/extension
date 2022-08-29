@@ -4,10 +4,10 @@ import Text from 'modules/common/components/Text'
 import React, { useEffect, useState } from 'react'
 import { AppState, PermissionsAndroid, View } from 'react-native'
 import LocationServicesDialogBox from 'react-native-android-location-services-dialog-box'
-import { BleErrorCode } from 'react-native-ble-plx'
-import { Observable } from 'rxjs'
 
-import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
+// import { BleErrorCode } from 'react-native-ble-plx'
+// import { Observable } from 'rxjs'
+// import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 import spacings from '@modules/common/styles/spacings'
 
 const RequireLocation: React.FC<any> = ({ children }) => {
@@ -17,17 +17,17 @@ const RequireLocation: React.FC<any> = ({ children }) => {
   const [locationServicesEnabled, setLocationServicesEnabled] = useState<boolean | null>(true)
 
   const setLocationState = () => {
-    const sub = new Observable(TransportBLE.listen).subscribe({
-      next: () => {
-        sub.unsubscribe()
-        setLocationServicesEnabled(true)
-      },
-      error: (e) => {
-        const disabled = e?.errorCode === BleErrorCode.LocationServicesDisabled
-        sub.unsubscribe()
-        setLocationServicesEnabled(!disabled)
-      }
-    })
+    // const sub = new Observable(TransportBLE.listen).subscribe({
+    //   next: () => {
+    //     sub.unsubscribe()
+    //     setLocationServicesEnabled(true)
+    //   },
+    //   error: (e) => {
+    //     const disabled = e?.errorCode === BleErrorCode.LocationServicesDisabled
+    //     sub.unsubscribe()
+    //     setLocationServicesEnabled(!disabled)
+    //   }
+    // })
   }
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const RequireLocation: React.FC<any> = ({ children }) => {
     LocationServicesDialogBox.checkLocationServicesIsEnabled({
       enableHighAccuracy: false,
       showDialog: false,
-      openLocationServices: true
+      openLocationServices: true,
     })
 
   if (!permissionGranted) {

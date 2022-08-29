@@ -1,4 +1,4 @@
-import { Dimensions, ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { Dimensions, ImageStyle, TextStyle, ViewStyle } from 'react-native'
 
 interface Style {
   [key: string]: TextStyle | ViewStyle | ImageStyle
@@ -17,7 +17,7 @@ export const DEVICE_HEIGHT = Dimensions.get('window').height
 export const IS_SCREEN_SIZE_L = DEVICE_WIDTH >= 768
 export const IS_SCREEN_SIZE_S = DEVICE_HEIGHT <= 670 || DEVICE_WIDTH <= 370
 
-const spacings = StyleSheet.create<Style>({
+const spacings: Style = {
   mb0: { marginBottom: 0 },
   mbMi: { marginBottom: SPACING_MI },
   mbTy: { marginBottom: SPACING_TY },
@@ -113,6 +113,6 @@ const spacings = StyleSheet.create<Style>({
   ph: { paddingHorizontal: SPACING },
   phMd: { paddingHorizontal: SPACING_MD },
   phLg: { paddingHorizontal: SPACING_LG },
-})
+}
 
 export default spacings

@@ -9,7 +9,7 @@ import EarnIcon from '@assets/svg/EarnIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
-import { isAndroid } from '@config/env'
+import { isAndroid, isiOS } from '@config/env'
 import DrawerContent from '@config/Router/DrawerContent'
 import { headerAlpha, headerBeta, headerGamma } from '@config/Router/HeadersConfig'
 import styles, {
@@ -80,7 +80,7 @@ const SignersStackScreen = () => {
         name="signers-screen"
         component={SignersScreen}
         options={{
-          title: t('Manage Signers')
+          title: t('Manage Signers'),
         }}
       />
     </SignersStack.Navigator>
@@ -112,7 +112,7 @@ const ChangePasscodeStackScreen = () => {
         name="passcode-change-screen"
         component={ChangePasscodeScreen}
         options={{
-          title: t('Passcode')
+          title: t('Passcode'),
         }}
       />
     </ChangePasscodeStack.Navigator>
@@ -128,7 +128,7 @@ const ChangeLocalAuthStackScreen = () => {
         name="local-auth-change-screen"
         component={ChangeLocalAuthScreen}
         options={{
-          title: t('Local Auth')
+          title: t('Local Auth'),
         }}
       />
     </ChangeLocalAuthStack.Navigator>
@@ -144,7 +144,7 @@ const BiometricsStackScreen = () => {
         name="biometrics-sign-change-screen"
         component={BiometricsSignScreen}
         options={{
-          title: t('Sign with Biometrics')
+          title: t('Sign with Biometrics'),
         }}
       />
     </BiometricsStack.Navigator>
@@ -160,7 +160,7 @@ const AppLockingStackScreen = () => {
         name="app-locking-screen"
         component={ChangeAppLockingScreen}
         options={{
-          title: t('Manage App Locking')
+          title: t('Manage App Locking'),
         }}
       />
     </AppLockingStack.Navigator>
@@ -241,7 +241,7 @@ const TabsScreens = () => {
         tabBarActiveBackgroundColor: colors.howl_65,
         tabBarStyle,
         tabBarLabelStyle: IS_SCREEN_SIZE_L ? horizontalTabBarLabelStyle : tabBarLabelStyle,
-        tabBarItemStyle
+        tabBarItemStyle,
       }}
       tabBar={(props: any) => (
         <View style={[styles.tabBarContainer]}>
@@ -260,12 +260,12 @@ const TabsScreens = () => {
           headerTitle: t('Dashboard'),
           tabBarIcon: ({ color }) => (
             <DashboardIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-          )
+          ),
         }}
         component={DashboardStackScreen}
       />
       {/* TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback */}
-      {isAndroid && (
+      {!isiOS && (
         <Tab.Screen
           name="earn"
           options={{
@@ -273,7 +273,7 @@ const TabsScreens = () => {
             headerTitle: t('Earn'),
             tabBarIcon: ({ color }) => (
               <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-            )
+            ),
           }}
           component={EarnScreen}
         />
@@ -285,12 +285,12 @@ const TabsScreens = () => {
           headerTitle: t('Send'),
           tabBarIcon: ({ color }) => (
             <SendIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-          )
+          ),
         }}
         component={SendScreen}
       />
       {/* TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback */}
-      {isAndroid && (
+      {!isiOS && (
         <Tab.Screen
           name="swap"
           options={{
@@ -298,7 +298,7 @@ const TabsScreens = () => {
             headerTitle: t('Swap'),
             tabBarIcon: ({ color }) => (
               <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-            )
+            ),
           }}
           component={SwapScreen}
         />
@@ -310,7 +310,7 @@ const TabsScreens = () => {
           headerTitle: t('Transactions'),
           tabBarIcon: ({ color }) => (
             <TransferIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-          )
+          ),
         }}
         component={TransactionsScreen}
       />
@@ -325,7 +325,7 @@ const AppDrawer = () => {
       screenOptions={{
         headerShown: false,
         drawerType: 'front',
-        drawerStyle
+        drawerStyle,
       }}
     >
       <Drawer.Screen name="tabs" component={TabsScreens} />
@@ -349,7 +349,7 @@ const AppStack = () => {
         name="drawer"
         component={AppDrawer}
         options={{
-          headerShown: false
+          headerShown: false,
         }}
       />
       <MainStack.Screen

@@ -76,7 +76,7 @@ const SendForm = ({
   setMaxAmount,
   setAddress,
   setAddressConfirmed,
-  setSWAddressConfirmed
+  setSWAddressConfirmed,
 }: Props) => {
   const { t } = useTranslation()
 
@@ -101,7 +101,7 @@ const SendForm = ({
     >
       {assetsItems.length ? (
         <>
-          <Panel style={[spacings.mb0, isHidden && commonStyles.visibilityHidden]}>
+          <Panel style={[spacings.mb0, { flexGrow: 1 }, isHidden && commonStyles.visibilityHidden]}>
             <Title style={textStyles.center}>{t('Send')}</Title>
             <View style={spacings.mbMi}>
               <Select
@@ -144,7 +144,7 @@ const SendForm = ({
                       'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
                       {
                         platforms: unsupportedSWPlatforms.join(' / '),
-                        token: selectedAsset?.symbol
+                        token: selectedAsset?.symbol,
                       }
                     ) as string
                   }

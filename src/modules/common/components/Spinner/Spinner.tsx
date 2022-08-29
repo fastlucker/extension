@@ -5,7 +5,7 @@ import SpinnerAnimation from './spinner-animation.json'
 import styles from './styles'
 
 const Spinner = () => {
-  return <LottieView source={SpinnerAnimation} style={styles.spinner} autoPlay loop />
+  return null
 }
 
 export default Spinner

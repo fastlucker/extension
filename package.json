@@ -9,7 +9,6 @@
     "ios:staging": "APP_ENV=staging yarn ios",
     "ios:production": "APP_ENV=production yarn ios",
     "start": "react-native start",
-    "postinstall": "rn-nodeify --install assert,zlib,buffer,inherits,console,constants,crypto,dns,domain,events,http,https,path,process,punycode,querystring,fs,stream,string_decoder,timers,tty,url,util,vm,tls --hack --yarn",
     "start:clean": "react-native start --reset-cache",
     "start:staging": "APP_ENV=staging yarn start",
     "start:clean:staging": "APP_ENV=staging yarn start:clean",

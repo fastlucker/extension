@@ -38,12 +38,11 @@ const Panel: React.FC<Props> = ({
         style={[
           styles.innerContainer,
           spacings.pvSm,
-          flexboxStyles.flex1,
           type === 'filled' && { backgroundColor: colors.clay },
           horizontalSpacing === 'small' && spacings.phSm,
           horizontalSpacing === 'tiny' && spacings.phTy,
           horizontalSpacing === 'micro' && spacings.phMi,
-          contentContainerStyle
+          contentContainerStyle,
         ]}
       >
         {children}

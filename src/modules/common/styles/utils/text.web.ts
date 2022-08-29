@@ -1,4 +1,4 @@
-import { StyleSheet, TextStyle } from 'react-native'
+import { TextStyle } from 'react-native'
 
 import colors from '../colors'
 
@@ -11,7 +11,7 @@ interface Styles {
   italic: TextStyle
 }
 
-const textStyles = StyleSheet.create<Styles>({
+const textStyles: Styles = {
   highlightPrimary: {
     color: colors.heliotrope,
   },
@@ -30,6 +30,6 @@ const textStyles = StyleSheet.create<Styles>({
   italic: {
     fontStyle: 'italic',
   },
-})
+}
 
 export default textStyles

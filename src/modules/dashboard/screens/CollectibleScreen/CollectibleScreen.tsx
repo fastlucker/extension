@@ -7,8 +7,7 @@ import { validateSendNftAddress } from 'ambire-common/src/services/validations'
 import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Linking, TouchableOpacity, View } from 'react-native'
-import FastImage from 'react-native-fast-image'
+import { Image, Linking, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import CONFIG, { isiOS } from '@config/env'
@@ -54,13 +53,13 @@ const CollectibleScreen = () => {
   const [metadata, setMetadata] = useState<any>({
     owner: {
       address: '',
-      icon: ''
+      icon: '',
     },
     name: '',
     description: '',
     image: '',
     collection: '',
-    explorerUrl: ''
+    explorerUrl: '',
   })
   const [recipientAddress, setRecipientAddress] = useState('')
   const [uDAddress, setUDAddress] = useState('')
@@ -69,7 +68,7 @@ const CollectibleScreen = () => {
   const [addressConfirmed, setAddressConfirmed] = useState(false)
   const [validationFormMgs, setValidationFormMgs] = useState<any>({
     success: false,
-    message: ''
+    message: '',
   })
 
   const timer: any = useRef(null)
@@ -93,25 +92,25 @@ const CollectibleScreen = () => {
           data: ERC721.encodeFunctionData('transferFrom', [
             metadata.owner.address,
             recipAddress,
-            tokenId
-          ])
+            tokenId,
+          ]),
         },
-        meta: null
+        meta: null,
       }
 
       if (uDAddress) {
         req.meta = {
           addressLabel: {
             addressLabel: recipientAddress,
-            address: uDAddress
-          }
+            address: uDAddress,
+          },
         }
       } else if (ensAddress) {
         req.meta = {
           addressLabel: {
             addressLabel: recipientAddress,
-            address: ensAddress
-          }
+            address: ensAddress,
+          },
         }
       }
 
@@ -136,7 +135,7 @@ const CollectibleScreen = () => {
       setTransferDisabled(!isAddressValid.success)
       setValidationFormMgs({
         success: isAddressValid.success,
-        message: isAddressValid.message ? isAddressValid.message : ''
+        message: isAddressValid.message ? isAddressValid.message : '',
       })
     } else {
       if (timer.current) {
@@ -177,7 +176,7 @@ const CollectibleScreen = () => {
         setTransferDisabled(!isAddressValid.success)
         setValidationFormMgs({
           success: isAddressValid.success,
-          message: isAddressValid.message ? isAddressValid.message : ''
+          message: isAddressValid.message ? isAddressValid.message : '',
         })
       }
 
@@ -192,7 +191,7 @@ const CollectibleScreen = () => {
     selectedAcc,
     network,
     addressConfirmed,
-    isKnownAddress
+    isKnownAddress,
   ])
 
   const fetchMetadata = useCallback(async () => {
@@ -217,7 +216,7 @@ const CollectibleScreen = () => {
         contract
           .uri(tokenId)
           .then((uri: any) => ({ uri }))
-          .catch((err: any) => ({ err }))
+          .catch((err: any) => ({ err })),
       ])
       const uri = maybeUri1.uri || maybeUri2.uri
       if (!uri) throw maybeUri1.err || maybeUri2.err
@@ -237,7 +236,7 @@ const CollectibleScreen = () => {
       setMetadata((metadata: any) => ({
         ...metadata,
         ...json,
-        image
+        image,
       }))
 
       // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -245,9 +244,9 @@ const CollectibleScreen = () => {
         ...metadata,
         collection,
         owner: {
-          address
+          address,
         },
-        explorerUrl
+        explorerUrl,
       }))
 
       setLoading(false)
@@ -270,9 +269,9 @@ const CollectibleScreen = () => {
           image,
           name,
           owner: {
-            address: owner
+            address: owner,
           },
-          explorerUrl
+          explorerUrl,
         }))
 
         setLoading(false)
@@ -317,7 +316,7 @@ const CollectibleScreen = () => {
               <Spinner />
             </View>
           )}
-          <FastImage
+          <Image
             style={styles.collectibleImage}
             source={{ uri: handleCollectibleUri(metadata.image) }}
             onLoad={() => setIsAssetImageLoading(false)}
