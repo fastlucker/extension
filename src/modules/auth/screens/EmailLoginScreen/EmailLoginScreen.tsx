@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useState } from 'react'
-import { Keyboard, LayoutAnimation, TouchableWithoutFeedback, View } from 'react-native'
+import { Keyboard, LayoutAnimation, Platform, TouchableWithoutFeedback, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
@@ -35,7 +35,7 @@ const EmailLoginScreen = ({ navigation }: any) => {
     <GradientBackgroundWrapper>
       <TouchableWithoutFeedback
         onPress={() => {
-          Keyboard.dismiss()
+          Platform.OS !== 'web' && Keyboard.dismiss()
         }}
       >
         <Wrapper

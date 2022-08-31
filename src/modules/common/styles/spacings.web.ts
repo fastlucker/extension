@@ -1,4 +1,4 @@
-import { Dimensions, ImageStyle, TextStyle, ViewStyle } from 'react-native'
+import { ImageStyle, TextStyle, ViewStyle } from 'react-native'
 
 interface Style {
   [key: string]: TextStyle | ViewStyle | ImageStyle
@@ -11,11 +11,11 @@ export const SPACING: number = 20
 export const SPACING_MD: number = 25
 export const SPACING_LG: number = 30
 
-export const DEVICE_WIDTH = Dimensions.get('window').width
-export const DEVICE_HEIGHT = Dimensions.get('window').height
+export const DEVICE_WIDTH = 600
+export const DEVICE_HEIGHT = 923
 
-export const IS_SCREEN_SIZE_L = DEVICE_WIDTH >= 768
-export const IS_SCREEN_SIZE_S = DEVICE_HEIGHT <= 670 || DEVICE_WIDTH <= 370
+export const IS_SCREEN_SIZE_L = false
+export const IS_SCREEN_SIZE_S = false
 
 const spacings: Style = {
   mb0: { marginBottom: 0 },

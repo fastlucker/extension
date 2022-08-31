@@ -1,5 +1,5 @@
 import React from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import { Platform, TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import BurgerIcon from '@assets/svg/BurgerIcon'
@@ -19,6 +19,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { DrawerHeaderProps } from '@react-navigation/drawer'
 import { getHeaderTitle } from '@react-navigation/elements'
 
+import ConnectedDapps from '../DrawerContent/ConnectedDapps'
 import styles from './style'
 
 interface Props extends DrawerHeaderProps {
@@ -82,7 +83,10 @@ const Header: React.FC<Props> = ({
 
   const renderHeaderRight = withScanner ? (
     <NavIconWrapper onPress={() => navigation.navigate('connect')}>
-      <ScanIcon />
+      {Platform.select({
+        web: <ConnectedDapps isIcon />,
+        default: <ScanIcon />
+      })}
     </NavIconWrapper>
   ) : null
 

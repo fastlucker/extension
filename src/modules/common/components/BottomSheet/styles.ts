@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
-import { DEVICE_HEIGHT, DEVICE_WIDTH } from '@modules/common/styles/spacings'
+import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 interface Styles {
   root: ViewStyle

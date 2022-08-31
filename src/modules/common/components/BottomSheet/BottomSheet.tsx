@@ -7,6 +7,7 @@ import { Modalize } from 'react-native-modalize'
 import { HEADER_HEIGHT } from '@config/Router/Header/style'
 import { Portal } from '@gorhom/portal'
 import Button from '@modules/common/components/Button'
+import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
 import Backdrop from './Backdrop'
 import styles from './styles'
@@ -68,6 +69,8 @@ const BottomSheet: React.FC<Props> = ({
         handleStyle={styles.dragger}
         handlePosition="inside"
         modalTopOffset={HEADER_HEIGHT + 10}
+        {...(Platform.OS !== 'web' ? { modalTopOffset: HEADER_HEIGHT + 10 } : {})}
+        {...(Platform.OS === 'web' ? { modalHeight: DEVICE_HEIGHT - HEADER_HEIGHT - 10 } : {})}
         threshold={100}
         adjustToContentHeight={adjustToContentHeight}
         disableScrollIfPossible={false}

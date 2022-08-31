@@ -3,9 +3,12 @@
   "version": "1.0",
   "manifest_version": 3,
   "short_name": "ambire-mobile-wallet",
-  "permissions": ["storage"],
+  "permissions": ["storage", "videoCapture", "tabs", "notifications"],
   "action": {
     "default_popup": "index.html"
   },
-  "host_permissions": ["https://*/", "http://localhost:19006/"]
+  "host_permissions": ["https://*/", "http://localhost:19006/"],
+  "externally_connectable": {
+    "ids": ["*"]
+  }
 }

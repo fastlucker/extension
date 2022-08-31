@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import TransferIcon from '@assets/svg/TransferIcon'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
@@ -11,11 +12,12 @@ import Title from '@modules/common/components/Title'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
 import ConnectedDAppItem from './ConnectedDAppItem'
 
-const ConnectedDapps = () => {
+const ConnectedDapps = ({ isIcon = false }: { isIcon: boolean }) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { connections, disconnect, handleConnect } = useWalletConnect()
@@ -25,9 +27,17 @@ const ConnectedDapps = () => {
   return (
     <>
       <TouchableOpacity onPress={openBottomSheet}>
-        <Text style={spacings.mbSm} color={colors.titan_50}>
-          {t('Connected dApps')}
-        </Text>
+        {!!isIcon && (
+          <View style={[flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}>
+            <TransferIcon />
+            <Text fontSize={9}>{t('dApps')}</Text>
+          </View>
+        )}
+        {!isIcon && (
+          <Text style={spacings.mbSm} color={colors.titan_50}>
+            {t('Connected dApps')}
+          </Text>
+        )}
       </TouchableOpacity>
       <BottomSheet id="connected-dapps" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <Title style={textStyles.center}>{t('Connected dApps')}</Title>
