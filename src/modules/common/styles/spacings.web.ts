@@ -112,7 +112,7 @@ const spacings: Style = {
   phSm: { paddingHorizontal: SPACING_SM },
   ph: { paddingHorizontal: SPACING },
   phMd: { paddingHorizontal: SPACING_MD },
-  phLg: { paddingHorizontal: SPACING_LG },
+  phLg: { paddingHorizontal: SPACING_LG }
 }
 
 export default spacings

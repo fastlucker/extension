@@ -46,8 +46,9 @@ const styles = StyleSheet.create<Styles>({
     top: 10
   },
   backDrop: {
-    width: DEVICE_WIDTH,
-    height: DEVICE_HEIGHT,
+    width: '100%',
+    height: '100%',
+    minHeight: DEVICE_HEIGHT,
     position: 'absolute',
     backgroundColor: 'transparent',
     zIndex: 1

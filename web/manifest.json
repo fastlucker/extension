@@ -1,0 +1,11 @@
+{
+  "name": "ambire-mobile-wallet",
+  "version": "1.0",
+  "manifest_version": 3,
+  "short_name": "ambire-mobile-wallet",
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "index.html"
+  },
+  "host_permissions": ["https://*/", "http://localhost:19006/"]
+}

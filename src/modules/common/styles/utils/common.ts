@@ -18,33 +18,33 @@ const commonStyles = StyleSheet.create<Styles>({
     shadowOpacity: 0.25,
     shadowOffset: {
       width: 0,
-      height: 5,
+      height: 5
     },
     shadowRadius: 10,
-    elevation: 9,
+    elevation: 9
   },
   shadowSecondary: {
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 3,
+      height: 3
     },
     shadowOpacity: 0.29,
     shadowRadius: 4.65,
-    elevation: 7,
+    elevation: 7
   },
   borderRadiusPrimary: {
-    borderRadius: BORDER_RADIUS_PRIMARY,
+    borderRadius: BORDER_RADIUS_PRIMARY
   },
   borderRadiusSecondary: {
-    borderRadius: BORDER_RADIUS_SECONDARY,
+    borderRadius: BORDER_RADIUS_SECONDARY
   },
   hidden: {
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   visibilityHidden: {
-    opacity: 0,
-  },
+    opacity: 0
+  }
 })
 
 export default commonStyles

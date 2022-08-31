@@ -24,7 +24,7 @@ export enum WRAPPER_TYPES {
   KEYBOARD_AWARE_SCROLL_VIEW = 'keyboard-aware-scrollview',
   FLAT_LIST = 'flatlist',
   SECTION_LIST = 'sectionlist',
-  VIEW = 'view',
+  VIEW = 'view'
 }
 
 // @ts-ignore ignored because SectionList and FlatList receive props with same names
@@ -62,7 +62,7 @@ const Wrapper = ({
         contentContainerStyle={[
           styles.contentContainerStyle,
           !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-          contentContainerStyle,
+          contentContainerStyle
         ]}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
@@ -80,7 +80,7 @@ const Wrapper = ({
         contentContainerStyle={[
           styles.contentContainerStyle,
           !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-          contentContainerStyle,
+          contentContainerStyle
         ]}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
@@ -97,7 +97,7 @@ const Wrapper = ({
         contentContainerStyle={[
           styles.contentContainerStyle,
           !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-          contentContainerStyle,
+          contentContainerStyle
         ]}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
@@ -124,7 +124,7 @@ const Wrapper = ({
       contentContainerStyle={[
         styles.contentContainerStyle,
         !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-        contentContainerStyle,
+        contentContainerStyle
       ]}
       keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
       keyboardDismissMode={keyboardDismissMode || 'none'}

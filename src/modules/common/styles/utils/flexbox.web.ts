@@ -15,36 +15,36 @@ interface Styles {
 
 const flexboxStyles: Styles = {
   flex1: {
-    flex: 1,
+    flex: 1
   },
   directionRow: {
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   alignCenter: {
-    alignItems: 'center',
+    alignItems: 'center'
   },
   alignEnd: {
-    alignItems: 'flex-end',
+    alignItems: 'flex-end'
   },
   justifyCenter: {
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   center: {
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   alignSelfCenter: {
-    alignSelf: 'center',
+    alignSelf: 'center'
   },
   wrap: {
-    flexWrap: 'wrap',
+    flexWrap: 'wrap'
   },
   justifySpaceBetween: {
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   justifyEnd: {
-    justifyContent: 'flex-end',
-  },
+    justifyContent: 'flex-end'
+  }
 }
 
 export default flexboxStyles

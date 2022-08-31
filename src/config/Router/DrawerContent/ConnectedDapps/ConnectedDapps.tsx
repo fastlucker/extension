@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import BottomSheet from '@modules/common/components/BottomSheet'
+import Button from '@modules/common/components/Button'
+import Input from '@modules/common/components/Input'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
@@ -16,8 +18,8 @@ import ConnectedDAppItem from './ConnectedDAppItem'
 const ConnectedDapps = () => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const { connections, disconnect } = useWalletConnect()
-
+  const { connections, disconnect, handleConnect } = useWalletConnect()
+  const [connectDapp, setConnectDapp] = useState('')
   const isLegacyWC = ({ bridge }: any) => /https:\/\/bridge.walletconnect.org/g.test(bridge)
 
   return (
@@ -55,6 +57,25 @@ const ConnectedDapps = () => {
               />
             )
           })}
+
+        <View style={spacings.pt}>
+          <Input
+            label="Connect dApp"
+            placeholder="wc:..."
+            onChangeText={(text: string) => {
+              return setConnectDapp(text)
+            }}
+            value={connectDapp}
+          />
+          <Button
+            text="Connect"
+            onPress={() => {
+              handleConnect(connectDapp)
+              setConnectDapp('')
+            }}
+            disabled={!connectDapp}
+          />
+        </View>
       </BottomSheet>
     </>
   )

@@ -42,7 +42,7 @@ const Panel: React.FC<Props> = ({
           horizontalSpacing === 'small' && spacings.phSm,
           horizontalSpacing === 'tiny' && spacings.phTy,
           horizontalSpacing === 'micro' && spacings.phMi,
-          contentContainerStyle,
+          contentContainerStyle
         ]}
       >
         {children}

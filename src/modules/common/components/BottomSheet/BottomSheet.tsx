@@ -1,7 +1,7 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Platform, View } from 'react-native'
 import { Modalize } from 'react-native-modalize'
 
 import { HEADER_HEIGHT } from '@config/Router/Header/style'
@@ -34,7 +34,7 @@ const BottomSheet: React.FC<Props> = ({
   displayCancel = true,
   cancelText: _cancelText,
   closeBottomSheet = () => {},
-  adjustToContentHeight = true,
+  adjustToContentHeight = Platform.OS !== 'web',
   onClosed
 }) => {
   const [isOpen, setIsOpen] = useState(false)

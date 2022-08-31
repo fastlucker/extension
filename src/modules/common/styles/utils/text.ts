@@ -13,23 +13,23 @@ interface Styles {
 
 const textStyles = StyleSheet.create<Styles>({
   highlightPrimary: {
-    color: colors.heliotrope,
+    color: colors.heliotrope
   },
   center: {
-    textAlign: 'center',
+    textAlign: 'center'
   },
   right: {
-    textAlign: 'right',
+    textAlign: 'right'
   },
   uppercase: {
-    textTransform: 'uppercase',
+    textTransform: 'uppercase'
   },
   capitalize: {
-    textTransform: 'capitalize',
+    textTransform: 'capitalize'
   },
   italic: {
-    fontStyle: 'italic',
-  },
+    fontStyle: 'italic'
+  }
 })
 
 export default textStyles

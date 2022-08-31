@@ -58,7 +58,7 @@ const RequireLocation: React.FC<any> = ({ children }) => {
     LocationServicesDialogBox.checkLocationServicesIsEnabled({
       enableHighAccuracy: false,
       showDialog: false,
-      openLocationServices: true,
+      openLocationServices: true
     })
 
   if (!permissionGranted) {

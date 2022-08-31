@@ -4,7 +4,7 @@ module.exports = async function (env, argv) {
   const config = await createExpoWebpackConfigAsync(
     {
       ...env,
-      babel: { dangerouslyAddModulePathsToTranspile: ['ambire-common'] },
+      babel: { dangerouslyAddModulePathsToTranspile: ['ambire-common'] }
     },
     argv
   )

@@ -28,7 +28,7 @@ const DashboardScreen = () => {
     onAddExtraToken,
     onAddHiddenToken,
     onRemoveExtraToken,
-    onRemoveHiddenToken,
+    onRemoveHiddenToken
   } = usePortfolio()
   const { network, setNetwork } = useNetwork()
   const { selectedAcc } = useAccounts()
@@ -47,15 +47,15 @@ const DashboardScreen = () => {
     <GradientBackgroundWrapper>
       <Wrapper
         hasBottomTabNav
-        // refreshControl={
-        //   <RefreshControl
-        //     refreshing={false}
-        //     onRefresh={handleRefresh}
-        //     tintColor={colors.titan}
-        //     progressBackgroundColor={colors.titan}
-        //     enabled={!isCurrNetworkBalanceLoading && !isCurrNetworkProtocolsLoading}
-        //   />
-        // }
+        refreshControl={
+          <RefreshControl
+            refreshing={false}
+            onRefresh={handleRefresh}
+            tintColor={colors.titan}
+            progressBackgroundColor={colors.titan}
+            enabled={!isCurrNetworkBalanceLoading && !isCurrNetworkProtocolsLoading}
+          />
+        }
       >
         <Balances
           balanceTruncated={balance.total?.truncated}
