@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Platform, View } from 'react-native'
-import { BleManager } from 'react-native-ble-plx'
-import BluetoothStateManager from 'react-native-bluetooth-state-manager'
+import { View } from 'react-native'
 
+// import { BleManager } from 'react-native-ble-plx'
+// import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 import { isAndroid } from '@config/env'
 import Button from '@modules/common/components/Button'
 import RequireLocation from '@modules/common/components/RequireLocation'
 import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
-
-if (Platform.OS !== 'web') {
-  }
 
 const RequireBluetooth: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()

@@ -11,18 +11,18 @@ interface Styles {
 const styles = StyleSheet.create<Styles>({
   container: {
     ...spacings.mb,
-    flexGrow: 0,
+    flexGrow: 0
   },
   innerContainer: {
-    borderRadius: 13,
+    borderRadius: 13
   },
   gradient: {
     width: '100%',
     height: '100%',
     position: 'absolute',
     zIndex: -1,
-    borderRadius: 13,
-  },
+    borderRadius: 13
+  }
 })
 
 export default styles

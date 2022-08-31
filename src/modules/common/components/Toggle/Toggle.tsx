@@ -1,7 +1,7 @@
 import React from 'react'
 import { View } from 'react-native'
+import ToggleSwitch from 'toggle-switch-react-native'
 
-// import ToggleSwitch from 'toggle-switch-react-native'
 import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -22,7 +22,7 @@ const Toggle = ({ isOn, onToggle, label }: Props) => {
           {label}
         </Text>
       )}
-      {/* <ToggleSwitch
+      <ToggleSwitch
         isOn={isOn}
         onToggle={onToggle}
         thumbOnStyle={styles.thumbOnStyle}
@@ -30,7 +30,7 @@ const Toggle = ({ isOn, onToggle, label }: Props) => {
         trackOnStyle={styles.trackOnStyle}
         trackOffStyle={styles.trackOffStyle}
         hitSlop={{ top: 15, bottom: 15, left: 5, right: 5 }}
-      /> */}
+      />
     </View>
   )
 }

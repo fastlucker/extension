@@ -1,10 +1,8 @@
 import i18n from '@config/localization/localization'
 import { serialize } from '@ethersproject/transactions'
 import AppEth from '@ledgerhq/hw-app-eth'
-
-// import TransportHID from '@ledgerhq/react-native-hid'
-
-// import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
+import TransportHID from '@ledgerhq/react-native-hid'
+import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 
 const ethUtil = require('ethereumjs-util')
 const HDNode = require('hdkey')
@@ -14,12 +12,18 @@ const EIP_155_CONSTANT = 35
 export const PARENT_HD_PATH = "44'/60'/0'/0"
 
 const openTransport = async (device: any) => {
-  return null
+  return device.connectionType === 'Bluetooth'
+    ? TransportBLE.open(device.id).catch((err: any) => {
+        throw err
+      })
+    : TransportHID.open(device).catch((err: any) => {
+        throw err
+      })
 }
 
 const closeTransport = async (device: any) => {
   if (device.connectionType === 'Bluetooth') {
-    // TransportBLE.disconnect(device.id)
+    TransportBLE.disconnect(device.id)
   }
 }
 
@@ -34,7 +38,7 @@ async function getAddressInternal(transport: any, parentKeyDerivationPath: any) 
 
   return Promise.race([
     appEth.getAddress(parentKeyDerivationPath, false, true),
-    ledgerTimeout,
+    ledgerTimeout
   ]).then((res) => {
     clearTimeout(timeoutHandle)
     return res
@@ -61,7 +65,7 @@ function calculateDerivedHDKeyInfos(initialDerivedKeyInfo: any, count: any) {
       address,
       hdKey,
       baseDerivationPath: initialDerivedKeyInfo.baseDerivationPathh,
-      derivationPath: fullDerivationPath,
+      derivationPath: fullDerivationPath
     }
 
     derivedKeys.push(derivedKey)
@@ -73,7 +77,7 @@ async function getAccounts(transport: any) {
   const parentKeyDerivationPath = `m/${PARENT_HD_PATH}`
   const returnData: any = {
     error: null,
-    accounts: [],
+    accounts: []
   }
   let ledgerResponse
   try {
@@ -107,7 +111,7 @@ async function getAccounts(transport: any) {
     hdKey,
     address: mainAddress,
     derivationPath: parentKeyDerivationPath,
-    baseDerivationPath: PARENT_HD_PATH,
+    baseDerivationPath: PARENT_HD_PATH
   }
 
   // currently we can't get addrs to match with what appears in MM/Ledger live so only one is derived
@@ -118,7 +122,7 @@ async function getAccounts(transport: any) {
 export async function ledgerDeviceGetAddresses(device: any) {
   const returnData = {
     error: null,
-    addresses: [],
+    addresses: []
   }
 
   const transport = await openTransport(device).catch((err: any) => {
@@ -146,7 +150,7 @@ export async function ledgerSignTransaction(txn: any, chainId: any, device: any)
   const unsignedTxObj = {
     ...txn,
     gasLimit: txn.gasLimit || txn.gas,
-    chainId,
+    chainId
   }
   delete unsignedTxObj.from
   delete unsignedTxObj.gas
@@ -192,7 +196,7 @@ export async function ledgerSignTransaction(txn: any, chainId: any, device: any)
     serializedSigned = serialize(unsignedTxObj, {
       r: `0x${rsvResponse.r}`,
       s: `0x${rsvResponse.s}`,
-      v: intV,
+      v: intV
     })
   } else {
     closeTransport(device)

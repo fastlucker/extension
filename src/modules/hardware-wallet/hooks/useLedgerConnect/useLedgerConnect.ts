@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Observable } from 'rxjs'
 
-// import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
+import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 import useToast from '@modules/common/hooks/useToast'
 import { CONNECTION_TYPE } from '@modules/hardware-wallet/constants'
 
@@ -17,6 +17,28 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
 
   const startScan = async () => {
     setRefreshing(true)
+    sub = new Observable(TransportBLE.listen).subscribe({
+      complete: () => {
+        setRefreshing(false)
+      },
+      next: (e: any) => {
+        if (e.type === 'add') {
+          setDevices(
+            deviceAddition({
+              ...e.descriptor,
+              connectionType: CONNECTION_TYPE.BLUETOOTH
+            })
+          )
+        }
+      },
+      error: (e) => {
+        // Timeout just for a better UX
+        setTimeout(() => {
+          addToast(e.message, { error: true })
+          setRefreshing(false)
+        }, 1200)
+      }
+    })
 
     setTimeout(() => {
       sub.complete()
@@ -24,7 +46,7 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
   }
 
   const reload = async () => {
-    // if (sub) sub.unsubscribe()
+    if (sub) sub.unsubscribe()
     setRefreshing(false)
     startScan()
   }
@@ -46,7 +68,7 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
   return {
     devices,
     refreshing,
-    reload,
+    reload
   }
 }
 

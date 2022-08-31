@@ -9,7 +9,7 @@ import EarnIcon from '@assets/svg/EarnIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
-import { isAndroid, isiOS } from '@config/env'
+import { isiOS } from '@config/env'
 import DrawerContent from '@config/Router/DrawerContent'
 import { headerAlpha, headerBeta, headerGamma } from '@config/Router/HeadersConfig'
 import styles, {

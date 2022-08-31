@@ -58,6 +58,8 @@ const ConnectedDapps = () => {
             )
           })}
 
+        {/* TODO: this should be temporarily here until we have a better design for adding a new dapp by pasting WC URL */}
+        {/* Clipboard listener can be implemented on a global level in the app too */}
         <View style={spacings.pt}>
           <Input
             label="Connect dApp"

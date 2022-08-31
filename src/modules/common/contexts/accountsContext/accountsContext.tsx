@@ -1,7 +1,8 @@
 import useAccounts, { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
+import { Platform } from 'react-native'
 
-// import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
+import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useStorage from '@modules/common/hooks/useStorage'
@@ -14,7 +15,7 @@ const AccountsContext = createContext<UseAccountsReturnType>({
   selectedAcc: '',
   onSelectAcc: () => {},
   onAddAccount: () => false,
-  onRemoveAccount: () => {},
+  onRemoveAccount: () => {}
 })
 
 const AccountsProvider: React.FC = ({ children }) => {
@@ -44,11 +45,14 @@ const AccountsProvider: React.FC = ({ children }) => {
       useStorage,
       onRemoveLastAccount,
       onAdd,
-      useToasts,
+      useToasts
     })
 
   useEffect(() => {
-    // CrashAnalytics.setUserContext({ id: selectedAcc || 'N/A' })
+    // TODO: figure out why this crashes on web
+    if (Platform.OS !== 'web') {
+      CrashAnalytics.setUserContext({ id: selectedAcc || 'N/A' })
+    }
   }, [selectedAcc])
 
   return (

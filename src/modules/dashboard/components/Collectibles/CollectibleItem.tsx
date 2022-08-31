@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Image, TouchableOpacity, View } from 'react-native'
+import FastImage from 'react-native-fast-image'
 
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
@@ -30,7 +31,7 @@ const CollectibleItem = ({
   collectionImg,
   collectionName,
   assetName,
-  balanceUSD,
+  balanceUSD
 }: Props) => {
   const [isAssetImageLoading, setIsAssetImageLoading] = useState(true)
   const { navigate } = useNavigation()
@@ -39,7 +40,7 @@ const CollectibleItem = ({
     navigate('collectible-screen', {
       tokenId,
       network,
-      address,
+      address
     })
   }
 
@@ -51,7 +52,10 @@ const CollectibleItem = ({
             <Spinner />
           </View>
         ) : (
-          <Image style={styles.collectibleImage} source={{ uri: handleCollectibleUri(assetImg) }} />
+          <FastImage
+            style={styles.collectibleImage}
+            source={{ uri: handleCollectibleUri(assetImg) }}
+          />
         )}
         <View style={[spacings.phTy, spacings.pbTy]}>
           <View
@@ -73,7 +77,7 @@ const CollectibleItem = ({
               flexboxStyles.directionRow,
               spacings.ptMi,
               flexboxStyles.flex1,
-              flexboxStyles.alignCenter,
+              flexboxStyles.alignCenter
             ]}
           >
             <Text
