@@ -1,8 +1,11 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
 
-export const HEADER_HEIGHT = 60
+export const HEADER_HEIGHT = Platform.select({
+  web: 70,
+  default: 60
+})
 
 interface Styles {
   container: ViewStyle

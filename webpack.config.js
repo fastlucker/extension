@@ -9,5 +9,7 @@ module.exports = async function (env, argv) {
     argv
   )
 
+  config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
+
   return config
 }

@@ -36,7 +36,8 @@ const Card = ({
   onTokenSelect,
   onValidate,
   warning,
-  areDepositsDisabled
+  areDepositsDisabled,
+  iconStyle
 }: any) => {
   const [segment, setSegment] = useState<Segment>(areDepositsDisabled ? 'Withdraw' : 'Deposit')
   const { network }: any = useNetwork()
@@ -298,7 +299,7 @@ const Card = ({
             activeOpacity={isExpanded ? 1 : 0.7}
             onPress={() => (isExpanded ? null : expand())}
           >
-            {!!icon && <Image source={icon} />}
+            {!!icon && <Image source={icon} style={iconStyle || {}} />}
           </TouchableOpacity>
         </View>
         {isExpanded && expandedContent}

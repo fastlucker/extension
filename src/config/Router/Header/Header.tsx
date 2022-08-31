@@ -14,7 +14,7 @@ import useHeaderBottomSheet from '@modules/common/hooks/useHeaderBottomSheet'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
+import spacings, { SPACING_SM } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { DrawerHeaderProps } from '@react-navigation/drawer'
 import { getHeaderTitle } from '@react-navigation/elements'
@@ -107,7 +107,17 @@ const Header: React.FC<Props> = ({
   // in different manner. And styling it was hell. So instead - implement
   // custom components that fully match the design we follow.
   return (
-    <View style={[styles.container, { paddingTop: notchInset }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop: Platform.select({
+            web: SPACING_SM,
+            default: notchInset
+          })
+        }
+      ]}
+    >
       <View style={navIconContainer}>{renderHeaderLeft()}</View>
 
       {mode === 'bottom-sheet' && renderBottomSheetSwitcher}

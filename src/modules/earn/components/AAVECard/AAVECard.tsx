@@ -252,6 +252,7 @@ const AAVECard = ({ tokens, protocols, networkId, selectedAcc, addRequest, addTo
     <Card
       name={CARDS.AAVE}
       icon={AAVELogo}
+      iconStyle={{ width: 137, height: 38 }}
       loading={isLoading}
       unavailable={unavailable}
       details={details}

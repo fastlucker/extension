@@ -490,6 +490,7 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
     <Card
       name={CARDS.Ambire}
       icon={AmbireLogo}
+      iconStyle={{ width: 126, height: 59 }}
       loading={isLoading}
       unavailable={unavailable}
       customInfo={customInfo}

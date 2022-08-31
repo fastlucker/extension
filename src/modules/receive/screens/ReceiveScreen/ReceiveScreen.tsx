@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { isAndroid } from '@config/env'
+import { isiOS } from '@config/env'
 import { useTranslation } from '@config/localization'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
@@ -23,7 +23,7 @@ const ReceiveScreen = () => {
       <Wrapper hasBottomTabNav={false}>
         <DepositTokens selectedAcc={selectedAcc} networkId={network?.id} />
         {/* TODO: Temporary disabled only for iOS since v1.6.0 as part of the Apple app review feedback */}
-        {isAndroid && (
+        {!isiOS && (
           <Panel>
             <Text style={spacings.mbSm} fontSize={16} weight="medium" color={colors.turquoise}>
               {t('Credit Card & Bank Transfer')}
