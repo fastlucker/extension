@@ -106,24 +106,28 @@ const Select = ({ value, setValue, items, label, extraText }: Props) => {
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheet}
         displayCancel={false}
-      >
-        <Input
-          value={searchValue}
-          containerStyle={spacings.mbSm}
-          onChangeText={setSearchValue}
-          placeholder={t('Search...')}
-        />
-        <FlatList
-          data={filteredItems || []}
-          renderItem={renderItem}
-          keyExtractor={(i: any, idx: number) => `${i.value}-${idx}`}
-        />
-        {!filteredItems.length && (
-          <View style={[spacings.ptLg, flexboxStyles.alignCenter]}>
-            <Text style={textStyles.center}>{t('No tokens were found.')}</Text>
-          </View>
-        )}
-      </BottomSheet>
+        flatListProps={{
+          data: filteredItems || [],
+          renderItem,
+          keyExtractor: (i: any, idx: number) => `${i.value}-${idx}`,
+          ListEmptyComponent: (
+            <View style={[spacings.ptLg, flexboxStyles.alignCenter]}>
+              <Text style={textStyles.center}>{t('No tokens were found.')}</Text>
+            </View>
+          ),
+          ListHeaderComponent: (
+            <View style={[spacings.pbSm, { backgroundColor: colors.clay }]}>
+              <Input
+                value={searchValue}
+                containerStyle={spacings.mb0}
+                onChangeText={setSearchValue}
+                placeholder={t('Search...')}
+              />
+            </View>
+          ),
+          stickyHeaderIndices: [0]
+        }}
+      />
     </>
   )
 }

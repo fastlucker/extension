@@ -2,7 +2,7 @@ import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
-import { Modalize } from 'react-native-modalize'
+import { Modalize, ModalizeProps } from 'react-native-modalize'
 
 import { isWeb } from '@config/env'
 import { HEADER_HEIGHT } from '@config/Router/Header/style'
@@ -18,11 +18,12 @@ interface Props {
   sheetRef: React.RefObject<Modalize>
   closeBottomSheet: (dest?: 'alwaysOpen' | 'default' | undefined) => void
   onClosed?: () => void
-  children: React.ReactNode
+  children?: React.ReactNode
   // Preferences
   cancelText?: string
   displayCancel?: boolean
   adjustToContentHeight?: boolean
+  flatListProps?: ModalizeProps['flatListProps']
 }
 
 const ANIMATION_DURATION: number = 250
@@ -37,7 +38,8 @@ const BottomSheet: React.FC<Props> = ({
   cancelText: _cancelText,
   closeBottomSheet = () => {},
   adjustToContentHeight = !isWeb,
-  onClosed
+  onClosed,
+  flatListProps
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
@@ -77,10 +79,22 @@ const BottomSheet: React.FC<Props> = ({
         disableScrollIfPossible={false}
         withOverlay={false}
         onBackButtonPress={() => true}
-        scrollViewProps={{
-          bounces: false,
-          keyboardShouldPersistTaps: 'handled'
-        }}
+        {...(!flatListProps
+          ? {
+              scrollViewProps: {
+                bounces: false,
+                keyboardShouldPersistTaps: 'handled'
+              }
+            }
+          : {})}
+        {...(flatListProps
+          ? {
+              flatListProps: {
+                ...flatListProps,
+                contentContainerStyle: styles.containerInnerWrapper
+              }
+            }
+          : {})}
         openAnimationConfig={{
           timing: { duration: ANIMATION_DURATION, delay: 0 }
         }}
@@ -94,18 +108,20 @@ const BottomSheet: React.FC<Props> = ({
         onClose={() => setIsOpen(false)}
         onClosed={() => !!onClosed && onClosed()}
       >
-        <View style={styles.containerInnerWrapper}>
-          {children}
-          {displayCancel && (
-            <Button
-              type="ghost"
-              onPress={closeBottomSheet}
-              style={styles.cancelBtn}
-              text={_cancelText || (t('Cancel') as string)}
-              hitSlop={{ top: 15, bottom: 15 }}
-            />
-          )}
-        </View>
+        {!flatListProps && (
+          <View style={styles.containerInnerWrapper}>
+            {children}
+            {displayCancel && (
+              <Button
+                type="ghost"
+                onPress={closeBottomSheet}
+                style={styles.cancelBtn}
+                text={_cancelText || (t('Cancel') as string)}
+                hitSlop={{ top: 15, bottom: 15 }}
+              />
+            )}
+          </View>
+        )}
       </Modalize>
     </Portal>
   )

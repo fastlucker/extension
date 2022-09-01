@@ -10,12 +10,12 @@ html {
   -webkit-text-size-adjust:100%;
   max-width: 600px;
   max-height: 800px;
-  overflow-y: hidden;
+  overflow: hidden;
 }
 
 body {
   display:flex;
-  overflow-y: hidden;
+  overflow: hidden;
   text-rendering:optimizeLegibility;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
