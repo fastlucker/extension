@@ -8,6 +8,7 @@ html, body, #root {
 html {
   zoom: 0.7;
   -webkit-text-size-adjust:100%;
+  max-width: 600px;
   max-height: 800px;
   overflow-y: hidden;
 }

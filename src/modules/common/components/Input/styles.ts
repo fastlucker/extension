@@ -15,6 +15,7 @@ interface Style {
   errorText: TextStyle
   validText: TextStyle
   label: TextStyle
+  leftIcon: ViewStyle
   disabled: ViewStyle
 }
 
@@ -73,6 +74,12 @@ const styles = StyleSheet.create<Style>({
     paddingTop: 2,
     justifyContent: 'center',
     ...spacings.phTy
+  },
+  leftIcon: {
+    // Centers the content (used because of the borderBottomWidth)
+    paddingTop: 2,
+    justifyContent: 'center',
+    ...spacings.plTy
   },
   disabled: {
     opacity: 0.5
