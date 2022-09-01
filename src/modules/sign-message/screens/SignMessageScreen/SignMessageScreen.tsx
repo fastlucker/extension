@@ -174,7 +174,7 @@ const SignScreenScreen = ({ navigation }: any) => {
         <Panel>
           <Title type="small">{t('Sign message')}</Title>
           {!!dApp && (
-            <View style={[flexboxStyles.flex1, spacings.mbTy, flexboxStyles.directionRow]}>
+            <View style={[spacings.mbTy, flexboxStyles.directionRow]}>
               {!!dApp.icons?.[0] && <Image source={{ uri: dApp.icons[0] }} style={styles.image} />}
               <Text style={flexboxStyles.flex1} fontSize={14}>
                 {t('{{name}} is requesting your signature.', { name: dApp.name })}
