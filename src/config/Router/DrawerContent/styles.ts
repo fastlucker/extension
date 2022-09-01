@@ -22,7 +22,7 @@ const styles = StyleSheet.create<Style>({
     height: 36,
     width: DEVICE_WIDTH,
     left: -40,
-    zIndex: 0
+    zIndex: -1
   }
 })
 

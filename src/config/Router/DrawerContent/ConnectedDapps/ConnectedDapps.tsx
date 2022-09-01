@@ -17,7 +17,7 @@ import textStyles from '@modules/common/styles/utils/text'
 
 import ConnectedDAppItem from './ConnectedDAppItem'
 
-const ConnectedDapps = ({ isIcon = false }: { isIcon: boolean }) => {
+const ConnectedDapps = ({ isIcon = false }: { isIcon?: boolean }) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { connections, disconnect, handleConnect } = useWalletConnect()

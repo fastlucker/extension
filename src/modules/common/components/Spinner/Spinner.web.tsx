@@ -1,10 +1,11 @@
-// TODO: implement animated spinner on web (Lottie doesn't seem to work)
 import React from 'react'
+import { ActivityIndicator } from 'react-native'
 
-import Text from '../Text'
+// TODO: implement animated spinner on web (Lottie doesn't seem to work)
+import colors from '@modules/common/styles/colors'
 
 const Spinner = () => {
-  return <Text>Loading...</Text>
+  return <ActivityIndicator color={colors.electricViolet} />
 }
 
 export default Spinner
