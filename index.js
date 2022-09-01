@@ -1,11 +1,15 @@
-import './shim'
+import { isiOS, isWeb } from './src/config/env'
+
+if (!isWeb) {
+  import ('./shim')
+}
+
 import './global'
 import '@config/analytics/CrashAnalytics'
 import '@modules/common/services/layoutAnimation'
 import 'react-native-gesture-handler'
 import 'expo-asset'
 
-import { isiOS } from './src/config/env'
 // Intl support for Hermes is not available yet for iOS. So these are polyfills
 // needed mostly in order for `toLocaleString` to work on iOS too.
 // TODO: React Native v0.70.0 has the missing Intl support for iOS.
