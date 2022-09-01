@@ -1,7 +1,8 @@
 import React from 'react'
 import isEqual from 'react-fast-compare'
-import { Keyboard, Platform, TouchableWithoutFeedback, View } from 'react-native'
+import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
@@ -96,7 +97,7 @@ const SendForm = ({
   return (
     <TouchableWithoutFeedback
       onPress={() => {
-        Platform.OS !== 'web' && Keyboard.dismiss()
+        !isWeb && Keyboard.dismiss()
       }}
     >
       {assetsItems.length ? (

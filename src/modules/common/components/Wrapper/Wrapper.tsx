@@ -12,6 +12,7 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { isWeb } from '@config/env'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import useTheme from '@modules/common/hooks/useTheme'
 import spacings from '@modules/common/styles/spacings'
@@ -51,8 +52,7 @@ const Wrapper = ({
   const { styles } = useTheme(createStyles)
   const insets = useSafeAreaInsets()
 
-  const horizontalSpacing =
-    Platform.OS === 'web' && !!rest.refreshControl ? spacings.phTy : spacings.ph
+  const horizontalSpacing = isWeb && !!rest.refreshControl ? spacings.phTy : spacings.ph
 
   if (type === WRAPPER_TYPES.FLAT_LIST) {
     return (

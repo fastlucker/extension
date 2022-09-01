@@ -1,6 +1,7 @@
 import React from 'react'
-import { Platform, View } from 'react-native'
+import { View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import RNCheckBox, { CheckBoxProps } from '@react-native-community/checkbox'
@@ -17,7 +18,7 @@ const Checkbox = ({ label, children, onValueChange, value, ...rest }: Props) => 
   <View style={styles.container}>
     <View style={styles.checkboxWrapper}>
       {/* TODO: implement for web */}
-      {Platform.OS !== 'web' && (
+      {!isWeb && (
         <RNCheckBox
           style={styles.checkbox}
           tintColor={colors.waikawaGray}

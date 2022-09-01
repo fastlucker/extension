@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useState } from 'react'
-import { Keyboard, LayoutAnimation, Platform, TouchableWithoutFeedback, View } from 'react-native'
+import { Keyboard, LayoutAnimation, TouchableWithoutFeedback, View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import CreateAccountForm from '@modules/auth/components/CreateAccountForm'
@@ -35,7 +36,7 @@ const EmailLoginScreen = ({ navigation }: any) => {
     <GradientBackgroundWrapper>
       <TouchableWithoutFeedback
         onPress={() => {
-          Platform.OS !== 'web' && Keyboard.dismiss()
+          !isWeb && Keyboard.dismiss()
         }}
       >
         <Wrapper

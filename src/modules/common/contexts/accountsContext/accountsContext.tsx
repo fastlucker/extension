@@ -1,8 +1,8 @@
 import useAccounts, { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
-import { Platform } from 'react-native'
 
 import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
+import { isWeb } from '@config/env'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useStorage from '@modules/common/hooks/useStorage'
@@ -50,7 +50,7 @@ const AccountsProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     // TODO: figure out why this crashes on web
-    if (Platform.OS !== 'web') {
+    if (!isWeb) {
       CrashAnalytics.setUserContext({ id: selectedAcc || 'N/A' })
     }
   }, [selectedAcc])

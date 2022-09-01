@@ -1,9 +1,10 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Platform, View } from 'react-native'
+import { View } from 'react-native'
 import { Modalize } from 'react-native-modalize'
 
+import { isWeb } from '@config/env'
 import { HEADER_HEIGHT } from '@config/Router/Header/style'
 import { Portal } from '@gorhom/portal'
 import Button from '@modules/common/components/Button'
@@ -35,7 +36,7 @@ const BottomSheet: React.FC<Props> = ({
   displayCancel = true,
   cancelText: _cancelText,
   closeBottomSheet = () => {},
-  adjustToContentHeight = Platform.OS !== 'web',
+  adjustToContentHeight = !isWeb,
   onClosed
 }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -69,8 +70,8 @@ const BottomSheet: React.FC<Props> = ({
         handleStyle={styles.dragger}
         handlePosition="inside"
         modalTopOffset={HEADER_HEIGHT + 10}
-        {...(Platform.OS !== 'web' ? { modalTopOffset: HEADER_HEIGHT + 10 } : {})}
-        {...(Platform.OS === 'web' ? { modalHeight: DEVICE_HEIGHT - HEADER_HEIGHT - 10 } : {})}
+        {...(!isWeb ? { modalTopOffset: HEADER_HEIGHT + 10 } : {})}
+        {...(isWeb ? { modalHeight: DEVICE_HEIGHT - HEADER_HEIGHT - 10 } : {})}
         threshold={100}
         adjustToContentHeight={adjustToContentHeight}
         disableScrollIfPossible={false}
