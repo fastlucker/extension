@@ -277,6 +277,7 @@ const Card = ({
           !isExpanded && { minHeight: 120 },
           !!visibleCard && visibleCard !== name && { display: 'none' }
         ]}
+        contentContainerStyle={{ height: '100%' }}
       >
         <View
           style={[
