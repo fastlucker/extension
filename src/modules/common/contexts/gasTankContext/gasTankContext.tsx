@@ -42,9 +42,8 @@ const GasTankProvider: React.FC = ({ children }) => {
         }
       )
     }
-
     return { account: selectedAcc, isEnabled: false }
-  }, [gasTankState, selectedAcc, setGasTankState, network?.isGasTankAvailable])
+  }, [gasTankState, selectedAcc, network?.isGasTankAvailable])
 
   return (
     <GasTankContext.Provider
