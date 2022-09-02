@@ -20,7 +20,7 @@ const useWebOnScroll = ({ onScroll, onScrollEnd }) => {
           lastScrollEvent.current = null
           !!onScrollEnd && onScrollEnd(event)
         }
-      }, 500)
+      }, 450)
     }
 
     lastScrollEvent.current = timestamp

@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
 
-import { isAndroid } from '@config/env'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
@@ -11,13 +10,14 @@ import textStyles from '@modules/common/styles/utils/text'
 
 import NetworkChangerItem from './NetworkChangerItem'
 import styles, { SINGLE_ITEM_HEIGHT } from './styles'
+import useWebOnScroll from './useWebOnScroll'
 
 const NetworkChanger: React.FC = () => {
   const { t } = useTranslation()
   const { network, setNetwork } = useNetwork()
   const { addToast } = useToast()
   const scrollRef: any = useRef(null)
-  // Flags, needed for the #android-onMomentumScrollEnd-fix
+  // Flags, needed for the #(android/web)-onMomentumScrollEnd-fix
   const scrollY = useRef(0)
   const onScrollEndCallbackTargetOffset = useRef(-1)
 
@@ -29,19 +29,11 @@ const NetworkChanger: React.FC = () => {
   )
 
   useEffect(() => {
-    // FIXME: For some reason the `contentOffset` prop doesn't work on Android,
-    // so we have to use the `scrollTo` method instead to scroll to the current network.
-    // Could be a bug on the React Native side, because it was working just fine
-    // with React Native v0.64.3 (Expo SDK v44), but fails
-    // with v0.68.2 (Expo SDK v45). bug report:
-    // {@link https://github.com/facebook/react-native/issues/33994}
-    if (isAndroid) {
-      scrollRef?.current?.scrollTo({
-        x: 0,
-        y: SINGLE_ITEM_HEIGHT * currentNetworkIndex,
-        animated: true
-      })
-    }
+    scrollRef?.current?.scrollTo({
+      x: 0,
+      y: SINGLE_ITEM_HEIGHT * currentNetworkIndex,
+      animated: true
+    })
   }, [])
 
   const handleChangeNetwork = useCallback(
@@ -59,13 +51,10 @@ const NetworkChanger: React.FC = () => {
 
   const handleChangeNetworkByScrolling = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      // Get the currently selected network index, based on the idea from this
-      // thread, but implemented vertically and based on our fixed item height.
-      // {@link https://stackoverflow.com/a/56736109/1333836}
-      const index = event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT
-      const selectedNetwork = allVisibleNetworks[index]
+      const index = Math.round(Math.round(event.nativeEvent.contentOffset.y) / SINGLE_ITEM_HEIGHT)
+      scrollRef?.current?.scrollTo({ x: 0, y: index * SINGLE_ITEM_HEIGHT, animated: true })
 
-      return handleChangeNetwork(selectedNetwork)
+      return handleChangeNetwork(allVisibleNetworks[index])
     },
     [handleChangeNetwork, allVisibleNetworks]
   )
@@ -75,11 +64,7 @@ const NetworkChanger: React.FC = () => {
 
     const handleChangeNetworkByPressing = useCallback((itemIndex: number) => {
       scrollRef?.current?.scrollTo({ x: 0, y: itemIndex * SINGLE_ITEM_HEIGHT, animated: true })
-
-      // Part of the #android-onMomentumScrollEnd-fix
-      if (isAndroid) {
-        onScrollEndCallbackTargetOffset.current = itemIndex * SINGLE_ITEM_HEIGHT
-      }
+      onScrollEndCallbackTargetOffset.current = itemIndex * SINGLE_ITEM_HEIGHT
     }, [])
 
     return (
@@ -94,21 +79,12 @@ const NetworkChanger: React.FC = () => {
     )
   }
 
-  /**
-   * Calling `.scrollTo` on Android doesn't trigger the `onMomentumScrollEnd`
-   * event. So this additional handler is needed, only for Android,
-   * in order to apply the #android-onMomentumScrollEnd-fix
-   * that manually triggers `handleChangeNetworkByScrolling`.
-   * {@link https://stackoverflow.com/a/46788635/1333836}
-   */
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { contentOffset } = event.nativeEvent
     scrollY.current = contentOffset.y
-
-    if (contentOffset.y === onScrollEndCallbackTargetOffset.current) {
-      handleChangeNetworkByScrolling(event)
-    }
   }
+
+  const handleWebScroll = useWebOnScroll({ onScroll, onScrollEnd: handleChangeNetworkByScrolling })
 
   return (
     <>
@@ -119,22 +95,18 @@ const NetworkChanger: React.FC = () => {
         <View style={styles.networkBtnContainerActive} />
         <ScrollView
           ref={scrollRef}
-          onScroll={isAndroid ? onScroll : undefined}
-          pagingEnabled
-          snapToInterval={SINGLE_ITEM_HEIGHT}
-          contentOffset={{
-            y: SINGLE_ITEM_HEIGHT * currentNetworkIndex,
-            x: 0
-          }}
-          contentContainerStyle={{
-            paddingTop: SINGLE_ITEM_HEIGHT * 2,
-            paddingBottom: SINGLE_ITEM_HEIGHT * 2
-          }}
+          onScroll={handleWebScroll}
           showsVerticalScrollIndicator={false}
-          onMomentumScrollEnd={handleChangeNetworkByScrolling}
           scrollEventThrottle={16}
         >
-          {allVisibleNetworks.map(renderNetwork)}
+          <View
+            style={{
+              paddingTop: SINGLE_ITEM_HEIGHT * 2,
+              paddingBottom: SINGLE_ITEM_HEIGHT * 2
+            }}
+          >
+            {allVisibleNetworks.map(renderNetwork)}
+          </View>
         </ScrollView>
       </View>
     </>

@@ -1,9 +1,10 @@
 {
-  "name": "ambire-mobile-wallet",
+  "name": "Ambire Wallet",
+  "description": "The Web3 wallet that speaks human",
   "version": "1.0",
   "manifest_version": 3,
-  "short_name": "ambire-mobile-wallet",
-  "permissions": ["storage", "videoCapture", "tabs", "notifications"],
+  "short_name": "Ambire",
+  "permissions": ["storage", "tabs", "notifications"],
   "icons": {
     "128": "./assets/images/extension_logo.png"
   },
