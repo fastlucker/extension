@@ -34,6 +34,9 @@ const TransactionHistoryItem = ({ txn, explorerUrl, feeAssetsRes, networkId }: P
     [feeAssetsRes, txn.network, txn.address]
   )
 
+  // txn to gas Tank with not eligible token
+  if (!tokenDetails) return null
+
   return (
     <View style={styles.tokenItemContainer}>
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
