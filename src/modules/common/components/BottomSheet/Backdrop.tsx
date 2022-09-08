@@ -4,7 +4,7 @@ import { Animated, Easing, Platform, StyleSheet, TouchableOpacity } from 'react-
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import CloseIcon from '@assets/svg/CloseIcon'
-import { isiOS } from '@config/env'
+import { isiOS, isWeb } from '@config/env'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -34,7 +34,7 @@ const Backdrop = ({ isBottomSheetVisible, isVisible, onPress }: Props) => {
       toValue: 1,
       duration: ANIMATION_DURATION,
       easing: Easing.linear,
-      useNativeDriver: true
+      useNativeDriver: !isWeb
     }).start()
   }, [])
 
@@ -44,7 +44,7 @@ const Backdrop = ({ isBottomSheetVisible, isVisible, onPress }: Props) => {
         toValue: 0,
         duration: ANIMATION_DURATION,
         easing: Easing.linear,
-        useNativeDriver: true
+        useNativeDriver: !isWeb
       }).start()
     }
   }, [isBottomSheetVisible])

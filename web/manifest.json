@@ -5,6 +5,10 @@
   "manifest_version": 3,
   "short_name": "Ambire",
   "permissions": ["storage", "tabs", "notifications"],
+  "background": {
+    "service_worker": "./services/background.js",
+    "type": "module"
+  },
   "icons": {
     "128": "./assets/images/extension_logo.png"
   },
@@ -14,5 +18,26 @@
   "host_permissions": ["https://*/"],
   "externally_connectable": {
     "ids": ["*"]
-  }
+  },
+  "content_scripts" : [
+    {
+      "matches": ["<all_urls>"],
+      "exclude_matches": ["*://doInWebPack.lan/*"],
+      "run_at": "document_start",
+      "js": ["./services/content-script.js"]
+    },
+    {
+      "matches": ["<all_urls>"],
+      "exclude_matches": ["*://doInWebPack.lan/*"],
+      "run_at": "document_end",
+      "js": ["./services/content-script-onComplete.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["*", "./services/*", "./services/page-context.js"],
+      "matches": ["<all_urls>"],
+      "extension_ids": []
+    }
+  ]
 }
