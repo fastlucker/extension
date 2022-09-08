@@ -3,18 +3,18 @@ import React, { createContext, useMemo } from 'react'
 
 const ConstantsContext = createContext<{
   constants: WALLETInitialClaimableRewardsType | null
-  areConstantsLoading: boolean
+  isLoading: boolean
 }>({
   constants: null,
-  areConstantsLoading: true
+  isLoading: true
 })
 
 const ConstantsProvider: React.FC = ({ children }) => {
-  const { constants, isLoading: areConstantsLoading } = useFetchConstants({ fetch })
+  const { constants, isLoading } = useFetchConstants({ fetch })
 
   return (
     <ConstantsContext.Provider
-      value={useMemo(() => ({ constants, areConstantsLoading }), [constants, areConstantsLoading])}
+      value={useMemo(() => ({ constants, isLoading }), [constants, isLoading])}
     >
       {children}
     </ConstantsContext.Provider>
