@@ -2,7 +2,7 @@ import useFetchConstants, { WALLETInitialClaimableRewardsType } from 'ambire-com
 import React, { createContext, useMemo } from 'react'
 
 const ConstantsContext = createContext<{
-  constants: WALLETInitialClaimableRewardsType
+  constants: WALLETInitialClaimableRewardsType | null
   areConstantsLoading: boolean
 }>({
   constants: null,
