@@ -4,6 +4,7 @@ import { AppState } from 'react-native'
 
 import CONFIG from '@config/env'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useConstants from '@modules/common/hooks/useConstants'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToasts from '@modules/common/hooks/useToast'
@@ -89,6 +90,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
     loadBalance,
     loadProtocols
   } = usePortfolio({
+    useFetchConstants: useConstants,
     currentNetwork: network?.id as string,
     account: selectedAcc,
     useStorage,
