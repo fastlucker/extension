@@ -9,6 +9,7 @@ import AttentionGrabberProvider from '@modules/common/components/AttentionGrabbe
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AccountsPasswordsProvider } from '@modules/common/contexts/accountsPasswordsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
+import { ConstantsProvider } from '@modules/common/contexts/constantsContext'
 import { GasTankProvider } from '@modules/common/contexts/gasTankContext'
 import { GnosisProvider } from '@modules/common/contexts/gnosisContext'
 import { HeaderBottomSheetProvider } from '@modules/common/contexts/headerBottomSheetContext'
@@ -55,40 +56,42 @@ const AppLoading = () => {
             <KeyboardProvider>
               <NetInfoProvider>
                 <ToastProvider>
-                  <AuthProvider>
-                    <AccountsProvider>
-                      <NetworkProvider>
-                        <PortfolioProvider>
-                          <GnosisProvider>
-                            <WalletConnectProvider>
-                              <RequestsProvider>
-                                <AddressBookProvider>
-                                  <AccountsPasswordsProvider>
-                                    <PasscodeProvider>
-                                      <AttentionGrabberProvider>
-                                        <PrivateModeProvider>
-                                          <GasTankProvider>
-                                            <UnsupportedDAppsBottomSheetProvider>
-                                              <HeaderBottomSheetProvider>
-                                                <LinkingProvider>
-                                                  <Router />
-                                                </LinkingProvider>
-                                              </HeaderBottomSheetProvider>
-                                            </UnsupportedDAppsBottomSheetProvider>
-                                          </GasTankProvider>
-                                        </PrivateModeProvider>
-                                      </AttentionGrabberProvider>
-                                      <PortalHost name="global" />
-                                    </PasscodeProvider>
-                                  </AccountsPasswordsProvider>
-                                </AddressBookProvider>
-                              </RequestsProvider>
-                            </WalletConnectProvider>
-                          </GnosisProvider>
-                        </PortfolioProvider>
-                      </NetworkProvider>
-                    </AccountsProvider>
-                  </AuthProvider>
+                  <ConstantsProvider>
+                    <AuthProvider>
+                      <AccountsProvider>
+                        <NetworkProvider>
+                          <PortfolioProvider>
+                            <GnosisProvider>
+                              <WalletConnectProvider>
+                                <RequestsProvider>
+                                  <AddressBookProvider>
+                                    <AccountsPasswordsProvider>
+                                      <PasscodeProvider>
+                                        <AttentionGrabberProvider>
+                                          <PrivateModeProvider>
+                                            <GasTankProvider>
+                                              <UnsupportedDAppsBottomSheetProvider>
+                                                <HeaderBottomSheetProvider>
+                                                  <LinkingProvider>
+                                                    <Router />
+                                                  </LinkingProvider>
+                                                </HeaderBottomSheetProvider>
+                                              </UnsupportedDAppsBottomSheetProvider>
+                                            </GasTankProvider>
+                                          </PrivateModeProvider>
+                                        </AttentionGrabberProvider>
+                                        <PortalHost name="global" />
+                                      </PasscodeProvider>
+                                    </AccountsPasswordsProvider>
+                                  </AddressBookProvider>
+                                </RequestsProvider>
+                              </WalletConnectProvider>
+                            </GnosisProvider>
+                          </PortfolioProvider>
+                        </NetworkProvider>
+                      </AccountsProvider>
+                    </AuthProvider>
+                  </ConstantsProvider>
                 </ToastProvider>
               </NetInfoProvider>
             </KeyboardProvider>
