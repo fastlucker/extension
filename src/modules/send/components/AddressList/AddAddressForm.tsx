@@ -11,6 +11,7 @@ import Input from '@modules/common/components/Input'
 import RecipientInput from '@modules/common/components/RecipientInput'
 import Title from '@modules/common/components/Title'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
+import useConstants from '@modules/common/hooks/useConstants'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -36,6 +37,7 @@ const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
   const [addr, setAddr] = useState<string>('')
   const [uDAddress, setUDAddress] = useState<string>('')
   const [ensAddress, setEnsAddress] = useState<string>('')
+  const { constants, isLoading: areConstantsLoading } = useConstants()
 
   const { isKnownAddress } = useAddressBook()
 
@@ -48,7 +50,10 @@ const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
     return isValidAddress(address) && !isKnownAddress(address)
   }, [address, uDAddress, isKnownAddress, uDAddr, ensAddress, ensAddr])
 
-  const smartContractWarning = useMemo(() => isKnownTokenOrContract(parsedAddr), [parsedAddr])
+  const smartContractWarning = useMemo(
+    () => !areConstantsLoading && isKnownTokenOrContract(constants?.humanizerInfo, parsedAddr),
+    [parsedAddr, areConstantsLoading, constants?.humanizerInfo]
+  )
 
   const timer: any = useRef(null)
   const checkedIsUDAddress: any = useRef(false)
