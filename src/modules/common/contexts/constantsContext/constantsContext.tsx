@@ -1,8 +1,8 @@
-import useFetchConstants, { WALLETInitialClaimableRewardsType } from 'ambire-common/src/hooks/useFetchConstants'
+import useFetchConstants, { ConstantsType } from 'ambire-common/src/hooks/useFetchConstants'
 import React, { createContext, useMemo } from 'react'
 
 const ConstantsContext = createContext<{
-  constants: WALLETInitialClaimableRewardsType | null
+  constants: ConstantsType | null
   isLoading: boolean
 }>({
   constants: null,
