@@ -70,8 +70,9 @@ function deferCreateWindow(host, queue) {
 async function deferTick(host, queue) {
   if (DEFERRED_PERMISSION_WINDOWS[host]) {
     DEFERRED_PERMISSION_WINDOWS[host] = false
-    const popupWidth = 360
-    const popupHeight = 600
+    const zoom = 0.7
+    const popupWidth = 600 * zoom
+    const popupHeight = 830 * zoom
 
     // getting last focused window to position our popup correctly
     const lastFocused = await browserAPI.windows.getLastFocused()
@@ -235,31 +236,8 @@ addMessageHandler({ type: 'pageContextInjected' }, (message) => {
     )
   TAB_INJECTIONS[message.fromTabId] = true
   saveTabInjections()
+  console.log('1')
   updateExtensionIcon(message.fromTabId)
-})
-
-// Ambire pageContext injection
-addMessageHandler({ type: 'ambirePageContextInjected' }, (message) => {
-  if (VERBOSE) console.log(`INJECTED AMBIRE TAB ${message.fromTabId}`)
-  updateExtensionIcon(message.fromTabId)
-
-  isStorageLoaded().then(() => {
-    for (const tabId in TAB_INJECTIONS) {
-      sendMessage(
-        {
-          to: 'pageContext',
-          toTabId: tabId * 1,
-          type: 'ambireWalletConnected',
-          data: {
-            chainId: message.data.chainId,
-            account: message.data.account
-          }
-        },
-        { ignoreReply: true }
-      )
-      updateExtensionIcon(tabId * 1)
-    }
-  })
 })
 
 // User click reply from auth popup
@@ -273,6 +251,7 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
   PERMISSIONS[message.data.targetHost] = message.data.permitted
   isStorageLoaded().then(() => {
     savePermissions()
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
       updateExtensionIcon(i)
     }
@@ -526,6 +505,7 @@ const requestPermission = async (message, sender, callback) => {
           callback(permitted)
         })
 
+        console.log('2')
         updateExtensionIcon(message.fromTabId)
 
         // Might want to pile up msgs with debounce in future
@@ -537,9 +517,9 @@ const requestPermission = async (message, sender, callback) => {
 
 // update the extension icon depending on the state
 const updateExtensionIcon = async (tabId) => {
-  tabId = parseInt(tabId)
+  if (!parseInt(tabId)) return
 
-  console.log('tabId', tabId)
+  tabId = parseInt(tabId)
 
   browserAPI.tabs.get(tabId, async (tab) => {
     if (tab) {

@@ -1,14 +1,11 @@
 // share same environment than web page
 // this is where we can inject web3
-
-;(async () => {
+const initPageContext = async () => {
   import(/* webpackIgnore: true */ './ambexMessanger.js')
     .then((res) => {
       // This script runs in page context and registers a listener.
       // Note that the page may override/hook things like addEventListener...
       const VERBOSE = 4 || 0
-
-      const Web3 = require('web3')
 
       const USER_INTERVENTION_METHODS = [
         'eth_sendTransaction',
@@ -325,7 +322,7 @@
       const ethereum = new ExtensionProvider()
       ;(() => {
         // to be removed from DOM after execution
-        const element = document.currentScript
+        const element = document.querySelector('#page-context')
 
         let overridden = false
 
@@ -387,10 +384,15 @@
         }
 
         // cleaning dom
-        element.remove()
+        // element.remove()
+        try {
+          element.parentNode.removeChild(document.querySelector('#page-context'))
+        } catch (error) {}
       })()
     })
     .catch((e) => {
       console.error('Page context: ', e)
     })
-})()
+}
+
+initPageContext()

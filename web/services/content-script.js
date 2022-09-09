@@ -1,11 +1,4 @@
 // Content Script is mainly a relayer between pageContext and background worker
-const injectWeb3 = async (evtToPage, evtFromPage) => {
-  const script = document.createElement('script')
-  script.src = chrome.runtime.getURL('./page-context.js')
-
-  script.dataset.args = JSON.stringify({ evtToPage, evtFromPage })
-  document.documentElement.appendChild(script)
-}
 
 ;(async () => {
   import(/* webpackIgnore: true */ './ambexMessanger.js')
