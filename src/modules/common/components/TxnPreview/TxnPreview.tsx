@@ -113,7 +113,7 @@ const TxnPreview = ({
 }: any) => {
   const { constants, isLoading: areConstantsLoading } = useConstants()
   const [isExpanded, setExpanded] = useState(false)
-  const contractName = getName(txn[0], network)
+  const contractName = !areConstantsLoading && getName(constants?.humanizerInfo, txn[0], network)
   const { t } = useTranslation()
 
   useEffect(() => {

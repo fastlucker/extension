@@ -23,6 +23,7 @@ const SignersList = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { selectedAcc, account: selectedAccount, onAddAccount } = useAccounts()
+  const { constants, isLoading: areConstantsLoading } = useConstants()
   const { network: selectedNetwork } = useNetwork()
   const { cacheBreak } = useCacheBreak({
     breakPoint: 30000,
@@ -64,7 +65,7 @@ const SignersList = () => {
     .map(([addr, privValue]) => {
       if (!privValue) return null
 
-      const addressName = getName(addr) || null
+      const addressName = !areConstantsLoading && (getName(constants?.humanizerInfo, addr) || null)
       const isQuickAcc = addr === accountPresets.quickAccManager
       const privText = isQuickAcc
         ? `Email/password signer (${selectedAccount?.email || 'unknown email'})`
