@@ -2,6 +2,7 @@ import useAddressBook, { UseAddressBookReturnType } from 'ambire-common/src/hook
 import React, { createContext, useMemo } from 'react'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useConstants from '@modules/common/hooks/useConstants'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToasts from '@modules/common/hooks/useToast'
 
@@ -14,6 +15,7 @@ const AddressBookContext = createContext<UseAddressBookReturnType>({
 
 const AddressBookProvider: React.FC = ({ children }) => {
   const { addresses, addAddress, removeAddress, isKnownAddress } = useAddressBook({
+    useFetchConstants: useConstants,
     useAccounts,
     useStorage,
     useToasts
