@@ -19,6 +19,7 @@ import UpArrowIcon from '@assets/svg/UpArrowIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import TokenIcon from '@modules/common/components/TokenIcon'
+import useConstants from '@modules/common/hooks/useConstants'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -110,6 +111,7 @@ const TxnPreview = ({
   hasBottomSpacing = true,
   addressLabel = null
 }: any) => {
+  const { constants, isLoading: areConstantsLoading } = useConstants()
   const [isExpanded, setExpanded] = useState(false)
   const contractName = getName(txn[0], network)
   const { t } = useTranslation()
@@ -120,7 +122,12 @@ const TxnPreview = ({
 
   const networkDetails = networks.find(({ id }) => id === network)
 
-  const extendedSummary = getTransactionSummary(txn, network, account, { mined, extended: true })
+  const extendedSummary =
+    !areConstantsLoading &&
+    getTransactionSummary(constants?.humanizerInfo, txn, network, account, {
+      mined,
+      extended: true
+    })
 
   const summary = extendedSummary.map((entry: any, idx: number) => {
     if (Array.isArray(entry)) {

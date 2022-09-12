@@ -11,6 +11,7 @@ import { Linking, View } from 'react-native'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
+import useConstants from '@modules/common/hooks/useConstants'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -18,6 +19,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 const TO_GAS_TANK = 'to Gas Tank'
 
 const BundleDetailedPreview = ({ bundle = {}, mined = false, feeAssets }: any) => {
+  const { constants, isLoading: areConstantsLoading } = useConstants()
   const network: any = networks?.find((x) => x.id === bundle?.network)
   const { t } = useTranslation()
 
@@ -33,7 +35,9 @@ const BundleDetailedPreview = ({ bundle = {}, mined = false, feeAssets }: any) =
   const lastTxn = bundle?.txns[bundle?.txns?.length - 1]
   // terribly hacky; @TODO fix
   // all of the values are prob checksummed so we may not need toLowerCase
-  const lastTxnSummary = getTransactionSummary(lastTxn, bundle.network, bundle.identity)
+  const lastTxnSummary =
+    !areConstantsLoading &&
+    getTransactionSummary(constants?.humanizerInfo, lastTxn, bundle.network, bundle.identity)
   const hasFeeMatch = bundle.txns.length > 1 && lastTxnSummary.match(new RegExp(TO_GAS_TANK, 'i'))
   const txns = hasFeeMatch && !bundle.gasTankFee ? bundle.txns.slice(0, -1) : bundle.txns
   const toLocaleDateTime = (date: any) =>
