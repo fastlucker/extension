@@ -8,25 +8,16 @@ import {
   setPermissionMiddleware,
   sendMessage,
   sendAck,
-  processBackgroundQueue,
-  setIsFirefox
+  processBackgroundQueue
 } from './ambexMessanger.js'
-
-const IS_FIREFOX = false
-const browserAPI = IS_FIREFOX ? browser : chrome
+import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
+import { STORAGE_CACHED } from '../constants/storage.js'
+import { browserAPI } from '../constants/browserAPI.js'
 
 setupAmbexMessenger('background', browserAPI)
 setPermissionMiddleware((message, sender, callback) => {
   requestPermission(message, sender, callback)
 })
-
-const VERBOSE = 4
-
-const STORAGE_NOT_LOADED = 0
-const STORAGE_LOADED = 1
-const STORAGE_CACHED = 2
-
-setIsFirefox(IS_FIREFOX)
 
 // FF compatibility
 if (IS_FIREFOX) {
@@ -43,11 +34,6 @@ let USER_ACTION_NOTIFICATIONS = {} // Is this storage really necessary?
 
 // find a way to store the state and exec callbacks?
 const PENDING_PERMISSIONS_CALLBACKS = {}
-
-// ambire wallet URLS (for popup action : open ambire wallet)
-const AMBIRE_URLS = []
-// mostly knowing if a tab is ambire or not
-const AMBIRE_DOMAINS = AMBIRE_URLS.map((a) => new URL(a).host)
 
 const PERMISSION_WINDOWS = {}
 const DEFERRED_PERMISSION_WINDOWS = {}
@@ -184,14 +170,6 @@ const saveUserActionNotifications = (cb) => {
   })
 }
 
-const getAmbireTabIds = async () => {
-  return new Promise((resolve) => {
-    browserAPI.tabs.query({}, (tabs) => {
-      resolve(tabs.filter((t) => AMBIRE_DOMAINS.includes(new URL(t.url).host)).map((t) => t.id))
-    })
-  })
-}
-
 // useful for debug purposes, display a notification whenever background worker is reloaded
 if (VERBOSE > 1) {
   const testIconURL = chrome.runtime.getURL('../assets/images/extension_enabled.png')
@@ -236,7 +214,6 @@ addMessageHandler({ type: 'pageContextInjected' }, (message) => {
     )
   TAB_INJECTIONS[message.fromTabId] = true
   saveTabInjections()
-  console.log('1')
   updateExtensionIcon(message.fromTabId)
 })
 

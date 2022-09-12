@@ -1,5 +1,8 @@
 module.exports = {
   extends: ['./node_modules/ambire-common/.eslintrc.js'],
+  rules: {
+    'import/extensions': 'off'
+  },
   parserOptions: {
     project: './tsconfig.json'
   },

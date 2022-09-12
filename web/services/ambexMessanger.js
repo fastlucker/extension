@@ -2,6 +2,8 @@
 
 // There are 5 possible actors for the communication, and a message has to follow this path (from one end to the other)
 // Used to know for the current relayer to who to forward
+import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
+
 const PATH = [
   'pageContext',
   'contentScript',
@@ -9,8 +11,6 @@ const PATH = [
   'ambireContentScript',
   'ambirePageContext'
 ]
-
-const VERBOSE = 4 || 0
 
 // Explicitly tell the background worker which domains are ambire wallet domains when sending a message. In the forwarding middleware ( ambire -> dapp always OK, dapp -> ambire, only if permitted)
 const AMBIRE_DOMAINS = []
@@ -35,9 +35,6 @@ let INIT_MSG_QUEUE = []
 
 // for background only, bool
 let BACKGROUND_INITIALIZED
-
-// TO KNOW IF IT IS FF
-let IS_FIREFOX = false
 
 // for verbosity in the console
 // Could create a log func to avoid repeating console logs with long concats
@@ -801,10 +798,6 @@ const makeRPCError = (requestPayload, error, errorCode = -1) => {
   }
 }
 
-const setIsFirefox = (isFF) => {
-  IS_FIREFOX = isFF
-}
-
 export {
   addMessageHandler,
   setupAmbexMessenger,
@@ -815,6 +808,5 @@ export {
   sendAck,
   sendReply,
   removeMessageHandler,
-  makeRPCError,
-  setIsFirefox
+  makeRPCError
 }
