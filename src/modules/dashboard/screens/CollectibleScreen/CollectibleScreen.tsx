@@ -24,6 +24,7 @@ import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
+import useConstants from '@modules/common/hooks/useConstants'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
@@ -46,6 +47,7 @@ const CollectibleScreen = () => {
   const { addToast } = useToast()
   const { addRequest } = useRequests()
   const { network: selectedNetwork } = useNetwork()
+  const { constants, isLoading: areConstantsLoading } = useConstants()
   const { params } = useRoute()
   const { tokenId, network, address: collectionAddr }: any = params
   const [isLoading, setLoading] = useState(true)
@@ -123,15 +125,18 @@ const CollectibleScreen = () => {
 
   useEffect(() => {
     if (recipientAddress.startsWith('0x') && recipientAddress.indexOf('.') === -1) {
-      const isAddressValid = validateSendNftAddress(
-        recipientAddress,
-        selectedAcc,
-        addressConfirmed,
-        isKnownAddress,
-        metadata,
-        selectedNetwork,
-        network
-      )
+      const isAddressValid =
+        !areConstantsLoading &&
+        validateSendNftAddress(
+          recipientAddress,
+          selectedAcc,
+          addressConfirmed,
+          isKnownAddress,
+          metadata,
+          constants?.humanizerInfo,
+          selectedNetwork,
+          network
+        )
 
       setTransferDisabled(!isAddressValid.success)
       setValidationFormMgs({

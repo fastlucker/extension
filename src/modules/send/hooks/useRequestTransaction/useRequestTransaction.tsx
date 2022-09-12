@@ -250,12 +250,15 @@ export default function useRequestTransaction() {
       if (address.startsWith('0x') && address.indexOf('.') === -1) {
         if (uDAddress !== '') setUDAddress('')
         if (ensAddress !== '') setEnsAddress('')
-        const isValidRecipientAddress = validateSendTransferAddress(
-          address,
-          selectedAcc,
-          addressConfirmed,
-          isKnownAddress
-        )
+        const isValidRecipientAddress =
+          !areConstantsLoading &&
+          validateSendTransferAddress(
+            address,
+            selectedAcc,
+            addressConfirmed,
+            isKnownAddress,
+            constants?.humanizerInfo
+          )
 
         setValidationFormMgs({
           success: {
@@ -290,14 +293,17 @@ export default function useRequestTransaction() {
           timer.current = null
           const isUDAddress = !!UDAddress
           const isEnsAddress = !!ensAddr
-          const isValidRecipientAddress = validateSendTransferAddress(
-            UDAddress || ensAddr || address,
-            selectedAcc,
-            addressConfirmed,
-            isKnownAddress,
-            isUDAddress,
-            isEnsAddress
-          )
+          const isValidRecipientAddress =
+            !areConstantsLoading &&
+            validateSendTransferAddress(
+              UDAddress || ensAddr || address,
+              selectedAcc,
+              addressConfirmed,
+              isKnownAddress,
+              constants?.humanizerInfo,
+              isUDAddress,
+              isEnsAddress
+            )
 
           setUDAddress(UDAddress)
           setEnsAddress(ensAddr)
