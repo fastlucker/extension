@@ -24,7 +24,7 @@ const ConstantsContext = createContext<{
 
 const ConstantsProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
-  const { constants, isLoading } = useFetchConstants({ fetch })
+  const { constants, isLoading, retryFetch } = useFetchConstants({ fetch })
   // TODO: wire up
   const hasError = false
 
@@ -36,6 +36,7 @@ const ConstantsProvider: React.FC = ({ children }) => {
         <Text style={[spacings.mb, spacings.mhTy, textStyles.center]}>
           {t('Something went wrong, but your funds are safe! Please try again later.')}
         </Text>
+        <Button text={t('Retry')} onPress={retryFetch} />
       </Wrapper>
     </GradientBackgroundWrapper>
   )
