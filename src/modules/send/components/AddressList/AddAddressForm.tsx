@@ -37,7 +37,7 @@ const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
   const [addr, setAddr] = useState<string>('')
   const [uDAddress, setUDAddress] = useState<string>('')
   const [ensAddress, setEnsAddress] = useState<string>('')
-  const { constants, isLoading: areConstantsLoading } = useConstants()
+  const { constants } = useConstants()
 
   const { isKnownAddress } = useAddressBook()
 
@@ -51,8 +51,8 @@ const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
   }, [address, uDAddress, isKnownAddress, uDAddr, ensAddress, ensAddr])
 
   const smartContractWarning = useMemo(
-    () => !areConstantsLoading && isKnownTokenOrContract(constants?.humanizerInfo, parsedAddr),
-    [parsedAddr, areConstantsLoading, constants?.humanizerInfo]
+    () => isKnownTokenOrContract(constants!.humanizerInfo, parsedAddr),
+    [parsedAddr, constants]
   )
 
   const timer: any = useRef(null)

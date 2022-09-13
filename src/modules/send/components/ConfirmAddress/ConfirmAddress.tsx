@@ -31,7 +31,7 @@ const ConfirmAddress = ({
 }: Props) => {
   const { t } = useTranslation()
   const { isKnownAddress } = useAddressBook()
-  const { constants, isLoading: areConstantsLoading } = useConstants()
+  const { constants } = useConstants()
 
   const unknownWarning = useMemo(() => {
     if (uDAddress || ensAddress) {
@@ -41,8 +41,8 @@ const ConfirmAddress = ({
   }, [address, uDAddress, ensAddress, isKnownAddress])
 
   const smartContractWarning = useMemo(
-    () => !areConstantsLoading && isKnownTokenOrContract(constants?.humanizerInfo, address),
-    [address, areConstantsLoading, constants?.humanizerInfo]
+    () => isKnownTokenOrContract(constants!.humanizerInfo, address),
+    [address, constants]
   )
 
   return !smartContractWarning && !!unknownWarning && address !== accountPresets.feeCollector ? (

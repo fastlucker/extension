@@ -47,7 +47,7 @@ const CollectibleScreen = () => {
   const { addToast } = useToast()
   const { addRequest } = useRequests()
   const { network: selectedNetwork } = useNetwork()
-  const { constants, isLoading: areConstantsLoading } = useConstants()
+  const { constants } = useConstants()
   const { params } = useRoute()
   const { tokenId, network, address: collectionAddr }: any = params
   const [isLoading, setLoading] = useState(true)
@@ -125,18 +125,16 @@ const CollectibleScreen = () => {
 
   useEffect(() => {
     if (recipientAddress.startsWith('0x') && recipientAddress.indexOf('.') === -1) {
-      const isAddressValid =
-        !areConstantsLoading &&
-        validateSendNftAddress(
-          recipientAddress,
-          selectedAcc,
-          addressConfirmed,
-          isKnownAddress,
-          metadata,
-          constants?.humanizerInfo,
-          selectedNetwork,
-          network
-        )
+      const isAddressValid = validateSendNftAddress(
+        recipientAddress,
+        selectedAcc,
+        addressConfirmed,
+        isKnownAddress,
+        metadata,
+        constants!.humanizerInfo,
+        selectedNetwork,
+        network
+      )
 
       setTransferDisabled(!isAddressValid.success)
       setValidationFormMgs({

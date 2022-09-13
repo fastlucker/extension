@@ -111,9 +111,9 @@ const TxnPreview = ({
   hasBottomSpacing = true,
   addressLabel = null
 }: any) => {
-  const { constants, isLoading: areConstantsLoading } = useConstants()
+  const { constants } = useConstants()
   const [isExpanded, setExpanded] = useState(false)
-  const contractName = !areConstantsLoading && getName(constants?.humanizerInfo, txn[0], network)
+  const contractName = getName(constants!.humanizerInfo, txn[0], network)
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -122,12 +122,10 @@ const TxnPreview = ({
 
   const networkDetails = networks.find(({ id }) => id === network)
 
-  const extendedSummary =
-    !areConstantsLoading &&
-    getTransactionSummary(constants?.humanizerInfo, txn, network, account, {
-      mined,
-      extended: true
-    })
+  const extendedSummary = getTransactionSummary(constants!.humanizerInfo, txn, network, account, {
+    mined,
+    extended: true
+  })
 
   const summary = extendedSummary.map((entry: any, idx: number) => {
     if (Array.isArray(entry)) {

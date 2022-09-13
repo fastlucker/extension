@@ -33,7 +33,7 @@ export default function useRequestTransaction() {
   const { addRequest } = useRequests()
   const { addToast } = useToast()
   const { isKnownAddress } = useAddressBook()
-  const { constants, isLoading: areConstantsLoading } = useConstants()
+  const { constants } = useConstants()
   const timer: any = useRef(null)
   const [bigNumberHexAmount, setBigNumberHexAmount] = useState('')
   const [asset, setAsset] = useState<string | null>(null)
@@ -202,8 +202,8 @@ export default function useRequestTransaction() {
   }, [address, uDAddress, ensAddress, isKnownAddress])
 
   const smartContractWarning = useMemo(
-    () => !areConstantsLoading && isKnownTokenOrContract(constants?.humanizerInfo, address),
-    [address, areConstantsLoading, constants?.humanizerInfo]
+    () => isKnownTokenOrContract(constants!.humanizerInfo, address),
+    [address, constants]
   )
 
   const showSWAddressWarning = useMemo(

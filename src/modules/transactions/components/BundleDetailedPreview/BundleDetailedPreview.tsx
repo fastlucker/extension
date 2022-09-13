@@ -19,7 +19,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 const TO_GAS_TANK = 'to Gas Tank'
 
 const BundleDetailedPreview = ({ bundle = {}, mined = false, feeAssets }: any) => {
-  const { constants, isLoading: areConstantsLoading } = useConstants()
+  const { constants } = useConstants()
   const network: any = networks?.find((x) => x.id === bundle?.network)
   const { t } = useTranslation()
 
@@ -35,9 +35,12 @@ const BundleDetailedPreview = ({ bundle = {}, mined = false, feeAssets }: any) =
   const lastTxn = bundle?.txns[bundle?.txns?.length - 1]
   // terribly hacky; @TODO fix
   // all of the values are prob checksummed so we may not need toLowerCase
-  const lastTxnSummary =
-    !areConstantsLoading &&
-    getTransactionSummary(constants?.humanizerInfo, lastTxn, bundle.network, bundle.identity)
+  const lastTxnSummary = getTransactionSummary(
+    constants!.humanizerInfo,
+    lastTxn,
+    bundle.network,
+    bundle.identity
+  )
   const hasFeeMatch = bundle.txns.length > 1 && lastTxnSummary.match(new RegExp(TO_GAS_TANK, 'i'))
   const txns = hasFeeMatch && !bundle.gasTankFee ? bundle.txns.slice(0, -1) : bundle.txns
   const toLocaleDateTime = (date: any) =>
