@@ -41,19 +41,19 @@ const ConstantsProvider: React.FC = ({ children }) => {
     </GradientBackgroundWrapper>
   )
 
+  const LoadingView = (
+    <GradientBackgroundWrapper>
+      <Wrapper contentContainerStyle={flexboxStyles.center}>
+        <Spinner />
+      </Wrapper>
+    </GradientBackgroundWrapper>
+  )
+
   return (
     <ConstantsContext.Provider
       value={useMemo(() => ({ constants, isLoading }), [constants, isLoading])}
     >
-      {isLoading ? (
-        <SafeAreaView style={[flexboxStyles.center, flexboxStyles.flex1]}>
-          <Spinner />
-        </SafeAreaView>
-      ) : hasError ? (
-        ErrorView
-      ) : (
-        children
-      )}
+      {isLoading ? LoadingView : hasError ? ErrorView : children}
     </ConstantsContext.Provider>
   )
 }
