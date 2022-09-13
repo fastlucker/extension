@@ -9,7 +9,7 @@ import EarnIcon from '@assets/svg/EarnIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
-import { isiOS } from '@config/env'
+import { isiOS, isWeb } from '@config/env'
 import DrawerContent from '@config/Router/DrawerContent'
 import { headerAlpha, headerBeta, headerGamma } from '@config/Router/HeadersConfig'
 import styles, {
@@ -36,6 +36,7 @@ import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
+import PermissionRequestScreen from '@modules/extension/screens/PermissionRequestScreen'
 import GasInformationScreen from '@modules/gas-tank/screens/GasInformationScreen'
 import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
@@ -219,6 +220,24 @@ const NoConnectionStack = () => {
   )
 }
 
+const PermissionRequestStack = () => {
+  const { t } = useTranslation()
+
+  useEffect(() => {
+    SplashScreen.hideAsync()
+  }, [])
+
+  return (
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+      <Stack.Screen
+        options={{ title: t('Permission Request') }}
+        name="permission-request"
+        component={PermissionRequestScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
 const DashboardStackScreen = () => {
   return (
     <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
@@ -383,6 +402,11 @@ const AppStack = () => {
         options={{ headerShown: false }}
       />
       <MainStack.Screen
+        name="permission-request"
+        component={PermissionRequestStack}
+        options={{ headerShown: false }}
+      />
+      <MainStack.Screen
         name="connect"
         component={ConnectScreen}
         options={{ title: t('Connect a dApp') }}
@@ -435,6 +459,13 @@ const Router = () => {
     }
 
     if (authStatus === AUTH_STATUS.AUTHENTICATED) {
+      if (isWeb) {
+        const urlSearchParams = new URLSearchParams(window?.location?.search)
+        const params = Object.fromEntries(urlSearchParams.entries())
+        if (params.initialRoute === 'permission-request') {
+          return <PermissionRequestStack />
+        }
+      }
       return <AppStack />
     }
 

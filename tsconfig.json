@@ -1,12 +1,13 @@
 {
   "extends": "ambire-common/tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "src/",
+    "baseUrl": ".",
     "jsx": "react-native",
     "paths": {
-      "@assets/*": ["assets/*"],
-      "@modules/*": ["modules/*"],
-      "@config/*": ["config/*"]
+      "@assets/*": ["src/assets/*"],
+      "@modules/*": ["src/modules/*"],
+      "@config/*": ["src/config/*"],
+      "@web/*": ["web/*"]
     }
   },
   "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js", "index.js"]

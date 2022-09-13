@@ -69,9 +69,15 @@ async function deferTick(host, queue) {
     const popupLeft = lastFocused.left + lastFocused.width - popupWidth - windowMarginRight
     const popupTop = lastFocused.top + windowMarginTop
 
+    console.log(
+      'INDEX',
+      `index.html?initialRoute=permission-request&host=${host}&queue=${btoa(JSON.stringify(queue))}`
+    )
     const createData = {
       type: 'panel',
-      url: `index.html?host=${host}&queue=${btoa(JSON.stringify(queue))}`,
+      url: `index.html?initialRoute=permission-request&host=${host}&queue=${btoa(
+        JSON.stringify(queue)
+      )}`,
       width: popupWidth,
       height: popupHeight,
       left: popupLeft,

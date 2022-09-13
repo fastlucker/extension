@@ -29,9 +29,20 @@ const AccountsProvider: React.FC = ({ children }) => {
         return setAuthStatus(AUTH_STATUS.AUTHENTICATED)
       }
 
+      if (isWeb) {
+        const urlSearchParams = new URLSearchParams(window?.location?.search)
+        const params = Object.fromEntries(urlSearchParams.entries())
+        if (params.initialRoute === 'permission-request') {
+          navigate('permission-request')
+          return
+        }
+      }
+
       // If the user is authenticated, a manual redirect is needed,
       // because the logged-in state screens were already mounted.
-      if (opts.shouldRedirect) navigate('dashboard')
+      if (opts.shouldRedirect) {
+        navigate('dashboard')
+      }
     },
     [authStatus, setAuthStatus]
   )
