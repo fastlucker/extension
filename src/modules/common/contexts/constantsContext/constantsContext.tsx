@@ -24,9 +24,7 @@ const ConstantsContext = createContext<{
 
 const ConstantsProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
-  const { constants, isLoading, retryFetch } = useFetchConstants({ fetch })
-  // TODO: wire up
-  const hasError = false
+  const { constants, isLoading, retryFetch, hasError } = useFetchConstants({ fetch })
 
   const ErrorView = (
     <GradientBackgroundWrapper>
