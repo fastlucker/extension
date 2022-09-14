@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { ScrollView, TouchableOpacity, View } from 'react-native'
 
 import CloseIcon from '@assets/svg/CloseIcon'
-import { isProd } from '@config/env'
 import { useTranslation } from '@config/localization'
 import useAuth from '@modules/auth/hooks/useAuth'
 import Button from '@modules/common/components/Button'
@@ -22,9 +21,8 @@ import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
 
 import styles from './styles'
 
-// if (isProd) {
-//   setupAmbexMessenger('contentScript', browserAPI)
-// }
+// TODO: should be called only for extension. Skip for web only
+setupAmbexMessenger('contentScript', browserAPI)
 
 const PermissionRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()

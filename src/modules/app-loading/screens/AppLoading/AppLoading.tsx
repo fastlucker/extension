@@ -64,26 +64,26 @@ const AppLoading = () => {
                             <WalletConnectProvider>
                               <RequestsProvider>
                                 <AddressBookProvider>
-                                  {/* <AmbireExtensionProvider> */}
-                                  <AccountsPasswordsProvider>
-                                    <PasscodeProvider>
-                                      <AttentionGrabberProvider>
-                                        <PrivateModeProvider>
-                                          <GasTankProvider>
-                                            <UnsupportedDAppsBottomSheetProvider>
-                                              <HeaderBottomSheetProvider>
-                                                <LinkingProvider>
-                                                  <Router />
-                                                </LinkingProvider>
-                                              </HeaderBottomSheetProvider>
-                                            </UnsupportedDAppsBottomSheetProvider>
-                                          </GasTankProvider>
-                                        </PrivateModeProvider>
-                                      </AttentionGrabberProvider>
-                                      <PortalHost name="global" />
-                                    </PasscodeProvider>
-                                  </AccountsPasswordsProvider>
-                                  {/* </AmbireExtensionProvider> */}
+                                  <AmbireExtensionProvider>
+                                    <AccountsPasswordsProvider>
+                                      <PasscodeProvider>
+                                        <AttentionGrabberProvider>
+                                          <PrivateModeProvider>
+                                            <GasTankProvider>
+                                              <UnsupportedDAppsBottomSheetProvider>
+                                                <HeaderBottomSheetProvider>
+                                                  <LinkingProvider>
+                                                    <Router />
+                                                  </LinkingProvider>
+                                                </HeaderBottomSheetProvider>
+                                              </UnsupportedDAppsBottomSheetProvider>
+                                            </GasTankProvider>
+                                          </PrivateModeProvider>
+                                        </AttentionGrabberProvider>
+                                        <PortalHost name="global" />
+                                      </PasscodeProvider>
+                                    </AccountsPasswordsProvider>
+                                  </AmbireExtensionProvider>
                                 </AddressBookProvider>
                               </RequestsProvider>
                             </WalletConnectProvider>

@@ -69,10 +69,6 @@ async function deferTick(host, queue) {
     const popupLeft = lastFocused.left + lastFocused.width - popupWidth - windowMarginRight
     const popupTop = lastFocused.top + windowMarginTop
 
-    console.log(
-      'INDEX',
-      `index.html?initialRoute=permission-request&host=${host}&queue=${btoa(JSON.stringify(queue))}`
-    )
     const createData = {
       type: 'panel',
       url: `index.html?initialRoute=permission-request&host=${host}&queue=${btoa(
@@ -133,16 +129,6 @@ const isStorageLoaded = () =>
 // initial loading call
 isStorageLoaded()
   .then(() => {
-    console.log('IS STORAGE LOADED INIT')
-    if (VERBOSE) {
-      console.log('initial state loaded')
-      console.log('TAB_INJECTIONS', TAB_INJECTIONS)
-      console.log('PERMISSIONS', PERMISSIONS)
-      console.log('USER_ACTION_NOTIFICATIONS', USER_ACTION_NOTIFICATIONS)
-    }
-
-    // when loaded, process the potential messages sent through background
-    if (VERBOSE > 1) console.log('process background queue')
     processBackgroundQueue()
   })
   .catch((e) => {
@@ -280,7 +266,6 @@ addMessageHandler({ type: 'getPermissionsList' }, (message) => {
   })
 })
 
-// User click reply from auth popup
 addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
   isStorageLoaded().then(() => {
     delete PERMISSIONS[message.data.host]
