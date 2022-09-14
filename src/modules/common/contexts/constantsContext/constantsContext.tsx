@@ -1,11 +1,10 @@
 import useFetchConstants, { ConstantsType } from 'ambire-common/src/hooks/useFetchConstants'
-import React, { createContext, useMemo } from 'react'
+import React, { createContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Satellite from '@assets/svg/Satellite'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import SafeAreaView from '@modules/common/components/SafeAreaView'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -25,6 +24,14 @@ const ConstantsContext = createContext<{
 const ConstantsProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
   const { constants, isLoading, retryFetch, hasError } = useFetchConstants({ fetch })
+  const [isRetrying, setIsRetrying] = useState<boolean>(false)
+
+  const retry = async () => {
+    setIsRetrying(true)
+    await retryFetch()
+
+    setIsRetrying(false)
+  }
 
   const ErrorView = (
     <GradientBackgroundWrapper>
@@ -34,7 +41,11 @@ const ConstantsProvider: React.FC = ({ children }) => {
         <Text style={[spacings.mb, spacings.mhTy, textStyles.center]}>
           {t('Something went wrong, but your funds are safe! Please try again later.')}
         </Text>
-        <Button text={t('Retry')} onPress={retryFetch} />
+        <Button
+          text={isRetrying ? t('Retrying...') : t('Retry')}
+          disabled={isRetrying}
+          onPress={retry}
+        />
       </Wrapper>
     </GradientBackgroundWrapper>
   )
