@@ -99,7 +99,8 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
       // Security check + avoid double routing, disallow direct handling (eg: contentScript > ambireContentScript), because when CS is broadcasting, both background and other CS-like receive it
       // TODO firefox
       if (
-        sender.url === `chrome-extension://${sender.id}/background.js` || // initially, it seems background sends msg without origin?!
+        sender.url === `chrome-extension://${sender.id}/background.js` ||
+        // initially, it seems background sends msg without origin?!
         (!sender.url && sender.origin === 'null')
       ) {
         handleMessage(request)
@@ -107,40 +108,10 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
       }
 
       if (sender.url) {
-        const senderHost = new URL(sender.url).host
-        // console.log('AMBIRE DOMAINS', AMBIRE_DOMAINS, sender)
-        // Allow handling if sent by NOT ambirePageContext but all the rest
-        if (RELAYER === 'contentScript' && !AMBIRE_DOMAINS.find((d) => senderHost === d)) {
-          handleMessage(request)
-          return
-        }
-
-        // Allow handling if sent by ambirePageContext
-        if (RELAYER === 'ambireContentScript' && AMBIRE_DOMAINS.find((d) => senderHost === d)) {
+        if (RELAYER === 'contentScript' || RELAYER === 'ambireContentScript') {
           handleMessage(request)
         }
       }
-
-      // possible extanally mutable props check > should probably deprecate?
-      /* if (RELAYER === 'contentScript') {
-        if (request.forwarders) {
-          // We allow messages coming only from pageContext or background
-          if (['pageContext', 'background'].indexOf(request.forwarders.slice(-1)[0]) === -1) {
-            console.log('forwarders', request.forwarders)
-            if (VERBOSE > 3) console.log(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Ignore direct route ${request.forwarders.slice(-1, 1)[0]} > ${RELAYER}`)
-            return
-          }
-        }
-      } */
-
-      /* if (RELAYER === 'ambireContentScript') {
-        if (request.forwarders) {
-          // We allow messages coming only from pageContext or background
-          if (['ambirePageContext', 'background'].indexOf(request.forwarders.slice(-1)[0]) === -1) {
-            if (VERBOSE > 3) console.log(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Ignore direct route ${request.forwarders.slice(-1, 1)[0]} > ${RELAYER}`)
-          }
-        }
-      } */
     })
 
     if (VERBOSE > 2)

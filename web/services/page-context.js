@@ -315,7 +315,7 @@ const initPageContext = async () => {
     this.isAmbire = true
   }
 
-  const ethereum = new ExtensionProvider()
+  const ethereumProvider = new ExtensionProvider()
   ;(() => {
     // to be removed from DOM after execution
     const element = document.querySelector('#page-context')
@@ -373,17 +373,20 @@ const initPageContext = async () => {
       window.ambexMessengerSetup = true
     }
 
-    // avoid reInjection. one injection happens at the very beginning of the page load, and one when page is complete (to override web3 if !web3.isAmbire)
+    // Avoids re-injection.
+    // One injection happens at the very beginning of the page load,
+    // and one when page is complete (to override web3 if !web3.isAmbire)
     if (!existing || overridden) {
-      window.ethereum = ethereum
-      window.web3 = new Web3(ethereum)
+      window.ethereum = ethereumProvider
+      window.web3 = new Web3(ethereumProvider)
     }
 
-    // cleaning dom
-    // element.remove()
+    // cleaning dom - removes the current script (not needed after injection)
     try {
       element.parentNode.removeChild(document.querySelector('#page-context'))
-    } catch (error) {}
+    } catch (error) {
+      // silent fail
+    }
   })()
 }
 

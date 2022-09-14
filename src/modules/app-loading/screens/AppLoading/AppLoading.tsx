@@ -26,6 +26,7 @@ import { ToastProvider } from '@modules/common/contexts/toastContext'
 import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/unsupportedDAppsBottomSheetContext'
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 import useFonts from '@modules/common/hooks/useFonts'
+import { AmbireExtensionProvider } from '@modules/extension/contexts/ambireExtensionContext'
 
 const AppLoading = () => {
   // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
@@ -63,6 +64,7 @@ const AppLoading = () => {
                             <WalletConnectProvider>
                               <RequestsProvider>
                                 <AddressBookProvider>
+                                  {/* <AmbireExtensionProvider> */}
                                   <AccountsPasswordsProvider>
                                     <PasscodeProvider>
                                       <AttentionGrabberProvider>
@@ -81,6 +83,7 @@ const AppLoading = () => {
                                       <PortalHost name="global" />
                                     </PasscodeProvider>
                                   </AccountsPasswordsProvider>
+                                  {/* </AmbireExtensionProvider> */}
                                 </AddressBookProvider>
                               </RequestsProvider>
                             </WalletConnectProvider>

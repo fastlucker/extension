@@ -223,8 +223,34 @@ addMessageHandler({ type: 'pageContextInjected' }, (message) => {
   updateExtensionIcon(message.fromTabId)
 })
 
+// Ambire pageContext injection
+addMessageHandler({ type: 'ambirePageContextInjected' }, (message) => {
+  if (VERBOSE) console.log(`INJECTED AMBIRE TAB ${message.fromTabId}`)
+  updateExtensionIcon(message.fromTabId)
+
+  isStorageLoaded().then(() => {
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const tabId in TAB_INJECTIONS) {
+      sendMessage(
+        {
+          to: 'pageContext',
+          toTabId: tabId * 1,
+          type: 'ambireWalletConnected',
+          data: {
+            chainId: message.data.chainId,
+            account: message.data.account
+          }
+        },
+        { ignoreReply: true }
+      )
+      updateExtensionIcon(tabId * 1)
+    }
+  })
+})
+
 // User click reply from auth popup
 addMessageHandler({ type: 'grantPermission' }, (message) => {
+  console.log('IN VE IN', PENDING_PERMISSIONS_CALLBACKS[message.data.targetHost])
   if (PENDING_PERMISSIONS_CALLBACKS[message.data.targetHost]) {
     PENDING_PERMISSIONS_CALLBACKS[message.data.targetHost].callbacks.forEach((c) => {
       c(message.data.permitted)

@@ -22,9 +22,9 @@ import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
 
 import styles from './styles'
 
-if (isProd) {
-  setupAmbexMessenger('contentScript', browserAPI)
-}
+// if (isProd) {
+//   setupAmbexMessenger('contentScript', browserAPI)
+// }
 
 const PermissionRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
