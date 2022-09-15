@@ -26,7 +26,7 @@ const ConstantsProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
   const { constants, isLoading, retryFetch, hasError } = useConstants({
     fetch,
-    endpoint: CONFIG.VELCRO_API_ENDPOINT
+    endpoint: CONFIG.CONSTANTS_ENDPOINT
   })
   const [isRetrying, setIsRetrying] = useState<boolean>(false)
 
