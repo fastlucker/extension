@@ -172,7 +172,7 @@ const TxnPreview = ({
               {t('This is the first failing transaction.')}
             </Text>
           )}
-          {!isFirstFailing && !mined && !isKnown(txn, account) && (
+          {!isFirstFailing && !mined && !isKnown(constants!.humanizerInfo, txn, account) && (
             <Text appearance="danger" fontSize={10}>
               {t('Warning: interacting with an unknown contract or address.')}
             </Text>
