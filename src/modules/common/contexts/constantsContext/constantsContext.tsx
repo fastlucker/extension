@@ -1,5 +1,6 @@
 import useConstants, { ConstantsType } from 'ambire-common/src/hooks/useConstants'
-import React, { createContext, useMemo, useState } from 'react'
+import * as SplashScreen from 'expo-splash-screen'
+import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Satellite from '@assets/svg/Satellite'
@@ -30,6 +31,12 @@ const ConstantsProvider: React.FC = ({ children }) => {
   })
   const [isRetrying, setIsRetrying] = useState<boolean>(false)
 
+  useEffect(() => {
+    if (hasError) {
+      SplashScreen.hideAsync()
+    }
+  }, [hasError])
+
   const retry = async () => {
     setIsRetrying(true)
     await retryFetch()
@@ -54,13 +61,9 @@ const ConstantsProvider: React.FC = ({ children }) => {
     </GradientBackgroundWrapper>
   )
 
-  const LoadingView = (
-    <GradientBackgroundWrapper>
-      <Wrapper contentContainerStyle={flexboxStyles.center}>
-        <Spinner />
-      </Wrapper>
-    </GradientBackgroundWrapper>
-  )
+  // No need for another (custom) loading view, because the splash screen
+  // will always be present while this provider is loading.
+  const LoadingView = null
 
   return (
     <ConstantsContext.Provider
