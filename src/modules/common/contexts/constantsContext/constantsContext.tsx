@@ -1,8 +1,9 @@
-import useFetchConstants, { ConstantsType } from 'ambire-common/src/hooks/useFetchConstants'
+import useConstants, { ConstantsType } from 'ambire-common/src/hooks/useConstants'
 import React, { createContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Satellite from '@assets/svg/Satellite'
+import CONFIG from '@config/env'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Spinner from '@modules/common/components/Spinner'
@@ -23,7 +24,10 @@ const ConstantsContext = createContext<{
 
 const ConstantsProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
-  const { constants, isLoading, retryFetch, hasError } = useFetchConstants({ fetch })
+  const { constants, isLoading, retryFetch, hasError } = useConstants({
+    fetch,
+    endpoint: CONFIG.VELCRO_API_ENDPOINT
+  })
   const [isRetrying, setIsRetrying] = useState<boolean>(false)
 
   const retry = async () => {
