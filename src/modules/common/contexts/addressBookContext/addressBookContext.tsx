@@ -15,7 +15,7 @@ const AddressBookContext = createContext<UseAddressBookReturnType>({
 
 const AddressBookProvider: React.FC = ({ children }) => {
   const { addresses, addAddress, removeAddress, isKnownAddress } = useAddressBook({
-    useFetchConstants: useConstants,
+    useConstants,
     useAccounts,
     useStorage,
     useToasts

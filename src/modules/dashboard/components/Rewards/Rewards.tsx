@@ -64,7 +64,7 @@ const Rewards = () => {
     shouldDisplayMintableVesting,
     claimingDisabled
   } = useClaimableWalletToken({
-    useFetchConstants: useConstants,
+    useConstants,
     accountId: selectedAcc,
     network,
     addRequest,

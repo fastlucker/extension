@@ -90,7 +90,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
     loadBalance,
     loadProtocols
   } = usePortfolio({
-    useFetchConstants: useConstants,
+    useConstants,
     currentNetwork: network?.id as string,
     account: selectedAcc,
     useStorage,
