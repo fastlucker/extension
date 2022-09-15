@@ -53,7 +53,7 @@ const initPageContext = async () => {
 
       sendMessage(
         {
-          to: 'ambirePageContext',
+          to: 'background',
           type: 'web3Call',
           data: requestPayload
         },
@@ -94,7 +94,7 @@ const initPageContext = async () => {
       }
       sendMessage(
         {
-          to: 'ambirePageContext',
+          to: 'background',
           type: 'web3Call',
           data: requestPayload
         },

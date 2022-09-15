@@ -1,5 +1,6 @@
 // The most important part of the extension
 // background workers are killed and respawned (chrome MV3) when contentScript are calling them. Firefox does not support MV3 yet but is working on it. Fortunately MV3 > MV2 is easier to migrate/support than MV2 > MV3
+import { getDefaultProvider, BigNumber } from '../modules/ethers.esm.js'
 
 import {
   setupAmbexMessenger,
@@ -11,8 +12,8 @@ import {
   processBackgroundQueue
 } from './ambexMessanger.js'
 import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
-import { STORAGE_CACHED } from '../constants/storage.js'
 import { browserAPI } from '../constants/browserAPI.js'
+import { updateExtensionIcon } from '../functions/updateExtensionIcon.js'
 
 setupAmbexMessenger('background', browserAPI)
 setPermissionMiddleware((message, sender, callback) => {
@@ -30,11 +31,12 @@ let TAB_INJECTIONS = {}
 // permissions host => true/false
 let PERMISSIONS = {}
 // pending notifications asking for user attention (sign / send tx)
-let USER_ACTION_NOTIFICATIONS = {} // Is this storage really necessary?
+let USER_ACTION_NOTIFICATIONS = {}
+let NETWORK = {}
+let SELECTED_ACCOUNT = ''
 
 // find a way to store the state and exec callbacks?
 const PENDING_PERMISSIONS_CALLBACKS = {}
-
 const PERMISSION_WINDOWS = {}
 const DEFERRED_PERMISSION_WINDOWS = {}
 
@@ -105,13 +107,16 @@ function isInjectableTab(tab) {
   return tab && tab.url && tab.url.startsWith('http')
 }
 
-// used everywhere when we need to access a consistent state of the background worker
-// if not loaded, fill the state vars with last local storage versions
+// Used everywhere when we need to access a consistent state of the background worker
+// if not loaded, update the state vars with the latest from local storage
 const isStorageLoaded = () =>
   new Promise((res) => {
-    if (storageLoaded) return res(STORAGE_CACHED)
+    if (storageLoaded) {
+      res(true)
+      return
+    }
     browserAPI.storage.local.get(
-      ['TAB_INJECTIONS', 'PERMISSIONS', 'USER_ACTION_NOTIFICATIONS'],
+      ['TAB_INJECTIONS', 'PERMISSIONS', 'USER_ACTION_NOTIFICATIONS', 'NETWORK', 'SELECTED_ACCOUNT'],
       (result) => {
         TAB_INJECTIONS = { ...TAB_INJECTIONS, ...result.TAB_INJECTIONS }
         PERMISSIONS = { ...PERMISSIONS, ...result.PERMISSIONS }
@@ -119,14 +124,55 @@ const isStorageLoaded = () =>
           ...USER_ACTION_NOTIFICATIONS,
           ...result.USER_ACTION_NOTIFICATIONS
         }
-
+        NETWORK = { ...NETWORK, ...result.NETWORK }
+        SELECTED_ACCOUNT = result.SELECTED_ACCOUNT || SELECTED_ACCOUNT
         storageLoaded = true
         res(true)
       }
     )
   })
 
-// initial loading call
+const storageChangeListener = () => {
+  isStorageLoaded().then(() => {
+    if (NETWORK.chainId && SELECTED_ACCOUNT) {
+      // eslint-disable-next-line no-restricted-syntax, guard-for-in
+      // for (const tabId in TAB_INJECTIONS) {
+      //   sendMessage(
+      //     {
+      //       to: 'pageContext',
+      //       toTabId: tabId * 1,
+      //       type: 'ambireWalletConnected',
+      //       data: {
+      //         account: SELECTED_ACCOUNT,
+      //         chainId: NETWORK.chainId
+      //       }
+      //     },
+      //     { ignoreReply: true }
+      //   )
+      //   updateExtensionIcon(tabId * 1, PENDING_PERMISSIONS_CALLBACKS)
+      // }
+    }
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+      if (namespace === 'local') {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const [key, { newValue }] of Object.entries(changes)) {
+          if (key === 'SELECTED_ACCOUNT') {
+            SELECTED_ACCOUNT = newValue
+            if (VERBOSE) console.log('BG : broadcasting accountChanged')
+            notifyEventChange('ambireWalletAccountChanged', { account: newValue })
+          }
+          if (key === 'NETWORK') {
+            NETWORK = newValue
+            if (VERBOSE) console.log('BG : broadcasting chainChanged')
+            notifyEventChange('ambireWalletChainChanged', { chainId: newValue })
+          }
+        }
+      }
+    })
+  })
+}
+
+// Initial loading call
 isStorageLoaded()
   .then(() => {
     processBackgroundQueue()
@@ -134,6 +180,8 @@ isStorageLoaded()
   .catch((e) => {
     console.error('storageLoading', e)
   })
+
+storageChangeListener()
 
 // useful for debug, where should I keep it?
 /* setTimeout(() => {
@@ -206,37 +254,11 @@ addMessageHandler({ type: 'pageContextInjected' }, (message) => {
     )
   TAB_INJECTIONS[message.fromTabId] = true
   saveTabInjections()
-  updateExtensionIcon(message.fromTabId)
-})
-
-// Ambire pageContext injection
-addMessageHandler({ type: 'ambirePageContextInjected' }, (message) => {
-  if (VERBOSE) console.log(`INJECTED AMBIRE TAB ${message.fromTabId}`)
-  updateExtensionIcon(message.fromTabId)
-
-  isStorageLoaded().then(() => {
-    // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const tabId in TAB_INJECTIONS) {
-      sendMessage(
-        {
-          to: 'pageContext',
-          toTabId: tabId * 1,
-          type: 'ambireWalletConnected',
-          data: {
-            chainId: message.data.chainId,
-            account: message.data.account
-          }
-        },
-        { ignoreReply: true }
-      )
-      updateExtensionIcon(tabId * 1)
-    }
-  })
+  updateExtensionIcon(message.fromTabId, PENDING_PERMISSIONS_CALLBACKS)
 })
 
 // User click reply from auth popup
 addMessageHandler({ type: 'grantPermission' }, (message) => {
-  console.log('IN VE IN', PENDING_PERMISSIONS_CALLBACKS[message.data.targetHost])
   if (PENDING_PERMISSIONS_CALLBACKS[message.data.targetHost]) {
     PENDING_PERMISSIONS_CALLBACKS[message.data.targetHost].callbacks.forEach((c) => {
       c(message.data.permitted)
@@ -248,7 +270,7 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
     savePermissions()
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
-      updateExtensionIcon(i)
+      updateExtensionIcon(i, PENDING_PERMISSIONS_CALLBACKS)
     }
   })
 
@@ -272,8 +294,9 @@ addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
     savePermissions(() => {
       sendAck(message)
     })
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
-      updateExtensionIcon(i)
+      updateExtensionIcon(i, PENDING_PERMISSIONS_CALLBACKS)
     }
   })
 })
@@ -307,62 +330,191 @@ addMessageHandler({ type: 'getTabStatus' }, (message) => {
   })
 })
 
-// wrapper for the 2 messageHandlers below
-const notifyEventChange = (type, data) => {
-  for (const tabId in TAB_INJECTIONS) {
-    const callback = (tab) => {
-      if (isInjectableTab(tab) && PERMISSIONS[new URL(tab.url).host]) {
-        sendMessage(
-          {
-            toTabId: tab.id,
-            to: 'pageContext',
-            type,
-            data
-          },
-          { ignoreReply: true }
-        )
-      }
-    }
-
-    if (IS_FIREFOX) {
-      try {
-        browserAPI.tabs.get(tabId * 1, callback)
-      } catch (e) {
-        console.log('Error getting tab', e)
-      }
-    } else {
-      browserAPI.tabs
-        .get(tabId * 1)
-        .then(callback)
-        .catch((e) => {
-          // ignore
-        })
-    }
+const sanitize2hex = (any) => {
+  if (VERBOSE > 2) console.warn(`instanceof of any is ${any instanceof BigNumber}`)
+  if (any instanceof BigNumber) {
+    return any.toHexString()
   }
 
-  console.log('NOTIFY EVENT CHANGE....')
-  sendMessage(
-    {
-      to: 'contentScript',
-      toTabId: 'extension',
-      type,
-      data
-    },
-    { ignoreReply: true }
-  )
+  if (any === undefined || any === null) {
+    return any
+  }
+  return BigNumber.from(any).toHexString()
 }
 
-addMessageHandler({ type: 'ambireWalletChainChanged' }, (message) => {
-  if (VERBOSE) console.log('BG : broadcasting chainChanged', message)
-  isStorageLoaded().then(() => {
-    notifyEventChange('ambireWalletChainChanged', { chainId: message.data.chainId })
-  })
-})
+// Handling web3 calls
+addMessageHandler({ type: 'web3Call' }, async (message) => {
+  isStorageLoaded().then(async () => {
+    VERBOSE > 0 && console.log('ambirePC: web3CallRequest', message)
+    const provider = getDefaultProvider(NETWORK.rpc)
 
-addMessageHandler({ type: 'ambireWalletAccountChanged' }, (message) => {
-  if (VERBOSE) console.log('BG : broadcasting accountChanged', message)
-  isStorageLoaded().then(() => {
-    notifyEventChange('ambireWalletAccountChanged', { account: message.data.account })
+    const payload = message.data
+    const method = payload.method
+
+    let deferredReply = false
+
+    const callTx = payload.params
+    let result
+    let error
+    if (method === 'eth_accounts' || method === 'eth_requestAccounts') {
+      result = [SELECTED_ACCOUNT]
+    } else if (method === 'eth_chainId' || method === 'net_version') {
+      // TODO:
+      result = NETWORK.chainId
+      // result = hexlify(NETWORK.chainId)
+    } else if (method === 'wallet_requestPermissions') {
+      result = [{ parentCapability: 'eth_accounts' }]
+    } else if (method === 'wallet_getPermissions') {
+      result = [{ parentCapability: 'eth_accounts' }]
+    } else if (method === 'wallet_switchEthereumChain') {
+      // TODO:
+      // const existingNetwork = allNetworks.find((a) => {
+      //   return sanitize2hex(a.chainId) === sanitize2hex(callTx[0]?.chainId) // ethers BN ouputs 1 to 0x01 while some dapps ask for 0x1
+      // })
+      // if (existingNetwork) {
+      //   setNetwork(existingNetwork.chainId)
+      //   result = null
+      // } else {
+      //   error = `chainId ${callTx[0]?.chainId} not supported by ambire wallet`
+      // }
+    } else if (method === 'eth_coinbase') {
+      result = SELECTED_ACCOUNT
+    } else if (method === 'eth_call') {
+      result = await provider.call(callTx[0], callTx[1]).catch((err) => {
+        error = err
+      })
+    } else if (method === 'eth_getBalance') {
+      result = await provider.getBalance(callTx[0], callTx[1]).catch((err) => {
+        error = err
+      })
+      if (result) {
+        result = sanitize2hex(result)
+      }
+    } else if (method === 'eth_blockNumber') {
+      result = await provider.getBlockNumber().catch((err) => {
+        error = err
+      })
+      if (result) result = sanitize2hex(result)
+    } else if (method === 'eth_getBlockByHash') {
+      if (callTx[1]) {
+        result = await provider.getBlockWithTransactions(callTx[0]).catch((err) => {
+          error = err
+        })
+        if (result) {
+          result.baseFeePerGas = sanitize2hex(result.baseFeePerGas)
+          result.gasLimit = sanitize2hex(result.gasLimit)
+          result.gasUsed = sanitize2hex(result.gasUsed)
+          result._difficulty = sanitize2hex(result._difficulty)
+        }
+      } else {
+        result = await provider.getBlock(callTx[0]).catch((err) => {
+          error = err
+        })
+      }
+    } else if (method === 'eth_getTransactionByHash') {
+      result = await provider.getTransaction(callTx[0]).catch((err) => {
+        error = err
+      })
+      if (result) {
+        // sanitize
+        // need to return hex numbers, provider returns BigNumber
+        result.gasLimit = sanitize2hex(result.gasLimit)
+        result.gasPrice = sanitize2hex(result.gasPrice)
+        result.value = sanitize2hex(result.value)
+        result.wait = null
+      }
+    } else if (method === 'eth_getCode') {
+      result = await provider.getCode(callTx[0], callTx[1]).catch((err) => {
+        error = err
+      })
+    } else if (method === 'eth_gasPrice') {
+      result = await provider.getGasPrice().catch((err) => {
+        error = err
+      })
+      if (result) result = sanitize2hex(result)
+    } else if (method === 'eth_estimateGas') {
+      result = await provider.estimateGas(callTx[0]).catch((err) => {
+        error = err
+      })
+      if (result) result = sanitize2hex(result)
+    } else if (method === 'eth_getBlockByNumber') {
+      result = await provider.getBlock(callTx[0], callTx[1]).catch((err) => {
+        error = err
+      })
+      if (result) {
+        result.baseFeePerGas = sanitize2hex(result.baseFeePerGas)
+        result.gasLimit = sanitize2hex(result.gasLimit)
+        result.gasUsed = sanitize2hex(result.gasUsed)
+        result._difficulty = sanitize2hex(result._difficulty)
+      }
+      VERBOSE > 2 && console.log('Result', result, error)
+    } else if (method === 'eth_getTransactionReceipt') {
+      result = await provider.getTransactionReceipt(callTx[0]).catch((err) => {
+        error = err
+      })
+      if (result) {
+        result.cumulativeGasUsed = sanitize2hex(result.cumulativeGasUsed)
+        result.effectiveGasPrice = sanitize2hex(result.effectiveGasPrice)
+        result.gasUsed = sanitize2hex(result.gasUsed)
+        result._difficulty = sanitize2hex(result._difficulty)
+      }
+    } else if (method === 'eth_getTransactionCount') {
+      result = await provider.getTransactionCount(callTx[0]).catch((err) => {
+        error = err
+      })
+      if (result) result = sanitize2hex(result)
+    } else if (method === 'personal_sign') {
+      // TODO:
+      // handlePersonalSign(message).catch((err) => {
+      //   verbose > 0 && console.log('personal sign error ', err)
+      //   error = err
+      // })
+      deferredReply = true
+    } else if (method === 'eth_sign') {
+      // TODO:
+      // handlePersonalSign(message).catch((err) => {
+      //   verbose > 0 && console.log('personal sign error ', err)
+      //   error = err
+      // })
+      deferredReply = true
+    } else if (method === 'eth_sendTransaction') {
+      deferredReply = true
+      // TODO:
+      // await handleSendTransactions(message).catch((err) => {
+      //   error = err
+      // })
+    } else if (method === 'gs_multi_send' || method === 'ambire_sendBatchTransaction') {
+      deferredReply = true
+      // TODO:
+      // await handleSendTransactions(message).catch((err) => {
+      //   error = err
+      // })
+    } else {
+      error = `Method not supported by extension hook: ${method}`
+    }
+
+    if (error) {
+      console.error('throwing error with ', message)
+      sendReply(message, {
+        data: {
+          jsonrpc: '2.0',
+          id: payload.id,
+          error
+        }
+      })
+    } else if (!deferredReply) {
+      const rpcResult = {
+        jsonrpc: '2.0',
+        id: payload.id,
+        result
+      }
+
+      VERBOSE > 0 && console.log('Replying to request with', rpcResult)
+
+      sendReply(message, {
+        data: rpcResult
+      })
+    }
   })
 })
 
@@ -453,6 +605,51 @@ const openAuthPopup = async (host, queue) => {
   }
 }
 
+const notifyEventChange = (type, data) => {
+  // eslint-disable-next-line
+  for (const tabId in TAB_INJECTIONS) {
+    const callback = (tab) => {
+      if (isInjectableTab(tab) && PERMISSIONS[new URL(tab.url).host]) {
+        sendMessage(
+          {
+            toTabId: tab.id,
+            to: 'pageContext',
+            type,
+            data
+          },
+          { ignoreReply: true }
+        )
+      }
+    }
+
+    if (IS_FIREFOX) {
+      try {
+        browserAPI.tabs.get(tabId * 1, callback)
+      } catch (e) {
+        console.log('Error getting tab', e)
+      }
+    } else {
+      browserAPI.tabs
+        .get(tabId * 1)
+        .then(callback)
+        .catch((e) => {
+          // ignore
+        })
+    }
+  }
+
+  console.log('NOTIFY EVENT CHANGE....')
+  sendMessage(
+    {
+      to: 'contentScript',
+      toTabId: 'extension',
+      type,
+      data
+    },
+    { ignoreReply: true }
+  )
+}
+
 // returns wether a message is allow to transact or if host is unknown, show permission popup
 const requestPermission = async (message, sender, callback) => {
   const host = new URL(sender.origin || sender.url).host
@@ -499,57 +696,11 @@ const requestPermission = async (message, sender, callback) => {
           callback(permitted)
         })
 
-        console.log('2')
-        updateExtensionIcon(message.fromTabId)
+        updateExtensionIcon(message.fromTabId, PENDING_PERMISSIONS_CALLBACKS)
 
         // Might want to pile up msgs with debounce in future
         openAuthPopup(host, [message])
       })
     }
   }
-}
-
-// update the extension icon depending on the state
-const updateExtensionIcon = async (tabId) => {
-  if (!parseInt(tabId)) return
-
-  tabId = parseInt(tabId)
-
-  browserAPI.tabs.get(tabId, async (tab) => {
-    if (tab) {
-      await isStorageLoaded()
-
-      let iconUrl
-
-      if (!tab.url.startsWith('http')) {
-        iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_disabled.png')
-      } else {
-        const tabHost = new URL(tab.url).host
-        if (TAB_INJECTIONS[tabId]) {
-          if (PERMISSIONS[tabHost] === true) {
-            iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_connected.png')
-          } else if (PERMISSIONS[tabHost] === false) {
-            iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_denied.png')
-          } else if (PENDING_PERMISSIONS_CALLBACKS[tabHost]) {
-            iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_pending.png')
-          } else {
-            iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_disabled.png')
-          }
-        } else {
-          iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_connected.png')
-        }
-      }
-
-      if (VERBOSE) console.log(`setting icon for tab ${tabId} ${iconUrl}`)
-      browserAPI.action.setIcon(
-        {
-          tabId,
-          path: iconUrl
-        },
-        () => true
-      )
-    } else {
-      console.warn(`No tabs found for id ${tabId}`)
-    }
-  })
 }

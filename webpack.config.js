@@ -1,4 +1,5 @@
 const createExpoWebpackConfigAsync = require('@expo/webpack-config')
+const path = require('path')
 
 module.exports = async function (env, argv) {
   const config = await createExpoWebpackConfigAsync(
@@ -10,11 +11,7 @@ module.exports = async function (env, argv) {
   )
 
   config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
-
-  config.entry.env = './web/constants/env.js'
-  config.entry.browserAPI = './web/constants/browserAPI.js'
-  config.entry.storage = './web/constants/storage.js'
-  config.entry.ambexMessanger = './web/services/ambexMessanger.js'
+  config.resolve.alias['background.js'] = './web/services/background.js'
 
   return config
 }

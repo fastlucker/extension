@@ -4,12 +4,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
 import { browserAPI } from '@web/constants/browserAPI'
-import {
-  addMessageHandler,
-  sendMessage,
-  sendReply,
-  setupAmbexMessenger
-} from '@web/services/ambexMessanger'
+import { addMessageHandler } from '@web/services/ambexMessanger'
 
 const AmbireExtensionContext = createContext<any>({})
 
@@ -25,68 +20,12 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
   }
 
   useEffect(() => {
-    setupAmbexMessenger('ambirePageContext', browserAPI)
-
-    sendMessage(
-      {
-        to: 'background',
-        type: 'ambireWalletAccountChanged',
-        data: {
-          account: selectedAccount
-        }
-      },
-      { ignoreReply: true }
-    )
-
-    sendMessage(
-      {
-        to: 'background',
-        type: 'ambireWalletChainChanged',
-        data: {
-          chainId: network?.chainId
-        }
-      },
-      { ignoreReply: true }
-    )
+    browserAPI.storage.local.set({ SELECTED_ACCOUNT: selectedAccount })
+    browserAPI.storage.local.set({ NETWORK: network })
 
     // Post-focus, display a message to the user to make him understand why he switched tabs automatically
     addMessageHandler({ type: 'displayUserInterventionNotification' }, () => {
       setTimeout(() => addToast('An user interaction has been requested'), 500)
-    })
-
-    // contentScript triggers this, then this(ambirePageContext) should inform proper injection to background
-    addMessageHandler({ type: 'ambireContentScriptInjected' }, () => {
-      sendMessage(
-        {
-          to: 'background',
-          type: 'ambirePageContextInjected',
-          data: {
-            account: selectedAccount,
-            chainId: network?.chainId
-          }
-        },
-        { ignoreReply: true }
-      )
-    })
-
-    // Used on extension lifecycle reloading to check if previous ambire injected tabs are still up
-    addMessageHandler({ type: 'keepalive' }, (message: any) => {
-      sendReply(message, {
-        type: 'keepalive_reply', // only case where reply with type required (for now)
-        data: {
-          account: selectedAccount,
-          chainId: network?.chainId
-        }
-      })
-    })
-
-    addMessageHandler({ type: 'extension_getCoreAccountData' }, (message: any) => {
-      sendReply(message, {
-        data: {
-          account: selectedAccount,
-          chainId: network?.chainId
-        }
-      })
     })
   }, [selectedAccount, network, addToast])
 
