@@ -1,6 +1,6 @@
 // The most important part of the extension
 // background workers are killed and respawned (chrome MV3) when contentScript are calling them. Firefox does not support MV3 yet but is working on it. Fortunately MV3 > MV2 is easier to migrate/support than MV2 > MV3
-import { getDefaultProvider, BigNumber } from '../modules/ethers.esm.js'
+import { getDefaultProvider, BigNumber, hexlify } from '../modules/ethers.esm.min.js'
 
 import {
   setupAmbexMessenger,
@@ -136,6 +136,7 @@ const storageChangeListener = () => {
   isStorageLoaded().then(() => {
     if (NETWORK.chainId && SELECTED_ACCOUNT) {
       // eslint-disable-next-line no-restricted-syntax, guard-for-in
+      // TODO:
       // for (const tabId in TAB_INJECTIONS) {
       //   sendMessage(
       //     {
@@ -164,7 +165,7 @@ const storageChangeListener = () => {
           if (key === 'NETWORK') {
             NETWORK = newValue
             if (VERBOSE) console.log('BG : broadcasting chainChanged')
-            notifyEventChange('ambireWalletChainChanged', { chainId: newValue })
+            notifyEventChange('ambireWalletChainChanged', { chainId: newValue.chainId })
           }
         }
       }
@@ -360,8 +361,8 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
       result = [SELECTED_ACCOUNT]
     } else if (method === 'eth_chainId' || method === 'net_version') {
       // TODO:
-      result = NETWORK.chainId
-      // result = hexlify(NETWORK.chainId)
+      // result = NETWORK.chainId
+      result = hexlify(NETWORK.chainId)
     } else if (method === 'wallet_requestPermissions') {
       result = [{ parentCapability: 'eth_accounts' }]
     } else if (method === 'wallet_getPermissions') {
