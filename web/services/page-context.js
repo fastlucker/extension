@@ -352,7 +352,7 @@ const initPageContext = async () => {
         chainChanged(message.data.chainId)
       })
 
-      addMessageHandler({ type: 'ambireWalletDisconnected' }, (message) => {
+      addMessageHandler({ type: 'ambireWalletDisconnected' }, () => {
         if (VERBOSE > 1) console.log('pageContext: emitting event disconnect')
         window.ethereum.emit('disconnect')
         window.web3.currentProvider.emit('disconnect')
