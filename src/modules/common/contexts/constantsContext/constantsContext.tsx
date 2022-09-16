@@ -1,4 +1,4 @@
-import useConstants, { ConstantsType } from 'ambire-common/src/hooks/useConstants'
+import useConstants, { UseConstantsReturnType } from 'ambire-common/src/hooks/useConstants'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -15,11 +15,9 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
 const ConstantsContext = createContext<{
-  constants: ConstantsType | null
-  isLoading: boolean
+  constants: UseConstantsReturnType['constants']
 }>({
-  constants: null,
-  isLoading: true
+  constants: null
 })
 
 const ConstantsProvider: React.FC = ({ children }) => {
@@ -65,9 +63,7 @@ const ConstantsProvider: React.FC = ({ children }) => {
   const LoadingView = null
 
   return (
-    <ConstantsContext.Provider
-      value={useMemo(() => ({ constants, isLoading }), [constants, isLoading])}
-    >
+    <ConstantsContext.Provider value={useMemo(() => ({ constants }), [constants])}>
       {isLoading ? LoadingView : hasError ? ErrorView : children}
     </ConstantsContext.Provider>
   )
