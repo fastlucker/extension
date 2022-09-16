@@ -1,6 +1,6 @@
 // The most important part of the extension
 // background workers are killed and respawned (chrome MV3) when contentScript are calling them. Firefox does not support MV3 yet but is working on it. Fortunately MV3 > MV2 is easier to migrate/support than MV2 > MV3
-import { getDefaultProvider, BigNumber, hexlify } from '../modules/ethers.esm.min.js'
+import { getDefaultProvider, BigNumber, ethers } from '../modules/ethers.esm.min.js'
 
 import {
   setupAmbexMessenger,
@@ -127,6 +127,7 @@ const isStorageLoaded = () =>
         NETWORK = { ...NETWORK, ...result.NETWORK }
         SELECTED_ACCOUNT = result.SELECTED_ACCOUNT || SELECTED_ACCOUNT
         storageLoaded = true
+        browserAPI.storage.local.set({ USER_ACTION_NOTIFICATIONS: {} })
         res(true)
       }
     )
@@ -137,21 +138,21 @@ const storageChangeListener = () => {
     if (NETWORK.chainId && SELECTED_ACCOUNT) {
       // eslint-disable-next-line no-restricted-syntax, guard-for-in
       // TODO:
-      // for (const tabId in TAB_INJECTIONS) {
-      //   sendMessage(
-      //     {
-      //       to: 'pageContext',
-      //       toTabId: tabId * 1,
-      //       type: 'ambireWalletConnected',
-      //       data: {
-      //         account: SELECTED_ACCOUNT,
-      //         chainId: NETWORK.chainId
-      //       }
-      //     },
-      //     { ignoreReply: true }
-      //   )
-      //   updateExtensionIcon(tabId * 1, PENDING_PERMISSIONS_CALLBACKS)
-      // }
+      for (const tabId in TAB_INJECTIONS) {
+        sendMessage(
+          {
+            to: 'pageContext',
+            toTabId: tabId * 1,
+            type: 'ambireWalletConnected',
+            data: {
+              account: SELECTED_ACCOUNT,
+              chainId: NETWORK.chainId
+            }
+          },
+          { ignoreReply: true }
+        )
+        updateExtensionIcon(tabId * 1, PENDING_PERMISSIONS_CALLBACKS)
+      }
     }
     chrome.storage.onChanged.addListener((changes, namespace) => {
       if (namespace === 'local') {
@@ -360,9 +361,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
     if (method === 'eth_accounts' || method === 'eth_requestAccounts') {
       result = [SELECTED_ACCOUNT]
     } else if (method === 'eth_chainId' || method === 'net_version') {
-      // TODO:
-      // result = NETWORK.chainId
-      result = hexlify(NETWORK.chainId)
+      result = ethers.utils.hexlify(NETWORK.chainId)
     } else if (method === 'wallet_requestPermissions') {
       result = [{ parentCapability: 'eth_accounts' }]
     } else if (method === 'wallet_getPermissions') {
