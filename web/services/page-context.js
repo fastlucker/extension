@@ -147,7 +147,7 @@ const initPageContext = async () => {
     window.web3.currentProvider.emit('accountsChanged', account ? [account] : [])
   }
 
-  // inform chain that accounts were changed
+  // inform dapp that chain was changed
   function chainChanged(chainId) {
     if (VERBOSE > 1) console.log('chainChanged', chainId)
     window.ethereum.emit('chainChanged', chainId)
