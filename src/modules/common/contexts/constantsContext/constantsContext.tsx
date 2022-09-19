@@ -62,9 +62,17 @@ const ConstantsProvider: React.FC = ({ children }) => {
   // will always be present while this provider is loading.
   const LoadingView = null
 
+  const render = () => {
+    if (isLoading) {
+      return LoadingView
+    }
+
+    return hasError ? ErrorView : children
+  }
+
   return (
     <ConstantsContext.Provider value={useMemo(() => ({ constants }), [constants])}>
-      {isLoading ? LoadingView : hasError ? ErrorView : children}
+      {render()}
     </ConstantsContext.Provider>
   )
 }
