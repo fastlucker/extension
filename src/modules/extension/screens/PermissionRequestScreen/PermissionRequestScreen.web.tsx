@@ -11,6 +11,8 @@ import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
+import useAccounts from '@modules/common/hooks/useAccounts'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -26,6 +28,8 @@ setupAmbexMessenger('contentScript', browserAPI)
 
 const PermissionRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
+  const { selectedAcc: selectedAccount } = useAccounts()
+  const { network } = useNetwork()
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -59,23 +63,28 @@ const PermissionRequestScreen = ({ navigation }: any) => {
 
   const handlePermission = (permitted: boolean) => {
     setLoading(true)
-    sendMessage({
-      type: 'grantPermission',
-      to: 'background',
-      data: {
-        permitted,
-        targetHost
-      }
-    })
-      .then((message) => {
-        console.log('MESSAGE', message)
-        setFeedback({ success: true, permitted })
+    if (permitted) {
+      console.log(selectedAccount, network)
+      browserAPI.storage.local.set({ SELECTED_ACCOUNT: selectedAccount, NETWORK: network }, () => {
+        sendMessage({
+          type: 'grantPermission',
+          to: 'background',
+          data: {
+            permitted,
+            targetHost
+          }
+        })
+          .then((message) => {
+            console.log('MESSAGE', message)
+            setFeedback({ success: true, permitted })
+          })
+          .catch((err) => {
+            // TODO should not happen but in case, implement something nicer for the user?
+            console.log('ERR', err)
+            setFeedback({ success: false, permitted })
+          })
       })
-      .catch((err) => {
-        // TODO should not happen but in case, implement something nicer for the user?
-        console.log('ERR', err)
-        setFeedback({ success: false, permitted })
-      })
+    }
   }
 
   useEffect(() => {
@@ -83,7 +92,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
       setLoading(false)
       setTimeout(() => setFeedbackCloseAnimated(true), 100)
       setTimeout(() => {
-        // window.close()
+        window.close()
       }, 1200)
     }
   }, [feedback, authStatus, navigation])

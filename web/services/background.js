@@ -291,35 +291,6 @@ addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
   })
 })
 
-// getting tab status (called from popup)
-addMessageHandler({ type: 'getTabStatus' }, (message) => {
-  isStorageLoaded().then(async () => {
-    let walletInjected = false
-    const tabInjected = TAB_INJECTIONS[message.data.tabId]
-
-    // TODO replace by ping?
-    await sendMessage({
-      type: 'keepalive',
-      to: 'ambirePageContext'
-    })
-      .then((reply) => {
-        if (reply && reply.data) {
-          walletInjected = true
-        }
-      })
-      .catch((e) => {
-        console.warn('No reply from ambire tabs', e)
-      })
-
-    sendReply(message, {
-      data: {
-        walletInjected,
-        tabInjected
-      }
-    })
-  })
-})
-
 const sanitize2hex = (any) => {
   if (VERBOSE > 2) console.warn(`instanceof of any is ${any instanceof BigNumber}`)
   if (any instanceof BigNumber) {

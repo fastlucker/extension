@@ -94,7 +94,7 @@ const initPageContext = async () => {
       }
       sendMessage(
         {
-          to: 'background',
+          to: 'ambirePageContext',
           type: 'web3Call',
           data: requestPayload
         },

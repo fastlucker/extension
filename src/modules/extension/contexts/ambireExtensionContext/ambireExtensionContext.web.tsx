@@ -21,8 +21,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (selectedAccount && network) {
-      browserAPI.storage.local.set({ SELECTED_ACCOUNT: selectedAccount })
-      browserAPI.storage.local.set({ NETWORK: network })
+      browserAPI.storage.local.set({ SELECTED_ACCOUNT: selectedAccount, NETWORK: network })
     }
 
     // Post-focus, display a message to the user to make him understand why he switched tabs automatically
