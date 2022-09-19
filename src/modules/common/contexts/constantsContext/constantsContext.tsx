@@ -1,6 +1,6 @@
 import useConstants, { UseConstantsReturnType } from 'ambire-common/src/hooks/useConstants'
 import * as SplashScreen from 'expo-splash-screen'
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Satellite from '@assets/svg/Satellite'
@@ -34,41 +34,44 @@ const ConstantsProvider: React.FC = ({ children }) => {
     }
   }, [hasError])
 
-  const retry = async () => {
+  const retry = useCallback(async () => {
     setIsRetrying(true)
     await retryFetch()
 
     setIsRetrying(false)
-  }
+  }, [retryFetch])
 
-  const ErrorView = (
-    <GradientBackgroundWrapper>
-      <Wrapper contentContainerStyle={flexboxStyles.center}>
-        <Satellite style={spacings.mbLg} />
-        <Title style={textStyles.center}>{t("Can't connect to our server")}</Title>
-        <Text style={[spacings.mb, spacings.mhTy, textStyles.center]}>
-          {t('Something went wrong, but your funds are safe! Please try again later.')}
-        </Text>
-        <Button
-          text={isRetrying ? t('Retrying...') : t('Retry')}
-          disabled={isRetrying}
-          onPress={retry}
-        />
-      </Wrapper>
-    </GradientBackgroundWrapper>
+  const ErrorView = useMemo(
+    () => (
+      <GradientBackgroundWrapper>
+        <Wrapper contentContainerStyle={flexboxStyles.center}>
+          <Satellite style={spacings.mbLg} />
+          <Title style={textStyles.center}>{t("Can't connect to our server")}</Title>
+          <Text style={[spacings.mb, spacings.mhTy, textStyles.center]}>
+            {t('Something went wrong, but your funds are safe! Please try again later.')}
+          </Text>
+          <Button
+            text={isRetrying ? t('Retrying...') : t('Retry')}
+            disabled={isRetrying}
+            onPress={retry}
+          />
+        </Wrapper>
+      </GradientBackgroundWrapper>
+    ),
+    [t, isRetrying, retry]
   )
 
-  // No need for another (custom) loading view, because the splash screen
-  // will always be present while this provider is loading.
-  const LoadingView = null
+  const render = useCallback(() => {
+    // No need for another (custom) loading view, because the splash screen
+    // will always be present while this provider is loading.
+    const LoadingView = null
 
-  const render = () => {
     if (isLoading) {
       return LoadingView
     }
 
     return hasError ? ErrorView : children
-  }
+  }, [isLoading, hasError, ErrorView, children])
 
   return (
     <ConstantsContext.Provider value={useMemo(() => ({ constants }), [constants])}>
