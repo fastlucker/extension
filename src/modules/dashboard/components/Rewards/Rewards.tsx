@@ -9,7 +9,7 @@ import { RewardIds } from 'ambire-common/src/hooks/useRewards/types'
 import useStakedWalletToken from 'ambire-common/src/hooks/useStakedWalletToken'
 import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Linking, TouchableOpacity, View } from 'react-native'
+import { Alert, Linking, ScrollView, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
@@ -160,9 +160,12 @@ const Rewards = () => {
       >
         <Title style={textStyles.center}>{t('Wallet token distribution')}</Title>
 
-        <View style={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}>
+        <ScrollView
+          horizontal
+          contentContainerStyle={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}
+        >
           {multiplierBadges.map(renderBadge)}
-        </View>
+        </ScrollView>
 
         <Text type="caption" style={[spacings.mbSm, textStyles.center]}>
           <Text type="caption">
