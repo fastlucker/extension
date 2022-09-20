@@ -64,7 +64,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   const handlePermission = (permitted: boolean) => {
     setLoading(true)
     if (permitted) {
-      console.log(selectedAccount, network)
+      console.log('APP', selectedAccount, network)
       browserAPI.storage.local.set({ SELECTED_ACCOUNT: selectedAccount, NETWORK: network }, () => {
         sendMessage({
           type: 'grantPermission',
@@ -92,7 +92,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
       setLoading(false)
       setTimeout(() => setFeedbackCloseAnimated(true), 100)
       setTimeout(() => {
-        window.close()
+        // window.close()
       }, 1200)
     }
   }, [feedback, authStatus, navigation])

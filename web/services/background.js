@@ -93,10 +93,6 @@ async function deferTick(host, queue) {
   }
 }
 
-function isInjectableTab(tab) {
-  return tab && tab.url && tab.url.startsWith('http')
-}
-
 const storageChangeListener = () => {
   isStorageLoaded().then(() => {
     if (NETWORK.chainId && SELECTED_ACCOUNT) {
@@ -200,6 +196,14 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
   PERMISSIONS[message.data.targetHost] = message.data.permitted
   isStorageLoaded().then(() => {
     savePermissionsInStorage()
+    if (message.data.permitted) {
+      browserAPI.storage.local.get(['NETWORK', 'SELECTED_ACCOUNT'], (result) => {
+        notifyEventChange('ambireWalletConnected', {
+          account: result.SELECTED_ACCOUNT,
+          chainId: result.NETWORK.chainId
+        })
+      })
+    }
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
       updateExtensionIcon(i, TAB_INJECTIONS, PERMISSIONS, PENDING_PERMISSIONS_CALLBACKS)
@@ -248,12 +252,12 @@ const sanitize2hex = (any) => {
 // Handling web3 calls
 addMessageHandler({ type: 'web3Call' }, async (message) => {
   isStorageLoaded().then(async () => {
-    if (!NETWORK || !SELECTED_ACCOUNT) {
-      sendReply(message, {
-        error: 'Error'
-      })
-      return
-    }
+    // if (!NETWORK || !SELECTED_ACCOUNT) {
+    //   sendReply(message, {
+    //     error: 'Error'
+    //   })
+    //   return
+    // }
     VERBOSE > 0 && console.log('ambirePC: web3CallRequest', message)
     const provider = getDefaultProvider(NETWORK.rpc)
 
@@ -510,6 +514,10 @@ const openAuthPopup = async (host, queue) => {
     PERMISSION_WINDOWS[host] = -1 // pending creation
     deferCreateWindow(host, queue)
   }
+}
+
+function isInjectableTab(tab) {
+  return tab && tab.url && tab.url.startsWith('http')
 }
 
 const notifyEventChange = (type, data) => {
