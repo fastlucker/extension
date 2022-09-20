@@ -14,26 +14,24 @@ import {
 import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
 import { browserAPI } from '../constants/browserAPI.js'
 import { updateExtensionIcon } from '../functions/updateExtensionIcon.js'
+import {
+  TAB_INJECTIONS,
+  PERMISSIONS,
+  USER_ACTION_NOTIFICATIONS,
+  NETWORK,
+  SELECTED_ACCOUNT,
+  isStorageLoaded,
+  saveTabInjectionsInStorage,
+  savePermissionsInStorage,
+  saveUserActionNotificationsInStorage,
+  setSelectedAccount,
+  setNetwork
+} from '../functions/storage.js'
 
 setupAmbexMessenger('background', browserAPI)
 setPermissionMiddleware((message, sender, callback) => {
   requestPermission(message, sender, callback)
 })
-
-// FF compatibility
-if (IS_FIREFOX) {
-  browserAPI.action = browserAPI.browserAction
-}
-
-// Storage
-// which tabs are injected tabId => true
-let TAB_INJECTIONS = {}
-// permissions host => true/false
-let PERMISSIONS = {}
-// pending notifications asking for user attention (sign / send tx)
-let USER_ACTION_NOTIFICATIONS = {}
-let NETWORK = {}
-let SELECTED_ACCOUNT = ''
 
 // find a way to store the state and exec callbacks?
 const PENDING_PERMISSIONS_CALLBACKS = {}
@@ -95,43 +93,9 @@ async function deferTick(host, queue) {
   }
 }
 
-// bool, if worker got initialized
-let storageLoaded
-
-// like [].filter but for objects
-function filterObject(obj, callback) {
-  return Object.fromEntries(Object.entries(obj).filter(([key, val]) => callback(val, key)))
-}
-
 function isInjectableTab(tab) {
   return tab && tab.url && tab.url.startsWith('http')
 }
-
-// Used everywhere when we need to access a consistent state of the background worker
-// if not loaded, update the state vars with the latest from local storage
-const isStorageLoaded = () =>
-  new Promise((res) => {
-    if (storageLoaded) {
-      res(true)
-      return
-    }
-    browserAPI.storage.local.get(
-      ['TAB_INJECTIONS', 'PERMISSIONS', 'USER_ACTION_NOTIFICATIONS', 'NETWORK', 'SELECTED_ACCOUNT'],
-      (result) => {
-        TAB_INJECTIONS = { ...TAB_INJECTIONS, ...result.TAB_INJECTIONS }
-        PERMISSIONS = { ...PERMISSIONS, ...result.PERMISSIONS }
-        USER_ACTION_NOTIFICATIONS = {
-          ...USER_ACTION_NOTIFICATIONS,
-          ...result.USER_ACTION_NOTIFICATIONS
-        }
-        NETWORK = { ...NETWORK, ...result.NETWORK }
-        SELECTED_ACCOUNT = result.SELECTED_ACCOUNT || SELECTED_ACCOUNT
-        storageLoaded = true
-        browserAPI.storage.local.set({ USER_ACTION_NOTIFICATIONS: {} })
-        res(true)
-      }
-    )
-  })
 
 const storageChangeListener = () => {
   isStorageLoaded().then(() => {
@@ -147,12 +111,12 @@ const storageChangeListener = () => {
         // eslint-disable-next-line no-restricted-syntax
         for (const [key, { newValue }] of Object.entries(changes)) {
           if (key === 'SELECTED_ACCOUNT') {
-            SELECTED_ACCOUNT = newValue
+            setSelectedAccount(newValue)
             if (VERBOSE) console.log('BG : broadcasting accountChanged')
             notifyEventChange('ambireWalletAccountChanged', { account: newValue })
           }
           if (key === 'NETWORK') {
-            NETWORK = newValue
+            setNetwork(newValue)
             if (VERBOSE) console.log('BG : broadcasting chainChanged')
             notifyEventChange('ambireWalletChainChanged', { chainId: newValue.chainId })
           }
@@ -177,28 +141,6 @@ storageChangeListener()
 /* setTimeout(() => {
   storageLoaded = false
 }, 5000) */
-
-// save tab injections in local storage
-const saveTabInjections = () => {
-  isStorageLoaded().then(() => {
-    browserAPI.storage.local.set({ TAB_INJECTIONS: filterObject(TAB_INJECTIONS, (k, v) => v) })
-  })
-}
-
-// save tab permissions in local storage
-const savePermissions = (cb) => {
-  isStorageLoaded().then(() => {
-    browserAPI.storage.local.set({ PERMISSIONS }, cb)
-  })
-}
-
-// save user notifications(when interaction required) in local storage
-const saveUserActionNotifications = (cb) => {
-  isStorageLoaded().then(() => {
-    if (VERBOSE > 4) console.debug('saving user action notifications', USER_ACTION_NOTIFICATIONS)
-    browserAPI.storage.local.set({ USER_ACTION_NOTIFICATIONS }, cb)
-  })
-}
 
 // useful for debug purposes, display a notification whenever background worker is reloaded
 if (VERBOSE > 1) {
@@ -243,7 +185,7 @@ addMessageHandler({ type: 'pageContextInjected' }, (message) => {
       `[INJECTED TAB ${message.fromTabId}], overridden : ${message.data.overridden}, existing : ${message.data.existing}`
     )
   TAB_INJECTIONS[message.fromTabId] = true
-  saveTabInjections()
+  saveTabInjectionsInStorage()
   updateExtensionIcon(message.fromTabId, TAB_INJECTIONS, PERMISSIONS, PENDING_PERMISSIONS_CALLBACKS)
 })
 
@@ -257,7 +199,7 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
   }
   PERMISSIONS[message.data.targetHost] = message.data.permitted
   isStorageLoaded().then(() => {
-    savePermissions()
+    savePermissionsInStorage()
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
       updateExtensionIcon(i, TAB_INJECTIONS, PERMISSIONS, PENDING_PERMISSIONS_CALLBACKS)
@@ -281,7 +223,7 @@ addMessageHandler({ type: 'getPermissionsList' }, (message) => {
 addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
   isStorageLoaded().then(() => {
     delete PERMISSIONS[message.data.host]
-    savePermissions(() => {
+    savePermissionsInStorage(() => {
       sendAck(message)
     })
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
@@ -487,7 +429,7 @@ addMessageHandler({ type: 'userInterventionNotification' }, (message) => {
   isStorageLoaded().then(() => {
     const notificationId = `ambireNotification${Math.random()}`
     USER_ACTION_NOTIFICATIONS[notificationId] = true
-    saveUserActionNotifications()
+    saveUserActionNotificationsInStorage()
 
     const createNotification = () => {
       const iconURL = chrome.runtime.getURL('../assets/images/extension_enabled.png')
@@ -510,7 +452,7 @@ addMessageHandler({ type: 'userInterventionNotification' }, (message) => {
         setTimeout(() => {
           browserAPI.notifications.clear(notificationId)
           delete USER_ACTION_NOTIFICATIONS[notificationId]
-          saveUserActionNotifications()
+          saveUserActionNotificationsInStorage()
         }, 30 * 1000)
       })
     }
@@ -600,7 +542,7 @@ const notifyEventChange = (type, data) => {
         .get(tabId * 1)
         .then(callback)
         .catch((e) => {
-          // ignore
+          console.log('Error getting tab', e)
         })
     }
   }
@@ -637,7 +579,7 @@ const requestPermission = async (message, sender, callback) => {
       if (VERBOSE) console.log(`already callback pending for ${host} ${diff / 1000} secs ago...`)
       PENDING_PERMISSIONS_CALLBACKS[host].callbacks.push((permitted) => {
         PERMISSIONS[host] = permitted
-        savePermissions()
+        savePermissionsInStorage()
         callback(permitted)
       })
     } else {

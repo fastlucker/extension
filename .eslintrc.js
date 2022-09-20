@@ -3,6 +3,10 @@ module.exports = {
   rules: {
     'import/extensions': 'off'
   },
+  env: {
+    "browser": true,
+    "node": true
+  },
   parserOptions: {
     project: './tsconfig.json'
   },
@@ -13,6 +17,7 @@ module.exports = {
     'browser': 'readonly',
     '__dirname': 'readonly',
     'chromeTargetConfig': 'writable',
-    'firefoxTargetConfig': 'writable'
+    'firefoxTargetConfig': 'writable',
+    'Web3': true
   }
 }
