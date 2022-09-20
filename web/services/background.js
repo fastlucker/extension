@@ -27,6 +27,7 @@ import {
   setSelectedAccount,
   setNetwork
 } from '../functions/storage.js'
+import { PERMISSION_WINDOWS, deferCreateWindow } from '../functions/deferCreateWindow.js'
 
 setupAmbexMessenger('background', browserAPI)
 setPermissionMiddleware((message, sender, callback) => {
@@ -35,63 +36,6 @@ setPermissionMiddleware((message, sender, callback) => {
 
 // find a way to store the state and exec callbacks?
 const PENDING_PERMISSIONS_CALLBACKS = {}
-const PERMISSION_WINDOWS = {}
-const DEFERRED_PERMISSION_WINDOWS = {}
-
-// Dirty hack because of concurrent threads when windows.create that would result in multiple windows popping up
-function deferCreateWindow(host, queue) {
-  if (!DEFERRED_PERMISSION_WINDOWS[host]) {
-    DEFERRED_PERMISSION_WINDOWS[host] = {
-      ts: new Date().getTime(),
-      count: 0
-    }
-  } else {
-    DEFERRED_PERMISSION_WINDOWS[host].count++
-  }
-  setTimeout(() => {
-    deferTick(host, queue)
-  }, 100)
-}
-
-async function deferTick(host, queue) {
-  if (DEFERRED_PERMISSION_WINDOWS[host]) {
-    DEFERRED_PERMISSION_WINDOWS[host] = false
-    const zoom = 0.7
-    const popupWidth = 600 * zoom
-    const popupHeight = 830 * zoom
-
-    // getting last focused window to position our popup correctly
-    const lastFocused = await browserAPI.windows.getLastFocused()
-
-    const windowMarginRight = 20
-    const windowMarginTop = 80
-
-    const popupLeft = lastFocused.left + lastFocused.width - popupWidth - windowMarginRight
-    const popupTop = lastFocused.top + windowMarginTop
-
-    const createData = {
-      type: 'panel',
-      url: `index.html?initialRoute=permission-request&host=${host}&queue=${btoa(
-        JSON.stringify(queue)
-      )}`,
-      width: popupWidth,
-      height: popupHeight,
-      left: popupLeft,
-      top: popupTop
-    }
-    const creating = browserAPI.windows.create(createData)
-    creating.then((c) => {
-      PERMISSION_WINDOWS[host] = c.id
-      // FF does not place popup correctly on creation so we force update...
-      browserAPI.windows.update(c.id, {
-        left: popupLeft,
-        top: popupTop,
-        focused: true,
-        drawAttention: true
-      })
-    })
-  }
-}
 
 const storageChangeListener = () => {
   isStorageLoaded().then(() => {
@@ -185,7 +129,7 @@ addMessageHandler({ type: 'pageContextInjected' }, (message) => {
   updateExtensionIcon(message.fromTabId, TAB_INJECTIONS, PERMISSIONS, PENDING_PERMISSIONS_CALLBACKS)
 })
 
-// User click reply from auth popup
+// User click reply from request permission popup
 addMessageHandler({ type: 'grantPermission' }, (message) => {
   if (PENDING_PERMISSIONS_CALLBACKS[message.data.targetHost]) {
     PENDING_PERMISSIONS_CALLBACKS[message.data.targetHost].callbacks.forEach((c) => {
@@ -475,18 +419,11 @@ addMessageHandler({ type: 'userInterventionNotification' }, (message) => {
   })
 })
 
-addMessageHandler({ type: 'openAuthPopup' }, (message) => {
-  isStorageLoaded().then(() => {
-    // Might want to pile up msgs with debounce in future
-    openAuthPopup(message.data.host, [message])
-  })
-})
-
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^
 // HANDLERS END
 /// /////////////////////////
 
-const openAuthPopup = async (host, queue) => {
+const openRequestPermissionPopup = async (host, queue) => {
   // for some reason, chrome defined at the top, at this moment of code execution does not return any windows information but browser (which is supposed to alias chrome) has
   // fixed with browserAPI = browser || chrome instead of the opposite
   // If there is a popup window open for this host in our cache
@@ -512,7 +449,7 @@ const openAuthPopup = async (host, queue) => {
       `creating window because permission windows for ${host} is ${PERMISSION_WINDOWS[host]}`
     )
     PERMISSION_WINDOWS[host] = -1 // pending creation
-    deferCreateWindow(host, queue)
+    deferCreateWindow(host, queue, 'permission-request')
   }
 }
 
@@ -620,7 +557,7 @@ const requestPermission = async (message, sender, callback) => {
         )
 
         // Might want to pile up msgs with debounce in future
-        openAuthPopup(host, [message])
+        openRequestPermissionPopup(host, [message])
       })
     }
   }

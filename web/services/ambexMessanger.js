@@ -227,16 +227,14 @@ const handleMessage = function (message, sender = null) {
       checkForwardPermission(message, sender, (granted) => {
         // WEIRD BEHAVIOR ON FIREFOX, probably shared memory for variable message. Would exit thread when message is modified. Fixed with passing it through messageToForward
         const messageToForward = JSON.parse(JSON.stringify(message))
-        // Background is the gate letting pass messages or not
-        if (RELAYER === 'background') {
-          if (sender.tab) {
-            messageToForward.fromTabId = sender.tab.id
-          } else if (
-            sender.origin.startsWith('chrome-extension') ||
-            sender.origin.startsWith('moz-extension')
-          ) {
-            messageToForward.fromTabId = 'extension'
-          }
+
+        if (sender.tab) {
+          messageToForward.fromTabId = sender.tab.id
+        } else if (
+          sender.origin.startsWith('chrome-extension') ||
+          sender.origin.startsWith('moz-extension')
+        ) {
+          messageToForward.fromTabId = 'extension'
         }
 
         // if permission granted
@@ -479,12 +477,10 @@ const sendMessageInternal = async (message) => {
     }
   } else if (RELAYER === 'pageContext') {
     if (VERBOSE) {
-      if (RELAYER === 'pageContext') {
-        console.log(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message PC -> CS:`,
-          message
-        )
-      }
+      console.log(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message PC -> CS:`,
+        message
+      )
     }
 
     // passing up to contentScripts
@@ -540,14 +536,12 @@ const sendMessage = (message, options = {}) => {
     // add a handler for the reply if there is a callback specified
     if (!options.ignoreReply) {
       addMessageHandler(handlerFilter, (reply, error) => {
-        // error coming from HANDLERS[handlerIndex].callback(message, message.error)
         resolved = true
         if (VERBOSE > 2)
           console.log(
             `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] clearing timeout listener`,
             message
           )
-        // clearTimeout(timeoutHandler)
         removeMessageHandler(handlerFilter)
         if (error) {
           return reject(new Error(error))
