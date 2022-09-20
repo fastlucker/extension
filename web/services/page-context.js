@@ -2,6 +2,7 @@
 // this is where we can inject web3
 const initPageContext = async () => {
   const { VERBOSE } = await import('../constants/env.js')
+  const { PAGE_CONTEXT } = await import('../constants/paths.js')
   const { sendMessage, makeRPCError, addMessageHandler, setupAmbexMessenger } = await import(
     './ambexMessanger.js'
   )
@@ -335,7 +336,7 @@ const initPageContext = async () => {
 
     // if never injected, setup listeners and handlers
     if (!window.ambexMessengerSetup) {
-      setupAmbexMessenger('pageContext')
+      setupAmbexMessenger(PAGE_CONTEXT)
       // TODO CHECK IN WHICH CASE WE NEED TO REPORT THIS A SECOND TIME (post load)
       sendMessage(
         {

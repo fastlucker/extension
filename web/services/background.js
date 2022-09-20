@@ -13,6 +13,7 @@ import {
 } from './ambexMessanger.js'
 import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
 import { browserAPI } from '../constants/browserAPI.js'
+import { PAGE_CONTEXT, CONTENT_SCRIPT, BACKGROUND } from '../constants/paths.js'
 import { updateExtensionIcon } from '../functions/updateExtensionIcon.js'
 import {
   TAB_INJECTIONS,
@@ -29,7 +30,7 @@ import {
 } from '../functions/storage.js'
 import { PERMISSION_WINDOWS, deferCreateWindow } from '../functions/deferCreateWindow.js'
 
-setupAmbexMessenger('background', browserAPI)
+setupAmbexMessenger(BACKGROUND, browserAPI)
 setPermissionMiddleware((message, sender, callback) => {
   requestPermission(message, sender, callback)
 })
@@ -111,7 +112,7 @@ if (VERBOSE > 1) {
 // HANDLERS START
 // vvvvvvvvvvvvvvvvvvvvvvv
 
-// When contentScript is injected, prepare injection of pageContext
+// When CONTENT_SCRIPT is injected, prepare injection of PAGE_CONTEXT
 addMessageHandler({ type: 'contentScriptInjected' }, (message) => {
   sendReply(message, {
     data: { ack: true }
@@ -467,7 +468,7 @@ const notifyEventChange = (type, data) => {
         sendMessage(
           {
             toTabId: tab.id,
-            to: 'pageContext',
+            to: PAGE_CONTEXT,
             type,
             data
           },
@@ -495,7 +496,7 @@ const notifyEventChange = (type, data) => {
   console.log('NOTIFY EVENT CHANGE....')
   sendMessage(
     {
-      to: 'contentScript',
+      to: CONTENT_SCRIPT,
       toTabId: 'extension',
       type,
       data

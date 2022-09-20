@@ -3,13 +3,18 @@
 // There are 3 possible actors for the communication, and a message has to follow this path (from one end to the other)
 // Used to know for the current relayer to who to forward
 import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
+import {
+  PAGE_CONTEXT,
+  CONTENT_SCRIPT,
+  BACKGROUND,
+  PATHS,
+  RELAYER_VERBOSE_TAG
+} from '../constants/paths.js'
 
-const PATH = ['pageContext', 'contentScript', 'background']
-
-// Explicitly tell the background worker which domains are ambire wallet domains when sending a message. In the forwarding middleware ( ambire -> dapp always OK, dapp -> ambire, only if permitted)
+// Explicitly tell the BACKGROUND worker which domains are ambire wallet domains when sending a message. In the forwarding middleware ( ambire -> dapp always OK, dapp -> ambire, only if permitted)
 const AMBIRE_DOMAINS = []
 
-// The name of the current process handling the msg (itself). can be pageContext (dapp page), contentScript (dappPage with more permissions) and background. Sometimes "I, me" is mentioned, it refers to RELAYER (the relayer is talking)
+// The name of the current process handling the msg (itself). can be PAGE_CONTEXT (dapp page), CONTENT_SCRIPT (dappPage with more permissions) and BACKGROUND. Sometimes "I, me" is mentioned, it refers to RELAYER (the relayer is talking)
 let RELAYER
 
 // callbacks for listeners from addMessageHandler
@@ -18,25 +23,17 @@ const HANDLERS = []
 // to be part of the JSON RPC generated ids when sendingMessage
 let MSGCOUNT = 0
 
-// Middleware func for background worker
+// Middleware func for BACKGROUND worker
 let PERMISSION_MIDDLEWARE
 
 // window listener handler
 let WINDOWLISTENER
 
-// for background only, messages coming in before background worker is fully initialized are stored in this queue to be processed after initialization
+// for BACKGROUND only, messages coming in before BACKGROUND worker is fully initialized are stored in this queue to be processed after initialization
 let INIT_MSG_QUEUE = []
 
-// for background only, bool
+// for BACKGROUND only, bool
 let BACKGROUND_INITIALIZED
-
-// for verbosity in the console
-// Could create a log func to avoid repeating console logs with long concats
-const RELAYER_VERBOSE_TAG = {
-  pageContext: '🖲️️',
-  contentScript: '📺️',
-  background: '🧬'
-}
 
 // eslint-disable-next-line
 //haxx eslint react ambire wallet
@@ -46,7 +43,7 @@ if (typeof chrome !== 'undefined') {
   chromeObject = chrome
 }
 
-// Only necessary from background
+// Only necessary from BACKGROUND
 let BROWSER_API
 
 /**
@@ -58,16 +55,15 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
   BROWSER_API = browserAPI
   WINDOWLISTENER = (windowMessage) => handleMessage(windowMessage.data)
 
-  // If relayer is background
-  if (RELAYER === 'background') {
-    // listener for contentScript sent messages
+  if (RELAYER === BACKGROUND) {
+    // listener for CONTENT_SCRIPT sent messages
     chromeObject.runtime.onMessage.addListener((request, sender, sendResponse) => {
       console.log(`${RELAYER} JUST GOT A REQUEST`, request, sender)
 
-      // if background worker not initialized, put received message in queue, unless it's a keepalive request reply from ambire wallet
+      // if BACKGROUND worker not initialized, put received message in queue, unless it's a keepalive request reply from ambire wallet
       if (
         !BACKGROUND_INITIALIZED &&
-        !(request.isReply && request.to === 'background' && request.type === 'keepalive_reply')
+        !(request.isReply && request.to === BACKGROUND && request.type === 'keepalive_reply')
       ) {
         if (VERBOSE > 1)
           console.log(
@@ -84,15 +80,15 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
       }
     })
     // Higher API levels scripts, injected in each end page
-  } else if (RELAYER === 'contentScript') {
-    // listening to messages coming from background worker
+  } else if (RELAYER === CONTENT_SCRIPT) {
+    // listening to messages coming from BACKGROUND worker
 
     chromeObject.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      // Security check + avoid double routing, disallow direct handling, because when CS is broadcasting, both background and other CS-like receive it
+      // Security check + avoid double routing, disallow direct handling, because when CS is broadcasting, both BACKGROUND and other CS-like receive it
       // TODO firefox
       if (
         sender.url === `chrome-extension://${sender.id}/background.js` ||
-        // initially, it seems background sends msg without origin?!
+        // initially, it seems BACKGROUND sends msg without origin?!
         (!sender.url && sender.origin === 'null')
       ) {
         handleMessage(request)
@@ -100,7 +96,7 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
       }
 
       if (sender.url) {
-        if (RELAYER === 'contentScript') {
+        if (RELAYER === CONTENT_SCRIPT) {
           handleMessage(request)
         }
       }
@@ -108,10 +104,10 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
 
     if (VERBOSE > 2)
       console.log(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Add EVENT LISTENER`)
-    // also listening to messages coming from it's own page (pageContext)
+    // also listening to messages coming from it's own page (PAGE_CONTEXT)
     window.addEventListener('message', WINDOWLISTENER)
-  } else if (RELAYER === 'pageContext') {
-    // listening to messages coming from contentScripts
+  } else if (RELAYER === PAGE_CONTEXT) {
+    // listening to messages coming from CONTENT_SCRIPTs
     if (VERBOSE > 2)
       console.log(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Add EVENT LISTENER`)
     window.addEventListener('message', WINDOWLISTENER)
@@ -119,25 +115,25 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
 }
 
 const isCorrectForwardingPath = (relayer, source, destination, forwarders = []) => {
-  if (PATH.indexOf(source) === -1) {
+  if (PATHS.indexOf(source) === -1) {
     console.log('PathCheck: Unknown source', source)
     return false
   }
 
-  if (PATH.indexOf(destination) === -1) {
+  if (PATHS.indexOf(destination) === -1) {
     console.log('PathCheck: Unknown destination', destination)
     return false
   }
 
-  if (PATH.indexOf(relayer) === -1) {
+  if (PATHS.indexOf(relayer) === -1) {
     console.log('PathCheck: Unknown relayer', relayer)
     return false
   }
 
-  const relayerIndex = PATH.indexOf(relayer)
-  const destinationIndex = PATH.indexOf(destination)
+  const relayerIndex = PATHS.indexOf(relayer)
+  const destinationIndex = PATHS.indexOf(destination)
   const start = (!!forwarders.length && forwarders.slice(-1)[0]) || source
-  const startIndex = PATH.indexOf(start)
+  const startIndex = PATHS.indexOf(start)
 
   const direction = destinationIndex - startIndex > 0 ? 1 : -1
 
@@ -170,7 +166,7 @@ const handleMessage = function (message, sender = null) {
   // if I am the final message destination
   if (message.to === RELAYER) {
     // setting tabId origin (normal pages or extension pages/popups)
-    if (RELAYER === 'background') {
+    if (RELAYER === BACKGROUND) {
       if (IS_FIREFOX && sender.tab && sender.tab.url === 'about:addons') {
         message.fromTabId = 'extension'
       } else if (sender.tab) {
@@ -227,14 +223,16 @@ const handleMessage = function (message, sender = null) {
       checkForwardPermission(message, sender, (granted) => {
         // WEIRD BEHAVIOR ON FIREFOX, probably shared memory for variable message. Would exit thread when message is modified. Fixed with passing it through messageToForward
         const messageToForward = JSON.parse(JSON.stringify(message))
-
-        if (sender.tab) {
-          messageToForward.fromTabId = sender.tab.id
-        } else if (
-          sender.origin.startsWith('chrome-extension') ||
-          sender.origin.startsWith('moz-extension')
-        ) {
-          messageToForward.fromTabId = 'extension'
+        // Background is the gate letting pass messages or not
+        if (RELAYER === BACKGROUND) {
+          if (sender.tab) {
+            messageToForward.fromTabId = sender.tab.id
+          } else if (
+            sender.origin.startsWith('chrome-extension') ||
+            sender.origin.startsWith('moz-extension')
+          ) {
+            messageToForward.fromTabId = 'extension'
+          }
         }
 
         // if permission granted
@@ -296,7 +294,7 @@ const handleMessage = function (message, sender = null) {
       // WEIRD BEHAVIOR ON FIREFOX, probably shared memory for variable message. Would exit thread when message is modified. Fixed with passing it through messageToForward
       const messageToForward = JSON.parse(JSON.stringify(message))
       // Background is the gate letting pass messages or not
-      if (RELAYER === 'background') {
+      if (RELAYER === BACKGROUND) {
         if (sender.tab) {
           messageToForward.fromTabId = sender.tab.id
         } else if (
@@ -362,27 +360,26 @@ const handleMessage = function (message, sender = null) {
  * @param callback
  */
 const checkForwardPermission = (message, sender, callback) => {
-  // if I am background
-  if (RELAYER === 'background') {
-    if (message.from === 'contentScript' && message.to === 'contentScript') {
-      // from/to contentScript/extension page, always forward
+  if (RELAYER === BACKGROUND) {
+    if (message.from === CONTENT_SCRIPT && message.to === CONTENT_SCRIPT) {
+      // from/to CONTENT_SCRIPT/extension page, always forward
       callback(true, message)
     } else {
-      // from dapp pageContext, go through the middleware that checks if domain is permitted
+      // from dapp PAGE_CONTEXT, go through the middleware that checks if domain is permitted
       PERMISSION_MIDDLEWARE(message, sender, callback)
     }
   } else {
-    // if I am not background, always relay
+    // if I am not BACKGROUND, always relay
     callback(true, message)
   }
 }
 
-// called in background worker
+// called in BACKGROUND worker
 const setPermissionMiddleware = (callback) => {
   PERMISSION_MIDDLEWARE = callback
 }
 
-// called by background processing the pending queue potentially filled before background worker initialisation, then clear it
+// called by BACKGROUND processing the pending queue potentially filled before BACKGROUND worker initialisation, then clear it
 const processBackgroundQueue = () => {
   console.log('processing init pending messages queue', INIT_MSG_QUEUE)
   BACKGROUND_INITIALIZED = true
@@ -411,10 +408,10 @@ const sendMessageInternal = async (message) => {
       `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] try sendMessageInternal`,
       message
     )
-  // If I am background worker
-  if (RELAYER === 'background') {
+  // If I am BACKGROUND worker
+  if (RELAYER === BACKGROUND) {
     if (!message.toTabId) {
-      // if no toTabId specified, background does not know where to sent it
+      // if no toTabId specified, BACKGROUND does not know where to sent it
       if (VERBOSE)
         console.error(
           `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] toTabId must be specified for worker communication`,
@@ -433,7 +430,7 @@ const sendMessageInternal = async (message) => {
         )
       chromeObject.runtime.sendMessage(message)
     } else {
-      // for specific contentScript tabs
+      // for specific CONTENT_SCRIPT tabs
       // TODO if fromTabId url is extension > replace fromTabId with 'extension' for replies ?
       //  But what about isolated extension pages?
       if (VERBOSE)
@@ -444,11 +441,10 @@ const sendMessageInternal = async (message) => {
       chromeObject.runtime.sendMessage(message)
       chromeObject.tabs.sendMessage(message.toTabId, message)
     }
-  } else if (RELAYER === 'contentScript') {
+  } else if (RELAYER === CONTENT_SCRIPT) {
     // check in which direction to sent
-    const path = PATH
-    const pathIndex = path.indexOf(RELAYER)
-    const forwardPath = path.slice(pathIndex + 1, path.length)
+    const pathIndex = PATHS.indexOf(RELAYER)
+    const forwardPath = PATHS.slice(pathIndex + 1, PATHS.length)
 
     if (forwardPath.includes(message.to)) {
       // if next relayers are BG, ACS, APC
@@ -458,7 +454,7 @@ const sendMessageInternal = async (message) => {
           message
         )
       chromeObject.runtime.sendMessage(message)
-    } else if (message.to === 'contentScript') {
+    } else if (message.to === CONTENT_SCRIPT) {
       // other extension pages
       if (VERBOSE)
         console.log(
@@ -467,7 +463,7 @@ const sendMessageInternal = async (message) => {
         )
       chromeObject.runtime.sendMessage(message)
     } else {
-      // passing down to pageContext
+      // passing down to PAGE_CONTEXT
       if (VERBOSE)
         console.log(
           `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message CS -> PC:`,
@@ -475,7 +471,7 @@ const sendMessageInternal = async (message) => {
         )
       window.postMessage(message)
     }
-  } else if (RELAYER === 'pageContext') {
+  } else if (RELAYER === PAGE_CONTEXT) {
     if (VERBOSE) {
       console.log(
         `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message PC -> CS:`,
@@ -483,7 +479,7 @@ const sendMessageInternal = async (message) => {
       )
     }
 
-    // passing up to contentScripts
+    // passing up to CONTENT_SCRIPTs
     window.postMessage(message)
   }
 }

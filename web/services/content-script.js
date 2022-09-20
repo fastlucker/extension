@@ -3,11 +3,12 @@
 ;(async () => {
   const { VERBOSE } = await import('../constants/env.js')
   const { setupAmbexMessenger, sendMessage } = await import('./ambexMessanger.js')
+  const { CONTENT_SCRIPT, BACKGROUND } = await import('../constants/paths.js')
 
-  setupAmbexMessenger('contentScript')
+  setupAmbexMessenger(CONTENT_SCRIPT)
 
   // Tells background that we are injected
-  sendMessage({ type: 'contentScriptInjected', to: 'background' }).then((reply) => {
+  sendMessage({ type: 'contentScriptInjected', to: BACKGROUND }).then((reply) => {
     console.warn('should tell bg we are injected')
 
     if (reply.data && reply.data.ack) {
