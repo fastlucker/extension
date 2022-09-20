@@ -162,6 +162,7 @@ const Rewards = () => {
 
         <ScrollView
           horizontal
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}
         >
           {multiplierBadges.map(renderBadge)}
