@@ -87,11 +87,11 @@ const Rewards = () => {
     Alert.alert(
       t('Are you sure?'),
       t(
-        'This procedure will claim 70% of your outstanding rewards as $WALLET, and permanently burn the other 30%'
+        'This procedure will claim only 50% of your outstanding rewards as $WALLET, and permanently burn the rest. Are you sure?'
       ),
       [
         {
-          text: t('Confirm'),
+          text: t('Yes, claim anyway'),
           onPress: handleConfirm,
           style: 'destructive'
         },
