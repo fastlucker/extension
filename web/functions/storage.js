@@ -9,8 +9,6 @@ export let TAB_INJECTIONS = {}
 export let PERMISSIONS = {}
 // pending notifications asking for user attention (sign / send tx)
 export let USER_ACTION_NOTIFICATIONS = {}
-export let NETWORK = {}
-export let SELECTED_ACCOUNT = ''
 
 export const setTabInjections = (tabInjections) => {
   TAB_INJECTIONS = tabInjections
@@ -22,14 +20,6 @@ export const setPermissions = (permissions) => {
 
 export const setUserActionNotifications = (userActionNotifications) => {
   USER_ACTION_NOTIFICATIONS = userActionNotifications
-}
-
-export const setNetwork = (network) => {
-  NETWORK = network
-}
-
-export const setSelectedAccount = (selectedAccount) => {
-  SELECTED_ACCOUNT = selectedAccount
 }
 
 // bool, if worker got initialized
@@ -51,8 +41,6 @@ export const isStorageLoaded = () =>
           ...USER_ACTION_NOTIFICATIONS,
           ...result.USER_ACTION_NOTIFICATIONS
         }
-        NETWORK = { ...NETWORK, ...result.NETWORK }
-        SELECTED_ACCOUNT = result.SELECTED_ACCOUNT || SELECTED_ACCOUNT
         storageLoaded = true
         browserAPI.storage.local.set({ USER_ACTION_NOTIFICATIONS: {} })
         res(true)
@@ -85,4 +73,55 @@ export const saveUserActionNotificationsInStorage = (cb) => {
     if (VERBOSE > 4) console.debug('saving user action notifications', USER_ACTION_NOTIFICATIONS)
     browserAPI.storage.local.set({ USER_ACTION_NOTIFICATIONS }, cb)
   })
+}
+
+function checkForError() {
+  const { lastError } = browserAPI.runtime
+  if (!lastError) {
+    return undefined
+  }
+  // if it quacks like an Error, its an Error
+  if (lastError.stack && lastError.message) {
+    return lastError
+  }
+  // repair incomplete error object (eg chromium v77)
+  return new Error(lastError.message)
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
+const _get = async (keys = null) => {
+  const { local } = browserAPI.storage
+  return new Promise((resolve, reject) => {
+    local.get(keys).then((/** @type {any} */ result) => {
+      const err = checkForError()
+      if (err) {
+        reject(err)
+      } else {
+        resolve(result)
+      }
+    })
+  })
+}
+
+function isEmpty(obj) {
+  return Object.keys(obj).length === 0
+}
+
+/**
+ * Returns all of the keys currently saved
+ *
+ * @returns {Promise<*>}
+ */
+export const getStore = async (keys = null) => {
+  // TODO:
+  // if (!isSupported) {
+  //   return undefined
+  // }
+  const result = await _get(keys)
+  // extension.storage.local always returns an obj
+  // if the object is empty, treat it as undefined
+  if (isEmpty(result)) {
+    return undefined
+  }
+  return result
 }

@@ -1,8 +1,9 @@
 // share same environment than web page
+
 // this is where we can inject web3
 const initPageContext = async () => {
   const { VERBOSE } = await import('../constants/env.js')
-  const { PAGE_CONTEXT } = await import('../constants/paths.js')
+  const { PAGE_CONTEXT, BACKGROUND } = await import('../constants/paths.js')
   const { sendMessage, makeRPCError, addMessageHandler, setupAmbexMessenger } = await import(
     './ambexMessanger.js'
   )
@@ -42,7 +43,7 @@ const initPageContext = async () => {
         replyTimeout = 5 * 60 * 1000
         sendMessage(
           {
-            to: 'background',
+            to: BACKGROUND,
             type: 'userInterventionNotification',
             data: {
               method: requestPayload.method
@@ -54,7 +55,7 @@ const initPageContext = async () => {
 
       sendMessage(
         {
-          to: 'background',
+          to: BACKGROUND,
           type: 'web3Call',
           data: requestPayload
         },
@@ -95,7 +96,7 @@ const initPageContext = async () => {
       }
       sendMessage(
         {
-          to: 'background',
+          to: BACKGROUND,
           type: 'web3Call',
           data: requestPayload
         },
@@ -341,7 +342,7 @@ const initPageContext = async () => {
       sendMessage(
         {
           type: 'pageContextInjected',
-          to: 'background',
+          to: BACKGROUND,
           data: { args: element.dataset.args, overridden, existing }
         },
         { ignoreReply: true }
