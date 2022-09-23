@@ -29,7 +29,7 @@ import { PERMISSION_WINDOWS, deferCreateWindow } from '../functions/deferCreateW
 setupAmbexMessenger(BACKGROUND, browserAPI)
 
 // TODO: find a way to store the state and exec callbacks?
-const PENDING_PERMISSIONS_CALLBACKS = {}
+const PENDING_CALLBACKS = {}
 
 // Initial loading call
 isStorageLoaded()
@@ -86,7 +86,6 @@ broadcastDataOnChange()
 
 /// /////////////////////////
 // HANDLERS START
-// vvvvvvvvvvvvvvvvvvvvvvv
 
 // When CONTENT_SCRIPT is injected, prepare injection of PAGE_CONTEXT
 addMessageHandler({ type: 'contentScriptInjected' }, (message) => {
@@ -97,32 +96,27 @@ addMessageHandler({ type: 'contentScriptInjected' }, (message) => {
 
 // Save properly injected tabs
 addMessageHandler({ type: 'pageContextInjected' }, (message) => {
-  if (VERBOSE)
-    console.log(
-      `[INJECTED TAB ${message.fromTabId}], overridden : ${message.data.overridden}, existing : ${message.data.existing}`
-    )
   TAB_INJECTIONS[message.fromTabId] = true
   saveTabInjectionsInStorage()
-  updateExtensionIcon(message.fromTabId, TAB_INJECTIONS, PERMISSIONS, PENDING_PERMISSIONS_CALLBACKS)
+  updateExtensionIcon(message.fromTabId, TAB_INJECTIONS, PERMISSIONS, PENDING_CALLBACKS)
 })
 
 // User click reply from request permission popup
 addMessageHandler({ type: 'grantPermission' }, (message) => {
-  if (PENDING_PERMISSIONS_CALLBACKS[message.data.targetHost]) {
-    PENDING_PERMISSIONS_CALLBACKS[message.data.targetHost].callbacks.forEach((c) => {
+  if (PENDING_CALLBACKS[message.data.targetHost]) {
+    PENDING_CALLBACKS[message.data.targetHost].callbacks.forEach((c) => {
       c(message.data.permitted)
     })
-    delete PENDING_PERMISSIONS_CALLBACKS[message.data.targetHost]
+    delete PENDING_CALLBACKS[message.data.targetHost]
   }
   PERMISSIONS[message.data.targetHost] = message.data.permitted
   isStorageLoaded().then(() => {
     savePermissionsInStorage()
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
-      updateExtensionIcon(i, TAB_INJECTIONS, PERMISSIONS, PENDING_PERMISSIONS_CALLBACKS)
+      updateExtensionIcon(i, TAB_INJECTIONS, PERMISSIONS, PENDING_CALLBACKS)
     }
   })
-
   sendReply(message, {
     data: 'done'
   })
@@ -145,7 +139,7 @@ addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
     })
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
-      updateExtensionIcon(i, TAB_INJECTIONS, PERMISSIONS, PENDING_PERMISSIONS_CALLBACKS)
+      updateExtensionIcon(i, TAB_INJECTIONS, PERMISSIONS, PENDING_CALLBACKS)
     }
   })
 })
@@ -164,25 +158,26 @@ const sanitize2hex = (any) => {
 
 // Handling web3 calls
 addMessageHandler({ type: 'web3Call' }, async (message) => {
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   requestPermission(message, async (granted) => {
-    if (!granted) {
-      sendReply(message, {
-        data: {
-          error: 'Permissions denied!'
-        }
-      })
-    }
-
-    const { NETWORK, SELECTED_ACCOUNT } = await getStore(['NETWORK', 'SELECTED_ACCOUNT'])
-
-    if (!NETWORK || !SELECTED_ACCOUNT) return
-
-    VERBOSE > 0 && console.log('ambirePC: web3CallRequest', message)
-    const provider = getDefaultProvider(NETWORK.rpc)
-
     const payload = message.data
     const method = payload.method
 
+    if (!granted) {
+      sendReply(message, {
+        data: {
+          jsonrpc: '2.0',
+          id: payload.id,
+          error: 'Permissions denied!'
+        }
+      })
+      return
+    }
+    VERBOSE > 0 && console.log('ambirePageContext: web3CallRequest', message)
+    const { NETWORK, SELECTED_ACCOUNT } = await getStore(['NETWORK', 'SELECTED_ACCOUNT'])
+    if (!NETWORK || !SELECTED_ACCOUNT) return
+
+    const provider = getDefaultProvider(NETWORK.rpc)
     let deferredReply = false
 
     const callTx = payload.params
@@ -246,7 +241,6 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
         error = err
       })
       if (result) {
-        // sanitize
         // need to return hex numbers, provider returns BigNumber
         result.gasLimit = sanitize2hex(result.gasLimit)
         result.gasPrice = sanitize2hex(result.gasPrice)
@@ -474,7 +468,7 @@ const notifyEventChange = (type, data) => {
 
 // Returns wether a message is allow to transact or if host is unknown, show permission popup
 const requestPermission = async (message, callback) => {
-  console.log('requestPermission', message)
+  console.log('Request permission for: ', message)
   const host = message.host
 
   if (PERMISSIONS[host] === true) {
@@ -485,12 +479,12 @@ const requestPermission = async (message, callback) => {
     callback(false)
   } else {
     let diff
-    if (PENDING_PERMISSIONS_CALLBACKS[host]) {
-      diff = new Date().getTime() - PENDING_PERMISSIONS_CALLBACKS[host].requestTimestamp
+    if (PENDING_CALLBACKS[host]) {
+      diff = new Date().getTime() - PENDING_CALLBACKS[host].requestTimestamp
     }
-    if (PENDING_PERMISSIONS_CALLBACKS[host] && diff < 10 * 1000) {
+    if (PENDING_CALLBACKS[host] && diff < 10 * 1000) {
       if (VERBOSE) console.log(`already callback pending for ${host} ${diff / 1000} secs ago...`)
-      PENDING_PERMISSIONS_CALLBACKS[host].callbacks.push((permitted) => {
+      PENDING_CALLBACKS[host].callbacks.push((permitted) => {
         PERMISSIONS[host] = permitted
         savePermissionsInStorage()
         callback(permitted)
@@ -505,24 +499,19 @@ const requestPermission = async (message, callback) => {
           return
         }
 
-        PENDING_PERMISSIONS_CALLBACKS[host] = {
+        PENDING_CALLBACKS[host] = {
           requestTimestamp: new Date().getTime(),
           callbacks: []
         }
 
-        PENDING_PERMISSIONS_CALLBACKS[host].callbacks.push((permitted) => {
+        PENDING_CALLBACKS[host].callbacks.push((permitted) => {
           PERMISSIONS[host] = permitted
           browserAPI.storage.sync.set({ permittedHosts: PERMISSIONS }, () => {
             if (VERBOSE) console.log('permissions saved')
           })
           callback(permitted)
         })
-        updateExtensionIcon(
-          message.fromTabId,
-          TAB_INJECTIONS,
-          PERMISSIONS,
-          PENDING_PERMISSIONS_CALLBACKS
-        )
+        updateExtensionIcon(message.fromTabId, TAB_INJECTIONS, PERMISSIONS, PENDING_CALLBACKS)
 
         // Might want to pile up msgs with debounce in future
         openExtensionInPopup(host, [message], 'permission-request')
