@@ -165,6 +165,18 @@ const handleMessage = function (message, sender = null) {
 
   // if I am the final message destination
   if (message.to === RELAYER) {
+    // get appropriate callback to handle message
+    const handlerIndex = HANDLERS.findIndex(
+      (h) =>
+        // REPLIES
+        (h.requestFilter.isReply && message.isReply && h.requestFilter.id === message.id) ||
+        // CALLS
+        (!h.requestFilter.isReply &&
+          h.requestFilter.type === message.type &&
+          (!h.requestFilter.from || h.requestFilter.from === message.from) &&
+          (!h.requestFilter.to || h.requestFilter.to === message.to))
+    )
+
     // setting tabId origin (normal pages or extension pages/popups)
     if (RELAYER === BACKGROUND) {
       if (IS_FIREFOX && sender.tab && sender.tab.url === 'about:addons') {
@@ -177,19 +189,27 @@ const handleMessage = function (message, sender = null) {
       ) {
         message.fromTabId = 'extension'
       }
-    }
 
-    // get appropriate callback to handle message
-    const handlerIndex = HANDLERS.findIndex(
-      (h) =>
-        // REPLIES
-        (h.requestFilter.isReply && message.isReply && h.requestFilter.id === message.id) ||
-        // CALLS
-        (!h.requestFilter.isReply &&
-          h.requestFilter.type === message.type &&
-          (!h.requestFilter.from || h.requestFilter.from === message.from) &&
-          (!h.requestFilter.to || h.requestFilter.to === message.to))
-    )
+      if (message.type === 'web3Call') {
+        if (!isCorrectForwardingPath(RELAYER, message.from, message.to, message.forwarders)) {
+          if (VERBOSE > 1)
+            console.log(
+              `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] incorrect path. dropping...`,
+              message
+            )
+          return
+        }
+        // check if I have permission to forward @param message from this @param sender
+        checkForwardPermission(message, sender, (granted) => {
+          // If permission granted
+          console.log('checkForwardPermission', granted, message)
+          if (granted) {
+            HANDLERS[handlerIndex].callback(message, message.error)
+          }
+        })
+        return
+      }
+    }
 
     if (handlerIndex !== -1) {
       if (VERBOSE > 2)
@@ -208,75 +228,6 @@ const handleMessage = function (message, sender = null) {
         `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] nothing to handle the message`,
         message
       )
-
-    if (message.type === 'web3Call') {
-      if (!isCorrectForwardingPath(RELAYER, message.from, message.to, message.forwarders)) {
-        if (VERBOSE > 1)
-          console.log(
-            `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] incorrect path. dropping...`,
-            message
-          )
-        return
-      }
-
-      // check if I have permission to forward @param message from this @param sender
-      checkForwardPermission(message, sender, (granted) => {
-        // WEIRD BEHAVIOR ON FIREFOX, probably shared memory for variable message. Would exit thread when message is modified. Fixed with passing it through messageToForward
-        const messageToForward = JSON.parse(JSON.stringify(message))
-        // Background is the gate letting pass messages or not
-        if (RELAYER === BACKGROUND) {
-          if (sender.tab) {
-            messageToForward.fromTabId = sender.tab.id
-          } else if (
-            sender.origin.startsWith('chrome-extension') ||
-            sender.origin.startsWith('moz-extension')
-          ) {
-            messageToForward.fromTabId = 'extension'
-          }
-        }
-
-        // if permission granted
-        if (granted) {
-          // init previous forwarders if not existing (should I name it previousForwarders instead of forwarders?)
-          if (!messageToForward.forwarders) {
-            messageToForward.forwarders = []
-          }
-
-          // If I already forwarded the message
-          if (messageToForward.forwarders.indexOf(RELAYER) !== -1) {
-            if (VERBOSE > 1)
-              console.log(
-                `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Already forwarded message. Ignoring`,
-                messageToForward
-              )
-            // Ignore self message
-          } else if (RELAYER === message.from) {
-            if (VERBOSE > 1)
-              console.log(
-                `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Ignoring self message`,
-                messageToForward
-              )
-          } else if (messageToForward.from !== RELAYER) {
-            // If I did not forward this message and this message is NOT from me + edge case for extension pages catching it...
-            if (VERBOSE > 0)
-              console.log(
-                `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Forwarding message`,
-                messageToForward
-              )
-            messageToForward.forwarders.push(RELAYER)
-            sendMessageInternal(messageToForward).catch((err) => {
-              sendReply(messageToForward, { error: err.message })
-            })
-          } else if (VERBOSE > 1)
-            console.warn(
-              `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Unexpected case:`,
-              messageToForward
-            )
-        } else {
-          sendReply(messageToForward, { error: 'permissions not granted' })
-        }
-      })
-    }
   } else if (message.to) {
     // if message not for me, but has a destination, act as a forwarder
 
@@ -289,63 +240,53 @@ const handleMessage = function (message, sender = null) {
       return
     }
 
-    // check if I have permission to forward @param message from this @param sender
-    checkForwardPermission(message, sender, (granted) => {
-      // WEIRD BEHAVIOR ON FIREFOX, probably shared memory for variable message. Would exit thread when message is modified. Fixed with passing it through messageToForward
-      const messageToForward = JSON.parse(JSON.stringify(message))
-      // Background is the gate letting pass messages or not
-      if (RELAYER === BACKGROUND) {
-        if (sender.tab) {
-          messageToForward.fromTabId = sender.tab.id
-        } else if (
-          sender.origin.startsWith('chrome-extension') ||
-          sender.origin.startsWith('moz-extension')
-        ) {
-          messageToForward.fromTabId = 'extension'
-        }
+    const messageToForward = JSON.parse(JSON.stringify(message))
+    // Background is the gate letting pass messages or not
+    if (RELAYER === BACKGROUND) {
+      if (sender.tab) {
+        messageToForward.fromTabId = sender.tab.id
+      } else if (
+        sender.origin.startsWith('chrome-extension') ||
+        sender.origin.startsWith('moz-extension')
+      ) {
+        messageToForward.fromTabId = 'extension'
       }
+    }
+    // init previous forwarders if not existing (should I name it previousForwarders instead of forwarders?)
+    if (!messageToForward.forwarders) {
+      messageToForward.forwarders = []
+    }
 
-      // if permission granted
-      if (granted) {
-        // init previous forwarders if not existing (should I name it previousForwarders instead of forwarders?)
-        if (!messageToForward.forwarders) {
-          messageToForward.forwarders = []
-        }
-
-        // If I already forwarded the message
-        if (messageToForward.forwarders.indexOf(RELAYER) !== -1) {
-          if (VERBOSE > 1)
-            console.log(
-              `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Already forwarded message. Ignoring`,
-              messageToForward
-            )
-          // Ignore self message
-        } else if (RELAYER === message.from) {
-          if (VERBOSE > 1)
-            console.log(
-              `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Ignoring self message`,
-              messageToForward
-            )
-        } else if (messageToForward.from !== RELAYER) {
-          // If I did not forward this message and this message is NOT from me + edge case for extension pages catching it...
-          if (VERBOSE > 0)
-            console.log(
-              `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Forwarding message`,
-              messageToForward
-            )
-          messageToForward.forwarders.push(RELAYER)
-          sendMessageInternal(messageToForward).catch((err) => {
-            sendReply(messageToForward, { error: err.message })
-          })
-        } else if (VERBOSE > 1)
-          console.warn(
-            `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Unexpected case:`,
-            messageToForward
-          )
-      } else {
-        sendReply(messageToForward, { error: 'permissions not granted' })
-      }
-    })
+    // If I already forwarded the message
+    if (messageToForward.forwarders.indexOf(RELAYER) !== -1) {
+      if (VERBOSE > 1)
+        console.log(
+          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Already forwarded message. Ignoring`,
+          messageToForward
+        )
+      // Ignore self message
+    } else if (RELAYER === message.from) {
+      if (VERBOSE > 1)
+        console.log(
+          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Ignoring self message`,
+          messageToForward
+        )
+    } else if (messageToForward.from !== RELAYER) {
+      // If I did not forward this message and this message is NOT from me + edge case for extension pages catching it...
+      if (VERBOSE > 0)
+        console.log(
+          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Forwarding message`,
+          messageToForward
+        )
+      messageToForward.forwarders.push(RELAYER)
+      sendMessageInternal(messageToForward).catch((err) => {
+        sendReply(messageToForward, { error: err.message })
+      })
+    } else if (VERBOSE > 1)
+      console.warn(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Unexpected case:`,
+        messageToForward
+      )
   } else if (VERBOSE > 1)
     console.log(
       `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : ambexMessenger ignoring message`,

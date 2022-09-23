@@ -128,14 +128,6 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
   PERMISSIONS[message.data.targetHost] = message.data.permitted
   isStorageLoaded().then(() => {
     savePermissionsInStorage()
-    if (message.data.permitted) {
-      browserAPI.storage.local.get(['NETWORK', 'SELECTED_ACCOUNT'], (result) => {
-        notifyEventChange('ambireWalletConnected', {
-          account: result.SELECTED_ACCOUNT,
-          chainId: result.NETWORK.chainId
-        })
-      })
-    }
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
       updateExtensionIcon(i, TAB_INJECTIONS, PERMISSIONS, PENDING_PERMISSIONS_CALLBACKS)

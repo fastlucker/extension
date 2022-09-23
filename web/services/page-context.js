@@ -34,7 +34,7 @@ const initPageContext = async () => {
   // wrapped promise for ethereum.request
   const ethRequest = (requestPayload) =>
     new Promise((resolve, reject) => {
-      let replyTimeout = 5 * 1000
+      let replyTimeout = 5 * 60 * 1000
       if (
         requestPayload &&
         requestPayload.method &&

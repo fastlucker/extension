@@ -92,7 +92,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
       setLoading(false)
       setTimeout(() => setFeedbackCloseAnimated(true), 100)
       setTimeout(() => {
-        // window.close()
+        window.close()
       }, 1200)
     }
   }, [feedback, authStatus, navigation])
