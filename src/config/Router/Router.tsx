@@ -462,7 +462,7 @@ const Router = () => {
       if (isWeb) {
         const urlSearchParams = new URLSearchParams(window?.location?.search)
         const params = Object.fromEntries(urlSearchParams.entries())
-        if (params.initialRoute === 'permission-request') {
+        if (params.route === 'permission-request') {
           return <PermissionRequestStack />
         }
       }

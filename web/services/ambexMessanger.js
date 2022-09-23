@@ -1,7 +1,9 @@
-// this is the messaging lib, used by all the relayers*(see below). I decided to put whatever is related to messaging in one file for code useability and avoid duplicates / 5 files, using the same kind of pattern of sub process forks to determine who is currently the runner
+// This is the messaging lib, used by all the relayers*(see below)
 
 // There are 3 possible actors for the communication, and a message has to follow this path (from one end to the other)
-// Used to know for the current relayer to who to forward
+// pageContext -> contentScript -> background
+// background -> contentScript -> pageContext
+
 import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
 import {
   PAGE_CONTEXT,
@@ -11,9 +13,6 @@ import {
   RELAYER_VERBOSE_TAG
 } from '../constants/paths.js'
 
-// Explicitly tell the BACKGROUND worker which domains are ambire wallet domains when sending a message. In the forwarding middleware ( ambire -> dapp always OK, dapp -> ambire, only if permitted)
-const AMBIRE_DOMAINS = []
-
 // The name of the current process handling the msg (itself). can be PAGE_CONTEXT (dapp page), CONTENT_SCRIPT (dappPage with more permissions) and BACKGROUND. Sometimes "I, me" is mentioned, it refers to RELAYER (the relayer is talking)
 let RELAYER
 
@@ -22,9 +21,6 @@ const HANDLERS = []
 
 // to be part of the JSON RPC generated ids when sendingMessage
 let MSGCOUNT = 0
-
-// Middleware func for BACKGROUND worker
-let PERMISSION_MIDDLEWARE
 
 // window listener handler
 let WINDOWLISTENER
@@ -190,25 +186,8 @@ const handleMessage = function (message, sender = null) {
         message.fromTabId = 'extension'
       }
 
-      if (message.type === 'web3Call') {
-        if (!isCorrectForwardingPath(RELAYER, message.from, message.to, message.forwarders)) {
-          if (VERBOSE > 1)
-            console.log(
-              `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] incorrect path. dropping...`,
-              message
-            )
-          return
-        }
-        // check if I have permission to forward @param message from this @param sender
-        checkForwardPermission(message, sender, (granted) => {
-          // If permission granted
-          console.log('checkForwardPermission', granted, message)
-          if (granted) {
-            HANDLERS[handlerIndex].callback(message, message.error)
-          }
-        })
-        return
-      }
+      const host = new URL(sender.origin || sender.url).host
+      message.host = host
     }
 
     if (handlerIndex !== -1) {
@@ -294,51 +273,15 @@ const handleMessage = function (message, sender = null) {
     )
 }
 
-/**
- * Check if message has permission to pass through / display permission popup if not requested yet + ambire origin security check
- * @param message
- * @param sender
- * @param callback
- */
-const checkForwardPermission = (message, sender, callback) => {
-  if (RELAYER === BACKGROUND) {
-    if (message.from === CONTENT_SCRIPT && message.to === CONTENT_SCRIPT) {
-      // from/to CONTENT_SCRIPT/extension page, always forward
-      callback(true, message)
-    } else {
-      // from dapp PAGE_CONTEXT, go through the middleware that checks if domain is permitted
-      PERMISSION_MIDDLEWARE(message, sender, callback)
-    }
-  } else {
-    // if I am not BACKGROUND, always relay
-    callback(true, message)
-  }
-}
-
-// called in BACKGROUND worker
-const setPermissionMiddleware = (callback) => {
-  PERMISSION_MIDDLEWARE = callback
-}
-
 // called by BACKGROUND processing the pending queue potentially filled before BACKGROUND worker initialisation, then clear it
 const processBackgroundQueue = () => {
   console.log('processing init pending messages queue', INIT_MSG_QUEUE)
   BACKGROUND_INITIALIZED = true
+  // eslint-disable-next-line no-restricted-syntax
   for (const msg of INIT_MSG_QUEUE) {
     handleMessage(msg.request, msg.sender)
   }
   INIT_MSG_QUEUE = []
-}
-
-// TODO where to refactor for no dupes?
-const getAmbireTabIds = async () => {
-  return new Promise((resolve) => {
-    BROWSER_API.tabs.query({}, (tabs) => {
-      resolve(
-        tabs.filter((t) => AMBIRE_DOMAINS.indexOf(new URL(t.url).host) !== -1).map((t) => t.id)
-      )
-    })
-  })
 }
 
 // Updating and sending message, not exposed
@@ -615,7 +558,6 @@ const makeRPCError = (requestPayload, error, errorCode = -1) => {
 export {
   addMessageHandler,
   setupAmbexMessenger,
-  setPermissionMiddleware,
   processBackgroundQueue,
   sendMessage,
   sendAck,

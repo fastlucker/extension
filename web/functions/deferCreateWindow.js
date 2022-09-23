@@ -21,7 +21,7 @@ async function deferTick(host, queue, route) {
 
     const createData = {
       type: 'panel',
-      url: `index.html?initialRoute=${route}&host=${host}&queue=${btoa(JSON.stringify(queue))}`,
+      url: `index.html?route=${route}&host=${host}&queue=${btoa(JSON.stringify(queue))}`,
       width: popupWidth,
       height: popupHeight,
       left: popupLeft,
