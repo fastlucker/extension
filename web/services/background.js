@@ -320,17 +320,22 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
 // MESSAGE HANDLERS END
 
 const openExtensionInPopup = async (host, queue, route) => {
-  // for some reason, chrome defined at the top, at this moment of code execution does not return any windows information but browser (which is supposed to alias chrome) has
+  // For some reason, chrome defined at the top, at this moment of code execution does not return any windows information but browser (which is supposed to alias chrome) has
   // fixed with browserAPI = browser || chrome instead of the opposite
   // If there is a popup window open for this host in our cache
   if (PERMISSION_WINDOWS[host] > 0) {
-    // check if the window is still there
-    const win = await browserAPI.windows.get(PERMISSION_WINDOWS[host])
-    if (!win) {
+    // Check if the window is still there
+    let window = false
+    try {
+      window = await browserAPI.windows.get(PERMISSION_WINDOWS[host])
+    } catch (error) {
+      window = false
+    }
+    if (!window) {
       delete PERMISSION_WINDOWS[host]
     } else {
       // making sure the popup comes back on top
-      browserAPI.windows.update(win.id, {
+      browserAPI.windows.update(window.id, {
         focused: true,
         drawAttention: true
       })

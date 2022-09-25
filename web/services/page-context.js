@@ -36,8 +36,8 @@ const initPageContext = async () => {
           requireInteraction: USER_INTERVENTION_METHODS[requestPayload.method]
         },
         {
-          replyTimeout,
-          ignoreReply: USER_INTERVENTION_METHODS[requestPayload.method]
+          replyTimeout
+          // ignoreReply: USER_INTERVENTION_METHODS[requestPayload.method]
         }
       )
         .then((reply) => {
