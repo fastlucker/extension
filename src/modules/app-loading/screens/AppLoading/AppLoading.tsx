@@ -9,6 +9,7 @@ import AttentionGrabberProvider from '@modules/common/components/AttentionGrabbe
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AccountsPasswordsProvider } from '@modules/common/contexts/accountsPasswordsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
+import { AmbireExtensionProvider } from '@modules/common/contexts/ambireExtensionContext'
 import { GasTankProvider } from '@modules/common/contexts/gasTankContext'
 import { GnosisProvider } from '@modules/common/contexts/gnosisContext'
 import { HeaderBottomSheetProvider } from '@modules/common/contexts/headerBottomSheetContext'
@@ -26,7 +27,6 @@ import { ToastProvider } from '@modules/common/contexts/toastContext'
 import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/unsupportedDAppsBottomSheetContext'
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 import useFonts from '@modules/common/hooks/useFonts'
-import { AmbireExtensionProvider } from '@modules/extension/contexts/ambireExtensionContext'
 
 const AppLoading = () => {
   // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
@@ -62,9 +62,9 @@ const AppLoading = () => {
                         <PortfolioProvider>
                           <GnosisProvider>
                             <WalletConnectProvider>
-                              <RequestsProvider>
-                                <AddressBookProvider>
-                                  <AmbireExtensionProvider>
+                              <AmbireExtensionProvider>
+                                <RequestsProvider>
+                                  <AddressBookProvider>
                                     <AccountsPasswordsProvider>
                                       <PasscodeProvider>
                                         <AttentionGrabberProvider>
@@ -83,9 +83,9 @@ const AppLoading = () => {
                                         <PortalHost name="global" />
                                       </PasscodeProvider>
                                     </AccountsPasswordsProvider>
-                                  </AmbireExtensionProvider>
-                                </AddressBookProvider>
-                              </RequestsProvider>
+                                  </AddressBookProvider>
+                                </RequestsProvider>
+                              </AmbireExtensionProvider>
                             </WalletConnectProvider>
                           </GnosisProvider>
                         </PortfolioProvider>

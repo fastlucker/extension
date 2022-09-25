@@ -3,19 +3,11 @@
 // this is where we can inject web3
 const initPageContext = async () => {
   const { VERBOSE } = await import('../constants/env.js')
+  const { USER_INTERVENTION_METHODS } = await import('../constants/userInterventionMethods.js')
   const { PAGE_CONTEXT, BACKGROUND } = await import('../constants/paths.js')
   const { sendMessage, makeRPCError, addMessageHandler, setupAmbexMessenger } = await import(
     './ambexMessanger.js'
   )
-
-  const USER_INTERVENTION_METHODS = [
-    'eth_sendTransaction',
-    'personal_sign',
-    'eth_sign',
-    'personal_sign',
-    'gs_multi_send',
-    'ambire_sendBatchTransaction'
-  ]
 
   // unify error formatting
   const formatErr = (err) => {
@@ -34,32 +26,19 @@ const initPageContext = async () => {
   // wrapped promise for ethereum.request
   const ethRequest = (requestPayload) =>
     new Promise((resolve, reject) => {
-      let replyTimeout = 5 * 60 * 1000
-      if (
-        requestPayload &&
-        requestPayload.method &&
-        USER_INTERVENTION_METHODS.indexOf(requestPayload.method) !== -1
-      ) {
-        replyTimeout = 5 * 60 * 1000
-        sendMessage(
-          {
-            to: BACKGROUND,
-            type: 'userInterventionNotification',
-            data: {
-              method: requestPayload.method
-            }
-          },
-          { ignoreReply: true }
-        )
-      }
+      const replyTimeout = 6 * 60 * 1000 // 6 minutes
 
       sendMessage(
         {
           to: BACKGROUND,
           type: 'web3Call',
-          data: requestPayload
+          data: requestPayload,
+          requireInteraction: USER_INTERVENTION_METHODS[requestPayload.method]
         },
-        { replyTimeout }
+        {
+          replyTimeout,
+          ignoreReply: USER_INTERVENTION_METHODS[requestPayload.method]
+        }
       )
         .then((reply) => {
           const data = reply.data

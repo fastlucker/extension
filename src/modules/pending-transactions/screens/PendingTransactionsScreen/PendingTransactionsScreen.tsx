@@ -61,13 +61,13 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const prevBundle: any = usePrevious(bundle)
 
   useLayoutEffect(() => {
-    navigation.setOptions({
+    navigation?.setOptions({
       headerTitle: t('Pending Transactions: {{numTxns}}', { numTxns: bundle?.txns?.length })
     })
   }, [navigation, bundle?.txns?.length, t])
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('beforeRemove', () => {
+    const unsubscribe = navigation?.addListener('beforeRemove', () => {
       if (sendTxnState.showing) {
         setSendTxnState({ showing: false })
       }
@@ -82,7 +82,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   }, [navigation])
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('blur', () => {
+    const unsubscribe = navigation?.addListener('blur', () => {
       if (sendTxnState.showing) {
         setSendTxnState({ showing: false })
       }
@@ -99,7 +99,11 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     if (prevBundle?.txns?.length && !bundle?.txns?.length) {
-      navigation.goBack()
+      if (navigation) {
+        navigation.goBack()
+      } else {
+        window.close()
+      }
     }
   })
 

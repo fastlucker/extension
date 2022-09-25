@@ -9,9 +9,12 @@ import EarnIcon from '@assets/svg/EarnIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
-import { isiOS } from '@config/env'
 import DrawerContent from '@config/Router/DrawerContent'
-import { headerAlpha, headerBeta, headerGamma } from '@config/Router/HeadersConfig'
+import {
+  headerAlpha as defaultHeaderAlpha,
+  headerBeta as defaultHeaderBeta,
+  headerGamma as defaultHeaderGamma
+} from '@config/Router/HeadersConfig'
 import styles, {
   horizontalTabBarLabelStyle,
   tabBarItemStyle,
@@ -26,6 +29,7 @@ import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
+import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
@@ -56,6 +60,7 @@ import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 
 import { drawerStyle, navigationContainerDarkTheme } from './styles'
 
@@ -71,6 +76,15 @@ const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
+
+const urlSearchParams = new URLSearchParams(window?.location?.search)
+const params = Object.fromEntries(urlSearchParams.entries())
+console.log('params', params)
+const navigationEnabled = !params.route
+
+const headerAlpha = navigationEnabled ? defaultHeaderAlpha : () => null
+const headerBeta = navigationEnabled ? defaultHeaderBeta : () => null
+const headerGamma = navigationEnabled ? defaultHeaderGamma : () => null
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
@@ -262,15 +276,17 @@ const TabsScreens = () => {
         tabBarLabelStyle: IS_SCREEN_SIZE_L ? horizontalTabBarLabelStyle : tabBarLabelStyle,
         tabBarItemStyle
       }}
-      tabBar={(props: any) => (
-        <View style={[styles.tabBarContainer]}>
-          <BlurView intensity={TAB_BAR_BLUR} tint="dark" style={[styles.backdropBlurWrapper]}>
-            <View style={{ paddingBottom: props.insets.bottom }}>
-              <BottomTabBar {...props} insets={{ bottom: 0 }} />
-            </View>
-          </BlurView>
-        </View>
-      )}
+      tabBar={(props: any) =>
+        !!navigationEnabled && (
+          <View style={[styles.tabBarContainer]}>
+            <BlurView intensity={TAB_BAR_BLUR} tint="dark" style={[styles.backdropBlurWrapper]}>
+              <View style={{ paddingBottom: props.insets.bottom }}>
+                <BottomTabBar {...props} insets={{ bottom: 0 }} />
+              </View>
+            </BlurView>
+          </View>
+        )
+      }
     >
       <Tab.Screen
         name="dashboard"
@@ -283,20 +299,17 @@ const TabsScreens = () => {
         }}
         component={DashboardStackScreen}
       />
-      {/* TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback */}
-      {!isiOS && (
-        <Tab.Screen
-          name="earn"
-          options={{
-            tabBarLabel: t('Earn'),
-            headerTitle: t('Earn'),
-            tabBarIcon: ({ color }) => (
-              <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-            )
-          }}
-          component={EarnScreen}
-        />
-      )}
+      <Tab.Screen
+        name="earn"
+        options={{
+          tabBarLabel: t('Earn'),
+          headerTitle: t('Earn'),
+          tabBarIcon: ({ color }) => (
+            <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={EarnScreen}
+      />
       <Tab.Screen
         name="send"
         options={{
@@ -308,20 +321,17 @@ const TabsScreens = () => {
         }}
         component={SendScreen}
       />
-      {/* TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback */}
-      {!isiOS && (
-        <Tab.Screen
-          name="swap"
-          options={{
-            tabBarLabel: t('Swap'),
-            headerTitle: t('Swap'),
-            tabBarIcon: ({ color }) => (
-              <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-            )
-          }}
-          component={SwapScreen}
-        />
-      )}
+      <Tab.Screen
+        name="swap"
+        options={{
+          tabBarLabel: t('Swap'),
+          headerTitle: t('Swap'),
+          tabBarIcon: ({ color }) => (
+            <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={SwapScreen}
+      />
       <Tab.Screen
         name="transactions"
         options={{
@@ -340,7 +350,7 @@ const TabsScreens = () => {
 const AppDrawer = () => {
   return (
     <Drawer.Navigator
-      drawerContent={DrawerContent}
+      drawerContent={navigationEnabled ? DrawerContent : () => null}
       screenOptions={{
         headerShown: false,
         drawerType: 'front',
@@ -448,6 +458,11 @@ const AppStack = () => {
 const Router = () => {
   const { authStatus } = useAuth()
   const { connectionState } = useNetInfo()
+  const { setParams } = useAmbireExtension()
+
+  useEffect(() => {
+    setParams(params)
+  }, [setParams])
 
   const renderContent = useCallback(() => {
     if (connectionState === ConnectionStates.NOT_CONNECTED) {
@@ -459,6 +474,13 @@ const Router = () => {
     }
 
     if (authStatus === AUTH_STATUS.AUTHENTICATED) {
+      if (params.route === 'permission-request') {
+        return <PermissionRequestStack />
+      }
+      if (params.route === USER_INTERVENTION_METHODS.eth_sendTransaction) {
+        return <PendingTransactionsScreen />
+      }
+
       return <AppStack />
     }
 

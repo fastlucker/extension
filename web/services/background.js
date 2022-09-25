@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 // The most important part of the extension
 // background workers are killed and respawned (chrome MV3) when contentScript are calling them. Firefox does not support MV3 yet but is working on it. Fortunately MV3 > MV2 is easier to migrate/support than MV2 > MV3
 import { getDefaultProvider, BigNumber, ethers } from '../modules/ethers.esm.min.js'
@@ -13,15 +14,14 @@ import {
 import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
 import { browserAPI } from '../constants/browserAPI.js'
 import { PAGE_CONTEXT, CONTENT_SCRIPT, BACKGROUND } from '../constants/paths.js'
+import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods.js'
 import { updateExtensionIcon } from '../functions/updateExtensionIcon.js'
 import {
   TAB_INJECTIONS,
   PERMISSIONS,
-  USER_ACTION_NOTIFICATIONS,
   isStorageLoaded,
   saveTabInjectionsInStorage,
   savePermissionsInStorage,
-  saveUserActionNotificationsInStorage,
   getStore
 } from '../functions/storage.js'
 import { PERMISSION_WINDOWS, deferCreateWindow } from '../functions/deferCreateWindow.js'
@@ -84,8 +84,7 @@ const broadcastDataOnChange = () => {
 }
 broadcastDataOnChange()
 
-/// /////////////////////////
-// HANDLERS START
+// MESSAGE HANDLERS START
 
 // When CONTENT_SCRIPT is injected, prepare injection of PAGE_CONTEXT
 addMessageHandler({ type: 'contentScriptInjected' }, (message) => {
@@ -158,7 +157,6 @@ const sanitize2hex = (any) => {
 
 // Handling web3 calls
 addMessageHandler({ type: 'web3Call' }, async (message) => {
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   requestPermission(message, async (granted) => {
     const payload = message.data
     const method = payload.method
@@ -287,38 +285,15 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
         error = err
       })
       if (result) result = sanitize2hex(result)
-    } else if (method === 'personal_sign') {
-      // TODO:
-      // handlePersonalSign(message).catch((err) => {
-      //   verbose > 0 && console.log('personal sign error ', err)
-      //   error = err
-      // })
+    } else if (USER_INTERVENTION_METHODS[method]) {
+      openExtensionInPopup(message.host, [message], method)
       deferredReply = true
-    } else if (method === 'eth_sign') {
-      // TODO:
-      // handlePersonalSign(message).catch((err) => {
-      //   verbose > 0 && console.log('personal sign error ', err)
-      //   error = err
-      // })
-      deferredReply = true
-    } else if (method === 'eth_sendTransaction') {
-      deferredReply = true
-      // TODO:
-      // await handleSendTransactions(message).catch((err) => {
-      //   error = err
-      // })
-    } else if (method === 'gs_multi_send' || method === 'ambire_sendBatchTransaction') {
-      deferredReply = true
-      // TODO:
-      // await handleSendTransactions(message).catch((err) => {
-      //   error = err
-      // })
     } else {
       error = `Method not supported by extension hook: ${method}`
     }
 
     if (error) {
-      console.error('throwing error with ', message)
+      console.error('Throwing error with: ', message)
       sendReply(message, {
         data: {
           jsonrpc: '2.0',
@@ -333,7 +308,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
         result
       }
 
-      VERBOSE > 0 && console.log('Replying to request with', rpcResult)
+      VERBOSE > 0 && console.log('Replying to request with: ', rpcResult)
 
       sendReply(message, {
         data: rpcResult
@@ -342,55 +317,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
   })
 })
 
-addMessageHandler({ type: 'userInterventionNotification' }, (message) => {
-  isStorageLoaded().then(() => {
-    const notificationId = `ambireNotification${Math.random()}`
-    USER_ACTION_NOTIFICATIONS[notificationId] = true
-    saveUserActionNotificationsInStorage()
-
-    const createNotification = () => {
-      const iconURL = chrome.runtime.getURL('../assets/images/extension_enabled.png')
-
-      const notificationOptions = {
-        type: 'basic',
-        iconUrl: iconURL,
-        title: 'Ambire Wallet',
-        priority: 2,
-        requireInteraction: true,
-        message: '🔥 Ambire wallet: Action requested. Click here to open ambire wallet'
-      }
-
-      if (IS_FIREFOX) {
-        delete notificationOptions.requireInteraction
-      }
-
-      browserAPI.notifications.create(notificationId, notificationOptions, (data) => {
-        // probably wont be triggered because of extension unloading
-        setTimeout(() => {
-          browserAPI.notifications.clear(notificationId)
-          delete USER_ACTION_NOTIFICATIONS[notificationId]
-          saveUserActionNotificationsInStorage()
-        }, 30 * 1000)
-      })
-    }
-
-    if (IS_FIREFOX) {
-      createNotification()
-    } else {
-      browserAPI.notifications.getPermissionLevel((level) => {
-        if (level === 'granted') {
-          createNotification()
-        } else {
-          console.log('extension does not have permissions to show notifications')
-        }
-      })
-    }
-  })
-})
-
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^
-// HANDLERS END
-/// /////////////////////////
+// MESSAGE HANDLERS END
 
 const openExtensionInPopup = async (host, queue, route) => {
   // for some reason, chrome defined at the top, at this moment of code execution does not return any windows information but browser (which is supposed to alias chrome) has
