@@ -24,7 +24,8 @@
     "build:ios:production": "eas build -p ios --profile production",
     "build:ios:production:simulator": "eas build -p ios --profile production:simulator",
     "build:android:production:simulator": "eas build -p android --profile production:simulator",
-    "build:web": "expo build:web",
+    "build:web": "expo build:web && webpack --config webpack.extension-services.config.js",
+    "build:extension-services": "webpack --config webpack.extension-services.config.js",
     "publish:development": "expo publish --release-channel development",
     "publish:staging": "APP_ENV=staging expo publish --release-channel staging",
     "publish:production": "APP_ENV=production expo publish --release-channel default",
@@ -183,7 +184,12 @@
     "i18next-scanner": "^3.1.0",
     "i18next-scanner-typescript": "^1.0.6",
     "prettier": "2.5.0",
-    "typescript": "~4.3.5"
+    "typescript": "~4.3.5",
+    "webpack": "^5.68.0",
+    "node-polyfill-webpack-plugin": "2.0.1",
+    "babel-loader": "8.2.5",
+    "webpack-cli": "^4.10.0",
+    "copy-webpack-plugin": "^10.2.0"
   },
   "resolutions": {
     "@types/react": "~17.0.21",

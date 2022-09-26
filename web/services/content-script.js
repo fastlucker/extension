@@ -1,10 +1,13 @@
 // Content Script is mainly a relayer between pageContext and background worker
+// const { VERBOSE } = await import('../constants/env.js')
+// const { setupAmbexMessenger, sendMessage } = await import('./ambexMessanger.js')
+// const { CONTENT_SCRIPT, BACKGROUND } = await import('../constants/paths.js')
+import { VERBOSE } from '../constants/env'
+import { setupAmbexMessenger, sendMessage } from './ambexMessanger'
+import { CONTENT_SCRIPT, BACKGROUND } from '../constants/paths'
+;
 
-;(async () => {
-  const { VERBOSE } = await import('../constants/env.js')
-  const { setupAmbexMessenger, sendMessage } = await import('./ambexMessanger.js')
-  const { CONTENT_SCRIPT, BACKGROUND } = await import('../constants/paths.js')
-
+(async () => {
   setupAmbexMessenger(CONTENT_SCRIPT)
 
   // Tells background that we are injected

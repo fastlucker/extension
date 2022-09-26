@@ -11,7 +11,6 @@ module.exports = async function (env, argv) {
   )
 
   config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
-  config.resolve.alias['background.js'] = './web/services/background.js'
 
   return config
 }

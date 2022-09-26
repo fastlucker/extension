@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 // The most important part of the extension
 // background workers are killed and respawned (chrome MV3) when contentScript are calling them. Firefox does not support MV3 yet but is working on it. Fortunately MV3 > MV2 is easier to migrate/support than MV2 > MV3
-import { getDefaultProvider, BigNumber, ethers } from '../modules/ethers.esm.min.js'
+// import { getDefaultProvider, BigNumber, ethers } from '../modules/ethers.esm.min.js'
+import { getDefaultProvider, BigNumber, ethers } from 'ethers'
 
 import {
   setupAmbexMessenger,
@@ -10,12 +11,12 @@ import {
   sendMessage,
   sendAck,
   processBackgroundQueue
-} from './ambexMessanger.js'
-import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
-import { browserAPI } from '../constants/browserAPI.js'
-import { PAGE_CONTEXT, CONTENT_SCRIPT, BACKGROUND } from '../constants/paths.js'
-import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods.js'
-import { updateExtensionIcon } from '../functions/updateExtensionIcon.js'
+} from './ambexMessanger'
+import { IS_FIREFOX, VERBOSE } from '../constants/env'
+import { browserAPI } from '../constants/browserAPI'
+import { PAGE_CONTEXT, CONTENT_SCRIPT, BACKGROUND } from '../constants/paths'
+import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
+import { updateExtensionIcon } from '../functions/updateExtensionIcon'
 import {
   TAB_INJECTIONS,
   PERMISSIONS,
@@ -23,8 +24,8 @@ import {
   saveTabInjectionsInStorage,
   savePermissionsInStorage,
   getStore
-} from '../functions/storage.js'
-import { PERMISSION_WINDOWS, deferCreateWindow } from '../functions/deferCreateWindow.js'
+} from '../functions/storage'
+import { PERMISSION_WINDOWS, deferCreateWindow } from '../functions/deferCreateWindow'
 
 setupAmbexMessenger(BACKGROUND, browserAPI)
 
