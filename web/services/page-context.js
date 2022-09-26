@@ -6,6 +6,7 @@ import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
 import { PAGE_CONTEXT, BACKGROUND } from '../constants/paths'
 import { sendMessage, makeRPCError, addMessageHandler, setupAmbexMessenger } from './ambexMessanger'
 
+const Web3 = require('web3')
 // unify error formatting
 const formatErr = (err) => {
   if (typeof err === 'string') {

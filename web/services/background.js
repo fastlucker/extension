@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 // The most important part of the extension
 // background workers are killed and respawned (chrome MV3) when contentScript are calling them. Firefox does not support MV3 yet but is working on it. Fortunately MV3 > MV2 is easier to migrate/support than MV2 > MV3
-// import { getDefaultProvider, BigNumber, ethers } from '../modules/ethers.esm.min.js'
+
 import { getDefaultProvider, BigNumber, ethers } from 'ethers'
 
 import {
