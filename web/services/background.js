@@ -67,24 +67,24 @@ if (VERBOSE > 1) {
   })
 }
 
-const broadcastDataOnChange = () => {
+const broadcastExtensionDataOnChange = () => {
   isStorageLoaded().then(() => {
     browserAPI.storage.onChanged.addListener((changes, namespace) => {
       if (namespace === 'local') {
         // eslint-disable-next-line no-restricted-syntax
         for (const [key, { newValue }] of Object.entries(changes)) {
           if (key === 'SELECTED_ACCOUNT') {
-            notifyEventChange('ambireWalletAccountChanged', { account: newValue })
+            broadcastExtensionDataChange('ambireWalletAccountChanged', { account: newValue })
           }
           if (key === 'NETWORK') {
-            notifyEventChange('ambireWalletChainChanged', { chainId: newValue.chainId })
+            broadcastExtensionDataChange('ambireWalletChainChanged', { chainId: newValue.chainId })
           }
         }
       }
     })
   })
 }
-broadcastDataOnChange()
+broadcastExtensionDataOnChange()
 
 // MESSAGE HANDLERS START
 
@@ -363,12 +363,13 @@ function isInjectableTab(tab) {
   return tab && tab.url && tab.url.startsWith('http')
 }
 
-const notifyEventChange = (type, data) => {
+const broadcastExtensionDataChange = (type, data) => {
   // eslint-disable-next-line
   for (const tabId in TAB_INJECTIONS) {
     // eslint-disable-next-line @typescript-eslint/no-loop-func
     const callback = (tab) => {
       if (isInjectableTab(tab) && PERMISSIONS[new URL(tab.url).host]) {
+        VERBOSE > 0 && console.log('BROADCASTING EXTENSION DATA CHANGE TO:', tab.url)
         sendMessage(
           {
             toTabId: tab.id,
@@ -396,17 +397,6 @@ const notifyEventChange = (type, data) => {
         })
     }
   }
-
-  console.log('NOTIFY EVENT CHANGE....')
-  sendMessage(
-    {
-      to: CONTENT_SCRIPT,
-      toTabId: 'extension',
-      type,
-      data
-    },
-    { ignoreReply: true }
-  )
 }
 
 const sendUserInterventionMessage = async (message, callback) => {
