@@ -14,7 +14,7 @@ import {
 } from './ambexMessanger'
 import { IS_FIREFOX, VERBOSE } from '../constants/env'
 import { browserAPI } from '../constants/browserAPI'
-import { PAGE_CONTEXT, CONTENT_SCRIPT, BACKGROUND } from '../constants/paths'
+import { PAGE_CONTEXT, BACKGROUND } from '../constants/paths'
 import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
 import { updateExtensionIcon } from '../functions/updateExtensionIcon'
 import {

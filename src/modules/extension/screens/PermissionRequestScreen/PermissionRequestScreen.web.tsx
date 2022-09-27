@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { ScrollView, TouchableOpacity, View } from 'react-native'
 
 import CloseIcon from '@assets/svg/CloseIcon'
@@ -12,6 +12,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -27,6 +28,8 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
+  const { params } = useAmbireExtension()
+  const { authStatus } = useAuth()
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -34,34 +37,21 @@ const PermissionRequestScreen = ({ navigation }: any) => {
     })
   }, [t, navigation])
 
-  const urlSearchParams = new URLSearchParams(window?.location?.search)
-  const params = Object.fromEntries(urlSearchParams.entries())
-
   const targetHost = params.host
 
-  let queue: any = []
-  try {
-    queue = JSON.parse(atob(params.queue))
-  } catch {
-    //
-    console.warn('Ambire extension could not get request queue')
-  }
+  const queue = useMemo(() => (params.queue ? JSON.parse(atob(params.queue)) : []), [params.queue])
 
   const [loading, setLoading] = useState(false)
   const [feedback, setFeedback] = useState<{
     success: boolean
     permitted: boolean
   } | null>(null)
-  const [feedbackCloseAnimated, setFeedbackCloseAnimated] = useState(false)
-
+  // const [feedbackCloseAnimated, setFeedbackCloseAnimated] = useState(false)
+  // const [isCodeTooltipShown, setIsCodeTooltipShown] = useState(false)
   const [isQueueDisplayed, setIsQueueDisplayed] = useState(false)
-  const [isCodeTooltipShown, setIsCodeTooltipShown] = useState(false)
-  const { authStatus } = useAuth()
 
   const handlePermission = (permitted: boolean) => {
-    setLoading(true)
     if (permitted) {
-      console.log('APP', selectedAccount, network)
       browserAPI.storage.local.set({ SELECTED_ACCOUNT: selectedAccount, NETWORK: network }, () => {
         sendMessage({
           type: 'grantPermission',
@@ -71,13 +61,11 @@ const PermissionRequestScreen = ({ navigation }: any) => {
             targetHost
           }
         })
-          .then((message) => {
-            console.log('MESSAGE', message)
+          .then(() => {
             setFeedback({ success: true, permitted })
           })
-          .catch((err) => {
-            // TODO should not happen but in case, implement something nicer for the user?
-            console.log('ERR', err)
+          .catch(() => {
+            // TODO: should not happen but in case, implement something nicer for the user?
             setFeedback({ success: false, permitted })
           })
       })
@@ -87,12 +75,22 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   useEffect(() => {
     if (feedback) {
       setLoading(false)
-      setTimeout(() => setFeedbackCloseAnimated(true), 100)
+      // setTimeout(() => setFeedbackCloseAnimated(true), 100)
       setTimeout(() => {
         window.close()
       }, 1200)
     }
   }, [feedback, authStatus, navigation])
+
+  const handleDenyButtonPress = () => {
+    setLoading(true)
+    handlePermission(false)
+  }
+
+  const handleAuthorizeButtonPress = () => {
+    setLoading(true)
+    handlePermission(true)
+  }
 
   const renderFeedback = () => {
     if (feedback?.success) {
@@ -186,10 +184,10 @@ const PermissionRequestScreen = ({ navigation }: any) => {
 
               <View style={styles.buttonsContainer}>
                 <View style={styles.buttonWrapper}>
-                  <Button type="danger" onPress={() => handlePermission(false)} text="Deny" />
+                  <Button type="danger" onPress={handleDenyButtonPress} text="Deny" />
                 </View>
                 <View style={styles.buttonWrapper}>
-                  <Button type="outline" onPress={() => handlePermission(true)} text="Authorize" />
+                  <Button type="outline" onPress={handleAuthorizeButtonPress} text="Authorize" />
                 </View>
               </View>
 

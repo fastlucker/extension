@@ -9,6 +9,11 @@ import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethod
 import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
 
 export interface AmbireExtensionContextReturnType {
+  params: {
+    route?: string
+    host?: string
+    queue?: string
+  }
   requests: any[] | null
   resolveMany: (ids: any, resolution: any) => any
   setParams: React.Dispatch<
@@ -22,6 +27,7 @@ export interface AmbireExtensionContextReturnType {
 }
 
 const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
+  params: {},
   requests: [],
   resolveMany: () => {},
   setParams: () => null,
@@ -204,12 +210,13 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
     <AmbireExtensionContext.Provider
       value={useMemo(
         () => ({
+          params,
           requests,
           isTempExtensionPopup,
           resolveMany,
           setParams
         }),
-        [requests, isTempExtensionPopup, resolveMany, setParams]
+        [params, requests, isTempExtensionPopup, resolveMany, setParams]
       )}
     >
       {children}
