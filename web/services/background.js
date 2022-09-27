@@ -31,6 +31,7 @@ setupAmbexMessenger(BACKGROUND, browserAPI)
 
 // TODO: find a way to store the state and exec callbacks?
 const PENDING_CALLBACKS = {}
+const PENDING_WEB3_RESPONSE_CALLBACKS = {}
 
 // Initial loading call
 isStorageLoaded()
@@ -118,6 +119,22 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
     }
   })
   sendReply(message, {
+    data: 'done'
+  })
+})
+
+// User confirms or rejects web3Call from the extension or an extension popup
+addMessageHandler({ type: 'web3CallResponse' }, (msg) => {
+  const message = msg.data.originalMessage
+  const host = message.host
+  const method = message.data ? message.data.method : null
+  if (PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`]) {
+    PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`].callbacks.forEach((c) => {
+      c(msg.data)
+    })
+    delete PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`]
+  }
+  sendReply(msg, {
     data: 'done'
   })
 })
@@ -276,8 +293,12 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
       })
       if (result) result = sanitize2hex(result)
     } else if (USER_INTERVENTION_METHODS[method]) {
-      openExtensionInPopup(message.host, [message], method)
       deferredReply = true
+      sendUserInterventionMessage(message, async (res) => {
+        sendReply(res.originalMessage, {
+          data: res.rpcResult
+        })
+      })
     } else {
       error = `Method not supported by extension hook: ${method}`
     }
@@ -386,6 +407,20 @@ const notifyEventChange = (type, data) => {
     },
     { ignoreReply: true }
   )
+}
+
+const sendUserInterventionMessage = async (message, callback) => {
+  console.log('Send user intervention message: ', message)
+  const payload = message.data
+  const method = payload.method
+  const host = message.host
+  PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`] = {
+    callbacks: []
+  }
+  PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`].callbacks.push((res) => {
+    callback(res)
+  })
+  openExtensionInPopup(message.host, [message], method)
 }
 
 // Returns wether a message is allow to transact or if host is unknown, show permission popup

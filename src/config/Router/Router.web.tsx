@@ -79,7 +79,8 @@ const GasInformationStack = createNativeStackNavigator()
 
 const urlSearchParams = new URLSearchParams(window?.location?.search)
 const params = Object.fromEntries(urlSearchParams.entries())
-const navigationEnabled = !params.route
+const isTempExtensionPopup = !!params.route || !!params.host
+const navigationEnabled = !isTempExtensionPopup
 
 const headerAlpha = navigationEnabled ? defaultHeaderAlpha : defaultHeaderBeta
 const headerBeta = navigationEnabled ? defaultHeaderBeta : defaultHeaderBeta

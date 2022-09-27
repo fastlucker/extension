@@ -19,12 +19,9 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import ManifestImage from '@modules/extension/components/ManifestImage'
 import { browserAPI } from '@web/constants/browserAPI'
-import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
+import { sendMessage } from '@web/services/ambexMessanger'
 
 import styles from './styles'
-
-// TODO: should be called only for extension. Skip for web only
-setupAmbexMessenger('contentScript', browserAPI)
 
 const PermissionRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()

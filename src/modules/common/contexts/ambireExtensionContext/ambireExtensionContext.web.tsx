@@ -6,6 +6,7 @@ import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
 import { browserAPI } from '@web/constants/browserAPI'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
+import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
 
 export interface AmbireExtensionContextReturnType {
   requests: any[] | null
@@ -29,6 +30,9 @@ const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
 
 const STORAGE_KEY = 'ambire_extension_state'
 
+// TODO: should be called only for extension. Skip if this code is used for web wallet
+setupAmbexMessenger('contentScript', browserAPI)
+
 const AmbireExtensionProvider: React.FC = ({ children }) => {
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
@@ -50,7 +54,6 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
   // eth_sign, personal_sign
   const handlePersonalSign = useCallback(
     async (message) => {
-      console.log('msssg', message)
       const payload = message.data
 
       if (!payload) {
@@ -155,9 +158,14 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
             rpcResult.result = resolution.result
           }
 
-          // sendReply(req.originalMessage, {
-          //   data: rpcResult
-          // })
+          sendMessage({
+            type: 'web3CallResponse',
+            to: 'background',
+            data: {
+              originalMessage: req.originalMessage,
+              rpcResult
+            }
+          })
         }
       }
       setRequests((prevRequests) => prevRequests.filter((x) => !ids.includes(x.id)))
