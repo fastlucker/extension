@@ -17,12 +17,14 @@ export interface AmbireExtensionContextReturnType {
       queue?: string
     }>
   >
+  isTempExtensionPopup: boolean
 }
 
 const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
   requests: [],
   resolveMany: () => {},
-  setParams: () => null
+  setParams: () => null,
+  isTempExtensionPopup: false
 })
 
 const STORAGE_KEY = 'ambire_extension_state'
@@ -36,6 +38,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
     host?: string
     queue?: string
   }>({})
+  const isTempExtensionPopup = useMemo(() => !!params.route || !!params.host, [params])
   const queue = useMemo(() => (params.queue ? JSON.parse(atob(params.queue)) : []), [params.queue])
 
   const [requests, setRequests] = useStorage({
@@ -43,6 +46,48 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
     defaultValue: [],
     setInit: (initialRequests) => (!Array.isArray(initialRequests) ? [] : initialRequests)
   })
+
+  // eth_sign, personal_sign
+  const handlePersonalSign = useCallback(
+    async (message) => {
+      console.log('msssg', message)
+      const payload = message.data
+
+      if (!payload) {
+        console.error('AmbExHook: no payload', message)
+        return
+      }
+
+      const id = `ambex_${payload.id}`
+      let messageToSign = payload?.params?.message || payload?.params[0]
+      if (
+        payload.method === USER_INTERVENTION_METHODS.eth_sign ||
+        payload.method === USER_INTERVENTION_METHODS.eth_signTypedData ||
+        payload.method === USER_INTERVENTION_METHODS.eth_signTypedData_v4
+      ) {
+        messageToSign = payload?.params[1]
+      }
+      if (!messageToSign) {
+        console.error('AmbExHook: no message in received payload')
+        return
+      }
+
+      const request = {
+        id,
+        originalPayloadId: payload.id, // id for internal ambire requests purposes, originalPayloadId, to return
+        type: payload.method,
+        txn: messageToSign,
+        chainId: network?.chainId,
+        account: selectedAccount,
+        originalMessage: message
+      }
+
+      setRequests((prevRequests) =>
+        prevRequests.find((x) => x.id === request.id) ? prevRequests : [...prevRequests, request]
+      )
+    },
+    [network?.chainId, selectedAccount, setRequests]
+  )
 
   // handleSendTx
   const handleSendTransactions = useCallback(
@@ -127,24 +172,36 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
   }, [selectedAccount, network, addToast])
 
   useEffect(() => {
-    console.log(params, queue, queue[0])
     const message = queue[0]
     if (message) {
-      if (params.route === USER_INTERVENTION_METHODS.eth_sendTransaction) {
+      if (
+        params.route === USER_INTERVENTION_METHODS.eth_sendTransaction ||
+        params.route === USER_INTERVENTION_METHODS.gs_multi_send ||
+        params.route === USER_INTERVENTION_METHODS.ambire_sendBatchTransaction
+      ) {
         handleSendTransactions(message)
       }
+      if (
+        params.route === USER_INTERVENTION_METHODS.eth_sign ||
+        params.route === USER_INTERVENTION_METHODS.personal_sign ||
+        params.route === USER_INTERVENTION_METHODS.eth_signTypedData ||
+        params.route === USER_INTERVENTION_METHODS.eth_signTypedData_v4
+      ) {
+        handlePersonalSign(message)
+      }
     }
-  }, [params, queue, handleSendTransactions])
+  }, [params, queue, handleSendTransactions, handlePersonalSign])
 
   return (
     <AmbireExtensionContext.Provider
       value={useMemo(
         () => ({
           requests,
+          isTempExtensionPopup,
           resolveMany,
           setParams
         }),
-        [requests, resolveMany, setParams]
+        [requests, isTempExtensionPopup, resolveMany, setParams]
       )}
     >
       {children}

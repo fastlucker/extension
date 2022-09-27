@@ -190,17 +190,6 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
       result = [{ parentCapability: 'eth_accounts' }]
     } else if (method === 'wallet_getPermissions') {
       result = [{ parentCapability: 'eth_accounts' }]
-    } else if (method === 'wallet_switchEthereumChain') {
-      // TODO:
-      // const existingNetwork = allNetworks.find((a) => {
-      //   return sanitize2hex(a.chainId) === sanitize2hex(callTx[0]?.chainId) // ethers BN ouputs 1 to 0x01 while some dapps ask for 0x1
-      // })
-      // if (existingNetwork) {
-      //   setNetwork(existingNetwork.chainId)
-      //   result = null
-      // } else {
-      //   error = `chainId ${callTx[0]?.chainId} not supported by ambire wallet`
-      // }
     } else if (method === 'eth_coinbase') {
       result = SELECTED_ACCOUNT
     } else if (method === 'eth_call') {

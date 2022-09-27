@@ -1,7 +1,8 @@
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import useSignMessage from 'ambire-common/src/hooks/useSignMessage'
 import { UseSignMessageProps } from 'ambire-common/src/hooks/useSignMessage/types'
 import { toUtf8String } from 'ethers/lib/utils'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -15,6 +16,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useDisableHardwareBackPress from '@modules/common/hooks/useDisableHardwareBackPress'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
@@ -51,6 +53,12 @@ const SignScreenScreen = ({ navigation }: any) => {
   const { addToast } = useToast()
   const { connections } = useWalletConnect()
   const { everythingToSign, resolveMany } = useRequests()
+  const { isTempExtensionPopup } = useAmbireExtension()
+
+  if (isTempExtensionPopup) {
+    navigation.navigate = () => window.close()
+    navigation.goBack = () => window.close()
+  }
 
   const resolve = (outcome: any) => resolveMany([everythingToSign[0].id], outcome)
 
@@ -94,7 +102,7 @@ const SignScreenScreen = ({ navigation }: any) => {
   }
 
   const onLastMessageSign = () => {
-    navigation.navigate('dashboard')
+    navigation?.navigate('dashboard')
   }
 
   const {
@@ -120,14 +128,17 @@ const SignScreenScreen = ({ navigation }: any) => {
     getHardwareWallet
   })
 
-  const connection = connections?.find(({ uri }: any) => uri === toSign?.wcUri)
+  const connection = useMemo(
+    () => connections?.find(({ uri }: any) => uri === toSign?.wcUri),
+    [connections, toSign?.wcUri]
+  )
   const dApp = connection ? connection?.session?.peerMeta || null : null
 
-  useEffect(() => {
-    if (!connection) {
-      navigation.goBack()
-    }
-  }, [connection, navigation])
+  const prevToSign = usePrevious(toSign || {})
+
+  if (!Object.keys(toSign || {}).length && Object.keys(prevToSign || {}).length) {
+    navigation?.goBack()
+  }
 
   if (!toSign || !account) return null
 

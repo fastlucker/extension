@@ -12,6 +12,7 @@ import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
@@ -35,6 +36,13 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const { network } = useNetwork()
   const { currentAccGasTankState } = useGasTank()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
+  const { isTempExtensionPopup } = useAmbireExtension()
+
+  if (isTempExtensionPopup) {
+    navigation.navigate = () => window.close()
+    navigation.goBack = () => window.close()
+  }
 
   const onOpenHardwareWalletBottomSheet = () => {
     openBottomSheet()
@@ -99,11 +107,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     if (prevBundle?.txns?.length && !bundle?.txns?.length) {
-      if (navigation) {
-        navigation.goBack()
-      } else {
-        window.close()
-      }
+      navigation?.goBack()
     }
   })
 

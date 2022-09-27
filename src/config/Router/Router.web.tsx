@@ -79,12 +79,11 @@ const GasInformationStack = createNativeStackNavigator()
 
 const urlSearchParams = new URLSearchParams(window?.location?.search)
 const params = Object.fromEntries(urlSearchParams.entries())
-console.log('params', params)
 const navigationEnabled = !params.route
 
-const headerAlpha = navigationEnabled ? defaultHeaderAlpha : () => null
-const headerBeta = navigationEnabled ? defaultHeaderBeta : () => null
-const headerGamma = navigationEnabled ? defaultHeaderGamma : () => null
+const headerAlpha = navigationEnabled ? defaultHeaderAlpha : defaultHeaderBeta
+const headerBeta = navigationEnabled ? defaultHeaderBeta : defaultHeaderBeta
+const headerGamma = navigationEnabled ? defaultHeaderGamma : defaultHeaderBeta
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
@@ -247,6 +246,42 @@ const PermissionRequestStack = () => {
         options={{ title: t('Permission Request') }}
         name="permission-request"
         component={PermissionRequestScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+const PendingTransactionsStack = () => {
+  const { t } = useTranslation()
+
+  useEffect(() => {
+    SplashScreen.hideAsync()
+  }, [])
+
+  return (
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+      <Stack.Screen
+        options={{ title: t('Pending Transactions') }}
+        name="pending-transactions"
+        component={PendingTransactionsScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+const SignMessageStack = () => {
+  const { t } = useTranslation()
+
+  useEffect(() => {
+    SplashScreen.hideAsync()
+  }, [])
+
+  return (
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+      <Stack.Screen
+        options={{ title: t('SignMessage') }}
+        name="sign-message"
+        component={SignMessageScreen}
       />
     </Stack.Navigator>
   )
@@ -477,8 +512,20 @@ const Router = () => {
       if (params.route === 'permission-request') {
         return <PermissionRequestStack />
       }
-      if (params.route === USER_INTERVENTION_METHODS.eth_sendTransaction) {
-        return <PendingTransactionsScreen />
+      if (
+        params.route === USER_INTERVENTION_METHODS.eth_sendTransaction ||
+        params.route === USER_INTERVENTION_METHODS.gs_multi_send ||
+        params.route === USER_INTERVENTION_METHODS.ambire_sendBatchTransaction
+      ) {
+        return <PendingTransactionsStack />
+      }
+      if (
+        params.route === USER_INTERVENTION_METHODS.eth_sign ||
+        params.route === USER_INTERVENTION_METHODS.personal_sign ||
+        params.route === USER_INTERVENTION_METHODS.eth_signTypedData ||
+        params.route === USER_INTERVENTION_METHODS.eth_signTypedData_v4
+      ) {
+        return <SignMessageStack />
       }
 
       return <AppStack />
