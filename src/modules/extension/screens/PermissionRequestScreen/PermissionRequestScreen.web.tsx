@@ -109,7 +109,8 @@ const PermissionRequestScreen = ({ navigation }: any) => {
     return (
       <View style={spacings.pv}>
         <Text style={[textStyles.center, spacings.phSm]} fontSize={16}>
-          Could not communicate with Ambire Wallet. Please close the window and try again
+          Could not communicate with extension's background service. Please close the window and try
+          again
         </Text>
       </View>
     )

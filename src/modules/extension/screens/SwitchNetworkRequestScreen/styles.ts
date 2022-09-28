@@ -1,0 +1,31 @@
+import { StyleSheet, ViewStyle } from 'react-native'
+
+import colors from '@modules/common/styles/colors'
+import spacings from '@modules/common/styles/spacings'
+import commonStyles from '@modules/common/styles/utils/common'
+
+interface Style {
+  buttonsContainer: ViewStyle
+  buttonWrapper: ViewStyle
+  permissionLabelWrapper: ViewStyle
+}
+
+const styles = StyleSheet.create<Style>({
+  buttonsContainer: {
+    flexDirection: 'row',
+    marginHorizontal: -5,
+    ...spacings.mbTy
+  },
+  buttonWrapper: {
+    marginHorizontal: 5,
+    flex: 1
+  },
+  permissionLabelWrapper: {
+    ...spacings.pvSm,
+    ...spacings.phSm,
+    ...commonStyles.borderRadiusPrimary,
+    backgroundColor: colors.clay
+  }
+})
+
+export default styles

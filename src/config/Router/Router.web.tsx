@@ -41,6 +41,7 @@ import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PermissionRequestScreen from '@modules/extension/screens/PermissionRequestScreen'
+import SwitchNetworkRequestScreen from '@modules/extension/screens/SwitchNetworkRequestScreen'
 import GasInformationScreen from '@modules/gas-tank/screens/GasInformationScreen'
 import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
@@ -247,6 +248,23 @@ const PermissionRequestStack = () => {
         options={{ title: t('Permission Request') }}
         name="permission-request"
         component={PermissionRequestScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+const SwitchNetworkRequestStack = () => {
+  const { t } = useTranslation()
+
+  useEffect(() => {
+    SplashScreen.hideAsync()
+  }, [])
+
+  return (
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+      <Stack.Screen
+        options={{ title: t('Switch Network Request') }}
+        name="switch-network-request"
+        component={SwitchNetworkRequestScreen}
       />
     </Stack.Navigator>
   )
@@ -527,6 +545,9 @@ const Router = () => {
         params.route === USER_INTERVENTION_METHODS.eth_signTypedData_v4
       ) {
         return <SignMessageStack />
+      }
+      if (params.route === USER_INTERVENTION_METHODS.wallet_switchEthereumChain) {
+        return <SwitchNetworkRequestStack />
       }
 
       return <AppStack />
