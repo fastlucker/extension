@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-// The most important part of the extension
-// background workers are killed and respawned (chrome MV3) when contentScript are calling them. Firefox does not support MV3 yet but is working on it. Fortunately MV3 > MV2 is easier to migrate/support than MV2 > MV3
+// The backbone of the extension
+// Background workers are killed and respawned (chrome MV3) when contentScript are calling them.
+// Firefox does not support MV3 yet but is working on it.
 
 import { getDefaultProvider, BigNumber, ethers } from 'ethers'
 
@@ -84,9 +85,10 @@ const broadcastExtensionDataOnChange = () => {
     })
   })
 }
+// Execute the func right away
 broadcastExtensionDataOnChange()
 
-// MESSAGE HANDLERS START
+// MESSAGE HANDLERS START HERE
 
 // When CONTENT_SCRIPT is injected, prepare injection of PAGE_CONTEXT
 addMessageHandler({ type: 'contentScriptInjected' }, (message) => {
@@ -102,7 +104,7 @@ addMessageHandler({ type: 'pageContextInjected' }, (message) => {
   updateExtensionIcon(message.fromTabId, TAB_INJECTIONS, PERMISSIONS, PENDING_CALLBACKS)
 })
 
-// User click reply from request permission popup
+// User sends back a reply from the request permission popup
 addMessageHandler({ type: 'grantPermission' }, (message) => {
   if (PENDING_CALLBACKS[message.data.targetHost]) {
     PENDING_CALLBACKS[message.data.targetHost].callbacks.forEach((c) => {
@@ -139,7 +141,7 @@ addMessageHandler({ type: 'web3CallResponse' }, (msg) => {
   })
 })
 
-// User click reply from auth popup
+// The Ambire extension requests list of permissions
 addMessageHandler({ type: 'getPermissionsList' }, (message) => {
   isStorageLoaded().then(() => {
     sendReply(message, {
@@ -148,6 +150,7 @@ addMessageHandler({ type: 'getPermissionsList' }, (message) => {
   })
 })
 
+// The Ambire extension requests permission removal from the list of permissions
 addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
   isStorageLoaded().then(() => {
     delete PERMISSIONS[message.data.host]
@@ -328,7 +331,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
   })
 })
 
-// MESSAGE HANDLERS END
+// MESSAGE HANDLERS END HERE
 
 const openExtensionInPopup = async (host, queue, route) => {
   // For some reason, chrome defined at the top, at this moment of code execution does not return any windows information but browser (which is supposed to alias chrome) has

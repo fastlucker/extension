@@ -5,6 +5,7 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
 import { browserAPI } from '@web/constants/browserAPI'
+import { BACKGROUND, CONTENT_SCRIPT } from '@web/constants/paths'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
 
@@ -37,7 +38,7 @@ const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
 const STORAGE_KEY = 'ambire_extension_state'
 
 // TODO: should be called only for extension. Skip if this code is used for web wallet
-setupAmbexMessenger('contentScript', browserAPI)
+setupAmbexMessenger(CONTENT_SCRIPT, browserAPI)
 
 const AmbireExtensionProvider: React.FC = ({ children }) => {
   const { selectedAcc: selectedAccount } = useAccounts()
@@ -166,7 +167,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
 
           sendMessage({
             type: 'web3CallResponse',
-            to: 'background',
+            to: BACKGROUND,
             data: {
               originalMessage: req.originalMessage,
               rpcResult

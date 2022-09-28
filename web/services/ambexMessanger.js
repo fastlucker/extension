@@ -1,8 +1,6 @@
-// This is the messaging lib, used by all the relayers*(see below)
-
-// There are 3 possible actors for the communication, and a message has to follow this path (from one end to the other)
-// pageContext -> contentScript -> background
-// background -> contentScript -> pageContext
+// This is the messaging lib, used by all the relayers
+// There are 3 possible actors for the communication
+// BACKGROUND, CONTENT_SCRIPT, PAGE_CONTEXT
 
 import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
 import {
@@ -13,22 +11,24 @@ import {
   RELAYER_VERBOSE_TAG
 } from '../constants/paths.js'
 
-// The name of the current process handling the msg (itself). can be PAGE_CONTEXT (dapp page), CONTENT_SCRIPT (dappPage with more permissions) and BACKGROUND. Sometimes "I, me" is mentioned, it refers to RELAYER (the relayer is talking)
+// The name of the current process handling the msg (itself).
+// It can be PAGE_CONTEXT (dapp page), CONTENT_SCRIPT (dappPage with more permissions) and BACKGROUND.
+// Sometimes "I, me" is mentioned, it refers to RELAYER (the relayer is talking)
 let RELAYER
 
-// callbacks for listeners from addMessageHandler
+// Callbacks for listeners from addMessageHandler
 const HANDLERS = []
 
-// to be part of the JSON RPC generated ids when sendingMessage
+// To be part of the JSON RPC generated ids when sendingMessage
 let MSGCOUNT = 0
 
 // window listener handler
 let WINDOWLISTENER
 
-// for BACKGROUND only, messages coming in before BACKGROUND worker is fully initialized are stored in this queue to be processed after initialization
+// For BACKGROUND only, messages coming in before BACKGROUND worker is fully initialized are stored in this queue to be processed after initialization
 let INIT_MSG_QUEUE = []
 
-// for BACKGROUND only, bool
+// For BACKGROUND only, bool
 let BACKGROUND_INITIALIZED
 
 // eslint-disable-next-line

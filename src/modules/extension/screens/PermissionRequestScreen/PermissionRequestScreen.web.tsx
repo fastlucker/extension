@@ -20,6 +20,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import ManifestImage from '@modules/extension/components/ManifestImage'
 import { browserAPI } from '@web/constants/browserAPI'
+import { BACKGROUND } from '@web/constants/paths'
 import { sendMessage } from '@web/services/ambexMessanger'
 
 import styles from './styles'
@@ -55,7 +56,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
       browserAPI.storage.local.set({ SELECTED_ACCOUNT: selectedAccount, NETWORK: network }, () => {
         sendMessage({
           type: 'grantPermission',
-          to: 'background',
+          to: BACKGROUND,
           data: {
             permitted,
             targetHost

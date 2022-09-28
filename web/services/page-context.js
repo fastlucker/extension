@@ -1,5 +1,5 @@
-// share same environment than web page
-// this is where we can inject web3
+// Script injected in the page Shares the same environment as the web page
+// Here is where the web3 injection happens
 
 import { VERBOSE } from '../constants/env'
 import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
@@ -7,7 +7,8 @@ import { PAGE_CONTEXT, BACKGROUND } from '../constants/paths'
 import { sendMessage, makeRPCError, addMessageHandler, setupAmbexMessenger } from './ambexMessanger'
 
 const Web3 = require('web3')
-// unify error formatting
+
+// Unify error formatting
 const formatErr = (err) => {
   if (typeof err === 'string') {
     return Error(err)
@@ -21,7 +22,7 @@ const formatErr = (err) => {
   return err
 }
 
-// wrapped promise for ethereum.request
+// Wrapped promise for ethereum.request
 const ethRequest = (requestPayload) =>
   new Promise((resolve, reject) => {
     const replyTimeout = 6 * 60 * 1000 // 6 minutes
@@ -30,12 +31,10 @@ const ethRequest = (requestPayload) =>
       {
         to: BACKGROUND,
         type: 'web3Call',
-        data: requestPayload,
-        requireInteraction: USER_INTERVENTION_METHODS[requestPayload.method]
+        data: requestPayload
       },
       {
         replyTimeout
-        // ignoreReply: USER_INTERVENTION_METHODS[requestPayload.method]
       }
     )
       .then((reply) => {
@@ -62,7 +61,7 @@ const ethRequest = (requestPayload) =>
 
 // wrapped promise for provider.send
 const sendRequest = (requestPayload, callback) =>
-  new Promise((resolve, reject) => {
+  new Promise((resolve) => {
     let replyTimeout = 5 * 1000
     if (
       requestPayload &&
@@ -103,7 +102,7 @@ const sendRequest = (requestPayload, callback) =>
           if (callback) {
             callback('empty reply', makeRPCError(requestPayload, 'empty reply'))
           }
-          resolve(formatErr('empty reply')) // avoid to break web3calls dapps with rej...
+          resolve(formatErr('empty reply')) // avoid to break web3Calls dapps with rej...
         }
       })
       .catch((err) => {
@@ -115,18 +114,18 @@ const sendRequest = (requestPayload, callback) =>
             makeRPCError(requestPayload, err)
           )
         }
-        resolve(formatErr(formattedErr.message)) // avoid to break web3calls dapps with rej...
+        resolve(formatErr(formattedErr.message)) // avoid to break web3Calls dapps with rej...
       })
   })
 
-// inform dapp that accounts were changed
+// Informs dapp that accounts were changed
 function accountsChanged(account) {
   if (VERBOSE > 1) console.log('accountsChanged', account)
   window.ethereum.emit('accountsChanged', account ? [account] : [])
   window.web3.currentProvider.emit('accountsChanged', account ? [account] : [])
 }
 
-// inform dapp that chain was changed
+// Informs dapp that chain was changed
 function chainChanged(chainId) {
   if (VERBOSE > 1) console.log('chainChanged', chainId)
   window.ethereum.emit('chainChanged', chainId)
@@ -135,7 +134,7 @@ function chainChanged(chainId) {
   window.web3.currentProvider.emit('networkChanged', chainId)
 }
 
-// our web3 provider
+// Our web3 provider
 function ExtensionProvider() {
   this.eventHandlers = {
     chainChanged: [],
@@ -287,36 +286,37 @@ function ExtensionProvider() {
     return result
   }
 
-  // for dapps
+  // Needed for dapps
   this.isMetaMask = true
 
-  // for ourselves, to check of extension web3 is already injected
+  // Needed for ourselves, to check of extension web3 is already injected
   this.isAmbire = true
 }
 
 const ethereumProvider = new ExtensionProvider()
 
 ;(() => {
-  // to be removed from DOM after execution
+  // To be removed from DOM after execution
   const element = document.querySelector('#page-context')
 
   let overridden = false
 
-  // existing injection (MM or else)?
+  // Existing injection (MM or else)?
   const existing = (window.ethereum && true) || false
 
   if (existing) {
     if (window.ethereum.isAmbire) {
-      // dont override
+      // don't override
     } else {
       overridden = true
     }
   }
 
-  // if never injected, setup listeners and handlers
+  // If never injected, setup listeners and handlers
   if (!window.ambexMessengerSetup) {
     setupAmbexMessenger(PAGE_CONTEXT)
-    // TODO CHECK IN WHICH CASE WE NEED TO REPORT THIS A SECOND TIME (post load)
+
+    // Informs BACKGROUND that PAGE_CONTEXT is injected
     sendMessage(
       {
         type: 'pageContextInjected',
@@ -355,13 +355,14 @@ const ethereumProvider = new ExtensionProvider()
 
   // Avoids re-injection.
   // One injection happens at the very beginning of the page load,
-  // and one when page is complete (to override web3 if !web3.isAmbire)
+  // and one when page loading is completed (to override web3 if !web3.isAmbire)
   if (!existing || overridden) {
     window.ethereum = ethereumProvider
     window.web3 = new Web3(ethereumProvider)
   }
 
-  // cleaning dom - removes the current script (not needed after injection)
+  // Cleaning DOM
+  // Removes the current script (not needed after web3 injection anymore)
   try {
     element.parentNode.removeChild(document.querySelector('#page-context'))
   } catch (error) {
