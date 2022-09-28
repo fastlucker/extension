@@ -9,7 +9,7 @@ import GasTankIcon from '@assets/svg/GasTankIcon'
 import PrivacyIcon from '@assets/svg/PrivacyIcon'
 import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
-import CONFIG from '@config/env'
+import CONFIG, { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
@@ -180,12 +180,13 @@ const Balances = ({
         </Button>
       </View>
 
-      {otherBalancesLoading ? (
+      {otherBalancesLoading && !isWeb ? (
         <View style={spacings.mb}>
           <Spinner />
         </View>
       ) : (
-        otherPositiveBalances.length > 0 && (
+        otherPositiveBalances.length > 0 &&
+        !isWeb && (
           <View style={spacings.mb}>
             <Text style={[textStyles.center, spacings.mbTy]}>{t('You also have')}</Text>
             {otherPositiveBalances.map(({ network, total }: any) => {

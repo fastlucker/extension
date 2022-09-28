@@ -180,6 +180,7 @@ function ExtensionProvider() {
 
   this.emit = function (evt, data) {
     if (this.eventHandlers[evt] && this.eventHandlers[evt].length) {
+      // eslint-disable-next-line no-restricted-syntax
       for (const callback of this.eventHandlers[evt]) {
         if (typeof callback === 'function') {
           callback(data)
@@ -190,13 +191,15 @@ function ExtensionProvider() {
     }
   }
 
-  this.send = async function (payload, web3Callback) {
+  this.send = async function (payload, paramsOrCallback) {
     if (VERBOSE > 1) console.log('Payload to send to background', payload)
-    if (VERBOSE > 1) console.log('callback:', web3Callback)
+    if (VERBOSE > 1) console.log('paramsOrCallback:', paramsOrCallback)
+
+    const genId = `sendId_${Math.random()}`
 
     let formattedPayload = {
       jsonrpc: '2.0',
-      id: Math.random()
+      id: genId
     }
     if (typeof payload === 'string') {
       formattedPayload.method = payload
@@ -207,14 +210,38 @@ function ExtensionProvider() {
       }
     }
 
+    if (Array.isArray(paramsOrCallback)) {
+      formattedPayload.params = paramsOrCallback
+    }
+
     if (VERBOSE > 2) console.log('Formatted payload', formattedPayload)
 
-    const res = await sendRequest(formattedPayload, web3Callback)
-
-    if (VERBOSE > 2) console.log('PageContext result : ', res)
-
-    return res
+    let hasErr
+    let requestErr
+    const result = await ethRequest(formattedPayload).catch((err) => {
+      console.log('send ethRequest err', err)
+      hasErr = true // might err be undefined?
+      requestErr = err
+      // throw err
+    })
+    if (hasErr) {
+      if (requestErr instanceof Error) {
+        throw requestErr
+      } else if (typeof requestErr === 'object') {
+        throw requestErr
+      } else {
+        throw Error(`${requestErr}`)
+      }
+    }
+    if (VERBOSE > 2)
+      console.debug(`SEND RES ${genId} ${payload.method}`, {
+        payload,
+        result
+      })
+    return result
   }
+
+  this.sendAsync = this.send
 
   this.fetchNetworkId = async () => {
     const genId = `netId_${Math.random()}`
