@@ -1,4 +1,5 @@
-// injected on dapp page complete, to override other web3 wallets (if our first injection got overriden)
+// Injected on dapp page complete,
+// to override other web3 wallets (if our first injection got overriden)
 
 if (injectWeb3) {
   injectWeb3(chrome.runtime.id, `${chrome.runtime.id}-response`)

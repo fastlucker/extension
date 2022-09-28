@@ -183,18 +183,37 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
     const method = payload.method
 
     if (!granted) {
-      sendReply(message, {
-        data: {
-          jsonrpc: '2.0',
-          id: payload.id,
-          error: 'Permissions denied!'
-        }
-      })
+      if (method === 'eth_accounts') {
+        sendReply(message, {
+          data: {
+            jsonrpc: '2.0',
+            id: payload.id,
+            result: []
+          }
+        })
+      } else {
+        sendReply(message, {
+          data: {
+            jsonrpc: '2.0',
+            id: payload.id,
+            error: 'Permissions denied!'
+          }
+        })
+      }
       return
     }
     VERBOSE > 0 && console.log('ambirePageContext: web3CallRequest', message)
     const { NETWORK, SELECTED_ACCOUNT } = await getStore(['NETWORK', 'SELECTED_ACCOUNT'])
-    if (!NETWORK || !SELECTED_ACCOUNT) return
+    if (!NETWORK || !SELECTED_ACCOUNT) {
+      sendReply(message, {
+        data: {
+          jsonrpc: '2.0',
+          id: payload.id,
+          error: 'Inner wallet error!'
+        }
+      })
+      return
+    }
 
     const provider = getDefaultProvider(NETWORK.rpc)
     let deferredReply = false
@@ -334,7 +353,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
 // MESSAGE HANDLERS END HERE
 
 const openExtensionInPopup = async (host, queue, route) => {
-  // For some reason, chrome defined at the top, at this moment of code execution does not return any windows information but browser (which is supposed to alias chrome) has
+  // For some reason, chrome defined at the top, at the moment of code execution does not return any windows information but browser (which is supposed to alias chrome) has
   // fixed with browserAPI = browser || chrome instead of the opposite
   // If there is a popup window open for this host in our cache
   if (PERMISSION_WINDOWS[host] > 0) {
@@ -348,7 +367,7 @@ const openExtensionInPopup = async (host, queue, route) => {
     if (!window) {
       delete PERMISSION_WINDOWS[host]
     } else {
-      // making sure the popup comes back on top
+      // Making sure the popup comes back on top
       browserAPI.windows.update(window.id, {
         focused: true,
         drawAttention: true
@@ -420,10 +439,15 @@ const sendUserInterventionMessage = async (message, callback) => {
 const requestPermission = async (message, callback) => {
   console.log('Request permission for: ', message)
   const host = message.host
+  const payload = message.data
+  const method = payload.method
 
   if (PERMISSIONS[host] === true) {
     if (VERBOSE) console.log(`Host whitelisted ${host}`)
     callback(true)
+  } else if (!PERMISSIONS[host] && method === 'eth_accounts') {
+    if (VERBOSE) console.log("Initial dapp web3 call - doesn't require opening a permission popup")
+    callback(false)
   } else if (PERMISSIONS[host] === false) {
     if (VERBOSE) console.log(`Host blacklisted ${host}`)
     callback(false)
