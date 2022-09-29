@@ -1,5 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
@@ -15,7 +16,8 @@ const styles = () =>
     },
     contentContainerStyle: {
       ...spacings.pbSm,
-      flexGrow: 1
+      flexGrow: 1,
+      ...(isWeb ? spacings.ptSm : {})
     }
   })
 

@@ -1,4 +1,3 @@
-import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -15,19 +14,13 @@ import {
   headerBeta as defaultHeaderBeta,
   headerGamma as defaultHeaderGamma
 } from '@config/Router/HeadersConfig'
-import styles, {
-  horizontalTabBarLabelStyle,
-  tabBarItemStyle,
-  tabBarLabelStyle,
-  tabBarStyle
-} from '@config/Router/styles'
+import styles, { tabBarItemStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
@@ -35,7 +28,6 @@ import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
-import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
@@ -63,7 +55,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 
-import { drawerStyle, navigationContainerDarkTheme } from './styles'
+import { drawerWebStyle, navigationContainerDarkTheme } from './styles'
 
 const Tab = createBottomTabNavigator()
 const Stack = createNativeStackNavigator()
@@ -327,18 +319,18 @@ const TabsScreens = () => {
         tabBarActiveTintColor: colors.heliotrope,
         tabBarInactiveTintColor: colors.titan,
         tabBarActiveBackgroundColor: colors.howl_65,
-        tabBarStyle,
+        tabBarStyle: tabBarWebStyle,
         tabBarLabelStyle,
         tabBarItemStyle
       }}
       tabBar={(props: any) =>
         !!navigationEnabled && (
-          <View style={[styles.tabBarContainer]}>
-            <BlurView intensity={TAB_BAR_BLUR} tint="dark" style={[styles.backdropBlurWrapper]}>
+          <View style={[styles.tabBarContainerWeb]}>
+            <View style={[styles.backdropBlurWrapper]}>
               <View style={{ paddingBottom: props.insets.bottom }}>
                 <BottomTabBar {...props} insets={{ bottom: 0 }} />
               </View>
-            </BlurView>
+            </View>
           </View>
         )
       }
@@ -409,7 +401,8 @@ const AppDrawer = () => {
       screenOptions={{
         headerShown: false,
         drawerType: 'front',
-        drawerStyle
+        drawerStyle: drawerWebStyle,
+        drawerPosition: 'right'
       }}
     >
       <Drawer.Screen name="tabs" component={TabsScreens} />

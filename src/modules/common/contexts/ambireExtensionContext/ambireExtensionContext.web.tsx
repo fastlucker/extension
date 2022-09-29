@@ -38,7 +38,9 @@ const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
 const STORAGE_KEY = 'ambire_extension_state'
 
 // TODO: should be called only for extension. Skip if this code is used for web wallet
-setupAmbexMessenger(CONTENT_SCRIPT, browserAPI)
+if (!__DEV__) {
+  setupAmbexMessenger(CONTENT_SCRIPT, browserAPI)
+}
 
 const AmbireExtensionProvider: React.FC = ({ children }) => {
   const { selectedAcc: selectedAccount } = useAccounts()
@@ -165,14 +167,16 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
             rpcResult.result = resolution.result
           }
 
-          sendMessage({
-            type: 'web3CallResponse',
-            to: BACKGROUND,
-            data: {
-              originalMessage: req.originalMessage,
-              rpcResult
-            }
-          })
+          if (!__DEV__) {
+            sendMessage({
+              type: 'web3CallResponse',
+              to: BACKGROUND,
+              data: {
+                originalMessage: req.originalMessage,
+                rpcResult
+              }
+            })
+          }
         }
       }
       setRequests((prevRequests) => prevRequests.filter((x) => !ids.includes(x.id)))

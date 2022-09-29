@@ -4,11 +4,12 @@ import { isiOS, isWeb } from '@config/env'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import colors from '@modules/common/styles/colors'
-import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
+import { IS_SCREEN_SIZE_L, SPACING } from '@modules/common/styles/spacings'
 
 interface Style {
   tabBarContainer: ViewStyle
   backdropBlurWrapper: ViewStyle
+  tabBarContainerWeb: ViewStyle
 }
 
 const tabBarContainerBackground = !isiOS ? { backgroundColor: colors.valhalla } : {}
@@ -19,6 +20,13 @@ export const drawerStyle = {
   borderTopRightRadius: 13,
   borderBottomRightRadius: 13,
   width: 282
+}
+
+export const drawerWebStyle = {
+  backgroundColor: colors.clay,
+  borderTopLeftRadius: 13,
+  borderBottomLeftRadius: 13,
+  width: 290
 }
 
 export const headerStyle = {
@@ -42,6 +50,20 @@ export const tabBarStyle = {
   borderTopLeftRadius: 13,
   borderTopRightRadius: 13,
   paddingHorizontal: 10
+}
+
+export const tabBarWebStyle = {
+  backgroundColor: 'transparent',
+  borderColor: colors.waikawaGray,
+  borderWidth: 1,
+  // border top width and color should be specified separately
+  borderTopColor: colors.waikawaGray,
+  borderTopWidth: 1,
+  borderLeftWidth: 0,
+  borderRightWidth: 0,
+  borderBottomWidth: 0,
+  minHeight: TAB_BAR_HEIGHT,
+  paddingHorizontal: SPACING
 }
 
 export const tabBarItemStyle = {
@@ -80,9 +102,18 @@ const styles = StyleSheet.create<Style>({
     position: 'absolute',
     bottom: 0
   },
+  tabBarContainerWeb: {
+    backgroundColor: 'transparent',
+    height: TAB_BAR_HEIGHT,
+    minHeight: TAB_BAR_HEIGHT,
+    maxHeight: TAB_BAR_HEIGHT,
+    borderTopRightRadius: 0,
+    borderTopLeftRadius: 0,
+    overflow: 'hidden'
+  },
   backdropBlurWrapper: {
     width: '100%',
-    backgroundColor: colors.patriotBlue_75,
+    backgroundColor: colors.martinique,
     overflow: 'hidden'
   }
 })

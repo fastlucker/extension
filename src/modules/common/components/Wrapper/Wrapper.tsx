@@ -54,6 +54,8 @@ const Wrapper = ({
 
   const horizontalSpacing = isWeb && !!rest.refreshControl ? spacings.phTy : spacings.ph
 
+  hasBottomTabNav = isWeb ? false : hasBottomTabNav
+
   if (type === WRAPPER_TYPES.FLAT_LIST) {
     return (
       // @ts-ignore
