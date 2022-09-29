@@ -1,6 +1,6 @@
 import networks from 'ambire-common/src/constants/networks'
 import { BigNumber } from 'ethers'
-import React, { useLayoutEffect, useMemo, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
@@ -98,10 +98,13 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
         }
       })
     }
-    setTimeout(() => {
-      window.close()
-    }, 200)
   }
+
+  useEffect(() => {
+    if (newNetwork?.name === network?.name) {
+      window.close()
+    }
+  }, [newNetwork?.name, network?.name])
 
   return (
     <GradientBackgroundWrapper>
@@ -114,7 +117,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
           <Title style={[textStyles.center, spacings.phSm]}>{targetHost}</Title>
 
           <View style={flexboxStyles.alignCenter}>{!!loading && <Spinner />}</View>
-          {!loading && (
+          {!loading && !!newNetwork && (
             <>
               <View>
                 <Text style={[textStyles.center, spacings.phSm, spacings.mbMd]}>
@@ -157,6 +160,14 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
                 </View>
               </View>
             </>
+          )}
+          {!loading && !newNetwork && (
+            <View>
+              <Text style={[textStyles.center, spacings.phSm, spacings.mbMd]}>
+                Ambire Wallet does not support this network.
+              </Text>
+              <Button type="danger" onPress={handleDenyButtonPress} text="Cancel" />
+            </View>
           )}
         </Panel>
       </Wrapper>
