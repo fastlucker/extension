@@ -182,7 +182,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (selectedAccount && network) {
-      browserAPI.storage.local.set({ SELECTED_ACCOUNT: selectedAccount, NETWORK: network })
+      browserAPI?.storage?.local?.set({ SELECTED_ACCOUNT: selectedAccount, NETWORK: network })
     }
   }, [selectedAccount, network, addToast])
 

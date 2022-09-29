@@ -1,6 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { isiOS } from '@config/env'
+import { isiOS, isWeb } from '@config/env'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import colors from '@modules/common/styles/colors'
@@ -55,7 +55,7 @@ export const horizontalTabBarLabelStyle = {
 }
 
 export const tabBarLabelStyle = {
-  fontSize: 9
+  fontSize: isWeb ? 12 : 9
 }
 
 export const navigationContainerDarkTheme = {

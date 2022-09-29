@@ -318,7 +318,8 @@ const DashboardStackScreen = () => {
 const TabsScreens = () => {
   const { t } = useTranslation()
 
-  const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
+  const tabsIconSize = 34
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -327,7 +328,7 @@ const TabsScreens = () => {
         tabBarInactiveTintColor: colors.titan,
         tabBarActiveBackgroundColor: colors.howl_65,
         tabBarStyle,
-        tabBarLabelStyle: IS_SCREEN_SIZE_L ? horizontalTabBarLabelStyle : tabBarLabelStyle,
+        tabBarLabelStyle,
         tabBarItemStyle
       }}
       tabBar={(props: any) =>
