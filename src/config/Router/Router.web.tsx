@@ -5,6 +5,7 @@ import { View } from 'react-native'
 
 import DashboardIcon from '@assets/svg/DashboardIcon'
 import EarnIcon from '@assets/svg/EarnIcon'
+import GasTankIcon from '@assets/svg/GasTankIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
@@ -358,17 +359,6 @@ const TabsScreens = () => {
         component={EarnScreen}
       />
       <Tab.Screen
-        name="send"
-        options={{
-          tabBarLabel: t('Send'),
-          headerTitle: t('Send'),
-          tabBarIcon: ({ color }) => (
-            <SendIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-          )
-        }}
-        component={SendScreen}
-      />
-      <Tab.Screen
         name="swap"
         options={{
           tabBarLabel: t('Swap'),
@@ -389,6 +379,17 @@ const TabsScreens = () => {
           )
         }}
         component={TransactionsScreen}
+      />
+      <Tab.Screen
+        name="gas-tank"
+        options={{
+          tabBarLabel: t('Gas Tank'),
+          headerTitle: t('Gas Tank'),
+          tabBarIcon: ({ color }) => (
+            <GasTankIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={GasTankScreen}
       />
     </Tab.Navigator>
   )
