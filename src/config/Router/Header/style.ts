@@ -55,8 +55,8 @@ const styles = StyleSheet.create<Styles>({
     flexDirection: 'row'
   },
   networkIcon: {
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     backgroundColor: colors.clay,
     ...commonStyles.borderRadiusPrimary
   }

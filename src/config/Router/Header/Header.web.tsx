@@ -22,11 +22,13 @@ import styles from './style'
 interface Props extends DrawerHeaderProps {
   mode?: 'title' | 'bottom-sheet'
   withHamburger?: boolean
+  withScanner?: boolean
 }
 
 const Header: React.FC<Props> = ({
   mode = 'bottom-sheet',
   withHamburger = false,
+  withScanner = false,
   navigation,
   route,
   options
@@ -65,24 +67,11 @@ const Header: React.FC<Props> = ({
       return options.headerLeft({})
     }
 
-    if (withHamburger) {
-      return (
-        <NavIconWrapper onPress={openHeaderBottomSheet}>
-          <NetworkIcon name={network?.id} style={styles.networkIcon} />
-        </NavIconWrapper>
-      )
-    }
-
     if (canGoBack) {
       return (
-        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-          <NavIconWrapper onPress={navigation.goBack} style={spacings.mrTy}>
-            <LeftArrowIcon withRect={mode !== 'bottom-sheet'} />
-          </NavIconWrapper>
-          <NavIconWrapper onPress={openHeaderBottomSheet}>
-            <NetworkIcon name={network?.id} style={styles.networkIcon} />
-          </NavIconWrapper>
-        </View>
+        <NavIconWrapper onPress={navigation.goBack}>
+          <LeftArrowIcon />
+        </NavIconWrapper>
       )
     }
 
@@ -91,7 +80,7 @@ const Header: React.FC<Props> = ({
 
   const renderHeaderRight = (
     <NavIconWrapper onPress={navigation.openDrawer}>
-      <Blockies borderRadius={13} seed={selectedAcc} />
+      <Blockies borderRadius={13} size={10} seed={selectedAcc} />
     </NavIconWrapper>
   )
 
@@ -118,15 +107,23 @@ const Header: React.FC<Props> = ({
         }
       ]}
     >
-      <View>{renderHeaderLeft()}</View>
+      <View style={navIconContainer}>
+        {!withHamburger && renderHeaderLeft()}
+        {!!withHamburger && (
+          <NavIconWrapper onPress={openHeaderBottomSheet}>
+            <NetworkIcon name={network?.id} style={styles.networkIcon} />
+          </NavIconWrapper>
+        )}
+      </View>
       {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
       {mode === 'title' && (
         <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={1}>
           {title}
         </Text>
       )}
-
-      <View style={navIconContainer}>{renderHeaderRight}</View>
+      <View style={navIconContainer}>
+        {(!!withHamburger || !!withScanner) && renderHeaderRight}
+      </View>
     </View>
   )
 }

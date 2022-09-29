@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Button, { Props as ButtonDefaultProps } from '@modules/common/components/Button'
@@ -38,7 +39,7 @@ const AuthScreen = ({ navigation }: Props) => {
     <GradientBackgroundWrapper>
       <Wrapper>
         <AmbireLogo />
-        <View style={flexboxStyles.flex1}>
+        <View style={!isWeb ? flexboxStyles.flex1 : {}}>
           <AuthButton
             text={t('Login With Email')}
             routeName="emailLogin"

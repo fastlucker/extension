@@ -6,9 +6,9 @@ export const PERMISSION_WINDOWS = {}
 async function deferTick(host, queue, route) {
   if (DEFERRED_PERMISSION_WINDOWS[host]) {
     DEFERRED_PERMISSION_WINDOWS[host] = false
-    const zoom = 0.7
-    const popupWidth = 600 * zoom
-    const popupHeight = 830 * zoom
+    const zoom = 0.82
+    const popupWidth = Math.round(560 * zoom)
+    const popupHeight = Math.round(760 * zoom)
 
     // getting last focused window to position our popup correctly
     const lastFocused = await browserAPI.windows.getLastFocused()
