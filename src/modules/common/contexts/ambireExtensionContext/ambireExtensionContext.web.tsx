@@ -10,12 +10,17 @@ import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethod
 import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
 
 export interface AmbireExtensionContextReturnType {
+  connectedDapps: {
+    host: string
+    status: boolean
+  }[]
   params: {
     route?: string
     host?: string
     queue?: string
   }
   requests: any[] | null
+  isTempExtensionPopup: boolean
   resolveMany: (ids: any, resolution: any) => any
   setParams: React.Dispatch<
     React.SetStateAction<{
@@ -24,15 +29,17 @@ export interface AmbireExtensionContextReturnType {
       queue?: string
     }>
   >
-  isTempExtensionPopup: boolean
+  disconnectDapp: (hast: string) => void
 }
 
 const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
+  connectedDapps: [],
   params: {},
   requests: [],
+  isTempExtensionPopup: false,
   resolveMany: () => {},
   setParams: () => null,
-  isTempExtensionPopup: false
+  disconnectDapp: () => {}
 })
 
 const STORAGE_KEY = 'ambire_extension_state'
@@ -46,6 +53,13 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
   const { addToast } = useToast()
+
+  const [connectedDapps, setConnectedDapps] = useState<
+    {
+      host: string
+      status: boolean
+    }[]
+  >([])
   const [params, setParams] = useState<{
     route?: string
     host?: string
@@ -211,17 +225,58 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
     }
   }, [params, queue, handleSendTransactions, handlePersonalSign])
 
+  useEffect(() => {
+    if (!isTempExtensionPopup && !__DEV__) {
+      sendMessage({
+        to: BACKGROUND,
+        type: 'getPermissionsList'
+      }).then((reply) => {
+        setConnectedDapps(
+          Object.keys(reply.data).map((host) => {
+            return {
+              host,
+              status: reply.data?.[host]
+            }
+          })
+        )
+      })
+    }
+  }, [isTempExtensionPopup])
+
+  const disconnectDapp = useCallback(
+    (host: string) => {
+      sendMessage({
+        to: BACKGROUND,
+        type: 'removeFromPermissionsList',
+        data: { host }
+      }).then(() => {
+        setConnectedDapps(connectedDapps.filter((p) => p.host !== host))
+      })
+    },
+    [connectedDapps]
+  )
+
   return (
     <AmbireExtensionContext.Provider
       value={useMemo(
         () => ({
+          connectedDapps,
           params,
           requests,
           isTempExtensionPopup,
           resolveMany,
-          setParams
+          setParams,
+          disconnectDapp
         }),
-        [params, requests, isTempExtensionPopup, resolveMany, setParams]
+        [
+          connectedDapps,
+          params,
+          requests,
+          isTempExtensionPopup,
+          resolveMany,
+          setParams,
+          disconnectDapp
+        ]
       )}
     >
       {children}
