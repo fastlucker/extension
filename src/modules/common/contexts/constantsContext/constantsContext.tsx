@@ -7,6 +7,7 @@ import Satellite from '@assets/svg/Satellite'
 import CONFIG from '@config/env'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
@@ -62,9 +63,18 @@ const ConstantsProvider: React.FC = ({ children }) => {
   )
 
   const render = useCallback(() => {
-    // No need for another (custom) loading view, because the splash screen
-    // will always be present while this provider is loading.
-    const LoadingView = null
+    // In the mobile app context - there is no need for another (custom)
+    // loading view, because the splash screen will always be present
+    // while this provider is loading (so it can be `null`)
+    // In the web extension context - a (custom) loading view is needed,
+    // because there is no splash screen present there. So keep it.
+    const LoadingView = (
+      <GradientBackgroundWrapper>
+        <Wrapper contentContainerStyle={flexboxStyles.center}>
+          <Spinner />
+        </Wrapper>
+      </GradientBackgroundWrapper>
+    )
 
     if (isLoading) {
       return LoadingView
