@@ -101,7 +101,13 @@ addMessageHandler({ type: 'contentScriptInjected' }, (message) => {
 addMessageHandler({ type: 'pageContextInjected' }, (message) => {
   TAB_INJECTIONS[message.fromTabId] = true
   saveTabInjectionsInStorage()
-  updateExtensionIcon(message.fromTabId, TAB_INJECTIONS, PERMISSIONS, PENDING_CALLBACKS)
+  updateExtensionIcon(
+    message.fromTabId,
+    TAB_INJECTIONS,
+    PERMISSIONS,
+    PENDING_CALLBACKS,
+    PENDING_WEB3_RESPONSE_CALLBACKS
+  )
 })
 
 // User sends back a reply from the request permission popup
@@ -117,7 +123,13 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
     savePermissionsInStorage()
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
-      updateExtensionIcon(i, TAB_INJECTIONS, PERMISSIONS, PENDING_CALLBACKS)
+      updateExtensionIcon(
+        i,
+        TAB_INJECTIONS,
+        PERMISSIONS,
+        PENDING_CALLBACKS,
+        PENDING_WEB3_RESPONSE_CALLBACKS
+      )
     }
   })
   sendReply(message, {
@@ -135,6 +147,16 @@ addMessageHandler({ type: 'web3CallResponse' }, (msg) => {
       c(msg.data)
     })
     delete PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`]
+  }
+  // eslint-disable-next-line no-restricted-syntax, guard-for-in
+  for (const i in TAB_INJECTIONS) {
+    updateExtensionIcon(
+      i,
+      TAB_INJECTIONS,
+      PERMISSIONS,
+      PENDING_CALLBACKS,
+      PENDING_WEB3_RESPONSE_CALLBACKS
+    )
   }
   sendReply(msg, {
     data: 'done'
@@ -159,7 +181,13 @@ addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
     })
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
-      updateExtensionIcon(i, TAB_INJECTIONS, PERMISSIONS, PENDING_CALLBACKS)
+      updateExtensionIcon(
+        i,
+        TAB_INJECTIONS,
+        PERMISSIONS,
+        PENDING_CALLBACKS,
+        PENDING_WEB3_RESPONSE_CALLBACKS
+      )
     }
   })
 })
@@ -432,6 +460,14 @@ const sendUserInterventionMessage = async (message, callback) => {
   PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`].callbacks.push((res) => {
     callback(res)
   })
+  // eslint-disable-next-line no-restricted-syntax, guard-for-in
+  updateExtensionIcon(
+    message.fromTabId,
+    TAB_INJECTIONS,
+    PERMISSIONS,
+    PENDING_CALLBACKS,
+    PENDING_WEB3_RESPONSE_CALLBACKS
+  )
   openExtensionInPopup(message.host, [message], method)
 }
 
@@ -485,7 +521,13 @@ const requestPermission = async (message, callback) => {
           })
           callback(permitted)
         })
-        updateExtensionIcon(message.fromTabId, TAB_INJECTIONS, PERMISSIONS, PENDING_CALLBACKS)
+        updateExtensionIcon(
+          message.fromTabId,
+          TAB_INJECTIONS,
+          PERMISSIONS,
+          PENDING_CALLBACKS,
+          PENDING_WEB3_RESPONSE_CALLBACKS
+        )
 
         // Might want to pile up msgs with debounce in future
         openExtensionInPopup(host, [message], 'permission-request')

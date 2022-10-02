@@ -6,7 +6,8 @@ export const updateExtensionIcon = async (
   tabId,
   TAB_INJECTIONS,
   PERMISSIONS,
-  PENDING_PERMISSIONS_CALLBACKS
+  PENDING_CALLBACKS,
+  PENDING_WEB3_RESPONSE_CALLBACKS
 ) => {
   if (!parseInt(tabId)) return
 
@@ -21,11 +22,15 @@ export const updateExtensionIcon = async (
         iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
       } else if (TAB_INJECTIONS[tabId]) {
         if (PERMISSIONS[tabHost] === true) {
-          // TODO: xicon_connected
-          iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
+          if (Object.keys(PENDING_WEB3_RESPONSE_CALLBACKS).length) {
+            iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_pending.png')
+          } else {
+            // TODO: xicon_connected
+            iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
+          }
         } else if (PERMISSIONS[tabHost] === false) {
           iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_denied.png')
-        } else if (PENDING_PERMISSIONS_CALLBACKS[tabHost]) {
+        } else if (PENDING_CALLBACKS[tabHost]) {
           iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_pending.png')
         } else {
           iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
