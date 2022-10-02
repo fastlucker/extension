@@ -18,19 +18,21 @@ export const updateExtensionIcon = async (
       const tabHost = new URL(tab.url).host
 
       if (!tab.url.startsWith('http')) {
-        iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_disabled.png')
+        iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
       } else if (TAB_INJECTIONS[tabId]) {
         if (PERMISSIONS[tabHost] === true) {
-          iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_connected.png')
+          // TODO: xicon_connected
+          iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
         } else if (PERMISSIONS[tabHost] === false) {
           iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_denied.png')
         } else if (PENDING_PERMISSIONS_CALLBACKS[tabHost]) {
           iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_pending.png')
         } else {
-          iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_disabled.png')
+          iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
         }
       } else {
-        iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_connected.png')
+        // TODO: xicon_connected
+        iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
       }
 
       if (VERBOSE) console.log(`setting icon for tab ${tabId} ${iconUrl}`)

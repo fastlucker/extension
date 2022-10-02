@@ -10,7 +10,7 @@
     "type": "module"
   },
   "icons": {
-    "128": "./assets/images/extension_logo.png"
+    "128": "./assets/images/xicon.png"
   },
   "action": {
     "default_popup": "index.html"

@@ -45,7 +45,7 @@ isStorageLoaded()
 
 // Useful for debug purposes, display a notification whenever background worker is reloaded
 if (VERBOSE > 1) {
-  const testIconURL = chrome.runtime.getURL('../assets/images/extension_enabled.png')
+  const testIconURL = chrome.runtime.getURL('../assets/images/xicon.png')
   const notifRand = `${Math.random()}`
 
   const notificationOptions = {
