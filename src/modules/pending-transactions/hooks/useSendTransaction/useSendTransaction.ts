@@ -6,7 +6,6 @@ import { toBundleTxn } from 'ambire-common/src/services/requestToBundleTxn'
 import { ethers, Wallet } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert } from 'react-native'
 
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
@@ -15,6 +14,7 @@ import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
+import alert from '@modules/common/services/alert'
 import { fetchPost } from '@modules/common/services/fetch'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { getProvider } from '@modules/common/services/provider'
@@ -442,7 +442,7 @@ const useSendTransaction = ({ onOpenHardwareWalletBottomSheet }: Props) => {
         // Make sure we let React re-render without blocking (decrypting and signing will block)
         // eslint-disable-next-line no-promise-executor-return
         await new Promise((resolve) => setTimeout(resolve, 0))
-        const pwd = quickAccCredentials.password || Alert.alert('Enter password')
+        const pwd = quickAccCredentials.password || alert('Enter password')
         const wallet = await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), pwd)
         await finalBundle.sign(wallet)
       } else {
