@@ -1,7 +1,7 @@
 import { browserAPI } from '../constants/browserAPI.js'
 import { VERBOSE } from '../constants/env.js'
 
-// update the extension icon depending on the state
+// Update the extension icon depending on the state
 export const updateExtensionIcon = async (
   tabId,
   TAB_INJECTIONS,
@@ -25,8 +25,7 @@ export const updateExtensionIcon = async (
           if (Object.keys(PENDING_WEB3_RESPONSE_CALLBACKS).length) {
             iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_pending.png')
           } else {
-            // TODO: xicon_connected
-            iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
+            iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_connected.png')
           }
         } else if (PERMISSIONS[tabHost] === false) {
           iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_denied.png')
@@ -36,8 +35,7 @@ export const updateExtensionIcon = async (
           iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
         }
       } else {
-        // TODO: xicon_connected
-        iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
+        iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_connected.png')
       }
 
       if (VERBOSE) console.log(`setting icon for tab ${tabId} ${iconUrl}`)
