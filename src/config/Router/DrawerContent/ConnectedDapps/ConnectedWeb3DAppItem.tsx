@@ -38,9 +38,11 @@ const ConnectedDAppItem = ({ host, status, disconnect, isLast }: Props) => {
             </Text>
           </View>
         </View>
-        <TouchableOpacity onPress={() => disconnect(host)}>
-          <DisconnectIcon />
-        </TouchableOpacity>
+        {!!status && (
+          <TouchableOpacity onPress={() => disconnect(host)}>
+            <DisconnectIcon />
+          </TouchableOpacity>
+        )}
       </View>
     </TouchableOpacity>
   )
