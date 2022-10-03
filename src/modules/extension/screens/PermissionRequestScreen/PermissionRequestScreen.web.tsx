@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { ScrollView, TouchableOpacity, View } from 'react-native'
 
 import CloseIcon from '@assets/svg/CloseIcon'
-import { useTranslation } from '@config/localization'
+import { Trans, useTranslation } from '@config/localization'
 import useAuth from '@modules/auth/hooks/useAuth'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -100,11 +100,11 @@ const PermissionRequestScreen = ({ navigation }: any) => {
     if (feedback?.success) {
       return feedback?.permitted ? (
         <View style={styles.permissionLabelWrapper}>
-          <Text weight="medium">Permission Granted</Text>
+          <Text weight="medium">{t('Permission Granted')}</Text>
         </View>
       ) : (
         <View style={styles.permissionLabelWrapper}>
-          <Text weight="medium">Permission Denied</Text>
+          <Text weight="medium">{t('Permission Denied')}</Text>
         </View>
       )
     }
@@ -112,8 +112,9 @@ const PermissionRequestScreen = ({ navigation }: any) => {
     return (
       <View style={spacings.pv}>
         <Text style={[textStyles.center, spacings.phSm]} fontSize={16}>
-          Could not communicate with extension's background service. Please close the window and try
-          again
+          {t(
+            "Could not communicate with extension's background service. Please close the window and try again"
+          )}
         </Text>
       </View>
     )
@@ -156,7 +157,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
                       >
                         <View style={flexboxStyles.flex1} />
                         <Title type="small" hasBottomSpacing={false}>
-                          Requested payload details
+                          {t('Requested payload details')}
                         </Title>
                         <View style={[flexboxStyles.flex1, flexboxStyles.alignEnd]}>
                           <TouchableOpacity onPress={() => setIsQueueDisplayed(false)}>
@@ -173,31 +174,37 @@ const PermissionRequestScreen = ({ navigation }: any) => {
                     </View>
                   </View>
                 ) : (
-                  <Text style={[textStyles.center, spacings.phSm, spacings.mbMd]}>
-                    <Text fontSize={16} weight="regular">
-                      {'The dapp '}
+                  <Trans>
+                    <Text style={[textStyles.center, spacings.phSm, spacings.mbMd]}>
+                      <Text fontSize={16} weight="regular">
+                        {'The dapp '}
+                      </Text>
+                      <Text fontSize={16} weight="regular" color={colors.heliotrope}>
+                        {targetHost}
+                      </Text>
+                      <Text fontSize={16} weight="regular">
+                        {' is requesting an authorization to communicate with Ambire Wallet'}
+                      </Text>
                     </Text>
-                    <Text fontSize={16} weight="regular" color={colors.heliotrope}>
-                      {targetHost}
-                    </Text>
-                    <Text fontSize={16} weight="regular">
-                      {' is requesting an authorization to communicate with Ambire Wallet'}
-                    </Text>
-                  </Text>
+                  </Trans>
                 )}
               </View>
 
               <View style={styles.buttonsContainer}>
                 <View style={styles.buttonWrapper}>
-                  <Button type="danger" onPress={handleDenyButtonPress} text="Deny" />
+                  <Button type="danger" onPress={handleDenyButtonPress} text={t('Deny')} />
                 </View>
                 <View style={styles.buttonWrapper}>
-                  <Button type="outline" onPress={handleAuthorizeButtonPress} text="Authorize" />
+                  <Button
+                    type="outline"
+                    onPress={handleAuthorizeButtonPress}
+                    text={t('Authorize')}
+                  />
                 </View>
               </View>
 
               <Text fontSize={16} style={textStyles.center}>
-                Dapps authorizations can be removed at any time in the extension settings
+                {t('Dapps authorizations can be removed at any time in the extension settings')}
               </Text>
             </>
           )}

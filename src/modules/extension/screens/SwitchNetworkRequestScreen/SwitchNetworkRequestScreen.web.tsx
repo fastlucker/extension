@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers'
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
-import { useTranslation } from '@config/localization'
+import { Trans, useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
@@ -120,17 +120,19 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
           {!loading && !!newNetwork && (
             <>
               <View>
-                <Text style={[textStyles.center, spacings.phSm, spacings.mbMd]}>
-                  <Text fontSize={16} weight="regular">
-                    {'Allow '}
+                <Trans>
+                  <Text style={[textStyles.center, spacings.phSm, spacings.mbMd]}>
+                    <Text fontSize={16} weight="regular">
+                      {'Allow '}
+                    </Text>
+                    <Text fontSize={16} weight="regular" color={colors.heliotrope}>
+                      {targetHost}
+                    </Text>
+                    <Text fontSize={16} weight="regular">
+                      {' to switch the network?'}
+                    </Text>
                   </Text>
-                  <Text fontSize={16} weight="regular" color={colors.heliotrope}>
-                    {targetHost}
-                  </Text>
-                  <Text fontSize={16} weight="regular">
-                    {' to switch the network?'}
-                  </Text>
-                </Text>
+                </Trans>
                 {!!network && !!newNetwork && (
                   <View
                     style={[
@@ -149,13 +151,13 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
 
               <View style={styles.buttonsContainer}>
                 <View style={styles.buttonWrapper}>
-                  <Button type="danger" onPress={handleDenyButtonPress} text="Deny" />
+                  <Button type="danger" onPress={handleDenyButtonPress} text={t('Deny')} />
                 </View>
                 <View style={styles.buttonWrapper}>
                   <Button
                     type="outline"
                     onPress={handleSwitchNetworkButtonPress}
-                    text="Switch Network"
+                    text={t('Switch Network')}
                   />
                 </View>
               </View>
@@ -164,9 +166,9 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
           {!loading && !newNetwork && (
             <View>
               <Text style={[textStyles.center, spacings.phSm, spacings.mbMd]}>
-                Ambire Wallet does not support this network.
+                {t('Ambire Wallet does not support this network.')}
               </Text>
-              <Button type="danger" onPress={handleDenyButtonPress} text="Cancel" />
+              <Button type="danger" onPress={handleDenyButtonPress} text={t('Cancel')} />
             </View>
           )}
         </Panel>
