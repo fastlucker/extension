@@ -18,6 +18,7 @@ import {
 import styles, { tabBarItemStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
+import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
@@ -508,6 +509,14 @@ const Router = () => {
   const { authStatus } = useAuth()
   const { connectionState } = useNetInfo()
   const { setParams } = useAmbireExtension()
+  const { handlePendingLogin } = useEmailLogin()
+
+  // Checks whether there are pending logins
+  // It happens when user request email login and closes the extensions
+  // when the extension is opened a second time a login attempt will be triggered
+  useEffect(() => {
+    handlePendingLogin()
+  }, [])
 
   useEffect(() => {
     setParams(params)
