@@ -32,6 +32,7 @@ enum APP_ENV {
 
 interface Config {
   APP_ENV: APP_ENV
+  APP_RELAYRLESS: boolean
   RELAYER_URL: string
   ZAPPER_API_ENDPOINT: string
   ZAPPER_API_KEY: string
@@ -43,10 +44,12 @@ interface Config {
   SUSHI_SWAP_URL: string
   SENTRY_DSN: string
   SIGNATURE_VERIFIER_DEBUGGER: number
+  CONSTANTS_ENDPOINT: string
 }
 
 const CONFIG: Config = {
   APP_ENV: APP_ENV.DEV,
+  APP_RELAYRLESS: false,
   RELAYER_URL: 'https://relayer.ambire.com',
   ZAPPER_API_ENDPOINT: 'https://api.zapper.fi/v1',
   ZAPPER_API_KEY: '96e0cc51-a62e-42ca-acee-910ea7d2a241',
@@ -58,7 +61,8 @@ const CONFIG: Config = {
   // SushiSwap v2. For v1, use 'https://sushiswap-interface-ten.vercel.app/swap'
   SUSHI_SWAP_URL: 'https://sushiswap-interface-jfomtc62l-ambire.vercel.app/en/swap',
   SENTRY_DSN: 'https://8e5d690e5de843b4bf3cf22a563ee7fc@o1152360.ingest.sentry.io/6230367',
-  SIGNATURE_VERIFIER_DEBUGGER: 0
+  SIGNATURE_VERIFIER_DEBUGGER: 0,
+  CONSTANTS_ENDPOINT: 'https://jason.ambire.com'
 }
 
 if (isProd) {
@@ -68,5 +72,8 @@ if (isProd) {
 } else if (isStaging) {
   CONFIG.APP_ENV = APP_ENV.STAGING
 }
+
+// That's special app mode, which is ment to be turned on only manually.
+export const isRelayerless = CONFIG.APP_RELAYRLESS || !CONFIG.RELAYER_URL
 
 export default CONFIG
