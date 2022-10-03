@@ -56,7 +56,9 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     const removeAccount = async () => {
       // Remove account password, because it gets persisted in the iOS Keychain
       // or in the Android Keystore.
-      await removeSelectedAccPassword(account.id)
+      if (!isWeb) {
+        await removeSelectedAccPassword(account.id)
+      }
 
       // In case this account is the only one logged in,
       // clean up the app passcode too.
