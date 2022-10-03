@@ -10,6 +10,7 @@ import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useConstants from '@modules/common/hooks/useConstants'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useToast from '@modules/common/hooks/useToast'
@@ -23,6 +24,7 @@ const SignersList = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { selectedAcc, account: selectedAccount, onAddAccount } = useAccounts()
+  const { constants } = useConstants()
   const { network: selectedNetwork } = useNetwork()
   const { cacheBreak } = useCacheBreak({
     breakPoint: 30000,
@@ -64,7 +66,7 @@ const SignersList = () => {
     .map(([addr, privValue]) => {
       if (!privValue) return null
 
-      const addressName = getName(addr) || null
+      const addressName = getName(constants!.humanizerInfo, addr) || null
       const isQuickAcc = addr === accountPresets.quickAccManager
       const privText = isQuickAcc
         ? `Email/password signer (${selectedAccount?.email || 'unknown email'})`

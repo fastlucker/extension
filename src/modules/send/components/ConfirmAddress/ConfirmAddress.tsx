@@ -8,6 +8,7 @@ import { useTranslation } from '@config/localization'
 import Checkbox from '@modules/common/components/Checkbox'
 import Text from '@modules/common/components/Text'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
+import useConstants from '@modules/common/hooks/useConstants'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -30,6 +31,7 @@ const ConfirmAddress = ({
 }: Props) => {
   const { t } = useTranslation()
   const { isKnownAddress } = useAddressBook()
+  const { constants } = useConstants()
 
   const unknownWarning = useMemo(() => {
     if (uDAddress || ensAddress) {
@@ -38,7 +40,10 @@ const ConfirmAddress = ({
     return isValidAddress(address) && !isKnownAddress(address)
   }, [address, uDAddress, ensAddress, isKnownAddress])
 
-  const smartContractWarning = useMemo(() => isKnownTokenOrContract(address), [address])
+  const smartContractWarning = useMemo(
+    () => isKnownTokenOrContract(constants!.humanizerInfo, address),
+    [address, constants]
+  )
 
   return !smartContractWarning && !!unknownWarning && address !== accountPresets.feeCollector ? (
     <>

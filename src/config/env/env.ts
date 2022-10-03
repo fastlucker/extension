@@ -43,6 +43,7 @@ interface Config {
   SUSHI_SWAP_URL: string
   SENTRY_DSN: string
   SIGNATURE_VERIFIER_DEBUGGER: number
+  CONSTANTS_ENDPOINT: string
 }
 
 const CONFIG: Config = {
@@ -59,7 +60,8 @@ const CONFIG: Config = {
   // SushiSwap v2. For v1, use 'https://sushiswap-interface-ten.vercel.app/swap'
   SUSHI_SWAP_URL: 'https://sushiswap-interface-jfomtc62l-ambire.vercel.app/en/swap',
   SENTRY_DSN: 'https://8e5d690e5de843b4bf3cf22a563ee7fc@o1152360.ingest.sentry.io/6230367',
-  SIGNATURE_VERIFIER_DEBUGGER: 0
+  SIGNATURE_VERIFIER_DEBUGGER: 0,
+  CONSTANTS_ENDPOINT: 'https://jason.ambire.com'
 }
 
 if (isProd) {

@@ -8,6 +8,7 @@ import OpenIcon from '@assets/svg/OpenIcon'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import TxnPreview from '@modules/common/components/TxnPreview'
+import useConstants from '@modules/common/hooks/useConstants'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -23,6 +24,7 @@ const BundleSimplePreview = ({
   setOpenedBundle,
   setMined
 }: any) => {
+  const { constants } = useConstants()
   const { t } = useTranslation()
 
   if (!Array.isArray(bundle.txns)) {
@@ -38,7 +40,12 @@ const BundleSimplePreview = ({
   const lastTxn = bundle.txns[bundle.txns.length - 1]
   // terribly hacky; @TODO fix
   // all of the values are prob checksummed so we may not need toLowerCase
-  const lastTxnSummary = getTransactionSummary(lastTxn, bundle.network, bundle.identity)
+  const lastTxnSummary = getTransactionSummary(
+    constants!.humanizerInfo,
+    lastTxn,
+    bundle.network,
+    bundle.identity
+  )
   const hasFeeMatch = bundle.txns.length > 1 && lastTxnSummary.match(new RegExp(TO_GAS_TANK, 'i'))
   const txns = hasFeeMatch && !bundle.gasTankFee ? bundle.txns.slice(0, -1) : bundle.txns
 
