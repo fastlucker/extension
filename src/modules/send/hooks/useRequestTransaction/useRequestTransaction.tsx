@@ -14,6 +14,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import TokenIcon from '@modules/common/components/TokenIcon'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
+import useConstants from '@modules/common/hooks/useConstants'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useRequests from '@modules/common/hooks/useRequests'
@@ -32,6 +33,7 @@ export default function useRequestTransaction() {
   const { addRequest } = useRequests()
   const { addToast } = useToast()
   const { isKnownAddress } = useAddressBook()
+  const { constants } = useConstants()
   const timer: any = useRef(null)
   const [bigNumberHexAmount, setBigNumberHexAmount] = useState('')
   const [asset, setAsset] = useState<string | null>(null)
@@ -199,7 +201,10 @@ export default function useRequestTransaction() {
     return isValidAddress(address) && !isKnownAddress(address)
   }, [address, uDAddress, ensAddress, isKnownAddress])
 
-  const smartContractWarning = useMemo(() => isKnownTokenOrContract(address), [address])
+  const smartContractWarning = useMemo(
+    () => isKnownTokenOrContract(constants!.humanizerInfo, address),
+    [address, constants]
+  )
 
   const showSWAddressWarning = useMemo(
     () =>
@@ -249,7 +254,8 @@ export default function useRequestTransaction() {
           address,
           selectedAcc,
           addressConfirmed,
-          isKnownAddress
+          isKnownAddress,
+          constants!.humanizerInfo
         )
 
         setValidationFormMgs({
@@ -290,6 +296,7 @@ export default function useRequestTransaction() {
             selectedAcc,
             addressConfirmed,
             isKnownAddress,
+            constants!.humanizerInfo,
             isUDAddress,
             isEnsAddress
           )

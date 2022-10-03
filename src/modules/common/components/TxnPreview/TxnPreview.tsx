@@ -19,6 +19,7 @@ import UpArrowIcon from '@assets/svg/UpArrowIcon'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import TokenIcon from '@modules/common/components/TokenIcon'
+import useConstants from '@modules/common/hooks/useConstants'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -110,8 +111,9 @@ const TxnPreview = ({
   hasBottomSpacing = true,
   addressLabel = null
 }: any) => {
+  const { constants } = useConstants()
   const [isExpanded, setExpanded] = useState(false)
-  const contractName = getName(txn[0], network)
+  const contractName = getName(constants!.humanizerInfo, txn[0], network)
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -120,7 +122,10 @@ const TxnPreview = ({
 
   const networkDetails = networks.find(({ id }) => id === network)
 
-  const extendedSummary = getTransactionSummary(txn, network, account, { mined, extended: true })
+  const extendedSummary = getTransactionSummary(constants!.humanizerInfo, txn, network, account, {
+    mined,
+    extended: true
+  })
 
   const summary = extendedSummary.map((entry: any, idx: number) => {
     if (Array.isArray(entry)) {
@@ -167,7 +172,7 @@ const TxnPreview = ({
               {t('This is the first failing transaction.')}
             </Text>
           )}
-          {!isFirstFailing && !mined && !isKnown(txn, account) && (
+          {!isFirstFailing && !mined && !isKnown(constants!.humanizerInfo, txn, account) && (
             <Text appearance="danger" fontSize={10}>
               {t('Warning: interacting with an unknown contract or address.')}
             </Text>

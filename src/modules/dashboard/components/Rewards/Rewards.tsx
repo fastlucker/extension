@@ -19,6 +19,7 @@ import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useConstants from '@modules/common/hooks/useConstants'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
@@ -63,6 +64,7 @@ const Rewards = () => {
     shouldDisplayMintableVesting,
     claimingDisabled
   } = useClaimableWalletToken({
+    useConstants,
     accountId: selectedAcc,
     network,
     addRequest,
