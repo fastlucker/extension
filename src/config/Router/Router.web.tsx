@@ -360,15 +360,15 @@ const TabsScreens = () => {
         component={EarnScreen}
       />
       <Tab.Screen
-        name="swap"
+        name="send"
         options={{
-          tabBarLabel: t('Swap'),
-          headerTitle: t('Swap'),
+          tabBarLabel: t('Send'),
+          headerTitle: t('Send'),
           tabBarIcon: ({ color }) => (
-            <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+            <SendIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
         }}
-        component={SwapScreen}
+        component={SendScreen}
       />
       <Tab.Screen
         name="transactions"
