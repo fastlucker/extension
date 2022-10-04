@@ -52,28 +52,23 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   const [isQueueDisplayed, setIsQueueDisplayed] = useState(false)
 
   const handlePermission = (permitted: boolean) => {
-    if (permitted) {
-      browserAPI?.storage?.local?.set(
-        { SELECTED_ACCOUNT: selectedAccount, NETWORK: network },
-        () => {
-          sendMessage({
-            type: 'grantPermission',
-            to: BACKGROUND,
-            data: {
-              permitted,
-              targetHost
-            }
-          })
-            .then(() => {
-              setFeedback({ success: true, permitted })
-            })
-            .catch(() => {
-              // TODO: should not happen but in case, implement something nicer for the user?
-              setFeedback({ success: false, permitted })
-            })
+    browserAPI?.storage?.local?.set({ SELECTED_ACCOUNT: selectedAccount, NETWORK: network }, () => {
+      sendMessage({
+        type: 'grantPermission',
+        to: BACKGROUND,
+        data: {
+          permitted,
+          targetHost
         }
-      )
-    }
+      })
+        .then(() => {
+          setFeedback({ success: true, permitted })
+        })
+        .catch(() => {
+          // TODO: should not happen but in case, implement something nicer for the user?
+          setFeedback({ success: false, permitted })
+        })
+    })
   }
 
   useEffect(() => {

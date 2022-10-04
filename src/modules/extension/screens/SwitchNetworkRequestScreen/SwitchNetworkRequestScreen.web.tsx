@@ -19,7 +19,6 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import ManifestImage from '@modules/extension/components/ManifestImage'
 import { BACKGROUND } from '@web/constants/paths'
-import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 import { sendMessage } from '@web/services/ambexMessanger'
 
 import styles from './styles'
