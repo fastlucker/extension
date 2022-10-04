@@ -55,7 +55,9 @@ import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { BACKGROUND } from '@web/constants/paths'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
+import { sendMessage } from '@web/services/ambexMessanger'
 
 import { drawerWebStyle, navigationContainerDarkTheme } from './styles'
 
@@ -510,6 +512,31 @@ const Router = () => {
   const { connectionState } = useNetInfo()
   const { setParams } = useAmbireExtension()
   const { handlePendingLogin } = useEmailLogin()
+
+  const handleForceClose = () => {
+    if (isTempExtensionPopup && !__DEV__) {
+      if (params.route === 'permission-request') {
+        sendMessage(
+          {
+            type: 'clearPendingCallback',
+            to: BACKGROUND,
+            data: {
+              targetHost: params.host
+            }
+          },
+          { ignoreReply: true }
+        )
+      }
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', handleForceClose)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleForceClose)
+    }
+  }, [])
 
   // Checks whether there are pending logins
   // It happens when user request email login and closes the extensions

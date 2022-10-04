@@ -137,6 +137,28 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
   })
 })
 
+// User sends back a reply from the request permission popup
+addMessageHandler({ type: 'clearPendingCallback' }, (message) => {
+  if (PENDING_CALLBACKS[message.data.targetHost]) {
+    delete PENDING_CALLBACKS[message.data.targetHost]
+  }
+  if (PENDING_WEB3_RESPONSE_CALLBACKS[message.data.targetHost]) {
+    delete PENDING_WEB3_RESPONSE_CALLBACKS[message.data.targetHost]
+  }
+  isStorageLoaded().then(() => {
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const i in TAB_INJECTIONS) {
+      updateExtensionIcon(
+        i,
+        TAB_INJECTIONS,
+        PERMISSIONS,
+        PENDING_CALLBACKS,
+        PENDING_WEB3_RESPONSE_CALLBACKS
+      )
+    }
+  })
+})
+
 // User confirms or rejects web3Call from the extension or an extension popup
 addMessageHandler({ type: 'web3CallResponse' }, (msg) => {
   const message = msg.data.originalMessage

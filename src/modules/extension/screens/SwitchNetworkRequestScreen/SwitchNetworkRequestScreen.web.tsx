@@ -19,6 +19,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import ManifestImage from '@modules/extension/components/ManifestImage'
 import { BACKGROUND } from '@web/constants/paths'
+import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 import { sendMessage } from '@web/services/ambexMessanger'
 
 import styles from './styles'
@@ -105,6 +106,32 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
       window.close()
     }
   }, [newNetwork?.name, network?.name])
+
+  const handleForceClose = () => {
+    sendMessage(
+      {
+        type: 'web3CallResponse',
+        to: BACKGROUND,
+        data: {
+          originalMessage: message,
+          rpcResult: {
+            jsonrpc: '2.0',
+            id: message?.data?.id,
+            error: 'Switching network canceled!'
+          }
+        }
+      },
+      { ignoreReply: true }
+    )
+  }
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', handleForceClose)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleForceClose)
+    }
+  }, [])
 
   return (
     <GradientBackgroundWrapper>
