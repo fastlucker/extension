@@ -7,6 +7,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Style {
   tokenItemContainer: ViewStyle
+  tokenItemContainerWeb: ViewStyle
   tokenValue: ViewStyle
   sendContainer: ViewStyle
   tokenSymbol: TextStyle
@@ -20,6 +21,15 @@ const styles = StyleSheet.create<Style>({
     ...spacings.phSm,
     ...spacings.mbTy,
     ...commonStyles.borderRadiusPrimary
+  },
+  tokenItemContainerWeb: {
+    flexDirection: 'row',
+    backgroundColor: colors.howl,
+    ...spacings.pvTy,
+    ...spacings.phSm,
+    ...spacings.mbTy,
+    ...commonStyles.borderRadiusPrimary,
+    ...flexboxStyles.alignCenter
   },
   tokenSymbol: {
     // Magic number, so that the token name always takes up to 35% of the row,
