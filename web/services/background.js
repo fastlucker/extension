@@ -163,12 +163,11 @@ addMessageHandler({ type: 'clearPendingCallback' }, (message) => {
 addMessageHandler({ type: 'web3CallResponse' }, (msg) => {
   const message = msg.data.originalMessage
   const host = message.host
-  const method = message.data ? message.data.method : null
-  if (PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`]) {
-    PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`].callbacks.forEach((c) => {
+  if (PENDING_WEB3_RESPONSE_CALLBACKS[host]) {
+    PENDING_WEB3_RESPONSE_CALLBACKS[host].callbacks.forEach((c) => {
       c(msg.data)
     })
-    delete PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`]
+    delete PENDING_WEB3_RESPONSE_CALLBACKS[host]
   }
   // eslint-disable-next-line no-restricted-syntax, guard-for-in
   for (const i in TAB_INJECTIONS) {
@@ -239,6 +238,14 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
             jsonrpc: '2.0',
             id: payload.id,
             result: []
+          }
+        })
+      } else if (method === 'eth_chainId') {
+        sendReply(message, {
+          data: {
+            jsonrpc: '2.0',
+            id: payload.id,
+            result: null
           }
         })
       } else {
@@ -476,10 +483,10 @@ const sendUserInterventionMessage = async (message, callback) => {
   const payload = message.data
   const method = payload.method
   const host = message.host
-  PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`] = {
+  PENDING_WEB3_RESPONSE_CALLBACKS[host] = {
     callbacks: []
   }
-  PENDING_WEB3_RESPONSE_CALLBACKS[`${host}-${method}`].callbacks.push((res) => {
+  PENDING_WEB3_RESPONSE_CALLBACKS[host].callbacks.push((res) => {
     callback(res)
   })
   // eslint-disable-next-line no-restricted-syntax, guard-for-in
@@ -503,57 +510,56 @@ const requestPermission = async (message, callback) => {
   if (PERMISSIONS[host] === true) {
     if (VERBOSE) console.log(`Host whitelisted ${host}`)
     callback(true)
-  } else if (!PERMISSIONS[host] && method === 'eth_accounts') {
+  } else if (!PERMISSIONS[host] && method !== 'eth_requestAccounts') {
+    console.log('IN', method)
     if (VERBOSE) console.log("Initial dapp web3 call - doesn't require opening a permission popup")
-    callback(false)
+    // callback(false)
+    if (!PENDING_CALLBACKS[host]) {
+      PENDING_CALLBACKS[host] = {
+        requestTimestamp: new Date().getTime(),
+        callbacks: []
+      }
+    }
+    PENDING_CALLBACKS[host].callbacks.push((permitted) => {
+      callback(permitted)
+    })
   } else if (PERMISSIONS[host] === false) {
     if (VERBOSE) console.log(`Host blacklisted ${host}`)
     callback(false)
   } else {
-    let diff
-    if (PENDING_CALLBACKS[host]) {
-      diff = new Date().getTime() - PENDING_CALLBACKS[host].requestTimestamp
-    }
-    if (PENDING_CALLBACKS[host] && diff < 10 * 1000) {
-      if (VERBOSE) console.log(`already callback pending for ${host} ${diff / 1000} secs ago...`)
-      PENDING_CALLBACKS[host].callbacks.push((permitted) => {
-        PERMISSIONS[host] = permitted
-        savePermissionsInStorage()
-        callback(permitted)
-      })
-    } else {
-      if (VERBOSE) console.log(`setting pending callback for ${host}`)
+    console.log(`setting pending callback for ${host}`)
 
-      // check if tab will receive it
-      browserAPI.tabs.get(message.fromTabId, async (tab) => {
-        if (!tab) {
-          console.warn('No matching tab found for permission request', message)
-          return
-        }
+    // check if tab will receive it
+    browserAPI.tabs.get(message.fromTabId, async (tab) => {
+      if (!tab) {
+        console.warn('No matching tab found for permission request', message)
+        return
+      }
 
+      if (!PENDING_CALLBACKS[host]) {
         PENDING_CALLBACKS[host] = {
           requestTimestamp: new Date().getTime(),
           callbacks: []
         }
+      }
 
-        PENDING_CALLBACKS[host].callbacks.push((permitted) => {
-          PERMISSIONS[host] = permitted
-          browserAPI.storage.sync.set({ permittedHosts: PERMISSIONS }, () => {
-            if (VERBOSE) console.log('permissions saved')
-          })
-          callback(permitted)
+      PENDING_CALLBACKS[host].callbacks.push((permitted) => {
+        PERMISSIONS[host] = permitted
+        browserAPI.storage.sync.set({ permittedHosts: PERMISSIONS }, () => {
+          if (VERBOSE) console.log('permissions saved')
         })
-        updateExtensionIcon(
-          message.fromTabId,
-          TAB_INJECTIONS,
-          PERMISSIONS,
-          PENDING_CALLBACKS,
-          PENDING_WEB3_RESPONSE_CALLBACKS
-        )
-
-        // Might want to pile up msgs with debounce in future
-        openExtensionInPopup(host, [message], 'permission-request')
+        callback(permitted)
       })
-    }
+      updateExtensionIcon(
+        message.fromTabId,
+        TAB_INJECTIONS,
+        PERMISSIONS,
+        PENDING_CALLBACKS,
+        PENDING_WEB3_RESPONSE_CALLBACKS
+      )
+
+      // Might want to pile up msgs with debounce in future
+      openExtensionInPopup(host, [message], 'permission-request')
+    })
   }
 }
