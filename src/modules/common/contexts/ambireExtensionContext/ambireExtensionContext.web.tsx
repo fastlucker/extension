@@ -21,6 +21,7 @@ export interface AmbireExtensionContextReturnType {
   }
   requests: any[] | null
   isTempExtensionPopup: boolean
+  lastActiveTab: any
   resolveMany: (ids: any, resolution: any) => any
   setParams: React.Dispatch<
     React.SetStateAction<{
@@ -37,6 +38,7 @@ const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
   params: {},
   requests: [],
   isTempExtensionPopup: false,
+  lastActiveTab: null,
   resolveMany: () => {},
   setParams: () => null,
   disconnectDapp: () => {}
@@ -65,6 +67,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
     host?: string
     queue?: string
   }>({})
+  const [lastActiveTab, setLastActiveTab] = useState<any>(null)
   const isTempExtensionPopup = useMemo(() => !!params.route || !!params.host, [params])
   const queue = useMemo(() => (params.queue ? JSON.parse(atob(params.queue)) : []), [params.queue])
 
@@ -198,6 +201,19 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
     [requests, setRequests]
   )
 
+  const disconnectDapp = useCallback(
+    (host: string) => {
+      sendMessage({
+        to: BACKGROUND,
+        type: 'removeFromPermissionsList',
+        data: { host }
+      }).then(() => {
+        setConnectedDapps(connectedDapps.filter((p) => p.host !== host))
+      })
+    },
+    [connectedDapps]
+  )
+
   useEffect(() => {
     if (selectedAccount && network) {
       browserAPI?.storage?.local?.set({ SELECTED_ACCOUNT: selectedAccount, NETWORK: network })
@@ -243,18 +259,19 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
     }
   }, [isTempExtensionPopup])
 
-  const disconnectDapp = useCallback(
-    (host: string) => {
-      sendMessage({
-        to: BACKGROUND,
-        type: 'removeFromPermissionsList',
-        data: { host }
-      }).then(() => {
-        setConnectedDapps(connectedDapps.filter((p) => p.host !== host))
-      })
-    },
-    [connectedDapps]
-  )
+  useEffect(() => {
+    if (!__DEV__) {
+      browserAPI.tabs.query(
+        {
+          active: true,
+          currentWindow: true
+        },
+        ([currentTab]) => {
+          setLastActiveTab(currentTab)
+        }
+      )
+    }
+  }, [])
 
   return (
     <AmbireExtensionContext.Provider
@@ -264,6 +281,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
           params,
           requests,
           isTempExtensionPopup,
+          lastActiveTab,
           resolveMany,
           setParams,
           disconnectDapp
@@ -273,6 +291,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
           params,
           requests,
           isTempExtensionPopup,
+          lastActiveTab,
           resolveMany,
           setParams,
           disconnectDapp

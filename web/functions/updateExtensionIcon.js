@@ -30,7 +30,9 @@ export const updateExtensionIcon = async (
         } else if (PERMISSIONS[tabHost] === false) {
           iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_denied.png')
         } else if (PENDING_CALLBACKS[tabHost]) {
-          iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_pending.png')
+          if (!PENDING_CALLBACKS[tabHost].skipIconUpdate) {
+            iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_pending.png')
+          }
         } else {
           iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
         }

@@ -12,6 +12,7 @@ export interface AmbireExtensionContextReturnType {
   }
   requests: any[] | null
   isTempExtensionPopup: boolean
+  lastActiveTab: any
   resolveMany: (ids: any, resolution: any) => any
   setParams: React.Dispatch<
     React.SetStateAction<{
@@ -28,11 +29,11 @@ const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
   params: {},
   requests: [],
   isTempExtensionPopup: false,
+  lastActiveTab: null,
   resolveMany: () => {},
   setParams: () => null,
   disconnectDapp: () => {}
 })
-
 const AmbireExtensionProvider: React.FC = ({ children }) => {
   return (
     <AmbireExtensionContext.Provider value={useMemo(() => ({}), [])}>

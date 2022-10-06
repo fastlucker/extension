@@ -118,9 +118,7 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
     })
     delete PENDING_CALLBACKS[message.data.targetHost]
   }
-  PERMISSIONS[message.data.targetHost] = message.data.permitted
   isStorageLoaded().then(() => {
-    savePermissionsInStorage()
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
       updateExtensionIcon(
@@ -510,14 +508,15 @@ const requestPermission = async (message, callback) => {
   if (PERMISSIONS[host] === true) {
     if (VERBOSE) console.log(`Host whitelisted ${host}`)
     callback(true)
+  } else if (!PERMISSIONS[host] && method === 'eth_accounts') {
+    callback(false)
   } else if (!PERMISSIONS[host] && method !== 'eth_requestAccounts') {
-    console.log('IN', method)
     if (VERBOSE) console.log("Initial dapp web3 call - doesn't require opening a permission popup")
-    // callback(false)
     if (!PENDING_CALLBACKS[host]) {
       PENDING_CALLBACKS[host] = {
         requestTimestamp: new Date().getTime(),
-        callbacks: []
+        callbacks: [],
+        skipIconUpdate: true
       }
     }
     PENDING_CALLBACKS[host].callbacks.push((permitted) => {
@@ -544,10 +543,17 @@ const requestPermission = async (message, callback) => {
       }
 
       PENDING_CALLBACKS[host].callbacks.push((permitted) => {
-        PERMISSIONS[host] = permitted
-        browserAPI.storage.sync.set({ permittedHosts: PERMISSIONS }, () => {
-          if (VERBOSE) console.log('permissions saved')
-        })
+        // TODO:
+        // Temporary saves only the dapps with granted permission
+        // Later on when a list of blacklisted dapps is implemented on the FE
+        //  the denied permissions should be added to the list as well
+        if (permitted) {
+          PERMISSIONS[host] = permitted
+          savePermissionsInStorage()
+          browserAPI.storage.sync.set({ permittedHosts: PERMISSIONS }, () => {
+            if (VERBOSE) console.log('permissions saved')
+          })
+        }
         callback(permitted)
       })
       updateExtensionIcon(
