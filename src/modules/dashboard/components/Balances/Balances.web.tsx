@@ -4,19 +4,26 @@ import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useLayoutEffect, useMemo } from 'react'
 import { TouchableOpacity, View } from 'react-native'
+import { Pressable } from 'react-native-web-hover'
 
+import ConnectionStatusIcon from '@assets/svg/ConnectionStatusIcon'
 import GasTankIcon from '@assets/svg/GasTankIcon'
 import PrivacyIcon from '@assets/svg/PrivacyIcon'
 import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
-import CONFIG from '@config/env'
+import CONFIG, { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
+import Modal from '@modules/common/components/Modal'
+import useModal from '@modules/common/components/Modal/hooks/useModal'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
+import Title from '@modules/common/components/Title'
+import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
+import alert from '@modules/common/services/alert'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -57,6 +64,16 @@ const Balances = ({
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { isPrivateMode, togglePrivateMode, hidePrivateValue } = usePrivateMode()
+  const { lastActiveTab, connectedDapps, disconnectDapp } = useAmbireExtension()
+  const { isModalVisible, showModal, hideModal } = useModal()
+
+  const tabHost = useMemo(() => {
+    if (lastActiveTab) {
+      return new URL(lastActiveTab.url).host
+    }
+    return null
+  }, [lastActiveTab])
+
   const { cacheBreak } = useCacheBreak()
   const urlGetBalance = relayerURL
     ? `${relayerURL}/gas-tank/${account}/getBalance?cacheBreak=${cacheBreak}`
@@ -74,6 +91,31 @@ const Balances = ({
             .toFixed(2),
     [data]
   )
+
+  const isConnected = useMemo(() => {
+    if (lastActiveTab) {
+      return connectedDapps.find((dapp) => dapp.host === tabHost)?.status
+    }
+    return null
+  }, [lastActiveTab, connectedDapps, tabHost])
+
+  const handleConnectedStatusPress = () => {
+    if (isConnected) {
+      alert('Disconnect Dapp', `Are you sere you want to disconnect ${tabHost}?`, [
+        {
+          text: t('Yes, disconnect dapp'),
+          onPress: () => disconnectDapp(tabHost),
+          style: 'destructive'
+        },
+        {
+          text: t('Cancel'),
+          style: 'cancel'
+        }
+      ])
+    } else {
+      showModal()
+    }
+  }
 
   useLayoutEffect(() => {
     triggerLayoutAnimation()
@@ -111,7 +153,22 @@ const Balances = ({
           </TouchableOpacity>
         </View>
         <Rewards />
-        <View style={flexboxStyles.flex1} />
+        <View style={[flexboxStyles.flex1, flexboxStyles.justifyCenter, spacings.mbTy]}>
+          <Pressable onPress={handleConnectedStatusPress}>
+            {({ hovered }) => (
+              <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mlSm]}>
+                <View style={spacings.mrTy}>
+                  <ConnectionStatusIcon isActive={!!isConnected} />
+                </View>
+                {!!hovered && (
+                  <Text fontSize={12} weight="regular">
+                    {isConnected ? 'Connected' : 'Disconnected'}
+                  </Text>
+                )}
+              </View>
+            )}
+          </Pressable>
+        </View>
       </View>
 
       {isCurrNetworkBalanceLoading ? (
@@ -180,12 +237,13 @@ const Balances = ({
         </Button>
       </View>
 
-      {otherBalancesLoading ? (
+      {otherBalancesLoading && !isWeb ? (
         <View style={spacings.mb}>
           <Spinner />
         </View>
       ) : (
-        otherPositiveBalances.length > 0 && (
+        otherPositiveBalances.length > 0 &&
+        !isWeb && (
           <View style={spacings.mb}>
             <Text style={[textStyles.center, spacings.mbTy]}>{t('You also have')}</Text>
             {otherPositiveBalances.map(({ network, total }: any) => {
@@ -242,6 +300,16 @@ const Balances = ({
       ) : (
         content
       )}
+      <Modal isVisible={isModalVisible} hideModal={hideModal}>
+        <View style={[flexboxStyles.alignCenter, flexboxStyles.justifyCenter, spacings.mb]}>
+          <Title type="small">{tabHost}</Title>
+          <Text>
+            {t(
+              "Ambire is not connected to this site. To connect to a web3 site, find and click the 'Connect Wallet' button."
+            )}
+          </Text>
+        </View>
+      </Modal>
     </View>
   )
 }
