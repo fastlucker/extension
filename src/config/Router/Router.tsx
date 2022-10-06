@@ -9,7 +9,7 @@ import EarnIcon from '@assets/svg/EarnIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
-import { isiOS } from '@config/env'
+import { isAndroid } from '@config/env'
 import DrawerContent from '@config/Router/DrawerContent'
 import { headerAlpha, headerBeta, headerGamma } from '@config/Router/HeadersConfig'
 import styles, {
@@ -36,7 +36,6 @@ import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
-import PermissionRequestScreen from '@modules/extension/screens/PermissionRequestScreen'
 import GasInformationScreen from '@modules/gas-tank/screens/GasInformationScreen'
 import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
@@ -220,24 +219,6 @@ const NoConnectionStack = () => {
   )
 }
 
-const PermissionRequestStack = () => {
-  const { t } = useTranslation()
-
-  useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
-
-  return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }}>
-      <Stack.Screen
-        options={{ title: t('Permission Request') }}
-        name="permission-request"
-        component={PermissionRequestScreen}
-      />
-    </Stack.Navigator>
-  )
-}
-
 const DashboardStackScreen = () => {
   return (
     <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
@@ -284,7 +265,7 @@ const TabsScreens = () => {
         component={DashboardStackScreen}
       />
       {/* TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback */}
-      {!isiOS && (
+      {isAndroid && (
         <Tab.Screen
           name="earn"
           options={{
@@ -309,7 +290,7 @@ const TabsScreens = () => {
         component={SendScreen}
       />
       {/* TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback */}
-      {!isiOS && (
+      {isAndroid && (
         <Tab.Screen
           name="swap"
           options={{
@@ -399,11 +380,6 @@ const AppStack = () => {
       <MainStack.Screen
         name="auth-add-account"
         component={AuthStack}
-        options={{ headerShown: false }}
-      />
-      <MainStack.Screen
-        name="permission-request"
-        component={PermissionRequestStack}
         options={{ headerShown: false }}
       />
       <MainStack.Screen

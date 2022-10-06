@@ -1,5 +1,7 @@
 import React, { createContext, useMemo } from 'react'
 
+import { isWeb } from '@config/env'
+
 export interface AmbireExtensionContextReturnType {
   connectedDapps: {
     host: string
@@ -35,6 +37,10 @@ const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
   disconnectDapp: () => {}
 })
 const AmbireExtensionProvider: React.FC = ({ children }) => {
+  if (!isWeb) {
+    return children
+  }
+
   return (
     <AmbireExtensionContext.Provider value={useMemo(() => ({}), [])}>
       {children}
