@@ -9,7 +9,7 @@ import EarnIcon from '@assets/svg/EarnIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import SwapIcon from '@assets/svg/SwapIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
-import { isiOS } from '@config/env'
+import { isiOS, isWeb } from '@config/env'
 import DrawerContent from '@config/Router/DrawerContent'
 import { headerAlpha, headerBeta, headerGamma } from '@config/Router/HeadersConfig'
 import styles, {
@@ -401,11 +401,13 @@ const AppStack = () => {
         component={AuthStack}
         options={{ headerShown: false }}
       />
-      <MainStack.Screen
-        name="permission-request"
-        component={PermissionRequestStack}
-        options={{ headerShown: false }}
-      />
+      {isWeb && (
+        <MainStack.Screen
+          name="permission-request"
+          component={PermissionRequestStack}
+          options={{ headerShown: false }}
+        />
+      )}
       <MainStack.Screen
         name="connect"
         component={ConnectScreen}
