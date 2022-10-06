@@ -1,3 +1,3 @@
-import PermissionRequestScreen from './PermissionRequestScreen.web'
+import PermissionRequestScreen from './PermissionRequestScreen'
 
 export default PermissionRequestScreen
