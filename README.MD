@@ -14,12 +14,6 @@ First run:
 yarn install
 ```
 
-Then, run:
-
-```bash
-git submodule update --init
-```
-
 - iOS: Then run:
 
   ```
@@ -31,6 +25,12 @@ git submodule update --init
 - Android:
 
   No additional steps required.
+
+Alternatively, to run the project in web mode, run:
+
+```
+yarn install:web
+```
 
 ## Editor Config
 
