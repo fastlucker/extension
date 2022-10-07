@@ -2,6 +2,7 @@
   "name": "ambire-mobile-wallet",
   "main": "index.js",
   "scripts": {
+    "install:web": "rm -rf ./node_modules && MODE=WEB yarn install",
     "android": "expo run:android",
     "android:staging": "APP_ENV=staging yarn android",
     "android:production": "APP_ENV=production yarn android",
@@ -10,6 +11,7 @@
     "ios:production": "APP_ENV=production yarn ios",
     "web": "expo start --web",
     "start": "react-native start",
+    "postinstall": "node ./scripts/postinstall.js",
     "start:clean": "react-native start --reset-cache",
     "start:staging": "APP_ENV=staging yarn start",
     "start:clean:staging": "APP_ENV=staging yarn start:clean",

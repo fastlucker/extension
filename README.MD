@@ -14,12 +14,6 @@ First run:
 yarn install
 ```
 
-Then, run:
-
-```bash
-git submodule update --init
-```
-
 - iOS: Then run:
 
   ```
@@ -31,6 +25,12 @@ git submodule update --init
 - Android:
 
   No additional steps required.
+
+Alternatively, to run the project in web mode, run:
+
+```
+yarn install:web
+```
 
 ## Editor Config
 
@@ -104,6 +104,14 @@ Open the app in xCode. Go to "Signing & Capabilities". Then:
 
 - For the "Signing (Debug)" import the Apple Development Provisioning Profile (`test.profile.mobileprovision` file).
 - For the "Signing (Release)" import the Apple Distribution Provisioning Profile (`profile.mobileprovision` file).
+
+## Building the web app locally
+
+Run:
+
+```bash
+yarn build:web
+```
 
 ## Versioning
 
