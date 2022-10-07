@@ -1,5 +1,5 @@
 import React from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import { ColorValue, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import Blockies from '@modules/common/components/Blockies'
@@ -22,6 +22,7 @@ import styles from './style'
 interface Props extends DrawerHeaderProps {
   mode?: 'title' | 'bottom-sheet'
   withHamburger?: boolean
+  backgroundColor?: ColorValue
   withScanner?: boolean
 }
 
@@ -29,6 +30,7 @@ const Header: React.FC<Props> = ({
   mode = 'bottom-sheet',
   withHamburger = false,
   withScanner = false,
+  backgroundColor,
   navigation,
   route,
   options
@@ -103,7 +105,7 @@ const Header: React.FC<Props> = ({
         styles.container,
         {
           paddingTop: SPACING_SM,
-          backgroundColor: colors.martinique
+          backgroundColor: backgroundColor || colors.martinique
         }
       ]}
     >

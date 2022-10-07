@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { ScrollView, TouchableOpacity, View } from 'react-native'
 
 import CloseIcon from '@assets/svg/CloseIcon'
+import ManifestFallbackIcon from '@assets/svg/ManifestFallbackIcon'
 import { Trans, useTranslation } from '@config/localization'
 import useAuth from '@modules/auth/hooks/useAuth'
 import Button from '@modules/common/components/Button'
@@ -94,19 +95,19 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   const renderFeedback = () => {
     if (feedback?.success) {
       return feedback?.permitted ? (
-        <View style={styles.permissionLabelWrapper}>
-          <Text weight="medium">{t('Permission Granted')}</Text>
-        </View>
+        <Text weight="medium" color={colors.turquoise}>
+          {t('Permission Granted!')}
+        </Text>
       ) : (
-        <View style={styles.permissionLabelWrapper}>
-          <Text weight="medium">{t('Permission Denied')}</Text>
-        </View>
+        <Text weight="medium" color={colors.pink}>
+          {t('Permission Denied!')}
+        </Text>
       )
     }
 
     return (
       <View style={spacings.pv}>
-        <Text style={[textStyles.center, spacings.phSm]} fontSize={16}>
+        <Text style={[textStyles.center, spacings.phSm]} fontSize={14}>
           {t(
             "Could not communicate with extension's background service. Please close the window and try again"
           )}
@@ -117,13 +118,18 @@ const PermissionRequestScreen = ({ navigation }: any) => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav={false}>
+      <Wrapper
+        hasBottomTabNav={false}
+        contentContainerStyle={{
+          paddingTop: 0
+        }}
+      >
         <Panel type="filled">
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <ManifestImage host={targetHost} size={64} />
+            <ManifestImage host={targetHost} size={64} fallback={() => <ManifestFallbackIcon />} />
           </View>
 
-          <Title style={[textStyles.center, spacings.phSm]}>{targetHost}</Title>
+          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>{targetHost}</Title>
 
           <View style={flexboxStyles.alignCenter}>
             {!!loading && <Spinner />}
@@ -141,43 +147,37 @@ const PermissionRequestScreen = ({ navigation }: any) => {
               )}
               <View>
                 {isQueueDisplayed ? (
-                  <View style={spacings.phSm}>
-                    <View style={styles.textarea}>
-                      <View
-                        style={[
-                          flexboxStyles.directionRow,
-                          spacings.pbSm,
-                          flexboxStyles.alignCenter
-                        ]}
-                      >
-                        <View style={flexboxStyles.flex1} />
-                        <Title type="small" hasBottomSpacing={false}>
-                          {t('Requested payload details')}
-                        </Title>
-                        <View style={[flexboxStyles.flex1, flexboxStyles.alignEnd]}>
-                          <TouchableOpacity onPress={() => setIsQueueDisplayed(false)}>
-                            <CloseIcon />
-                          </TouchableOpacity>
-                        </View>
+                  <View style={styles.textarea}>
+                    <View
+                      style={[flexboxStyles.directionRow, spacings.pbSm, flexboxStyles.alignCenter]}
+                    >
+                      <View style={flexboxStyles.flex1} />
+                      <Text weight="regular" fontSize={16}>
+                        {t('Requested payload details')}
+                      </Text>
+                      <View style={[flexboxStyles.flex1, flexboxStyles.alignEnd]}>
+                        <TouchableOpacity onPress={() => setIsQueueDisplayed(false)}>
+                          <CloseIcon />
+                        </TouchableOpacity>
                       </View>
-
-                      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                        <Text fontSize={12}>
-                          <Text>{queue.map((q: any) => JSON.stringify(q, null, ' '))}</Text>
-                        </Text>
-                      </ScrollView>
                     </View>
+
+                    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                      <Text fontSize={12}>
+                        <Text>{queue.map((q: any) => JSON.stringify(q, null, ' '))}</Text>
+                      </Text>
+                    </ScrollView>
                   </View>
                 ) : (
                   <Trans>
-                    <Text style={[textStyles.center, spacings.phSm, spacings.mbMd]}>
-                      <Text fontSize={16} weight="regular">
+                    <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+                      <Text fontSize={14} weight="regular">
                         {'The dapp '}
                       </Text>
-                      <Text fontSize={16} weight="regular" color={colors.heliotrope}>
+                      <Text fontSize={14} weight="regular" color={colors.heliotrope}>
                         {targetHost}
                       </Text>
-                      <Text fontSize={16} weight="regular">
+                      <Text fontSize={14} weight="regular">
                         {' is requesting an authorization to communicate with Ambire Wallet'}
                       </Text>
                     </Text>
@@ -198,7 +198,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
                 </View>
               </View>
 
-              <Text fontSize={16} style={textStyles.center}>
+              <Text fontSize={14} style={textStyles.center}>
                 {t('Dapps authorizations can be removed at any time in the extension settings')}
               </Text>
             </>

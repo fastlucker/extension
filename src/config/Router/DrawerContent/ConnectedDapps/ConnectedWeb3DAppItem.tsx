@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Linking, TouchableOpacity, View } from 'react-native'
 
 import DisconnectIcon from '@assets/svg/DisconnectIcon'
+import ManifestFallbackIcon from '@assets/svg/ManifestFallbackIcon'
 import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -28,7 +29,11 @@ const ConnectedDAppItem = ({ host, status, disconnect, isLast }: Props) => {
     >
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
         <View style={[flexboxStyles.flex1, flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-          <ManifestImage host={host} size={34} />
+          <ManifestImage
+            host={host}
+            size={34}
+            fallback={() => <ManifestFallbackIcon width={34} height={34} />}
+          />
           <View style={[flexboxStyles.flex1, spacings.plTy]}>
             <Text numberOfLines={1} style={[flexboxStyles.flex1, spacings.mrMi]}>
               {host}

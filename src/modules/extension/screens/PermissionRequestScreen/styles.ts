@@ -9,7 +9,6 @@ interface Style {
   textarea: ViewStyle
   buttonsContainer: ViewStyle
   buttonWrapper: ViewStyle
-  permissionLabelWrapper: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -28,7 +27,7 @@ const styles = StyleSheet.create<Style>({
     ...commonStyles.borderRadiusPrimary,
     ...spacings.ph,
     ...spacings.pv,
-    ...spacings.mbMd
+    ...spacings.mbLg
   },
   buttonsContainer: {
     flexDirection: 'row',
@@ -38,12 +37,6 @@ const styles = StyleSheet.create<Style>({
   buttonWrapper: {
     marginHorizontal: 5,
     flex: 1
-  },
-  permissionLabelWrapper: {
-    ...spacings.pvSm,
-    ...spacings.phSm,
-    ...commonStyles.borderRadiusPrimary,
-    backgroundColor: colors.clay
   }
 })
 

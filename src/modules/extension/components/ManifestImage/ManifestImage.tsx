@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { Image, View } from 'react-native'
 
 import Spinner from '@modules/common/components/Spinner'
-import colors from '@modules/common/styles/colors'
 import commonStyles from '@modules/common/styles/utils/common'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -51,12 +50,16 @@ const ManifestImage = ({ host, fallback, size = 64 }: Props) => {
         flexboxStyles.alignCenter,
         flexboxStyles.justifyCenter,
         commonStyles.borderRadiusPrimary,
-        { width: size, height: size, backgroundColor: colors.chetwode }
+        commonStyles.hidden,
+        { width: size, height: size }
       ]}
     >
       {!!loading && <Spinner />}
 
-      {!loading && (failedCount >= iconsList.length || !iconsList.length) && !!fallback && fallback}
+      {!loading &&
+        (failedCount >= iconsList.length || !iconsList.length) &&
+        !!fallback &&
+        fallback()}
       {!loading && !(failedCount >= iconsList.length || !iconsList.length) && (
         <Image
           source={{ uri: iconsList[failedCount] }}

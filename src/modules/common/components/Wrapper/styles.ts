@@ -17,7 +17,8 @@ const styles = () =>
     contentContainerStyle: {
       ...spacings.pbSm,
       flexGrow: 1,
-      ...(isWeb ? spacings.ptSm : {})
+      ...(isWeb ? spacings.ptSm : {}),
+      ...(isWeb ? spacings.phLg : {})
     }
   })
 

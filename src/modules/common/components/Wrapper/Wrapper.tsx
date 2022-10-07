@@ -2,7 +2,6 @@ import React from 'react'
 import {
   FlatList,
   FlatListProps,
-  Platform,
   ScrollView,
   ScrollViewProps,
   SectionList,
@@ -52,7 +51,7 @@ const Wrapper = ({
   const { styles } = useTheme(createStyles)
   const insets = useSafeAreaInsets()
 
-  const horizontalSpacing = isWeb && !!rest.refreshControl ? spacings.phTy : spacings.ph
+  const horizontalSpacing = isWeb ? spacings.ph0 : spacings.ph
 
   hasBottomTabNav = isWeb ? false : hasBottomTabNav
 
