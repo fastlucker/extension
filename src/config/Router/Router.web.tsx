@@ -258,7 +258,9 @@ const SwitchNetworkRequestStack = () => {
   }, [])
 
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+    <Stack.Navigator
+      screenOptions={{ header: (props) => headerBeta({ ...props, backgroundColor: colors.wooed }) }}
+    >
       <Stack.Screen
         options={{ title: t('Switch Network Request') }}
         name="switch-network-request"

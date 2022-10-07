@@ -3,9 +3,12 @@ import { BigNumber } from 'ethers'
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
+import CrossChainArrowIcon from '@assets/svg/CrossChainArrowIcon'
+import ManifestFallbackIcon from '@assets/svg/ManifestFallbackIcon'
 import { Trans, useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Panel from '@modules/common/components/Panel'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
@@ -134,43 +137,69 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav={false}>
+      <Wrapper
+        hasBottomTabNav={false}
+        contentContainerStyle={{
+          paddingTop: 0
+        }}
+      >
         <Panel type="filled">
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <ManifestImage host={targetHost} size={64} />
+            <ManifestImage host={targetHost} size={64} fallback={() => <ManifestFallbackIcon />} />
           </View>
 
-          <Title style={[textStyles.center, spacings.phSm]}>{targetHost}</Title>
+          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>{targetHost}</Title>
 
           <View style={flexboxStyles.alignCenter}>{!!loading && <Spinner />}</View>
           {!loading && !!newNetwork && (
             <>
               <View>
                 <Trans>
-                  <Text style={[textStyles.center, spacings.phSm, spacings.mbMd]}>
-                    <Text fontSize={16} weight="regular">
+                  <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+                    <Text fontSize={14} weight="regular">
                       {'Allow '}
                     </Text>
-                    <Text fontSize={16} weight="regular" color={colors.heliotrope}>
+                    <Text fontSize={14} weight="regular" color={colors.heliotrope}>
                       {targetHost}
                     </Text>
-                    <Text fontSize={16} weight="regular">
+                    <Text fontSize={14} weight="regular">
                       {' to switch the network?'}
                     </Text>
                   </Text>
                 </Trans>
                 {!!network && !!newNetwork && (
                   <View
-                    style={[
-                      spacings.pvSm,
-                      flexboxStyles.directionRow,
-                      flexboxStyles.justifyCenter,
-                      flexboxStyles.alignCenter
-                    ]}
+                    style={[spacings.mbLg, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
                   >
-                    <Text>{network?.name}</Text>
-                    <Text>{'  to  '}</Text>
-                    <Text>{newNetwork?.name}</Text>
+                    <View
+                      style={[
+                        flexboxStyles.alignCenter,
+                        flexboxStyles.justifyCenter,
+                        spacings.phLg,
+                        flexboxStyles.flex1
+                      ]}
+                    >
+                      <View style={styles.networkIconWrapper}>
+                        <NetworkIcon name={network?.id} width={64} height={64} />
+                      </View>
+                      <Text>{network?.name}</Text>
+                    </View>
+                    <View style={spacings.pbMd}>
+                      <CrossChainArrowIcon />
+                    </View>
+                    <View
+                      style={[
+                        flexboxStyles.alignCenter,
+                        flexboxStyles.justifyCenter,
+                        spacings.phLg,
+                        flexboxStyles.flex1
+                      ]}
+                    >
+                      <View style={styles.networkIconWrapper}>
+                        <NetworkIcon name={newNetwork?.id} width={64} height={64} />
+                      </View>
+                      <Text>{newNetwork?.name}</Text>
+                    </View>
                   </View>
                 )}
               </View>
@@ -191,7 +220,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
           )}
           {!loading && !newNetwork && (
             <View>
-              <Text style={[textStyles.center, spacings.phSm, spacings.mbMd]}>
+              <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
                 {t('Ambire Wallet does not support this network.')}
               </Text>
               <Button type="danger" onPress={handleDenyButtonPress} text={t('Cancel')} />

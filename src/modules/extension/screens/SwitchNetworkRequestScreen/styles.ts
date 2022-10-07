@@ -8,6 +8,7 @@ interface Style {
   buttonsContainer: ViewStyle
   buttonWrapper: ViewStyle
   permissionLabelWrapper: ViewStyle
+  networkIconWrapper: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -25,6 +26,11 @@ const styles = StyleSheet.create<Style>({
     ...spacings.phSm,
     ...commonStyles.borderRadiusPrimary,
     backgroundColor: colors.clay
+  },
+  networkIconWrapper: {
+    ...spacings.mbTy,
+    backgroundColor: colors.titan_05,
+    ...commonStyles.borderRadiusPrimary
   }
 })
 
