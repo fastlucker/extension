@@ -230,20 +230,12 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
     const method = payload.method
 
     if (!granted) {
-      if (method === 'eth_accounts') {
+      if (method === 'eth_accounts' || method === 'eth_chainId') {
         sendReply(message, {
           data: {
             jsonrpc: '2.0',
             id: payload.id,
-            result: []
-          }
-        })
-      } else if (method === 'eth_chainId') {
-        sendReply(message, {
-          data: {
-            jsonrpc: '2.0',
-            id: payload.id,
-            result: null
+            result: method === 'eth_accounts' ? [] : null
           }
         })
       } else {
@@ -510,22 +502,7 @@ const requestPermission = async (message, callback) => {
     callback(true)
   } else if (!PERMISSIONS[host] && method === 'eth_accounts') {
     callback(false)
-  } else if (!PERMISSIONS[host] && method !== 'eth_requestAccounts') {
-    if (VERBOSE) console.log("Initial dapp web3 call - doesn't require opening a permission popup")
-    if (!PENDING_CALLBACKS[host]) {
-      PENDING_CALLBACKS[host] = {
-        requestTimestamp: new Date().getTime(),
-        callbacks: [],
-        skipIconUpdate: true
-      }
-    }
-    PENDING_CALLBACKS[host].callbacks.push((permitted) => {
-      callback(permitted)
-    })
-  } else if (PERMISSIONS[host] === false) {
-    if (VERBOSE) console.log(`Host blacklisted ${host}`)
-    callback(false)
-  } else {
+  } else if (!PENDING_CALLBACKS[host] && method === 'eth_requestAccounts') {
     console.log(`setting pending callback for ${host}`)
 
     // check if tab will receive it
@@ -541,7 +518,7 @@ const requestPermission = async (message, callback) => {
           callbacks: []
         }
       }
-
+      PENDING_CALLBACKS[host].popupOpened = true
       PENDING_CALLBACKS[host].callbacks.push((permitted) => {
         // TODO:
         // Temporary saves only the dapps with granted permission
@@ -567,5 +544,20 @@ const requestPermission = async (message, callback) => {
       // Might want to pile up msgs with debounce in future
       openExtensionInPopup(host, [message], 'permission-request')
     })
+  } else {
+    // Wait for other consecutive (web3) pending request before responding
+    setTimeout(() => {
+      if (PENDING_CALLBACKS[host]) {
+        if (PENDING_CALLBACKS[host].popupOpened) {
+          PENDING_CALLBACKS[host].callbacks.push((permitted) => {
+            callback(permitted)
+          })
+        } else {
+          callback(false)
+        }
+      } else {
+        callback(false)
+      }
+    }, 1000)
   }
 }
