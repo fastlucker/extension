@@ -15,7 +15,7 @@ import {
   headerBeta as defaultHeaderBeta,
   headerGamma as defaultHeaderGamma
 } from '@config/Router/HeadersConfig'
-import styles, { tabBarItemStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
+import styles, { tabBarItemWebStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
@@ -329,7 +329,7 @@ const TabsScreens = () => {
         tabBarActiveBackgroundColor: colors.howl_65,
         tabBarStyle: tabBarWebStyle,
         tabBarLabelStyle,
-        tabBarItemStyle
+        tabBarItemStyle: tabBarItemWebStyle
       }}
       tabBar={(props: any) =>
         !!navigationEnabled && (

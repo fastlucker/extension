@@ -70,6 +70,11 @@ export const tabBarItemStyle = {
   paddingBottom: 12
 }
 
+export const tabBarItemWebStyle = {
+  paddingTop: 12,
+  paddingBottom: 18
+}
+
 export const horizontalTabBarLabelStyle = {
   fontSize: 16,
   paddingLeft: IS_SCREEN_SIZE_L ? 10 : 0
