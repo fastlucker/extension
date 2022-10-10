@@ -43,29 +43,9 @@ isStorageLoaded()
     console.error('storageLoading', e)
   })
 
-// Useful for debug purposes, display a notification whenever background worker is reloaded
+// Useful for debug purposes
 if (VERBOSE > 1) {
-  const testIconURL = chrome.runtime.getURL('../assets/images/xicon.png')
-  const notifRand = `${Math.random()}`
-
-  const notificationOptions = {
-    type: 'basic',
-    iconUrl: testIconURL,
-    title: 'RESTARTED',
-    priority: 2,
-    requireInteraction: false,
-    message: '🪅🎀🖼🧸'
-  }
-
-  if (IS_FIREFOX) {
-    delete notificationOptions.requireInteraction
-  }
-
-  browserAPI.notifications.create(`${Math.random()}`, notificationOptions, (data) => {
-    setTimeout(() => {
-      browserAPI.notifications.clear(notifRand)
-    }, 1000)
-  })
+  console.log('Background service restarted!')
 }
 
 const broadcastExtensionDataOnChange = () => {
