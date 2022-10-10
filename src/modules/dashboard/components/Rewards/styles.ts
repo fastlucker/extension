@@ -1,5 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
 import colors from '@modules/common/styles/colors'
 import spacings, { SPACING_TY } from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
@@ -20,7 +21,7 @@ const styles = StyleSheet.create<Style>({
     zIndex: -1
   },
   tableContainer: {
-    marginHorizontal: -1 * SPACING_TY,
+    marginHorizontal: isWeb ? 0 : -1 * SPACING_TY,
     backgroundColor: colors.valhalla,
     ...commonStyles.borderRadiusPrimary,
     ...spacings.ph,

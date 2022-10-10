@@ -2,7 +2,14 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import { isWeb } from '@config/env'
 import colors from '@modules/common/styles/colors'
-import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
+import {
+  DEVICE_HEIGHT,
+  SPACING,
+  SPACING_LG,
+  SPACING_MD,
+  SPACING_SM,
+  SPACING_TY
+} from '@modules/common/styles/spacings'
 
 interface Styles {
   root: ViewStyle
@@ -26,18 +33,18 @@ const styles = StyleSheet.create<Styles>({
     paddingTop: 23
   },
   containerInnerWrapper: {
-    paddingBottom: 25,
-    paddingHorizontal: 20,
+    paddingBottom: SPACING_MD,
+    paddingHorizontal: isWeb ? SPACING_LG : SPACING,
     flex: 1
   },
   closeBtn: {
     position: 'absolute',
-    right: isWeb ? 10 : 20,
+    right: isWeb ? SPACING_TY : SPACING,
     zIndex: 2
   },
   cancelBtn: {
     alignSelf: 'center',
-    marginTop: 15
+    marginTop: SPACING_SM
   },
   dragger: {
     width: 50,

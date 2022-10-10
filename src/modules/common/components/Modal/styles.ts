@@ -16,7 +16,7 @@ const styles = StyleSheet.create<Style>({
   container: {
     ...commonStyles.borderRadiusPrimary,
     backgroundColor: colors.clay,
-    ...spacings.pv,
+    ...(isWeb ? spacings.pvLg : spacings.pv),
     ...spacings.ph,
     ...commonStyles.shadowPrimary
   },

@@ -13,7 +13,7 @@ import { Linking, ScrollView, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
-import CONFIG from '@config/env'
+import CONFIG, { isWeb } from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
@@ -162,14 +162,19 @@ const Rewards = () => {
         displayCancel={false}
       >
         <Title style={textStyles.center}>{t('Wallet token distribution')}</Title>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}
-        >
-          {multiplierBadges.map(renderBadge)}
-        </ScrollView>
+        {isWeb && multiplierBadges.length < 7 ? (
+          <View style={[flexboxStyles.directionRow, flexboxStyles.justifyCenter, spacings.mb]}>
+            {multiplierBadges.map(renderBadge)}
+          </View>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}
+          >
+            {multiplierBadges.map(renderBadge)}
+          </ScrollView>
+        )}
 
         <Text type="caption" style={[spacings.mbSm, textStyles.center]}>
           <Text type="caption">
