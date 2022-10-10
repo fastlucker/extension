@@ -1,5 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
 import colors from '@modules/common/styles/colors'
 import { DEVICE_HEIGHT } from '@modules/common/styles/spacings'
 
@@ -31,7 +32,7 @@ const styles = StyleSheet.create<Styles>({
   },
   closeBtn: {
     position: 'absolute',
-    right: 20,
+    right: isWeb ? 10 : 20,
     zIndex: 2
   },
   cancelBtn: {

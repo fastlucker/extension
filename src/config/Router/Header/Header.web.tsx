@@ -49,13 +49,20 @@ const Header: React.FC<Props> = ({
       <Text weight="regular" fontSize={16}>
         {network?.name}
       </Text>
-      <View style={[flexboxStyles.flex1, flexboxStyles.directionRow, spacings.phLg]}>
+      <View
+        style={[
+          flexboxStyles.flex1,
+          flexboxStyles.directionRow,
+          spacings.phLg,
+          flexboxStyles.alignCenter
+        ]}
+      >
         <Text
           color={colors.baileyBells}
           fontSize={12}
           numberOfLines={1}
           ellipsizeMode="middle"
-          style={spacings.prTy}
+          style={[spacings.prTy, { lineHeight: 12 }]}
         >
           {hidePrivateValue(selectedAcc)}
         </Text>

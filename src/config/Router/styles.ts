@@ -4,7 +4,7 @@ import { isiOS, isWeb } from '@config/env'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
 import colors from '@modules/common/styles/colors'
-import { IS_SCREEN_SIZE_L, SPACING } from '@modules/common/styles/spacings'
+import { IS_SCREEN_SIZE_L, SPACING_TY } from '@modules/common/styles/spacings'
 
 interface Style {
   tabBarContainer: ViewStyle
@@ -49,7 +49,7 @@ export const tabBarStyle = {
   height: TAB_BAR_HEIGHT,
   borderTopLeftRadius: 13,
   borderTopRightRadius: 13,
-  paddingHorizontal: 10
+  paddingHorizontal: SPACING_TY
 }
 
 export const tabBarWebStyle = {
@@ -62,8 +62,7 @@ export const tabBarWebStyle = {
   borderLeftWidth: 0,
   borderRightWidth: 0,
   borderBottomWidth: 0,
-  minHeight: TAB_BAR_HEIGHT,
-  paddingHorizontal: SPACING
+  minHeight: TAB_BAR_HEIGHT
 }
 
 export const tabBarItemStyle = {

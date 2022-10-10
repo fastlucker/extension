@@ -1,6 +1,6 @@
 import { BlurView } from 'expo-blur'
 import React from 'react'
-import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import CloseIcon from '@assets/svg/CloseIcon'
@@ -14,7 +14,11 @@ const Backdrop = ({ isVisible, onPress }: { isVisible: boolean; onPress: () => v
   const insets = useSafeAreaInsets()
   // The header should start a little bit below the end of the notch,
   // and right in the vertical middle of the nav.
-  const notchInset = insets.top + 10
+  const notchInset = Platform.select({
+    web: 20,
+    default: insets.top + 10
+  })
+
   return (
     <View
       style={[styles.backDropWrapper, !isVisible && { opacity: 0 }]}
