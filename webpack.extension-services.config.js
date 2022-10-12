@@ -51,7 +51,6 @@ const webpackModule = {
 }
 
 const commonConfig = {
-  mode: 'production',
   entry: entries,
   module: webpackModule,
   devtool: 'none',

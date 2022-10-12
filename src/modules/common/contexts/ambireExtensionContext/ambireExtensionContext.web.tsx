@@ -182,7 +182,8 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
             rpcResult.result = resolution.result
           }
 
-          !!sendMessage && sendMessage({
+          !!sendMessage &&
+            sendMessage({
               type: 'web3CallResponse',
               to: BACKGROUND,
               data: {
@@ -190,7 +191,6 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
                 rpcResult
               }
             })
-          
         }
       }
       setRequests((prevRequests) => prevRequests.filter((x) => !ids.includes(x.id)))
@@ -239,20 +239,21 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
   }, [params, queue, handleSendTransactions, handlePersonalSign])
 
   useEffect(() => {
-    if (!isTempExtensionPopup && !__DEV__) {
-      sendMessage({
-        to: BACKGROUND,
-        type: 'getPermissionsList'
-      }).then((reply) => {
-        setConnectedDapps(
-          Object.keys(reply.data).map((host) => {
-            return {
-              host,
-              status: reply.data?.[host]
-            }
-          })
-        )
-      })
+    if (!isTempExtensionPopup) {
+      !!sendMessage &&
+        sendMessage({
+          to: BACKGROUND,
+          type: 'getPermissionsList'
+        }).then((reply) => {
+          setConnectedDapps(
+            Object.keys(reply.data).map((host) => {
+              return {
+                host,
+                status: reply.data?.[host]
+              }
+            })
+          )
+        })
     }
   }, [isTempExtensionPopup])
 
