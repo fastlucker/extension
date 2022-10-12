@@ -5,14 +5,11 @@ const path = require('path')
 
 // files to pass in classic webpack
 const entries = {
-  background: { import: './web/services/background.js', filename: 'background.js' },
-  'content-script': { import: './web/services/content-script.js', filename: 'content-script.js' },
-  'content-script-onComplete': {
-    import: './web/services/content-script-onComplete.js',
-    filename: 'content-script-onComplete.js'
-  },
-  'page-context': { import: './web/services/page-context.js', filename: 'page-context.js' },
-  injection: { import: './web/services/injection.js', filename: 'injection.js' }
+  background: './web/services/background.js',
+  'content-script': './web/services/content-script.js',
+  'content-script-onComplete': './web/services/content-script-onComplete.js',
+  'page-context': './web/services/page-context.js',
+  injection: './web/services/injection.js'
 }
 
 const getPlugins = () => {
@@ -21,10 +18,19 @@ const getPlugins = () => {
     new CopyPlugin({
       patterns: [
         {
+          from: './web/assets',
+          to: '../assets'
+        },
+        {
+          from: './web/constants',
+          to: '../constants'
+        },
+        {
           from: './web/manifest.json',
           to: '../manifest.json'
         },
-        { from: './web/services/ambexMessanger.js', to: './ambexMessanger.js' }
+        { from: './web/services/ambexMessanger.js', to: './ambexMessanger.js' },
+        { from: './web/style.css', to: '../style.css' }
       ]
     })
   ]
@@ -49,12 +55,15 @@ const commonConfig = {
   entry: entries,
   module: webpackModule,
   devtool: 'source-map',
+  devServer: {
+    writeToDisk: true
+  },
   resolve: {
     extensions: ['.js', '.ts']
   }
 }
 
-chromeTargetConfig = {
+chromeServicesConfig = {
   ...commonConfig,
   plugins: getPlugins(),
   output: {
@@ -62,4 +71,4 @@ chromeTargetConfig = {
   }
 }
 
-module.exports = chromeTargetConfig
+module.exports = chromeServicesConfig

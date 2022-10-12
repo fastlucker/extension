@@ -65,7 +65,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(false)
 
   const handleDenyButtonPress = () => {
-    sendMessage({
+    !!sendMessage && sendMessage({
       type: 'web3CallResponse',
       to: BACKGROUND,
       data: {
@@ -85,7 +85,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   const handleSwitchNetworkButtonPress = () => {
     if (newNetwork) {
       setNetwork(newNetwork?.chainId)
-      sendMessage({
+      !!sendMessage && sendMessage({
         type: 'web3CallResponse',
         to: BACKGROUND,
         data: {
@@ -110,7 +110,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   }, [newNetwork?.name, network?.name])
 
   const handleForceClose = () => {
-    sendMessage(
+    !!sendMessage && sendMessage(
       {
         type: 'web3CallResponse',
         to: BACKGROUND,
