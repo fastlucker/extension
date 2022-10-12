@@ -54,7 +54,7 @@ const commonConfig = {
   mode: 'production',
   entry: entries,
   module: webpackModule,
-  devtool: 'source-map',
+  devtool: 'none',
   devServer: {
     writeToDisk: true
   },
