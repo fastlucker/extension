@@ -2,7 +2,7 @@
 // There are 3 possible actors for the communication
 // BACKGROUND, CONTENT_SCRIPT, PAGE_CONTEXT
 
-import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
+import { VERBOSE } from '../constants/env.js'
 import {
   PAGE_CONTEXT,
   CONTENT_SCRIPT,
@@ -155,8 +155,8 @@ const handleMessage = function (message, sender = null) {
       message
     )
 
-  if (IS_FIREFOX) {
-    if (!sender.origin) sender.origin = sender.url
+  if (!!sender && !sender.origin && !!sender.url) {
+    sender.origin = sender.url
   }
 
   // if I am the final message destination
@@ -175,7 +175,7 @@ const handleMessage = function (message, sender = null) {
 
     // setting tabId origin (normal pages or extension pages/popups)
     if (RELAYER === BACKGROUND) {
-      if (IS_FIREFOX && sender.tab && sender.tab.url === 'about:addons') {
+      if (sender.tab && sender.tab.url === 'about:addons') {
         message.fromTabId = 'extension'
       } else if (sender.tab) {
         message.fromTabId = sender.tab.id

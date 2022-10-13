@@ -13,7 +13,7 @@ import {
   sendAck,
   processBackgroundQueue
 } from './ambexMessanger'
-import { IS_FIREFOX, VERBOSE } from '../constants/env'
+import { VERBOSE } from '../constants/env'
 import { browserAPI } from '../constants/browserAPI'
 import { PAGE_CONTEXT, BACKGROUND } from '../constants/paths'
 import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
@@ -431,7 +431,7 @@ const broadcastExtensionDataChange = (type, data) => {
       }
     }
 
-    if (IS_FIREFOX) {
+    if (browserAPI.browserAction) {
       try {
         browserAPI.tabs.get(tabId * 1, callback)
       } catch (e) {

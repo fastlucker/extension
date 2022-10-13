@@ -1,8 +1,8 @@
-import { IS_FIREFOX } from './env.js'
-
-export const browserAPI = IS_FIREFOX ? browser : chrome
+export const browserAPI = process.env.WEB_ENGINE === 'gecko' ? browser : chrome
 
 // FF compatibility
-if (IS_FIREFOX) {
+if (process.env.WEB_ENGINE === 'gecko') {
   browserAPI.action = browserAPI.browserAction
 }
+
+console.log('process.env.WEB_ENGINE === gecko', process.env.WEB_ENGINE === 'gecko')
