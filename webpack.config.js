@@ -27,6 +27,13 @@ module.exports = async function (env, argv) {
     }
   }
 
+  const excludeExpoPwaManifestWebpackPlugin = config.plugins.findIndex(
+    (plugin) => plugin.constructor.name === 'ExpoPwaManifestWebpackPlugin'
+  )
+  if (excludeExpoPwaManifestWebpackPlugin !== -1) {
+    config.plugins.splice(excludeExpoPwaManifestWebpackPlugin, 1)
+  }
+
   if (config.mode === 'development') {
     config.devServer.writeToDisk = true
   }
