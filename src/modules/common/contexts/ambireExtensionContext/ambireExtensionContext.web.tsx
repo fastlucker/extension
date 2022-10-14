@@ -258,7 +258,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
   }, [isTempExtensionPopup])
 
   useEffect(() => {
-    if (browserAPI) {
+    if (browserAPI.tabs) {
       browserAPI.tabs.query(
         {
           active: true,

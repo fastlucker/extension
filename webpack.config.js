@@ -9,8 +9,6 @@ module.exports = async function (env, argv) {
     argv
   )
 
-  // react-native-webview used in native apps
-  // react-native-web-webview used in web/browser extension
   config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
 
   if (config.mode === 'production') {
