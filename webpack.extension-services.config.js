@@ -5,7 +5,7 @@ const path = require('path')
 const webpack = require('webpack')
 
 module.exports = async function (env, argv) {
-  // files to pass in classic webpack
+  // All extension related services files passed to webpack
   const entries = {
     background: './web/services/background.js',
     'content-script': './web/services/content-script.js',
@@ -14,6 +14,7 @@ module.exports = async function (env, argv) {
     injection: './web/services/injection.js'
   }
 
+  // MANIFEST FILE WEB_ENGINE: GECKO
   function processManifestGecko(content) {
     const manifest = JSON.parse(content.toString())
     manifest.manifest_version = 2
@@ -32,6 +33,7 @@ module.exports = async function (env, argv) {
     return manifestJSON
   }
 
+  // STYLE.CSS FILE WEB_ENGINE: GECKO
   function processStyleGecko(content) {
     let style = content.toString()
     style = style.replace('min-height: 730px;', 'min-height: 600px;')
@@ -101,6 +103,8 @@ module.exports = async function (env, argv) {
     entry: entries,
     module: webpackModule,
     devtool: argv.mode === 'development' ? 'cheap-module-source-map' : 'source-map',
+    // Needed for loading the dev files as browser extension in dev mode
+    // Because extensions doesn't have access to the dev server
     devServer: {
       writeToDisk: true
     },
@@ -113,7 +117,8 @@ module.exports = async function (env, argv) {
     ...commonConfig,
     plugins: getPlugins(),
     output: {
-      path: path.resolve(__dirname, 'web-build/services')
+      // possible output paths: /webkit-dev, /gecko-dev, /webkit-prod, gecko-prod
+      path: path.resolve(__dirname, `${process.env.WEBPACK_BUILD_OUTPUT_PATH}/services`)
     }
   }
 
