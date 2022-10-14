@@ -47,9 +47,7 @@ const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
 const STORAGE_KEY = 'ambire_extension_state'
 
 // TODO: should be called only for extension. Skip if this code is used for web wallet
-if (!__DEV__) {
-  setupAmbexMessenger(CONTENT_SCRIPT, browserAPI)
-}
+!!setupAmbexMessenger && setupAmbexMessenger(CONTENT_SCRIPT, browserAPI)
 
 const AmbireExtensionProvider: React.FC = ({ children }) => {
   const { selectedAcc: selectedAccount } = useAccounts()
@@ -184,7 +182,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
             rpcResult.result = resolution.result
           }
 
-          if (!__DEV__) {
+          !!sendMessage &&
             sendMessage({
               type: 'web3CallResponse',
               to: BACKGROUND,
@@ -193,7 +191,6 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
                 rpcResult
               }
             })
-          }
         }
       }
       setRequests((prevRequests) => prevRequests.filter((x) => !ids.includes(x.id)))
@@ -242,25 +239,26 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
   }, [params, queue, handleSendTransactions, handlePersonalSign])
 
   useEffect(() => {
-    if (!isTempExtensionPopup && !__DEV__) {
-      sendMessage({
-        to: BACKGROUND,
-        type: 'getPermissionsList'
-      }).then((reply) => {
-        setConnectedDapps(
-          Object.keys(reply.data).map((host) => {
-            return {
-              host,
-              status: reply.data?.[host]
-            }
-          })
-        )
-      })
+    if (!isTempExtensionPopup) {
+      !!sendMessage &&
+        sendMessage({
+          to: BACKGROUND,
+          type: 'getPermissionsList'
+        }).then((reply) => {
+          setConnectedDapps(
+            Object.keys(reply.data).map((host) => {
+              return {
+                host,
+                status: reply.data?.[host]
+              }
+            })
+          )
+        })
     }
   }, [isTempExtensionPopup])
 
   useEffect(() => {
-    if (!__DEV__) {
+    if (browserAPI.tabs) {
       browserAPI.tabs.query(
         {
           active: true,

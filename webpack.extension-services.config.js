@@ -2,64 +2,125 @@
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const path = require('path')
+const webpack = require('webpack')
 
-// files to pass in classic webpack
-const entries = {
-  background: { import: './web/services/background.js', filename: 'background.js' },
-  'content-script': { import: './web/services/content-script.js', filename: 'content-script.js' },
-  'content-script-onComplete': {
-    import: './web/services/content-script-onComplete.js',
-    filename: 'content-script-onComplete.js'
-  },
-  'page-context': { import: './web/services/page-context.js', filename: 'page-context.js' },
-  injection: { import: './web/services/injection.js', filename: 'injection.js' }
-}
+module.exports = async function (env, argv) {
+  // All extension related services files passed to webpack
+  const entries = {
+    background: './web/services/background.js',
+    'content-script': './web/services/content-script.js',
+    'content-script-onComplete': './web/services/content-script-onComplete.js',
+    'page-context': './web/services/page-context.js',
+    injection: './web/services/injection.js'
+  }
 
-const getPlugins = () => {
-  return [
-    new NodePolyfillPlugin(),
-    new CopyPlugin({
-      patterns: [
-        {
-          from: './web/manifest.json',
-          to: '../manifest.json'
-        },
-        { from: './web/services/ambexMessanger.js', to: './ambexMessanger.js' }
-      ]
-    })
-  ]
-}
-
-const webpackModule = {
-  rules: [
-    {
-      test: /\.js$/,
-      exclude: /node_modules/,
-      use: [
-        {
-          loader: 'babel-loader'
-        }
-      ]
+  // MANIFEST FILE WEB_ENGINE: GECKO
+  function processManifestGecko(content) {
+    const manifest = JSON.parse(content.toString())
+    manifest.manifest_version = 2
+    manifest.background = {
+      scripts: ['services/background.js']
     }
-  ]
-}
+    manifest.web_accessible_resources = ['*']
+    manifest.host_permissions = undefined
+    manifest.browser_action = JSON.parse(JSON.stringify(manifest.action))
+    delete manifest.action
+    manifest.externally_connectable = undefined
+    manifest.permissions.splice(manifest.permissions.indexOf('scripting'), 1)
+    manifest.permissions.push('<all_urls>')
 
-const commonConfig = {
-  mode: 'production',
-  entry: entries,
-  module: webpackModule,
-  devtool: 'source-map',
-  resolve: {
-    extensions: ['.js', '.ts']
+    const manifestJSON = JSON.stringify(manifest, null, 2)
+    return manifestJSON
   }
-}
 
-chromeTargetConfig = {
-  ...commonConfig,
-  plugins: getPlugins(),
-  output: {
-    path: path.resolve(__dirname, 'web-build/services')
+  // STYLE.CSS FILE WEB_ENGINE: GECKO
+  function processStyleGecko(content) {
+    let style = content.toString()
+    style = style.replace('min-height: 730px;', 'min-height: 600px;')
+
+    return style
   }
-}
 
-module.exports = chromeTargetConfig
+  const getPlugins = () => {
+    return [
+      new NodePolyfillPlugin(),
+      new webpack.DefinePlugin({
+        'process.env.WEB_ENGINE': process.env.WEB_ENGINE
+      }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: './web/assets',
+            to: '../assets'
+          },
+          {
+            from: './web/constants',
+            to: '../constants'
+          },
+          { from: './web/services/ambexMessanger.js', to: './ambexMessanger.js' },
+          {
+            from: './web/style.css',
+            to: '../style.css',
+            transform(content) {
+              if (process.env.WEB_ENGINE === 'gecko') {
+                return processStyleGecko(content)
+              }
+
+              return content
+            }
+          },
+          {
+            from: './web/manifest.json',
+            to: '../manifest.json',
+            transform(content) {
+              if (process.env.WEB_ENGINE === 'gecko') {
+                return processManifestGecko(content)
+              }
+
+              return content
+            }
+          }
+        ]
+      })
+    ]
+  }
+
+  const webpackModule = {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader'
+          }
+        ]
+      }
+    ]
+  }
+
+  const commonConfig = {
+    entry: entries,
+    module: webpackModule,
+    devtool: argv.mode === 'development' ? 'cheap-module-source-map' : 'source-map',
+    // Needed for loading the dev files as browser extension in dev mode
+    // Because extensions doesn't have access to the dev server
+    devServer: {
+      writeToDisk: true
+    },
+    resolve: {
+      extensions: ['.js', '.ts']
+    }
+  }
+
+  const config = {
+    ...commonConfig,
+    plugins: getPlugins(),
+    output: {
+      // possible output paths: /webkit-dev, /gecko-dev, /webkit-prod, gecko-prod
+      path: path.resolve(__dirname, `${process.env.WEBPACK_BUILD_OUTPUT_PATH}/services`)
+    }
+  }
+
+  return config
+}

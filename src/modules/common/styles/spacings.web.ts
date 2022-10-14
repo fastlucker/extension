@@ -12,7 +12,7 @@ export const SPACING_MD: number = 25
 export const SPACING_LG: number = 30
 
 export const DEVICE_WIDTH = 560
-export const DEVICE_HEIGHT = 730
+export const DEVICE_HEIGHT = process.env.WEB_ENGINE === 'gecko' ? 600 : 730
 
 export const IS_SCREEN_SIZE_L = false
 export const IS_SCREEN_SIZE_S = false

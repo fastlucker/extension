@@ -68,8 +68,12 @@ const Balances = ({
   const { isModalVisible, showModal, hideModal } = useModal()
 
   const tabHost = useMemo(() => {
-    if (lastActiveTab) {
-      return new URL(lastActiveTab.url).host
+    try {
+      if (lastActiveTab) {
+        return new URL(lastActiveTab.url).host
+      }
+    } catch (e) {
+      return null
     }
     return null
   }, [lastActiveTab])

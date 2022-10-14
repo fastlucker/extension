@@ -485,4 +485,8 @@ android/keystores/*
 credentials.json
 
 # Web
-/web-build
+/webkit-dev
+/webkit-prod
+
+/gecko-dev
+/gecko-prod

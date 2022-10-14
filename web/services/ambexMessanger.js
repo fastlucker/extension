@@ -2,7 +2,7 @@
 // There are 3 possible actors for the communication
 // BACKGROUND, CONTENT_SCRIPT, PAGE_CONTEXT
 
-import { IS_FIREFOX, VERBOSE } from '../constants/env.js'
+import { VERBOSE } from '../constants/env.js'
 import {
   PAGE_CONTEXT,
   CONTENT_SCRIPT,
@@ -53,50 +53,51 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
 
   if (RELAYER === BACKGROUND) {
     // listener for CONTENT_SCRIPT sent messages
-    chromeObject.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      console.log(`${RELAYER} JUST GOT A REQUEST`, request, sender)
+    !!chromeObject.runtime &&
+      chromeObject.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        console.log(`${RELAYER} JUST GOT A REQUEST`, request, sender)
 
-      // if BACKGROUND worker not initialized, put received message in queue, unless it's a keepalive request reply from ambire wallet
-      if (
-        !BACKGROUND_INITIALIZED &&
-        !(request.isReply && request.to === BACKGROUND && request.type === 'keepalive_reply')
-      ) {
-        if (VERBOSE > 1)
-          console.log(
-            `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] request added to init queue`,
-            request
-          )
-        INIT_MSG_QUEUE.push({
-          request,
-          sender
-        })
-      } else {
-        // process incoming message
-        handleMessage(request, sender)
-      }
-    })
+        // if BACKGROUND worker not initialized, put received message in queue, unless it's a keepalive request reply from ambire wallet
+        if (
+          !BACKGROUND_INITIALIZED &&
+          !(request.isReply && request.to === BACKGROUND && request.type === 'keepalive_reply')
+        ) {
+          if (VERBOSE > 1)
+            console.log(
+              `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] request added to init queue`,
+              request
+            )
+          INIT_MSG_QUEUE.push({
+            request,
+            sender
+          })
+        } else {
+          // process incoming message
+          handleMessage(request, sender)
+        }
+      })
     // Higher API levels scripts, injected in each end page
   } else if (RELAYER === CONTENT_SCRIPT) {
     // listening to messages coming from BACKGROUND worker
-
-    chromeObject.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      // Security check + avoid double routing, disallow direct handling, because when CS is broadcasting, both BACKGROUND and other CS-like receive it
-      // TODO firefox
-      if (
-        sender.url === `chrome-extension://${sender.id}/background.js` ||
-        // initially, it seems BACKGROUND sends msg without origin?!
-        (!sender.url && sender.origin === 'null')
-      ) {
-        handleMessage(request)
-        return
-      }
-
-      if (sender.url) {
-        if (RELAYER === CONTENT_SCRIPT) {
+    !!chromeObject.runtime &&
+      chromeObject.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        // Security check + avoid double routing, disallow direct handling, because when CS is broadcasting, both BACKGROUND and other CS-like receive it
+        // TODO firefox
+        if (
+          sender.url === `chrome-extension://${sender.id}/background.js` ||
+          // initially, it seems BACKGROUND sends msg without origin?!
+          (!sender.url && sender.origin === 'null')
+        ) {
           handleMessage(request)
+          return
         }
-      }
-    })
+
+        if (sender.url) {
+          if (RELAYER === CONTENT_SCRIPT) {
+            handleMessage(request)
+          }
+        }
+      })
 
     if (VERBOSE > 2)
       console.log(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Add EVENT LISTENER`)
@@ -155,8 +156,8 @@ const handleMessage = function (message, sender = null) {
       message
     )
 
-  if (IS_FIREFOX) {
-    if (!sender.origin) sender.origin = sender.url
+  if (!!sender && !sender.origin && !!sender.url) {
+    sender.origin = sender.url
   }
 
   // if I am the final message destination
@@ -175,7 +176,7 @@ const handleMessage = function (message, sender = null) {
 
     // setting tabId origin (normal pages or extension pages/popups)
     if (RELAYER === BACKGROUND) {
-      if (IS_FIREFOX && sender.tab && sender.tab.url === 'about:addons') {
+      if (sender.tab && sender.tab.url === 'about:addons') {
         message.fromTabId = 'extension'
       } else if (sender.tab) {
         message.fromTabId = sender.tab.id
@@ -304,7 +305,6 @@ const sendMessageInternal = async (message) => {
       return false
     }
 
-    console.log('SENDING TO TABID', message.toTabId)
     // extension pages have no tabId but 'extension' is specified in the msg
     if (message.toTabId === 'extension') {
       if (VERBOSE)
@@ -312,7 +312,7 @@ const sendMessageInternal = async (message) => {
           `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as BG -> EXT(${message.to}):`,
           message
         )
-      chromeObject.runtime.sendMessage(message)
+      !!chromeObject.runtime && chromeObject.runtime.sendMessage(message)
     } else {
       // for specific CONTENT_SCRIPT tabs
       // TODO if fromTabId url is extension > replace fromTabId with 'extension' for replies ?
@@ -322,8 +322,8 @@ const sendMessageInternal = async (message) => {
           `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as BG -> ${message.to}:`,
           message
         )
-      chromeObject.runtime.sendMessage(message)
-      chromeObject.tabs.sendMessage(message.toTabId, message)
+      !!chromeObject.runtime && chromeObject.runtime.sendMessage(message)
+      !!chromeObject.tabs && chromeObject.tabs.sendMessage(message.toTabId, message)
     }
   } else if (RELAYER === CONTENT_SCRIPT) {
     // check in which direction to sent
@@ -337,7 +337,7 @@ const sendMessageInternal = async (message) => {
           `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as CS -> BG:`,
           message
         )
-      chromeObject.runtime.sendMessage(message)
+      !!chromeObject.runtime && chromeObject.runtime.sendMessage(message)
     } else if (message.to === CONTENT_SCRIPT) {
       // other extension pages
       if (VERBOSE)
@@ -345,7 +345,7 @@ const sendMessageInternal = async (message) => {
           `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as CS -> CS:`,
           message
         )
-      chromeObject.runtime.sendMessage(message)
+      !!chromeObject.runtime && chromeObject.runtime.sendMessage(message)
     } else {
       // passing down to PAGE_CONTEXT
       if (VERBOSE)
