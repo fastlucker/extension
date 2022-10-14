@@ -113,7 +113,7 @@ module.exports = async function (env, argv) {
     }
   }
 
-  const chromeServicesConfig = {
+  const config = {
     ...commonConfig,
     plugins: getPlugins(),
     output: {
@@ -122,5 +122,5 @@ module.exports = async function (env, argv) {
     }
   }
 
-  return chromeServicesConfig
+  return config
 }
