@@ -7,8 +7,13 @@ async function deferTick(host, queue, route) {
   if (DEFERRED_PERMISSION_WINDOWS[host]) {
     DEFERRED_PERMISSION_WINDOWS[host] = false
     const zoom = 0.82
-    const popupWidth = Math.round(560 * zoom)
-    const popupHeight = Math.round(760 * zoom)
+    let popupWidth = Math.round(560 * zoom)
+    let popupHeight = Math.round(760 * zoom)
+
+    if (process.env.WEB_ENGINE === 'gecko') {
+      popupWidth = Math.round(560)
+      popupHeight = Math.round(620)
+    }
 
     // getting last focused window to position our popup correctly
     const lastFocused = await browserAPI.windows.getLastFocused()
