@@ -1,7 +1,8 @@
 import networks, { NetworkType } from 'ambire-common/src/constants/networks'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
+import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
+import { ScrollView } from 'react-native-gesture-handler'
 
 import { isAndroid, isRelayerless } from '@config/env'
 import Title from '@modules/common/components/Title'
