@@ -1,7 +1,13 @@
 import networks, { NetworkType } from 'ambire-common/src/constants/networks'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native'
+import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
+// Using the ScrollView from 'react-native' was working just fine on all iOS
+// devices, but not for all Android devices. So using this ScrollView instance
+// was the only way to achieve normal scrolling (dragging) behavior for
+// Samsung Galaxy S20 for example.
+// {@link https://stackoverflow.com/a/66166811/1333836}
+import { ScrollView } from 'react-native-gesture-handler'
 
 import { isAndroid, isRelayerless } from '@config/env'
 import Title from '@modules/common/components/Title'
@@ -17,9 +23,6 @@ const NetworkChanger: React.FC = () => {
   const { network, setNetwork } = useNetwork()
   const { addToast } = useToast()
   const scrollRef: any = useRef(null)
-  // Flags, needed for the #android-onMomentumScrollEnd-fix
-  const scrollY = useRef(0)
-  const onScrollEndCallbackTargetOffset = useRef(-1)
 
   const allVisibleNetworks = useMemo(
     () => networks.filter((n) => !n.hide).filter((n) => isRelayerless || !n.relayerlessOnly),
@@ -32,12 +35,13 @@ const NetworkChanger: React.FC = () => {
   )
 
   useEffect(() => {
-    // FIXME: For some reason the `contentOffset` prop doesn't work on Android,
-    // so we have to use the `scrollTo` method instead to scroll to the current network.
-    // Could be a bug on the React Native side, because it was working just fine
-    // with React Native v0.64.3 (Expo SDK v44), but fails
-    // with v0.68.2 (Expo SDK v45). bug report:
-    // {@link https://github.com/facebook/react-native/issues/33994}
+    // There is a bug in React Native with the `contentOffset` prop.
+    // It doesn't work on Android only. So this is a workaround - use the
+    // `scrollTo` method instead to scroll to the current network.
+    // TODO: When migrating to Expo SDK v46 and React Native 0.69.0,
+    // double-check if this is still needed, because it looks like there is a
+    // fix which pinpoints a similar issue reported, see:
+    // {@link https://github.com/facebook/react-native/issues/30533#issuecomment-1178109921}
     if (isAndroid) {
       scrollRef?.current?.scrollTo({
         x: 0,
@@ -45,7 +49,7 @@ const NetworkChanger: React.FC = () => {
         animated: true
       })
     }
-  }, [])
+  }, [scrollRef, currentNetworkIndex])
 
   const handleChangeNetwork = useCallback(
     (_network: NetworkType) => {
@@ -65,7 +69,9 @@ const NetworkChanger: React.FC = () => {
       // Get the currently selected network index, based on the idea from this
       // thread, but implemented vertically and based on our fixed item height.
       // {@link https://stackoverflow.com/a/56736109/1333836}
-      const index = event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT
+      // PS: Rounding it, because sometimes the calculation returns funky
+      // numbers due to the JS engine glitch (like 3.0001).
+      const index = Math.round(event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT)
       const selectedNetwork = allVisibleNetworks[index]
 
       return handleChangeNetwork(selectedNetwork)
@@ -76,14 +82,23 @@ const NetworkChanger: React.FC = () => {
   const renderNetwork = (_network: NetworkType, idx: number) => {
     const isActive = _network.chainId === network?.chainId
 
-    const handleChangeNetworkByPressing = useCallback((itemIndex: number) => {
-      scrollRef?.current?.scrollTo({ x: 0, y: itemIndex * SINGLE_ITEM_HEIGHT, animated: true })
+    const handleChangeNetworkByPressing = useCallback(
+      (itemIndex: number) => {
+        scrollRef?.current?.scrollTo({ x: 0, y: itemIndex * SINGLE_ITEM_HEIGHT, animated: true })
 
-      // Part of the #android-onMomentumScrollEnd-fix
-      if (isAndroid) {
-        onScrollEndCallbackTargetOffset.current = itemIndex * SINGLE_ITEM_HEIGHT
-      }
-    }, [])
+        /**
+         * Calling `.scrollTo` on Android doesn't trigger the `onMomentumScrollEnd`
+         * event. So this additional handler is needed, only for Android,
+         * {@link https://stackoverflow.com/a/46788635/1333836}
+         */
+        if (isAndroid) {
+          handleChangeNetwork(allVisibleNetworks[itemIndex])
+        }
+      },
+      // The react-hooks/exhaustive-deps plugin wrongly assumes that
+      // the `handleChangeNetwork` is unnecessary dependency. It is!
+      [handleChangeNetwork] // eslint-disable-line react-hooks/exhaustive-deps
+    )
 
     return (
       <NetworkChangerItem
@@ -97,22 +112,6 @@ const NetworkChanger: React.FC = () => {
     )
   }
 
-  /**
-   * Calling `.scrollTo` on Android doesn't trigger the `onMomentumScrollEnd`
-   * event. So this additional handler is needed, only for Android,
-   * in order to apply the #android-onMomentumScrollEnd-fix
-   * that manually triggers `handleChangeNetworkByScrolling`.
-   * {@link https://stackoverflow.com/a/46788635/1333836}
-   */
-  const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { contentOffset } = event.nativeEvent
-    scrollY.current = contentOffset.y
-
-    if (contentOffset.y === onScrollEndCallbackTargetOffset.current) {
-      handleChangeNetworkByScrolling(event)
-    }
-  }
-
   return (
     <>
       <Title style={textStyles.center} type="small">
@@ -122,7 +121,6 @@ const NetworkChanger: React.FC = () => {
         <View style={styles.networkBtnContainerActive} />
         <ScrollView
           ref={scrollRef}
-          onScroll={isAndroid ? onScroll : undefined}
           pagingEnabled
           snapToInterval={SINGLE_ITEM_HEIGHT}
           contentOffset={{
@@ -134,6 +132,8 @@ const NetworkChanger: React.FC = () => {
             paddingBottom: SINGLE_ITEM_HEIGHT * 2
           }}
           showsVerticalScrollIndicator={false}
+          // Note: when the scroll happens programmatically (via .scrollTo),
+          // this event gets fired for iOS only.
           onMomentumScrollEnd={handleChangeNetworkByScrolling}
           scrollEventThrottle={16}
         >
