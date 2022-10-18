@@ -2,6 +2,11 @@ import networks, { NetworkType } from 'ambire-common/src/constants/networks'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
+// Using the ScrollView from 'react-native' was working just fine on all iOS
+// devices, but not for all Android devices. So using this ScrollView instance
+// was the only way to achieve normal scrolling (dragging) behavior for
+// Samsung Galaxy S20 for example.
+// {@link https://stackoverflow.com/a/66166811/1333836}
 import { ScrollView } from 'react-native-gesture-handler'
 
 import { isAndroid, isRelayerless } from '@config/env'
