@@ -1,5 +1,5 @@
 import networks, { NetworkType } from 'ambire-common/src/constants/networks'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 // Using the ScrollView from 'react-native' was working just fine on all iOS
@@ -69,7 +69,9 @@ const NetworkChanger: React.FC = () => {
       // Get the currently selected network index, based on the idea from this
       // thread, but implemented vertically and based on our fixed item height.
       // {@link https://stackoverflow.com/a/56736109/1333836}
-      const index = event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT
+      // PS: Rounding it, because sometimes the calculation returns funky
+      // numbers due to the JS engine glitch (like 3.0001).
+      const index = Math.round(event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT)
       const selectedNetwork = allVisibleNetworks[index]
 
       return handleChangeNetwork(selectedNetwork)
@@ -80,18 +82,23 @@ const NetworkChanger: React.FC = () => {
   const renderNetwork = (_network: NetworkType, idx: number) => {
     const isActive = _network.chainId === network?.chainId
 
-    const handleChangeNetworkByPressing = useCallback((itemIndex: number) => {
-      scrollRef?.current?.scrollTo({ x: 0, y: itemIndex * SINGLE_ITEM_HEIGHT, animated: true })
+    const handleChangeNetworkByPressing = useCallback(
+      (itemIndex: number) => {
+        scrollRef?.current?.scrollTo({ x: 0, y: itemIndex * SINGLE_ITEM_HEIGHT, animated: true })
 
-      /**
-       * Calling `.scrollTo` on Android doesn't trigger the `onMomentumScrollEnd`
-       * event. So this additional handler is needed, only for Android,
-       * {@link https://stackoverflow.com/a/46788635/1333836}
-       */
-      if (isAndroid) {
-        handleChangeNetwork(allVisibleNetworks[itemIndex])
-      }
-    }, [])
+        /**
+         * Calling `.scrollTo` on Android doesn't trigger the `onMomentumScrollEnd`
+         * event. So this additional handler is needed, only for Android,
+         * {@link https://stackoverflow.com/a/46788635/1333836}
+         */
+        if (isAndroid) {
+          handleChangeNetwork(allVisibleNetworks[itemIndex])
+        }
+      },
+      // The react-hooks/exhaustive-deps plugin wrongly assumes that
+      // the `handleChangeNetwork` is unnecessary dependency. It is!
+      [handleChangeNetwork] // eslint-disable-line react-hooks/exhaustive-deps
+    )
 
     return (
       <NetworkChangerItem
