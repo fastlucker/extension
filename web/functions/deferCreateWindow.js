@@ -1,4 +1,4 @@
-import { browserAPI } from '../constants/browserAPI.js'
+import { browserAPI, engine } from '../constants/browserAPI.js'
 
 export const DEFERRED_PERMISSION_WINDOWS = {}
 export const PERMISSION_WINDOWS = {}
@@ -10,7 +10,7 @@ async function deferTick(host, queue, route) {
     let popupWidth = Math.round(560 * zoom)
     let popupHeight = Math.round(760 * zoom)
 
-    if (process.env.WEB_ENGINE === 'gecko') {
+    if (engine === 'gecko') {
       popupWidth = Math.round(560)
       popupHeight = Math.round(620)
     }
