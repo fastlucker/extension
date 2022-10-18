@@ -8,7 +8,7 @@ const expoEnv = require('@expo/webpack-config/env')
 
 // Overrides the default generatedScriptTags
 // generatedScriptTags is used to add the entry files as scripts in index.html
-// but we heed only the app.js entry because the other entries are extension services for running as background processes in the browser
+// but we heed only the app.js entry because the other entries are extension services running as background processes in the browser
 class HtmlWebpackPlugin extends ExpoHtmlWebpackPlugin {
   generatedScriptTags() {
     return super.generatedScriptTags(['app.js']);
@@ -38,6 +38,7 @@ module.exports = async function (env, argv) {
   // style.css output file for WEB_ENGINE: GECKO
   function processStyleGecko(content) {
     let style = content.toString()
+    // Firefox extensions max window height is 600px
     style = style.replace('min-height: 730px;', 'min-height: 600px;')
 
     return style
