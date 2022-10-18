@@ -118,7 +118,7 @@ module.exports = async function (env, argv) {
     plugins: getPlugins(),
     output: {
       // possible output paths: /webkit-dev, /gecko-dev, /webkit-prod, gecko-prod
-      path: path.resolve(__dirname, `${process.env.WEBPACK_BUILD_OUTPUT_PATH}/services`)
+      path: path.resolve(__dirname, `${process.env.WEBPACK_BUILD_OUTPUT_PATH}`)
     }
   }
 

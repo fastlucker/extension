@@ -6,7 +6,7 @@
   "short_name": "Ambire",
   "permissions": ["storage", "tabs"],
   "background": {
-    "service_worker": "services/background.js",
+    "service_worker": "background.js",
     "type": "module"
   },
   "icons": {
@@ -24,19 +24,19 @@
       "matches": ["<all_urls>"],
       "exclude_matches": ["*://doInWebPack.lan/*", "*://wallet.ambire.com/*"],
       "run_at": "document_start",
-      "js": ["services/injection.js"]
+      "js": ["injection.js"]
     },
     {
       "matches": ["<all_urls>"],
       "exclude_matches": ["*://doInWebPack.lan/*", "*://wallet.ambire.com/*"],
       "run_at": "document_start",
-      "js": ["services/content-script.js"]
+      "js": ["content-script.js"]
     },
     {
       "matches": ["<all_urls>"],
       "exclude_matches": ["*://doInWebPack.lan/*", "*://wallet.ambire.com/*"],
       "run_at": "document_end",
-      "js": ["services/content-script-onComplete.js"]
+      "js": ["content-script-onComplete.js"]
     }
   ],
   "web_accessible_resources": [
