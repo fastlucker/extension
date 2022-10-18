@@ -84,55 +84,57 @@ module.exports = async function (env, argv) {
     if (config.mode === 'development') {
       config.devServer.writeToDisk = true
     }
-  }
 
-  config.entry = {
-    ...config.entry,
-    ...entries
-  }
+    config.entry = {
+      ...config.entry,
+      ...entries
+    }
 
-  config.plugins = [
-    ...config.plugins,
-    new CopyPlugin({
-      patterns: [
-        {
-          from: './web/assets',
-          to: 'assets'
-        },
-        {
-          from: './web/constants',
-          to: 'constants'
-        },
-        { from: './web/services/ambexMessanger.js', to: './ambexMessanger.js' },
-        {
-          from: './web/style.css',
-          to: 'style.css',
-          transform(content) {
-            if (process.env.WEB_ENGINE === 'gecko') {
-              return processStyleGecko(content)
+    config.plugins = [
+      ...config.plugins,
+      new CopyPlugin({
+        patterns: [
+          {
+            from: './web/assets',
+            to: 'assets'
+          },
+          {
+            from: './web/constants',
+            to: 'constants'
+          },
+          { from: './web/services/ambexMessanger.js', to: './ambexMessanger.js' },
+          {
+            from: './web/style.css',
+            to: 'style.css',
+            transform(content) {
+              if (process.env.WEB_ENGINE === 'gecko') {
+                return processStyleGecko(content)
+              }
+
+              return content
             }
+          },
+          {
+            from: './web/manifest.json',
+            to: 'manifest.json',
+            transform(content) {
+              if (process.env.WEB_ENGINE === 'gecko') {
+                return processManifestGecko(content)
+              }
 
-            return content
-          }
-        },
-        {
-          from: './web/manifest.json',
-          to: 'manifest.json',
-          transform(content) {
-            if (process.env.WEB_ENGINE === 'gecko') {
-              return processManifestGecko(content)
+              return content
             }
-
-            return content
           }
-        }
-      ]
-    })
-  ]
+        ]
+      })
+    ]
 
-  config.output = {
-    // possible output paths: /webkit-dev, /gecko-dev, /webkit-prod, gecko-prod
-    path: path.resolve(__dirname, `${process.env.WEBPACK_BUILD_OUTPUT_PATH}`)
+    config.optimization = {}
+
+    config.output = {
+      // possible output paths: /webkit-dev, /gecko-dev, /webkit-prod, gecko-prod
+      path: path.resolve(__dirname, `${process.env.WEBPACK_BUILD_OUTPUT_PATH}`)
+    }
   }
 
   return config
