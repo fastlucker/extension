@@ -61,7 +61,7 @@ const NetworkChanger: React.FC = () => {
         timeout: 3000
       })
     },
-    [network, setNetwork, addToast, t]
+    [network?.chainId, setNetwork, addToast, t]
   )
 
   const handleChangeNetworkByScrolling = useCallback(
