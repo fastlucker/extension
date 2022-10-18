@@ -1,4 +1,5 @@
 import networks, { NetworkType } from 'ambire-common/src/constants/networks'
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
@@ -23,6 +24,7 @@ const NetworkChanger: React.FC = () => {
   const { network, setNetwork } = useNetwork()
   const { addToast } = useToast()
   const scrollRef: any = useRef(null)
+  const prevNetworkId = usePrevious(network?.chainId)
 
   const allVisibleNetworks = useMemo(
     () => networks.filter((n) => !n.hide).filter((n) => isRelayerless || !n.relayerlessOnly),
@@ -54,14 +56,15 @@ const NetworkChanger: React.FC = () => {
   const handleChangeNetwork = useCallback(
     (_network: NetworkType) => {
       if (!_network) return
-      if (_network.chainId === network?.chainId) return
+      // if (_network.chainId === network?.chainId) return
+      if (_network.chainId === prevNetworkId) return
 
       setNetwork(_network.chainId)
       addToast(t('Network changed to {{network}}', { network: _network.name }) as string, {
         timeout: 3000
       })
     },
-    [network?.chainId, setNetwork, addToast, t]
+    [prevNetworkId, setNetwork, addToast, t]
   )
 
   const handleChangeNetworkByScrolling = useCallback(
