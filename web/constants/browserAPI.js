@@ -1,18 +1,17 @@
 // modified to browser if the web engine is GECKO in the webpack config
 let browserAPI = null
+let engine = null
 
-if (typeof browser !== 'undefined') {
-  browserAPI = browser
-}
-
-if (typeof chrome !== 'undefined') {
+if (process.env.WEB_ENGINE === 'webkit') {
   browserAPI = chrome
+  engine = 'webkit'
 }
 
-// FF compatibility
 if (process.env.WEB_ENGINE === 'gecko') {
+  browserAPI = browser
   browserAPI.action = browserAPI.browserAction
+  engine = 'gecko'
 }
 
 
-export { browserAPI }
+export { browserAPI, engine }

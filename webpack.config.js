@@ -21,7 +21,7 @@ module.exports = async function (env, argv) {
     const manifest = JSON.parse(content.toString())
     manifest.manifest_version = 2
     manifest.background = {
-      scripts: ['services/background.js']
+      scripts: ['background.js']
     }
     manifest.web_accessible_resources = ['*']
     manifest.host_permissions = undefined
