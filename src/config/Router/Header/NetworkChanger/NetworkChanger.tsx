@@ -1,6 +1,5 @@
 import networks, { NetworkType } from 'ambire-common/src/constants/networks'
-import usePrevious from 'ambire-common/src/hooks/usePrevious'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 // Using the ScrollView from 'react-native' was working just fine on all iOS
@@ -24,7 +23,6 @@ const NetworkChanger: React.FC = () => {
   const { network, setNetwork } = useNetwork()
   const { addToast } = useToast()
   const scrollRef: any = useRef(null)
-  const prevNetworkId = usePrevious(network?.chainId)
 
   const allVisibleNetworks = useMemo(
     () => networks.filter((n) => !n.hide).filter((n) => isRelayerless || !n.relayerlessOnly),
@@ -56,15 +54,14 @@ const NetworkChanger: React.FC = () => {
   const handleChangeNetwork = useCallback(
     (_network: NetworkType) => {
       if (!_network) return
-      // if (_network.chainId === network?.chainId) return
-      if (_network.chainId === prevNetworkId) return
+      if (_network.chainId === network?.chainId) return
 
       setNetwork(_network.chainId)
       addToast(t('Network changed to {{network}}', { network: _network.name }) as string, {
         timeout: 3000
       })
     },
-    [prevNetworkId, setNetwork, addToast, t]
+    [network, setNetwork, addToast, t]
   )
 
   const handleChangeNetworkByScrolling = useCallback(
@@ -85,18 +82,23 @@ const NetworkChanger: React.FC = () => {
   const renderNetwork = (_network: NetworkType, idx: number) => {
     const isActive = _network.chainId === network?.chainId
 
-    const handleChangeNetworkByPressing = useCallback((itemIndex: number) => {
-      scrollRef?.current?.scrollTo({ x: 0, y: itemIndex * SINGLE_ITEM_HEIGHT, animated: true })
+    const handleChangeNetworkByPressing = useCallback(
+      (itemIndex: number) => {
+        scrollRef?.current?.scrollTo({ x: 0, y: itemIndex * SINGLE_ITEM_HEIGHT, animated: true })
 
-      /**
-       * Calling `.scrollTo` on Android doesn't trigger the `onMomentumScrollEnd`
-       * event. So this additional handler is needed, only for Android,
-       * {@link https://stackoverflow.com/a/46788635/1333836}
-       */
-      if (isAndroid) {
-        handleChangeNetwork(allVisibleNetworks[itemIndex])
-      }
-    }, [])
+        /**
+         * Calling `.scrollTo` on Android doesn't trigger the `onMomentumScrollEnd`
+         * event. So this additional handler is needed, only for Android,
+         * {@link https://stackoverflow.com/a/46788635/1333836}
+         */
+        if (isAndroid) {
+          handleChangeNetwork(allVisibleNetworks[itemIndex])
+        }
+      },
+      // The react-hooks/exhaustive-deps plugin wrongly assumes that
+      // the `handleChangeNetwork` is unnecessary dependency. It is!
+      [handleChangeNetwork] // eslint-disable-line react-hooks/exhaustive-deps
+    )
 
     return (
       <NetworkChangerItem
