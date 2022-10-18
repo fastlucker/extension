@@ -5,6 +5,10 @@ const { ExpoHtmlWebpackPlugin } = require('@expo/webpack-config/plugins/index')
 const nodeHtmlParser = require("node-html-parser")
 const fsExtra = require("fs-extra")
 const expoEnv = require('@expo/webpack-config/env')
+
+// Overrides the default generatedScriptTags
+// generatedScriptTags is used to add the entry files as scripts in index.html
+// but we heed only the app.js entry because the other entries are extension services for running as background processes in the browser
 class HtmlWebpackPlugin extends ExpoHtmlWebpackPlugin {
   generatedScriptTags() {
     return super.generatedScriptTags(['app.js']);
@@ -12,7 +16,7 @@ class HtmlWebpackPlugin extends ExpoHtmlWebpackPlugin {
 }
 
 module.exports = async function (env, argv) {
-  // manifest.json file for WEB_ENGINE: GECKO
+  // manifest.json output file for WEB_ENGINE: GECKO
   function processManifestGecko(content) {
     const manifest = JSON.parse(content.toString())
     manifest.manifest_version = 2
@@ -31,7 +35,7 @@ module.exports = async function (env, argv) {
     return manifestJSON
   }
 
-  // style.css file for WEB_ENGINE: GECKO
+  // style.css output file for WEB_ENGINE: GECKO
   function processStyleGecko(content) {
     let style = content.toString()
     style = style.replace('min-height: 730px;', 'min-height: 600px;')
@@ -39,7 +43,7 @@ module.exports = async function (env, argv) {
     return style
   }
 
-  // Additional entries (extension services)
+  // Additional entries from /web (extension services)
   const entries = {
     background: './web/services/background.js',
     'content-script': './web/services/content-script.js',
@@ -59,22 +63,21 @@ module.exports = async function (env, argv) {
   const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
   const templateIndex = (0, nodeHtmlParser.parse)((0, fsExtra.readFileSync)(locations.template.indexHtml, { encoding: 'utf8' }))
 
-  // if it's a web build
+  // Customize webpack only for web
   if (process.env.WEB_ENGINE) {
     // Alias the 'react-native-webview' package, in order to add support
     // (web implementation) of React Native's WebView. See:
     // {@link https://github.com/react-native-web-community/react-native-web-webview}
     config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
 
-    // No need to copy the extension services files from the /web folder because
-    // the services files are transpiled by webpack.extension-services.config.js
+    // The files in the /web directory should be transpiled not just copied
     const excludeCopyPlugin = config.plugins.findIndex(
       (plugin) => plugin.constructor.name === 'CopyPlugin'
     )
     if (excludeCopyPlugin !== -1) {
       config.plugins.splice(excludeCopyPlugin, 1)
     }
-    // Excluded because CleanWebpackPlugin interferes with the files creation of webpack.extension-services.config.js
+    // Not needed because output directory cleanup is handled in the run script
     const excludeCleanWebpackPlugin = config.plugins.findIndex(
       (plugin) => plugin.constructor.name === 'CleanWebpackPlugin'
     )
@@ -87,25 +90,35 @@ module.exports = async function (env, argv) {
     if (excludeHtmlWebpackPlugin !== -1) {
       config.plugins.splice(excludeHtmlWebpackPlugin, 1)
     }
-    // Manifest transpilation handled in the custom CopyPlugin below
+    // Not needed because a custom manifest.json transpilation is implemented below
     const excludeExpoPwaManifestWebpackPlugin = config.plugins.findIndex(
       (plugin) => plugin.constructor.name === 'ExpoPwaManifestWebpackPlugin'
     )
     if (excludeExpoPwaManifestWebpackPlugin !== -1) {
       config.plugins.splice(excludeExpoPwaManifestWebpackPlugin, 1)
     }
-    // Needed for loading the dev files as browser extension in dev mode
-    // Because extensions doesn't have access to the dev server
+
     if (config.mode === 'development') {
+      // By removing this plugin and overriding the devServer obj the default dev server config will be used in dev mode
+      const excludeHotModuleReplacementPlugin = config.plugins.findIndex(
+        (plugin) => plugin.constructor.name === 'HotModuleReplacementPlugin'
+      )
+      if (excludeHotModuleReplacementPlugin !== -1) {
+        config.plugins.splice(excludeHotModuleReplacementPlugin, 1)
+      }
+
+      // Use default webpack devServer config
+      config.devServer = {}
+      // writeToDisk: output dev bundled files (in /webkit-dev or /gecko-dev) to import them as unpacked extension in the browser
       config.devServer.writeToDisk = true
     }
 
-    if (config.mode === 'production') {
       config.entry = {
+        // Default entries
         ...config.entry,
+        // Our custom extension specific entries
         ...entries
       }
-    }
 
     config.plugins = [
       ...config.plugins,
