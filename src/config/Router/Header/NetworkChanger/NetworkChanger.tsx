@@ -72,7 +72,9 @@ const NetworkChanger: React.FC = () => {
       // Get the currently selected network index, based on the idea from this
       // thread, but implemented vertically and based on our fixed item height.
       // {@link https://stackoverflow.com/a/56736109/1333836}
-      const index = event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT
+      // PS: Rounding it, because sometimes the calculation returns funky
+      // numbers due to the JS engine glitch (like 3.0001).
+      const index = Math.round(event.nativeEvent.contentOffset.y / SINGLE_ITEM_HEIGHT)
       const selectedNetwork = allVisibleNetworks[index]
 
       return handleChangeNetwork(selectedNetwork)
