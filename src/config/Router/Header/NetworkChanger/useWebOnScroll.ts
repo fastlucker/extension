@@ -8,6 +8,9 @@ interface Props {
 
 type ReturnType = (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 
+// Workaround for supporting the ScrollView momentum scroll events on the web,
+// because they are currently not handled (triggered) by react-native-web
+// {@link https://github.com/necolas/react-native-web/issues/1021#issuecomment-984151185}
 const useWebOnScroll = ({ onScroll, onScrollEnd }: Props): ReturnType => {
   const lastScrollEvent = useRef<null | number>(null)
   const scrollEndTimeout = useRef<any>(null)
