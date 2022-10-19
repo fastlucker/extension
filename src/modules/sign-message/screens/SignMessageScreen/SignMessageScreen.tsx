@@ -27,6 +27,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import SignActions from '@modules/sign-message/components/SignActions'
+import { errorCodes } from '@web/constants/errors'
 
 import styles from './styles'
 
@@ -152,7 +153,12 @@ const SignScreenScreen = ({ navigation }: any) => {
           <Button
             type="danger"
             text={t('Reject')}
-            onPress={() => resolve({ message: 'signature denied' })}
+            onPress={() =>
+              resolve({
+                message: 'Signature denied',
+                code: errorCodes.provider.userRejectedRequest
+              })
+            }
           />
         </Panel>
       </Wrapper>

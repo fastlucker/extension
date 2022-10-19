@@ -16,9 +16,13 @@ const formatErr = (err) => {
   if (err instanceof Error) {
     return err
   }
-  if (err.message) {
-    return Error(err.message)
+  if (err.code) {
+    return err
   }
+  if (err.message) {
+    return err.message
+  }
+
   return err
 }
 

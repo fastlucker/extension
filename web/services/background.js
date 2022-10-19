@@ -5,6 +5,7 @@
 
 import { getDefaultProvider, BigNumber, ethers } from 'ethers'
 
+import { errorCodes } from '../constants/errors'
 import {
   setupAmbexMessenger,
   sendReply,
@@ -223,7 +224,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
           data: {
             jsonrpc: '2.0',
             id: payload.id,
-            error: 'Permissions denied!'
+            error: { message: 'Permissions denied!', code: errorCodes.provider.unauthorized }
           }
         })
       }
@@ -236,7 +237,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
         data: {
           jsonrpc: '2.0',
           id: payload.id,
-          error: 'Inner wallet error!'
+          error: { message: 'Internal extension wallet error!', code: errorCodes.rpc.internal }
         }
       })
       return
@@ -349,7 +350,10 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
         })
       })
     } else {
-      error = `Method not supported by extension hook: ${method}`
+      error = {
+        message: `Ambire doesn't support this method: ${method}`,
+        code: errorCodes.rpc.methodNotSupported
+      }
     }
 
     if (error) {

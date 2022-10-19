@@ -5,6 +5,7 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
 import { browserAPI } from '@web/constants/browserAPI'
+import { errorCodes } from '@web/constants/errors'
 import { BACKGROUND, CONTENT_SCRIPT } from '@web/constants/paths'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
@@ -169,10 +170,10 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
           }
 
           if (!resolution) {
-            rpcResult.error = { message: 'Nothing to resolve' }
+            rpcResult.error = { code: errorCodes.rpc.methodNotFound, message: 'Nothing to resolve' }
             rpcResult.success = false
           } else if (!resolution.success) {
-            rpcResult.error = { message: resolution.message }
+            rpcResult.error = resolution
             rpcResult.success = false
           } else {
             // onSuccess

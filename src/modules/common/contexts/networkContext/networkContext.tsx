@@ -23,7 +23,7 @@ const NetworkProvider: React.FC = ({ children }) => {
           setNetwork,
           network
         }),
-        [setNetwork, networks, network?.id]
+        [setNetwork, network]
       )}
     >
       {children}

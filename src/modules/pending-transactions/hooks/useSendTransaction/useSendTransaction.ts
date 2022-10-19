@@ -20,6 +20,7 @@ import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { getProvider } from '@modules/common/services/provider'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import isInt from '@modules/common/utils/isInt'
+import { errorCodes, errorValues } from '@web/constants/errors'
 
 type Props = {
   onOpenHardwareWalletBottomSheet: () => void
@@ -28,7 +29,6 @@ type Props = {
 const relayerURL = CONFIG.RELAYER_URL
 const DEFAULT_SPEED = 'fast'
 const REESTIMATE_INTERVAL = 15000
-const REJECT_MSG = 'Ambire user rejected the request'
 
 const ERC20 = new Interface(erc20Abi)
 
@@ -537,12 +537,19 @@ const useSendTransaction = ({ onOpenHardwareWalletBottomSheet }: Props) => {
   // Not applicable when .requestIds is not defined (replacement bundle)
   const rejectTxn = () => {
     onDismissSendTxns()
-    bundle.requestIds && resolveMany(bundle.requestIds, { message: REJECT_MSG })
+    bundle.requestIds &&
+      resolveMany(bundle.requestIds, {
+        ...errorValues[errorCodes.provider.userRejectedRequest],
+        code: errorCodes.provider.userRejectedRequest
+      })
   }
 
   // Only for replacement flow
   const rejectTxnReplace = () => {
-    resolveMany(sendTxnState.replacementBundle.replacedRequestIds, { message: REJECT_MSG })
+    resolveMany(sendTxnState.replacementBundle.replacedRequestIds, {
+      ...errorValues[errorCodes.provider.userRejectedRequest],
+      code: errorCodes.provider.userRejectedRequest
+    })
   }
 
   // `mustReplaceNonce` is set on speedup/cancel, to prevent the user from broadcasting the txn if the same nonce has been mined
