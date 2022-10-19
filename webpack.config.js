@@ -109,7 +109,10 @@ module.exports = async function (env, argv) {
       }
 
       // Use default webpack devServer config
-      config.devServer = {}
+      config.devServer = {
+        ...config.devServer,
+        hot: false,
+      }
       // writeToDisk: output dev bundled files (in /webkit-dev or /gecko-dev) to import them as unpacked extension in the browser
       config.devServer.writeToDisk = true
     }
