@@ -27,6 +27,8 @@ const NetworkChanger: React.FC = () => {
   useEffect(() => {
     scrollRef?.current?.scrollTo({
       x: 0,
+      // The magic number `-2` is due to the top padding (or lack of it),
+      // which is happening only in the web context of this component.
       y: SINGLE_ITEM_HEIGHT * (currentNetworkIndex - 2),
       animated: true
     })
