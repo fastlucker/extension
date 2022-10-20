@@ -126,6 +126,12 @@ export default function useEmailLogin() {
     setInProgress(false)
   }
 
+  const cancelLoginAttempts = useCallback(() => {
+    setErr('')
+    setRequiresConfFor(null)
+    SyncStorage.removeItem('loginEmail')
+  }, [])
+
   // const handlePendingLogin = useCallback(() => {
   //   const email = SyncStorage.getItem('loginEmail')
   //   if (email) {
@@ -146,5 +152,5 @@ export default function useEmailLogin() {
     }
   })
 
-  return { handleLogin, requiresEmailConfFor, err, inProgress }
+  return { handleLogin, cancelLoginAttempts, requiresEmailConfFor, err, inProgress }
 }
