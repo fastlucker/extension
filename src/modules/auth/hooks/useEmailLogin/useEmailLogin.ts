@@ -122,13 +122,11 @@ export default function useEmailLogin() {
   }
 
   const handlePendingLogin = useCallback(async () => {
-    setTimeout(async () => {
-      const email = await SyncStorage.getItem('loginEmail')
-      SyncStorage.removeItem('loginEmail')
-      if (email) {
-        await attemptLogin({ email })
-      }
-    }, 400)
+    const email = await SyncStorage.getItem('loginEmail')
+    SyncStorage.removeItem('loginEmail')
+    if (email) {
+      await attemptLogin({ email })
+    }
   }, [attemptLogin])
 
   // try logging in once after EMAIL_VERIFICATION_RECHECK
