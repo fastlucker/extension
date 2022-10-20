@@ -186,7 +186,7 @@ const AuthStack = () => {
     SplashScreen.hideAsync()
   }, [])
 
-  // Checks whether there are pending email login attempt. It happens when user
+  // Checks whether there is a pending email login attempt. It happens when user
   // request email login and closes the extension. When the extension is opened
   // the second time - an immediate email login attempt will be triggered.
   const initialRouteName = SyncStorage.getItem('loginEmail') ? 'emailLogin' : 'auth'
@@ -433,8 +433,13 @@ const AppStack = () => {
     SplashScreen.hideAsync()
   }, [isLoading])
 
+  // Checks whether there is a pending email login attempt. It happens when user
+  // request email login and closes the extension. When the extension is opened
+  // the second time - an immediate email login attempt will be triggered.
+  const initialRouteName = SyncStorage.getItem('loginEmail') ? 'auth-add-account' : 'drawer'
+
   return (
-    <MainStack.Navigator screenOptions={{ header: headerBeta }}>
+    <MainStack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
       <MainStack.Screen
         name="drawer"
         component={AppDrawer}
