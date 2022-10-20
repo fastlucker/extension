@@ -16,9 +16,9 @@ import {
   headerGamma as defaultHeaderGamma
 } from '@config/Router/HeadersConfig'
 import styles, { tabBarItemWebStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
+import { SyncStorage } from '@config/storage'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
-import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
@@ -186,8 +186,13 @@ const AuthStack = () => {
     SplashScreen.hideAsync()
   }, [])
 
+  // Checks whether there are pending email login attempt. It happens when user
+  // request email login and closes the extension. When the extension is opened
+  // the second time - an immediate email login attempt will be triggered.
+  const initialRouteName = SyncStorage.getItem('loginEmail') ? 'emailLogin' : 'auth'
+
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
         name="emailLogin"
@@ -515,7 +520,6 @@ const Router = () => {
   const { authStatus } = useAuth()
   const { connectionState } = useNetInfo()
   const { setParams } = useAmbireExtension()
-  const { handlePendingLogin } = useEmailLogin()
 
   const handleForceClose = () => {
     if (isTempExtensionPopup && !__DEV__) {
@@ -540,13 +544,6 @@ const Router = () => {
     return () => {
       window.removeEventListener('beforeunload', handleForceClose)
     }
-  }, [])
-
-  // Checks whether there are pending logins
-  // It happens when user request email login and closes the extensions
-  // when the extension is opened a second time a login attempt will be triggered
-  useEffect(() => {
-    handlePendingLogin()
   }, [])
 
   useEffect(() => {

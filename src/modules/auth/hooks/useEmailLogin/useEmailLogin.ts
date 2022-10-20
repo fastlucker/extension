@@ -7,6 +7,8 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchCaught } from '@modules/common/services/fetch'
 
+// import { navigate } from '@modules/common/services/navigation'
+
 type FormProps = {
   email: string
 }
@@ -14,8 +16,11 @@ type FormProps = {
 const EMAIL_VERIFICATION_RECHECK = 3000
 
 export default function useEmailLogin() {
+  const loginEmail = SyncStorage.getItem('loginEmail')
   const { addToast } = useToast()
-  const [requiresEmailConfFor, setRequiresConfFor] = useState<FormProps | null>(null)
+  const [requiresEmailConfFor, setRequiresConfFor] = useState<FormProps | null>(
+    loginEmail ? { email: loginEmail } : null
+  )
   const [err, setErr] = useState<string>('')
   const [inProgress, setInProgress] = useState<boolean>(false)
   const { onAddAccount } = useAccounts()
@@ -121,13 +126,13 @@ export default function useEmailLogin() {
     setInProgress(false)
   }
 
-  const handlePendingLogin = useCallback(async () => {
-    const email = await SyncStorage.getItem('loginEmail')
-    SyncStorage.removeItem('loginEmail')
-    if (email) {
-      await attemptLogin({ email })
-    }
-  }, [attemptLogin])
+  // const handlePendingLogin = useCallback(() => {
+  //   const email = SyncStorage.getItem('loginEmail')
+  //   if (email) {
+  //     navigate('emailLogin')
+  //     setRequiresConfFor({ email })
+  //   }
+  // }, [setRequiresConfFor])
 
   // try logging in once after EMAIL_VERIFICATION_RECHECK
   useEffect(() => {
@@ -141,5 +146,5 @@ export default function useEmailLogin() {
     }
   })
 
-  return { handleLogin, handlePendingLogin, requiresEmailConfFor, err, inProgress }
+  return { handleLogin, requiresEmailConfFor, err, inProgress }
 }
