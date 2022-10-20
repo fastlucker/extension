@@ -71,8 +71,8 @@ export default function useEmailLogin() {
       }
       // If we make it beyond this point, it means no email confirmation will be required
       if (resp.status === 404 && body.errType === 'DOES_NOT_EXIST') {
-        setRequiresConfFor(null)
         SyncStorage.removeItem('loginEmail')
+        setRequiresConfFor(null)
         setErr('Account does not exist')
         return
       }
@@ -106,8 +106,8 @@ export default function useEmailLogin() {
             : `Unknown no-message error: ${resp.status}`
         )
       }
-      setRequiresConfFor(null)
       SyncStorage.removeItem('loginEmail')
+      setRequiresConfFor(null)
     },
     [addToast, onAddAccount]
   )
