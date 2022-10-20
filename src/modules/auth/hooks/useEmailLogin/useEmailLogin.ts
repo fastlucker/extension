@@ -14,10 +14,10 @@ type FormProps = {
 const EMAIL_VERIFICATION_RECHECK = 3000
 
 export default function useEmailLogin() {
-  const loginEmail = SyncStorage.getItem('loginEmail')
+  const pendingLoginEmail = SyncStorage.getItem('pendingLoginEmail')
   const { addToast } = useToast()
   const [requiresEmailConfFor, setRequiresConfFor] = useState<FormProps | null>(
-    loginEmail ? { email: loginEmail } : null
+    pendingLoginEmail ? { email: pendingLoginEmail } : null
   )
   const [err, setErr] = useState<string>('')
   const [inProgress, setInProgress] = useState<boolean>(false)
@@ -47,7 +47,7 @@ export default function useEmailLogin() {
       if (resp.status === 401 && body.errType === 'UNAUTHORIZED') {
         if (ignoreEmailConfirmationRequired) {
           // we still have to call this to make sure the state is consistent and to force a re-render (to trigger the effect again)
-          SyncStorage.setItem('loginEmail', email)
+          SyncStorage.setItem('pendingLoginEmail', email)
           setRequiresConfFor({ email })
           return
         }
@@ -63,13 +63,13 @@ export default function useEmailLogin() {
         }
         const sessionKey = (await requestAuthResp.json()).sessionKey
         SyncStorage.setItem('loginSessionKey', sessionKey)
-        SyncStorage.setItem('loginEmail', email)
+        SyncStorage.setItem('pendingLoginEmail', email)
         setRequiresConfFor({ email })
         return
       }
       // If we make it beyond this point, it means no email confirmation will be required
       if (resp.status === 404 && body.errType === 'DOES_NOT_EXIST') {
-        SyncStorage.removeItem('loginEmail')
+        SyncStorage.removeItem('pendingLoginEmail')
         setRequiresConfFor(null)
         setErr('Account does not exist')
         return
@@ -96,7 +96,7 @@ export default function useEmailLogin() {
 
         // Delete the key so that it can't be used anymore on this browser
         SyncStorage.removeItem('loginSessionKey')
-        SyncStorage.removeItem('loginEmail')
+        SyncStorage.removeItem('pendingLoginEmail')
       } else {
         setErr(
           body.message
@@ -104,7 +104,7 @@ export default function useEmailLogin() {
             : `Unknown no-message error: ${resp.status}`
         )
       }
-      SyncStorage.removeItem('loginEmail')
+      SyncStorage.removeItem('pendingLoginEmail')
       setRequiresConfFor(null)
     },
     [addToast, onAddAccount]
@@ -114,7 +114,7 @@ export default function useEmailLogin() {
     Keyboard.dismiss()
     setErr('')
     setRequiresConfFor(null)
-    SyncStorage.removeItem('loginEmail')
+    SyncStorage.removeItem('pendingLoginEmail')
     setInProgress(true)
     try {
       await attemptLogin({ email })
@@ -127,7 +127,7 @@ export default function useEmailLogin() {
   const cancelLoginAttempts = useCallback(() => {
     setErr('')
     setRequiresConfFor(null)
-    SyncStorage.removeItem('loginEmail')
+    SyncStorage.removeItem('pendingLoginEmail')
   }, [])
 
   // try logging in once after EMAIL_VERIFICATION_RECHECK

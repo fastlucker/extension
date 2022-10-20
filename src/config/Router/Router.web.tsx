@@ -189,7 +189,7 @@ const AuthStack = () => {
   // Checks whether there is a pending email login attempt. It happens when user
   // request email login and closes the extension. When the extension is opened
   // the second time - an immediate email login attempt will be triggered.
-  const initialRouteName = SyncStorage.getItem('loginEmail') ? 'emailLogin' : 'auth'
+  const initialRouteName = SyncStorage.getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
@@ -442,7 +442,7 @@ const AppStack = () => {
     // the 'drawer' route never gets rendered, and therefore - upon successful
     // login attempt - the redirection to the 'dashboard' route breaks -
     // because this route doesn't exist (it's never being rendered).
-    const shouldAttemptLogin = !!SyncStorage.getItem('loginEmail')
+    const shouldAttemptLogin = !!SyncStorage.getItem('pendingLoginEmail')
     if (shouldAttemptLogin) {
       navigate('auth-add-account')
     }
