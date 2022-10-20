@@ -1,8 +1,8 @@
 // This is the messaging lib, used by all the relayers
 // There are 3 possible actors for the communication
 // BACKGROUND, CONTENT_SCRIPT, PAGE_CONTEXT
+import log from 'loglevel'
 
-import { VERBOSE } from '../constants/env.js'
 import {
   PAGE_CONTEXT,
   CONTENT_SCRIPT,
@@ -10,6 +10,8 @@ import {
   PATHS,
   RELAYER_VERBOSE_TAG
 } from '../constants/paths.js'
+
+log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
 
 // The name of the current process handling the msg (itself).
 // It can be PAGE_CONTEXT (dapp page), CONTENT_SCRIPT (dappPage with more permissions) and BACKGROUND.
@@ -55,18 +57,17 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
     // listener for CONTENT_SCRIPT sent messages
     !!chromeObject.runtime &&
       chromeObject.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log(`${RELAYER} JUST GOT A REQUEST`, request, sender)
+        log.debug(`${RELAYER} JUST GOT A REQUEST`, request, sender)
 
         // if BACKGROUND worker not initialized, put received message in queue, unless it's a keepalive request reply from ambire wallet
         if (
           !BACKGROUND_INITIALIZED &&
           !(request.isReply && request.to === BACKGROUND && request.type === 'keepalive_reply')
         ) {
-          if (VERBOSE > 1)
-            console.log(
-              `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] request added to init queue`,
-              request
-            )
+          log.debug(
+            `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] request added to init queue`,
+            request
+          )
           INIT_MSG_QUEUE.push({
             request,
             sender
@@ -99,31 +100,29 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
         }
       })
 
-    if (VERBOSE > 2)
-      console.log(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Add EVENT LISTENER`)
+    log.trace(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Add EVENT LISTENER`)
     // also listening to messages coming from it's own page (PAGE_CONTEXT)
     window.addEventListener('message', WINDOWLISTENER)
   } else if (RELAYER === PAGE_CONTEXT) {
     // listening to messages coming from CONTENT_SCRIPTs
-    if (VERBOSE > 2)
-      console.log(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Add EVENT LISTENER`)
+    log.trace(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Add EVENT LISTENER`)
     window.addEventListener('message', WINDOWLISTENER)
   }
 }
 
 const isCorrectForwardingPath = (relayer, source, destination, forwarders = []) => {
   if (PATHS.indexOf(source) === -1) {
-    console.log('PathCheck: Unknown source', source)
+    log.debug('PathCheck: Unknown source', source)
     return false
   }
 
   if (PATHS.indexOf(destination) === -1) {
-    console.log('PathCheck: Unknown destination', destination)
+    log.debug('PathCheck: Unknown destination', destination)
     return false
   }
 
   if (PATHS.indexOf(relayer) === -1) {
-    console.log('PathCheck: Unknown relayer', relayer)
+    log.debug('PathCheck: Unknown relayer', relayer)
     return false
   }
 
@@ -150,11 +149,7 @@ const handleMessage = function (message, sender = null) {
     return
   }
 
-  if (VERBOSE > 1)
-    console.log(
-      `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Handling message`,
-      message
-    )
+  log.debug(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Handling message`, message)
 
   if (!!sender && !sender.origin && !!sender.url) {
     sender.origin = sender.url
@@ -192,19 +187,17 @@ const handleMessage = function (message, sender = null) {
     }
 
     if (handlerIndex !== -1) {
-      if (VERBOSE > 2)
-        console.debug(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Handler #${handlerIndex} found`
-        )
+      log.trace(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] Handler #${handlerIndex} found`
+      )
       HANDLERS[handlerIndex].callback(message, message.error)
     } else if (message.isReply) {
-      if (VERBOSE > 2)
-        console.log(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] nothing to handle the reply. Probably a extension broadcast dupe and already process`,
-          message
-        )
-    } else if (VERBOSE > 2)
-      console.log(
+      log.trace(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] nothing to handle the reply. Probably a extension broadcast dupe and already process`,
+        message
+      )
+    } else
+      log.debug(
         `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] nothing to handle the message`,
         message
       )
@@ -212,11 +205,10 @@ const handleMessage = function (message, sender = null) {
     // if message not for me, but has a destination, act as a forwarder
 
     if (!isCorrectForwardingPath(RELAYER, message.from, message.to, message.forwarders)) {
-      if (VERBOSE > 1)
-        console.log(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] incorrect path. dropping...`,
-          message
-        )
+      log.debug(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] incorrect path. dropping...`,
+        message
+      )
       return
     }
 
@@ -239,36 +231,33 @@ const handleMessage = function (message, sender = null) {
 
     // If I already forwarded the message
     if (messageToForward.forwarders.indexOf(RELAYER) !== -1) {
-      if (VERBOSE > 1)
-        console.log(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Already forwarded message. Ignoring`,
-          messageToForward
-        )
+      log.debug(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Already forwarded message. Ignoring`,
+        messageToForward
+      )
       // Ignore self message
     } else if (RELAYER === message.from) {
-      if (VERBOSE > 1)
-        console.log(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Ignoring self message`,
-          messageToForward
-        )
+      log.debug(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Ignoring self message`,
+        messageToForward
+      )
     } else if (messageToForward.from !== RELAYER) {
       // If I did not forward this message and this message is NOT from me + edge case for extension pages catching it...
-      if (VERBOSE > 0)
-        console.log(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Forwarding message`,
-          messageToForward
-        )
+      log.debug(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Forwarding message`,
+        messageToForward
+      )
       messageToForward.forwarders.push(RELAYER)
       sendMessageInternal(messageToForward).catch((err) => {
         sendReply(messageToForward, { error: err.message })
       })
-    } else if (VERBOSE > 1)
-      console.warn(
+    } else
+      log.debug(
         `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : Unexpected case:`,
         messageToForward
       )
-  } else if (VERBOSE > 1)
-    console.log(
+  } else
+    log.debug(
       `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] : ambexMessenger ignoring message`,
       message
     )
@@ -276,7 +265,7 @@ const handleMessage = function (message, sender = null) {
 
 // called by BACKGROUND processing the pending queue potentially filled before BACKGROUND worker initialisation, then clear it
 const processBackgroundQueue = () => {
-  console.log('processing init pending messages queue', INIT_MSG_QUEUE)
+  log.trace('processing init pending messages queue', INIT_MSG_QUEUE)
   BACKGROUND_INITIALIZED = true
   // eslint-disable-next-line no-restricted-syntax
   for (const msg of INIT_MSG_QUEUE) {
@@ -288,40 +277,36 @@ const processBackgroundQueue = () => {
 // Updating and sending message, not exposed
 const sendMessageInternal = async (message) => {
   message.sender = RELAYER
-  if (VERBOSE > 1)
-    console.log(
-      `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] try sendMessageInternal`,
-      message
-    )
+  log.debug(
+    `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] try sendMessageInternal`,
+    message
+  )
   // If I am BACKGROUND worker
   if (RELAYER === BACKGROUND) {
     if (!message.toTabId) {
       // if no toTabId specified, BACKGROUND does not know where to sent it
-      if (VERBOSE)
-        console.error(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] toTabId must be specified for worker communication`,
-          message
-        )
+      log.warn(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] toTabId must be specified for worker communication`,
+        message
+      )
       return false
     }
 
     // extension pages have no tabId but 'extension' is specified in the msg
     if (message.toTabId === 'extension') {
-      if (VERBOSE)
-        console.log(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as BG -> EXT(${message.to}):`,
-          message
-        )
+      log.debug(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as BG -> EXT(${message.to}):`,
+        message
+      )
       !!chromeObject.runtime && chromeObject.runtime.sendMessage(message)
     } else {
       // for specific CONTENT_SCRIPT tabs
       // TODO if fromTabId url is extension > replace fromTabId with 'extension' for replies ?
       //  But what about isolated extension pages?
-      if (VERBOSE)
-        console.log(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as BG -> ${message.to}:`,
-          message
-        )
+      log.debug(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as BG -> ${message.to}:`,
+        message
+      )
       !!chromeObject.runtime && chromeObject.runtime.sendMessage(message)
       !!chromeObject.tabs && chromeObject.tabs.sendMessage(message.toTabId, message)
     }
@@ -332,37 +317,31 @@ const sendMessageInternal = async (message) => {
 
     if (forwardPath.includes(message.to)) {
       // if next relayers are BG, ACS, APC
-      if (VERBOSE)
-        console.log(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as CS -> BG:`,
-          message
-        )
+      log.debug(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as CS -> BG:`,
+        message
+      )
       !!chromeObject.runtime && chromeObject.runtime.sendMessage(message)
     } else if (message.to === CONTENT_SCRIPT) {
       // other extension pages
-      if (VERBOSE)
-        console.log(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as CS -> CS:`,
-          message
-        )
+      log.debug(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message as CS -> CS:`,
+        message
+      )
       !!chromeObject.runtime && chromeObject.runtime.sendMessage(message)
     } else {
       // passing down to PAGE_CONTEXT
-      if (VERBOSE)
-        console.log(
-          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message CS -> PC:`,
-          message
-        )
+      log.debug(
+        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message CS -> PC:`,
+        message
+      )
       window.postMessage(message)
     }
   } else if (RELAYER === PAGE_CONTEXT) {
-    if (VERBOSE) {
-      console.log(
-        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message PC -> CS:`,
-        message
-      )
-    }
-
+    log.debug(
+      `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sending message PC -> CS:`,
+      message
+    )
     // passing up to CONTENT_SCRIPTs
     window.postMessage(message)
   }
@@ -401,12 +380,11 @@ const sendMessage = (message, options = {}) => {
           if (!resolved) {
             removeMessageHandler(handlerFilter)
             reject(new Error(`Timeout: no reply for message${JSON.stringify(message)}`))
-            if (VERBOSE > 2)
-              console.log(
-                `${
-                  RELAYER_VERBOSE_TAG[RELAYER]
-                } ambexMessenger[${RELAYER}] timeout : ${JSON.stringify(message)}`
-              )
+            log.trace(
+              `${
+                RELAYER_VERBOSE_TAG[RELAYER]
+              } ambexMessenger[${RELAYER}] timeout : ${JSON.stringify(message)}`
+            )
           }
         }, options.replyTimeout)
       })
@@ -417,11 +395,10 @@ const sendMessage = (message, options = {}) => {
     if (!options.ignoreReply) {
       addMessageHandler(handlerFilter, (reply, error) => {
         resolved = true
-        if (VERBOSE > 2)
-          console.log(
-            `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] clearing timeout listener`,
-            message
-          )
+        log.trace(
+          `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] clearing timeout listener`,
+          message
+        )
         removeMessageHandler(handlerFilter)
         if (error) {
           return reject(new Error(error))
@@ -438,7 +415,7 @@ const sendMessage = (message, options = {}) => {
       })
       .catch((err) => {
         resolved = true
-        console.log('sendMsgInternal err', err)
+        log.debug('sendMsgInternal err', err)
         if (!options.ignoreReply) {
           removeMessageHandler(handlerFilter)
         }
@@ -446,8 +423,7 @@ const sendMessage = (message, options = {}) => {
       })
   })
 
-  if (VERBOSE)
-    console.log(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sendMessage}`, message)
+  log.debug(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sendMessage}`, message)
 
   if (options.ignoreReply) return resultPromise
   return Promise.race([timeoutPromise, resultPromise])
@@ -472,11 +448,7 @@ const sendReply = (fromMessage, message) => {
   message.originalMessage = fromMessage
 
   sendMessageInternal(message).catch((err) => {
-    if (VERBOSE)
-      console.error(
-        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sendReply failed`,
-        err
-      )
+    log.debug(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sendReply failed`, err)
   })
 }
 
@@ -490,11 +462,7 @@ const sendAck = (fromMessage) => {
     id: fromMessage.id,
     data: { ack: true }
   }).catch((err) => {
-    if (VERBOSE)
-      console.error(
-        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sendAck failed`,
-        err
-      )
+    log.debug(`${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] sendAck failed`, err)
   })
 }
 
@@ -511,22 +479,20 @@ const removeMessageHandler = (filter) => {
       (!filter.context || filter.context === h.requestFilter.context)
   )
 
-  if (VERBOSE > 2)
-    console.debug(
-      `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] remove handler of`,
-      JSON.parse(JSON.stringify(HANDLERS)),
-      filter
-    )
+  log.trace(
+    `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] remove handler of`,
+    JSON.parse(JSON.stringify(HANDLERS)),
+    filter
+  )
 
   if (handlerIndex !== -1) {
     HANDLERS.splice(handlerIndex, 1)
-    if (VERBOSE > 2)
-      console.debug(
-        `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] handler removed. ${HANDLERS.length} left`,
-        filter
-      )
-  } else if (VERBOSE > 2)
-    console.debug(
+    log.trace(
+      `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] handler removed. ${HANDLERS.length} left`,
+      filter
+    )
+  } else
+    log.trace(
       `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] handler NOT FOUND. ${HANDLERS.length} left`,
       filter
     )
@@ -538,11 +504,10 @@ const addMessageHandler = (filter, callback) => {
     requestFilter: { ...filter, isFilter: true },
     callback
   })
-  if (VERBOSE > 2)
-    console.debug(
-      `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] handler added`,
-      JSON.parse(JSON.stringify(HANDLERS))
-    )
+  log.trace(
+    `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] handler added`,
+    JSON.parse(JSON.stringify(HANDLERS))
+  )
 }
 
 // rpc error helper

@@ -1,6 +1,5 @@
 /* eslint-disable import/no-mutable-exports */
 import { browserAPI } from '../constants/browserAPI.js'
-import { VERBOSE } from '../constants/env.js'
 
 // Storage
 // which tabs are injected tabId => true
@@ -70,7 +69,6 @@ export const savePermissionsInStorage = (cb) => {
 // save user notifications(when interaction required) in local storage
 export const saveUserActionNotificationsInStorage = (cb) => {
   isStorageLoaded().then(() => {
-    if (VERBOSE > 4) console.debug('saving user action notifications', USER_ACTION_NOTIFICATIONS)
     browserAPI.storage.local.set({ USER_ACTION_NOTIFICATIONS }, cb)
   })
 }

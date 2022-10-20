@@ -1,5 +1,4 @@
 import { browserAPI } from '../constants/browserAPI.js'
-import { VERBOSE } from '../constants/env.js'
 
 // Update the extension icon depending on the state
 export const updateExtensionIcon = async (
@@ -40,7 +39,6 @@ export const updateExtensionIcon = async (
         iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_connected.png')
       }
 
-      if (VERBOSE) console.log(`setting icon for tab ${tabId} ${iconUrl}`)
       browserAPI.action.setIcon(
         {
           tabId,
@@ -48,8 +46,6 @@ export const updateExtensionIcon = async (
         },
         () => true
       )
-    } else {
-      console.warn(`No tabs found for id ${tabId}`)
     }
   })
 }

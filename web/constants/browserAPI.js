@@ -15,9 +15,7 @@ if (process.env.WEB_ENGINE === 'gecko') {
 }
 
 if (!!browserAPI && browserAPI.runtime && browserAPI.runtime.id) {
-  console.log(browserAPI.runtime.id)
   isExtension = true
 }
-
 
 export { browserAPI, engine, isExtension }

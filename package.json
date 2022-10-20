@@ -159,7 +159,8 @@
     "util": "~0.10.3",
     "validator": "^13.7.0",
     "vm-browserify": "0.0.4",
-    "web3": "^1.7.5"
+    "web3": "^1.7.5",
+    "loglevel": "^1.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

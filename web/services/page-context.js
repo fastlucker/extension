@@ -1,10 +1,12 @@
 // Script injected in the page Shares the same environment as the web page
 // Here is where the web3 injection happens
 
-import { VERBOSE } from '../constants/env'
+import log from 'loglevel'
 import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
 import { PAGE_CONTEXT, BACKGROUND } from '../constants/paths'
 import { sendMessage, makeRPCError, addMessageHandler, setupAmbexMessenger } from './ambexMessanger'
+
+log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
 
 const Web3 = require('web3')
 
@@ -58,7 +60,7 @@ const ethRequest = (requestPayload) =>
         }
       })
       .catch((err) => {
-        console.error('error request', err)
+        log.error('ethRequest: ', err)
         return reject(formatErr(err))
       })
   })
@@ -110,7 +112,7 @@ const sendRequest = (requestPayload, callback) =>
         }
       })
       .catch((err) => {
-        if (VERBOSE > 1) console.error('error send', err)
+        log.error('sendRequest: ', err)
         const formattedErr = formatErr(err)
         if (callback) {
           callback(
@@ -124,14 +126,14 @@ const sendRequest = (requestPayload, callback) =>
 
 // Informs dapp that accounts were changed
 function accountsChanged(account) {
-  if (VERBOSE > 1) console.log('accountsChanged', account)
+  log.debug('accountsChanged', account)
   window.ethereum.emit('accountsChanged', account ? [account] : [])
   window.web3.currentProvider.emit('accountsChanged', account ? [account] : [])
 }
 
 // Informs dapp that chain was changed
 function chainChanged(chainId) {
-  if (VERBOSE > 1) console.log('chainChanged', chainId)
+  log.debug('chainChanged', chainId)
   window.ethereum.emit('chainChanged', chainId)
   window.web3.currentProvider.emit('chainChanged', chainId)
   window.ethereum.emit('networkChanged', chainId)
@@ -147,7 +149,7 @@ function ExtensionProvider() {
   }
 
   this.on = function (evt, handler) {
-    if (VERBOSE > 1) console.log(`Setting event handler for ${evt}`)
+    log.debug(`Setting event handler for ${evt}`)
     if (Object.keys(this.eventHandlers).indexOf(evt) !== -1) {
       this.eventHandlers[evt].push(handler)
     }
@@ -189,15 +191,15 @@ function ExtensionProvider() {
         if (typeof callback === 'function') {
           callback(data)
         } else {
-          console.warn('emit callback is not a function', callback)
+          log.debug('emit callback is not a function', callback)
         }
       }
     }
   }
 
   this.send = async function (payload, paramsOrCallback) {
-    if (VERBOSE > 1) console.log('Payload to send to background', payload)
-    if (VERBOSE > 1) console.log('paramsOrCallback:', paramsOrCallback)
+    log.debug('Payload to send to background', payload)
+    log.debug('paramsOrCallback:', paramsOrCallback)
 
     const genId = `sendId_${Math.random()}`
 
@@ -218,12 +220,12 @@ function ExtensionProvider() {
       formattedPayload.params = paramsOrCallback
     }
 
-    if (VERBOSE > 2) console.log('Formatted payload', formattedPayload)
+    log.trace('Formatted payload', formattedPayload)
 
     let hasErr
     let requestErr
     const result = await ethRequest(formattedPayload).catch((err) => {
-      console.log('send ethRequest err', err)
+      log.debug('send ethRequest err', err)
       hasErr = true // might err be undefined?
       requestErr = err
       // throw err
@@ -237,11 +239,7 @@ function ExtensionProvider() {
         throw Error(`${requestErr}`)
       }
     }
-    if (VERBOSE > 2)
-      console.debug(`SEND RES ${genId} ${payload.method}`, {
-        payload,
-        result
-      })
+
     return result
   }
 
@@ -251,7 +249,7 @@ function ExtensionProvider() {
     const genId = `netId_${Math.random()}`
     const callback = (error, payload) => {
       if (error) {
-        console.log('Could not get networkId')
+        log.debug('Could not get networkId')
       } else if (window.web3 && window.web3.currentProvider && payload.result > 0) {
         this.ambireNetworkId = payload.result
         window.web3.currentProvider.networkVersion = payload.result
@@ -290,12 +288,12 @@ function ExtensionProvider() {
       payload.params = arg.params
     }
 
-    if (VERBOSE > 2) console.debug(`REQ ${genId} ${payload.method}`, payload)
+    log.trace(`REQ ${genId} ${payload.method}`, payload)
 
     let hasErr
     let requestErr
     const result = await ethRequest(payload).catch((err) => {
-      console.log('ethRequest err', err)
+      log.debug('ethRequest err', err)
       hasErr = true // might err be undefined?
       requestErr = err
       // throw err
@@ -309,11 +307,11 @@ function ExtensionProvider() {
         throw Error(`${requestErr}`)
       }
     }
-    if (VERBOSE > 2)
-      console.debug(`RES ${genId} ${payload.method}`, {
-        payload,
-        result
-      })
+
+    log.trace(`RES ${genId} ${payload.method}`, {
+      payload,
+      result
+    })
     return result
   }
 
@@ -358,13 +356,13 @@ const ethereumProvider = new ExtensionProvider()
     )
 
     addMessageHandler({ type: 'ambireWalletConnected' }, (message) => {
-      if (VERBOSE > 1) console.log('pageContext: emitting MM event connect', message.data)
+      log.debug('pageContext: emitting MM event connect', message.data)
       accountsChanged(message.data.account)
       chainChanged(message.data.chainId)
     })
 
     addMessageHandler({ type: 'ambireWalletDisconnected' }, () => {
-      if (VERBOSE > 1) console.log('pageContext: emitting event disconnect')
+      log.debug('pageContext: emitting event disconnect')
       window.ethereum.emit('disconnect')
       window.web3.currentProvider.emit('disconnect')
       accountsChanged(null)
@@ -372,12 +370,12 @@ const ethereumProvider = new ExtensionProvider()
     })
 
     addMessageHandler({ type: 'ambireWalletChainChanged' }, (message) => {
-      if (VERBOSE > 1) console.log('pageContext: emitting event chainChanged', message)
+      log.debug('pageContext: emitting event chainChanged', message)
       chainChanged(message.data.chainId)
     })
 
     addMessageHandler({ type: 'ambireWalletAccountChanged' }, (message) => {
-      if (VERBOSE > 1) console.log('pageContext: emitting event accountChanged', message)
+      log.debug('pageContext: emitting event accountChanged', message)
       accountsChanged(message.data.account)
     })
 

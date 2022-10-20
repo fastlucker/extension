@@ -4,6 +4,7 @@
 // Firefox does not support MV3 yet but is working on it.
 
 import { getDefaultProvider, BigNumber, ethers } from 'ethers'
+import log from 'loglevel'
 
 import { errorCodes } from '../constants/errors'
 import {
@@ -14,7 +15,6 @@ import {
   sendAck,
   processBackgroundQueue
 } from './ambexMessanger'
-import { VERBOSE } from '../constants/env'
 import { browserAPI } from '../constants/browserAPI'
 import { PAGE_CONTEXT, BACKGROUND } from '../constants/paths'
 import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
@@ -29,6 +29,7 @@ import {
 } from '../functions/storage'
 import { PERMISSION_WINDOWS, deferCreateWindow } from '../functions/deferCreateWindow'
 
+log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
 setupAmbexMessenger(BACKGROUND, browserAPI)
 
 // TODO: find a way to store the state and exec callbacks?
@@ -41,13 +42,10 @@ isStorageLoaded()
     processBackgroundQueue()
   })
   .catch((e) => {
-    console.error('storageLoading', e)
+    log.error('storageLoading', e)
   })
 
-// Useful for debug purposes
-if (VERBOSE > 1) {
-  console.log('Background service restarted!')
-}
+log.debug('Background service restarted!')
 
 const broadcastExtensionDataOnChange = () => {
   isStorageLoaded().then(() => {
@@ -193,7 +191,7 @@ addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
 })
 
 const sanitize2hex = (any) => {
-  if (VERBOSE > 2) console.warn(`instanceof of any is ${any instanceof BigNumber}`)
+  log.trace(`instanceof of any is ${any instanceof BigNumber}`)
   if (any instanceof BigNumber) {
     return any.toHexString()
   }
@@ -230,7 +228,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
       }
       return
     }
-    VERBOSE > 0 && console.log('ambirePageContext: web3CallRequest', message)
+    log.info('ambirePageContext: web3CallRequest', message)
     const { NETWORK, SELECTED_ACCOUNT } = await getStore(['NETWORK', 'SELECTED_ACCOUNT'])
     if (!NETWORK || !SELECTED_ACCOUNT) {
       sendReply(message, {
@@ -326,7 +324,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
         result.gasUsed = sanitize2hex(result.gasUsed)
         result._difficulty = sanitize2hex(result._difficulty)
       }
-      VERBOSE > 2 && console.log('Result', result, error)
+      log.trace('Result', result, error)
     } else if (method === 'eth_getTransactionReceipt') {
       result = await provider.getTransactionReceipt(callTx[0]).catch((err) => {
         error = err
@@ -357,7 +355,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
     }
 
     if (error) {
-      console.error('Throwing error with: ', message)
+      log.error('Throwing error with: ', message)
       sendReply(message, {
         data: {
           jsonrpc: '2.0',
@@ -372,7 +370,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
         result
       }
 
-      VERBOSE > 0 && console.log('Replying to request with: ', rpcResult)
+      log.info('Replying to request with: ', rpcResult)
 
       sendReply(message, {
         data: rpcResult
@@ -422,7 +420,7 @@ const broadcastExtensionDataChange = (type, data) => {
     // eslint-disable-next-line @typescript-eslint/no-loop-func
     const callback = (tab) => {
       if (isInjectableTab(tab) && PERMISSIONS[new URL(tab.url).host]) {
-        VERBOSE > 0 && console.log('BROADCASTING EXTENSION DATA CHANGE TO:', tab.url)
+        log.debug('BROADCASTING EXTENSION DATA CHANGE TO:', tab.url)
         sendMessage(
           {
             toTabId: tab.id,
@@ -439,21 +437,21 @@ const broadcastExtensionDataChange = (type, data) => {
       try {
         browserAPI.tabs.get(tabId * 1, callback)
       } catch (e) {
-        console.log('Error getting tab', e)
+        log.debug('Error getting tab', e)
       }
     } else {
       browserAPI.tabs
         .get(tabId * 1)
         .then(callback)
         .catch((e) => {
-          console.log('Error getting tab', e)
+          log.debug('Error getting tab', e)
         })
     }
   }
 }
 
 const sendUserInterventionMessage = async (message, callback) => {
-  console.log('Send user intervention message: ', message)
+  log.debug('Send user intervention message: ', message)
   const payload = message.data
   const method = payload.method
   const host = message.host
@@ -476,23 +474,23 @@ const sendUserInterventionMessage = async (message, callback) => {
 
 // Returns wether a message is allow to transact or if host is unknown, show permission popup
 const requestPermission = async (message, callback) => {
-  console.log('Request permission for: ', message)
+  log.debug('Request permission for: ', message)
   const host = message.host
   const payload = message.data
   const method = payload.method
 
   if (PERMISSIONS[host] === true) {
-    if (VERBOSE) console.log(`Host whitelisted ${host}`)
+    log.debug(`Host whitelisted ${host}`)
     callback(true)
   } else if (!PERMISSIONS[host] && method === 'eth_accounts') {
     callback(false)
   } else if (!PENDING_CALLBACKS[host] && method === 'eth_requestAccounts') {
-    console.log(`setting pending callback for ${host}`)
+    log.debug(`setting pending callback for ${host}`)
 
     // check if tab will receive it
     browserAPI.tabs.get(message.fromTabId, async (tab) => {
       if (!tab) {
-        console.warn('No matching tab found for permission request', message)
+        log.warn('No matching tab found for permission request', message)
         return
       }
 
@@ -512,7 +510,7 @@ const requestPermission = async (message, callback) => {
           PERMISSIONS[host] = permitted
           savePermissionsInStorage()
           browserAPI.storage.sync.set({ permittedHosts: PERMISSIONS }, () => {
-            if (VERBOSE) console.log('permissions saved')
+            log.debug('permissions saved')
           })
         }
         callback(permitted)
