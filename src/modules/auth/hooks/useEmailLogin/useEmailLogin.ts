@@ -7,8 +7,6 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchCaught } from '@modules/common/services/fetch'
 
-// import { navigate } from '@modules/common/services/navigation'
-
 type FormProps = {
   email: string
 }
@@ -131,14 +129,6 @@ export default function useEmailLogin() {
     setRequiresConfFor(null)
     SyncStorage.removeItem('loginEmail')
   }, [])
-
-  // const handlePendingLogin = useCallback(() => {
-  //   const email = SyncStorage.getItem('loginEmail')
-  //   if (email) {
-  //     navigate('emailLogin')
-  //     setRequiresConfFor({ email })
-  //   }
-  // }, [setRequiresConfFor])
 
   // try logging in once after EMAIL_VERIFICATION_RECHECK
   useEffect(() => {
