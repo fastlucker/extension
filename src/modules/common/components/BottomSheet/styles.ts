@@ -16,7 +16,8 @@ interface Styles {
 const styles = StyleSheet.create<Styles>({
   root: {
     // Lower number that the toasts' zIndex
-    zIndex: 900
+    zIndex: 900,
+    elevation: 19
   },
   bottomSheet: {
     backgroundColor: colors.clay,
