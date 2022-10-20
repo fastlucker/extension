@@ -2,6 +2,7 @@
   "name": "ambire-mobile-wallet",
   "main": "index.js",
   "scripts": {
+    "add:web": "MODE=WEB yarn add",
     "install:web": "rm -rf ./node_modules && MODE=WEB yarn install",
     "android": "expo run:android",
     "android:staging": "APP_ENV=staging yarn android",
