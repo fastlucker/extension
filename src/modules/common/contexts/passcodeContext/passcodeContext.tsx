@@ -524,7 +524,9 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
       {isAppLocked &&
         (isAndroid ? (
-          <View style={[StyleSheet.absoluteFill, styles.lockedContainerAndroid]}>
+          <View
+            style={[StyleSheet.absoluteFill, styles.lockedContainer, styles.lockedContainerAndroid]}
+          >
             {lockedContainerFullScreen}
           </View>
         ) : (
