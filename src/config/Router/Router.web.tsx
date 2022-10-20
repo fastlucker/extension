@@ -28,7 +28,7 @@ import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
-import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
+import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
@@ -433,13 +433,23 @@ const AppStack = () => {
     SplashScreen.hideAsync()
   }, [isLoading])
 
-  // Checks whether there is a pending email login attempt. It happens when user
-  // request email login and closes the extension. When the extension is opened
-  // the second time - an immediate email login attempt will be triggered.
-  const initialRouteName = SyncStorage.getItem('loginEmail') ? 'auth-add-account' : 'drawer'
+  useEffect(() => {
+    // Checks whether there is a pending email login attempt. It happens when user
+    // request email login and closes the extension. When the extension is opened
+    // the second time - an immediate email login attempt will be triggered.
+    // Redirect the user instead of using the `initialRouteName`,
+    // because when 'auth-add-account' is set for `initialRouteName`,
+    // the 'drawer' route never gets rendered, and therefore - upon successful
+    // login attempt - the redirection to the 'dashboard' route breaks -
+    // because this route doesn't exist (it's never being rendered).
+    const shouldAttemptLogin = !!SyncStorage.getItem('loginEmail')
+    if (shouldAttemptLogin) {
+      navigate('auth-add-account')
+    }
+  }, [])
 
   return (
-    <MainStack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
+    <MainStack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="drawer">
       <MainStack.Screen
         name="drawer"
         component={AppDrawer}
