@@ -16,9 +16,9 @@ import {
   headerGamma as defaultHeaderGamma
 } from '@config/Router/HeadersConfig'
 import styles, { tabBarItemWebStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
+import { SyncStorage } from '@config/storage'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
-import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
@@ -28,7 +28,7 @@ import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
-import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
+import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
@@ -186,8 +186,13 @@ const AuthStack = () => {
     SplashScreen.hideAsync()
   }, [])
 
+  // Checks whether there is a pending email login attempt. It happens when user
+  // request email login and closes the extension. When the extension is opened
+  // the second time - an immediate email login attempt will be triggered.
+  const initialRouteName = SyncStorage.getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
+
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
         name="emailLogin"
@@ -428,8 +433,23 @@ const AppStack = () => {
     SplashScreen.hideAsync()
   }, [isLoading])
 
+  useEffect(() => {
+    // Checks whether there is a pending email login attempt. It happens when user
+    // request email login and closes the extension. When the extension is opened
+    // the second time - an immediate email login attempt will be triggered.
+    // Redirect the user instead of using the `initialRouteName`,
+    // because when 'auth-add-account' is set for `initialRouteName`,
+    // the 'drawer' route never gets rendered, and therefore - upon successful
+    // login attempt - the redirection to the 'dashboard' route breaks -
+    // because this route doesn't exist (it's never being rendered).
+    const shouldAttemptLogin = !!SyncStorage.getItem('pendingLoginEmail')
+    if (shouldAttemptLogin) {
+      navigate('auth-add-account')
+    }
+  }, [])
+
   return (
-    <MainStack.Navigator screenOptions={{ header: headerBeta }}>
+    <MainStack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="drawer">
       <MainStack.Screen
         name="drawer"
         component={AppDrawer}
@@ -515,7 +535,6 @@ const Router = () => {
   const { authStatus } = useAuth()
   const { connectionState } = useNetInfo()
   const { setParams } = useAmbireExtension()
-  const { handlePendingLogin } = useEmailLogin()
 
   const handleForceClose = () => {
     if (isTempExtensionPopup && !__DEV__) {
@@ -540,13 +559,6 @@ const Router = () => {
     return () => {
       window.removeEventListener('beforeunload', handleForceClose)
     }
-  }, [])
-
-  // Checks whether there are pending logins
-  // It happens when user request email login and closes the extensions
-  // when the extension is opened a second time a login attempt will be triggered
-  useEffect(() => {
-    handlePendingLogin()
   }, [])
 
   useEffect(() => {
