@@ -10,5 +10,15 @@
       "@web/*": ["web/*"]
     }
   },
-  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js", "index.js"]
+  "exclude": [
+    "node_modules",
+    "ios",
+    "android",
+    "coverage",
+    ".expo",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js",
+    "index.js"
+  ]
 }
