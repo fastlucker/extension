@@ -6,6 +6,7 @@ import { useModalize } from 'react-native-modalize'
 import EnsIcon from '@assets/svg/EnsIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
 import UnstoppableDomainIcon from '@assets/svg/UnstoppableDomainIcon'
+import { isWeb } from '@config/env'
 import Input, { InputProps } from '@modules/common/components/Input'
 import Title from '@modules/common/components/Title'
 import spacings, { DEVICE_HEIGHT, DEVICE_WIDTH, SPACING } from '@modules/common/styles/spacings'
@@ -53,9 +54,11 @@ const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValid
             <View style={spacings.plTy}>
               <EnsIcon isActive={isValidEns} />
             </View>
-            <TouchableOpacity style={spacings.plTy} onPress={handleOnButtonPress}>
-              <ScanIcon isFilled={false} />
-            </TouchableOpacity>
+            {!isWeb && (
+              <TouchableOpacity style={spacings.plTy} onPress={handleOnButtonPress}>
+                <ScanIcon isFilled={false} />
+              </TouchableOpacity>
+            )}
           </View>
         }
         buttonProps={{
@@ -66,12 +69,14 @@ const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValid
         onChangeText={onChangeText}
         {...rest}
       />
-      <BottomSheet id="add-token" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <Title style={textStyles.center}>{t('Scan recipient QR code')}</Title>
-        <View style={qrCodeScannerContainerStyle}>
-          <QRCodeScanner onScan={handleOnScan} />
-        </View>
-      </BottomSheet>
+      {!isWeb && (
+        <BottomSheet id="add-token" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+          <Title style={textStyles.center}>{t('Scan recipient QR code')}</Title>
+          <View style={qrCodeScannerContainerStyle}>
+            <QRCodeScanner onScan={handleOnScan} />
+          </View>
+        </BottomSheet>
+      )}
     </>
   )
 }
