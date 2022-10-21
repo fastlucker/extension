@@ -1,6 +1,10 @@
 node_modules
 ios
 android
+webkit-dev
+webkit-prod
+gecko-dev
+gecko-prod
 coverage
 .expo
 .eslintrc.js
