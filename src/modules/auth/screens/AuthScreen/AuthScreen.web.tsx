@@ -18,12 +18,12 @@ interface ButtonProps extends Omit<ButtonDefaultProps, 'onPress'> {
   onPress: (routeName: string) => void
 }
 
-const AuthButton = ({ text, type = 'primary', routeName, onPress }: ButtonProps) => {
+const AuthButton = ({ text, type = 'primary', routeName, onPress, disabled }: ButtonProps) => {
   const handleButtonPress = useCallback(() => {
     !!onPress && onPress(routeName)
   }, [])
 
-  return <Button text={text} type={type} onPress={handleButtonPress} />
+  return <Button text={text} type={type} disabled={disabled} onPress={handleButtonPress} />
 }
 
 const AuthScreen = ({ navigation }: Props) => {
@@ -47,8 +47,8 @@ const AuthScreen = ({ navigation }: Props) => {
           <AuthButton
             text={t('Hardware Wallet (coming soon)')}
             routeName="hardwareWallet"
-            // onPress={handleAuthButtonPress}
-            onPress={() => {}}
+            onPress={handleAuthButtonPress}
+            disabled // temporary disabled until we have this feature
             style={spacings.mbLg}
           />
           <Text style={[textStyles.center, spacings.mb]} weight="regular" fontSize={18}>
