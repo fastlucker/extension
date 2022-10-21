@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
-import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Button, { Props as ButtonDefaultProps } from '@modules/common/components/Button'
@@ -9,7 +8,6 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
@@ -39,7 +37,7 @@ const AuthScreen = ({ navigation }: Props) => {
     <GradientBackgroundWrapper>
       <Wrapper>
         <AmbireLogo />
-        <View style={!isWeb ? flexboxStyles.flex1 : {}}>
+        <View>
           <AuthButton
             text={t('Login With Email')}
             routeName="emailLogin"
