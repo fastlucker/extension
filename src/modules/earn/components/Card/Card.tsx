@@ -186,9 +186,6 @@ const Card = ({
               a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
             )}
             setValue={setToken}
-            containerPropsStyle={spacings.mbSm}
-            // TODO:
-            //  disabled={disabled}
             label={t('Choose Token')}
           />
           {warning && <View style={spacings.mbMd}>{warning}</View>}
