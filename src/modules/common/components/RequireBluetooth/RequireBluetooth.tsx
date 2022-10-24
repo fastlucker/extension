@@ -18,10 +18,12 @@ const RequireBluetooth: React.FC<any> = ({ children }) => {
   useEffect(() => {
     const subscription = new BleManager().onStateChange((state) => {
       setInBluetoothPoweredOn(state === 'PoweredOn')
+
       // On state change, assume that the module is no longer in process of
       // being turned on. Delay it a bit, otherwise, there is annoying UI jump.
       setTimeout(() => setIsBluetoothTurningOn(false), 1000)
     }, true)
+
     return () => subscription.remove()
   }, [])
 
