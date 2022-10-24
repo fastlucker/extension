@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+import { BleManager } from 'react-native-ble-plx'
+import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 
-// import { BleManager } from 'react-native-ble-plx'
-// import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 import { isAndroid } from '@config/env'
 import Button from '@modules/common/components/Button'
 import RequireLocation from '@modules/common/components/RequireLocation'
@@ -16,18 +16,18 @@ const RequireBluetooth: React.FC<any> = ({ children }) => {
   const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState<boolean | null>(null)
 
   useEffect(() => {
-    // const subscription = new BleManager().onStateChange((state) => {
-    //   setInBluetoothPoweredOn(state === 'PoweredOn')
-    //   // On state change, assume that the module is no longer in process of
-    //   // being turned on. Delay it a bit, otherwise, there is annoying UI jump.
-    //   setTimeout(() => setIsBluetoothTurningOn(false), 1000)
-    // }, true)
-    // return () => subscription.remove()
+    const subscription = new BleManager().onStateChange((state) => {
+      setInBluetoothPoweredOn(state === 'PoweredOn')
+      // On state change, assume that the module is no longer in process of
+      // being turned on. Delay it a bit, otherwise, there is annoying UI jump.
+      setTimeout(() => setIsBluetoothTurningOn(false), 1000)
+    }, true)
+    return () => subscription.remove()
   }, [])
 
   const turnOnBluetooth = () => {
     setIsBluetoothTurningOn(true)
-    // BluetoothStateManager.enable()
+    BluetoothStateManager.enable()
   }
 
   // On Android only, location permission (ACCESS_FINE_LOCATION) also is needed.
