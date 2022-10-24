@@ -40,9 +40,9 @@ const Select = ({ value, setValue, items, label, extraText }: Props) => {
     [items, searchValue]
   )
 
-  const renderItem = ({ item }: any) => {
+  const renderItem = ({ item: _item }: any) => {
     const onSelect = () => {
-      !!setValue && setValue(item.value)
+      !!setValue && setValue(_item.value)
       closeBottomSheet()
     }
 
@@ -54,18 +54,18 @@ const Select = ({ value, setValue, items, label, extraText }: Props) => {
           spacings.phTy,
           spacings.pvMi,
           commonStyles.borderRadiusPrimary,
-          { backgroundColor: item.value === value ? colors.howl : 'transparent' }
+          { backgroundColor: _item.value === value ? colors.howl : 'transparent' }
         ]}
         activeOpacity={0.6}
         onPress={onSelect}
       >
-        {!!item.icon && item.icon()}
+        {!!_item.icon && _item.icon()}
         <View style={[flexboxStyles.flex1, spacings.phTy]}>
           <Text style={flexboxStyles.flex1} numberOfLines={1}>
-            {item.label}
+            {_item.label}
           </Text>
         </View>
-        {item.value === value && <CheckIcon />}
+        {_item.value === value && <CheckIcon />}
       </TouchableOpacity>
     )
   }
