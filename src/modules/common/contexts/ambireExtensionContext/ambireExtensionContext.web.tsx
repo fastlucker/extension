@@ -34,7 +34,7 @@ export interface AmbireExtensionContextReturnType {
   disconnectDapp: (hast: string) => void
 }
 
-export const AmbireExtensionContextReturnTypeDefaults = {
+export const ambireExtensionContextDefaults = {
   connectedDapps: [],
   params: {},
   requests: [],
@@ -46,7 +46,7 @@ export const AmbireExtensionContextReturnTypeDefaults = {
 }
 
 const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
-  AmbireExtensionContextReturnTypeDefaults
+  ambireExtensionContextDefaults
 )
 
 const STORAGE_KEY = 'ambire_extension_state'

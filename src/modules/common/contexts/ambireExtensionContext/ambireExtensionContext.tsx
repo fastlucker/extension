@@ -1,12 +1,12 @@
 import React, { createContext } from 'react'
 
 import {
-  AmbireExtensionContextReturnType,
-  AmbireExtensionContextReturnTypeDefaults
+  ambireExtensionContextDefaults,
+  AmbireExtensionContextReturnType
 } from './ambireExtensionContext.web'
 
 const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
-  AmbireExtensionContextReturnTypeDefaults
+  ambireExtensionContextDefaults
 )
 
 // This context is needed for the web app only. For mobile, fallback to defaults.
