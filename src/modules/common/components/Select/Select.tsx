@@ -127,6 +127,8 @@ const Select = ({ value, setValue, items, label, extraText }: Props) => {
           ),
           stickyHeaderIndices: [0]
         }}
+        // Disable dynamic height, because it breaks when the flat list items change dynamically
+        adjustToContentHeight={false}
       />
     </>
   )
