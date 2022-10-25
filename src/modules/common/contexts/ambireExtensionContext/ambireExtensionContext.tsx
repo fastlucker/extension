@@ -1,9 +1,6 @@
 import React, { createContext } from 'react'
 
-import {
-  ambireExtensionContextDefaults,
-  AmbireExtensionContextReturnType
-} from './ambireExtensionContext.web'
+import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from './types'
 
 const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
   ambireExtensionContextDefaults
