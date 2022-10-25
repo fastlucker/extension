@@ -62,12 +62,15 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
 
       // In case this account is the only one logged in,
       // clean up the app passcode too.
-      const isLastAccount = accounts.length === 1
-      if (isLastAccount) {
-        removePasscode(account.id)
+      if (!isWeb) {
+        const isLastAccount = accounts.length === 1
+        if (isLastAccount) {
+          removePasscode(account.id)
+        }
       }
 
       onRemoveAccount(account.id)
+      closeBottomSheet()
     }
 
     const handleRemoveAccount = () => {
