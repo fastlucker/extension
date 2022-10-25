@@ -1,6 +1,6 @@
 import React, { createContext } from 'react'
 
-import { passcodeContextDefaults, PasscodeContextReturnType } from './passcodeContext.tsx'
+import { passcodeContextDefaults, PasscodeContextReturnType } from './types'
 
 const PasscodeContext = createContext<PasscodeContextReturnType>(passcodeContextDefaults)
 
