@@ -6,7 +6,7 @@ const AccountsPasswordsContext = createContext<AccountsPasswordsContextReturnTyp
   accountsPasswordsContextDefaults
 )
 
-// This context is needed for the web app only. For mobile, fallback to defaults.
+// This context is needed for the mobile app only. For web, fallback to defaults.
 const AccountsPasswordsProvider: React.FC = ({ children }) => children
 
 export { AccountsPasswordsContext, AccountsPasswordsProvider }
