@@ -3,10 +3,9 @@ import * as SentryLib from 'sentry-expo'
 
 import CONFIG from '@config/env'
 
-// Ref to access all @sentry/react-native exports:
 // TODO: Crash analytics are currently not implemented in the web context,
 // but in case they are needed in future -> if web -> ref `SentryLib.Browser` here.
-const Sentry = SentryLib.Browser
+const Sentry = SentryLib.Native // ref to access all @sentry/react-native exports
 
 SentryLib.init({
   dsn: CONFIG.SENTRY_DSN,
