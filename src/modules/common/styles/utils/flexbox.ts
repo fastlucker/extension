@@ -1,5 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
+
 interface Styles {
   flex1: ViewStyle
   directionRow: ViewStyle
@@ -13,7 +15,7 @@ interface Styles {
   justifyEnd: ViewStyle
 }
 
-const flexboxStyles = StyleSheet.create<Styles>({
+const styles: Styles = {
   flex1: {
     flex: 1
   },
@@ -45,6 +47,6 @@ const flexboxStyles = StyleSheet.create<Styles>({
   justifyEnd: {
     justifyContent: 'flex-end'
   }
-})
+}
 
-export default flexboxStyles
+export default isWeb ? styles : StyleSheet.create<Styles>(styles)
