@@ -2,19 +2,9 @@ import React, { createContext, useMemo } from 'react'
 
 import { useNetInfo as RnUseNetInfo } from '@react-native-community/netinfo'
 
-enum ConnectionStates {
-  LOADING = 'LOADING',
-  CONNECTED = 'CONNECTED',
-  NOT_CONNECTED = 'NOT_CONNECTED'
-}
+import { ConnectionStates, netInfoContextDefaults, NetInfoContextReturnType } from './types'
 
-export interface NetInfoContextReturnType {
-  connectionState: ConnectionStates
-}
-
-const NetInfoContext = createContext<NetInfoContextReturnType>({
-  connectionState: ConnectionStates.LOADING
-})
+const NetInfoContext = createContext<NetInfoContextReturnType>(netInfoContextDefaults)
 
 const checkIsConnected = (isConnected: boolean | null): ConnectionStates => {
   if (isConnected === null || typeof isConnected !== 'boolean') {
