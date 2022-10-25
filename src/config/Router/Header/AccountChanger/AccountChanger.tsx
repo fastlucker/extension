@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
 import LogOutIcon from '@assets/svg/LogOutIcon'
-import { isWeb } from '@config/env'
 import Blockies from '@modules/common/components/Blockies'
 import Button from '@modules/common/components/Button'
 import CopyText from '@modules/common/components/CopyText'
@@ -56,17 +55,13 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     const removeAccount = async () => {
       // Remove account password, because it gets persisted in the iOS Keychain
       // or in the Android Keystore.
-      if (!isWeb) {
-        await removeSelectedAccPassword(account.id)
-      }
+      await removeSelectedAccPassword(account.id)
 
       // In case this account is the only one logged in,
       // clean up the app passcode too.
-      if (!isWeb) {
-        const isLastAccount = accounts.length === 1
-        if (isLastAccount) {
-          removePasscode(account.id)
-        }
+      const isLastAccount = accounts.length === 1
+      if (isLastAccount) {
+        removePasscode(account.id)
       }
 
       onRemoveAccount(account.id)
