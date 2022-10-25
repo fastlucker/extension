@@ -1,27 +1,9 @@
-import React, { createContext, useMemo } from 'react'
+import React, { createContext } from 'react'
 
-enum ConnectionStates {
-  LOADING = 'LOADING',
-  CONNECTED = 'CONNECTED',
-  NOT_CONNECTED = 'NOT_CONNECTED'
-}
+import { ConnectionStates, netInfoContextDefaults, NetInfoContextReturnType } from './types'
 
-export interface NetInfoContextReturnType {
-  connectionState: ConnectionStates
-}
+const NetInfoContext = createContext<NetInfoContextReturnType>(netInfoContextDefaults)
 
-const NetInfoContext = createContext<NetInfoContextReturnType>({
-  connectionState: ConnectionStates.LOADING
-})
-
-const NetInfoProvider: React.FC = ({ children }) => {
-  return (
-    <NetInfoContext.Provider
-      value={useMemo(() => ({ connectionState: ConnectionStates.CONNECTED }), [])}
-    >
-      {children}
-    </NetInfoContext.Provider>
-  )
-}
+const NetInfoProvider: React.FC = ({ children }) => children
 
 export { NetInfoContext, NetInfoProvider, ConnectionStates }
