@@ -122,4 +122,7 @@ const spacings: Style = {
   phLg: { paddingHorizontal: SPACING_LG }
 }
 
+// Spreading `StyleSheet.create` styles into another `style` object is not
+// supported by react-native-web (styles are missing in the final object)
+// {@link https://github.com/necolas/react-native-web/issues/1377}
 export default isWeb ? spacings : StyleSheet.create<Style>(spacings)

@@ -49,4 +49,7 @@ const styles: Styles = {
   }
 }
 
+// Spreading `StyleSheet.create` styles into another `style` object is not
+// supported by react-native-web (styles are missing in the final object)
+// {@link https://github.com/necolas/react-native-web/issues/1377}
 export default isWeb ? styles : StyleSheet.create<Styles>(styles)
