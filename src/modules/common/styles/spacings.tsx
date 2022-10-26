@@ -14,10 +14,10 @@ export const SPACING: number = 20
 export const SPACING_MD: number = 25
 export const SPACING_LG: number = 30
 
-// In sync with the html, body and #root `min-width` in `web/style.css`
+// In sync with the `min-width` in `web/style.css`
 const WEB_DEVICE_WIDTH = 560
 export const DEVICE_WIDTH = isWeb ? WEB_DEVICE_WIDTH : Dimensions.get('window').width
-// In sync with the html, body and #root `min-height` in `web/style.css`
+// In sync with the `min-height` in `web/style.css`
 const WEB_DEVICE_HEIGHT = engine === 'gecko' ? 600 : 730
 export const DEVICE_HEIGHT = isWeb ? WEB_DEVICE_HEIGHT : Dimensions.get('window').height
 
