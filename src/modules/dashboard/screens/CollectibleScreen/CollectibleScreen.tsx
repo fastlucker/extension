@@ -14,8 +14,8 @@ import CONFIG, { isiOS } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Blockies from '@modules/common/components/Blockies'
 import Button from '@modules/common/components/Button'
+import FastImage from '@modules/common/components/FastImage'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Image from '@modules/common/components/Image'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Panel from '@modules/common/components/Panel'
 import Recipient from '@modules/common/components/Recipient'
@@ -320,7 +320,7 @@ const CollectibleScreen = () => {
               <Spinner />
             </View>
           )}
-          <Image
+          <FastImage
             style={styles.collectibleImage}
             source={{ uri: handleCollectibleUri(metadata.image) }}
             onLoad={() => setIsAssetImageLoading(false)}
