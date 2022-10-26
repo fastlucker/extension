@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Image, TouchableOpacity, View } from 'react-native'
-import FastImage from 'react-native-fast-image'
+import { TouchableOpacity, View } from 'react-native'
 
+import Image from '@modules/common/components/Image'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
@@ -52,10 +52,7 @@ const CollectibleItem = ({
             <Spinner />
           </View>
         ) : (
-          <FastImage
-            style={styles.collectibleImage}
-            source={{ uri: handleCollectibleUri(assetImg) }}
-          />
+          <Image style={styles.collectibleImage} source={{ uri: handleCollectibleUri(assetImg) }} />
         )}
         <View style={[spacings.phTy, spacings.pbTy]}>
           <View
