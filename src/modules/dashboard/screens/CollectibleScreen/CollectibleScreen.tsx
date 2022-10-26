@@ -8,7 +8,6 @@ import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
-import FastImage from 'react-native-fast-image'
 
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import CONFIG, { isiOS } from '@config/env'
@@ -16,6 +15,7 @@ import { useTranslation } from '@config/localization'
 import Blockies from '@modules/common/components/Blockies'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import Image from '@modules/common/components/Image'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Panel from '@modules/common/components/Panel'
 import Recipient from '@modules/common/components/Recipient'
@@ -320,7 +320,7 @@ const CollectibleScreen = () => {
               <Spinner />
             </View>
           )}
-          <FastImage
+          <Image
             style={styles.collectibleImage}
             source={{ uri: handleCollectibleUri(metadata.image) }}
             onLoad={() => setIsAssetImageLoading(false)}
