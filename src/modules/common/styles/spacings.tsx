@@ -1,5 +1,8 @@
 import { Dimensions, ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
+import { engine } from '@web/constants/browserAPI'
+
 interface Style {
   [key: string]: TextStyle | ViewStyle | ImageStyle
 }
@@ -11,13 +14,17 @@ export const SPACING: number = 20
 export const SPACING_MD: number = 25
 export const SPACING_LG: number = 30
 
-export const DEVICE_WIDTH = Dimensions.get('window').width
-export const DEVICE_HEIGHT = Dimensions.get('window').height
+// In sync with the `min-width` in `web/style.css`
+const WEB_DEVICE_WIDTH = 560
+export const DEVICE_WIDTH = isWeb ? WEB_DEVICE_WIDTH : Dimensions.get('window').width
+// In sync with the `min-height` in `web/style.css`
+const WEB_DEVICE_HEIGHT = engine === 'gecko' ? 600 : 730
+export const DEVICE_HEIGHT = isWeb ? WEB_DEVICE_HEIGHT : Dimensions.get('window').height
 
-export const IS_SCREEN_SIZE_L = DEVICE_WIDTH >= 768
-export const IS_SCREEN_SIZE_S = DEVICE_HEIGHT <= 670 || DEVICE_WIDTH <= 370
+export const IS_SCREEN_SIZE_L = !isWeb && DEVICE_WIDTH >= 768
+export const IS_SCREEN_SIZE_S = !isWeb && (DEVICE_HEIGHT <= 670 || DEVICE_WIDTH <= 370)
 
-const spacings = StyleSheet.create<Style>({
+const spacings: Style = {
   mb0: { marginBottom: 0 },
   mbMi: { marginBottom: SPACING_MI },
   mbTy: { marginBottom: SPACING_TY },
@@ -113,6 +120,9 @@ const spacings = StyleSheet.create<Style>({
   ph: { paddingHorizontal: SPACING },
   phMd: { paddingHorizontal: SPACING_MD },
   phLg: { paddingHorizontal: SPACING_LG }
-})
+}
 
-export default spacings
+// Spreading `StyleSheet.create` styles into another `style` object is not
+// supported by react-native-web (styles are missing in the final object)
+// {@link https://github.com/necolas/react-native-web/issues/1377}
+export default isWeb ? spacings : StyleSheet.create<Style>(spacings)
