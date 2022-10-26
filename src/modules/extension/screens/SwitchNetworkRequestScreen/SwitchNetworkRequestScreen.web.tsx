@@ -65,53 +65,8 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(false)
 
   const handleDenyButtonPress = () => {
-    !!sendMessage && sendMessage({
-      type: 'web3CallResponse',
-      to: BACKGROUND,
-      data: {
-        originalMessage: message,
-        rpcResult: {
-          jsonrpc: '2.0',
-          id: message?.data?.id,
-          error: 'Switching network canceled!'
-        }
-      }
-    })
-    setTimeout(() => {
-      window.close()
-    }, 200)
-  }
-
-  const handleSwitchNetworkButtonPress = () => {
-    if (newNetwork) {
-      setNetwork(newNetwork?.chainId)
-      !!sendMessage && sendMessage({
-        type: 'web3CallResponse',
-        to: BACKGROUND,
-        data: {
-          originalMessage: message,
-          rpcResult: {
-            jsonrpc: '2.0',
-            id: message?.data?.id,
-            result: {
-              chainId: newNetwork?.chainId
-            },
-            success: true
-          }
-        }
-      })
-    }
-  }
-
-  useEffect(() => {
-    if (newNetwork?.name === network?.name) {
-      window.close()
-    }
-  }, [newNetwork?.name, network?.name])
-
-  const handleForceClose = () => {
-    !!sendMessage && sendMessage(
-      {
+    !!sendMessage &&
+      sendMessage({
         type: 'web3CallResponse',
         to: BACKGROUND,
         data: {
@@ -122,9 +77,57 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
             error: 'Switching network canceled!'
           }
         }
-      },
-      { ignoreReply: true }
-    )
+      })
+    setTimeout(() => {
+      window.close()
+    }, 200)
+  }
+
+  const handleSwitchNetworkButtonPress = () => {
+    if (newNetwork) {
+      setNetwork(newNetwork?.chainId)
+      !!sendMessage &&
+        sendMessage({
+          type: 'web3CallResponse',
+          to: BACKGROUND,
+          data: {
+            originalMessage: message,
+            rpcResult: {
+              jsonrpc: '2.0',
+              id: message?.data?.id,
+              result: {
+                chainId: newNetwork?.chainId
+              },
+              success: true
+            }
+          }
+        })
+    }
+  }
+
+  useEffect(() => {
+    if (newNetwork?.name === network?.name) {
+      window.close()
+    }
+  }, [newNetwork?.name, network?.name])
+
+  const handleForceClose = () => {
+    !!sendMessage &&
+      sendMessage(
+        {
+          type: 'web3CallResponse',
+          to: BACKGROUND,
+          data: {
+            originalMessage: message,
+            rpcResult: {
+              jsonrpc: '2.0',
+              id: message?.data?.id,
+              error: 'Switching network canceled!'
+            }
+          }
+        },
+        { ignoreReply: true }
+      )
   }
 
   useEffect(() => {
