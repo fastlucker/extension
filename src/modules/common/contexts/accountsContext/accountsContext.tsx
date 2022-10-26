@@ -67,10 +67,7 @@ const AccountsProvider: React.FC = ({ children }) => {
     })
 
   useEffect(() => {
-    // TODO: figure out why this crashes on web
-    if (!isWeb) {
-      CrashAnalytics.setUserContext({ id: selectedAcc || 'N/A' })
-    }
+    CrashAnalytics.setUserContext({ id: selectedAcc || 'N/A' })
   }, [selectedAcc])
 
   return (
