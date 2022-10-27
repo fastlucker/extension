@@ -13,6 +13,8 @@ export const PARENT_HD_PATH = "44'/60'/0'/0"
 const openTransport = async (device: any) => {
   if (isWeb) return null
 
+  // Dynamically import, because modules don't support running in web mode,
+  // and importing them regularly (synchronously) is causing a web app crash.
   const TransportHID = (await import('@ledgerhq/react-native-hid')).default
   const TransportBLE = (await import('@ledgerhq/react-native-hw-transport-ble')).default
 
@@ -28,6 +30,8 @@ const openTransport = async (device: any) => {
 const closeTransport = async (device: any) => {
   if (isWeb) return
 
+  // Dynamically import, because module don't support running in web mode,
+  // and importing them regularly (synchronously) is causing a web app crash.
   const TransportBLE = (await import('@ledgerhq/react-native-hw-transport-ble')).default
 
   if (device.connectionType === 'Bluetooth') {
