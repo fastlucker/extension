@@ -3,9 +3,6 @@ import i18n from '@config/localization/localization'
 import { serialize } from '@ethersproject/transactions'
 import AppEth from '@ledgerhq/hw-app-eth'
 
-// import TransportHID from '@ledgerhq/react-native-hid'
-// import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
-
 const ethUtil = require('ethereumjs-util')
 const HDNode = require('hdkey')
 
@@ -16,8 +13,8 @@ export const PARENT_HD_PATH = "44'/60'/0'/0"
 const openTransport = async (device: any) => {
   if (isWeb) return null
 
-  const TransportHID = await import('@ledgerhq/react-native-hid')
-  const TransportBLE = await import('@ledgerhq/react-native-hw-transport-ble')
+  const TransportHID = (await import('@ledgerhq/react-native-hid')).default
+  const TransportBLE = (await import('@ledgerhq/react-native-hw-transport-ble')).default
 
   return device.connectionType === 'Bluetooth'
     ? TransportBLE.open(device.id).catch((err: any) => {
@@ -31,7 +28,7 @@ const openTransport = async (device: any) => {
 const closeTransport = async (device: any) => {
   if (isWeb) return
 
-  const TransportBLE = await import('@ledgerhq/react-native-hw-transport-ble')
+  const TransportBLE = (await import('@ledgerhq/react-native-hw-transport-ble')).default
 
   if (device.connectionType === 'Bluetooth') {
     TransportBLE.disconnect(device.id)
