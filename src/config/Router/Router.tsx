@@ -22,6 +22,7 @@ import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
+import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
@@ -196,6 +197,11 @@ const AuthStack = () => {
         name="hardwareWallet"
         options={{ title: t('Hardware Wallet') }}
         component={HardwareWalletConnectScreen}
+      />
+      <Stack.Screen
+        name="externalSigner"
+        options={{ title: t('Login with External Signer') }}
+        component={ExternalSignerScreen}
       />
     </Stack.Navigator>
   )
