@@ -1,8 +1,7 @@
+import { isWeb } from '@config/env'
 import i18n from '@config/localization/localization'
 import { serialize } from '@ethersproject/transactions'
 import AppEth from '@ledgerhq/hw-app-eth'
-import TransportHID from '@ledgerhq/react-native-hid'
-import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 
 const ethUtil = require('ethereumjs-util')
 const HDNode = require('hdkey')
@@ -12,6 +11,13 @@ const EIP_155_CONSTANT = 35
 export const PARENT_HD_PATH = "44'/60'/0'/0"
 
 const openTransport = async (device: any) => {
+  if (isWeb) return null
+
+  // Dynamically import, because modules don't support running in web mode,
+  // and importing them regularly (synchronously) is causing a web app crash.
+  const TransportHID = (await import('@ledgerhq/react-native-hid')).default
+  const TransportBLE = (await import('@ledgerhq/react-native-hw-transport-ble')).default
+
   return device.connectionType === 'Bluetooth'
     ? TransportBLE.open(device.id).catch((err: any) => {
         throw err
@@ -22,6 +28,12 @@ const openTransport = async (device: any) => {
 }
 
 const closeTransport = async (device: any) => {
+  if (isWeb) return
+
+  // Dynamically import, because module don't support running in web mode,
+  // and importing them regularly (synchronously) is causing a web app crash.
+  const TransportBLE = (await import('@ledgerhq/react-native-hw-transport-ble')).default
+
   if (device.connectionType === 'Bluetooth') {
     TransportBLE.disconnect(device.id)
   }

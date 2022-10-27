@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react-native",
+    "module": "ESNext",
     "paths": {
       "@assets/*": ["src/assets/*"],
       "@modules/*": ["src/modules/*"],
