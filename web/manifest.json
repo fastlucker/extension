@@ -10,7 +10,9 @@
     "type": "module"
   },
   "icons": {
-    "128": "./assets/images/xicon.png"
+    "128": "./assets/images/xicon@128.png",
+    "48": "./assets/images/xicon@48.png",
+    "16": "./assets/images/xicon@16.png"
   },
   "action": {
     "default_popup": "index.html"
@@ -19,7 +21,7 @@
   "externally_connectable": {
     "ids": ["*"]
   },
-  "content_scripts" : [
+  "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "exclude_matches": ["*://doInWebPack.lan/*", "*://wallet.ambire.com/*"],
