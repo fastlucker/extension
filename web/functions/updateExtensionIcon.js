@@ -18,7 +18,7 @@ export const updateExtensionIcon = async (
       const tabHost = new URL(tab.url).host
 
       if (!tab.url.startsWith('http')) {
-        iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
+        iconUrl = browserAPI.runtime.getURL('../assets/images/xicon@128.png')
       } else if (TAB_INJECTIONS[tabId]) {
         if (PERMISSIONS[tabHost] === true) {
           if (Object.keys(PENDING_WEB3_RESPONSE_CALLBACKS).length) {
@@ -33,7 +33,7 @@ export const updateExtensionIcon = async (
             iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_pending.png')
           }
         } else {
-          iconUrl = browserAPI.runtime.getURL('../assets/images/xicon.png')
+          iconUrl = browserAPI.runtime.getURL('../assets/images/xicon@128.png')
         }
       } else {
         iconUrl = browserAPI.runtime.getURL('../assets/images/xicon_connected.png')
