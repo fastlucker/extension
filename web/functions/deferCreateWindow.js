@@ -1,4 +1,5 @@
-import { browserAPI, engine } from '../constants/browserAPI.js'
+import { browserAPI } from '../constants/browserAPI.js'
+import { POPUP_WIDTH, POPUP_HEIGHT } from '../constants/spacings'
 
 export const DEFERRED_PERMISSION_WINDOWS = {}
 export const PERMISSION_WINDOWS = {}
@@ -6,14 +7,6 @@ export const PERMISSION_WINDOWS = {}
 async function deferTick(host, queue, route) {
   if (DEFERRED_PERMISSION_WINDOWS[host]) {
     DEFERRED_PERMISSION_WINDOWS[host] = false
-    const zoom = 0.82
-    let popupWidth = Math.round(560 * zoom)
-    let popupHeight = Math.round(760 * zoom)
-
-    if (engine === 'gecko') {
-      popupWidth = Math.round(560)
-      popupHeight = Math.round(620)
-    }
 
     // getting last focused window to position our popup correctly
     const lastFocused = await browserAPI.windows.getLastFocused()
@@ -21,14 +14,14 @@ async function deferTick(host, queue, route) {
     const windowMarginRight = 20
     const windowMarginTop = 80
 
-    const popupLeft = lastFocused.left + lastFocused.width - popupWidth - windowMarginRight
+    const popupLeft = lastFocused.left + lastFocused.width - POPUP_WIDTH - windowMarginRight
     const popupTop = lastFocused.top + windowMarginTop
 
     const createData = {
       type: 'panel',
       url: `index.html?route=${route}&host=${host}&queue=${btoa(JSON.stringify(queue))}`,
-      width: popupWidth,
-      height: popupHeight,
+      width: POPUP_WIDTH,
+      height: POPUP_HEIGHT,
       left: popupLeft,
       top: popupTop
     }
