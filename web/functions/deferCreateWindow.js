@@ -1,5 +1,5 @@
 import { browserAPI } from '../constants/browserAPI.js'
-import { POPUP_WIDTH, POPUP_HEIGHT } from '../constants/spacings'
+import { POPUP_WIDTH, POPUP_HEIGHT } from '../constants/spacings.js'
 
 export const DEFERRED_PERMISSION_WINDOWS = {}
 export const PERMISSION_WINDOWS = {}
