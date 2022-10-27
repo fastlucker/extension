@@ -3,7 +3,7 @@ import { engine } from './browserAPI.js'
 // In sync with the `zoom` in `web/style.css`
 const ZOOM = engine === 'gecko' ? 1 : 0.82
 
-export const POPUP_WIDTH = 560
+export const POPUP_WIDTH = Math.round(560 * ZOOM)
 
 // The browser popup window has a top bar that takes some of the height.
 // So this is about the size of this tab bar (magic number), that hopefully 🙏
