@@ -1,7 +1,6 @@
 {
   "name": "Ambire Wallet",
   "author": "https://www.ambire.com",
-  "default_locale": "en",
   "description": "Тhe easiest to use, most powerful and secure Web3 non-custodial solution you can get. It’s the smart solution all smart people use.",
   "version": "1.13.3",
   "manifest_version": 3,
