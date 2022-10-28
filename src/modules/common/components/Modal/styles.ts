@@ -1,5 +1,6 @@
 import { StyleSheet, ViewProps } from 'react-native'
 
+import { isWeb } from '@config/env'
 import colors from '@modules/common/styles/colors'
 import spacings, { DEVICE_HEIGHT, DEVICE_WIDTH } from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
@@ -15,13 +16,13 @@ const styles = StyleSheet.create<Style>({
   container: {
     ...commonStyles.borderRadiusPrimary,
     backgroundColor: colors.clay,
-    ...spacings.pv,
+    ...(isWeb ? spacings.pvLg : spacings.pv),
     ...spacings.ph,
     ...commonStyles.shadowPrimary
   },
   closeBtn: {
     position: 'absolute',
-    right: 20,
+    right: isWeb ? 10 : 20,
     zIndex: 2
   },
   backDropWrapper: {

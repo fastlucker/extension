@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Image, TouchableOpacity, View } from 'react-native'
-import FastImage from 'react-native-fast-image'
 
+import FastImage from '@modules/common/components/FastImage'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'

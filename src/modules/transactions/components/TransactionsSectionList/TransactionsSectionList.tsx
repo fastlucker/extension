@@ -6,7 +6,7 @@ import { RefreshControl, TouchableOpacity, View } from 'react-native'
 import ConfirmedIcon from '@assets/svg/ConfirmedIcon'
 import PendingIcon from '@assets/svg/PendingIcon'
 import SignIcon from '@assets/svg/SignIcon'
-import CONFIG from '@config/env'
+import CONFIG, { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
@@ -177,6 +177,7 @@ const TransactionsSectionList = ({
       // and the same corner radius should be applied on the main scrollable container
       // otherwise when scrolling the content is visible beneath the sticky title
       style={spacings.ph0}
+      contentContainerStyle={isWeb && spacings.ph0}
       // a horizontal margin is applied to the wrapper of the scrollable container instead of padding
       // because we need its border radius to overlap with the sticky title
       // thus the scroll indicator is rendered on top of the content and there is no way

@@ -11,8 +11,10 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { isWeb } from '@config/env'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import useTheme from '@modules/common/hooks/useTheme'
+import spacings from '@modules/common/styles/spacings'
 
 import createStyles from './styles'
 
@@ -48,11 +50,16 @@ const Wrapper = ({
 }: Props) => {
   const { styles } = useTheme(createStyles)
   const insets = useSafeAreaInsets()
+
+  const horizontalSpacing = isWeb ? spacings.ph0 : spacings.ph
+
+  hasBottomTabNav = isWeb ? false : hasBottomTabNav
+
   if (type === WRAPPER_TYPES.FLAT_LIST) {
     return (
       // @ts-ignore
       <FlatList
-        style={[styles.wrapper, style]}
+        style={[styles.wrapper, horizontalSpacing, style]}
         contentContainerStyle={[
           styles.contentContainerStyle,
           !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
@@ -70,7 +77,7 @@ const Wrapper = ({
     return (
       // @ts-ignore
       <SectionList
-        style={[styles.wrapper, style]}
+        style={[styles.wrapper, horizontalSpacing, style]}
         contentContainerStyle={[
           styles.contentContainerStyle,
           !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
@@ -87,7 +94,7 @@ const Wrapper = ({
   if (type === WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW) {
     return (
       <KeyboardAwareScrollView
-        style={[styles.wrapper, style]}
+        style={[styles.wrapper, horizontalSpacing, style]}
         contentContainerStyle={[
           styles.contentContainerStyle,
           !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
@@ -114,7 +121,7 @@ const Wrapper = ({
 
   return (
     <ScrollView
-      style={[styles.wrapper, style]}
+      style={[styles.wrapper, horizontalSpacing, style]}
       contentContainerStyle={[
         styles.contentContainerStyle,
         !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },

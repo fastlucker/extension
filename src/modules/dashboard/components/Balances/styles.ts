@@ -1,5 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
@@ -14,7 +15,7 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   button: {
     minWidth: 100,
-    alignItems: 'flex-end',
+    alignItems: isWeb ? 'center' : 'flex-end',
     backgroundColor: colors.martinique,
     ...spacings.mhMi,
     ...spacings.ph0

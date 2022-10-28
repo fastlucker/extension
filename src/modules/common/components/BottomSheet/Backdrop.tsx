@@ -1,10 +1,10 @@
 import { BlurView } from 'expo-blur'
 import React, { useEffect } from 'react'
-import { Animated, Easing, StyleSheet, TouchableOpacity } from 'react-native'
+import { Animated, Easing, Platform, StyleSheet, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import CloseIcon from '@assets/svg/CloseIcon'
-import { isiOS } from '@config/env'
+import { isiOS, isWeb } from '@config/env'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -24,14 +24,17 @@ const Backdrop = ({ isBottomSheetVisible, isVisible, onPress }: Props) => {
   const insets = useSafeAreaInsets()
   // The header should start a little bit below the end of the notch,
   // and right in the vertical middle of the nav.
-  const notchInset = insets.top + 10
+  const notchInset = Platform.select({
+    web: 20,
+    default: insets.top + 10
+  })
 
   useEffect(() => {
     Animated.timing(opacity, {
       toValue: 1,
       duration: ANIMATION_DURATION,
       easing: Easing.linear,
-      useNativeDriver: true
+      useNativeDriver: !isWeb
     }).start()
   }, [])
 
@@ -41,7 +44,7 @@ const Backdrop = ({ isBottomSheetVisible, isVisible, onPress }: Props) => {
         toValue: 0,
         duration: ANIMATION_DURATION,
         easing: Easing.linear,
-        useNativeDriver: true
+        useNativeDriver: !isWeb
       }).start()
     }
   }, [isBottomSheetVisible])

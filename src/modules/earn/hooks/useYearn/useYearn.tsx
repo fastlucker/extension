@@ -163,6 +163,7 @@ const useYearn: any = ({ tokens, networkDetails, provider, currentNetwork }: any
 
   return {
     Icon: YearnLogo,
+    iconStyle: { width: 113, height: 38 },
     loadVaults,
     tokensItems,
     details,

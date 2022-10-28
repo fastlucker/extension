@@ -66,7 +66,7 @@ const YearnTesseractCard = ({ tokens, networkId, selectedAcc, addRequest, addToa
     currentNetwork
   })
 
-  const { Icon, loadVaults, tokensItems, details, onTokenSelect } = useMemo(
+  const { Icon, iconStyle, loadVaults, tokensItems, details, onTokenSelect } = useMemo(
     () => (networkId === 'polygon' ? tesseract : yearn),
     [networkId, yearn, tesseract]
   )
@@ -182,6 +182,7 @@ const YearnTesseractCard = ({ tokens, networkId, selectedAcc, addRequest, addToa
       warning={networkId === 'polygon' ? warning : undefined}
       loading={loading}
       icon={Icon}
+      iconStyle={iconStyle}
       unavailable={unavailable}
       tokensItems={tokensItems}
       details={details}

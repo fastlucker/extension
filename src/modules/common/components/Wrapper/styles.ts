@@ -1,5 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
@@ -11,12 +12,13 @@ const styles = () =>
   StyleSheet.create<Style>({
     wrapper: {
       flex: 1,
-      ...spacings.ph,
       backgroundColor: 'transparent'
     },
     contentContainerStyle: {
       ...spacings.pbSm,
-      flexGrow: 1
+      flexGrow: 1,
+      ...(isWeb ? spacings.ptSm : {}),
+      ...(isWeb ? spacings.phLg : {})
     }
   })
 

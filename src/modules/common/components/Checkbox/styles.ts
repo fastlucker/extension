@@ -1,11 +1,13 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Style {
   container: ViewStyle
   checkboxWrapper: ViewStyle
   checkbox: ViewStyle
+  webCheckbox: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -20,6 +22,16 @@ const styles = StyleSheet.create<Style>({
     ...spacings.mrTy
   },
   checkbox: {
+    width: 20,
+    height: 20
+  },
+  webCheckbox: {
+    overflow: 'hidden',
+    borderRadius: 3,
+    borderWidth: 2,
+    borderColor: colors.turquoise,
+    alignItems: 'center',
+    justifyContent: 'center',
     width: 20,
     height: 20
   }

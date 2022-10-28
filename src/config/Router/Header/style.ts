@@ -1,8 +1,13 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
 import colors from '@modules/common/styles/colors'
+import commonStyles from '@modules/common/styles/utils/common'
 
-export const HEADER_HEIGHT = 60
+export const HEADER_HEIGHT = Platform.select({
+  web: 70,
+  default: 60
+})
 
 interface Styles {
   container: ViewStyle
@@ -10,6 +15,7 @@ interface Styles {
   navIconContainerSmall: ViewStyle
   title: TextStyle
   switcherContainer: ViewStyle
+  networkIcon: ViewStyle
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -18,7 +24,8 @@ const styles = StyleSheet.create<Styles>({
     flexDirection: 'row',
     backgroundColor: colors.wooed,
     alignItems: 'center',
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
+    ...(isWeb ? { maxHeight: 80 } : {})
   },
   navIconContainerRegular: {
     width: 40,
@@ -46,6 +53,12 @@ const styles = StyleSheet.create<Styles>({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row'
+  },
+  networkIcon: {
+    width: 40,
+    height: 40,
+    backgroundColor: colors.clay,
+    ...commonStyles.borderRadiusPrimary
   }
 })
 

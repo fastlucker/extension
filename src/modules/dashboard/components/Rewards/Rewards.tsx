@@ -9,11 +9,11 @@ import { RewardIds } from 'ambire-common/src/hooks/useRewards/types'
 import useStakedWalletToken from 'ambire-common/src/hooks/useStakedWalletToken'
 import React, { useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Linking, ScrollView, TouchableOpacity, View } from 'react-native'
+import { Linking, ScrollView, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
-import CONFIG from '@config/env'
+import CONFIG, { isWeb } from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
@@ -23,6 +23,7 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import useRequests from '@modules/common/hooks/useRequests'
+import alert from '@modules/common/services/alert'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -86,7 +87,7 @@ const Rewards = () => {
       claimEarlyRewards(false)
     }
 
-    Alert.alert(
+    alert(
       t('Are you sure?'),
       t(
         'This procedure will claim only 50% of your outstanding rewards as $WALLET, and permanently burn the rest. Are you sure?'
@@ -161,14 +162,19 @@ const Rewards = () => {
         displayCancel={false}
       >
         <Title style={textStyles.center}>{t('Wallet token distribution')}</Title>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}
-        >
-          {multiplierBadges.map(renderBadge)}
-        </ScrollView>
+        {isWeb && multiplierBadges.length < 7 ? (
+          <View style={[flexboxStyles.directionRow, flexboxStyles.justifyCenter, spacings.mb]}>
+            {multiplierBadges.map(renderBadge)}
+          </View>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[flexboxStyles.directionRow, flexboxStyles.center, spacings.mb]}
+          >
+            {multiplierBadges.map(renderBadge)}
+          </ScrollView>
+        )}
 
         <Text type="caption" style={[spacings.mbSm, textStyles.center]}>
           <Text type="caption">

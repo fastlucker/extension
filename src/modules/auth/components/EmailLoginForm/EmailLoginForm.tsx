@@ -3,6 +3,7 @@ import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import Button from '@modules/common/components/Button'
@@ -25,7 +26,7 @@ const EmailLoginScreen = () => {
     }
   })
 
-  const { handleLogin, requiresEmailConfFor, err } = useEmailLogin()
+  const { handleLogin, cancelLoginAttempts, requiresEmailConfFor, err } = useEmailLogin()
 
   const handleFormSubmit = useCallback(() => {
     handleSubmit(handleLogin)()
@@ -81,6 +82,9 @@ const EmailLoginScreen = () => {
               { email: requiresEmailConfFor?.email }
             )}
           </Text>
+          {isWeb && (
+            <Button type="danger" text={t('Cancel login attempt')} onPress={cancelLoginAttempts} />
+          )}
         </>
       )}
     </>

@@ -4,6 +4,7 @@ import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import SendIcon from '@assets/svg/SendIcon'
+import { isWeb } from '@config/env'
 import Text from '@modules/common/components/Text'
 import TokenIcon from '@modules/common/components/TokenIcon'
 import spacings from '@modules/common/styles/spacings'
@@ -36,7 +37,7 @@ const TokenItem = ({
   hidePrivateValue
 }: Props) => {
   return (
-    <View style={styles.tokenItemContainer}>
+    <View style={isWeb ? styles.tokenItemContainerWeb : styles.tokenItemContainer}>
       <View style={spacings.prSm}>
         <TokenIcon withContainer uri={img} networkId={networkId} address={address} />
       </View>

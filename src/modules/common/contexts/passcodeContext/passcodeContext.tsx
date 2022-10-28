@@ -29,62 +29,9 @@ import {
 
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
 import styles from './styles'
+import { passcodeContextDefaults, PasscodeContextReturnType } from './types'
 
-export interface PasscodeContextReturnType {
-  state: PASSCODE_STATES
-  deviceSecurityLevel: DEVICE_SECURITY_LEVEL
-  deviceSupportedAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
-  deviceSupportedAuthTypesLabel: string
-  fallbackSupportedAuthTypesLabel: string
-  addPasscode: (code: string) => Promise<boolean>
-  removePasscode: (accountId?: string) => Promise<void>
-  isLoading: boolean
-  isValidPasscode: (code: string) => boolean
-  isLocalAuthSupported: null | boolean
-  // Be aware that the Promise should always return something for `addLocalAuth`
-  // and `isValidLocalAuth`, because Promise<void> makes the local auth to hang
-  // on Android and always return `false`, without rejecting the promise,
-  // which leads to strange results.
-  addLocalAuth: () => Promise<boolean>
-  isValidLocalAuth: () => Promise<boolean>
-  removeLocalAuth: () => void
-  triggerEnteringPasscode: () => void
-  resetValidPasscodeEntered: () => void
-  hasEnteredValidPasscode: boolean | null
-  enableLockOnStartup: () => void
-  disableLockOnStartup: () => void
-  enableLockWhenInactive: () => void
-  disableLockWhenInactive: () => void
-  lockOnStartup: boolean
-  lockWhenInactive: boolean
-}
-
-const defaults: PasscodeContextReturnType = {
-  state: PASSCODE_STATES.NO_PASSCODE,
-  deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE,
-  deviceSupportedAuthTypes: [],
-  deviceSupportedAuthTypesLabel: '',
-  fallbackSupportedAuthTypesLabel: '',
-  addPasscode: () => Promise.resolve(false),
-  removePasscode: () => Promise.resolve(),
-  isLoading: true,
-  isValidPasscode: () => false,
-  isLocalAuthSupported: null,
-  addLocalAuth: () => Promise.resolve(false),
-  removeLocalAuth: () => {},
-  isValidLocalAuth: () => Promise.resolve(false),
-  triggerEnteringPasscode: () => {},
-  resetValidPasscodeEntered: () => {},
-  hasEnteredValidPasscode: null,
-  enableLockOnStartup: () => {},
-  disableLockOnStartup: () => {},
-  enableLockWhenInactive: () => {},
-  disableLockWhenInactive: () => {},
-  lockOnStartup: false,
-  lockWhenInactive: false
-}
-
-const PasscodeContext = createContext<PasscodeContextReturnType>(defaults)
+const PasscodeContext = createContext<PasscodeContextReturnType>(passcodeContextDefaults)
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
@@ -94,29 +41,29 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
-  const [state, setState] = useState<PASSCODE_STATES>(defaults.state)
+  const [state, setState] = useState<PASSCODE_STATES>(passcodeContextDefaults.state)
   const [deviceSecurityLevel, setDeviceSecurityLevel] = useState<DEVICE_SECURITY_LEVEL>(
-    defaults.deviceSecurityLevel
+    passcodeContextDefaults.deviceSecurityLevel
   )
   const [deviceSupportedAuthTypes, setDeviceSupportedAuthTypes] = useState<
     DEVICE_SUPPORTED_AUTH_TYPES[]
-  >(defaults.deviceSupportedAuthTypes)
+  >(passcodeContextDefaults.deviceSupportedAuthTypes)
   const [deviceSupportedAuthTypesLabel, setDeviceSupportedAuthTypesLabel] = useState<string>(
-    defaults.deviceSupportedAuthTypesLabel
+    passcodeContextDefaults.deviceSupportedAuthTypesLabel
   )
   const [passcode, setPasscode] = useState<null | string>(null)
   const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(
-    defaults.isLocalAuthSupported
+    passcodeContextDefaults.isLocalAuthSupported
   )
-  const [isLoading, setIsLoading] = useState<boolean>(defaults.isLoading)
+  const [isLoading, setIsLoading] = useState<boolean>(passcodeContextDefaults.isLoading)
   const [passcodeError, setPasscodeError] = useState<string>('')
   const [hasEnteredValidPasscode, setHasEnteredValidPasscode] = useState<null | boolean>(
-    defaults.hasEnteredValidPasscode
+    passcodeContextDefaults.hasEnteredValidPasscode
   )
   // App locking configurations
   const [isAppLocked, setIsAppLocked] = useState(false)
-  const [lockOnStartup, setLockOnStartup] = useState(defaults.lockOnStartup)
-  const [lockWhenInactive, setLockWhenInactive] = useState(defaults.lockWhenInactive)
+  const [lockOnStartup, setLockOnStartup] = useState(passcodeContextDefaults.lockOnStartup)
+  const [lockWhenInactive, setLockWhenInactive] = useState(passcodeContextDefaults.lockWhenInactive)
 
   useEffect(() => {
     ;(async () => {
@@ -431,7 +378,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     Platform.select({
       ios: i18n.t('passcode'),
       android: i18n.t('PIN / pattern')
-    }) || defaults.fallbackSupportedAuthTypesLabel
+    }) || passcodeContextDefaults.fallbackSupportedAuthTypesLabel
 
   const handleOnValidatePasscode = useCallback(
     (code: string) => {

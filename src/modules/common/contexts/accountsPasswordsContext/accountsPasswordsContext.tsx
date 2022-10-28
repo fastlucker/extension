@@ -8,23 +8,11 @@ import useToast from '@modules/common/hooks/useToast'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import { SECURE_STORE_KEY_ACCOUNT } from '@modules/settings/constants'
 
-export interface AccountsPasswordsContextReturnType {
-  isLoading: boolean
-  selectedAccHasPassword: boolean
-  addSelectedAccPassword: (password: string) => Promise<boolean>
-  removeSelectedAccPassword: (accountId?: string) => Promise<boolean>
-  getSelectedAccPassword: () => Promise<string>
-}
+import { accountsPasswordsContextDefaults, AccountsPasswordsContextReturnType } from './types'
 
-const defaults: AccountsPasswordsContextReturnType = {
-  isLoading: true,
-  selectedAccHasPassword: false,
-  addSelectedAccPassword: () => Promise.resolve(false),
-  removeSelectedAccPassword: () => Promise.resolve(false),
-  getSelectedAccPassword: () => Promise.resolve('')
-}
-
-const AccountsPasswordsContext = createContext<AccountsPasswordsContextReturnType>(defaults)
+const AccountsPasswordsContext = createContext<AccountsPasswordsContextReturnType>(
+  accountsPasswordsContextDefaults
+)
 
 // The secure key is separate for each account. This way, it appears as a
 // separate value in the Keychain / Keystore, suffixed by the account id.
@@ -35,9 +23,9 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
   const { selectedAcc } = useAccounts()
   const [selectedAccHasPassword, setSelectedAccHasPassword] = useState<boolean>(
-    defaults.selectedAccHasPassword
+    accountsPasswordsContextDefaults.selectedAccHasPassword
   )
-  const [isLoading, setIsLoading] = useState<boolean>(defaults.isLoading)
+  const [isLoading, setIsLoading] = useState<boolean>(accountsPasswordsContextDefaults.isLoading)
 
   useEffect(() => {
     ;(async () => {

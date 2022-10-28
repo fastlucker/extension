@@ -2,9 +2,9 @@ import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import { View, ViewProps } from 'react-native'
 
+import { isWeb } from '@config/env'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 
@@ -38,11 +38,10 @@ const Panel: React.FC<Props> = ({
         style={[
           styles.innerContainer,
           spacings.pvSm,
-          flexboxStyles.flex1,
           type === 'filled' && { backgroundColor: colors.clay },
-          horizontalSpacing === 'small' && spacings.phSm,
-          horizontalSpacing === 'tiny' && spacings.phTy,
-          horizontalSpacing === 'micro' && spacings.phMi,
+          horizontalSpacing === 'small' && (isWeb ? spacings.phLg : spacings.phSm),
+          horizontalSpacing === 'tiny' && (isWeb ? spacings.phMd : spacings.phTy),
+          horizontalSpacing === 'micro' && (isWeb ? spacings.ph : spacings.phMi),
           contentContainerStyle
         ]}
       >

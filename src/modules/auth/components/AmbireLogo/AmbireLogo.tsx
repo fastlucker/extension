@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { Image, TouchableWithoutFeedback, View } from 'react-native'
+import { Image, Platform, TouchableWithoutFeedback, View } from 'react-native'
 
 import logo from '@assets/images/Ambire-Wallet-logo-colored-white-vertical.png'
+import { isWeb } from '@config/env'
 import AppVersion from '@modules/common/components/AppVersion'
 import spacings, { IS_SCREEN_SIZE_S } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -23,7 +24,11 @@ const AmbireLogo = ({ shouldExpand = true, isResponsive = true }: Props) => {
       <TouchableWithoutFeedback onPress={handleOnLogoPress}>
         <Image
           source={logo}
-          style={{ height: isResponsive && IS_SCREEN_SIZE_S ? 96 : 136 }}
+          style={{
+            height: isResponsive && IS_SCREEN_SIZE_S ? 96 : 136,
+            width: 120,
+            ...(isWeb ? { modalHeight: 120 } : {})
+          }}
           resizeMode="contain"
         />
       </TouchableWithoutFeedback>

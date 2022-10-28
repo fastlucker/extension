@@ -63,7 +63,7 @@ const BundleDetailedPreview = ({ bundle = {}, mined = false, feeAssets }: any) =
   const totalSaved = savedGas && bundle.feeInUSDPerGas * savedGas + cashback
 
   return (
-    <Panel type="filled" contentContainerStyle={{ flex: 0 }} style={{ flex: 0 }}>
+    <>
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.pbTy]}>
         <Text fontSize={12} style={spacings.mrSm}>
           {t('Transactions: {{totalNumTxns}} out of {{totalNumTxns}}', {
@@ -177,7 +177,7 @@ const BundleDetailedPreview = ({ bundle = {}, mined = false, feeAssets }: any) =
           </View>
         ) : null}
       </View>
-    </Panel>
+    </>
   )
 }
 

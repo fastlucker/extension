@@ -1,5 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
+
 interface Styles {
   shadowPrimary: ViewStyle
   shadowSecondary: ViewStyle
@@ -12,7 +14,7 @@ interface Styles {
 export const BORDER_RADIUS_PRIMARY = 13
 export const BORDER_RADIUS_SECONDARY = 2
 
-const commonStyles = StyleSheet.create<Styles>({
+const commonStyles: Styles = {
   shadowPrimary: {
     shadowColor: '#000',
     shadowOpacity: 0.25,
@@ -45,6 +47,9 @@ const commonStyles = StyleSheet.create<Styles>({
   visibilityHidden: {
     opacity: 0
   }
-})
+}
 
-export default commonStyles
+// Spreading `StyleSheet.create` styles into another `style` object is not
+// supported by react-native-web (styles are missing in the final object)
+// {@link https://github.com/necolas/react-native-web/issues/1377}
+export default isWeb ? commonStyles : StyleSheet.create<Styles>(commonStyles)

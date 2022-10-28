@@ -483,3 +483,10 @@ ios/certs/*
 android/keystores/*
 # EAS build credentials
 credentials.json
+
+# Web
+/webkit-dev
+/webkit-prod
+
+/gecko-dev
+/gecko-prod

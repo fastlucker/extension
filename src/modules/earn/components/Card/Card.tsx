@@ -36,7 +36,8 @@ const Card = ({
   onTokenSelect,
   onValidate,
   warning,
-  areDepositsDisabled
+  areDepositsDisabled,
+  iconStyle
 }: any) => {
   const [segment, setSegment] = useState<Segment>(areDepositsDisabled ? 'Withdraw' : 'Deposit')
   const { network }: any = useNetwork()
@@ -185,9 +186,6 @@ const Card = ({
               a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
             )}
             setValue={setToken}
-            containerPropsStyle={spacings.mbSm}
-            // TODO:
-            //  disabled={disabled}
             label={t('Choose Token')}
           />
           {warning && <View style={spacings.mbMd}>{warning}</View>}
@@ -276,6 +274,7 @@ const Card = ({
           !isExpanded && { minHeight: 120 },
           !!visibleCard && visibleCard !== name && { display: 'none' }
         ]}
+        contentContainerStyle={{ height: '100%' }}
       >
         <View
           style={[
@@ -298,7 +297,7 @@ const Card = ({
             activeOpacity={isExpanded ? 1 : 0.7}
             onPress={() => (isExpanded ? null : expand())}
           >
-            {!!icon && <Image source={icon} />}
+            {!!icon && <Image source={icon} style={iconStyle || {}} />}
           </TouchableOpacity>
         </View>
         {isExpanded && expandedContent}

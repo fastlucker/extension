@@ -9,6 +9,7 @@ import AttentionGrabberProvider from '@modules/common/components/AttentionGrabbe
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AccountsPasswordsProvider } from '@modules/common/contexts/accountsPasswordsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
+import { AmbireExtensionProvider } from '@modules/common/contexts/ambireExtensionContext'
 import { ConstantsProvider } from '@modules/common/contexts/constantsContext'
 import { GasTankProvider } from '@modules/common/contexts/gasTankContext'
 import { GnosisProvider } from '@modules/common/contexts/gnosisContext'
@@ -63,28 +64,30 @@ const AppLoading = () => {
                           <PortfolioProvider>
                             <GnosisProvider>
                               <WalletConnectProvider>
-                                <RequestsProvider>
-                                  <AddressBookProvider>
-                                    <AccountsPasswordsProvider>
-                                      <PasscodeProvider>
-                                        <AttentionGrabberProvider>
-                                          <PrivateModeProvider>
-                                            <GasTankProvider>
-                                              <UnsupportedDAppsBottomSheetProvider>
-                                                <HeaderBottomSheetProvider>
-                                                  <LinkingProvider>
-                                                    <Router />
-                                                  </LinkingProvider>
-                                                </HeaderBottomSheetProvider>
-                                              </UnsupportedDAppsBottomSheetProvider>
-                                            </GasTankProvider>
-                                          </PrivateModeProvider>
-                                        </AttentionGrabberProvider>
-                                        <PortalHost name="global" />
-                                      </PasscodeProvider>
-                                    </AccountsPasswordsProvider>
-                                  </AddressBookProvider>
-                                </RequestsProvider>
+                                <AmbireExtensionProvider>
+                                  <RequestsProvider>
+                                    <AddressBookProvider>
+                                      <AccountsPasswordsProvider>
+                                        <PasscodeProvider>
+                                          <AttentionGrabberProvider>
+                                            <PrivateModeProvider>
+                                              <GasTankProvider>
+                                                <UnsupportedDAppsBottomSheetProvider>
+                                                  <HeaderBottomSheetProvider>
+                                                    <LinkingProvider>
+                                                      <Router />
+                                                    </LinkingProvider>
+                                                  </HeaderBottomSheetProvider>
+                                                </UnsupportedDAppsBottomSheetProvider>
+                                              </GasTankProvider>
+                                            </PrivateModeProvider>
+                                          </AttentionGrabberProvider>
+                                          <PortalHost name="global" />
+                                        </PasscodeProvider>
+                                      </AccountsPasswordsProvider>
+                                    </AddressBookProvider>
+                                  </RequestsProvider>
+                                </AmbireExtensionProvider>
                               </WalletConnectProvider>
                             </GnosisProvider>
                           </PortfolioProvider>

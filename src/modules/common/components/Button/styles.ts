@@ -43,7 +43,8 @@ const styles = StyleSheet.create<Style>({
 
   // Button container styles by type
   buttonContainerPrimary: {
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
+    borderWidth: 0
   },
   buttonContainerSecondary: {
     backgroundColor: colors.howl
