@@ -4,7 +4,6 @@ import { Keyboard, LayoutAnimation, TouchableWithoutFeedback, View } from 'react
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
-import EmailLoginForm from '@modules/auth/components/EmailLoginForm'
 import PassphraseForm from '@modules/auth/components/PassphraseForm'
 import PrivateKeyForm from '@modules/auth/components/PrivateKeyForm'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'

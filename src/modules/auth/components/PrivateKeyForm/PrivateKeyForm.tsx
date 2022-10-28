@@ -2,19 +2,20 @@ import { isEmail } from 'ambire-common/src/services/validations'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
-import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
-import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
+import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
-import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
-import useExternalSigners from '@modules/common/hooks/useExternalSigners'
 import spacings from '@modules/common/styles/spacings'
+import ExternalSignerAuthorization from '@modules/external-signers/components/ExternalSignerAuthorization'
+import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
 
 const PrivateKeyForm = () => {
   const { t } = useTranslation()
+  const { addExternalSigner, hasRegisteredPasscode } = useExternalSigners()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const {
     control,
     handleSubmit,
@@ -27,18 +28,23 @@ const PrivateKeyForm = () => {
     }
   })
 
-  const { addExternalSigner } = useExternalSigners()
-
   const handleFormSubmit = useCallback(() => {
-    handleSubmit(addExternalSigner)()
-  }, [])
+    handleSubmit((props) => addExternalSigner(props, openBottomSheet))()
+  }, [handleSubmit, addExternalSigner, openBottomSheet])
+
+  const handleAuthorize = useCallback(
+    ({ password, confirmPassword }) => {
+      addExternalSigner({ password, confirmPassword, signer: watch('signer') })
+    },
+    [addExternalSigner, watch]
+  )
 
   return (
     <>
       <Controller
         control={control}
         // TODO:
-        // rules={{ validate: isEmail }}
+        // rules={{ validate:  }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             onBlur={onBlur}
@@ -65,9 +71,12 @@ const PrivateKeyForm = () => {
           {err}
         </Text>
       )} */}
-      <Text style={spacings.mbSm} fontSize={12}>
-        {t('A password will not be required, we will send a magic login link to your email.')}
-      </Text>
+      <BottomSheet id="authorize" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+        <ExternalSignerAuthorization
+          shouldConfirm={!hasRegisteredPasscode}
+          onAuthorize={handleAuthorize}
+        />
+      </BottomSheet>
     </>
   )
 }

@@ -2,72 +2,34 @@ import accountPresets from 'ambire-common/src/constants/accountPresets'
 import passworder from 'browser-passworder'
 import { generateAddress2 } from 'ethereumjs-util'
 import { getDefaultProvider, Wallet } from 'ethers'
-import { getAddress, hexZeroPad, Interface } from 'ethers/lib/utils'
-import React, { createContext, useCallback, useEffect, useMemo } from 'react'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
-import { useModalize } from 'react-native-modalize'
+import { getAddress, hexZeroPad } from 'ethers/lib/utils'
+import { useCallback } from 'react'
 
 import CONFIG from '@config/env'
 import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
-import BottomSheet from '@modules/common/components/BottomSheet'
-import Button from '@modules/common/components/Button'
-import Input from '@modules/common/components/Input'
-import InputPassword from '@modules/common/components/InputPassword'
-import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
-import textStyles from '@modules/common/styles/utils/text'
-import { browserAPI } from '@web/constants/browserAPI'
-import { getStore } from '@web/functions/storage'
+
+type AddSignerFormValues = {
+  password?: string
+  confirmPassword?: string
+  signer: string
+}
 
 const SIGNERS_KEY = 'externalSigners'
 
 const relayerURL = CONFIG.RELAYER_URL
 
-type AddSignerFormValues = {
-  passcode?: string
-  confirmPasscode?: string
-  signer: string
-}
-
-interface ExternalSignersContextReturnType {
-  addExternalSigner: (props: AddSignerFormValues) => void
-}
-
-const ExternalSignersContext = createContext<ExternalSignersContextReturnType>({
-  addExternalSigner: () => {}
-})
-
-const ExternalSignersProvider: React.FC = ({ children }) => {
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const { t } = useTranslation()
+const useExternalSigners = () => {
   const { network } = useNetwork()
   const { onAddAccount } = useAccounts()
   const { addToast } = useToast()
   const [externalSigners, setExternalSigners] = useStorage<any>({
     key: SIGNERS_KEY,
     defaultValue: {}
-  })
-
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    setError,
-    watch,
-    formState: { errors, isSubmitting }
-  } = useForm({
-    mode: 'onSubmit',
-    reValidateMode: 'onSubmit',
-    defaultValues: {
-      passcode: '',
-      confirmPasscode: '',
-      signer: ''
-    }
   })
 
   const hasRegisteredPasscode = !!Object.keys(externalSigners).length
@@ -175,89 +137,58 @@ const ExternalSignersProvider: React.FC = ({ children }) => {
   )
 
   const addExternalSigner = useCallback(
-    async ({ passcode, confirmPasscode, signer }: AddSignerFormValues) => {
+    async (
+      { password, confirmPassword, signer }: AddSignerFormValues,
+      onRequestAuthorization?: any
+    ) => {
       try {
-        if (!passcode) {
-          openBottomSheet()
+        if (!signer) return
+        signer = '207d56b2f2b06fd9c74562ec81f42d47393a55cfcf5c182605220ad7fdfbe600'
+        const provider = getDefaultProvider(network?.rpc)
+        const wallet = new Wallet(signer, provider)
+        // TODO: show err incorrect private key msg
+        if (!wallet) return
+
+        const addr = await wallet.getAddress()
+
+        if (!password) {
+          !!onRequestAuthorization && onRequestAuthorization()
           return
         }
 
-        const shouldConfirm = !hasRegisteredPasscode
-
-        if (shouldConfirm && passcode !== confirmPasscode) {
+        if (!hasRegisteredPasscode && password !== confirmPassword) {
           // TODO: err msg
           // setError('confirmPasscode')
           return
         }
 
-        signer = '207d56b2f2b06fd9c74562ec81f42d47393a55cfcf5c182605220ad7fdfbe600'
-        const provider = getDefaultProvider(network?.rpc)
-        const wallet = new Wallet(signer, provider)
-        // TODO: show err msg
-        if (!wallet) {
-          closeBottomSheet()
-          return
-        }
-
-        const addr = await wallet.getAddress()
-
-        passworder.encrypt(passcode, signer).then((blob: string) => {
-          setExternalSigners({
-            ...externalSigners,
-            addr: blob
+        if (externalSigners[addr]) {
+          passworder
+            .decrypt(password, externalSigners[addr])
+            .then(() => {
+              onEOASelected(addr, { type: 'custom' })
+            })
+            .catch(() => {
+              // TODO: incorrect password err
+            })
+        } else {
+          passworder.encrypt(password, signer).then((blob: string) => {
+            setExternalSigners({
+              ...externalSigners,
+              [addr]: blob
+            })
+            onEOASelected(addr, { type: 'custom' })
           })
-          onEOASelected(addr, { type: 'custom' })
-        })
-        closeBottomSheet()
-      } catch (error) {
-        closeBottomSheet()
-      }
+        }
+      } catch (error) {}
     },
-    [
-      hasRegisteredPasscode,
-      network?.rpc,
-      openBottomSheet,
-      onEOASelected,
-      closeBottomSheet,
-      externalSigners,
-      setExternalSigners
-    ]
+    [hasRegisteredPasscode, network?.rpc, onEOASelected, externalSigners, setExternalSigners]
   )
 
-  return (
-    <ExternalSignersContext.Provider
-      value={useMemo(
-        () => ({
-          addExternalSigner
-        }),
-        [addExternalSigner]
-      )}
-    >
-      {children}
-      <BottomSheet id="add-signer" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <Title style={textStyles.center}>{t('Create Password')}</Title>
-        <InputPassword
-          placeholder="Password"
-          onChangeText={(val) => setValue('passcode', val)}
-          autoCorrect={false}
-          value={watch('passcode', '')}
-        />
-        {!hasRegisteredPasscode && (
-          <InputPassword
-            placeholder="Confirm Password"
-            onChangeText={(val) => setValue('confirmPasscode', val)}
-            autoCorrect={false}
-            value={watch('confirmPasscode', '')}
-          />
-        )}
-        <Button
-          disabled={isSubmitting}
-          text={isSubmitting ? t('Loading...') : t('Create Password')}
-          onPress={handleSubmit(addExternalSigner)}
-        />
-      </BottomSheet>
-    </ExternalSignersContext.Provider>
-  )
+  return {
+    addExternalSigner,
+    hasRegisteredPasscode
+  }
 }
 
-export { ExternalSignersContext, ExternalSignersProvider }
+export default useExternalSigners
