@@ -9,9 +9,17 @@ if (process.env.WEB_ENGINE === 'webkit') {
 }
 
 if (process.env.WEB_ENGINE === 'gecko') {
-  browserAPI = browser
-  browserAPI.action = browserAPI.browserAction
-  engine = 'gecko'
+  // When running in Chrome, although the engine is 'webkit',
+  // and the code inside this block should NOT execute,
+  // the `browserAPI = browser` assignment is causing an extension crash.
+  // So wrapping it in a try-catch block fixes this.
+  try {
+    browserAPI = browser
+    browserAPI.action = browserAPI.browserAction
+    engine = 'gecko'
+  } catch {
+    // Fail silently.
+  }
 }
 
 // Code running in a Chrome extension (content script, background page, etc.)
