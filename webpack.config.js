@@ -2,34 +2,41 @@ const createExpoWebpackConfigAsync = require('@expo/webpack-config')
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const { ExpoHtmlWebpackPlugin } = require('@expo/webpack-config/plugins/index')
-const nodeHtmlParser = require("node-html-parser")
-const fsExtra = require("fs-extra")
+const nodeHtmlParser = require('node-html-parser')
+const fsExtra = require('fs-extra')
 const expoEnv = require('@expo/webpack-config/env')
+const appJSON = require('./app.json')
 
 // Overrides the default generatedScriptTags
 // generatedScriptTags is used to add the entry files as scripts in index.html
 // but we heed only the app.js entry because the other entries are extension services running as background processes in the browser
 class HtmlWebpackPlugin extends ExpoHtmlWebpackPlugin {
   generatedScriptTags() {
-    return super.generatedScriptTags(['app.js']);
+    return super.generatedScriptTags(['app.js'])
   }
 }
 
 module.exports = async function (env, argv) {
-  // manifest.json output file for WEB_ENGINE: GECKO
-  function processManifestGecko(content) {
+  function processManifest(content) {
     const manifest = JSON.parse(content.toString())
-    manifest.manifest_version = 2
-    manifest.background = {
-      scripts: ['background.js']
+
+    // Maintain the same versioning between the web extension and the mobile app
+    manifest.version = appJSON.expo.version
+
+    // Tweak manifest file, so it's compatible with gecko extensions specifics
+    if (process.env.WEB_ENGINE === 'gecko') {
+      manifest.manifest_version = 2
+      manifest.background = {
+        scripts: ['background.js']
+      }
+      manifest.web_accessible_resources = ['*']
+      manifest.host_permissions = undefined
+      manifest.browser_action = JSON.parse(JSON.stringify(manifest.action))
+      delete manifest.action
+      manifest.externally_connectable = undefined
+      manifest.permissions.splice(manifest.permissions.indexOf('scripting'), 1)
+      manifest.permissions.push('<all_urls>')
     }
-    manifest.web_accessible_resources = ['*']
-    manifest.host_permissions = undefined
-    manifest.browser_action = JSON.parse(JSON.stringify(manifest.action))
-    delete manifest.action
-    manifest.externally_connectable = undefined
-    manifest.permissions.splice(manifest.permissions.indexOf('scripting'), 1)
-    manifest.permissions.push('<all_urls>')
 
     const manifestJSON = JSON.stringify(manifest, null, 2)
     return manifestJSON
@@ -62,7 +69,9 @@ module.exports = async function (env, argv) {
   )
 
   const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
-  const templateIndex = (0, nodeHtmlParser.parse)((0, fsExtra.readFileSync)(locations.template.indexHtml, { encoding: 'utf8' }))
+  const templateIndex = (0, nodeHtmlParser.parse)(
+    (0, fsExtra.readFileSync)(locations.template.indexHtml, { encoding: 'utf8' })
+  )
 
   // Customize webpack only for web
   if (process.env.WEB_ENGINE) {
@@ -111,18 +120,18 @@ module.exports = async function (env, argv) {
       // Use default webpack devServer config
       config.devServer = {
         ...config.devServer,
-        hot: false,
+        hot: false
       }
       // writeToDisk: output dev bundled files (in /webkit-dev or /gecko-dev) to import them as unpacked extension in the browser
       config.devServer.writeToDisk = true
     }
 
-      config.entry = {
-        // Default entries
-        ...config.entry,
-        // Our custom extension specific entries
-        ...entries
-      }
+    config.entry = {
+      // Default entries
+      ...config.entry,
+      // Our custom extension specific entries
+      ...entries
+    }
 
     config.plugins = [
       ...config.plugins,
@@ -152,13 +161,7 @@ module.exports = async function (env, argv) {
           {
             from: './web/manifest.json',
             to: 'manifest.json',
-            transform(content) {
-              if (process.env.WEB_ENGINE === 'gecko') {
-                return processManifestGecko(content)
-              }
-
-              return content
-            }
+            transform: processManifest
           }
         ]
       }),
