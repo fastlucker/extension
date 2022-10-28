@@ -1,7 +1,8 @@
 {
   "name": "Ambire Wallet",
+  "author": "https://www.ambire.com",
   "description": "Тhe easiest to use, most powerful and secure Web3 non-custodial solution you can get. It’s the smart solution all smart people use.",
-  "version": "1.0",
+  "version": "1.13.3",
   "manifest_version": 3,
   "short_name": "Ambire",
   "permissions": ["storage", "tabs"],
@@ -11,10 +12,12 @@
   },
   "icons": {
     "128": "./assets/images/xicon@128.png",
+    "96": "./assets/images/xicon@96.png",
     "48": "./assets/images/xicon@48.png",
     "16": "./assets/images/xicon@16.png"
   },
   "action": {
+    "default_title": "Ambire",
     "default_popup": "index.html"
   },
   "host_permissions": ["https://*/"],
