@@ -146,8 +146,14 @@ const useExternalSigners = () => {
         signer = '207d56b2f2b06fd9c74562ec81f42d47393a55cfcf5c182605220ad7fdfbe600'
         const provider = getDefaultProvider(network?.rpc)
         const wallet = new Wallet(signer, provider)
-        // TODO: show err incorrect private key msg
-        if (!wallet) return
+
+        if (!wallet) {
+          addToast('Incorrect private key format.', {
+            error: true,
+            timeout: 4000
+          })
+          return
+        }
 
         const addr = await wallet.getAddress()
 
@@ -157,8 +163,10 @@ const useExternalSigners = () => {
         }
 
         if (!hasRegisteredPasscode && password !== confirmPassword) {
-          // TODO: err msg
-          // setError('confirmPasscode')
+          addToast("Passwords don't match.", {
+            error: true,
+            timeout: 4000
+          })
           return
         }
 
@@ -169,7 +177,11 @@ const useExternalSigners = () => {
               onEOASelected(addr, { type: 'custom' })
             })
             .catch(() => {
-              // TODO: incorrect password err
+              // TODO: better incorrect password err message
+              addToast('Incorrect password.', {
+                error: true,
+                timeout: 4000
+              })
             })
         } else {
           passworder.encrypt(password, signer).then((blob: string) => {
@@ -180,9 +192,18 @@ const useExternalSigners = () => {
             onEOASelected(addr, { type: 'custom' })
           })
         }
-      } catch (error) {}
+      } catch (error) {
+        console.error(error)
+      }
     },
-    [hasRegisteredPasscode, network?.rpc, onEOASelected, externalSigners, setExternalSigners]
+    [
+      hasRegisteredPasscode,
+      network?.rpc,
+      onEOASelected,
+      externalSigners,
+      setExternalSigners,
+      addToast
+    ]
   )
 
   return {
