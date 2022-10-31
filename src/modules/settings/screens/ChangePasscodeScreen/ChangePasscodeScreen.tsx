@@ -16,14 +16,15 @@ import { useIsFocused, useNavigation } from '@react-navigation/native'
 
 enum STEPS {
   NEW_PASSCODE = 'NEW_PASSCODE',
-  CONFIRM_NEW_PASSCODE = 'CONFIRM_NEW_PASSCODE'
+  CONFIRM_NEW_PASSCODE = 'CONFIRM_NEW_PASSCODE',
+  CONFIRM_BIOMETRICS_UNLOCK = 'CONFIRM_BIOMETRICS_UNLOCK'
 }
 
 const ChangePasscodeScreen: React.FC = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { addToast } = useToast()
-  const { state, removePasscode, addPasscode } = usePasscode()
+  const { state, removePasscode, addPasscode, addLocalAuth } = usePasscode()
   const [step, setStep] = useState<STEPS>(STEPS.NEW_PASSCODE)
   const [newPasscode, setNewPasscode] = useState('')
   const [passcodeConfirmFailed, setPasscodeConfirmFailed] = useState(false)
@@ -53,9 +54,21 @@ const ChangePasscodeScreen: React.FC = () => {
     const added = await addPasscode(code)
     if (added) {
       addToast(t('Passcode configured!') as string, { timeout: 5000 })
-      navigation.navigate('dashboard')
+      setStep(STEPS.CONFIRM_BIOMETRICS_UNLOCK)
     }
   }
+
+  const handleOnFulfillStep3 = async () => {
+    const enabled = await addLocalAuth()
+
+    // Stay on this step.
+    if (!enabled) return
+
+    addToast(t('Local auth enabled!') as string, { timeout: 5000 })
+    navigation.navigate('dashboard')
+  }
+
+  const handleSkipStep3 = () => navigation.navigate('dashboard')
 
   const handleOnRemovePasscode = async () => {
     await removePasscode()
@@ -65,6 +78,17 @@ const ChangePasscodeScreen: React.FC = () => {
   }
 
   const renderContent = () => {
+    if (step === STEPS.CONFIRM_BIOMETRICS_UNLOCK) {
+      return (
+        <>
+          <Title style={textStyles.center}>{t('Unlock with biometrics')}</Title>
+          <Text type="small" style={spacings.mbSm}>
+            {t('Use your phone biometrics to unlock Ambire.')}
+          </Text>
+        </>
+      )
+    }
+
     if (step === STEPS.CONFIRM_NEW_PASSCODE) {
       return (
         <>
@@ -109,6 +133,12 @@ const ChangePasscodeScreen: React.FC = () => {
         {step === STEPS.NEW_PASSCODE && <CodeInput autoFocus onFulfill={handleOnFulfillStep1} />}
         {step === STEPS.CONFIRM_NEW_PASSCODE && (
           <CodeInput autoFocus onFulfill={handleOnFulfillStep2} />
+        )}
+        {step === STEPS.CONFIRM_BIOMETRICS_UNLOCK && (
+          <>
+            <Button onPress={handleOnFulfillStep3} text={t('Enable')} />
+            <Button onPress={handleSkipStep3} text={t('Skip')} />
+          </>
         )}
         {state !== PASSCODE_STATES.NO_PASSCODE && (
           <>
