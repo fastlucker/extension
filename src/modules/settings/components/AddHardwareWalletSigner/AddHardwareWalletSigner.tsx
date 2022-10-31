@@ -2,6 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useModalize } from 'react-native-modalize'
 
+import { isWeb } from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import TextWarning from '@modules/common/components/TextWarning'
@@ -28,7 +29,12 @@ const AddHardwareWalletSigner = () => {
       <Title hasBottomSpacing={false} style={[spacings.mbTy, spacings.mtTy, textStyles.center]}>
         {t('Add new hardware wallet signer')}
       </Title>
-      <Button text={t('Add Signer')} onPress={openBottomSheet} style={spacings.mbLg} />
+      <Button
+        disabled={isWeb}
+        text={isWeb ? t('Add Signer (coming soon)') : t('Add Signer')}
+        onPress={openBottomSheet}
+        style={spacings.mbLg}
+      />
       <TextWarning appearance="info">
         {t('For accessing the full signers management options, please visit the web app.')}
       </TextWarning>

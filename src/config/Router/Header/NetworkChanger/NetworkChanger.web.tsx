@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, View } from 'react-native'
 
+import { isRelayerless } from '@config/env'
 import Title from '@modules/common/components/Title'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
@@ -17,7 +18,10 @@ const NetworkChanger: React.FC = () => {
   const { addToast } = useToast()
   const scrollRef: any = useRef(null)
 
-  const allVisibleNetworks = useMemo(() => networks.filter((n) => !n.hide), [])
+  const allVisibleNetworks = useMemo(
+    () => networks.filter((n) => !n.hide).filter((n) => isRelayerless || !n.relayerlessOnly),
+    []
+  )
 
   const currentNetworkIndex = useMemo(
     () => allVisibleNetworks.map((n) => n.chainId).indexOf(network?.chainId || 0),
