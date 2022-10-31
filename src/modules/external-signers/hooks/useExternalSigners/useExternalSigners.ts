@@ -32,7 +32,7 @@ const useExternalSigners = () => {
     defaultValue: {}
   })
 
-  const hasRegisteredPasscode = !!Object.keys(externalSigners).length
+  const hasRegisteredPassword = !!Object.keys(externalSigners).length
 
   const getAccountByAddr = useCallback(async (idAddr, signerAddr) => {
     // In principle, we need these values to be able to operate in relayerless mode,
@@ -168,7 +168,7 @@ const useExternalSigners = () => {
           return
         }
 
-        if (!hasRegisteredPasscode && password !== confirmPassword) {
+        if (!hasRegisteredPassword && password !== confirmPassword) {
           addToast("Passwords don't match.", {
             error: true,
             timeout: 4000
@@ -176,7 +176,7 @@ const useExternalSigners = () => {
           return
         }
 
-        // If there is a registered passcode and the signer address exists
+        // If there is a registered password and the signer address exists
         if (externalSigners[addr]) {
           passworder
             .decrypt(password, externalSigners[addr])
@@ -190,8 +190,8 @@ const useExternalSigners = () => {
                 timeout: 4000
               })
             })
-          // If there is a registered passcode but the signer address is new
-        } else if (hasRegisteredPasscode && !externalSigners[addr]) {
+          // If there is a registered password but the signer address is new
+        } else if (hasRegisteredPassword && !externalSigners[addr]) {
           passworder
             .decrypt(password, externalSigners[Object.keys(externalSigners)[0]])
             .then(() => {
@@ -210,7 +210,7 @@ const useExternalSigners = () => {
                 timeout: 4000
               })
             })
-          // If there is no registered passcode add a new signer encrypted with the given passcode
+          // If there is no registered password add a new signer encrypted with the given password
         } else {
           passworder.encrypt(password, signer).then((blob: string) => {
             setExternalSigners({
@@ -225,7 +225,7 @@ const useExternalSigners = () => {
       }
     },
     [
-      hasRegisteredPasscode,
+      hasRegisteredPassword,
       network?.rpc,
       onEOASelected,
       externalSigners,
@@ -234,9 +234,39 @@ const useExternalSigners = () => {
     ]
   )
 
+  const decryptExternalSigner = useCallback(
+    ({ signerPublicAddr, password }) => {
+      return new Promise((resolve, reject) => {
+        if (!externalSigners[signerPublicAddr]) {
+          addToast('Incorrect password.', {
+            error: true,
+            timeout: 4000
+          })
+          // TODO: redirect to add external signer
+          reject()
+        }
+        passworder
+          .decrypt(password, externalSigners[signerPublicAddr])
+          .then((result: any) => {
+            resolve(result)
+          })
+          .catch(() => {
+            // TODO: better incorrect password err message
+            addToast('Incorrect password.', {
+              error: true,
+              timeout: 4000
+            })
+            reject()
+          })
+      })
+    },
+    [externalSigners, addToast]
+  )
+
   return {
     addExternalSigner,
-    hasRegisteredPasscode
+    decryptExternalSigner,
+    hasRegisteredPassword
   }
 }
 

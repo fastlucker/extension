@@ -12,11 +12,11 @@ import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
 type Props = {
-  shouldConfirm?: boolean
+  hasRegisteredPassword?: boolean
   onAuthorize: (props: { password: string; confirmPassword?: string }) => any
 }
 
-const ExternalSignerAuthorization = ({ shouldConfirm, onAuthorize }: Props) => {
+const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Props) => {
   const { t } = useTranslation()
   const {
     control,
@@ -32,7 +32,9 @@ const ExternalSignerAuthorization = ({ shouldConfirm, onAuthorize }: Props) => {
   })
   return (
     <View>
-      <Title style={textStyles.center}>{t('Create Password')}</Title>
+      <Title style={textStyles.center}>
+        {hasRegisteredPassword ? t('Confirm Password') : t('Create Password')}
+      </Title>
       <Controller
         control={control}
         rules={{ validate: isValidPassword }}
@@ -49,7 +51,7 @@ const ExternalSignerAuthorization = ({ shouldConfirm, onAuthorize }: Props) => {
         )}
         name="password"
       />
-      {shouldConfirm && (
+      {!hasRegisteredPassword && (
         <Controller
           control={control}
           rules={{

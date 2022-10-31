@@ -14,7 +14,7 @@ import useExternalSigners from '@modules/external-signers/hooks/useExternalSigne
 
 const PrivateKeyForm = () => {
   const { t } = useTranslation()
-  const { addExternalSigner, hasRegisteredPasscode } = useExternalSigners()
+  const { addExternalSigner, hasRegisteredPassword } = useExternalSigners()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const {
     control,
@@ -73,7 +73,7 @@ const PrivateKeyForm = () => {
       )} */}
       <BottomSheet id="authorize" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <ExternalSignerAuthorization
-          shouldConfirm={!hasRegisteredPasscode}
+          hasRegisteredPassword={!hasRegisteredPassword}
           onAuthorize={handleAuthorize}
         />
       </BottomSheet>
