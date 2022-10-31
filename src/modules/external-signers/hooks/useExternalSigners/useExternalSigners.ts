@@ -142,8 +142,14 @@ const useExternalSigners = () => {
       onRequestAuthorization?: any
     ) => {
       try {
-        if (!signer) return
-        signer = '207d56b2f2b06fd9c74562ec81f42d47393a55cfcf5c182605220ad7fdfbe600'
+        if (!signer) {
+          addToast('Signer can not be empty.', {
+            error: true,
+            timeout: 4000
+          })
+          return
+        }
+
         const provider = getDefaultProvider(network?.rpc)
         const wallet = new Wallet(signer, provider)
 
@@ -170,11 +176,12 @@ const useExternalSigners = () => {
           return
         }
 
+        // If there is a registered passcode and the signer address exists
         if (externalSigners[addr]) {
           passworder
             .decrypt(password, externalSigners[addr])
             .then(() => {
-              onEOASelected(addr, { type: 'custom' })
+              onEOASelected(addr, { type: 'manually added' })
             })
             .catch(() => {
               // TODO: better incorrect password err message
@@ -183,13 +190,34 @@ const useExternalSigners = () => {
                 timeout: 4000
               })
             })
+          // If there is a registered passcode but the signer address is new
+        } else if (hasRegisteredPasscode && !externalSigners[addr]) {
+          passworder
+            .decrypt(password, externalSigners[Object.keys(externalSigners)[0]])
+            .then(() => {
+              passworder.encrypt(password, signer).then((blob: string) => {
+                setExternalSigners({
+                  ...externalSigners,
+                  [addr]: blob
+                })
+                onEOASelected(addr, { type: 'manually added' })
+              })
+            })
+            .catch(() => {
+              // TODO: better incorrect password err message
+              addToast('Incorrect password.', {
+                error: true,
+                timeout: 4000
+              })
+            })
+          // If there is no registered passcode add a new signer encrypted with the given passcode
         } else {
           passworder.encrypt(password, signer).then((blob: string) => {
             setExternalSigners({
               ...externalSigners,
               [addr]: blob
             })
-            onEOASelected(addr, { type: 'custom' })
+            onEOASelected(addr, { type: 'manually added' })
           })
         }
       } catch (error) {
