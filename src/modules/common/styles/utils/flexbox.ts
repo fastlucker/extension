@@ -1,5 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
+
 interface Styles {
   flex1: ViewStyle
   directionRow: ViewStyle
@@ -13,7 +15,7 @@ interface Styles {
   justifyEnd: ViewStyle
 }
 
-const flexboxStyles = StyleSheet.create<Styles>({
+const styles: Styles = {
   flex1: {
     flex: 1
   },
@@ -45,6 +47,9 @@ const flexboxStyles = StyleSheet.create<Styles>({
   justifyEnd: {
     justifyContent: 'flex-end'
   }
-})
+}
 
-export default flexboxStyles
+// Spreading `StyleSheet.create` styles into another `style` object is not
+// supported by react-native-web (styles are missing in the final object)
+// {@link https://github.com/necolas/react-native-web/issues/1377}
+export default isWeb ? styles : StyleSheet.create<Styles>(styles)

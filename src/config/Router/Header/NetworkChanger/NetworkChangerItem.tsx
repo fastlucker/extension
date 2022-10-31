@@ -1,6 +1,7 @@
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import { NetworkIconNameType } from '@modules/common/components/NetworkIcon/NetworkIcon'
 import Text from '@modules/common/components/Text'
@@ -25,7 +26,7 @@ const NetworkChangerItem = ({ idx, name, iconName, isActive, onPress }: Props) =
 
   return (
     <TouchableOpacity
-      style={[styles.networkBtnContainer]}
+      style={[styles.networkBtnContainer, isActive && isWeb && styles.networkBtnContainerActiveWeb]}
       onPress={handlePress}
       disabled={isActive}
       activeOpacity={0.6}

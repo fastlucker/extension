@@ -11,6 +11,7 @@ import {
   ViewStyle
 } from 'react-native'
 
+import { isWeb } from '@config/env'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
@@ -119,9 +120,9 @@ const Button = ({
   const animated = new Animated.Value(1)
 
   const fadeIn = () =>
-    Animated.timing(animated, { toValue: 0.7, duration: 100, useNativeDriver: true }).start()
+    Animated.timing(animated, { toValue: 0.7, duration: 100, useNativeDriver: !isWeb }).start()
   const fadeOut = () =>
-    Animated.timing(animated, { toValue: 1, duration: 200, useNativeDriver: true }).start()
+    Animated.timing(animated, { toValue: 1, duration: 200, useNativeDriver: !isWeb }).start()
 
   return (
     <Pressable

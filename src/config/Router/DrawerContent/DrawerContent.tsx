@@ -13,7 +13,7 @@ import SwapIcon from '@assets/svg/SwapIcon'
 import TelegramIcon from '@assets/svg/TelegramIcon'
 import TransferIcon from '@assets/svg/TransferIcon'
 import TwitterIcon from '@assets/svg/TwitterIcon'
-import { isAndroid } from '@config/env'
+import { isAndroid, isiOS, isWeb } from '@config/env'
 import { termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import AppVersion from '@modules/common/components/AppVersion'
 import Text from '@modules/common/components/Text'
@@ -73,7 +73,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const menu = [
     { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard' },
     // TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback
-    ...(isAndroid ? [{ Icon: EarnIcon, name: t('Earn'), route: 'earn' }] : []),
+    ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: 'earn' }] : []),
     { Icon: SendIcon, name: t('Send'), route: 'send' },
     // TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback
     ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: 'swap' }] : []),
@@ -138,10 +138,10 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       </Text>
       <View style={[spacings.mlTy, spacings.mbSm]}>
         <ConnectedDapps />
-        <Passcode handleNavigate={handleNavigate} />
-        <LocalAuth handleNavigate={handleNavigate} />
-        <BiometricsSign handleNavigate={handleNavigate} />
-        <AppLocking handleNavigate={handleNavigate} />
+        {!isWeb && <Passcode handleNavigate={handleNavigate} />}
+        {!isWeb && <LocalAuth handleNavigate={handleNavigate} />}
+        {!isWeb && <BiometricsSign handleNavigate={handleNavigate} />}
+        {!isWeb && <AppLocking handleNavigate={handleNavigate} />}
         <Theme />
         {settings.map((s) => (
           <TouchableOpacity key={s.name} onPress={() => handleNavigate(s.route)}>

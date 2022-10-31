@@ -10,12 +10,11 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
   container: {
-    ...spacings.mb,
-    flex: 1,
-    flexGrow: 0
+    ...spacings.mb
   },
   innerContainer: {
-    borderRadius: 13
+    borderRadius: 13,
+    flex: 1
   },
   gradient: {
     width: '100%',

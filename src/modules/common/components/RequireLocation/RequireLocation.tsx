@@ -1,6 +1,4 @@
 import { t } from 'i18next'
-import Button from 'modules/common/components/Button'
-import Text from 'modules/common/components/Text'
 import React, { useEffect, useState } from 'react'
 import { AppState, PermissionsAndroid, View } from 'react-native'
 import LocationServicesDialogBox from 'react-native-android-location-services-dialog-box'
@@ -8,6 +6,8 @@ import { BleErrorCode } from 'react-native-ble-plx'
 import { Observable } from 'rxjs'
 
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
+import Button from '@modules/common/components/Button'
+import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
 
 const RequireLocation: React.FC<any> = ({ children }) => {

@@ -12,6 +12,7 @@ import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
@@ -35,6 +36,13 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const { network } = useNetwork()
   const { currentAccGasTankState } = useGasTank()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
+  const { isTempExtensionPopup } = useAmbireExtension()
+
+  if (isTempExtensionPopup) {
+    navigation.navigate = () => window.close()
+    navigation.goBack = () => window.close()
+  }
 
   const onOpenHardwareWalletBottomSheet = () => {
     openBottomSheet()
@@ -61,13 +69,13 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const prevBundle: any = usePrevious(bundle)
 
   useLayoutEffect(() => {
-    navigation.setOptions({
+    navigation?.setOptions({
       headerTitle: t('Pending Transactions: {{numTxns}}', { numTxns: bundle?.txns?.length })
     })
   }, [navigation, bundle?.txns?.length, t])
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('beforeRemove', () => {
+    const unsubscribe = navigation?.addListener('beforeRemove', () => {
       if (sendTxnState.showing) {
         setSendTxnState({ showing: false })
       }
@@ -82,7 +90,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   }, [navigation])
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('blur', () => {
+    const unsubscribe = navigation?.addListener('blur', () => {
       if (sendTxnState.showing) {
         setSendTxnState({ showing: false })
       }
@@ -99,7 +107,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     if (prevBundle?.txns?.length && !bundle?.txns?.length) {
-      navigation.goBack()
+      navigation?.goBack()
     }
   })
 

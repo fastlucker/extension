@@ -103,7 +103,14 @@ const Header: React.FC<Props> = ({
   // in different manner. And styling it was hell. So instead - implement
   // custom components that fully match the design we follow.
   return (
-    <View style={[styles.container, { paddingTop: notchInset }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop: notchInset
+        }
+      ]}
+    >
       <View style={navIconContainer}>{renderHeaderLeft()}</View>
 
       {mode === 'bottom-sheet' && renderBottomSheetSwitcher}

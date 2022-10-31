@@ -1,5 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import commonStyles from '@modules/common/styles/utils/common'
@@ -16,7 +17,8 @@ const styles = StyleSheet.create<Style>({
     ...spacings.pvLg,
     ...commonStyles.borderRadiusPrimary,
     borderWidth: 1,
-    borderColor: colors.waikawaGray
+    borderColor: colors.waikawaGray,
+    ...(isWeb ? { maxHeight: 68 } : {})
   }
 })
 

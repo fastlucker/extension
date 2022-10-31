@@ -6,7 +6,6 @@ import { toBundleTxn } from 'ambire-common/src/services/requestToBundleTxn'
 import { ethers, Wallet } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert } from 'react-native'
 
 import CONFIG from '@config/env'
 import i18n from '@config/localization/localization'
@@ -15,11 +14,13 @@ import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
+import alert from '@modules/common/services/alert'
 import { fetchPost } from '@modules/common/services/fetch'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { getProvider } from '@modules/common/services/provider'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import isInt from '@modules/common/utils/isInt'
+import { errorCodes, errorValues } from '@web/constants/errors'
 
 type Props = {
   onOpenHardwareWalletBottomSheet: () => void
@@ -28,7 +29,6 @@ type Props = {
 const relayerURL = CONFIG.RELAYER_URL
 const DEFAULT_SPEED = 'fast'
 const REESTIMATE_INTERVAL = 15000
-const REJECT_MSG = 'Ambire user rejected the request'
 
 const ERC20 = new Interface(erc20Abi)
 
@@ -442,7 +442,7 @@ const useSendTransaction = ({ onOpenHardwareWalletBottomSheet }: Props) => {
         // Make sure we let React re-render without blocking (decrypting and signing will block)
         // eslint-disable-next-line no-promise-executor-return
         await new Promise((resolve) => setTimeout(resolve, 0))
-        const pwd = quickAccCredentials.password || Alert.alert('Enter password')
+        const pwd = quickAccCredentials.password || alert('Enter password')
         const wallet = await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), pwd)
         await finalBundle.sign(wallet)
       } else {
@@ -537,12 +537,19 @@ const useSendTransaction = ({ onOpenHardwareWalletBottomSheet }: Props) => {
   // Not applicable when .requestIds is not defined (replacement bundle)
   const rejectTxn = () => {
     onDismissSendTxns()
-    bundle.requestIds && resolveMany(bundle.requestIds, { message: REJECT_MSG })
+    bundle.requestIds &&
+      resolveMany(bundle.requestIds, {
+        ...errorValues[errorCodes.provider.userRejectedRequest],
+        code: errorCodes.provider.userRejectedRequest
+      })
   }
 
   // Only for replacement flow
   const rejectTxnReplace = () => {
-    resolveMany(sendTxnState.replacementBundle.replacedRequestIds, { message: REJECT_MSG })
+    resolveMany(sendTxnState.replacementBundle.replacedRequestIds, {
+      ...errorValues[errorCodes.provider.userRejectedRequest],
+      code: errorCodes.provider.userRejectedRequest
+    })
   }
 
   // `mustReplaceNonce` is set on speedup/cancel, to prevent the user from broadcasting the txn if the same nonce has been mined

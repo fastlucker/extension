@@ -145,6 +145,7 @@ const useTesseract = ({ tokens, provider, networkId, currentNetwork }: any) => {
 
   return {
     Icon: TesseractLogo,
+    iconStyle: { width: 76, height: 38 },
     loadVaults,
     tokensItems,
     details,

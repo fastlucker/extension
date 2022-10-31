@@ -1,11 +1,11 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import RNCheckBox, { CheckBoxProps } from '@react-native-community/checkbox'
 
-import Text from '../Text'
 import styles from './styles'
 
 interface Props extends CheckBoxProps {

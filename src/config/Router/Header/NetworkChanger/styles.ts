@@ -2,11 +2,13 @@ import { StyleSheet, ViewProps } from 'react-native'
 
 import colors from '@modules/common/styles/colors'
 import spacings, { SPACING_MD } from '@modules/common/styles/spacings'
+import commonStyles from '@modules/common/styles/utils/common'
 
 interface Styles {
   networksContainer: ViewProps
   networkBtnContainer: ViewProps
   networkBtnContainerActive: ViewProps
+  networkBtnContainerActiveWeb: ViewProps
   networkBtnIcon: ViewProps
 }
 
@@ -35,6 +37,10 @@ const styles = StyleSheet.create<Styles>({
     top: SINGLE_ITEM_HEIGHT * 2 + ACTIVE_ITEM_HEIGHT_GAP / 2,
     left: 0,
     height: SINGLE_ITEM_HEIGHT - ACTIVE_ITEM_HEIGHT_GAP
+  },
+  networkBtnContainerActiveWeb: {
+    backgroundColor: colors.howl,
+    ...commonStyles.borderRadiusPrimary
   },
   networkBtnIcon: {
     width: ICON_WRAPPER_SIZE,

@@ -29,6 +29,7 @@ export interface InputProps extends TextInputProps {
   disabled?: boolean
   containerStyle?: any
   infoTextStyle?: any
+  leftIcon?: () => JSX.Element | JSX.Element
 }
 
 const Input = ({
@@ -45,6 +46,7 @@ const Input = ({
   disabled,
   containerStyle,
   infoTextStyle,
+  leftIcon,
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
@@ -73,6 +75,7 @@ const Input = ({
             isValid && styles.valid
           ]}
         >
+          {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
           <TextInput
             placeholderTextColor={colors.waikawaGray}
             style={[styles.input, !!hasButton && spacings.pr0]}

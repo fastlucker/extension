@@ -2,6 +2,7 @@ import React from 'react'
 import isEqual from 'react-fast-compare'
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
@@ -96,12 +97,12 @@ const SendForm = ({
   return (
     <TouchableWithoutFeedback
       onPress={() => {
-        Keyboard.dismiss()
+        !isWeb && Keyboard.dismiss()
       }}
     >
       {assetsItems.length ? (
         <>
-          <Panel style={[spacings.mb0, isHidden && commonStyles.visibilityHidden]}>
+          <Panel style={[spacings.mb0, { flexGrow: 1 }, isHidden && commonStyles.visibilityHidden]}>
             <Title style={textStyles.center}>{t('Send')}</Title>
             <View style={spacings.mbMi}>
               <Select

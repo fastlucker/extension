@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, TouchableOpacity, View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 
 import LogOutIcon from '@assets/svg/LogOutIcon'
 import Blockies from '@modules/common/components/Blockies'
@@ -12,6 +12,7 @@ import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import usePasscode from '@modules/common/hooks/usePasscode'
+import alert from '@modules/common/services/alert'
 import { navigate } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -64,10 +65,11 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       }
 
       onRemoveAccount(account.id)
+      closeBottomSheet()
     }
 
-    const handleRemoveAccount = () =>
-      Alert.alert(t('Log out from this account?'), undefined, [
+    const handleRemoveAccount = () => {
+      return alert(t('Log out from this account?'), undefined, [
         {
           text: t('Log out'),
           onPress: removeAccount,
@@ -78,6 +80,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
           style: 'cancel'
         }
       ])
+    }
 
     return (
       <TouchableOpacity

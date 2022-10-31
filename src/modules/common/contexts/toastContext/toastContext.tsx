@@ -38,15 +38,38 @@ const ToastProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    // @ts-ignore
-    const unsubscribe = navigationRef?.current?.addListener('state', () => {
-      // @ts-ignore
-      const routeName = navigationRef?.current?.getCurrentRoute()?.name
+    let intervalAttemptingToSubscribe: ReturnType<typeof setInterval>
+    let navigationRefSubscription = () => {}
 
-      setHasTabBar(isRouteWithTabBar(routeName as string))
-    })
+    const setNavigationRefSubscription = () => {
+      if (!navigationRef?.current?.isReady()) return
 
-    return unsubscribe
+      const triggerSetHasTabBar = () => {
+        const routeName = navigationRef?.current?.getCurrentRoute()?.name
+
+        setHasTabBar(isRouteWithTabBar(routeName as string))
+      }
+
+      // Set the tab bar flag for the current state (route)
+      triggerSetHasTabBar()
+      // Update the tab bar flag when the navigator's state changes
+      navigationRefSubscription = navigationRef?.current?.addListener('state', triggerSetHasTabBar)
+
+      // Once the initial calculation + the subscription are set, the interval jon has done.
+      clearInterval(intervalAttemptingToSubscribe)
+    }
+
+    intervalAttemptingToSubscribe = setInterval(setNavigationRefSubscription, 500)
+    // Trigger immediately on purpose, because you never know when the
+    // navigation ref will be ready (navigationRef?.current?.isReady()).
+    // Might happen almost immediately (for the mobile app),
+    // or with a slight delay (for the web extension).
+    setNavigationRefSubscription()
+
+    return () => {
+      clearInterval(intervalAttemptingToSubscribe)
+      navigationRefSubscription() // unsubscribe
+    }
   }, [])
 
   const removeToast = useCallback<UseToastsReturnType['removeToast']>((tId) => {

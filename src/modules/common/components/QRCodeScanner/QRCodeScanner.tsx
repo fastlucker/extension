@@ -91,7 +91,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
     }
     if (cameraRef.current) {
       try {
-        cameraRef.current?.getSupportedRatiosAsync().then((res: string[]) => {
+        cameraRef.current?.getSupportedRatiosAsync()?.then((res: string[]) => {
           if (res.includes('1:1')) {
             setRatio('1:1')
           } else {
