@@ -63,7 +63,7 @@ const ChangePasscodeScreen: React.FC = () => {
 
     const added = await addPasscode(code)
     if (added) {
-      addToast(t('Passcode configured!') as string, { timeout: 5000 })
+      addToast(t('App lock set!') as string, { timeout: 5000 })
 
       // Nor a face, nor a fingerprint scanner is available on the device.
       // Therefore - security level of `DEVICE_SECURITY_LEVEL.BIOMETRIC`
@@ -83,7 +83,7 @@ const ChangePasscodeScreen: React.FC = () => {
     // Stay on this step.
     if (!enabled) return
 
-    addToast(t('Local auth enabled!') as string, { timeout: 5000 })
+    addToast(t('Biometrics unlock enabled!') as string, { timeout: 5000 })
     navigation.navigate('dashboard')
   }
 
@@ -114,7 +114,7 @@ const ChangePasscodeScreen: React.FC = () => {
     return (
       <>
         <Button onPress={handleOnFulfillStep3} text={t('Enable biometrics unlock')} />
-        <Button onPress={handleSkipStep3} text={t('Skip')} />
+        <Button type="ghost" onPress={handleSkipStep3} text={t('Skip')} />
       </>
     )
   }
@@ -123,9 +123,9 @@ const ChangePasscodeScreen: React.FC = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <Title style={textStyles.center}>{t('Create passcode')}</Title>
+          <Title style={textStyles.center}>{t('Create PIN')}</Title>
           <Text type="small" style={spacings.mbSm}>
-            {t('Choose a passcode to protect your app.')}
+            {t('Set a PIN to protect your app.')}
           </Text>
         </>
       )
@@ -134,9 +134,9 @@ const ChangePasscodeScreen: React.FC = () => {
     if (step === STEPS.CONFIRM_NEW_PASSCODE) {
       return (
         <>
-          <Title style={textStyles.center}>{t('Confirm new passcode')}</Title>
+          <Title style={textStyles.center}>{t('Confirm new PIN')}</Title>
           <Text type="small" style={spacings.mbSm}>
-            {t('Please type the passcode again, to confirm it.')}
+            {t('Please type the PIN again, to confirm it.')}
           </Text>
         </>
       )
@@ -145,15 +145,17 @@ const ChangePasscodeScreen: React.FC = () => {
     if (step === STEPS.CONFIRM_BIOMETRICS_UNLOCK) {
       return (
         <>
+          <Title style={textStyles.center}>{t('Set biometric unlock')}</Title>
           <Text type="small" style={spacings.mb}>
             {deviceSupportedAuthTypesLabel
               ? t(
-                  'Enabling biometrics unlock allows you to use your {{deviceSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
-                  { deviceSupportedAuthTypesLabel }
+                  'For quick access, use your {{deviceSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
+                  {
+                    deviceSupportedAuthTypesLabel
+                  }
                 )
               : t(
-                  'Enabling biometrics unlock allows you to use your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
-                  { fallbackSupportedAuthTypesLabel }
+                  'For quick access, use your phone biometric machanism to authenticate in the Ambire app.'
                 )}
           </Text>
           {renderBiometricUnlockContent()}
