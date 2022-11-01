@@ -8,24 +8,24 @@ import useToast from '@modules/common/hooks/useToast'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import { SECURE_STORE_KEY_ACCOUNT } from '@modules/settings/constants'
 
-import { accountsPasswordsContextDefaults, AccountsPasswordsContextReturnType } from './types'
+import { biometricsSignContextDefaults, BiometricsSignContextReturnType } from './types'
 
-const AccountsPasswordsContext = createContext<AccountsPasswordsContextReturnType>(
-  accountsPasswordsContextDefaults
+const BiometricsSignContext = createContext<BiometricsSignContextReturnType>(
+  biometricsSignContextDefaults
 )
 
 // The secure key is separate for each account. This way, it appears as a
 // separate value in the Keychain / Keystore, suffixed by the account id.
 const getAccountSecureKey = (acc: string) => `${SECURE_STORE_KEY_ACCOUNT}-${acc}`
 
-const AccountsPasswordsProvider: React.FC = ({ children }) => {
+const BiometricsSignProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { selectedAcc } = useAccounts()
   const [selectedAccHasPassword, setSelectedAccHasPassword] = useState<boolean>(
-    accountsPasswordsContextDefaults.selectedAccHasPassword
+    biometricsSignContextDefaults.selectedAccHasPassword
   )
-  const [isLoading, setIsLoading] = useState<boolean>(accountsPasswordsContextDefaults.isLoading)
+  const [isLoading, setIsLoading] = useState<boolean>(biometricsSignContextDefaults.isLoading)
 
   useEffect(() => {
     ;(async () => {
@@ -116,7 +116,7 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
   }, [selectedAcc, t])
 
   return (
-    <AccountsPasswordsContext.Provider
+    <BiometricsSignContext.Provider
       value={useMemo(
         () => ({
           isLoading,
@@ -129,8 +129,8 @@ const AccountsPasswordsProvider: React.FC = ({ children }) => {
       )}
     >
       {children}
-    </AccountsPasswordsContext.Provider>
+    </BiometricsSignContext.Provider>
   )
 }
 
-export { AccountsPasswordsContext, AccountsPasswordsProvider }
+export { BiometricsSignContext, BiometricsSignProvider }
