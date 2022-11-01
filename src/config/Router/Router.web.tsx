@@ -45,7 +45,7 @@ import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
 import BiometricsSignScreen from '@modules/settings/screens/BiometricsSignScreen'
 import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
-import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
+import SetAppLockingScreen from '@modules/settings/screens/SetAppLockingScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
@@ -120,10 +120,10 @@ const ChangePasscodeStackScreen = () => {
   return (
     <ChangePasscodeStack.Navigator screenOptions={{ header: headerBeta }}>
       <ChangePasscodeStack.Screen
-        name="passcode-change-screen"
-        component={ChangePasscodeScreen}
+        name="set-app-locking"
+        component={SetAppLockingScreen}
         options={{
-          title: t('Passcode')
+          title: t('App Lock')
         }}
       />
     </ChangePasscodeStack.Navigator>

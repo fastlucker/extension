@@ -23,7 +23,7 @@ enum STEPS {
   CONFIRM_BIOMETRICS_UNLOCK = 'CONFIRM_BIOMETRICS_UNLOCK'
 }
 
-const ChangePasscodeScreen: React.FC = () => {
+const SetAppLockingScreen: React.FC = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { addToast } = useToast()
@@ -199,4 +199,4 @@ const ChangePasscodeScreen: React.FC = () => {
   )
 }
 
-export default ChangePasscodeScreen
+export default SetAppLockingScreen
