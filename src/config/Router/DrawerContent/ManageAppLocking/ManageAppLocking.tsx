@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ActivityIndicator, TouchableOpacity } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
+import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
+import { useIsFocused } from '@react-navigation/native'
 
 interface Props {
   handleNavigate: (route: string) => void
@@ -13,12 +14,21 @@ interface Props {
 
 const ManageAppLocking: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
-  const { isLoading } = useBiometricsSign()
+  const isFocused = useIsFocused()
+  const { isLoading, triggerEnteringPasscode, hasEnteredValidPasscode, resetValidPasscodeEntered } =
+    useAppLock()
+
+  useEffect(() => {
+    if (hasEnteredValidPasscode && isFocused) {
+      handleNavigate('manage-app-locking')
+      resetValidPasscodeEntered()
+    }
+  }, [handleNavigate, resetValidPasscodeEntered, hasEnteredValidPasscode, isFocused])
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
   return (
-    <TouchableOpacity onPress={() => handleNavigate('manage-app-locking')}>
+    <TouchableOpacity onPress={triggerEnteringPasscode}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
         {t('Manage app locking')}
       </Text>

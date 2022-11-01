@@ -10,6 +10,7 @@ import Text from '@modules/common/components/Text'
 import TextWarning from '@modules/common/components/TextWarning'
 import Toggle from '@modules/common/components/Toggle'
 import Wrapper from '@modules/common/components/Wrapper'
+import useBiometrics from '@modules/common/hooks/useBiometrics'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { useNavigation } from '@react-navigation/native'
@@ -28,6 +29,7 @@ const ManageAppLockingScreen = () => {
     enableLockWhenInactive,
     disableLockWhenInactive
   } = useAppLock()
+  const { isLocalAuthSupported } = useBiometrics()
 
   const renderContent = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
@@ -69,6 +71,10 @@ const ManageAppLockingScreen = () => {
             onToggle={lockWhenInactive ? disableLockWhenInactive : enableLockWhenInactive}
           />
         </Panel>
+        <Button
+          text={isLocalAuthSupported ? t('Change PIN or biometrics') : t('Change PIN')}
+          onPress={() => navigation.navigate('set-app-lock')}
+        />
       </>
     )
   }
