@@ -303,7 +303,7 @@ const AppLockProvider: React.FC = ({ children }) => {
       const isValid = code === passcode
 
       if (!isValid) {
-        setPasscodeError(t('Wrong passcode.'))
+        setPasscodeError(t('Wrong PIN.'))
         Vibration.vibrate(200)
       }
 

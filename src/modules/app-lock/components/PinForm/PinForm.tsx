@@ -43,7 +43,7 @@ const PinForm: React.FC<Props> = ({
         </Title>
       )}
       <Text style={[textStyles.center, spacings.mbSm, spacings.mt]} type="small">
-        {message || t('In order to proceed, please authenticate by entering the app passcode.')}
+        {message || t('In order to proceed, please enter your PIN.')}
       </Text>
       {!!error && (
         <Text appearance="danger" style={textStyles.center}>
