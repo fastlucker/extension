@@ -115,7 +115,7 @@ function getErrorMessage(e: any) {
   if (e && e.message === 'INSUFFICIENT_PRIVILEGE') {
     return 'Wrong signature. This may happen if you used password/derivation path on your hardware wallet.'
   }
-  return e.message || e
+  return (e && e?.message) || e
 }
 
 const useSendTransaction = ({
@@ -372,7 +372,8 @@ const useSendTransaction = ({
       signerPublicAddr: signer.address,
       password: externalSignerCredentials.password
     })
-    console.log('privateKey', privateKey)
+    if (!privateKey) throw new Error('Invalid signer password - signer decryption failed')
+
     const wallet = new Wallet(privateKey)
 
     if (relayerURL) {
@@ -512,7 +513,7 @@ const useSendTransaction = ({
     if (externalSigners[signer.address] && !externalSignerCredentials) {
       !!externalSignerOpenBottomSheet && externalSignerOpenBottomSheet()
       addToast(i18n.t('Please confirm this transaction with your signer password.') as string, {
-        timeout: 5000
+        timeout: 4000
       })
       setSigningStatus(null)
       return
@@ -527,7 +528,6 @@ const useSendTransaction = ({
     const requestIds = bundle.requestIds
     let approveTxnPromise
 
-    console.log('externalSignerCredentials', externalSignerCredentials)
     if (externalSignerCredentials) {
       approveTxnPromise = approveTxnImplExternalSigner({ externalSignerCredentials })
     } else {

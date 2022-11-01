@@ -181,11 +181,10 @@ const useExternalSigners = () => {
           passworder
             .decrypt(password, externalSigners[addr])
             .then(() => {
-              onEOASelected(addr, { type: 'manually added' })
+              onEOASelected(addr, { type: 'Web3' })
             })
             .catch(() => {
-              // TODO: better incorrect password err message
-              addToast('Incorrect password.', {
+              addToast('Incorrect signer password.', {
                 error: true,
                 timeout: 4000
               })
@@ -200,12 +199,11 @@ const useExternalSigners = () => {
                   ...externalSigners,
                   [addr]: blob
                 })
-                onEOASelected(addr, { type: 'manually added' })
+                onEOASelected(addr, { type: 'Web3' })
               })
             })
             .catch(() => {
-              // TODO: better incorrect password err message
-              addToast('Incorrect password.', {
+              addToast('Incorrect signer password.', {
                 error: true,
                 timeout: 4000
               })
@@ -217,7 +215,7 @@ const useExternalSigners = () => {
               ...externalSigners,
               [addr]: blob
             })
-            onEOASelected(addr, { type: 'manually added' })
+            onEOASelected(addr, { type: 'Web3' })
           })
         }
       } catch (error) {
@@ -234,16 +232,13 @@ const useExternalSigners = () => {
     ]
   )
 
+  // Always resolve but return the signer's private key only on successful decryption
   const decryptExternalSigner = useCallback(
     ({ signerPublicAddr, password }) => {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         if (!externalSigners[signerPublicAddr]) {
-          addToast('Incorrect password.', {
-            error: true,
-            timeout: 4000
-          })
-          // TODO: redirect to add external signer
-          reject()
+          // TODO: would be good to redirect to add external signer in this case
+          resolve(false)
         }
         passworder
           .decrypt(password, externalSigners[signerPublicAddr])
@@ -251,16 +246,11 @@ const useExternalSigners = () => {
             resolve(result)
           })
           .catch(() => {
-            // TODO: better incorrect password err message
-            addToast('Incorrect password.', {
-              error: true,
-              timeout: 4000
-            })
-            reject()
+            resolve(false)
           })
       })
     },
-    [externalSigners, addToast]
+    [externalSigners]
   )
 
   return {

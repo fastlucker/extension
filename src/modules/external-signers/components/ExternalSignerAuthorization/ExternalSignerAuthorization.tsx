@@ -33,7 +33,7 @@ const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Pro
   return (
     <View>
       <Title style={textStyles.center}>
-        {hasRegisteredPassword ? t('Confirm Password') : t('Create Password')}
+        {hasRegisteredPassword ? t('Confirm Signer Password') : t('Create Signer Password')}
       </Title>
       <Controller
         control={control}
@@ -41,11 +41,11 @@ const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Pro
         render={({ field: { onChange, onBlur, value } }) => (
           <InputPassword
             onBlur={onBlur}
-            placeholder={t('Password')}
+            placeholder={t('Signer password')}
             onChangeText={onChange}
             isValid={isValidPassword(value)}
             value={value}
-            error={errors.password && (t('Please fill in a valid password.') as string)}
+            error={errors.password && (t('Please fill in a valid signer password.') as string)}
             containerStyle={spacings.mbTy}
           />
         )}
@@ -60,7 +60,7 @@ const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Pro
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
               onBlur={onBlur}
-              placeholder={t('Confirm password')}
+              placeholder={t('Confirm signer password')}
               onChangeText={onChange}
               value={value}
               isValid={!!value && watch('password', '') === value}
@@ -73,8 +73,15 @@ const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Pro
         />
       )}
       <Button
-        disabled={isSubmitting}
-        text={isSubmitting ? t('Loading...') : t('Create Password')}
+        disabled={
+          isSubmitting ||
+          !watch('password', '') ||
+          (!hasRegisteredPassword && !watch('confirmPassword', ''))
+        }
+        text={
+          // eslint-disable-next-line no-nested-ternary
+          isSubmitting ? t('Loading...') : hasRegisteredPassword ? t('Confirm') : t('Create')
+        }
         onPress={handleSubmit(onAuthorize)}
       />
     </View>
