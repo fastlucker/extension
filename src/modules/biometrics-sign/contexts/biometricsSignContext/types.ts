@@ -1,4 +1,4 @@
-export interface AccountsPasswordsContextReturnType {
+export interface BiometricsSignContextReturnType {
   isLoading: boolean
   selectedAccHasPassword: boolean
   addSelectedAccPassword: (password: string) => Promise<boolean>
@@ -6,7 +6,7 @@ export interface AccountsPasswordsContextReturnType {
   getSelectedAccPassword: () => Promise<string>
 }
 
-export const accountsPasswordsContextDefaults: AccountsPasswordsContextReturnType = {
+export const biometricsSignContextDefaults: BiometricsSignContextReturnType = {
   isLoading: true,
   selectedAccHasPassword: false,
   addSelectedAccPassword: () => Promise.resolve(false),

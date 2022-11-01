@@ -4,6 +4,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -12,7 +13,6 @@ import TextWarning from '@modules/common/components/TextWarning'
 import Wrapper from '@modules/common/components/Wrapper'
 import { DEVICE_SECURITY_LEVEL } from '@modules/common/contexts/biometricsContext/constants'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
@@ -31,7 +31,7 @@ const BiometricsSignScreen = () => {
   const isFocused = useIsFocused()
   const { isLocalAuthSupported, deviceSecurityLevel } = useBiometrics()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
-    useAccountsPasswords()
+    useBiometricsSign()
   const {
     control,
     handleSubmit,

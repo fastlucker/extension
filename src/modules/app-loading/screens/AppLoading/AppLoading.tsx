@@ -6,9 +6,9 @@ import { hasMigratedFromAsyncStorage, migrateFromAsyncStorage } from '@config/st
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AppLockProvider } from '@modules/app-lock/contexts/appLockContext'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
+import { BiometricsSignProvider } from '@modules/biometrics-sign/contexts/biometricsSignContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
-import { AccountsPasswordsProvider } from '@modules/common/contexts/accountsPasswordsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
 import { AmbireExtensionProvider } from '@modules/common/contexts/ambireExtensionContext'
 import { BiometricsProvider } from '@modules/common/contexts/biometricsContext'
@@ -69,7 +69,7 @@ const AppLoading = () => {
                                   <RequestsProvider>
                                     <AddressBookProvider>
                                       <BiometricsProvider>
-                                        <AccountsPasswordsProvider>
+                                        <BiometricsSignProvider>
                                           <AppLockProvider>
                                             <AttentionGrabberProvider>
                                               <PrivateModeProvider>
@@ -86,7 +86,7 @@ const AppLoading = () => {
                                             </AttentionGrabberProvider>
                                             <PortalHost name="global" />
                                           </AppLockProvider>
-                                        </AccountsPasswordsProvider>
+                                        </BiometricsSignProvider>
                                       </BiometricsProvider>
                                     </AddressBookProvider>
                                   </RequestsProvider>
