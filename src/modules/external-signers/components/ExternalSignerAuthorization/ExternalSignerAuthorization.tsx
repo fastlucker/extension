@@ -46,6 +46,10 @@ const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Pro
             isValid={isValidPassword(value)}
             value={value}
             error={errors.password && (t('Please fill in a valid signer password.') as string)}
+            info={
+              hasRegisteredPassword &&
+              (t('You are currently signing with an externally added signer.') as string)
+            }
             containerStyle={spacings.mbTy}
           />
         )}

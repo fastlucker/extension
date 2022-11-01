@@ -2,7 +2,7 @@ import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import useSignMessage from 'ambire-common/src/hooks/useSignMessage'
 import { UseSignMessageProps } from 'ambire-common/src/hooks/useSignMessage/types'
 import { toUtf8String } from 'ethers/lib/utils'
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -66,6 +66,11 @@ const SignScreenScreen = ({ navigation }: any) => {
   useDisableHardwareBackPress()
 
   const {
+    ref: sheetRefExternalSigner,
+    open: openBottomSheetExternalSigner,
+    close: closeBottomSheetExternalSigner
+  } = useModalize()
+  const {
     ref: sheetRefQickAcc,
     open: openBottomSheetQickAcc,
     close: closeBottomSheetQickAcc
@@ -116,7 +121,8 @@ const SignScreenScreen = ({ navigation }: any) => {
     typeDataErr,
     isDeployed,
     dataV4,
-    confirmationType
+    confirmationType,
+    verifySignature
   } = useSignMessage({
     fetch,
     account,
@@ -215,11 +221,19 @@ const SignScreenScreen = ({ navigation }: any) => {
             isLoading={isLoading}
             approve={approve}
             approveQuickAcc={approveQuickAcc}
+            toSign={toSign}
+            dataV4={dataV4}
+            verifySignature={verifySignature}
             confirmationType={confirmationType}
             resolve={resolve}
             hasPrivileges={hasPrivileges}
             isDeployed={isDeployed}
             hasProviderError={hasProviderError}
+            externalSignerBottomSheet={{
+              sheetRef: sheetRefExternalSigner,
+              openBottomSheet: openBottomSheetExternalSigner,
+              closeBottomSheet: closeBottomSheetExternalSigner
+            }}
             quickAccBottomSheet={{
               sheetRef: sheetRefQickAcc,
               openBottomSheet: openBottomSheetQickAcc,
