@@ -5,9 +5,12 @@ import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Text from '@modules/common/components/Text'
+import TextWarning from '@modules/common/components/TextWarning'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
+import { DEVICE_SECURITY_LEVEL } from '@modules/common/contexts/biometricsContext/constants'
 import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
+import useBiometrics from '@modules/common/hooks/useBiometrics'
 import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
@@ -25,6 +28,13 @@ const ChangePasscodeScreen: React.FC = () => {
   const navigation: any = useNavigation()
   const { addToast } = useToast()
   const { state, removePasscode, addPasscode, addLocalAuth } = usePasscode()
+  const {
+    isLocalAuthSupported,
+    deviceSecurityLevel,
+    deviceSupportedAuthTypes,
+    deviceSupportedAuthTypesLabel,
+    fallbackSupportedAuthTypesLabel
+  } = useBiometrics()
   const [step, setStep] = useState<STEPS>(STEPS.NEW_PASSCODE)
   const [newPasscode, setNewPasscode] = useState('')
   const [passcodeConfirmFailed, setPasscodeConfirmFailed] = useState(false)
@@ -77,13 +87,42 @@ const ChangePasscodeScreen: React.FC = () => {
     navigation.navigate('dashboard')
   }
 
+  const renderBiometricUnlockContent = () => {
+    if (!isLocalAuthSupported) {
+      return (
+        <Text type="small" appearance="danger" style={spacings.mb}>
+          {t(
+            'Nor a face, nor a fingerprint scanner is available on the device. Therefore, enabling local authentication is not possible.'
+          )}
+        </Text>
+      )
+    }
+
+    if (deviceSecurityLevel === DEVICE_SECURITY_LEVEL.NONE) {
+      return (
+        <Text type="small" appearance="danger" style={spacings.mb}>
+          {t(
+            'No local authentication is enrolled on your device. Therefore, enabling local authentication is not possible.'
+          )}
+        </Text>
+      )
+    }
+
+    return (
+      <>
+        <Button onPress={handleOnFulfillStep3} text={t('Enable')} />
+        <Button onPress={handleSkipStep3} text={t('Skip')} />
+      </>
+    )
+  }
+
   const renderContent = () => {
-    if (step === STEPS.CONFIRM_BIOMETRICS_UNLOCK) {
+    if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <Title style={textStyles.center}>{t('Unlock with biometrics')}</Title>
+          <Title style={textStyles.center}>{t('Create passcode')}</Title>
           <Text type="small" style={spacings.mbSm}>
-            {t('Use your phone biometrics to unlock Ambire.')}
+            {t('Choose a passcode to protect your app.')}
           </Text>
         </>
       )
@@ -100,13 +139,21 @@ const ChangePasscodeScreen: React.FC = () => {
       )
     }
 
-    if (state === PASSCODE_STATES.NO_PASSCODE) {
+    if (step === STEPS.CONFIRM_BIOMETRICS_UNLOCK) {
       return (
         <>
-          <Title style={textStyles.center}>{t('Create passcode')}</Title>
-          <Text type="small" style={spacings.mbSm}>
-            {t('Choose a passcode to protect your app.')}
+          <Text type="small" style={spacings.mb}>
+            {deviceSupportedAuthTypesLabel
+              ? t(
+                  'Enabling local authentication allows you to use your {{deviceSupportedAuthTypesLabel}} or your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
+                  { deviceSupportedAuthTypesLabel, fallbackSupportedAuthTypesLabel }
+                )
+              : t(
+                  'Enabling local authentication allows you to use your phone {{fallbackSupportedAuthTypesLabel}} to authenticate in the Ambire app.',
+                  { fallbackSupportedAuthTypesLabel }
+                )}
           </Text>
+          {renderBiometricUnlockContent()}
         </>
       )
     }
@@ -133,12 +180,6 @@ const ChangePasscodeScreen: React.FC = () => {
         {step === STEPS.NEW_PASSCODE && <CodeInput autoFocus onFulfill={handleOnFulfillStep1} />}
         {step === STEPS.CONFIRM_NEW_PASSCODE && (
           <CodeInput autoFocus onFulfill={handleOnFulfillStep2} />
-        )}
-        {step === STEPS.CONFIRM_BIOMETRICS_UNLOCK && (
-          <>
-            <Button onPress={handleOnFulfillStep3} text={t('Enable')} />
-            <Button onPress={handleSkipStep3} text={t('Skip')} />
-          </>
         )}
         {state !== PASSCODE_STATES.NO_PASSCODE && (
           <>
