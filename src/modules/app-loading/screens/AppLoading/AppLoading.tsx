@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import Router from '@config/Router'
 import { hasMigratedFromAsyncStorage, migrateFromAsyncStorage } from '@config/storage'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
+import { AppLockProvider } from '@modules/app-lock/contexts/appLockContext'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
@@ -20,7 +21,6 @@ import { LinkingProvider } from '@modules/common/contexts/linkingContext'
 import { LoaderProvider } from '@modules/common/contexts/loaderContext'
 import { NetInfoProvider } from '@modules/common/contexts/netInfoContext'
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
-import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { PrivateModeProvider } from '@modules/common/contexts/privateModeContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
@@ -70,7 +70,7 @@ const AppLoading = () => {
                                     <AddressBookProvider>
                                       <BiometricsProvider>
                                         <AccountsPasswordsProvider>
-                                          <PasscodeProvider>
+                                          <AppLockProvider>
                                             <AttentionGrabberProvider>
                                               <PrivateModeProvider>
                                                 <GasTankProvider>
@@ -85,7 +85,7 @@ const AppLoading = () => {
                                               </PrivateModeProvider>
                                             </AttentionGrabberProvider>
                                             <PortalHost name="global" />
-                                          </PasscodeProvider>
+                                          </AppLockProvider>
                                         </AccountsPasswordsProvider>
                                       </BiometricsProvider>
                                     </AddressBookProvider>

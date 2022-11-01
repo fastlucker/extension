@@ -2,9 +2,9 @@ import React, { useEffect } from 'react'
 import { ActivityIndicator, TouchableOpacity } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import { PASSCODE_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
+import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import Text from '@modules/common/components/Text'
-import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
-import usePasscode from '@modules/common/hooks/usePasscode'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import { useIsFocused } from '@react-navigation/native'
@@ -22,7 +22,7 @@ const AppLock: React.FC<Props> = ({ handleNavigate }) => {
     triggerEnteringPasscode,
     hasEnteredValidPasscode,
     resetValidPasscodeEntered
-  } = usePasscode()
+  } = useAppLock()
 
   useEffect(() => {
     if (hasEnteredValidPasscode && isFocused) {

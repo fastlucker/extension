@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 import { AppState, AppStateStatus } from 'react-native'
 
-import { PASSCODE_STATES } from '../../contexts/passcodeContext/constants'
+import { PASSCODE_STATES } from '../../../app-lock/contexts/appLockContext/constants'
 
 const useAppLock = (
   state: PASSCODE_STATES,

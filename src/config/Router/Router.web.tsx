@@ -17,6 +17,7 @@ import {
 } from '@config/Router/HeadersConfig'
 import styles, { tabBarItemWebStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
 import { SyncStorage } from '@config/storage'
+import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
@@ -26,7 +27,6 @@ import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
-import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
@@ -408,7 +408,7 @@ const AppDrawer = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-  const { isLoading } = usePasscode()
+  const { isLoading } = useAppLock()
 
   useEffect(() => {
     if (isLoading) return

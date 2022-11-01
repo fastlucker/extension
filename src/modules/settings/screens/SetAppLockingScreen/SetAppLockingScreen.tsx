@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
+import { PASSCODE_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
+import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -9,9 +11,7 @@ import TextWarning from '@modules/common/components/TextWarning'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import { DEVICE_SECURITY_LEVEL } from '@modules/common/contexts/biometricsContext/constants'
-import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
-import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
@@ -27,14 +27,9 @@ const SetAppLockingScreen: React.FC = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { addToast } = useToast()
-  const { state, removePasscode, addPasscode, addLocalAuth } = usePasscode()
-  const {
-    isLocalAuthSupported,
-    deviceSecurityLevel,
-    deviceSupportedAuthTypes,
-    deviceSupportedAuthTypesLabel,
-    fallbackSupportedAuthTypesLabel
-  } = useBiometrics()
+  const { state, removePasscode, addPasscode, addLocalAuth } = useAppLock()
+  const { isLocalAuthSupported, deviceSecurityLevel, deviceSupportedAuthTypesLabel } =
+    useBiometrics()
   const [step, setStep] = useState<STEPS>(STEPS.NEW_PASSCODE)
   const [newPasscode, setNewPasscode] = useState('')
   const [passcodeConfirmFailed, setPasscodeConfirmFailed] = useState(false)

@@ -18,6 +18,7 @@ import styles, {
   tabBarLabelStyle,
   tabBarStyle
 } from '@config/Router/styles'
+import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
@@ -27,7 +28,6 @@ import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
-import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
@@ -317,7 +317,7 @@ const AppDrawer = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-  const { isLoading } = usePasscode()
+  const { isLoading } = useAppLock()
 
   useEffect(() => {
     if (isLoading) return

@@ -1,6 +1,6 @@
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
 
-export interface PasscodeContextReturnType {
+export interface AppLockContextReturnType {
   state: PASSCODE_STATES
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL
   deviceSupportedAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
@@ -29,7 +29,7 @@ export interface PasscodeContextReturnType {
   lockWhenInactive: boolean
 }
 
-export const passcodeContextDefaults: PasscodeContextReturnType = {
+export const appLockContextDefaults: AppLockContextReturnType = {
   state: PASSCODE_STATES.NO_PASSCODE,
   deviceSecurityLevel: DEVICE_SECURITY_LEVEL.NONE,
   deviceSupportedAuthTypes: [],

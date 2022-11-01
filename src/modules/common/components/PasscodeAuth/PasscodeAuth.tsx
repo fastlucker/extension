@@ -1,10 +1,10 @@
 import React from 'react'
 
 import { useTranslation } from '@config/localization'
+import { PASSCODE_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
 import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
 import Text from '@modules/common/components/Text'
-import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 

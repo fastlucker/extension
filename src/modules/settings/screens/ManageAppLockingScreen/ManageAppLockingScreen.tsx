@@ -1,6 +1,8 @@
 import React from 'react'
 
 import { useTranslation } from '@config/localization'
+import { PASSCODE_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
+import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
@@ -8,8 +10,6 @@ import Text from '@modules/common/components/Text'
 import TextWarning from '@modules/common/components/TextWarning'
 import Toggle from '@modules/common/components/Toggle'
 import Wrapper from '@modules/common/components/Wrapper'
-import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
-import usePasscode from '@modules/common/hooks/usePasscode'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { useNavigation } from '@react-navigation/native'
@@ -27,7 +27,7 @@ const ManageAppLockingScreen = () => {
     disableLockOnStartup,
     enableLockWhenInactive,
     disableLockWhenInactive
-  } = usePasscode()
+  } = useAppLock()
 
   const renderContent = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {

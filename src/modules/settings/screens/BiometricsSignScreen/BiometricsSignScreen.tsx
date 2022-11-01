@@ -3,18 +3,17 @@ import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
 
-import InfoIcon from '@assets/svg/InfoIcon'
 import { useTranslation } from '@config/localization'
+import { PASSCODE_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
+import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import TextWarning from '@modules/common/components/TextWarning'
 import Wrapper from '@modules/common/components/Wrapper'
-import { PASSCODE_STATES } from '@modules/common/contexts/passcodeContext/constants'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
-import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import { delayPromise } from '@modules/common/utils/promises'
@@ -28,7 +27,7 @@ const BiometricsSignScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
-  const { state } = usePasscode()
+  const { state } = useAppLock()
   const { account } = useAccounts()
   const isFocused = useIsFocused()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =

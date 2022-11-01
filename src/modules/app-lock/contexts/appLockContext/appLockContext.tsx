@@ -17,7 +17,7 @@ import PasscodeAuth from '@modules/common/components/PasscodeAuth'
 import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useAppLock from '@modules/common/hooks/useAppLock'
-import usePasscode from '@modules/common/hooks/usePasscode'
+import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import {
@@ -29,30 +29,30 @@ import {
 
 import { PASSCODE_STATES } from './constants'
 import styles from './styles'
-import { passcodeContextDefaults, PasscodeContextReturnType } from './types'
+import { appLockContextDefaults, AppLockContextReturnType } from './types'
 
-const PasscodeContext = createContext<PasscodeContextReturnType>(passcodeContextDefaults)
+const AppLockContext = createContext<AppLockContextReturnType>(appLockContextDefaults)
 
-const PasscodeProvider: React.FC = ({ children }) => {
+const AppLockProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { authStatus } = useAuth()
-  const { deviceSupportedAuthTypesLabel } = usePasscode()
+  const { deviceSupportedAuthTypesLabel } = useBiometrics()
 
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
-  const [state, setState] = useState<PASSCODE_STATES>(passcodeContextDefaults.state)
+  const [state, setState] = useState<PASSCODE_STATES>(appLockContextDefaults.state)
   const [passcode, setPasscode] = useState<null | string>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(passcodeContextDefaults.isLoading)
+  const [isLoading, setIsLoading] = useState<boolean>(appLockContextDefaults.isLoading)
   const [passcodeError, setPasscodeError] = useState<string>('')
   const [hasEnteredValidPasscode, setHasEnteredValidPasscode] = useState<null | boolean>(
-    passcodeContextDefaults.hasEnteredValidPasscode
+    appLockContextDefaults.hasEnteredValidPasscode
   )
   // App locking configurations
   const [isAppLocked, setIsAppLocked] = useState(false)
-  const [lockOnStartup, setLockOnStartup] = useState(passcodeContextDefaults.lockOnStartup)
-  const [lockWhenInactive, setLockWhenInactive] = useState(passcodeContextDefaults.lockWhenInactive)
+  const [lockOnStartup, setLockOnStartup] = useState(appLockContextDefaults.lockOnStartup)
+  const [lockWhenInactive, setLockWhenInactive] = useState(appLockContextDefaults.lockWhenInactive)
 
   useEffect(() => {
     ;(async () => {
@@ -324,7 +324,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     Platform.select({
       ios: i18n.t('passcode'),
       android: i18n.t('PIN / pattern')
-    }) || passcodeContextDefaults.fallbackSupportedAuthTypesLabel
+    }) || appLockContextDefaults.fallbackSupportedAuthTypesLabel
 
   const handleOnValidatePasscode = useCallback(
     (code: string) => {
@@ -361,7 +361,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
   )
 
   return (
-    <PasscodeContext.Provider
+    <AppLockContext.Provider
       value={useMemo(
         () => ({
           addPasscode,
@@ -437,8 +437,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
           fallbackSupportedAuthTypesLabel={fallbackSupportedAuthTypesLabel}
         />
       </BottomSheet>
-    </PasscodeContext.Provider>
+    </AppLockContext.Provider>
   )
 }
 
-export { PasscodeContext, PasscodeProvider }
+export { AppLockContext, AppLockProvider }
