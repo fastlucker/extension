@@ -17,8 +17,8 @@ import PasscodeAuth from '@modules/common/components/PasscodeAuth'
 import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useAppLock from '@modules/common/hooks/useAppLock'
+import usePasscode from '@modules/common/hooks/usePasscode'
 import useToast from '@modules/common/hooks/useToast'
-import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import {
   IS_LOCAL_AUTH_ACTIVATED_KEY,
@@ -27,7 +27,7 @@ import {
   SECURE_STORE_KEY_PASSCODE
 } from '@modules/settings/constants'
 
-import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES, PASSCODE_STATES } from './constants'
+import { PASSCODE_STATES } from './constants'
 import styles from './styles'
 import { passcodeContextDefaults, PasscodeContextReturnType } from './types'
 
@@ -36,25 +36,14 @@ const PasscodeContext = createContext<PasscodeContextReturnType>(passcodeContext
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { authStatus } = useAuth()
+  const { deviceSupportedAuthTypesLabel } = usePasscode()
 
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const { t } = useTranslation()
   const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
   const [state, setState] = useState<PASSCODE_STATES>(passcodeContextDefaults.state)
-  const [deviceSecurityLevel, setDeviceSecurityLevel] = useState<DEVICE_SECURITY_LEVEL>(
-    passcodeContextDefaults.deviceSecurityLevel
-  )
-  const [deviceSupportedAuthTypes, setDeviceSupportedAuthTypes] = useState<
-    DEVICE_SUPPORTED_AUTH_TYPES[]
-  >(passcodeContextDefaults.deviceSupportedAuthTypes)
-  const [deviceSupportedAuthTypesLabel, setDeviceSupportedAuthTypesLabel] = useState<string>(
-    passcodeContextDefaults.deviceSupportedAuthTypesLabel
-  )
   const [passcode, setPasscode] = useState<null | string>(null)
-  const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(
-    passcodeContextDefaults.isLocalAuthSupported
-  )
   const [isLoading, setIsLoading] = useState<boolean>(passcodeContextDefaults.isLoading)
   const [passcodeError, setPasscodeError] = useState<string>('')
   const [hasEnteredValidPasscode, setHasEnteredValidPasscode] = useState<null | boolean>(
@@ -69,14 +58,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
     ;(async () => {
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) return
 
-      // Check if hardware supports local authentication
-      try {
-        const isCompatible = await LocalAuthentication.hasHardwareAsync()
-        setIsLocalAuthSupported(isCompatible)
-      } catch (e) {
-        // fail silently
-      }
-
       try {
         const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE)
         if (secureStoreItemPasscode) {
@@ -87,53 +68,18 @@ const PasscodeProvider: React.FC = ({ children }) => {
         // fail silently
       }
 
-      try {
-        const isLocalAuthActivated = await SyncStorage.getItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
-        if (isLocalAuthActivated) {
-          setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
-        }
-      } catch (e) {
-        // fail silently
+      const isLocalAuthActivated = SyncStorage.getItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
+      if (isLocalAuthActivated) {
+        setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
       }
 
-      try {
-        const securityLevel = await LocalAuthentication.getEnrolledLevelAsync()
-        const existingDeviceSecurityLevel =
-          // @ts-ignore `LocalAuthentication.SecurityLevel` and `DEVICE_SECURITY_LEVEL`
-          // overlap each other. So this should match.
-          Object.values(DEVICE_SECURITY_LEVEL).includes(securityLevel)
-        setDeviceSecurityLevel(
-          // @ts-ignore `LocalAuthentication.SecurityLevel` and `DEVICE_SECURITY_LEVEL`
-          // overlap each other. So this should always result a valid setting.
-          existingDeviceSecurityLevel ? securityLevel : DEVICE_SECURITY_LEVEL.NONE
-        )
-      } catch (e) {
-        // fail silently
-      }
+      const lockOnStartupItem = SyncStorage.getItem(LOCK_ON_STARTUP_KEY)
+      const lockWhenInactiveItem = SyncStorage.getItem(LOCK_WHEN_INACTIVE_KEY)
+      setLockOnStartup(!!lockOnStartupItem)
+      setLockWhenInactive(!!lockWhenInactiveItem)
 
-      try {
-        const deviceAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync()
-        // @ts-ignore `LocalAuthentication.AuthenticationType` and `DEVICE_SUPPORTED_AUTH_TYPES`
-        // overlap each other. So these should match.
-        setDeviceSupportedAuthTypes(deviceAuthTypes)
-        // @ts-ignore `LocalAuthentication.AuthenticationType` and `DEVICE_SUPPORTED_AUTH_TYPES`
-        // overlap each other. So these should match.
-        setDeviceSupportedAuthTypesLabel(getDeviceSupportedAuthTypesLabel(deviceAuthTypes))
-      } catch (e) {
-        // fail silently
-      }
-
-      try {
-        const lockOnStartupItem = SyncStorage.getItem(LOCK_ON_STARTUP_KEY)
-        const lockWhenInactiveItem = SyncStorage.getItem(LOCK_WHEN_INACTIVE_KEY)
-        setLockOnStartup(!!lockOnStartupItem)
-        setLockWhenInactive(!!lockWhenInactiveItem)
-
-        if (lockOnStartupItem) {
-          setIsAppLocked(true)
-        }
-      } catch (e) {
-        // fail silently
+      if (lockOnStartupItem) {
+        setIsAppLocked(true)
       }
 
       setIsLoading(false)
@@ -422,13 +368,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
           removePasscode,
           isLoading,
           isValidPasscode,
-          isLocalAuthSupported,
           addLocalAuth,
           removeLocalAuth,
           isValidLocalAuth,
           state,
-          deviceSecurityLevel,
-          deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
           triggerEnteringPasscode,
@@ -443,9 +386,6 @@ const PasscodeProvider: React.FC = ({ children }) => {
         }),
         [
           isLoading,
-          isLocalAuthSupported,
-          deviceSecurityLevel,
-          deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
           state,
