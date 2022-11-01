@@ -45,7 +45,6 @@ import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
 import BiometricsSignScreen from '@modules/settings/screens/BiometricsSignScreen'
 import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
-import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
 import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
@@ -116,22 +115,6 @@ const ChangePasscodeStackScreen = () => {
         }}
       />
     </ChangePasscodeStack.Navigator>
-  )
-}
-
-const ChangeLocalAuthStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <ChangeLocalAuthStack.Navigator screenOptions={{ header: headerBeta }}>
-      <ChangeLocalAuthStack.Screen
-        name="local-auth-change-screen"
-        component={ChangeLocalAuthScreen}
-        options={{
-          title: t('Local Auth')
-        }}
-      />
-    </ChangeLocalAuthStack.Navigator>
   )
 }
 
@@ -366,11 +349,6 @@ const AppStack = () => {
         options={{ headerShown: false }}
         name="passcode-change"
         component={ChangePasscodeStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="local-auth-change"
-        component={ChangeLocalAuthStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
