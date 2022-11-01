@@ -100,19 +100,17 @@ const BiometricsSignScreen = () => {
       )
     }
 
-    if (state === PASSCODE_STATES.NO_PASSCODE) {
-      return (
-        <>
-          <TextWarning>
-            {t('In order to enable it, first you need to create a passcode.')}
-          </TextWarning>
-          <Button
-            text={t('Create Passcode')}
-            onPress={() => navigation.navigate('passcode-change')}
-          />
-        </>
-      )
-    }
+    // TODO: No need.
+    // if (state === PASSCODE_STATES.NO_PASSCODE) {
+    //   return (
+    //     <>
+    //       <TextWarning>
+    //         {t('In order to enable it, first you need to set app lock.')}
+    //       </TextWarning>
+    //       <Button text={t('Set app lock')} onPress={() => navigation.navigate('set-app-lock')} />
+    //     </>
+    //   )
+    // }
 
     if (state === PASSCODE_STATES.PASSCODE_ONLY) {
       return (

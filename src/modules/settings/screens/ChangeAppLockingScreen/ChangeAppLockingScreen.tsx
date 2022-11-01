@@ -33,13 +33,8 @@ const ChangeAppLockingScreen = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
       return (
         <>
-          <TextWarning>
-            {t('In order to enable it, first you need to create a passcode.')}
-          </TextWarning>
-          <Button
-            text={t('Create passcode')}
-            onPress={() => navigation.navigate('passcode-change')}
-          />
+          <TextWarning>{t('In order to manage it, first you need to set app lock.')}</TextWarning>
+          <Button text={t('Set app lock')} onPress={() => navigation.navigate('set-app-lock')} />
         </>
       )
     }

@@ -66,7 +66,7 @@ const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
-const ChangePasscodeStack = createNativeStackNavigator()
+const SetAppLockStack = createNativeStackNavigator()
 const ChangeLocalAuthStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
@@ -114,19 +114,19 @@ const GasInformationStackScreen = () => {
   )
 }
 
-const ChangePasscodeStackScreen = () => {
+const SetAppLockStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <ChangePasscodeStack.Navigator screenOptions={{ header: headerBeta }}>
-      <ChangePasscodeStack.Screen
-        name="set-app-locking"
+    <SetAppLockStack.Navigator screenOptions={{ header: headerBeta }}>
+      <SetAppLockStack.Screen
+        name="set-app-lock-screen"
         component={SetAppLockingScreen}
         options={{
           title: t('App Lock')
         }}
       />
-    </ChangePasscodeStack.Navigator>
+    </SetAppLockStack.Navigator>
   )
 }
 
@@ -452,8 +452,8 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="passcode-change"
-        component={ChangePasscodeStackScreen}
+        name="set-app-lock"
+        component={SetAppLockStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}

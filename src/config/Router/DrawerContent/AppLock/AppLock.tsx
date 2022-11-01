@@ -26,7 +26,7 @@ const AppLock: React.FC<Props> = ({ handleNavigate }) => {
 
   useEffect(() => {
     if (hasEnteredValidPasscode && isFocused) {
-      handleNavigate('passcode-change')
+      handleNavigate('set-app-lock')
       resetValidPasscodeEntered()
     }
   }, [hasEnteredValidPasscode, isFocused])
@@ -34,7 +34,7 @@ const AppLock: React.FC<Props> = ({ handleNavigate }) => {
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
   return state === PASSCODE_STATES.NO_PASSCODE ? (
-    <TouchableOpacity onPress={() => handleNavigate('passcode-change')}>
+    <TouchableOpacity onPress={() => handleNavigate('set-app-lock')}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
         {t('Set app lock')}
       </Text>
