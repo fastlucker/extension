@@ -4,16 +4,16 @@ import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import { PASSCODE_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
-import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import TextWarning from '@modules/common/components/TextWarning'
 import Wrapper from '@modules/common/components/Wrapper'
+import { DEVICE_SECURITY_LEVEL } from '@modules/common/contexts/biometricsContext/constants'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
+import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import { delayPromise } from '@modules/common/utils/promises'
@@ -27,9 +27,9 @@ const BiometricsSignScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
-  const { state } = useAppLock()
   const { account } = useAccounts()
   const isFocused = useIsFocused()
+  const { isLocalAuthSupported, deviceSecurityLevel } = useBiometrics()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
     useAccountsPasswords()
   const {
@@ -49,7 +49,7 @@ const BiometricsSignScreen = () => {
   // Also, resets the state upon initial successful passcode configuring.
   useEffect(() => {
     return () => reset()
-  }, [isFocused])
+  }, [reset, isFocused])
 
   const handleEnable = async ({ password }: FormValues) => {
     // Dismiss the keyboard, because the validation process sometimes takes longer,
@@ -89,6 +89,17 @@ const BiometricsSignScreen = () => {
   }
 
   const renderContent = () => {
+    if (selectedAccHasPassword) {
+      return (
+        <>
+          <Text type="small" weight="medium" style={spacings.mb}>
+            {t('Enabled!')}
+          </Text>
+          <Button text={t('Disable')} onPress={handleDisable} />
+        </>
+      )
+    }
+
     if (!account.email) {
       return (
         <TextWarning appearance="info">
@@ -99,40 +110,21 @@ const BiometricsSignScreen = () => {
       )
     }
 
-    // TODO: No need.
-    // if (state === PASSCODE_STATES.NO_PASSCODE) {
-    //   return (
-    //     <>
-    //       <TextWarning>
-    //         {t('In order to enable it, first you need to set app lock.')}
-    //       </TextWarning>
-    //       <Button text={t('Set app lock')} onPress={() => navigation.navigate('set-app-lock')} />
-    //     </>
-    //   )
-    // }
-
-    if (state === PASSCODE_STATES.PASSCODE_ONLY) {
+    if (!isLocalAuthSupported) {
       return (
-        <>
-          <TextWarning>
-            {t('In order to enable it, first you need to enable local auth.')}
-          </TextWarning>
-          <Button
-            text={t('Enable Local Auth')}
-            onPress={() => navigation.navigate('local-auth-change')}
-          />
-        </>
+        <TextWarning appearance="info">
+          {t('Biometrics authentication is not available on your device.')}
+        </TextWarning>
       )
     }
 
-    if (selectedAccHasPassword) {
+    if (deviceSecurityLevel !== DEVICE_SECURITY_LEVEL.BIOMETRIC) {
       return (
-        <>
-          <Text type="small" weight="medium" style={spacings.mb}>
-            {t('Enabled!')}
-          </Text>
-          <Button text={t('Disable')} onPress={handleDisable} />
-        </>
+        <Text type="small" appearance="danger" style={spacings.mb}>
+          {t(
+            'This device supports biometric authentication, but you have not enrolled it on this device. If you want to use it - enroll it first on your device.'
+          )}
+        </Text>
       )
     }
 
