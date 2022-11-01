@@ -8,7 +8,7 @@ import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
 
-import Title from '../Title'
+import Title from '../../../common/components/Title'
 
 interface Props {
   title?: string
@@ -22,7 +22,7 @@ interface Props {
   autoFocus: boolean
 }
 
-const PasscodeAuth: React.FC<Props> = ({
+const PinForm: React.FC<Props> = ({
   title,
   message,
   onFulfill,
@@ -76,4 +76,4 @@ const PasscodeAuth: React.FC<Props> = ({
   )
 }
 
-export default PasscodeAuth
+export default PinForm

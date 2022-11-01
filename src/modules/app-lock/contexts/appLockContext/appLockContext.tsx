@@ -9,11 +9,11 @@ import { isAndroid } from '@config/env'
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
 import { SyncStorage } from '@config/storage'
+import PinForm from '@modules/app-lock/components/PinForm'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import BottomSheet from '@modules/common/components/BottomSheet'
-import PasscodeAuth from '@modules/common/components/PasscodeAuth'
 import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useAppLock from '@modules/common/hooks/useAppLock'
@@ -346,10 +346,10 @@ const AppLockProvider: React.FC = ({ children }) => {
   const lockedContainerFullScreen = (
     <SafeAreaView>
       <AmbireLogo shouldExpand={false} />
-      <PasscodeAuth
+      <PinForm
         autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
         title={t('Unlock Ambire')}
-        message={t('Entering your passcode.')}
+        message={t('Enter your PIN.')}
         onFulfill={handleOnValidatePasscode}
         onValidateLocalAuth={triggerValidateLocalAuth}
         error={passcodeError}
@@ -427,7 +427,7 @@ const AppLockProvider: React.FC = ({ children }) => {
         ))}
 
       <BottomSheet id="passcode" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <PasscodeAuth
+        <PinForm
           onFulfill={handleOnValidatePasscode}
           autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
           onValidateLocalAuth={triggerValidateLocalAuth}

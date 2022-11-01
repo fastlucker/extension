@@ -1,8 +1,8 @@
 import React, { createContext } from 'react'
 
-import { passcodeContextDefaults, PasscodeContextReturnType } from './types'
+import { appLockContextDefaults, AppLockContextReturnType } from './types'
 
-const PasscodeContext = createContext<PasscodeContextReturnType>(passcodeContextDefaults)
+const PasscodeContext = createContext<AppLockContextReturnType>(appLockContextDefaults)
 
 // This context is needed for the mobile app only. For web, fallback to defaults.
 const PasscodeProvider: React.FC = ({ children }) => children
