@@ -13,9 +13,9 @@ import PinForm from '@modules/app-lock/components/PinForm'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
+import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import SafeAreaView from '@modules/common/components/SafeAreaView'
-import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useAppLock from '@modules/common/hooks/useAppLock'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
@@ -41,7 +41,6 @@ const AppLockProvider: React.FC = ({ children }) => {
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const { t } = useTranslation()
-  const { selectedAccHasPassword, removeSelectedAccPassword } = useAccountsPasswords()
   const [state, setState] = useState<PASSCODE_STATES>(appLockContextDefaults.state)
   const [passcode, setPasscode] = useState<null | string>(null)
   const [isLoading, setIsLoading] = useState<boolean>(appLockContextDefaults.isLoading)
@@ -246,17 +245,6 @@ const AppLockProvider: React.FC = ({ children }) => {
   )
   const removeAppLock = useCallback(
     async (accountId?: string) => {
-      // In case the remove `passcode` is called with another account,
-      // than the currently selected one, removing the account password
-      // has already happened. So skip it.
-      if (!accountId) {
-        // Remove the account password stored, because without passcode,
-        // this is not allowed.
-        if (selectedAccHasPassword) {
-          await removeSelectedAccPassword()
-        }
-      }
-
       // First, remove the local auth (if set), because without passcode
       // using local auth is not allowed.
       if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
@@ -288,9 +276,7 @@ const AppLockProvider: React.FC = ({ children }) => {
       addToast,
       t,
       setState,
-      selectedAccHasPassword,
       removeAppLockBiometrics,
-      removeSelectedAccPassword,
       lockOnStartup,
       lockWhenInactive,
       disableLockOnStartup,
