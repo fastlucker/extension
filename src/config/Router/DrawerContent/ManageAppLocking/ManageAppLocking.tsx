@@ -11,14 +11,14 @@ interface Props {
   handleNavigate: (route: string) => void
 }
 
-const AppLocking: React.FC<Props> = ({ handleNavigate }) => {
+const ManageAppLocking: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
   const { isLoading } = useAccountsPasswords()
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
   return (
-    <TouchableOpacity onPress={() => handleNavigate('app-locking')}>
+    <TouchableOpacity onPress={() => handleNavigate('manage-app-locking')}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
         {t('Manage app locking')}
       </Text>
@@ -26,4 +26,4 @@ const AppLocking: React.FC<Props> = ({ handleNavigate }) => {
   )
 }
 
-export default React.memo(AppLocking)
+export default React.memo(ManageAppLocking)

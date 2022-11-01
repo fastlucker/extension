@@ -44,7 +44,7 @@ import ProviderScreen from '@modules/receive/screens/ProviderScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
 import BiometricsSignScreen from '@modules/settings/screens/BiometricsSignScreen'
-import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
+import ManageAppLockingScreen from '@modules/settings/screens/ManageAppLockingScreen'
 import SetAppLockingScreen from '@modules/settings/screens/SetAppLockingScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
@@ -69,7 +69,7 @@ const SignersStack = createNativeStackNavigator()
 const SetAppLockStack = createNativeStackNavigator()
 const ChangeLocalAuthStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
-const AppLockingStack = createNativeStackNavigator()
+const ManageAppLockingStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 
@@ -146,19 +146,19 @@ const BiometricsStackScreen = () => {
   )
 }
 
-const AppLockingStackScreen = () => {
+const ManageAppLockingStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <AppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
-      <AppLockingStack.Screen
-        name="app-locking-screen"
-        component={ChangeAppLockingScreen}
+    <ManageAppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
+      <ManageAppLockingStack.Screen
+        name="manage-app-locking-screen"
+        component={ManageAppLockingScreen}
         options={{
           title: t('Manage App Locking')
         }}
       />
-    </AppLockingStack.Navigator>
+    </ManageAppLockingStack.Navigator>
   )
 }
 
@@ -442,8 +442,8 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="app-locking"
-        component={AppLockingStackScreen}
+        name="manage-app-locking"
+        component={ManageAppLockingStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}

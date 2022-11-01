@@ -16,7 +16,7 @@ import { useNavigation } from '@react-navigation/native'
 
 import styles from './styles'
 
-const ChangeAppLockingScreen = () => {
+const ManageAppLockingScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const {
@@ -80,4 +80,4 @@ const ChangeAppLockingScreen = () => {
   )
 }
 
-export default ChangeAppLockingScreen
+export default ManageAppLockingScreen

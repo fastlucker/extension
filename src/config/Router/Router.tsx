@@ -44,7 +44,7 @@ import ProviderScreen from '@modules/receive/screens/ProviderScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
 import BiometricsSignScreen from '@modules/settings/screens/BiometricsSignScreen'
-import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
+import ManageAppLockingScreen from '@modules/settings/screens/ManageAppLockingScreen'
 import SetAppLockingScreen from '@modules/settings/screens/SetAppLockingScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
@@ -133,14 +133,14 @@ const BiometricsStackScreen = () => {
   )
 }
 
-const AppLockingStackScreen = () => {
+const ManageAppLockingStackScreen = () => {
   const { t } = useTranslation()
 
   return (
     <AppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
       <AppLockingStack.Screen
-        name="app-locking-screen"
-        component={ChangeAppLockingScreen}
+        name="manage-app-locking-screen"
+        component={ManageAppLockingScreen}
         options={{
           title: t('Manage App Locking')
         }}
@@ -336,8 +336,8 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="app-locking"
-        component={AppLockingStackScreen}
+        name="manage-app-locking"
+        component={ManageAppLockingStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
