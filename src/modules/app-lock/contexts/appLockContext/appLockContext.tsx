@@ -10,12 +10,12 @@ import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
 import { SyncStorage } from '@config/storage'
 import PinForm from '@modules/app-lock/components/PinForm'
+import useAppLockMechanism from '@modules/app-lock/hooks/useAppLockMechanism'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import SafeAreaView from '@modules/common/components/SafeAreaView'
-import useAppLock from '@modules/common/hooks/useAppLock'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
@@ -118,7 +118,7 @@ const AppLockProvider: React.FC = ({ children }) => {
     handleValidationSuccess()
   }, [handleValidationSuccess, isValidLocalAuth])
 
-  useAppLock(
+  useAppLockMechanism(
     state,
     isAppLocked,
     lockWhenInactive,
