@@ -188,7 +188,7 @@ const AppLockProvider: React.FC = ({ children }) => {
     }
   }, [addToast, t])
 
-  const addLocalAuth = useCallback(async () => {
+  const setAppLockBiometrics = useCallback(async () => {
     try {
       const { success } = await requestLocalAuthFlagging(() =>
         LocalAuthentication.authenticateAsync({
@@ -208,7 +208,7 @@ const AppLockProvider: React.FC = ({ children }) => {
       return false
     }
   }, [addToast, t])
-  const removeLocalAuth = useCallback(async () => {
+  const removeAppLockBiometrics = useCallback(async () => {
     try {
       SyncStorage.removeItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
       setState(PASSCODE_STATES.PASSCODE_ONLY)
@@ -219,7 +219,7 @@ const AppLockProvider: React.FC = ({ children }) => {
     }
   }, [addToast, t])
 
-  const addPasscode = useCallback(
+  const setAppLockPin = useCallback(
     async (code: string) => {
       try {
         await SecureStore.setItemAsync(SECURE_STORE_KEY_PASSCODE, code)
@@ -244,7 +244,7 @@ const AppLockProvider: React.FC = ({ children }) => {
     },
     [setPasscode, state, enableLockOnStartup]
   )
-  const removePasscode = useCallback(
+  const removeAppLock = useCallback(
     async (accountId?: string) => {
       // In case the remove `passcode` is called with another account,
       // than the currently selected one, removing the account password
@@ -260,7 +260,7 @@ const AppLockProvider: React.FC = ({ children }) => {
       // First, remove the local auth (if set), because without passcode
       // using local auth is not allowed.
       if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
-        await removeLocalAuth()
+        await removeAppLockBiometrics()
       }
 
       // Disable lock on startup and when inactive, , because without passcode
@@ -289,7 +289,7 @@ const AppLockProvider: React.FC = ({ children }) => {
       t,
       setState,
       selectedAccHasPassword,
-      removeLocalAuth,
+      removeAppLockBiometrics,
       removeSelectedAccPassword,
       lockOnStartup,
       lockWhenInactive,
@@ -364,19 +364,22 @@ const AppLockProvider: React.FC = ({ children }) => {
     <AppLockContext.Provider
       value={useMemo(
         () => ({
-          addPasscode,
-          removePasscode,
-          isLoading,
-          isValidPasscode,
-          addLocalAuth,
-          removeLocalAuth,
-          isValidLocalAuth,
           state,
-          deviceSupportedAuthTypesLabel,
-          fallbackSupportedAuthTypesLabel,
+          isLoading,
+
+          isValidPasscode,
+          hasEnteredValidPasscode,
           triggerEnteringPasscode,
           resetValidPasscodeEntered,
-          hasEnteredValidPasscode,
+
+          setAppLockPin,
+          setAppLockBiometrics,
+          removeAppLock,
+          removeAppLockBiometrics,
+
+          deviceSupportedAuthTypesLabel,
+          fallbackSupportedAuthTypesLabel,
+
           lockOnStartup,
           lockWhenInactive,
           enableLockOnStartup,
@@ -385,25 +388,28 @@ const AppLockProvider: React.FC = ({ children }) => {
           disableLockWhenInactive
         }),
         [
+          state,
           isLoading,
+
+          isValidPasscode,
+          hasEnteredValidPasscode,
+          triggerEnteringPasscode,
+          resetValidPasscodeEntered,
+
+          setAppLockPin,
+          setAppLockBiometrics,
+          removeAppLock,
+          removeAppLockBiometrics,
+
           deviceSupportedAuthTypesLabel,
           fallbackSupportedAuthTypesLabel,
-          state,
-          hasEnteredValidPasscode,
+
           lockOnStartup,
           lockWhenInactive,
-          addLocalAuth,
-          addPasscode,
           disableLockOnStartup,
           disableLockWhenInactive,
           enableLockOnStartup,
-          enableLockWhenInactive,
-          isValidLocalAuth,
-          isValidPasscode,
-          removeLocalAuth,
-          removePasscode,
-          triggerEnteringPasscode,
-          resetValidPasscodeEntered
+          enableLockWhenInactive
         ]
       )}
     >

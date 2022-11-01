@@ -6,18 +6,17 @@ export interface AppLockContextReturnType {
   deviceSupportedAuthTypes: DEVICE_SUPPORTED_AUTH_TYPES[]
   deviceSupportedAuthTypesLabel: string
   fallbackSupportedAuthTypesLabel: string
-  addPasscode: (code: string) => Promise<boolean>
-  removePasscode: (accountId?: string) => Promise<void>
+  setAppLockPin: (code: string) => Promise<boolean>
+  removeAppLock: (accountId?: string) => Promise<void>
   isLoading: boolean
   isValidPasscode: (code: string) => boolean
   isLocalAuthSupported: null | boolean
-  // Be aware that the Promise should always return something for `addLocalAuth`
+  // Be aware that the Promise should always return something for `setAppLockBiometrics`
   // and `isValidLocalAuth`, because Promise<void> makes the local auth to hang
   // on Android and always return `false`, without rejecting the promise,
   // which leads to strange results.
-  addLocalAuth: () => Promise<boolean>
-  isValidLocalAuth: () => Promise<boolean>
-  removeLocalAuth: () => void
+  setAppLockBiometrics: () => Promise<boolean>
+  removeAppLockBiometrics: () => void
   triggerEnteringPasscode: () => void
   resetValidPasscodeEntered: () => void
   hasEnteredValidPasscode: boolean | null
@@ -35,14 +34,13 @@ export const appLockContextDefaults: AppLockContextReturnType = {
   deviceSupportedAuthTypes: [],
   deviceSupportedAuthTypesLabel: '',
   fallbackSupportedAuthTypesLabel: '',
-  addPasscode: () => Promise.resolve(false),
-  removePasscode: () => Promise.resolve(),
+  setAppLockPin: () => Promise.resolve(false),
+  removeAppLock: () => Promise.resolve(),
   isLoading: true,
   isValidPasscode: () => false,
   isLocalAuthSupported: null,
-  addLocalAuth: () => Promise.resolve(false),
-  removeLocalAuth: () => {},
-  isValidLocalAuth: () => Promise.resolve(false),
+  setAppLockBiometrics: () => Promise.resolve(false),
+  removeAppLockBiometrics: () => {},
   triggerEnteringPasscode: () => {},
   resetValidPasscodeEntered: () => {},
   hasEnteredValidPasscode: null,

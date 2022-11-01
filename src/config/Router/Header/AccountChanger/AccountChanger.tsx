@@ -36,7 +36,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { t } = useTranslation()
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
   const { removeSelectedAccPassword } = useAccountsPasswords()
-  const { removePasscode } = useAppLock()
+  const { removeAppLock } = useAppLock()
 
   const handleChangeAccount = (accountId: any) => {
     closeBottomSheet()
@@ -61,7 +61,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       // clean up the app passcode too.
       const isLastAccount = accounts.length === 1
       if (isLastAccount) {
-        removePasscode(account.id)
+        removeAppLock(account.id)
       }
 
       onRemoveAccount(account.id)

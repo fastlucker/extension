@@ -27,7 +27,7 @@ const SetAppLockingScreen: React.FC = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { addToast } = useToast()
-  const { state, removePasscode, addPasscode, addLocalAuth } = useAppLock()
+  const { state, removeAppLock, setAppLockPin, setAppLockBiometrics } = useAppLock()
   const { isLocalAuthSupported, deviceSecurityLevel, deviceSupportedAuthTypesLabel } =
     useBiometrics()
   const [step, setStep] = useState<STEPS>(STEPS.NEW_PASSCODE)
@@ -56,7 +56,7 @@ const SetAppLockingScreen: React.FC = () => {
       return setPasscodeConfirmFailed(true)
     }
 
-    const added = await addPasscode(code)
+    const added = await setAppLockPin(code)
     if (added) {
       addToast(t('App lock set!') as string, { timeout: 5000 })
 
@@ -73,7 +73,7 @@ const SetAppLockingScreen: React.FC = () => {
   }
 
   const handleOnFulfillStep3 = async () => {
-    const enabled = await addLocalAuth()
+    const enabled = await setAppLockBiometrics()
 
     // Stay on this step.
     if (!enabled) return
@@ -85,7 +85,7 @@ const SetAppLockingScreen: React.FC = () => {
   const handleSkipStep3 = () => navigation.navigate('dashboard')
 
   const handleOnRemoveAppLock = async () => {
-    await removePasscode()
+    await removeAppLock()
 
     addToast(t('App lock removed!') as string, { timeout: 5000 })
     navigation.navigate('dashboard')
