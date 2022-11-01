@@ -2,7 +2,7 @@ import { BlurView } from 'expo-blur'
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import { Platform, StyleSheet, Vibration, View } from 'react-native'
+import { StyleSheet, Vibration, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { isAndroid } from '@config/env'
@@ -13,7 +13,6 @@ import PinForm from '@modules/app-lock/components/PinForm'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAppLock from '@modules/common/hooks/useAppLock'
@@ -36,7 +35,7 @@ const AppLockContext = createContext<AppLockContextReturnType>(appLockContextDef
 const AppLockProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { authStatus } = useAuth()
-  const { deviceSupportedAuthTypesLabel } = useBiometrics()
+  const { deviceSupportedAuthTypesLabel, fallbackSupportedAuthTypesLabel } = useBiometrics()
 
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
@@ -306,12 +305,6 @@ const AppLockProvider: React.FC = ({ children }) => {
     }
   }, [openBottomSheet, state, triggerValidateLocalAuth])
 
-  const fallbackSupportedAuthTypesLabel =
-    Platform.select({
-      ios: i18n.t('passcode'),
-      android: i18n.t('PIN / pattern')
-    }) || appLockContextDefaults.fallbackSupportedAuthTypesLabel
-
   const handleOnValidatePasscode = useCallback(
     (code: string) => {
       const isValid = isValidPasscode(code)
@@ -363,9 +356,6 @@ const AppLockProvider: React.FC = ({ children }) => {
           removeAppLock,
           removeAppLockBiometrics,
 
-          deviceSupportedAuthTypesLabel,
-          fallbackSupportedAuthTypesLabel,
-
           lockOnStartup,
           lockWhenInactive,
           enableLockOnStartup,
@@ -386,9 +376,6 @@ const AppLockProvider: React.FC = ({ children }) => {
           setAppLockBiometrics,
           removeAppLock,
           removeAppLockBiometrics,
-
-          deviceSupportedAuthTypesLabel,
-          fallbackSupportedAuthTypesLabel,
 
           lockOnStartup,
           lockWhenInactive,
