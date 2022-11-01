@@ -13,7 +13,7 @@ interface Props {
   handleNavigate: (route: string) => void
 }
 
-const Passcode: React.FC<Props> = ({ handleNavigate }) => {
+const AppLock: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
   const isFocused = useIsFocused()
   const {
@@ -36,16 +36,16 @@ const Passcode: React.FC<Props> = ({ handleNavigate }) => {
   return state === PASSCODE_STATES.NO_PASSCODE ? (
     <TouchableOpacity onPress={() => handleNavigate('passcode-change')}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
-        {t('App Passcode (not added)')}
+        {t('Set app lock')}
       </Text>
     </TouchableOpacity>
   ) : (
     <TouchableOpacity onPress={triggerEnteringPasscode}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
-        {t('App Passcode (added)')}
+        {t('Change app lock')}
       </Text>
     </TouchableOpacity>
   )
 }
 
-export default React.memo(Passcode)
+export default React.memo(AppLock)
