@@ -31,7 +31,7 @@ import AppLockButton from './AppLockButton'
 import BiometricsSign from './BiometricsSign'
 import ConnectedDapps from './ConnectedDapps'
 import GasIndicator from './GasIndicator'
-import ManageAppLocking from './ManageAppLocking'
+import ManageAppLockButton from './ManageAppLockButton'
 import styles from './styles'
 import Theme from './Theme'
 
@@ -138,7 +138,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       <View style={[spacings.mlTy, spacings.mbSm]}>
         <ConnectedDapps />
         {!isWeb && <AppLockButton handleNavigate={handleNavigate} />}
-        {!isWeb && <ManageAppLocking handleNavigate={handleNavigate} />}
+        {!isWeb && <ManageAppLockButton handleNavigate={handleNavigate} />}
         {!isWeb && <BiometricsSign handleNavigate={handleNavigate} />}
         <Theme />
         {settings.map((s) => (
