@@ -1,5 +1,4 @@
 import { BlurView } from 'expo-blur'
-import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, Vibration, View } from 'react-native'
@@ -17,7 +16,6 @@ import BottomSheet from '@modules/common/components/BottomSheet'
 import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
-import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import {
   IS_BIOMETRICS_UNLOCK_ACTIVE_KEY,
   LOCK_ON_STARTUP_KEY,
@@ -36,7 +34,11 @@ const AppLockProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { authStatus } = useAuth()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const { deviceSupportedAuthTypesLabel, fallbackSupportedAuthTypesLabel } = useBiometrics()
+  const {
+    authenticateWithLocalAuth,
+    deviceSupportedAuthTypesLabel,
+    fallbackSupportedAuthTypesLabel
+  } = useBiometrics()
   const [lockState, setLockState] = useState<APP_LOCK_STATES>(appLockContextDefaults.lockState)
   const [passcode, setPasscode] = useState<null | string>(null)
   const [isLoading, setIsLoading] = useState<boolean>(appLockContextDefaults.isLoading)
@@ -51,6 +53,7 @@ const AppLockProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     ;(async () => {
+      // App lock logic gets triggered only for logged in users. So if not logged in, skip.
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) return
 
       try {
@@ -59,7 +62,7 @@ const AppLockProvider: React.FC = ({ children }) => {
           setPasscode(secureStoreItemPasscode)
           setLockState(APP_LOCK_STATES.PASSCODE_ONLY)
         }
-      } catch (e) {
+      } catch {
         // fail silently
       }
 
@@ -81,19 +84,6 @@ const AppLockProvider: React.FC = ({ children }) => {
     })()
   }, [authStatus])
 
-  const isValidLocalAuth = useCallback(async () => {
-    try {
-      const { success } = await LocalAuthentication.authenticateAsync({
-        promptMessage: t('Confirm your identity')
-      })
-
-      return success
-    } catch (e) {
-      addToast(t('Authentication attempt failed.') as string, { error: true })
-      return false
-    }
-  }, [addToast, t])
-
   const handleValidationSuccess = useCallback(() => {
     setPasscodeError('')
 
@@ -106,14 +96,14 @@ const AppLockProvider: React.FC = ({ children }) => {
   }, [isAppLocked, closeBottomSheet])
 
   const triggerValidateLocalAuth = useCallback(async () => {
-    const isValid = await requestLocalAuthFlagging(isValidLocalAuth)
+    const isValid = await authenticateWithLocalAuth()
 
     if (!isValid) {
       return
     }
 
     handleValidationSuccess()
-  }, [handleValidationSuccess, isValidLocalAuth])
+  }, [handleValidationSuccess, authenticateWithLocalAuth])
 
   useAppLockMechanism(
     lockState,
@@ -129,13 +119,9 @@ const AppLockProvider: React.FC = ({ children }) => {
       SyncStorage.setItem(LOCK_ON_STARTUP_KEY, 'true')
       setLockOnStartup(true)
 
-      addToast(t('Lock on startup enabled.') as string, {
-        timeout: 3000
-      })
+      addToast(t('Lock on startup enabled.') as string, { timeout: 5000 })
     } catch (e) {
-      addToast(t('Enabling lock on startup failed.') as string, {
-        error: true
-      })
+      addToast(t('Enabling lock on startup failed.') as string, { error: true })
     }
   }, [addToast, t])
 
@@ -144,13 +130,9 @@ const AppLockProvider: React.FC = ({ children }) => {
       SyncStorage.removeItem(LOCK_ON_STARTUP_KEY)
       setLockOnStartup(false)
 
-      addToast(t('Lock on startup disabled.') as string, {
-        timeout: 3000
-      })
+      addToast(t('Lock on startup disabled.') as string, { timeout: 5000 })
     } catch (e) {
-      addToast(t('Disabling lock on startup failed.') as string, {
-        error: true
-      })
+      addToast(t('Disabling lock on startup failed.') as string, { error: true })
     }
   }, [addToast, t])
 
@@ -159,13 +141,9 @@ const AppLockProvider: React.FC = ({ children }) => {
       SyncStorage.setItem(LOCK_WHEN_INACTIVE_KEY, 'true')
       setLockWhenInactive(true)
 
-      addToast(t('Lock when inactive enabled.') as string, {
-        timeout: 3000
-      })
+      addToast(t('Lock when inactive enabled.') as string, { timeout: 5000 })
     } catch (e) {
-      addToast(t('Enabling lock when inactive failed.') as string, {
-        error: true
-      })
+      addToast(t('Enabling lock when inactive failed.') as string, { error: true })
     }
   }, [addToast, t])
   const disableLockWhenInactive = useCallback(async () => {
@@ -173,36 +151,30 @@ const AppLockProvider: React.FC = ({ children }) => {
       SyncStorage.removeItem(LOCK_WHEN_INACTIVE_KEY)
       setLockWhenInactive(false)
 
-      addToast(t('Lock when inactive is disabled.') as string, {
-        timeout: 8000
-      })
+      addToast(t('Lock when inactive is disabled.') as string, { timeout: 8000 })
     } catch (e) {
-      addToast(t('Disabling lock when inactive failed.') as string, {
-        error: true
-      })
+      addToast(t('Disabling lock when inactive failed.') as string, { error: true })
     }
   }, [addToast, t])
 
   const setAppLockBiometrics = useCallback(async () => {
     try {
-      const { success } = await requestLocalAuthFlagging(() =>
-        LocalAuthentication.authenticateAsync({
-          promptMessage: t('Confirm your identity')
-        })
-      )
+      const isAuthenticated = await authenticateWithLocalAuth()
 
-      if (success) {
+      if (isAuthenticated) {
         SyncStorage.setItem(IS_BIOMETRICS_UNLOCK_ACTIVE_KEY, 'true')
         setLockState(APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS)
       }
-      return success
+
+      return isAuthenticated
     } catch (e) {
       addToast(t('Enabling local auth failed.') as string, {
         error: true
       })
       return false
     }
-  }, [addToast, t])
+  }, [addToast, t, authenticateWithLocalAuth])
+
   const removeAppLockBiometrics = useCallback(async () => {
     try {
       SyncStorage.removeItem(IS_BIOMETRICS_UNLOCK_ACTIVE_KEY)
@@ -259,7 +231,7 @@ const AppLockProvider: React.FC = ({ children }) => {
       try {
         await SecureStore.deleteItemAsync(SECURE_STORE_KEY_PASSCODE)
       } catch (e) {
-        addToast(t('Passcode got removed, but this setting failed to save.') as string, {
+        addToast(t('App lock removed, but this setting failed to save.') as string, {
           error: true
         })
       }

@@ -1,11 +1,13 @@
 import * as LocalAuthentication from 'expo-local-authentication'
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { Platform } from 'react-native'
 
-import i18n from '@config/localization/localization'
+import i18n, { useTranslation } from '@config/localization/localization'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
+import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
+import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES } from './constants'
 import { biometricsContextDefaults, BiometricsContextReturnType } from './types'
@@ -13,7 +15,9 @@ import { biometricsContextDefaults, BiometricsContextReturnType } from './types'
 const BiometricsContext = createContext<BiometricsContextReturnType>(biometricsContextDefaults)
 
 const BiometricsProvider: React.FC = ({ children }) => {
+  const { t } = useTranslation()
   const { authStatus } = useAuth()
+  const { addToast } = useToast()
 
   const [deviceSecurityLevel, setDeviceSecurityLevel] = useState<DEVICE_SECURITY_LEVEL>(
     biometricsContextDefaults.deviceSecurityLevel
@@ -73,6 +77,21 @@ const BiometricsProvider: React.FC = ({ children }) => {
     })()
   }, [authStatus])
 
+  const authenticateWithLocalAuth = useCallback(async () => {
+    try {
+      const { success } = await requestLocalAuthFlagging(() =>
+        LocalAuthentication.authenticateAsync({
+          promptMessage: t('Confirm your identity')
+        })
+      )
+
+      return success
+    } catch (e) {
+      addToast(t('Authentication attempt failed.') as string, { error: true })
+      return false
+    }
+  }, [addToast, t])
+
   const fallbackSupportedAuthTypesLabel =
     Platform.select({
       ios: i18n.t('passcode'),
@@ -88,7 +107,8 @@ const BiometricsProvider: React.FC = ({ children }) => {
           deviceSecurityLevel,
           deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,
-          fallbackSupportedAuthTypesLabel
+          fallbackSupportedAuthTypesLabel,
+          authenticateWithLocalAuth
         }),
         [
           isLoading,
@@ -96,7 +116,8 @@ const BiometricsProvider: React.FC = ({ children }) => {
           deviceSecurityLevel,
           deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,
-          fallbackSupportedAuthTypesLabel
+          fallbackSupportedAuthTypesLabel,
+          authenticateWithLocalAuth
         ]
       )}
     >
