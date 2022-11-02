@@ -12,6 +12,7 @@ import Toggle from '@modules/common/components/Toggle'
 import Wrapper from '@modules/common/components/Wrapper'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
+import alert from '@modules/common/services/alert'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { useNavigation } from '@react-navigation/native'
@@ -34,12 +35,29 @@ const ManageAppLockingScreen = () => {
   } = useAppLock()
   const { isLocalAuthSupported } = useBiometrics()
 
-  const handleOnRemoveAppLock = async () => {
-    await removeAppLock()
+  const handleOnRemoveAppLock = () =>
+    alert(
+      t('Remove app lock?'),
+      t(
+        'By removing the app lock you can open the Ambire app without PIN or biometrics unlock needed'
+      ),
+      [
+        {
+          text: t('Yes, remove'),
+          onPress: async () => {
+            await removeAppLock()
 
-    addToast(t('App lock removed!') as string, { timeout: 5000 })
-    navigation.navigate('dashboard')
-  }
+            addToast(t('App lock removed!') as string, { timeout: 5000 })
+            navigation.navigate('dashboard')
+          },
+          style: 'destructive'
+        },
+        {
+          text: t('Cancel'),
+          style: 'cancel'
+        }
+      ]
+    )
 
   const renderContent = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
