@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { useTranslation } from '@config/localization'
-import { PASSCODE_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
+import { APP_LOCK_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
 import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
 import Text from '@modules/common/components/Text'
@@ -16,7 +16,7 @@ interface Props {
   onFulfill: (code: string) => void
   error: string
   onValidateLocalAuth: () => any
-  state: PASSCODE_STATES
+  state: APP_LOCK_STATES
   deviceSupportedAuthTypesLabel: string
   fallbackSupportedAuthTypesLabel: string
   autoFocus: boolean
@@ -51,7 +51,7 @@ const PinForm: React.FC<Props> = ({
         </Text>
       )}
       <CodeInput autoFocus={autoFocus} onFulfill={onFulfill} />
-      {state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && (
+      {state === APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS && (
         <>
           <Text type="small" style={[textStyles.center, spacings.mtTy, spacings.mb]}>
             {t('– or –')}

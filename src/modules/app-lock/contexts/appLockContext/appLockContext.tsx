@@ -26,7 +26,7 @@ import {
   SECURE_STORE_KEY_PASSCODE
 } from '@modules/settings/constants'
 
-import { PASSCODE_STATES } from './constants'
+import { APP_LOCK_STATES } from './constants'
 import styles from './styles'
 import { appLockContextDefaults, AppLockContextReturnType } from './types'
 
@@ -40,7 +40,7 @@ const AppLockProvider: React.FC = ({ children }) => {
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const { t } = useTranslation()
-  const [state, setState] = useState<PASSCODE_STATES>(appLockContextDefaults.state)
+  const [state, setState] = useState<APP_LOCK_STATES>(appLockContextDefaults.state)
   const [passcode, setPasscode] = useState<null | string>(null)
   const [isLoading, setIsLoading] = useState<boolean>(appLockContextDefaults.isLoading)
   const [passcodeError, setPasscodeError] = useState<string>('')
@@ -60,7 +60,7 @@ const AppLockProvider: React.FC = ({ children }) => {
         const secureStoreItemPasscode = await SecureStore.getItemAsync(SECURE_STORE_KEY_PASSCODE)
         if (secureStoreItemPasscode) {
           setPasscode(secureStoreItemPasscode)
-          setState(PASSCODE_STATES.PASSCODE_ONLY)
+          setState(APP_LOCK_STATES.PASSCODE_ONLY)
         }
       } catch (e) {
         // fail silently
@@ -68,7 +68,7 @@ const AppLockProvider: React.FC = ({ children }) => {
 
       const isLocalAuthActivated = SyncStorage.getItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
       if (isLocalAuthActivated) {
-        setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+        setState(APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS)
       }
 
       const lockOnStartupItem = SyncStorage.getItem(LOCK_ON_STARTUP_KEY)
@@ -196,7 +196,7 @@ const AppLockProvider: React.FC = ({ children }) => {
 
       if (success) {
         SyncStorage.setItem(IS_LOCAL_AUTH_ACTIVATED_KEY, 'true')
-        setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
+        setState(APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS)
       }
       return success
     } catch (e) {
@@ -209,7 +209,7 @@ const AppLockProvider: React.FC = ({ children }) => {
   const removeAppLockBiometrics = useCallback(async () => {
     try {
       SyncStorage.removeItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
-      setState(PASSCODE_STATES.PASSCODE_ONLY)
+      setState(APP_LOCK_STATES.PASSCODE_ONLY)
     } catch (e) {
       addToast(t('Local auth got disabled, but this setting failed to save.') as string, {
         error: true
@@ -224,15 +224,15 @@ const AppLockProvider: React.FC = ({ children }) => {
 
         setPasscode(code)
 
-        if (state === PASSCODE_STATES.NO_PASSCODE) {
+        if (state === APP_LOCK_STATES.UNLOCKED) {
           enableLockOnStartup()
         }
 
         setState(
           // Covers the case coming from a state with passcode already set
-          state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-            ? PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH
-            : PASSCODE_STATES.PASSCODE_ONLY
+          state === APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS
+            ? APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS
+            : APP_LOCK_STATES.PASSCODE_ONLY
         )
 
         return true
@@ -246,7 +246,7 @@ const AppLockProvider: React.FC = ({ children }) => {
     async (accountId?: string) => {
       // First, remove the local auth (if set), because without passcode
       // using local auth is not allowed.
-      if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
+      if (state === APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS) {
         await removeAppLockBiometrics()
       }
 
@@ -269,7 +269,7 @@ const AppLockProvider: React.FC = ({ children }) => {
 
       setPasscode(null)
 
-      return setState(PASSCODE_STATES.NO_PASSCODE)
+      return setState(APP_LOCK_STATES.UNLOCKED)
     },
     [
       addToast,
@@ -300,7 +300,7 @@ const AppLockProvider: React.FC = ({ children }) => {
   const triggerEnteringPasscode = useCallback(() => {
     openBottomSheet()
 
-    if (state === PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH) {
+    if (state === APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS) {
       triggerValidateLocalAuth()
     }
   }, [openBottomSheet, state, triggerValidateLocalAuth])
@@ -326,7 +326,7 @@ const AppLockProvider: React.FC = ({ children }) => {
     <SafeAreaView>
       <AmbireLogo shouldExpand={false} />
       <PinForm
-        autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
+        autoFocus={state !== APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS}
         title={t('Unlock Ambire')}
         message={t('Enter your PIN.')}
         onFulfill={handleOnValidatePasscode}
@@ -408,7 +408,7 @@ const AppLockProvider: React.FC = ({ children }) => {
       <BottomSheet id="passcode" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <PinForm
           onFulfill={handleOnValidatePasscode}
-          autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
+          autoFocus={state !== APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS}
           onValidateLocalAuth={triggerValidateLocalAuth}
           error={passcodeError}
           state={state}

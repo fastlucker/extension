@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { useTranslation } from '@config/localization'
-import { PASSCODE_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
+import { APP_LOCK_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
 import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -60,7 +60,7 @@ const ManageAppLockingScreen = () => {
     )
 
   const renderContent = () => {
-    if (state === PASSCODE_STATES.NO_PASSCODE) {
+    if (state === APP_LOCK_STATES.UNLOCKED) {
       return (
         <>
           <TextWarning>{t('In order to manage it, first you need to set app lock.')}</TextWarning>

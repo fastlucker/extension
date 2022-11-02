@@ -1,25 +1,10 @@
-import * as LocalAuthentication from 'expo-local-authentication'
-
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export enum PASSCODE_STATES {
-  NO_PASSCODE = 'NO_PASSCODE',
+export enum APP_LOCK_STATES {
+  // The states (keys) have changed, but persist the legacy values them,
+  // because the logic stays the same and therefore - users who have set up
+  // app lock state before - will loose their settings otherwise
+  // (because these flags are cached in the storage)
+  UNLOCKED = 'NO_PASSCODE',
   PASSCODE_ONLY = 'PASSCODE_ONLY',
-  PASSCODE_AND_LOCAL_AUTH = 'PASSCODE_AND_LOCAL_AUTH'
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum DEVICE_SECURITY_LEVEL {
-  // Indicates no enrolled authentication
-  NONE = LocalAuthentication.SecurityLevel.NONE,
-  // Indicates non-biometric authentication (e.g. PIN, Pattern).
-  SECRET = LocalAuthentication.SecurityLevel.SECRET,
-  // Indicates biometric authentication
-  BIOMETRIC = LocalAuthentication.SecurityLevel.BIOMETRIC
-}
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum DEVICE_SUPPORTED_AUTH_TYPES {
-  FINGERPRINT = LocalAuthentication.AuthenticationType.FINGERPRINT,
-  FACIAL_RECOGNITION = LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION,
-  IRIS = LocalAuthentication.AuthenticationType.IRIS
+  PASSCODE_AND_BIOMETRICS = 'PASSCODE_AND_LOCAL_AUTH'
 }

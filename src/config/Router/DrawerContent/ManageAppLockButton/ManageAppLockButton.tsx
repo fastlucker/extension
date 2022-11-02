@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { ActivityIndicator, TouchableOpacity } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import { PASSCODE_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
+import { APP_LOCK_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
 import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import Text from '@modules/common/components/Text'
 import colors from '@modules/common/styles/colors'
@@ -33,7 +33,7 @@ const ManageAppLockButton: React.FC<Props> = ({ handleNavigate }) => {
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
-  if (state === PASSCODE_STATES.NO_PASSCODE) {
+  if (state === APP_LOCK_STATES.UNLOCKED) {
     return null
   }
 

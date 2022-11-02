@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
-import { PASSCODE_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
+import { APP_LOCK_STATES } from '@modules/app-lock/contexts/appLockContext/constants'
 import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
@@ -108,7 +108,7 @@ const SetAppLockingScreen: React.FC = () => {
   }
 
   const renderContent = () => {
-    if (state === PASSCODE_STATES.NO_PASSCODE) {
+    if (state === APP_LOCK_STATES.UNLOCKED) {
       return (
         <>
           <Title style={textStyles.center}>{t('Create PIN')}</Title>
