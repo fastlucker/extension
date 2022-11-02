@@ -19,7 +19,7 @@ import { useNavigation } from '@react-navigation/native'
 
 import styles from './styles'
 
-const ManageAppLockingScreen = () => {
+const ManageAppLockScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
@@ -116,4 +116,4 @@ const ManageAppLockingScreen = () => {
   )
 }
 
-export default ManageAppLockingScreen
+export default ManageAppLockScreen

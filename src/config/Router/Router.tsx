@@ -19,7 +19,7 @@ import styles, {
   tabBarStyle
 } from '@config/Router/styles'
 import useAppLock from '@modules/app-lock/hooks/useAppLock'
-import ManageAppLockingScreen from '@modules/app-lock/screens/ManageAppLockingScreen'
+import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
 import SetAppLockingScreen from '@modules/app-lock/screens/SetAppLockingScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
@@ -140,9 +140,9 @@ const ManageAppLockingStackScreen = () => {
     <AppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
       <AppLockingStack.Screen
         name="manage-app-locking-screen"
-        component={ManageAppLockingScreen}
+        component={ManageAppLockScreen}
         options={{
-          title: t('Manage App Locking')
+          title: t('Manage App Lock')
         }}
       />
     </AppLockingStack.Navigator>
