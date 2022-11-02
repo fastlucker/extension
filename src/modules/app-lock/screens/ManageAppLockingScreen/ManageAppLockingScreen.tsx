@@ -11,6 +11,7 @@ import TextWarning from '@modules/common/components/TextWarning'
 import Toggle from '@modules/common/components/Toggle'
 import Wrapper from '@modules/common/components/Wrapper'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
+import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { useNavigation } from '@react-navigation/native'
@@ -20,8 +21,10 @@ import styles from './styles'
 const ManageAppLockingScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
+  const { addToast } = useToast()
   const {
     state,
+    removeAppLock,
     lockOnStartup,
     lockWhenInactive,
     enableLockOnStartup,
@@ -30,6 +33,13 @@ const ManageAppLockingScreen = () => {
     disableLockWhenInactive
   } = useAppLock()
   const { isLocalAuthSupported } = useBiometrics()
+
+  const handleOnRemoveAppLock = async () => {
+    await removeAppLock()
+
+    addToast(t('App lock removed!') as string, { timeout: 5000 })
+    navigation.navigate('dashboard')
+  }
 
   const renderContent = () => {
     if (state === PASSCODE_STATES.NO_PASSCODE) {
@@ -60,7 +70,7 @@ const ManageAppLockingScreen = () => {
         <Panel
           type="filled"
           contentContainerStyle={styles.appLockingItemContainer}
-          style={spacings.mbTy}
+          style={spacings.mb}
         >
           <Text fontSize={16} weight="regular" numberOfLines={1} style={flexboxStyles.flex1}>
             {t('Lock when inactive')}
@@ -72,9 +82,11 @@ const ManageAppLockingScreen = () => {
           />
         </Panel>
         <Button
+          type="secondary"
           text={isLocalAuthSupported ? t('Change PIN or biometrics') : t('Change PIN')}
           onPress={() => navigation.navigate('set-app-lock')}
         />
+        <Button type="secondary" text={t('Remove app lock')} onPress={handleOnRemoveAppLock} />
       </>
     )
   }

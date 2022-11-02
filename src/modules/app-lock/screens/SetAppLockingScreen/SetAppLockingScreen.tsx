@@ -27,7 +27,7 @@ const SetAppLockingScreen: React.FC = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { addToast } = useToast()
-  const { state, removeAppLock, setAppLockPin, setAppLockBiometrics } = useAppLock()
+  const { state, setAppLockPin, setAppLockBiometrics } = useAppLock()
   const { isLocalAuthSupported, deviceSecurityLevel, deviceSupportedAuthTypesLabel } =
     useBiometrics()
   const [step, setStep] = useState<STEPS>(STEPS.NEW_PASSCODE)
@@ -83,13 +83,6 @@ const SetAppLockingScreen: React.FC = () => {
   }
 
   const handleSkipStep3 = () => navigation.navigate('dashboard')
-
-  const handleOnRemoveAppLock = async () => {
-    await removeAppLock()
-
-    addToast(t('App lock removed!') as string, { timeout: 5000 })
-    navigation.navigate('dashboard')
-  }
 
   const renderBiometricUnlockContent = () => {
     // Determine what kind of authentication is enrolled on the device.
@@ -180,14 +173,6 @@ const SetAppLockingScreen: React.FC = () => {
         {step === STEPS.NEW_PASSCODE && <CodeInput autoFocus onFulfill={handleOnFulfillStep1} />}
         {step === STEPS.CONFIRM_NEW_PASSCODE && (
           <CodeInput autoFocus onFulfill={handleOnFulfillStep2} />
-        )}
-        {state !== PASSCODE_STATES.NO_PASSCODE && step === STEPS.NEW_PASSCODE && (
-          <>
-            <Text type="small" style={[textStyles.center, spacings.mtTy, spacings.mbLg]}>
-              {t('– or –')}
-            </Text>
-            <Button type="secondary" text={t('Remove app lock')} onPress={handleOnRemoveAppLock} />
-          </>
         )}
       </Wrapper>
     </GradientBackgroundWrapper>
