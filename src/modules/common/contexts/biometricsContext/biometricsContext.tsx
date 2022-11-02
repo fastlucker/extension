@@ -29,21 +29,22 @@ const BiometricsProvider: React.FC = ({ children }) => {
   const [deviceSupportedAuthTypesLabel, setDeviceSupportedAuthTypesLabel] = useState<string>(
     biometricsContextDefaults.deviceSupportedAuthTypesLabel
   )
-  const [isLocalAuthSupported, setIsLocalAuthSupported] = useState<null | boolean>(
-    biometricsContextDefaults.isLocalAuthSupported
+  const [hasBiometricsHardware, setHasBiometricsHardware] = useState<null | boolean>(
+    biometricsContextDefaults.hasBiometricsHardware
   )
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
     ;(async () => {
+      // App lock and biometrics sign logic gets triggered
+      // only for logged in users. So if not logged in - no need to trigger.
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) return
 
-      // Check if hardware supports local authentication
       try {
-        const isCompatible = await LocalAuthentication.hasHardwareAsync()
-        setIsLocalAuthSupported(isCompatible)
-      } catch (e) {
-        // fail silently
+        const hasHardware = await LocalAuthentication.hasHardwareAsync()
+        setHasBiometricsHardware(hasHardware)
+      } catch {
+        // Assume device doesn't have biometrics hardware, that's fine.
       }
 
       try {
@@ -57,8 +58,8 @@ const BiometricsProvider: React.FC = ({ children }) => {
           // overlap each other. So this should always result a valid setting.
           existingDeviceSecurityLevel ? securityLevel : DEVICE_SECURITY_LEVEL.NONE
         )
-      } catch (e) {
-        // fail silently
+      } catch {
+        // Assume the lowest device security level (the default one), that's fine.
       }
 
       try {
@@ -69,8 +70,8 @@ const BiometricsProvider: React.FC = ({ children }) => {
         // @ts-ignore `LocalAuthentication.AuthenticationType` and `DEVICE_SUPPORTED_AUTH_TYPES`
         // overlap each other. So these should match.
         setDeviceSupportedAuthTypesLabel(getDeviceSupportedAuthTypesLabel(deviceAuthTypes))
-      } catch (e) {
-        // fail silently
+      } catch {
+        // Fallback with defaults, that's fine.
       }
 
       setIsLoading(false)
@@ -105,7 +106,7 @@ const BiometricsProvider: React.FC = ({ children }) => {
       value={useMemo(
         () => ({
           isLoading,
-          isLocalAuthSupported,
+          hasBiometricsHardware,
           deviceSecurityLevel,
           deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,
@@ -114,7 +115,7 @@ const BiometricsProvider: React.FC = ({ children }) => {
         }),
         [
           isLoading,
-          isLocalAuthSupported,
+          hasBiometricsHardware,
           deviceSecurityLevel,
           deviceSupportedAuthTypes,
           deviceSupportedAuthTypesLabel,

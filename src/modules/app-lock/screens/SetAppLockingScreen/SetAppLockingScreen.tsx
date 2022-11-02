@@ -28,7 +28,7 @@ const SetAppLockingScreen: React.FC = () => {
   const navigation: any = useNavigation()
   const { addToast } = useToast()
   const { state, setAppLockPin, setAppLockBiometrics } = useAppLock()
-  const { isLocalAuthSupported, deviceSecurityLevel, deviceSupportedAuthTypesLabel } =
+  const { hasBiometricsHardware, deviceSecurityLevel, deviceSupportedAuthTypesLabel } =
     useBiometrics()
   const [step, setStep] = useState<STEPS>(STEPS.NEW_PASSCODE)
   const [newPasscode, setNewPasscode] = useState('')
@@ -64,7 +64,7 @@ const SetAppLockingScreen: React.FC = () => {
       // Therefore - security level of `DEVICE_SECURITY_LEVEL.BIOMETRIC`
       // is not achievable on this device and biometrics unlock is not feasible.
       // Skip biometrics unlock prompt.
-      if (!isLocalAuthSupported) {
+      if (!hasBiometricsHardware) {
         return navigation.navigate('dashboard')
       }
 

@@ -29,7 +29,7 @@ const BiometricsSignScreen = () => {
   const { addToast } = useToast()
   const { account } = useAccounts()
   const isFocused = useIsFocused()
-  const { isLocalAuthSupported, deviceSecurityLevel } = useBiometrics()
+  const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
     useBiometricsSign()
   const {
@@ -110,7 +110,7 @@ const BiometricsSignScreen = () => {
       )
     }
 
-    if (!isLocalAuthSupported) {
+    if (!hasBiometricsHardware) {
       return (
         <TextWarning appearance="info">
           {t('Biometrics authentication is not available on your device.')}

@@ -33,7 +33,7 @@ const ManageAppLockingScreen = () => {
     enableLockWhenInactive,
     disableLockWhenInactive
   } = useAppLock()
-  const { isLocalAuthSupported } = useBiometrics()
+  const { hasBiometricsHardware } = useBiometrics()
 
   const handleOnRemoveAppLock = () =>
     alert(
@@ -101,7 +101,7 @@ const ManageAppLockingScreen = () => {
         </Panel>
         <Button
           type="secondary"
-          text={isLocalAuthSupported ? t('Change PIN or biometrics') : t('Change PIN')}
+          text={hasBiometricsHardware ? t('Change PIN or biometrics') : t('Change PIN')}
           onPress={() => navigation.navigate('set-app-lock')}
         />
         <Button type="secondary" text={t('Remove app lock')} onPress={handleOnRemoveAppLock} />
