@@ -1,5 +1,5 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -30,10 +30,16 @@ const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Pro
       confirmPassword: ''
     }
   })
+
+  // should be updated only on initial render,
+  // otherwise after creating a new password the hasRegisteredPassword is updated to true
+  // and the confirmPassword field will be unmounted
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const hasPassword = useMemo(() => hasRegisteredPassword, [])
   return (
     <View>
       <Title style={textStyles.center}>
-        {hasRegisteredPassword ? t('Confirm Signer Password') : t('Create Signer Password')}
+        {hasPassword ? t('Confirm Signer Password') : t('Create Signer Password')}
       </Title>
       <Controller
         control={control}
@@ -47,15 +53,17 @@ const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Pro
             value={value}
             error={errors.password && (t('Please fill in a valid signer password.') as string)}
             info={
-              hasRegisteredPassword &&
-              (t('You are currently signing with an externally added signer.') as string)
+              hasPassword &&
+              (t(
+                'You are currently confirming the password for an externally added signer.'
+              ) as string)
             }
             containerStyle={spacings.mbTy}
           />
         )}
         name="password"
       />
-      {!hasRegisteredPassword && (
+      {!hasPassword && (
         <Controller
           control={control}
           rules={{
@@ -78,13 +86,11 @@ const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Pro
       )}
       <Button
         disabled={
-          isSubmitting ||
-          !watch('password', '') ||
-          (!hasRegisteredPassword && !watch('confirmPassword', ''))
+          isSubmitting || !watch('password', '') || (!hasPassword && !watch('confirmPassword', ''))
         }
         text={
           // eslint-disable-next-line no-nested-ternary
-          isSubmitting ? t('Loading...') : hasRegisteredPassword ? t('Confirm') : t('Create')
+          isSubmitting ? t('Loading...') : hasPassword ? t('Confirm') : t('Create')
         }
         onPress={handleSubmit(onAuthorize)}
       />
