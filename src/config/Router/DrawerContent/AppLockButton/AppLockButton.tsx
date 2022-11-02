@@ -14,11 +14,11 @@ interface Props {
 
 const AppLockButton: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
-  const { state, isLoading } = useAppLock()
+  const { lockState, isLoading } = useAppLock()
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
-  if (state !== APP_LOCK_STATES.UNLOCKED) {
+  if (lockState !== APP_LOCK_STATES.UNLOCKED) {
     return null
   }
 

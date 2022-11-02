@@ -4,7 +4,7 @@ import { AppState, AppStateStatus } from 'react-native'
 import { APP_LOCK_STATES } from '../../contexts/appLockContext/constants'
 
 const useAppLockMechanism = (
-  state: APP_LOCK_STATES,
+  lockState: APP_LOCK_STATES,
   isAppLocked: boolean,
   lockWhenInactive: boolean,
   triggerValidateLocalAuth: () => void,
@@ -20,11 +20,11 @@ const useAppLockMechanism = (
   useEffect(() => {
     if (!isInitialAppOpen) return
 
-    if (isAppLocked && state === APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS) {
+    if (isAppLocked && lockState === APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS) {
       setIsInitialAppOpen(false)
       triggerValidateLocalAuth()
     }
-  }, [isInitialAppOpen, isAppLocked, state, triggerValidateLocalAuth])
+  }, [isInitialAppOpen, isAppLocked, lockState, triggerValidateLocalAuth])
 
   // Catches better the otherwise not extremely consistent app state change.
   // {@link https://stackoverflow.com/a/62773667/1333836}
@@ -34,7 +34,7 @@ const useAppLockMechanism = (
         if (currentAppState.match(/inactive|background/) && nextAppState === 'active') {
           // App has come to the foreground!
           const shouldPromptLocalAuth =
-            isAppLocked && lockWhenInactive && state === APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS
+            isAppLocked && lockWhenInactive && lockState === APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS
           if (shouldPromptLocalAuth) {
             triggerValidateLocalAuth()
           }
@@ -55,7 +55,7 @@ const useAppLockMechanism = (
       isAppLocked,
       setIsAppLocked,
       lockWhenInactive,
-      state,
+      lockState,
       setPasscodeError
     ]
   )

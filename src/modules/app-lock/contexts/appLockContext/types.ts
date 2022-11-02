@@ -1,7 +1,7 @@
 import { APP_LOCK_STATES } from './constants'
 
 export interface AppLockContextReturnType {
-  state: APP_LOCK_STATES
+  lockState: APP_LOCK_STATES
   isLoading: boolean
 
   isValidPasscode: (code: string) => boolean
@@ -27,7 +27,7 @@ export interface AppLockContextReturnType {
 }
 
 export const appLockContextDefaults: AppLockContextReturnType = {
-  state: APP_LOCK_STATES.UNLOCKED,
+  lockState: APP_LOCK_STATES.UNLOCKED,
   isLoading: true,
   isValidPasscode: () => false,
   triggerEnteringPasscode: () => {},

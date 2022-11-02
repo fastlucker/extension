@@ -27,7 +27,7 @@ const SetAppLockingScreen: React.FC = () => {
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { addToast } = useToast()
-  const { state, setAppLockPin, setAppLockBiometrics } = useAppLock()
+  const { lockState, setAppLockPin, setAppLockBiometrics } = useAppLock()
   const { hasBiometricsHardware, deviceSecurityLevel, deviceSupportedAuthTypesLabel } =
     useBiometrics()
   const [step, setStep] = useState<STEPS>(STEPS.NEW_PASSCODE)
@@ -108,7 +108,7 @@ const SetAppLockingScreen: React.FC = () => {
   }
 
   const renderContent = () => {
-    if (state === APP_LOCK_STATES.UNLOCKED) {
+    if (lockState === APP_LOCK_STATES.UNLOCKED) {
       return (
         <>
           <Title style={textStyles.center}>{t('Create PIN')}</Title>

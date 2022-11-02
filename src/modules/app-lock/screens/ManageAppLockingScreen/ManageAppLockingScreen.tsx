@@ -24,7 +24,7 @@ const ManageAppLockingScreen = () => {
   const navigation = useNavigation()
   const { addToast } = useToast()
   const {
-    state,
+    lockState,
     removeAppLock,
     lockOnStartup,
     lockWhenInactive,
@@ -60,7 +60,7 @@ const ManageAppLockingScreen = () => {
     )
 
   const renderContent = () => {
-    if (state === APP_LOCK_STATES.UNLOCKED) {
+    if (lockState === APP_LOCK_STATES.UNLOCKED) {
       return (
         <>
           <TextWarning>{t('In order to manage it, first you need to set app lock.')}</TextWarning>

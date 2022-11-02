@@ -18,7 +18,7 @@ const ManageAppLockButton: React.FC<Props> = ({ handleNavigate }) => {
   const isFocused = useIsFocused()
   const {
     isLoading,
-    state,
+    lockState,
     triggerEnteringPasscode,
     hasEnteredValidPasscode,
     resetValidPasscodeEntered
@@ -33,7 +33,7 @@ const ManageAppLockButton: React.FC<Props> = ({ handleNavigate }) => {
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
-  if (state === APP_LOCK_STATES.UNLOCKED) {
+  if (lockState === APP_LOCK_STATES.UNLOCKED) {
     return null
   }
 
