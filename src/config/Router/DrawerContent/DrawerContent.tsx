@@ -27,7 +27,7 @@ import {
 } from '@react-navigation/drawer'
 
 import useGetSelectedRoute from '../hooks/useGetSelectedRoute'
-import AppLock from './AppLock'
+import AppLockButton from './AppLockButton'
 import BiometricsSign from './BiometricsSign'
 import ConnectedDapps from './ConnectedDapps'
 import GasIndicator from './GasIndicator'
@@ -137,7 +137,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       </Text>
       <View style={[spacings.mlTy, spacings.mbSm]}>
         <ConnectedDapps />
-        {!isWeb && <AppLock handleNavigate={handleNavigate} />}
+        {!isWeb && <AppLockButton handleNavigate={handleNavigate} />}
         {!isWeb && <ManageAppLocking handleNavigate={handleNavigate} />}
         {!isWeb && <BiometricsSign handleNavigate={handleNavigate} />}
         <Theme />

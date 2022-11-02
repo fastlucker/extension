@@ -12,21 +12,23 @@ interface Props {
   handleNavigate: (route: string) => void
 }
 
-const AppLock: React.FC<Props> = ({ handleNavigate }) => {
+const AppLockButton: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
   const { state, isLoading } = useAppLock()
 
   if (isLoading) return <ActivityIndicator style={spacings.mv} />
 
+  if (state !== PASSCODE_STATES.NO_PASSCODE) {
+    return null
+  }
+
   return (
-    state === PASSCODE_STATES.NO_PASSCODE && (
-      <TouchableOpacity onPress={() => handleNavigate('set-app-lock')}>
-        <Text style={spacings.mbSm} color={colors.titan_50}>
-          {t('Set app lock')}
-        </Text>
-      </TouchableOpacity>
-    )
+    <TouchableOpacity onPress={() => handleNavigate('set-app-lock')}>
+      <Text style={spacings.mbSm} color={colors.titan_50}>
+        {t('Set app lock')}
+      </Text>
+    </TouchableOpacity>
   )
 }
 
-export default React.memo(AppLock)
+export default React.memo(AppLockButton)
