@@ -54,6 +54,7 @@ const PrivateKeyForm = () => {
             value={value}
             isValid={isEmail(value)}
             error={errors.signer && (t('Please fill in a valid private key.') as string)}
+            info={t('Enter signer private key.') as string}
           />
         )}
         name="signer"
@@ -66,11 +67,6 @@ const PrivateKeyForm = () => {
           onPress={handleFormSubmit}
         />
       </View>
-      {/* {!!err && (
-        <Text appearance="danger" style={spacings.mbSm}>
-          {err}
-        </Text>
-      )} */}
       <BottomSheet id="authorize" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <ExternalSignerAuthorization
           hasRegisteredPassword={!hasRegisteredPassword}

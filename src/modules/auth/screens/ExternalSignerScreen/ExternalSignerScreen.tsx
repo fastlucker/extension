@@ -4,8 +4,8 @@ import { Keyboard, LayoutAnimation, TouchableWithoutFeedback, View } from 'react
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
-import PassphraseForm from '@modules/auth/components/PassphraseForm'
 import PrivateKeyForm from '@modules/auth/components/PrivateKeyForm'
+import RecoveryPhraseForm from '@modules/auth/components/RecoveryPhraseForm'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Segments from '@modules/common/components/Segments'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
@@ -16,10 +16,10 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum FORM_TYPE {
   PRIVATE_KEY = 'Private Key',
-  PASSPHRASE = 'Passphrase'
+  RECOVERY_PHRASE = 'Recovery Phrase'
 }
 
-const segments = [{ value: FORM_TYPE.PRIVATE_KEY }, { value: FORM_TYPE.PASSPHRASE }]
+const segments = [{ value: FORM_TYPE.PRIVATE_KEY }, { value: FORM_TYPE.RECOVERY_PHRASE }]
 
 const ExternalSignerScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
@@ -29,7 +29,9 @@ const ExternalSignerScreen = ({ navigation }: any) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle:
-        formType === FORM_TYPE.PASSPHRASE ? t('Login with Passphrase') : t('Login with Private Key')
+        formType === FORM_TYPE.RECOVERY_PHRASE
+          ? t('Login with Recovery Phrase')
+          : t('Login with Private Key')
     })
   }, [formType])
 
@@ -62,7 +64,7 @@ const ExternalSignerScreen = ({ navigation }: any) => {
           </View>
           <View style={[flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
             {formType === FORM_TYPE.PRIVATE_KEY && <PrivateKeyForm />}
-            {formType === FORM_TYPE.PASSPHRASE && <PassphraseForm />}
+            {formType === FORM_TYPE.RECOVERY_PHRASE && <RecoveryPhraseForm />}
           </View>
         </Wrapper>
       </TouchableWithoutFeedback>

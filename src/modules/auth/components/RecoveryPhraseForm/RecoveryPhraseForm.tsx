@@ -1,4 +1,5 @@
 import { isEmail } from 'ambire-common/src/services/validations'
+import { Wallet } from 'ethers'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -8,12 +9,20 @@ import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
+import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import ExternalSignerAuthorization from '@modules/external-signers/components/ExternalSignerAuthorization'
 import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
 
-const PassphraseForm = () => {
+const formatMnemonic = (mnemonic: string) =>
+  mnemonic
+    .replace(/\s{2,}/g, ' ')
+    .replace(/;/g, '')
+    .replace(/,/g, '')
+
+const RecoveryPhraseForm = () => {
   const { t } = useTranslation()
+  const { addToast } = useToast()
   const { addExternalSigner, hasRegisteredPassword } = useExternalSigners()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const {
@@ -29,14 +38,33 @@ const PassphraseForm = () => {
   })
 
   const handleFormSubmit = useCallback(() => {
-    handleSubmit((props) => addExternalSigner(props, openBottomSheet))()
-  }, [handleSubmit, addExternalSigner, openBottomSheet])
+    handleSubmit(({ signer }) => {
+      try {
+        const mnemonic = formatMnemonic(signer)
+        const wallet = Wallet.fromMnemonic(mnemonic)
+
+        if (!wallet) throw new Error('Invalid secret recovery phrase')
+
+        addExternalSigner({ signer: wallet.privateKey }, openBottomSheet)
+      } catch (e) {
+        addToast(e.message || e, { error: true })
+      }
+    })()
+  }, [handleSubmit, addExternalSigner, openBottomSheet, addToast])
 
   const handleAuthorize = useCallback(
     ({ password, confirmPassword }) => {
-      addExternalSigner({ password, confirmPassword, signer: watch('signer') })
+      try {
+        const mnemonic = formatMnemonic(watch('signer'))
+        const wallet = Wallet.fromMnemonic(mnemonic)
+
+        if (!wallet) throw new Error('Invalid secret recovery phrase')
+        addExternalSigner({ password, confirmPassword, signer: wallet.privateKey })
+      } catch (e) {
+        addToast(e.message || e, { error: true })
+      }
     },
-    [addExternalSigner, watch]
+    [addExternalSigner, watch, addToast]
   )
 
   return (
@@ -48,12 +76,13 @@ const PassphraseForm = () => {
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             onBlur={onBlur}
-            placeholder={t('Passphrase')}
+            placeholder={t('Recovery phrase')}
             onChangeText={onChange}
             onSubmitEditing={handleFormSubmit}
             value={value}
             isValid={isEmail(value)}
-            error={errors.signer && (t('Please fill in a valid private key.') as string)}
+            error={errors.signer && (t('Please fill in a valid recovery phrase.') as string)}
+            info={t('Enter secret recovery/mnemonic phrase.') as string}
           />
         )}
         name="signer"
@@ -66,11 +95,6 @@ const PassphraseForm = () => {
           onPress={handleFormSubmit}
         />
       </View>
-      {/* {!!err && (
-        <Text appearance="danger" style={spacings.mbSm}>
-          {err}
-        </Text>
-      )} */}
       <BottomSheet id="authorize" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <ExternalSignerAuthorization
           hasRegisteredPassword={hasRegisteredPassword}
@@ -81,4 +105,4 @@ const PassphraseForm = () => {
   )
 }
 
-export default PassphraseForm
+export default RecoveryPhraseForm
