@@ -10,40 +10,11 @@ import { BACKGROUND, CONTENT_SCRIPT } from '@web/constants/paths'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
 
-export interface AmbireExtensionContextReturnType {
-  connectedDapps: {
-    host: string
-    status: boolean
-  }[]
-  params: {
-    route?: string
-    host?: string
-    queue?: string
-  }
-  requests: any[] | null
-  isTempExtensionPopup: boolean
-  lastActiveTab: any
-  resolveMany: (ids: any, resolution: any) => any
-  setParams: React.Dispatch<
-    React.SetStateAction<{
-      route?: string
-      host?: string
-      queue?: string
-    }>
-  >
-  disconnectDapp: (hast: string) => void
-}
+import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from './types'
 
-const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
-  connectedDapps: [],
-  params: {},
-  requests: [],
-  isTempExtensionPopup: false,
-  lastActiveTab: null,
-  resolveMany: () => {},
-  setParams: () => null,
-  disconnectDapp: () => {}
-})
+const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
+  ambireExtensionContextDefaults
+)
 
 const STORAGE_KEY = 'ambire_extension_state'
 

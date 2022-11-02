@@ -1,51 +1,12 @@
-import React, { createContext, useMemo } from 'react'
+import React, { createContext } from 'react'
 
-import { isWeb } from '@config/env'
+import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from './types'
 
-export interface AmbireExtensionContextReturnType {
-  connectedDapps: {
-    host: string
-    status: boolean
-  }[]
-  params: {
-    route?: string
-    host?: string
-    queue?: string
-  }
-  requests: any[] | null
-  isTempExtensionPopup: boolean
-  lastActiveTab: any
-  resolveMany: (ids: any, resolution: any) => any
-  setParams: React.Dispatch<
-    React.SetStateAction<{
-      route?: string
-      host?: string
-      queue?: string
-    }>
-  >
-  disconnectDapp: (hast: string) => void
-}
+const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
+  ambireExtensionContextDefaults
+)
 
-const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>({
-  connectedDapps: [],
-  params: {},
-  requests: [],
-  isTempExtensionPopup: false,
-  lastActiveTab: null,
-  resolveMany: () => {},
-  setParams: () => null,
-  disconnectDapp: () => {}
-})
-const AmbireExtensionProvider: React.FC = ({ children }) => {
-  if (!isWeb) {
-    return children
-  }
-
-  return (
-    <AmbireExtensionContext.Provider value={useMemo(() => ({}), [])}>
-      {children}
-    </AmbireExtensionContext.Provider>
-  )
-}
+// This context is needed for the web app only. For mobile, fallback to defaults.
+const AmbireExtensionProvider: React.FC = ({ children }) => children
 
 export { AmbireExtensionContext, AmbireExtensionProvider }

@@ -3,13 +3,16 @@ import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
 import { Platform } from 'react-native'
 
+import appJSON from '../../../app.json'
+
 export const isProd = process.env.APP_ENV === 'production'
 export const isStaging = process.env.APP_ENV === 'staging'
 
 // On Android, this is the package name. On iOS, this is the bundle ID.
 export const APP_ID = Application.applicationId
-// Internal app version, example: 1.0.0 (follows semantic versioning)
-export const APP_VERSION = Constants?.manifest?.version || 'N/A'
+// Internal app version, example: 1.0.0 (follows semantic versioning).
+// Fallback to the appJSON version, because in web mode Constants are missing.
+export const APP_VERSION = Constants?.manifest?.version || appJSON.expo.version
 // The internal build version of the native build (binary).
 // This is the Info.plist value for `CFBundleVersion` on iOS and
 // the `versionCode` set by `build.gradle` on Android.
