@@ -9,11 +9,6 @@ export interface BiometricsContextReturnType {
   isLoading: boolean
   // Determines whether a face or fingerprint scanner is available on the device
   hasBiometricsHardware: null | boolean
-  // Be aware that the Promise should always return something for `setAppLockBiometrics`
-  // and `isValidLocalAuth`, because Promise<void> makes the local auth to hang
-  // on Android and always return `false`, without rejecting the promise,
-  // which leads to strange results.
-  requestLocalAuth: () => Promise<boolean>
 }
 
 export const biometricsContextDefaults: BiometricsContextReturnType = {
@@ -22,6 +17,5 @@ export const biometricsContextDefaults: BiometricsContextReturnType = {
   deviceSupportedAuthTypesLabel: '',
   fallbackSupportedAuthTypesLabel: '',
   isLoading: true,
-  hasBiometricsHardware: null,
-  requestLocalAuth: () => Promise.resolve(false)
+  hasBiometricsHardware: null
 }
