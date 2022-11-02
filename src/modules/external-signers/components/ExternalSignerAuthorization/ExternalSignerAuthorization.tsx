@@ -55,7 +55,7 @@ const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Pro
             info={
               hasPassword &&
               (t(
-                'You are currently confirming the password for an externally added signer.'
+                'You are currently confirming the password of an externally added signer.'
               ) as string)
             }
             containerStyle={spacings.mbTy}

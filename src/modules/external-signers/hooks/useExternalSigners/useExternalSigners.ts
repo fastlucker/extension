@@ -1,14 +1,13 @@
 import accountPresets from 'ambire-common/src/constants/accountPresets'
 import passworder from 'browser-passworder'
 import { generateAddress2 } from 'ethereumjs-util'
-import { getDefaultProvider, Wallet } from 'ethers'
+import { Wallet } from 'ethers'
 import { getAddress, hexZeroPad } from 'ethers/lib/utils'
 import { useCallback } from 'react'
 
 import CONFIG from '@config/env'
 import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
@@ -24,7 +23,6 @@ const SIGNERS_KEY = 'externalSigners'
 const relayerURL = CONFIG.RELAYER_URL
 
 const useExternalSigners = () => {
-  const { network } = useNetwork()
   const { onAddAccount } = useAccounts()
   const { addToast } = useToast()
   const [externalSigners, setExternalSigners] = useStorage<any>({
@@ -150,8 +148,7 @@ const useExternalSigners = () => {
           return
         }
 
-        const provider = getDefaultProvider(network?.rpc)
-        const wallet = new Wallet(signer, provider)
+        const wallet = new Wallet(signer)
 
         if (!wallet) {
           addToast('Incorrect private key format.', {
@@ -176,7 +173,7 @@ const useExternalSigners = () => {
           return
         }
 
-        // If there is a registered password and the signer address exists
+        // If there is a registered password and the signer address is found in externalSigners
         if (externalSigners[addr]) {
           passworder
             .decrypt(password, externalSigners[addr])
@@ -189,7 +186,7 @@ const useExternalSigners = () => {
                 timeout: 4000
               })
             })
-          // If there is a registered password but the signer address is new
+          // If there is a registered password but it's a new signer address
         } else if (hasRegisteredPassword && !externalSigners[addr]) {
           passworder
             .decrypt(password, externalSigners[Object.keys(externalSigners)[0]])
@@ -218,18 +215,14 @@ const useExternalSigners = () => {
             onEOASelected(addr, { type: 'Web3' })
           })
         }
-      } catch (error) {
-        console.error(error)
+      } catch (e) {
+        addToast(e.message || e, {
+          error: true,
+          timeout: 4000
+        })
       }
     },
-    [
-      hasRegisteredPassword,
-      network?.rpc,
-      onEOASelected,
-      externalSigners,
-      setExternalSigners,
-      addToast
-    ]
+    [hasRegisteredPassword, onEOASelected, externalSigners, setExternalSigners, addToast]
   )
 
   // Always resolve but return the signer's private key only on successful decryption

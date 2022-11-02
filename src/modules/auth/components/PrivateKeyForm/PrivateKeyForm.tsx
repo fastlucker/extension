@@ -69,7 +69,7 @@ const PrivateKeyForm = () => {
       </View>
       <BottomSheet id="authorize" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <ExternalSignerAuthorization
-          hasRegisteredPassword={!hasRegisteredPassword}
+          hasRegisteredPassword={hasRegisteredPassword}
           onAuthorize={handleAuthorize}
         />
       </BottomSheet>
