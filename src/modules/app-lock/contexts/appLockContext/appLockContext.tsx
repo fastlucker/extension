@@ -300,7 +300,7 @@ const AppLockProvider: React.FC = ({ children }) => {
     if (lockState === APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS) {
       triggerValidateLocalAuth()
     }
-  }, [openBottomSheet, state, triggerValidateLocalAuth])
+  }, [openBottomSheet, lockState, triggerValidateLocalAuth])
 
   const handleOnValidatePasscode = useCallback(
     (code: string) => {
