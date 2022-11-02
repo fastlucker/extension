@@ -20,7 +20,7 @@ import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import {
-  IS_LOCAL_AUTH_ACTIVATED_KEY,
+  IS_BIOMETRICS_UNLOCK_ACTIVE_KEY,
   LOCK_ON_STARTUP_KEY,
   LOCK_WHEN_INACTIVE_KEY,
   SECURE_STORE_KEY_PASSCODE
@@ -66,8 +66,8 @@ const AppLockProvider: React.FC = ({ children }) => {
         // fail silently
       }
 
-      const isLocalAuthActivated = SyncStorage.getItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
-      if (isLocalAuthActivated) {
+      const isBiometricsUnlockActivated = SyncStorage.getItem(IS_BIOMETRICS_UNLOCK_ACTIVE_KEY)
+      if (isBiometricsUnlockActivated) {
         setState(APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS)
       }
 
@@ -195,7 +195,7 @@ const AppLockProvider: React.FC = ({ children }) => {
       )
 
       if (success) {
-        SyncStorage.setItem(IS_LOCAL_AUTH_ACTIVATED_KEY, 'true')
+        SyncStorage.setItem(IS_BIOMETRICS_UNLOCK_ACTIVE_KEY, 'true')
         setState(APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS)
       }
       return success
@@ -208,7 +208,7 @@ const AppLockProvider: React.FC = ({ children }) => {
   }, [addToast, t])
   const removeAppLockBiometrics = useCallback(async () => {
     try {
-      SyncStorage.removeItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
+      SyncStorage.removeItem(IS_BIOMETRICS_UNLOCK_ACTIVE_KEY)
       setState(APP_LOCK_STATES.PASSCODE_ONLY)
     } catch (e) {
       addToast(t('Local auth got disabled, but this setting failed to save.') as string, {
