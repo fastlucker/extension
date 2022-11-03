@@ -146,13 +146,13 @@ const BiometricsStackScreen = () => {
   )
 }
 
-const ManageAppLockingStackScreen = () => {
+const ManageAppLockStackScreen = () => {
   const { t } = useTranslation()
 
   return (
     <ManageAppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
       <ManageAppLockingStack.Screen
-        name="manage-app-locking-screen"
+        name="manage-app-lock-screen"
         component={ManageAppLockScreen}
         options={{
           title: t('Manage App Lock')
@@ -443,7 +443,7 @@ const AppStack = () => {
       <MainStack.Screen
         options={{ headerShown: false }}
         name="manage-app-locking"
-        component={ManageAppLockingStackScreen}
+        component={ManageAppLockStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
