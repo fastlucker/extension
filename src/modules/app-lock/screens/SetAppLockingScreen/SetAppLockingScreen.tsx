@@ -108,17 +108,6 @@ const SetAppLockingScreen: React.FC = () => {
   }
 
   const renderContent = () => {
-    if (lockState === APP_LOCK_STATES.UNLOCKED) {
-      return (
-        <>
-          <Title style={textStyles.center}>{t('Create PIN')}</Title>
-          <Text type="small" style={spacings.mbSm}>
-            {t('Set a PIN to protect your app.')}
-          </Text>
-        </>
-      )
-    }
-
     if (step === STEPS.CONFIRM_NEW_PASSCODE) {
       return (
         <>
@@ -147,6 +136,17 @@ const SetAppLockingScreen: React.FC = () => {
                 )}
           </Text>
           {renderBiometricUnlockContent()}
+        </>
+      )
+    }
+
+    if (lockState === APP_LOCK_STATES.UNLOCKED) {
+      return (
+        <>
+          <Title style={textStyles.center}>{t('Create PIN')}</Title>
+          <Text type="small" style={spacings.mbSm}>
+            {t('Set a PIN to protect your app.')}
+          </Text>
         </>
       )
     }
