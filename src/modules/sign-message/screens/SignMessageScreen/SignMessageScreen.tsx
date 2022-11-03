@@ -19,6 +19,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useDisableHardwareBackPress from '@modules/common/hooks/useDisableHardwareBackPress'
 import useRequests from '@modules/common/hooks/useRequests'
+import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
@@ -132,7 +133,8 @@ const SignScreenScreen = ({ navigation }: any) => {
     resolve,
     onConfirmationCodeRequired,
     onLastMessageSign,
-    getHardwareWallet
+    getHardwareWallet,
+    useStorage
   })
 
   const connection = useMemo(

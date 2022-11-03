@@ -1,6 +1,6 @@
 import { isEmail } from 'ambire-common/src/services/validations'
 import { Wallet } from 'ethers'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { InteractionManager, Keyboard, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -111,7 +111,12 @@ const RecoveryPhraseForm = () => {
           <Input
             onBlur={onBlur}
             placeholder={t('Recovery phrase')}
-            onChangeText={onChange}
+            onChangeText={(props) => {
+              if (memWallet) {
+                setMemWallet(null)
+              }
+              onChange(props)
+            }}
             onSubmitEditing={handleFormSubmit}
             value={value}
             isValid={isEmail(value)}
