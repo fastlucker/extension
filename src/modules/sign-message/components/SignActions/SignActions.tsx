@@ -121,6 +121,8 @@ const SignActions = ({
     }
   }
 
+  // Not a common logic therefore implemented locally
+  // Once implemented on web this should be moved in ambire-common
   const approveWithExternalSigner = async ({ password }: any) => {
     const privateKey: any = await decryptExternalSigner({
       signerPublicAddr: account.signer?.address,

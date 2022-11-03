@@ -135,6 +135,8 @@ const useExternalSigners = () => {
     [addToast, createFromEOA, getOwnedByEOAs, onAddAccount]
   )
 
+  // Add new Ambire account or login with an existing one
+  // default signer of the account will be the passed external private key
   const addExternalSigner = useCallback(
     async (
       { password, confirmPassword, signer }: AddSignerFormValues,
