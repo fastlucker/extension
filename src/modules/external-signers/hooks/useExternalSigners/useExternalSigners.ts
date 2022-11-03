@@ -1,16 +1,17 @@
 import accountPresets from 'ambire-common/src/constants/accountPresets'
-import passworder from 'browser-passworder'
 import { generateAddress2 } from 'ethereumjs-util'
 import { Wallet } from 'ethers'
 import { getAddress, hexZeroPad } from 'ethers/lib/utils'
 import { useCallback } from 'react'
+import { Keyboard } from 'react-native'
 
-import CONFIG from '@config/env'
+import CONFIG, { isWeb } from '@config/env'
 import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
+import { decrypt, encrypt } from '@modules/common/services/passworder'
 
 type AddSignerFormValues = {
   password?: string
@@ -141,6 +142,7 @@ const useExternalSigners = () => {
     ) => {
       try {
         if (!signer) {
+          !isWeb && Keyboard.dismiss()
           addToast('Signer can not be empty.', {
             error: true,
             timeout: 4000
@@ -151,6 +153,7 @@ const useExternalSigners = () => {
         const wallet = new Wallet(signer)
 
         if (!wallet) {
+          !isWeb && Keyboard.dismiss()
           addToast('Incorrect private key format.', {
             error: true,
             timeout: 4000
@@ -161,11 +164,13 @@ const useExternalSigners = () => {
         const addr = await wallet.getAddress()
 
         if (!password) {
+          !isWeb && Keyboard.dismiss()
           !!onRequestAuthorization && onRequestAuthorization()
           return
         }
 
         if (!hasRegisteredPassword && password !== confirmPassword) {
+          !isWeb && Keyboard.dismiss()
           addToast("Passwords don't match.", {
             error: true,
             timeout: 4000
@@ -175,12 +180,12 @@ const useExternalSigners = () => {
 
         // If there is a registered password and the signer address is found in externalSigners
         if (externalSigners[addr]) {
-          passworder
-            .decrypt(password, externalSigners[addr])
+          decrypt(password, externalSigners[addr])
             .then(() => {
               onEOASelected(addr, { type: 'Web3' })
             })
             .catch(() => {
+              !isWeb && Keyboard.dismiss()
               addToast('Incorrect signer password.', {
                 error: true,
                 timeout: 4000
@@ -188,10 +193,9 @@ const useExternalSigners = () => {
             })
           // If there is a registered password but it's a new signer address
         } else if (hasRegisteredPassword && !externalSigners[addr]) {
-          passworder
-            .decrypt(password, externalSigners[Object.keys(externalSigners)[0]])
+          decrypt(password, externalSigners[Object.keys(externalSigners)[0]])
             .then(() => {
-              passworder.encrypt(password, signer).then((blob: string) => {
+              encrypt(password, signer).then((blob: string) => {
                 setExternalSigners({
                   ...externalSigners,
                   [addr]: blob
@@ -200,6 +204,7 @@ const useExternalSigners = () => {
               })
             })
             .catch(() => {
+              !isWeb && Keyboard.dismiss()
               addToast('Incorrect signer password.', {
                 error: true,
                 timeout: 4000
@@ -207,7 +212,7 @@ const useExternalSigners = () => {
             })
           // If there is no registered password add a new signer encrypted with the given password
         } else {
-          passworder.encrypt(password, signer).then((blob: string) => {
+          encrypt(password, signer).then((blob: string) => {
             setExternalSigners({
               ...externalSigners,
               [addr]: blob
@@ -216,6 +221,7 @@ const useExternalSigners = () => {
           })
         }
       } catch (e) {
+        !isWeb && Keyboard.dismiss()
         addToast(e.message || e, {
           error: true,
           timeout: 4000
@@ -231,14 +237,15 @@ const useExternalSigners = () => {
       return new Promise((resolve) => {
         if (!externalSigners[signerPublicAddr]) {
           // TODO: would be good to redirect to add external signer in this case
+          !isWeb && Keyboard.dismiss()
           resolve(false)
         }
-        passworder
-          .decrypt(password, externalSigners[signerPublicAddr])
+        decrypt(password, externalSigners[signerPublicAddr])
           .then((result: any) => {
             resolve(result)
           })
           .catch(() => {
+            !isWeb && Keyboard.dismiss()
             resolve(false)
           })
       })

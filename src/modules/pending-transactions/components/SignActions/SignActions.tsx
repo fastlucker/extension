@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { InteractionManager, Keyboard, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
+import { isWeb } from '@config/env'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -189,7 +190,7 @@ const SignActions = ({
                 autoCorrect={false}
                 isValid={isValidCode(value)}
                 value={value}
-                autoFocus={selectedAccHasPassword}
+                autoFocus={selectedAccHasPassword && !isWeb}
                 error={errors.code && (t('Invalid confirmation code.') as string)}
               />
             )}
