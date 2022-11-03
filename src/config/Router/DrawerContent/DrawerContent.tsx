@@ -28,7 +28,7 @@ import {
 
 import useGetSelectedRoute from '../hooks/useGetSelectedRoute'
 import AppLockButton from './AppLockButton'
-import BiometricsSign from './BiometricsSign'
+import BiometricsSignButton from './BiometricsSignButton'
 import ConnectedDapps from './ConnectedDapps'
 import GasIndicator from './GasIndicator'
 import ManageAppLockButton from './ManageAppLockButton'
@@ -139,7 +139,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         <ConnectedDapps />
         {!isWeb && <AppLockButton handleNavigate={handleNavigate} />}
         {!isWeb && <ManageAppLockButton handleNavigate={handleNavigate} />}
-        {!isWeb && <BiometricsSign handleNavigate={handleNavigate} />}
+        {!isWeb && <BiometricsSignButton handleNavigate={handleNavigate} />}
         <Theme />
         {settings.map((s) => (
           <TouchableOpacity key={s.name} onPress={() => handleNavigate(s.route)}>
