@@ -266,11 +266,13 @@ const AppLockProvider: React.FC = ({ children }) => {
     [passcode, setPasscodeError, t]
   )
 
-  const triggerEnteringPasscode = useCallback(() => {
+  const triggerEnteringPasscode = useCallback(async () => {
     openBottomSheet()
 
     if (lockState === APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS) {
-      triggerValidateLocalAuth()
+      // Await it on purpose, otherwise - it gets stuck on Android and the
+      // local auth can't be triggered anymore until the app gets restarted...
+      await triggerValidateLocalAuth()
     }
   }, [openBottomSheet, lockState, triggerValidateLocalAuth])
 
