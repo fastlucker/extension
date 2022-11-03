@@ -5,10 +5,9 @@ import { APP_LOCK_STATES } from '@modules/app-lock/contexts/appLockContext/const
 import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
 import Text from '@modules/common/components/Text'
+import Title from '@modules/common/components/Title'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
-
-import Title from '../../../common/components/Title'
 
 interface Props {
   title?: string
