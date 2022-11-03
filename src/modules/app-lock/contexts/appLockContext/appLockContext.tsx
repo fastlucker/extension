@@ -213,13 +213,13 @@ const AppLockProvider: React.FC = ({ children }) => {
   )
   const removeAppLock = useCallback(
     async (accountId?: string) => {
-      // First, remove the local auth (if set), because without passcode
+      // First, remove the local auth (if set), because without app lock
       // using local auth is not allowed.
       if (lockState === APP_LOCK_STATES.PASSCODE_AND_BIOMETRICS) {
         await removeAppLockBiometrics()
       }
 
-      // Disable lock on startup and when inactive, , because without passcode
+      // Disable lock on startup and when inactive, because without app lock
       // these are no longer relevant.
       if (lockOnStartup) {
         disableLockOnStartup()
@@ -315,7 +315,6 @@ const AppLockProvider: React.FC = ({ children }) => {
           lockState,
           isLoading,
 
-          isValidPasscode,
           hasEnteredValidPasscode,
           triggerEnteringPasscode,
           resetValidPasscodeEntered,
@@ -336,7 +335,6 @@ const AppLockProvider: React.FC = ({ children }) => {
           lockState,
           isLoading,
 
-          isValidPasscode,
           hasEnteredValidPasscode,
           triggerEnteringPasscode,
           resetValidPasscodeEntered,

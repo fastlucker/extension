@@ -4,7 +4,6 @@ export interface AppLockContextReturnType {
   lockState: APP_LOCK_STATES
   isLoading: boolean
 
-  isValidPasscode: (code: string) => boolean
   triggerEnteringPasscode: () => void
   resetValidPasscodeEntered: () => void
   hasEnteredValidPasscode: boolean | null
@@ -29,7 +28,6 @@ export interface AppLockContextReturnType {
 export const appLockContextDefaults: AppLockContextReturnType = {
   lockState: APP_LOCK_STATES.UNLOCKED,
   isLoading: true,
-  isValidPasscode: () => false,
   triggerEnteringPasscode: () => {},
   resetValidPasscodeEntered: () => {},
   hasEnteredValidPasscode: null,
