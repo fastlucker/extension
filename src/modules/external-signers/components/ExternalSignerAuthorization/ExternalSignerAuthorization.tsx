@@ -4,6 +4,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -47,6 +48,7 @@ const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Pro
         render={({ field: { onChange, onBlur, value } }) => (
           <InputPassword
             onBlur={onBlur}
+            autoFocus={!isWeb}
             placeholder={t('Signer password')}
             onChangeText={onChange}
             isValid={isValidPassword(value)}

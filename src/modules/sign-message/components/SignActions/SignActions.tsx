@@ -7,6 +7,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { SyncStorage } from '@config/storage'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
@@ -259,7 +260,7 @@ const SignActions = ({
           keyboardType="numeric"
           autoCorrect={false}
           value={watch('code', '')}
-          autoFocus
+          autoFocus={!isWeb}
         />
         <Button
           text={t('Confirm')}

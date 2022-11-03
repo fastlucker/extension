@@ -1,10 +1,11 @@
 import { isEmail } from 'ambire-common/src/services/validations'
 import { Wallet } from 'ethers'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { View } from 'react-native'
+import { InteractionManager, Keyboard, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
@@ -13,6 +14,11 @@ import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import ExternalSignerAuthorization from '@modules/external-signers/components/ExternalSignerAuthorization'
 import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
+
+function sleep(ms: number) {
+  // eslint-disable-next-line no-promise-executor-return
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 const formatMnemonic = (mnemonic: string) =>
   mnemonic
@@ -25,6 +31,7 @@ const RecoveryPhraseForm = () => {
   const { addToast } = useToast()
   const { addExternalSigner, hasRegisteredPassword } = useExternalSigners()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const [memWallet, setMemWallet] = useState<any>(null)
   const {
     control,
     handleSubmit,
@@ -38,33 +45,60 @@ const RecoveryPhraseForm = () => {
   })
 
   const handleFormSubmit = useCallback(() => {
-    handleSubmit(({ signer }) => {
-      try {
-        const mnemonic = formatMnemonic(signer)
-        const wallet = Wallet.fromMnemonic(mnemonic)
+    !isWeb && Keyboard.dismiss()
 
-        if (!wallet) throw new Error('Invalid secret recovery phrase')
+    handleSubmit(async ({ signer }) => {
+      // wait state update before Wallet calcs
+      await sleep(100)
 
-        addExternalSigner({ signer: wallet.privateKey }, openBottomSheet)
-      } catch (e) {
-        addToast(e.message || e, { error: true })
-      }
+      InteractionManager.runAfterInteractions(async () => {
+        try {
+          const mnemonic = formatMnemonic(signer)
+          let wallet
+
+          if (memWallet) {
+            wallet = memWallet
+          } else {
+            wallet = Wallet.fromMnemonic(mnemonic)
+          }
+
+          if (!wallet) throw new Error('Invalid secret recovery phrase')
+          setMemWallet(wallet)
+
+          await addExternalSigner({ signer: wallet.privateKey }, openBottomSheet)
+        } catch (e) {
+          addToast(e.message || e, { error: true })
+        }
+      })
     })()
-  }, [handleSubmit, addExternalSigner, openBottomSheet, addToast])
+  }, [memWallet, handleSubmit, addExternalSigner, openBottomSheet, addToast])
 
   const handleAuthorize = useCallback(
-    ({ password, confirmPassword }) => {
-      try {
-        const mnemonic = formatMnemonic(watch('signer'))
-        const wallet = Wallet.fromMnemonic(mnemonic)
+    async ({ password, confirmPassword }) => {
+      // wait state update before Wallet calcs
+      await sleep(100)
 
-        if (!wallet) throw new Error('Invalid secret recovery phrase')
-        addExternalSigner({ password, confirmPassword, signer: wallet.privateKey })
-      } catch (e) {
-        addToast(e.message || e, { error: true })
-      }
+      InteractionManager.runAfterInteractions(async () => {
+        try {
+          const mnemonic = formatMnemonic(watch('signer'))
+          let wallet
+
+          if (memWallet) {
+            wallet = memWallet
+          } else {
+            wallet = Wallet.fromMnemonic(mnemonic)
+          }
+
+          if (!wallet) throw new Error('Invalid secret recovery phrase')
+          setMemWallet(wallet)
+
+          await addExternalSigner({ password, confirmPassword, signer: wallet.privateKey })
+        } catch (e) {
+          addToast(e.message || e, { error: true })
+        }
+      })
     },
-    [addExternalSigner, watch, addToast]
+    [memWallet, addExternalSigner, watch, addToast]
   )
 
   return (
