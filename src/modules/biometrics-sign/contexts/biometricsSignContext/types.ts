@@ -3,7 +3,7 @@ export interface BiometricsSignContextReturnType {
   selectedAccHasPassword: boolean
   addSelectedAccPassword: (password: string) => Promise<boolean>
   removeSelectedAccPassword: (accountId?: string) => Promise<boolean>
-  getSelectedAccPassword: () => Promise<string>
+  getSelectedAccPassword: () => Promise<string | null>
 }
 
 export const biometricsSignContextDefaults: BiometricsSignContextReturnType = {
@@ -11,5 +11,5 @@ export const biometricsSignContextDefaults: BiometricsSignContextReturnType = {
   selectedAccHasPassword: false,
   addSelectedAccPassword: () => Promise.resolve(false),
   removeSelectedAccPassword: () => Promise.resolve(false),
-  getSelectedAccPassword: () => Promise.resolve('')
+  getSelectedAccPassword: () => Promise.resolve(null)
 }

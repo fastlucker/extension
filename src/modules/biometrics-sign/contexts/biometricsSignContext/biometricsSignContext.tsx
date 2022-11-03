@@ -47,61 +47,67 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
     })()
   }, [selectedAcc])
 
-  const addSelectedAccPassword = async (password: string) => {
-    try {
-      const key = getAccountSecureKey(selectedAcc)
+  const addSelectedAccPassword = useCallback(
+    async (password: string) => {
+      try {
+        const key = getAccountSecureKey(selectedAcc)
 
-      await requestLocalAuthFlagging(() =>
-        SecureStore.setItemAsync(key, password, {
-          authenticationPrompt: t('Confirm your identity'),
-          requireAuthentication: true,
-          keychainService: key
+        await requestLocalAuthFlagging(() =>
+          SecureStore.setItemAsync(key, password, {
+            authenticationPrompt: t('Confirm your identity'),
+            requireAuthentication: true,
+            keychainService: key
+          })
+        )
+
+        // Store a flag if the selected account has password stored.
+        // This is for ease of use across the other parts of the app.
+        // Because otherwise, figuring out if the selected account has password
+        // via the `SecureStore` requires the user every time to
+        // authenticate via his phone local auth.
+        SyncStorage.setItem(key, 'true')
+
+        setSelectedAccHasPassword(true)
+        return true
+      } catch (error) {
+        addToast(t('Error saving. {{error}}}', { error }) as string, {
+          error: true
         })
-      )
-
-      // Store a flag if the selected account has password stored.
-      // This is for ease of use across the other parts of the app.
-      // Because otherwise, figuring out if the selected account has password
-      // via the `SecureStore` requires the user every time to
-      // authenticate via his phone local auth.
-      SyncStorage.setItem(key, 'true')
-
-      setSelectedAccHasPassword(true)
-      return true
-    } catch (error) {
-      addToast(t('Error saving. {{error}}}', { error }) as string, {
-        error: true
-      })
-      return false
-    }
-  }
-
-  const removeSelectedAccPassword = async (accountId?: string) => {
-    try {
-      const key = getAccountSecureKey(accountId || selectedAcc)
-
-      await requestLocalAuthFlagging(() =>
-        SecureStore.deleteItemAsync(key, {
-          authenticationPrompt: t('Confirm your identity'),
-          requireAuthentication: true,
-          keychainService: key
-        })
-      )
-
-      SyncStorage.removeItem(key)
-
-      // If the change is made for the selected account, clean up the other flag too.
-      const isForTheSelectedAccount = !accountId
-      if (isForTheSelectedAccount) {
-        setSelectedAccHasPassword(false)
+        return false
       }
+    },
+    [addToast, selectedAcc, t]
+  )
 
-      return true
-    } catch (e) {
-      addToast(t('Removing account password failed.') as string, { error: true })
-      return false
-    }
-  }
+  const removeSelectedAccPassword = useCallback(
+    async (accountId?: string) => {
+      try {
+        const key = getAccountSecureKey(accountId || selectedAcc)
+
+        await requestLocalAuthFlagging(() =>
+          SecureStore.deleteItemAsync(key, {
+            authenticationPrompt: t('Confirm your identity'),
+            requireAuthentication: true,
+            keychainService: key
+          })
+        )
+
+        SyncStorage.removeItem(key)
+
+        // If the change is made for the selected account, clean up the other flag too.
+        const isForTheSelectedAccount = !accountId
+        if (isForTheSelectedAccount) {
+          setSelectedAccHasPassword(false)
+        }
+
+        return true
+      } catch (e) {
+        addToast(t('Removing account password failed.') as string, { error: true })
+        return false
+      }
+    },
+    [addToast, selectedAcc, t]
+  )
 
   const getSelectedAccPassword = useCallback(() => {
     const key = getAccountSecureKey(selectedAcc)
@@ -125,7 +131,13 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
           removeSelectedAccPassword,
           getSelectedAccPassword
         }),
-        [isLoading, selectedAccHasPassword, selectedAcc, getSelectedAccPassword]
+        [
+          isLoading,
+          selectedAccHasPassword,
+          getSelectedAccPassword,
+          addSelectedAccPassword,
+          removeSelectedAccPassword
+        ]
       )}
     >
       {children}
