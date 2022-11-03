@@ -153,6 +153,9 @@ const BiometricsSignScreen = () => {
           text={isSubmitting ? t('Validating...') : t('Enable')}
           onPress={handleSubmit(handleEnable)}
         />
+        {isSubmitting && (
+          <Text type="small">{t('Validation might take up to a minute. Please be patient.')}</Text>
+        )}
       </>
     )
   }
