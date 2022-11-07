@@ -4,12 +4,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import Router from '@config/Router'
 import { hasMigratedFromAsyncStorage, migrateFromAsyncStorage } from '@config/storage'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
+import { AppLockProvider } from '@modules/app-lock/contexts/appLockContext'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
+import { BiometricsSignProvider } from '@modules/biometrics-sign/contexts/biometricsSignContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
-import { AccountsPasswordsProvider } from '@modules/common/contexts/accountsPasswordsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
 import { AmbireExtensionProvider } from '@modules/common/contexts/ambireExtensionContext'
+import { BiometricsProvider } from '@modules/common/contexts/biometricsContext'
 import { ConstantsProvider } from '@modules/common/contexts/constantsContext'
 import { GasTankProvider } from '@modules/common/contexts/gasTankContext'
 import { GnosisProvider } from '@modules/common/contexts/gnosisContext'
@@ -19,7 +21,6 @@ import { LinkingProvider } from '@modules/common/contexts/linkingContext'
 import { LoaderProvider } from '@modules/common/contexts/loaderContext'
 import { NetInfoProvider } from '@modules/common/contexts/netInfoContext'
 import { NetworkProvider } from '@modules/common/contexts/networkContext'
-import { PasscodeProvider } from '@modules/common/contexts/passcodeContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { PrivateModeProvider } from '@modules/common/contexts/privateModeContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
@@ -67,24 +68,26 @@ const AppLoading = () => {
                                 <AmbireExtensionProvider>
                                   <RequestsProvider>
                                     <AddressBookProvider>
-                                      <AccountsPasswordsProvider>
-                                        <PasscodeProvider>
-                                          <AttentionGrabberProvider>
-                                            <PrivateModeProvider>
-                                              <GasTankProvider>
-                                                <UnsupportedDAppsBottomSheetProvider>
-                                                  <HeaderBottomSheetProvider>
-                                                    <LinkingProvider>
-                                                      <Router />
-                                                    </LinkingProvider>
-                                                  </HeaderBottomSheetProvider>
-                                                </UnsupportedDAppsBottomSheetProvider>
-                                              </GasTankProvider>
-                                            </PrivateModeProvider>
-                                          </AttentionGrabberProvider>
-                                          <PortalHost name="global" />
-                                        </PasscodeProvider>
-                                      </AccountsPasswordsProvider>
+                                      <BiometricsProvider>
+                                        <BiometricsSignProvider>
+                                          <AppLockProvider>
+                                            <AttentionGrabberProvider>
+                                              <PrivateModeProvider>
+                                                <GasTankProvider>
+                                                  <UnsupportedDAppsBottomSheetProvider>
+                                                    <HeaderBottomSheetProvider>
+                                                      <LinkingProvider>
+                                                        <Router />
+                                                      </LinkingProvider>
+                                                    </HeaderBottomSheetProvider>
+                                                  </UnsupportedDAppsBottomSheetProvider>
+                                                </GasTankProvider>
+                                              </PrivateModeProvider>
+                                            </AttentionGrabberProvider>
+                                            <PortalHost name="global" />
+                                          </AppLockProvider>
+                                        </BiometricsSignProvider>
+                                      </BiometricsProvider>
                                     </AddressBookProvider>
                                   </RequestsProvider>
                                 </AmbireExtensionProvider>
