@@ -1,3 +1,4 @@
+import { initRpcProviders } from 'ambire-common/src/services/provider'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
@@ -28,6 +29,10 @@ import { ToastProvider } from '@modules/common/contexts/toastContext'
 import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/unsupportedDAppsBottomSheetContext'
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 import useFonts from '@modules/common/hooks/useFonts'
+import { rpcProviders } from '@modules/common/services/providers'
+
+// Initialize rpc providers for all networks
+initRpcProviders(rpcProviders)
 
 const AppLoading = () => {
   // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
