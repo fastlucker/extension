@@ -11,6 +11,8 @@ import { fetchPost } from '@modules/common/services/fetch'
 
 const relayerURL = CONFIG.RELAYER_URL
 
+// EOA implementation = Externally Owned Account
+// Logs in to an existing acc or creates a new one
 export default function useEOA() {
   const { onAddAccount } = useAccounts()
   const { addToast } = useToast()
@@ -57,7 +59,6 @@ export default function useEOA() {
     [getAccountByAddr]
   )
 
-  // EOA implementations = Externally Owned Account
   // Add or create accounts from Trezor/Ledger/Metamask/etc.
   const createFromEOA = useCallback(async (addr, signerType) => {
     const privileges = [[getAddress(addr), hexZeroPad('0x01', 32)]]
