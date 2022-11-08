@@ -119,7 +119,7 @@ const Rewards = () => {
       (currentClaimStatus.error || rewardsErrMsg) &&
       (!currentClaimStatus.lastUpdated || !rewardsLastUpdated)
     if (hasErrorAndNoPrevValues) {
-      return t('Unavailable')
+      return t('Rewards')
     }
 
     // Display loading state only if prev data is missing for any of both data sets.
@@ -132,7 +132,7 @@ const Rewards = () => {
       return '...'
     }
 
-    return t('{{amount}} WALLET Rewards', {
+    return t('{{amount}} $WALLETs', {
       amount: hidePrivateValue(pendingTokensTotal)
     })
   }, [
