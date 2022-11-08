@@ -75,7 +75,7 @@ const useExternalSigners = () => {
     [getAccountByAddr]
   )
 
-  // EOA implementations
+  // EOA implementations = Externally Owned Account
   // Add or create accounts from Trezor/Ledger/Metamask/etc.
   const createFromEOA = useCallback(async (addr, signerType) => {
     const privileges = [[getAddress(addr), hexZeroPad('0x01', 32)]]
@@ -163,6 +163,7 @@ const useExternalSigners = () => {
           return
         }
 
+        // the public addr of the signer
         const addr = await wallet.getAddress()
 
         if (!password) {

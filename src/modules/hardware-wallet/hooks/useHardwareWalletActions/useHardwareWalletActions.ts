@@ -75,7 +75,7 @@ const useHardwareWalletActions = () => {
     [getAccountByAddr, CONFIG.RELAYER_URL]
   )
 
-  // EOA implementations
+  // EOA implementations = Externally Owned Account
   // Add or create accounts from Trezor/Ledger/Metamask/etc.
   const createFromEOA = useCallback(
     async (addr, signerType) => {

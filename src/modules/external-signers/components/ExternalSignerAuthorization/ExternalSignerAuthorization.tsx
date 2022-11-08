@@ -53,7 +53,9 @@ const ExternalSignerAuthorization = ({ hasRegisteredPassword, onAuthorize }: Pro
             onChangeText={onChange}
             isValid={isValidPassword(value)}
             value={value}
-            error={errors.password && (t('Please fill in a valid signer password.') as string)}
+            error={
+              errors.password && (t('Please fill in at least 8 characters for password.') as string)
+            }
             info={
               hasPassword &&
               (t(
