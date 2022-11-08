@@ -2,7 +2,7 @@ import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import useSignMessage from 'ambire-common/src/hooks/useSignMessage'
 import { UseSignMessageProps } from 'ambire-common/src/hooks/useSignMessage/types'
 import { toUtf8String } from 'ethers/lib/utils'
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -19,6 +19,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useDisableHardwareBackPress from '@modules/common/hooks/useDisableHardwareBackPress'
 import useRequests from '@modules/common/hooks/useRequests'
+import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
@@ -65,6 +66,11 @@ const SignScreenScreen = ({ navigation }: any) => {
 
   useDisableHardwareBackPress()
 
+  const {
+    ref: sheetRefExternalSigner,
+    open: openBottomSheetExternalSigner,
+    close: closeBottomSheetExternalSigner
+  } = useModalize()
   const {
     ref: sheetRefQickAcc,
     open: openBottomSheetQickAcc,
@@ -116,7 +122,8 @@ const SignScreenScreen = ({ navigation }: any) => {
     typeDataErr,
     isDeployed,
     dataV4,
-    confirmationType
+    confirmationType,
+    verifySignature
   } = useSignMessage({
     fetch,
     account,
@@ -126,7 +133,8 @@ const SignScreenScreen = ({ navigation }: any) => {
     resolve,
     onConfirmationCodeRequired,
     onLastMessageSign,
-    getHardwareWallet
+    getHardwareWallet,
+    useStorage
   })
 
   const connection = useMemo(
@@ -215,11 +223,19 @@ const SignScreenScreen = ({ navigation }: any) => {
             isLoading={isLoading}
             approve={approve}
             approveQuickAcc={approveQuickAcc}
+            toSign={toSign}
+            dataV4={dataV4}
+            verifySignature={verifySignature}
             confirmationType={confirmationType}
             resolve={resolve}
             hasPrivileges={hasPrivileges}
             isDeployed={isDeployed}
             hasProviderError={hasProviderError}
+            externalSignerBottomSheet={{
+              sheetRef: sheetRefExternalSigner,
+              openBottomSheet: openBottomSheetExternalSigner,
+              closeBottomSheet: closeBottomSheetExternalSigner
+            }}
             quickAccBottomSheet={{
               sheetRef: sheetRefQickAcc,
               openBottomSheet: openBottomSheetQickAcc,

@@ -19,6 +19,7 @@ import useRequests from '@modules/common/hooks/useRequests'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import isInt from '@modules/common/utils/isInt'
+import ExternalSignerAuthorization from '@modules/external-signers/components/ExternalSignerAuthorization'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
 import SignActions from '@modules/pending-transactions/components/SignActions'
@@ -35,17 +36,22 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   const { account } = useAccounts()
   const { network } = useNetwork()
   const { currentAccGasTankState } = useGasTank()
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const {
+    ref: hardwareWalletSheetRef,
+    open: hardwareWalletOpenBottomSheet,
+    close: hardwareWalletCloseBottomSheet
+  } = useModalize()
+  const {
+    ref: externalSignerSheetRef,
+    open: externalSignerOpenBottomSheet,
+    close: externalSignerCloseBottomSheet
+  } = useModalize()
 
   const { isTempExtensionPopup } = useAmbireExtension()
 
   if (isTempExtensionPopup) {
     navigation.navigate = () => window.close()
     navigation.goBack = () => window.close()
-  }
-
-  const onOpenHardwareWalletBottomSheet = () => {
-    openBottomSheet()
   }
 
   const {
@@ -63,7 +69,8 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     rejectTxnReplace,
     setReplaceTx
   } = useSendTransaction({
-    onOpenHardwareWalletBottomSheet
+    hardwareWalletOpenBottomSheet,
+    externalSignerOpenBottomSheet
   })
 
   const prevBundle: any = usePrevious(bundle)
@@ -196,17 +203,32 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
         )}
         <BottomSheet
           id="pending-transactions-hardware-wallet"
-          sheetRef={sheetRef}
+          sheetRef={hardwareWalletSheetRef}
           closeBottomSheet={() => {
-            closeBottomSheet()
+            hardwareWalletCloseBottomSheet()
           }}
         >
           <HardwareWalletSelectConnection
             onSelectDevice={(device: any) => {
               approveTxn({ device })
-              closeBottomSheet()
+              hardwareWalletCloseBottomSheet()
             }}
             shouldWrap={false}
+          />
+        </BottomSheet>
+        <BottomSheet
+          id="authorize-external-signer"
+          sheetRef={externalSignerSheetRef}
+          closeBottomSheet={() => {
+            externalSignerCloseBottomSheet()
+          }}
+        >
+          <ExternalSignerAuthorization
+            hasRegisteredPassword
+            onAuthorize={(credentials) => {
+              approveTxn({ externalSignerCredentials: credentials })
+              externalSignerCloseBottomSheet()
+            }}
           />
         </BottomSheet>
       </Wrapper>
