@@ -78,7 +78,6 @@
     "babel-plugin-module-resolver": "4.1.0",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "bip44-constants": "^128.0.0",
-    "browser-passworder": "^2.0.3",
     "browserify-zlib": "~0.1.4",
     "buffer": "^6.0.3",
     "crypto-js": "^4.1.1",
