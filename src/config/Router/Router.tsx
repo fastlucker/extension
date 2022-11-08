@@ -18,6 +18,9 @@ import styles, {
   tabBarLabelStyle,
   tabBarStyle
 } from '@config/Router/styles'
+import useAppLock from '@modules/app-lock/hooks/useAppLock'
+import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
+import SetAppLockingScreen from '@modules/app-lock/screens/SetAppLockingScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
@@ -25,10 +28,10 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
+import BiometricsSignScreen from '@modules/biometrics-sign/screens/BiometricsSignScreen'
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
-import usePasscode from '@modules/common/hooks/usePasscode'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
@@ -44,10 +47,6 @@ import PendingTransactionsScreen from '@modules/pending-transactions/screens/Pen
 import ProviderScreen from '@modules/receive/screens/ProviderScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
-import BiometricsSignScreen from '@modules/settings/screens/BiometricsSignScreen'
-import ChangeAppLockingScreen from '@modules/settings/screens/ChangeAppLockingScreen'
-import ChangeLocalAuthScreen from '@modules/settings/screens/ChangeLocalAuthScreen'
-import ChangePasscodeScreen from '@modules/settings/screens/ChangePasscodeScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
@@ -65,8 +64,7 @@ const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
-const ChangePasscodeStack = createNativeStackNavigator()
-const ChangeLocalAuthStack = createNativeStackNavigator()
+const SetAppLockStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
@@ -104,35 +102,19 @@ const GasInformationStackScreen = () => {
   )
 }
 
-const ChangePasscodeStackScreen = () => {
+const SetAppLockStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <ChangePasscodeStack.Navigator screenOptions={{ header: headerBeta }}>
-      <ChangePasscodeStack.Screen
-        name="passcode-change-screen"
-        component={ChangePasscodeScreen}
+    <SetAppLockStack.Navigator screenOptions={{ header: headerBeta }}>
+      <SetAppLockStack.Screen
+        name="set-app-lock-screen"
+        component={SetAppLockingScreen}
         options={{
-          title: t('Passcode')
+          title: t('App Lock')
         }}
       />
-    </ChangePasscodeStack.Navigator>
-  )
-}
-
-const ChangeLocalAuthStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <ChangeLocalAuthStack.Navigator screenOptions={{ header: headerBeta }}>
-      <ChangeLocalAuthStack.Screen
-        name="local-auth-change-screen"
-        component={ChangeLocalAuthScreen}
-        options={{
-          title: t('Local Auth')
-        }}
-      />
-    </ChangeLocalAuthStack.Navigator>
+    </SetAppLockStack.Navigator>
   )
 }
 
@@ -152,16 +134,16 @@ const BiometricsStackScreen = () => {
   )
 }
 
-const AppLockingStackScreen = () => {
+const ManageAppLockStackScreen = () => {
   const { t } = useTranslation()
 
   return (
     <AppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
       <AppLockingStack.Screen
-        name="app-locking-screen"
-        component={ChangeAppLockingScreen}
+        name="manage-app-lock-screen"
+        component={ManageAppLockScreen}
         options={{
-          title: t('Manage App Locking')
+          title: t('Manage App Lock')
         }}
       />
     </AppLockingStack.Navigator>
@@ -341,7 +323,7 @@ const AppDrawer = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-  const { isLoading } = usePasscode()
+  const { isLoading } = useAppLock()
 
   useEffect(() => {
     if (isLoading) return
@@ -360,8 +342,8 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="app-locking"
-        component={AppLockingStackScreen}
+        name="manage-app-locking"
+        component={ManageAppLockStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
@@ -370,13 +352,8 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="passcode-change"
-        component={ChangePasscodeStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="local-auth-change"
-        component={ChangeLocalAuthStackScreen}
+        name="set-app-lock"
+        component={SetAppLockStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
