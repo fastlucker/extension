@@ -1,4 +1,4 @@
-import CryptoJS from 'react-native-crypto-js'
+import CryptoJS from 'crypto-js'
 
 const encrypt = (password: string, data: any) =>
   new Promise((resolve, reject) => {
