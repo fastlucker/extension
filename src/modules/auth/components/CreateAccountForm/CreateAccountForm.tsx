@@ -71,7 +71,9 @@ const AddNewAccountScreen = () => {
             onChangeText={onChange}
             isValid={isValidPassword(value)}
             value={value}
-            error={errors.password && (t('Please fill in a valid password.') as string)}
+            error={
+              errors.password && (t('Please fill in at least 8 characters for password.') as string)
+            }
             containerStyle={spacings.mbTy}
           />
         )}
