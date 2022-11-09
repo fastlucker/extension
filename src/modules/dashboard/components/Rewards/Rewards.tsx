@@ -191,6 +191,10 @@ const Rewards = () => {
         size="small"
         text={renderRewardsButtonText()}
         style={flexboxStyles.alignSelfCenter}
+        containerStyle={{
+          // Indicate that fetching data is in progress.
+          opacity: rewardsIsLoading || currentClaimStatus.loading ? 0.6 : 1
+        }}
       />
       <BottomSheet
         id="rewards"
