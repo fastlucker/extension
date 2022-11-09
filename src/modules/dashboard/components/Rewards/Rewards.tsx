@@ -129,7 +129,7 @@ const Rewards = () => {
       currentClaimStatus.loading && !currentClaimStatus.lastUpdated
     const isRewardsDataLoadingAndNoPrevData = rewardsIsLoading && !rewardsLastUpdated
     if (isCurrentClaimStatusLoadingAndNoPrevData || isRewardsDataLoadingAndNoPrevData) {
-      return '...'
+      return '... $WALLET'
     }
 
     return t('{{amount}} $WALLET', {
