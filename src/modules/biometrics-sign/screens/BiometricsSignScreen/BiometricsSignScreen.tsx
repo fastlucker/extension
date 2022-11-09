@@ -28,10 +28,10 @@ const BiometricsSignScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
-  const { account } = useAccounts()
+  const { account, selectedAcc } = useAccounts()
   const isFocused = useIsFocused()
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
-  const { hasRegisteredPassword } = useExternalSigners()
+  const { hasRegisteredPassword, decryptExternalSigner } = useExternalSigners()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
     useBiometricsSign()
   const {
@@ -58,20 +58,37 @@ const BiometricsSignScreen = () => {
     // and having the keyboard in there all the time, is strange.
     Keyboard.dismiss()
 
-    // Validation if the password is correct
-    try {
-      // For some reason, the `isSubmitting` flag doesn't flip immediately
-      // when the `Wallet.fromEncryptedJson` promise fires.
-      // Triggering this dummy promise delay flips the `isSubmitting` flag.
-      await delayPromise(100)
+    // Validation if the password is correct for Email/Password accounts
+    if (account.email) {
+      try {
+        // For some reason, the `isSubmitting` flag doesn't flip immediately
+        // when the `Wallet.fromEncryptedJson` promise fires.
+        // Triggering this dummy promise delay flips the `isSubmitting` flag.
+        await delayPromise(100)
 
-      await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), password)
-    } catch (e) {
-      return setError(
-        'password',
-        { type: 'focus', message: t('Invalid password.') },
-        { shouldFocus: true }
-      )
+        await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), password)
+      } catch (e) {
+        return setError(
+          'password',
+          { type: 'focus', message: t('Invalid password.') },
+          { shouldFocus: true }
+        )
+      }
+    }
+
+    // Validation if the password is correct for External Signers.
+    if (hasRegisteredPassword) {
+      const isDecrypted = !!(await decryptExternalSigner({
+        signerPublicAddr: account.signer?.address,
+        password
+      }))
+      if (!isDecrypted) {
+        return setError(
+          'password',
+          { type: 'focus', message: t('Invalid password.') },
+          { shouldFocus: true }
+        )
+      }
     }
 
     const enable = await addSelectedAccPassword(password)
@@ -133,14 +150,20 @@ const BiometricsSignScreen = () => {
     return (
       <>
         <Text type="small" style={spacings.mb}>
-          {t('To enable it, enter your Ambire account password.')}
+          {t('To enable it, enter your {{password}}.', {
+            password: hasRegisteredPassword
+              ? t('external signer password')
+              : t('Ambire account password')
+          })}
         </Text>
         <Controller
           control={control}
           rules={{ required: t('Please fill in a password.') as string }}
           render={({ field: { onChange, onBlur, value } }) => (
             <InputPassword
-              placeholder={t('Account password')}
+              placeholder={
+                hasRegisteredPassword ? t('External signer password') : t('Account password')
+              }
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -167,7 +190,12 @@ const BiometricsSignScreen = () => {
       <Wrapper style={spacings.mt}>
         <Text type="small" style={spacings.mbLg}>
           {t(
-            'You can opt-in to use your phone biometrics to sign transactions instead of your Ambire account password.'
+            'You can opt-in to use your phone biometrics to sign transactions instead of your {{password}}.',
+            {
+              password: hasRegisteredPassword
+                ? t('external signer password')
+                : t('Ambire account password')
+            }
           )}
         </Text>
         {renderContent()}
