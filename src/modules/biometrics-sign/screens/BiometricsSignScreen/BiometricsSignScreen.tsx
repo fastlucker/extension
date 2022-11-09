@@ -17,6 +17,7 @@ import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import { delayPromise } from '@modules/common/utils/promises'
+import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
 import { useIsFocused, useNavigation } from '@react-navigation/native'
 
 interface FormValues {
@@ -30,6 +31,7 @@ const BiometricsSignScreen = () => {
   const { account } = useAccounts()
   const isFocused = useIsFocused()
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
+  const { hasRegisteredPassword } = useExternalSigners()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
     useBiometricsSign()
   const {
@@ -100,11 +102,11 @@ const BiometricsSignScreen = () => {
       )
     }
 
-    if (!account.email) {
+    if (!account.email && !hasRegisteredPassword) {
       return (
         <TextWarning appearance="info">
           {t(
-            'This option is available only for accounts having Email/Password as a default signer.'
+            'This option is only available for Ambire accounts having Email/Password or External Signer as a default signer.'
           )}
         </TextWarning>
       )
