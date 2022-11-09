@@ -7,7 +7,7 @@ import useClaimableWalletToken from 'ambire-common/src/hooks/useClaimableWalletT
 import useRewards from 'ambire-common/src/hooks/useRewards'
 import { RewardIds } from 'ambire-common/src/hooks/useRewards/types'
 import useStakedWalletToken from 'ambire-common/src/hooks/useStakedWalletToken'
-import React, { useLayoutEffect } from 'react'
+import React, { useCallback, useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, ScrollView, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -38,7 +38,12 @@ const Rewards = () => {
   const { selectedAcc } = useAccounts()
   const { network } = useNetwork()
   const { addRequest } = useRequests()
-  const { rewards } = useRewards({
+  const {
+    rewards,
+    lastUpdated: rewardsLastUpdated,
+    isLoading: rewardsIsLoading,
+    errMsg: rewardsErrMsg
+  } = useRewards({
     relayerURL: CONFIG.RELAYER_URL,
     accountId: selectedAcc,
     useRelayerData
@@ -70,7 +75,8 @@ const Rewards = () => {
     network,
     addRequest,
     totalLifetimeRewards,
-    walletUsdPrice
+    walletUsdPrice,
+    rewardsLastUpdated
   })
   const { stakedAmount } = useStakedWalletToken({ accountId: selectedAcc })
   const { hidePrivateValue } = usePrivateMode()
@@ -105,6 +111,41 @@ const Rewards = () => {
       ]
     )
   }
+
+  const renderRewardsButtonText = useCallback(() => {
+    // The rewards value depends on both - the currentClaimStatus and the
+    // rewards data. Therefore - require both data sets to be loaded.
+    const hasErrorAndNoPrevValues =
+      (currentClaimStatus.error || rewardsErrMsg) &&
+      (!currentClaimStatus.lastUpdated || !rewardsLastUpdated)
+    if (hasErrorAndNoPrevValues) {
+      return t('Rewards')
+    }
+
+    // Display loading state only if prev data is missing for any of both data sets.
+    // For all other cases - display the prev data instead of loading indicator,
+    // so that the UI doesn't jump by switching loading indicator on and off.
+    const isCurrentClaimStatusLoadingAndNoPrevData =
+      currentClaimStatus.loading && !currentClaimStatus.lastUpdated
+    const isRewardsDataLoadingAndNoPrevData = rewardsIsLoading && !rewardsLastUpdated
+    if (isCurrentClaimStatusLoadingAndNoPrevData || isRewardsDataLoadingAndNoPrevData) {
+      return '... $WALLET'
+    }
+
+    return t('{{amount}} $WALLET', {
+      amount: hidePrivateValue(pendingTokensTotal)
+    })
+  }, [
+    currentClaimStatus.error,
+    currentClaimStatus.lastUpdated,
+    currentClaimStatus.loading,
+    hidePrivateValue,
+    pendingTokensTotal,
+    rewardsErrMsg,
+    rewardsIsLoading,
+    rewardsLastUpdated,
+    t
+  ])
 
   const handleClaimInxWallet = () => {
     closeBottomSheet()
@@ -148,11 +189,7 @@ const Rewards = () => {
         onPress={openBottomSheet}
         type="outline"
         size="small"
-        text={t('{{pendingTokensTotal}} WALLET Rewards', {
-          pendingTokensTotal: currentClaimStatus.loading
-            ? '...'
-            : hidePrivateValue(pendingTokensTotal)
-        })}
+        text={renderRewardsButtonText()}
         style={flexboxStyles.alignSelfCenter}
       />
       <BottomSheet
