@@ -380,7 +380,7 @@ const sendMessage = (message, options = {}) => {
           if (!resolved) {
             removeMessageHandler(handlerFilter)
             reject(new Error(`Timeout: no reply for message${JSON.stringify(message)}`))
-            log.trace(
+            log.debug(
               `${
                 RELAYER_VERBOSE_TAG[RELAYER]
               } ambexMessenger[${RELAYER}] timeout : ${JSON.stringify(message)}`
@@ -395,7 +395,7 @@ const sendMessage = (message, options = {}) => {
     if (!options.ignoreReply) {
       addMessageHandler(handlerFilter, (reply, error) => {
         resolved = true
-        log.trace(
+        log.debug(
           `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] clearing timeout listener`,
           message
         )

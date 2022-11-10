@@ -2,7 +2,6 @@
 // Here is where the web3 injection happens
 
 import log from 'loglevel'
-import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
 import { PAGE_CONTEXT, BACKGROUND } from '../constants/paths'
 import { sendMessage, makeRPCError, addMessageHandler, setupAmbexMessenger } from './ambexMessanger'
 
@@ -68,14 +67,8 @@ const ethRequest = (requestPayload) =>
 // wrapped promise for provider.send
 const sendRequest = (requestPayload, callback) =>
   new Promise((resolve) => {
-    let replyTimeout = 5 * 1000
-    if (
-      requestPayload &&
-      requestPayload.method &&
-      USER_INTERVENTION_METHODS.indexOf(requestPayload.method) !== -1
-    ) {
-      replyTimeout = 60 * 1000
-    }
+    const replyTimeout = 6 * 60 * 1000 // 6 minutes
+
     sendMessage(
       {
         to: BACKGROUND,
@@ -220,7 +213,7 @@ function ExtensionProvider() {
       formattedPayload.params = paramsOrCallback
     }
 
-    log.trace('Formatted payload', formattedPayload)
+    log.debug('Formatted payload', formattedPayload)
 
     let hasErr
     let requestErr
@@ -228,7 +221,6 @@ function ExtensionProvider() {
       log.debug('send ethRequest err', err)
       hasErr = true // might err be undefined?
       requestErr = err
-      // throw err
     })
     if (hasErr) {
       if (requestErr instanceof Error) {
@@ -245,32 +237,36 @@ function ExtensionProvider() {
 
   this.sendAsync = this.send
 
-  this.fetchNetworkId = async () => {
-    const genId = `netId_${Math.random()}`
-    const callback = (error, payload) => {
-      if (error) {
-        log.debug('Could not get networkId')
-      } else if (window.web3 && window.web3.currentProvider && payload.result > 0) {
-        this.ambireNetworkId = payload.result
-        window.web3.currentProvider.networkVersion = payload.result
+  this.supportsSubscriptions = () => false
+
+  this.disconnect = () => true
+
+  this.isConnected = () => true
+
+  this.enable = async function () {
+    const payload = {
+      jsonrpc: '2.0',
+      id: `reqId_${Math.random()}`,
+      method: 'eth_requestAccounts'
+    }
+    let hasErr
+    let requestErr
+    const result = await ethRequest(payload).catch((err) => {
+      log.debug('send ethRequest err', err)
+      hasErr = true // might err be undefined?
+      requestErr = err
+    })
+    if (hasErr) {
+      if (requestErr instanceof Error) {
+        throw requestErr
+      } else if (typeof requestErr === 'object') {
+        throw requestErr
+      } else {
+        throw Error(`${requestErr}`)
       }
     }
 
-    await sendRequest(
-      {
-        jsonrpc: '2.0',
-        id: genId,
-        method: 'eth_chainId'
-      },
-      callback
-    )
-  }
-
-  this.supportsSubscriptions = () => false
-  this.disconnect = () => true
-
-  this.enable = async function () {
-    await this.fetchNetworkId()
+    return result
   }
 
   this.request = async function (arg, arg2) {
@@ -323,6 +319,9 @@ function ExtensionProvider() {
 }
 
 const ethereumProvider = new ExtensionProvider()
+const ethereumProxyProvider = new Proxy(ethereumProvider, {
+  deleteProperty: () => true
+})
 
 ;(() => {
   // To be removed from DOM after execution
@@ -386,8 +385,8 @@ const ethereumProvider = new ExtensionProvider()
   // One injection happens at the very beginning of the page load,
   // and one when page loading is completed (to override web3 if !web3.isAmbire)
   if (!existing || overridden) {
-    window.ethereum = ethereumProvider
-    window.web3 = new Web3(ethereumProvider)
+    window.ethereum = ethereumProxyProvider
+    window.web3 = new Web3(ethereumProxyProvider)
   }
 
   // Cleaning DOM
