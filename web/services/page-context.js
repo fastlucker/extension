@@ -3,7 +3,7 @@
 
 import log from 'loglevel'
 import { PAGE_CONTEXT, BACKGROUND } from '../constants/paths'
-import { sendMessage, makeRPCError, addMessageHandler, setupAmbexMessenger } from './ambexMessanger'
+import { sendMessage, addMessageHandler, setupAmbexMessenger } from './ambexMessanger'
 
 log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
 
@@ -61,59 +61,6 @@ const ethRequest = (requestPayload) =>
       .catch((err) => {
         log.error('ethRequest: ', err)
         return reject(formatErr(err))
-      })
-  })
-
-// wrapped promise for provider.send
-const sendRequest = (requestPayload, callback) =>
-  new Promise((resolve) => {
-    const replyTimeout = 6 * 60 * 1000 // 6 minutes
-
-    sendMessage(
-      {
-        to: BACKGROUND,
-        type: 'web3Call',
-        data: requestPayload
-      },
-      { replyTimeout }
-    )
-      .then((reply) => {
-        const data = reply.data
-        if (data) {
-          if (data.error) {
-            // avoid to break web3calls dapps with reject...
-            if (callback) {
-              callback(
-                { code: -1, message: data.error, stack: '' },
-                makeRPCError(requestPayload, data.error)
-              )
-            }
-
-            resolve(formatErr(data.error))
-          } else {
-            const result = reply.data ? reply.data.result : null
-            if (callback) {
-              callback(reply.error, reply.data)
-            }
-            resolve(result)
-          }
-        } else {
-          if (callback) {
-            callback('empty reply', makeRPCError(requestPayload, 'empty reply'))
-          }
-          resolve(formatErr('empty reply')) // avoid to break web3Calls dapps with rej...
-        }
-      })
-      .catch((err) => {
-        log.error('sendRequest: ', err)
-        const formattedErr = formatErr(err)
-        if (callback) {
-          callback(
-            { code: -1, message: formattedErr.message, stack: '' },
-            makeRPCError(requestPayload, err)
-          )
-        }
-        resolve(formatErr(formattedErr.message)) // avoid to break web3Calls dapps with rej...
       })
   })
 
