@@ -514,8 +514,8 @@ const useSendTransaction = ({
     const externalSigners: any = JSON.parse(SyncStorage.getItem('externalSigners') || '{}')
 
     if (externalSigners[signer.address] && !externalSignerCredentials) {
+      // External signer the biometrics sign enabled
       if (selectedAccHasPassword) {
-        // Trigger the biometrics sign flow
         try {
           const password = await getSelectedAccPassword()
 
@@ -528,7 +528,7 @@ const useSendTransaction = ({
           return
         }
       } else {
-        // External signer password flow
+        // External signer with password
         !!externalSignerOpenBottomSheet && externalSignerOpenBottomSheet()
         addToast(i18n.t('Please confirm this transaction with your signer password.') as string, {
           timeout: 4000
