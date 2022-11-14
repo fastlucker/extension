@@ -1,5 +1,7 @@
+// @ts-nocheck
+
 /* eslint-disable import/no-mutable-exports */
-import { browserAPI } from '../constants/browserAPI.js'
+import { browserAPI } from '../constants/browserAPI'
 
 // Storage
 // which tabs are injected tabId => true

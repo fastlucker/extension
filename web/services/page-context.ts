@@ -1,10 +1,13 @@
+// @ts-nocheck
+
 // Script injected in the page Shares the same environment as the web page
 // Here is where the web3 injection happens
 
 import log from 'loglevel'
+
+import { BACKGROUND, PAGE_CONTEXT } from '../constants/paths'
 import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
-import { PAGE_CONTEXT, BACKGROUND } from '../constants/paths'
-import { sendMessage, makeRPCError, addMessageHandler, setupAmbexMessenger } from './ambexMessanger'
+import { addMessageHandler, makeRPCError, sendMessage, setupAmbexMessenger } from './ambexMessanger'
 
 log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
 

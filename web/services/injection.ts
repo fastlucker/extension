@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 // Injected at the very beginning by the manifest, defining global var used for other scripts
 window.injectWeb3 = (evtToPage, evtFromPage) => {
   const script = document.createElement('script')

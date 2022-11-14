@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 export const errorCodes = {
   rpc: {
     invalidInput: -32000,

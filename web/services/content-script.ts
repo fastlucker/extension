@@ -1,8 +1,10 @@
+// @ts-nocheck
+
 // Content Script is mainly a relayer between pageContext and background worker
 // on initialization it injects a script in the currently opened page
 
-import { setupAmbexMessenger, sendMessage } from './ambexMessanger'
-import { CONTENT_SCRIPT, BACKGROUND } from '../constants/paths'
+import { BACKGROUND, CONTENT_SCRIPT } from '../constants/paths'
+import { sendMessage, setupAmbexMessenger } from './ambexMessanger'
 
 const contentScript = async () => {
   setupAmbexMessenger(CONTENT_SCRIPT)

@@ -1,33 +1,35 @@
+// @ts-nocheck
+
 /* eslint-disable @typescript-eslint/no-use-before-define */
 // The backbone of the extension
 // Background workers are killed and respawned (chrome MV3) when contentScript are calling them.
 // Firefox does not support MV3 yet but is working on it.
 
-import { getDefaultProvider, BigNumber, ethers } from 'ethers'
+import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
 
-import { errorCodes } from '../constants/errors'
-import {
-  setupAmbexMessenger,
-  sendReply,
-  addMessageHandler,
-  sendMessage,
-  sendAck,
-  processBackgroundQueue
-} from './ambexMessanger'
 import { browserAPI } from '../constants/browserAPI'
-import { PAGE_CONTEXT, BACKGROUND } from '../constants/paths'
+import { errorCodes } from '../constants/errors'
+import { BACKGROUND, PAGE_CONTEXT } from '../constants/paths'
 import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
+import { deferCreateWindow, PERMISSION_WINDOWS } from '../functions/deferCreateWindow'
+import {
+  getStore,
+  isStorageLoaded,
+  PERMISSIONS,
+  savePermissionsInStorage,
+  saveTabInjectionsInStorage,
+  TAB_INJECTIONS
+} from '../functions/storage'
 import { updateExtensionIcon } from '../functions/updateExtensionIcon'
 import {
-  TAB_INJECTIONS,
-  PERMISSIONS,
-  isStorageLoaded,
-  saveTabInjectionsInStorage,
-  savePermissionsInStorage,
-  getStore
-} from '../functions/storage'
-import { PERMISSION_WINDOWS, deferCreateWindow } from '../functions/deferCreateWindow'
+  addMessageHandler,
+  processBackgroundQueue,
+  sendAck,
+  sendMessage,
+  sendReply,
+  setupAmbexMessenger
+} from './ambexMessanger'
 
 log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
 setupAmbexMessenger(BACKGROUND, browserAPI)

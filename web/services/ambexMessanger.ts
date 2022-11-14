@@ -1,41 +1,43 @@
+// @ts-nocheck
+
 // This is the messaging lib, used by all the relayers
 // There are 3 possible actors for the communication
 // BACKGROUND, CONTENT_SCRIPT, PAGE_CONTEXT
 import log from 'loglevel'
 
 import {
-  PAGE_CONTEXT,
-  CONTENT_SCRIPT,
   BACKGROUND,
+  CONTENT_SCRIPT,
+  PAGE_CONTEXT,
   PATHS,
   RELAYER_VERBOSE_TAG
-} from '../constants/paths.js'
+} from '../constants/paths'
 
 log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
 
 // The name of the current process handling the msg (itself).
 // It can be PAGE_CONTEXT (dapp page), CONTENT_SCRIPT (dappPage with more permissions) and BACKGROUND.
 // Sometimes "I, me" is mentioned, it refers to RELAYER (the relayer is talking)
-let RELAYER
+let RELAYER: any
 
 // Callbacks for listeners from addMessageHandler
-const HANDLERS = []
+const HANDLERS: any = []
 
 // To be part of the JSON RPC generated ids when sendingMessage
-let MSGCOUNT = 0
+let MSGCOUNT: any = 0
 
 // window listener handler
-let WINDOWLISTENER
+let WINDOWLISTENER: any
 
 // For BACKGROUND only, messages coming in before BACKGROUND worker is fully initialized are stored in this queue to be processed after initialization
-let INIT_MSG_QUEUE = []
+let INIT_MSG_QUEUE: any = []
 
 // For BACKGROUND only, bool
-let BACKGROUND_INITIALIZED
+let BACKGROUND_INITIALIZED: any
 
 // eslint-disable-next-line
 //haxx eslint react ambire wallet
-let chromeObject
+let chromeObject: any
 if (typeof chrome !== 'undefined') {
   // eslint-disable-next-line
   chromeObject = chrome

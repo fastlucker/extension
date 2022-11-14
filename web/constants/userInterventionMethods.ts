@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 export const USER_INTERVENTION_METHODS = {
   eth_sendTransaction: 'eth_sendTransaction',
   personal_sign: 'personal_sign',
