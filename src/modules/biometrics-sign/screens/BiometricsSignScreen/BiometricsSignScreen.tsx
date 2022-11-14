@@ -28,10 +28,10 @@ const BiometricsSignScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
-  const { account, selectedAcc } = useAccounts()
+  const { account } = useAccounts()
   const isFocused = useIsFocused()
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
-  const { hasRegisteredPassword, decryptExternalSigner } = useExternalSigners()
+  const { decryptExternalSigner, externalSigners } = useExternalSigners()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
     useBiometricsSign()
   const {
@@ -52,6 +52,8 @@ const BiometricsSignScreen = () => {
   useEffect(() => {
     return () => reset()
   }, [reset, isFocused])
+
+  const isExternalSigner = externalSigners[account.signer?.address]
 
   const handleEnable = async ({ password }: FormValues) => {
     // Dismiss the keyboard, because the validation process sometimes takes longer,
@@ -77,7 +79,7 @@ const BiometricsSignScreen = () => {
     }
 
     // Validation if the password is correct for External Signers.
-    if (hasRegisteredPassword) {
+    if (isExternalSigner) {
       const isDecrypted = !!(await decryptExternalSigner({
         signerPublicAddr: account.signer?.address,
         password
@@ -119,7 +121,7 @@ const BiometricsSignScreen = () => {
       )
     }
 
-    if (!account.email && !hasRegisteredPassword) {
+    if (!account.email && !isExternalSigner) {
       return (
         <TextWarning appearance="info">
           {t(
@@ -151,7 +153,7 @@ const BiometricsSignScreen = () => {
       <>
         <Text type="small" style={spacings.mb}>
           {t('To enable it, enter your {{password}}.', {
-            password: hasRegisteredPassword
+            password: isExternalSigner
               ? t('external signer password')
               : t('Ambire account password')
           })}
@@ -161,9 +163,7 @@ const BiometricsSignScreen = () => {
           rules={{ required: t('Please fill in a password.') as string }}
           render={({ field: { onChange, onBlur, value } }) => (
             <InputPassword
-              placeholder={
-                hasRegisteredPassword ? t('External signer password') : t('Account password')
-              }
+              placeholder={isExternalSigner ? t('External signer password') : t('Account password')}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -192,7 +192,7 @@ const BiometricsSignScreen = () => {
           {t(
             'You can opt-in to use your phone biometrics to sign transactions instead of your {{password}}.',
             {
-              password: hasRegisteredPassword
+              password: isExternalSigner
                 ? t('external signer password')
                 : t('Ambire account password')
             }
