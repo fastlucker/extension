@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { engine } from './browserAPI'
+import { engine } from '@web/constants/browserAPI'
 
 // In sync with the `zoom` in `web/style.css`
 const ZOOM = engine === 'gecko' ? 1 : 0.82

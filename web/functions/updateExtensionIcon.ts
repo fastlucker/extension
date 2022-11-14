@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { browserAPI } from '../constants/browserAPI'
+import { browserAPI } from '@web/constants/browserAPI'
 
 // Update the extension icon depending on the state
 export const updateExtensionIcon = async (

@@ -5,9 +5,14 @@
 
 import log from 'loglevel'
 
-import { BACKGROUND, PAGE_CONTEXT } from '../constants/paths'
-import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
-import { addMessageHandler, makeRPCError, sendMessage, setupAmbexMessenger } from './ambexMessanger'
+import { BACKGROUND, PAGE_CONTEXT } from '@web/constants/paths'
+import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
+import {
+  addMessageHandler,
+  makeRPCError,
+  sendMessage,
+  setupAmbexMessenger
+} from '@web/services/ambexMessanger'
 
 log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
 

@@ -8,11 +8,11 @@
 import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
 
-import { browserAPI } from '../constants/browserAPI'
-import { errorCodes } from '../constants/errors'
-import { BACKGROUND, PAGE_CONTEXT } from '../constants/paths'
-import { USER_INTERVENTION_METHODS } from '../constants/userInterventionMethods'
-import { deferCreateWindow, PERMISSION_WINDOWS } from '../functions/deferCreateWindow'
+import { browserAPI } from '@web/constants/browserAPI'
+import { errorCodes } from '@web/constants/errors'
+import { BACKGROUND, PAGE_CONTEXT } from '@web/constants/paths'
+import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
+import { deferCreateWindow, PERMISSION_WINDOWS } from '@web/functions/deferCreateWindow'
 import {
   getStore,
   isStorageLoaded,
@@ -20,8 +20,8 @@ import {
   savePermissionsInStorage,
   saveTabInjectionsInStorage,
   TAB_INJECTIONS
-} from '../functions/storage'
-import { updateExtensionIcon } from '../functions/updateExtensionIcon'
+} from '@web/functions/storage'
+import { updateExtensionIcon } from '@web/functions/updateExtensionIcon'
 import {
   addMessageHandler,
   processBackgroundQueue,
@@ -29,7 +29,7 @@ import {
   sendMessage,
   sendReply,
   setupAmbexMessenger
-} from './ambexMessanger'
+} from '@web/services/ambexMessanger'
 
 log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
 setupAmbexMessenger(BACKGROUND, browserAPI)

@@ -1,7 +1,7 @@
 // @ts-nocheck
 
-import { browserAPI } from '../constants/browserAPI'
-import { POPUP_HEIGHT, POPUP_WIDTH } from '../constants/spacings'
+import { browserAPI } from '@web/constants/browserAPI'
+import { POPUP_HEIGHT, POPUP_WIDTH } from '@web/constants/spacings'
 
 export const DEFERRED_PERMISSION_WINDOWS = {}
 export const PERMISSION_WINDOWS = {}

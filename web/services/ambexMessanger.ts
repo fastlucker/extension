@@ -11,7 +11,7 @@ import {
   PAGE_CONTEXT,
   PATHS,
   RELAYER_VERBOSE_TAG
-} from '../constants/paths'
+} from '@web/constants/paths'
 
 log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
 
