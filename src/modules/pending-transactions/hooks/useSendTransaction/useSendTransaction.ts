@@ -136,7 +136,7 @@ const useSendTransaction = ({
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
 
-  const { decryptExternalSigner } = useExternalSigners()
+  const { decryptExternalSigner, externalSigners } = useExternalSigners()
   const [replaceTx, setReplaceTx] = useState(!!sendTxnState.replaceByDefault)
 
   const bundle = useMemo(
@@ -511,7 +511,6 @@ const useSendTransaction = ({
 
     const finalBundle = (signingStatus && signingStatus.finalBundle) || getFinalBundle()
     const signer = finalBundle.signer
-    const externalSigners: any = JSON.parse(SyncStorage.getItem('externalSigners') || '{}')
 
     if (externalSigners[signer.address] && !externalSignerCredentials) {
       // External signer the biometrics sign enabled

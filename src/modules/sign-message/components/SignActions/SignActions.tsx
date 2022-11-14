@@ -92,7 +92,7 @@ const SignActions = ({
   const { account } = useAccounts()
   const { network } = useNetwork()
   const { decryptExternalSigner } = useExternalSigners()
-  const { selectedAccHasPassword, getSelectedAccPassword } = useBiometricsSign()
+  const { selectedAccHasPassword, getSelectedAccPassword, externalSigners } = useBiometricsSign()
   const { addToast } = useToast()
   const {
     control,
@@ -144,8 +144,6 @@ const SignActions = ({
   }
 
   const handleSign = async () => {
-    const externalSigners: any = JSON.parse(SyncStorage.getItem('externalSigners') || '{}')
-
     const externalSignerWithBiometricSign =
       externalSigners[account.signer?.address] && selectedAccHasPassword
     if (externalSignerWithBiometricSign) {
