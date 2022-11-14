@@ -187,7 +187,7 @@ const SignActions = ({
             </Text>
             <Text appearance="danger" fontSize={12}>
               {t(
-                'You need to complete your first transaction on Ethereum to be able to sign messages.'
+                `You need to complete your first transaction on ${network?.name} to be able to sign messages.`
               )}
             </Text>
           </View>
