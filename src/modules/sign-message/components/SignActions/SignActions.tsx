@@ -91,8 +91,8 @@ const SignActions = ({
   const { t } = useTranslation()
   const { account } = useAccounts()
   const { network } = useNetwork()
-  const { decryptExternalSigner } = useExternalSigners()
-  const { selectedAccHasPassword, getSelectedAccPassword, externalSigners } = useBiometricsSign()
+  const { decryptExternalSigner, externalSigners } = useExternalSigners()
+  const { selectedAccHasPassword, getSelectedAccPassword } = useBiometricsSign()
   const { addToast } = useToast()
   const {
     control,
