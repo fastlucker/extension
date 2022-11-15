@@ -161,6 +161,18 @@ const SignActions = ({
       return
     }
 
+    // Inject the password to the form, so that it is passed to the `onSubmit`
+    // (`handleSubmit`) handler, which will then pass it to the `approve`
+    // function. And therefore, the logic further down will be reused.
+    const isQuickAccManagerWithBiometricsSign =
+      account.signer?.quickAccManager && selectedAccHasPassword
+    if (isQuickAccManagerWithBiometricsSign) {
+      const password = await getSelectedAccPassword()
+      if (password) {
+        setValue('password', password)
+      }
+    }
+
     if (account.signer?.quickAccManager) {
       handleSubmit(approve)()
     } else {
@@ -171,7 +183,7 @@ const SignActions = ({
   return (
     <>
       <View>
-        {!!account.signer?.quickAccManager && !!isDeployed && (
+        {!!account.signer?.quickAccManager && !!isDeployed && !selectedAccHasPassword && (
           <Controller
             control={control}
             rules={{ required: true }}
