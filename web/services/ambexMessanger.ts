@@ -86,8 +86,6 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
       chromeObject.runtime.onMessage.addListener((request, sender, sendResponse) => {
         // Security check + avoid double routing, disallow direct handling, because when CS is broadcasting, both BACKGROUND and other CS-like receive it
         // TODO firefox
-        log.error('sender url', sender.url)
-        log.error('sender id', sender.id)
         if (
           sender.url === `chrome-extension://${sender.id}/background.js` ||
           // initially, it seems BACKGROUND sends msg without origin?!
