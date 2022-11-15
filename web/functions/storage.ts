@@ -34,7 +34,7 @@ export const isStorageLoaded = () =>
       return
     }
     browserAPI.storage.local.get(
-      ['TAB_INJECTIONS', 'PERMISSIONS', 'USER_ACTION_NOTIFICATIONS', 'NETWORK', 'SELECTED_ACCOUNT'],
+      ['TAB_INJECTIONS', 'PERMISSIONS', 'USER_ACTION_NOTIFICATIONS'],
       (result) => {
         TAB_INJECTIONS = { ...TAB_INJECTIONS, ...result.TAB_INJECTIONS }
         PERMISSIONS = { ...PERMISSIONS, ...result.PERMISSIONS }

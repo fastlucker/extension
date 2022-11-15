@@ -55,10 +55,10 @@ const broadcastExtensionDataOnChange = () => {
       if (namespace === 'local') {
         // eslint-disable-next-line no-restricted-syntax
         for (const [key, { newValue }] of Object.entries(changes)) {
-          if (key === 'SELECTED_ACCOUNT') {
+          if (key === 'selectedAcc') {
             broadcastExtensionDataChange('ambireWalletAccountChanged', { account: newValue })
           }
-          if (key === 'NETWORK') {
+          if (key === 'network') {
             broadcastExtensionDataChange('ambireWalletChainChanged', { chainId: newValue.chainId })
           }
         }
@@ -231,8 +231,8 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
       return
     }
     log.info('ambirePageContext: web3CallRequest', message)
-    const { NETWORK, SELECTED_ACCOUNT } = await getStore(['NETWORK', 'SELECTED_ACCOUNT'])
-    if (!NETWORK || !SELECTED_ACCOUNT) {
+    const { network, selectedAcc } = await getStore(['network', 'selectedAcc'])
+    if (!network || !selectedAcc) {
       sendReply(message, {
         data: {
           jsonrpc: '2.0',
@@ -243,22 +243,22 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
       return
     }
 
-    const provider = getDefaultProvider(NETWORK.rpc)
+    const provider = getDefaultProvider(network.rpc)
     let deferredReply = false
 
     const callTx = payload.params
     let result
     let error
     if (method === 'eth_accounts' || method === 'eth_requestAccounts') {
-      result = [SELECTED_ACCOUNT]
+      result = [selectedAcc]
     } else if (method === 'eth_chainId' || method === 'net_version') {
-      result = ethers.utils.hexlify(NETWORK.chainId)
+      result = ethers.utils.hexlify(network.chainId)
     } else if (method === 'wallet_requestPermissions') {
       result = [{ parentCapability: 'eth_accounts' }]
     } else if (method === 'wallet_getPermissions') {
       result = [{ parentCapability: 'eth_accounts' }]
     } else if (method === 'eth_coinbase') {
-      result = SELECTED_ACCOUNT
+      result = selectedAcc
     } else if (method === 'eth_call') {
       result = await provider.call(callTx[0], callTx[1]).catch((err) => {
         error = err
