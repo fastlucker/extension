@@ -161,12 +161,16 @@ const SignActions = ({
       return
     }
 
+    // Inject the password to the form, so that it is passed to the `onSubmit`
+    // (`handleSubmit`) handler, which will then pass it to the `approve`
+    // function. And therefore, the logic further down will be reused.
     const isQuickAccManagerWithBiometricsSign =
       account.signer?.quickAccManager && selectedAccHasPassword
     if (isQuickAccManagerWithBiometricsSign) {
-      // TODO: Figure out if this is enough or approve() should be called.
-      quickAccBottomSheet.openBottomSheet()
-      return
+      const password = await getSelectedAccPassword()
+      if (password) {
+        setValue('password', password)
+      }
     }
 
     if (account.signer?.quickAccManager) {
@@ -174,25 +178,6 @@ const SignActions = ({
     } else {
       approve()
     }
-  }
-
-  const handleConfirm = async () => {
-    const isQuickAccManagerWithBiometricsSign =
-      account.signer?.quickAccManager && selectedAccHasPassword
-    if (isQuickAccManagerWithBiometricsSign) {
-      // Inject the password to the form, so that it is passed to the
-      // `onSubmit` (`handleSubmit`) handler, which will then pass it to
-      // the `approveQuickAcc` function. And therefore,
-      // the logic further down will be reused.
-      const password = await getSelectedAccPassword()
-      if (password) {
-        setValue('password', password)
-      }
-    }
-
-    handleSubmit(approveQuickAcc)()
-    setValue('code', '')
-    quickAccBottomSheet.closeBottomSheet()
   }
 
   return (
@@ -304,7 +289,15 @@ const SignActions = ({
           value={watch('code', '')}
           autoFocus={!isWeb}
         />
-        <Button text={t('Confirm')} disabled={!watch('code', '')} onPress={handleConfirm} />
+        <Button
+          text={t('Confirm')}
+          disabled={!watch('code', '')}
+          onPress={() => {
+            handleSubmit(approveQuickAcc)()
+            setValue('code', '')
+            quickAccBottomSheet.closeBottomSheet()
+          }}
+        />
       </BottomSheet>
       <BottomSheet
         id="hardware-wallet-sign"
