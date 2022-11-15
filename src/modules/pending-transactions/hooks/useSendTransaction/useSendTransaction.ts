@@ -20,9 +20,13 @@ import { fetchPost } from '@modules/common/services/fetch'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { getProvider } from '@modules/common/services/provider'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
+import { signTxnQuickAcc } from '@modules/common/services/sign'
 import isInt from '@modules/common/utils/isInt'
 import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
+import { isExtension } from '@web/constants/browserAPI'
 import { errorCodes, errorValues } from '@web/constants/errors'
+import { BACKGROUND } from '@web/constants/paths'
+import { sendMessage } from '@web/services/ambexMessanger'
 
 type Props = {
   hardwareWalletOpenBottomSheet: () => void
@@ -472,7 +476,12 @@ const useSendTransaction = ({
       throw new Error(`Secondary key error: ${message}`)
     }
     if (confCodeRequired) {
-      setSigningStatus({ quickAcc: true, finalBundle, confCodeRequired })
+      setSigningStatus({
+        quickAcc: true,
+        finalBundle,
+        confCodeRequired,
+        passwordRequired: !isExtension
+      })
     } else {
       if (!signature) throw new Error('QuickAcc internal error: there should be a signature')
       if (!account.primaryKeyBackup)
@@ -482,23 +491,35 @@ const useSendTransaction = ({
       setSigningStatus({
         quickAcc: true,
         inProgress: true,
-        confCodeRequired: canSkip2FA ? 'notRequired' : undefined
+        confCodeRequired: canSkip2FA ? 'notRequired' : undefined,
+        passwordRequired: !isExtension
       })
-      if (!finalBundle.recoveryMode) {
-        // Make sure we let React re-render without blocking (decrypting and signing will block)
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 0))
-        const pwd = quickAccCredentials.password || alert('Enter password')
-        const wallet = await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), pwd)
-        await finalBundle.sign(wallet)
-      } else {
-        // set both .signature and .signatureTwo to the same value: the secondary signature
-        // this will trigger a timelocked txn
-        finalBundle.signature = signature
+
+      if (isExtension) {
+        // await txn to be signed in the background service
+        // eslint-disable-next-line @typescript-eslint/return-await
+        const res = await sendMessage({
+          type: 'signTxn',
+          to: BACKGROUND,
+          data: {
+            finalBundle,
+            signature
+          }
+        })
+
+        return res
       }
-      finalBundle.signatureTwo = signature
+
+      const pwd = quickAccCredentials.password || alert('Enter password')
       // eslint-disable-next-line @typescript-eslint/return-await
-      return await finalBundle.submit({ relayerURL, fetch })
+      const res = await signTxnQuickAcc({
+        password: pwd,
+        finalBundle,
+        signature,
+        primaryKeyBackup: account.primaryKeyBackup
+      })
+
+      return res
     }
   }
 

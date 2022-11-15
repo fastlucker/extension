@@ -1,27 +1,27 @@
 import { Wallet } from 'ethers'
 
 import CONFIG from '@config/env'
-import { isExtension } from '@web/constants/browserAPI'
-
-import alert from '../alert'
 
 const relayerURL = CONFIG.RELAYER_URL
 
-const signTxnQuickAcc = async ({
-  quickAccCredentials,
+type Props = {
+  password: string
+  finalBundle: any
+  primaryKeyBackup: string
+  signature: any
+}
+
+export const signTxnQuickAcc = async ({
+  password,
   finalBundle,
   primaryKeyBackup,
   signature
-}: any) => {
+}: Props) => {
   if (!finalBundle.recoveryMode) {
     // Make sure we let React re-render without blocking (decrypting and signing will block)
     // eslint-disable-next-line no-promise-executor-return
     await new Promise((resolve) => setTimeout(resolve, 0))
-    const pwd = quickAccCredentials.password
-    if (!pwd) {
-      !isExtension && alert('Enter password')
-    }
-    const wallet = await Wallet.fromEncryptedJson(JSON.parse(primaryKeyBackup), pwd)
+    const wallet = await Wallet.fromEncryptedJson(JSON.parse(primaryKeyBackup), password)
     await finalBundle.sign(wallet)
   } else {
     // set both .signature and .signatureTwo to the same value: the secondary signature

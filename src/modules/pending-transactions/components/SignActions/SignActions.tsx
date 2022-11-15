@@ -143,18 +143,22 @@ const SignActions = ({
               )}
             </Text>
           )}
-          {signingStatus.confCodeRequired === 'notRequired' && !selectedAccHasPassword && (
-            <Text style={spacings.mbSm}>{t('Please enter your password.')}</Text>
-          )}
+          {signingStatus.passwordRequired &&
+            signingStatus.confCodeRequired === 'notRequired' &&
+            !selectedAccHasPassword && (
+              <Text style={spacings.mbSm}>{t('Please enter your password.')}</Text>
+            )}
           {signingStatus.confCodeRequired === 'email' && (
             <Text style={spacings.mbSm} weight="medium">
-              {t(
-                'A confirmation code was sent to your email, please enter it along with your password.'
-              )}
+              {signingStatus.passwordRequired
+                ? t(
+                    'A confirmation code was sent to your email, please enter it along with your password.'
+                  )
+                : t('A confirmation code was sent to your email.')}
             </Text>
           )}
         </View>
-        {!isRecoveryMode && !selectedAccHasPassword && (
+        {signingStatus.passwordRequired && !isRecoveryMode && !selectedAccHasPassword && (
           <Controller
             control={control}
             rules={{ validate: isValidPassword }}
@@ -204,7 +208,9 @@ const SignActions = ({
               text={signingStatus.inProgress ? t('Confirming...') : t('Confirm')}
               disabled={
                 signingStatus.inProgress ||
-                (!selectedAccHasPassword && !watch('password', '')) ||
+                (!selectedAccHasPassword &&
+                  signingStatus.passwordRequired &&
+                  !watch('password', '')) ||
                 (signingStatus.confCodeRequired !== 'notRequired' && !watch('code', ''))
               }
               onPress={() => {

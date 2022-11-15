@@ -7,8 +7,7 @@
   "short_name": "Ambire",
   "permissions": ["storage", "tabs"],
   "background": {
-    "service_worker": "background.js",
-    "type": "module"
+    "service_worker": "background.js"
   },
   "icons": {
     "128": "./assets/images/xicon@128.png",

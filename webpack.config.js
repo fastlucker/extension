@@ -6,6 +6,7 @@ const { ExpoHtmlWebpackPlugin } = require('@expo/webpack-config/plugins/index')
 const nodeHtmlParser = require('node-html-parser')
 const fsExtra = require('fs-extra')
 const expoEnv = require('@expo/webpack-config/env')
+const webpack = require('webpack')
 const appJSON = require('./app.json')
 
 // Overrides the default generatedScriptTags
@@ -138,6 +139,10 @@ module.exports = async function (env, argv) {
 
     config.plugins = [
       ...config.plugins,
+      // Buffer polyfill, used by web3
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer']
+      }),
       // Overrides ExpoCopyPlugin
       new CopyPlugin({
         patterns: [
