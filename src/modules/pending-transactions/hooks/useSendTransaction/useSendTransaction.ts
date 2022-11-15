@@ -8,8 +8,9 @@ import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import CONFIG from '@config/env'
-import i18n from '@config/localization/localization'
+import i18n, { useTranslation } from '@config/localization/localization'
 import { SyncStorage } from '@config/storage'
+import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -122,9 +123,11 @@ const useSendTransaction = ({
   hardwareWalletOpenBottomSheet,
   externalSignerOpenBottomSheet
 }: Props) => {
+  const { t } = useTranslation()
   const [estimation, setEstimation] = useState<any>(null)
   const [signingStatus, setSigningStatus] = useState<any>(false)
   const [feeSpeed, setFeeSpeed] = useState<any>(DEFAULT_SPEED)
+  const { selectedAccHasPassword, getSelectedAccPassword } = useBiometricsSign()
 
   const { addToast } = useToast()
   const { network }: any = useNetwork()
@@ -133,7 +136,7 @@ const useSendTransaction = ({
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
 
-  const { decryptExternalSigner } = useExternalSigners()
+  const { decryptExternalSigner, externalSigners } = useExternalSigners()
   const [replaceTx, setReplaceTx] = useState(!!sendTxnState.replaceByDefault)
 
   const bundle = useMemo(
@@ -502,21 +505,36 @@ const useSendTransaction = ({
     }
   }
 
-  const approveTxn = ({ quickAccCredentials, externalSignerCredentials, device }: any) => {
+  const approveTxn = async ({ quickAccCredentials, externalSignerCredentials, device }: any) => {
     if (signingStatus && signingStatus.inProgress) return
     setSigningStatus(signingStatus || { inProgress: true })
 
     const finalBundle = (signingStatus && signingStatus.finalBundle) || getFinalBundle()
     const signer = finalBundle.signer
-    const externalSigners: any = JSON.parse(SyncStorage.getItem('externalSigners') || '{}')
 
     if (externalSigners[signer.address] && !externalSignerCredentials) {
-      !!externalSignerOpenBottomSheet && externalSignerOpenBottomSheet()
-      addToast(i18n.t('Please confirm this transaction with your signer password.') as string, {
-        timeout: 4000
-      })
-      setSigningStatus(null)
-      return
+      // External signer the biometrics sign enabled
+      if (selectedAccHasPassword) {
+        try {
+          const password = await getSelectedAccPassword()
+
+          // Fill in the credentials from the biometrics sign response,
+          // because they are needed for the next steps.
+          // eslint-disable-next-line no-param-reassign
+          externalSignerCredentials = { password }
+        } catch (e) {
+          addToast(t('Failed to confirm your identity.') as string, { error: true })
+          return
+        }
+      } else {
+        // External signer with password
+        !!externalSignerOpenBottomSheet && externalSignerOpenBottomSheet()
+        addToast(i18n.t('Please confirm this transaction with your signer password.') as string, {
+          timeout: 4000
+        })
+        setSigningStatus(null)
+        return
+      }
     }
 
     if (!bundle.signer.quickAccManager && !device && !externalSignerCredentials) {

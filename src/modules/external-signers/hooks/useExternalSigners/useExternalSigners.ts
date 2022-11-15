@@ -150,7 +150,8 @@ const useExternalSigners = () => {
   return {
     addExternalSigner,
     decryptExternalSigner,
-    hasRegisteredPassword
+    hasRegisteredPassword,
+    externalSigners
   }
 }
 

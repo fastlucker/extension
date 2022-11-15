@@ -9,6 +9,7 @@ import { View } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { SyncStorage } from '@config/storage'
+import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -90,7 +91,8 @@ const SignActions = ({
   const { t } = useTranslation()
   const { account } = useAccounts()
   const { network } = useNetwork()
-  const { decryptExternalSigner } = useExternalSigners()
+  const { decryptExternalSigner, externalSigners } = useExternalSigners()
+  const { selectedAccHasPassword, getSelectedAccPassword } = useBiometricsSign()
   const { addToast } = useToast()
   const {
     control,
@@ -106,20 +108,6 @@ const SignActions = ({
       code: ''
     }
   })
-
-  const handleSign = () => {
-    const externalSigners: any = JSON.parse(SyncStorage.getItem('externalSigners') || '{}')
-    if (externalSigners[account.signer?.address]) {
-      externalSignerBottomSheet.openBottomSheet()
-      return
-    }
-
-    if (account.signer?.quickAccManager) {
-      handleSubmit(approve)()
-    } else {
-      approve()
-    }
-  }
 
   // Not a common logic therefore implemented locally
   // Once implemented on web this should be moved in ambire-common
@@ -152,6 +140,31 @@ const SignActions = ({
       addToast(`Signing error: ${e.message || e}`, {
         error: true
       })
+    }
+  }
+
+  const handleSign = async () => {
+    const externalSignerWithBiometricSign =
+      externalSigners[account.signer?.address] && selectedAccHasPassword
+    if (externalSignerWithBiometricSign) {
+      const password = await getSelectedAccPassword()
+      if (password) {
+        approveWithExternalSigner({ password })
+      }
+
+      return
+    }
+
+    const externalSignerWithPassword = externalSigners[account.signer?.address]
+    if (externalSignerWithPassword) {
+      externalSignerBottomSheet.openBottomSheet()
+      return
+    }
+
+    if (account.signer?.quickAccManager) {
+      handleSubmit(approve)()
+    } else {
+      approve()
     }
   }
 
