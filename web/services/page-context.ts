@@ -5,14 +5,8 @@
 
 import log from 'loglevel'
 
-import { BACKGROUND, PAGE_CONTEXT } from '@web/constants/paths'
-import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
-import {
-  addMessageHandler,
-  makeRPCError,
-  sendMessage,
-  setupAmbexMessenger
-} from '@web/services/ambexMessanger'
+import { BACKGROUND, PAGE_CONTEXT } from '../constants/paths'
+import { addMessageHandler, sendMessage, setupAmbexMessenger } from './ambexMessanger'
 
 log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
 
@@ -70,65 +64,6 @@ const ethRequest = (requestPayload) =>
       .catch((err) => {
         log.error('ethRequest: ', err)
         return reject(formatErr(err))
-      })
-  })
-
-// wrapped promise for provider.send
-const sendRequest = (requestPayload, callback) =>
-  new Promise((resolve) => {
-    let replyTimeout = 5 * 1000
-    if (
-      requestPayload &&
-      requestPayload.method &&
-      USER_INTERVENTION_METHODS.indexOf(requestPayload.method) !== -1
-    ) {
-      replyTimeout = 60 * 1000
-    }
-    sendMessage(
-      {
-        to: BACKGROUND,
-        type: 'web3Call',
-        data: requestPayload
-      },
-      { replyTimeout }
-    )
-      .then((reply) => {
-        const data = reply.data
-        if (data) {
-          if (data.error) {
-            // avoid to break web3calls dapps with reject...
-            if (callback) {
-              callback(
-                { code: -1, message: data.error, stack: '' },
-                makeRPCError(requestPayload, data.error)
-              )
-            }
-
-            resolve(formatErr(data.error))
-          } else {
-            const result = reply.data ? reply.data.result : null
-            if (callback) {
-              callback(reply.error, reply.data)
-            }
-            resolve(result)
-          }
-        } else {
-          if (callback) {
-            callback('empty reply', makeRPCError(requestPayload, 'empty reply'))
-          }
-          resolve(formatErr('empty reply')) // avoid to break web3Calls dapps with rej...
-        }
-      })
-      .catch((err) => {
-        log.error('sendRequest: ', err)
-        const formattedErr = formatErr(err)
-        if (callback) {
-          callback(
-            { code: -1, message: formattedErr.message, stack: '' },
-            makeRPCError(requestPayload, err)
-          )
-        }
-        resolve(formatErr(formattedErr.message)) // avoid to break web3Calls dapps with rej...
       })
   })
 
@@ -228,7 +163,7 @@ function ExtensionProvider() {
       formattedPayload.params = paramsOrCallback
     }
 
-    log.trace('Formatted payload', formattedPayload)
+    log.debug('Formatted payload', formattedPayload)
 
     let hasErr
     let requestErr
@@ -236,7 +171,6 @@ function ExtensionProvider() {
       log.debug('send ethRequest err', err)
       hasErr = true // might err be undefined?
       requestErr = err
-      // throw err
     })
     if (hasErr) {
       if (requestErr instanceof Error) {
@@ -253,32 +187,36 @@ function ExtensionProvider() {
 
   this.sendAsync = this.send
 
-  this.fetchNetworkId = async () => {
-    const genId = `netId_${Math.random()}`
-    const callback = (error, payload) => {
-      if (error) {
-        log.debug('Could not get networkId')
-      } else if (window.web3 && window.web3.currentProvider && payload.result > 0) {
-        this.ambireNetworkId = payload.result
-        window.web3.currentProvider.networkVersion = payload.result
+  this.supportsSubscriptions = () => false
+
+  this.disconnect = () => true
+
+  this.isConnected = () => true
+
+  this.enable = async function () {
+    const payload = {
+      jsonrpc: '2.0',
+      id: `reqId_${Math.random()}`,
+      method: 'eth_requestAccounts'
+    }
+    let hasErr
+    let requestErr
+    const result = await ethRequest(payload).catch((err) => {
+      log.debug('send ethRequest err', err)
+      hasErr = true // might err be undefined?
+      requestErr = err
+    })
+    if (hasErr) {
+      if (requestErr instanceof Error) {
+        throw requestErr
+      } else if (typeof requestErr === 'object') {
+        throw requestErr
+      } else {
+        throw Error(`${requestErr}`)
       }
     }
 
-    await sendRequest(
-      {
-        jsonrpc: '2.0',
-        id: genId,
-        method: 'eth_chainId'
-      },
-      callback
-    )
-  }
-
-  this.supportsSubscriptions = () => false
-  this.disconnect = () => true
-
-  this.enable = async function () {
-    await this.fetchNetworkId()
+    return result
   }
 
   this.request = async function (arg, arg2) {
@@ -331,6 +269,9 @@ function ExtensionProvider() {
 }
 
 const ethereumProvider = new ExtensionProvider()
+const ethereumProxyProvider = new Proxy(ethereumProvider, {
+  deleteProperty: () => true
+})
 
 ;(() => {
   // To be removed from DOM after execution
@@ -394,8 +335,8 @@ const ethereumProvider = new ExtensionProvider()
   // One injection happens at the very beginning of the page load,
   // and one when page loading is completed (to override web3 if !web3.isAmbire)
   if (!existing || overridden) {
-    window.ethereum = ethereumProvider
-    window.web3 = new Web3(ethereumProvider)
+    window.ethereum = ethereumProxyProvider
+    window.web3 = new Web3(ethereumProxyProvider)
   }
 
   // Cleaning DOM
