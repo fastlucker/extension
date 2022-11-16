@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import CodeInput from '@modules/common/components/CodeInput'
@@ -106,9 +107,11 @@ const ChangePasscodeScreen: React.FC = () => {
             {t("Passcodes don't match!")}
           </Text>
         )}
-        {step === STEPS.NEW_PASSCODE && <CodeInput autoFocus onFulfill={handleOnFulfillStep1} />}
+        {step === STEPS.NEW_PASSCODE && (
+          <CodeInput autoFocus={!isWeb} onFulfill={handleOnFulfillStep1} />
+        )}
         {step === STEPS.CONFIRM_NEW_PASSCODE && (
-          <CodeInput autoFocus onFulfill={handleOnFulfillStep2} />
+          <CodeInput autoFocus={!isWeb} onFulfill={handleOnFulfillStep2} />
         )}
         {state !== PASSCODE_STATES.NO_PASSCODE && (
           <>

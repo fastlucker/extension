@@ -60,6 +60,12 @@ const AuthScreen = ({ navigation }: Props) => {
             routeName="jsonLogin"
             onPress={handleAuthButtonPress}
           />
+          <AuthButton
+            text={t('Login with External Signer')}
+            type="outline"
+            routeName="externalSigner"
+            onPress={handleAuthButtonPress}
+          />
         </View>
       </Wrapper>
     </GradientBackgroundWrapper>

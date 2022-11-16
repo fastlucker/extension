@@ -20,7 +20,7 @@ function getWalletNew({ chainId, signer, signerExtra }: any, device: any) {
       sendTransaction: async (transaction: any) => {
         const network = networks.find((n) => n.chainId === transaction.chainId)
         if (!network) throw Error(`no network found for chainId : ${transaction.chainId}`)
-        const provider = await getProvider(network.id)
+        const provider = getProvider(network.id)
         if (!provider) throw Error(`no provider found for network : ${network.id}`)
 
         transaction.nonce = ethers.utils.hexlify(

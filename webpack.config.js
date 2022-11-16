@@ -1,4 +1,5 @@
 const createExpoWebpackConfigAsync = require('@expo/webpack-config')
+const fs = require('fs')
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const { ExpoHtmlWebpackPlugin } = require('@expo/webpack-config/plugins/index')
@@ -51,14 +52,16 @@ module.exports = async function (env, argv) {
     return style
   }
 
-  // Additional entries from /web (extension services)
-  const entries = {
-    background: './web/services/background.js',
-    'content-script': './web/services/content-script.js',
-    'content-script-onComplete': './web/services/content-script-onComplete.js',
-    'page-context': './web/services/page-context.js',
-    injection: './web/services/injection.js'
-  }
+  const entries = {}
+
+  // adds files from /constants, /functions and /services as webpack entries
+  fs.readdirSync('./web').forEach((dir) => {
+    if (['constants', 'functions', 'services'].includes(dir)) {
+      fs.readdirSync(`./web/${dir}`).forEach((file) => {
+        entries[path.parse(file).name] = `./web/${dir}/${file}`
+      })
+    }
+  })
 
   const config = await createExpoWebpackConfigAsync(
     {
@@ -142,11 +145,6 @@ module.exports = async function (env, argv) {
             from: './web/assets',
             to: 'assets'
           },
-          {
-            from: './web/constants',
-            to: 'constants'
-          },
-          { from: './web/services/ambexMessanger.js', to: './ambexMessanger.js' },
           {
             from: './web/style.css',
             to: 'style.css',
