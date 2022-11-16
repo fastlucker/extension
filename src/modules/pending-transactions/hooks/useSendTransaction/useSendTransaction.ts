@@ -9,7 +9,9 @@ import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import CONFIG from '@config/env'
-import i18n from '@config/localization/localization'
+import i18n, { useTranslation } from '@config/localization/localization'
+import { SyncStorage } from '@config/storage'
+import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -20,10 +22,12 @@ import { fetchPost } from '@modules/common/services/fetch'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import isInt from '@modules/common/utils/isInt'
+import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
 import { errorCodes, errorValues } from '@web/constants/errors'
 
 type Props = {
-  onOpenHardwareWalletBottomSheet: () => void
+  hardwareWalletOpenBottomSheet: () => void
+  externalSignerOpenBottomSheet: () => void
 }
 
 const relayerURL = CONFIG.RELAYER_URL
@@ -112,13 +116,18 @@ function getErrorMessage(e: any) {
   if (e && e.message === 'INSUFFICIENT_PRIVILEGE') {
     return 'Wrong signature. This may happen if you used password/derivation path on your hardware wallet.'
   }
-  return e.message || e
+  return (e && e?.message) || e
 }
 
-const useSendTransaction = ({ onOpenHardwareWalletBottomSheet }: Props) => {
+const useSendTransaction = ({
+  hardwareWalletOpenBottomSheet,
+  externalSignerOpenBottomSheet
+}: Props) => {
+  const { t } = useTranslation()
   const [estimation, setEstimation] = useState<any>(null)
   const [signingStatus, setSigningStatus] = useState<any>(false)
   const [feeSpeed, setFeeSpeed] = useState<any>(DEFAULT_SPEED)
+  const { selectedAccHasPassword, getSelectedAccPassword } = useBiometricsSign()
 
   const { addToast } = useToast()
   const { network }: any = useNetwork()
@@ -127,6 +136,7 @@ const useSendTransaction = ({ onOpenHardwareWalletBottomSheet }: Props) => {
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
 
+  const { decryptExternalSigner, externalSigners } = useExternalSigners()
   const [replaceTx, setReplaceTx] = useState(!!sendTxnState.replaceByDefault)
 
   const bundle = useMemo(
@@ -350,6 +360,45 @@ const useSendTransaction = ({ onOpenHardwareWalletBottomSheet }: Props) => {
     })
   }, [bundle, estimation, feeSpeed, network, currentAccGasTankState.isEnabled, replaceTx])
 
+  const approveTxnImplExternalSigner = async ({ externalSignerCredentials }: any) => {
+    if (!estimation) throw new Error('no estimation: should never happen')
+
+    const finalBundle = getFinalBundle()
+    const provider = getProvider(network.id)
+    const signer = finalBundle.signer
+
+    // a bit redundant cause we already called it at the beginning of approveTxn, but
+    // we need to freeze finalBundle in the UI in case signing takes a long time (currently only to freeze the fee selector)
+    setSigningStatus({ inProgress: true, finalBundle })
+
+    const privateKey: any = await decryptExternalSigner({
+      signerPublicAddr: signer.address,
+      password: externalSignerCredentials.password
+    })
+    if (!privateKey) throw new Error('Invalid signer password - signer decryption failed')
+
+    const wallet = new Wallet(privateKey)
+
+    if (relayerURL) {
+      // Temporary way of debugging the fee cost
+      // const initialLimit = finalBundle.gasLimit - getFeePaymentConsequences(estimation.selectedFeeToken, estimation).addedGas
+      // finalBundle.estimate({ relayerURL, fetch }).then(estimation => console.log('fee costs: ', estimation.gasLimit - initialLimit), estimation.selectedFeeToken).catch(console.error)
+      await finalBundle.sign(wallet)
+      // eslint-disable-next-line @typescript-eslint/return-await
+      return await finalBundle.submit({ relayerURL, fetch })
+    }
+    // eslint-disable-next-line @typescript-eslint/return-await
+    return await sendNoRelayer({
+      finalBundle,
+      account,
+      network,
+      wallet,
+      estimation,
+      feeSpeed,
+      provider
+    })
+  }
+
   const approveTxnImpl = async (device: any) => {
     if (!estimation) throw new Error('no estimation: should never happen')
 
@@ -456,20 +505,55 @@ const useSendTransaction = ({ onOpenHardwareWalletBottomSheet }: Props) => {
     }
   }
 
-  const approveTxn = ({ quickAccCredentials, device }: any) => {
+  const approveTxn = async ({ quickAccCredentials, externalSignerCredentials, device }: any) => {
     if (signingStatus && signingStatus.inProgress) return
     setSigningStatus(signingStatus || { inProgress: true })
 
-    if (!bundle.signer.quickAccManager && !device) {
-      !!onOpenHardwareWalletBottomSheet && onOpenHardwareWalletBottomSheet()
+    const finalBundle = (signingStatus && signingStatus.finalBundle) || getFinalBundle()
+    const signer = finalBundle.signer
+
+    if (externalSigners[signer.address] && !externalSignerCredentials) {
+      // External signer the biometrics sign enabled
+      if (selectedAccHasPassword) {
+        try {
+          const password = await getSelectedAccPassword()
+
+          // Fill in the credentials from the biometrics sign response,
+          // because they are needed for the next steps.
+          // eslint-disable-next-line no-param-reassign
+          externalSignerCredentials = { password }
+        } catch (e) {
+          addToast(t('Failed to confirm your identity.') as string, { error: true })
+          return
+        }
+      } else {
+        // External signer with password
+        !!externalSignerOpenBottomSheet && externalSignerOpenBottomSheet()
+        addToast(i18n.t('Please confirm this transaction with your signer password.') as string, {
+          timeout: 4000
+        })
+        setSigningStatus(null)
+        return
+      }
+    }
+
+    if (!bundle.signer.quickAccManager && !device && !externalSignerCredentials) {
+      !!hardwareWalletOpenBottomSheet && hardwareWalletOpenBottomSheet()
       setSigningStatus(null)
       return
     }
 
     const requestIds = bundle.requestIds
-    const approveTxnPromise = bundle.signer.quickAccManager
-      ? approveTxnImplQuickAcc({ quickAccCredentials })
-      : approveTxnImpl(device)
+    let approveTxnPromise
+
+    if (externalSignerCredentials) {
+      approveTxnPromise = approveTxnImplExternalSigner({ externalSignerCredentials })
+    } else {
+      approveTxnPromise = bundle.signer.quickAccManager
+        ? approveTxnImplQuickAcc({ quickAccCredentials })
+        : approveTxnImpl(device)
+    }
+
     approveTxnPromise
       .then((bundleResult) => {
         // special case for approveTxnImplQuickAcc

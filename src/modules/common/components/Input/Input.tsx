@@ -17,7 +17,7 @@ import commonStyles from '@modules/common/styles/utils/common'
 import styles from './styles'
 
 export interface InputProps extends TextInputProps {
-  info?: string
+  info?: string | boolean
   // Error message - Active if there is some error message string passed
   error?: string | boolean
   label?: string

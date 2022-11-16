@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
 import LogOutIcon from '@assets/svg/LogOutIcon'
+import useAppLock from '@modules/app-lock/hooks/useAppLock'
+import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Blockies from '@modules/common/components/Blockies'
 import Button from '@modules/common/components/Button'
 import CopyText from '@modules/common/components/CopyText'
@@ -10,8 +12,6 @@ import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
-import usePasscode from '@modules/common/hooks/usePasscode'
 import alert from '@modules/common/services/alert'
 import { navigate } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
@@ -35,8 +35,8 @@ interface Props {
 const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { t } = useTranslation()
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
-  const { removeSelectedAccPassword } = useAccountsPasswords()
-  const { removePasscode } = usePasscode()
+  const { removeSelectedAccPassword } = useBiometricsSign()
+  const { removeAppLock } = useAppLock()
 
   const handleChangeAccount = (accountId: any) => {
     closeBottomSheet()
@@ -61,7 +61,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       // clean up the app passcode too.
       const isLastAccount = accounts.length === 1
       if (isLastAccount) {
-        removePasscode(account.id)
+        removeAppLock(account.id)
       }
 
       onRemoveAccount(account.id)

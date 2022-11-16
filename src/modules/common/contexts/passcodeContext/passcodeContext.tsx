@@ -5,7 +5,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import { Platform, StyleSheet, Vibration, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { isAndroid } from '@config/env'
+import { isAndroid, isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
 import { SyncStorage } from '@config/storage'
@@ -401,7 +401,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
     <SafeAreaView>
       <AmbireLogo shouldExpand={false} />
       <PasscodeAuth
-        autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
+        autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && !isWeb}
         title={t('Unlock Ambire')}
         message={t('Entering your passcode.')}
         onFulfill={handleOnValidatePasscode}
@@ -489,7 +489,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       <BottomSheet id="passcode" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <PasscodeAuth
           onFulfill={handleOnValidatePasscode}
-          autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH}
+          autoFocus={state !== PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH && !isWeb}
           onValidateLocalAuth={triggerValidateLocalAuth}
           error={passcodeError}
           state={state}

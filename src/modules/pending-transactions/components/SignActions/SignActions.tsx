@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next'
 import { InteractionManager, Keyboard, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
+import { isWeb } from '@config/env'
+import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -13,7 +15,6 @@ import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -51,7 +52,7 @@ const SignActions = ({
     }
   })
   const { t } = useTranslation()
-  const { selectedAccHasPassword, getSelectedAccPassword } = useAccountsPasswords()
+  const { selectedAccHasPassword, getSelectedAccPassword } = useBiometricsSign()
   const { addToast } = useToast()
 
   // reset this every time the signing status changes
@@ -189,7 +190,7 @@ const SignActions = ({
                 autoCorrect={false}
                 isValid={isValidCode(value)}
                 value={value}
-                autoFocus={selectedAccHasPassword}
+                autoFocus={selectedAccHasPassword && !isWeb}
                 error={errors.code && (t('Invalid confirmation code.') as string)}
               />
             )}
