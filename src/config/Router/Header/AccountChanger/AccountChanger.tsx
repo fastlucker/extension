@@ -18,6 +18,7 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
 
 import styles from './styles'
 
@@ -37,6 +38,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
   const { removeSelectedAccPassword } = useBiometricsSign()
   const { removeAppLock } = useAppLock()
+  const { removeExternalSigner, externalSigners } = useExternalSigners()
 
   const handleChangeAccount = (accountId: any) => {
     closeBottomSheet()
@@ -62,6 +64,16 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       const isLastAccount = accounts.length === 1
       if (isLastAccount) {
         removeAppLock(account.id)
+      }
+
+      // Remove the external singer encrypted records, if needed.
+      const accountHasExternalSigner = !!externalSigners[account.signer?.address]
+      const allOtherAccounts = accounts.filter((acc) => acc.id !== account.id)
+      const noOtherAccountsHaveTheSameExternalSigner = !allOtherAccounts.some(
+        (acc) => !!externalSigners[acc.signer?.address]
+      )
+      if (accountHasExternalSigner && noOtherAccountsHaveTheSameExternalSigner) {
+        removeExternalSigner(account.signer?.address)
       }
 
       onRemoveAccount(account.id)

@@ -1,7 +1,9 @@
-// modified to browser if the web engine is GECKO in the webpack config
-let browserAPI = null
-let engine = null
-let isExtension = false
+/* eslint-disable import/no-mutable-exports */
+// @ts-nocheck
+
+let browserAPI: any = null
+let engine: 'webkit' | 'gecko' | null = null
+let isExtension: boolean = false
 
 if (process.env.WEB_ENGINE === 'webkit') {
   browserAPI = chrome

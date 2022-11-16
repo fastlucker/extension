@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 // Injected on dapp page complete,
 // to override other web3 wallets (if our first injection got overriden)
 
