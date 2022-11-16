@@ -17,6 +17,7 @@ import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import { delayPromise } from '@modules/common/utils/promises'
+import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
 import { useIsFocused, useNavigation } from '@react-navigation/native'
 
 interface FormValues {
@@ -30,6 +31,7 @@ const BiometricsSignScreen = () => {
   const { account } = useAccounts()
   const isFocused = useIsFocused()
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
+  const { decryptExternalSigner, externalSigners } = useExternalSigners()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
     useBiometricsSign()
   const {
@@ -51,25 +53,44 @@ const BiometricsSignScreen = () => {
     return () => reset()
   }, [reset, isFocused])
 
+  const isExternalSigner = externalSigners[account.signer?.address]
+
   const handleEnable = async ({ password }: FormValues) => {
     // Dismiss the keyboard, because the validation process sometimes takes longer,
     // and having the keyboard in there all the time, is strange.
     Keyboard.dismiss()
 
-    // Validation if the password is correct
-    try {
-      // For some reason, the `isSubmitting` flag doesn't flip immediately
-      // when the `Wallet.fromEncryptedJson` promise fires.
-      // Triggering this dummy promise delay flips the `isSubmitting` flag.
-      await delayPromise(100)
+    // Validation if the password is correct for Email/Password accounts
+    if (account.email) {
+      try {
+        // For some reason, the `isSubmitting` flag doesn't flip immediately
+        // when the `Wallet.fromEncryptedJson` promise fires.
+        // Triggering this dummy promise delay flips the `isSubmitting` flag.
+        await delayPromise(100)
 
-      await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), password)
-    } catch (e) {
-      return setError(
-        'password',
-        { type: 'focus', message: t('Invalid password.') },
-        { shouldFocus: true }
-      )
+        await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), password)
+      } catch (e) {
+        return setError(
+          'password',
+          { type: 'focus', message: t('Invalid password.') },
+          { shouldFocus: true }
+        )
+      }
+    }
+
+    // Validation if the password is correct for External Signers.
+    if (isExternalSigner) {
+      const isDecrypted = !!(await decryptExternalSigner({
+        signerPublicAddr: account.signer?.address,
+        password
+      }))
+      if (!isDecrypted) {
+        return setError(
+          'password',
+          { type: 'focus', message: t('Invalid password.') },
+          { shouldFocus: true }
+        )
+      }
     }
 
     const enable = await addSelectedAccPassword(password)
@@ -100,11 +121,11 @@ const BiometricsSignScreen = () => {
       )
     }
 
-    if (!account.email) {
+    if (!account.email && !isExternalSigner) {
       return (
         <TextWarning appearance="info">
           {t(
-            'This option is available only for accounts having Email/Password as a default signer.'
+            'This option is only available for Ambire accounts having Email/Password or External Signer as a default signer.'
           )}
         </TextWarning>
       )
@@ -131,14 +152,18 @@ const BiometricsSignScreen = () => {
     return (
       <>
         <Text type="small" style={spacings.mb}>
-          {t('To enable it, enter your Ambire account password.')}
+          {t('To enable it, enter your {{password}}.', {
+            password: isExternalSigner
+              ? t('external signer password')
+              : t('Ambire account password')
+          })}
         </Text>
         <Controller
           control={control}
           rules={{ required: t('Please fill in a password.') as string }}
           render={({ field: { onChange, onBlur, value } }) => (
             <InputPassword
-              placeholder={t('Account password')}
+              placeholder={isExternalSigner ? t('External signer password') : t('Account password')}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -165,7 +190,12 @@ const BiometricsSignScreen = () => {
       <Wrapper style={spacings.mt}>
         <Text type="small" style={spacings.mbLg}>
           {t(
-            'You can opt-in to use your phone biometrics to sign transactions instead of your Ambire account password.'
+            'You can opt-in to use your phone biometrics to sign transactions instead of your {{password}}.',
+            {
+              password: isExternalSigner
+                ? t('external signer password')
+                : t('Ambire account password')
+            }
           )}
         </Text>
         {renderContent()}

@@ -213,7 +213,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
     const method = payload.method
 
     if (!granted) {
-      if (method === 'eth_accounts' || method === 'eth_chainId') {
+      if (method === 'eth_accounts' || method === 'eth_chainId' || method === 'net_version') {
         sendReply(message, {
           data: {
             jsonrpc: '2.0',
