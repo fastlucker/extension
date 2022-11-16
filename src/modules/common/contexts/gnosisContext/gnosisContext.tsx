@@ -1,4 +1,5 @@
 /* eslint-disable guard-for-in */
+import { getProvider } from 'ambire-common/src/services/provider'
 /* eslint-disable no-restricted-syntax */
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -7,7 +8,6 @@ import { getSDKVersion, MessageFormatter, Methods } from '@gnosis.pm/safe-apps-s
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
-import { getProvider } from '@modules/common/services/provider'
 
 export interface GnosisContextReturnType {
   sushiSwapIframeRef: React.RefObject<any> | null
