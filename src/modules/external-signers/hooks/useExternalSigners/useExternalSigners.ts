@@ -125,6 +125,18 @@ const useExternalSigners = () => {
     [hasRegisteredPassword, onEOASelected, externalSigners, setExternalSigners, addToast]
   )
 
+  const removeExternalSigner = useCallback(
+    (signerAddr: AddSignerFormValues['signer']) => {
+      if (!hasRegisteredPassword) return
+
+      const nextExternalSigners = { ...externalSigners }
+      delete nextExternalSigners[signerAddr]
+
+      setExternalSigners(nextExternalSigners)
+    },
+    [hasRegisteredPassword, externalSigners, setExternalSigners]
+  )
+
   // Always resolve but return the signer's private key only on successful decryption
   const decryptExternalSigner = useCallback(
     ({ signerPublicAddr, password }) => {
@@ -149,6 +161,7 @@ const useExternalSigners = () => {
 
   return {
     addExternalSigner,
+    removeExternalSigner,
     decryptExternalSigner,
     hasRegisteredPassword,
     externalSigners
