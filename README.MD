@@ -34,7 +34,9 @@ yarn install:web
 
 ## Environment Variables
 
-Create ".env" file in the root directory and fill in all environmental variables, see ".env-sample" for reference.
+Create ".env" file in the root directory and fill in all variables, see ".env-sample" for a reference.
+
+To provide the EAS build jobs with access to the environment variables, use [EAS secrets](https://docs.expo.dev/build-reference/variables/#using-secrets-in-environment-variables).
 
 ### Upload all local .env file variables to EAS (as secrets)
 
