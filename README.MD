@@ -32,6 +32,10 @@ Alternatively, to run the project in web mode, run:
 yarn install:web
 ```
 
+## Environment Variables
+
+Create ".env" file in the root directory and fill in all environmental variables, see ".env-sample" for reference.
+
 ## Editor Config
 
 Make sure your code editor has plugins that support the following configuration files: `.editorconfig`, `.prettierrc`, `tsconfig.json`, `eslintrc.js`, [`import-sorter.json`](https://github.com/SoominHan/import-sorter).
