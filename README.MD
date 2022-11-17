@@ -36,6 +36,18 @@ yarn install:web
 
 Create ".env" file in the root directory and fill in all environmental variables, see ".env-sample" for reference.
 
+### Upload all local .env file variables to EAS (as secrets)
+
+```bash
+yarn eas:secret:push
+```
+
+### List all current .env variables (secrets) on EAS
+
+```bash
+yarn eas:secret:list
+```
+
 ## Editor Config
 
 Make sure your code editor has plugins that support the following configuration files: `.editorconfig`, `.prettierrc`, `tsconfig.json`, `eslintrc.js`, [`import-sorter.json`](https://github.com/SoominHan/import-sorter).
