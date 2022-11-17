@@ -36,7 +36,9 @@
     "translations:scan": "i18next-scanner --config ./scripts/i18next-scanner.config.js './src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint ./src/** --ext .js,.jsx,.ts,.tsx --fix",
     "expo:doctor": "expo doctor",
-    "expo:upgrade": "expo upgrade"
+    "expo:upgrade": "expo upgrade",
+    "eas:secret:list": "eas secret:list",
+    "eas:secret:push": "eas secret:push --scope project --env-file .env"
   },
   "engines": {
     "node": "16.13.0"
