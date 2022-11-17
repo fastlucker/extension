@@ -133,10 +133,6 @@ const Rewards = () => {
       return '... $WALLET'
     }
 
-    if (!vestingEntry) {
-      return `${hidePrivateValue('0.00')} $WALLET`
-    }
-
     return t('{{amount}} $WALLET', {
       amount: hidePrivateValue(pendingTokensTotal)
     })
@@ -146,7 +142,6 @@ const Rewards = () => {
     currentClaimStatus.loading,
     hidePrivateValue,
     pendingTokensTotal,
-    vestingEntry,
     rewardsErrMsg,
     rewardsIsLoading,
     rewardsLastUpdated,
