@@ -1,3 +1,5 @@
+// Define the environment variables types here, so that the ts imports don't complain
+// {@link https://github.com/goatandsheep/react-native-dotenv/issues/52#issuecomment-673218479|
 declare module '@env' {
   export const RPC_URL_ETHEREUM: string
   export const RPC_URL_POLYGON: string
