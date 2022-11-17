@@ -10,6 +10,7 @@ import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
 
 import { signTxnQuickAcc } from '@modules/common/services/sign'
+import VaultController from '@modules/vault/VaultController'
 import { browserAPI } from '@web/constants/browserAPI'
 import { errorCodes } from '@web/constants/errors'
 import { BACKGROUND, PAGE_CONTEXT } from '@web/constants/paths'
@@ -116,6 +117,21 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
   sendReply(message, {
     data: 'done'
   })
+})
+
+const vaultController = new VaultController()
+
+addMessageHandler({ type: 'vaultController' }, async (message) => {
+  if (vaultController[message.data.method]) {
+    const res = await vaultController[message.data.method](message.data.props)
+    sendReply(message, {
+      data: res
+    })
+  } else {
+    sendReply(message, {
+      data: { error: 'Vault controller not initialized' }
+    })
+  }
 })
 
 // User sends back a reply from the request permission popup

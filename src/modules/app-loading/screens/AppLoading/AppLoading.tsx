@@ -31,6 +31,7 @@ import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/un
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 import useFonts from '@modules/common/hooks/useFonts'
 import { rpcProviders } from '@modules/common/services/providers'
+import { VaultProvider } from '@modules/vault/vaultContext'
 
 // Initialize rpc providers for all networks
 initRpcProviders(rpcProviders)
@@ -72,28 +73,30 @@ const AppLoading = () => {
                               <WalletConnectProvider>
                                 <AmbireExtensionProvider>
                                   <RequestsProvider>
-                                    <AddressBookProvider>
-                                      <BiometricsProvider>
-                                        <BiometricsSignProvider>
-                                          <AppLockProvider>
-                                            <AttentionGrabberProvider>
-                                              <PrivateModeProvider>
-                                                <GasTankProvider>
-                                                  <UnsupportedDAppsBottomSheetProvider>
-                                                    <HeaderBottomSheetProvider>
-                                                      <LinkingProvider>
-                                                        <Router />
-                                                      </LinkingProvider>
-                                                    </HeaderBottomSheetProvider>
-                                                  </UnsupportedDAppsBottomSheetProvider>
-                                                </GasTankProvider>
-                                              </PrivateModeProvider>
-                                            </AttentionGrabberProvider>
-                                            <PortalHost name="global" />
-                                          </AppLockProvider>
-                                        </BiometricsSignProvider>
-                                      </BiometricsProvider>
-                                    </AddressBookProvider>
+                                    <VaultProvider>
+                                      <AddressBookProvider>
+                                        <BiometricsProvider>
+                                          <BiometricsSignProvider>
+                                            <AppLockProvider>
+                                              <AttentionGrabberProvider>
+                                                <PrivateModeProvider>
+                                                  <GasTankProvider>
+                                                    <UnsupportedDAppsBottomSheetProvider>
+                                                      <HeaderBottomSheetProvider>
+                                                        <LinkingProvider>
+                                                          <Router />
+                                                        </LinkingProvider>
+                                                      </HeaderBottomSheetProvider>
+                                                    </UnsupportedDAppsBottomSheetProvider>
+                                                  </GasTankProvider>
+                                                </PrivateModeProvider>
+                                              </AttentionGrabberProvider>
+                                              <PortalHost name="global" />
+                                            </AppLockProvider>
+                                          </BiometricsSignProvider>
+                                        </BiometricsProvider>
+                                      </AddressBookProvider>
+                                    </VaultProvider>
                                   </RequestsProvider>
                                 </AmbireExtensionProvider>
                               </WalletConnectProvider>

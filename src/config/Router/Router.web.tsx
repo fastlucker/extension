@@ -203,6 +203,11 @@ const AuthStack = () => {
         options={{ title: t('Login with External Signer') }}
         component={ExternalSignerScreen}
       />
+      <Stack.Screen
+        name="createVault"
+        options={{ title: t('Extension Lock') }}
+        component={ExternalSignerScreen}
+      />
     </Stack.Navigator>
   )
 }
