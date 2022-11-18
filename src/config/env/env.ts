@@ -5,7 +5,10 @@ import * as Updates from 'expo-updates'
 import { Platform } from 'react-native'
 
 import {
+  APP_RELAYRLESS,
+  CONSTANTS_ENDPOINT,
   RAMP_HOST_API_KEY,
+  RELAYER_URL,
   RPC_URL_ANDROMEDA,
   RPC_URL_ARBITRUM,
   RPC_URL_AURORA,
@@ -61,7 +64,7 @@ enum APP_ENV {
 interface Config {
   APP_ENV: APP_ENV
   APP_RELAYRLESS: boolean
-  RELAYER_URL: string
+  RELAYER_URL: typeof RELAYER_URL
   ZAPPER_API_ENDPOINT: string
   ZAPPER_API_KEY: typeof ZAPPER_API_KEY
   VELCRO_API_ENDPOINT: string
@@ -72,7 +75,7 @@ interface Config {
   SUSHI_SWAP_URL: string
   SENTRY_DSN: typeof SENTRY_DSN
   SIGNATURE_VERIFIER_DEBUGGER: number
-  CONSTANTS_ENDPOINT: string
+  CONSTANTS_ENDPOINT: typeof CONSTANTS_ENDPOINT
   RPC_URLS: {
     [key in NETWORKS]: typeof RPC_URL_ETHEREUM
   }
@@ -80,8 +83,8 @@ interface Config {
 
 const CONFIG: Config = {
   APP_ENV: APP_ENV.DEV,
-  APP_RELAYRLESS: false,
-  RELAYER_URL: 'https://relayer.ambire.com',
+  APP_RELAYRLESS: APP_RELAYRLESS === 'true',
+  RELAYER_URL,
   ZAPPER_API_ENDPOINT: 'https://api.zapper.fi/v1',
   ZAPPER_API_KEY,
   VELCRO_API_ENDPOINT: 'https://velcro.ambire.com/v1',
@@ -93,7 +96,7 @@ const CONFIG: Config = {
   SUSHI_SWAP_URL: 'https://sushiswap-interface-jfomtc62l-ambire.vercel.app/en/swap',
   SENTRY_DSN,
   SIGNATURE_VERIFIER_DEBUGGER: 0,
-  CONSTANTS_ENDPOINT: 'https://jason.ambire.com',
+  CONSTANTS_ENDPOINT,
   RPC_URLS: {
     [NETWORKS.ethereum]: RPC_URL_ETHEREUM,
     [NETWORKS.polygon]: RPC_URL_POLYGON,
