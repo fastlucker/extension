@@ -4,6 +4,7 @@ declare module '@env' {
   export const RELAYER_URL: string
   export const APP_RELAYRLESS: string
   export const CONSTANTS_ENDPOINT: string
+  export const SWAP_URL: string
 
   export const RPC_URL_ETHEREUM: string
   export const RPC_URL_POLYGON: string
