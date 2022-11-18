@@ -7,6 +7,7 @@ import { Platform } from 'react-native'
 import {
   APP_RELAYRLESS,
   CONSTANTS_ENDPOINT,
+  PAYTRIE_PARTNER_URL,
   RAMP_HOST_API_KEY,
   RELAYER_URL,
   RPC_URL_ANDROMEDA,
@@ -69,7 +70,7 @@ interface Config {
   ZAPPER_API_KEY: typeof ZAPPER_API_KEY
   VELCRO_API_ENDPOINT: string
   RAMP_HOST_API_KEY: typeof RAMP_HOST_API_KEY
-  PAYTRIE_PARTNER_URL: string
+  PAYTRIE_PARTNER_URL: typeof PAYTRIE_PARTNER_URL
   TRANSAK_API_KEY: typeof TRANSAK_API_KEY_PROD
   TRANSAK_ENV: string
   SUSHI_SWAP_URL: string
@@ -89,7 +90,7 @@ const CONFIG: Config = {
   ZAPPER_API_KEY,
   VELCRO_API_ENDPOINT: 'https://velcro.ambire.com/v1',
   RAMP_HOST_API_KEY,
-  PAYTRIE_PARTNER_URL: 'https://app.paytrie.com/?app=876454',
+  PAYTRIE_PARTNER_URL,
   TRANSAK_API_KEY: TRANSAK_API_KEY_STAGING,
   TRANSAK_ENV: 'STAGING',
   // SushiSwap v2. For v1, use 'https://sushiswap-interface-ten.vercel.app/swap'

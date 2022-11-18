@@ -26,5 +26,6 @@ declare module '@env' {
   export const RAMP_HOST_API_KEY: string
   export const TRANSAK_API_KEY_STAGING: string
   export const TRANSAK_API_KEY_PROD: string
+  export const PAYTRIE_PARTNER_URL: string
   export const SENTRY_DSN: string
 }
