@@ -5,6 +5,7 @@ import * as Updates from 'expo-updates'
 import { Platform } from 'react-native'
 
 import {
+  RAMP_HOST_API_KEY,
   RPC_URL_ANDROMEDA,
   RPC_URL_ARBITRUM,
   RPC_URL_AURORA,
@@ -20,7 +21,11 @@ import {
   RPC_URL_MOONRIVER,
   RPC_URL_OPTIMISM,
   RPC_URL_POLYGON,
-  RPC_URL_RINKEBY
+  RPC_URL_RINKEBY,
+  SENTRY_DSN,
+  TRANSAK_API_KEY_PROD,
+  TRANSAK_API_KEY_STAGING,
+  ZAPPER_API_KEY
 } from '@env'
 
 import appJSON from '../../../app.json'
@@ -58,14 +63,14 @@ interface Config {
   APP_RELAYRLESS: boolean
   RELAYER_URL: string
   ZAPPER_API_ENDPOINT: string
-  ZAPPER_API_KEY: string
+  ZAPPER_API_KEY: typeof ZAPPER_API_KEY
   VELCRO_API_ENDPOINT: string
-  RAMP_HOST_API_KEY: string
+  RAMP_HOST_API_KEY: typeof RAMP_HOST_API_KEY
   PAYTRIE_PARTNER_URL: string
-  TRANSAK_API_KEY: string
+  TRANSAK_API_KEY: typeof TRANSAK_API_KEY_PROD | typeof TRANSAK_API_KEY_STAGING
   TRANSAK_ENV: string
   SUSHI_SWAP_URL: string
-  SENTRY_DSN: string
+  SENTRY_DSN: typeof SENTRY_DSN
   SIGNATURE_VERIFIER_DEBUGGER: number
   CONSTANTS_ENDPOINT: string
   RPC_URLS: {
@@ -78,15 +83,15 @@ const CONFIG: Config = {
   APP_RELAYRLESS: false,
   RELAYER_URL: 'https://relayer.ambire.com',
   ZAPPER_API_ENDPOINT: 'https://api.zapper.fi/v1',
-  ZAPPER_API_KEY: '96e0cc51-a62e-42ca-acee-910ea7d2a241',
+  ZAPPER_API_KEY,
   VELCRO_API_ENDPOINT: 'https://velcro.ambire.com/v1',
-  RAMP_HOST_API_KEY: 'jfmvma5hxecxjht293qmbu7bc7jx3sc9tg48a2so',
+  RAMP_HOST_API_KEY,
   PAYTRIE_PARTNER_URL: 'https://app.paytrie.com/?app=876454',
-  TRANSAK_API_KEY: '325625ed-5a85-4131-ae50-ea7906332fb3',
+  TRANSAK_API_KEY: TRANSAK_API_KEY_STAGING,
   TRANSAK_ENV: 'STAGING',
   // SushiSwap v2. For v1, use 'https://sushiswap-interface-ten.vercel.app/swap'
   SUSHI_SWAP_URL: 'https://sushiswap-interface-jfomtc62l-ambire.vercel.app/en/swap',
-  SENTRY_DSN: 'https://8e5d690e5de843b4bf3cf22a563ee7fc@o1152360.ingest.sentry.io/6230367',
+  SENTRY_DSN,
   SIGNATURE_VERIFIER_DEBUGGER: 0,
   CONSTANTS_ENDPOINT: 'https://jason.ambire.com',
   RPC_URLS: {
@@ -112,7 +117,7 @@ const CONFIG: Config = {
 if (isProd) {
   CONFIG.APP_ENV = APP_ENV.PROD
   CONFIG.TRANSAK_ENV = 'PRODUCTION'
-  CONFIG.TRANSAK_API_KEY = '85fdedd7-0077-4c6d-8499-52039c64353c'
+  CONFIG.TRANSAK_API_KEY = TRANSAK_API_KEY_PROD
 } else if (isStaging) {
   CONFIG.APP_ENV = APP_ENV.STAGING
 }

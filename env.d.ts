@@ -17,4 +17,10 @@ declare module '@env' {
   export const RPC_URL_CRONOS: string
   export const RPC_URL_AURORA: string
   export const RPC_URL_ETHEREUM_POW: string
+
+  export const ZAPPER_API_KEY: string
+  export const RAMP_HOST_API_KEY: string
+  export const TRANSAK_API_KEY_STAGING: string
+  export const TRANSAK_API_KEY_PROD: string
+  export const SENTRY_DSN: string
 }
