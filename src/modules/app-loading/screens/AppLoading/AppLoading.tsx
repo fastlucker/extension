@@ -31,7 +31,7 @@ import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/un
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 import useFonts from '@modules/common/hooks/useFonts'
 import { rpcProviders } from '@modules/common/services/providers'
-import { VaultProvider } from '@modules/vault/vaultContext'
+import { VaultProvider } from '@modules/vault/contexts/vaultContext'
 
 // Initialize rpc providers for all networks
 initRpcProviders(rpcProviders)

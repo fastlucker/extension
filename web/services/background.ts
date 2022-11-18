@@ -10,7 +10,7 @@ import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
 
 import { signTxnQuickAcc } from '@modules/common/services/sign'
-import VaultController from '@modules/vault/VaultController'
+import VaultController from '@modules/vault/services/VaultController'
 import { browserAPI } from '@web/constants/browserAPI'
 import { errorCodes } from '@web/constants/errors'
 import { BACKGROUND, PAGE_CONTEXT } from '@web/constants/paths'
@@ -123,10 +123,16 @@ const vaultController = new VaultController()
 
 addMessageHandler({ type: 'vaultController' }, async (message) => {
   if (vaultController[message.data.method]) {
-    const res = await vaultController[message.data.method](message.data.props)
-    sendReply(message, {
-      data: res
-    })
+    try {
+      const res = await vaultController[message.data.method](message.data.props)
+      sendReply(message, {
+        data: res
+      })
+    } catch (error) {
+      sendReply(message, {
+        data: { error }
+      })
+    }
   } else {
     sendReply(message, {
       data: { error: 'Vault controller not initialized' }

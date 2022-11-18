@@ -51,6 +51,10 @@ import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import useVault from '@modules/vault/hooks/useVault'
+import CreateVaultScreen from '@modules/vault/screens/CreateVaultScreen'
+import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
@@ -203,11 +207,6 @@ const AuthStack = () => {
         options={{ title: t('Login with External Signer') }}
         component={ExternalSignerScreen}
       />
-      <Stack.Screen
-        name="createVault"
-        options={{ title: t('Extension Lock') }}
-        component={ExternalSignerScreen}
-      />
     </Stack.Navigator>
   )
 }
@@ -226,6 +225,38 @@ const NoConnectionStack = () => {
         name="no-connection"
         component={NoConnectionScreen}
       />
+    </Stack.Navigator>
+  )
+}
+
+const VaultStack = () => {
+  const { t } = useTranslation()
+  const { vaultStatus } = useVault()
+
+  useEffect(() => {
+    if (vaultStatus === VAULT_STATUS.LOADING) return
+
+    SplashScreen.hideAsync()
+  }, [vaultStatus])
+
+  if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+  return (
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+      {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
+        <Stack.Screen
+          name="createVault"
+          options={{ title: t('Extension Lock') }}
+          component={CreateVaultScreen}
+        />
+      )}
+      {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
+        <Stack.Screen
+          name="unlockVault"
+          options={{ title: t('Welcome Back') }}
+          component={UnlockVaultScreen}
+        />
+      )}
     </Stack.Navigator>
   )
 }
@@ -522,6 +553,7 @@ const AppStack = () => {
 
 const Router = () => {
   const { authStatus } = useAuth()
+  const { vaultStatus } = useVault()
   const { connectionState } = useNetInfo()
   const { setParams } = useAmbireExtension()
 
@@ -586,12 +618,17 @@ const Router = () => {
         return <SwitchNetworkRequestStack />
       }
 
-      return <AppStack />
+      if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED || vaultStatus === VAULT_STATUS.LOCKED) {
+        return <VaultStack />
+      }
+
+      if (vaultStatus === VAULT_STATUS.UNLOCKED) {
+        return <AppStack />
+      }
     }
 
-    // authStatus === AUTH_STATUS.LOADING or anything else:
     return null
-  }, [connectionState, authStatus])
+  }, [connectionState, authStatus, vaultStatus])
 
   const handleOnReady = () => {
     // @ts-ignore for some reason TS complains about this 👇

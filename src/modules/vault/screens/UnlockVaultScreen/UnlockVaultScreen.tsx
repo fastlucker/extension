@@ -8,9 +8,7 @@ import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
-import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -18,7 +16,7 @@ import useVault from '@modules/vault/hooks/useVault'
 
 const CreateVaultScreen = () => {
   const { t } = useTranslation()
-  const { createVault } = useVault()
+  const { unlockVault } = useVault()
 
   const {
     control,
@@ -28,8 +26,7 @@ const CreateVaultScreen = () => {
   } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
-      password: '',
-      confirmPassword: ''
+      password: ''
     }
   })
 
@@ -47,9 +44,6 @@ const CreateVaultScreen = () => {
         >
           <AmbireLogo shouldExpand={false} />
           <View style={[spacings.mbLg, spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
-            <Text weight="regular" style={spacings.mb}>
-              Choose a password to protect your accounts/wallets on this device
-            </Text>
             <Controller
               control={control}
               rules={{ validate: isValidPassword }}
@@ -69,31 +63,12 @@ const CreateVaultScreen = () => {
               )}
               name="password"
             />
-            <Controller
-              control={control}
-              rules={{
-                validate: (value) => watch('password', '') === value
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  onBlur={onBlur}
-                  placeholder={t('Confirm password')}
-                  onChangeText={onChange}
-                  value={value}
-                  isValid={!!value && watch('password', '') === value}
-                  secureTextEntry
-                  error={errors.confirmPassword && (t("Passwords don't match.") as string)}
-                  autoCorrect={false}
-                />
-              )}
-              name="confirmPassword"
-            />
 
             <View style={spacings.ptSm}>
               <Button
-                disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
-                text={isSubmitting ? t('Creating...') : t('Create')}
-                onPress={handleSubmit(createVault)}
+                disabled={isSubmitting || !watch('password', '')}
+                text={isSubmitting ? t('Unlocking...') : t('Unlock')}
+                onPress={handleSubmit(unlockVault)}
               />
             </View>
           </View>

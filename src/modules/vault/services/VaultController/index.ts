@@ -12,31 +12,33 @@ type Vault = {
 export default class VaultController {
   #password: string | null
 
-  #vault: Vault
+  #memVault: Vault
 
   constructor() {
     this.#password = null
-    this.#vault = null
+    this.#memVault = null
   }
 
   isVaultUnlocked() {
     return !!this.#password
   }
 
-  async createNewVaultPassword({ password }: { password: string }) {
-    const store: any = await getStore(['vault'])
+  async createVault({ password }: { password: string }) {
+    const store: any = (await getStore(['vault'])) || {}
 
     return new Promise((resolve, reject) => {
       if (!store.vault) {
-        encrypt(password, {})
+        encrypt(password, JSON.stringify({}))
           .then((blob: string) => {
             setItem('vault', blob)
             this.#password = password
+            this.#memVault = {}
             resolve(true)
           })
           .catch(() => {
             reject()
           })
+        reject()
       } else {
         reject()
       }
@@ -46,7 +48,7 @@ export default class VaultController {
   async changeVaultPassword({ password, newPassword }: { password: string; newPassword: string }) {
     return new Promise((resolve, reject) => {
       if (password === this.#password) {
-        encrypt(newPassword, {})
+        encrypt(newPassword, JSON.stringify({}))
           .then((blob: string) => {
             setItem('vault', blob)
             this.#password = newPassword
@@ -62,13 +64,13 @@ export default class VaultController {
   }
 
   async unlockVault({ password }: { password: string }) {
-    const store: any = await getStore(['vault'])
+    const store: any = (await getStore(['vault'])) || {}
 
     return new Promise((resolve, reject) => {
       decrypt(password, store.vault)
         .then((vault: any) => {
           this.#password = password
-          this.#vault = vault
+          this.#memVault = JSON.parse(vault)
           resolve(true)
         })
         .catch(() => {
