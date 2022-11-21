@@ -3,7 +3,9 @@
   "expo": {
     "slug": "ambire-mobile-wallet",
     "version": "2.1.0",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "runtimeVersion": "3",
     "jsEngine": "hermes",
     "updates": {
@@ -24,6 +26,11 @@
     },
     "ios": {
       "bundleIdentifier": "com.ambire.wallet"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e6f855d0-5ac3-40e0-8127-740906e7a593"
+      }
     }
   }
 }
