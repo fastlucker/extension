@@ -246,11 +246,11 @@ const VaultStack = () => {
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <Stack.Screen
           name="createVault"
-          options={{ title: t('Extension Lock') }}
+          options={{ title: t('Create Extension Lock') }}
           component={CreateVaultScreen}
         />
       )}
-      {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
+      {vaultStatus === VAULT_STATUS.LOCKED && (
         <Stack.Screen
           name="unlockVault"
           options={{ title: t('Welcome Back') }}

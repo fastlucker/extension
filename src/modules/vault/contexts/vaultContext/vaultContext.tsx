@@ -51,8 +51,8 @@ const VaultProvider: React.FC = ({ children }) => {
   useEffect(() => {
     ;(async () => {
       if (isExtension) {
-        const store: any = (await getStore(['password'])) || {}
-        if (store.password) {
+        const store: any = (await getStore(['vault'])) || {}
+        if (store.vault) {
           sendVaultMessage({
             method: 'isVaultUnlocked'
           }).then((res: any) => {
