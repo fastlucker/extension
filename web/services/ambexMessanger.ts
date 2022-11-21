@@ -6,6 +6,10 @@
 import log from 'loglevel'
 
 import {
+  BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV,
+  BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
+} from '@env'
+import {
   BACKGROUND,
   CONTENT_SCRIPT,
   PAGE_CONTEXT,
@@ -13,7 +17,11 @@ import {
   RELAYER_VERBOSE_TAG
 } from '@web/constants/paths'
 
-log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
+log.setDefaultLevel(
+  process.env.APP_ENV === 'production'
+    ? BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
+    : BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV
+)
 
 // The name of the current process handling the msg (itself).
 // It can be PAGE_CONTEXT (dapp page), CONTENT_SCRIPT (dappPage with more permissions) and BACKGROUND.

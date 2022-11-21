@@ -1,6 +1,9 @@
 // Define the environment variables types here, so that the ts imports don't complain
 // {@link https://github.com/goatandsheep/react-native-dotenv/issues/52#issuecomment-673218479|
 declare module '@env' {
+  // eslint-disable-next-line global-require
+  const log = require('loglevel')
+
   export type EnvTypes = {
     /**
      * The Ambire relayer for all EVM chains. Responsible for managing on-chain
@@ -89,4 +92,15 @@ declare module '@env' {
   export const PAYTRIE_PARTNER_URL: EnvTypes['PAYTRIE_PARTNER_URL']
 
   export const SENTRY_DSN: EnvTypes['SENTRY_DSN']
+
+  /**
+   * Possible log level descriptors, may be string, lower or upper case, or number.
+   * There are 6 levels: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent'.
+   * This disables all logging below the given level, so that after a
+   * log.setLevel("warn") call log.warn("something") or log.error("something")
+   * will output messages, but log.info("something") will not.
+   */
+  export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: log.LogLevelDesc
+  /** See `BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD` */
+  export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: log.LogLevelDesc
 }

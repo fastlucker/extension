@@ -8,6 +8,10 @@
 import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
 
+import {
+  BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV,
+  BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
+} from '@env'
 import { browserAPI } from '@web/constants/browserAPI'
 import { errorCodes } from '@web/constants/errors'
 import { BACKGROUND, PAGE_CONTEXT } from '@web/constants/paths'
@@ -31,7 +35,11 @@ import {
   setupAmbexMessenger
 } from '@web/services/ambexMessanger'
 
-log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
+log.setDefaultLevel(
+  process.env.APP_ENV === 'production'
+    ? BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
+    : BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV
+)
 setupAmbexMessenger(BACKGROUND, browserAPI)
 
 // TODO: find a way to store the state and exec callbacks?
