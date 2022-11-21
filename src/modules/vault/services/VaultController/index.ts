@@ -23,6 +23,7 @@ export default class VaultController {
     return !!this.#password
   }
 
+  // create a new empty vault encrypted with password
   async createVault({ password }: { password: string }) {
     const store: any = (await getStore(['vault'])) || {}
 
@@ -38,13 +39,30 @@ export default class VaultController {
           .catch(() => {
             reject()
           })
-        reject()
       } else {
         reject()
       }
     })
   }
 
+  // password = new password that will lock the app
+  // reset password and remove the added accounts/reset vault
+  async resetVault({ password }: { password: string }) {
+    return new Promise((resolve, reject) => {
+      encrypt(password, JSON.stringify({}))
+        .then((blob: string) => {
+          setItem('vault', blob)
+          this.#password = password
+          this.#memVault = {}
+          resolve(true)
+        })
+        .catch(() => {
+          reject()
+        })
+    })
+  }
+
+  // change password but keep the added accounts
   async changeVaultPassword({ password, newPassword }: { password: string; newPassword: string }) {
     return new Promise((resolve, reject) => {
       if (password === this.#password) {

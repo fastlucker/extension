@@ -1,5 +1,5 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
-import React from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
@@ -16,22 +16,30 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import useVault from '@modules/vault/hooks/useVault'
 
-const CreateVaultScreen = () => {
+const InitializeVaultScreen = ({ route }: any) => {
   const { t } = useTranslation()
-  const { createVault } = useVault()
+  const { createVault, resetVault } = useVault()
 
   const {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting }
   } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      nextRoute: route.params?.nextRoute
     }
   })
+
+  const isResetPassword = useMemo(() => route.params?.resetPassword, [route.params?.resetPassword])
+
+  useEffect(() => {
+    setValue('nextRoute', 'auth')
+  }, [isResetPassword, setValue])
 
   return (
     <GradientBackgroundWrapper>
@@ -47,16 +55,30 @@ const CreateVaultScreen = () => {
         >
           <AmbireLogo shouldExpand={false} />
           <View style={[spacings.mbLg, spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
-            <Text weight="regular" style={spacings.mb}>
-              Choose a password to protect your accounts/wallets on this device
-            </Text>
+            {isResetPassword ? (
+              <>
+                <Text weight="regular" style={spacings.mbMi}>
+                  {t(
+                    'Ambire does not keep a copy of your lock password. If you’re having trouble unlocking your extension, you will need to create a new password.'
+                  )}
+                </Text>
+                <Text weight="regular" style={spacings.mb}>
+                  {t('This action will remove all your accounts from this device!')}
+                </Text>
+              </>
+            ) : (
+              <Text weight="regular" style={spacings.mb}>
+                {t('Choose a password to protect your accounts/wallets on this device')}
+              </Text>
+            )}
+
             <Controller
               control={control}
               rules={{ validate: isValidPassword }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <InputPassword
                   onBlur={onBlur}
-                  placeholder={t('Password')}
+                  placeholder={isResetPassword ? t('New password') : t('Password')}
                   onChangeText={onChange}
                   isValid={isValidPassword(value)}
                   value={value}
@@ -92,8 +114,15 @@ const CreateVaultScreen = () => {
             <View style={spacings.ptSm}>
               <Button
                 disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
-                text={isSubmitting ? t('Creating...') : t('Create')}
-                onPress={handleSubmit(createVault)}
+                text={
+                  // eslint-disable-next-line no-nested-ternary
+                  isSubmitting
+                    ? t('Creating...')
+                    : isResetPassword
+                    ? t('Create New Password')
+                    : t('Create Password')
+                }
+                onPress={handleSubmit(isResetPassword ? resetVault : createVault)}
               />
             </View>
           </View>
@@ -103,4 +132,4 @@ const CreateVaultScreen = () => {
   )
 }
 
-export default CreateVaultScreen
+export default InitializeVaultScreen

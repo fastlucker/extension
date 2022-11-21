@@ -53,7 +53,7 @@ import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
-import CreateVaultScreen from '@modules/vault/screens/CreateVaultScreen'
+import InitializeVaultScreen from '@modules/vault/screens/InitializeVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
@@ -179,9 +179,18 @@ const AuthStack = () => {
   // the second time - an immediate email login attempt will be triggered.
   const initialRouteName = SyncStorage.getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
 
+  const { vaultStatus } = useVault()
+
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
+      {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
+        <Stack.Screen
+          name="createVault"
+          options={{ title: t('Create Extension Lock') }}
+          component={InitializeVaultScreen}
+        />
+      )}
       <Stack.Screen
         name="emailLogin"
         options={{ title: t('Login') }}
@@ -241,22 +250,23 @@ const VaultStack = () => {
 
   if (vaultStatus === VAULT_STATUS.LOADING) return null
 
+  let initialRouteName
+
+  if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED) initialRouteName = 'createVault'
+  if (vaultStatus === VAULT_STATUS.LOCKED) initialRouteName = 'unlockVault'
+
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }}>
-      {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
-        <Stack.Screen
-          name="createVault"
-          options={{ title: t('Create Extension Lock') }}
-          component={CreateVaultScreen}
-        />
-      )}
-      {vaultStatus === VAULT_STATUS.LOCKED && (
-        <Stack.Screen
-          name="unlockVault"
-          options={{ title: t('Welcome Back') }}
-          component={UnlockVaultScreen}
-        />
-      )}
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
+      <Stack.Screen
+        name="unlockVault"
+        options={{ title: t('Welcome Back') }}
+        component={UnlockVaultScreen}
+      />
+      <Stack.Screen
+        name="resetVault"
+        options={{ title: t('Reset Extension Lock') }}
+        component={InitializeVaultScreen}
+      />
     </Stack.Navigator>
   )
 }

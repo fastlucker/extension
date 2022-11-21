@@ -9,6 +9,8 @@ import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import useVault from '@modules/vault/hooks/useVault'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 interface Props extends NativeStackScreenProps<any, 'auth'> {}
@@ -21,16 +23,23 @@ interface ButtonProps extends Omit<ButtonDefaultProps, 'onPress'> {
 const AuthButton = ({ text, type = 'primary', routeName, onPress, disabled }: ButtonProps) => {
   const handleButtonPress = useCallback(() => {
     !!onPress && onPress(routeName)
-  }, [])
+  }, [onPress, routeName])
 
   return <Button text={text} type={type} disabled={disabled} onPress={handleButtonPress} />
 }
 
 const AuthScreen = ({ navigation }: Props) => {
   const { t } = useTranslation()
+  const { vaultStatus } = useVault()
 
   const handleAuthButtonPress = (routeName: string) => {
-    navigation.navigate(routeName)
+    if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED) {
+      navigation.navigate('createVault', {
+        nextRoute: routeName
+      })
+    } else {
+      navigation.navigate(routeName)
+    }
   }
 
   return (

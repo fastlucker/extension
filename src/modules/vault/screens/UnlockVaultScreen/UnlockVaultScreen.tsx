@@ -1,7 +1,7 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
+import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
@@ -9,12 +9,13 @@ import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
+import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import useVault from '@modules/vault/hooks/useVault'
 
-const CreateVaultScreen = () => {
+const CreateVaultScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { unlockVault } = useVault()
 
@@ -70,6 +71,15 @@ const CreateVaultScreen = () => {
                 text={isSubmitting ? t('Unlocking...') : t('Unlock')}
                 onPress={handleSubmit(unlockVault)}
               />
+            </View>
+            <View style={[flexboxStyles.alignCenter, spacings.pvTy]}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('resetVault', { resetPassword: true })}
+              >
+                <Text weight="medium" fontSize={12}>
+                  Forgot password?
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Wrapper>

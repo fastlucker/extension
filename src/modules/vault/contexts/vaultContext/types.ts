@@ -9,11 +9,13 @@ export interface VaultContextReturnType {
     password: string
     confirmPassword: string
   }) => void
+  resetVault: ({ password, confirmPassword }: { password: string; confirmPassword: string }) => void
   unlockVault: ({ password }: { password: string }) => void
 }
 
 export const vaultContextDefaults: VaultContextReturnType = {
   vaultStatus: VAULT_STATUS.LOADING,
   createVault: () => {},
+  resetVault: () => {},
   unlockVault: () => {}
 }
