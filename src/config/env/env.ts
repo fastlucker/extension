@@ -7,6 +7,7 @@ import { Platform } from 'react-native'
 import {
   APP_RELAYRLESS,
   CONSTANTS_ENDPOINT,
+  EnvTypes,
   PAYTRIE_PARTNER_URL,
   RAMP_HOST_API_KEY,
   RELAYER_URL,
@@ -40,14 +41,18 @@ import appJSON from '../../../app.json'
 export const isProd = process.env.APP_ENV === 'production'
 export const isStaging = process.env.APP_ENV === 'staging'
 
-// On Android, this is the package name. On iOS, this is the bundle ID.
+/** On Android, this is the package name. On iOS, this is the bundle ID. */
 export const APP_ID = Application.applicationId
-// Internal app version, example: 1.0.0 (follows semantic versioning).
-// Fallback to the appJSON version, because in web mode Constants are missing.
+/**
+ * Internal app version, example: 1.0.0 (follows semantic versioning).
+ * Fallback to the appJSON version, because in web mode Constants are missing.
+ */
 export const APP_VERSION = Constants?.manifest?.version || appJSON.expo.version
-// The internal build version of the native build (binary).
-// This is the Info.plist value for `CFBundleVersion` on iOS and
-// the `versionCode` set by `build.gradle` on Android.
+/**
+ * The internal build version of the native build (binary).
+ * This is the Info.plist value for `CFBundleVersion` on iOS and
+ * the `versionCode` set by `build.gradle` on Android.
+ */
 export const BUILD_NUMBER = Application.nativeBuildVersion || 'N/A'
 
 export const RELEASE_CHANNEL = Updates.releaseChannel || 'N/A'
@@ -65,23 +70,20 @@ enum APP_ENV {
   DEV = 'development'
 }
 
-interface Config {
+interface Config extends EnvTypes {
   APP_ENV: APP_ENV
+  /**
+   * Option to run the app without the Ambire Relayer. See `RELAYER_URL`
+   * TODO: This is never tested, so it might not work!
+   */
   APP_RELAYRLESS: boolean
-  RELAYER_URL: typeof RELAYER_URL
-  ZAPPER_API_ENDPOINT: typeof ZAPPER_API_ENDPOINT
-  ZAPPER_API_KEY: typeof ZAPPER_API_KEY
-  VELCRO_API_ENDPOINT: typeof VELCRO_API_ENDPOINT
-  RAMP_HOST_API_KEY: typeof RAMP_HOST_API_KEY
-  PAYTRIE_PARTNER_URL: typeof PAYTRIE_PARTNER_URL
-  TRANSAK_API_KEY: typeof TRANSAK_API_KEY_PROD
   TRANSAK_ENV: 'STAGING' | 'PRODUCTION'
-  SWAP_URL: typeof SWAP_URL
-  SENTRY_DSN: typeof SENTRY_DSN
-  SIGNATURE_VERIFIER_DEBUGGER: number
-  CONSTANTS_ENDPOINT: typeof CONSTANTS_ENDPOINT
+  /**
+   * In blockchain terms, an RPC allows access to a server node on the specified
+   * network and allows app to communicate and interact with that blockchain.
+   */
   RPC_URLS: {
-    [key in NETWORKS]: typeof RPC_URL_ETHEREUM
+    [key in NETWORKS]: string
   }
 }
 
@@ -98,7 +100,6 @@ const CONFIG: Config = {
   TRANSAK_ENV: 'STAGING',
   SWAP_URL,
   SENTRY_DSN,
-  SIGNATURE_VERIFIER_DEBUGGER: 0,
   CONSTANTS_ENDPOINT,
   RPC_URLS: {
     [NETWORKS.ethereum]: RPC_URL_ETHEREUM,
@@ -128,7 +129,11 @@ if (isProd) {
   CONFIG.APP_ENV = APP_ENV.STAGING
 }
 
-// That's special app mode, which is ment to be turned on only manually.
+/**
+ * Option to run the app without the Ambire Relayer. See `RELAYER_URL`
+ * That's special app mode, which is meant to be turned on only manually.
+ * TODO: This is never tested, so it might not work!
+ */
 export const isRelayerless = CONFIG.APP_RELAYRLESS || !CONFIG.RELAYER_URL
 
 export default CONFIG
