@@ -213,6 +213,18 @@ const VaultProvider: React.FC = ({ children }) => {
     []
   )
 
+  const signMsgExternalSigner = useCallback(
+    async (props: { account: any; network: any; toSign: any; dataV4: any; isTypedData: any }) => {
+      const res = await requestVaultControllerMethod({
+        method: 'signMsgExternalSigner',
+        props
+      })
+
+      return res
+    },
+    []
+  )
+
   return (
     <VaultContext.Provider
       value={useMemo(
@@ -226,7 +238,8 @@ const VaultProvider: React.FC = ({ children }) => {
           removeFromVault,
           getSignerType,
           signTxnQuckAcc,
-          signTxnExternalSigner
+          signTxnExternalSigner,
+          signMsgExternalSigner
         }),
         [
           vaultStatus,
@@ -238,7 +251,8 @@ const VaultProvider: React.FC = ({ children }) => {
           removeFromVault,
           getSignerType,
           signTxnQuckAcc,
-          signTxnExternalSigner
+          signTxnExternalSigner,
+          signMsgExternalSigner
         ]
       )}
     >

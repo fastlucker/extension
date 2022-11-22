@@ -1,16 +1,10 @@
-import { signMessage, signMessage712 } from 'adex-protocol-eth/js/Bundle'
 import { isValidPassword } from 'ambire-common/src/services/validations'
-import { Wallet } from 'ethers'
-import { arrayify, isHexString, toUtf8Bytes } from 'ethers/lib/utils'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { isWeb } from '@config/env'
-import { SyncStorage } from '@config/storage'
-import useExternalSigners from '@modules/auth/hooks/useExternalSignerLogin'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -24,8 +18,9 @@ import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import ExternalSignerAuthorization from '@modules/external-signers/components/ExternalSignerAuthorization'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
+import useVault from '@modules/vault/hooks/useVault'
+import { SIGNER_TYPES } from '@modules/vault/services/VaultController/types'
 
 import styles from './styles'
 
@@ -49,13 +44,12 @@ export type HardwareWalletBottomSheetType = {
 
 interface Props {
   isLoading: boolean
+  isTypedData: any
   approve: any
   approveQuickAcc: any
   resolve: any
   toSign: any
   dataV4: any
-  verifySignature: any
-  externalSignerBottomSheet: ExternalSignerBottomSheetType
   quickAccBottomSheet: QuickAccBottomSheetType
   hardwareWalletBottomSheet: HardwareWalletBottomSheetType
   confirmationType: string | null
@@ -64,23 +58,14 @@ interface Props {
   hasProviderError: any
 }
 
-function getMessageAsBytes(msg: string) {
-  // Transforming human message / hex string to bytes
-  if (!isHexString(msg)) {
-    return toUtf8Bytes(msg)
-  }
-  return arrayify(msg)
-}
-
 const SignActions = ({
   isLoading,
+  isTypedData,
   approve,
   approveQuickAcc,
   resolve,
-  verifySignature,
   toSign,
   dataV4,
-  externalSignerBottomSheet,
   quickAccBottomSheet,
   hardwareWalletBottomSheet,
   confirmationType,
@@ -91,9 +76,8 @@ const SignActions = ({
   const { t } = useTranslation()
   const { account } = useAccounts()
   const { network } = useNetwork()
-  const { decryptExternalSigner, externalSigners } = useExternalSigners()
-  const { selectedAccHasPassword, getSelectedAccPassword } = useBiometricsSign()
   const { addToast } = useToast()
+  const { signMsgExternalSigner, getSignerType } = useVault()
   const {
     control,
     handleSubmit,
@@ -111,79 +95,44 @@ const SignActions = ({
 
   // Not a common logic therefore implemented locally
   // Once implemented on web this should be moved in ambire-common
-  const approveWithExternalSigner = async ({ password }: any) => {
-    const privateKey: any = await decryptExternalSigner({
-      signerPublicAddr: account.signer?.address,
-      password
-    })
-    try {
-      if (!privateKey) throw new Error('Invalid signer password - signer decryption failed')
-
-      const wallet = new Wallet(privateKey)
-
-      const sig = await (toSign.type === 'eth_signTypedData_v4' ||
-      toSign.type === 'eth_signTypedData'
-        ? signMessage712(
-            wallet,
-            account.id,
-            account.signer,
-            dataV4.domain,
-            dataV4.types,
-            dataV4.message
-          )
-        : signMessage(wallet, account.id, account.signer, getMessageAsBytes(toSign.txn)))
-
-      await verifySignature(toSign, sig, network?.id)
-      resolve({ success: true, result: sig })
-      addToast('Successfully signed!')
-    } catch (e) {
-      addToast(`Signing error: ${e.message || e}`, {
-        error: true
+  const approveWithExternalSigner = async () => {
+    signMsgExternalSigner({ account, network, dataV4, toSign, isTypedData })
+      .then((sig) => {
+        resolve({ success: true, result: sig })
+        addToast('Successfully signed!')
       })
-    }
+      .catch((e) => {
+        addToast(`Signing error: ${e.message || e}`, {
+          error: true
+        })
+      })
   }
 
   const handleSign = async () => {
-    const externalSignerWithBiometricSign =
-      externalSigners[account.signer?.address] && selectedAccHasPassword
-    if (externalSignerWithBiometricSign) {
-      const password = await getSelectedAccPassword()
-      if (password) {
-        approveWithExternalSigner({ password })
-      }
+    const signerType = await getSignerType({ addr: account.signer?.address })
 
-      return
+    if (!signerType) throw new Error('Signer not found')
+
+    if (signerType === SIGNER_TYPES.external) {
+      approveWithExternalSigner()
     }
 
-    const externalSignerWithPassword = externalSigners[account.signer?.address]
-    if (externalSignerWithPassword) {
-      externalSignerBottomSheet.openBottomSheet()
-      return
-    }
+    // TODO:
+    // if (signerType === SIGNER_TYPES.quickAcc && code) {
+    //   approveTxnPromise = approveTxnImplQuickAcc({ code })
+    // }
 
-    // Inject the password to the form, so that it is passed to the `onSubmit`
-    // (`handleSubmit`) handler, which will then pass it to the `approve`
-    // function. And therefore, the logic further down will be reused.
-    const isQuickAccManagerWithBiometricsSign =
-      account.signer?.quickAccManager && selectedAccHasPassword
-    if (isQuickAccManagerWithBiometricsSign) {
-      const password = await getSelectedAccPassword()
-      if (password) {
-        setValue('password', password)
-      }
-    }
-
-    if (account.signer?.quickAccManager) {
-      handleSubmit(approve)()
-    } else {
-      approve()
-    }
+    // if (account.signer?.quickAccManager) {
+    //   handleSubmit(approve)()
+    // } else {
+    //   approve()
+    // }
   }
 
   return (
     <>
       <View>
-        {!!account.signer?.quickAccManager && !!isDeployed && !selectedAccHasPassword && (
+        {!!account.signer?.quickAccManager && !!isDeployed && (
           <Controller
             control={control}
             rules={{ required: true }}
@@ -252,19 +201,6 @@ const SignActions = ({
           </View>
         </View>
       </View>
-      <BottomSheet
-        id="authorize-external-signer"
-        sheetRef={externalSignerBottomSheet.sheetRef}
-        closeBottomSheet={externalSignerBottomSheet.closeBottomSheet}
-      >
-        <ExternalSignerAuthorization
-          hasRegisteredPassword
-          onAuthorize={(credentials) => {
-            approveWithExternalSigner(credentials)
-            externalSignerBottomSheet.closeBottomSheet()
-          }}
-        />
-      </BottomSheet>
       <BottomSheet
         id="sign"
         closeBottomSheet={quickAccBottomSheet.closeBottomSheet}

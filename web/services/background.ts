@@ -258,7 +258,9 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
       return
     }
     log.info('ambirePageContext: web3CallRequest', message)
-    const { network, selectedAcc } = await getStore(['network', 'selectedAcc'])
+    const store = (await getStore(['network', 'selectedAcc'])) || {}
+
+    const { network, selectedAcc } = store
     if (!network || !selectedAcc) {
       sendReply(message, {
         data: {

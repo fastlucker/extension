@@ -65,6 +65,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
     // local storage keeps only the networkId
     // but the background service needs the whole network object
     store.network = network || {}
+    store.selectedAcc = selectedAccount || ''
     browserAPI?.storage?.local?.set(store)
   })
 

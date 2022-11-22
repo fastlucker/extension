@@ -67,11 +67,6 @@ const SignScreenScreen = ({ navigation }: any) => {
   useDisableHardwareBackPress()
 
   const {
-    ref: sheetRefExternalSigner,
-    open: openBottomSheetExternalSigner,
-    close: closeBottomSheetExternalSigner
-  } = useModalize()
-  const {
     ref: sheetRefQickAcc,
     open: openBottomSheetQickAcc,
     close: closeBottomSheetQickAcc
@@ -123,7 +118,7 @@ const SignScreenScreen = ({ navigation }: any) => {
     isDeployed,
     dataV4,
     confirmationType,
-    verifySignature
+    isTypedData
   } = useSignMessage({
     fetch,
     account,
@@ -221,21 +216,16 @@ const SignScreenScreen = ({ navigation }: any) => {
           </View>
           <SignActions
             isLoading={isLoading}
+            isTypedData={isTypedData}
             approve={approve}
             approveQuickAcc={approveQuickAcc}
             toSign={toSign}
             dataV4={dataV4}
-            verifySignature={verifySignature}
             confirmationType={confirmationType}
             resolve={resolve}
             hasPrivileges={hasPrivileges}
             isDeployed={isDeployed}
             hasProviderError={hasProviderError}
-            externalSignerBottomSheet={{
-              sheetRef: sheetRefExternalSigner,
-              openBottomSheet: openBottomSheetExternalSigner,
-              closeBottomSheet: closeBottomSheetExternalSigner
-            }}
             quickAccBottomSheet={{
               sheetRef: sheetRefQickAcc,
               openBottomSheet: openBottomSheetQickAcc,

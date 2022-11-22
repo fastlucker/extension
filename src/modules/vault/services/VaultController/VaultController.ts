@@ -1,7 +1,10 @@
 import { Bundle } from 'adex-protocol-eth/js'
+import { signMessage, signMessage712 } from 'adex-protocol-eth/js/Bundle'
 import { getProvider } from 'ambire-common/src/services/provider'
 import { Wallet } from 'ethers'
+import { arrayify, isHexString, toUtf8Bytes } from 'ethers/lib/utils'
 
+import { verifyMessage } from '@ambire/signature-validator'
 import CONFIG from '@config/env'
 import { decrypt, encrypt } from '@modules/common/services/passworder'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
@@ -11,6 +14,13 @@ import { Vault, VaultItem } from './types'
 
 const relayerURL = CONFIG.RELAYER_URL
 
+function getMessageAsBytes(msg: string) {
+  // Transforming human message / hex string to bytes
+  if (!isHexString(msg)) {
+    return toUtf8Bytes(msg)
+  }
+  return arrayify(msg)
+}
 export default class VaultController {
   #password: string | null
 
@@ -217,9 +227,6 @@ export default class VaultController {
     const wallet = new Wallet(vaultItem.signer)
 
     if (relayerURL) {
-      // Temporary way of debugging the fee cost
-      // const initialLimit = finalBundle.gasLimit - getFeePaymentConsequences(estimation.selectedFeeToken, estimation).addedGas
-      // finalBundle.estimate({ relayerURL, fetch }).then(estimation => console.log('fee costs: ', estimation.gasLimit - initialLimit), estimation.selectedFeeToken).catch(console.error)
       await bundle.sign(wallet)
       // eslint-disable-next-line @typescript-eslint/return-await
       return await bundle.submit({ relayerURL, fetch })
@@ -234,5 +241,51 @@ export default class VaultController {
       feeSpeed,
       provider
     })
+  }
+
+  async signMsgExternalSigner({
+    account,
+    network,
+    toSign,
+    dataV4,
+    isTypedData
+  }: {
+    account: any
+    network: any
+    toSign: any
+    dataV4: any
+    isTypedData: any
+  }) {
+    if (!this.#memVault) throw new Error('Vault not initialized')
+
+    const vaultItem = this.#memVault[account.signer?.address]
+
+    if (!vaultItem) throw new Error('Signer not found')
+
+    const wallet = new Wallet(vaultItem.signer)
+
+    const sig = await (toSign.type === 'eth_signTypedData_v4' || toSign.type === 'eth_signTypedData'
+      ? signMessage712(
+          wallet,
+          account.id,
+          account.signer,
+          dataV4.domain,
+          dataV4.types,
+          dataV4.message
+        )
+      : signMessage(wallet, account.id, account.signer, getMessageAsBytes(toSign.txn)))
+
+    const provider = getProvider(network.id)
+
+    // eslint-disable-next-line @typescript-eslint/return-await
+    await verifyMessage({
+      provider,
+      signer: account.id,
+      message: isTypedData ? null : getMessageAsBytes(toSign.txn),
+      typedData: isTypedData ? dataV4 : null,
+      signature: sig
+    })
+
+    return sig
   }
 }

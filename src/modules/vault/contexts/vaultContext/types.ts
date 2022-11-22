@@ -28,6 +28,13 @@ export interface VaultContextReturnType {
     account: any
     network: any
   }) => Promise<any>
+  signMsgExternalSigner: (props: {
+    account: any
+    network: any
+    toSign: any
+    dataV4: any
+    isTypedData: any
+  }) => Promise<any>
 }
 
 export const vaultContextDefaults: VaultContextReturnType = {
@@ -40,5 +47,6 @@ export const vaultContextDefaults: VaultContextReturnType = {
   removeFromVault: () => Promise.resolve(false),
   getSignerType: () => Promise.resolve(''),
   signTxnQuckAcc: () => Promise.resolve(false),
-  signTxnExternalSigner: () => Promise.resolve(false)
+  signTxnExternalSigner: () => Promise.resolve(false),
+  signMsgExternalSigner: () => Promise.resolve(false)
 }
