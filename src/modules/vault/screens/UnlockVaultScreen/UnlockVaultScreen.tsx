@@ -52,6 +52,7 @@ const CreateVaultScreen = ({ navigation }: any) => {
                 <InputPassword
                   onBlur={onBlur}
                   placeholder={t('Password')}
+                  autoFocus
                   onChangeText={onChange}
                   isValid={isValidPassword(value)}
                   value={value}

@@ -5,13 +5,11 @@
 // Background workers are killed and respawned (chrome MV3) when contentScript are calling them.
 // Firefox does not support MV3 yet but is working on it.
 
-import { Bundle } from 'adex-protocol-eth/js'
 import { initRpcProviders } from 'ambire-common/src/services/provider'
 import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
 
 import { rpcProviders } from '@modules/common/services/providers'
-import { signTxnQuickAcc } from '@modules/common/services/sign'
 import VaultController from '@modules/vault/services/VaultController'
 import { browserAPI } from '@web/constants/browserAPI'
 import { errorCodes } from '@web/constants/errors'
@@ -408,31 +406,6 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
       })
     }
   })
-})
-
-// Sign txn
-addMessageHandler({ type: 'signTxn' }, async (message) => {
-  const {
-    data: { finalBundle, signature }
-  } = message
-  // TODO: impl keyring
-  const { accounts, selectedAcc } = await getStore(['accounts', 'selectedAcc', 'keystore'])
-  const account = accounts.find((x: Account) => x.id === selectedAcc) || {}
-
-  const bundle = new Bundle({
-    ...finalBundle
-  })
-
-  const res = await signTxnQuickAcc({
-    // TODO: get password or private key from keyring
-    // currently sign txn wont work on the extension
-    password: '',
-    finalBundle: bundle,
-    signature,
-    primaryKeyBackup: account.primaryKeyBackup
-  })
-
-  sendReply(message, res)
 })
 
 // MESSAGE HANDLERS END HERE
