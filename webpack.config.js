@@ -1,15 +1,22 @@
+// The 'react-native-dotenv' package doesn't work in the NodeJS context (and
+// with commonjs imports), so alternatively, use 'dotend' package to load the
+// environment variables from the .env file.
+require('dotenv').config()
+
 const createExpoWebpackConfigAsync = require('@expo/webpack-config')
 const fs = require('fs')
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const { ExpoHtmlWebpackPlugin } = require('@expo/webpack-config/plugins/index')
-const nodeHtmlParser = require('node-html-parser')
-const fsExtra = require('fs-extra')
 const expoEnv = require('@expo/webpack-config/env')
-const appJSON = require('./app.json')
+// Ignore adding the following packages to the dependencies list,
+// because they are already included in the expo package deps.
+// eslint-disable-next-line import/no-extraneous-dependencies
+const nodeHtmlParser = require('node-html-parser')
+// eslint-disable-next-line import/no-extraneous-dependencies
+const fsExtra = require('fs-extra')
 
-// TODO: Figure out how to wire-up the env variable instead
-const BROWSER_EXTENSION_KEY_DEV = 'fonojgaecclmijindmmeldcfhgfijajg'
+const appJSON = require('./app.json')
 
 // Overrides the default generatedScriptTags
 // generatedScriptTags is used to add the entry files as scripts in index.html
@@ -32,7 +39,7 @@ module.exports = async function (env, argv) {
     // in Chrome Web Store and can't be changed.
     // {@link https://developer.chrome.com/extensions/manifest/key}
     // TODO: Figure out if this works for gecko
-    manifest.key = BROWSER_EXTENSION_KEY_DEV
+    manifest.key = process.env.BROWSER_EXTENSION_KEY_DEV
 
     // Tweak manifest file, so it's compatible with gecko extensions specifics
     if (process.env.WEB_ENGINE === 'gecko') {

@@ -103,4 +103,13 @@ declare module '@env' {
   export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: log.LogLevelDesc
   /** See `BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD` */
   export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: log.LogLevelDesc
+
+  /**
+   * This value can be used to control the unique ID of an extension,
+   * when it is loaded during development. In prod, the ID is generated
+   * in Chrome Web Store and can't be changed.
+   * It is generated based on a key.pem using the following method:
+   * {@link https://stackoverflow.com/a/46739698/1333836}
+   */
+  export const BROWSER_EXTENSION_KEY_DEV: string
 }
