@@ -3,7 +3,7 @@
   "author": "https://www.ambire.com",
   "description": "Тhe easiest to use, most powerful and secure Web3 non-custodial solution you can get. It’s the smart solution all smart people use.",
   "version": "SYNCED_WITH_THE_APP_VERSION_VIA_THE_WEBPACK_CONFIG",
-  "key": "ENV_VARIABLE_BROWSER_EXTENSION_KEY_DEV_SET_IN_THE_WEBPACK_CONFIG",
+  "key": "SET_IN_THE_WEBPACK_CONFIG",
   "manifest_version": 3,
   "short_name": "Ambire",
   "permissions": ["storage", "tabs"],

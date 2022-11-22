@@ -8,6 +8,9 @@ const fsExtra = require('fs-extra')
 const expoEnv = require('@expo/webpack-config/env')
 const appJSON = require('./app.json')
 
+// TODO: Figure out how to wire-up the env variable instead
+const BROWSER_EXTENSION_KEY_DEV = 'fonojgaecclmijindmmeldcfhgfijajg'
+
 // Overrides the default generatedScriptTags
 // generatedScriptTags is used to add the entry files as scripts in index.html
 // but we heed only the app.js entry because the other entries are extension services running as background processes in the browser
@@ -25,9 +28,11 @@ module.exports = async function (env, argv) {
     manifest.version = appJSON.expo.version
 
     // This value can be used to control the unique ID of an extension,
-    // only when it is loaded during development.
-    // TODO: Figure out how to wire-up the env variable
-    // manifest.key = BROWSER_EXTENSION_KEY_DEV
+    // when it is loaded during development. In prod, the ID is generated
+    // in Chrome Web Store and can't be changed.
+    // {@link https://developer.chrome.com/extensions/manifest/key}
+    // TODO: Figure out if this works for gecko
+    manifest.key = BROWSER_EXTENSION_KEY_DEV
 
     // Tweak manifest file, so it's compatible with gecko extensions specifics
     if (process.env.WEB_ENGINE === 'gecko') {
