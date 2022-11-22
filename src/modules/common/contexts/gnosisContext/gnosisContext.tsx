@@ -54,7 +54,7 @@ const GnosisProvider: React.FC = ({ children }) => {
   })
 
   useEffect(() => {
-    const newHash = CONFIG.SUSHI_SWAP_URL + network.chainId + selectedAcc
+    const newHash = CONFIG.SWAP_URL + network.chainId + selectedAcc
     setHash(newHash)
   }, [network.chainId, selectedAcc])
 

@@ -5,10 +5,19 @@
 
 import log from 'loglevel'
 
+import {
+  BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV,
+  BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
+} from '@env'
+
 import { BACKGROUND, PAGE_CONTEXT } from '../constants/paths'
 import { addMessageHandler, sendMessage, setupAmbexMessenger } from './ambexMessanger'
 
-log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
+log.setDefaultLevel(
+  process.env.APP_ENV === 'production'
+    ? BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
+    : BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV
+)
 
 const Web3 = require('web3')
 
