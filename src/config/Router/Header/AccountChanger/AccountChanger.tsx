@@ -19,6 +19,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
+import useVault from '@modules/vault/hooks/useVault'
 
 import styles from './styles'
 
@@ -38,7 +39,8 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
   const { removeSelectedAccPassword } = useBiometricsSign()
   const { removeAppLock } = useAppLock()
-  const { removeExternalSigner, externalSigners } = useExternalSigners()
+  const { externalSigners } = useExternalSigners()
+  const { removeFromVault } = useVault()
 
   const handleChangeAccount = (accountId: any) => {
     closeBottomSheet()
@@ -73,7 +75,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
         (acc) => !!externalSigners[acc.signer?.address]
       )
       if (accountHasExternalSigner && noOtherAccountsHaveTheSameExternalSigner) {
-        removeExternalSigner(account.signer?.address)
+        removeFromVault(account.signer?.address)
       }
 
       onRemoveAccount(account.id)

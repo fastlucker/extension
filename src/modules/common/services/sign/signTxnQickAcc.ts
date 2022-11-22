@@ -11,12 +11,7 @@ type Props = {
   signature: any
 }
 
-export const signTxnQuickAcc = async ({
-  password,
-  finalBundle,
-  primaryKeyBackup,
-  signature
-}: Props) => {
+export const signTxnQuickAcc = async ({ finalBundle, primaryKeyBackup, signature }: Props) => {
   if (!finalBundle.recoveryMode) {
     // Make sure we let React re-render without blocking (decrypting and signing will block)
     // eslint-disable-next-line no-promise-executor-return

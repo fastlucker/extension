@@ -6,6 +6,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import { VaultItem } from '@modules/vault/services/VaultController/types'
 import { isExtension } from '@web/constants/browserAPI'
 import { BACKGROUND } from '@web/constants/paths'
 import { getStore } from '@web/functions/storage'
@@ -15,7 +16,7 @@ import { vaultContextDefaults, VaultContextReturnType } from './types'
 
 const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 
-const sendVaultMessage = ({
+const requestVaultControllerMethod = ({
   method,
   props
 }: {
@@ -56,7 +57,7 @@ const VaultProvider: React.FC = ({ children }) => {
       if (isExtension) {
         const store: any = (await getStore(['vault'])) || {}
         if (store.vault) {
-          sendVaultMessage({
+          requestVaultControllerMethod({
             method: 'isVaultUnlocked'
           }).then((res: any) => {
             setVaultStatus(res ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
@@ -79,7 +80,7 @@ const VaultProvider: React.FC = ({ children }) => {
       nextRoute?: string
     }) => {
       if (password === confirmPassword) {
-        sendVaultMessage({
+        requestVaultControllerMethod({
           method: 'createVault',
           props: {
             password
@@ -110,7 +111,7 @@ const VaultProvider: React.FC = ({ children }) => {
       nextRoute?: string
     }) => {
       if (password === confirmPassword) {
-        sendVaultMessage({
+        requestVaultControllerMethod({
           method: 'resetVault',
           props: {
             password
@@ -131,12 +132,10 @@ const VaultProvider: React.FC = ({ children }) => {
   )
 
   const unlockVault = useCallback(
-    ({ password }: { password: string }) => {
-      sendVaultMessage({
+    (props: { password: string }) => {
+      requestVaultControllerMethod({
         method: 'unlockVault',
-        props: {
-          password
-        }
+        props
       })
         .then(() => {
           setVaultStatus(VAULT_STATUS.UNLOCKED)
@@ -148,11 +147,99 @@ const VaultProvider: React.FC = ({ children }) => {
     [t, addToast]
   )
 
+  const isValidPassword = useCallback(async (props: { password: string }) => {
+    const res = await requestVaultControllerMethod({
+      method: 'isValidPassword',
+      props
+    })
+
+    return res as boolean
+  }, [])
+
+  const addToVault = useCallback(async (props: { addr: string; item: VaultItem }) => {
+    const res = await requestVaultControllerMethod({
+      method: 'addToVault',
+      props
+    })
+
+    return res
+  }, [])
+
+  const removeFromVault = useCallback(async (props: { addr: string }) => {
+    const res = await requestVaultControllerMethod({
+      method: 'removeFromVault',
+      props
+    })
+
+    return res
+  }, [])
+
+  const getSignerType = useCallback(async (props: { addr: string }) => {
+    const res = await requestVaultControllerMethod({
+      method: 'getSignerType',
+      props
+    })
+
+    return res as string
+  }, [])
+
+  const signQuckAcc = useCallback(
+    async (props: { finalBundle: any; primaryKeyBackup: string; signature: any }) => {
+      const res = await requestVaultControllerMethod({
+        method: 'signQuckAcc',
+        props
+      })
+
+      return res
+    },
+    []
+  )
+
+  const signExternalSigner = useCallback(
+    async (props: {
+      finalBundle: any
+      estimation: any
+      feeSpeed: any
+      account: any
+      network: any
+    }) => {
+      const res = await requestVaultControllerMethod({
+        method: 'signExternalSigner',
+        props
+      })
+
+      return res
+    },
+    []
+  )
+
   return (
     <VaultContext.Provider
       value={useMemo(
-        () => ({ vaultStatus, createVault, resetVault, unlockVault }),
-        [vaultStatus, createVault, resetVault, unlockVault]
+        () => ({
+          vaultStatus,
+          createVault,
+          resetVault,
+          unlockVault,
+          isValidPassword,
+          addToVault,
+          removeFromVault,
+          getSignerType,
+          signQuckAcc,
+          signExternalSigner
+        }),
+        [
+          vaultStatus,
+          createVault,
+          resetVault,
+          unlockVault,
+          isValidPassword,
+          addToVault,
+          removeFromVault,
+          getSignerType,
+          signQuckAcc,
+          signExternalSigner
+        ]
       )}
     >
       {children}

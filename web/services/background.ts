@@ -6,9 +6,11 @@
 // Firefox does not support MV3 yet but is working on it.
 
 import { Bundle } from 'adex-protocol-eth/js'
+import { initRpcProviders } from 'ambire-common/src/services/provider'
 import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
 
+import { rpcProviders } from '@modules/common/services/providers'
 import { signTxnQuickAcc } from '@modules/common/services/sign'
 import VaultController from '@modules/vault/services/VaultController'
 import { browserAPI } from '@web/constants/browserAPI'
@@ -35,7 +37,10 @@ import {
 } from '@web/services/ambexMessanger'
 
 log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
+
 setupAmbexMessenger(BACKGROUND, browserAPI)
+// Initialize rpc providers for all networks
+initRpcProviders(rpcProviders)
 
 // TODO: find a way to store the state and exec callbacks?
 const PENDING_CALLBACKS = {}
