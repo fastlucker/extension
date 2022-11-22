@@ -6,13 +6,13 @@ import { InteractionManager, Keyboard, View } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
+import useExternalSignerLogin from '@modules/auth/hooks/useExternalSignerLogin'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import { delayPromise } from '@modules/common/utils/promises'
-import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
 
 const formatMnemonic = (mnemonic: string) =>
   mnemonic
@@ -23,7 +23,7 @@ const formatMnemonic = (mnemonic: string) =>
 const RecoveryPhraseForm = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
-  const { addExternalSigner } = useExternalSigners()
+  const { addExternalSigner } = useExternalSignerLogin()
   const [memWallet, setMemWallet] = useState<any>(null)
   const {
     control,

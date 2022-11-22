@@ -156,7 +156,7 @@ export default class VaultController {
     return vaultItem.type
   }
 
-  async signQuckAcc({
+  async signTxnQuckAcc({
     finalBundle,
     primaryKeyBackup,
     signature
@@ -191,7 +191,7 @@ export default class VaultController {
     return await bundle.submit({ relayerURL, fetch })
   }
 
-  async signExternalSigner({
+  async signTxnExternalSigner({
     finalBundle,
     estimation,
     feeSpeed,

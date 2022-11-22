@@ -4,15 +4,15 @@ import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import useExternalSignerLogin from '@modules/auth/hooks/useExternalSignerLogin'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import spacings from '@modules/common/styles/spacings'
-import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
 
 const PrivateKeyForm = () => {
   const { t } = useTranslation()
-  const { addExternalSigner } = useExternalSigners()
+  const { addExternalSigner } = useExternalSignerLogin()
 
   const {
     control,

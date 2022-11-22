@@ -4,6 +4,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import useExternalSigners from '@modules/auth/hooks/useExternalSignerLogin'
 import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -17,7 +18,6 @@ import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import { delayPromise } from '@modules/common/utils/promises'
-import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
 import { useIsFocused, useNavigation } from '@react-navigation/native'
 
 interface FormValues {

@@ -183,10 +183,10 @@ const VaultProvider: React.FC = ({ children }) => {
     return res as string
   }, [])
 
-  const signQuckAcc = useCallback(
+  const signTxnQuckAcc = useCallback(
     async (props: { finalBundle: any; primaryKeyBackup: string; signature: any }) => {
       const res = await requestVaultControllerMethod({
-        method: 'signQuckAcc',
+        method: 'signTxnQuckAcc',
         props
       })
 
@@ -195,7 +195,7 @@ const VaultProvider: React.FC = ({ children }) => {
     []
   )
 
-  const signExternalSigner = useCallback(
+  const signTxnExternalSigner = useCallback(
     async (props: {
       finalBundle: any
       estimation: any
@@ -204,7 +204,7 @@ const VaultProvider: React.FC = ({ children }) => {
       network: any
     }) => {
       const res = await requestVaultControllerMethod({
-        method: 'signExternalSigner',
+        method: 'signTxnExternalSigner',
         props
       })
 
@@ -225,8 +225,8 @@ const VaultProvider: React.FC = ({ children }) => {
           addToVault,
           removeFromVault,
           getSignerType,
-          signQuckAcc,
-          signExternalSigner
+          signTxnQuckAcc,
+          signTxnExternalSigner
         }),
         [
           vaultStatus,
@@ -237,8 +237,8 @@ const VaultProvider: React.FC = ({ children }) => {
           addToVault,
           removeFromVault,
           getSignerType,
-          signQuckAcc,
-          signExternalSigner
+          signTxnQuckAcc,
+          signTxnExternalSigner
         ]
       )}
     >

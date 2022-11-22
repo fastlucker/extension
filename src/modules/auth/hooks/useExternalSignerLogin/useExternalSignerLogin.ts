@@ -12,7 +12,7 @@ type AddSignerFormValues = {
   signer: string
 }
 
-const useExternalSigners = () => {
+const useExternalSignerLogin = () => {
   const { addToast } = useToast()
   const { isValidPassword, addToVault } = useVault()
   const { onEOASelected } = useEOA()
@@ -66,8 +66,8 @@ const useExternalSigners = () => {
           .then(() => {
             onEOASelected(addr, { type: 'Web3' })
           })
-          .catch((err) => {
-            console.log('In catch', err)
+          .catch((e) => {
+            addToast(e.message || e, { error: true })
           })
       } catch (e) {
         !isWeb && Keyboard.dismiss()
@@ -85,4 +85,4 @@ const useExternalSigners = () => {
   }
 }
 
-export default useExternalSigners
+export default useExternalSignerLogin

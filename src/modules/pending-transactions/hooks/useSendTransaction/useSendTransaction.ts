@@ -128,7 +128,7 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
   const { currentAccGasTankState } = useGasTank()
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
-  const { signQuckAcc, signExternalSigner, getSignerType } = useVault()
+  const { signTxnQuckAcc, signTxnExternalSigner, getSignerType } = useVault()
 
   const [replaceTx, setReplaceTx] = useState(!!sendTxnState.replaceByDefault)
 
@@ -361,7 +361,7 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
     // we need to freeze finalBundle in the UI in case signing takes a long time (currently only to freeze the fee selector)
     setSigningStatus({ inProgress: true, finalBundle })
 
-    const res = await signExternalSigner({
+    const res = await signTxnExternalSigner({
       finalBundle,
       feeSpeed,
       estimation,
@@ -467,7 +467,7 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
         passwordRequired: !isExtension
       })
 
-      const res = await signQuckAcc({
+      const res = await signTxnQuckAcc({
         finalBundle,
         primaryKeyBackup: account.primaryKeyBackup,
         signature
