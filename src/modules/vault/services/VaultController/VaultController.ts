@@ -78,6 +78,8 @@ export default class VaultController {
 
   // change password but keep the added accounts
   async changeVaultPassword({ password, newPassword }: { password: string; newPassword: string }) {
+    if (!this.#password) throw new Error('Unauthenticated')
+
     return new Promise((resolve, reject) => {
       if (password === this.#password) {
         encrypt(newPassword, JSON.stringify({}))
@@ -116,27 +118,29 @@ export default class VaultController {
   }
 
   async addToVault({ addr, item }: { addr: string; item: VaultItem }) {
+    if (!this.#password) throw new Error('Unauthenticated')
+
     const updatedVault = {
       ...this.#memVault,
       [addr]: item
     }
 
     return new Promise((resolve, reject) => {
-      if (this.#password) {
-        encrypt(this.#password as string, JSON.stringify(updatedVault))
-          .then((blob: string) => {
-            setItem('vault', blob)
-            this.#memVault = updatedVault
-            resolve(true)
-          })
-          .catch((err) => {
-            reject(new Error(err))
-          })
-      }
+      encrypt(this.#password as string, JSON.stringify(updatedVault))
+        .then((blob: string) => {
+          setItem('vault', blob)
+          this.#memVault = updatedVault
+          resolve(true)
+        })
+        .catch((err) => {
+          reject(new Error(err))
+        })
     })
   }
 
   async removeFromVault({ addr }: { addr: string }) {
+    if (!this.#password) throw new Error('Unauthenticated')
+
     const updatedVault = {
       ...this.#memVault
     }
@@ -144,17 +148,15 @@ export default class VaultController {
     delete updatedVault[addr]
 
     return new Promise((resolve, reject) => {
-      if (this.#password) {
-        encrypt(this.#password as string, JSON.stringify(updatedVault))
-          .then((blob: string) => {
-            setItem('vault', blob)
-            this.#memVault = updatedVault
-            resolve(true)
-          })
-          .catch((err) => {
-            reject(new Error(err))
-          })
-      }
+      encrypt(this.#password as string, JSON.stringify(updatedVault))
+        .then((blob: string) => {
+          setItem('vault', blob)
+          this.#memVault = updatedVault
+          resolve(true)
+        })
+        .catch((err) => {
+          reject(new Error(err))
+        })
     })
   }
 

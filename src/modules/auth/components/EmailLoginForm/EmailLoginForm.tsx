@@ -1,5 +1,5 @@
-import { isEmail } from 'ambire-common/src/services/validations'
-import React, { useCallback } from 'react'
+import { isEmail, isValidPassword } from 'ambire-common/src/services/validations'
+import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
@@ -8,8 +8,7 @@ import { useTranslation } from '@config/localization'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
-import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
+import InputPassword from '@modules/common/components/InputPassword'
 import spacings from '@modules/common/styles/spacings'
 
 const EmailLoginScreen = () => {
@@ -18,75 +17,92 @@ const EmailLoginScreen = () => {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting }
   } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
-      email: ''
+      email: '',
+      password: ''
     }
   })
 
-  const { handleLogin, cancelLoginAttempts, requiresEmailConfFor, err } = useEmailLogin()
+  const { handleLogin, cancelLoginAttempts, requiresEmailConfFor, requiresPassword } =
+    useEmailLogin()
 
-  const handleFormSubmit = useCallback(() => {
-    handleSubmit(handleLogin)()
-  }, [])
+  useEffect(() => {
+    if (requiresEmailConfFor) {
+      setValue('email', requiresEmailConfFor?.email || '')
+    }
+  }, [requiresEmailConfFor, setValue])
 
   return (
     <>
-      {!requiresEmailConfFor && (
-        <>
-          <Controller
-            control={control}
-            rules={{ validate: isEmail }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                onBlur={onBlur}
-                placeholder={t('Email')}
-                onChangeText={onChange}
-                onSubmitEditing={handleFormSubmit}
-                value={value}
-                isValid={isEmail(value)}
-                keyboardType="email-address"
-                error={errors.email && (t('Please fill in a valid email.') as string)}
-              />
-            )}
-            name="email"
+      <Controller
+        control={control}
+        rules={{ validate: isEmail }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            onBlur={onBlur}
+            placeholder={t('Email')}
+            onChangeText={onChange}
+            onSubmitEditing={handleSubmit(handleLogin)}
+            value={value}
+            isValid={isEmail(value)}
+            keyboardType="email-address"
+            disabled={!!requiresEmailConfFor}
+            info={
+              requiresEmailConfFor
+                ? t(
+                    'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
+                    { email: requiresEmailConfFor?.email }
+                  )
+                : ''
+            }
+            error={errors.email && (t('Please fill in a valid email.') as string)}
+            containerStyle={requiresPassword ? spacings.mbTy : null}
           />
-          <View style={spacings.mbTy}>
-            <Button
-              disabled={isSubmitting || !watch('email', '')}
-              type="outline"
-              text={isSubmitting ? t('Logging in...') : t('Log In')}
-              onPress={handleFormSubmit}
+        )}
+        name="email"
+      />
+      {requiresPassword && (
+        <Controller
+          control={control}
+          rules={{ validate: isValidPassword }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <InputPassword
+              onBlur={onBlur}
+              placeholder={t('Account password')}
+              onChangeText={onChange}
+              isValid={isValidPassword(value)}
+              value={value}
+              error={
+                errors.password &&
+                (t('Please fill in at least 8 characters for password.') as string)
+              }
             />
-          </View>
-          {!!err && (
-            <Text appearance="danger" style={spacings.mbSm}>
-              {err}
-            </Text>
           )}
-          <Text style={spacings.mbSm} fontSize={12}>
-            {t('A password will not be required, we will send a magic login link to your email.')}
-          </Text>
-        </>
+          name="password"
+        />
       )}
-      {!!requiresEmailConfFor && (
-        <>
-          <Title hasBottomSpacing={false} style={spacings.mbSm}>
-            {t('Email Login')}
-          </Title>
-          <Text style={spacings.mbSm} fontSize={12}>
-            {t(
-              'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
-              { email: requiresEmailConfFor?.email }
-            )}
-          </Text>
-          {isWeb && (
-            <Button type="danger" text={t('Cancel login attempt')} onPress={cancelLoginAttempts} />
-          )}
-        </>
-      )}
+      <View style={spacings.mbTy}>
+        <Button
+          disabled={!!requiresEmailConfFor || isSubmitting || !watch('email', '')}
+          type="outline"
+          text={
+            // eslint-disable-next-line no-nested-ternary
+            requiresEmailConfFor
+              ? t('Waiting Email Confirmation')
+              : isSubmitting
+              ? t('Logging in...')
+              : t('Log In')
+          }
+          onPress={handleSubmit(handleLogin)}
+        />
+        {isWeb && !!requiresEmailConfFor && (
+          <Button type="ghost" text={t('Cancel Login Attempt')} onPress={cancelLoginAttempts} />
+        )}
+      </View>
     </>
   )
 }

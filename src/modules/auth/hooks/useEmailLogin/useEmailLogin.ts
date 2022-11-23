@@ -1,27 +1,61 @@
-import { useCallback, useEffect, useState } from 'react'
+import { Wallet } from 'ethers'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Keyboard } from 'react-native'
 
 import CONFIG from '@config/env'
+import { useTranslation } from '@config/localization'
 import { SyncStorage } from '@config/storage'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchCaught } from '@modules/common/services/fetch'
+import useVault from '@modules/vault/hooks/useVault'
 
 type FormProps = {
   email: string
+  password?: string
 }
 
 const EMAIL_VERIFICATION_RECHECK = 3000
 
 export default function useEmailLogin() {
-  const pendingLoginEmail = SyncStorage.getItem('pendingLoginEmail')
   const { addToast } = useToast()
+  const { onAddAccount } = useAccounts()
+  const { addToVault } = useVault()
+  const { t } = useTranslation()
+
+  const pendingLoginEmail = SyncStorage.getItem('pendingLoginEmail')
+
   const [requiresEmailConfFor, setRequiresConfFor] = useState<FormProps | null>(
     pendingLoginEmail ? { email: pendingLoginEmail } : null
   )
-  const [err, setErr] = useState<string>('')
+
   const [inProgress, setInProgress] = useState<boolean>(false)
-  const { onAddAccount } = useAccounts()
+  const [accountData, setAccountData] = useState<any>(null)
+
+  const requiresPassword = useMemo(() => !!accountData, [accountData])
+
+  const handleAddAccount = () => {
+    if (!accountData) {
+      addToast(t('Email not confirmed'), { error: true })
+    }
+
+    const { _id: id, salt, identityFactoryAddr, baseIdentityAddr, bytecode } = accountData
+    const { quickAccSigner, primaryKeyBackup } = accountData.meta
+
+    onAddAccount(
+      {
+        id,
+        email: accountData.meta.email,
+        primaryKeyBackup,
+        salt,
+        identityFactoryAddr,
+        baseIdentityAddr,
+        bytecode,
+        signer: quickAccSigner
+      },
+      { select: true }
+    )
+  }
 
   const attemptLogin = useCallback(
     async ({ email }: FormProps, ignoreEmailConfirmationRequired?: any) => {
@@ -37,10 +71,8 @@ export default function useEmailLogin() {
         }
       )
       if (errMsg) {
-        setErr(errMsg)
-        if (ignoreEmailConfirmationRequired) {
-          addToast(errMsg, { error: true })
-        }
+        addToast(errMsg, { error: true })
+
         return
       }
 
@@ -58,7 +90,9 @@ export default function useEmailLogin() {
           { method: 'POST' }
         )
         if (requestAuthResp.status !== 200) {
-          setErr(`Email confirmation needed but unable to request: ${requestAuthResp.status}`)
+          addToast(`Email confirmation needed but unable to request: ${requestAuthResp.status}`, {
+            error: true
+          })
           return
         }
         const sessionKey = (await requestAuthResp.json()).sessionKey
@@ -71,34 +105,20 @@ export default function useEmailLogin() {
       if (resp.status === 404 && body.errType === 'DOES_NOT_EXIST') {
         SyncStorage.removeItem('pendingLoginEmail')
         setRequiresConfFor(null)
-        setErr('Account does not exist')
+        addToast('Account does not exist', {
+          error: true
+        })
+
         return
       }
 
       if (resp.status === 200) {
-        const identityInfo = body
-        const { _id: id, salt, identityFactoryAddr, baseIdentityAddr, bytecode } = identityInfo
-        const { quickAccSigner, primaryKeyBackup } = identityInfo.meta
-
-        onAddAccount(
-          {
-            id,
-            email: identityInfo.meta.email,
-            primaryKeyBackup,
-            salt,
-            identityFactoryAddr,
-            baseIdentityAddr,
-            bytecode,
-            signer: quickAccSigner
-          },
-          { select: true }
-        )
-
+        setAccountData(body)
         // Delete the key so that it can't be used anymore on this browser
         SyncStorage.removeItem('loginSessionKey')
         SyncStorage.removeItem('pendingLoginEmail')
       } else {
-        setErr(
+        addToast(
           body.message
             ? `Relayer error: ${body.message}`
             : `Unknown no-message error: ${resp.status}`
@@ -107,32 +127,59 @@ export default function useEmailLogin() {
       SyncStorage.removeItem('pendingLoginEmail')
       setRequiresConfFor(null)
     },
-    [addToast, onAddAccount]
+    [addToast]
   )
 
-  const handleLogin = async ({ email }: FormProps) => {
+  const handleLogin = async ({ email, password }: FormProps) => {
     Keyboard.dismiss()
-    setErr('')
+
     setRequiresConfFor(null)
     SyncStorage.removeItem('pendingLoginEmail')
     setInProgress(true)
-    try {
-      await attemptLogin({ email })
-    } catch (e: any) {
-      setErr(`Unexpected error: ${e.message || e}`)
+    if (!accountData) {
+      try {
+        await attemptLogin({ email })
+      } catch (e: any) {
+        addToast(`Unexpected error: ${e.message || e}`)
+      }
+    } else if (accountData && !password) {
+      addToast('Password is required', { error: true })
+    } else {
+      try {
+        const wallet = await Wallet.fromEncryptedJson(
+          JSON.parse(accountData.meta.primaryKeyBackup),
+          password as string
+        )
+
+        addToVault({
+          addr: accountData.id,
+          item: {
+            signer: wallet.privateKey,
+            type: 'quickAcc'
+          }
+        })
+          .then(() => {
+            handleAddAccount()
+          })
+          .catch((e) => {
+            addToast(e.message || e, { error: true })
+          })
+      } catch (error) {
+        addToast('Invalid Account Password', { error: true })
+      }
     }
+
     setInProgress(false)
   }
 
   const cancelLoginAttempts = useCallback(() => {
-    setErr('')
     setRequiresConfFor(null)
     SyncStorage.removeItem('pendingLoginEmail')
   }, [])
 
   // try logging in once after EMAIL_VERIFICATION_RECHECK
   useEffect(() => {
-    if (requiresEmailConfFor) {
+    if (requiresEmailConfFor && !accountData) {
       const timer = setTimeout(async () => {
         setInProgress(true)
         await attemptLogin(requiresEmailConfFor, true)
@@ -142,5 +189,5 @@ export default function useEmailLogin() {
     }
   })
 
-  return { handleLogin, cancelLoginAttempts, requiresEmailConfFor, err, inProgress }
+  return { handleLogin, cancelLoginAttempts, requiresEmailConfFor, requiresPassword, inProgress }
 }

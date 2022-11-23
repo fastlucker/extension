@@ -416,7 +416,7 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
     })
   }
 
-  const approveTxnImplQuickAcc = async ({ code }: { code: string }) => {
+  const approveTxnImplQuickAcc = async ({ code }: { code?: string }) => {
     if (!estimation) throw new Error('no estimation: should never happen')
     if (!relayerURL)
       throw new Error('Email/Password account signing without the relayer is not supported yet')
@@ -491,7 +491,7 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
     const requestIds = bundle.requestIds
     let approveTxnPromise
 
-    if (signerType === SIGNER_TYPES.quickAcc && code) {
+    if (signerType === SIGNER_TYPES.quickAcc) {
       approveTxnPromise = approveTxnImplQuickAcc({ code })
     }
 
