@@ -8,6 +8,7 @@ import { verifyMessage } from '@ambire/signature-validator'
 import CONFIG from '@config/env'
 import { decrypt, encrypt } from '@modules/common/services/passworder'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import { getStore, setItem } from '@web/functions/storage'
 
 import { Vault, VaultItem } from './types'
@@ -67,7 +68,7 @@ export default class VaultController {
           setItem('vault', blob)
           this.#password = password
           this.#memVault = {}
-          resolve(true)
+          resolve(VAULT_STATUS.UNLOCKED)
         })
         .catch(() => {
           reject()
@@ -83,7 +84,7 @@ export default class VaultController {
           .then((blob: string) => {
             setItem('vault', blob)
             this.#password = newPassword
-            resolve(true)
+            resolve(VAULT_STATUS.UNLOCKED)
           })
           .catch(() => {
             reject()
@@ -102,10 +103,10 @@ export default class VaultController {
         .then((vault: any) => {
           this.#password = password
           this.#memVault = JSON.parse(vault)
-          resolve(true)
+          resolve(VAULT_STATUS.UNLOCKED)
         })
         .catch(() => {
-          reject()
+          reject(new Error('Invalid password'))
         })
     })
   }

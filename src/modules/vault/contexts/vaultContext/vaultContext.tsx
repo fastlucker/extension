@@ -24,24 +24,16 @@ const requestVaultControllerMethod = ({
   props?: { [key: string]: any }
 }) => {
   return new Promise((resolve, reject) => {
-    if (sendMessage) {
-      sendMessage({
-        type: 'vaultController',
-        to: BACKGROUND,
-        data: {
-          method,
-          props
-        }
-      })
-        .then((res: any) => {
-          resolve(res.data)
-        })
-        .catch((err) => {
-          reject(err)
-        })
-    } else {
-      reject()
-    }
+    sendMessage({
+      type: 'vaultController',
+      to: BACKGROUND,
+      data: {
+        method,
+        props
+      }
+    })
+      .then((res: any) => resolve(res.data))
+      .catch((err) => reject(err))
   })
 }
 
@@ -59,8 +51,8 @@ const VaultProvider: React.FC = ({ children }) => {
         if (store.vault) {
           requestVaultControllerMethod({
             method: 'isVaultUnlocked'
-          }).then((res: any) => {
-            setVaultStatus(res ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
+          }).then((isUnlocked) => {
+            setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
           })
         } else {
           setVaultStatus(VAULT_STATUS.NOT_INITIALIZED)
@@ -140,11 +132,11 @@ const VaultProvider: React.FC = ({ children }) => {
         .then(() => {
           setVaultStatus(VAULT_STATUS.UNLOCKED)
         })
-        .catch(() => {
-          addToast(t('Wrong password. Please try again.'))
+        .catch((e) => {
+          addToast(e?.message || e, { error: true })
         })
     },
-    [t, addToast]
+    [addToast]
   )
 
   const isValidPassword = useCallback(async (props: { password: string }) => {

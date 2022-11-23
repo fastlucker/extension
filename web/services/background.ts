@@ -133,12 +133,12 @@ addMessageHandler({ type: 'vaultController' }, async (message) => {
       })
     } catch (error) {
       sendReply(message, {
-        data: { error }
+        error: error.message || error
       })
     }
   } else {
     sendReply(message, {
-      data: { error: 'Vault controller not initialized' }
+      error: 'Vault controller not initialized'
     })
   }
 })

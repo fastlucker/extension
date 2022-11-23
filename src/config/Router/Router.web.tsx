@@ -605,6 +605,10 @@ const Router = () => {
       return <AuthStack />
     }
 
+    if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED || vaultStatus === VAULT_STATUS.LOCKED) {
+      return <VaultStack />
+    }
+
     if (authStatus === AUTH_STATUS.AUTHENTICATED) {
       if (params.route === 'permission-request') {
         return <PermissionRequestStack />
@@ -626,10 +630,6 @@ const Router = () => {
       }
       if (params.route === USER_INTERVENTION_METHODS.wallet_switchEthereumChain) {
         return <SwitchNetworkRequestStack />
-      }
-
-      if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED || vaultStatus === VAULT_STATUS.LOCKED) {
-        return <VaultStack />
       }
 
       if (vaultStatus === VAULT_STATUS.UNLOCKED) {
