@@ -26,7 +26,18 @@ module.exports = async function (env, argv) {
 
     // Directives to disallow a set of script-related privileges for a
     // specific page. They prevent the browser extension being embedded or
-    // loaded as an <iframe /> in a potentially malicious website(s)
+    // loaded as an <iframe /> in a potentially malicious website(s).
+    //   1. The "script-src" directive specifies valid sources for JavaScript.
+    //   This includes not only URLs loaded directly into <script> elements,
+    //   but also things like inline script event handlers (onclick) and XSLT
+    //   stylesheets which can trigger script execution. Must include at least
+    //   the 'self' keyword and may only contain secure sources.
+    //   2. The "object-src" directive may be required in some browsers that
+    //   support obsolete plugins and should be set to a secure source such as
+    //   'none' when needed. This may be necessary for browsers up until 2022.
+    //   3. The "frame-ancestors" directive specifies valid parents that may
+    //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
+    // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
     // {@link https://web.dev/csp/}
     const csp = "script-src 'self'; object-src 'self'; frame-ancestors 'none';"
 
