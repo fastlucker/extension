@@ -155,6 +155,7 @@ export default function useEmailLogin() {
           addr: accountData.id,
           item: {
             signer: wallet.privateKey,
+            password,
             type: 'quickAcc'
           }
         })
