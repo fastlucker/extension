@@ -47,13 +47,13 @@ export default class VaultController {
             setItem('vault', blob)
             this.#password = password
             this.#memVault = {}
-            resolve(true)
+            resolve(VAULT_STATUS.UNLOCKED)
           })
-          .catch(() => {
-            reject()
+          .catch((err) => {
+            reject(new Error(err))
           })
       } else {
-        reject()
+        reject(new Error('Vault already initialized'))
       }
     })
   }
@@ -70,8 +70,8 @@ export default class VaultController {
           this.#memVault = {}
           resolve(VAULT_STATUS.UNLOCKED)
         })
-        .catch(() => {
-          reject()
+        .catch((err) => {
+          reject(new Error(err))
         })
     })
   }
@@ -86,8 +86,8 @@ export default class VaultController {
             this.#password = newPassword
             resolve(VAULT_STATUS.UNLOCKED)
           })
-          .catch(() => {
-            reject()
+          .catch((err) => {
+            reject(new Error(err))
           })
       } else {
         reject(new Error('Invalid password'))
@@ -129,8 +129,8 @@ export default class VaultController {
             this.#memVault = updatedVault
             resolve(true)
           })
-          .catch(() => {
-            reject()
+          .catch((err) => {
+            reject(new Error(err))
           })
       }
     })
@@ -151,11 +151,18 @@ export default class VaultController {
             this.#memVault = updatedVault
             resolve(true)
           })
-          .catch(() => {
-            reject()
+          .catch((err) => {
+            reject(new Error(err))
           })
       }
     })
+  }
+
+  async isSignerAddedToVault({ addr }: { addr: string }) {
+    if (!this.#memVault) throw new Error('Vault not initialized')
+    const vaultItem = this.#memVault[addr]
+
+    return !!vaultItem
   }
 
   async getSignerType({ addr }: { addr: string }) {

@@ -166,6 +166,15 @@ const VaultProvider: React.FC = ({ children }) => {
     return res
   }, [])
 
+  const isSignerAddedToVault = useCallback(async (props: { addr: string }) => {
+    const res = await requestVaultControllerMethod({
+      method: 'isSignerAddedToVault',
+      props
+    })
+
+    return res as boolean
+  }, [])
+
   const getSignerType = useCallback(async (props: { addr: string }) => {
     const res = await requestVaultControllerMethod({
       method: 'getSignerType',
@@ -228,6 +237,7 @@ const VaultProvider: React.FC = ({ children }) => {
           isValidPassword,
           addToVault,
           removeFromVault,
+          isSignerAddedToVault,
           getSignerType,
           signTxnQuckAcc,
           signTxnExternalSigner,
@@ -241,6 +251,7 @@ const VaultProvider: React.FC = ({ children }) => {
           isValidPassword,
           addToVault,
           removeFromVault,
+          isSignerAddedToVault,
           getSignerType,
           signTxnQuckAcc,
           signTxnExternalSigner,

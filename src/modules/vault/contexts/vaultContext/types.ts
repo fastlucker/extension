@@ -15,6 +15,7 @@ export interface VaultContextReturnType {
   isValidPassword: ({ password }: { password: string }) => Promise<boolean>
   addToVault: ({ addr, item }: { addr: string; item: VaultItem }) => Promise<any>
   removeFromVault: ({ addr }: { addr: string }) => Promise<any>
+  isSignerAddedToVault: ({ addr }: { addr: string }) => Promise<boolean>
   getSignerType: ({ addr }: { addr: string }) => Promise<string>
   signTxnQuckAcc: (props: {
     finalBundle: any
@@ -46,6 +47,7 @@ export const vaultContextDefaults: VaultContextReturnType = {
   addToVault: () => Promise.resolve(false),
   removeFromVault: () => Promise.resolve(false),
   getSignerType: () => Promise.resolve(''),
+  isSignerAddedToVault: () => Promise.resolve(false),
   signTxnQuckAcc: () => Promise.resolve(false),
   signTxnExternalSigner: () => Promise.resolve(false),
   signMsgExternalSigner: () => Promise.resolve(false)

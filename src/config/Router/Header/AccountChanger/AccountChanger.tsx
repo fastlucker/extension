@@ -39,8 +39,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
   const { removeSelectedAccPassword } = useBiometricsSign()
   const { removeAppLock } = useAppLock()
-  const { externalSigners } = useExternalSigners()
-  const { removeFromVault } = useVault()
+  const { removeFromVault, isSignerAddedToVault } = useVault()
 
   const handleChangeAccount = (accountId: any) => {
     closeBottomSheet()
@@ -69,13 +68,13 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
       }
 
       // Remove the external singer encrypted records, if needed.
-      const accountHasExternalSigner = !!externalSigners[account.signer?.address]
       const allOtherAccounts = accounts.filter((acc) => acc.id !== account.id)
-      const noOtherAccountsHaveTheSameExternalSigner = !allOtherAccounts.some(
-        (acc) => !!externalSigners[acc.signer?.address]
-      )
-      if (accountHasExternalSigner && noOtherAccountsHaveTheSameExternalSigner) {
-        removeFromVault(account.signer?.address)
+      const noOtherAccountsHaveTheSameExternalSigner = await !allOtherAccounts.some(async (acc) => {
+        const res = await isSignerAddedToVault({ addr: acc.signer?.address as string })
+        return res
+      })
+      if (noOtherAccountsHaveTheSameExternalSigner) {
+        removeFromVault({ addr: account.signer?.address })
       }
 
       onRemoveAccount(account.id)
