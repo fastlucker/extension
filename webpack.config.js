@@ -24,6 +24,16 @@ module.exports = async function (env, argv) {
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
 
+    if (process.env.WEB_ENGINE === 'webkit') {
+      // Directives to disallow a set of script-related privileges for a
+      // specific page. They prevent the browser extension being loaded as an
+      // <iframe /> in a potentially malicious website(s).
+      // {@link https://web.dev/csp/}
+      manifest.content_security_policy = {
+        extension_pages: "script-src 'self'; object-src 'self'; frame-ancestors 'none';"
+      }
+    }
+
     // Tweak manifest file, so it's compatible with gecko extensions specifics
     if (process.env.WEB_ENGINE === 'gecko') {
       manifest.manifest_version = 2
