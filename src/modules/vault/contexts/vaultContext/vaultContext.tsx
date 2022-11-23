@@ -2,6 +2,8 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 
 import { useTranslation } from '@config/localization'
 import { SyncStorage } from '@config/storage'
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
+import useAuth from '@modules/auth/hooks/useAuth'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
@@ -41,6 +43,7 @@ const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { accounts, onRemoveAccount } = useAccounts()
+  const { setAuthStatus } = useAuth()
 
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)
 
@@ -95,8 +98,7 @@ const VaultProvider: React.FC = ({ children }) => {
   const resetVault = useCallback(
     ({
       password,
-      confirmPassword,
-      nextRoute
+      confirmPassword
     }: {
       password: string
       confirmPassword: string
@@ -114,13 +116,13 @@ const VaultProvider: React.FC = ({ children }) => {
           SyncStorage.setItem('selectedAcc', '')
           // Automatically unlock after vault initialization
           setVaultStatus(VAULT_STATUS.UNLOCKED)
-          !!nextRoute && navigate(nextRoute)
+          setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
         })
       } else {
         addToast(t("Passwords don't match."))
       }
     },
-    [accounts, onRemoveAccount, t, addToast]
+    [accounts, onRemoveAccount, t, addToast, setAuthStatus]
   )
 
   const unlockVault = useCallback(

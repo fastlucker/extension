@@ -53,7 +53,8 @@ import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
-import InitializeVaultScreen from '@modules/vault/screens/InitializeVaultScreen'
+import CreateNewVaultScreen from '@modules/vault/screens/CreateNewVaultScreen'
+import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
@@ -188,7 +189,7 @@ const AuthStack = () => {
         <Stack.Screen
           name="createVault"
           options={{ title: t('Create Extension Lock') }}
-          component={InitializeVaultScreen}
+          component={CreateNewVaultScreen}
         />
       )}
       <Stack.Screen
@@ -250,13 +251,8 @@ const VaultStack = () => {
 
   if (vaultStatus === VAULT_STATUS.LOADING) return null
 
-  let initialRouteName
-
-  if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED) initialRouteName = 'createVault'
-  if (vaultStatus === VAULT_STATUS.LOCKED) initialRouteName = 'unlockVault'
-
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
       <Stack.Screen
         name="unlockVault"
         options={{ title: t('Welcome Back') }}
@@ -265,7 +261,7 @@ const VaultStack = () => {
       <Stack.Screen
         name="resetVault"
         options={{ title: t('Reset Extension Lock') }}
-        component={InitializeVaultScreen}
+        component={ResetVaultScreen}
       />
     </Stack.Navigator>
   )
