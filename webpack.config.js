@@ -24,14 +24,14 @@ module.exports = async function (env, argv) {
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
 
+    // Directives to disallow a set of script-related privileges for a
+    // specific page. They prevent the browser extension being embedded or
+    // loaded as an <iframe /> in a potentially malicious website(s)
+    // {@link https://web.dev/csp/}
+    const csp = "script-src 'self'; object-src 'self'; frame-ancestors 'none';"
+
     if (process.env.WEB_ENGINE === 'webkit') {
-      // Directives to disallow a set of script-related privileges for a
-      // specific page. They prevent the browser extension being loaded as an
-      // <iframe /> in a potentially malicious website(s).
-      // {@link https://web.dev/csp/}
-      manifest.content_security_policy = {
-        extension_pages: "script-src 'self'; object-src 'self'; frame-ancestors 'none';"
-      }
+      manifest.content_security_policy = { extension_pages: csp }
     }
 
     // Tweak manifest file, so it's compatible with gecko extensions specifics
@@ -47,6 +47,7 @@ module.exports = async function (env, argv) {
       manifest.externally_connectable = undefined
       manifest.permissions.splice(manifest.permissions.indexOf('scripting'), 1)
       manifest.permissions.push('<all_urls>')
+      manifest.content_security_policy = csp
     }
 
     const manifestJSON = JSON.stringify(manifest, null, 2)
