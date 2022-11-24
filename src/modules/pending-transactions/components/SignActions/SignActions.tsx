@@ -107,16 +107,8 @@ const SignActions = ({
 
   const onSubmit = async (values: { code: string; password: string }) => {
     InteractionManager.runAfterInteractions(async () => {
-      if (!selectedAccHasPassword) {
-        return approveTxn({ quickAccCredentials: values })
-      }
-
       try {
-        const password = await getSelectedAccPassword()
-
-        return approveTxn({
-          quickAccCredentials: { code: values.code, password }
-        })
+        return approveTxn({ code: values.code })
       } catch (e) {
         addToast(t('Failed to confirm your identity.') as string, { error: true })
       }
