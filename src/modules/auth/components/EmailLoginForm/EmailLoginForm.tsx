@@ -27,7 +27,7 @@ const EmailLoginScreen = () => {
     }
   })
 
-  const { handleLogin, cancelLoginAttempts, requiresEmailConfFor, requiresPassword } =
+  const { handleLogin, cancelLoginAttempts, requiresEmailConfFor, requiresPassword, accountData } =
     useEmailLogin()
 
   useEffect(() => {
@@ -49,8 +49,9 @@ const EmailLoginScreen = () => {
             onSubmitEditing={handleSubmit(handleLogin)}
             value={value}
             isValid={isEmail(value)}
+            validLabel={accountData ? t('Email address confirmed') : ''}
             keyboardType="email-address"
-            disabled={!!requiresEmailConfFor}
+            disabled={!!requiresEmailConfFor || !!accountData}
             info={
               requiresEmailConfFor
                 ? t(
@@ -87,14 +88,22 @@ const EmailLoginScreen = () => {
       )}
       <View style={spacings.mbTy}>
         <Button
-          disabled={!!requiresEmailConfFor || isSubmitting || !watch('email', '')}
+          disabled={
+            !!requiresEmailConfFor ||
+            isSubmitting ||
+            !watch('email', '') ||
+            (accountData && !watch('password', ''))
+          }
           type="outline"
           text={
             // eslint-disable-next-line no-nested-ternary
             requiresEmailConfFor
               ? t('Waiting Email Confirmation')
-              : isSubmitting
-              ? t('Logging in...')
+              : // eslint-disable-next-line no-nested-ternary
+              isSubmitting
+              ? t('Loading...')
+              : !accountData
+              ? t('Confirm Email')
               : t('Log In')
           }
           onPress={handleSubmit(handleLogin)}

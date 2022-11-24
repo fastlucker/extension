@@ -190,5 +190,12 @@ export default function useEmailLogin() {
     }
   })
 
-  return { handleLogin, cancelLoginAttempts, requiresEmailConfFor, requiresPassword, inProgress }
+  return {
+    handleLogin,
+    cancelLoginAttempts,
+    requiresEmailConfFor,
+    requiresPassword,
+    inProgress,
+    accountData
+  }
 }
