@@ -484,9 +484,11 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
     const finalBundle = (signingStatus && signingStatus.finalBundle) || getFinalBundle()
     const signer = finalBundle.signer
 
-    const signerType = await getSignerType({ addr: signer.address || signer.one })
-
-    if (!signerType) throw new Error('Signer not found')
+    let signerType
+    try {
+      const signerAddr = signer?.quickAccManager ? signer.one : signer.address
+      signerType = await getSignerType({ addr: signerAddr })
+    } catch (error) {}
 
     const requestIds = bundle.requestIds
     let approveTxnPromise
@@ -500,7 +502,7 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
     }
 
     // TODO: If possible move the signing with HW in the vault
-    if (signerType === SIGNER_TYPES.hardware) {
+    if (signerType === SIGNER_TYPES.hardware || !signerType) {
       if (!device) {
         !!hardwareWalletOpenBottomSheet && hardwareWalletOpenBottomSheet()
         setSigningStatus(null)

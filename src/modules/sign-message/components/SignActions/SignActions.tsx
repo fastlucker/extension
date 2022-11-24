@@ -109,7 +109,13 @@ const SignActions = ({
   }
 
   const handleSign = async () => {
-    const signerType = await getSignerType({ addr: account.signer?.address })
+    let signerType
+    try {
+      const signerAddr = account.signer?.quickAccManager
+        ? account.signer?.one
+        : account.signer?.address
+      signerType = await getSignerType({ addr: signerAddr })
+    } catch (error) {}
 
     if (!signerType) throw new Error('Signer not found')
 
