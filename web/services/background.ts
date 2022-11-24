@@ -9,6 +9,10 @@ import { initRpcProviders } from 'ambire-common/src/services/provider'
 import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
 
+import {
+  BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV,
+  BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
+} from '@env'
 import { rpcProviders } from '@modules/common/services/providers'
 import VaultController from '@modules/vault/services/VaultController'
 import { browserAPI } from '@web/constants/browserAPI'
@@ -34,7 +38,11 @@ import {
   setupAmbexMessenger
 } from '@web/services/ambexMessanger'
 
-log.setDefaultLevel(process.env.NODE_ENV ? 'debug' : 'info')
+log.setDefaultLevel(
+  process.env.APP_ENV === 'production'
+    ? BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
+    : BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV
+)
 
 setupAmbexMessenger(BACKGROUND, browserAPI)
 // Initialize rpc providers for all networks

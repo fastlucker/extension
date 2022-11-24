@@ -67,7 +67,8 @@ const Rewards = () => {
     claimableNowUsd,
     mintableVestingUsd,
     shouldDisplayMintableVesting,
-    claimingDisabled
+    claimingDisabled,
+    vestingEntry
   } = useClaimableWalletToken({
     relayerURL: CONFIG.RELAYER_URL,
     useRelayerData,

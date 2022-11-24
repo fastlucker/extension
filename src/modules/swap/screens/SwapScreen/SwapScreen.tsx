@@ -76,7 +76,7 @@ const SwapScreen = () => {
       <html>
         <head>${INJECTED_WRAPPING_CSS}</head>
         <body>
-          <iframe id=${hash} src="${CONFIG.SUSHI_SWAP_URL}" scrolling="no" allow="autoplay; encrypted-media"></iframe>
+          <iframe id=${hash} src="${CONFIG.SWAP_URL}" scrolling="no" allow="autoplay; encrypted-media"></iframe>
         </body>
       </html>
     `,
@@ -88,7 +88,7 @@ const SwapScreen = () => {
     // the url should be loaded first as a uri source
     // and instantly after that as a html(iframe) source.
     if (isiOS) {
-      return loaded ? { html: webviewHtml } : { uri: CONFIG.SUSHI_SWAP_URL }
+      return loaded ? { html: webviewHtml } : { uri: CONFIG.SWAP_URL }
     }
 
     return { html: webviewHtml }

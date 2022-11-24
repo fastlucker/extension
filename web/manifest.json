@@ -5,6 +5,11 @@
   "version": "SYNCED_WITH_THE_APP_VERSION_VIA_THE_WEBPACK_CONFIG",
   "manifest_version": 3,
   "short_name": "Ambire",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "webextension@ambire.com"
+    }
+  },
   "permissions": ["storage", "tabs"],
   "background": {
     "service_worker": "background.js"
