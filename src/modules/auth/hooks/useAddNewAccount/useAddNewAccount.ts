@@ -9,7 +9,9 @@ import performance from 'react-native-performance'
 import CONFIG from '@config/env'
 import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useToast from '@modules/common/hooks/useToast'
 import { fetchPost } from '@modules/common/services/fetch'
+import useVault from '@modules/vault/hooks/useVault'
 
 type FormProps = {
   email: string
@@ -23,13 +25,14 @@ export default function useEmailLogin() {
   const [inProgress, setInProgress] = useState<boolean | string>(false)
 
   const { onAddAccount } = useAccounts()
+  const { addToast } = useToast()
+  const { addToVault } = useVault()
 
   const wrapProgress = async (fn: () => any, type: boolean | string = true) => {
     setInProgress(type)
     try {
       await fn()
     } catch (e: any) {
-      console.error(e)
       setAddAccErr(`Unexpected error: ${e.message || e}`)
     }
     setInProgress(false)
@@ -40,7 +43,6 @@ export default function useEmailLogin() {
     try {
       await fn()
     } catch (e: any) {
-      console.error(e)
       setInProgress(false)
       setAddAccErr(`Unexpected error: ${e.message || e}`)
     }
@@ -114,26 +116,38 @@ export default function useEmailLogin() {
       return
     }
     if (!createResp.success) {
-      console.log(createResp)
       setErr(`Unexpected sign up error: ${createResp.message || 'unknown'}`)
       return
     }
 
-    onAddAccount(
-      {
-        id: identityAddr,
-        email: req.email,
-        primaryKeyBackup,
-        salt,
-        identityFactoryAddr,
-        baseIdentityAddr,
-        bytecode,
-        signer,
-        // This makes the modal appear, and will be removed by the modal which will call onAddAccount to update it
-        emailConfRequired: true
-      },
-      { select: true, isNew: true }
-    )
+    addToVault({
+      addr: identityAddr,
+      item: {
+        signer: firstKeyWallet.privateKey,
+        password: req.password,
+        type: 'quickAcc'
+      }
+    })
+      .then(() => {
+        onAddAccount(
+          {
+            id: identityAddr,
+            email: req.email,
+            primaryKeyBackup,
+            salt,
+            identityFactoryAddr,
+            baseIdentityAddr,
+            bytecode,
+            signer,
+            // This makes the modal appear, and will be removed by the modal which will call onAddAccount to update it
+            emailConfRequired: true
+          },
+          { select: true, isNew: true }
+        )
+      })
+      .catch((e) => {
+        addToast(e.message || e, { error: true })
+      })
   }
 
   const handleAddNewAccount = async (req: FormProps) => {

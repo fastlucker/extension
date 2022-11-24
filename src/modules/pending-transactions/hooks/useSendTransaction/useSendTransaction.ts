@@ -491,6 +491,8 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
     const requestIds = bundle.requestIds
     let approveTxnPromise
 
+    console.log(signerType, code)
+
     if (signerType === SIGNER_TYPES.quickAcc) {
       approveTxnPromise = approveTxnImplQuickAcc({ code })
     }
