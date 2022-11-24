@@ -31,6 +31,7 @@ const BiometricsSignScreen = () => {
   const { account } = useAccounts()
   const isFocused = useIsFocused()
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
+  // TODO: Wire-up with the Vault instead
   const { decryptExternalSigner, externalSigners } = useExternalSigners()
   const { addSelectedAccPassword, selectedAccHasPassword, removeSelectedAccPassword } =
     useBiometricsSign()
