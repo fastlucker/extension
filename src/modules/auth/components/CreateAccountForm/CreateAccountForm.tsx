@@ -7,7 +7,7 @@ import { LayoutAnimation, Linking, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import { ambireCloudURL, termsAndPrivacyURL } from '@modules/auth/constants/URLs'
-import useAddNewAccount from '@modules/auth/hooks/useAddNewAccount'
+import useCreateAccount from '@modules/auth/hooks/useCreateAccount'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import Input from '@modules/common/components/Input'
@@ -20,7 +20,7 @@ const days = Math.ceil(accountPresets.quickAccTimelock / 86400)
 
 const AddNewAccountScreen = () => {
   const { t } = useTranslation()
-  const { handleAddNewAccount, err, addAccErr } = useAddNewAccount()
+  const { handleAddNewAccount, err, addAccErr } = useCreateAccount()
   const {
     control,
     handleSubmit,

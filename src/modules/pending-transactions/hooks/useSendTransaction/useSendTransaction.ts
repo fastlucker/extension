@@ -484,14 +484,12 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
     const finalBundle = (signingStatus && signingStatus.finalBundle) || getFinalBundle()
     const signer = finalBundle.signer
 
-    const signerType = await getSignerType({ addr: signer.address })
+    const signerType = await getSignerType({ addr: signer.address || signer.one })
 
     if (!signerType) throw new Error('Signer not found')
 
     const requestIds = bundle.requestIds
     let approveTxnPromise
-
-    console.log(signerType, code)
 
     if (signerType === SIGNER_TYPES.quickAcc) {
       approveTxnPromise = approveTxnImplQuickAcc({ code })

@@ -99,7 +99,6 @@ export default class VaultController {
 
   async unlockVault({ password }: { password: string }) {
     const store: any = (await getStore(['vault'])) || {}
-
     return new Promise((resolve, reject) => {
       decrypt(password, store.vault)
         .then((vault: any) => {
@@ -188,14 +187,11 @@ export default class VaultController {
     if (!this.#memVault) throw new Error('Vault not initialized')
     const bundle = new Bundle(finalBundle)
     const signer = bundle.signer
-    const vaultItem = this.#memVault[signer.address]
+    const vaultItem = this.#memVault[signer.address || signer.one]
 
     if (!vaultItem) throw new Error('Signer not found')
 
     if (!bundle.recoveryMode) {
-      // Make sure we let React re-render without blocking (decrypting and signing will block)
-      // eslint-disable-next-line no-promise-executor-return
-      await new Promise((resolve) => setTimeout(resolve, 0))
       const wallet = await Wallet.fromEncryptedJson(
         JSON.parse(primaryKeyBackup),
         vaultItem.password as string
@@ -230,7 +226,7 @@ export default class VaultController {
     const bundle = new Bundle(finalBundle)
 
     const signer = bundle.signer
-    const vaultItem = this.#memVault[signer.address]
+    const vaultItem = this.#memVault[signer.address || signer.one]
 
     if (!vaultItem) throw new Error('Signer not found')
 

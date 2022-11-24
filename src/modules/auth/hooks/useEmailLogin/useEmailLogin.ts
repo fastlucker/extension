@@ -151,8 +151,11 @@ export default function useEmailLogin() {
           password as string
         )
 
+        const addr = await wallet.getAddress()
+
         addToVault({
-          addr: accountData.id,
+          // eslint-disable-next-line no-underscore-dangle
+          addr,
           item: {
             signer: wallet.privateKey,
             password,

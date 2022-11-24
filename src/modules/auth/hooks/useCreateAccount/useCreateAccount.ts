@@ -19,7 +19,7 @@ type FormProps = {
   backup: boolean
 }
 
-export default function useEmailLogin() {
+export default function useCreateAccount() {
   const [err, setErr] = useState<string>('')
   const [addAccErr, setAddAccErr] = useState<string>('')
   const [inProgress, setInProgress] = useState<boolean | string>(false)
@@ -120,8 +120,9 @@ export default function useEmailLogin() {
       return
     }
 
+    const addr = await firstKeyWallet.getAddress()
     addToVault({
-      addr: identityAddr,
+      addr,
       item: {
         signer: firstKeyWallet.privateKey,
         password: req.password,
