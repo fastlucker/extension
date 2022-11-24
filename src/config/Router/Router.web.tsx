@@ -597,15 +597,26 @@ const Router = () => {
       return <NoConnectionStack />
     }
 
+    // Vault loads in async manner, so always wait until it's being loaded,
+    // otherwise - other routes flash beforehand.
+    if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+    // When locked, always prompt the user to unlock it first.
+    if (VAULT_STATUS.LOCKED === vaultStatus) {
+      return <VaultStack />
+    }
+
+    // When not authenticated, take him to the Auth screens first,
+    // even without having a vault initialized yet.
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
       return <AuthStack />
     }
 
-    if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED || vaultStatus === VAULT_STATUS.LOCKED) {
-      return <VaultStack />
-    }
-
     if (authStatus === AUTH_STATUS.AUTHENTICATED) {
+      if (VAULT_STATUS.NOT_INITIALIZED === vaultStatus) {
+        return <VaultStack />
+      }
+
       if (params.route === 'permission-request') {
         return <PermissionRequestStack />
       }
