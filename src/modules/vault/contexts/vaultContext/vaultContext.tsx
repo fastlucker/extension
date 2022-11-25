@@ -8,6 +8,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import VaultController from '@modules/vault/services/VaultController'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 import { isExtension } from '@web/constants/browserAPI'
 import { BACKGROUND } from '@web/constants/paths'
@@ -45,24 +46,35 @@ const VaultProvider: React.FC = ({ children }) => {
   const { accounts, onRemoveAccount } = useAccounts()
   const { setAuthStatus } = useAuth()
 
+  const vaultController = useMemo(() => new VaultController(), [])
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)
 
   useEffect(() => {
     ;(async () => {
+      let isVaultInitialized
+
       if (isExtension) {
+        // TODO: getStore should come from the common storage class
         const store: any = (await getStore(['vault'])) || {}
-        if (store.vault) {
-          requestVaultControllerMethod({
-            method: 'isVaultUnlocked'
-          }).then((isUnlocked) => {
-            setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
-          })
-        } else {
-          setVaultStatus(VAULT_STATUS.NOT_INITIALIZED)
-        }
+        isVaultInitialized = !!store.vault
+      } else {
+        isVaultInitialized = vaultController.isVaultInitialized()
+      }
+
+      if (isVaultInitialized) {
+        ;(isExtension
+          ? requestVaultControllerMethod({
+              method: 'isVaultUnlocked'
+            })
+          : vaultController.isVaultUnlocked()
+        ).then((isUnlocked) => {
+          setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
+        })
+      } else {
+        setVaultStatus(VAULT_STATUS.NOT_INITIALIZED)
       }
     })()
-  }, [])
+  }, [vaultController])
 
   const createVault = useCallback(
     ({

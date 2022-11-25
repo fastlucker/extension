@@ -33,7 +33,11 @@ export default class VaultController {
   }
 
   isVaultUnlocked() {
-    return !!this.#password
+    return Promise.resolve(!!this.#password)
+  }
+
+  isVaultInitialized() {
+    return !!this.#memVault
   }
 
   // create a new empty vault encrypted with password
