@@ -32,7 +32,7 @@ export interface VaultContextReturnType {
   signMsgExternalSigner: (props: {
     account: any
     network: any
-    toSign: any
+    msgToSign: any
     dataV4: any
     isTypedData: any
   }) => Promise<any>

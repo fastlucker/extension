@@ -252,13 +252,13 @@ export default class VaultController {
   async signMsgExternalSigner({
     account,
     network,
-    toSign,
+    msgToSign,
     dataV4,
     isTypedData
   }: {
     account: any
     network: any
-    toSign: any
+    msgToSign: any
     dataV4: any
     isTypedData: any
   }) {
@@ -270,7 +270,8 @@ export default class VaultController {
 
     const wallet = new Wallet(vaultItem.signer)
 
-    const sig = await (toSign.type === 'eth_signTypedData_v4' || toSign.type === 'eth_signTypedData'
+    const sig = await (msgToSign.type === 'eth_signTypedData_v4' ||
+    msgToSign.type === 'eth_signTypedData'
       ? signMessage712(
           wallet,
           account.id,
@@ -279,19 +280,19 @@ export default class VaultController {
           dataV4.types,
           dataV4.message
         )
-      : signMessage(wallet, account.id, account.signer, getMessageAsBytes(toSign.txn)))
+      : signMessage(wallet, account.id, account.signer, getMessageAsBytes(msgToSign.txn)))
 
     const provider = getProvider(network.id)
 
     // eslint-disable-next-line @typescript-eslint/return-await
-    await verifyMessage({
+    const isValidSig = await verifyMessage({
       provider,
       signer: account.id,
-      message: isTypedData ? null : getMessageAsBytes(toSign.txn),
+      message: isTypedData ? null : getMessageAsBytes(msgToSign.txn),
       typedData: isTypedData ? dataV4 : null,
       signature: sig
     })
 
-    return sig
+    return { sig, isValidSig }
   }
 }

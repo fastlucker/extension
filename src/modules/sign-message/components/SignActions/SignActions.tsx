@@ -14,13 +14,10 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
-import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
-import useVault from '@modules/vault/hooks/useVault'
-import { SIGNER_TYPES } from '@modules/vault/services/VaultController/types'
 
 import styles from './styles'
 
@@ -44,40 +41,31 @@ export type HardwareWalletBottomSheetType = {
 
 interface Props {
   isLoading: boolean
-  isTypedData: any
   approve: any
   approveQuickAcc: any
   resolve: any
-  toSign: any
-  dataV4: any
   quickAccBottomSheet: QuickAccBottomSheetType
   hardwareWalletBottomSheet: HardwareWalletBottomSheetType
   confirmationType: string | null
   isDeployed: boolean | null
   hasPrivileges: boolean | null
-  hasProviderError: any
 }
 
 const SignActions = ({
   isLoading,
-  isTypedData,
   approve,
   approveQuickAcc,
   resolve,
-  toSign,
-  dataV4,
   quickAccBottomSheet,
   hardwareWalletBottomSheet,
   confirmationType,
   isDeployed,
-  hasPrivileges,
-  hasProviderError
+  hasPrivileges
 }: Props) => {
   const { t } = useTranslation()
   const { account } = useAccounts()
   const { network } = useNetwork()
-  const { addToast } = useToast()
-  const { signMsgExternalSigner, getSignerType } = useVault()
+
   const {
     control,
     handleSubmit,
@@ -92,48 +80,6 @@ const SignActions = ({
       code: ''
     }
   })
-
-  // Not a common logic therefore implemented locally
-  // Once implemented on web this should be moved in ambire-common
-  const approveWithExternalSigner = async () => {
-    signMsgExternalSigner({ account, network, dataV4, toSign, isTypedData })
-      .then((sig) => {
-        resolve({ success: true, result: sig })
-        addToast('Successfully signed!')
-      })
-      .catch((e) => {
-        addToast(`Signing error: ${e.message || e}`, {
-          error: true
-        })
-      })
-  }
-
-  const handleSign = async () => {
-    let signerType
-    try {
-      const signerAddr = account.signer?.quickAccManager
-        ? account.signer?.one
-        : account.signer?.address
-      signerType = await getSignerType({ addr: signerAddr })
-    } catch (error) {}
-
-    if (!signerType) throw new Error('Signer not found')
-
-    if (signerType === SIGNER_TYPES.external) {
-      approveWithExternalSigner()
-    }
-
-    // TODO:
-    // if (signerType === SIGNER_TYPES.quickAcc && code) {
-    //   approveTxnPromise = approveTxnImplQuickAcc({ code })
-    // }
-
-    // if (account.signer?.quickAccManager) {
-    //   handleSubmit(approve)()
-    // } else {
-    //   approve()
-    // }
-  }
 
   return (
     <>
@@ -155,7 +101,7 @@ const SignActions = ({
             name="password"
           />
         )}
-        {isDeployed === null && !hasProviderError && (
+        {isDeployed === null && (
           <View style={[spacings.mbMd, flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}>
             <Spinner />
           </View>
@@ -179,15 +125,7 @@ const SignActions = ({
             </Text>
           </View>
         )}
-        {!!hasProviderError && (
-          <View style={[spacings.mbMd, spacings.phSm]}>
-            <Text appearance="danger" fontSize={12}>
-              {t('There was an issue with the network provider: {{error}}', {
-                error: hasProviderError
-              })}
-            </Text>
-          </View>
-        )}
+
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonWrapper}>
             <Button
@@ -199,7 +137,7 @@ const SignActions = ({
           <View style={styles.buttonWrapper}>
             <Button
               text={isLoading ? t('Signing...') : t('Sign')}
-              onPress={handleSign}
+              onPress={approve}
               disabled={
                 isLoading || (confirmationType === 'email' && !watch('password', '')) || !isDeployed
               }

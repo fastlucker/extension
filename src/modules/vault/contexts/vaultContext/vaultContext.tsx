@@ -217,7 +217,13 @@ const VaultProvider: React.FC = ({ children }) => {
   )
 
   const signMsgExternalSigner = useCallback(
-    async (props: { account: any; network: any; toSign: any; dataV4: any; isTypedData: any }) => {
+    async (props: {
+      account: any
+      network: any
+      msgToSign: any
+      dataV4: any
+      isTypedData: any
+    }) => {
       const res = await requestVaultControllerMethod({
         method: 'signMsgExternalSigner',
         props
