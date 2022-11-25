@@ -3,6 +3,7 @@
 /* eslint-disable import/no-mutable-exports */
 import { browserAPI } from '@web/constants/browserAPI'
 
+// TODO: Move these to the WebExtensionStorage class
 // Storage
 // which tabs are injected tabId => true
 export let TAB_INJECTIONS = {}
@@ -138,6 +139,7 @@ function isEmpty(obj) {
 }
 
 export const getStore = async (keys: string[] | null = null) => {
+  // TODO: storage.getItem()
   const result = await _get(keys)
   // extension.storage.local always returns an obj
   // if the object is empty, treat it as undefined

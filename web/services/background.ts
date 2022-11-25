@@ -52,6 +52,9 @@ initRpcProviders(rpcProviders)
 const PENDING_CALLBACKS = {}
 const PENDING_WEB3_RESPONSE_CALLBACKS = {}
 
+// TODO:
+// const storage = new WebExtensionStorage()
+
 // Initial loading call
 isStorageLoaded()
   .then(() => {
