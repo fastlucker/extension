@@ -29,6 +29,14 @@ export interface VaultContextReturnType {
     account: any
     network: any
   }) => Promise<any>
+  signMsgQuickAcc: (props: {
+    account: any
+    network: any
+    msgToSign: any
+    dataV4: any
+    isTypedData: any
+    signature: any
+  }) => Promise<any>
   signMsgExternalSigner: (props: {
     account: any
     network: any
@@ -50,5 +58,6 @@ export const vaultContextDefaults: VaultContextReturnType = {
   isSignerAddedToVault: () => Promise.resolve(false),
   signTxnQuckAcc: () => Promise.resolve(false),
   signTxnExternalSigner: () => Promise.resolve(false),
+  signMsgQuickAcc: () => Promise.resolve(false),
   signMsgExternalSigner: () => Promise.resolve(false)
 }

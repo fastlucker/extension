@@ -249,6 +249,64 @@ export default class VaultController {
     })
   }
 
+  async signMsgQuickAcc({
+    account,
+    network,
+    msgToSign,
+    dataV4,
+    isTypedData,
+    signature
+  }: {
+    account: any
+    network: any
+    msgToSign: any
+    dataV4: any
+    isTypedData: any
+    signature: any
+  }) {
+    if (!this.#memVault) throw new Error('Vault not initialized')
+
+    const vaultItem = this.#memVault[account?.signer?.address || account?.signer?.one]
+
+    if (!vaultItem) throw new Error('Signer not found')
+
+    const wallet = await Wallet.fromEncryptedJson(
+      JSON.parse(account?.primaryKeyBackup),
+      vaultItem.password as string
+    )
+
+    const sig = await (isTypedData
+      ? signMessage712(
+          wallet,
+          account.id,
+          account.signer,
+          dataV4.domain,
+          dataV4.types,
+          dataV4.message,
+          signature
+        )
+      : signMessage(
+          wallet,
+          account.id,
+          account.signer,
+          getMessageAsBytes(msgToSign.txn),
+          signature
+        ))
+
+    const provider = getProvider(network.id)
+
+    // eslint-disable-next-line @typescript-eslint/return-await
+    const isValidSig = await verifyMessage({
+      provider,
+      signer: account.id,
+      message: isTypedData ? null : getMessageAsBytes(msgToSign.txn),
+      typedData: isTypedData ? dataV4 : null,
+      signature: sig
+    })
+
+    return { sig, isValidSig }
+  }
+
   async signMsgExternalSigner({
     account,
     network,
@@ -270,8 +328,7 @@ export default class VaultController {
 
     const wallet = new Wallet(vaultItem.signer)
 
-    const sig = await (msgToSign.type === 'eth_signTypedData_v4' ||
-    msgToSign.type === 'eth_signTypedData'
+    const sig = await (isTypedData
       ? signMessage712(
           wallet,
           account.id,

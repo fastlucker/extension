@@ -8,13 +8,13 @@ export type UseSignMessageProps = {
   resolve: (outcome: any) => void
   onConfirmationCodeRequired: (
     confCodeRequired?: 'email' | 'otp' | null,
-    approveQuickAcc?: (confCode: number) => void
+    approveQuickAcc?: ({ code }: { code?: string }) => void
   ) => Promise<any>
 }
 
 export type UseSignMessageReturnType = {
   approve: (credentials: any, device?: any) => Promise<any>
-  approveQuickAcc: (credentials: any) => Promise<any>
+  approveQuickAcc: ({ code }: { code: string }) => Promise<any>
   msgToSign: any
   isLoading: boolean
   hasPrivileges: boolean | null
@@ -25,7 +25,6 @@ export type UseSignMessageReturnType = {
   requestedChainId: NetworkType['chainId']
   isTypedData: boolean
   confirmationType: 'email' | 'otp' | null
-  verifySignature: (msgToSign: any, sig: any, networkId: any) => Promise<any>
   dApp: {
     name: string
     description: string

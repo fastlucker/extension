@@ -78,7 +78,6 @@ const SignScreenScreen = ({ navigation }: any) => {
 
   const {
     approve,
-    approveQuickAcc,
     msgToSign,
     isLoading,
     hasPrivileges,
@@ -179,7 +178,6 @@ const SignScreenScreen = ({ navigation }: any) => {
           <SignActions
             isLoading={isLoading}
             approve={approve}
-            approveQuickAcc={approveQuickAcc}
             confirmationType={confirmationType}
             resolve={resolve}
             hasPrivileges={hasPrivileges}

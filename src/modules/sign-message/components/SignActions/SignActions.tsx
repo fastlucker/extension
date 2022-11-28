@@ -1,18 +1,15 @@
-import { isValidPassword } from 'ambire-common/src/services/validations'
 import React from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { isWeb } from '@config/env'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
-import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -42,7 +39,6 @@ export type HardwareWalletBottomSheetType = {
 interface Props {
   isLoading: boolean
   approve: any
-  approveQuickAcc: any
   resolve: any
   quickAccBottomSheet: QuickAccBottomSheetType
   hardwareWalletBottomSheet: HardwareWalletBottomSheetType
@@ -54,7 +50,6 @@ interface Props {
 const SignActions = ({
   isLoading,
   approve,
-  approveQuickAcc,
   resolve,
   quickAccBottomSheet,
   hardwareWalletBottomSheet,
@@ -63,20 +58,12 @@ const SignActions = ({
   hasPrivileges
 }: Props) => {
   const { t } = useTranslation()
-  const { account } = useAccounts()
   const { network } = useNetwork()
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors }
-  } = useForm({
+  const { handleSubmit, setValue, watch } = useForm({
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
     defaultValues: {
-      password: '',
       code: ''
     }
   })
@@ -84,23 +71,6 @@ const SignActions = ({
   return (
     <>
       <View>
-        {!!account.signer?.quickAccManager && !!isDeployed && (
-          <Controller
-            control={control}
-            rules={{ required: true }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <InputPassword
-                placeholder={t('Account password')}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                isValid={isValidPassword(value)}
-                error={errors.password && (t('Please fill in a valid password.') as string)}
-              />
-            )}
-            name="password"
-          />
-        )}
         {isDeployed === null && (
           <View style={[spacings.mbMd, flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}>
             <Spinner />
@@ -138,9 +108,7 @@ const SignActions = ({
             <Button
               text={isLoading ? t('Signing...') : t('Sign')}
               onPress={approve}
-              disabled={
-                isLoading || (confirmationType === 'email' && !watch('password', '')) || !isDeployed
-              }
+              disabled={isLoading || !isDeployed}
             />
           </View>
         </View>
@@ -173,7 +141,7 @@ const SignActions = ({
           text={t('Confirm')}
           disabled={!watch('code', '')}
           onPress={() => {
-            handleSubmit(approveQuickAcc)()
+            handleSubmit(approve)()
             setValue('code', '')
             quickAccBottomSheet.closeBottomSheet()
           }}
@@ -186,7 +154,7 @@ const SignActions = ({
       >
         <HardwareWalletSelectConnection
           onSelectDevice={(device: any) => {
-            approve({}, device)
+            approve({ device })
             hardwareWalletBottomSheet.closeBottomSheet()
           }}
           shouldWrap={false}

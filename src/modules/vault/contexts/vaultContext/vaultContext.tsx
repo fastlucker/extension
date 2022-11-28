@@ -216,6 +216,25 @@ const VaultProvider: React.FC = ({ children }) => {
     []
   )
 
+  const signMsgQuickAcc = useCallback(
+    async (props: {
+      account: any
+      network: any
+      msgToSign: any
+      dataV4: any
+      isTypedData: any
+      signature: any
+    }) => {
+      const res = await requestVaultControllerMethod({
+        method: 'signMsgQuickAcc',
+        props
+      })
+
+      return res
+    },
+    []
+  )
+
   const signMsgExternalSigner = useCallback(
     async (props: {
       account: any
@@ -249,6 +268,7 @@ const VaultProvider: React.FC = ({ children }) => {
           getSignerType,
           signTxnQuckAcc,
           signTxnExternalSigner,
+          signMsgQuickAcc,
           signMsgExternalSigner
         }),
         [
@@ -263,6 +283,7 @@ const VaultProvider: React.FC = ({ children }) => {
           getSignerType,
           signTxnQuckAcc,
           signTxnExternalSigner,
+          signMsgQuickAcc,
           signMsgExternalSigner
         ]
       )}

@@ -5,7 +5,6 @@ import useGetMsgType from 'ambire-common/src/hooks/useGetMsgType'
 import useSignedMsgs from 'ambire-common/src/hooks/useSignedMsgs'
 import { getNetworkByChainId } from 'ambire-common/src/services/getNetwork'
 import { getProvider } from 'ambire-common/src/services/provider'
-import { Wallet } from 'ethers'
 import { arrayify, isHexString, toUtf8Bytes } from 'ethers/lib/utils'
 import { useCallback, useMemo, useState } from 'react'
 
@@ -36,12 +35,13 @@ const useSignMessage = ({
   account,
   messagesToSign,
   resolve,
-  onConfirmationCodeRequired
+  onConfirmationCodeRequired,
+  openBottomSheetHardwareWallet
 }: UseSignMessageProps): UseSignMessageReturnType => {
   const { network } = useNetwork()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
-  const { signMsgExternalSigner, getSignerType } = useVault()
+  const { signMsgQuickAcc, signMsgExternalSigner, getSignerType } = useVault()
 
   const [isLoading, setLoading] = useState<boolean>(false)
   const [confirmationType, setConfirmationType] = useState<'email' | 'otp' | null>(null)
@@ -79,150 +79,120 @@ const useSignMessage = ({
     [account, addToast]
   )
 
-  const verifySignature = useCallback(
-    (msgToSign, sig, networkId) => {
-      const provider = getProvider(networkId)
-      return verifyMessage({
-        provider,
-        signer: account.id,
-        message: isTypedData ? null : getMessageAsBytes(msgToSign.txn),
-        typedData: isTypedData ? dataV4 : null,
-        signature: sig
-      })
-        .then((verificationResult: any) => {
-          if (verificationResult) {
-            addToast('Signature valid - successfully signed!')
-          } else {
-            addToast(`${msgToSign.type} Signature invalid!`, { error: true })
-          }
-        })
-        .catch((e: any) => {
-          addToast(`${msgToSign.type} Signature invalid: ${e.message}`, { error: true })
-        })
-    },
-    [account, addToast, dataV4, isTypedData]
-  )
-
-  const approveWithExternalSigner = async () => {
+  const approveWithExternalSigner = useCallback(async () => {
     return signMsgExternalSigner({ account, network, dataV4, msgToSign, isTypedData })
-  }
+  }, [account, dataV4, isTypedData, msgToSign, network, signMsgExternalSigner])
 
   const approveQuickAcc = useCallback(
-    async (credentials: any) => {
+    async ({ code }) => {
       if (!relayerURL) {
         addToast('Email/pass accounts not supported without a relayer connection', {
           error: true
         })
         return
       }
-      if (!credentials.password) {
-        addToast('Password required to unlock the account', { error: true })
+
+      const { signature, success, message, confCodeRequired } = await fetchPost(
+        `${relayerURL}/second-key/${account.id}/ethereum/sign${
+          isTypedData ? '?typedData=true' : ''
+        }`,
+        {
+          toSign: isTypedData ? dataV4 : msgToSign.txn,
+          code: code || undefined
+        }
+      )
+      if (!success) {
+        if (!message) throw new Error('Secondary key: no success but no error message')
+        if (message.includes('invalid confirmation code')) {
+          addToast('Unable to sign: wrong confirmation code', { error: true })
+        }
+        addToast(`Second signature error: ${message}`, {
+          error: true
+        })
+        setConfirmationType(null)
+
         return
       }
-      setLoading(true)
-      try {
-        const { signature, success, message, confCodeRequired } = await fetchPost(
-          `${relayerURL}/second-key/${account.id}/ethereum/sign${
-            isTypedData ? '?typedData=true' : ''
-          }`,
-          {
-            toSign: msgToSign.txn,
-            code: credentials.code?.length ? credentials.code : undefined
-          }
-        )
-        if (!success) {
-          setLoading(false)
-          if (!message) throw new Error('Secondary key: no success but no error message')
-          if (message.includes('invalid confirmation code')) {
-            addToast('Unable to sign: wrong confirmation code', { error: true })
-          }
-          addToast(`Second signature error: ${message}`, {
-            error: true
-          })
-          setConfirmationType(null)
-          setLoading(false)
+      if (confCodeRequired) {
+        setConfirmationType(confCodeRequired)
 
-          return
-        }
-        if (confCodeRequired) {
-          setConfirmationType(confCodeRequired)
-
-          if (onConfirmationCodeRequired) {
-            await onConfirmationCodeRequired(confCodeRequired, approveQuickAcc)
-          }
-
-          setLoading(false)
-          return
+        if (onConfirmationCodeRequired) {
+          await onConfirmationCodeRequired(confCodeRequired, approveQuickAcc)
         }
 
-        if (!account.primaryKeyBackup)
-          throw new Error(
-            'No key backup found: you need to import the account from JSON or login again.'
-          )
-        const wallet = await Wallet.fromEncryptedJson(
-          JSON.parse(account.primaryKeyBackup),
-          credentials.password
-        )
-        const sig = await (isTypedData
-          ? signMessage712(
-              wallet,
-              account.id,
-              account.signer,
-              dataV4.domain,
-              dataV4.types,
-              dataV4.message,
-              signature
-            )
-          : signMessage(
-              wallet,
-              account.id,
-              account.signer,
-              getMessageAsBytes(msgToSign.txn),
-              signature
-            ))
-
-        await verifySignature(msgToSign, sig, requestedNetwork?.id)
-
-        addSignedMessage({
-          accountId: account.id,
-          networkId: requestedChainId,
-          date: new Date().getTime(),
-          typed: isTypedData,
-          signer: account.signer,
-          message: msgToSign.txn,
-          signature: sig,
-          dApp
-        })
-
-        if (messagesToSign.length === 1) {
-          navigate('dashboard')
-        }
-
-        // keeping resolve at the very end, because it can trigger components unmounting, and code after resolve may or may not run
-        resolve({ success: true, result: sig })
-      } catch (e) {
-        handleSigningErr(e)
+        return
       }
-      setLoading(false)
+
+      if (!account.primaryKeyBackup)
+        throw new Error(
+          'No key backup found: you need to import the account from JSON or login again.'
+        )
+
+      return signMsgQuickAcc({ account, network, dataV4, msgToSign, isTypedData, signature })
     },
     [
       account,
       addToast,
       dataV4,
-      messagesToSign,
-      handleSigningErr,
+      network,
+      signMsgQuickAcc,
       isTypedData,
       onConfirmationCodeRequired,
-      requestedNetwork,
-      resolve,
-      msgToSign,
-      verifySignature,
-      dApp,
-      requestedChainId,
-      addSignedMessage,
-      navigate
+      msgToSign
     ]
   )
+
+  const approveWithHW = useCallback(
+    async ({ device }: { device: any }) => {
+      if (!device) {
+        !!openBottomSheetHardwareWallet && openBottomSheetHardwareWallet()
+        return
+      }
+
+      // if quick account, wallet = await fromEncryptedBackup
+      // and just pass the signature as secondSig to signMsgHash
+      const wallet = getWallet(
+        {
+          signer: account.signer,
+          signerExtra: account.signerExtra,
+          chainId: 1 // does not matter
+        },
+        device
+      )
+
+      if (!wallet) {
+        return
+      }
+
+      // It would be great if we could pass the full data cause then web3 wallets/hw wallets can display the full text
+      // Unfortunately that isn't possible, because isValidSignature only takes a bytes32 hash; so to sign this with
+      // a personal message, we need to be signing the hash itself as binary data such that we match 'Ethereum signed message:\n32<hash binary data>' on the contract
+
+      const sig = await (isTypedData
+        ? signMessage712(
+            wallet,
+            account.id,
+            account.signer,
+            dataV4.domain,
+            dataV4.types,
+            dataV4.message
+          )
+        : signMessage(wallet, account.id, account.signer, getMessageAsBytes(msgToSign.txn)))
+
+      const provider = getProvider(requestedNetwork?.id as NetworkType['id'])
+      const isValidSig = await verifyMessage({
+        provider,
+        signer: account.id,
+        message: isTypedData ? null : getMessageAsBytes(msgToSign.txn),
+        typedData: isTypedData ? dataV4 : null,
+        signature: sig
+      })
+
+      return { sig, isValidSig }
+    },
+    [account, dataV4, isTypedData, msgToSign, openBottomSheetHardwareWallet, requestedNetwork?.id]
+  )
+
   // Passing hardware device is required only for the mobile app
   const approve = useCallback(
     async ({ code, device }: { code?: string; device: any }) => {
@@ -237,98 +207,66 @@ const useSignMessage = ({
       } catch (error) {}
 
       let approveMsgPromise
+
+      if (signerType === SIGNER_TYPES.quickAcc) {
+        approveMsgPromise = approveQuickAcc({ code })
+      }
+
       if (signerType === SIGNER_TYPES.external) {
         approveMsgPromise = approveWithExternalSigner()
       }
 
+      if (signerType === SIGNER_TYPES.hardware || !signerType) {
+        approveMsgPromise = approveWithHW({ device })
+      }
+
       approveMsgPromise
-        .then(({ sig, isValidSig }) => {
-          if (isValidSig) {
-            addToast('Successfully signed!')
-          } else {
-            addToast('Invalid signature!', { error: true })
-          }
+        .then((res) => {
+          if (res) {
+            const { sig, isValidSig } = res
+            if (isValidSig) {
+              addToast('Successfully signed!')
+            } else {
+              addToast('Invalid signature!', { error: true })
+            }
 
-          if (messagesToSign.length === 1) {
-            navigate('dashboard')
-          }
+            if (messagesToSign.length === 1) {
+              navigate('dashboard')
+            }
 
-          resolve({ success: true, result: sig })
+            addSignedMessage({
+              accountId: account.id,
+              networkId: requestedChainId,
+              date: new Date().getTime(),
+              typed: isTypedData,
+              signer: account.signer,
+              message: msgToSign.txn,
+              signature: sig,
+              dApp
+            })
+
+            resolve({ success: true, result: sig })
+          }
         })
         .catch((e) => {
           handleSigningErr(e)
         })
-      // if (account.signer?.quickAccManager) {
-      //   await approveQuickAcc({ code })
-      //   return
-      // }
 
-      // try {
-      //   if (!device) {
-      //     !!openBottomSheetHardwareWallet && openBottomSheetHardwareWallet()
-      //     return
-      //   }
-
-      //   // if quick account, wallet = await fromEncryptedBackup
-      //   // and just pass the signature as secondSig to signMsgHash
-      //   const wallet = getWallet(
-      //     {
-      //       signer: account.signer,
-      //       signerExtra: account.signerExtra,
-      //       chainId: 1 // does not matter
-      //     },
-      //     device
-      //   )
-
-      //   if (!wallet) {
-      //     return
-      //   }
-
-      //   // It would be great if we could pass the full data cause then web3 wallets/hw wallets can display the full text
-      //   // Unfortunately that isn't possible, because isValidSignature only takes a bytes32 hash; so to sign this with
-      //   // a personal message, we need to be signing the hash itself as binary data such that we match 'Ethereum signed message:\n32<hash binary data>' on the contract
-
-      //   const sig = await (isTypedData
-      //     ? signMessage712(
-      //         wallet,
-      //         account.id,
-      //         account.signer,
-      //         dataV4.domain,
-      //         dataV4.types,
-      //         dataV4.message
-      //       )
-      //     : signMessage(wallet, account.id, account.signer, getMessageAsBytes(msgToSign.txn)))
-
-      //   await verifySignature(msgToSign, sig, requestedNetwork?.id)
-
-      //   addSignedMessage({
-      //     accountId: account.id,
-      //     networkId: requestedChainId,
-      //     date: new Date().getTime(),
-      //     typed: isTypedData,
-      //     signer: account.signer,
-      //     message: msgToSign.txn,
-      //     signature: sig,
-      //     dApp
-      //   })
-
-      //   // keeping resolve at the very end, because it can trigger components unmounting, and code after resolve may or may not run
-      //   resolve({ success: true, result: sig })
-      // } catch (e) {
-      //   handleSigningErr(e)
-      // }
       setLoading(false)
     },
     [
       account,
+      addToast,
       approveQuickAcc,
-      dataV4,
+      approveWithExternalSigner,
+      approveWithHW,
+      messagesToSign.length,
+      navigate,
+      getSignerType,
       handleSigningErr,
-      requestedNetwork?.id,
       resolve,
       msgToSign,
       isTypedData,
-      verifySignature,
       addSignedMessage,
       dApp,
       requestedChainId
@@ -348,7 +286,6 @@ const useSignMessage = ({
     requestedChainId,
     isTypedData,
     confirmationType,
-    verifySignature,
     dApp
   }
 }
