@@ -9,6 +9,7 @@ import { initRpcProviders } from 'ambire-common/src/services/provider'
 import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
 
+import { StorageController } from '@config/storage'
 import {
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV,
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
@@ -25,7 +26,6 @@ import {
   isStorageLoaded,
   PERMISSIONS,
   savePermissionsInStorage,
-  saveTabInjectionsInStorage,
   TAB_INJECTIONS
 } from '@web/functions/storage'
 import { updateExtensionIcon } from '@web/functions/updateExtensionIcon'
@@ -52,8 +52,31 @@ initRpcProviders(rpcProviders)
 const PENDING_CALLBACKS = {}
 const PENDING_WEB3_RESPONSE_CALLBACKS = {}
 
-// TODO:
-// const storage = new WebExtensionStorage()
+// TODO: Move this into utils
+function filterObject(obj, callback) {
+  return Object.fromEntries(Object.entries(obj).filter(([key, val]) => callback(val, key)))
+}
+
+const storageController = new StorageController()
+
+addMessageHandler({ type: 'storageController' }, async (message) => {
+  if (storageController[message.data.method]) {
+    try {
+      const res = await storageController[message.data.method](message.data.props)
+      sendReply(message, {
+        data: res
+      })
+    } catch (error) {
+      sendReply(message, {
+        error: error.message || error
+      })
+    }
+  } else {
+    sendReply(message, {
+      error: 'Storage controller not initialized'
+    })
+  }
+})
 
 // Initial loading call
 isStorageLoaded()
@@ -97,15 +120,41 @@ addMessageHandler({ type: 'contentScriptInjected' }, (message) => {
 
 // Save properly injected tabs
 addMessageHandler({ type: 'pageContextInjected' }, (message) => {
-  TAB_INJECTIONS[message.fromTabId] = true
-  saveTabInjectionsInStorage()
-  updateExtensionIcon(
-    message.fromTabId,
-    TAB_INJECTIONS,
-    PERMISSIONS,
-    PENDING_CALLBACKS,
-    PENDING_WEB3_RESPONSE_CALLBACKS
-  )
+  storageController.isStorageLoaded().then((storage) => {
+    // const currentTabInjections = SyncStorage.getItem('TAB_INJECTIONS')
+    const currentTabInjections = storage['TAB_INJECTIONS']
+    const nextTabInjections = { ...currentTabInjections, [message.fromTabId]: true }
+
+    console.log('nextTabInjections 1', nextTabInjections)
+    storageController.setItem(
+      'TAB_INJECTIONS',
+      filterObject(nextTabInjections, (k, v) => v)
+    )
+
+    console.log(
+      'nextTabInjections 2',
+      filterObject(nextTabInjections, (k, v) => v)
+    )
+
+    updateExtensionIcon(
+      message.fromTabId,
+      TAB_INJECTIONS,
+      PERMISSIONS,
+      PENDING_CALLBACKS,
+      PENDING_WEB3_RESPONSE_CALLBACKS
+    )
+  })
+
+  // TODO: remove
+  // TAB_INJECTIONS[message.fromTabId] = true
+  // saveTabInjectionsInStorage()
+  // updateExtensionIcon(
+  //   message.fromTabId,
+  //   TAB_INJECTIONS,
+  //   PERMISSIONS,
+  //   PENDING_CALLBACKS,
+  //   PENDING_WEB3_RESPONSE_CALLBACKS
+  // )
 })
 
 // User sends back a reply from the request permission popup
