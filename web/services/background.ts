@@ -13,6 +13,7 @@ import {
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV,
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
 } from '@env'
+import { StorageController } from '@modules/common/contexts/storageContext/storageController'
 import { rpcProviders } from '@modules/common/services/providers'
 import VaultController from '@modules/vault/services/VaultController'
 import { browserAPI } from '@web/constants/browserAPI'
@@ -51,6 +52,31 @@ initRpcProviders(rpcProviders)
 // TODO: find a way to store the state and exec callbacks?
 const PENDING_CALLBACKS = {}
 const PENDING_WEB3_RESPONSE_CALLBACKS = {}
+
+const storageController = new StorageController()
+addMessageHandler({ type: 'storageController' }, async (message) => {
+  if (storageController[message.data.method]) {
+    try {
+      const res = await storageController[message.data.method](message.data.props)
+      sendReply(message, {
+        data: res
+      })
+    } catch (error) {
+      sendReply(message, {
+        error: error.message || error
+      })
+    }
+  } else {
+    sendReply(message, {
+      error: 'Storage controller not initialized'
+    })
+  }
+})
+
+// TODO: for test purposes only
+// setTimeout(() => {
+//   storageController.setItem('test', 9)
+// }, 15000)
 
 // Initial loading call
 isStorageLoaded()
