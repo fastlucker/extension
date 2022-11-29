@@ -451,8 +451,7 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
       setSigningStatus({
         quickAcc: true,
         finalBundle,
-        confCodeRequired,
-        passwordRequired: !isExtension
+        confCodeRequired
       })
     } else {
       if (!signature) throw new Error('QuickAcc internal error: there should be a signature')
@@ -463,8 +462,7 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
       setSigningStatus({
         quickAcc: true,
         inProgress: true,
-        confCodeRequired: canSkip2FA ? 'notRequired' : undefined,
-        passwordRequired: !isExtension
+        confCodeRequired: canSkip2FA ? 'notRequired' : undefined
       })
 
       const res = await signTxnQuckAcc({

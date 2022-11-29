@@ -225,7 +225,7 @@ const useSignMessage = ({
           if (res) {
             const { sig, isValidSig } = res
             if (isValidSig) {
-              addToast('Successfully signed!')
+              addToast('Signature valid - successfully signed!')
             } else {
               addToast('Invalid signature!', { error: true })
             }
@@ -244,15 +244,14 @@ const useSignMessage = ({
               signature: sig,
               dApp
             })
-
+            setLoading(false)
             resolve({ success: true, result: sig })
           }
         })
         .catch((e) => {
           handleSigningErr(e)
+          setLoading(false)
         })
-
-      setLoading(false)
     },
     [
       account,
