@@ -66,7 +66,8 @@ export class StorageController {
     return new Error(lastError.message)
   }
 
-  getItem(key: string) {
+  getItem({ key }: { key: string }) {
+    console.log('incoming key', key)
     return this.storage[key]
   }
 

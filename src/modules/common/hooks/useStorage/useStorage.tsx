@@ -1,6 +1,7 @@
 import useStorage, { UseStorageProps } from 'ambire-common/src/hooks/useStorage'
+import { useContext } from 'react'
 
-import { SyncStorage } from '@config/storage'
+import { StorageContext } from '@modules/common/contexts/storageContext'
 
 export default function useSyncStorage<ValueType>({
   key,
@@ -8,8 +9,10 @@ export default function useSyncStorage<ValueType>({
   isStringStorage,
   setInit
 }: Omit<UseStorageProps<ValueType>, 'storage'>) {
+  const context = useContext(StorageContext)
+
   return useStorage<ValueType>({
-    storage: SyncStorage,
+    storage: context,
     key,
     defaultValue,
     isStringStorage,

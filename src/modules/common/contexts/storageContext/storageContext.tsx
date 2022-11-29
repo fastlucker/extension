@@ -1,15 +1,13 @@
-import React, { createContext, useCallback, useMemo } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import useAuth from '@modules/auth/hooks/useAuth'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useToast from '@modules/common/hooks/useToast'
-import VaultController from '@modules/vault/services/VaultController'
 import { BACKGROUND } from '@web/constants/paths'
 import { sendMessage } from '@web/services/ambexMessanger'
 
 // TODO: type
 const StorageContext = createContext<any>({
-  getItem:
+  getItem: () => {},
+  setItem: () => {},
+  removeItem: () => {}
 })
 
 const requestStorageControllerMethod = ({
@@ -35,26 +33,94 @@ const requestStorageControllerMethod = ({
 }
 
 const StorageProvider: React.FC = ({ children }) => {
-  // TODO: Make this sync!
-  const getItem = useCallback(async (props: { key: string }) => {
-    const res = await requestStorageControllerMethod({
-      method: 'getItem',
-      props
-    })
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [storage, setStorage] = useState<any>({})
 
-    return res
+  useEffect(() => {
+    ;(async () => {
+      console.log('hello')
+
+      const res = await requestStorageControllerMethod({
+        method: 'getItem',
+        props: { key: '' }
+      })
+
+      console.log('storage coming here', res)
+
+      setStorage(res)
+      setIsLoaded(true)
+    })()
   }, [])
+
+  // TODO: Make this sync!
+  const getItem = useCallback(
+    (key) => {
+      return storage[key]
+
+      // const res = await requestStorageControllerMethod({
+      //   method: 'getItem',
+      //   props: { key }
+      // })
+
+      // return res
+    },
+    [storage]
+  )
+
+  const setItem = useCallback(
+    (key: string, value: any) => {
+      storage[key] = value
+
+      requestStorageControllerMethod({
+        method: 'setItem',
+        props: { key, value }
+      })
+
+      // const res = await requestStorageControllerMethod({
+      //   method: 'setItem',
+      //   props: { key, value }
+      // })
+
+      // return res
+    },
+    [storage]
+  )
+
+  const removeItem = useCallback(
+    (key: string) => {
+      const nextStorage = { ...storage }
+      delete nextStorage[key]
+
+      setStorage(nextStorage)
+
+      requestStorageControllerMethod({
+        method: 'removeItem',
+        props: { key }
+      })
+
+      // const res = await requestStorageControllerMethod({
+      //   method: 'removeItem',
+      //   props: { key }
+      // })
+
+      // return res
+    },
+    [storage]
+  )
 
   return (
     <StorageContext.Provider
       value={useMemo(
         () => ({
-          getItem
+          getItem,
+          setItem,
+          removeItem,
+          isLoaded
         }),
-        [getItem]
+        [getItem, setItem, removeItem, isLoaded]
       )}
     >
-      {children}
+      {isLoaded ? children : null}
     </StorageContext.Provider>
   )
 }
