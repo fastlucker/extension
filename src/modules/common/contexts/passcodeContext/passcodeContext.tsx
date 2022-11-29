@@ -88,7 +88,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       }
 
       try {
-        const isLocalAuthActivated = await SyncStorage.getItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
+        const isLocalAuthActivated = SyncStorage.getItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
         if (isLocalAuthActivated) {
           setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
         }

@@ -35,7 +35,7 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
         // Because otherwise, figuring out if the selected account has password
         // via the `SecureStore` requires the user every time to
         // authenticate via his phone local auth.
-        const accountHasPassword = await SyncStorage.getItem(key)
+        const accountHasPassword = SyncStorage.getItem(key)
 
         setSelectedAccHasPassword(!!accountHasPassword)
       } catch (e) {
