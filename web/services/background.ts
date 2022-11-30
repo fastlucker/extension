@@ -22,7 +22,6 @@ import { BACKGROUND, PAGE_CONTEXT } from '@web/constants/paths'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 import { deferCreateWindow, PERMISSION_WINDOWS } from '@web/functions/deferCreateWindow'
 import {
-  getStore,
   PERMISSIONS,
   savePermissionsInStorage,
   saveTabInjectionsInStorage,
@@ -287,9 +286,8 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
       return
     }
     log.info('ambirePageContext: web3CallRequest', message)
-    const store = (await getStore(['network', 'selectedAcc'])) || {}
+    const { network, selectedAcc } = storageController.getItems(['network', 'selectedAcc'])
 
-    const { network, selectedAcc } = store
     if (!network || !selectedAcc) {
       sendReply(message, {
         data: {
