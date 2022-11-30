@@ -275,6 +275,7 @@ const useSignMessage = ({
   return {
     approve,
     approveQuickAcc,
+    setLoading,
     msgToSign,
     isLoading,
     hasPrivileges,
