@@ -13,9 +13,7 @@ export class StorageController {
 
   async init() {
     // TODO: Fallback to local storage (mobile & web with MMKV, extension with Chrome storage)
-    const { local } = browserAPI.storage
-
-    await local.get().then((result: any) => {
+    await browserAPI.storage.local.get().then((result: any) => {
       const err = StorageController.checkForError()
       if (!err) {
         this.storage = result || []
@@ -25,8 +23,12 @@ export class StorageController {
     this.isInitialized = true
   }
 
-  // Used everywhere when we need to access a consistent state of the background
-  // worker. Makes sure the storage is initialized before accessing it.
+  /**
+   * Makes sure the storage is initialized before accessing it.
+   * Needed for processing the background queue, because the background process
+   * can go in inactive mode, and when inactive, the storage is not initially
+   * available until it loads again.
+   */
   async isStorageLoaded() {
     if (this.isInitialized) {
       return this.storage

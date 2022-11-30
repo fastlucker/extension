@@ -23,7 +23,6 @@ import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethod
 import { deferCreateWindow, PERMISSION_WINDOWS } from '@web/functions/deferCreateWindow'
 import {
   getStore,
-  isStorageLoaded,
   PERMISSIONS,
   savePermissionsInStorage,
   saveTabInjectionsInStorage,
@@ -73,13 +72,9 @@ addMessageHandler({ type: 'storageController' }, async (message) => {
   }
 })
 
-// TODO: for test purposes only
-// setTimeout(() => {
-//   storageController.setItem('test', 9)
-// }, 15000)
-
-// Initial loading call
-isStorageLoaded()
+// Initial loading call.
+storageController
+  .isStorageLoaded()
   .then(() => {
     processBackgroundQueue()
   })
@@ -90,7 +85,7 @@ isStorageLoaded()
 log.debug('Background service restarted!')
 
 const broadcastExtensionDataOnChange = () => {
-  isStorageLoaded().then(() => {
+  storageController.isStorageLoaded().then(() => {
     browserAPI.storage.onChanged.addListener((changes, namespace) => {
       if (namespace === 'local') {
         // eslint-disable-next-line no-restricted-syntax
@@ -139,7 +134,7 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
     })
     delete PENDING_CALLBACKS[message.data.targetHost]
   }
-  isStorageLoaded().then(() => {
+  storageController.isStorageLoaded().then(() => {
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
       updateExtensionIcon(
@@ -185,7 +180,7 @@ addMessageHandler({ type: 'clearPendingCallback' }, (message) => {
   if (PENDING_WEB3_RESPONSE_CALLBACKS[message.data.targetHost]) {
     delete PENDING_WEB3_RESPONSE_CALLBACKS[message.data.targetHost]
   }
-  isStorageLoaded().then(() => {
+  storageController.isStorageLoaded().then(() => {
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const i in TAB_INJECTIONS) {
       updateExtensionIcon(
@@ -226,7 +221,7 @@ addMessageHandler({ type: 'web3CallResponse' }, (msg) => {
 
 // The Ambire extension requests list of permissions
 addMessageHandler({ type: 'getPermissionsList' }, (message) => {
-  isStorageLoaded().then(() => {
+  storageController.isStorageLoaded().then(() => {
     sendReply(message, {
       data: PERMISSIONS
     })
@@ -235,7 +230,7 @@ addMessageHandler({ type: 'getPermissionsList' }, (message) => {
 
 // The Ambire extension requests permission removal from the list of permissions
 addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
-  isStorageLoaded().then(() => {
+  storageController.isStorageLoaded().then(() => {
     delete PERMISSIONS[message.data.host]
     savePermissionsInStorage(() => {
       sendAck(message)
