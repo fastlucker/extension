@@ -36,15 +36,27 @@ const StorageProvider: React.FC = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false)
   const [storage, setStorage] = useState<any>({})
 
-  useEffect(() => {
-    browserAPI.storage.onChanged.addListener((changes: object, namespace: string) => {
+  const handleOnStorageChange = useCallback(
+    (changes: { [key: string]: { newValue: any; oldValue: any } }, namespace: string) => {
       if (namespace === 'local') {
-        // TODO: Update storage!
-        // setStorage({ ...storage, changes })
-        console.log('changed!!!!!!!!!!!!', changes)
+        const allKeysChanged = Object.keys(changes)
+
+        const nextStorage = { ...storage }
+        allKeysChanged.forEach((key: string) => {
+          nextStorage[key] = changes[key].newValue
+        })
+
+        setStorage(nextStorage)
       }
-    })
-  }, [])
+    },
+    [storage]
+  )
+
+  useEffect(() => {
+    browserAPI.storage.onChanged.addListener(handleOnStorageChange)
+
+    return () => browserAPI.storage.onChanged.removeListener(handleOnStorageChange)
+  }, [handleOnStorageChange])
 
   useEffect(() => {
     ;(async () => {
