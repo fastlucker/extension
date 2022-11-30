@@ -5,6 +5,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
 import { LayoutAnimation, Linking, View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import { ambireCloudURL, termsAndPrivacyURL } from '@modules/auth/constants/URLs'
 import useCreateAccount from '@modules/auth/hooks/useCreateAccount'
@@ -53,6 +54,7 @@ const AddNewAccountScreen = () => {
             placeholder={t('Email')}
             onChangeText={onChange}
             value={value}
+            autoFocus={isWeb}
             isValid={isEmail(value)}
             error={errors.email && (t('Please fill in a valid email.') as string)}
             keyboardType="email-address"

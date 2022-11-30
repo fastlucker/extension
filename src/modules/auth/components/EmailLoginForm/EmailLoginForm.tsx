@@ -48,6 +48,7 @@ const EmailLoginScreen = () => {
             onChangeText={onChange}
             onSubmitEditing={handleSubmit(handleLogin)}
             value={value}
+            autoFocus={isWeb}
             isValid={isEmail(value)}
             validLabel={accountData ? t('Email address confirmed') : ''}
             keyboardType="email-address"
@@ -76,6 +77,7 @@ const EmailLoginScreen = () => {
               placeholder={t('Account password')}
               onChangeText={onChange}
               isValid={isValidPassword(value)}
+              autoFocus
               value={value}
               error={
                 errors.password &&
