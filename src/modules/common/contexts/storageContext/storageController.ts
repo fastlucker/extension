@@ -2,10 +2,15 @@ import { browserAPI } from '@web/constants/browserAPI'
 import { CONTENT_SCRIPT } from '@web/constants/paths'
 import { sendMessage } from '@web/services/ambexMessanger'
 
+const defaultState = {
+  // which tabs are injected tabId => true
+  TAB_INJECTIONS: {}
+}
+
 export class StorageController {
   isInitialized = false
 
-  storage: { [key: string]: any } = {}
+  storage: { [key: string]: any } = { ...defaultState }
 
   constructor() {
     this.init()
@@ -16,7 +21,7 @@ export class StorageController {
     await browserAPI.storage.local.get().then((result: any) => {
       const err = StorageController.checkForError()
       if (!err) {
-        this.storage = result || {}
+        this.storage = result || { ...defaultState }
       }
     })
 

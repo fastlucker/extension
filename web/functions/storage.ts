@@ -4,16 +4,10 @@
 import { browserAPI } from '@web/constants/browserAPI'
 
 // Storage
-// which tabs are injected tabId => true
-export let TAB_INJECTIONS = {}
 // permissions host => true/false
 export let PERMISSIONS = {}
 // pending notifications asking for user attention (sign / send tx)
 export let USER_ACTION_NOTIFICATIONS = {}
-
-export const setTabInjections = (tabInjections) => {
-  TAB_INJECTIONS = tabInjections
-}
 
 export const setPermissions = (permissions) => {
   PERMISSIONS = permissions

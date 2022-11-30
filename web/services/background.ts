@@ -21,12 +21,7 @@ import { errorCodes } from '@web/constants/errors'
 import { BACKGROUND, PAGE_CONTEXT } from '@web/constants/paths'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 import { deferCreateWindow, PERMISSION_WINDOWS } from '@web/functions/deferCreateWindow'
-import {
-  PERMISSIONS,
-  savePermissionsInStorage,
-  saveTabInjectionsInStorage,
-  TAB_INJECTIONS
-} from '@web/functions/storage'
+import { PERMISSIONS, savePermissionsInStorage } from '@web/functions/storage'
 import { updateExtensionIcon } from '@web/functions/updateExtensionIcon'
 import {
   addMessageHandler,
@@ -114,19 +109,29 @@ addMessageHandler({ type: 'contentScriptInjected' }, (message) => {
 
 // Save properly injected tabs
 addMessageHandler({ type: 'pageContextInjected' }, (message) => {
-  TAB_INJECTIONS[message.fromTabId] = true
-  saveTabInjectionsInStorage()
-  updateExtensionIcon(
-    message.fromTabId,
-    TAB_INJECTIONS,
-    PERMISSIONS,
-    PENDING_CALLBACKS,
-    PENDING_WEB3_RESPONSE_CALLBACKS
-  )
+  storageController.isStorageLoaded().then(() => {
+    const tabInjections = storageController.getItem('TAB_INJECTIONS')
+    const nextTabInjections = {
+      ...tabInjections,
+      [message.fromTabId]: true
+    }
+
+    storageController.setItem('TAB_INJECTIONS', nextTabInjections)
+
+    updateExtensionIcon(
+      message.fromTabId,
+      nextTabInjections,
+      PERMISSIONS,
+      PENDING_CALLBACKS,
+      PENDING_WEB3_RESPONSE_CALLBACKS
+    )
+  })
 })
 
 // User sends back a reply from the request permission popup
 addMessageHandler({ type: 'grantPermission' }, (message) => {
+  const tabInjections = storageController.getItem('TAB_INJECTIONS')
+
   if (PENDING_CALLBACKS[message.data.targetHost]) {
     PENDING_CALLBACKS[message.data.targetHost].callbacks.forEach((c) => {
       c(message.data.permitted)
@@ -135,10 +140,10 @@ addMessageHandler({ type: 'grantPermission' }, (message) => {
   }
   storageController.isStorageLoaded().then(() => {
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const i in TAB_INJECTIONS) {
+    for (const i in tabInjections) {
       updateExtensionIcon(
         i,
-        TAB_INJECTIONS,
+        tabInjections,
         PERMISSIONS,
         PENDING_CALLBACKS,
         PENDING_WEB3_RESPONSE_CALLBACKS
@@ -173,6 +178,8 @@ addMessageHandler({ type: 'vaultController' }, async (message) => {
 
 // User sends back a reply from the request permission popup
 addMessageHandler({ type: 'clearPendingCallback' }, (message) => {
+  const tabInjections = storageController.getItem('TAB_INJECTIONS')
+
   if (PENDING_CALLBACKS[message.data.targetHost]) {
     delete PENDING_CALLBACKS[message.data.targetHost]
   }
@@ -181,10 +188,10 @@ addMessageHandler({ type: 'clearPendingCallback' }, (message) => {
   }
   storageController.isStorageLoaded().then(() => {
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const i in TAB_INJECTIONS) {
+    for (const i in tabInjections) {
       updateExtensionIcon(
         i,
-        TAB_INJECTIONS,
+        tabInjections,
         PERMISSIONS,
         PENDING_CALLBACKS,
         PENDING_WEB3_RESPONSE_CALLBACKS
@@ -195,6 +202,8 @@ addMessageHandler({ type: 'clearPendingCallback' }, (message) => {
 
 // User confirms or rejects web3Call from the extension or an extension popup
 addMessageHandler({ type: 'web3CallResponse' }, (msg) => {
+  const tabInjections = storageController.getItem('TAB_INJECTIONS')
+
   const message = msg.data.originalMessage
   const host = message.host
   if (PENDING_WEB3_RESPONSE_CALLBACKS[host]) {
@@ -204,10 +213,10 @@ addMessageHandler({ type: 'web3CallResponse' }, (msg) => {
     delete PENDING_WEB3_RESPONSE_CALLBACKS[host]
   }
   // eslint-disable-next-line no-restricted-syntax, guard-for-in
-  for (const i in TAB_INJECTIONS) {
+  for (const i in tabInjections) {
     updateExtensionIcon(
       i,
-      TAB_INJECTIONS,
+      tabInjections,
       PERMISSIONS,
       PENDING_CALLBACKS,
       PENDING_WEB3_RESPONSE_CALLBACKS
@@ -230,15 +239,17 @@ addMessageHandler({ type: 'getPermissionsList' }, (message) => {
 // The Ambire extension requests permission removal from the list of permissions
 addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
   storageController.isStorageLoaded().then(() => {
+    const tabInjections = storageController.getItem('TAB_INJECTIONS')
+
     delete PERMISSIONS[message.data.host]
     savePermissionsInStorage(() => {
       sendAck(message)
     })
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const i in TAB_INJECTIONS) {
+    for (const i in tabInjections) {
       updateExtensionIcon(
         i,
-        TAB_INJECTIONS,
+        tabInjections,
         PERMISSIONS,
         PENDING_CALLBACKS,
         PENDING_WEB3_RESPONSE_CALLBACKS
@@ -473,8 +484,10 @@ function isInjectableTab(tab) {
 }
 
 const broadcastExtensionDataChange = (type, data) => {
+  const tabInjections = storageController.getItem('TAB_INJECTIONS')
+
   // eslint-disable-next-line
-  for (const tabId in TAB_INJECTIONS) {
+  for (const tabId in tabInjections) {
     // eslint-disable-next-line @typescript-eslint/no-loop-func
     const callback = (tab) => {
       if (isInjectableTab(tab) && PERMISSIONS[new URL(tab.url).host]) {
@@ -510,6 +523,7 @@ const broadcastExtensionDataChange = (type, data) => {
 
 const sendUserInterventionMessage = async (message, callback) => {
   log.debug('Send user intervention message: ', message)
+  const tabInjections = storageController.getItem('TAB_INJECTIONS')
   const payload = message.data
   const method = payload.method
   const host = message.host
@@ -522,7 +536,7 @@ const sendUserInterventionMessage = async (message, callback) => {
   // eslint-disable-next-line no-restricted-syntax, guard-for-in
   updateExtensionIcon(
     message.fromTabId,
-    TAB_INJECTIONS,
+    tabInjections,
     PERMISSIONS,
     PENDING_CALLBACKS,
     PENDING_WEB3_RESPONSE_CALLBACKS
@@ -533,6 +547,7 @@ const sendUserInterventionMessage = async (message, callback) => {
 // Returns wether a message is allow to transact or if host is unknown, show permission popup
 const requestPermission = async (message, callback) => {
   log.debug('Request permission for: ', message)
+  const tabInjections = storageController.getItem('TAB_INJECTIONS')
   const host = message.host
   const payload = message.data
   const method = payload.method
@@ -575,7 +590,7 @@ const requestPermission = async (message, callback) => {
       })
       updateExtensionIcon(
         message.fromTabId,
-        TAB_INJECTIONS,
+        tabInjections,
         PERMISSIONS,
         PENDING_CALLBACKS,
         PENDING_WEB3_RESPONSE_CALLBACKS
