@@ -6,7 +6,9 @@ const defaultState = {
   // which tabs are injected tabId => true
   TAB_INJECTIONS: {},
   // permissions host => true/false
-  PERMISSIONS: {}
+  PERMISSIONS: {},
+  // pending notifications asking for user attention (sign / send tx)
+  USER_ACTION_NOTIFICATIONS: {}
 }
 
 export class StorageController {

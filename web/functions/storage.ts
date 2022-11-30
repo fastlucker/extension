@@ -3,60 +3,6 @@
 /* eslint-disable import/no-mutable-exports */
 import { browserAPI } from '@web/constants/browserAPI'
 
-// Storage
-// permissions host => true/false
-export let PERMISSIONS = {}
-// pending notifications asking for user attention (sign / send tx)
-export let USER_ACTION_NOTIFICATIONS = {}
-
-export const setPermissions = (permissions) => {
-  PERMISSIONS = permissions
-}
-
-export const setUserActionNotifications = (userActionNotifications) => {
-  USER_ACTION_NOTIFICATIONS = userActionNotifications
-}
-
-// bool, if worker got initialized
-let storageLoaded
-// Used everywhere when we need to access a consistent state of the background worker
-// if not loaded, update the state vars with the latest from local storage
-export const isStorageLoaded = () =>
-  new Promise((res) => {
-    if (storageLoaded) {
-      res(true)
-      return
-    }
-    browserAPI.storage.local.get(
-      ['TAB_INJECTIONS', 'PERMISSIONS', 'USER_ACTION_NOTIFICATIONS'],
-      (result) => {
-        TAB_INJECTIONS = { ...TAB_INJECTIONS, ...result.TAB_INJECTIONS }
-        PERMISSIONS = { ...PERMISSIONS, ...result.PERMISSIONS }
-        USER_ACTION_NOTIFICATIONS = {
-          ...USER_ACTION_NOTIFICATIONS,
-          ...result.USER_ACTION_NOTIFICATIONS
-        }
-        storageLoaded = true
-        browserAPI.storage.local.set({ USER_ACTION_NOTIFICATIONS: {} })
-        res(true)
-      }
-    )
-  })
-
-// save tab permissions in local storage
-export const savePermissionsInStorage = (cb) => {
-  isStorageLoaded().then(() => {
-    browserAPI.storage.local.set({ PERMISSIONS }, cb)
-  })
-}
-
-// save user notifications(when interaction required) in local storage
-export const saveUserActionNotificationsInStorage = (cb) => {
-  isStorageLoaded().then(() => {
-    browserAPI.storage.local.set({ USER_ACTION_NOTIFICATIONS }, cb)
-  })
-}
-
 function checkForError() {
   const { lastError } = browserAPI.runtime
   if (!lastError) {

@@ -253,6 +253,7 @@ addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
     delete permissions[message.data.host]
 
     storageController.setItem('PERMISSIONS', permissions)
+    storageController.setItem('USER_ACTION_NOTIFICATIONS', {})
     sendAck(message)
 
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
@@ -600,6 +601,7 @@ const requestPermission = async (message, callback) => {
           permissions[host] = permitted
 
           storageController.setItem('PERMISSIONS', permissions)
+          storageController.setItem('USER_ACTION_NOTIFICATIONS', {})
           storageController.setItem('permittedHosts', permissions)
 
           log.debug('permissions saved')
