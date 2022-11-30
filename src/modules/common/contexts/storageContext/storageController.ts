@@ -4,7 +4,9 @@ import { sendMessage } from '@web/services/ambexMessanger'
 
 const defaultState = {
   // which tabs are injected tabId => true
-  TAB_INJECTIONS: {}
+  TAB_INJECTIONS: {},
+  // permissions host => true/false
+  PERMISSIONS: {}
 }
 
 export class StorageController {
