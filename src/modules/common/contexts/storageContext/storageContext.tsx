@@ -65,9 +65,64 @@ const StorageProvider: React.FC = ({ children }) => {
       })
 
       setStorage(storageComingFromTheBackgroundProcess)
+
+      // TODO: Figure out how to set network, networkId and selectedAccount.
+      // Note: local storage keeps only the networkId
+      // but the background service needs the whole network object
+      // Note: old implementation:
+      // store.network = network || {}
+      // store.selectedAcc = selectedAccount || ''
+      // browserAPI?.storage?.local?.set(store)
+      // Note: new implementation:
+      // await Promise.all([
+      //   await requestStorageControllerMethod({
+      //     method: 'setItem',
+      //     props: {
+      //       key: networkId,
+      //       data: network.id
+      //     }
+      //   })
+
+      //   await requestStorageControllerMethod({
+      //     method: 'setItem',
+      //     props: {
+      //       key: network,
+      //       data: network
+      //     }
+      //   })
+
+      //   await requestStorageControllerMethod({
+      //     method: 'setItem',
+      //     props: {
+      //       key: network,
+      //       data: network
+      //     }
+      //   })
+      // ])
+
       setIsLoaded(true)
     })()
   }, [])
+
+  // TODO: Figure out if this is still needed
+  // Syncs browser async storage with the extension's local storage
+  // Browser local storage used mainly in the extension's background service
+  // useMMKVListener(async (key) => {
+  //   const store: any = await getStore()
+  //   const value = SyncStorage.getItem(key)
+  //   let parsedValue
+  //   try {
+  //     parsedValue = JSON.parse(value as string)
+  //   } catch (e) {
+  //     parsedValue = value
+  //   }
+  //   store[key] = parsedValue
+  //   // local storage keeps only the networkId
+  //   // but the background service needs the whole network object
+  //   store.network = network || {}
+  //   store.selectedAcc = selectedAccount || ''
+  //   browserAPI?.storage?.local?.set(store)
+  // })
 
   const getItem = useCallback((key: string) => storage[key], [storage])
 
