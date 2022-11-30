@@ -43,18 +43,6 @@ export const isStorageLoaded = () =>
     )
   })
 
-// like [].filter but for objects
-function filterObject(obj, callback) {
-  return Object.fromEntries(Object.entries(obj).filter(([key, val]) => callback(val, key)))
-}
-
-// save tab injections in local storage
-export const saveTabInjectionsInStorage = () => {
-  isStorageLoaded().then(() => {
-    browserAPI.storage.local.set({ TAB_INJECTIONS: filterObject(TAB_INJECTIONS, (k, v) => v) })
-  })
-}
-
 // save tab permissions in local storage
 export const savePermissionsInStorage = (cb) => {
   isStorageLoaded().then(() => {
