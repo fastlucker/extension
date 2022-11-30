@@ -5,7 +5,7 @@ import { sendMessage } from '@web/services/ambexMessanger'
 export class StorageController {
   isInitialized = false
 
-  storage = []
+  storage: { [key: string]: any } = {}
 
   constructor() {
     this.init()
@@ -16,7 +16,7 @@ export class StorageController {
     await browserAPI.storage.local.get().then((result: any) => {
       const err = StorageController.checkForError()
       if (!err) {
-        this.storage = result || []
+        this.storage = result || {}
       }
     })
 
@@ -56,8 +56,17 @@ export class StorageController {
     return this.storage
   }
 
-  getItem({ key }: { key: string }) {
+  getItem(key: string) {
     return this.storage[key]
+  }
+
+  getItems(keys: string[]) {
+    const result: { [key: string]: any } = {}
+    keys.forEach((key: string) => {
+      result[key] = this.storage[key]
+    })
+
+    return result
   }
 
   setItem(key: string, value: string) {
