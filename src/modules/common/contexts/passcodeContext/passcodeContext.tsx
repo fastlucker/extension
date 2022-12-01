@@ -8,7 +8,6 @@ import { useModalize } from 'react-native-modalize'
 import { isAndroid, isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import i18n from '@config/localization/localization'
-import { SyncStorage } from '@config/storage'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
@@ -17,6 +16,7 @@ import PasscodeAuth from '@modules/common/components/PasscodeAuth'
 import SafeAreaView from '@modules/common/components/SafeAreaView'
 import useAccountsPasswords from '@modules/common/hooks/useAccountsPasswords'
 import useAppLock from '@modules/common/hooks/useAppLock'
+import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
@@ -35,6 +35,7 @@ const PasscodeContext = createContext<PasscodeContextReturnType>(passcodeContext
 
 const PasscodeProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
+  const { getItem, setItem, removeItem } = useStorageController()
   const { authStatus } = useAuth()
 
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -88,7 +89,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       }
 
       try {
-        const isLocalAuthActivated = await SyncStorage.getItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
+        const isLocalAuthActivated = await getItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
         if (isLocalAuthActivated) {
           setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
         }
@@ -124,8 +125,8 @@ const PasscodeProvider: React.FC = ({ children }) => {
       }
 
       try {
-        const lockOnStartupItem = SyncStorage.getItem(LOCK_ON_STARTUP_KEY)
-        const lockWhenInactiveItem = SyncStorage.getItem(LOCK_WHEN_INACTIVE_KEY)
+        const lockOnStartupItem = getItem(LOCK_ON_STARTUP_KEY)
+        const lockWhenInactiveItem = getItem(LOCK_WHEN_INACTIVE_KEY)
         setLockOnStartup(!!lockOnStartupItem)
         setLockWhenInactive(!!lockWhenInactiveItem)
 
@@ -138,7 +139,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
       setIsLoading(false)
     })()
-  }, [authStatus])
+  }, [authStatus, getItem])
 
   const isValidLocalAuth = useCallback(async () => {
     try {
@@ -185,7 +186,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
 
   const enableLockOnStartup = useCallback(async () => {
     try {
-      SyncStorage.setItem(LOCK_ON_STARTUP_KEY, 'true')
+      setItem(LOCK_ON_STARTUP_KEY, 'true')
       setLockOnStartup(true)
 
       addToast(t('Lock on startup enabled.') as string, {
@@ -196,11 +197,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
         error: true
       })
     }
-  }, [addToast, t])
+  }, [addToast, t, setItem])
 
   const disableLockOnStartup = useCallback(async () => {
     try {
-      SyncStorage.removeItem(LOCK_ON_STARTUP_KEY)
+      removeItem(LOCK_ON_STARTUP_KEY)
       setLockOnStartup(false)
 
       addToast(t('Lock on startup disabled.') as string, {
@@ -211,11 +212,11 @@ const PasscodeProvider: React.FC = ({ children }) => {
         error: true
       })
     }
-  }, [addToast, t])
+  }, [addToast, t, removeItem])
 
   const enableLockWhenInactive = useCallback(async () => {
     try {
-      SyncStorage.setItem(LOCK_WHEN_INACTIVE_KEY, 'true')
+      setItem(LOCK_WHEN_INACTIVE_KEY, 'true')
       setLockWhenInactive(true)
 
       addToast(t('Lock when inactive enabled.') as string, {
@@ -226,10 +227,10 @@ const PasscodeProvider: React.FC = ({ children }) => {
         error: true
       })
     }
-  }, [addToast, t])
+  }, [addToast, t, setItem])
   const disableLockWhenInactive = useCallback(async () => {
     try {
-      SyncStorage.removeItem(LOCK_WHEN_INACTIVE_KEY)
+      removeItem(LOCK_WHEN_INACTIVE_KEY)
       setLockWhenInactive(false)
 
       addToast(t('Lock when inactive is disabled.') as string, {
@@ -240,7 +241,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
         error: true
       })
     }
-  }, [addToast, t])
+  }, [addToast, t, removeItem])
 
   const addLocalAuth = useCallback(async () => {
     try {
@@ -251,7 +252,7 @@ const PasscodeProvider: React.FC = ({ children }) => {
       )
 
       if (success) {
-        SyncStorage.setItem(IS_LOCAL_AUTH_ACTIVATED_KEY, 'true')
+        setItem(IS_LOCAL_AUTH_ACTIVATED_KEY, 'true')
         setState(PASSCODE_STATES.PASSCODE_AND_LOCAL_AUTH)
       }
       return success
@@ -261,17 +262,17 @@ const PasscodeProvider: React.FC = ({ children }) => {
       })
       return false
     }
-  }, [addToast, t])
+  }, [addToast, t, setItem])
   const removeLocalAuth = useCallback(async () => {
     try {
-      SyncStorage.removeItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
+      removeItem(IS_LOCAL_AUTH_ACTIVATED_KEY)
       setState(PASSCODE_STATES.PASSCODE_ONLY)
     } catch (e) {
       addToast(t('Local auth got disabled, but this setting failed to save.') as string, {
         error: true
       })
     }
-  }, [addToast, t])
+  }, [addToast, t, removeItem])
 
   const addPasscode = useCallback(
     async (code: string) => {
