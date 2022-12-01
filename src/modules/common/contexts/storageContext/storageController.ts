@@ -16,8 +16,28 @@ export class StorageController {
 
   storage: { [key: string]: any } = { ...defaultState }
 
+  handleOnStorageChange = (
+    changes: { [key: string]: { newValue: any; oldValue: any } },
+    namespace: string
+  ) => {
+    if (namespace === 'local') {
+      const allKeysChanged = Object.keys(changes)
+
+      const nextStorage = { ...this.storage }
+      allKeysChanged.forEach((key: string) => {
+        nextStorage[key] = changes[key].newValue
+      })
+
+      this.storage = nextStorage
+    }
+  }
+
   constructor() {
+    if (this.isInitialized) return
+
     this.init()
+
+    browserAPI.storage.onChanged.addListener(this.handleOnStorageChange)
   }
 
   async init() {
