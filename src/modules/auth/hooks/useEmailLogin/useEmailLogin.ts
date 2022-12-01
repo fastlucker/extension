@@ -4,8 +4,8 @@ import { Keyboard } from 'react-native'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
-import { SyncStorage } from '@config/storage'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchCaught } from '@modules/common/services/fetch'
 import useVault from '@modules/vault/hooks/useVault'
@@ -19,11 +19,12 @@ const EMAIL_VERIFICATION_RECHECK = 3000
 
 export default function useEmailLogin() {
   const { addToast } = useToast()
+  const { getItem, setItem, removeItem } = useStorageController()
   const { onAddAccount } = useAccounts()
   const { addToVault } = useVault()
   const { t } = useTranslation()
 
-  const pendingLoginEmail = SyncStorage.getItem('pendingLoginEmail')
+  const pendingLoginEmail = getItem('pendingLoginEmail')
 
   const [requiresEmailConfFor, setRequiresConfFor] = useState<FormProps | null>(
     pendingLoginEmail ? { email: pendingLoginEmail } : null
@@ -61,7 +62,7 @@ export default function useEmailLogin() {
     async ({ email }: FormProps, ignoreEmailConfirmationRequired?: any) => {
       // try by-email first: if this returns data we can just move on to decrypting
       // does not matter which network we request
-      const loginSessionKey = await SyncStorage.getItem('loginSessionKey')
+      const loginSessionKey = await getItem('loginSessionKey')
       const { resp, body, errMsg }: any = await fetchCaught(
         `${CONFIG.RELAYER_URL}/identity/by-email/${encodeURIComponent(email)}`,
         {
@@ -79,7 +80,7 @@ export default function useEmailLogin() {
       if (resp.status === 401 && body.errType === 'UNAUTHORIZED') {
         if (ignoreEmailConfirmationRequired) {
           // we still have to call this to make sure the state is consistent and to force a re-render (to trigger the effect again)
-          SyncStorage.setItem('pendingLoginEmail', email)
+          setItem('pendingLoginEmail', email)
           setRequiresConfFor({ email })
           return
         }
@@ -96,14 +97,14 @@ export default function useEmailLogin() {
           return
         }
         const sessionKey = (await requestAuthResp.json()).sessionKey
-        SyncStorage.setItem('loginSessionKey', sessionKey)
-        SyncStorage.setItem('pendingLoginEmail', email)
+        setItem('loginSessionKey', sessionKey)
+        setItem('pendingLoginEmail', email)
         setRequiresConfFor({ email })
         return
       }
       // If we make it beyond this point, it means no email confirmation will be required
       if (resp.status === 404 && body.errType === 'DOES_NOT_EXIST') {
-        SyncStorage.removeItem('pendingLoginEmail')
+        removeItem('pendingLoginEmail')
         setRequiresConfFor(null)
         addToast('Account does not exist', {
           error: true
@@ -115,8 +116,8 @@ export default function useEmailLogin() {
       if (resp.status === 200) {
         setAccountData(body)
         // Delete the key so that it can't be used anymore on this browser
-        SyncStorage.removeItem('loginSessionKey')
-        SyncStorage.removeItem('pendingLoginEmail')
+        removeItem('loginSessionKey')
+        removeItem('pendingLoginEmail')
       } else {
         addToast(
           body.message
@@ -124,17 +125,17 @@ export default function useEmailLogin() {
             : `Unknown no-message error: ${resp.status}`
         )
       }
-      SyncStorage.removeItem('pendingLoginEmail')
+      removeItem('pendingLoginEmail')
       setRequiresConfFor(null)
     },
-    [addToast]
+    [addToast, getItem, removeItem, setItem]
   )
 
   const handleLogin = async ({ email, password }: FormProps) => {
     Keyboard.dismiss()
 
     setRequiresConfFor(null)
-    SyncStorage.removeItem('pendingLoginEmail')
+    removeItem('pendingLoginEmail')
     setInProgress(true)
     if (!accountData) {
       try {
@@ -178,8 +179,8 @@ export default function useEmailLogin() {
 
   const cancelLoginAttempts = useCallback(() => {
     setRequiresConfFor(null)
-    SyncStorage.removeItem('pendingLoginEmail')
-  }, [])
+    removeItem('pendingLoginEmail')
+  }, [removeItem])
 
   // try logging in once after EMAIL_VERIFICATION_RECHECK
   useEffect(() => {

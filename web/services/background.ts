@@ -49,7 +49,9 @@ const storageController = new StorageController()
 addMessageHandler({ type: 'storageController' }, async (message) => {
   if (storageController[message.data.method]) {
     try {
-      const res = await storageController[message.data.method](message.data.props)
+      const { key, value } = message.data.props || {}
+      // TODO: Should we await?
+      const res = await storageController[message.data.method](key, value)
       sendReply(message, {
         data: res
       })

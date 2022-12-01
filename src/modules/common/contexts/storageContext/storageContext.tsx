@@ -5,7 +5,11 @@ import { BACKGROUND } from '@web/constants/paths'
 import { sendMessage } from '@web/services/ambexMessanger'
 
 // TODO: type
-const StorageContext = createContext<any>({
+const StorageContext = createContext<{
+  getItem: (key: string) => any
+  setItem: (key: string, value: any) => void
+  removeItem: (key: string) => void
+}>({
   getItem: () => {},
   setItem: () => {},
   removeItem: () => {}
