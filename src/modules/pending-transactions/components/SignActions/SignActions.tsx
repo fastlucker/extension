@@ -151,7 +151,7 @@ const SignActions = ({
                 autoCorrect={false}
                 isValid={isValidCode(value)}
                 value={value}
-                autoFocus={!isWeb}
+                autoFocus
                 error={errors.code && (t('Invalid confirmation code.') as string)}
               />
             )}

@@ -5,7 +5,7 @@
 // Background workers are killed and respawned (chrome MV3) when contentScript are calling them.
 // Firefox does not support MV3 yet but is working on it.
 
-import { initRpcProviders } from 'ambire-common/src/services/provider'
+import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
 
@@ -39,7 +39,11 @@ log.setDefaultLevel(
 
 setupAmbexMessenger(BACKGROUND, browserAPI)
 // Initialize rpc providers for all networks
-initRpcProviders(rpcProviders)
+
+const shouldInitProviders = !areRpcProvidersInitialized()
+if (shouldInitProviders) {
+  initRpcProviders(rpcProviders)
+}
 
 // TODO: find a way to store the state and exec callbacks?
 const PENDING_CALLBACKS = {}

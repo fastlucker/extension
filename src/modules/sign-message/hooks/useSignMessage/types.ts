@@ -1,5 +1,6 @@
 import { NetworkType } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
+import { Dispatch, SetStateAction } from 'react'
 
 export type UseSignMessageProps = {
   account: UseAccountsReturnType['account']
@@ -15,6 +16,7 @@ export type UseSignMessageProps = {
 export type UseSignMessageReturnType = {
   approve: (credentials: any, device?: any) => Promise<any>
   approveQuickAcc: ({ code }: { code: string }) => Promise<any>
+  setLoading: Dispatch<SetStateAction<boolean>>
   msgToSign: any
   isLoading: boolean
   hasPrivileges: boolean | null

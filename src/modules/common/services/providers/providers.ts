@@ -26,8 +26,10 @@ const setProvider = (_id: NetworkId) => {
   })
 }
 
-;(Object.keys(NETWORKS) as Array<keyof typeof NETWORKS>).forEach((networkId: NetworkId) => {
-  rpcProviders[networkId] = setProvider(networkId)
-})
+if (!Object.keys(rpcProviders).length) {
+  ;(Object.keys(NETWORKS) as Array<keyof typeof NETWORKS>).forEach((networkId: NetworkId) => {
+    rpcProviders[networkId] = setProvider(networkId)
+  })
+}
 
 export { rpcProviders }

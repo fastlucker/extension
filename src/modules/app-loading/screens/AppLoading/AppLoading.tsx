@@ -1,4 +1,4 @@
-import { initRpcProviders } from 'ambire-common/src/services/provider'
+import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
@@ -34,7 +34,10 @@ import { rpcProviders } from '@modules/common/services/providers'
 import { VaultProvider } from '@modules/vault/contexts/vaultContext'
 
 // Initialize rpc providers for all networks
-initRpcProviders(rpcProviders)
+const shouldInitProviders = !areRpcProvidersInitialized()
+if (shouldInitProviders) {
+  initRpcProviders(rpcProviders)
+}
 
 const AppLoading = () => {
   const { fontsLoaded } = useFonts()

@@ -1,13 +1,16 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { toUtf8String } from 'ethers/lib/utils'
 import React, { useMemo } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import Blockies from '@modules/common/components/Blockies'
+import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -21,6 +24,7 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
+import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import SignActions from '@modules/sign-message/components/SignActions'
 import useSignMessage from '@modules/sign-message/hooks/useSignMessage'
 import { UseSignMessageProps } from '@modules/sign-message/hooks/useSignMessage/types'
@@ -50,6 +54,14 @@ const SignScreenScreen = ({ navigation }: any) => {
   const { everythingToSign, resolveMany } = useRequests()
   const { isTempExtensionPopup } = useAmbireExtension()
 
+  const { handleSubmit, setValue, watch } = useForm({
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
+    defaultValues: {
+      code: ''
+    }
+  })
+
   if (isTempExtensionPopup) {
     navigation.navigate = () => window.close()
     navigation.goBack = () => window.close()
@@ -78,6 +90,7 @@ const SignScreenScreen = ({ navigation }: any) => {
 
   const {
     approve,
+    setLoading,
     msgToSign,
     isLoading,
     hasPrivileges,
@@ -130,72 +143,115 @@ const SignScreenScreen = ({ navigation }: any) => {
   }
 
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={180}>
-        <Title style={[textStyles.center, spacings.mbTy]} hasBottomSpacing={false}>
-          {t('Signing with account')}
-        </Title>
-        <Panel type="filled" contentContainerStyle={[spacings.pvTy, spacings.phTy]}>
-          <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-            <Blockies seed={account?.id} />
-            <View style={[flexboxStyles.flex1, spacings.plTy]}>
-              <Text style={spacings.mbMi} numberOfLines={1} ellipsizeMode="middle" fontSize={12}>
-                {account.id}
-              </Text>
-              <Text type="info" color={colors.titan_50}>
-                {account.email
-                  ? t('Email/Password account ({{email}})', { email: account?.email })
-                  : `${walletType(account?.signerExtra)} (${shortenedAddress(
-                      account?.signer?.address
-                    )})`}
-              </Text>
+    <>
+      <GradientBackgroundWrapper>
+        <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={180}>
+          <Title style={[textStyles.center, spacings.mbTy]} hasBottomSpacing={false}>
+            {t('Signing with account')}
+          </Title>
+          <Panel type="filled" contentContainerStyle={[spacings.pvTy, spacings.phTy]}>
+            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+              <Blockies seed={account?.id} />
+              <View style={[flexboxStyles.flex1, spacings.plTy]}>
+                <Text style={spacings.mbMi} numberOfLines={1} ellipsizeMode="middle" fontSize={12}>
+                  {account.id}
+                </Text>
+                <Text type="info" color={colors.titan_50}>
+                  {account.email
+                    ? t('Email/Password account ({{email}})', { email: account?.email })
+                    : `${walletType(account?.signerExtra)} (${shortenedAddress(
+                        account?.signer?.address
+                      )})`}
+                </Text>
+              </View>
             </View>
-          </View>
-        </Panel>
-        <Panel>
-          <Title type="small">{t('Sign message')}</Title>
-          {!!dApp && (
-            <View style={[spacings.mbTy, flexboxStyles.directionRow]}>
-              {!!dApp.icons?.[0] && <Image source={{ uri: dApp.icons[0] }} style={styles.image} />}
-              <Text style={flexboxStyles.flex1} fontSize={14}>
-                {t('{{name}} is requesting your signature.', { name: dApp.name })}
-              </Text>
-            </View>
-          )}
-          {!dApp && <Text style={spacings.mbTy}>{t('A dApp is requesting your signature.')}</Text>}
-          <Text style={spacings.mbTy} color={colors.titan_50} fontSize={14}>
-            {everythingToSign?.length > 1
-              ? t('You have {{number}} more pending requests.', {
-                  number: (everythingToSign?.length || 0) - 1
-                })
-              : ''}
-          </Text>
-          <View style={styles.textarea}>
-            <Text fontSize={12}>
-              {dataV4 ? JSON.stringify(dataV4, '\n', ' ') : getMessageAsText(msgToSign.txn)}
+          </Panel>
+          <Panel>
+            <Title type="small">{t('Sign message')}</Title>
+            {!!dApp && (
+              <View style={[spacings.mbTy, flexboxStyles.directionRow]}>
+                {!!dApp.icons?.[0] && (
+                  <Image source={{ uri: dApp.icons[0] }} style={styles.image} />
+                )}
+                <Text style={flexboxStyles.flex1} fontSize={14}>
+                  {t('{{name}} is requesting your signature.', { name: dApp.name })}
+                </Text>
+              </View>
+            )}
+            {!dApp && (
+              <Text style={spacings.mbTy}>{t('A dApp is requesting your signature.')}</Text>
+            )}
+            <Text style={spacings.mbTy} color={colors.titan_50} fontSize={14}>
+              {everythingToSign?.length > 1
+                ? t('You have {{number}} more pending requests.', {
+                    number: (everythingToSign?.length || 0) - 1
+                  })
+                : ''}
             </Text>
-          </View>
-          <SignActions
-            isLoading={isLoading}
-            approve={approve}
-            confirmationType={confirmationType}
-            resolve={resolve}
-            hasPrivileges={hasPrivileges}
-            isDeployed={isDeployed}
-            quickAccBottomSheet={{
-              sheetRef: sheetRefQickAcc,
-              openBottomSheet: openBottomSheetQickAcc,
-              closeBottomSheet: closeBottomSheetQickAcc
-            }}
-            hardwareWalletBottomSheet={{
-              sheetRef: sheetRefHardwareWallet,
-              openBottomSheet: openBottomSheetHardwareWallet,
-              closeBottomSheet: closeBottomSheetHardwareWallet
-            }}
-          />
-        </Panel>
-      </Wrapper>
-    </GradientBackgroundWrapper>
+            <View style={styles.textarea}>
+              <Text fontSize={12}>
+                {dataV4 ? JSON.stringify(dataV4, '\n', ' ') : getMessageAsText(msgToSign.txn)}
+              </Text>
+            </View>
+            <SignActions
+              isLoading={isLoading}
+              approve={approve}
+              resolve={resolve}
+              hasPrivileges={hasPrivileges}
+              isDeployed={isDeployed}
+            />
+          </Panel>
+        </Wrapper>
+      </GradientBackgroundWrapper>
+      <BottomSheet
+        id="sign"
+        closeBottomSheet={closeBottomSheetQickAcc}
+        onClosed={() => setLoading(false)}
+        sheetRef={sheetRefQickAcc}
+      >
+        <Title style={textStyles.center}>{t('Confirmation code')}</Title>
+        {(confirmationType === 'email' || !confirmationType) && (
+          <Text style={spacings.mb}>
+            {t('A confirmation code has been sent to your email, it is valid for 3 minutes.')}
+          </Text>
+        )}
+        {confirmationType === 'otp' && (
+          <Text style={spacings.mbTy}>{t('Please enter your OTP code.')}</Text>
+        )}
+        <NumberInput
+          placeholder={
+            confirmationType === 'otp' ? t('Authenticator OTP code') : t('Confirmation code')
+          }
+          onChangeText={(val) => setValue('code', val)}
+          keyboardType="numeric"
+          autoCorrect={false}
+          value={watch('code', '')}
+          autoFocus
+        />
+        <Button
+          text={t('Confirm')}
+          disabled={!watch('code', '')}
+          onPress={() => {
+            handleSubmit(approve)()
+            setValue('code', '')
+            closeBottomSheetQickAcc()
+          }}
+        />
+      </BottomSheet>
+      <BottomSheet
+        id="hardware-wallet-sign"
+        sheetRef={sheetRefHardwareWallet}
+        closeBottomSheet={closeBottomSheetHardwareWallet}
+      >
+        <HardwareWalletSelectConnection
+          onSelectDevice={(device: any) => {
+            approve({ device })
+            closeBottomSheetHardwareWallet()
+          }}
+          shouldWrap={false}
+        />
+      </BottomSheet>
+    </>
   )
 }
 

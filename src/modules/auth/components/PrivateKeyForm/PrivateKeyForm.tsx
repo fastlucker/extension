@@ -3,6 +3,7 @@ import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import useExternalSignerLogin from '@modules/auth/hooks/useExternalSignerLogin'
 import Button from '@modules/common/components/Button'
@@ -38,6 +39,7 @@ const PrivateKeyForm = () => {
             onChangeText={onChange}
             onSubmitEditing={handleSubmit(addExternalSigner)}
             value={value}
+            autoFocus={isWeb}
             error={errors.signer && (t('Please fill in a valid private key.') as string)}
             containerStyle={spacings.mbTy}
           />

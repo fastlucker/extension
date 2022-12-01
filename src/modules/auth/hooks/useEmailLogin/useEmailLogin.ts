@@ -62,7 +62,7 @@ export default function useEmailLogin() {
     async ({ email }: FormProps, ignoreEmailConfirmationRequired?: any) => {
       // try by-email first: if this returns data we can just move on to decrypting
       // does not matter which network we request
-      const loginSessionKey = await getItem('loginSessionKey')
+      const loginSessionKey = getItem('loginSessionKey')
       const { resp, body, errMsg }: any = await fetchCaught(
         `${CONFIG.RELAYER_URL}/identity/by-email/${encodeURIComponent(email)}`,
         {

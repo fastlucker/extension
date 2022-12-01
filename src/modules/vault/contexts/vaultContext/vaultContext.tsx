@@ -1,10 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
-import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
-import useAuth from '@modules/auth/hooks/useAuth'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
@@ -42,9 +39,7 @@ const requestVaultControllerMethod = ({
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { setItem } = useStorageController()
-  const { accounts, onRemoveAccount } = useAccounts()
-  const { setAuthStatus } = useAuth()
+  const { onRemoveAllAccounts } = useAccounts()
 
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)
 
@@ -82,9 +77,6 @@ const VaultProvider: React.FC = ({ children }) => {
             password
           }
         }).then(() => {
-          // Reset added accounts in case there are some left in the memory
-          accounts.forEach((acc) => onRemoveAccount(acc.id))
-          setItem('selectedAcc', '')
           // Automatically unlock after vault initialization
           setVaultStatus(VAULT_STATUS.UNLOCKED)
           !!nextRoute && navigate(nextRoute)
@@ -93,7 +85,7 @@ const VaultProvider: React.FC = ({ children }) => {
         addToast(t("Passwords don't match."))
       }
     },
-    [accounts, onRemoveAccount, t, addToast, setItem]
+    [t, addToast]
   )
 
   const resetVault = useCallback(
@@ -112,18 +104,15 @@ const VaultProvider: React.FC = ({ children }) => {
             password
           }
         }).then(() => {
-          // Reset added accounts in case there are some left in the memory
-          accounts.forEach((acc) => onRemoveAccount(acc.id))
-          setItem('selectedAcc', '')
+          onRemoveAllAccounts()
           // Automatically unlock after vault initialization
           setVaultStatus(VAULT_STATUS.UNLOCKED)
-          setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
         })
       } else {
         addToast(t("Passwords don't match."))
       }
     },
-    [accounts, onRemoveAccount, t, addToast, setAuthStatus, setItem]
+    [t, addToast, onRemoveAllAccounts]
   )
 
   const unlockVault = useCallback(
