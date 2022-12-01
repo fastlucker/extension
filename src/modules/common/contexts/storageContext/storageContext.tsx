@@ -1,117 +1,34 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-// import { hasMigratedFromAsyncStorage, migrateFromAsyncStorage } from '@config/storage'
-import { browserAPI } from '@web/constants/browserAPI'
-import { BACKGROUND } from '@web/constants/paths'
-import { sendMessage } from '@web/services/ambexMessanger'
+import { StorageController } from './storageController'
 
-// TODO: type
 const StorageContext = createContext<{
   getItem: (key: string) => any
   setItem: (key: string, value: any) => void
   removeItem: (key: string) => void
 }>({
-  getItem: () => {},
+  getItem: () => null,
   setItem: () => {},
   removeItem: () => {}
 })
 
-const requestStorageControllerMethod = ({
-  method,
-  props
-}: {
-  method: string
-  props?: { [key: string]: any }
-}) => {
-  return new Promise((resolve, reject) => {
-    sendMessage({
-      type: 'storageController',
-      to: BACKGROUND,
-      data: {
-        method,
-        props
-      }
-    })
-      .then((res: any) => resolve(res.data))
-      .catch((err) => reject(err))
-  })
-}
-
 const StorageProvider: React.FC = ({ children }) => {
   // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
   // const [hasMigrated, setHasMigrated] = useState(hasMigratedFromAsyncStorage)
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [storage, setStorage] = useState<any>({})
-
-  const handleOnStorageChange = useCallback(
-    (changes: { [key: string]: { newValue: any; oldValue: any } }, namespace: string) => {
-      if (namespace === 'local') {
-        const allKeysChanged = Object.keys(changes)
-
-        const nextStorage = { ...storage }
-        allKeysChanged.forEach((key: string) => {
-          nextStorage[key] = changes[key].newValue
-        })
-
-        setStorage(nextStorage)
-      }
-    },
-    [storage]
-  )
-
-  useEffect(() => {
-    browserAPI.storage.onChanged.addListener(handleOnStorageChange)
-
-    return () => browserAPI.storage.onChanged.removeListener(handleOnStorageChange)
-  }, [handleOnStorageChange])
+  const storageControllerInstance = useMemo(() => new StorageController(), [])
+  const [isLoaded, setIsLoaded] = useState(storageControllerInstance.isInitialized)
 
   useEffect(() => {
     ;(async () => {
-      const browserExtensionStorage = await browserAPI.storage.local.get()
-      setStorage(browserExtensionStorage)
+      await storageControllerInstance.init()
 
-      // const storageComingFromTheBackgroundProcess = await requestStorageControllerMethod({
-      //   method: 'getStorage'
-      // })
-      // setStorage(storageComingFromTheBackgroundProcess)
-
-      // TODO: Figure out how to set network, networkId and selectedAccount.
-      // Note: local storage keeps only the networkId
-      // but the background service needs the whole network object
-      // Note: old implementation:
-      // store.network = network || {}
-      // store.selectedAcc = selectedAccount || ''
-      // browserAPI?.storage?.local?.set(store)
-      // Note: new implementation:
-      // await Promise.all([
-      //   await requestStorageControllerMethod({
-      //     method: 'setItem',
-      //     props: {
-      //       key: networkId,
-      //       data: network.id
-      //     }
-      //   })
-
-      //   await requestStorageControllerMethod({
-      //     method: 'setItem',
-      //     props: {
-      //       key: network,
-      //       data: network
-      //     }
-      //   })
-
-      //   await requestStorageControllerMethod({
-      //     method: 'setItem',
-      //     props: {
-      //       key: network,
-      //       data: network
-      //     }
-      //   })
-      // ])
-
-      setIsLoaded(true)
+      setIsLoaded(storageControllerInstance.isInitialized)
     })()
-  }, [])
+
+    return () => {
+      // TODO: stop listening to changes
+    }
+  }, [storageControllerInstance])
 
   // TODO: Figure out if this is still needed
   // Syncs browser async storage with the extension's local storage
@@ -147,36 +64,19 @@ const StorageProvider: React.FC = ({ children }) => {
   //   })()
   // }, [])
 
-  const getItem = useCallback((key: string) => storage[key], [storage])
+  const getItem = useCallback(
+    (key: string) => storageControllerInstance.getItem(key),
+    [storageControllerInstance]
+  )
 
   const setItem = useCallback(
-    (key: string, value: any) => {
-      storage[key] = value
-
-      browserAPI.storage.local.set({ [key]: value })
-
-      // requestStorageControllerMethod({
-      //   method: 'setItem',
-      //   props: { key, value }
-      // })
-    },
-    [storage]
+    (key: string, value: any) => storageControllerInstance.setItem(key, value),
+    [storageControllerInstance]
   )
 
   const removeItem = useCallback(
-    (key: string) => {
-      const nextStorage = { ...storage }
-      delete nextStorage[key]
-
-      setStorage(nextStorage)
-
-      browserAPI.storage.local.remove([key])
-      // requestStorageControllerMethod({
-      //   method: 'removeItem',
-      //   props: { key }
-      // })
-    },
-    [storage]
+    (key: string) => storageControllerInstance.removeItem(key),
+    [storageControllerInstance]
   )
 
   return (
