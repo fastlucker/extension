@@ -1,9 +1,8 @@
 import { initRpcProviders } from 'ambire-common/src/services/provider'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import Router from '@config/Router'
-import { hasMigratedFromAsyncStorage, migrateFromAsyncStorage } from '@config/storage'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AppLockProvider } from '@modules/app-lock/contexts/appLockContext'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
@@ -38,24 +37,9 @@ import { VaultProvider } from '@modules/vault/contexts/vaultContext'
 initRpcProviders(rpcProviders)
 
 const AppLoading = () => {
-  // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
-  const [hasMigrated, setHasMigrated] = useState(hasMigratedFromAsyncStorage)
   const { fontsLoaded } = useFonts()
 
-  useEffect(() => {
-    ;(async () => {
-      if (!hasMigratedFromAsyncStorage) {
-        try {
-          await migrateFromAsyncStorage()
-          setHasMigrated(true)
-        } catch (e) {
-          throw new Error('AsyncStorage migration failed!')
-        }
-      }
-    })()
-  }, [])
-
-  if (!fontsLoaded || !hasMigrated) return null
+  if (!fontsLoaded) return null
 
   return (
     <PortalProvider>

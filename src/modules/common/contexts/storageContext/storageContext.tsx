@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
+// import { hasMigratedFromAsyncStorage, migrateFromAsyncStorage } from '@config/storage'
 import { browserAPI } from '@web/constants/browserAPI'
 import { BACKGROUND } from '@web/constants/paths'
 import { sendMessage } from '@web/services/ambexMessanger'
@@ -37,6 +38,8 @@ const requestStorageControllerMethod = ({
 }
 
 const StorageProvider: React.FC = ({ children }) => {
+  // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
+  // const [hasMigrated, setHasMigrated] = useState(hasMigratedFromAsyncStorage)
   const [isLoaded, setIsLoaded] = useState(false)
   const [storage, setStorage] = useState<any>({})
 
@@ -128,6 +131,20 @@ const StorageProvider: React.FC = ({ children }) => {
   //   browserAPI?.storage?.local?.set(store)
   // })
 
+  // TODO: Figure out if this is still needed or remove storage migration
+  // useEffect(() => {
+  //   ;(async () => {
+  //     if (!hasMigratedFromAsyncStorage) {
+  //       try {
+  //         await migrateFromAsyncStorage()
+  //         setHasMigrated(true)
+  //       } catch (e) {
+  //         throw new Error('AsyncStorage migration failed!')
+  //       }
+  //     }
+  //   })()
+  // }, [])
+
   const getItem = useCallback((key: string) => storage[key], [storage])
 
   const setItem = useCallback(
@@ -168,6 +185,7 @@ const StorageProvider: React.FC = ({ children }) => {
         [getItem, setItem, removeItem]
       )}
     >
+      {/* if (!hasMigrated) return null */}
       {isLoaded ? children : null}
     </StorageContext.Provider>
   )
