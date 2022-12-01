@@ -71,21 +71,9 @@ addMessageHandler({ type: 'storageController' }, async (message) => {
   }
 })
 
-// Initial loading call.
-storageController
-  .isStorageLoaded()
-  .then(() => {
-    processBackgroundQueue()
-  })
-  .catch((e) => {
-    log.error('storageLoading', e)
-  })
-
 log.debug('Background service restarted!')
 
-const broadcastExtensionDataOnChange = async () => {
-  await storageController.isStorageLoaded()
-
+const broadcastExtensionDataOnChange = () => {
   browserAPI.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'local') {
       // eslint-disable-next-line no-restricted-syntax
@@ -93,15 +81,48 @@ const broadcastExtensionDataOnChange = async () => {
         if (key === 'selectedAcc') {
           broadcastExtensionDataChange('ambireWalletAccountChanged', { account: newValue })
         }
-        if (key === 'network') {
+        // TODO: Double-check key!
+        if (key === 'networkId') {
           broadcastExtensionDataChange('ambireWalletChainChanged', { chainId: newValue.chainId })
         }
       }
     }
   })
 }
-// Execute the func right away
-broadcastExtensionDataOnChange()
+
+;(async () => {
+  try {
+    await storageController.isStorageLoaded()
+
+    // Initial loading call
+    processBackgroundQueue()
+
+    broadcastExtensionDataOnChange()
+
+    const vaultController = new VaultController(storageController)
+
+    addMessageHandler({ type: 'vaultController' }, async (message) => {
+      if (vaultController[message.data.method]) {
+        try {
+          const res = await vaultController[message.data.method](message.data.props)
+          sendReply(message, {
+            data: res
+          })
+        } catch (error) {
+          sendReply(message, {
+            error: error.message || error
+          })
+        }
+      } else {
+        sendReply(message, {
+          error: 'Vault controller not initialized'
+        })
+      }
+    })
+  } catch (error) {
+    log.error('Storage failed to load.', e)
+  }
+})()
 
 // MESSAGE HANDLERS START HERE
 
@@ -163,27 +184,6 @@ addMessageHandler({ type: 'grantPermission' }, async (message) => {
   sendReply(message, {
     data: 'done'
   })
-})
-
-const vaultController = new VaultController()
-
-addMessageHandler({ type: 'vaultController' }, async (message) => {
-  if (vaultController[message.data.method]) {
-    try {
-      const res = await vaultController[message.data.method](message.data.props)
-      sendReply(message, {
-        data: res
-      })
-    } catch (error) {
-      sendReply(message, {
-        error: error.message || error
-      })
-    }
-  } else {
-    sendReply(message, {
-      error: 'Vault controller not initialized'
-    })
-  }
 })
 
 // User sends back a reply from the request permission popup
