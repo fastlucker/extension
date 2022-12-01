@@ -13,8 +13,6 @@ const StorageContext = createContext<{
 })
 
 const StorageProvider: React.FC = ({ children }) => {
-  // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
-  // const [hasMigrated, setHasMigrated] = useState(hasMigratedFromAsyncStorage)
   const storageControllerInstance = useMemo(() => new StorageController(), [])
   const [isLoaded, setIsLoaded] = useState(storageControllerInstance.isInitialized)
 
@@ -50,20 +48,6 @@ const StorageProvider: React.FC = ({ children }) => {
   //   browserAPI?.storage?.local?.set(store)
   // })
 
-  // TODO: Figure out if this is still needed or remove storage migration
-  // useEffect(() => {
-  //   ;(async () => {
-  //     if (!hasMigratedFromAsyncStorage) {
-  //       try {
-  //         await migrateFromAsyncStorage()
-  //         setHasMigrated(true)
-  //       } catch (e) {
-  //         throw new Error('AsyncStorage migration failed!')
-  //       }
-  //     }
-  //   })()
-  // }, [])
-
   const getItem = useCallback(
     (key: string) => storageControllerInstance.getItem(key),
     [storageControllerInstance]
@@ -90,7 +74,6 @@ const StorageProvider: React.FC = ({ children }) => {
         [getItem, setItem, removeItem]
       )}
     >
-      {/* if (!hasMigrated) return null */}
       {isLoaded ? children : null}
     </StorageContext.Provider>
   )
