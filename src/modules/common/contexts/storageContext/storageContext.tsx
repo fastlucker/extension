@@ -67,11 +67,13 @@ const StorageProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     ;(async () => {
-      const storageComingFromTheBackgroundProcess = await requestStorageControllerMethod({
-        method: 'getStorage'
-      })
+      const browserExtensionStorage = await browserAPI.storage.local.get()
+      setStorage(browserExtensionStorage)
 
-      setStorage(storageComingFromTheBackgroundProcess)
+      // const storageComingFromTheBackgroundProcess = await requestStorageControllerMethod({
+      //   method: 'getStorage'
+      // })
+      // setStorage(storageComingFromTheBackgroundProcess)
 
       // TODO: Figure out how to set network, networkId and selectedAccount.
       // Note: local storage keeps only the networkId
@@ -151,10 +153,12 @@ const StorageProvider: React.FC = ({ children }) => {
     (key: string, value: any) => {
       storage[key] = value
 
-      requestStorageControllerMethod({
-        method: 'setItem',
-        props: { key, value }
-      })
+      browserAPI.storage.local.set({ [key]: value })
+
+      // requestStorageControllerMethod({
+      //   method: 'setItem',
+      //   props: { key, value }
+      // })
     },
     [storage]
   )
@@ -166,10 +170,11 @@ const StorageProvider: React.FC = ({ children }) => {
 
       setStorage(nextStorage)
 
-      requestStorageControllerMethod({
-        method: 'removeItem',
-        props: { key }
-      })
+      browserAPI.storage.local.remove([key])
+      // requestStorageControllerMethod({
+      //   method: 'removeItem',
+      //   props: { key }
+      // })
     },
     [storage]
   )
