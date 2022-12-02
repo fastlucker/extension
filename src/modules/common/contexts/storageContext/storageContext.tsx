@@ -18,14 +18,12 @@ const StorageProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     ;(async () => {
-      await storageControllerInstance.init()
+      const unsubscribe = await storageControllerInstance.init()
 
       setIsLoaded(storageControllerInstance.isInitialized)
-    })()
 
-    return () => {
-      // TODO: stop listening to changes
-    }
+      return () => unsubscribe()
+    })()
   }, [storageControllerInstance])
 
   const getItem = useCallback(
