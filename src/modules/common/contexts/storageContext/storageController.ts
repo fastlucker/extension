@@ -1,21 +1,6 @@
-import { browserAPI } from '@web/constants/browserAPI'
+import { MMKV } from 'react-native-mmkv'
 
-// TODO: use MMKV for the mobile app
-// import { MMKV } from 'react-native-mmkv'
-// export const storage: { [key: string]: any } = new MMKV()
-// export const SyncStorage: {
-//   getItem(key: string): string | null
-//   setItem(key: string, value: string): void
-//   removeItem(key: string): void
-// } = {
-//   getItem: (key: string) => storage.getString(key),
-//   setItem: (key: string, value: string) => {
-//     storage.set(key, value)
-//   },
-//   removeItem: (key: string) => {
-//     storage.delete(key)
-//   }
-// }
+import { browserAPI, isExtension } from '@web/constants/browserAPI'
 
 const defaultState = {
   // which tabs are injected tabId => true
@@ -30,6 +15,13 @@ export class StorageController {
   isInitialized = false
 
   storage: { [key: string]: any } = { ...defaultState }
+
+  /**
+   * Key-value storage framework, faster and synchronous alternative to
+   * the local storage on the web and async storage on mobile.
+   * Supports iOS, Android and web
+   */
+  mmkv: MMKV | null = null
 
   handleOnStorageChange = (
     changes: { [key: string]: { newValue: any; oldValue: any } },
@@ -51,18 +43,22 @@ export class StorageController {
     if (this.isInitialized) return
 
     this.init()
-
-    browserAPI.storage.onChanged.addListener(this.handleOnStorageChange)
   }
 
   async init() {
-    // TODO: Fallback to local storage (mobile & web with MMKV, extension with Chrome storage)
-    await browserAPI.storage.local.get().then((result: any) => {
-      const err = StorageController.checkForError()
-      if (!err) {
-        this.storage = { ...defaultState, ...result }
-      }
-    })
+    if (isExtension) {
+      // TODO: Fallback to local storage (mobile & web with MMKV, extension with Chrome storage)
+      await browserAPI.storage.local.get().then((result: any) => {
+        const err = StorageController.checkForError()
+        if (!err) {
+          this.storage = { ...defaultState, ...result }
+        }
+      })
+
+      browserAPI.storage.onChanged.addListener(this.handleOnStorageChange)
+    } else {
+      this.mmkv = new MMKV()
+    }
 
     this.isInitialized = true
   }
@@ -107,24 +103,30 @@ export class StorageController {
   setItem(key: string, value: string) {
     this.storage[key] = value
 
-    const { local } = browserAPI.storage
-    local.set({ ...this.storage, [key]: value }).then(() => {
-      const err = StorageController.checkForError()
-      if (err) {
-        // Handle errors.
-      }
-    })
+    if (isExtension) {
+      browserAPI.storage.local.set({ ...this.storage, [key]: value }).then(() => {
+        const err = StorageController.checkForError()
+        if (err) {
+          // Handle errors.
+        }
+      })
+    } else {
+      this.mmkv?.set(key, value)
+    }
   }
 
   removeItem(key: string) {
     delete this.storage[key]
 
-    const { local } = browserAPI.storage
-    local.remove([key]).then(() => {
-      const err = StorageController.checkForError()
-      if (err) {
-        // Handle errors.
-      }
-    })
+    if (isExtension) {
+      browserAPI.storage.local.remove([key]).then(() => {
+        const err = StorageController.checkForError()
+        if (err) {
+          // Handle errors.
+        }
+      })
+    } else {
+      this.mmkv?.delete(key)
+    }
   }
 }
