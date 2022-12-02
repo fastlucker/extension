@@ -210,7 +210,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
           to: BACKGROUND,
           type: 'getPermissionsList'
         }).then((reply) => {
-          setConnectedDapps(() =>
+          setConnectedDapps(
             Object.keys(reply.data).map((host) => {
               return {
                 host,
