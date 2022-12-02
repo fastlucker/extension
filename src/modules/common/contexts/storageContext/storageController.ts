@@ -2,7 +2,7 @@ import { MMKV } from 'react-native-mmkv'
 
 import { browserAPI, isExtension } from '@web/constants/browserAPI'
 
-const defaultState = {
+const defaultExtensionSyncStorage = {
   // which tabs are injected tabId => true
   TAB_INJECTIONS: {},
   // permissions host => true/false
@@ -14,7 +14,11 @@ const defaultState = {
 export class StorageController {
   isInitialized = false
 
-  storage: { [key: string]: any } = { ...defaultState }
+  extensionSyncStorage: { [key: string]: any } = { ...defaultExtensionSyncStorage }
+
+  onExtensionStorageChange?: (changes: {
+    [key: string]: { newValue: any; oldValue: any }
+  }) => void = () => {}
 
   /**
    * Key-value storage framework, faster and synchronous alternative to
@@ -23,26 +27,26 @@ export class StorageController {
    */
   mmkv: MMKV | null = null
 
-  handleOnStorageChange = (
+  constructor({ onExtensionStorageChange = () => {} } = {}) {
+    this.onExtensionStorageChange = onExtensionStorageChange
+  }
+
+  handleOnExtensionStorageChange = (
     changes: { [key: string]: { newValue: any; oldValue: any } },
     namespace: string
   ) => {
     if (namespace === 'local') {
       const allKeysChanged = Object.keys(changes)
 
-      const nextStorage = { ...this.storage }
+      const nextStorage = { ...this.extensionSyncStorage }
       allKeysChanged.forEach((key: string) => {
         nextStorage[key] = changes[key].newValue
       })
 
-      this.storage = { ...nextStorage }
+      this.extensionSyncStorage = { ...nextStorage }
+
+      this.onExtensionStorageChange(changes)
     }
-  }
-
-  constructor() {
-    if (this.isInitialized) return
-
-    this.init()
   }
 
   async init() {
@@ -51,16 +55,21 @@ export class StorageController {
       await browserAPI.storage.local.get().then((result: any) => {
         const err = StorageController.checkForError()
         if (!err) {
-          this.storage = { ...defaultState, ...result }
+          this.extensionSyncStorage = { ...defaultExtensionSyncStorage, ...result }
         }
       })
 
-      browserAPI.storage.onChanged.addListener(this.handleOnStorageChange)
+      browserAPI.storage.onChanged.addListener(this.handleOnExtensionStorageChange)
     } else {
       this.mmkv = new MMKV()
     }
 
     this.isInitialized = true
+
+    return () =>
+      isExtension
+        ? browserAPI.storage.onChanged.removeListener(this.handleOnExtensionStorageChange)
+        : null
   }
 
   /**
@@ -71,12 +80,11 @@ export class StorageController {
    */
   async isStorageLoaded() {
     if (this.isInitialized) {
-      return this.storage
+      return true
     }
 
     await this.init()
-
-    return this.storage
+    return true
   }
 
   static checkForError() {
@@ -92,19 +100,19 @@ export class StorageController {
     return new Error(lastError.message)
   }
 
-  getStorage() {
-    return this.storage
-  }
-
   getItem(key: string) {
-    return this.storage[key]
+    if (isExtension) {
+      return this.extensionSyncStorage[key]
+    }
+
+    return this.mmkv?.getString(key)
   }
 
   setItem(key: string, value: string) {
-    this.storage[key] = value
-
     if (isExtension) {
-      browserAPI.storage.local.set({ ...this.storage, [key]: value }).then(() => {
+      this.extensionSyncStorage[key] = value
+
+      browserAPI.storage.local.set({ ...this.extensionSyncStorage, [key]: value }).then(() => {
         const err = StorageController.checkForError()
         if (err) {
           // Handle errors.
@@ -116,9 +124,9 @@ export class StorageController {
   }
 
   removeItem(key: string) {
-    delete this.storage[key]
-
     if (isExtension) {
+      delete this.extensionSyncStorage[key]
+
       browserAPI.storage.local.remove([key]).then(() => {
         const err = StorageController.checkForError()
         if (err) {
