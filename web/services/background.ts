@@ -319,7 +319,7 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
     }
     log.info('ambirePageContext: web3CallRequest', message)
     const networkId = storageController.getItem('networkId') || NETWORKS.ethereum
-    const selectedAcc = storageController.getItem('selectedAccount')
+    const selectedAcc = storageController.getItem('selectedAcc')
     const network = networks.find((n) => n.id === networkId)
 
     if (!network || !selectedAcc) {
