@@ -6,10 +6,10 @@ import { arrayify, isHexString, toUtf8Bytes } from 'ethers/lib/utils'
 
 import { verifyMessage } from '@ambire/signature-validator'
 import CONFIG from '@config/env'
+import { StorageController } from '@modules/common/contexts/storageContext/storageController'
 import { decrypt, encrypt } from '@modules/common/services/passworder'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
-import { getStore, setItem } from '@web/functions/storage'
 
 import { Vault, VaultItem } from './types'
 
@@ -27,9 +27,13 @@ export default class VaultController {
 
   #memVault: Vault
 
-  constructor() {
+  storageController: StorageController
+
+  constructor(storageController: StorageController) {
     this.#password = null
     this.#memVault = null
+
+    this.storageController = storageController
   }
 
   isVaultUnlocked() {
@@ -42,13 +46,13 @@ export default class VaultController {
 
   // create a new empty vault encrypted with password
   async createVault({ password }: { password: string }) {
-    const store: any = (await getStore(['vault'])) || {}
+    const vault = this.storageController.getItem('vault')
 
     return new Promise((resolve, reject) => {
-      if (!store.vault) {
+      if (!vault) {
         encrypt(password, JSON.stringify({}))
           .then((blob: string) => {
-            setItem('vault', blob)
+            this.storageController.setItem('vault', blob)
             this.#password = password
             this.#memVault = {}
             resolve(VAULT_STATUS.UNLOCKED)
@@ -69,7 +73,7 @@ export default class VaultController {
     return new Promise((resolve, reject) => {
       encrypt(password, JSON.stringify({}))
         .then((blob: string) => {
-          setItem('vault', blob)
+          this.storageController.setItem('vault', blob)
           this.#password = password
           this.#memVault = {}
           resolve(VAULT_STATUS.UNLOCKED)
@@ -88,7 +92,7 @@ export default class VaultController {
       if (password === this.#password) {
         encrypt(newPassword, JSON.stringify({}))
           .then((blob: string) => {
-            setItem('vault', blob)
+            this.storageController.setItem('vault', blob)
             this.#password = newPassword
             resolve(VAULT_STATUS.UNLOCKED)
           })
@@ -102,12 +106,13 @@ export default class VaultController {
   }
 
   async unlockVault({ password }: { password: string }) {
-    const store: any = (await getStore(['vault'])) || {}
+    const vault = this.storageController.getItem('vault')
+
     return new Promise((resolve, reject) => {
-      decrypt(password, store.vault)
-        .then((vault: any) => {
+      decrypt(password, vault)
+        .then((_vault: any) => {
           this.#password = password
-          this.#memVault = JSON.parse(vault)
+          this.#memVault = JSON.parse(_vault)
           resolve(VAULT_STATUS.UNLOCKED)
         })
         .catch(() => {
@@ -121,17 +126,15 @@ export default class VaultController {
   }
 
   async addToVault({ addr, item }: { addr: string; item: VaultItem }) {
-    if (!this.#password) throw new Error('Unauthenticated')
+    if (!this.#password || this.#memVault === null) throw new Error('Unauthenticated')
 
-    const updatedVault = {
-      ...this.#memVault,
-      [addr]: item
-    }
+    const updatedVault = this.#memVault || {}
+    updatedVault[addr] = item
 
     return new Promise((resolve, reject) => {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
         .then((blob: string) => {
-          setItem('vault', blob)
+          this.storageController.setItem('vault', blob)
           this.#memVault = updatedVault
           resolve(true)
         })
@@ -142,18 +145,16 @@ export default class VaultController {
   }
 
   async removeFromVault({ addr }: { addr: string }) {
-    if (!this.#password) throw new Error('Unauthenticated')
+    if (!this.#password || this.#memVault === null) throw new Error('Unauthenticated')
 
-    const updatedVault = {
-      ...this.#memVault
-    }
+    const updatedVault = this.#memVault || {}
 
     delete updatedVault[addr]
 
     return new Promise((resolve, reject) => {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
         .then((blob: string) => {
-          setItem('vault', blob)
+          this.storageController.setItem('vault', blob)
           this.#memVault = updatedVault
           resolve(true)
         })
@@ -253,16 +254,74 @@ export default class VaultController {
     })
   }
 
+  async signMsgQuickAcc({
+    account,
+    network,
+    msgToSign,
+    dataV4,
+    isTypedData,
+    signature
+  }: {
+    account: any
+    network: any
+    msgToSign: any
+    dataV4: any
+    isTypedData: any
+    signature: any
+  }) {
+    if (!this.#memVault) throw new Error('Vault not initialized')
+
+    const vaultItem = this.#memVault[account?.signer?.address || account?.signer?.one]
+
+    if (!vaultItem) throw new Error('Signer not found')
+
+    const wallet = await Wallet.fromEncryptedJson(
+      JSON.parse(account?.primaryKeyBackup),
+      vaultItem.password as string
+    )
+
+    const sig = await (isTypedData
+      ? signMessage712(
+          wallet,
+          account.id,
+          account.signer,
+          dataV4.domain,
+          dataV4.types,
+          dataV4.message,
+          signature
+        )
+      : signMessage(
+          wallet,
+          account.id,
+          account.signer,
+          getMessageAsBytes(msgToSign.txn),
+          signature
+        ))
+
+    const provider = getProvider(network.id)
+
+    // eslint-disable-next-line @typescript-eslint/return-await
+    const isValidSig = await verifyMessage({
+      provider,
+      signer: account.id,
+      message: isTypedData ? null : getMessageAsBytes(msgToSign.txn),
+      typedData: isTypedData ? dataV4 : null,
+      signature: sig
+    })
+
+    return { sig, isValidSig }
+  }
+
   async signMsgExternalSigner({
     account,
     network,
-    toSign,
+    msgToSign,
     dataV4,
     isTypedData
   }: {
     account: any
     network: any
-    toSign: any
+    msgToSign: any
     dataV4: any
     isTypedData: any
   }) {
@@ -274,7 +333,7 @@ export default class VaultController {
 
     const wallet = new Wallet(vaultItem.signer)
 
-    const sig = await (toSign.type === 'eth_signTypedData_v4' || toSign.type === 'eth_signTypedData'
+    const sig = await (isTypedData
       ? signMessage712(
           wallet,
           account.id,
@@ -283,19 +342,19 @@ export default class VaultController {
           dataV4.types,
           dataV4.message
         )
-      : signMessage(wallet, account.id, account.signer, getMessageAsBytes(toSign.txn)))
+      : signMessage(wallet, account.id, account.signer, getMessageAsBytes(msgToSign.txn)))
 
     const provider = getProvider(network.id)
 
     // eslint-disable-next-line @typescript-eslint/return-await
-    await verifyMessage({
+    const isValidSig = await verifyMessage({
       provider,
       signer: account.id,
-      message: isTypedData ? null : getMessageAsBytes(toSign.txn),
+      message: isTypedData ? null : getMessageAsBytes(msgToSign.txn),
       typedData: isTypedData ? dataV4 : null,
       signature: sig
     })
 
-    return sig
+    return { sig, isValidSig }
   }
 }

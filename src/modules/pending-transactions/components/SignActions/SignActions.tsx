@@ -1,5 +1,5 @@
 import { isTokenEligible } from 'ambire-common/src/helpers/sendTxnHelpers'
-import { isValidCode, isValidPassword } from 'ambire-common/src/services/validations'
+import { isValidCode } from 'ambire-common/src/services/validations'
 import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -7,10 +7,8 @@ import { InteractionManager, Keyboard, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
 import { isWeb } from '@config/env'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
-import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
@@ -47,12 +45,10 @@ const SignActions = ({
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
     defaultValues: {
-      code: '',
-      password: ''
+      code: ''
     }
   })
   const { t } = useTranslation()
-  const { selectedAccHasPassword, getSelectedAccPassword } = useBiometricsSign()
   const { addToast } = useToast()
 
   // reset this every time the signing status changes
@@ -105,7 +101,7 @@ const SignActions = ({
 
   const handleRequestSignConfirmation = () => approveTxn({})
 
-  const onSubmit = async (values: { code: string; password: string }) => {
+  const onSubmit = async (values: { code: string }) => {
     InteractionManager.runAfterInteractions(async () => {
       try {
         return approveTxn({ code: values.code })
@@ -122,11 +118,7 @@ const SignActions = ({
         {feeNote}
         <View>
           {signingStatus.confCodeRequired === 'otp' && (
-            <Text style={spacings.mbSm}>
-              {selectedAccHasPassword
-                ? t('Please enter your OTP code.')
-                : t('Please enter your OTP code and your password.')}
-            </Text>
+            <Text style={spacings.mbSm}>{t('Please enter your OTP code.')}</Text>
           )}
           {signingStatus.confCodeRequired === 'notRequired' && (
             <Text style={spacings.mbSm} fontSize={12} color={colors.turquoise}>
@@ -135,39 +127,12 @@ const SignActions = ({
               )}
             </Text>
           )}
-          {signingStatus.passwordRequired &&
-            signingStatus.confCodeRequired === 'notRequired' &&
-            !selectedAccHasPassword && (
-              <Text style={spacings.mbSm}>{t('Please enter your password.')}</Text>
-            )}
           {signingStatus.confCodeRequired === 'email' && (
             <Text style={spacings.mbSm} weight="medium">
-              {signingStatus.passwordRequired
-                ? t(
-                    'A confirmation code was sent to your email, please enter it along with your password.'
-                  )
-                : t('A confirmation code was sent to your email.')}
+              {t('A confirmation code was sent to your email.')}
             </Text>
           )}
         </View>
-        {signingStatus.passwordRequired && !isRecoveryMode && !selectedAccHasPassword && (
-          <Controller
-            control={control}
-            rules={{ validate: isValidPassword }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <InputPassword
-                placeholder={t('Password')}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                disabled={signingStatus.inProgress}
-                containerStyle={signingStatus.confCodeRequired !== 'notRequired' && spacings.mbTy}
-                error={errors.password && (t('Please fill in a valid password.') as string)}
-              />
-            )}
-            name="password"
-          />
-        )}
         {signingStatus.confCodeRequired !== 'notRequired' && (
           <Controller
             control={control}
@@ -186,7 +151,7 @@ const SignActions = ({
                 autoCorrect={false}
                 isValid={isValidCode(value)}
                 value={value}
-                autoFocus={selectedAccHasPassword && !isWeb}
+                autoFocus
                 error={errors.code && (t('Invalid confirmation code.') as string)}
               />
             )}
@@ -200,9 +165,6 @@ const SignActions = ({
               text={signingStatus.inProgress ? t('Confirming...') : t('Confirm')}
               disabled={
                 signingStatus.inProgress ||
-                (!selectedAccHasPassword &&
-                  signingStatus.passwordRequired &&
-                  !watch('password', '')) ||
                 (signingStatus.confCodeRequired !== 'notRequired' && !watch('code', ''))
               }
               onPress={() => {

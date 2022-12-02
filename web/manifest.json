@@ -10,7 +10,7 @@
       "id": "webextension@ambire.com"
     }
   },
-  "permissions": ["storage", "tabs"],
+  "permissions": ["storage", "tabs", "alarms"],
   "background": {
     "service_worker": "background.js"
   },

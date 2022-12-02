@@ -1,10 +1,8 @@
-import { initRpcProviders } from 'ambire-common/src/services/provider'
-import React, { useEffect, useState } from 'react'
+import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
+import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
-import { isWeb } from '@config/env'
 import Router from '@config/Router'
-import { hasMigratedFromAsyncStorage, migrateFromAsyncStorage } from '@config/storage'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AppLockProvider } from '@modules/app-lock/contexts/appLockContext'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
@@ -36,34 +34,20 @@ import { rpcProviders } from '@modules/common/services/providers'
 import { VaultProvider } from '@modules/vault/contexts/vaultContext'
 
 // Initialize rpc providers for all networks
-initRpcProviders(rpcProviders)
+const shouldInitProviders = !areRpcProvidersInitialized()
+if (shouldInitProviders) {
+  initRpcProviders(rpcProviders)
+}
 
 const AppLoading = () => {
-  // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
-  const [hasMigrated, setHasMigrated] = useState(hasMigratedFromAsyncStorage)
   const { fontsLoaded } = useFonts()
 
-  useEffect(() => {
-    ;(async () => {
-      if (isWeb) return
-
-      if (!hasMigratedFromAsyncStorage) {
-        try {
-          await migrateFromAsyncStorage()
-          setHasMigrated(true)
-        } catch (e) {
-          throw new Error('AsyncStorage migration failed!')
-        }
-      }
-    })()
-  }, [])
-
-  if (!fontsLoaded || !hasMigrated) return null
+  if (!fontsLoaded) return null
 
   return (
     <PortalProvider>
-      <StorageProvider>
-        <LoaderProvider>
+      <LoaderProvider>
+        <StorageProvider>
           <ThemeProvider>
             <SafeAreaProvider>
               <KeyboardProvider>
@@ -116,8 +100,8 @@ const AppLoading = () => {
               </KeyboardProvider>
             </SafeAreaProvider>
           </ThemeProvider>
-        </LoaderProvider>
-      </StorageProvider>
+        </StorageProvider>
+      </LoaderProvider>
     </PortalProvider>
   )
 }

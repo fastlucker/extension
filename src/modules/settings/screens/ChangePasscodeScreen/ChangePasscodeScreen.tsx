@@ -107,11 +107,9 @@ const ChangePasscodeScreen: React.FC = () => {
             {t("Passcodes don't match!")}
           </Text>
         )}
-        {step === STEPS.NEW_PASSCODE && (
-          <CodeInput autoFocus={!isWeb} onFulfill={handleOnFulfillStep1} />
-        )}
+        {step === STEPS.NEW_PASSCODE && <CodeInput autoFocus onFulfill={handleOnFulfillStep1} />}
         {step === STEPS.CONFIRM_NEW_PASSCODE && (
-          <CodeInput autoFocus={!isWeb} onFulfill={handleOnFulfillStep2} />
+          <CodeInput autoFocus onFulfill={handleOnFulfillStep2} />
         )}
         {state !== PASSCODE_STATES.NO_PASSCODE && (
           <>

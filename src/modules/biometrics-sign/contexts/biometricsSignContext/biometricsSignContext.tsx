@@ -2,8 +2,8 @@ import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
-import { SyncStorage } from '@config/storage'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import { SECURE_STORE_KEY_ACCOUNT } from '@modules/settings/constants'
@@ -21,6 +21,7 @@ const getAccountSecureKey = (acc: string) => `${SECURE_STORE_KEY_ACCOUNT}-${acc}
 const BiometricsSignProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const { getItem, setItem, removeItem } = useStorageController()
   const { selectedAcc } = useAccounts()
   const [selectedAccHasPassword, setSelectedAccHasPassword] = useState<boolean>(
     biometricsSignContextDefaults.selectedAccHasPassword
@@ -35,7 +36,7 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
         // Because otherwise, figuring out if the selected account has password
         // via the `SecureStore` requires the user every time to
         // authenticate via his phone local auth.
-        const accountHasPassword = await SyncStorage.getItem(key)
+        const accountHasPassword = getItem(key)
 
         setSelectedAccHasPassword(!!accountHasPassword)
       } catch (e) {
@@ -45,7 +46,7 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
 
       setIsLoading(false)
     })()
-  }, [selectedAcc])
+  }, [selectedAcc, getItem])
 
   const addSelectedAccPassword = useCallback(
     async (password: string) => {
@@ -65,7 +66,7 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
         // Because otherwise, figuring out if the selected account has password
         // via the `SecureStore` requires the user every time to
         // authenticate via his phone local auth.
-        SyncStorage.setItem(key, 'true')
+        setItem(key, 'true')
 
         setSelectedAccHasPassword(true)
         return true
@@ -76,7 +77,7 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
         return false
       }
     },
-    [addToast, selectedAcc, t]
+    [addToast, selectedAcc, t, setItem]
   )
 
   const removeSelectedAccPassword = useCallback(
@@ -92,7 +93,7 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
           })
         )
 
-        SyncStorage.removeItem(key)
+        removeItem(key)
 
         // If the change is made for the selected account, clean up the other flag too.
         const isForTheSelectedAccount = !accountId
@@ -106,7 +107,7 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
         return false
       }
     },
-    [addToast, selectedAcc, t]
+    [addToast, selectedAcc, t, removeItem]
   )
 
   const getSelectedAccPassword = useCallback(() => {

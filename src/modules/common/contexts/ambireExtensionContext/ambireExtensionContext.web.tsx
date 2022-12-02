@@ -1,16 +1,12 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import { useMMKVListener } from 'react-native-mmkv'
 
-import { SyncStorage } from '@config/storage'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
-import useToast from '@modules/common/hooks/useToast'
 import { browserAPI } from '@web/constants/browserAPI'
 import { errorCodes } from '@web/constants/errors'
 import { BACKGROUND, CONTENT_SCRIPT } from '@web/constants/paths'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
-import { getStore } from '@web/functions/storage'
 import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
 
 import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from './types'
@@ -18,16 +14,16 @@ import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from
 const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
   ambireExtensionContextDefaults
 )
-
+const WORKER_KEEP_ALIVE_INTERVAL = 1000
+const WORKER_KEEP_ALIVE_MESSAGE = 'WORKER_KEEP_ALIVE_MESSAGE'
 const STORAGE_KEY = 'ambire_extension_state'
 
 // TODO: should be called only for extension. Skip if this code is used for web wallet
 !!setupAmbexMessenger && setupAmbexMessenger(CONTENT_SCRIPT, browserAPI)
 
 const AmbireExtensionProvider: React.FC = ({ children }) => {
-  const { selectedAcc: selectedAccount, account } = useAccounts()
+  const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
-  const { addToast } = useToast()
 
   const [connectedDapps, setConnectedDapps] = useState<
     {
@@ -48,25 +44,6 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
     key: STORAGE_KEY,
     defaultValue: [],
     setInit: (initialRequests) => (!Array.isArray(initialRequests) ? [] : initialRequests)
-  })
-
-  // Syncs browser async storage with the extension's local storage
-  // Browser local storage used mainly in the extension's background service
-  useMMKVListener(async (key) => {
-    const store: any = await getStore()
-    const value = SyncStorage.getItem(key)
-    let parsedValue
-    try {
-      parsedValue = JSON.parse(value as string)
-    } catch (e) {
-      parsedValue = value
-    }
-    store[key] = parsedValue
-    // local storage keeps only the networkId
-    // but the background service needs the whole network object
-    store.network = network || {}
-    store.selectedAcc = selectedAccount || ''
-    browserAPI?.storage?.local?.set(store)
   })
 
   // eth_sign, personal_sign
@@ -246,6 +223,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
   }, [isTempExtensionPopup])
 
   useEffect(() => {
+    let interval: any
     if (browserAPI.tabs) {
       browserAPI.tabs.query(
         {
@@ -256,6 +234,19 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
           setLastActiveTab(currentTab)
         }
       )
+      /*
+       * As long as UI is open it will keep sending messages to service worker
+       * In service worker as this message is received
+       * if service worker is inactive it is reactivated and script re-loaded
+       * Time has been kept to 1000ms but can be reduced for even faster re-activation of service worker
+       */
+      interval = setInterval(() => {
+        browserAPI.runtime.sendMessage({ name: WORKER_KEEP_ALIVE_MESSAGE })
+      }, WORKER_KEEP_ALIVE_INTERVAL)
+    }
+
+    return () => {
+      clearInterval(interval)
     }
   }, [])
 

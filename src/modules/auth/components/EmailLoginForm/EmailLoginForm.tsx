@@ -48,6 +48,7 @@ const EmailLoginScreen = () => {
             onChangeText={onChange}
             onSubmitEditing={handleSubmit(handleLogin)}
             value={value}
+            autoFocus={isWeb}
             isValid={isEmail(value)}
             validLabel={accountData ? t('Email address confirmed') : ''}
             keyboardType="email-address"
@@ -76,7 +77,12 @@ const EmailLoginScreen = () => {
               placeholder={t('Account password')}
               onChangeText={onChange}
               isValid={isValidPassword(value)}
+              autoFocus
               value={value}
+              info={t('Enter the password for account {{accountAddr}}', {
+                // eslint-disable-next-line no-underscore-dangle
+                accountAddr: `${accountData?._id?.slice(0, 4)}...${accountData?._id?.slice(-4)}`
+              })}
               error={
                 errors.password &&
                 (t('Please fill in at least 8 characters for password.') as string)

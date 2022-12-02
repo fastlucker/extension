@@ -82,6 +82,7 @@ const RecoveryPhraseForm = () => {
               }
               onChange(props)
             }}
+            autoFocus={isWeb}
             onSubmitEditing={handleFormSubmit}
             value={value}
             error={errors.signer && (t('Please fill in a valid recovery phrase.') as string)}
