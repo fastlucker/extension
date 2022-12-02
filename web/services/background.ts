@@ -39,7 +39,6 @@ log.setDefaultLevel(
 
 setupAmbexMessenger(BACKGROUND, browserAPI)
 // Initialize rpc providers for all networks
-
 const shouldInitProviders = !areRpcProvidersInitialized()
 if (shouldInitProviders) {
   initRpcProviders(rpcProviders)

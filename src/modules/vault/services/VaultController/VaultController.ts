@@ -122,12 +122,11 @@ export default class VaultController {
   }
 
   async addToVault({ addr, item }: { addr: string; item: VaultItem }) {
-    if (!this.#password) throw new Error('Unauthenticated')
+    if (!this.#password || this.#memVault === null) throw new Error('Unauthenticated')
 
-    const updatedVault = {
-      ...this.#memVault,
-      [addr]: item
-    }
+    const updatedVault = this.#memVault || {}
+    updatedVault[addr] = item
+
 
     return new Promise((resolve, reject) => {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
@@ -143,11 +142,10 @@ export default class VaultController {
   }
 
   async removeFromVault({ addr }: { addr: string }) {
-    if (!this.#password) throw new Error('Unauthenticated')
+    if (!this.#password || this.#memVault === null) throw new Error('Unauthenticated')
 
-    const updatedVault = {
-      ...this.#memVault
-    }
+    const updatedVault = this.#memVault || {}
+
 
     delete updatedVault[addr]
 
