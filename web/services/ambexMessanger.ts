@@ -389,7 +389,7 @@ const sendMessage = (message, options = {}) => {
         setTimeout(() => {
           if (!resolved) {
             removeMessageHandler(handlerFilter)
-            reject(new Error(`Timeout: no reply for message${JSON.stringify(message)}`))
+            reject(`Timeout: no reply for message${JSON.stringify(message)}`)
             log.debug(
               `${
                 RELAYER_VERBOSE_TAG[RELAYER]

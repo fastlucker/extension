@@ -3,7 +3,8 @@ module.exports = {
   rules: {
     'import/extensions': 'off',
     'class-methods-use-this': 'off',
-    'no-nested-ternary': 'off'
+    'no-nested-ternary': 'off',
+    'prefer-promise-reject-errors': 'off'
   },
   env: {
     "browser": true,

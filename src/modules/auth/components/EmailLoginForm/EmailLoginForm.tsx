@@ -92,32 +92,30 @@ const EmailLoginScreen = () => {
           name="password"
         />
       )}
-      <View style={spacings.mbTy}>
-        <Button
-          disabled={
-            !!requiresEmailConfFor ||
-            isSubmitting ||
-            !watch('email', '') ||
-            (accountData && !watch('password', ''))
-          }
-          type="outline"
-          text={
-            // eslint-disable-next-line no-nested-ternary
-            requiresEmailConfFor
-              ? t('Waiting Email Confirmation')
-              : // eslint-disable-next-line no-nested-ternary
-              isSubmitting
-              ? t('Loading...')
-              : !accountData
-              ? t('Confirm Email')
-              : t('Log In')
-          }
-          onPress={handleSubmit(handleLogin)}
-        />
-        {isWeb && !!requiresEmailConfFor && (
-          <Button type="ghost" text={t('Cancel Login Attempt')} onPress={cancelLoginAttempts} />
-        )}
-      </View>
+      <Button
+        disabled={
+          !!requiresEmailConfFor ||
+          isSubmitting ||
+          !watch('email', '') ||
+          (accountData && !watch('password', ''))
+        }
+        type="outline"
+        text={
+          // eslint-disable-next-line no-nested-ternary
+          requiresEmailConfFor
+            ? t('Waiting Email Confirmation')
+            : // eslint-disable-next-line no-nested-ternary
+            isSubmitting
+            ? t('Loading...')
+            : !accountData
+            ? t('Confirm Email')
+            : t('Log In')
+        }
+        onPress={handleSubmit(handleLogin)}
+      />
+      {isWeb && !!requiresEmailConfFor && (
+        <Button type="ghost" text={t('Cancel Login Attempt')} onPress={cancelLoginAttempts} />
+      )}
     </>
   )
 }

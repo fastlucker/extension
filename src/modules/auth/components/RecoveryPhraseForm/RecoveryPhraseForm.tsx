@@ -113,14 +113,12 @@ const RecoveryPhraseForm = () => {
         )}
         name="password"
       />
-      <View style={spacings.mbTy}>
-        <Button
-          disabled={isSubmitting || !watch('signer', '') || !watch('password', '')}
-          type="outline"
-          text={isSubmitting ? t('Logging in...') : t('Log In')}
-          onPress={handleFormSubmit}
-        />
-      </View>
+      <Button
+        disabled={isSubmitting || !watch('signer', '') || !watch('password', '')}
+        type="outline"
+        text={isSubmitting ? t('Logging in...') : t('Log In')}
+        onPress={handleFormSubmit}
+      />
     </>
   )
 }
