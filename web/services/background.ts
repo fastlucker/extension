@@ -5,6 +5,7 @@
 // Background workers are killed and respawned (chrome MV3) when contentScript are calling them.
 // Firefox does not support MV3 yet but is working on it.
 
+import networks, { NETWORKS } from 'ambire-common/src/constants/networks'
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
@@ -80,7 +81,6 @@ const broadcastExtensionDataOnChange = () => {
         if (key === 'selectedAcc') {
           broadcastExtensionDataChange('ambireWalletAccountChanged', { account: newValue })
         }
-        // TODO: Double-check key!
         if (key === 'networkId') {
           broadcastExtensionDataChange('ambireWalletChainChanged', { chainId: newValue.chainId })
         }
@@ -318,7 +318,9 @@ addMessageHandler({ type: 'web3Call' }, async (message) => {
       return
     }
     log.info('ambirePageContext: web3CallRequest', message)
-    const { network, selectedAcc } = storageController.getItems(['network', 'selectedAcc'])
+    const networkId = storageController.getItem('networkId') || NETWORKS.ethereum
+    const selectedAcc = storageController.getItem('selectedAccount')
+    const network = networks.find((n) => n.id === networkId)
 
     if (!network || !selectedAcc) {
       sendReply(message, {

@@ -42,7 +42,7 @@ export default class VaultController {
 
   // create a new empty vault encrypted with password
   async createVault({ password }: { password: string }) {
-    const vault = this.storageController.getItem('vault') || {}
+    const vault = this.storageController.getItem('vault')
 
     return new Promise((resolve, reject) => {
       if (!vault) {
@@ -102,7 +102,7 @@ export default class VaultController {
   }
 
   async unlockVault({ password }: { password: string }) {
-    const vault = this.storageController.getItem('vault') || {}
+    const vault = this.storageController.getItem('vault')
 
     return new Promise((resolve, reject) => {
       decrypt(password, vault)
@@ -127,7 +127,6 @@ export default class VaultController {
     const updatedVault = this.#memVault || {}
     updatedVault[addr] = item
 
-
     return new Promise((resolve, reject) => {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
         .then((blob: string) => {
@@ -145,7 +144,6 @@ export default class VaultController {
     if (!this.#password || this.#memVault === null) throw new Error('Unauthenticated')
 
     const updatedVault = this.#memVault || {}
-
 
     delete updatedVault[addr]
 

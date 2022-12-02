@@ -46,7 +46,7 @@ const VaultProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (isExtension) {
-      const vault = getItem('vault') || {}
+      const vault = getItem('vault')
       if (vault) {
         requestVaultControllerMethod({
           method: 'isVaultUnlocked'
