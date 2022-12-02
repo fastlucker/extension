@@ -1,21 +1,24 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Image, Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 
+import LockBackgroundIcon from '@assets/images/LockBackground.png'
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
-import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import useVault from '@modules/vault/hooks/useVault'
 
-const CreateVaultScreen = ({ navigation }: any) => {
+import styles from './styles'
+
+const UnlockVaultScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { unlockVault } = useVault()
 
@@ -33,6 +36,7 @@ const CreateVaultScreen = ({ navigation }: any) => {
 
   return (
     <GradientBackgroundWrapper>
+      <Image source={LockBackgroundIcon} style={styles.backgroundImg} />
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
@@ -43,8 +47,17 @@ const CreateVaultScreen = ({ navigation }: any) => {
           type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
           extraHeight={220}
         >
-          <AmbireLogo shouldExpand={false} />
-          <View style={[spacings.mbLg, spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
+          <View
+            style={[
+              !isWeb ? spacings.mbLg : spacings.mb0,
+              spacings.ph,
+              flexboxStyles.flex1,
+              flexboxStyles.justifyEnd
+            ]}
+          >
+            <Text weight="regular" style={spacings.mbTy} color={colors.titan_50}>
+              {t('Enter your Ambire Key Store Lock to unlock your wallet')}
+            </Text>
             <Controller
               control={control}
               rules={{ validate: isValidPassword }}
@@ -89,4 +102,4 @@ const CreateVaultScreen = ({ navigation }: any) => {
   )
 }
 
-export default CreateVaultScreen
+export default UnlockVaultScreen

@@ -1,20 +1,23 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
+import { Image, Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
+import LockBackgroundIcon from '@assets/images/LockBackground.png'
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
-import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import useVault from '@modules/vault/hooks/useVault'
+
+import styles from './styles'
 
 const CreateNewVaultScreen = ({ route }: any) => {
   const { t } = useTranslation()
@@ -37,6 +40,7 @@ const CreateNewVaultScreen = ({ route }: any) => {
 
   return (
     <GradientBackgroundWrapper>
+      <Image source={LockBackgroundIcon} style={styles.backgroundImg} />
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
@@ -47,10 +51,16 @@ const CreateNewVaultScreen = ({ route }: any) => {
           type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
           extraHeight={220}
         >
-          <AmbireLogo shouldExpand={false} />
-          <View style={[spacings.mbLg, spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
-            <Text weight="regular" style={spacings.mb}>
-              {t('Choose a password to protect your accounts/wallets on this device')}
+          <View
+            style={[
+              !isWeb ? spacings.mbLg : spacings.mb0,
+              spacings.ph,
+              flexboxStyles.flex1,
+              flexboxStyles.justifyEnd
+            ]}
+          >
+            <Text weight="regular" style={spacings.mb} color={colors.titan_50}>
+              {t('Create a password to protect your accounts/wallets on this device')}
             </Text>
 
             <Controller
