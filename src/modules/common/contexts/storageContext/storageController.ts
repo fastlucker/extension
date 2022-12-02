@@ -45,20 +45,18 @@ export class StorageController {
 
       this.extensionSyncStorage = { ...nextStorage }
 
-      this.onExtensionStorageChange(changes)
+      this.onExtensionStorageChange && this.onExtensionStorageChange(changes)
     }
   }
 
   async init() {
     if (isExtension) {
-      // TODO: Fallback to local storage (mobile & web with MMKV, extension with Chrome storage)
-      await browserAPI.storage.local.get().then((result: any) => {
-        const err = StorageController.checkForError()
-        if (!err) {
-          this.extensionSyncStorage = { ...defaultExtensionSyncStorage, ...result }
-        }
-      })
+      const result = await browserAPI.storage.local.get()
 
+      this.extensionSyncStorage = { ...defaultExtensionSyncStorage, ...result }
+
+      // Subscribe to changes in order to always keep in sync the
+      // local `extensionSyncStorage` with the browserAPI.storage.local
       browserAPI.storage.onChanged.addListener(this.handleOnExtensionStorageChange)
     } else {
       this.mmkv = new MMKV()
@@ -70,19 +68,6 @@ export class StorageController {
       isExtension
         ? browserAPI.storage.onChanged.removeListener(this.handleOnExtensionStorageChange)
         : null
-  }
-
-  static checkForError() {
-    const { lastError } = browserAPI.runtime
-    if (!lastError) {
-      return undefined
-    }
-    // if it quacks like an Error, its an Error
-    if (lastError.stack && lastError.message) {
-      return lastError
-    }
-    // repair incomplete error object (eg chromium v77)
-    return new Error(lastError.message)
   }
 
   getItem(key: string) {
@@ -97,12 +82,7 @@ export class StorageController {
     if (isExtension) {
       this.extensionSyncStorage[key] = value
 
-      browserAPI.storage.local.set({ ...this.extensionSyncStorage, [key]: value }).then(() => {
-        const err = StorageController.checkForError()
-        if (err) {
-          // Handle errors.
-        }
-      })
+      browserAPI.storage.local.set({ ...this.extensionSyncStorage, [key]: value })
     } else {
       this.mmkv?.set(key, value)
     }
@@ -112,12 +92,7 @@ export class StorageController {
     if (isExtension) {
       delete this.extensionSyncStorage[key]
 
-      browserAPI.storage.local.remove([key]).then(() => {
-        const err = StorageController.checkForError()
-        if (err) {
-          // Handle errors.
-        }
-      })
+      browserAPI.storage.local.remove([key])
     } else {
       this.mmkv?.delete(key)
     }
