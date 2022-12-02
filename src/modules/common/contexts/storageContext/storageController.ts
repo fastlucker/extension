@@ -1,5 +1,22 @@
 import { browserAPI } from '@web/constants/browserAPI'
 
+// TODO: use MMKV for the mobile app
+// import { MMKV } from 'react-native-mmkv'
+// export const storage: { [key: string]: any } = new MMKV()
+// export const SyncStorage: {
+//   getItem(key: string): string | null
+//   setItem(key: string, value: string): void
+//   removeItem(key: string): void
+// } = {
+//   getItem: (key: string) => storage.getString(key),
+//   setItem: (key: string, value: string) => {
+//     storage.set(key, value)
+//   },
+//   removeItem: (key: string) => {
+//     storage.delete(key)
+//   }
+// }
+
 const defaultState = {
   // which tabs are injected tabId => true
   TAB_INJECTIONS: {},
@@ -85,15 +102,6 @@ export class StorageController {
 
   getItem(key: string) {
     return this.storage[key]
-  }
-
-  getItems(keys: string[]) {
-    const result: { [key: string]: any } = {}
-    keys.forEach((key: string) => {
-      result[key] = this.storage[key]
-    })
-
-    return result
   }
 
   setItem(key: string, value: string) {
