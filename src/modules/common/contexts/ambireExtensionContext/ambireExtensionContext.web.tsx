@@ -210,17 +210,14 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
           to: BACKGROUND,
           type: 'getPermissionsList'
         }).then((reply) => {
-          // TODO: Figure out why the if is needed here, after all changes.
-          if (reply?.data) {
-            setConnectedDapps(() =>
-              Object.keys(reply.data).map((host) => {
-                return {
-                  host,
-                  status: reply.data?.[host]
-                }
-              })
-            )
-          }
+          setConnectedDapps(() =>
+            Object.keys(reply.data).map((host) => {
+              return {
+                host,
+                status: reply.data?.[host]
+              }
+            })
+          )
         })
     }
   }, [isTempExtensionPopup])
