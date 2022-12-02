@@ -14,13 +14,13 @@ const StorageContext = createContext<{
 
 const StorageProvider: React.FC = ({ children }) => {
   const storageControllerInstance = useMemo(() => new StorageController(), [])
-  const [isLoaded, setIsLoaded] = useState(storageControllerInstance.isInitialized)
+  const [isInitialized, setIsInitialized] = useState(storageControllerInstance.isInitialized)
 
   useEffect(() => {
     ;(async () => {
       const unsubscribe = await storageControllerInstance.init()
 
-      setIsLoaded(storageControllerInstance.isInitialized)
+      setIsInitialized(storageControllerInstance.isInitialized)
 
       return () => unsubscribe()
     })()
@@ -52,7 +52,7 @@ const StorageProvider: React.FC = ({ children }) => {
         [getItem, setItem, removeItem]
       )}
     >
-      {isLoaded ? children : null}
+      {isInitialized ? children : null}
     </StorageContext.Provider>
   )
 }
