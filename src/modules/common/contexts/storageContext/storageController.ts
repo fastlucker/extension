@@ -1,6 +1,4 @@
 import { browserAPI } from '@web/constants/browserAPI'
-import { CONTENT_SCRIPT } from '@web/constants/paths'
-import { sendMessage } from '@web/services/ambexMessanger'
 
 const defaultState = {
   // which tabs are injected tabId => true
@@ -28,7 +26,7 @@ export class StorageController {
         nextStorage[key] = changes[key].newValue
       })
 
-      this.storage = nextStorage
+      this.storage = { ...nextStorage }
     }
   }
 
@@ -45,7 +43,7 @@ export class StorageController {
     await browserAPI.storage.local.get().then((result: any) => {
       const err = StorageController.checkForError()
       if (!err) {
-        this.storage = result || { ...defaultState }
+        this.storage = { ...defaultState, ...result }
       }
     })
 
@@ -108,24 +106,6 @@ export class StorageController {
         // Handle errors.
       }
     })
-
-    sendMessage(
-      {
-        type: 'storageController',
-        to: CONTENT_SCRIPT,
-        data: {
-          method: 'setItem',
-          props: { key, value }
-        }
-      },
-      {
-        ignoreReply: true
-      }
-    )
-
-    // sendReply(message, {
-    //   data: { storage: this.storage }
-    // })
   }
 
   removeItem(key: string) {
