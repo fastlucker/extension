@@ -72,21 +72,6 @@ export class StorageController {
         : null
   }
 
-  /**
-   * Makes sure the storage is initialized before accessing it.
-   * Needed for processing the background queue, because the background process
-   * can go in inactive mode, and when inactive, the storage is not initially
-   * available until it loads again.
-   */
-  async isStorageLoaded() {
-    if (this.isInitialized) {
-      return true
-    }
-
-    await this.init()
-    return true
-  }
-
   static checkForError() {
     const { lastError } = browserAPI.runtime
     if (!lastError) {

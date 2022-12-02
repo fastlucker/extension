@@ -49,232 +49,391 @@ if (shouldInitProviders) {
 const PENDING_CALLBACKS = {}
 const PENDING_WEB3_RESPONSE_CALLBACKS = {}
 
-const storageController = new StorageController()
-addMessageHandler({ type: 'storageController' }, async (message) => {
-  if (storageController[message.data.method]) {
-    try {
-      const { key, value } = message.data.props || {}
-      // TODO: Should we await?
-      const res = await storageController[message.data.method](key, value)
-      sendReply(message, {
-        data: res
-      })
-    } catch (error) {
-      sendReply(message, {
-        error: error.message || error
-      })
-    }
-  } else {
-    sendReply(message, {
-      error: 'Storage controller not initialized'
-    })
-  }
-})
-
 log.debug('Background service restarted!')
 
-const broadcastExtensionDataOnChange = () => {
-  browserAPI.storage.onChanged.addListener((changes, namespace) => {
-    if (namespace === 'local') {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const [key, { newValue }] of Object.entries(changes)) {
-        if (key === 'selectedAcc') {
-          broadcastExtensionDataChange('ambireWalletAccountChanged', { account: newValue })
-        }
-        if (key === 'networkId') {
-          broadcastExtensionDataChange('ambireWalletChainChanged', { chainId: newValue.chainId })
-        }
-      }
+const broadcastExtensionDataOnChange = (changes: {
+  [key: string]: { newValue: any; oldValue: any }
+}) => {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const [key, { newValue }] of Object.entries(changes)) {
+    if (key === 'selectedAcc') {
+      broadcastExtensionDataChange('ambireWalletAccountChanged', { account: newValue })
     }
-  })
+    if (key === 'networkId') {
+      broadcastExtensionDataChange('ambireWalletChainChanged', { chainId: newValue.chainId })
+    }
+  }
 }
+
+const storageController = new StorageController({
+  onExtensionStorageChange: broadcastExtensionDataOnChange
+})
 
 ;(async () => {
   try {
-    await storageController.isStorageLoaded()
-
-    // Initial loading call
-    processBackgroundQueue()
-
-    broadcastExtensionDataOnChange()
-
-    const vaultController = new VaultController(storageController)
-
-    addMessageHandler({ type: 'vaultController' }, async (message) => {
-      if (vaultController[message.data.method]) {
-        try {
-          const res = await vaultController[message.data.method](message.data.props)
-          sendReply(message, {
-            data: res
-          })
-        } catch (error) {
-          sendReply(message, {
-            error: error.message || error
-          })
-        }
-      } else {
-        sendReply(message, {
-          error: 'Vault controller not initialized'
-        })
-      }
-    })
+    /**
+     * Makes sure the storage is initialized before accessing it.
+     * Needed for processing the background queue, because the background process
+     * can go in inactive mode, and when inactive, the storage is not initially
+     * available until it loads again.
+     */
+    await storageController.init()
   } catch (error) {
     log.error('Storage failed to load.', e)
   }
-})()
 
-// MESSAGE HANDLERS START HERE
+  // Initial loading call
+  processBackgroundQueue()
+
+  const vaultController = new VaultController(storageController)
+
+  /**
+   * START all message handles in here, that require access to the storage
+   * and that require the storage to be initialized first.
+   */
+  addMessageHandler({ type: 'vaultController' }, async (message) => {
+    if (vaultController[message.data.method]) {
+      try {
+        const res = await vaultController[message.data.method](message.data.props)
+        sendReply(message, {
+          data: res
+        })
+      } catch (error) {
+        sendReply(message, {
+          error: error.message || error
+        })
+      }
+    } else {
+      sendReply(message, {
+        error: 'Vault controller not initialized'
+      })
+    }
+  })
+
+  // Save properly injected tabs
+  addMessageHandler({ type: 'pageContextInjected' }, (message) => {
+    const tabInjections = storageController.getItem('TAB_INJECTIONS')
+    const permissions = storageController.getItem('PERMISSIONS')
+
+    const nextTabInjections = {
+      ...tabInjections,
+      [message.fromTabId]: true
+    }
+
+    storageController.setItem('TAB_INJECTIONS', nextTabInjections)
+
+    updateExtensionIcon(
+      message.fromTabId,
+      nextTabInjections,
+      permissions,
+      PENDING_CALLBACKS,
+      PENDING_WEB3_RESPONSE_CALLBACKS
+    )
+  })
+
+  // User sends back a reply from the request permission popup
+  addMessageHandler({ type: 'grantPermission' }, (message) => {
+    const tabInjections = storageController.getItem('TAB_INJECTIONS')
+    const permissions = storageController.getItem('PERMISSIONS')
+
+    if (PENDING_CALLBACKS[message.data.targetHost]) {
+      PENDING_CALLBACKS[message.data.targetHost].callbacks.forEach((c) => {
+        c(message.data.permitted)
+      })
+      delete PENDING_CALLBACKS[message.data.targetHost]
+    }
+
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const i in tabInjections) {
+      updateExtensionIcon(
+        i,
+        tabInjections,
+        permissions,
+        PENDING_CALLBACKS,
+        PENDING_WEB3_RESPONSE_CALLBACKS
+      )
+    }
+
+    sendReply(message, {
+      data: 'done'
+    })
+  })
+
+  // User sends back a reply from the request permission popup
+  addMessageHandler({ type: 'clearPendingCallback' }, (message) => {
+    const tabInjections = storageController.getItem('TAB_INJECTIONS')
+    const permissions = storageController.getItem('PERMISSIONS')
+
+    if (PENDING_CALLBACKS[message.data.targetHost]) {
+      delete PENDING_CALLBACKS[message.data.targetHost]
+    }
+    if (PENDING_WEB3_RESPONSE_CALLBACKS[message.data.targetHost]) {
+      delete PENDING_WEB3_RESPONSE_CALLBACKS[message.data.targetHost]
+    }
+
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const i in tabInjections) {
+      updateExtensionIcon(
+        i,
+        tabInjections,
+        permissions,
+        PENDING_CALLBACKS,
+        PENDING_WEB3_RESPONSE_CALLBACKS
+      )
+    }
+  })
+
+  // User confirms or rejects web3Call from the extension or an extension popup
+  addMessageHandler({ type: 'web3CallResponse' }, (msg) => {
+    const tabInjections = storageController.getItem('TAB_INJECTIONS')
+    const permissions = storageController.getItem('PERMISSIONS')
+
+    const message = msg.data.originalMessage
+    const host = message.host
+    if (PENDING_WEB3_RESPONSE_CALLBACKS[host]) {
+      PENDING_WEB3_RESPONSE_CALLBACKS[host].callbacks.forEach((c) => {
+        c(msg.data)
+      })
+      delete PENDING_WEB3_RESPONSE_CALLBACKS[host]
+    }
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const i in tabInjections) {
+      updateExtensionIcon(
+        i,
+        tabInjections,
+        permissions,
+        PENDING_CALLBACKS,
+        PENDING_WEB3_RESPONSE_CALLBACKS
+      )
+    }
+    sendReply(msg, {
+      data: 'done'
+    })
+  })
+
+  // The Ambire extension requests list of permissions
+  addMessageHandler({ type: 'getPermissionsList' }, (message) => {
+    const permissions = storageController.getItem('PERMISSIONS')
+
+    sendReply(message, {
+      data: permissions
+    })
+  })
+
+  // The Ambire extension requests permission removal from the list of permissions
+  addMessageHandler({ type: 'removeFromPermissionsList' }, (message) => {
+    const tabInjections = storageController.getItem('TAB_INJECTIONS')
+    const permissions = storageController.getItem('PERMISSIONS')
+
+    delete permissions[message.data.host]
+
+    storageController.setItem('PERMISSIONS', permissions)
+    storageController.setItem('USER_ACTION_NOTIFICATIONS', {})
+    sendAck(message)
+
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const i in tabInjections) {
+      updateExtensionIcon(
+        i,
+        tabInjections,
+        permissions,
+        PENDING_CALLBACKS,
+        PENDING_WEB3_RESPONSE_CALLBACKS
+      )
+    }
+  })
+
+  // Handling web3 calls
+  addMessageHandler({ type: 'web3Call' }, (message) => {
+    requestPermission(message, async (granted) => {
+      const payload = message.data
+      const method = payload.method
+
+      if (!granted) {
+        if (method === 'eth_accounts' || method === 'eth_chainId' || method === 'net_version') {
+          sendReply(message, {
+            data: {
+              jsonrpc: '2.0',
+              id: payload.id,
+              result: method === 'eth_accounts' ? [] : null
+            }
+          })
+        } else {
+          sendReply(message, {
+            data: {
+              jsonrpc: '2.0',
+              id: payload.id,
+              error: { message: 'Permissions denied!', code: errorCodes.provider.unauthorized }
+            }
+          })
+        }
+        return
+      }
+      log.info('ambirePageContext: web3CallRequest', message)
+      const networkId = storageController.getItem('networkId') || NETWORKS.ethereum
+      const selectedAcc = storageController.getItem('selectedAcc')
+      const network = networks.find((n) => n.id === networkId)
+
+      if (!network || !selectedAcc) {
+        sendReply(message, {
+          data: {
+            jsonrpc: '2.0',
+            id: payload.id,
+            error: { message: 'Internal extension wallet error!', code: errorCodes.rpc.internal }
+          }
+        })
+        return
+      }
+
+      const provider = getDefaultProvider(network.rpc)
+      let deferredReply = false
+
+      const callTx = payload.params
+      let result
+      let error
+      if (method === 'eth_accounts' || method === 'eth_requestAccounts') {
+        result = [selectedAcc]
+      } else if (method === 'eth_chainId' || method === 'net_version') {
+        result = ethers.utils.hexlify(network.chainId)
+      } else if (method === 'wallet_requestPermissions') {
+        result = [{ parentCapability: 'eth_accounts' }]
+      } else if (method === 'wallet_getPermissions') {
+        result = [{ parentCapability: 'eth_accounts' }]
+      } else if (method === 'eth_coinbase') {
+        result = selectedAcc
+      } else if (method === 'eth_call') {
+        result = await provider.call(callTx[0], callTx[1]).catch((err) => {
+          error = err
+        })
+      } else if (method === 'eth_getBalance') {
+        result = await provider.getBalance(callTx[0], callTx[1]).catch((err) => {
+          error = err
+        })
+        if (result) {
+          result = sanitize2hex(result)
+        }
+      } else if (method === 'eth_blockNumber') {
+        result = await provider.getBlockNumber().catch((err) => {
+          error = err
+        })
+        if (result) result = sanitize2hex(result)
+      } else if (method === 'eth_getBlockByHash') {
+        if (callTx[1]) {
+          result = await provider.getBlockWithTransactions(callTx[0]).catch((err) => {
+            error = err
+          })
+          if (result) {
+            result.baseFeePerGas = sanitize2hex(result.baseFeePerGas)
+            result.gasLimit = sanitize2hex(result.gasLimit)
+            result.gasUsed = sanitize2hex(result.gasUsed)
+            result._difficulty = sanitize2hex(result._difficulty)
+          }
+        } else {
+          result = await provider.getBlock(callTx[0]).catch((err) => {
+            error = err
+          })
+        }
+      } else if (method === 'eth_getTransactionByHash') {
+        result = await provider.getTransaction(callTx[0]).catch((err) => {
+          error = err
+        })
+        if (result) {
+          // need to return hex numbers, provider returns BigNumber
+          result.gasLimit = sanitize2hex(result.gasLimit)
+          result.gasPrice = sanitize2hex(result.gasPrice)
+          result.value = sanitize2hex(result.value)
+          result.wait = null
+        }
+      } else if (method === 'eth_getCode') {
+        result = await provider.getCode(callTx[0], callTx[1]).catch((err) => {
+          error = err
+        })
+      } else if (method === 'eth_gasPrice') {
+        result = await provider.getGasPrice().catch((err) => {
+          error = err
+        })
+        if (result) result = sanitize2hex(result)
+      } else if (method === 'eth_estimateGas') {
+        result = await provider.estimateGas(callTx[0]).catch((err) => {
+          error = err
+        })
+        if (result) result = sanitize2hex(result)
+      } else if (method === 'eth_getBlockByNumber') {
+        result = await provider.getBlock(callTx[0], callTx[1]).catch((err) => {
+          error = err
+        })
+        if (result) {
+          result.baseFeePerGas = sanitize2hex(result.baseFeePerGas)
+          result.gasLimit = sanitize2hex(result.gasLimit)
+          result.gasUsed = sanitize2hex(result.gasUsed)
+          result._difficulty = sanitize2hex(result._difficulty)
+        }
+        log.trace('Result', result, error)
+      } else if (method === 'eth_getTransactionReceipt') {
+        result = await provider.getTransactionReceipt(callTx[0]).catch((err) => {
+          error = err
+        })
+        if (result) {
+          result.cumulativeGasUsed = sanitize2hex(result.cumulativeGasUsed)
+          result.effectiveGasPrice = sanitize2hex(result.effectiveGasPrice)
+          result.gasUsed = sanitize2hex(result.gasUsed)
+          result._difficulty = sanitize2hex(result._difficulty)
+        }
+      } else if (method === 'eth_getTransactionCount') {
+        result = await provider.getTransactionCount(callTx[0]).catch((err) => {
+          error = err
+        })
+        if (result) result = sanitize2hex(result)
+      } else if (USER_INTERVENTION_METHODS[method]) {
+        deferredReply = true
+        sendUserInterventionMessage(message, async (res) => {
+          sendReply(res.originalMessage, {
+            data: res.rpcResult
+          })
+        })
+      } else {
+        error = {
+          message: `Ambire doesn't support this method: ${method}`,
+          code: errorCodes.rpc.methodNotSupported
+        }
+      }
+
+      if (error) {
+        log.error('Throwing error with: ', message)
+        sendReply(message, {
+          data: {
+            jsonrpc: '2.0',
+            id: payload.id,
+            error
+          }
+        })
+      } else if (!deferredReply) {
+        const rpcResult = {
+          jsonrpc: '2.0',
+          id: payload.id,
+          result
+        }
+
+        log.info('Replying to request with: ', rpcResult)
+
+        sendReply(message, {
+          data: rpcResult
+        })
+      }
+    })
+  })
+
+  /**
+   * END all message handles in here, that require access to the storage
+   * and that require the storage to be initialized first.
+   */
+})()
 
 // When CONTENT_SCRIPT is injected, prepare injection of PAGE_CONTEXT
 addMessageHandler({ type: 'contentScriptInjected' }, (message) => {
   sendReply(message, {
     data: { ack: true }
   })
-})
-
-// Save properly injected tabs
-addMessageHandler({ type: 'pageContextInjected' }, async (message) => {
-  await storageController.isStorageLoaded()
-
-  const tabInjections = storageController.getItem('TAB_INJECTIONS')
-  const permissions = storageController.getItem('PERMISSIONS')
-
-  const nextTabInjections = {
-    ...tabInjections,
-    [message.fromTabId]: true
-  }
-
-  storageController.setItem('TAB_INJECTIONS', nextTabInjections)
-
-  updateExtensionIcon(
-    message.fromTabId,
-    nextTabInjections,
-    permissions,
-    PENDING_CALLBACKS,
-    PENDING_WEB3_RESPONSE_CALLBACKS
-  )
-})
-
-// User sends back a reply from the request permission popup
-addMessageHandler({ type: 'grantPermission' }, async (message) => {
-  await storageController.isStorageLoaded()
-
-  const tabInjections = storageController.getItem('TAB_INJECTIONS')
-  const permissions = storageController.getItem('PERMISSIONS')
-
-  if (PENDING_CALLBACKS[message.data.targetHost]) {
-    PENDING_CALLBACKS[message.data.targetHost].callbacks.forEach((c) => {
-      c(message.data.permitted)
-    })
-    delete PENDING_CALLBACKS[message.data.targetHost]
-  }
-
-  // eslint-disable-next-line no-restricted-syntax, guard-for-in
-  for (const i in tabInjections) {
-    updateExtensionIcon(
-      i,
-      tabInjections,
-      permissions,
-      PENDING_CALLBACKS,
-      PENDING_WEB3_RESPONSE_CALLBACKS
-    )
-  }
-
-  sendReply(message, {
-    data: 'done'
-  })
-})
-
-// User sends back a reply from the request permission popup
-addMessageHandler({ type: 'clearPendingCallback' }, async (message) => {
-  await storageController.isStorageLoaded()
-
-  const tabInjections = storageController.getItem('TAB_INJECTIONS')
-  const permissions = storageController.getItem('PERMISSIONS')
-
-  if (PENDING_CALLBACKS[message.data.targetHost]) {
-    delete PENDING_CALLBACKS[message.data.targetHost]
-  }
-  if (PENDING_WEB3_RESPONSE_CALLBACKS[message.data.targetHost]) {
-    delete PENDING_WEB3_RESPONSE_CALLBACKS[message.data.targetHost]
-  }
-
-  // eslint-disable-next-line no-restricted-syntax, guard-for-in
-  for (const i in tabInjections) {
-    updateExtensionIcon(
-      i,
-      tabInjections,
-      permissions,
-      PENDING_CALLBACKS,
-      PENDING_WEB3_RESPONSE_CALLBACKS
-    )
-  }
-})
-
-// User confirms or rejects web3Call from the extension or an extension popup
-addMessageHandler({ type: 'web3CallResponse' }, async (msg) => {
-  await storageController.isStorageLoaded()
-
-  const tabInjections = storageController.getItem('TAB_INJECTIONS')
-  const permissions = storageController.getItem('PERMISSIONS')
-
-  const message = msg.data.originalMessage
-  const host = message.host
-  if (PENDING_WEB3_RESPONSE_CALLBACKS[host]) {
-    PENDING_WEB3_RESPONSE_CALLBACKS[host].callbacks.forEach((c) => {
-      c(msg.data)
-    })
-    delete PENDING_WEB3_RESPONSE_CALLBACKS[host]
-  }
-  // eslint-disable-next-line no-restricted-syntax, guard-for-in
-  for (const i in tabInjections) {
-    updateExtensionIcon(
-      i,
-      tabInjections,
-      permissions,
-      PENDING_CALLBACKS,
-      PENDING_WEB3_RESPONSE_CALLBACKS
-    )
-  }
-  sendReply(msg, {
-    data: 'done'
-  })
-})
-
-// The Ambire extension requests list of permissions
-addMessageHandler({ type: 'getPermissionsList' }, async (message) => {
-  await storageController.isStorageLoaded()
-
-  const permissions = storageController.getItem('PERMISSIONS')
-
-  sendReply(message, {
-    data: permissions
-  })
-})
-
-// The Ambire extension requests permission removal from the list of permissions
-addMessageHandler({ type: 'removeFromPermissionsList' }, async (message) => {
-  await storageController.isStorageLoaded()
-
-  const tabInjections = storageController.getItem('TAB_INJECTIONS')
-  const permissions = storageController.getItem('PERMISSIONS')
-
-  delete permissions[message.data.host]
-
-  storageController.setItem('PERMISSIONS', permissions)
-  storageController.setItem('USER_ACTION_NOTIFICATIONS', {})
-  sendAck(message)
-
-  // eslint-disable-next-line no-restricted-syntax, guard-for-in
-  for (const i in tabInjections) {
-    updateExtensionIcon(
-      i,
-      tabInjections,
-      permissions,
-      PENDING_CALLBACKS,
-      PENDING_WEB3_RESPONSE_CALLBACKS
-    )
-  }
 })
 
 const sanitize2hex = (any) => {
@@ -288,190 +447,6 @@ const sanitize2hex = (any) => {
   }
   return BigNumber.from(any).toHexString()
 }
-
-// Handling web3 calls
-addMessageHandler({ type: 'web3Call' }, async (message) => {
-  await storageController.isStorageLoaded()
-
-  requestPermission(message, async (granted) => {
-    const payload = message.data
-    const method = payload.method
-
-    if (!granted) {
-      if (method === 'eth_accounts' || method === 'eth_chainId' || method === 'net_version') {
-        sendReply(message, {
-          data: {
-            jsonrpc: '2.0',
-            id: payload.id,
-            result: method === 'eth_accounts' ? [] : null
-          }
-        })
-      } else {
-        sendReply(message, {
-          data: {
-            jsonrpc: '2.0',
-            id: payload.id,
-            error: { message: 'Permissions denied!', code: errorCodes.provider.unauthorized }
-          }
-        })
-      }
-      return
-    }
-    log.info('ambirePageContext: web3CallRequest', message)
-    const networkId = storageController.getItem('networkId') || NETWORKS.ethereum
-    const selectedAcc = storageController.getItem('selectedAcc')
-    const network = networks.find((n) => n.id === networkId)
-
-    if (!network || !selectedAcc) {
-      sendReply(message, {
-        data: {
-          jsonrpc: '2.0',
-          id: payload.id,
-          error: { message: 'Internal extension wallet error!', code: errorCodes.rpc.internal }
-        }
-      })
-      return
-    }
-
-    const provider = getDefaultProvider(network.rpc)
-    let deferredReply = false
-
-    const callTx = payload.params
-    let result
-    let error
-    if (method === 'eth_accounts' || method === 'eth_requestAccounts') {
-      result = [selectedAcc]
-    } else if (method === 'eth_chainId' || method === 'net_version') {
-      result = ethers.utils.hexlify(network.chainId)
-    } else if (method === 'wallet_requestPermissions') {
-      result = [{ parentCapability: 'eth_accounts' }]
-    } else if (method === 'wallet_getPermissions') {
-      result = [{ parentCapability: 'eth_accounts' }]
-    } else if (method === 'eth_coinbase') {
-      result = selectedAcc
-    } else if (method === 'eth_call') {
-      result = await provider.call(callTx[0], callTx[1]).catch((err) => {
-        error = err
-      })
-    } else if (method === 'eth_getBalance') {
-      result = await provider.getBalance(callTx[0], callTx[1]).catch((err) => {
-        error = err
-      })
-      if (result) {
-        result = sanitize2hex(result)
-      }
-    } else if (method === 'eth_blockNumber') {
-      result = await provider.getBlockNumber().catch((err) => {
-        error = err
-      })
-      if (result) result = sanitize2hex(result)
-    } else if (method === 'eth_getBlockByHash') {
-      if (callTx[1]) {
-        result = await provider.getBlockWithTransactions(callTx[0]).catch((err) => {
-          error = err
-        })
-        if (result) {
-          result.baseFeePerGas = sanitize2hex(result.baseFeePerGas)
-          result.gasLimit = sanitize2hex(result.gasLimit)
-          result.gasUsed = sanitize2hex(result.gasUsed)
-          result._difficulty = sanitize2hex(result._difficulty)
-        }
-      } else {
-        result = await provider.getBlock(callTx[0]).catch((err) => {
-          error = err
-        })
-      }
-    } else if (method === 'eth_getTransactionByHash') {
-      result = await provider.getTransaction(callTx[0]).catch((err) => {
-        error = err
-      })
-      if (result) {
-        // need to return hex numbers, provider returns BigNumber
-        result.gasLimit = sanitize2hex(result.gasLimit)
-        result.gasPrice = sanitize2hex(result.gasPrice)
-        result.value = sanitize2hex(result.value)
-        result.wait = null
-      }
-    } else if (method === 'eth_getCode') {
-      result = await provider.getCode(callTx[0], callTx[1]).catch((err) => {
-        error = err
-      })
-    } else if (method === 'eth_gasPrice') {
-      result = await provider.getGasPrice().catch((err) => {
-        error = err
-      })
-      if (result) result = sanitize2hex(result)
-    } else if (method === 'eth_estimateGas') {
-      result = await provider.estimateGas(callTx[0]).catch((err) => {
-        error = err
-      })
-      if (result) result = sanitize2hex(result)
-    } else if (method === 'eth_getBlockByNumber') {
-      result = await provider.getBlock(callTx[0], callTx[1]).catch((err) => {
-        error = err
-      })
-      if (result) {
-        result.baseFeePerGas = sanitize2hex(result.baseFeePerGas)
-        result.gasLimit = sanitize2hex(result.gasLimit)
-        result.gasUsed = sanitize2hex(result.gasUsed)
-        result._difficulty = sanitize2hex(result._difficulty)
-      }
-      log.trace('Result', result, error)
-    } else if (method === 'eth_getTransactionReceipt') {
-      result = await provider.getTransactionReceipt(callTx[0]).catch((err) => {
-        error = err
-      })
-      if (result) {
-        result.cumulativeGasUsed = sanitize2hex(result.cumulativeGasUsed)
-        result.effectiveGasPrice = sanitize2hex(result.effectiveGasPrice)
-        result.gasUsed = sanitize2hex(result.gasUsed)
-        result._difficulty = sanitize2hex(result._difficulty)
-      }
-    } else if (method === 'eth_getTransactionCount') {
-      result = await provider.getTransactionCount(callTx[0]).catch((err) => {
-        error = err
-      })
-      if (result) result = sanitize2hex(result)
-    } else if (USER_INTERVENTION_METHODS[method]) {
-      deferredReply = true
-      sendUserInterventionMessage(message, async (res) => {
-        sendReply(res.originalMessage, {
-          data: res.rpcResult
-        })
-      })
-    } else {
-      error = {
-        message: `Ambire doesn't support this method: ${method}`,
-        code: errorCodes.rpc.methodNotSupported
-      }
-    }
-
-    if (error) {
-      log.error('Throwing error with: ', message)
-      sendReply(message, {
-        data: {
-          jsonrpc: '2.0',
-          id: payload.id,
-          error
-        }
-      })
-    } else if (!deferredReply) {
-      const rpcResult = {
-        jsonrpc: '2.0',
-        id: payload.id,
-        result
-      }
-
-      log.info('Replying to request with: ', rpcResult)
-
-      sendReply(message, {
-        data: rpcResult
-      })
-    }
-  })
-})
-
-// MESSAGE HANDLERS END HERE
 
 const openExtensionInPopup = async (host, queue, route) => {
   // For some reason, chrome defined at the top, at the moment of code execution does not return any windows information but browser (which is supposed to alias chrome) has
@@ -571,10 +546,8 @@ const sendUserInterventionMessage = async (message, callback) => {
 }
 
 // Returns wether a message is allow to transact or if host is unknown, show permission popup
-const requestPermission = async (message, callback) => {
+const requestPermission = (message, callback) => {
   log.debug('Request permission for: ', message)
-
-  await storageController.isStorageLoaded()
 
   const tabInjections = storageController.getItem('TAB_INJECTIONS')
   const permissions = storageController.getItem('PERMISSIONS')
