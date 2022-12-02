@@ -60,7 +60,7 @@ const broadcastExtensionDataOnChange = (changes: {
       broadcastExtensionDataChange('ambireWalletAccountChanged', { account: newValue })
     }
     if (key === 'networkId') {
-      const network = networks.find((n) => n.id === newValue.chainId)
+      const network = networks.find((n) => n.id === newValue)
       if (network) {
         const { chainId } = network
         broadcastExtensionDataChange('ambireWalletChainChanged', { chainId })
