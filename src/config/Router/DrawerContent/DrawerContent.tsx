@@ -119,17 +119,19 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       >
         <GasIndicator handleNavigate={handleNavigate} />
       </View>
-      <View style={[styles.quickActionsContainer, spacings.phLg, spacings.mbTy]}>
-        <TouchableOpacity
-          style={[styles.lockBtn, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
-          onPress={lockVault}
-        >
-          <LockIcon height={20} color={colors.chetwode} />
-          <Text color={colors.chetwode} weight="regular">
-            {t('Lock')}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {isWeb && (
+        <View style={[styles.quickActionsContainer, spacings.phLg, spacings.mbTy]}>
+          <TouchableOpacity
+            style={[styles.lockBtn, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
+            onPress={lockVault}
+          >
+            <LockIcon height={20} color={colors.chetwode} />
+            <Text color={colors.chetwode} weight="regular">
+              {t('Lock')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <View style={spacings.mhLg}>
         <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
           {t('Menu')}
