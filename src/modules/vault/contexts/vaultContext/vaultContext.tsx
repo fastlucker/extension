@@ -43,6 +43,11 @@ const VaultProvider: React.FC = ({ children }) => {
   const { onRemoveAllAccounts } = useAccounts()
   const { getItem, storageControllerInstance } = useStorageController()
 
+  /**
+   * For the extension, we need to get vault status from background.
+   * For the web and mobile app, create a new instance of VaultController,
+   * and use this instance (singleton) instead.
+   */
   const vaultController = useMemo(
     () => !isExtension && new VaultController(storageControllerInstance),
     [storageControllerInstance]
@@ -63,7 +68,7 @@ const VaultProvider: React.FC = ({ children }) => {
         setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
       })
     } else {
-      const isUnlocked = vaultController.isVaultUnlocked()
+      const isUnlocked = (vaultController as VaultController).isVaultUnlocked()
       setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
     }
   }, [vaultController, getItem])
@@ -86,7 +91,7 @@ const VaultProvider: React.FC = ({ children }) => {
                 password
               }
             })
-          : vaultController.createVault({ password })
+          : (vaultController as VaultController).createVault({ password })
         ).then(() => {
           // Automatically unlock after vault initialization
           setVaultStatus(VAULT_STATUS.UNLOCKED)
@@ -116,7 +121,7 @@ const VaultProvider: React.FC = ({ children }) => {
                 password
               }
             })
-          : vaultController.resetVault({ password })
+          : (vaultController as VaultController).resetVault({ password })
         ).then(() => {
           onRemoveAllAccounts()
           // Automatically unlock after vault initialization
@@ -136,7 +141,7 @@ const VaultProvider: React.FC = ({ children }) => {
             method: 'unlockVault',
             props
           })
-        : vaultController.unlockVault(props)
+        : (vaultController as VaultController).unlockVault(props)
       )
         .then(() => {
           setVaultStatus(VAULT_STATUS.UNLOCKED)
@@ -167,7 +172,7 @@ const VaultProvider: React.FC = ({ children }) => {
         })
     }
 
-    const res = vaultController.lockVault()
+    const res = (vaultController as VaultController).lockVault()
     if (vaultStatus !== VAULT_STATUS.LOADING && vaultStatus !== VAULT_STATUS.NOT_INITIALIZED) {
       setVaultStatus(res)
     }
@@ -184,7 +189,7 @@ const VaultProvider: React.FC = ({ children }) => {
         return res as boolean
       }
 
-      return vaultController.isValidPassword(props)
+      return (vaultController as VaultController).isValidPassword(props)
     },
     [vaultController]
   )
@@ -196,7 +201,7 @@ const VaultProvider: React.FC = ({ children }) => {
             method: 'addToVault',
             props
           })
-        : vaultController.addToVault(props))
+        : (vaultController as VaultController).addToVault(props))
 
       return res
     },
@@ -210,7 +215,7 @@ const VaultProvider: React.FC = ({ children }) => {
             method: 'removeFromVault',
             props
           })
-        : vaultController.removeFromVault(props))
+        : (vaultController as VaultController).removeFromVault(props))
 
       return res
     },
@@ -228,7 +233,7 @@ const VaultProvider: React.FC = ({ children }) => {
         return res as boolean
       }
 
-      return vaultController.isSignerAddedToVault(props)
+      return (vaultController as VaultController).isSignerAddedToVault(props)
     },
     [vaultController]
   )
@@ -244,7 +249,7 @@ const VaultProvider: React.FC = ({ children }) => {
         return res as string
       }
 
-      return vaultController.getSignerType(props)
+      return (vaultController as VaultController).getSignerType(props)
     },
     [vaultController]
   )
@@ -256,7 +261,7 @@ const VaultProvider: React.FC = ({ children }) => {
             method: 'signTxnQuckAcc',
             props
           })
-        : vaultController.signTxnQuckAcc(props))
+        : (vaultController as VaultController).signTxnQuckAcc(props))
 
       return res
     },
@@ -276,7 +281,7 @@ const VaultProvider: React.FC = ({ children }) => {
             method: 'signTxnExternalSigner',
             props
           })
-        : vaultController.signTxnExternalSigner(props))
+        : (vaultController as VaultController).signTxnExternalSigner(props))
 
       return res
     },
@@ -297,7 +302,7 @@ const VaultProvider: React.FC = ({ children }) => {
             method: 'signMsgQuickAcc',
             props
           })
-        : vaultController.signMsgQuickAcc(props))
+        : (vaultController as VaultController).signMsgQuickAcc(props))
 
       return res
     },
@@ -317,7 +322,7 @@ const VaultProvider: React.FC = ({ children }) => {
             method: 'signMsgExternalSigner',
             props
           })
-        : vaultController.signMsgExternalSigner(props))
+        : (vaultController as VaultController).signMsgExternalSigner(props))
 
       return res
     },
