@@ -16,7 +16,6 @@ import {
   headerGamma as defaultHeaderGamma
 } from '@config/Router/HeadersConfig'
 import styles, { tabBarItemWebStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
-import { SyncStorage } from '@config/storage'
 import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
 import SetAppLockingScreen from '@modules/app-lock/screens/SetAppLockingScreen'
@@ -31,6 +30,7 @@ import BiometricsSignScreen from '@modules/biometrics-sign/screens/BiometricsSig
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
+import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
@@ -174,6 +174,7 @@ const ManageAppLockStackScreen = () => {
 
 const AuthStack = () => {
   const { t } = useTranslation()
+  const { getItem } = useStorageController()
 
   useEffect(() => {
     SplashScreen.hideAsync()
@@ -182,7 +183,7 @@ const AuthStack = () => {
   // Checks whether there is a pending email login attempt. It happens when user
   // request email login and closes the extension. When the extension is opened
   // the second time - an immediate email login attempt will be triggered.
-  const initialRouteName = SyncStorage.getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
+  const initialRouteName = getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
 
   const { vaultStatus } = useVault()
 
@@ -465,6 +466,7 @@ const AppDrawer = () => {
 const AppStack = () => {
   const { t } = useTranslation()
   const { isLoading } = useAppLock()
+  const { getItem } = useStorageController()
 
   useEffect(() => {
     if (isLoading) return
@@ -481,7 +483,7 @@ const AppStack = () => {
     // the 'drawer' route never gets rendered, and therefore - upon successful
     // login attempt - the redirection to the 'dashboard' route breaks -
     // because this route doesn't exist (it's never being rendered).
-    const shouldAttemptLogin = !!SyncStorage.getItem('pendingLoginEmail')
+    const shouldAttemptLogin = !!getItem('pendingLoginEmail')
     if (shouldAttemptLogin) {
       navigate('auth-add-account')
     }

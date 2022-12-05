@@ -2,13 +2,13 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 import { isExtension } from '@web/constants/browserAPI'
 import { BACKGROUND } from '@web/constants/paths'
-import { getStore } from '@web/functions/storage'
 import { sendMessage } from '@web/services/ambexMessanger'
 
 import { vaultContextDefaults, VaultContextReturnType } from './types'
@@ -40,25 +40,24 @@ const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { onRemoveAllAccounts } = useAccounts()
+  const { getItem } = useStorageController()
 
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)
 
   useEffect(() => {
-    ;(async () => {
-      if (isExtension) {
-        const store: any = (await getStore(['vault'])) || {}
-        if (store.vault) {
-          requestVaultControllerMethod({
-            method: 'isVaultUnlocked'
-          }).then((isUnlocked) => {
-            setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
-          })
-        } else {
-          setVaultStatus(VAULT_STATUS.NOT_INITIALIZED)
-        }
+    if (isExtension) {
+      const vault = getItem('vault')
+      if (vault) {
+        requestVaultControllerMethod({
+          method: 'isVaultUnlocked'
+        }).then((isUnlocked) => {
+          setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
+        })
+      } else {
+        setVaultStatus(VAULT_STATUS.NOT_INITIALIZED)
       }
-    })()
-  }, [])
+    }
+  }, [getItem])
 
   const createVault = useCallback(
     ({
