@@ -25,7 +25,7 @@ const styles = StyleSheet.create<Styles>({
     backgroundColor: colors.wooed,
     alignItems: 'center',
     paddingHorizontal: 20,
-    ...(isWeb ? { maxHeight: 80 } : {})
+    ...(isWeb ? { height: 80 } : {})
   },
   navIconContainerRegular: {
     width: 40,

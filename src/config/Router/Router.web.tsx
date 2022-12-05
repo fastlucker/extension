@@ -84,9 +84,13 @@ const params = Object.fromEntries(urlSearchParams.entries())
 const isTempExtensionPopup = !!params.route || !!params.host
 const navigationEnabled = !isTempExtensionPopup
 
-const headerAlpha = navigationEnabled ? defaultHeaderAlpha : defaultHeaderBeta
+const headerAlpha = navigationEnabled
+  ? (props: any) => defaultHeaderAlpha({ ...props, backgroundColor: colors.martinique })
+  : defaultHeaderBeta
 const headerBeta = navigationEnabled ? defaultHeaderBeta : defaultHeaderBeta
-const headerGamma = navigationEnabled ? defaultHeaderGamma : defaultHeaderBeta
+const headerGamma = navigationEnabled
+  ? (props: any) => defaultHeaderGamma({ ...props, backgroundColor: colors.martinique })
+  : defaultHeaderBeta
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
@@ -185,11 +189,15 @@ const AuthStack = () => {
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
-      <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
+      <Stack.Screen
+        options={{ title: t('Welcome to\nAmbire Wallet Extension') }}
+        name="auth"
+        component={AuthScreen}
+      />
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <Stack.Screen
           name="createVault"
-          options={{ title: t('Create Extension Lock') }}
+          options={{ title: t('Create Your\nAmbire Key Store Lock') }}
           component={CreateNewVaultScreen}
         />
       )}

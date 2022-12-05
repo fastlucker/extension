@@ -112,7 +112,7 @@ const Header: React.FC<Props> = ({
         styles.container,
         {
           paddingTop: SPACING_SM,
-          backgroundColor: backgroundColor || colors.martinique
+          backgroundColor: backgroundColor || colors.wooed
         }
       ]}
     >
@@ -126,7 +126,7 @@ const Header: React.FC<Props> = ({
       </View>
       {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
       {mode === 'title' && (
-        <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={1}>
+        <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={2}>
           {title}
         </Text>
       )}

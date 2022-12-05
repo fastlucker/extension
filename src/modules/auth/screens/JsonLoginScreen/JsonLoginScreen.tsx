@@ -3,6 +3,7 @@ import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import useJsonLogin from '@modules/auth/hooks/useJsonLogin'
@@ -32,7 +33,7 @@ const JsonLoginScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper contentContainerStyle={spacings.mbLg}>
+      <Wrapper contentContainerStyle={spacings.pbLg}>
         <AmbireLogo />
         {!!data && !!data?.email && !error && (
           <Input
@@ -70,7 +71,7 @@ const JsonLoginScreen = () => {
           disabled={inProgress || (!error && !!data && !watch('password', ''))}
           text={inProgress ? t('Importing...') : data ? t('Log In') : t('Select File')}
           onPress={handleSubmit(handleLogin)}
-          hasBottomSpacing={!error}
+          hasBottomSpacing={!error || isWeb}
         />
         {!!error && (
           <View style={spacings.ptTy}>

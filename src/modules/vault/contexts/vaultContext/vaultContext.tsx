@@ -148,6 +148,31 @@ const VaultProvider: React.FC = ({ children }) => {
     [addToast, vaultController]
   )
 
+  const lockVault = useCallback(() => {
+    if (isExtension) {
+      requestVaultControllerMethod({
+        method: 'lockVault',
+        props: {}
+      })
+        .then((res: any) => {
+          if (
+            vaultStatus !== VAULT_STATUS.LOADING &&
+            vaultStatus !== VAULT_STATUS.NOT_INITIALIZED
+          ) {
+            setVaultStatus(res)
+          }
+        })
+        .catch((e) => {
+          addToast(e?.message || e, { error: true })
+        })
+    }
+
+    const res = vaultController.lockVault()
+    if (vaultStatus !== VAULT_STATUS.LOADING && vaultStatus !== VAULT_STATUS.NOT_INITIALIZED) {
+      setVaultStatus(res)
+    }
+  }, [addToast, vaultStatus, vaultController])
+
   const isValidPassword = useCallback(
     async (props: { password: string }) => {
       if (isExtension) {
@@ -307,6 +332,7 @@ const VaultProvider: React.FC = ({ children }) => {
           createVault,
           resetVault,
           unlockVault,
+          lockVault,
           isValidPassword,
           addToVault,
           removeFromVault,
@@ -322,6 +348,7 @@ const VaultProvider: React.FC = ({ children }) => {
           createVault,
           resetVault,
           unlockVault,
+          lockVault,
           isValidPassword,
           addToVault,
           removeFromVault,
