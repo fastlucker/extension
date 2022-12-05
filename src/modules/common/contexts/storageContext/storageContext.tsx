@@ -6,10 +6,12 @@ const StorageContext = createContext<{
   getItem: (key: string) => any
   setItem: (key: string, value: any) => void
   removeItem: (key: string) => void
+  storageControllerInstance: StorageController
 }>({
   getItem: () => null,
   setItem: () => {},
-  removeItem: () => {}
+  removeItem: () => {},
+  storageControllerInstance: null
 })
 
 const StorageProvider: React.FC = ({ children }) => {
@@ -47,9 +49,10 @@ const StorageProvider: React.FC = ({ children }) => {
         () => ({
           getItem,
           setItem,
-          removeItem
+          removeItem,
+          storageControllerInstance
         }),
-        [getItem, setItem, removeItem]
+        [getItem, setItem, removeItem, storageControllerInstance]
       )}
     >
       {isInitialized ? children : null}
