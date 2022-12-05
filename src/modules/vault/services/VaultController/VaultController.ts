@@ -6,10 +6,10 @@ import { arrayify, isHexString, toUtf8Bytes } from 'ethers/lib/utils'
 
 import { verifyMessage } from '@ambire/signature-validator'
 import CONFIG from '@config/env'
+import { StorageController } from '@modules/common/contexts/storageContext/storageController'
 import { decrypt, encrypt } from '@modules/common/services/passworder'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
-import { getStore, setItem } from '@web/functions/storage'
 
 import { Vault, VaultItem } from './types'
 
@@ -27,9 +27,13 @@ export default class VaultController {
 
   #memVault: Vault
 
-  constructor() {
+  storageController: StorageController
+
+  constructor(storageController: StorageController) {
     this.#password = null
     this.#memVault = null
+
+    this.storageController = storageController
   }
 
   isVaultUnlocked() {
@@ -38,13 +42,13 @@ export default class VaultController {
 
   // create a new empty vault encrypted with password
   async createVault({ password }: { password: string }) {
-    const store: any = (await getStore(['vault'])) || {}
+    const vault = this.storageController.getItem('vault')
 
     return new Promise((resolve, reject) => {
-      if (!store.vault) {
+      if (!vault) {
         encrypt(password, JSON.stringify({}))
           .then((blob: string) => {
-            setItem('vault', blob)
+            this.storageController.setItem('vault', blob)
             this.#password = password
             this.#memVault = {}
             resolve(VAULT_STATUS.UNLOCKED)
@@ -65,7 +69,7 @@ export default class VaultController {
     return new Promise((resolve, reject) => {
       encrypt(password, JSON.stringify({}))
         .then((blob: string) => {
-          setItem('vault', blob)
+          this.storageController.setItem('vault', blob)
           this.#password = password
           this.#memVault = {}
           resolve(VAULT_STATUS.UNLOCKED)
@@ -84,7 +88,7 @@ export default class VaultController {
       if (password === this.#password) {
         encrypt(newPassword, JSON.stringify({}))
           .then((blob: string) => {
-            setItem('vault', blob)
+            this.storageController.setItem('vault', blob)
             this.#password = newPassword
             resolve(VAULT_STATUS.UNLOCKED)
           })
@@ -98,12 +102,13 @@ export default class VaultController {
   }
 
   async unlockVault({ password }: { password: string }) {
-    const store: any = (await getStore(['vault'])) || {}
+    const vault = this.storageController.getItem('vault')
+
     return new Promise((resolve, reject) => {
-      decrypt(password, store.vault)
-        .then((vault: any) => {
+      decrypt(password, vault)
+        .then((_vault: any) => {
           this.#password = password
-          this.#memVault = JSON.parse(vault)
+          this.#memVault = JSON.parse(_vault)
           resolve(VAULT_STATUS.UNLOCKED)
         })
         .catch(() => {
@@ -128,11 +133,10 @@ export default class VaultController {
     const updatedVault = this.#memVault || {}
     updatedVault[addr] = item
 
-
     return new Promise((resolve, reject) => {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
         .then((blob: string) => {
-          setItem('vault', blob)
+          this.storageController.setItem('vault', blob)
           this.#memVault = updatedVault
           resolve(true)
         })
@@ -147,13 +151,12 @@ export default class VaultController {
 
     const updatedVault = this.#memVault || {}
 
-
     delete updatedVault[addr]
 
     return new Promise((resolve, reject) => {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
         .then((blob: string) => {
-          setItem('vault', blob)
+          this.storageController.setItem('vault', blob)
           this.#memVault = updatedVault
           resolve(true)
         })
