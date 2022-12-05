@@ -114,7 +114,7 @@ const EmailLoginScreen = () => {
           }
           onPress={handleSubmit(handleLogin)}
         />
-        {isWeb && !!requiresEmailConfFor && (
+        {!!requiresEmailConfFor && (
           <Button type="ghost" text={t('Cancel Login Attempt')} onPress={cancelLoginAttempts} />
         )}
       </View>

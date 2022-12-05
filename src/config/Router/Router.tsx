@@ -32,8 +32,9 @@ import BiometricsSignScreen from '@modules/biometrics-sign/screens/BiometricsSig
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
+import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
-import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
+import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
@@ -158,13 +159,19 @@ const ManageAppLockStackScreen = () => {
 const AuthStack = () => {
   const { t } = useTranslation()
   const { vaultStatus } = useVault()
+  const { getItem } = useStorageController()
 
   useEffect(() => {
     SplashScreen.hideAsync()
   }, [])
 
+  // Checks whether there is a pending email login attempt. It happens when user
+  // request email login and closes the app. When the app is opened
+  // the second time - an immediate email login attempt will be triggered.
+  const initialRouteName = getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
+
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="auth">
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <Stack.Screen
           name="createVault"
@@ -365,12 +372,28 @@ const AppDrawer = () => {
 const AppStack = () => {
   const { t } = useTranslation()
   const { isLoading } = useAppLock()
+  const { getItem } = useStorageController()
 
   useEffect(() => {
     if (isLoading) return
 
     SplashScreen.hideAsync()
   }, [isLoading])
+
+  useEffect(() => {
+    // Checks whether there is a pending email login attempt. It happens when
+    // user requests email login and closes the the app. When the app is opened
+    // the second time - an immediate email login attempt will be triggered.
+    // Redirect the user instead of using the `initialRouteName`,
+    // because when 'auth-add-account' is set for `initialRouteName`,
+    // the 'drawer' route never gets rendered, and therefore - upon successful
+    // login attempt - the redirection to the 'dashboard' route breaks -
+    // because this route doesn't exist (it's never being rendered).
+    const shouldAttemptLogin = !!getItem('pendingLoginEmail')
+    if (shouldAttemptLogin) {
+      navigate('auth-add-account')
+    }
+  }, [getItem])
 
   return (
     <MainStack.Navigator screenOptions={{ header: headerBeta }}>
