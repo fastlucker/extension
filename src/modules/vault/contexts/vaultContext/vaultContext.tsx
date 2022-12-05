@@ -49,7 +49,8 @@ const VaultProvider: React.FC = ({ children }) => {
    * and use this instance (singleton) instead.
    */
   const vaultController = useMemo(
-    () => !isExtension && new VaultController(storageControllerInstance),
+    () =>
+      !isExtension && storageControllerInstance && new VaultController(storageControllerInstance),
     [storageControllerInstance]
   )
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)
