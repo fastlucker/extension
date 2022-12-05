@@ -77,6 +77,7 @@ const EmailLoginScreen = () => {
               onChangeText={onChange}
               isValid={isValidPassword(value)}
               autoFocus
+              disabled={isSubmitting}
               value={value}
               info={t('Enter the password for account {{accountAddr}}', {
                 // eslint-disable-next-line no-underscore-dangle
