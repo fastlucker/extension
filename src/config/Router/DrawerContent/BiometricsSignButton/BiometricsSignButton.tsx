@@ -1,8 +1,9 @@
 import React from 'react'
-import { ActivityIndicator, TouchableOpacity } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
 import colors from '@modules/common/styles/colors'
@@ -18,7 +19,12 @@ const BiometricsSignButton: React.FC<Props> = ({ handleNavigate }) => {
   const { isLoading: isLoadingBiometricsSign, selectedAccHasPassword } = useBiometricsSign()
 
   const isLoading = isLoadingBiometrics || isLoadingBiometricsSign
-  if (isLoading) return <ActivityIndicator style={spacings.mv} />
+  if (isLoading)
+    return (
+      <View style={spacings.mv}>
+        <Spinner />
+      </View>
+    )
 
   if (!hasBiometricsHardware) {
     return null

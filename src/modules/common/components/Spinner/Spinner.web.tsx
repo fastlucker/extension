@@ -1,11 +1,12 @@
+import LottieView from 'lottie-react'
 import React from 'react'
-import { ActivityIndicator } from 'react-native'
 
-// TODO: implement animated spinner on web (Lottie doesn't seem to work)
-import colors from '@modules/common/styles/colors'
+import SpinnerAnimation from './spinner-animation.json'
 
 const Spinner = () => {
-  return <ActivityIndicator color={colors.electricViolet} />
+  return (
+    <LottieView animationData={SpinnerAnimation} style={{ width: 40, height: 40 }} autoPlay loop />
+  )
 }
 
 export default Spinner

@@ -1,16 +1,16 @@
 // TODO: implement loader on web
 
 import React from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { View } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import Spinner from '@modules/common/components/Spinner'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 const CollectiblesListLoader = () => {
   return (
     <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-      <ActivityIndicator color={colors.electricViolet} />
+      <Spinner />
     </View>
   )
 }

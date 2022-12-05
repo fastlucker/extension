@@ -119,7 +119,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       >
         <GasIndicator handleNavigate={handleNavigate} />
       </View>
-      <View style={[styles.quickActionsContainer, spacings.phLg]}>
+      <View style={[styles.quickActionsContainer, spacings.phLg, spacings.mbTy]}>
         <TouchableOpacity
           style={[styles.lockBtn, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
           onPress={lockVault}
