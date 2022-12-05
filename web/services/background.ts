@@ -10,7 +10,6 @@ import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/
 import { BigNumber, ethers, getDefaultProvider } from 'ethers'
 import log from 'loglevel'
 
-import { StorageController } from '@config/storage'
 import {
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV,
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
