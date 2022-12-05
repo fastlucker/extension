@@ -47,7 +47,7 @@ const GasIndicator = ({ handleNavigate }: Props) => {
   if (gasData) {
     return (
       <TouchableOpacity
-        style={[spacings.mbSm, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
+        style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}
         activeOpacity={0.6}
         hitSlop={{
           left: 5,

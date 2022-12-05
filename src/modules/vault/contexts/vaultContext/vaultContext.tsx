@@ -130,6 +130,21 @@ const VaultProvider: React.FC = ({ children }) => {
     [addToast]
   )
 
+  const lockVault = useCallback(() => {
+    requestVaultControllerMethod({
+      method: 'lockVault',
+      props: {}
+    })
+      .then((res: any) => {
+        if (vaultStatus !== VAULT_STATUS.LOADING && vaultStatus !== VAULT_STATUS.NOT_INITIALIZED) {
+          setVaultStatus(res)
+        }
+      })
+      .catch((e) => {
+        addToast(e?.message || e, { error: true })
+      })
+  }, [addToast, vaultStatus])
+
   const isValidPassword = useCallback(async (props: { password: string }) => {
     const res = await requestVaultControllerMethod({
       method: 'isValidPassword',
@@ -250,6 +265,7 @@ const VaultProvider: React.FC = ({ children }) => {
           createVault,
           resetVault,
           unlockVault,
+          lockVault,
           isValidPassword,
           addToVault,
           removeFromVault,
@@ -265,6 +281,7 @@ const VaultProvider: React.FC = ({ children }) => {
           createVault,
           resetVault,
           unlockVault,
+          lockVault,
           isValidPassword,
           addToVault,
           removeFromVault,
