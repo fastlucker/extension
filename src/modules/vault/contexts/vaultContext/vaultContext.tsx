@@ -1,7 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
-import useAuth from '@modules/auth/hooks/useAuth'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
@@ -40,8 +39,7 @@ const requestVaultControllerMethod = ({
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { accounts, onRemoveAllAccounts } = useAccounts()
-  const { setAuthStatus } = useAuth()
+  const { onRemoveAllAccounts } = useAccounts()
 
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)
 
@@ -132,6 +130,21 @@ const VaultProvider: React.FC = ({ children }) => {
     },
     [addToast]
   )
+
+  const lockVault = useCallback(() => {
+    requestVaultControllerMethod({
+      method: 'lockVault',
+      props: {}
+    })
+      .then((res: any) => {
+        if (vaultStatus !== VAULT_STATUS.LOADING && vaultStatus !== VAULT_STATUS.NOT_INITIALIZED) {
+          setVaultStatus(res)
+        }
+      })
+      .catch((e) => {
+        addToast(e?.message || e, { error: true })
+      })
+  }, [addToast, vaultStatus])
 
   const isValidPassword = useCallback(async (props: { password: string }) => {
     const res = await requestVaultControllerMethod({
@@ -253,6 +266,7 @@ const VaultProvider: React.FC = ({ children }) => {
           createVault,
           resetVault,
           unlockVault,
+          lockVault,
           isValidPassword,
           addToVault,
           removeFromVault,
@@ -268,6 +282,7 @@ const VaultProvider: React.FC = ({ children }) => {
           createVault,
           resetVault,
           unlockVault,
+          lockVault,
           isValidPassword,
           addToVault,
           removeFromVault,

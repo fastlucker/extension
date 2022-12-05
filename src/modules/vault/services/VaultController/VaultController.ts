@@ -112,6 +112,12 @@ export default class VaultController {
     })
   }
 
+  lockVault() {
+      this.#password = null
+      this.#memVault = null
+      return VAULT_STATUS.LOCKED
+  }
+
   isValidPassword({ password }: { password: string }) {
     return !!this.#password && password === this.#password
   }
