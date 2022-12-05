@@ -7,11 +7,12 @@ import { Contract, getDefaultProvider } from 'ethers'
 import { formatUnits, Interface } from 'ethers/lib/utils'
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { ActivityIndicator } from 'react-native'
+import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
+import Spinner from '@modules/common/components/Spinner'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 
@@ -181,7 +182,11 @@ const AddOrHideTokenForm: React.FC<Props> = ({
         name="address"
       />
 
-      {loading && <ActivityIndicator style={spacings.mb} />}
+      {loading && (
+        <View style={spacings.mb}>
+          <Spinner />
+        </View>
+      )}
 
       {!showError && tokenDetails && <TokenItem {...tokenDetails} />}
 

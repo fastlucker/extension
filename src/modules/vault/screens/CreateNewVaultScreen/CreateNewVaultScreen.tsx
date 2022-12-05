@@ -72,6 +72,7 @@ const CreateNewVaultScreen = ({ route }: any) => {
                   placeholder={t('Password')}
                   onChangeText={onChange}
                   isValid={isValidPassword(value)}
+                  autoFocus={isWeb}
                   value={value}
                   error={
                     errors.password &&
