@@ -79,6 +79,7 @@ const CreateNewVaultScreen = ({ route }: any) => {
                     (t('Please fill in at least 8 characters for password.') as string)
                   }
                   containerStyle={spacings.mbTy}
+                  onSubmitEditing={handleSubmit(createVault)}
                 />
               )}
               name="password"
@@ -98,6 +99,7 @@ const CreateNewVaultScreen = ({ route }: any) => {
                   secureTextEntry
                   error={errors.confirmPassword && (t("Passwords don't match.") as string)}
                   autoCorrect={false}
+                  onSubmitEditing={handleSubmit(createVault)}
                 />
               )}
               name="confirmPassword"

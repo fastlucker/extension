@@ -269,7 +269,7 @@ const VaultStack = () => {
       />
       <Stack.Screen
         name="resetVault"
-        options={{ title: t('Reset Extension Lock') }}
+        options={{ title: t('Reset your\nAmbire Key Store Lock') }}
         component={ResetVaultScreen}
       />
     </Stack.Navigator>

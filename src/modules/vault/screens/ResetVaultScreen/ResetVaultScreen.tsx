@@ -59,7 +59,7 @@ const ResetVaultScreen = () => {
           >
             <Text weight="regular" style={spacings.mbMi} color={colors.titan_50}>
               {t(
-                'Ambire does not keep a copy of your lock password. If you’re having trouble unlocking your extension, you will need to create a new password.'
+                'Ambire does not keep a copy of your Key Store password. If you’re having trouble unlocking your extension, you will need to create a new Key Store password.'
               )}
             </Text>
             <Text weight="regular" style={spacings.mbTy} color={colors.titan_50}>
@@ -81,6 +81,7 @@ const ResetVaultScreen = () => {
                     (t('Please fill in at least 8 characters for password.') as string)
                   }
                   containerStyle={spacings.mbTy}
+                  onSubmitEditing={handleSubmit(resetVault)}
                 />
               )}
               name="password"
@@ -100,6 +101,7 @@ const ResetVaultScreen = () => {
                   secureTextEntry
                   error={errors.confirmPassword && (t("Passwords don't match.") as string)}
                   autoCorrect={false}
+                  onSubmitEditing={handleSubmit(resetVault)}
                 />
               )}
               name="confirmPassword"

@@ -87,6 +87,7 @@ const EmailLoginScreen = () => {
                 errors.password &&
                 (t('Please fill in at least 8 characters for password.') as string)
               }
+              onSubmitEditing={handleSubmit(handleLogin)}
             />
           )}
           name="password"
