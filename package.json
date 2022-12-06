@@ -116,6 +116,7 @@
     "loglevel": "^1.4.1",
     "lottie-ios": "3.2.3",
     "lottie-react-native": "5.0.1",
+    "lottie-react": "^2.3.1",
     "path-browserify": "0.0.0",
     "process": "^0.11.0",
     "querystring-es3": "~0.2.0",

@@ -1,8 +1,8 @@
 // TODO: implement loader on web
 import React from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { View } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import Spinner from '@modules/common/components/Spinner'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 const CollectibleLoader = () => {
@@ -15,7 +15,7 @@ const CollectibleLoader = () => {
         { width: '100%', height: '100%' }
       ]}
     >
-      <ActivityIndicator color={colors.electricViolet} />
+      <Spinner />
     </View>
   )
 }
