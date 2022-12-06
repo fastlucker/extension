@@ -72,7 +72,11 @@ const setupAmbexMessenger = (relayer, browserAPI) => {
         // if BACKGROUND worker not initialized, put received message in queue, unless it's a keepalive request reply from ambire wallet
         if (
           !BACKGROUND_INITIALIZED &&
-          !(request.isReply && request.to === BACKGROUND && request.type === 'keepalive_reply')
+          !(
+            request.isReply &&
+            request.to === BACKGROUND &&
+            request.type === 'WORKER_KEEP_ALIVE_MESSAGE'
+          )
         ) {
           log.debug(
             `${RELAYER_VERBOSE_TAG[RELAYER]} ambexMessenger[${RELAYER}] request added to init queue`,
@@ -411,7 +415,7 @@ const sendMessage = (message, options = {}) => {
         )
         removeMessageHandler(handlerFilter)
         if (error) {
-          return reject(new Error(error))
+          return reject(error)
         }
         resolve(reply)
       })

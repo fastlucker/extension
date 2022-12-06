@@ -175,17 +175,18 @@ const ManageAppLockStackScreen = () => {
 const AuthStack = () => {
   const { t } = useTranslation()
   const { getItem } = useStorageController()
+  const { vaultStatus } = useVault()
 
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   // Checks whether there is a pending email login attempt. It happens when user
   // request email login and closes the extension. When the extension is opened
   // the second time - an immediate email login attempt will be triggered.
   const initialRouteName = getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
-
-  const { vaultStatus } = useVault()
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
@@ -232,10 +233,13 @@ const AuthStack = () => {
 
 const NoConnectionStack = () => {
   const { t } = useTranslation()
+  const { vaultStatus } = useVault()
 
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
@@ -253,9 +257,9 @@ const VaultStack = () => {
   const { vaultStatus } = useVault()
 
   useEffect(() => {
-    if (vaultStatus === VAULT_STATUS.LOADING) return
-
-    SplashScreen.hideAsync()
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
   }, [vaultStatus])
 
   if (vaultStatus === VAULT_STATUS.LOADING) return null
@@ -279,9 +283,13 @@ const VaultStack = () => {
 const PermissionRequestStack = () => {
   const { t } = useTranslation()
 
+  const { vaultStatus } = useVault()
+
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   return (
     <Stack.Navigator
@@ -297,10 +305,13 @@ const PermissionRequestStack = () => {
 }
 const SwitchNetworkRequestStack = () => {
   const { t } = useTranslation()
+  const { vaultStatus } = useVault()
 
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   return (
     <Stack.Navigator
@@ -318,9 +329,13 @@ const SwitchNetworkRequestStack = () => {
 const PendingTransactionsStack = () => {
   const { t } = useTranslation()
 
+  const { vaultStatus } = useVault()
+
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
@@ -336,9 +351,13 @@ const PendingTransactionsStack = () => {
 const SignMessageStack = () => {
   const { t } = useTranslation()
 
+  const { vaultStatus } = useVault()
+
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
@@ -468,11 +487,13 @@ const AppStack = () => {
   const { isLoading } = useAppLock()
   const { getItem } = useStorageController()
 
-  useEffect(() => {
-    if (isLoading) return
+  const { vaultStatus } = useVault()
 
-    SplashScreen.hideAsync()
-  }, [isLoading])
+  useEffect(() => {
+    if (vaultStatus !== VAULT_STATUS.LOADING && !isLoading) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus, isLoading])
 
   useEffect(() => {
     // Checks whether there is a pending email login attempt. It happens when user
