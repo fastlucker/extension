@@ -8,10 +8,10 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { isWeb } from '@config/env'
-import { SyncStorage } from '@config/storage'
 import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
+import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import Spinner from '@modules/common/components/Spinner'
@@ -279,16 +279,24 @@ const SignActions = ({
         {confirmationType === 'otp' && (
           <Text style={spacings.mbTy}>{t('Please enter your OTP code.')}</Text>
         )}
-        <NumberInput
-          placeholder={
-            confirmationType === 'otp' ? t('Authenticator OTP code') : t('Confirmation code')
-          }
-          onChangeText={(val) => setValue('code', val)}
-          keyboardType="numeric"
-          autoCorrect={false}
-          value={watch('code', '')}
-          autoFocus={!isWeb}
-        />
+        {confirmationType === 'otp' ? (
+          <NumberInput
+            placeholder={t('Authenticator OTP code')}
+            onChangeText={(val) => setValue('code', val)}
+            keyboardType="numeric"
+            autoCorrect={false}
+            value={watch('code', '')}
+            autoFocus={!isWeb}
+          />
+        ) : (
+          <Input
+            placeholder={t('Confirmation code')}
+            onChangeText={(val) => setValue('code', val)}
+            autoCorrect={false}
+            value={watch('code', '')}
+            autoFocus={!isWeb}
+          />
+        )}
         <Button
           text={t('Confirm')}
           disabled={!watch('code', '')}
