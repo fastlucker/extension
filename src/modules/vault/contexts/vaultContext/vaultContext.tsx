@@ -252,7 +252,7 @@ const VaultProvider: React.FC = ({ children }) => {
       account: any
       network: any
     }) => {
-      const res = requestVaultControllerMethod({
+      const res = await requestVaultControllerMethod({
         method: 'signTxnExternalSigner',
         props
       })
