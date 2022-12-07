@@ -35,17 +35,28 @@ const VaultProvider: React.FC = ({ children }) => {
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)
 
   const requestVaultControllerMethod = useCallback(
-    ({ method, props }: { method: string; props?: { [key: string]: any } }) => {
+    ({
+      method,
+      props,
+      options
+    }: {
+      method: string
+      props?: { [key: string]: any }
+      options?: { [key: string]: any }
+    }) => {
       if (isExtension) {
         return new Promise((resolve, reject) => {
-          sendMessage({
-            type: 'vaultController',
-            to: BACKGROUND,
-            data: {
-              method,
-              props
-            }
-          })
+          sendMessage(
+            {
+              type: 'vaultController',
+              to: BACKGROUND,
+              data: {
+                method,
+                props
+              }
+            },
+            options || {}
+          )
             .then((res: any) => resolve(res.data))
             .catch((err) => reject(err))
         })
@@ -64,10 +75,15 @@ const VaultProvider: React.FC = ({ children }) => {
     }
 
     requestVaultControllerMethod({
-      method: 'isVaultUnlocked'
-    }).then((isUnlocked: boolean) => {
-      setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
+      method: 'isVaultUnlocked',
+      // In case the background server is inactive wait less for the
+      // (unhandled promise response) reply before showing the locked screen
+      options: { replyTimeout: 1500 }
     })
+      .then((isUnlocked: boolean) => {
+        setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
+      })
+      .catch(() => setVaultStatus(VAULT_STATUS.LOCKED))
   }, [vaultController, getItem, requestVaultControllerMethod])
 
   const createVault = useCallback(

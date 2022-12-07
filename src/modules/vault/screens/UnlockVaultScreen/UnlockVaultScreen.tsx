@@ -73,6 +73,7 @@ const UnlockVaultScreen = ({ navigation }: any) => {
                   onChangeText={onChange}
                   isValid={isValidPassword(value)}
                   value={value}
+                  onSubmitEditing={handleSubmit(unlockVault)}
                   error={
                     errors.password &&
                     (t('Please fill in at least 8 characters for password.') as string)
