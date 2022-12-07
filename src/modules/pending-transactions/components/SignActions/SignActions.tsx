@@ -6,10 +6,9 @@ import { useTranslation } from 'react-i18next'
 import { InteractionManager, Keyboard, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
-import { isWeb } from '@config/env'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
-import NumberInput from '@modules/common/components/NumberInput'
+import InputConfirmationCode from '@modules/common/components/InputConfirmationCode'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -138,20 +137,13 @@ const SignActions = ({
             control={control}
             rules={{ validate: isValidCode }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <NumberInput
-                placeholder={
-                  signingStatus.confCodeRequired === 'otp'
-                    ? t('Authenticator code')
-                    : t('Confirmation code')
-                }
+              <InputConfirmationCode
+                confirmationType={signingStatus.confCodeRequired}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                keyboardType="numeric"
                 disabled={signingStatus.inProgress}
-                autoCorrect={false}
                 isValid={isValidCode(value)}
                 value={value}
-                autoFocus
                 error={errors.code && (t('Invalid confirmation code.') as string)}
               />
             )}
