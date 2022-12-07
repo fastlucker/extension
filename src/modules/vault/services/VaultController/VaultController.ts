@@ -37,7 +37,7 @@ export default class VaultController {
   }
 
   isVaultUnlocked() {
-    return !!this.#password
+    return Promise.resolve(!!this.#password)
   }
 
   // create a new empty vault encrypted with password
@@ -118,9 +118,10 @@ export default class VaultController {
   }
 
   lockVault() {
-      this.#password = null
-      this.#memVault = null
-      return VAULT_STATUS.LOCKED
+    this.#password = null
+    this.#memVault = null
+
+    return Promise.resolve(VAULT_STATUS.LOCKED)
   }
 
   isValidPassword({ password }: { password: string }) {
@@ -170,7 +171,7 @@ export default class VaultController {
     if (!this.#memVault) throw new Error('Vault not initialized')
     const vaultItem = this.#memVault[addr]
 
-    return !!vaultItem
+    return Promise.resolve(!!vaultItem)
   }
 
   getSignerType({ addr }: { addr: string }) {
@@ -179,7 +180,7 @@ export default class VaultController {
 
     if (!vaultItem) throw new Error('Signer not found')
 
-    return vaultItem.type
+    return Promise.resolve(vaultItem.type)
   }
 
   async signTxnQuckAcc({
@@ -311,7 +312,7 @@ export default class VaultController {
       signature: sig
     })
 
-    return { sig, isValidSig }
+    return Promise.resolve({ sig, isValidSig })
   }
 
   async signMsgExternalSigner({
@@ -357,6 +358,6 @@ export default class VaultController {
       signature: sig
     })
 
-    return { sig, isValidSig }
+    return Promise.resolve({ sig, isValidSig })
   }
 }

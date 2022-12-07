@@ -16,27 +16,6 @@ import { vaultContextDefaults, VaultContextReturnType } from './types'
 
 const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 
-const requestVaultControllerMethod = ({
-  method,
-  props
-}: {
-  method: string
-  props?: { [key: string]: any }
-}) => {
-  return new Promise((resolve, reject) => {
-    sendMessage({
-      type: 'vaultController',
-      to: BACKGROUND,
-      data: {
-        method,
-        props
-      }
-    })
-      .then((res: any) => resolve(res.data))
-      .catch((err) => reject(err))
-  })
-}
-
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
@@ -55,6 +34,28 @@ const VaultProvider: React.FC = ({ children }) => {
   )
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)
 
+  const requestVaultControllerMethod = useCallback(
+    ({ method, props }: { method: string; props?: { [key: string]: any } }) => {
+      if (isExtension) {
+        return new Promise((resolve, reject) => {
+          sendMessage({
+            type: 'vaultController',
+            to: BACKGROUND,
+            data: {
+              method,
+              props
+            }
+          })
+            .then((res: any) => resolve(res.data))
+            .catch((err) => reject(err))
+        })
+      }
+
+      return vaultController[method](props)
+    },
+    [vaultController]
+  )
+
   useEffect(() => {
     const vault = getItem('vault')
     if (!vault) {
@@ -62,17 +63,12 @@ const VaultProvider: React.FC = ({ children }) => {
       return
     }
 
-    if (isExtension) {
-      requestVaultControllerMethod({
-        method: 'isVaultUnlocked'
-      }).then((isUnlocked) => {
-        setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
-      })
-    } else {
-      const isUnlocked = (vaultController as VaultController).isVaultUnlocked()
+    requestVaultControllerMethod({
+      method: 'isVaultUnlocked'
+    }).then((isUnlocked: boolean) => {
       setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
-    }
-  }, [vaultController, getItem])
+    })
+  }, [vaultController, getItem, requestVaultControllerMethod])
 
   const createVault = useCallback(
     ({
@@ -85,15 +81,12 @@ const VaultProvider: React.FC = ({ children }) => {
       nextRoute?: string
     }) => {
       if (password === confirmPassword) {
-        ;(isExtension
-          ? requestVaultControllerMethod({
-              method: 'createVault',
-              props: {
-                password
-              }
-            })
-          : (vaultController as VaultController).createVault({ password })
-        ).then(() => {
+        requestVaultControllerMethod({
+          method: 'createVault',
+          props: {
+            password
+          }
+        }).then(() => {
           // Automatically unlock after vault initialization
           setVaultStatus(VAULT_STATUS.UNLOCKED)
           !!nextRoute && navigate(nextRoute)
@@ -102,7 +95,7 @@ const VaultProvider: React.FC = ({ children }) => {
         addToast(t("Passwords don't match."))
       }
     },
-    [t, addToast, vaultController]
+    [t, addToast, requestVaultControllerMethod]
   )
 
   const resetVault = useCallback(
@@ -115,15 +108,12 @@ const VaultProvider: React.FC = ({ children }) => {
       nextRoute?: string
     }) => {
       if (password === confirmPassword) {
-        ;(isExtension
-          ? requestVaultControllerMethod({
-              method: 'resetVault',
-              props: {
-                password
-              }
-            })
-          : (vaultController as VaultController).resetVault({ password })
-        ).then(() => {
+        requestVaultControllerMethod({
+          method: 'resetVault',
+          props: {
+            password
+          }
+        }).then(() => {
           onRemoveAllAccounts()
           // Automatically unlock after vault initialization
           setVaultStatus(VAULT_STATUS.UNLOCKED)
@@ -132,18 +122,15 @@ const VaultProvider: React.FC = ({ children }) => {
         addToast(t("Passwords don't match."))
       }
     },
-    [t, addToast, onRemoveAllAccounts, vaultController]
+    [t, addToast, onRemoveAllAccounts, requestVaultControllerMethod]
   )
 
   const unlockVault = useCallback(
     (props: { password: string }) => {
-      ;(isExtension
-        ? requestVaultControllerMethod({
-            method: 'unlockVault',
-            props
-          })
-        : (vaultController as VaultController).unlockVault(props)
-      )
+      requestVaultControllerMethod({
+        method: 'unlockVault',
+        props
+      })
         .then(() => {
           setVaultStatus(VAULT_STATUS.UNLOCKED)
         })
@@ -151,122 +138,94 @@ const VaultProvider: React.FC = ({ children }) => {
           addToast(e?.message || e, { error: true })
         })
     },
-    [addToast, vaultController]
+    [addToast, requestVaultControllerMethod]
   )
 
   const lockVault = useCallback(() => {
-    if (isExtension) {
-      requestVaultControllerMethod({
-        method: 'lockVault',
-        props: {}
+    requestVaultControllerMethod({
+      method: 'lockVault',
+      props: {}
+    })
+      .then((res: any) => {
+        if (vaultStatus !== VAULT_STATUS.LOADING && vaultStatus !== VAULT_STATUS.NOT_INITIALIZED) {
+          setVaultStatus(res)
+        }
       })
-        .then((res: any) => {
-          if (
-            vaultStatus !== VAULT_STATUS.LOADING &&
-            vaultStatus !== VAULT_STATUS.NOT_INITIALIZED
-          ) {
-            setVaultStatus(res)
-          }
-        })
-        .catch((e) => {
-          addToast(e?.message || e, { error: true })
-        })
-    }
-
-    const res = (vaultController as VaultController).lockVault()
-    if (vaultStatus !== VAULT_STATUS.LOADING && vaultStatus !== VAULT_STATUS.NOT_INITIALIZED) {
-      setVaultStatus(res)
-    }
-  }, [addToast, vaultStatus, vaultController])
+      .catch((e) => {
+        addToast(e?.message || e, { error: true })
+      })
+  }, [addToast, vaultStatus, requestVaultControllerMethod])
 
   const isValidPassword = useCallback(
     async (props: { password: string }) => {
-      if (isExtension) {
-        const res = await requestVaultControllerMethod({
-          method: 'isValidPassword',
-          props
-        })
+      const res = await requestVaultControllerMethod({
+        method: 'isValidPassword',
+        props
+      })
 
-        return res as boolean
-      }
-
-      return (vaultController as VaultController).isValidPassword(props)
+      return res as boolean
     },
-    [vaultController]
+    [requestVaultControllerMethod]
   )
 
   const addToVault = useCallback(
     async (props: { addr: string; item: VaultItem }) => {
-      const res = await (isExtension
-        ? requestVaultControllerMethod({
-            method: 'addToVault',
-            props
-          })
-        : (vaultController as VaultController).addToVault(props))
+      const res = requestVaultControllerMethod({
+        method: 'addToVault',
+        props
+      })
 
       return res
     },
-    [vaultController]
+    [requestVaultControllerMethod]
   )
 
   const removeFromVault = useCallback(
     async (props: { addr: string }) => {
-      const res = await (isExtension
-        ? requestVaultControllerMethod({
-            method: 'removeFromVault',
-            props
-          })
-        : (vaultController as VaultController).removeFromVault(props))
+      const res = await requestVaultControllerMethod({
+        method: 'removeFromVault',
+        props
+      })
 
       return res
     },
-    [vaultController]
+    [requestVaultControllerMethod]
   )
 
   const isSignerAddedToVault = useCallback(
     async (props: { addr: string }) => {
-      if (isExtension) {
-        const res = await requestVaultControllerMethod({
-          method: 'isSignerAddedToVault',
-          props
-        })
+      const res = await requestVaultControllerMethod({
+        method: 'isSignerAddedToVault',
+        props
+      })
 
-        return res as boolean
-      }
-
-      return (vaultController as VaultController).isSignerAddedToVault(props)
+      return res as boolean
     },
-    [vaultController]
+    [requestVaultControllerMethod]
   )
 
   const getSignerType = useCallback(
     async (props: { addr: string }) => {
-      if (isExtension) {
-        const res = await requestVaultControllerMethod({
-          method: 'getSignerType',
-          props
-        })
+      const res = await requestVaultControllerMethod({
+        method: 'getSignerType',
+        props
+      })
 
-        return res as string
-      }
-
-      return (vaultController as VaultController).getSignerType(props)
+      return res as string
     },
-    [vaultController]
+    [requestVaultControllerMethod]
   )
 
   const signTxnQuckAcc = useCallback(
     async (props: { finalBundle: any; primaryKeyBackup: string; signature: any }) => {
-      const res = await (isExtension
-        ? requestVaultControllerMethod({
-            method: 'signTxnQuckAcc',
-            props
-          })
-        : (vaultController as VaultController).signTxnQuckAcc(props))
+      const res = await requestVaultControllerMethod({
+        method: 'signTxnQuckAcc',
+        props
+      })
 
       return res
     },
-    [vaultController]
+    [requestVaultControllerMethod]
   )
 
   const signTxnExternalSigner = useCallback(
@@ -277,16 +236,14 @@ const VaultProvider: React.FC = ({ children }) => {
       account: any
       network: any
     }) => {
-      const res = await (isExtension
-        ? requestVaultControllerMethod({
-            method: 'signTxnExternalSigner',
-            props
-          })
-        : (vaultController as VaultController).signTxnExternalSigner(props))
+      const res = requestVaultControllerMethod({
+        method: 'signTxnExternalSigner',
+        props
+      })
 
       return res
     },
-    [vaultController]
+    [requestVaultControllerMethod]
   )
 
   const signMsgQuickAcc = useCallback(
@@ -298,16 +255,14 @@ const VaultProvider: React.FC = ({ children }) => {
       isTypedData: any
       signature: any
     }) => {
-      const res = await (isExtension
-        ? requestVaultControllerMethod({
-            method: 'signMsgQuickAcc',
-            props
-          })
-        : (vaultController as VaultController).signMsgQuickAcc(props))
+      const res = await requestVaultControllerMethod({
+        method: 'signMsgQuickAcc',
+        props
+      })
 
       return res
     },
-    [vaultController]
+    [requestVaultControllerMethod]
   )
 
   const signMsgExternalSigner = useCallback(
@@ -318,16 +273,14 @@ const VaultProvider: React.FC = ({ children }) => {
       dataV4: any
       isTypedData: any
     }) => {
-      const res = await (isExtension
-        ? requestVaultControllerMethod({
-            method: 'signMsgExternalSigner',
-            props
-          })
-        : (vaultController as VaultController).signMsgExternalSigner(props))
+      const res = requestVaultControllerMethod({
+        method: 'signMsgExternalSigner',
+        props
+      })
 
       return res
     },
-    [vaultController]
+    [requestVaultControllerMethod]
   )
 
   return (
