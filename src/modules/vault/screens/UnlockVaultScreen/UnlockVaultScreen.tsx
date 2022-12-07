@@ -36,7 +36,9 @@ const UnlockVaultScreen = ({ navigation }: any) => {
 
   return (
     <GradientBackgroundWrapper>
-      <Image source={LockBackgroundIcon} style={styles.backgroundImg} />
+      <View style={styles.backgroundImgWrapper}>
+        <Image source={LockBackgroundIcon} style={styles.backgroundImg} resizeMode="contain" />
+      </View>
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
@@ -50,14 +52,16 @@ const UnlockVaultScreen = ({ navigation }: any) => {
           <View
             style={[
               !isWeb ? spacings.mbLg : spacings.mb0,
-              spacings.ph,
+              isWeb && spacings.ph,
               flexboxStyles.flex1,
               flexboxStyles.justifyEnd
             ]}
           >
-            <Text weight="regular" style={spacings.mbTy} color={colors.titan_50}>
-              {t('Enter your Ambire Key Store Lock to unlock your wallet')}
-            </Text>
+            <View style={spacings.phTy}>
+              <Text weight="regular" style={spacings.mbTy} color={colors.titan_50}>
+                {t('Enter your Ambire Key Store Lock to unlock your wallet')}
+              </Text>
+            </View>
             <Controller
               control={control}
               rules={{ validate: isValidPassword }}
@@ -89,6 +93,7 @@ const UnlockVaultScreen = ({ navigation }: any) => {
             <View style={[flexboxStyles.alignCenter, spacings.pvTy]}>
               <TouchableOpacity
                 onPress={() => navigation.navigate('resetVault', { resetPassword: true })}
+                hitSlop={{ top: 10, bottom: 15 }}
               >
                 <Text weight="medium" fontSize={12}>
                   Forgot password?

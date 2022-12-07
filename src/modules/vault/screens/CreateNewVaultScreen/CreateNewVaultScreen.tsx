@@ -40,7 +40,9 @@ const CreateNewVaultScreen = ({ route }: any) => {
 
   return (
     <GradientBackgroundWrapper>
-      <Image source={LockBackgroundIcon} style={styles.backgroundImg} />
+      <View style={styles.backgroundImgWrapper}>
+        <Image source={LockBackgroundIcon} style={styles.backgroundImg} resizeMode="contain" />
+      </View>
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
@@ -54,7 +56,7 @@ const CreateNewVaultScreen = ({ route }: any) => {
           <View
             style={[
               !isWeb ? spacings.mbLg : spacings.mb0,
-              spacings.ph,
+              isWeb && spacings.ph,
               flexboxStyles.flex1,
               flexboxStyles.justifyEnd
             ]}

@@ -38,7 +38,9 @@ const ResetVaultScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Image source={LockBackgroundIcon} style={styles.backgroundImg} />
+      <View style={styles.backgroundImgWrapper}>
+        <Image source={LockBackgroundIcon} style={styles.backgroundImg} resizeMode="contain" />
+      </View>
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
@@ -52,20 +54,21 @@ const ResetVaultScreen = () => {
           <View
             style={[
               !isWeb ? spacings.mbLg : spacings.mb0,
-              spacings.ph,
+              isWeb && spacings.ph,
               flexboxStyles.flex1,
               flexboxStyles.justifyEnd
             ]}
           >
-            <Text weight="regular" style={spacings.mbMi} color={colors.titan_50}>
-              {t(
-                'Ambire does not keep a copy of your lock password. If you’re having trouble unlocking your extension, you will need to create a new password.'
-              )}
-            </Text>
-            <Text weight="regular" style={spacings.mbTy} color={colors.titan_50}>
-              {t('This action will remove all your accounts from this device!')}
-            </Text>
-
+            <View style={spacings.phTy}>
+              <Text weight="regular" style={spacings.mbMi} fontSize={14} color={colors.titan_50}>
+                {t(
+                  'Ambire does not keep a copy of your lock password. If you’re having trouble unlocking your extension, you will need to create a new password.'
+                )}
+              </Text>
+              <Text weight="regular" style={spacings.mbTy} fontSize={14} color={colors.titan_50}>
+                {t('This action will remove all your accounts from this device!')}
+              </Text>
+            </View>
             <Controller
               control={control}
               rules={{ validate: isValidPassword }}
@@ -100,6 +103,7 @@ const ResetVaultScreen = () => {
                   secureTextEntry
                   error={errors.confirmPassword && (t("Passwords don't match.") as string)}
                   autoCorrect={false}
+                  containerStyle={spacings.mbTy}
                 />
               )}
               name="confirmPassword"
