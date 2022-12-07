@@ -23,7 +23,7 @@
       ]
     },
     "ios": {
-      "bundleIdentifier": "com.ambire.wallet"
+      "bundleIdentifier": "com.ambire.app.wallet"
     },
     "extra": {
       "eas": {
