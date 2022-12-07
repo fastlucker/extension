@@ -32,8 +32,9 @@ import BiometricsSignScreen from '@modules/biometrics-sign/screens/BiometricsSig
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
+import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
-import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
+import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
@@ -51,6 +52,11 @@ import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import useVault from '@modules/vault/hooks/useVault'
+import CreateNewVaultScreen from '@modules/vault/screens/CreateNewVaultScreen'
+import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
+import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
@@ -152,13 +158,27 @@ const ManageAppLockStackScreen = () => {
 
 const AuthStack = () => {
   const { t } = useTranslation()
+  const { vaultStatus } = useVault()
+  const { getItem } = useStorageController()
 
   useEffect(() => {
     SplashScreen.hideAsync()
   }, [])
 
+  // Checks whether there is a pending email login attempt. It happens when user
+  // request email login and closes the app. When the app is opened
+  // the second time - an immediate email login attempt will be triggered.
+  const initialRouteName = getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
+
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
+      {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
+        <Stack.Screen
+          name="createVault"
+          options={{ title: t('Create App Lock') }}
+          component={CreateNewVaultScreen}
+        />
+      )}
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
         name="emailLogin"
@@ -202,6 +222,34 @@ const NoConnectionStack = () => {
         options={{ title: t('No connection') }}
         name="no-connection"
         component={NoConnectionScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+const VaultStack = () => {
+  const { t } = useTranslation()
+  const { vaultStatus } = useVault()
+
+  useEffect(() => {
+    if (vaultStatus === VAULT_STATUS.LOADING) return
+
+    SplashScreen.hideAsync()
+  }, [vaultStatus])
+
+  if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+  return (
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
+      <Stack.Screen
+        name="unlockVault"
+        options={{ title: t('Welcome Back') }}
+        component={UnlockVaultScreen}
+      />
+      <Stack.Screen
+        name="resetVault"
+        options={{ title: t('Reset App Lock') }}
+        component={ResetVaultScreen}
       />
     </Stack.Navigator>
   )
@@ -324,12 +372,28 @@ const AppDrawer = () => {
 const AppStack = () => {
   const { t } = useTranslation()
   const { isLoading } = useAppLock()
+  const { getItem } = useStorageController()
 
   useEffect(() => {
     if (isLoading) return
 
     SplashScreen.hideAsync()
   }, [isLoading])
+
+  useEffect(() => {
+    // Checks whether there is a pending email login attempt. It happens when
+    // user requests email login and closes the the app. When the app is opened
+    // the second time - an immediate email login attempt will be triggered.
+    // Redirect the user instead of using the `initialRouteName`,
+    // because when 'auth-add-account' is set for `initialRouteName`,
+    // the 'drawer' route never gets rendered, and therefore - upon successful
+    // login attempt - the redirection to the 'dashboard' route breaks -
+    // because this route doesn't exist (it's never being rendered).
+    const shouldAttemptLogin = !!getItem('pendingLoginEmail')
+    if (shouldAttemptLogin) {
+      navigate('auth-add-account')
+    }
+  }, [getItem])
 
   return (
     <MainStack.Navigator screenOptions={{ header: headerBeta }}>
@@ -407,23 +471,41 @@ const AppStack = () => {
 const Router = () => {
   const { authStatus } = useAuth()
   const { connectionState } = useNetInfo()
+  const { vaultStatus } = useVault()
 
   const renderContent = useCallback(() => {
     if (connectionState === ConnectionStates.NOT_CONNECTED) {
       return <NoConnectionStack />
     }
 
+    // Vault loads in async manner, so always wait until it's being loaded,
+    // otherwise - other routes flash beforehand.
+    if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+    // When locked, always prompt the user to unlock it first.
+    if (VAULT_STATUS.LOCKED === vaultStatus) {
+      return <VaultStack />
+    }
+
+    // When not authenticated, take him to the Auth screens first,
+    // even without having a vault initialized yet.
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
       return <AuthStack />
     }
 
     if (authStatus === AUTH_STATUS.AUTHENTICATED) {
-      return <AppStack />
+      if (VAULT_STATUS.NOT_INITIALIZED === vaultStatus) {
+        return <VaultStack />
+      }
+
+      if (vaultStatus === VAULT_STATUS.UNLOCKED) {
+        return <AppStack />
+      }
     }
 
     // authStatus === AUTH_STATUS.LOADING or anything else:
     return null
-  }, [connectionState, authStatus])
+  }, [connectionState, authStatus, vaultStatus])
 
   const handleOnReady = () => {
     // @ts-ignore for some reason TS complains about this 👇

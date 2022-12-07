@@ -1,7 +1,6 @@
 import { isEmail, isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { View } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
@@ -78,6 +77,7 @@ const EmailLoginScreen = () => {
               onChangeText={onChange}
               isValid={isValidPassword(value)}
               autoFocus
+              disabled={isSubmitting}
               value={value}
               info={t('Enter the password for account {{accountAddr}}', {
                 // eslint-disable-next-line no-underscore-dangle
@@ -114,7 +114,7 @@ const EmailLoginScreen = () => {
         }
         onPress={handleSubmit(handleLogin)}
       />
-      {isWeb && !!requiresEmailConfFor && (
+      {!!requiresEmailConfFor && (
         <Button type="ghost" text={t('Cancel Login Attempt')} onPress={cancelLoginAttempts} />
       )}
     </>

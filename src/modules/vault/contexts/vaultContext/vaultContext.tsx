@@ -6,6 +6,7 @@ import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import VaultController from '@modules/vault/services/VaultController'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 import { isExtension } from '@web/constants/browserAPI'
 import { BACKGROUND } from '@web/constants/paths'
@@ -15,59 +16,75 @@ import { vaultContextDefaults, VaultContextReturnType } from './types'
 
 const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 
-const requestVaultControllerMethod = ({
-  method,
-  props,
-  options
-}: {
-  method: string
-  props?: { [key: string]: any }
-  options?: { [key: string]: any }
-}) => {
-  return new Promise((resolve, reject) => {
-    sendMessage(
-      {
-        type: 'vaultController',
-        to: BACKGROUND,
-        data: {
-          method,
-          props
-        }
-      },
-      options || {}
-    )
-      .then((res: any) => resolve(res.data))
-      .catch((err) => reject(err))
-  })
-}
-
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { onRemoveAllAccounts } = useAccounts()
-  const { getItem } = useStorageController()
+  const { getItem, storageControllerInstance } = useStorageController()
 
+  /**
+   * For the extension, we need to get vault status from background.
+   * For the web and mobile app, create a new instance of VaultController,
+   * and use this instance (singleton) instead.
+   */
+  const vaultController = useMemo(
+    () =>
+      !isExtension && storageControllerInstance && new VaultController(storageControllerInstance),
+    [storageControllerInstance]
+  )
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)
 
-  useEffect(() => {
-    if (isExtension) {
-      const vault = getItem('vault')
-      if (vault) {
-        requestVaultControllerMethod({
-          method: 'isVaultUnlocked',
-          // In case the background server is inactive wait less for the
-          // (unhandled promise response) reply before showing the locked screen
-          options: { replyTimeout: 1500 }
+  const requestVaultControllerMethod = useCallback(
+    ({
+      method,
+      props,
+      options
+    }: {
+      method: string
+      props?: { [key: string]: any }
+      options?: { [key: string]: any }
+    }) => {
+      if (isExtension) {
+        return new Promise((resolve, reject) => {
+          sendMessage(
+            {
+              type: 'vaultController',
+              to: BACKGROUND,
+              data: {
+                method,
+                props
+              }
+            },
+            options || {}
+          )
+            .then((res: any) => resolve(res.data))
+            .catch((err) => reject(err))
         })
-          .then((isUnlocked) => {
-            setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
-          })
-          .catch(() => setVaultStatus(VAULT_STATUS.LOCKED))
-      } else {
-        setVaultStatus(VAULT_STATUS.NOT_INITIALIZED)
       }
+
+      return vaultController[method](props)
+    },
+    [vaultController]
+  )
+
+  useEffect(() => {
+    const vault = getItem('vault')
+    if (!vault) {
+      setVaultStatus(VAULT_STATUS.NOT_INITIALIZED)
+      return
     }
-  }, [getItem])
+
+    requestVaultControllerMethod({
+      method: 'isVaultUnlocked',
+      // In case the background server is inactive wait less for the
+      // (unhandled promise response) reply before showing the locked screen
+      options: { replyTimeout: 1500 }
+    })
+      .then((isUnlocked: boolean) => {
+        setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
+      })
+      .catch(() => setVaultStatus(VAULT_STATUS.LOCKED))
+  }, [vaultController, getItem, requestVaultControllerMethod])
 
   const createVault = useCallback(
     ({
@@ -94,7 +111,7 @@ const VaultProvider: React.FC = ({ children }) => {
         addToast(t("Passwords don't match."))
       }
     },
-    [t, addToast]
+    [t, addToast, requestVaultControllerMethod]
   )
 
   const resetVault = useCallback(
@@ -121,7 +138,7 @@ const VaultProvider: React.FC = ({ children }) => {
         addToast(t("Passwords don't match."))
       }
     },
-    [t, addToast, onRemoveAllAccounts]
+    [t, addToast, onRemoveAllAccounts, requestVaultControllerMethod]
   )
 
   const unlockVault = useCallback(
@@ -137,7 +154,7 @@ const VaultProvider: React.FC = ({ children }) => {
           addToast(e?.message || e, { error: true })
         })
     },
-    [addToast]
+    [addToast, requestVaultControllerMethod]
   )
 
   const lockVault = useCallback(() => {
@@ -153,52 +170,67 @@ const VaultProvider: React.FC = ({ children }) => {
       .catch((e) => {
         addToast(e?.message || e, { error: true })
       })
-  }, [addToast, vaultStatus])
+  }, [addToast, vaultStatus, requestVaultControllerMethod])
 
-  const isValidPassword = useCallback(async (props: { password: string }) => {
-    const res = await requestVaultControllerMethod({
-      method: 'isValidPassword',
-      props
-    })
+  const isValidPassword = useCallback(
+    async (props: { password: string }) => {
+      const res = await requestVaultControllerMethod({
+        method: 'isValidPassword',
+        props
+      })
 
-    return res as boolean
-  }, [])
+      return res as boolean
+    },
+    [requestVaultControllerMethod]
+  )
 
-  const addToVault = useCallback(async (props: { addr: string; item: VaultItem }) => {
-    const res = await requestVaultControllerMethod({
-      method: 'addToVault',
-      props
-    })
+  const addToVault = useCallback(
+    async (props: { addr: string; item: VaultItem }) => {
+      const res = await requestVaultControllerMethod({
+        method: 'addToVault',
+        props
+      })
 
-    return res
-  }, [])
+      return res
+    },
+    [requestVaultControllerMethod]
+  )
 
-  const removeFromVault = useCallback(async (props: { addr: string }) => {
-    const res = await requestVaultControllerMethod({
-      method: 'removeFromVault',
-      props
-    })
+  const removeFromVault = useCallback(
+    async (props: { addr: string }) => {
+      const res = await requestVaultControllerMethod({
+        method: 'removeFromVault',
+        props
+      })
 
-    return res
-  }, [])
+      return res
+    },
+    [requestVaultControllerMethod]
+  )
 
-  const isSignerAddedToVault = useCallback(async (props: { addr: string }) => {
-    const res = await requestVaultControllerMethod({
-      method: 'isSignerAddedToVault',
-      props
-    })
+  const isSignerAddedToVault = useCallback(
+    async (props: { addr: string }) => {
+      const res = await requestVaultControllerMethod({
+        method: 'isSignerAddedToVault',
+        props
+      })
 
-    return res as boolean
-  }, [])
+      return res as boolean
+    },
+    [requestVaultControllerMethod]
+  )
 
-  const getSignerType = useCallback(async (props: { addr: string }) => {
-    const res = await requestVaultControllerMethod({
-      method: 'getSignerType',
-      props
-    })
+  const getSignerType = useCallback(
+    async (props: { addr: string }) => {
+      const res = await requestVaultControllerMethod({
+        method: 'getSignerType',
+        props
+      })
 
-    return res as string
-  }, [])
+      return res as string
+    },
+    [requestVaultControllerMethod]
+  )
 
   const signTxnQuckAcc = useCallback(
     async (props: { finalBundle: any; primaryKeyBackup: string; signature: any }) => {
@@ -209,7 +241,7 @@ const VaultProvider: React.FC = ({ children }) => {
 
       return res
     },
-    []
+    [requestVaultControllerMethod]
   )
 
   const signTxnExternalSigner = useCallback(
@@ -227,7 +259,7 @@ const VaultProvider: React.FC = ({ children }) => {
 
       return res
     },
-    []
+    [requestVaultControllerMethod]
   )
 
   const signMsgQuickAcc = useCallback(
@@ -246,7 +278,7 @@ const VaultProvider: React.FC = ({ children }) => {
 
       return res
     },
-    []
+    [requestVaultControllerMethod]
   )
 
   const signMsgExternalSigner = useCallback(
@@ -264,7 +296,7 @@ const VaultProvider: React.FC = ({ children }) => {
 
       return res
     },
-    []
+    [requestVaultControllerMethod]
   )
 
   return (

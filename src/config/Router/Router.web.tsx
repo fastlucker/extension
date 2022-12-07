@@ -184,7 +184,7 @@ const AuthStack = () => {
   }, [vaultStatus])
 
   // Checks whether there is a pending email login attempt. It happens when user
-  // request email login and closes the extension. When the extension is opened
+  // request email login and closes the app. When the app is opened
   // the second time - an immediate email login attempt will be triggered.
   const initialRouteName = getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
 
@@ -496,8 +496,8 @@ const AppStack = () => {
   }, [vaultStatus, isLoading])
 
   useEffect(() => {
-    // Checks whether there is a pending email login attempt. It happens when user
-    // request email login and closes the extension. When the extension is opened
+    // Checks whether there is a pending email login attempt. It happens when
+    // user requests email login and closes the the app. When the app is opened
     // the second time - an immediate email login attempt will be triggered.
     // Redirect the user instead of using the `initialRouteName`,
     // because when 'auth-add-account' is set for `initialRouteName`,
@@ -508,7 +508,7 @@ const AppStack = () => {
     if (shouldAttemptLogin) {
       navigate('auth-add-account')
     }
-  }, [])
+  }, [getItem])
 
   return (
     <MainStack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="drawer">

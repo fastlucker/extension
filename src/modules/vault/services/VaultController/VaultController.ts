@@ -37,11 +37,11 @@ export default class VaultController {
   }
 
   isVaultUnlocked() {
-    return !!this.#password
+    return Promise.resolve(!!this.#password)
   }
 
   // create a new empty vault encrypted with password
-  async createVault({ password }: { password: string }) {
+  createVault({ password }: { password: string }) {
     const vault = this.storageController.getItem('vault')
 
     return new Promise((resolve, reject) => {
@@ -65,7 +65,7 @@ export default class VaultController {
   // forgotten password flow
   // password = the new password that will lock the app
   // reset password and remove the added accounts/reset vault
-  async resetVault({ password }: { password: string }) {
+  resetVault({ password }: { password: string }) {
     return new Promise((resolve, reject) => {
       encrypt(password, JSON.stringify({}))
         .then((blob: string) => {
@@ -101,7 +101,7 @@ export default class VaultController {
     })
   }
 
-  async unlockVault({ password }: { password: string }) {
+  unlockVault({ password }: { password: string }) {
     const vault = this.storageController.getItem('vault')
 
     return new Promise((resolve, reject) => {
@@ -118,16 +118,17 @@ export default class VaultController {
   }
 
   lockVault() {
-      this.#password = null
-      this.#memVault = null
-      return VAULT_STATUS.LOCKED
+    this.#password = null
+    this.#memVault = null
+
+    return Promise.resolve(VAULT_STATUS.LOCKED)
   }
 
   isValidPassword({ password }: { password: string }) {
     return !!this.#password && password === this.#password
   }
 
-  async addToVault({ addr, item }: { addr: string; item: VaultItem }) {
+  addToVault({ addr, item }: { addr: string; item: VaultItem }) {
     if (!this.#password || this.#memVault === null) throw new Error('Unauthenticated')
 
     const updatedVault = this.#memVault || {}
@@ -146,7 +147,7 @@ export default class VaultController {
     })
   }
 
-  async removeFromVault({ addr }: { addr: string }) {
+  removeFromVault({ addr }: { addr: string }) {
     if (!this.#password || this.#memVault === null) throw new Error('Unauthenticated')
 
     const updatedVault = this.#memVault || {}
@@ -166,20 +167,20 @@ export default class VaultController {
     })
   }
 
-  async isSignerAddedToVault({ addr }: { addr: string }) {
+  isSignerAddedToVault({ addr }: { addr: string }) {
     if (!this.#memVault) throw new Error('Vault not initialized')
     const vaultItem = this.#memVault[addr]
 
-    return !!vaultItem
+    return Promise.resolve(!!vaultItem)
   }
 
-  async getSignerType({ addr }: { addr: string }) {
+  getSignerType({ addr }: { addr: string }) {
     if (!this.#memVault) throw new Error('Vault not initialized')
     const vaultItem = this.#memVault[addr]
 
     if (!vaultItem) throw new Error('Signer not found')
 
-    return vaultItem.type
+    return Promise.resolve(vaultItem.type)
   }
 
   async signTxnQuckAcc({
@@ -311,7 +312,7 @@ export default class VaultController {
       signature: sig
     })
 
-    return { sig, isValidSig }
+    return Promise.resolve({ sig, isValidSig })
   }
 
   async signMsgExternalSigner({
@@ -357,6 +358,6 @@ export default class VaultController {
       signature: sig
     })
 
-    return { sig, isValidSig }
+    return Promise.resolve({ sig, isValidSig })
   }
 }
