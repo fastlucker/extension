@@ -10,8 +10,8 @@ import { isWeb } from '@config/env'
 import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
+import InputConfirmationCode from '@modules/common/components/InputConfirmationCode'
 import InputPassword from '@modules/common/components/InputPassword'
-import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -177,17 +177,11 @@ const SignActions = ({
             control={control}
             rules={{ validate: isValidCode }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <NumberInput
-                placeholder={
-                  signingStatus.confCodeRequired === 'otp'
-                    ? t('Authenticator code')
-                    : t('Confirmation code')
-                }
+              <InputConfirmationCode
+                confirmationType={signingStatus.confCodeRequired}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                keyboardType="numeric"
                 disabled={signingStatus.inProgress}
-                autoCorrect={false}
                 isValid={isValidCode(value)}
                 value={value}
                 autoFocus={selectedAccHasPassword && !isWeb}
