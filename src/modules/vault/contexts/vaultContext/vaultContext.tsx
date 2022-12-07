@@ -186,7 +186,7 @@ const VaultProvider: React.FC = ({ children }) => {
 
   const addToVault = useCallback(
     async (props: { addr: string; item: VaultItem }) => {
-      const res = requestVaultControllerMethod({
+      const res = await requestVaultControllerMethod({
         method: 'addToVault',
         props
       })
@@ -289,7 +289,7 @@ const VaultProvider: React.FC = ({ children }) => {
       dataV4: any
       isTypedData: any
     }) => {
-      const res = requestVaultControllerMethod({
+      const res = await requestVaultControllerMethod({
         method: 'signMsgExternalSigner',
         props
       })
