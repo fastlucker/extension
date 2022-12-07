@@ -7,13 +7,11 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { isWeb } from '@config/env'
-import { SyncStorage } from '@config/storage'
 import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
+import InputConfirmationCode from '@modules/common/components/InputConfirmationCode'
 import InputPassword from '@modules/common/components/InputPassword'
-import NumberInput from '@modules/common/components/NumberInput'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -58,7 +56,7 @@ interface Props {
   externalSignerBottomSheet: ExternalSignerBottomSheetType
   quickAccBottomSheet: QuickAccBottomSheetType
   hardwareWalletBottomSheet: HardwareWalletBottomSheetType
-  confirmationType: string | null
+  confirmationType: 'email' | 'otp' | null
   isDeployed: boolean | null
   hasPrivileges: boolean | null
   hasProviderError: any
@@ -279,15 +277,10 @@ const SignActions = ({
         {confirmationType === 'otp' && (
           <Text style={spacings.mbTy}>{t('Please enter your OTP code.')}</Text>
         )}
-        <NumberInput
-          placeholder={
-            confirmationType === 'otp' ? t('Authenticator OTP code') : t('Confirmation code')
-          }
+        <InputConfirmationCode
+          confirmationType={confirmationType}
           onChangeText={(val) => setValue('code', val)}
-          keyboardType="numeric"
-          autoCorrect={false}
           value={watch('code', '')}
-          autoFocus={!isWeb}
         />
         <Button
           text={t('Confirm')}
