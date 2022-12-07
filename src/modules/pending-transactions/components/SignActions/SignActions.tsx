@@ -11,6 +11,7 @@ import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import Input from '@modules/common/components/Input'
+import InputConfirmationCode from '@modules/common/components/InputConfirmationCode'
 import InputPassword from '@modules/common/components/InputPassword'
 import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
@@ -177,28 +178,18 @@ const SignActions = ({
           <Controller
             control={control}
             rules={{ validate: isValidCode }}
-            render={({ field: { onChange, onBlur, value } }) => {
-              const commonProps = {
-                onBlur,
-                onChangeText: onChange,
-                disabled: signingStatus.inProgress,
-                autoCorrect: false,
-                isValid: isValidCode(value),
-                value,
-                autoFocus: selectedAccHasPassword && !isWeb,
-                error: errors.code && (t('Invalid confirmation code.') as string)
-              }
-
-              return signingStatus.confCodeRequired === 'otp' ? (
-                <NumberInput
-                  {...commonProps}
-                  placeholder={t('Authenticator code')}
-                  keyboardType="numeric"
-                />
-              ) : (
-                <Input {...commonProps} placeholder={t('Confirmation code')} />
-              )
-            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <InputConfirmationCode
+                confirmationType={signingStatus.confCodeRequired}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                disabled={signingStatus.inProgress}
+                isValid={isValidCode(value)}
+                value={value}
+                autoFocus={selectedAccHasPassword && !isWeb}
+                error={errors.code && (t('Invalid confirmation code.') as string)}
+              />
+            )}
             name="code"
           />
         )}
