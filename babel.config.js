@@ -28,6 +28,11 @@ module.exports = function (api) {
             '.json'
           ],
           alias: {
+            'scrypt-js': './scripts/scrypt.js',
+            '@ethersproject/pbkdf2': './scripts/pbkdf2.js',
+            'crypto': 'react-native-quick-crypto',
+            'stream': 'stream-browserify',
+            'buffer': '@craftzdog/react-native-buffer',
             '@assets': './src/assets',
             '@modules': './src/modules',
             '@config': './src/config',
