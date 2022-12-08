@@ -117,7 +117,6 @@ export default function useEmailLogin() {
         setAccountData(body)
         // Delete the key so that it can't be used anymore on this browser
         removeItem('loginSessionKey')
-        removeItem('pendingLoginEmail')
       } else {
         addToast(
           body.message
@@ -125,7 +124,6 @@ export default function useEmailLogin() {
             : `Unknown no-message error: ${resp.status}`
         )
       }
-      removeItem('pendingLoginEmail')
       setRequiresConfFor(null)
     },
     [addToast, getItem, removeItem, setItem]
