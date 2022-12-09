@@ -4339,11 +4339,6 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.20.55.tgz#c329cbd434c42164f846b909bd6f85b5537f6240"
   integrity sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==
 
-"@types/node@^14.14.35":
-  version "14.18.34"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.34.tgz#cd2e6fa0dbfb08a62582a7b967558e73c32061ec"
-  integrity sha512-hcU9AIQVHmPnmjRK+XUUYlILlr9pQrsqSrwov/JK1pnf3GTQowVBhx54FbvM0AU/VXGH4i3+vgXS5EguR7fysA==
-
 "@types/node@^17.0.31":
   version "17.0.45"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.45.tgz#2c0fafd78705e7a18b7906b5201a522719dc5190"
@@ -17054,14 +17049,6 @@ react-native-screens@~3.11.1:
   dependencies:
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
-
-react-native-scrypt@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/react-native-scrypt/-/react-native-scrypt-1.2.1.tgz#22323d56fec370a9fb6ece143a5104e32af39195"
-  integrity sha512-y03UtSmpY6RtdNB4Ne3yxe7xFNl2BYQMB59p+/iJGch+9eJ05Lw8DObX9dOA/bldlCljtP3KsCiZmf/rwrzeSA==
-  dependencies:
-    "@types/node" "^14.14.35"
-    buffer "^5.6.0"
 
 react-native-skeleton-placeholder@^5.0.0:
   version "5.0.0"
