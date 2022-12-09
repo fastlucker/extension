@@ -83,6 +83,7 @@ const AddOrHideToken = ({
           segments={segments}
           onChange={(value: MODES) => {
             setFormType(value)
+            // FIXME: This breaks the bottom sheet backdrop
             triggerLayoutAnimation({
               forceAnimate: true,
               config: LayoutAnimation.create(300, 'linear', 'opacity')
