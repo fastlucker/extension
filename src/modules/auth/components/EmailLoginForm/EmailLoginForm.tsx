@@ -28,8 +28,13 @@ const EmailLoginScreen = () => {
     }
   })
 
-  const { handleLogin, cancelLoginAttempts, requiresEmailConfFor, requiresPassword, accountData } =
-    useEmailLogin()
+  const {
+    handleLogin,
+    cancelLoginAttempts,
+    requiresEmailConfFor,
+    requiresPassword,
+    pendingLoginAccount
+  } = useEmailLogin()
 
   useEffect(() => {
     if (requiresEmailConfFor) {
@@ -49,6 +54,11 @@ const EmailLoginScreen = () => {
     })()
   }, [handleSubmit, handleLogin])
 
+  const handleCancelLoginAttempts = useCallback(() => {
+    setValue('email', '')
+    cancelLoginAttempts()
+  }, [cancelLoginAttempts, setValue])
+
   return (
     <>
       <Controller
@@ -63,11 +73,11 @@ const EmailLoginScreen = () => {
             value={value}
             autoFocus={isWeb}
             isValid={isEmail(value)}
-            validLabel={accountData ? t('Email address confirmed') : ''}
+            validLabel={pendingLoginAccount ? t('Email address confirmed') : ''}
             keyboardType="email-address"
-            disabled={!!requiresEmailConfFor || !!accountData}
+            disabled={!!requiresEmailConfFor || !!pendingLoginAccount}
             info={
-              requiresEmailConfFor
+              requiresEmailConfFor && !pendingLoginAccount
                 ? t(
                     'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
                     { email: requiresEmailConfFor?.email }
@@ -95,7 +105,10 @@ const EmailLoginScreen = () => {
               value={value}
               info={t('Enter the password for account {{accountAddr}}', {
                 // eslint-disable-next-line no-underscore-dangle
-                accountAddr: `${accountData?._id?.slice(0, 4)}...${accountData?._id?.slice(-4)}`
+                accountAddr: `${pendingLoginAccount?._id?.slice(
+                  0,
+                  4
+                )}...${pendingLoginAccount?._id?.slice(-4)}`
               })}
               error={
                 errors.password &&
@@ -109,27 +122,27 @@ const EmailLoginScreen = () => {
       )}
       <Button
         disabled={
-          !!requiresEmailConfFor ||
+          (!!requiresEmailConfFor && !pendingLoginAccount) ||
           isSubmitting ||
           !watch('email', '') ||
-          (accountData && !watch('password', ''))
+          (pendingLoginAccount && !watch('password', ''))
         }
         type="outline"
         text={
           // eslint-disable-next-line no-nested-ternary
-          requiresEmailConfFor
+          requiresEmailConfFor && !pendingLoginAccount
             ? t('Waiting Email Confirmation')
             : // eslint-disable-next-line no-nested-ternary
             isSubmitting
             ? t('Loading...')
-            : !accountData
+            : !pendingLoginAccount
             ? t('Confirm Email')
             : t('Log In')
         }
         onPress={handleFormSubmit}
       />
       {!!requiresEmailConfFor && (
-        <Button type="ghost" text={t('Cancel Login Attempt')} onPress={cancelLoginAttempts} />
+        <Button type="ghost" text={t('Cancel Login Attempt')} onPress={handleCancelLoginAttempts} />
       )}
     </>
   )
