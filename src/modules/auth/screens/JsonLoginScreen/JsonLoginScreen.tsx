@@ -1,7 +1,7 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { View } from 'react-native'
+import { Keyboard, View } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
@@ -14,6 +14,7 @@ import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import spacings from '@modules/common/styles/spacings'
+import { delayPromise } from '@modules/common/utils/promises'
 
 const JsonLoginScreen = () => {
   const { t } = useTranslation()
@@ -30,6 +31,18 @@ const JsonLoginScreen = () => {
       password: ''
     }
   })
+
+  const handleFormSubmit = useCallback(() => {
+    !isWeb && Keyboard.dismiss()
+
+    handleSubmit(async ({ password }) => {
+      // wait state update before Wallet calcs because
+      // when Wallet method is called on devices with slow CPU the UI freezes
+      await delayPromise(100)
+
+      await handleLogin({ password })
+    })()
+  }, [handleSubmit, handleLogin])
 
   return (
     <GradientBackgroundWrapper>
@@ -62,7 +75,7 @@ const JsonLoginScreen = () => {
                   errors.password &&
                   (t('Please fill in at least 8 characters for password.') as string)
                 }
-                onSubmitEditing={handleSubmit(handleLogin)}
+                onSubmitEditing={handleFormSubmit}
               />
             )}
             name="password"
@@ -71,7 +84,7 @@ const JsonLoginScreen = () => {
         <Button
           disabled={inProgress || (!error && !!data && !watch('password', ''))}
           text={inProgress ? t('Importing...') : data ? t('Log In') : t('Select File')}
-          onPress={handleSubmit(handleLogin)}
+          onPress={handleFormSubmit}
           hasBottomSpacing={!error || isWeb}
         />
         {!!error && (

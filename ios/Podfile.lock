@@ -583,8 +583,6 @@ PODS:
   - RNScreens (3.11.1):
     - React-Core
     - React-RCTImage
-  - RNScrypt (1.2.1):
-    - React
   - RNSentry (3.2.13):
     - React-Core
     - Sentry (= 7.9.0)
@@ -716,7 +714,6 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - RNScrypt (from `../node_modules/react-native-scrypt`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNSVG (from `../node_modules/react-native-svg`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -923,8 +920,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
-  RNScrypt:
-    :path: "../node_modules/react-native-scrypt"
   RNSentry:
     :path: "../node_modules/@sentry/react-native"
   RNSVG:
@@ -1045,7 +1040,6 @@ SPEC CHECKSUMS:
   RNGestureHandler: 1dc1ea9d4b64f999042afafbaccf5b143f0b2fa2
   RNReanimated: 64573e25e078ae6bec03b891586d50b9ec284393
   RNScreens: 4d83613b50b74ed277026375dc0810893b0c347f
-  RNScrypt: 95fdef077b482e9fdf8a761120cb69d129ef4016
   RNSentry: 0aa1567f66c20390f3834637fc4f73380dcd0774
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d

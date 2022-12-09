@@ -1,6 +1,7 @@
 import { isEmail, isValidPassword } from 'ambire-common/src/services/validations'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { Keyboard } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
@@ -9,6 +10,7 @@ import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import spacings from '@modules/common/styles/spacings'
+import { delayPromise } from '@modules/common/utils/promises'
 
 const EmailLoginScreen = () => {
   const { t } = useTranslation()
@@ -34,6 +36,18 @@ const EmailLoginScreen = () => {
       setValue('email', requiresEmailConfFor?.email || '')
     }
   }, [requiresEmailConfFor, setValue])
+
+  const handleFormSubmit = useCallback(() => {
+    !isWeb && Keyboard.dismiss()
+
+    handleSubmit(async ({ email, password }) => {
+      // wait state update before Wallet calcs because
+      // when Wallet method is called on devices with slow CPU the UI freezes
+      await delayPromise(100)
+
+      await handleLogin({ email, password })
+    })()
+  }, [handleSubmit, handleLogin])
 
   return (
     <>
@@ -87,7 +101,7 @@ const EmailLoginScreen = () => {
                 errors.password &&
                 (t('Please fill in at least 8 characters for password.') as string)
               }
-              onSubmitEditing={handleSubmit(handleLogin)}
+              onSubmitEditing={handleFormSubmit}
             />
           )}
           name="password"
@@ -112,7 +126,7 @@ const EmailLoginScreen = () => {
             ? t('Confirm Email')
             : t('Log In')
         }
-        onPress={handleSubmit(handleLogin)}
+        onPress={handleFormSubmit}
       />
       {!!requiresEmailConfFor && (
         <Button type="ghost" text={t('Cancel Login Attempt')} onPress={cancelLoginAttempts} />
