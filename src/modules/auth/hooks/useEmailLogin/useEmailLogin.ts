@@ -25,28 +25,28 @@ export default function useEmailLogin() {
   const { t } = useTranslation()
 
   const pendingLoginEmail = getItem('pendingLoginEmail')
+  const pendingLoginAccount = JSON.parse(getItem('pendingLoginAccount') || null)
 
   const [requiresEmailConfFor, setRequiresConfFor] = useState<FormProps | null>(
     pendingLoginEmail ? { email: pendingLoginEmail } : null
   )
 
   const [inProgress, setInProgress] = useState<boolean>(false)
-  const [accountData, setAccountData] = useState<any>(null)
 
-  const requiresPassword = useMemo(() => !!accountData, [accountData])
+  const requiresPassword = useMemo(() => !!pendingLoginAccount, [pendingLoginAccount])
 
   const handleAddAccount = () => {
-    if (!accountData) {
+    if (!pendingLoginAccount) {
       addToast(t('Email not confirmed'), { error: true })
     }
 
-    const { _id: id, salt, identityFactoryAddr, baseIdentityAddr, bytecode } = accountData
-    const { quickAccSigner, primaryKeyBackup } = accountData.meta
+    const { _id: id, salt, identityFactoryAddr, baseIdentityAddr, bytecode } = pendingLoginAccount
+    const { quickAccSigner, primaryKeyBackup } = pendingLoginAccount.meta
 
     onAddAccount(
       {
         id,
-        email: accountData.meta.email,
+        email: pendingLoginAccount.meta.email,
         primaryKeyBackup,
         salt,
         identityFactoryAddr,
@@ -114,10 +114,9 @@ export default function useEmailLogin() {
       }
 
       if (resp.status === 200) {
-        setAccountData(body)
+        setItem('pendingLoginAccount', JSON.stringify(body))
         // Delete the key so that it can't be used anymore on this browser
         removeItem('loginSessionKey')
-        removeItem('pendingLoginEmail')
       } else {
         addToast(
           body.message
@@ -125,7 +124,6 @@ export default function useEmailLogin() {
             : `Unknown no-message error: ${resp.status}`
         )
       }
-      removeItem('pendingLoginEmail')
       setRequiresConfFor(null)
     },
     [addToast, getItem, removeItem, setItem]
@@ -136,19 +134,20 @@ export default function useEmailLogin() {
 
     setRequiresConfFor(null)
     removeItem('pendingLoginEmail')
+    removeItem('pendingLoginAccount')
     setInProgress(true)
-    if (!accountData) {
+    if (!pendingLoginAccount) {
       try {
         await attemptLogin({ email })
       } catch (e: any) {
         addToast(`Unexpected error: ${e.message || e}`)
       }
-    } else if (accountData && !password) {
+    } else if (pendingLoginAccount && !password) {
       addToast('Password is required', { error: true })
     } else {
       try {
         const wallet = await Wallet.fromEncryptedJson(
-          JSON.parse(accountData.meta.primaryKeyBackup),
+          JSON.parse(pendingLoginAccount.meta.primaryKeyBackup),
           password as string
         )
 
@@ -180,11 +179,12 @@ export default function useEmailLogin() {
   const cancelLoginAttempts = useCallback(() => {
     setRequiresConfFor(null)
     removeItem('pendingLoginEmail')
+    removeItem('pendingLoginAccount')
   }, [removeItem])
 
   // try logging in once after EMAIL_VERIFICATION_RECHECK
   useEffect(() => {
-    if (requiresEmailConfFor && !accountData) {
+    if (requiresEmailConfFor && !pendingLoginAccount) {
       const timer = setTimeout(async () => {
         setInProgress(true)
         await attemptLogin(requiresEmailConfFor, true)
@@ -200,6 +200,6 @@ export default function useEmailLogin() {
     requiresEmailConfFor,
     requiresPassword,
     inProgress,
-    accountData
+    pendingLoginAccount
   }
 }
