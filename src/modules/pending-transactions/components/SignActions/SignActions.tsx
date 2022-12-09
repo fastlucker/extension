@@ -1,23 +1,24 @@
 import { isTokenEligible } from 'ambire-common/src/helpers/sendTxnHelpers'
 import { isValidCode } from 'ambire-common/src/services/validations'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { InteractionManager, Keyboard, View } from 'react-native'
+import { Keyboard, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
+import { isWeb } from '@config/env'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import InputConfirmationCode from '@modules/common/components/InputConfirmationCode'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import isInt from '@modules/common/utils/isInt'
+import { delayPromise } from '@modules/common/utils/promises'
 
 import styles from './styles'
 
@@ -39,16 +40,14 @@ const SignActions = ({
     handleSubmit,
     resetField,
     watch,
-    formState: { errors }
+    formState: { errors, isSubmitting }
   } = useForm({
-    mode: 'onSubmit',
-    reValidateMode: 'onSubmit',
+    mode: 'onChange',
     defaultValues: {
       code: ''
     }
   })
   const { t } = useTranslation()
-  const { addToast } = useToast()
 
   // reset this every time the signing status changes
   useEffect(() => {
@@ -94,21 +93,22 @@ const SignActions = ({
       </Panel>
     )
   }
-
+  // TODO:
   const isRecoveryMode =
     signingStatus && signingStatus.finalBundle && signingStatus.finalBundle.recoveryMode
 
   const handleRequestSignConfirmation = () => approveTxn({})
 
-  const onSubmit = async (values: { code: string }) => {
-    InteractionManager.runAfterInteractions(async () => {
-      try {
-        return approveTxn({ code: values.code })
-      } catch (e) {
-        addToast(t('Failed to confirm your identity.') as string, { error: true })
-      }
-    })
-  }
+  const handleFormSubmit = useCallback(() => {
+    !isWeb && Keyboard.dismiss()
+
+    handleSubmit(async ({ code }: any) => {
+      // wait state update before Wallet calcs because
+      // when Wallet method is called on devices with slow CPU the UI freezes
+      await delayPromise(100)
+      await approveTxn({ code })
+    })()
+  }, [approveTxn, handleSubmit])
 
   if (signingStatus && signingStatus.quickAcc) {
     return (
@@ -154,18 +154,12 @@ const SignActions = ({
           <View style={styles.buttonWrapper}>{rejectButton}</View>
           <View style={styles.buttonWrapper}>
             <Button
-              text={signingStatus.inProgress ? t('Confirming...') : t('Confirm')}
+              text={isSubmitting ? t('Confirming...') : t('Confirm')}
               disabled={
-                signingStatus.inProgress ||
+                isSubmitting ||
                 (signingStatus.confCodeRequired !== 'notRequired' && !watch('code', ''))
               }
-              onPress={() => {
-                Keyboard.dismiss()
-                // Needed because of the async animation of the keyboard aware scroll view after keyboard dismiss
-                setTimeout(() => {
-                  handleSubmit(onSubmit)()
-                }, 100)
-              }}
+              onPress={handleFormSubmit}
             />
           </View>
         </View>

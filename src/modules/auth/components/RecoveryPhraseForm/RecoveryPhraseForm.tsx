@@ -2,7 +2,7 @@ import { isValidPassword } from 'ambire-common/src/services/validations'
 import { Wallet } from 'ethers'
 import React, { useCallback, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { InteractionManager, Keyboard, View } from 'react-native'
+import { Keyboard } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
@@ -46,25 +46,23 @@ const RecoveryPhraseForm = () => {
       // when Wallet method is called on devices with slow CPU the UI freezes
       await delayPromise(100)
 
-      InteractionManager.runAfterInteractions(async () => {
-        try {
-          const mnemonic = formatMnemonic(signer)
-          let wallet
+      try {
+        const mnemonic = formatMnemonic(signer)
+        let wallet
 
-          if (memWallet) {
-            wallet = memWallet
-          } else {
-            wallet = Wallet.fromMnemonic(mnemonic)
-          }
-
-          if (!wallet) throw new Error('Invalid secret recovery phrase')
-          setMemWallet(wallet)
-
-          await addExternalSigner({ signer: wallet.privateKey, password })
-        } catch (e) {
-          addToast(e.message || e, { error: true })
+        if (memWallet) {
+          wallet = memWallet
+        } else {
+          wallet = Wallet.fromMnemonic(mnemonic)
         }
-      })
+
+        if (!wallet) throw new Error('Invalid secret recovery phrase')
+        setMemWallet(wallet)
+
+        await addExternalSigner({ signer: wallet.privateKey, password })
+      } catch (e) {
+        addToast(e.message || e, { error: true })
+      }
     })()
   }, [memWallet, handleSubmit, addExternalSigner, addToast])
 

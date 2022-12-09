@@ -21,7 +21,6 @@ import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import isInt from '@modules/common/utils/isInt'
 import useVault from '@modules/vault/hooks/useVault'
 import { SIGNER_TYPES } from '@modules/vault/services/VaultController/types'
-import { isExtension } from '@web/constants/browserAPI'
 import { errorCodes, errorValues } from '@web/constants/errors'
 
 type Props = {
@@ -492,11 +491,11 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
     let approveTxnPromise
 
     if (signerType === SIGNER_TYPES.quickAcc) {
-      approveTxnPromise = approveTxnImplQuickAcc({ code })
+      approveTxnPromise = await approveTxnImplQuickAcc({ code })
     }
 
     if (signerType === SIGNER_TYPES.external) {
-      approveTxnPromise = approveTxnImplExternalSigner()
+      approveTxnPromise = await approveTxnImplExternalSigner()
     }
 
     // TODO: If possible move the signing with HW in the vault
@@ -507,71 +506,68 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
         return
       }
 
-      approveTxnPromise = approveTxnImplHW({ device })
+      approveTxnPromise = await approveTxnImplHW({ device })
     }
 
-    approveTxnPromise
-      .then((bundleResult) => {
-        // special case for approveTxnImplQuickAcc
-        if (!bundleResult) return
+    try {
+      const bundleResult = await approveTxnPromise
+      // special case for approveTxnImplQuickAcc
+      if (!bundleResult) return
 
-        // do not to call this after onDismiss, cause it might cause state to be changed post-unmount
-        if (isMounted.current) setSigningStatus(null)
+      // do not to call this after onDismiss, cause it might cause state to be changed post-unmount
+      if (isMounted.current) setSigningStatus(null)
 
-        // Inform everything that's waiting for the results (eg WalletConnect)
-        const skipResolve =
-          !bundleResult.success &&
-          bundleResult.message &&
-          bundleResult.message.match(/underpriced/i)
-        if (!skipResolve && requestIds)
-          resolveMany(requestIds, {
-            success: bundleResult.success,
-            result: bundleResult.txId,
-            message: bundleResult.message
-          })
+      // Inform everything that's waiting for the results (eg WalletConnect)
+      const skipResolve =
+        !bundleResult.success && bundleResult.message && bundleResult.message.match(/underpriced/i)
+      if (!skipResolve && requestIds)
+        resolveMany(requestIds, {
+          success: bundleResult.success,
+          result: bundleResult.txId,
+          message: bundleResult.message
+        })
 
-        if (bundleResult.success) {
-          onBroadcastedTxn(bundleResult.txId)
+      if (bundleResult.success) {
+        onBroadcastedTxn(bundleResult.txId)
+        onDismissSendTxns()
+      } else {
+        // to force replacementBundle to be null, so it's not filled from previous state change in App.js in useEffect
+        // basically close the modal if the txn was already mined
+        if (bundleResult.message.includes('was already mined')) {
           onDismissSendTxns()
-        } else {
-          // to force replacementBundle to be null, so it's not filled from previous state change in App.js in useEffect
-          // basically close the modal if the txn was already mined
-          if (bundleResult.message.includes('was already mined')) {
-            onDismissSendTxns()
-          }
-          addToast(
-            i18n.t('Transaction error: {{error}}', {
-              error: getErrorMessage(bundleResult)
-            }) as string,
-            { error: true }
-          )
         }
-      })
-      .catch((e) => {
-        if (isMounted.current) setSigningStatus(null)
-        if (e && e.message.includes('must provide an Ethereum address')) {
-          addToast(
-            i18n.t(
-              "Signing error: not connected with the correct address. Make sure you're connected with {{address}}.",
-              { address: bundle.signer.address }
-            ) as string,
-            { error: true }
-          )
-        } else if (e && e.message.includes('0x6b0c')) {
-          // not sure if that's actually the case with this hellish error, but after unlocking the device it no longer appeared
-          // however, it stopped appearing after that even if the device is locked, so I'm not sure it's related...
-          addToast(
-            i18n.t(
-              'Ledger: unknown error (0x6b0c): is your Ledger unlocked and in the Ethereum application?'
-            ) as string,
-            { error: true }
-          )
-        } else {
-          addToast(i18n.t('Signing error: {{error}}', { error: getErrorMessage(e) }) as string, {
-            error: true
-          })
-        }
-      })
+        addToast(
+          i18n.t('Transaction error: {{error}}', {
+            error: getErrorMessage(bundleResult)
+          }) as string,
+          { error: true }
+        )
+      }
+    } catch (e) {
+      if (isMounted.current) setSigningStatus(null)
+      if (e && e.message.includes('must provide an Ethereum address')) {
+        addToast(
+          i18n.t(
+            "Signing error: not connected with the correct address. Make sure you're connected with {{address}}.",
+            { address: bundle.signer.address }
+          ) as string,
+          { error: true }
+        )
+      } else if (e && e.message.includes('0x6b0c')) {
+        // not sure if that's actually the case with this hellish error, but after unlocking the device it no longer appeared
+        // however, it stopped appearing after that even if the device is locked, so I'm not sure it's related...
+        addToast(
+          i18n.t(
+            'Ledger: unknown error (0x6b0c): is your Ledger unlocked and in the Ethereum application?'
+          ) as string,
+          { error: true }
+        )
+      } else {
+        addToast(i18n.t('Signing error: {{error}}', { error: getErrorMessage(e) }) as string, {
+          error: true
+        })
+      }
+    }
   }
 
   // Not applicable when .requestIds is not defined (replacement bundle)
