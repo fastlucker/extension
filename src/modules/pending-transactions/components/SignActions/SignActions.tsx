@@ -103,7 +103,7 @@ const SignActions = ({
   const onSubmit = async (values: { code: string }) => {
     InteractionManager.runAfterInteractions(async () => {
       try {
-        return approveTxn({ code: values.code })
+        await approveTxn({ code: values.code })
       } catch (e) {
         addToast(t('Failed to confirm your identity.') as string, { error: true })
       }
