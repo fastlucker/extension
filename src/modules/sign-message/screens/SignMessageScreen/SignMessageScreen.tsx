@@ -10,7 +10,7 @@ import Blockies from '@modules/common/components/Blockies'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import NumberInput from '@modules/common/components/NumberInput'
+import InputConfirmationCode from '@modules/common/components/InputConfirmationCode'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
@@ -218,15 +218,10 @@ const SignScreenScreen = ({ navigation }: any) => {
         {confirmationType === 'otp' && (
           <Text style={spacings.mbTy}>{t('Please enter your OTP code.')}</Text>
         )}
-        <NumberInput
-          placeholder={
-            confirmationType === 'otp' ? t('Authenticator OTP code') : t('Confirmation code')
-          }
+        <InputConfirmationCode
+          confirmationType={confirmationType}
           onChangeText={(val) => setValue('code', val)}
-          keyboardType="numeric"
-          autoCorrect={false}
           value={watch('code', '')}
-          autoFocus
         />
         <Button
           text={t('Confirm')}

@@ -62,10 +62,26 @@ export default class VaultController {
     })
   }
 
+  cleanMemVault() {
+    if (this.#memVault) {
+      // When assigning `this.#memVault` to an empty object,
+      // the garbage collector will clean the memory automatically.
+      // This variant is super fast and will work in most cases, however,
+      // it may keep the references to the objects in memory. See:
+      // {@link https://stackoverflow.com/a/19316873/1333836}
+      // So instead, delete properties one-by-one.
+      Object.keys(this.#memVault).forEach(
+        (key: string) => this.#memVault && delete this.#memVault[key]
+      )
+    }
+  }
+
   // forgotten password flow
   // password = the new password that will lock the app
   // reset password and remove the added accounts/reset vault
   resetVault({ password }: { password: string }) {
+    this.cleanMemVault()
+
     return new Promise((resolve, reject) => {
       encrypt(password, JSON.stringify({}))
         .then((blob: string) => {
@@ -119,6 +135,7 @@ export default class VaultController {
 
   lockVault() {
     this.#password = null
+    this.cleanMemVault()
     this.#memVault = null
 
     return Promise.resolve(VAULT_STATUS.LOCKED)
@@ -131,7 +148,7 @@ export default class VaultController {
   addToVault({ addr, item }: { addr: string; item: VaultItem }) {
     if (!this.#password || this.#memVault === null) throw new Error('Unauthenticated')
 
-    const updatedVault = this.#memVault || {}
+    const updatedVault = { ...this.#memVault }
     updatedVault[addr] = item
 
     return new Promise((resolve, reject) => {
@@ -150,8 +167,7 @@ export default class VaultController {
   removeFromVault({ addr }: { addr: string }) {
     if (!this.#password || this.#memVault === null) throw new Error('Unauthenticated')
 
-    const updatedVault = this.#memVault || {}
-
+    const updatedVault = { ...this.#memVault }
     delete updatedVault[addr]
 
     return new Promise((resolve, reject) => {
