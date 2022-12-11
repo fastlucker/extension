@@ -34,7 +34,7 @@ const CreateNewVaultScreen = ({ route }: any) => {
     defaultValues: {
       password: '',
       confirmPassword: '',
-      nextRoute: route.params?.nextRoute
+      nextRoute: route.params?.nextRoute || 'auth'
     }
   })
 

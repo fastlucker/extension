@@ -165,10 +165,15 @@ const AuthStack = () => {
     SplashScreen.hideAsync()
   }, [])
 
-  // Checks whether there is a pending email login attempt. It happens when user
-  // request email login and closes the app. When the app is opened
-  // the second time - an immediate email login attempt will be triggered.
-  const initialRouteName = getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
+  const initialRouteName =
+    vaultStatus === VAULT_STATUS.NOT_INITIALIZED
+      ? 'createVault'
+      : // Checks whether there is a pending email login attempt. It happens when user
+      // request email login and closes the app. When the app is opened
+      // the second time - an immediate email login attempt will be triggered.
+      getItem('pendingLoginEmail')
+      ? 'emailLogin'
+      : 'auth'
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>

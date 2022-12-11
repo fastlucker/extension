@@ -183,18 +183,20 @@ const AuthStack = () => {
     }
   }, [vaultStatus])
 
-  // Checks whether there is a pending email login attempt. It happens when user
-  // request email login and closes the app. When the app is opened
-  // the second time - an immediate email login attempt will be triggered.
-  const initialRouteName = getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
+  if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+  const initialRouteName =
+    vaultStatus === VAULT_STATUS.NOT_INITIALIZED
+      ? 'createVault'
+      : // Checks whether there is a pending email login attempt. It happens when user
+      // request email login and closes the app. When the app is opened
+      // the second time - an immediate email login attempt will be triggered.
+      getItem('pendingLoginEmail')
+      ? 'emailLogin'
+      : 'auth'
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
-      <Stack.Screen
-        options={{ title: t('Welcome to\nAmbire Wallet Extension') }}
-        name="auth"
-        component={AuthScreen}
-      />
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <Stack.Screen
           name="createVault"
@@ -202,6 +204,11 @@ const AuthStack = () => {
           component={CreateNewVaultScreen}
         />
       )}
+      <Stack.Screen
+        options={{ title: t('Welcome to\nAmbire Wallet Extension') }}
+        name="auth"
+        component={AuthScreen}
+      />
       <Stack.Screen
         name="emailLogin"
         options={{ title: t('Login') }}
