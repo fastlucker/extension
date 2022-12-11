@@ -8,34 +8,22 @@ import useToast from '@modules/common/hooks/useToast'
 import useVault from '@modules/vault/hooks/useVault'
 
 type AddSignerFormValues = {
-  password: string
   signer: string
 }
 
 const useExternalSignerLogin = () => {
   const { addToast } = useToast()
-  const { isValidPassword, addToVault } = useVault()
+  const { addToVault } = useVault()
   const { onEOASelected } = useEOA()
 
   // Add new Ambire account or login with an existing one
   // default signer of the account will be the passed external private key
   const addExternalSigner = useCallback(
-    async ({ signer, password }: AddSignerFormValues) => {
+    async ({ signer }: AddSignerFormValues) => {
       try {
         if (!signer) {
           !isWeb && Keyboard.dismiss()
           addToast('Signer can not be empty.', {
-            error: true,
-            timeout: 4000
-          })
-          return
-        }
-
-        const isValidPass = await isValidPassword({ password })
-
-        if (!isValidPass) {
-          !isWeb && Keyboard.dismiss()
-          addToast('Invalid password.', {
             error: true,
             timeout: 4000
           })
@@ -56,19 +44,15 @@ const useExternalSignerLogin = () => {
         // the public addr of the signer
         const addr = await wallet.getAddress()
 
-        addToVault({
+        await addToVault({
           addr,
           item: {
             signer: wallet.privateKey,
             type: 'external'
           }
         })
-          .then(() => {
-            onEOASelected(addr, { type: 'Web3' })
-          })
-          .catch((e) => {
-            addToast(e.message || e, { error: true })
-          })
+
+        await onEOASelected(addr, { type: 'Web3' })
       } catch (e) {
         !isWeb && Keyboard.dismiss()
         addToast(e.message || e, {
@@ -77,7 +61,7 @@ const useExternalSignerLogin = () => {
         })
       }
     },
-    [onEOASelected, addToast, isValidPassword, addToVault]
+    [onEOASelected, addToast, addToVault]
   )
 
   return {
