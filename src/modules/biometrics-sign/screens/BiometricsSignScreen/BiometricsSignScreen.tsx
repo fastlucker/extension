@@ -28,9 +28,9 @@ const BiometricsSignScreen = () => {
   const isFocused = useIsFocused()
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const {
-    addVaultPasswordToDeviceSecureStore,
+    addKeystorePasswordToDeviceSecureStore,
     biometricsEnabled,
-    removeVaultPasswordFromDeviceSecureStore
+    removeKeystorePasswordFromDeviceSecureStore
   } = useBiometricsSign()
   const { isValidPassword } = useVault()
   const {
@@ -66,7 +66,7 @@ const BiometricsSignScreen = () => {
       )
     }
 
-    const enable = await addVaultPasswordToDeviceSecureStore(password)
+    const enable = await addKeystorePasswordToDeviceSecureStore(password)
     if (enable) {
       addToast(t('Unlock with biometrics enabled!') as string, { timeout: 3000 })
       navigation.navigate('dashboard')
@@ -75,7 +75,7 @@ const BiometricsSignScreen = () => {
   }
 
   const handleDisable = async () => {
-    const disabled = await removeVaultPasswordFromDeviceSecureStore()
+    const disabled = await removeKeystorePasswordFromDeviceSecureStore()
     if (disabled) {
       addToast(t('Unlock with biometrics disabled!') as string, { timeout: 3000 })
       navigation.navigate('dashboard')

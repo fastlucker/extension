@@ -31,7 +31,7 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
     setBiometricsEnabled(hasBiometricsEnabled)
   }, [getItem])
 
-  const addVaultPasswordToDeviceSecureStore = useCallback(
+  const addKeystorePasswordToDeviceSecureStore = useCallback(
     async (password: string) => {
       try {
         await requestLocalAuthFlagging(() =>
@@ -61,7 +61,7 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
     [addToast, t, setItem]
   )
 
-  const removeVaultPasswordFromDeviceSecureStore = useCallback(async () => {
+  const removeKeystorePasswordFromDeviceSecureStore = useCallback(async () => {
     try {
       await requestLocalAuthFlagging(() =>
         SecureStore.deleteItemAsync(SECURE_STORE_KEY_KEYSTORE_PASSWORD, {
@@ -95,16 +95,16 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
     <BiometricsSignContext.Provider
       value={useMemo(
         () => ({
-          addVaultPasswordToDeviceSecureStore,
+          addKeystorePasswordToDeviceSecureStore,
           biometricsEnabled,
-          removeVaultPasswordFromDeviceSecureStore,
+          removeKeystorePasswordFromDeviceSecureStore,
           getVaultPassword
         }),
         [
           biometricsEnabled,
           getVaultPassword,
-          addVaultPasswordToDeviceSecureStore,
-          removeVaultPasswordFromDeviceSecureStore
+          addKeystorePasswordToDeviceSecureStore,
+          removeKeystorePasswordFromDeviceSecureStore
         ]
       )}
     >
