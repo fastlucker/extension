@@ -129,7 +129,7 @@ const UnlockVaultScreen = ({ navigation }: any) => {
             <View style={[flexboxStyles.justifyCenter, flexboxStyles.directionRow, spacings.pvTy]}>
               <TouchableOpacity onPress={handleForgotPassword} hitSlop={FOOTER_BUTTON_HIT_SLOP}>
                 <Text weight="medium" fontSize={12}>
-                  Forgot password?
+                  {t('Forgot password?')}
                 </Text>
               </TouchableOpacity>
               {biometricsEnabled && (
@@ -142,7 +142,7 @@ const UnlockVaultScreen = ({ navigation }: any) => {
                     hitSlop={FOOTER_BUTTON_HIT_SLOP}
                   >
                     <Text weight="medium" fontSize={12}>
-                      Retry biometrics
+                      {t('Retry biometrics')}
                     </Text>
                   </TouchableOpacity>
                 </>
