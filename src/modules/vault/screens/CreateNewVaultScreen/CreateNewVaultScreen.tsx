@@ -61,9 +61,26 @@ const CreateNewVaultScreen = ({ route }: any) => {
               flexboxStyles.justifyEnd
             ]}
           >
-            <Text weight="regular" style={spacings.mb} color={colors.titan_50}>
-              {t('Create a password to protect your accounts/wallets on this device')}
-            </Text>
+            <View style={[spacings.mb, spacings.phTy]}>
+              <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={12}>
+                {t('Welcome to the Ambire Wallet extension. Let’s set up your Key Store password.')}
+              </Text>
+              <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={12}>
+                {t(
+                  '1.  Ambire Key Store will protect your Ambire wallet with email password or external signer on this device.'
+                )}
+              </Text>
+              <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={12}>
+                {t(
+                  '2.  First, pick your Ambire Key Store passphrase. It is unique for this device and it should be different from your account password.'
+                )}
+              </Text>
+              <Text weight="light" color={colors.titan} fontSize={12}>
+                {t(
+                  '3.  You will use your passphrase to unlock the Ambire extension and sign transactions on this device.'
+                )}
+              </Text>
+            </View>
 
             <Controller
               control={control}
@@ -107,13 +124,11 @@ const CreateNewVaultScreen = ({ route }: any) => {
               name="confirmPassword"
             />
 
-            <View style={spacings.ptSm}>
-              <Button
-                disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
-                text={isSubmitting ? t('Creating...') : t('Create Password')}
-                onPress={handleSubmit(createVault)}
-              />
-            </View>
+            <Button
+              disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
+              text={isSubmitting ? t('Setting up...') : t('Setup Ambire Key Store')}
+              onPress={handleSubmit(createVault)}
+            />
           </View>
         </Wrapper>
       </TouchableWithoutFeedback>

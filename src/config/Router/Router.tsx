@@ -180,7 +180,7 @@ const AuthStack = () => {
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <Stack.Screen
           name="createVault"
-          options={{ title: t('Create App Lock') }}
+          options={{ title: t('Setup Your Ambire Key Store') }}
           component={CreateNewVaultScreen}
         />
       )}
