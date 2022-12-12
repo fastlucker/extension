@@ -1,28 +1,26 @@
-import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { HEADER_HEIGHT } from '@config/Router/Header/style'
-import { DEVICE_WIDTH, SPACING_LG } from '@modules/common/styles/spacings'
 
 interface Style {
   backgroundImgWrapper: ViewStyle
-  backgroundImg: ImageStyle
 }
+
+// Bump up the negative top part more than the header height,
+// so that it bleeds out of the top part of the screen more.
+const TOP_OFFSET = isWeb ? 30 : 85
 
 const styles = StyleSheet.create<Style>({
   backgroundImgWrapper: {
-    width: DEVICE_WIDTH + SPACING_LG,
     position: 'absolute',
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 0,
-    top: -(HEADER_HEIGHT + SPACING_LG),
+    top: -(HEADER_HEIGHT + TOP_OFFSET),
     paddingLeft: 2,
     alignSelf: 'center'
-  },
-  backgroundImg: {
-    width: '100%',
-    height: '100%'
   }
 })
 
