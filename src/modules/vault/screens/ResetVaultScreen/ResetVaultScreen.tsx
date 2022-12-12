@@ -1,9 +1,8 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Image, Keyboard, TouchableWithoutFeedback, View } from 'react-native'
+import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
-import LockBackgroundIcon from '@assets/images/LockBackground.png'
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
@@ -15,9 +14,8 @@ import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import LockBackground from '@modules/vault/components/LockBackground'
 import useVault from '@modules/vault/hooks/useVault'
-
-import styles from './styles'
 
 const ResetVaultScreen = () => {
   const { t } = useTranslation()
@@ -38,9 +36,7 @@ const ResetVaultScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <View style={styles.backgroundImgWrapper}>
-        <Image source={LockBackgroundIcon} style={styles.backgroundImg} resizeMode="contain" />
-      </View>
+      <LockBackground />
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
