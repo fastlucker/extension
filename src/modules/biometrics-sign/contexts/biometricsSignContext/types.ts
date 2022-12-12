@@ -1,15 +1,13 @@
 export interface BiometricsSignContextReturnType {
-  isLoading: boolean
-  selectedAccHasPassword: boolean
-  addSelectedAccPassword: (password: string) => Promise<boolean>
-  removeSelectedAccPassword: (accountId?: string) => Promise<boolean>
-  getSelectedAccPassword: () => Promise<string | null>
+  biometricsEnabled: boolean
+  addVaultPasswordToDeviceSecureStore: (password: string) => Promise<boolean>
+  removeVaultPasswordFromDeviceSecureStore: () => Promise<boolean>
+  getVaultPassword: () => Promise<string | null>
 }
 
 export const biometricsSignContextDefaults: BiometricsSignContextReturnType = {
-  isLoading: true,
-  selectedAccHasPassword: false,
-  addSelectedAccPassword: () => Promise.resolve(false),
-  removeSelectedAccPassword: () => Promise.resolve(false),
-  getSelectedAccPassword: () => Promise.resolve(null)
+  biometricsEnabled: false,
+  addVaultPasswordToDeviceSecureStore: () => Promise.resolve(false),
+  removeVaultPasswordFromDeviceSecureStore: () => Promise.resolve(false),
+  getVaultPassword: () => Promise.resolve(null)
 }
