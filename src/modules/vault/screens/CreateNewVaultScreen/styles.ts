@@ -15,7 +15,7 @@ const styles = StyleSheet.create<Style>({
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: -5,
+    zIndex: 0,
     top: -(HEADER_HEIGHT + SPACING_LG),
     paddingLeft: 2,
     alignSelf: 'center'
