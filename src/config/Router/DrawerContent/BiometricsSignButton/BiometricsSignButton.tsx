@@ -32,7 +32,7 @@ const BiometricsSignButton: React.FC<Props> = ({ handleNavigate }) => {
   return (
     <TouchableOpacity onPress={() => handleNavigate('biometrics-sign-change')}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
-        {biometricsEnabled ? t('Manage biometrics sign') : t('Set biometrics sign')}
+        {biometricsEnabled ? t('Manage biometrics unlock') : t('Set biometrics unlock')}
       </Text>
     </TouchableOpacity>
   )

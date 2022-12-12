@@ -145,9 +145,7 @@ const BiometricsSignScreen = () => {
     <GradientBackgroundWrapper>
       <Wrapper style={spacings.mt}>
         <Text type="small" style={spacings.mbLg}>
-          {t(
-            'You can opt-in to use your phone biometrics to sign transactions instead of your Ambire Keystore password.'
-          )}
+          {t('You can opt-in to use your phone biometrics to unlock your Ambire Keystore.')}
         </Text>
         {renderContent()}
       </Wrapper>
