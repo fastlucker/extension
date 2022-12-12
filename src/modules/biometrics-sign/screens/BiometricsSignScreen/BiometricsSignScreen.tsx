@@ -61,14 +61,14 @@ const BiometricsSignScreen = () => {
     if (!isValidVaultPassword) {
       return setError(
         'password',
-        { type: 'focus', message: t('Invalid password.') },
+        { type: 'focus', message: t('Wrong Ambire Keystore password.') },
         { shouldFocus: true }
       )
     }
 
     const enable = await addVaultPasswordToDeviceSecureStore(password)
     if (enable) {
-      addToast(t('Biometrics sign enabled!') as string, { timeout: 3000 })
+      addToast(t('Unlock with biometrics enabled!') as string, { timeout: 3000 })
       navigation.navigate('dashboard')
     }
     return enable
@@ -77,7 +77,7 @@ const BiometricsSignScreen = () => {
   const handleDisable = async () => {
     const disabled = await removeVaultPasswordFromDeviceSecureStore()
     if (disabled) {
-      addToast(t('Biometrics sign disabled!') as string, { timeout: 3000 })
+      addToast(t('Unlock with biometrics disabled!') as string, { timeout: 3000 })
       navigation.navigate('dashboard')
     }
   }
