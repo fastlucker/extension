@@ -1,10 +1,11 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
+import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -16,14 +17,17 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import LockBackground from '@modules/vault/components/LockBackground'
 import useVault from '@modules/vault/hooks/useVault'
 
+const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
+
 const UnlockVaultScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { unlockVault } = useVault()
-
+  const { biometricsEnabled } = useBiometricsSign()
   const {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting }
   } = useForm({
     reValidateMode: 'onChange',
@@ -31,6 +35,24 @@ const UnlockVaultScreen = ({ navigation }: any) => {
       password: ''
     }
   })
+
+  useEffect(() => {
+    if (!biometricsEnabled) {
+      return
+    }
+
+    handleSubmit(unlockVault)()
+  }, [biometricsEnabled, handleSubmit, unlockVault])
+
+  const handleRetryBiometrics = useCallback(() => {
+    setValue('password', '')
+    return handleSubmit(unlockVault)()
+  }, [handleSubmit, unlockVault, setValue])
+
+  const handleForgotPassword = useCallback(
+    () => navigation.navigate('resetVault', { resetPassword: true }),
+    [navigation]
+  )
 
   return (
     <GradientBackgroundWrapper>
@@ -60,12 +82,10 @@ const UnlockVaultScreen = ({ navigation }: any) => {
             </View>
             <Controller
               control={control}
-              rules={{ validate: isValidPassword }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <InputPassword
                   onBlur={onBlur}
                   placeholder={t('Password')}
-                  autoFocus
                   onChangeText={onChange}
                   isValid={isValidPassword(value)}
                   value={value}
@@ -87,15 +107,27 @@ const UnlockVaultScreen = ({ navigation }: any) => {
                 onPress={handleSubmit(unlockVault)}
               />
             </View>
-            <View style={[flexboxStyles.alignCenter, spacings.pvTy]}>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('resetVault', { resetPassword: true })}
-                hitSlop={{ top: 10, bottom: 15 }}
-              >
+            <View style={[flexboxStyles.justifyCenter, flexboxStyles.directionRow, spacings.pvTy]}>
+              <TouchableOpacity onPress={handleForgotPassword} hitSlop={FOOTER_BUTTON_HIT_SLOP}>
                 <Text weight="medium" fontSize={12}>
-                  Forgot password?
+                  {t('Forgot password?')}
                 </Text>
               </TouchableOpacity>
+              {biometricsEnabled && (
+                <>
+                  <Text weight="medium" fontSize={12}>
+                    {' | '}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={handleRetryBiometrics}
+                    hitSlop={FOOTER_BUTTON_HIT_SLOP}
+                  >
+                    <Text weight="medium" fontSize={12}>
+                      {t('Retry biometrics')}
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           </View>
         </Wrapper>

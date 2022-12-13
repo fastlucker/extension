@@ -2,11 +2,10 @@ import * as SecureStore from 'expo-secure-store'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
-import useAccounts from '@modules/common/hooks/useAccounts'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
-import { SECURE_STORE_KEY_ACCOUNT } from '@modules/settings/constants'
+import { SECURE_STORE_KEY_KEYSTORE_PASSWORD } from '@modules/settings/constants'
 
 import { biometricsSignContextDefaults, BiometricsSignContextReturnType } from './types'
 
@@ -14,50 +13,32 @@ const BiometricsSignContext = createContext<BiometricsSignContextReturnType>(
   biometricsSignContextDefaults
 )
 
-// The secure key is separate for each account. This way, it appears as a
-// separate value in the Keychain / Keystore, suffixed by the account id.
-const getAccountSecureKey = (acc: string) => `${SECURE_STORE_KEY_ACCOUNT}-${acc}`
-
 const BiometricsSignProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { getItem, setItem, removeItem } = useStorageController()
-  const { selectedAcc } = useAccounts()
-  const [selectedAccHasPassword, setSelectedAccHasPassword] = useState<boolean>(
-    biometricsSignContextDefaults.selectedAccHasPassword
+  const [biometricsEnabled, setBiometricsEnabled] = useState<boolean>(
+    biometricsSignContextDefaults.biometricsEnabled
   )
-  const [isLoading, setIsLoading] = useState<boolean>(biometricsSignContextDefaults.isLoading)
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        const key = getAccountSecureKey(selectedAcc)
-        // Checks via a flag in the Async Storage.
-        // Because otherwise, figuring out if the selected account has password
-        // via the `SecureStore` requires the user every time to
-        // authenticate via his phone local auth.
-        const accountHasPassword = getItem(key)
+    // Checks via a flag in the Async Storage.
+    // Because otherwise, figuring out if the selected account has password
+    // via the `SecureStore` requires the user every time to
+    // authenticate via his phone local auth.
+    const hasBiometricsEnabled = !!getItem(SECURE_STORE_KEY_KEYSTORE_PASSWORD)
 
-        setSelectedAccHasPassword(!!accountHasPassword)
-      } catch (e) {
-        // Fail silently and assume account doesn't have a password set
-        // for the selected account. Which is fine.
-      }
+    setBiometricsEnabled(hasBiometricsEnabled)
+  }, [getItem])
 
-      setIsLoading(false)
-    })()
-  }, [selectedAcc, getItem])
-
-  const addSelectedAccPassword = useCallback(
+  const addKeystorePasswordToDeviceSecureStore = useCallback(
     async (password: string) => {
       try {
-        const key = getAccountSecureKey(selectedAcc)
-
         await requestLocalAuthFlagging(() =>
-          SecureStore.setItemAsync(key, password, {
+          SecureStore.setItemAsync(SECURE_STORE_KEY_KEYSTORE_PASSWORD, password, {
             authenticationPrompt: t('Confirm your identity'),
             requireAuthentication: true,
-            keychainService: key
+            keychainService: SECURE_STORE_KEY_KEYSTORE_PASSWORD
           })
         )
 
@@ -66,9 +47,9 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
         // Because otherwise, figuring out if the selected account has password
         // via the `SecureStore` requires the user every time to
         // authenticate via his phone local auth.
-        setItem(key, 'true')
+        setItem(SECURE_STORE_KEY_KEYSTORE_PASSWORD, 'true')
 
-        setSelectedAccHasPassword(true)
+        setBiometricsEnabled(true)
         return true
       } catch (error) {
         addToast(t('Error saving. {{error}}}', { error }) as string, {
@@ -77,67 +58,53 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
         return false
       }
     },
-    [addToast, selectedAcc, t, setItem]
+    [addToast, t, setItem]
   )
 
-  const removeSelectedAccPassword = useCallback(
-    async (accountId?: string) => {
-      try {
-        const key = getAccountSecureKey(accountId || selectedAcc)
+  const removeKeystorePasswordFromDeviceSecureStore = useCallback(async () => {
+    try {
+      await requestLocalAuthFlagging(() =>
+        SecureStore.deleteItemAsync(SECURE_STORE_KEY_KEYSTORE_PASSWORD, {
+          authenticationPrompt: t('Confirm your identity'),
+          requireAuthentication: true,
+          keychainService: SECURE_STORE_KEY_KEYSTORE_PASSWORD
+        })
+      )
 
-        await requestLocalAuthFlagging(() =>
-          SecureStore.deleteItemAsync(key, {
-            authenticationPrompt: t('Confirm your identity'),
-            requireAuthentication: true,
-            keychainService: key
-          })
-        )
+      removeItem(SECURE_STORE_KEY_KEYSTORE_PASSWORD)
+      setBiometricsEnabled(false)
 
-        removeItem(key)
+      return true
+    } catch (e) {
+      addToast(t('Removing account password failed.') as string, { error: true })
+      return false
+    }
+  }, [addToast, t, removeItem])
 
-        // If the change is made for the selected account, clean up the other flag too.
-        const isForTheSelectedAccount = !accountId
-        if (isForTheSelectedAccount) {
-          setSelectedAccHasPassword(false)
-        }
-
-        return true
-      } catch (e) {
-        addToast(t('Removing account password failed.') as string, { error: true })
-        return false
-      }
-    },
-    [addToast, selectedAcc, t, removeItem]
-  )
-
-  const getSelectedAccPassword = useCallback(() => {
-    const key = getAccountSecureKey(selectedAcc)
-
+  const getKeystorePassword = useCallback(() => {
     return requestLocalAuthFlagging(() =>
-      SecureStore.getItemAsync(key, {
+      SecureStore.getItemAsync(SECURE_STORE_KEY_KEYSTORE_PASSWORD, {
         authenticationPrompt: t('Confirm your identity'),
         requireAuthentication: true,
-        keychainService: key
+        keychainService: SECURE_STORE_KEY_KEYSTORE_PASSWORD
       })
     )
-  }, [selectedAcc, t])
+  }, [t])
 
   return (
     <BiometricsSignContext.Provider
       value={useMemo(
         () => ({
-          isLoading,
-          addSelectedAccPassword,
-          selectedAccHasPassword,
-          removeSelectedAccPassword,
-          getSelectedAccPassword
+          addKeystorePasswordToDeviceSecureStore,
+          biometricsEnabled,
+          removeKeystorePasswordFromDeviceSecureStore,
+          getKeystorePassword
         }),
         [
-          isLoading,
-          selectedAccHasPassword,
-          getSelectedAccPassword,
-          addSelectedAccPassword,
-          removeSelectedAccPassword
+          biometricsEnabled,
+          getKeystorePassword,
+          addKeystorePasswordToDeviceSecureStore,
+          removeKeystorePasswordFromDeviceSecureStore
         ]
       )}
     >

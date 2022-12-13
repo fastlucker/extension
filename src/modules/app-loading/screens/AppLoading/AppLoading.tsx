@@ -62,10 +62,10 @@ const AppLoading = () => {
                                 <WalletConnectProvider>
                                   <AmbireExtensionProvider>
                                     <RequestsProvider>
-                                      <VaultProvider>
-                                        <AddressBookProvider>
-                                          <BiometricsProvider>
-                                            <BiometricsSignProvider>
+                                      <BiometricsProvider>
+                                        <BiometricsSignProvider>
+                                          <VaultProvider>
+                                            <AddressBookProvider>
                                               <AppLockProvider>
                                                 <AttentionGrabberProvider>
                                                   <PrivateModeProvider>
@@ -82,10 +82,10 @@ const AppLoading = () => {
                                                 </AttentionGrabberProvider>
                                                 <PortalHost name="global" />
                                               </AppLockProvider>
-                                            </BiometricsSignProvider>
-                                          </BiometricsProvider>
-                                        </AddressBookProvider>
-                                      </VaultProvider>
+                                            </AddressBookProvider>
+                                          </VaultProvider>
+                                        </BiometricsSignProvider>
+                                      </BiometricsProvider>
                                     </RequestsProvider>
                                   </AmbireExtensionProvider>
                                 </WalletConnectProvider>

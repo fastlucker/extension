@@ -37,7 +37,6 @@ interface Props {
 const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { t } = useTranslation()
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
-  const { removeSelectedAccPassword } = useBiometricsSign()
   const { removeAppLock } = useAppLock()
   const { removeFromVault, isSignerAddedToVault } = useVault()
 
@@ -56,10 +55,6 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     const onChangeAccount = () => handleChangeAccount(account.id)
 
     const removeAccount = async () => {
-      // Remove account password, because it gets persisted in the iOS Keychain
-      // or in the Android Keystore.
-      await removeSelectedAccPassword(account.id)
-
       // In case this account is the only one logged in,
       // clean up the app passcode too.
       const isLastAccount = accounts.length === 1

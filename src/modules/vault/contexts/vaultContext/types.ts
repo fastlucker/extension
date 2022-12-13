@@ -11,7 +11,7 @@ export interface VaultContextReturnType {
     confirmPassword: string
   }) => void
   resetVault: ({ password, confirmPassword }: { password: string; confirmPassword: string }) => void
-  unlockVault: ({ password }: { password: string }) => void
+  unlockVault: ({ password }: { password: string }) => Promise<any>
   lockVault: () => void
   isValidPassword: ({ password }: { password: string }) => Promise<boolean>
   addToVault: ({ addr, item }: { addr: string; item: VaultItem }) => Promise<any>
@@ -51,7 +51,7 @@ export const vaultContextDefaults: VaultContextReturnType = {
   vaultStatus: VAULT_STATUS.LOADING,
   createVault: () => {},
   resetVault: () => {},
-  unlockVault: () => {},
+  unlockVault: () => Promise.resolve(false),
   lockVault: () => {},
   isValidPassword: () => Promise.resolve(false),
   addToVault: () => Promise.resolve(false),

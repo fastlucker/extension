@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
+import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
@@ -21,6 +22,7 @@ const VaultProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
   const { onRemoveAllAccounts } = useAccounts()
   const { getItem, storageControllerInstance } = useStorageController()
+  const { biometricsEnabled, getKeystorePassword } = useBiometricsSign()
 
   /**
    * For the extension, we need to get vault status from background.
@@ -142,10 +144,23 @@ const VaultProvider: React.FC = ({ children }) => {
   )
 
   const unlockVault = useCallback(
-    (props: { password: string }) => {
-      requestVaultControllerMethod({
+    async ({ password: incomingPassword }: { password?: string }) => {
+      let password = incomingPassword
+
+      if (biometricsEnabled && !password) {
+        try {
+          const passwordComingFromBiometrics = await getKeystorePassword()
+          if (passwordComingFromBiometrics) {
+            password = passwordComingFromBiometrics
+          }
+        } catch (e) {
+          return Promise.reject()
+        }
+      }
+
+      return requestVaultControllerMethod({
         method: 'unlockVault',
-        props
+        props: { password }
       })
         .then(() => {
           setVaultStatus(VAULT_STATUS.UNLOCKED)
@@ -154,7 +169,7 @@ const VaultProvider: React.FC = ({ children }) => {
           addToast(e?.message || e, { error: true })
         })
     },
-    [addToast, requestVaultControllerMethod]
+    [addToast, biometricsEnabled, getKeystorePassword, requestVaultControllerMethod]
   )
 
   const lockVault = useCallback(() => {

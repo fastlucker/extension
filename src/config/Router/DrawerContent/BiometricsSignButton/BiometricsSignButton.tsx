@@ -16,10 +16,9 @@ interface Props {
 const BiometricsSignButton: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
   const { isLoading: isLoadingBiometrics, hasBiometricsHardware } = useBiometrics()
-  const { isLoading: isLoadingBiometricsSign, selectedAccHasPassword } = useBiometricsSign()
+  const { biometricsEnabled } = useBiometricsSign()
 
-  const isLoading = isLoadingBiometrics || isLoadingBiometricsSign
-  if (isLoading)
+  if (isLoadingBiometrics)
     return (
       <View style={spacings.mv}>
         <Spinner />
@@ -33,7 +32,7 @@ const BiometricsSignButton: React.FC<Props> = ({ handleNavigate }) => {
   return (
     <TouchableOpacity onPress={() => handleNavigate('biometrics-sign-change')}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
-        {selectedAccHasPassword ? t('Manage biometrics sign') : t('Set biometrics sign')}
+        {biometricsEnabled ? t('Manage biometrics unlock') : t('Set biometrics unlock')}
       </Text>
     </TouchableOpacity>
   )
