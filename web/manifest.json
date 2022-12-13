@@ -1,24 +1,19 @@
 {
   "name": "Ambire Wallet",
+  "short_name": "Ambire",
   "author": "https://www.ambire.com",
   "description": "Тhe easiest to use, most powerful and secure Web3 non-custodial solution you can get. It’s the smart solution all smart people use.",
   "version": "SYNCED_WITH_THE_APP_VERSION_VIA_THE_WEBPACK_CONFIG",
   "manifest_version": 3,
-  "short_name": "Ambire",
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "webextension@ambire.com"
-    }
-  },
-  "permissions": ["storage", "tabs", "alarms"],
+  "permissions": ["storage", "tabs", "alarms", "scripting"],
   "background": {
     "service_worker": "background.js"
   },
   "icons": {
-    "128": "./assets/images/xicon@128.png",
-    "96": "./assets/images/xicon@96.png",
+    "16": "./assets/images/xicon@16.png",
     "48": "./assets/images/xicon@48.png",
-    "16": "./assets/images/xicon@16.png"
+    "96": "./assets/images/xicon@96.png",
+    "128": "./assets/images/xicon@128.png"
   },
   "action": {
     "default_title": "Ambire",
@@ -30,22 +25,10 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["file://*/*", "http://*/*", "https://*/*"],
       "exclude_matches": ["*://doInWebPack.lan/*", "*://wallet.ambire.com/*"],
       "run_at": "document_start",
-      "js": ["injection.js"]
-    },
-    {
-      "matches": ["<all_urls>"],
-      "exclude_matches": ["*://doInWebPack.lan/*", "*://wallet.ambire.com/*"],
-      "run_at": "document_start",
-      "js": ["content-script.js"]
-    },
-    {
-      "matches": ["<all_urls>"],
-      "exclude_matches": ["*://doInWebPack.lan/*", "*://wallet.ambire.com/*"],
-      "run_at": "document_end",
-      "js": ["content-script-onComplete.js"]
+      "js": ["injection.js", "content-script.js"]
     }
   ],
   "web_accessible_resources": [

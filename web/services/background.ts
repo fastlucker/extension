@@ -433,13 +433,6 @@ const storageController = new StorageController({
    */
 })()
 
-// When CONTENT_SCRIPT is injected, prepare injection of PAGE_CONTEXT
-addMessageHandler({ type: 'contentScriptInjected' }, (message) => {
-  sendReply(message, {
-    data: { ack: true }
-  })
-})
-
 const sanitize2hex = (any) => {
   log.trace(`instanceof of any is ${any instanceof BigNumber}`)
   if (any instanceof BigNumber) {
@@ -625,3 +618,24 @@ const requestPermission = (message, callback) => {
     }, 1000)
   }
 }
+
+/* This content script is injected programmatically because
+ * MAIN world injection does not work properly via manifest
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
+ */
+chrome.scripting.registerContentScripts([
+  {
+    id: 'pre-page-inject',
+    matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+    js: ['injection.js'],
+    runAt: 'document_start',
+    world: 'MAIN'
+  },
+  {
+    id: 'post-page-inject',
+    matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+    js: ['injection.js'],
+    runAt: 'document_end',
+    world: 'MAIN'
+  }
+])
