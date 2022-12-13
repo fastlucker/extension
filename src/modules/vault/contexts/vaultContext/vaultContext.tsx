@@ -7,6 +7,7 @@ import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import useLockWhenInactive from '@modules/vault/hooks/useLockWhenInactive'
 import VaultController from '@modules/vault/services/VaultController'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 import { isExtension } from '@web/constants/browserAPI'
@@ -327,6 +328,14 @@ const VaultProvider: React.FC = ({ children }) => {
     },
     [requestVaultControllerMethod]
   )
+
+  useLockWhenInactive({
+    lockWhenInactive: true,
+    // TODO: Lock but do not unmount
+    lock: lockVault,
+    // TODO: Prompt to unlock
+    promptToUnlock: () => null
+  })
 
   return (
     <VaultContext.Provider
