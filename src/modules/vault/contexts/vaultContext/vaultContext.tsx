@@ -376,6 +376,7 @@ const VaultProvider: React.FC = ({ children }) => {
         ]
       )}
     >
+      {/* TODO: Lock overlay when inactive */}
       {children}
     </VaultContext.Provider>
   )
