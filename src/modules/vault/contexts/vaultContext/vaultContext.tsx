@@ -25,6 +25,8 @@ const VaultProvider: React.FC = ({ children }) => {
   const { getItem, storageControllerInstance } = useStorageController()
   const { biometricsEnabled, getKeystorePassword, addKeystorePasswordToDeviceSecureStore } =
     useBiometricsSign()
+  // TODO: Make configurable
+  const [lockWhenInactive, setLockWhenInactive] = useState(true)
 
   /**
    * For the extension, we need to get vault status from background.
@@ -330,7 +332,7 @@ const VaultProvider: React.FC = ({ children }) => {
   )
 
   useLockWhenInactive({
-    lockWhenInactive: true,
+    lockWhenInactive,
     // TODO: Lock but do not unmount
     lock: lockVault,
     // TODO: Prompt to unlock
