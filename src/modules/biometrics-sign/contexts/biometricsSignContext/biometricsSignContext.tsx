@@ -81,7 +81,7 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
     }
   }, [addToast, t, removeItem])
 
-  const getVaultPassword = useCallback(() => {
+  const getKeystorePassword = useCallback(() => {
     return requestLocalAuthFlagging(() =>
       SecureStore.getItemAsync(SECURE_STORE_KEY_KEYSTORE_PASSWORD, {
         authenticationPrompt: t('Confirm your identity'),
@@ -98,11 +98,11 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
           addKeystorePasswordToDeviceSecureStore,
           biometricsEnabled,
           removeKeystorePasswordFromDeviceSecureStore,
-          getVaultPassword
+          getKeystorePassword
         }),
         [
           biometricsEnabled,
-          getVaultPassword,
+          getKeystorePassword,
           addKeystorePasswordToDeviceSecureStore,
           removeKeystorePasswordFromDeviceSecureStore
         ]

@@ -1,5 +1,5 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 
@@ -22,15 +22,13 @@ const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 const UnlockVaultScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { unlockVault } = useVault()
-  const { biometricsEnabled, getVaultPassword } = useBiometricsSign()
-  const [isAttemptingToUnlockWithBiometrics, setIsAttemptingToUnlockWithBiometrics] =
-    useState(biometricsEnabled)
+  const { biometricsEnabled } = useBiometricsSign()
   const {
     control,
     handleSubmit,
     watch,
     setValue,
-    formState: { errors, isSubmitting: isFormSubmitting }
+    formState: { errors, isSubmitting }
   } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
@@ -38,34 +36,18 @@ const UnlockVaultScreen = ({ navigation }: any) => {
     }
   })
 
-  // The `isSubmitting` flag on the form does not flip when the biometrics
-  // unlocking is in progress, so we need to manually check for that.
-  const isSubmitting = isFormSubmitting || isAttemptingToUnlockWithBiometrics
-
-  const tryUnlockingWithBiometrics = useCallback(async () => {
-    setIsAttemptingToUnlockWithBiometrics(true)
-
-    try {
-      const password = await getVaultPassword()
-      if (password) {
-        setValue('password', password)
-        handleSubmit(unlockVault)()
-      } else {
-        setIsAttemptingToUnlockWithBiometrics(false)
-      }
-    } catch {
-      // Fail silently. The use can enter his password manually.
-      setIsAttemptingToUnlockWithBiometrics(false)
-    }
-  }, [getVaultPassword, handleSubmit, setValue, unlockVault])
-
   useEffect(() => {
     if (!biometricsEnabled) {
       return
     }
 
-    tryUnlockingWithBiometrics()
-  }, [biometricsEnabled, tryUnlockingWithBiometrics])
+    handleSubmit(unlockVault)()
+  }, [biometricsEnabled, handleSubmit, unlockVault])
+
+  const handleRetryBiometrics = useCallback(() => {
+    setValue('password', '')
+    return handleSubmit(unlockVault)()
+  }, [handleSubmit, unlockVault, setValue])
 
   const handleForgotPassword = useCallback(
     () => navigation.navigate('resetVault', { resetPassword: true }),
@@ -100,7 +82,6 @@ const UnlockVaultScreen = ({ navigation }: any) => {
             </View>
             <Controller
               control={control}
-              rules={{ validate: isValidPassword }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <InputPassword
                   onBlur={onBlur}
@@ -138,7 +119,7 @@ const UnlockVaultScreen = ({ navigation }: any) => {
                     {' | '}
                   </Text>
                   <TouchableOpacity
-                    onPress={tryUnlockingWithBiometrics}
+                    onPress={handleRetryBiometrics}
                     hitSlop={FOOTER_BUTTON_HIT_SLOP}
                   >
                     <Text weight="medium" fontSize={12}>
