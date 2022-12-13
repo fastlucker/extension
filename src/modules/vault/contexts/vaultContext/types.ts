@@ -5,11 +5,15 @@ export interface VaultContextReturnType {
   vaultStatus: VAULT_STATUS
   createVault: ({
     password,
-    confirmPassword
+    confirmPassword,
+    optInForBiometricsUnlock,
+    nextRoute
   }: {
     password: string
     confirmPassword: string
-  }) => void
+    optInForBiometricsUnlock: boolean
+    nextRoute?: string
+  }) => Promise<any>
   resetVault: ({ password, confirmPassword }: { password: string; confirmPassword: string }) => void
   unlockVault: ({ password }: { password: string }) => Promise<any>
   lockVault: () => void

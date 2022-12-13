@@ -66,11 +66,17 @@ const BiometricsSignScreen = () => {
       )
     }
 
-    const enable = await addKeystorePasswordToDeviceSecureStore(password)
-    if (enable) {
-      addToast(t('Unlock with biometrics enabled!') as string, { timeout: 3000 })
-      navigation.navigate('dashboard')
+    let enable = false
+    try {
+      enable = await addKeystorePasswordToDeviceSecureStore(password)
+      if (enable) {
+        addToast(t('Unlock with biometrics enabled!') as string, { timeout: 3000 })
+        navigation.navigate('dashboard')
+      }
+    } catch {
+      addToast(t('Confirming Biometrics was unsuccessful. Please try again.'), { error: true })
     }
+
     return enable
   }
 

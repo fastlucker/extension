@@ -1,5 +1,5 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
-import React, { useState } from 'react'
+import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
@@ -21,7 +21,6 @@ import useVault from '@modules/vault/hooks/useVault'
 const CreateNewVaultScreen = ({ route }: any) => {
   const { t } = useTranslation()
   const { createVault } = useVault()
-  const [optInForBiometrics, setOptInForBiometrics] = useState(true)
 
   const {
     control,
@@ -34,6 +33,7 @@ const CreateNewVaultScreen = ({ route }: any) => {
     defaultValues: {
       password: '',
       confirmPassword: '',
+      optInForBiometricsUnlock: !isWeb,
       nextRoute: route.params?.nextRoute || 'auth'
     }
   })
@@ -122,13 +122,17 @@ const CreateNewVaultScreen = ({ route }: any) => {
               )}
               name="confirmPassword"
             />
-            <View style={[spacings.mbLg, flexboxStyles.alignEnd]}>
-              <Toggle
-                isOn={optInForBiometrics}
-                label={t('Biometrics unlock?')}
-                onToggle={setOptInForBiometrics}
-              />
-            </View>
+            {!isWeb && (
+              <View style={[spacings.mbLg, flexboxStyles.alignEnd]}>
+                <Controller
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <Toggle isOn={value} label={t('Biometrics unlock?')} onToggle={onChange} />
+                  )}
+                  name="optInForBiometricsUnlock"
+                />
+              </View>
+            )}
 
             <Button
               disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}

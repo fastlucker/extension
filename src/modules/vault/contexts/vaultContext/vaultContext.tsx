@@ -22,7 +22,8 @@ const VaultProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
   const { onRemoveAllAccounts } = useAccounts()
   const { getItem, storageControllerInstance } = useStorageController()
-  const { biometricsEnabled, getKeystorePassword } = useBiometricsSign()
+  const { biometricsEnabled, getKeystorePassword, addKeystorePasswordToDeviceSecureStore } =
+    useBiometricsSign()
 
   /**
    * For the extension, we need to get vault status from background.
@@ -88,32 +89,45 @@ const VaultProvider: React.FC = ({ children }) => {
       .catch(() => setVaultStatus(VAULT_STATUS.LOCKED))
   }, [vaultController, getItem, requestVaultControllerMethod])
 
-  const createVault = useCallback(
-    ({
-      password,
-      confirmPassword,
-      nextRoute
-    }: {
-      password: string
-      confirmPassword: string
-      nextRoute?: string
-    }) => {
-      if (password === confirmPassword) {
-        requestVaultControllerMethod({
-          method: 'createVault',
-          props: {
-            password
-          }
-        }).then(() => {
-          // Automatically unlock after vault initialization
-          setVaultStatus(VAULT_STATUS.UNLOCKED)
-          !!nextRoute && navigate(nextRoute)
-        })
-      } else {
-        addToast(t("Passwords don't match."))
+  const createVault = useCallback<VaultContextReturnType['createVault']>(
+    async ({ password, confirmPassword, optInForBiometricsUnlock, nextRoute }) => {
+      if (password !== confirmPassword) {
+        addToast(t("Passwords don't match."), { error: true })
+        return Promise.reject()
       }
+
+      try {
+        await requestVaultControllerMethod({
+          method: 'createVault',
+          props: { password }
+        })
+      } catch {
+        addToast(t('Error creating Ambire keystore. Please try again later or contact support.'), {
+          error: true
+        })
+        return Promise.reject()
+      }
+
+      if (optInForBiometricsUnlock) {
+        try {
+          await addKeystorePasswordToDeviceSecureStore(password)
+        } catch {
+          addToast(
+            t(
+              'Confirming Biometrics was unsuccessful. You can retry enabling Biometrics unlock later via the "Set Biometrics unlock" option in the menu'
+            ),
+            { error: true }
+          )
+        }
+      }
+
+      // Automatically unlock after vault initialization
+      setVaultStatus(VAULT_STATUS.UNLOCKED)
+
+      !!nextRoute && navigate(nextRoute)
+      return Promise.resolve()
     },
-    [t, addToast, requestVaultControllerMethod]
+    [requestVaultControllerMethod, addKeystorePasswordToDeviceSecureStore, addToast, t]
   )
 
   const resetVault = useCallback(
