@@ -332,6 +332,7 @@ const VaultProvider: React.FC = ({ children }) => {
   )
 
   useLockWhenInactive({
+    // TODO: Configurable.
     lockWhenInactive,
     // TODO: Lock but do not unmount
     lock: lockVault,
