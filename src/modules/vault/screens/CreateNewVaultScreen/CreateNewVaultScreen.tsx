@@ -1,5 +1,5 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
-import React from 'react'
+import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
@@ -10,6 +10,7 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
+import Toggle from '@modules/common/components/Toggle'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -20,6 +21,7 @@ import useVault from '@modules/vault/hooks/useVault'
 const CreateNewVaultScreen = ({ route }: any) => {
   const { t } = useTranslation()
   const { createVault } = useVault()
+  const [optInForBiometrics, setOptInForBiometrics] = useState(true)
 
   const {
     control,
@@ -115,10 +117,18 @@ const CreateNewVaultScreen = ({ route }: any) => {
                   error={errors.confirmPassword && (t("Passwords don't match.") as string)}
                   autoCorrect={false}
                   onSubmitEditing={handleSubmit(createVault)}
+                  containerStyle={spacings.mbSm}
                 />
               )}
               name="confirmPassword"
             />
+            <View style={[spacings.mbLg, flexboxStyles.alignEnd]}>
+              <Toggle
+                isOn={optInForBiometrics}
+                label={t('Biometrics unlock?')}
+                onToggle={setOptInForBiometrics}
+              />
+            </View>
 
             <Button
               disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
