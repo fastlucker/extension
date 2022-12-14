@@ -15,13 +15,14 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import LockBackground from '@modules/vault/components/LockBackground'
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
 
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
 const UnlockVaultScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const { unlockVault } = useVault()
+  const { unlockVault, vaultStatus } = useVault()
   const { biometricsEnabled } = useBiometricsSign()
   const {
     control,
@@ -53,6 +54,20 @@ const UnlockVaultScreen = ({ navigation }: any) => {
     () => navigation.navigate('resetVault', { resetPassword: true }),
     [navigation]
   )
+
+  // Prevent going back, needed for the temporary locked keystore case,
+  // where the user must unlock before he comes back to the previous screen.
+  // {@link https://reactnavigation.org/docs/preventing-going-back/}
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (vaultStatus !== VAULT_STATUS.UNLOCKED) {
+        // Prevent default behavior of leaving the screen
+        e.preventDefault()
+      }
+    })
+
+    return unsubscribe
+  }, [navigation, vaultStatus])
 
   return (
     <GradientBackgroundWrapper>
