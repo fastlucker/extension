@@ -189,20 +189,26 @@ const VaultProvider: React.FC = ({ children }) => {
     [addToast, biometricsEnabled, getKeystorePassword, requestVaultControllerMethod]
   )
 
-  const lockVault = useCallback(() => {
-    requestVaultControllerMethod({
-      method: 'lockVault',
-      props: {}
-    })
-      .then((res: any) => {
-        if (vaultStatus !== VAULT_STATUS.LOADING && vaultStatus !== VAULT_STATUS.NOT_INITIALIZED) {
-          setVaultStatus(res)
-        }
+  const lockVault = useCallback(
+    (_vaultStatus? = VAULT_STATUS) => {
+      requestVaultControllerMethod({
+        method: 'lockVault',
+        props: {}
       })
-      .catch((e) => {
-        addToast(e?.message || e, { error: true })
-      })
-  }, [addToast, vaultStatus, requestVaultControllerMethod])
+        .then((res: any) => {
+          if (
+            vaultStatus !== VAULT_STATUS.LOADING &&
+            vaultStatus !== VAULT_STATUS.NOT_INITIALIZED
+          ) {
+            setVaultStatus(_vaultStatus || res)
+          }
+        })
+        .catch((e) => {
+          addToast(e?.message || e, { error: true })
+        })
+    },
+    [addToast, requestVaultControllerMethod, vaultStatus]
+  )
 
   const isValidPassword = useCallback(
     async (props: { password: string }) => {
@@ -334,8 +340,7 @@ const VaultProvider: React.FC = ({ children }) => {
   useLockWhenInactive({
     // TODO: Configurable.
     lockWhenInactive,
-    // TODO: Lock but do not unmount
-    lock: lockVault,
+    lock: () => lockVault(VAULT_STATUS.LOCKED_TEMPORARILY),
     // TODO: Prompt to unlock
     promptToUnlock: () => null
   })
@@ -377,7 +382,6 @@ const VaultProvider: React.FC = ({ children }) => {
         ]
       )}
     >
-      {/* TODO: Lock overlay when inactive */}
       {children}
     </VaultContext.Provider>
   )
