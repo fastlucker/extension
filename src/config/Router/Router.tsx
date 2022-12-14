@@ -1,3 +1,4 @@
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
@@ -378,6 +379,8 @@ const AppStack = () => {
   const { t } = useTranslation()
   const { isLoading } = useAppLock()
   const { getItem } = useStorageController()
+  const { vaultStatus } = useVault()
+  const prevVaultStatus = usePrevious(vaultStatus)
 
   useEffect(() => {
     if (isLoading) return
@@ -399,6 +402,21 @@ const AppStack = () => {
       navigate('auth-add-account')
     }
   }, [getItem])
+
+  useEffect(() => {
+    if (vaultStatus === prevVaultStatus) return
+
+    if (vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
+      navigate('unlock-vault')
+    }
+
+    if (
+      prevVaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY &&
+      vaultStatus === VAULT_STATUS.UNLOCKED
+    ) {
+      navigationRef.current?.goBack()
+    }
+  }, [prevVaultStatus, vaultStatus])
 
   return (
     <MainStack.Navigator screenOptions={{ header: headerBeta }}>
@@ -469,6 +487,11 @@ const AppStack = () => {
         component={GasInformationStackScreen}
         options={{ headerShown: false }}
       />
+      <MainStack.Screen
+        name="unlock-vault"
+        component={UnlockVaultScreen}
+        options={{ gestureEnabled: false, headerLeft: () => null, title: t('Unlock') }}
+      />
     </MainStack.Navigator>
   )
 }
@@ -503,7 +526,10 @@ const Router = () => {
         return <VaultStack />
       }
 
-      if (vaultStatus === VAULT_STATUS.UNLOCKED) {
+      if (
+        vaultStatus === VAULT_STATUS.UNLOCKED ||
+        vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY
+      ) {
         return <AppStack />
       }
     }
