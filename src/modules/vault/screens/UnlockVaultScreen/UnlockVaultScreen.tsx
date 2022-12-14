@@ -13,7 +13,7 @@ import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import LockBackground from '@modules/vault/components/LockBackground'
+import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
 import useVault from '@modules/vault/hooks/useVault'
 
 const UnlockVaultScreen = ({ navigation }: any) => {
@@ -34,7 +34,6 @@ const UnlockVaultScreen = ({ navigation }: any) => {
 
   return (
     <GradientBackgroundWrapper>
-      <LockBackground />
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
@@ -45,34 +44,28 @@ const UnlockVaultScreen = ({ navigation }: any) => {
           type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
           extraHeight={220}
         >
-          <View
-            style={[
-              !isWeb ? spacings.mbLg : spacings.mb0,
-              isWeb && spacings.ph,
-              flexboxStyles.flex1,
-              flexboxStyles.justifyEnd
-            ]}
-          >
-            <View style={spacings.phTy}>
-              <Text weight="regular" style={spacings.mbTy} color={colors.titan_50}>
-                {t('Enter your Ambire Key Store Lock to unlock your wallet')}
-              </Text>
-            </View>
+          <KeyStoreLogo />
+
+          <View style={[isWeb && spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
+            <Text weight="regular" style={[spacings.mbTy, spacings.phTy]} fontSize={13}>
+              {t('Enter your Ambire Key Store passphrase to unlock your wallet')}
+            </Text>
+
             <Controller
               control={control}
               rules={{ validate: isValidPassword }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <InputPassword
                   onBlur={onBlur}
-                  placeholder={t('Password')}
-                  autoFocus
+                  placeholder={t('Passphrase')}
+                  autoFocus={isWeb}
                   onChangeText={onChange}
                   isValid={isValidPassword(value)}
                   value={value}
                   onSubmitEditing={handleSubmit(unlockVault)}
                   error={
                     errors.password &&
-                    (t('Please fill in at least 8 characters for password.') as string)
+                    (t('Please fill in at least 8 characters for passphrase.') as string)
                   }
                   containerStyle={spacings.mbTy}
                 />
@@ -93,7 +86,7 @@ const UnlockVaultScreen = ({ navigation }: any) => {
                 hitSlop={{ top: 10, bottom: 15 }}
               >
                 <Text weight="medium" fontSize={12}>
-                  Forgot password?
+                  Forgot Key Store passphrase?
                 </Text>
               </TouchableOpacity>
             </View>

@@ -57,6 +57,7 @@ import useVault from '@modules/vault/hooks/useVault'
 import CreateNewVaultScreen from '@modules/vault/screens/CreateNewVaultScreen'
 import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
+import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
@@ -167,7 +168,7 @@ const AuthStack = () => {
 
   const initialRouteName =
     vaultStatus === VAULT_STATUS.NOT_INITIALIZED
-      ? 'createVault'
+      ? 'createVaultGetStarted'
       : // Checks whether there is a pending email login attempt. It happens when user
       // request email login and closes the app. When the app is opened
       // the second time - an immediate email login attempt will be triggered.
@@ -178,11 +179,18 @@ const AuthStack = () => {
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
-        <Stack.Screen
-          name="createVault"
-          options={{ title: t('Setup Your Ambire Key Store') }}
-          component={CreateNewVaultScreen}
-        />
+        <>
+          <Stack.Screen
+            name="createVaultGetStarted"
+            options={{ title: t('Welcome') }}
+            component={VaultSetupGetStartedScreen}
+          />
+          <Stack.Screen
+            name="createVault"
+            options={{ title: t('Setup Ambire Key Store') }}
+            component={CreateNewVaultScreen}
+          />
+        </>
       )}
       <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
       <Stack.Screen
@@ -253,7 +261,7 @@ const VaultStack = () => {
       />
       <Stack.Screen
         name="resetVault"
-        options={{ title: t('Reset App Lock') }}
+        options={{ title: t('Reset Ambire Key Store') }}
         component={ResetVaultScreen}
       />
     </Stack.Navigator>

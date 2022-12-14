@@ -14,7 +14,7 @@ import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import LockBackground from '@modules/vault/components/LockBackground'
+import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
 import useVault from '@modules/vault/hooks/useVault'
 
 const CreateNewVaultScreen = ({ route }: any) => {
@@ -38,7 +38,6 @@ const CreateNewVaultScreen = ({ route }: any) => {
 
   return (
     <GradientBackgroundWrapper>
-      <LockBackground />
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
@@ -49,34 +48,18 @@ const CreateNewVaultScreen = ({ route }: any) => {
           type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
           extraHeight={220}
         >
-          <View
-            style={[
-              !isWeb ? spacings.mbLg : spacings.mb0,
-              isWeb && spacings.ph,
-              flexboxStyles.flex1,
-              flexboxStyles.justifyEnd
-            ]}
-          >
-            <View style={[spacings.mb, spacings.phTy]}>
-              <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={12}>
-                {t('Welcome to the Ambire Wallet extension. Let’s set up your Key Store password.')}
-              </Text>
-              <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={12}>
-                {t(
-                  '1.  Ambire Key Store will protect your Ambire wallet with email password or external signer on this device.'
-                )}
-              </Text>
-              <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={12}>
-                {t(
-                  '2.  First, pick your Ambire Key Store passphrase. It is unique for this device and it should be different from your account password.'
-                )}
-              </Text>
-              <Text weight="light" color={colors.titan} fontSize={12}>
-                {t(
-                  '3.  You will use your passphrase to unlock the Ambire extension and sign transactions on this device.'
-                )}
-              </Text>
-            </View>
+          <KeyStoreLogo />
+          <View style={[isWeb && spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
+            <Text
+              weight="light"
+              style={[spacings.mbTy, spacings.phTy]}
+              color={colors.titan}
+              fontSize={13}
+            >
+              {t(
+                'The Ambire Key Store passphrase should be unique for this device and it should be different from your account password.'
+              )}
+            </Text>
 
             <Controller
               control={control}
@@ -84,14 +67,14 @@ const CreateNewVaultScreen = ({ route }: any) => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <InputPassword
                   onBlur={onBlur}
-                  placeholder={t('Password')}
+                  placeholder={t('Enter Passphrase')}
                   onChangeText={onChange}
                   isValid={isValidPassword(value)}
                   autoFocus={isWeb}
                   value={value}
                   error={
                     errors.password &&
-                    (t('Please fill in at least 8 characters for password.') as string)
+                    (t('Please fill in at least 8 characters for passphrase.') as string)
                   }
                   containerStyle={spacings.mbTy}
                   onSubmitEditing={handleSubmit(createVault)}
@@ -107,12 +90,12 @@ const CreateNewVaultScreen = ({ route }: any) => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   onBlur={onBlur}
-                  placeholder={t('Confirm password')}
+                  placeholder={t('Repeat Passphrase')}
                   onChangeText={onChange}
                   value={value}
                   isValid={!!value && watch('password', '') === value}
                   secureTextEntry
-                  error={errors.confirmPassword && (t("Passwords don't match.") as string)}
+                  error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
                   autoCorrect={false}
                   onSubmitEditing={handleSubmit(createVault)}
                 />

@@ -11,10 +11,9 @@ import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import LockBackground from '@modules/vault/components/LockBackground'
+import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
 import useVault from '@modules/vault/hooks/useVault'
 
 const ResetVaultScreen = () => {
@@ -36,7 +35,6 @@ const ResetVaultScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <LockBackground />
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
@@ -47,21 +45,15 @@ const ResetVaultScreen = () => {
           type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
           extraHeight={220}
         >
-          <View
-            style={[
-              !isWeb ? spacings.mbLg : spacings.mb0,
-              isWeb && spacings.ph,
-              flexboxStyles.flex1,
-              flexboxStyles.justifyEnd
-            ]}
-          >
+          <KeyStoreLogo />
+          <View style={[isWeb && spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
             <View style={spacings.phTy}>
-              <Text weight="regular" style={spacings.mbMi} fontSize={14} color={colors.titan_50}>
+              <Text weight="regular" style={spacings.mbMi} fontSize={13}>
                 {t(
-                  'Ambire does not keep a copy of your Key Store password. If you’re having trouble unlocking your extension, you will need to create a new Key Store password.'
+                  'Ambire does not keep a copy of your Key Store passphrase. If you’re having trouble unlocking your extension, you will need to create a new Key Store passphrase.'
                 )}
               </Text>
-              <Text weight="regular" style={spacings.mbTy} fontSize={14} color={colors.titan_50}>
+              <Text weight="regular" style={spacings.mbTy} fontSize={13}>
                 {t('This action will remove all your accounts from this device!')}
               </Text>
             </View>
@@ -71,16 +63,17 @@ const ResetVaultScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <InputPassword
                   onBlur={onBlur}
-                  placeholder={t('New password')}
+                  placeholder={t('New passphrase')}
                   onChangeText={onChange}
                   isValid={isValidPassword(value)}
                   value={value}
                   error={
                     errors.password &&
-                    (t('Please fill in at least 8 characters for password.') as string)
+                    (t('Please fill in at least 8 characters for passphrase.') as string)
                   }
                   containerStyle={spacings.mbTy}
                   onSubmitEditing={handleSubmit(resetVault)}
+                  autoFocus={isWeb}
                 />
               )}
               name="password"
@@ -93,12 +86,12 @@ const ResetVaultScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   onBlur={onBlur}
-                  placeholder={t('Confirm password')}
+                  placeholder={t('Repeat passphrase')}
                   onChangeText={onChange}
                   value={value}
                   isValid={!!value && watch('password', '') === value}
                   secureTextEntry
-                  error={errors.confirmPassword && (t("Passwords don't match.") as string)}
+                  error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
                   autoCorrect={false}
                   containerStyle={spacings.mbTy}
                   onSubmitEditing={handleSubmit(resetVault)}
@@ -112,7 +105,7 @@ const ResetVaultScreen = () => {
                 disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
                 text={
                   // eslint-disable-next-line no-nested-ternary
-                  isSubmitting ? t('Creating...') : t('Create New Password')
+                  isSubmitting ? t('Resetting...') : t('Reset Ambire Key Store')
                 }
                 onPress={handleSubmit(resetVault)}
               />
