@@ -16,17 +16,18 @@ import { sendMessage } from '@web/services/ambexMessanger'
 
 import { vaultContextDefaults, VaultContextReturnType } from './types'
 
+export const KEY_LOCK_KEYSTORE_WHEN_INACTIVE = 'shouldLockKeystoreWhenInactive'
+
 const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { onRemoveAllAccounts } = useAccounts()
-  const { getItem, storageControllerInstance } = useStorageController()
+  const { getItem, setItem, storageControllerInstance } = useStorageController()
   const { biometricsEnabled, getKeystorePassword, addKeystorePasswordToDeviceSecureStore } =
     useBiometricsSign()
-  // TODO: Make configurable
-  const [lockWhenInactive, setLockWhenInactive] = useState(true)
+  const [shouldLockWhenInactive, setShouldLockWhenInactive] = useState(true)
 
   /**
    * For the extension, we need to get vault status from background.
@@ -39,6 +40,16 @@ const VaultProvider: React.FC = ({ children }) => {
     [storageControllerInstance]
   )
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)
+
+  useEffect(() => {
+    const shouldLockWhenInactiveSetting = getItem(KEY_LOCK_KEYSTORE_WHEN_INACTIVE)
+
+    setShouldLockWhenInactive(
+      typeof shouldLockWhenInactiveSetting === 'undefined'
+        ? vaultContextDefaults.shouldLockWhenInactive
+        : shouldLockWhenInactiveSetting
+    )
+  }, [getItem])
 
   const requestVaultControllerMethod = useCallback(
     ({
@@ -201,6 +212,11 @@ const VaultProvider: React.FC = ({ children }) => {
             vaultStatus !== VAULT_STATUS.NOT_INITIALIZED
           ) {
             setVaultStatus(_vaultStatus || res)
+
+            // TODO: Figure out if this is quicker.
+            // if (_vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
+            //   navigate('unlock-vault')
+            // }
           }
         })
         .catch((e) => {
@@ -339,11 +355,19 @@ const VaultProvider: React.FC = ({ children }) => {
 
   useLockWhenInactive({
     // TODO: Configurable.
-    lockWhenInactive,
+    shouldLockWhenInactive,
     lock: () => lockVault(VAULT_STATUS.LOCKED_TEMPORARILY),
     // TODO: Prompt to unlock
     promptToUnlock: () => null
   })
+
+  const toggleShouldLockWhenInactive = useCallback(
+    (shouldLock: boolean) => {
+      setShouldLockWhenInactive(shouldLock)
+      setItem(KEY_LOCK_KEYSTORE_WHEN_INACTIVE, shouldLock)
+    },
+    [setItem]
+  )
 
   return (
     <VaultContext.Provider
@@ -362,7 +386,9 @@ const VaultProvider: React.FC = ({ children }) => {
           signTxnQuckAcc,
           signTxnExternalSigner,
           signMsgQuickAcc,
-          signMsgExternalSigner
+          signMsgExternalSigner,
+          shouldLockWhenInactive,
+          toggleShouldLockWhenInactive
         }),
         [
           vaultStatus,
@@ -378,7 +404,9 @@ const VaultProvider: React.FC = ({ children }) => {
           signTxnQuckAcc,
           signTxnExternalSigner,
           signMsgQuickAcc,
-          signMsgExternalSigner
+          signMsgExternalSigner,
+          shouldLockWhenInactive,
+          toggleShouldLockWhenInactive
         ]
       )}
     >

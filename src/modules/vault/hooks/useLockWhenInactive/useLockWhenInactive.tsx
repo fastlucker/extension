@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from 'react'
 import { AppState, AppStateStatus } from 'react-native'
 
 const useUnlockWithBiometrics = ({
-  lockWhenInactive,
+  shouldLockWhenInactive,
   lock,
   promptToUnlock
 }: {
-  lockWhenInactive: boolean
+  shouldLockWhenInactive: boolean
   lock: () => void
   promptToUnlock: () => void
 }) => {
@@ -22,22 +22,26 @@ const useUnlockWithBiometrics = ({
           promptToUnlock()
         } else if (currentAppState === 'active' && nextAppState.match(/inactive|background/)) {
           // App has come to background!
-          if (lockWhenInactive && !global.isAskingForPermission && !global.isAskingForLocalAuth) {
+          if (
+            shouldLockWhenInactive &&
+            !global.isAskingForPermission &&
+            !global.isAskingForLocalAuth
+          ) {
             lock()
           }
         }
         return nextAppState
       }),
-    [promptToUnlock, lockWhenInactive, lock]
+    [promptToUnlock, shouldLockWhenInactive, lock]
   )
 
   useEffect(() => {
-    if (!lockWhenInactive) return
+    if (!shouldLockWhenInactive) return
 
     const stateChange = AppState.addEventListener('change', handleAppStateChange)
 
     return () => stateChange.remove()
-  }, [handleAppStateChange, lockWhenInactive])
+  }, [handleAppStateChange, shouldLockWhenInactive])
 }
 
 export default useUnlockWithBiometrics
