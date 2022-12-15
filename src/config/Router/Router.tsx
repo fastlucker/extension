@@ -19,9 +19,7 @@ import styles, {
   tabBarLabelStyle,
   tabBarStyle
 } from '@config/Router/styles'
-import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
-import SetAppLockingScreen from '@modules/app-lock/screens/SetAppLockingScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
@@ -71,7 +69,6 @@ const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
-const SetAppLockStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
@@ -106,22 +103,6 @@ const GasInformationStackScreen = () => {
     <GasInformationStack.Navigator screenOptions={{ header: headerGamma }}>
       <GasInformationStack.Screen name="gas-information-screen" component={GasInformationScreen} />
     </GasInformationStack.Navigator>
-  )
-}
-
-const SetAppLockStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <SetAppLockStack.Navigator screenOptions={{ header: headerBeta }}>
-      <SetAppLockStack.Screen
-        name="set-app-lock-screen"
-        component={SetAppLockingScreen}
-        options={{
-          title: t('App Lock')
-        }}
-      />
-    </SetAppLockStack.Navigator>
   )
 }
 
@@ -377,16 +358,13 @@ const AppDrawer = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-  const { isLoading } = useAppLock()
   const { getItem } = useStorageController()
   const { vaultStatus } = useVault()
   const prevVaultStatus = usePrevious(vaultStatus)
 
   useEffect(() => {
-    if (isLoading) return
-
     SplashScreen.hideAsync()
-  }, [isLoading])
+  }, [])
 
   useEffect(() => {
     // Checks whether there is a pending email login attempt. It happens when
@@ -436,11 +414,6 @@ const AppStack = () => {
         options={{ headerShown: false }}
         name="signers"
         component={SignersStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="set-app-lock"
-        component={SetAppLockStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
