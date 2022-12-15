@@ -204,7 +204,7 @@ const VaultProvider: React.FC = ({ children }) => {
   )
 
   const lockVault = useCallback(
-    (_vaultStatus? = VAULT_STATUS) => {
+    (_vaultStatus?: VAULT_STATUS) => {
       requestVaultControllerMethod({
         method: 'lockVault',
         props: {}
@@ -215,11 +215,6 @@ const VaultProvider: React.FC = ({ children }) => {
             vaultStatus !== VAULT_STATUS.NOT_INITIALIZED
           ) {
             setVaultStatus(_vaultStatus || res)
-
-            // TODO: Figure out if this is quicker.
-            // if (_vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
-            //   navigate('unlock-vault')
-            // }
           }
         })
         .catch((e) => {
