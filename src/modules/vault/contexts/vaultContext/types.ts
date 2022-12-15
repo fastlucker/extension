@@ -1,3 +1,4 @@
+import { isWeb } from '@config/env'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 
@@ -17,6 +18,8 @@ export interface VaultContextReturnType {
   resetVault: ({ password, confirmPassword }: { password: string; confirmPassword: string }) => void
   unlockVault: ({ password }: { password: string }) => Promise<any>
   lockVault: () => void
+  shouldLockWhenInactive: boolean
+  toggleShouldLockWhenInactive: (shouldLock: boolean) => void
   isValidPassword: ({ password }: { password: string }) => Promise<boolean>
   addToVault: ({ addr, item }: { addr: string; item: VaultItem }) => Promise<any>
   removeFromVault: ({ addr }: { addr: string }) => Promise<any>
@@ -53,10 +56,12 @@ export interface VaultContextReturnType {
 
 export const vaultContextDefaults: VaultContextReturnType = {
   vaultStatus: VAULT_STATUS.LOADING,
-  createVault: () => {},
+  createVault: () => Promise.resolve(),
   resetVault: () => {},
   unlockVault: () => Promise.resolve(false),
   lockVault: () => {},
+  shouldLockWhenInactive: !isWeb,
+  toggleShouldLockWhenInactive: () => {},
   isValidPassword: () => Promise.resolve(false),
   addToVault: () => Promise.resolve(false),
   removeFromVault: () => Promise.resolve(false),
