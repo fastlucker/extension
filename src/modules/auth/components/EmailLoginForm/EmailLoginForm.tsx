@@ -1,4 +1,4 @@
-import { isEmail, isValidPassword } from 'ambire-common/src/services/validations'
+import { isEmail } from 'ambire-common/src/services/validations'
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
@@ -8,7 +8,6 @@ import { useTranslation } from '@config/localization'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
-import InputPassword from '@modules/common/components/InputPassword'
 import spacings from '@modules/common/styles/spacings'
 import { delayPromise } from '@modules/common/utils/promises'
 
@@ -23,8 +22,7 @@ const EmailLoginScreen = () => {
   } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
-      email: '',
-      password: ''
+      email: ''
     }
   })
 
@@ -40,17 +38,18 @@ const EmailLoginScreen = () => {
     if (requiresEmailConfFor) {
       setValue('email', requiresEmailConfFor?.email || '')
     }
+    if (!requiresEmailConfFor) setValue('email', '')
   }, [requiresEmailConfFor, setValue])
 
   const handleFormSubmit = useCallback(() => {
     !isWeb && Keyboard.dismiss()
 
-    handleSubmit(async ({ email, password }) => {
+    handleSubmit(async ({ email }) => {
       // wait state update before Wallet calcs because
       // when Wallet method is called on devices with slow CPU the UI freezes
       await delayPromise(100)
 
-      await handleLogin({ email, password })
+      await handleLogin({ email })
     })()
   }, [handleSubmit, handleLogin])
 
@@ -75,7 +74,7 @@ const EmailLoginScreen = () => {
             isValid={isEmail(value)}
             validLabel={pendingLoginAccount ? t('Email address confirmed') : ''}
             keyboardType="email-address"
-            disabled={!!requiresEmailConfFor || !!pendingLoginAccount}
+            disabled={!!requiresEmailConfFor && !pendingLoginAccount}
             info={
               requiresEmailConfFor && !pendingLoginAccount
                 ? t(
@@ -90,42 +89,10 @@ const EmailLoginScreen = () => {
         )}
         name="email"
       />
-      {requiresPassword && (
-        <Controller
-          control={control}
-          rules={{ validate: isValidPassword }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <InputPassword
-              onBlur={onBlur}
-              placeholder={t('Account password')}
-              onChangeText={onChange}
-              isValid={isValidPassword(value)}
-              autoFocus
-              disabled={isSubmitting}
-              value={value}
-              info={t('Enter the password for account {{accountAddr}}', {
-                // eslint-disable-next-line no-underscore-dangle
-                accountAddr: `${pendingLoginAccount?._id?.slice(
-                  0,
-                  4
-                )}...${pendingLoginAccount?._id?.slice(-4)}`
-              })}
-              error={
-                errors.password &&
-                (t('Please fill in at least 8 characters for password.') as string)
-              }
-              onSubmitEditing={handleFormSubmit}
-            />
-          )}
-          name="password"
-        />
-      )}
+
       <Button
         disabled={
-          (!!requiresEmailConfFor && !pendingLoginAccount) ||
-          isSubmitting ||
-          !watch('email', '') ||
-          (pendingLoginAccount && !watch('password', ''))
+          (!!requiresEmailConfFor && !pendingLoginAccount) || isSubmitting || !watch('email', '')
         }
         type="outline"
         text={
