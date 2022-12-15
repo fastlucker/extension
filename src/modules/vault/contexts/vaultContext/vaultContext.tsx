@@ -1,6 +1,8 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
+import useAuth from '@modules/auth/hooks/useAuth'
 import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useStorageController from '@modules/common/hooks/useStorageController'
@@ -28,6 +30,7 @@ const VaultProvider: React.FC = ({ children }) => {
   const { biometricsEnabled, getKeystorePassword, addKeystorePasswordToDeviceSecureStore } =
     useBiometricsSign()
   const [shouldLockWhenInactive, setShouldLockWhenInactive] = useState(true)
+  const { authStatus } = useAuth()
 
   /**
    * For the extension, we need to get vault status from background.
@@ -353,10 +356,19 @@ const VaultProvider: React.FC = ({ children }) => {
     [requestVaultControllerMethod]
   )
 
+  const handleLockWhenInactive = useCallback(() => {
+    // If no accounts are added, no need to lock the vault when inactive,
+    // since there is no sensitive information to protect yet.
+    if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
+      return
+    }
+
+    lockVault(VAULT_STATUS.LOCKED_TEMPORARILY)
+  }, [authStatus, lockVault])
+
   useLockWhenInactive({
-    // TODO: Configurable.
     shouldLockWhenInactive,
-    lock: () => lockVault(VAULT_STATUS.LOCKED_TEMPORARILY),
+    lock: handleLockWhenInactive,
     // TODO: Prompt to unlock
     promptToUnlock: () => null
   })
