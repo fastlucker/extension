@@ -11,6 +11,7 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import useDisableHardwareBackPress from '@modules/common/hooks/useDisableHardwareBackPress'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -68,6 +69,8 @@ const UnlockVaultScreen = ({ navigation }: any) => {
 
     return unsubscribe
   }, [navigation, vaultStatus])
+
+  useDisableHardwareBackPress()
 
   return (
     <GradientBackgroundWrapper>
