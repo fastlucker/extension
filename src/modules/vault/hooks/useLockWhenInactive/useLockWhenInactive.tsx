@@ -8,7 +8,7 @@ const useUnlockWithBiometrics = ({
 }: {
   shouldLockWhenInactive: boolean
   lock: () => void
-  promptToUnlock: () => void
+  promptToUnlock: () => Promise<any>
 }) => {
   const [, setAppState] = useState<AppStateStatus>(AppState.currentState)
 

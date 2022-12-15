@@ -43,8 +43,16 @@ const UnlockVaultScreen = ({ navigation }: any) => {
       return
     }
 
-    handleSubmit(unlockVault)()
-  }, [biometricsEnabled, handleSubmit, unlockVault])
+    // Trigger only when the vault is locked, which is the case when the app
+    // gets opened for the first time. Otherwise, when the vault gets
+    // temporary locked (when app goes inactive), this trigger is
+    // getting fired immediately when the app goes inactive,
+    // not when the app comes back in active state. Which messes up
+    // the biometrics prompt (it freezes and the promise never resolves).
+    if (vaultStatus === VAULT_STATUS.LOCKED) {
+      handleSubmit(unlockVault)()
+    }
+  }, [biometricsEnabled, handleSubmit, unlockVault, vaultStatus])
 
   const handleRetryBiometrics = useCallback(() => {
     setValue('password', '')

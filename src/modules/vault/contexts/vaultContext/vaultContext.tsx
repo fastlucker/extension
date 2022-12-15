@@ -175,7 +175,7 @@ const VaultProvider: React.FC = ({ children }) => {
   )
 
   const unlockVault = useCallback(
-    async ({ password: incomingPassword }: { password?: string }) => {
+    async ({ password: incomingPassword }: { password?: string } = {}) => {
       let password = incomingPassword
 
       if (biometricsEnabled && !password) {
@@ -369,8 +369,7 @@ const VaultProvider: React.FC = ({ children }) => {
   useLockWhenInactive({
     shouldLockWhenInactive,
     lock: handleLockWhenInactive,
-    // TODO: Prompt to unlock
-    promptToUnlock: () => null
+    promptToUnlock: unlockVault
   })
 
   const toggleShouldLockWhenInactive = useCallback(
