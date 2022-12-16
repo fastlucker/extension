@@ -385,7 +385,7 @@ const AppStack = () => {
     if (vaultStatus === prevVaultStatus) return
 
     if (vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
-      navigate('unlock-vault')
+      navigate('unlock-temporary-locked-vault')
     }
 
     if (
@@ -461,7 +461,7 @@ const AppStack = () => {
         options={{ headerShown: false }}
       />
       <MainStack.Screen
-        name="unlock-vault"
+        name="unlock-temporary-locked-vault"
         component={UnlockVaultScreen}
         options={{ gestureEnabled: false, headerLeft: () => null, title: t('Unlock') }}
       />
