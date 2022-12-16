@@ -21,18 +21,23 @@ const useLockWhenInactive = ({
   const handleAppStateChange = useCallback(
     (nextAppState) =>
       setAppState((currentAppState) => {
+        const isNotInTheMiddleOfAskingForPermissionOrLocalAuth =
+          !global.isAskingForPermission && !global.isAskingForLocalAuth
+
         if (currentAppState.match(/inactive|background/) && nextAppState === 'active') {
           // App has come to the foreground!
-          if ([VAULT_STATUS.LOCKED_TEMPORARILY, VAULT_STATUS.LOCKED].includes(vaultStatus)) {
+          const isLocked = [VAULT_STATUS.LOCKED_TEMPORARILY, VAULT_STATUS.LOCKED].includes(
+            vaultStatus
+          )
+          if (isNotInTheMiddleOfAskingForPermissionOrLocalAuth && isLocked) {
             promptToUnlock()
           }
         } else if (currentAppState === 'active' && nextAppState.match(/inactive|background/)) {
           // App has come to background!
           if (
+            isNotInTheMiddleOfAskingForPermissionOrLocalAuth &&
             shouldLockWhenInactive &&
-            vaultStatus === VAULT_STATUS.UNLOCKED &&
-            !global.isAskingForPermission &&
-            !global.isAskingForLocalAuth
+            vaultStatus === VAULT_STATUS.UNLOCKED
           ) {
             lock()
           }
