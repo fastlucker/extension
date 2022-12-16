@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AppState, AppStateStatus } from 'react-native'
 
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+
 const useUnlockWithBiometrics = ({
+  vaultStatus,
   shouldLockWhenInactive,
   lock,
   promptToUnlock
 }: {
+  vaultStatus: VAULT_STATUS
   shouldLockWhenInactive: boolean
   lock: () => void
   promptToUnlock: () => Promise<any>
@@ -19,11 +23,14 @@ const useUnlockWithBiometrics = ({
       setAppState((currentAppState) => {
         if (currentAppState.match(/inactive|background/) && nextAppState === 'active') {
           // App has come to the foreground!
-          promptToUnlock()
+          if ([VAULT_STATUS.LOCKED_TEMPORARILY, VAULT_STATUS.LOCKED].includes(vaultStatus)) {
+            promptToUnlock()
+          }
         } else if (currentAppState === 'active' && nextAppState.match(/inactive|background/)) {
           // App has come to background!
           if (
             shouldLockWhenInactive &&
+            vaultStatus === VAULT_STATUS.UNLOCKED &&
             !global.isAskingForPermission &&
             !global.isAskingForLocalAuth
           ) {
@@ -32,7 +39,7 @@ const useUnlockWithBiometrics = ({
         }
         return nextAppState
       }),
-    [promptToUnlock, shouldLockWhenInactive, lock]
+    [vaultStatus, promptToUnlock, shouldLockWhenInactive, lock]
   )
 
   useEffect(() => {
@@ -41,7 +48,7 @@ const useUnlockWithBiometrics = ({
     const stateChange = AppState.addEventListener('change', handleAppStateChange)
 
     return () => stateChange.remove()
-  }, [handleAppStateChange, shouldLockWhenInactive])
+  }, [handleAppStateChange, shouldLockWhenInactive, vaultStatus])
 }
 
 export default useUnlockWithBiometrics
