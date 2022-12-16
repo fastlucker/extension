@@ -3,7 +3,7 @@ import { AppState, AppStateStatus } from 'react-native'
 
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 
-const useUnlockWithBiometrics = ({
+const useLockWhenInactive = ({
   vaultStatus,
   shouldLockWhenInactive,
   lock,
@@ -51,4 +51,4 @@ const useUnlockWithBiometrics = ({
   }, [handleAppStateChange, shouldLockWhenInactive, vaultStatus])
 }
 
-export default useUnlockWithBiometrics
+export default useLockWhenInactive
