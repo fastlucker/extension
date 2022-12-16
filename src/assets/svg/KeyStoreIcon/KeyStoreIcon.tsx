@@ -1,5 +1,5 @@
 import React from 'react'
-import Svg, { Defs, G, LinearGradient, Path, Stop, SvgProps } from 'react-native-svg'
+import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 interface Props extends SvgProps {
   width?: number
@@ -8,12 +8,6 @@ interface Props extends SvgProps {
 
 const KeyStoreIcon: React.FC<Props> = ({ width = 121, height = 121 }) => (
   <Svg width={width} height={height} viewBox="0 0 121 121">
-    {/* <Defs>
-      <LinearGradient x1="0.085" y1="0.317" x2="1" y2="0.615" gradientUnits="objectBoundingBox">
-        <Stop offset="0" stopColor="#3e436b" />
-        <Stop offset="1" stopColor="#24263d" />
-      </LinearGradient>
-    </Defs> */}
     <G transform="translate(25.249 4.253)">
       <Path
         d="M34.653,74.4c9.069-2.847,17.741-7.448,22.712-12.059A36.483,36.483,0,0,0,65.211,52.2a27.036,27.036,0,0,0,3-12.331V13.042c-2.241.187-4.88.347-7.483.347a30.359,30.359,0,0,1-9.363-1.143A118.786,118.786,0,0,1,34.768,4.9a118.362,118.362,0,0,1-15.72,6.783A48.766,48.766,0,0,1,4.166,14.134V39.868A26.98,26.98,0,0,0,7,52.2a34.887,34.887,0,0,0,7.528,10.139A53.426,53.426,0,0,0,34.653,74.4m.259,3.943-1.459-.5A53.225,53.225,0,0,1,11.986,65.251,39.461,39.461,0,0,1,3.095,54.194C.741,49.555.324,44.942.324,39.868V10.143c1.739.141,1.963-.265,3.666-.265a43.623,43.623,0,0,0,14-2.074A131.9,131.9,0,0,0,35.46.189l-.692-.4A171.149,171.149,0,0,0,52.973,7.406c5.739,1.912,18.6.139,20.335,0V39.868A32.09,32.09,0,0,1,69.76,54.506a41.551,41.551,0,0,1-8.926,11.571C54.538,71.917,44.45,76.72,35.744,79.4Z"
