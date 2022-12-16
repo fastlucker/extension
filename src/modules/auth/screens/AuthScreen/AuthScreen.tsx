@@ -66,7 +66,7 @@ const AuthScreen = ({ navigation }: Props) => {
           <AuthButton
             text={t('Import From JSON')}
             type="outline"
-            routeName="jsonLogin"
+            routeName="ambireAccountJsonLogin"
             onPress={handleAuthButtonPress}
           />
           <AuthButton

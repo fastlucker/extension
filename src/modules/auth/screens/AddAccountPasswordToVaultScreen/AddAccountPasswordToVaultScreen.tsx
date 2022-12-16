@@ -9,6 +9,7 @@ import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import AnimatedArrows from '@modules/auth/components/AnimatedArrows'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
+import useJsonLogin from '@modules/auth/hooks/useJsonLogin'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -19,9 +20,21 @@ import spacings, { IS_SCREEN_SIZE_S } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { delayPromise } from '@modules/common/utils/promises'
 
-const AddAccountPasswordToVaultScreen = ({ navigation }: any) => {
+const AddAccountPasswordToVaultScreen = ({ navigation, route }: any) => {
   const { t } = useTranslation()
-  const { pendingLoginAccount, handleLogin, cancelLoginAttempts } = useEmailLogin()
+  const {
+    pendingLoginAccount: pendingEmailLoginAccount,
+    handleLogin: handleEmailLogin,
+    cancelLoginAttempts: cancelEmailLoginAttempts
+  } = useEmailLogin()
+  const {
+    handleLogin: handleJsonLogin,
+    data: pendingJsonLoginAccount,
+    cancelLoginAttempts: cancelJsonLoginAttempts
+  } = useJsonLogin()
+
+  const { loginType } = route.params
+
   useDisableNavigatingBack(navigation)
   const {
     control,
@@ -43,14 +56,16 @@ const AddAccountPasswordToVaultScreen = ({ navigation }: any) => {
       // when Wallet method is called on devices with slow CPU the UI freezes
       await delayPromise(100)
 
-      await handleLogin({ password })
+      loginType === 'email'
+        ? await handleEmailLogin({ password })
+        : await handleJsonLogin({ password })
     })()
-  }, [handleSubmit, handleLogin])
+  }, [handleSubmit, handleEmailLogin, handleJsonLogin, loginType])
 
   const handleCancelLoginAttempts = useCallback(() => {
-    cancelLoginAttempts()
+    loginType === 'email' ? cancelEmailLoginAttempts() : cancelJsonLoginAttempts()
     navigation.goBack()
-  }, [cancelLoginAttempts, navigation])
+  }, [cancelEmailLoginAttempts, cancelJsonLoginAttempts, navigation, loginType])
 
   return (
     <GradientBackgroundWrapper>
@@ -110,11 +125,15 @@ const AddAccountPasswordToVaultScreen = ({ navigation }: any) => {
                   disabled={isSubmitting}
                   value={value}
                   info={t('Enter the password for account {{accountAddr}}', {
-                    // eslint-disable-next-line no-underscore-dangle
-                    accountAddr: `${pendingLoginAccount?._id?.slice(
-                      0,
-                      4
-                    )}...${pendingLoginAccount?._id?.slice(-4)}`
+                    accountAddr: `${
+                      loginType === 'email'
+                        ? pendingEmailLoginAccount?._id?.slice(0, 4)
+                        : pendingJsonLoginAccount?.id?.slice(0, 4)
+                    }...${
+                      loginType === 'email'
+                        ? pendingEmailLoginAccount?._id?.slice(-4)
+                        : pendingJsonLoginAccount?.id?.slice(-4)
+                    }`
                   })}
                   error={
                     errors.password &&
@@ -131,6 +150,7 @@ const AddAccountPasswordToVaultScreen = ({ navigation }: any) => {
               text={isSubmitting ? t('Adding to Key Store...') : t('Add password to Key Store')}
               onPress={handleFormSubmit}
             />
+
             <Button
               type="ghost"
               text={t('Cancel Login Attempt')}

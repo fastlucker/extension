@@ -136,7 +136,7 @@ const EmailLoginProvider: React.FC = ({ children }) => {
         setItem('pendingLoginAccount', JSON.stringify(body))
         // Delete the key so that it can't be used anymore on this browser
         removeItem('loginSessionKey')
-        navigate('addAccountPasswordToVault')
+        navigate('addAccountPasswordToVault', { loginType: 'email' })
       } else {
         addToast(
           body.message
@@ -165,7 +165,7 @@ const EmailLoginProvider: React.FC = ({ children }) => {
           addToast(`Unexpected error: ${e.message || e}`)
         }
       } else if (pendingLoginAccount && email) {
-        navigate('addAccountPasswordToVault')
+        navigate('addAccountPasswordToVault', { loginType: 'email' })
       } else if (pendingLoginAccount && !password) {
         addToast('Password is required', { error: true })
       } else {

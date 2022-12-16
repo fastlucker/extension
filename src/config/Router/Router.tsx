@@ -23,6 +23,7 @@ import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
 import SetAppLockingScreen from '@modules/app-lock/screens/SetAppLockingScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import { EmailLoginProvider } from '@modules/auth/contexts/emailLoginContext'
+import { JsonLoginProvider } from '@modules/auth/contexts/jsonLoginContext'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AddAccountPasswordToVaultScreen from '@modules/auth/screens/AddAccountPasswordToVaultScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
@@ -62,7 +63,7 @@ import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
-import { NavigationContainer, useIsFocused } from '@react-navigation/native'
+import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import { drawerStyle, navigationContainerDarkTheme } from './styles'
@@ -77,6 +78,7 @@ const SetAppLockStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
 const EmailLoginStack = createNativeStackNavigator()
+const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 
@@ -181,6 +183,27 @@ const EmailLoginStackScreen = () => {
   )
 }
 
+const JsonLoginStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <JsonLoginProvider>
+      <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+        <Stack.Screen
+          name="jsonLogin"
+          options={{ title: t('Import from JSON') }}
+          component={JsonLoginScreen}
+        />
+        <Stack.Screen
+          name="addAccountPasswordToVault"
+          options={{ title: t('Login') }}
+          component={AddAccountPasswordToVaultScreen}
+        />
+      </EmailLoginStack.Navigator>
+    </JsonLoginProvider>
+  )
+}
+
 const AuthStack = () => {
   const { t } = useTranslation()
   const { vaultStatus } = useVault()
@@ -216,16 +239,20 @@ const AuthStack = () => {
           />
         </>
       )}
-      <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
+      <Stack.Screen
+        options={{ title: t('Welcome to Ambire') }}
+        name="auth"
+        component={AuthScreen}
+      />
       <Stack.Screen
         name="ambireAccountLogin"
         options={{ title: t('Login'), headerShown: false }}
         component={EmailLoginStackScreen}
       />
       <Stack.Screen
-        name="jsonLogin"
-        options={{ title: t('Import from JSON') }}
-        component={JsonLoginScreen}
+        name="ambireAccountJsonLogin"
+        options={{ title: t('Import from JSON'), headerShown: false }}
+        component={JsonLoginStackScreen}
       />
       <Stack.Screen
         name="qrCodeLogin"

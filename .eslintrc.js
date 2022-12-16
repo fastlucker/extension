@@ -4,7 +4,8 @@ module.exports = {
     'import/extensions': 'off',
     'class-methods-use-this': 'off',
     'no-nested-ternary': 'off',
-    'prefer-promise-reject-errors': 'off'
+    'prefer-promise-reject-errors': 'off',
+    'no-underscore-dangle': 'off'
   },
   env: {
     "browser": true,
