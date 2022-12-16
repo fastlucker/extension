@@ -362,6 +362,7 @@ const VaultProvider: React.FC = ({ children }) => {
   }, [authStatus, lockVault])
 
   useLockWhenInactive({
+    vaultStatus,
     shouldLockWhenInactive,
     lock: handleLockWhenInactive,
     promptToUnlock: unlockVault
