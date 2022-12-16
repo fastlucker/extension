@@ -160,7 +160,6 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         </Text>
         <View style={[spacings.mlTy, spacings.mbSm]}>
           <ConnectedDapps />
-          {!isWeb && <AppLockButton handleNavigate={handleNavigate} />}
           {!isWeb && <ManageAppLockButton handleNavigate={handleNavigate} />}
           {!isWeb && <BiometricsSignButton handleNavigate={handleNavigate} />}
           <Theme />

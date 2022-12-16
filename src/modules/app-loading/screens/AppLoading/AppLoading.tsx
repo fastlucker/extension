@@ -4,7 +4,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import Router from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
-import { AppLockProvider } from '@modules/app-lock/contexts/appLockContext'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
 import { BiometricsSignProvider } from '@modules/biometrics-sign/contexts/biometricsSignContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
@@ -66,22 +65,20 @@ const AppLoading = () => {
                                         <BiometricsSignProvider>
                                           <VaultProvider>
                                             <AddressBookProvider>
-                                              <AppLockProvider>
-                                                <AttentionGrabberProvider>
-                                                  <PrivateModeProvider>
-                                                    <GasTankProvider>
-                                                      <UnsupportedDAppsBottomSheetProvider>
-                                                        <HeaderBottomSheetProvider>
-                                                          <LinkingProvider>
-                                                            <Router />
-                                                          </LinkingProvider>
-                                                        </HeaderBottomSheetProvider>
-                                                      </UnsupportedDAppsBottomSheetProvider>
-                                                    </GasTankProvider>
-                                                  </PrivateModeProvider>
-                                                </AttentionGrabberProvider>
-                                                <PortalHost name="global" />
-                                              </AppLockProvider>
+                                              <AttentionGrabberProvider>
+                                                <PrivateModeProvider>
+                                                  <GasTankProvider>
+                                                    <UnsupportedDAppsBottomSheetProvider>
+                                                      <HeaderBottomSheetProvider>
+                                                        <LinkingProvider>
+                                                          <Router />
+                                                        </LinkingProvider>
+                                                      </HeaderBottomSheetProvider>
+                                                    </UnsupportedDAppsBottomSheetProvider>
+                                                  </GasTankProvider>
+                                                </PrivateModeProvider>
+                                              </AttentionGrabberProvider>
+                                              <PortalHost name="global" />
                                             </AddressBookProvider>
                                           </VaultProvider>
                                         </BiometricsSignProvider>

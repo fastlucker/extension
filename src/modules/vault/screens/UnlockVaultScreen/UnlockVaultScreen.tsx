@@ -11,17 +11,19 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import useDisableHardwareBackPress from '@modules/common/hooks/useDisableHardwareBackPress'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import LockBackground from '@modules/vault/components/LockBackground'
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
 
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
 const UnlockVaultScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const { unlockVault } = useVault()
+  const { unlockVault, vaultStatus } = useVault()
   const { biometricsEnabled } = useBiometricsSign()
   const {
     control,
@@ -41,8 +43,16 @@ const UnlockVaultScreen = ({ navigation }: any) => {
       return
     }
 
-    handleSubmit(unlockVault)()
-  }, [biometricsEnabled, handleSubmit, unlockVault])
+    // Trigger only when the vault is locked, which is the case when the app
+    // gets opened for the first time. Otherwise, when the vault gets
+    // temporary locked (when app goes inactive), this trigger is
+    // getting fired immediately when the app goes inactive,
+    // not when the app comes back in active state. Which messes up
+    // the biometrics prompt (it freezes and the promise never resolves).
+    if (vaultStatus === VAULT_STATUS.LOCKED) {
+      handleSubmit(unlockVault)()
+    }
+  }, [biometricsEnabled, handleSubmit, unlockVault, vaultStatus])
 
   const handleRetryBiometrics = useCallback(() => {
     setValue('password', '')
@@ -53,6 +63,22 @@ const UnlockVaultScreen = ({ navigation }: any) => {
     () => navigation.navigate('resetVault', { resetPassword: true }),
     [navigation]
   )
+
+  // Prevent going back, needed for the temporary locked keystore case,
+  // where the user must unlock before he comes back to the previous screen.
+  // {@link https://reactnavigation.org/docs/preventing-going-back/}
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (vaultStatus !== VAULT_STATUS.UNLOCKED) {
+        // Prevent default behavior of leaving the screen
+        e.preventDefault()
+      }
+    })
+
+    return unsubscribe
+  }, [navigation, vaultStatus])
+
+  useDisableHardwareBackPress()
 
   return (
     <GradientBackgroundWrapper>
