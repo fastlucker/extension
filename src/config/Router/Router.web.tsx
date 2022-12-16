@@ -16,7 +16,6 @@ import {
   headerGamma as defaultHeaderGamma
 } from '@config/Router/HeadersConfig'
 import styles, { tabBarItemWebStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
-import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
@@ -71,7 +70,6 @@ const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
-const ManageAppLockingStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 
@@ -133,22 +131,6 @@ const BiometricsStackScreen = () => {
         }}
       />
     </BiometricsStack.Navigator>
-  )
-}
-
-const ManageAppLockStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <ManageAppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
-      <ManageAppLockingStack.Screen
-        name="manage-app-lock-screen"
-        component={ManageAppLockScreen}
-        options={{
-          title: t('Manage App Lock')
-        }}
-      />
-    </ManageAppLockingStack.Navigator>
   )
 }
 
@@ -504,11 +486,6 @@ const AppStack = () => {
         options={{
           headerShown: false
         }}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="manage-app-locking"
-        component={ManageAppLockStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
