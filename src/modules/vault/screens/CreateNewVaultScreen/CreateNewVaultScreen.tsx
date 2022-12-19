@@ -10,6 +10,7 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import Input from '@modules/common/components/Input'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
+import Toggle from '@modules/common/components/Toggle'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -32,6 +33,7 @@ const CreateNewVaultScreen = ({ route }: any) => {
     defaultValues: {
       password: '',
       confirmPassword: '',
+      optInForBiometricsUnlock: !isWeb,
       nextRoute: route.params?.nextRoute || 'auth'
     }
   })
@@ -98,10 +100,22 @@ const CreateNewVaultScreen = ({ route }: any) => {
                   error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
                   autoCorrect={false}
                   onSubmitEditing={handleSubmit(createVault)}
+                  containerStyle={spacings.mbSm}
                 />
               )}
               name="confirmPassword"
             />
+            {!isWeb && (
+              <View style={[spacings.mbLg, flexboxStyles.alignEnd]}>
+                <Controller
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <Toggle isOn={value} label={t('Biometrics unlock?')} onToggle={onChange} />
+                  )}
+                  name="optInForBiometricsUnlock"
+                />
+              </View>
+            )}
 
             <Button
               disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}

@@ -1,3 +1,4 @@
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
@@ -18,9 +19,6 @@ import styles, {
   tabBarLabelStyle,
   tabBarStyle
 } from '@config/Router/styles'
-import useAppLock from '@modules/app-lock/hooks/useAppLock'
-import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
-import SetAppLockingScreen from '@modules/app-lock/screens/SetAppLockingScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import { EmailLoginProvider } from '@modules/auth/contexts/emailLoginContext'
 import { JsonLoginProvider } from '@modules/auth/contexts/jsonLoginContext'
@@ -31,7 +29,6 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import BiometricsSignScreen from '@modules/biometrics-sign/screens/BiometricsSignScreen'
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
@@ -58,6 +55,7 @@ import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
 import CreateNewVaultScreen from '@modules/vault/screens/CreateNewVaultScreen'
+import ManageVaultLockScreen from '@modules/vault/screens/ManageVaultLockScreen'
 import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
@@ -74,9 +72,7 @@ const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
-const SetAppLockStack = createNativeStackNavigator()
-const BiometricsStack = createNativeStackNavigator()
-const AppLockingStack = createNativeStackNavigator()
+const ManageVaultLockStack = createNativeStackNavigator()
 const EmailLoginStack = createNativeStackNavigator()
 const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
@@ -114,51 +110,19 @@ const GasInformationStackScreen = () => {
   )
 }
 
-const SetAppLockStackScreen = () => {
+const ManageVaultLockStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <SetAppLockStack.Navigator screenOptions={{ header: headerBeta }}>
-      <SetAppLockStack.Screen
-        name="set-app-lock-screen"
-        component={SetAppLockingScreen}
+    <ManageVaultLockStack.Navigator screenOptions={{ header: headerBeta }}>
+      <ManageVaultLockStack.Screen
+        name="manage-vault-lock-screen"
+        component={ManageVaultLockScreen}
         options={{
-          title: t('App Lock')
+          title: t('Manage Key Store Lock')
         }}
       />
-    </SetAppLockStack.Navigator>
-  )
-}
-
-const BiometricsStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <BiometricsStack.Navigator screenOptions={{ header: headerBeta }}>
-      <BiometricsStack.Screen
-        name="biometrics-sign-change-screen"
-        component={BiometricsSignScreen}
-        options={{
-          title: t('Sign with Biometrics')
-        }}
-      />
-    </BiometricsStack.Navigator>
-  )
-}
-
-const ManageAppLockStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <AppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
-      <AppLockingStack.Screen
-        name="manage-app-lock-screen"
-        component={ManageAppLockScreen}
-        options={{
-          title: t('Manage App Lock')
-        }}
-      />
-    </AppLockingStack.Navigator>
+    </ManageVaultLockStack.Navigator>
   )
 }
 
@@ -435,14 +399,13 @@ const AppDrawer = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-  const { isLoading } = useAppLock()
   const { getItem } = useStorageController()
+  const { vaultStatus } = useVault()
+  const prevVaultStatus = usePrevious(vaultStatus)
 
   useEffect(() => {
-    if (isLoading) return
-
     SplashScreen.hideAsync()
-  }, [isLoading])
+  }, [])
 
   useEffect(() => {
     // Checks whether there is a pending email login attempt. It happens when
@@ -459,6 +422,21 @@ const AppStack = () => {
     }
   }, [getItem])
 
+  useEffect(() => {
+    if (vaultStatus === prevVaultStatus) return
+
+    if (vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
+      navigate('unlock-temporarily-locked-vault')
+    }
+
+    if (
+      prevVaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY &&
+      vaultStatus === VAULT_STATUS.UNLOCKED
+    ) {
+      navigationRef.current?.goBack()
+    }
+  }, [prevVaultStatus, vaultStatus])
+
   return (
     <MainStack.Navigator screenOptions={{ header: headerBeta }}>
       <MainStack.Screen
@@ -470,23 +448,13 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="manage-app-locking"
-        component={ManageAppLockStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
         name="signers"
         component={SignersStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="set-app-lock"
-        component={SetAppLockStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="biometrics-sign-change"
-        component={BiometricsStackScreen}
+        name="manage-vault-lock"
+        component={ManageVaultLockStackScreen}
       />
       <MainStack.Screen
         name="auth-add-account"
@@ -528,6 +496,11 @@ const AppStack = () => {
         component={GasInformationStackScreen}
         options={{ headerShown: false }}
       />
+      <MainStack.Screen
+        name="unlock-temporarily-locked-vault"
+        component={UnlockVaultScreen}
+        options={{ gestureEnabled: false, headerLeft: () => null, title: t('Unlock') }}
+      />
     </MainStack.Navigator>
   )
 }
@@ -562,7 +535,10 @@ const Router = () => {
         return <VaultStack />
       }
 
-      if (vaultStatus === VAULT_STATUS.UNLOCKED) {
+      if (
+        vaultStatus === VAULT_STATUS.UNLOCKED ||
+        vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY
+      ) {
         return <AppStack />
       }
     }

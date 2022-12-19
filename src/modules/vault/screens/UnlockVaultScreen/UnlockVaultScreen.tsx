@@ -1,5 +1,5 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 
@@ -10,19 +10,23 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import useDisableNavigatingBack from '@modules/common/hooks/useDisableNavigatingBack'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
+
+const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
 const UnlockVaultScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const { unlockVault } = useVault()
-
+  const { unlockVault, vaultStatus, biometricsEnabled } = useVault()
   const {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting }
   } = useForm({
     reValidateMode: 'onChange',
@@ -30,6 +34,48 @@ const UnlockVaultScreen = ({ navigation }: any) => {
       password: ''
     }
   })
+
+  useEffect(() => {
+    if (!biometricsEnabled) {
+      return
+    }
+
+    // Trigger only when the vault is locked, which is the case when the app
+    // gets opened for the first time. Otherwise, when the vault gets
+    // temporary locked (when app goes inactive), this trigger is
+    // getting fired immediately when the app goes inactive,
+    // not when the app comes back in active state. Which messes up
+    // the biometrics prompt (it freezes and the promise never resolves).
+    if (vaultStatus === VAULT_STATUS.LOCKED) {
+      handleSubmit(unlockVault)()
+    }
+  }, [biometricsEnabled, handleSubmit, unlockVault, vaultStatus])
+
+  const handleRetryBiometrics = useCallback(() => {
+    setValue('password', '')
+    return handleSubmit(unlockVault)()
+  }, [handleSubmit, unlockVault, setValue])
+
+  const handleForgotPassword = useCallback(
+    () => navigation.navigate('resetVault', { resetPassword: true }),
+    [navigation]
+  )
+
+  // Prevent going back, needed for the temporary locked key store case,
+  // where the user must unlock before he comes back to the previous screen.
+  // {@link https://reactnavigation.org/docs/preventing-going-back/}
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (vaultStatus !== VAULT_STATUS.UNLOCKED) {
+        // Prevent default behavior of leaving the screen
+        e.preventDefault()
+      }
+    })
+
+    return unsubscribe
+  }, [navigation, vaultStatus])
+
+  useDisableNavigatingBack()
 
   return (
     <GradientBackgroundWrapper>
@@ -52,7 +98,6 @@ const UnlockVaultScreen = ({ navigation }: any) => {
 
             <Controller
               control={control}
-              rules={{ validate: isValidPassword }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <InputPassword
                   onBlur={onBlur}
@@ -79,15 +124,27 @@ const UnlockVaultScreen = ({ navigation }: any) => {
                 onPress={handleSubmit(unlockVault)}
               />
             </View>
-            <View style={[flexboxStyles.alignCenter, spacings.pvTy]}>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('resetVault', { resetPassword: true })}
-                hitSlop={{ top: 10, bottom: 15 }}
-              >
+            <View style={[flexboxStyles.justifyCenter, flexboxStyles.directionRow, spacings.pvTy]}>
+              <TouchableOpacity onPress={handleForgotPassword} hitSlop={FOOTER_BUTTON_HIT_SLOP}>
                 <Text weight="medium" fontSize={12}>
-                  Forgot Key Store passphrase?
+                  {t('Forgot Key Store passphrase?')}
                 </Text>
               </TouchableOpacity>
+              {biometricsEnabled && (
+                <>
+                  <Text weight="medium" fontSize={12}>
+                    {' | '}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={handleRetryBiometrics}
+                    hitSlop={FOOTER_BUTTON_HIT_SLOP}
+                  >
+                    <Text weight="medium" fontSize={12}>
+                      {t('Retry biometrics')}
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           </View>
         </Wrapper>

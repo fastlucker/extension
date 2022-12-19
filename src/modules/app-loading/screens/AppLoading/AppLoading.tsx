@@ -4,9 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import Router from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
-import { AppLockProvider } from '@modules/app-lock/contexts/appLockContext'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
-import { BiometricsSignProvider } from '@modules/biometrics-sign/contexts/biometricsSignContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
@@ -62,30 +60,26 @@ const AppLoading = () => {
                                 <WalletConnectProvider>
                                   <AmbireExtensionProvider>
                                     <RequestsProvider>
-                                      <VaultProvider>
-                                        <AddressBookProvider>
-                                          <BiometricsProvider>
-                                            <BiometricsSignProvider>
-                                              <AppLockProvider>
-                                                <AttentionGrabberProvider>
-                                                  <PrivateModeProvider>
-                                                    <GasTankProvider>
-                                                      <UnsupportedDAppsBottomSheetProvider>
-                                                        <HeaderBottomSheetProvider>
-                                                          <LinkingProvider>
-                                                            <Router />
-                                                          </LinkingProvider>
-                                                        </HeaderBottomSheetProvider>
-                                                      </UnsupportedDAppsBottomSheetProvider>
-                                                    </GasTankProvider>
-                                                  </PrivateModeProvider>
-                                                </AttentionGrabberProvider>
-                                                <PortalHost name="global" />
-                                              </AppLockProvider>
-                                            </BiometricsSignProvider>
-                                          </BiometricsProvider>
-                                        </AddressBookProvider>
-                                      </VaultProvider>
+                                      <BiometricsProvider>
+                                        <VaultProvider>
+                                          <AddressBookProvider>
+                                            <AttentionGrabberProvider>
+                                              <PrivateModeProvider>
+                                                <GasTankProvider>
+                                                  <UnsupportedDAppsBottomSheetProvider>
+                                                    <HeaderBottomSheetProvider>
+                                                      <LinkingProvider>
+                                                        <Router />
+                                                      </LinkingProvider>
+                                                    </HeaderBottomSheetProvider>
+                                                  </UnsupportedDAppsBottomSheetProvider>
+                                                </GasTankProvider>
+                                              </PrivateModeProvider>
+                                            </AttentionGrabberProvider>
+                                            <PortalHost name="global" />
+                                          </AddressBookProvider>
+                                        </VaultProvider>
+                                      </BiometricsProvider>
                                     </RequestsProvider>
                                   </AmbireExtensionProvider>
                                 </WalletConnectProvider>

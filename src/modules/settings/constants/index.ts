@@ -1,5 +1,5 @@
 export const SECURE_STORE_KEY_PASSCODE = 'passcode'
-export const SECURE_STORE_KEY_ACCOUNT = 'account'
+export const SECURE_STORE_KEY_KEYSTORE_PASSWORD = 'keystore-password'
 
 // Persist the legacy values for this key, because the logic stays the same
 // and therefore - users who have activated biometrics before - will loose
