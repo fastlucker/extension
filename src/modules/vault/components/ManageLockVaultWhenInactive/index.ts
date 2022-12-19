@@ -1,3 +1,3 @@
-import ManageBiometricsUnlock from './ManageBiometricsUnlock'
+import ManageLockVaultWhenInactive from './ManageLockVaultWhenInactive'
 
-export default ManageBiometricsUnlock
+export default ManageLockVaultWhenInactive
