@@ -63,7 +63,7 @@ const UnlockVaultScreen = ({ navigation }: any) => {
     [navigation]
   )
 
-  // Prevent going back, needed for the temporary locked keystore case,
+  // Prevent going back, needed for the temporary locked key store case,
   // where the user must unlock before he comes back to the previous screen.
   // {@link https://reactnavigation.org/docs/preventing-going-back/}
   useEffect(() => {

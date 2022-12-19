@@ -67,7 +67,7 @@ const ManageVaultBiometricsScreen = () => {
     if (!isValidVaultPassword) {
       return setError(
         'password',
-        { type: 'focus', message: t('Wrong Ambire Key Store password.') },
+        { type: 'focus', message: t('Wrong Ambire Key Store passphrase.') },
         { shouldFocus: true }
       )
     }
@@ -140,7 +140,7 @@ const ManageVaultBiometricsScreen = () => {
       return (
         <>
           <Text type="small" style={spacings.mbLg}>
-            {t('You can opt-in to use your phone biometrics to unlock your Ambire Keystore.')}
+            {t('You can opt-in to use your phone biometrics to unlock your Ambire Key Store.')}
           </Text>
           <TextWarning appearance="info">
             {t(
@@ -155,15 +155,15 @@ const ManageVaultBiometricsScreen = () => {
       <>
         <Text type="small" style={spacings.mb}>
           {t(
-            'You can opt-in to use your phone biometrics to unlock your Ambire Keystore. To enable it, enter your Ambire Keystore password.'
+            'You can opt-in to use your phone biometrics to unlock your Ambire Key Store. To enable it, enter your Ambire Key Store passphrase.'
           )}
         </Text>
         <Controller
           control={control}
-          rules={{ required: t('Please fill in a password.') as string }}
+          rules={{ required: t('Please fill in a passphrase.') as string }}
           render={({ field: { onChange, onBlur, value } }) => (
             <InputPassword
-              placeholder={t('Ambire Keystore password')}
+              placeholder={t('Ambire Key Store passphrase')}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}

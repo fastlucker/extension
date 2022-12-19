@@ -119,7 +119,7 @@ const VaultProvider: React.FC = ({ children }) => {
           props: { password }
         })
       } catch {
-        addToast(t('Error creating Ambire keystore. Please try again later or contact support.'), {
+        addToast(t('Error creating Ambire Key Store. Please try again later or contact support.'), {
           error: true
         })
         return Promise.reject()

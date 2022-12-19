@@ -120,7 +120,7 @@ const BiometricsStackScreen = () => {
         name="manage-vault-biometrics-screen"
         component={ManageVaultBiometricsScreen}
         options={{
-          title: t('Manage Keystore Lock')
+          title: t('Manage Key Store Lock')
         }}
       />
     </BiometricsStack.Navigator>
