@@ -49,7 +49,7 @@ const AuthScreen = ({ navigation }: Props) => {
         <View>
           <AuthButton
             text={t('Login With Email')}
-            routeName="emailLogin"
+            routeName="ambireAccountLogin"
             onPress={handleAuthButtonPress}
             hasBottomSpacing={false}
           />
@@ -66,7 +66,7 @@ const AuthScreen = ({ navigation }: Props) => {
           <AuthButton
             text={t('Import From JSON')}
             type="outline"
-            routeName="jsonLogin"
+            routeName="ambireAccountJsonLogin"
             onPress={handleAuthButtonPress}
           />
           <AuthButton

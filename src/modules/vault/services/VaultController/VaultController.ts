@@ -193,7 +193,6 @@ export default class VaultController {
   getSignerType({ addr }: { addr: string }) {
     if (!this.#memVault) throw new Error('Vault not initialized')
     const vaultItem = this.#memVault[addr]
-
     if (!vaultItem) throw new Error('Signer not found')
 
     return Promise.resolve(vaultItem.type)

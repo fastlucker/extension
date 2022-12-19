@@ -50,7 +50,7 @@ const AuthScreen = ({ navigation }: Props) => {
         <View style={flexboxStyles.flex1}>
           <AuthButton
             text={t('Login With Email')}
-            routeName="emailLogin"
+            routeName="ambireAccountLogin"
             onPress={handleAuthButtonPress}
             hasBottomSpacing={false}
           />
@@ -66,7 +66,7 @@ const AuthScreen = ({ navigation }: Props) => {
           <AuthButton
             text={t('Import From JSON')}
             type="outline"
-            routeName="jsonLogin"
+            routeName="ambireAccountJsonLogin"
             onPress={handleAuthButtonPress}
           />
           <AuthButton
