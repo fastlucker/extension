@@ -26,7 +26,6 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import BiometricsSignScreen from '@modules/biometrics-sign/screens/BiometricsSignScreen'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
@@ -120,22 +119,6 @@ const GasInformationStackScreen = () => {
     <GasInformationStack.Navigator screenOptions={{ header: headerGamma }}>
       <GasInformationStack.Screen name="gas-information-screen" component={GasInformationScreen} />
     </GasInformationStack.Navigator>
-  )
-}
-
-const BiometricsStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <BiometricsStack.Navigator screenOptions={{ header: headerBeta }}>
-      <BiometricsStack.Screen
-        name="biometrics-sign-change-screen"
-        component={BiometricsSignScreen}
-        options={{
-          title: t('Sign with Biometrics')
-        }}
-      />
-    </BiometricsStack.Navigator>
   )
 }
 
@@ -545,11 +528,6 @@ const AppStack = () => {
         options={{ headerShown: false }}
         name="signers"
         component={SignersStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="biometrics-sign-change"
-        component={BiometricsStackScreen}
       />
       <MainStack.Screen
         name="auth-add-account"

@@ -30,7 +30,6 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import BiometricsSignScreen from '@modules/biometrics-sign/screens/BiometricsSignScreen'
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
@@ -57,6 +56,7 @@ import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
 import CreateNewVaultScreen from '@modules/vault/screens/CreateNewVaultScreen'
+import ManageVaultBiometricsScreen from '@modules/vault/screens/ManageVaultBiometricsScreen'
 import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
@@ -118,10 +118,10 @@ const BiometricsStackScreen = () => {
   return (
     <BiometricsStack.Navigator screenOptions={{ header: headerBeta }}>
       <BiometricsStack.Screen
-        name="biometrics-sign-change-screen"
-        component={BiometricsSignScreen}
+        name="manage-vault-biometrics-screen"
+        component={ManageVaultBiometricsScreen}
         options={{
-          title: t('Sign with Biometrics')
+          title: t('Manage Biometrics')
         }}
       />
     </BiometricsStack.Navigator>
@@ -476,7 +476,7 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="biometrics-sign-change"
+        name="manage-vault-biometrics"
         component={BiometricsStackScreen}
       />
       <MainStack.Screen

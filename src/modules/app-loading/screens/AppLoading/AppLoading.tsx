@@ -5,7 +5,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import Router from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
-import { BiometricsSignProvider } from '@modules/biometrics-sign/contexts/biometricsSignContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
@@ -30,6 +29,7 @@ import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/un
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 import useFonts from '@modules/common/hooks/useFonts'
 import { rpcProviders } from '@modules/common/services/providers'
+import { VaultBiometricsProvider } from '@modules/vault/contexts/vaultBiometricsContext'
 import { VaultProvider } from '@modules/vault/contexts/vaultContext'
 
 // Initialize rpc providers for all networks
@@ -62,7 +62,7 @@ const AppLoading = () => {
                                   <AmbireExtensionProvider>
                                     <RequestsProvider>
                                       <BiometricsProvider>
-                                        <BiometricsSignProvider>
+                                        <VaultBiometricsProvider>
                                           <VaultProvider>
                                             <AddressBookProvider>
                                               <AttentionGrabberProvider>
@@ -81,7 +81,7 @@ const AppLoading = () => {
                                               <PortalHost name="global" />
                                             </AddressBookProvider>
                                           </VaultProvider>
-                                        </BiometricsSignProvider>
+                                        </VaultBiometricsProvider>
                                       </BiometricsProvider>
                                     </RequestsProvider>
                                   </AmbireExtensionProvider>

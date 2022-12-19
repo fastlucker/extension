@@ -5,7 +5,6 @@ import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'reac
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -17,13 +16,14 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
+import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
 
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
 const UnlockVaultScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { unlockVault, vaultStatus } = useVault()
-  const { biometricsEnabled } = useBiometricsSign()
+  const { biometricsEnabled } = useVaultBiometrics()
   const {
     control,
     handleSubmit,

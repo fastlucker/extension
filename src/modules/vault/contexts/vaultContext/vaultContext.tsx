@@ -3,13 +3,13 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import { useTranslation } from '@config/localization'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useLockWhenInactive from '@modules/vault/hooks/useLockWhenInactive'
+import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
 import VaultController from '@modules/vault/services/VaultController'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 import { isExtension } from '@web/constants/browserAPI'
@@ -28,7 +28,7 @@ const VaultProvider: React.FC = ({ children }) => {
   const { onRemoveAllAccounts } = useAccounts()
   const { getItem, setItem, storageControllerInstance } = useStorageController()
   const { biometricsEnabled, getKeystorePassword, addKeystorePasswordToDeviceSecureStore } =
-    useBiometricsSign()
+    useVaultBiometrics()
   const [shouldLockWhenInactive, setShouldLockWhenInactive] = useState(true)
   const { authStatus } = useAuth()
 

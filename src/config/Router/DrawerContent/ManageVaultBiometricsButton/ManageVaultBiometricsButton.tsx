@@ -2,21 +2,21 @@ import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
+import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
 
 interface Props {
   handleNavigate: (route: string) => void
 }
 
-const BiometricsSignButton: React.FC<Props> = ({ handleNavigate }) => {
+const ManageVaultBiometricsButton: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
   const { isLoading: isLoadingBiometrics, hasBiometricsHardware } = useBiometrics()
-  const { biometricsEnabled } = useBiometricsSign()
+  const { biometricsEnabled } = useVaultBiometrics()
 
   if (isLoadingBiometrics)
     return (
@@ -30,7 +30,7 @@ const BiometricsSignButton: React.FC<Props> = ({ handleNavigate }) => {
   }
 
   return (
-    <TouchableOpacity onPress={() => handleNavigate('biometrics-sign-change')}>
+    <TouchableOpacity onPress={() => handleNavigate('manage-vault-biometrics')}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
         {biometricsEnabled ? t('Manage biometrics unlock') : t('Set biometrics unlock')}
       </Text>
@@ -38,4 +38,4 @@ const BiometricsSignButton: React.FC<Props> = ({ handleNavigate }) => {
   )
 }
 
-export default React.memo(BiometricsSignButton)
+export default React.memo(ManageVaultBiometricsButton)

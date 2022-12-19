@@ -3,7 +3,6 @@ import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -15,13 +14,14 @@ import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
 import useVault from '@modules/vault/hooks/useVault'
+import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
 import { useIsFocused, useNavigation } from '@react-navigation/native'
 
 interface FormValues {
   password: string
 }
 
-const BiometricsSignScreen = () => {
+const ManageVaultBiometricsScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { addToast } = useToast()
@@ -31,7 +31,7 @@ const BiometricsSignScreen = () => {
     addKeystorePasswordToDeviceSecureStore,
     biometricsEnabled,
     removeKeystorePasswordFromDeviceSecureStore
-  } = useBiometricsSign()
+  } = useVaultBiometrics()
   const { isValidPassword } = useVault()
   const {
     control,
@@ -159,4 +159,4 @@ const BiometricsSignScreen = () => {
   )
 }
 
-export default BiometricsSignScreen
+export default ManageVaultBiometricsScreen

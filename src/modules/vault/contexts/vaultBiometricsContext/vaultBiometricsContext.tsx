@@ -7,18 +7,18 @@ import useToast from '@modules/common/hooks/useToast'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import { SECURE_STORE_KEY_KEYSTORE_PASSWORD } from '@modules/settings/constants'
 
-import { biometricsSignContextDefaults, BiometricsSignContextReturnType } from './types'
+import { vaultBiometricsContextDefaults, VaultBiometricsContextReturnType } from './types'
 
-const BiometricsSignContext = createContext<BiometricsSignContextReturnType>(
-  biometricsSignContextDefaults
+const VaultBiometricsContext = createContext<VaultBiometricsContextReturnType>(
+  vaultBiometricsContextDefaults
 )
 
-const BiometricsSignProvider: React.FC = ({ children }) => {
+const VaultBiometricsProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { getItem, setItem, removeItem } = useStorageController()
   const [biometricsEnabled, setBiometricsEnabled] = useState<boolean>(
-    biometricsSignContextDefaults.biometricsEnabled
+    vaultBiometricsContextDefaults.biometricsEnabled
   )
 
   useEffect(() => {
@@ -85,7 +85,7 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
   }, [t])
 
   return (
-    <BiometricsSignContext.Provider
+    <VaultBiometricsContext.Provider
       value={useMemo(
         () => ({
           addKeystorePasswordToDeviceSecureStore,
@@ -102,8 +102,8 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
       )}
     >
       {children}
-    </BiometricsSignContext.Provider>
+    </VaultBiometricsContext.Provider>
   )
 }
 
-export { BiometricsSignContext, BiometricsSignProvider }
+export { VaultBiometricsContext, VaultBiometricsProvider }
