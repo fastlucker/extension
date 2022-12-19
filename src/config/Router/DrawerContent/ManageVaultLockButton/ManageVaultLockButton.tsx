@@ -7,16 +7,14 @@ import Text from '@modules/common/components/Text'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
-import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
 
 interface Props {
   handleNavigate: (route: string) => void
 }
 
-const ManageVaultBiometricsButton: React.FC<Props> = ({ handleNavigate }) => {
+const ManageVaultLockButton: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
   const { isLoading: isLoadingBiometrics, hasBiometricsHardware } = useBiometrics()
-  const { biometricsEnabled } = useVaultBiometrics()
 
   if (isLoadingBiometrics)
     return (
@@ -32,10 +30,10 @@ const ManageVaultBiometricsButton: React.FC<Props> = ({ handleNavigate }) => {
   return (
     <TouchableOpacity onPress={() => handleNavigate('manage-vault-biometrics')}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
-        {biometricsEnabled ? t('Manage biometrics unlock') : t('Set biometrics unlock')}
+        {t('Manage keystore lock')}
       </Text>
     </TouchableOpacity>
   )
 }
 
-export default React.memo(ManageVaultBiometricsButton)
+export default React.memo(ManageVaultLockButton)
