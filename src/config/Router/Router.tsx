@@ -55,7 +55,7 @@ import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
 import CreateNewVaultScreen from '@modules/vault/screens/CreateNewVaultScreen'
-import ManageVaultBiometricsScreen from '@modules/vault/screens/ManageVaultBiometricsScreen'
+import ManageVaultLockScreen from '@modules/vault/screens/ManageVaultLockScreen'
 import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
@@ -73,7 +73,6 @@ const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
-const AppLockingStack = createNativeStackNavigator()
 const EmailLoginStack = createNativeStackNavigator()
 const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
@@ -118,7 +117,7 @@ const BiometricsStackScreen = () => {
     <BiometricsStack.Navigator screenOptions={{ header: headerBeta }}>
       <BiometricsStack.Screen
         name="manage-vault-biometrics-screen"
-        component={ManageVaultBiometricsScreen}
+        component={ManageVaultLockScreen}
         options={{
           title: t('Manage Key Store Lock')
         }}

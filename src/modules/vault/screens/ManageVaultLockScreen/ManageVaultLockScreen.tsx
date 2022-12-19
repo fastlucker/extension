@@ -28,7 +28,7 @@ interface FormValues {
   password: string
 }
 
-const ManageVaultBiometricsScreen = () => {
+const ManageVaultLockScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const isFocused = useIsFocused()
@@ -194,4 +194,4 @@ const ManageVaultBiometricsScreen = () => {
   )
 }
 
-export default ManageVaultBiometricsScreen
+export default ManageVaultLockScreen
