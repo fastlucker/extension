@@ -273,7 +273,6 @@ const storageController = new StorageController({
         }
         return
       }
-      log.info('ambirePageContext: web3CallRequest', message)
       const networkId = storageController.getItem('networkId') || NETWORKS.ethereum
       const selectedAcc = storageController.getItem('selectedAcc')
       const network = networks.find((n) => n.id === networkId)
