@@ -17,7 +17,7 @@ import useToast from '@modules/common/hooks/useToast'
 import alert from '@modules/common/services/alert'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import ManageBiometricsUnlock from '@modules/vault/components/ManageBiometricsUnlock'
+import ManageLockVaultWhenInactive from '@modules/vault/components/ManageLockVaultWhenInactive'
 import useVault from '@modules/vault/hooks/useVault'
 import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
 import { useIsFocused } from '@react-navigation/native'
@@ -188,7 +188,7 @@ const ManageVaultBiometricsScreen = () => {
     <GradientBackgroundWrapper>
       <Wrapper style={spacings.mt}>
         {renderContent()}
-        <ManageBiometricsUnlock />
+        <ManageLockVaultWhenInactive />
       </Wrapper>
     </GradientBackgroundWrapper>
   )

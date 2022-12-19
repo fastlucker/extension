@@ -10,7 +10,7 @@ import useVault from '@modules/vault/hooks/useVault'
 
 import styles from './styles'
 
-const ManageBiometricsUnlock = () => {
+const ManageLockVaultWhenInactive = () => {
   const { t } = useTranslation()
   const { shouldLockWhenInactive, toggleShouldLockWhenInactive } = useVault()
 
@@ -28,4 +28,4 @@ const ManageBiometricsUnlock = () => {
   )
 }
 
-export default ManageBiometricsUnlock
+export default ManageLockVaultWhenInactive
