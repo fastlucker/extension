@@ -13,6 +13,7 @@ import { DEVICE_SECURITY_LEVEL } from '@modules/common/contexts/biometricsContex
 import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
 import spacings from '@modules/common/styles/spacings'
+import ManageBiometricsUnlock from '@modules/vault/components/ManageBiometricsUnlock'
 import useVault from '@modules/vault/hooks/useVault'
 import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
 import { useIsFocused, useNavigation } from '@react-navigation/native'
@@ -96,6 +97,7 @@ const ManageVaultBiometricsScreen = () => {
             {t('Enabled!')}
           </Text>
           <Button text={t('Disable')} onPress={handleDisable} />
+          <ManageBiometricsUnlock />
         </>
       )
     }

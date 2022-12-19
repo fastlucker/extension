@@ -19,7 +19,6 @@ import styles, {
   tabBarLabelStyle,
   tabBarStyle
 } from '@config/Router/styles'
-import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import { EmailLoginProvider } from '@modules/auth/contexts/emailLoginContext'
 import { JsonLoginProvider } from '@modules/auth/contexts/jsonLoginContext'
@@ -125,22 +124,6 @@ const BiometricsStackScreen = () => {
         }}
       />
     </BiometricsStack.Navigator>
-  )
-}
-
-const ManageAppLockStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <AppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
-      <AppLockingStack.Screen
-        name="manage-app-lock-screen"
-        component={ManageAppLockScreen}
-        options={{
-          title: t('Manage App Lock')
-        }}
-      />
-    </AppLockingStack.Navigator>
   )
 }
 
@@ -463,11 +446,6 @@ const AppStack = () => {
         options={{
           headerShown: false
         }}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="manage-app-locking"
-        component={ManageAppLockStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
