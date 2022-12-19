@@ -20,7 +20,10 @@ import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
 import SetAppLockingScreen from '@modules/app-lock/screens/SetAppLockingScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
+import { EmailLoginProvider } from '@modules/auth/contexts/emailLoginContext'
+import { JsonLoginProvider } from '@modules/auth/contexts/jsonLoginContext'
 import useAuth from '@modules/auth/hooks/useAuth'
+import AddAccountPasswordToVaultScreen from '@modules/auth/screens/AddAccountPasswordToVaultScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
@@ -77,6 +80,7 @@ const SetAppLockStack = createNativeStackNavigator()
 const ChangeLocalAuthStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
 const ManageAppLockingStack = createNativeStackNavigator()
+const EmailLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 
@@ -173,6 +177,48 @@ const ManageAppLockStackScreen = () => {
   )
 }
 
+const EmailLoginStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <EmailLoginProvider>
+      <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+        <Stack.Screen
+          name="emailLogin"
+          options={{ title: t('Login') }}
+          component={EmailLoginScreen}
+        />
+        <Stack.Screen
+          name="addAccountPasswordToVault"
+          options={{ title: t('Login') }}
+          component={AddAccountPasswordToVaultScreen}
+        />
+      </EmailLoginStack.Navigator>
+    </EmailLoginProvider>
+  )
+}
+
+const JsonLoginStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <JsonLoginProvider>
+      <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+        <Stack.Screen
+          name="jsonLogin"
+          options={{ title: t('Import from JSON') }}
+          component={JsonLoginScreen}
+        />
+        <Stack.Screen
+          name="addAccountPasswordToVault"
+          options={{ title: t('Login') }}
+          component={AddAccountPasswordToVaultScreen}
+        />
+      </EmailLoginStack.Navigator>
+    </JsonLoginProvider>
+  )
+}
+
 const AuthStack = () => {
   const { t } = useTranslation()
   const { getItem } = useStorageController()
@@ -193,7 +239,7 @@ const AuthStack = () => {
       // request email login and closes the app. When the app is opened
       // the second time - an immediate email login attempt will be triggered.
       getItem('pendingLoginEmail')
-      ? 'emailLogin'
+      ? 'ambireAccountLogin'
       : 'auth'
 
   return (
@@ -218,14 +264,14 @@ const AuthStack = () => {
         component={AuthScreen}
       />
       <Stack.Screen
-        name="emailLogin"
-        options={{ title: t('Login') }}
-        component={EmailLoginScreen}
+        name="ambireAccountLogin"
+        options={{ title: t('Login'), headerShown: false }}
+        component={EmailLoginStackScreen}
       />
       <Stack.Screen
-        name="jsonLogin"
-        options={{ title: t('Import from JSON') }}
-        component={JsonLoginScreen}
+        name="ambireAccountJsonLogin"
+        options={{ title: t('Import from JSON'), headerShown: false }}
+        component={JsonLoginStackScreen}
       />
       <Stack.Screen
         name="qrCodeLogin"
