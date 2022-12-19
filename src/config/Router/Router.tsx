@@ -132,12 +132,12 @@ const EmailLoginStackScreen = () => {
   return (
     <EmailLoginProvider>
       <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
-        <Stack.Screen
+        <EmailLoginStack.Screen
           name="emailLogin"
           options={{ title: t('Login') }}
           component={EmailLoginScreen}
         />
-        <Stack.Screen
+        <EmailLoginStack.Screen
           name="addAccountPasswordToVault"
           options={{ title: t('Login') }}
           component={AddAccountPasswordToVaultScreen}
@@ -152,18 +152,18 @@ const JsonLoginStackScreen = () => {
 
   return (
     <JsonLoginProvider>
-      <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
-        <Stack.Screen
+      <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+        <JsonLoginStack.Screen
           name="jsonLogin"
           options={{ title: t('Import from JSON') }}
           component={JsonLoginScreen}
         />
-        <Stack.Screen
+        <JsonLoginStack.Screen
           name="addAccountPasswordToVault"
           options={{ title: t('Login') }}
           component={AddAccountPasswordToVaultScreen}
         />
-      </EmailLoginStack.Navigator>
+      </JsonLoginStack.Navigator>
     </JsonLoginProvider>
   )
 }
