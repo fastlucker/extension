@@ -16,9 +16,6 @@ import {
   headerGamma as defaultHeaderGamma
 } from '@config/Router/HeadersConfig'
 import styles, { tabBarItemWebStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
-import useAppLock from '@modules/app-lock/hooks/useAppLock'
-import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
-import SetAppLockingScreen from '@modules/app-lock/screens/SetAppLockingScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import { EmailLoginProvider } from '@modules/auth/contexts/emailLoginContext'
 import { JsonLoginProvider } from '@modules/auth/contexts/jsonLoginContext'
@@ -76,10 +73,7 @@ const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
-const SetAppLockStack = createNativeStackNavigator()
-const ChangeLocalAuthStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
-const ManageAppLockingStack = createNativeStackNavigator()
 const EmailLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
@@ -129,22 +123,6 @@ const GasInformationStackScreen = () => {
   )
 }
 
-const SetAppLockStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <SetAppLockStack.Navigator screenOptions={{ header: headerBeta }}>
-      <SetAppLockStack.Screen
-        name="set-app-lock-screen"
-        component={SetAppLockingScreen}
-        options={{
-          title: t('App Lock')
-        }}
-      />
-    </SetAppLockStack.Navigator>
-  )
-}
-
 const BiometricsStackScreen = () => {
   const { t } = useTranslation()
 
@@ -158,22 +136,6 @@ const BiometricsStackScreen = () => {
         }}
       />
     </BiometricsStack.Navigator>
-  )
-}
-
-const ManageAppLockStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <ManageAppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
-      <ManageAppLockingStack.Screen
-        name="manage-app-lock-screen"
-        component={ManageAppLockScreen}
-        options={{
-          title: t('Manage App Lock')
-        }}
-      />
-    </ManageAppLockingStack.Navigator>
   )
 }
 
@@ -545,16 +507,15 @@ const AppDrawer = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-  const { isLoading } = useAppLock()
   const { getItem } = useStorageController()
 
   const { vaultStatus } = useVault()
 
   useEffect(() => {
-    if (vaultStatus !== VAULT_STATUS.LOADING && !isLoading) {
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
       SplashScreen.hideAsync()
     }
-  }, [vaultStatus, isLoading])
+  }, [vaultStatus])
 
   useEffect(() => {
     // Checks whether there is a pending email login attempt. It happens when
@@ -582,18 +543,8 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="manage-app-locking"
-        component={ManageAppLockStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
         name="signers"
         component={SignersStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="set-app-lock"
-        component={SetAppLockStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}

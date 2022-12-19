@@ -1,3 +1,4 @@
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
@@ -18,9 +19,7 @@ import styles, {
   tabBarLabelStyle,
   tabBarStyle
 } from '@config/Router/styles'
-import useAppLock from '@modules/app-lock/hooks/useAppLock'
 import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
-import SetAppLockingScreen from '@modules/app-lock/screens/SetAppLockingScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import { EmailLoginProvider } from '@modules/auth/contexts/emailLoginContext'
 import { JsonLoginProvider } from '@modules/auth/contexts/jsonLoginContext'
@@ -74,7 +73,6 @@ const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
-const SetAppLockStack = createNativeStackNavigator()
 const BiometricsStack = createNativeStackNavigator()
 const AppLockingStack = createNativeStackNavigator()
 const EmailLoginStack = createNativeStackNavigator()
@@ -111,22 +109,6 @@ const GasInformationStackScreen = () => {
     <GasInformationStack.Navigator screenOptions={{ header: headerGamma }}>
       <GasInformationStack.Screen name="gas-information-screen" component={GasInformationScreen} />
     </GasInformationStack.Navigator>
-  )
-}
-
-const SetAppLockStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <SetAppLockStack.Navigator screenOptions={{ header: headerBeta }}>
-      <SetAppLockStack.Screen
-        name="set-app-lock-screen"
-        component={SetAppLockingScreen}
-        options={{
-          title: t('App Lock')
-        }}
-      />
-    </SetAppLockStack.Navigator>
   )
 }
 
@@ -435,14 +417,13 @@ const AppDrawer = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-  const { isLoading } = useAppLock()
   const { getItem } = useStorageController()
+  const { vaultStatus } = useVault()
+  const prevVaultStatus = usePrevious(vaultStatus)
 
   useEffect(() => {
-    if (isLoading) return
-
     SplashScreen.hideAsync()
-  }, [isLoading])
+  }, [])
 
   useEffect(() => {
     // Checks whether there is a pending email login attempt. It happens when
@@ -458,6 +439,21 @@ const AppStack = () => {
       navigate('auth-add-account')
     }
   }, [getItem])
+
+  useEffect(() => {
+    if (vaultStatus === prevVaultStatus) return
+
+    if (vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
+      navigate('unlock-temporarily-locked-vault')
+    }
+
+    if (
+      prevVaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY &&
+      vaultStatus === VAULT_STATUS.UNLOCKED
+    ) {
+      navigationRef.current?.goBack()
+    }
+  }, [prevVaultStatus, vaultStatus])
 
   return (
     <MainStack.Navigator screenOptions={{ header: headerBeta }}>
@@ -477,11 +473,6 @@ const AppStack = () => {
         options={{ headerShown: false }}
         name="signers"
         component={SignersStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="set-app-lock"
-        component={SetAppLockStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
@@ -528,6 +519,11 @@ const AppStack = () => {
         component={GasInformationStackScreen}
         options={{ headerShown: false }}
       />
+      <MainStack.Screen
+        name="unlock-temporarily-locked-vault"
+        component={UnlockVaultScreen}
+        options={{ gestureEnabled: false, headerLeft: () => null, title: t('Unlock') }}
+      />
     </MainStack.Navigator>
   )
 }
@@ -562,7 +558,10 @@ const Router = () => {
         return <VaultStack />
       }
 
-      if (vaultStatus === VAULT_STATUS.UNLOCKED) {
+      if (
+        vaultStatus === VAULT_STATUS.UNLOCKED ||
+        vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY
+      ) {
         return <AppStack />
       }
     }

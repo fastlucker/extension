@@ -33,32 +33,25 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
 
   const addKeystorePasswordToDeviceSecureStore = useCallback(
     async (password: string) => {
-      try {
-        await requestLocalAuthFlagging(() =>
-          SecureStore.setItemAsync(SECURE_STORE_KEY_KEYSTORE_PASSWORD, password, {
-            authenticationPrompt: t('Confirm your identity'),
-            requireAuthentication: true,
-            keychainService: SECURE_STORE_KEY_KEYSTORE_PASSWORD
-          })
-        )
-
-        // Store a flag if the selected account has password stored.
-        // This is for ease of use across the other parts of the app.
-        // Because otherwise, figuring out if the selected account has password
-        // via the `SecureStore` requires the user every time to
-        // authenticate via his phone local auth.
-        setItem(SECURE_STORE_KEY_KEYSTORE_PASSWORD, 'true')
-
-        setBiometricsEnabled(true)
-        return true
-      } catch (error) {
-        addToast(t('Error saving. {{error}}}', { error }) as string, {
-          error: true
+      await requestLocalAuthFlagging(() =>
+        SecureStore.setItemAsync(SECURE_STORE_KEY_KEYSTORE_PASSWORD, password, {
+          authenticationPrompt: t('Confirm your identity'),
+          requireAuthentication: true,
+          keychainService: SECURE_STORE_KEY_KEYSTORE_PASSWORD
         })
-        return false
-      }
+      )
+
+      // Store a flag if the selected account has password stored.
+      // This is for ease of use across the other parts of the app.
+      // Because otherwise, figuring out if the selected account has password
+      // via the `SecureStore` requires the user every time to
+      // authenticate via his phone local auth.
+      setItem(SECURE_STORE_KEY_KEYSTORE_PASSWORD, 'true')
+
+      setBiometricsEnabled(true)
+      return true
     },
-    [addToast, t, setItem]
+    [t, setItem]
   )
 
   const removeKeystorePasswordFromDeviceSecureStore = useCallback(async () => {
