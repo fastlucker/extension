@@ -14,7 +14,7 @@ interface Props {
 
 const ManageVaultLockButton: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
-  const { isLoading: isLoadingBiometrics, hasBiometricsHardware } = useBiometrics()
+  const { isLoading: isLoadingBiometrics } = useBiometrics()
 
   if (isLoadingBiometrics)
     return (
@@ -23,14 +23,10 @@ const ManageVaultLockButton: React.FC<Props> = ({ handleNavigate }) => {
       </View>
     )
 
-  if (!hasBiometricsHardware) {
-    return null
-  }
-
   return (
     <TouchableOpacity onPress={() => handleNavigate('manage-vault-biometrics')}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
-        {t('Manage keystore lock')}
+        {t('Manage Key Store lock')}
       </Text>
     </TouchableOpacity>
   )

@@ -67,7 +67,7 @@ const ManageVaultBiometricsScreen = () => {
     if (!isValidVaultPassword) {
       return setError(
         'password',
-        { type: 'focus', message: t('Wrong Ambire Keystore password.') },
+        { type: 'focus', message: t('Wrong Ambire Key Store password.') },
         { shouldFocus: true }
       )
     }
@@ -96,7 +96,7 @@ const ManageVaultBiometricsScreen = () => {
     alert(
       t('Are you sure you want to disable biometrics?'),
       t(
-        'Disabling biometrics will require you to manually input your Ambire Keystore passphrase when needed.'
+        'Disabling biometrics will require you to manually input your Ambire Key Store passphrase when needed.'
       ),
       [
         {
