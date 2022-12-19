@@ -27,8 +27,12 @@ const VaultProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
   const { onRemoveAllAccounts } = useAccounts()
   const { getItem, setItem, storageControllerInstance } = useStorageController()
-  const { biometricsEnabled, getKeystorePassword, addKeystorePasswordToDeviceSecureStore } =
-    useVaultBiometrics()
+  const {
+    biometricsEnabled,
+    getKeystorePassword,
+    addKeystorePasswordToDeviceSecureStore,
+    removeKeystorePasswordFromDeviceSecureStore
+  } = useVaultBiometrics()
   const [shouldLockWhenInactive, setShouldLockWhenInactive] = useState(true)
   const { authStatus } = useAuth()
 
@@ -395,7 +399,11 @@ const VaultProvider: React.FC = ({ children }) => {
           signMsgQuickAcc,
           signMsgExternalSigner,
           shouldLockWhenInactive,
-          toggleShouldLockWhenInactive
+          toggleShouldLockWhenInactive,
+          biometricsEnabled,
+          getKeystorePassword,
+          addKeystorePasswordToDeviceSecureStore,
+          removeKeystorePasswordFromDeviceSecureStore
         }),
         [
           vaultStatus,
@@ -413,7 +421,11 @@ const VaultProvider: React.FC = ({ children }) => {
           signMsgQuickAcc,
           signMsgExternalSigner,
           shouldLockWhenInactive,
-          toggleShouldLockWhenInactive
+          toggleShouldLockWhenInactive,
+          biometricsEnabled,
+          getKeystorePassword,
+          addKeystorePasswordToDeviceSecureStore,
+          removeKeystorePasswordFromDeviceSecureStore
         ]
       )}
     >

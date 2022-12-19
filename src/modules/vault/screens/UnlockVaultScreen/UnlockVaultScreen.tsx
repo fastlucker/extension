@@ -16,14 +16,12 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
-import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
 
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
 const UnlockVaultScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const { unlockVault, vaultStatus } = useVault()
-  const { biometricsEnabled } = useVaultBiometrics()
+  const { unlockVault, vaultStatus, biometricsEnabled } = useVault()
   const {
     control,
     handleSubmit,

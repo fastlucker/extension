@@ -19,7 +19,6 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import ManageLockVaultWhenInactive from '@modules/vault/components/ManageLockVaultWhenInactive'
 import useVault from '@modules/vault/hooks/useVault'
-import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
 import { useIsFocused } from '@react-navigation/native'
 
 import styles from './styles'
@@ -34,11 +33,11 @@ const ManageVaultLockScreen = () => {
   const isFocused = useIsFocused()
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const {
+    isValidPassword,
     addKeystorePasswordToDeviceSecureStore,
     biometricsEnabled,
     removeKeystorePasswordFromDeviceSecureStore
-  } = useVaultBiometrics()
-  const { isValidPassword } = useVault()
+  } = useVault()
   const {
     control,
     handleSubmit,

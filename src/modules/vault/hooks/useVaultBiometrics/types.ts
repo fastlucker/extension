@@ -1,11 +1,11 @@
-export interface VaultBiometricsContextReturnType {
+export interface UseVaultBiometricsReturnType {
   biometricsEnabled: boolean
   addKeystorePasswordToDeviceSecureStore: (password: string) => Promise<boolean>
   removeKeystorePasswordFromDeviceSecureStore: () => Promise<boolean>
   getKeystorePassword: () => Promise<string | null>
 }
 
-export const vaultBiometricsContextDefaults: VaultBiometricsContextReturnType = {
+export const useVaultBiometricsDefaults: UseVaultBiometricsReturnType = {
   biometricsEnabled: false,
   addKeystorePasswordToDeviceSecureStore: () => Promise.resolve(false),
   removeKeystorePasswordFromDeviceSecureStore: () => Promise.resolve(false),
