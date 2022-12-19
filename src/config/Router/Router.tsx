@@ -72,7 +72,7 @@ const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
-const BiometricsStack = createNativeStackNavigator()
+const ManageVaultLockStack = createNativeStackNavigator()
 const EmailLoginStack = createNativeStackNavigator()
 const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
@@ -110,19 +110,19 @@ const GasInformationStackScreen = () => {
   )
 }
 
-const BiometricsStackScreen = () => {
+const ManageVaultLockStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <BiometricsStack.Navigator screenOptions={{ header: headerBeta }}>
-      <BiometricsStack.Screen
-        name="manage-vault-biometrics-screen"
+    <ManageVaultLockStack.Navigator screenOptions={{ header: headerBeta }}>
+      <ManageVaultLockStack.Screen
+        name="manage-vault-lock-screen"
         component={ManageVaultLockScreen}
         options={{
           title: t('Manage Key Store Lock')
         }}
       />
-    </BiometricsStack.Navigator>
+    </ManageVaultLockStack.Navigator>
   )
 }
 
@@ -453,8 +453,8 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="manage-vault-biometrics"
-        component={BiometricsStackScreen}
+        name="manage-vault-lock"
+        component={ManageVaultLockStackScreen}
       />
       <MainStack.Screen
         name="auth-add-account"
