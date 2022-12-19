@@ -1,8 +1,12 @@
 import { isWeb } from '@config/env'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import {
+  useVaultBiometricsDefaults,
+  UseVaultBiometricsReturnType
+} from '@modules/vault/hooks/useVaultBiometrics/types'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 
-export interface VaultContextReturnType {
+export interface VaultContextReturnType extends UseVaultBiometricsReturnType {
   vaultStatus: VAULT_STATUS
   createVault: ({
     password,
@@ -70,5 +74,6 @@ export const vaultContextDefaults: VaultContextReturnType = {
   signTxnQuckAcc: () => Promise.resolve(false),
   signTxnExternalSigner: () => Promise.resolve(false),
   signMsgQuickAcc: () => Promise.resolve(false),
-  signMsgExternalSigner: () => Promise.resolve(false)
+  signMsgExternalSigner: () => Promise.resolve(false),
+  ...useVaultBiometricsDefaults
 }

@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store'
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
 import useStorageController from '@modules/common/hooks/useStorageController'
@@ -7,18 +7,14 @@ import useToast from '@modules/common/hooks/useToast'
 import { requestLocalAuthFlagging } from '@modules/common/services/requestPermissionFlagging'
 import { SECURE_STORE_KEY_KEYSTORE_PASSWORD } from '@modules/settings/constants'
 
-import { biometricsSignContextDefaults, BiometricsSignContextReturnType } from './types'
+import { useVaultBiometricsDefaults, UseVaultBiometricsReturnType } from './types'
 
-const BiometricsSignContext = createContext<BiometricsSignContextReturnType>(
-  biometricsSignContextDefaults
-)
-
-const BiometricsSignProvider: React.FC = ({ children }) => {
+const useVaultBiometrics = (): UseVaultBiometricsReturnType => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { getItem, setItem, removeItem } = useStorageController()
   const [biometricsEnabled, setBiometricsEnabled] = useState<boolean>(
-    biometricsSignContextDefaults.biometricsEnabled
+    useVaultBiometricsDefaults.biometricsEnabled
   )
 
   useEffect(() => {
@@ -84,26 +80,12 @@ const BiometricsSignProvider: React.FC = ({ children }) => {
     )
   }, [t])
 
-  return (
-    <BiometricsSignContext.Provider
-      value={useMemo(
-        () => ({
-          addKeystorePasswordToDeviceSecureStore,
-          biometricsEnabled,
-          removeKeystorePasswordFromDeviceSecureStore,
-          getKeystorePassword
-        }),
-        [
-          biometricsEnabled,
-          getKeystorePassword,
-          addKeystorePasswordToDeviceSecureStore,
-          removeKeystorePasswordFromDeviceSecureStore
-        ]
-      )}
-    >
-      {children}
-    </BiometricsSignContext.Provider>
-  )
+  return {
+    biometricsEnabled,
+    getKeystorePassword,
+    addKeystorePasswordToDeviceSecureStore,
+    removeKeystorePasswordFromDeviceSecureStore
+  }
 }
 
-export { BiometricsSignContext, BiometricsSignProvider }
+export default useVaultBiometrics

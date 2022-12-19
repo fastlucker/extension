@@ -2,7 +2,6 @@ import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
@@ -13,10 +12,9 @@ interface Props {
   handleNavigate: (route: string) => void
 }
 
-const BiometricsSignButton: React.FC<Props> = ({ handleNavigate }) => {
+const ManageVaultLockButton: React.FC<Props> = ({ handleNavigate }) => {
   const { t } = useTranslation()
-  const { isLoading: isLoadingBiometrics, hasBiometricsHardware } = useBiometrics()
-  const { biometricsEnabled } = useBiometricsSign()
+  const { isLoading: isLoadingBiometrics } = useBiometrics()
 
   if (isLoadingBiometrics)
     return (
@@ -25,17 +23,13 @@ const BiometricsSignButton: React.FC<Props> = ({ handleNavigate }) => {
       </View>
     )
 
-  if (!hasBiometricsHardware) {
-    return null
-  }
-
   return (
-    <TouchableOpacity onPress={() => handleNavigate('biometrics-sign-change')}>
+    <TouchableOpacity onPress={() => handleNavigate('manage-vault-lock')}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
-        {biometricsEnabled ? t('Manage biometrics unlock') : t('Set biometrics unlock')}
+        {t('Manage Key Store lock')}
       </Text>
     </TouchableOpacity>
   )
 }
 
-export default React.memo(BiometricsSignButton)
+export default React.memo(ManageVaultLockButton)

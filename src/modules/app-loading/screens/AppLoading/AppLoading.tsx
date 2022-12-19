@@ -5,7 +5,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import Router from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
-import { BiometricsSignProvider } from '@modules/biometrics-sign/contexts/biometricsSignContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
@@ -62,26 +61,24 @@ const AppLoading = () => {
                                   <AmbireExtensionProvider>
                                     <RequestsProvider>
                                       <BiometricsProvider>
-                                        <BiometricsSignProvider>
-                                          <VaultProvider>
-                                            <AddressBookProvider>
-                                              <AttentionGrabberProvider>
-                                                <PrivateModeProvider>
-                                                  <GasTankProvider>
-                                                    <UnsupportedDAppsBottomSheetProvider>
-                                                      <HeaderBottomSheetProvider>
-                                                        <LinkingProvider>
-                                                          <Router />
-                                                        </LinkingProvider>
-                                                      </HeaderBottomSheetProvider>
-                                                    </UnsupportedDAppsBottomSheetProvider>
-                                                  </GasTankProvider>
-                                                </PrivateModeProvider>
-                                              </AttentionGrabberProvider>
-                                              <PortalHost name="global" />
-                                            </AddressBookProvider>
-                                          </VaultProvider>
-                                        </BiometricsSignProvider>
+                                        <VaultProvider>
+                                          <AddressBookProvider>
+                                            <AttentionGrabberProvider>
+                                              <PrivateModeProvider>
+                                                <GasTankProvider>
+                                                  <UnsupportedDAppsBottomSheetProvider>
+                                                    <HeaderBottomSheetProvider>
+                                                      <LinkingProvider>
+                                                        <Router />
+                                                      </LinkingProvider>
+                                                    </HeaderBottomSheetProvider>
+                                                  </UnsupportedDAppsBottomSheetProvider>
+                                                </GasTankProvider>
+                                              </PrivateModeProvider>
+                                            </AttentionGrabberProvider>
+                                            <PortalHost name="global" />
+                                          </AddressBookProvider>
+                                        </VaultProvider>
                                       </BiometricsProvider>
                                     </RequestsProvider>
                                   </AmbireExtensionProvider>

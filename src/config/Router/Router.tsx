@@ -19,7 +19,6 @@ import styles, {
   tabBarLabelStyle,
   tabBarStyle
 } from '@config/Router/styles'
-import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import { EmailLoginProvider } from '@modules/auth/contexts/emailLoginContext'
 import { JsonLoginProvider } from '@modules/auth/contexts/jsonLoginContext'
@@ -30,7 +29,6 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import BiometricsSignScreen from '@modules/biometrics-sign/screens/BiometricsSignScreen'
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
@@ -57,6 +55,7 @@ import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
 import CreateNewVaultScreen from '@modules/vault/screens/CreateNewVaultScreen'
+import ManageVaultLockScreen from '@modules/vault/screens/ManageVaultLockScreen'
 import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
@@ -73,8 +72,7 @@ const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
-const BiometricsStack = createNativeStackNavigator()
-const AppLockingStack = createNativeStackNavigator()
+const ManageVaultLockStack = createNativeStackNavigator()
 const EmailLoginStack = createNativeStackNavigator()
 const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
@@ -112,35 +110,19 @@ const GasInformationStackScreen = () => {
   )
 }
 
-const BiometricsStackScreen = () => {
+const ManageVaultLockStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <BiometricsStack.Navigator screenOptions={{ header: headerBeta }}>
-      <BiometricsStack.Screen
-        name="biometrics-sign-change-screen"
-        component={BiometricsSignScreen}
+    <ManageVaultLockStack.Navigator screenOptions={{ header: headerBeta }}>
+      <ManageVaultLockStack.Screen
+        name="manage-vault-lock-screen"
+        component={ManageVaultLockScreen}
         options={{
-          title: t('Sign with Biometrics')
+          title: t('Manage Key Store Lock')
         }}
       />
-    </BiometricsStack.Navigator>
-  )
-}
-
-const ManageAppLockStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <AppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
-      <AppLockingStack.Screen
-        name="manage-app-lock-screen"
-        component={ManageAppLockScreen}
-        options={{
-          title: t('Manage App Lock')
-        }}
-      />
-    </AppLockingStack.Navigator>
+    </ManageVaultLockStack.Navigator>
   )
 }
 
@@ -466,18 +448,13 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="manage-app-locking"
-        component={ManageAppLockStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
         name="signers"
         component={SignersStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="biometrics-sign-change"
-        component={BiometricsStackScreen}
+        name="manage-vault-lock"
+        component={ManageVaultLockStackScreen}
       />
       <MainStack.Screen
         name="auth-add-account"

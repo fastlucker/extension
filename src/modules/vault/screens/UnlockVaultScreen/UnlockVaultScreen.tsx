@@ -5,7 +5,6 @@ import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'reac
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -22,8 +21,7 @@ const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
 const UnlockVaultScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const { unlockVault, vaultStatus } = useVault()
-  const { biometricsEnabled } = useBiometricsSign()
+  const { unlockVault, vaultStatus, biometricsEnabled } = useVault()
   const {
     control,
     handleSubmit,
@@ -63,7 +61,7 @@ const UnlockVaultScreen = ({ navigation }: any) => {
     [navigation]
   )
 
-  // Prevent going back, needed for the temporary locked keystore case,
+  // Prevent going back, needed for the temporary locked key store case,
   // where the user must unlock before he comes back to the previous screen.
   // {@link https://reactnavigation.org/docs/preventing-going-back/}
   useEffect(() => {

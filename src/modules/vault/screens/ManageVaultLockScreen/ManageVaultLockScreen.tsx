@@ -3,36 +3,41 @@ import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
+import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import TextWarning from '@modules/common/components/TextWarning'
+import Toggle from '@modules/common/components/Toggle'
 import Wrapper from '@modules/common/components/Wrapper'
 import { DEVICE_SECURITY_LEVEL } from '@modules/common/contexts/biometricsContext/constants'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
 import useToast from '@modules/common/hooks/useToast'
+import alert from '@modules/common/services/alert'
 import spacings from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import ManageLockVaultWhenInactive from '@modules/vault/components/ManageLockVaultWhenInactive'
 import useVault from '@modules/vault/hooks/useVault'
-import { useIsFocused, useNavigation } from '@react-navigation/native'
+import { useIsFocused } from '@react-navigation/native'
+
+import styles from './styles'
 
 interface FormValues {
   password: string
 }
 
-const BiometricsSignScreen = () => {
+const ManageVaultLockScreen = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
   const { addToast } = useToast()
   const isFocused = useIsFocused()
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const {
+    isValidPassword,
     addKeystorePasswordToDeviceSecureStore,
     biometricsEnabled,
     removeKeystorePasswordFromDeviceSecureStore
-  } = useBiometricsSign()
-  const { isValidPassword } = useVault()
+  } = useVault()
   const {
     control,
     handleSubmit,
@@ -61,7 +66,7 @@ const BiometricsSignScreen = () => {
     if (!isValidVaultPassword) {
       return setError(
         'password',
-        { type: 'focus', message: t('Wrong Ambire Keystore password.') },
+        { type: 'focus', message: t('Wrong Ambire Key Store passphrase.') },
         { shouldFocus: true }
       )
     }
@@ -71,7 +76,6 @@ const BiometricsSignScreen = () => {
       enable = await addKeystorePasswordToDeviceSecureStore(password)
       if (enable) {
         addToast(t('Unlock with biometrics enabled!') as string, { timeout: 3000 })
-        navigation.navigate('dashboard')
       }
     } catch {
       addToast(t('Confirming Biometrics was unsuccessful. Please try again.'), { error: true })
@@ -80,23 +84,46 @@ const BiometricsSignScreen = () => {
     return enable
   }
 
-  const handleDisable = async () => {
+  const handleDisableConfirmed = async () => {
     const disabled = await removeKeystorePasswordFromDeviceSecureStore()
     if (disabled) {
       addToast(t('Unlock with biometrics disabled!') as string, { timeout: 3000 })
-      navigation.navigate('dashboard')
     }
+  }
+
+  const handleDisable = () => {
+    alert(
+      t('Are you sure you want to disable biometrics?'),
+      t(
+        'Disabling biometrics will require you to manually input your Ambire Key Store passphrase when needed.'
+      ),
+      [
+        {
+          text: t('Disable biometrics'),
+          onPress: handleDisableConfirmed,
+          style: 'destructive'
+        },
+        {
+          text: t('Cancel'),
+          style: 'cancel'
+        }
+      ]
+    )
   }
 
   const renderContent = () => {
     if (biometricsEnabled) {
       return (
-        <>
-          <Text type="small" weight="medium" style={spacings.mb}>
-            {t('Enabled!')}
+        <Panel
+          type="filled"
+          contentContainerStyle={styles.appLockingItemContainer}
+          style={spacings.mb}
+        >
+          <Text fontSize={16} weight="regular" numberOfLines={1} style={flexboxStyles.flex1}>
+            {t('Unlock with Biometrics')}
           </Text>
-          <Button text={t('Disable')} onPress={handleDisable} />
-        </>
+          <Toggle isOn={biometricsEnabled} label={t('Enabled')} onToggle={handleDisable} />
+        </Panel>
       )
     }
 
@@ -110,30 +137,38 @@ const BiometricsSignScreen = () => {
 
     if (deviceSecurityLevel !== DEVICE_SECURITY_LEVEL.BIOMETRIC) {
       return (
-        <Text type="small" appearance="danger" style={spacings.mb}>
-          {t(
-            'This device supports biometric authentication, but you have not enrolled it on this device. If you want to use it - enroll it first on your device.'
-          )}
-        </Text>
+        <>
+          <Text type="small" style={spacings.mbLg}>
+            {t('You can opt-in to use your phone biometrics to unlock your Ambire Key Store.')}
+          </Text>
+          <TextWarning appearance="info">
+            {t(
+              'This device supports biometric authentication, but you have not enrolled it on this device. If you want to use it - enroll it first on your device.'
+            )}
+          </TextWarning>
+        </>
       )
     }
 
     return (
       <>
         <Text type="small" style={spacings.mb}>
-          {t('To enable it, enter your Ambire Keystore password.')}
+          {t(
+            'You can opt-in to use your phone biometrics to unlock your Ambire Key Store. To enable it, enter your Ambire Key Store passphrase.'
+          )}
         </Text>
         <Controller
           control={control}
-          rules={{ required: t('Please fill in a password.') as string }}
+          rules={{ required: t('Please fill in a passphrase.') as string }}
           render={({ field: { onChange, onBlur, value } }) => (
             <InputPassword
-              placeholder={t('Ambire Keystore password')}
+              placeholder={t('Ambire Key Store passphrase')}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
               disabled={isSubmitting}
               error={!!errors.password && errors.password.message}
+              containerStyle={spacings.mbTy}
             />
           )}
           name="password"
@@ -142,6 +177,7 @@ const BiometricsSignScreen = () => {
           disabled={isSubmitting}
           text={isSubmitting ? t('Validating...') : t('Enable')}
           onPress={handleSubmit(handleEnable)}
+          style={spacings.mbLg}
         />
       </>
     )
@@ -150,13 +186,11 @@ const BiometricsSignScreen = () => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper style={spacings.mt}>
-        <Text type="small" style={spacings.mbLg}>
-          {t('You can opt-in to use your phone biometrics to unlock your Ambire Keystore.')}
-        </Text>
         {renderContent()}
+        <ManageLockVaultWhenInactive />
       </Wrapper>
     </GradientBackgroundWrapper>
   )
 }
 
-export default BiometricsSignScreen
+export default ManageVaultLockScreen
