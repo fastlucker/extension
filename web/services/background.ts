@@ -629,6 +629,8 @@ chrome.scripting.registerContentScripts([
     matches: ['file://*/*', 'http://*/*', 'https://*/*'],
     js: ['injection.js'],
     runAt: 'document_start',
+    // Keep to 'MAIN' because 1) it works and 2) because this is the MetaMask
+    // way to inject content scripts.
     world: 'MAIN'
   },
   {
@@ -636,6 +638,9 @@ chrome.scripting.registerContentScripts([
     matches: ['file://*/*', 'http://*/*', 'https://*/*'],
     js: ['injection.js'],
     runAt: 'document_end',
-    world: 'MAIN'
+    // If the JavaScript world for a script to execute within is changed to
+    // 'MAIN', the script doesn't inject properly and results an error:
+    // "Uncaught TypeError: Cannot read properties of undefined (reading 'getURL')"
+    world: 'ISOLATED'
   }
 ])
