@@ -75,7 +75,7 @@ const UnlockVaultScreen = ({ navigation }: any) => {
     return unsubscribe
   }, [navigation, vaultStatus])
 
-  useDisableNavigatingBack()
+  useDisableNavigatingBack(navigation)
 
   return (
     <GradientBackgroundWrapper>

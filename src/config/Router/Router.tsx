@@ -499,7 +499,7 @@ const AppStack = () => {
       <MainStack.Screen
         name="unlock-temporarily-locked-vault"
         component={UnlockVaultScreen}
-        options={{ gestureEnabled: false, headerLeft: () => null, title: t('Unlock') }}
+        options={{ title: t('Unlock') }}
       />
     </MainStack.Navigator>
   )
