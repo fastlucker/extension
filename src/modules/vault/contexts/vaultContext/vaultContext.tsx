@@ -7,6 +7,7 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
+import { KEY_LOCK_KEYSTORE_WHEN_INACTIVE } from '@modules/vault/constants/storageKeys'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useLockWhenInactive from '@modules/vault/hooks/useLockWhenInactive'
 import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
@@ -17,8 +18,6 @@ import { BACKGROUND } from '@web/constants/paths'
 import { sendMessage } from '@web/services/ambexMessanger'
 
 import { vaultContextDefaults, VaultContextReturnType } from './types'
-
-export const KEY_LOCK_KEYSTORE_WHEN_INACTIVE = 'shouldLockKeystoreWhenInactive'
 
 const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 
