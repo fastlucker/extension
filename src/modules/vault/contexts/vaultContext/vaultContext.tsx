@@ -172,7 +172,7 @@ const VaultProvider: React.FC = ({ children }) => {
           setVaultStatus(VAULT_STATUS.UNLOCKED)
         })
       } else {
-        addToast(t("Passwords don't match."))
+        addToast(t("Passwords don't match."), { error: true })
       }
     },
     [t, addToast, onRemoveAllAccounts, requestVaultControllerMethod]

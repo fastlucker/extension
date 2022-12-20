@@ -141,7 +141,8 @@ const EmailLoginProvider: React.FC = ({ children }) => {
         addToast(
           body.message
             ? `Relayer error: ${body.message}`
-            : `Unknown no-message error: ${resp.status}`
+            : `Unknown no-message error: ${resp.status}`,
+          { error: true }
         )
       }
       setRequiresConfFor(null)
@@ -162,7 +163,7 @@ const EmailLoginProvider: React.FC = ({ children }) => {
         try {
           await attemptLogin({ email })
         } catch (e: any) {
-          addToast(`Unexpected error: ${e.message || e}`)
+          addToast(`Unexpected error: ${e.message || e}`, { error: true })
         }
       } else if (pendingLoginAccount && email) {
         navigate('addAccountPasswordToVault', { loginType: 'email' })
