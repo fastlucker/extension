@@ -102,7 +102,7 @@ export default class VaultController {
 
     return new Promise((resolve, reject) => {
       if (password === this.#password) {
-        encrypt(newPassword, JSON.stringify({}))
+        encrypt(newPassword, JSON.stringify(this.#memVault))
           .then(async (blob: string) => {
             this.#password = newPassword
             await this.storageController.setItemAsync('vault', blob)
