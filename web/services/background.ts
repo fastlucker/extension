@@ -83,7 +83,7 @@ const storageController = new StorageController({
      */
     await storageController.init()
   } catch (error) {
-    log.error('Storage failed to load.', e)
+    log.error('Storage failed to load.', error)
   }
 
   // Initial loading call
