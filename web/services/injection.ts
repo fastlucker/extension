@@ -1,12 +1,13 @@
 // @ts-nocheck
 
-// Injected at the very beginning by the manifest, defining global var used for other scripts
-window.injectWeb3 = (evtToPage, evtFromPage) => {
+// Injected at the very beginning and ending of the currently
+// opened page/tab by the chrome.scripting.registerContentScripts located in the service_worker
+const inPageWeb3Injection = () => {
   const script = document.createElement('script')
   script.src = chrome.runtime.getURL('page-context.js')
   script.id = 'page-context'
 
-  script.dataset.args = JSON.stringify({ evtToPage, evtFromPage })
-
   document.documentElement.appendChild(script)
 }
+
+inPageWeb3Injection()

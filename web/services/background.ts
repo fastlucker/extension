@@ -432,13 +432,6 @@ const storageController = new StorageController({
    */
 })()
 
-// When CONTENT_SCRIPT is injected, prepare injection of PAGE_CONTEXT
-addMessageHandler({ type: 'contentScriptInjected' }, (message) => {
-  sendReply(message, {
-    data: { ack: true }
-  })
-})
-
 const sanitize2hex = (any) => {
   log.trace(`instanceof of any is ${any instanceof BigNumber}`)
   if (any instanceof BigNumber) {
@@ -624,3 +617,29 @@ const requestPermission = (message, callback) => {
     }, 1000)
   }
 }
+
+/* This content script is injected programmatically because
+ * MAIN world injection does not work properly via manifest
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
+ */
+chrome.scripting.registerContentScripts([
+  {
+    id: 'pre-page-inject',
+    matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+    js: ['injection.js'],
+    runAt: 'document_start',
+    // Keep to 'MAIN' because 1) it works and 2) because this is the MetaMask
+    // way to inject content scripts.
+    world: 'MAIN'
+  },
+  {
+    id: 'post-page-inject',
+    matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+    js: ['injection.js'],
+    runAt: 'document_end',
+    // If the JavaScript world for a script to execute within is changed to
+    // 'MAIN', the script doesn't inject properly and results an error:
+    // "Uncaught TypeError: Cannot read properties of undefined (reading 'getURL')"
+    world: 'ISOLATED'
+  }
+])
