@@ -1,4 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { StyleSheet } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useTranslation } from '@config/localization'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
@@ -11,12 +13,14 @@ import { KEY_LOCK_KEYSTORE_WHEN_INACTIVE } from '@modules/vault/constants/storag
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useLockWhenInactive from '@modules/vault/hooks/useLockWhenInactive'
 import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
+import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultController from '@modules/vault/services/VaultController'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 import { isExtension } from '@web/constants/browserAPI'
 import { BACKGROUND } from '@web/constants/paths'
 import { sendMessage } from '@web/services/ambexMessanger'
 
+import styles from './styles'
 import { vaultContextDefaults, VaultContextReturnType } from './types'
 
 const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
@@ -428,6 +432,11 @@ const VaultProvider: React.FC = ({ children }) => {
         ]
       )}
     >
+      {vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY && (
+        <SafeAreaView style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
+          <UnlockVaultScreen />
+        </SafeAreaView>
+      )}
       {children}
     </VaultContext.Provider>
   )
