@@ -3,7 +3,6 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
-import useToast from '@modules/common/hooks/useToast'
 import { browserAPI } from '@web/constants/browserAPI'
 import { errorCodes } from '@web/constants/errors'
 import { BACKGROUND, CONTENT_SCRIPT } from '@web/constants/paths'
@@ -15,7 +14,8 @@ import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from
 const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
   ambireExtensionContextDefaults
 )
-
+const WORKER_KEEP_ALIVE_INTERVAL = 1000
+const WORKER_KEEP_ALIVE_MESSAGE = 'WORKER_KEEP_ALIVE_MESSAGE'
 const STORAGE_KEY = 'ambire_extension_state'
 
 // TODO: should be called only for extension. Skip if this code is used for web wallet
@@ -24,7 +24,6 @@ const STORAGE_KEY = 'ambire_extension_state'
 const AmbireExtensionProvider: React.FC = ({ children }) => {
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
-  const { addToast } = useToast()
 
   const [connectedDapps, setConnectedDapps] = useState<
     {
@@ -184,12 +183,6 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
   )
 
   useEffect(() => {
-    if (selectedAccount && network) {
-      browserAPI?.storage?.local?.set({ SELECTED_ACCOUNT: selectedAccount, NETWORK: network })
-    }
-  }, [selectedAccount, network, addToast])
-
-  useEffect(() => {
     const message = queue[0]
     if (message) {
       if (
@@ -230,6 +223,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
   }, [isTempExtensionPopup])
 
   useEffect(() => {
+    let interval: any
     if (browserAPI.tabs) {
       browserAPI.tabs.query(
         {
@@ -240,6 +234,19 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
           setLastActiveTab(currentTab)
         }
       )
+      /*
+       * As long as UI is open it will keep sending messages to service worker
+       * In service worker as this message is received
+       * if service worker is inactive it is reactivated and script re-loaded
+       * Time has been kept to 1000ms but can be reduced for even faster re-activation of service worker
+       */
+      interval = setInterval(() => {
+        browserAPI.runtime.sendMessage({ name: WORKER_KEEP_ALIVE_MESSAGE })
+      }, WORKER_KEEP_ALIVE_INTERVAL)
+    }
+
+    return () => {
+      clearInterval(interval)
     }
   }, [])
 

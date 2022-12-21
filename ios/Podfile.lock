@@ -446,6 +446,8 @@ PODS:
   - react-native-ble-plx (2.0.3):
     - MultiplatformBleAdapter (= 0.1.9)
     - React-Core
+  - react-native-fast-crypto (2.2.0):
+    - React
   - react-native-get-random-values (1.8.0):
     - React-Core
   - react-native-mmkv (2.4.3):
@@ -454,6 +456,13 @@ PODS:
   - react-native-netinfo (8.2.0):
     - React-Core
   - react-native-performance (2.1.0):
+    - React-Core
+  - react-native-quick-base64 (2.0.5):
+    - React-Core
+  - react-native-quick-crypto (0.5.0):
+    - OpenSSL-Universal
+    - React
+    - React-callinvoker
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
@@ -675,10 +684,13 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-ble-plx (from `../node_modules/react-native-ble-plx`)
+  - react-native-fast-crypto (from `../node_modules/react-native-fast-crypto`)
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-performance (from `../node_modules/react-native-performance/ios`)
+  - react-native-quick-base64 (from `../node_modules/react-native-quick-base64`)
+  - react-native-quick-crypto (from `../node_modules/react-native-quick-crypto`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -848,6 +860,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-ble-plx:
     :path: "../node_modules/react-native-ble-plx"
+  react-native-fast-crypto:
+    :path: "../node_modules/react-native-fast-crypto"
   react-native-get-random-values:
     :path: "../node_modules/react-native-get-random-values"
   react-native-mmkv:
@@ -856,6 +870,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-performance:
     :path: "../node_modules/react-native-performance/ios"
+  react-native-quick-base64:
+    :path: "../node_modules/react-native-quick-base64"
+  react-native-quick-crypto:
+    :path: "../node_modules/react-native-quick-crypto"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -992,10 +1010,13 @@ SPEC CHECKSUMS:
   React-jsinspector: c5989c77cb89ae6a69561095a61cce56a44ae8e8
   React-logger: a0833912d93b36b791b7a521672d8ee89107aff1
   react-native-ble-plx: f10240444452dfb2d2a13a0e4f58d7783e92d76e
+  react-native-fast-crypto: 5943c42466b86ad70be60d3a5f64bd22251e5d9e
   react-native-get-random-values: a6ea6a8a65dc93e96e24a11105b1a9c8cfe1d72a
   react-native-mmkv: 1265a348a4711097ba29c8bcefd5971f48220f2b
   react-native-netinfo: e922cb2e3eaf9ccdf16b8d4744a89657377aa4a1
   react-native-performance: f4b6604a9d5a8a7407e34a82fab6c641d9a3ec12
+  react-native-quick-base64: e657e9197e61b60a9dec49807843052b830da254
+  react-native-quick-crypto: a903ff39ac8fea78bb9d37cccc5cc0596afc9670
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: f98b0b16d1546d208fc293b4661e3f81a895afd9
   react-native-webview: 0b7bd2bffced115aefd393e1841babd9b9a557b1

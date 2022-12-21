@@ -1,7 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { isWeb } from '@config/env'
 import Input, { InputProps } from '@modules/common/components/Input'
 import NumberInput from '@modules/common/components/NumberInput'
 
@@ -15,7 +14,7 @@ const InputConfirmationCode: React.FC<Props> = ({ confirmationType, ...rest }) =
   const is2FAEnabled = confirmationType === 'otp'
   const commonProps = {
     autoCorrect: false,
-    autoFocus: !isWeb
+    autoFocus: true
   }
 
   // The 2FA expects a 6 digit number, as per the OTP standard

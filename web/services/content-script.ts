@@ -1,21 +1,27 @@
 // @ts-nocheck
 
-// Content Script is mainly a relayer between pageContext and background worker
-// on initialization it injects a script in the currently opened page
+// Content Script is mainly a relayer between pageContext(injected script) and the background service_worker
+// Middleware for handling messages between dapps and the extension's background process
+import { browserAPI, engine } from '@web/constants/browserAPI'
+import { CONTENT_SCRIPT } from '@web/constants/paths'
+import { setupAmbexMessenger } from '@web/services/ambexMessanger'
 
-import { BACKGROUND, CONTENT_SCRIPT } from '@web/constants/paths'
-import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
+const WORKER_KEEP_ALIVE_INTERVAL = 1000
+const WORKER_KEEP_ALIVE_MESSAGE = 'WORKER_KEEP_ALIVE_MESSAGE'
 
 const contentScript = async () => {
   setupAmbexMessenger(CONTENT_SCRIPT)
 
-  // Informs BACKGROUND that the CONTENT_SCRIPT is injected
-  sendMessage({ type: 'contentScriptInjected', to: BACKGROUND }).then((reply) => {
-    if (reply.data && reply.data.ack) {
-      // Injects pageContext, when background replies to the contentScriptInjected message
-      injectWeb3(chrome.runtime.id, `${chrome.runtime.id}-response`)
-    }
-  })
+  const initKeepWorkerAlive = () => {
+    setInterval(() => {
+      browserAPI.runtime.sendMessage({ name: WORKER_KEEP_ALIVE_MESSAGE })
+    }, WORKER_KEEP_ALIVE_INTERVAL)
+  }
+
+  // Keeps service_worker alive (prevents it to become inactive)
+  if (engine === 'webkit') {
+    initKeepWorkerAlive()
+  }
 }
 
 // Execute the contentScript function

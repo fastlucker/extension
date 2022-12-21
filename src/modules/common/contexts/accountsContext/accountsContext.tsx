@@ -58,13 +58,20 @@ const AccountsProvider: React.FC = ({ children }) => {
     setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
   }, [setAuthStatus])
 
-  const { accounts, account, selectedAcc, onSelectAcc, onAddAccount, onRemoveAccount } =
-    useAccounts({
-      useStorage,
-      onRemoveLastAccount,
-      onAdd,
-      useToasts
-    })
+  const {
+    accounts,
+    account,
+    selectedAcc,
+    onSelectAcc,
+    onAddAccount,
+    onRemoveAccount,
+    onRemoveAllAccounts
+  } = useAccounts({
+    useStorage,
+    onRemoveLastAccount,
+    onAdd,
+    useToasts
+  })
 
   useEffect(() => {
     CrashAnalytics.setUserContext({ id: selectedAcc || 'N/A' })
@@ -73,8 +80,24 @@ const AccountsProvider: React.FC = ({ children }) => {
   return (
     <AccountsContext.Provider
       value={useMemo(
-        () => ({ accounts, account, selectedAcc, onSelectAcc, onAddAccount, onRemoveAccount }),
-        [accounts, account, selectedAcc, onSelectAcc, onAddAccount, onRemoveAccount]
+        () => ({
+          accounts,
+          account,
+          selectedAcc,
+          onSelectAcc,
+          onAddAccount,
+          onRemoveAccount,
+          onRemoveAllAccounts
+        }),
+        [
+          accounts,
+          account,
+          selectedAcc,
+          onSelectAcc,
+          onAddAccount,
+          onRemoveAccount,
+          onRemoveAllAccounts
+        ]
       )}
     >
       {children}

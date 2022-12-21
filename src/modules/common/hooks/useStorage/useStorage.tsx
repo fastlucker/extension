@@ -1,6 +1,6 @@
 import useStorage, { UseStorageProps } from 'ambire-common/src/hooks/useStorage'
 
-import { SyncStorage } from '@config/storage'
+import useStorageController from '../useStorageController'
 
 export default function useSyncStorage<ValueType>({
   key,
@@ -8,8 +8,10 @@ export default function useSyncStorage<ValueType>({
   isStringStorage,
   setInit
 }: Omit<UseStorageProps<ValueType>, 'storage'>) {
+  const storage = useStorageController()
+
   return useStorage<ValueType>({
-    storage: SyncStorage,
+    storage,
     key,
     defaultValue,
     isStringStorage,

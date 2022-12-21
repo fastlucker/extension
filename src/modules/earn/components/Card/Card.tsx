@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, BackHandler, Image, TouchableOpacity, View } from 'react-native'
+import { BackHandler, Image, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import { useTranslation } from '@config/localization'
@@ -9,6 +9,7 @@ import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import NumberInput from '@modules/common/components/NumberInput'
 import Panel from '@modules/common/components/Panel'
 import Select from '@modules/common/components/Select'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import TokenIcon from '@modules/common/components/TokenIcon'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -174,7 +175,7 @@ const Card = ({
 
   const expandedContent = (
     <>
-      {!!loading && <ActivityIndicator />}
+      {!!loading && <Spinner />}
       {!loading && !!unavailable && (
         <Text style={[textStyles.center, spacings.pvSm]}>{t('Unavailable on this Network')}</Text>
       )}

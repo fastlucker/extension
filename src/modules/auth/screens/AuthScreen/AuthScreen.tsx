@@ -22,7 +22,7 @@ interface ButtonProps extends Omit<ButtonDefaultProps, 'onPress'> {
 const AuthButton = ({ text, type = 'primary', routeName, onPress }: ButtonProps) => {
   const handleButtonPress = useCallback(() => {
     !!onPress && onPress(routeName)
-  }, [])
+  }, [onPress, routeName])
 
   return <Button text={text} type={type} onPress={handleButtonPress} />
 }
@@ -30,9 +30,7 @@ const AuthButton = ({ text, type = 'primary', routeName, onPress }: ButtonProps)
 const AuthScreen = ({ navigation }: Props) => {
   const { t } = useTranslation()
 
-  const handleAuthButtonPress = (routeName: string) => {
-    navigation.navigate(routeName)
-  }
+  const handleAuthButtonPress = (routeName: string) => navigation.navigate(routeName)
 
   return (
     <GradientBackgroundWrapper>
@@ -41,7 +39,7 @@ const AuthScreen = ({ navigation }: Props) => {
         <View style={flexboxStyles.flex1}>
           <AuthButton
             text={t('Login With Email')}
-            routeName="emailLogin"
+            routeName="ambireAccountLogin"
             onPress={handleAuthButtonPress}
             hasBottomSpacing={false}
           />
@@ -57,7 +55,7 @@ const AuthScreen = ({ navigation }: Props) => {
           <AuthButton
             text={t('Import From JSON')}
             type="outline"
-            routeName="jsonLogin"
+            routeName="ambireAccountJsonLogin"
             onPress={handleAuthButtonPress}
           />
           <AuthButton

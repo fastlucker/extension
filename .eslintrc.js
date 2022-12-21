@@ -1,7 +1,11 @@
 module.exports = {
   extends: ['./node_modules/ambire-common/.eslintrc.js'],
   rules: {
-    'import/extensions': 'off'
+    'import/extensions': 'off',
+    'class-methods-use-this': 'off',
+    'no-nested-ternary': 'off',
+    'prefer-promise-reject-errors': 'off',
+    'no-underscore-dangle': 'off'
   },
   env: {
     "browser": true,

@@ -1,5 +1,9 @@
 /* eslint-disable */
-import { Buffer } from 'buffer'
+import { Buffer } from '@craftzdog/react-native-buffer'
+
+import { shim } from 'react-native-quick-base64';
+
+shim()
 
 // Installed and imported because of a dependency that uses Buffer functions
 // Hack to make Buffer with in RN proj:
@@ -40,4 +44,4 @@ if (typeof localStorage !== 'undefined') {
 
 // If using the crypto shim, uncomment the following line to ensure
 // crypto is loaded first, so it can populate global.crypto
-require('crypto')
+// require('crypto')

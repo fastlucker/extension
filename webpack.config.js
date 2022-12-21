@@ -15,7 +15,7 @@ const expoEnv = require('@expo/webpack-config/env')
 const nodeHtmlParser = require('node-html-parser')
 // eslint-disable-next-line import/no-extraneous-dependencies
 const fsExtra = require('fs-extra')
-
+const webpack = require('webpack')
 const appJSON = require('./app.json')
 
 // Overrides the default generatedScriptTags
@@ -53,7 +53,7 @@ module.exports = async function (env, argv) {
 
     if (process.env.WEB_ENGINE === 'webkit') {
       manifest.content_security_policy = { extension_pages: csp }
-
+      manifest.minimum_chrome_version = '66'
       // This value can be used to control the unique ID of an extension,
       // when it is loaded during development. In prod, the ID is generated
       // in Chrome Web Store and can't be changed.
@@ -67,6 +67,12 @@ module.exports = async function (env, argv) {
       manifest.manifest_version = 2
       manifest.background = {
         scripts: ['background.js']
+      }
+      manifest.browser_specific_settings = {
+        gecko: {
+          id: 'webextension@ambire.com',
+          strict_min_version: '68.0'
+        }
       }
       manifest.web_accessible_resources = ['*']
       manifest.host_permissions = undefined
@@ -177,6 +183,10 @@ module.exports = async function (env, argv) {
 
     config.plugins = [
       ...config.plugins,
+      // Buffer polyfill, used by web3
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer']
+      }),
       // Overrides ExpoCopyPlugin
       new CopyPlugin({
         patterns: [

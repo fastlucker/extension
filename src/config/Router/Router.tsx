@@ -1,3 +1,4 @@
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
@@ -18,22 +19,22 @@ import styles, {
   tabBarLabelStyle,
   tabBarStyle
 } from '@config/Router/styles'
-import useAppLock from '@modules/app-lock/hooks/useAppLock'
-import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
-import SetAppLockingScreen from '@modules/app-lock/screens/SetAppLockingScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
+import { EmailLoginProvider } from '@modules/auth/contexts/emailLoginContext'
+import { JsonLoginProvider } from '@modules/auth/contexts/jsonLoginContext'
 import useAuth from '@modules/auth/hooks/useAuth'
+import AddAccountPasswordToVaultScreen from '@modules/auth/screens/AddAccountPasswordToVaultScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import BiometricsSignScreen from '@modules/biometrics-sign/screens/BiometricsSignScreen'
 import { TAB_BAR_BLUR } from '@modules/common/constants/router'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
+import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
-import { navigationRef, routeNameRef } from '@modules/common/services/navigation'
+import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
@@ -51,6 +52,13 @@ import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import useVault from '@modules/vault/hooks/useVault'
+import CreateNewVaultScreen from '@modules/vault/screens/CreateNewVaultScreen'
+import ManageVaultLockScreen from '@modules/vault/screens/ManageVaultLockScreen'
+import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
+import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
+import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
@@ -64,9 +72,9 @@ const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
-const SetAppLockStack = createNativeStackNavigator()
-const BiometricsStack = createNativeStackNavigator()
-const AppLockingStack = createNativeStackNavigator()
+const ManageVaultLockStack = createNativeStackNavigator()
+const EmailLoginStack = createNativeStackNavigator()
+const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 
@@ -102,73 +110,113 @@ const GasInformationStackScreen = () => {
   )
 }
 
-const SetAppLockStackScreen = () => {
+const ManageVaultLockStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <SetAppLockStack.Navigator screenOptions={{ header: headerBeta }}>
-      <SetAppLockStack.Screen
-        name="set-app-lock-screen"
-        component={SetAppLockingScreen}
+    <ManageVaultLockStack.Navigator screenOptions={{ header: headerBeta }}>
+      <ManageVaultLockStack.Screen
+        name="manage-vault-lock-screen"
+        component={ManageVaultLockScreen}
         options={{
-          title: t('App Lock')
+          title: t('Manage Key Store Lock')
         }}
       />
-    </SetAppLockStack.Navigator>
+    </ManageVaultLockStack.Navigator>
   )
 }
 
-const BiometricsStackScreen = () => {
+const EmailLoginStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <BiometricsStack.Navigator screenOptions={{ header: headerBeta }}>
-      <BiometricsStack.Screen
-        name="biometrics-sign-change-screen"
-        component={BiometricsSignScreen}
-        options={{
-          title: t('Sign with Biometrics')
-        }}
-      />
-    </BiometricsStack.Navigator>
+    <EmailLoginProvider>
+      <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+        <EmailLoginStack.Screen
+          name="emailLogin"
+          options={{ title: t('Login') }}
+          component={EmailLoginScreen}
+        />
+        <EmailLoginStack.Screen
+          name="addAccountPasswordToVault"
+          options={{ title: t('Login') }}
+          component={AddAccountPasswordToVaultScreen}
+        />
+      </EmailLoginStack.Navigator>
+    </EmailLoginProvider>
   )
 }
 
-const ManageAppLockStackScreen = () => {
+const JsonLoginStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <AppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
-      <AppLockingStack.Screen
-        name="manage-app-lock-screen"
-        component={ManageAppLockScreen}
-        options={{
-          title: t('Manage App Lock')
-        }}
-      />
-    </AppLockingStack.Navigator>
+    <JsonLoginProvider>
+      <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+        <JsonLoginStack.Screen
+          name="jsonLogin"
+          options={{ title: t('Import from JSON') }}
+          component={JsonLoginScreen}
+        />
+        <JsonLoginStack.Screen
+          name="addAccountPasswordToVault"
+          options={{ title: t('Login') }}
+          component={AddAccountPasswordToVaultScreen}
+        />
+      </JsonLoginStack.Navigator>
+    </JsonLoginProvider>
   )
 }
 
 const AuthStack = () => {
   const { t } = useTranslation()
+  const { vaultStatus } = useVault()
+  const { getItem } = useStorageController()
 
   useEffect(() => {
     SplashScreen.hideAsync()
   }, [])
 
+  const initialRouteName =
+    vaultStatus === VAULT_STATUS.NOT_INITIALIZED
+      ? 'createVaultGetStarted'
+      : // Checks whether there is a pending email login attempt. It happens when user
+      // request email login and closes the app. When the app is opened
+      // the second time - an immediate email login attempt will be triggered.
+      getItem('pendingLoginEmail')
+      ? 'ambireAccountLogin'
+      : 'auth'
+
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }}>
-      <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
+      {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
+        <>
+          <Stack.Screen
+            name="createVaultGetStarted"
+            options={{ title: t('Welcome') }}
+            component={VaultSetupGetStartedScreen}
+          />
+          <Stack.Screen
+            name="createVault"
+            options={{ title: t('Setup Ambire Key Store') }}
+            component={CreateNewVaultScreen}
+          />
+        </>
+      )}
       <Stack.Screen
-        name="emailLogin"
-        options={{ title: t('Login') }}
-        component={EmailLoginScreen}
+        options={{ title: t('Welcome to Ambire') }}
+        name="auth"
+        component={AuthScreen}
       />
       <Stack.Screen
-        name="jsonLogin"
-        options={{ title: t('Import from JSON') }}
-        component={JsonLoginScreen}
+        name="ambireAccountLogin"
+        options={{ title: t('Login'), headerShown: false }}
+        component={EmailLoginStackScreen}
+      />
+      <Stack.Screen
+        name="ambireAccountJsonLogin"
+        options={{ title: t('Import from JSON'), headerShown: false }}
+        component={JsonLoginStackScreen}
       />
       <Stack.Screen
         name="qrCodeLogin"
@@ -202,6 +250,34 @@ const NoConnectionStack = () => {
         options={{ title: t('No connection') }}
         name="no-connection"
         component={NoConnectionScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+const VaultStack = () => {
+  const { t } = useTranslation()
+  const { vaultStatus } = useVault()
+
+  useEffect(() => {
+    if (vaultStatus === VAULT_STATUS.LOADING) return
+
+    SplashScreen.hideAsync()
+  }, [vaultStatus])
+
+  if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+  return (
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
+      <Stack.Screen
+        name="unlockVault"
+        options={{ title: t('Welcome Back') }}
+        component={UnlockVaultScreen}
+      />
+      <Stack.Screen
+        name="resetVault"
+        options={{ title: t('Reset Ambire Key Store') }}
+        component={ResetVaultScreen}
       />
     </Stack.Navigator>
   )
@@ -323,13 +399,26 @@ const AppDrawer = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-  const { isLoading } = useAppLock()
+  const { getItem } = useStorageController()
 
   useEffect(() => {
-    if (isLoading) return
-
     SplashScreen.hideAsync()
-  }, [isLoading])
+  }, [])
+
+  useEffect(() => {
+    // Checks whether there is a pending email login attempt. It happens when
+    // user requests email login and closes the the app. When the app is opened
+    // the second time - an immediate email login attempt will be triggered.
+    // Redirect the user instead of using the `initialRouteName`,
+    // because when 'auth-add-account' is set for `initialRouteName`,
+    // the 'drawer' route never gets rendered, and therefore - upon successful
+    // login attempt - the redirection to the 'dashboard' route breaks -
+    // because this route doesn't exist (it's never being rendered).
+    const shouldAttemptLogin = !!getItem('pendingLoginEmail')
+    if (shouldAttemptLogin) {
+      navigate('auth-add-account')
+    }
+  }, [getItem])
 
   return (
     <MainStack.Navigator screenOptions={{ header: headerBeta }}>
@@ -342,23 +431,13 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="manage-app-locking"
-        component={ManageAppLockStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
         name="signers"
         component={SignersStackScreen}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="set-app-lock"
-        component={SetAppLockStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="biometrics-sign-change"
-        component={BiometricsStackScreen}
+        name="manage-vault-lock"
+        component={ManageVaultLockStackScreen}
       />
       <MainStack.Screen
         name="auth-add-account"
@@ -388,7 +467,7 @@ const AppStack = () => {
       <MainStack.Screen
         name="sign-message"
         component={SignMessageScreen}
-        options={{ title: t('Sign'), headerLeft: () => null, gestureEnabled: false }}
+        options={{ title: t('Sign') }}
       />
       <MainStack.Screen
         name="gas-tank"
@@ -407,23 +486,44 @@ const AppStack = () => {
 const Router = () => {
   const { authStatus } = useAuth()
   const { connectionState } = useNetInfo()
+  const { vaultStatus } = useVault()
 
   const renderContent = useCallback(() => {
     if (connectionState === ConnectionStates.NOT_CONNECTED) {
       return <NoConnectionStack />
     }
 
+    // Vault loads in async manner, so always wait until it's being loaded,
+    // otherwise - other routes flash beforehand.
+    if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+    // When locked, always prompt the user to unlock it first.
+    if (VAULT_STATUS.LOCKED === vaultStatus) {
+      return <VaultStack />
+    }
+
+    // When not authenticated, take him to the Auth screens first,
+    // even without having a vault initialized yet.
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
       return <AuthStack />
     }
 
     if (authStatus === AUTH_STATUS.AUTHENTICATED) {
-      return <AppStack />
+      if (VAULT_STATUS.NOT_INITIALIZED === vaultStatus) {
+        return <VaultStack />
+      }
+
+      if (
+        vaultStatus === VAULT_STATUS.UNLOCKED ||
+        vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY
+      ) {
+        return <AppStack />
+      }
     }
 
     // authStatus === AUTH_STATUS.LOADING or anything else:
     return null
-  }, [connectionState, authStatus])
+  }, [connectionState, authStatus, vaultStatus])
 
   const handleOnReady = () => {
     // @ts-ignore for some reason TS complains about this 👇

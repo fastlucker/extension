@@ -19,7 +19,6 @@ import useRequests from '@modules/common/hooks/useRequests'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import isInt from '@modules/common/utils/isInt'
-import ExternalSignerAuthorization from '@modules/external-signers/components/ExternalSignerAuthorization'
 import HardwareWalletSelectConnection from '@modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import FeeSelector from '@modules/pending-transactions/components/FeeSelector'
 import SignActions from '@modules/pending-transactions/components/SignActions'
@@ -40,11 +39,6 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     ref: hardwareWalletSheetRef,
     open: hardwareWalletOpenBottomSheet,
     close: hardwareWalletCloseBottomSheet
-  } = useModalize()
-  const {
-    ref: externalSignerSheetRef,
-    open: externalSignerOpenBottomSheet,
-    close: externalSignerCloseBottomSheet
   } = useModalize()
 
   const { isTempExtensionPopup } = useAmbireExtension()
@@ -69,8 +63,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     rejectTxnReplace,
     setReplaceTx
   } = useSendTransaction({
-    hardwareWalletOpenBottomSheet,
-    externalSignerOpenBottomSheet
+    hardwareWalletOpenBottomSheet
   })
 
   const prevBundle: any = usePrevious(bundle)
@@ -214,21 +207,6 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
               hardwareWalletCloseBottomSheet()
             }}
             shouldWrap={false}
-          />
-        </BottomSheet>
-        <BottomSheet
-          id="authorize-external-signer"
-          sheetRef={externalSignerSheetRef}
-          closeBottomSheet={() => {
-            externalSignerCloseBottomSheet()
-          }}
-        >
-          <ExternalSignerAuthorization
-            hasRegisteredPassword
-            onAuthorize={(credentials) => {
-              approveTxn({ externalSignerCredentials: credentials })
-              externalSignerCloseBottomSheet()
-            }}
           />
         </BottomSheet>
       </Wrapper>
