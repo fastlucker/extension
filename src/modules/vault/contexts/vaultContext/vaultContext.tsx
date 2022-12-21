@@ -432,6 +432,13 @@ const VaultProvider: React.FC = ({ children }) => {
         ]
       )}
     >
+      {/* The temporarily locked state is implemented as an overlay. Why not */}
+      {/* a separate route (as a modal)? It was conflicting with the async */}
+      {/* navigation actions that were happening on some occasions */}
+      {/* (like waiting for email confirm and on confirm - redirecting). */}
+      {/* Implementing it as an overlay prevents all these problems, */}
+      {/* all redirects are happening below overlay and when the overlay */}
+      {/* gets dismissed - the current route is always up to date. */}
       {vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY && (
         <SafeAreaView style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
           <UnlockVaultScreen />
