@@ -84,7 +84,9 @@ const AddOrHideToken = ({
           onChange={(value: MODES) => {
             setFormType(value)
             triggerLayoutAnimation({
-              forceAnimate: true,
+              // Animate only for iOS, because on Android it conflicts with
+              // the bottom sheet backdrop animation.
+              forceAnimate: false,
               config: LayoutAnimation.create(300, 'linear', 'opacity')
             })
           }}
