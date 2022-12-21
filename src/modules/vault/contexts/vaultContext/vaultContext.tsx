@@ -192,7 +192,11 @@ const VaultProvider: React.FC = ({ children }) => {
             password = passwordComingFromBiometrics
           }
         } catch (e) {
-          return Promise.reject()
+          // Resolve to allow continue forward, instead or rejecting,
+          // otherwise it fires a warn (unhandled promise rejection).
+          // Which technically should not be handled, because canceling
+          // unlock is a valid scenario.
+          return Promise.resolve()
         }
       }
 
