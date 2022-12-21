@@ -83,7 +83,6 @@ const AddOrHideToken = ({
           segments={segments}
           onChange={(value: MODES) => {
             setFormType(value)
-            // FIXME: This breaks the bottom sheet backdrop on Android
             triggerLayoutAnimation({
               // Animate only for iOS, because on Android it conflicts with
               // the bottom sheet backdrop animation.
