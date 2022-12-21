@@ -72,6 +72,7 @@ const BottomSheet: React.FC<Props> = ({
         handleStyle={styles.dragger}
         handlePosition="inside"
         useNativeDriver={!isWeb}
+        avoidKeyboardLikeIOS
         modalTopOffset={HEADER_HEIGHT + 10}
         {...(!isWeb ? { modalTopOffset: HEADER_HEIGHT + 10 } : {})}
         {...(isWeb ? { modalHeight: DEVICE_HEIGHT - HEADER_HEIGHT - 10 } : {})}
