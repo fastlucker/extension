@@ -400,8 +400,6 @@ const AppDrawer = () => {
 const AppStack = () => {
   const { t } = useTranslation()
   const { getItem } = useStorageController()
-  const { vaultStatus } = useVault()
-  const prevVaultStatus = usePrevious(vaultStatus)
 
   useEffect(() => {
     SplashScreen.hideAsync()
@@ -421,21 +419,6 @@ const AppStack = () => {
       navigate('auth-add-account')
     }
   }, [getItem])
-
-  useEffect(() => {
-    if (vaultStatus === prevVaultStatus) return
-
-    if (vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
-      navigate('unlock-temporarily-locked-vault')
-    }
-
-    if (
-      prevVaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY &&
-      vaultStatus === VAULT_STATUS.UNLOCKED
-    ) {
-      navigationRef.current?.goBack()
-    }
-  }, [prevVaultStatus, vaultStatus])
 
   return (
     <MainStack.Navigator screenOptions={{ header: headerBeta }}>
@@ -495,11 +478,6 @@ const AppStack = () => {
         name="gas-information"
         component={GasInformationStackScreen}
         options={{ headerShown: false }}
-      />
-      <MainStack.Screen
-        name="unlock-temporarily-locked-vault"
-        component={UnlockVaultScreen}
-        options={{ title: t('Unlock') }}
       />
     </MainStack.Navigator>
   )

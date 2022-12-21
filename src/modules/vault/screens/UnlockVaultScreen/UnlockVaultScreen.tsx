@@ -5,12 +5,14 @@ import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'reac
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
+import { HEADER_HEIGHT } from '@config/Router/Header/style'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useDisableNavigatingBack from '@modules/common/hooks/useDisableNavigatingBack'
+import { navigate } from '@modules/common/services/navigation'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
@@ -19,7 +21,7 @@ import useVault from '@modules/vault/hooks/useVault'
 
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
-const UnlockVaultScreen = ({ navigation }: any) => {
+const UnlockVaultScreen = () => {
   const { t } = useTranslation()
   const { unlockVault, vaultStatus, biometricsEnabled } = useVault()
   const {
@@ -57,25 +59,11 @@ const UnlockVaultScreen = ({ navigation }: any) => {
   }, [handleSubmit, unlockVault, setValue])
 
   const handleForgotPassword = useCallback(
-    () => navigation.navigate('resetVault', { resetPassword: true }),
-    [navigation]
+    () => navigate('resetVault', { resetPassword: true }),
+    []
   )
 
-  // Prevent going back, needed for the temporary locked key store case,
-  // where the user must unlock before he comes back to the previous screen.
-  // {@link https://reactnavigation.org/docs/preventing-going-back/}
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-      if (vaultStatus !== VAULT_STATUS.UNLOCKED) {
-        // Prevent default behavior of leaving the screen
-        e.preventDefault()
-      }
-    })
-
-    return unsubscribe
-  }, [navigation, vaultStatus])
-
-  useDisableNavigatingBack(navigation)
+  useDisableNavigatingBack()
 
   return (
     <GradientBackgroundWrapper>
@@ -85,7 +73,13 @@ const UnlockVaultScreen = ({ navigation }: any) => {
         }}
       >
         <Wrapper
-          contentContainerStyle={spacings.pbLg}
+          contentContainerStyle={[
+            spacings.pbLg,
+            // When locked temporarily, the component is mounted as an absolute
+            // positioned overlay, which has no title. So the top margin
+            // compensates the missing title and aligns the KeyStoreLogo better.
+            vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY && { marginTop: HEADER_HEIGHT }
+          ]}
           type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
           extraHeight={220}
         >
