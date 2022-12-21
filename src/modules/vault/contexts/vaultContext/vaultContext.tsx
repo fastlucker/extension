@@ -372,7 +372,8 @@ const VaultProvider: React.FC = ({ children }) => {
     vaultStatus,
     shouldLockWhenInactive,
     lock: handleLockWhenInactive,
-    promptToUnlock: unlockVault
+    promptToUnlock: unlockVault,
+    biometricsEnabled
   })
 
   const toggleShouldLockWhenInactive = useCallback(

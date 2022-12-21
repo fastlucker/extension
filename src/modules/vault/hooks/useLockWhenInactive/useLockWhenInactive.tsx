@@ -7,12 +7,14 @@ const useLockWhenInactive = ({
   vaultStatus,
   shouldLockWhenInactive,
   lock,
-  promptToUnlock
+  promptToUnlock,
+  biometricsEnabled
 }: {
   vaultStatus: VAULT_STATUS
   shouldLockWhenInactive: boolean
   lock: () => void
   promptToUnlock: () => Promise<any>
+  biometricsEnabled: boolean
 }) => {
   const [, setAppState] = useState<AppStateStatus>(AppState.currentState)
 
@@ -29,7 +31,7 @@ const useLockWhenInactive = ({
           const isLocked = [VAULT_STATUS.LOCKED_TEMPORARILY, VAULT_STATUS.LOCKED].includes(
             vaultStatus
           )
-          if (isNotInTheMiddleOfAskingForPermissionOrLocalAuth && isLocked) {
+          if (isNotInTheMiddleOfAskingForPermissionOrLocalAuth && isLocked && biometricsEnabled) {
             promptToUnlock()
           }
         } else if (currentAppState === 'active' && nextAppState.match(/inactive|background/)) {
@@ -44,7 +46,7 @@ const useLockWhenInactive = ({
         }
         return nextAppState
       }),
-    [vaultStatus, promptToUnlock, shouldLockWhenInactive, lock]
+    [vaultStatus, biometricsEnabled, promptToUnlock, shouldLockWhenInactive, lock]
   )
 
   useEffect(() => {
