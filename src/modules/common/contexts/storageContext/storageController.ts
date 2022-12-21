@@ -78,6 +78,14 @@ export class StorageController {
     return this.mmkv?.getString(key)
   }
 
+  /**
+   * WARNING: Use await setItemAsync (async method) in the service_worker instead of setItem (sync method)
+   * There are two instances of the storageController in the extension (one in the service_worker and the other in the UI)
+   * The storage state of the two instances is sometimes out of sync because of storage listener working asynchronously
+   * and awaiting the storage changes in one of the storage instances fixes the issue
+   * We choose the the async usage of the storage to be in the service_worker because in the UI the storage usage should
+   * be synchronous due to code reusability with the web wallet code
+   */
   setItem(key: string, value: string) {
     if (isExtension) {
       this.extensionSyncStorage[key] = value
@@ -88,6 +96,30 @@ export class StorageController {
     }
   }
 
+  setItemAsync(key: string, value: string) {
+    if (isExtension) {
+      const { local } = browserAPI.storage
+
+      return new Promise((resolve) => {
+        this.extensionSyncStorage[key] = value
+
+        local.set({ ...this.extensionSyncStorage, [key]: value }).then(() => {
+          resolve(true)
+        })
+      })
+    }
+    this.mmkv?.set(key, value)
+    return Promise.resolve(true)
+  }
+
+  /**
+   * WARNING: Use await removeItemAsync (async method) in the service_worker instead of removeItem (sync method)
+   * There are two instances of the storageController in the extension (one in the service_worker and the other in the UI)
+   * The storage state of the two instances is sometimes out of sync because of storage listener working asynchronously
+   * and awaiting the storage changes in one of the storage instances fixes the issue
+   * We choose the the async usage of the storage to be in the service_worker because in the UI the storage usage should
+   * be synchronous due to code reusability with the web wallet code
+   */
   removeItem(key: string) {
     if (isExtension) {
       delete this.extensionSyncStorage[key]
@@ -96,5 +128,23 @@ export class StorageController {
     } else {
       this.mmkv?.delete(key)
     }
+  }
+
+  removeItemAsync(key: string) {
+    if (isExtension) {
+      const { local } = browserAPI.storage
+
+      return new Promise((resolve) => {
+        delete this.extensionSyncStorage[key]
+
+        browserAPI.storage.local.remove([key])
+
+        local.remove([key]).then(() => {
+          resolve(true)
+        })
+      })
+    }
+    this.mmkv?.delete(key)
+    return Promise.resolve(true)
   }
 }

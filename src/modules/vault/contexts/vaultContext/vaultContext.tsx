@@ -1,17 +1,26 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { StyleSheet } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useTranslation } from '@config/localization'
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
+import useAuth from '@modules/auth/hooks/useAuth'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
+import { KEY_LOCK_KEYSTORE_WHEN_INACTIVE } from '@modules/vault/constants/storageKeys'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import useLockWhenInactive from '@modules/vault/hooks/useLockWhenInactive'
+import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
+import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultController from '@modules/vault/services/VaultController'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 import { isExtension } from '@web/constants/browserAPI'
 import { BACKGROUND } from '@web/constants/paths'
 import { sendMessage } from '@web/services/ambexMessanger'
 
+import styles from './styles'
 import { vaultContextDefaults, VaultContextReturnType } from './types'
 
 const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
@@ -20,7 +29,15 @@ const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { onRemoveAllAccounts } = useAccounts()
-  const { getItem, storageControllerInstance } = useStorageController()
+  const { getItem, setItem, storageControllerInstance } = useStorageController()
+  const {
+    biometricsEnabled,
+    getKeystorePassword,
+    addKeystorePasswordToDeviceSecureStore,
+    removeKeystorePasswordFromDeviceSecureStore
+  } = useVaultBiometrics()
+  const [shouldLockWhenInactive, setShouldLockWhenInactive] = useState(true)
+  const { authStatus } = useAuth()
 
   /**
    * For the extension, we need to get vault status from background.
@@ -33,6 +50,16 @@ const VaultProvider: React.FC = ({ children }) => {
     [storageControllerInstance]
   )
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)
+
+  useEffect(() => {
+    const shouldLockWhenInactiveSetting = getItem(KEY_LOCK_KEYSTORE_WHEN_INACTIVE)
+
+    setShouldLockWhenInactive(
+      typeof shouldLockWhenInactiveSetting === 'undefined'
+        ? vaultContextDefaults.shouldLockWhenInactive
+        : shouldLockWhenInactiveSetting
+    )
+  }, [getItem])
 
   const requestVaultControllerMethod = useCallback(
     ({
@@ -86,32 +113,45 @@ const VaultProvider: React.FC = ({ children }) => {
       .catch(() => setVaultStatus(VAULT_STATUS.LOCKED))
   }, [vaultController, getItem, requestVaultControllerMethod])
 
-  const createVault = useCallback(
-    ({
-      password,
-      confirmPassword,
-      nextRoute
-    }: {
-      password: string
-      confirmPassword: string
-      nextRoute?: string
-    }) => {
-      if (password === confirmPassword) {
-        requestVaultControllerMethod({
-          method: 'createVault',
-          props: {
-            password
-          }
-        }).then(() => {
-          // Automatically unlock after vault initialization
-          setVaultStatus(VAULT_STATUS.UNLOCKED)
-          !!nextRoute && navigate(nextRoute)
-        })
-      } else {
-        addToast(t("Passwords don't match."))
+  const createVault = useCallback<VaultContextReturnType['createVault']>(
+    async ({ password, confirmPassword, optInForBiometricsUnlock, nextRoute }) => {
+      if (password !== confirmPassword) {
+        addToast(t("Passwords don't match."), { error: true })
+        return Promise.reject()
       }
+
+      try {
+        await requestVaultControllerMethod({
+          method: 'createVault',
+          props: { password }
+        })
+      } catch {
+        addToast(t('Error creating Ambire Key Store. Please try again later or contact support.'), {
+          error: true
+        })
+        return Promise.reject()
+      }
+
+      if (optInForBiometricsUnlock) {
+        try {
+          await addKeystorePasswordToDeviceSecureStore(password)
+        } catch {
+          addToast(
+            t(
+              'Confirming Biometrics was unsuccessful. You can retry enabling Biometrics unlock later via the "Set Biometrics unlock" option in the menu'
+            ),
+            { error: true }
+          )
+        }
+      }
+
+      // Automatically unlock after vault initialization
+      setVaultStatus(VAULT_STATUS.UNLOCKED)
+
+      !!nextRoute && navigate(nextRoute)
+      return Promise.resolve()
     },
-    [t, addToast, requestVaultControllerMethod]
+    [requestVaultControllerMethod, addKeystorePasswordToDeviceSecureStore, addToast, t]
   )
 
   const resetVault = useCallback(
@@ -135,17 +175,34 @@ const VaultProvider: React.FC = ({ children }) => {
           setVaultStatus(VAULT_STATUS.UNLOCKED)
         })
       } else {
-        addToast(t("Passwords don't match."))
+        addToast(t("Passwords don't match."), { error: true })
       }
     },
     [t, addToast, onRemoveAllAccounts, requestVaultControllerMethod]
   )
 
   const unlockVault = useCallback(
-    (props: { password: string }) => {
-      requestVaultControllerMethod({
+    async ({ password: incomingPassword }: { password?: string } = {}) => {
+      let password = incomingPassword
+
+      if (biometricsEnabled && !password) {
+        try {
+          const passwordComingFromBiometrics = await getKeystorePassword()
+          if (passwordComingFromBiometrics) {
+            password = passwordComingFromBiometrics
+          }
+        } catch (e) {
+          // Resolve to allow continue forward, instead or rejecting,
+          // otherwise it fires a warn (unhandled promise rejection).
+          // Which technically should not be handled, because canceling
+          // unlock is a valid scenario.
+          return Promise.resolve()
+        }
+      }
+
+      return requestVaultControllerMethod({
         method: 'unlockVault',
-        props
+        props: { password }
       })
         .then(() => {
           setVaultStatus(VAULT_STATUS.UNLOCKED)
@@ -154,23 +211,29 @@ const VaultProvider: React.FC = ({ children }) => {
           addToast(e?.message || e, { error: true })
         })
     },
-    [addToast, requestVaultControllerMethod]
+    [addToast, biometricsEnabled, getKeystorePassword, requestVaultControllerMethod]
   )
 
-  const lockVault = useCallback(() => {
-    requestVaultControllerMethod({
-      method: 'lockVault',
-      props: {}
-    })
-      .then((res: any) => {
-        if (vaultStatus !== VAULT_STATUS.LOADING && vaultStatus !== VAULT_STATUS.NOT_INITIALIZED) {
-          setVaultStatus(res)
-        }
+  const lockVault = useCallback(
+    (_vaultStatus?: VAULT_STATUS) => {
+      requestVaultControllerMethod({
+        method: 'lockVault',
+        props: {}
       })
-      .catch((e) => {
-        addToast(e?.message || e, { error: true })
-      })
-  }, [addToast, vaultStatus, requestVaultControllerMethod])
+        .then((res: any) => {
+          if (
+            vaultStatus !== VAULT_STATUS.LOADING &&
+            vaultStatus !== VAULT_STATUS.NOT_INITIALIZED
+          ) {
+            setVaultStatus(_vaultStatus || res)
+          }
+        })
+        .catch((e) => {
+          addToast(e?.message || e, { error: true })
+        })
+    },
+    [addToast, requestVaultControllerMethod, vaultStatus]
+  )
 
   const isValidPassword = useCallback(
     async (props: { password: string }) => {
@@ -299,6 +362,32 @@ const VaultProvider: React.FC = ({ children }) => {
     [requestVaultControllerMethod]
   )
 
+  const handleLockWhenInactive = useCallback(() => {
+    // If no accounts are added, no need to lock the vault when inactive,
+    // since there is no sensitive information to protect yet.
+    if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
+      return
+    }
+
+    lockVault(VAULT_STATUS.LOCKED_TEMPORARILY)
+  }, [authStatus, lockVault])
+
+  useLockWhenInactive({
+    vaultStatus,
+    shouldLockWhenInactive,
+    lock: handleLockWhenInactive,
+    promptToUnlock: unlockVault,
+    biometricsEnabled
+  })
+
+  const toggleShouldLockWhenInactive = useCallback(
+    (shouldLock: boolean) => {
+      setShouldLockWhenInactive(shouldLock)
+      setItem(KEY_LOCK_KEYSTORE_WHEN_INACTIVE, shouldLock)
+    },
+    [setItem]
+  )
+
   return (
     <VaultContext.Provider
       value={useMemo(
@@ -316,7 +405,13 @@ const VaultProvider: React.FC = ({ children }) => {
           signTxnQuckAcc,
           signTxnExternalSigner,
           signMsgQuickAcc,
-          signMsgExternalSigner
+          signMsgExternalSigner,
+          shouldLockWhenInactive,
+          toggleShouldLockWhenInactive,
+          biometricsEnabled,
+          getKeystorePassword,
+          addKeystorePasswordToDeviceSecureStore,
+          removeKeystorePasswordFromDeviceSecureStore
         }),
         [
           vaultStatus,
@@ -332,10 +427,28 @@ const VaultProvider: React.FC = ({ children }) => {
           signTxnQuckAcc,
           signTxnExternalSigner,
           signMsgQuickAcc,
-          signMsgExternalSigner
+          signMsgExternalSigner,
+          shouldLockWhenInactive,
+          toggleShouldLockWhenInactive,
+          biometricsEnabled,
+          getKeystorePassword,
+          addKeystorePasswordToDeviceSecureStore,
+          removeKeystorePasswordFromDeviceSecureStore
         ]
       )}
     >
+      {/* The temporarily locked state is implemented as an overlay. Why not */}
+      {/* a separate route (as a modal)? It was conflicting with the async */}
+      {/* navigation actions that were happening on some occasions */}
+      {/* (like waiting for email confirm and on confirm - redirecting). */}
+      {/* Implementing it as an overlay prevents all these problems, */}
+      {/* all redirects are happening below overlay and when the overlay */}
+      {/* gets dismissed - the current route is always up to date. */}
+      {vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY && (
+        <SafeAreaView style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
+          <UnlockVaultScreen />
+        </SafeAreaView>
+      )}
       {children}
     </VaultContext.Provider>
   )

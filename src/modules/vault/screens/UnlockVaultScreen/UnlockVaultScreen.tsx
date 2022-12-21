@@ -1,31 +1,34 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Image, Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 
-import LockBackgroundIcon from '@assets/images/LockBackground.png'
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
+import { HEADER_HEIGHT } from '@config/Router/Header/style'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import colors from '@modules/common/styles/colors'
+import useDisableNavigatingBack from '@modules/common/hooks/useDisableNavigatingBack'
+import { navigate } from '@modules/common/services/navigation'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
 
-import styles from './styles'
+const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
-const UnlockVaultScreen = ({ navigation }: any) => {
+const UnlockVaultScreen = () => {
   const { t } = useTranslation()
-  const { unlockVault } = useVault()
-
+  const { unlockVault, vaultStatus, biometricsEnabled } = useVault()
   const {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting }
   } = useForm({
     reValidateMode: 'onChange',
@@ -34,49 +37,73 @@ const UnlockVaultScreen = ({ navigation }: any) => {
     }
   })
 
+  useEffect(() => {
+    if (!biometricsEnabled) {
+      return
+    }
+
+    // Trigger only when the vault is locked, which is the case when the app
+    // gets opened for the first time. Otherwise, when the vault gets
+    // temporary locked (when app goes inactive), this trigger is
+    // getting fired immediately when the app goes inactive,
+    // not when the app comes back in active state. Which messes up
+    // the biometrics prompt (it freezes and the promise never resolves).
+    if (vaultStatus === VAULT_STATUS.LOCKED) {
+      handleSubmit(unlockVault)()
+    }
+  }, [biometricsEnabled, handleSubmit, unlockVault, vaultStatus])
+
+  const handleRetryBiometrics = useCallback(() => {
+    setValue('password', '')
+    return handleSubmit(unlockVault)()
+  }, [handleSubmit, unlockVault, setValue])
+
+  const handleForgotPassword = useCallback(
+    () => navigate('resetVault', { resetPassword: true }),
+    []
+  )
+
+  useDisableNavigatingBack()
+
   return (
     <GradientBackgroundWrapper>
-      <View style={styles.backgroundImgWrapper}>
-        <Image source={LockBackgroundIcon} style={styles.backgroundImg} resizeMode="contain" />
-      </View>
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
         }}
       >
         <Wrapper
-          contentContainerStyle={spacings.pbLg}
+          contentContainerStyle={[
+            spacings.pbLg,
+            // When locked temporarily, the component is mounted as an absolute
+            // positioned overlay, which has no title. So the top margin
+            // compensates the missing title and aligns the KeyStoreLogo better.
+            vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY && { marginTop: HEADER_HEIGHT }
+          ]}
           type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
           extraHeight={220}
         >
-          <View
-            style={[
-              !isWeb ? spacings.mbLg : spacings.mb0,
-              isWeb && spacings.ph,
-              flexboxStyles.flex1,
-              flexboxStyles.justifyEnd
-            ]}
-          >
-            <View style={spacings.phTy}>
-              <Text weight="regular" style={spacings.mbTy} color={colors.titan_50}>
-                {t('Enter your Ambire Key Store Lock to unlock your wallet')}
-              </Text>
-            </View>
+          <KeyStoreLogo />
+
+          <View style={[isWeb && spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
+            <Text weight="regular" style={[spacings.mbTy, spacings.phTy]} fontSize={13}>
+              {t('Enter your Ambire Key Store passphrase to unlock your wallet')}
+            </Text>
+
             <Controller
               control={control}
-              rules={{ validate: isValidPassword }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <InputPassword
                   onBlur={onBlur}
-                  placeholder={t('Password')}
-                  autoFocus
+                  placeholder={t('Passphrase')}
+                  autoFocus={isWeb}
                   onChangeText={onChange}
                   isValid={isValidPassword(value)}
                   value={value}
                   onSubmitEditing={handleSubmit(unlockVault)}
                   error={
                     errors.password &&
-                    (t('Please fill in at least 8 characters for password.') as string)
+                    (t('Please fill in at least 8 characters for passphrase.') as string)
                   }
                   containerStyle={spacings.mbTy}
                 />
@@ -91,15 +118,27 @@ const UnlockVaultScreen = ({ navigation }: any) => {
                 onPress={handleSubmit(unlockVault)}
               />
             </View>
-            <View style={[flexboxStyles.alignCenter, spacings.pvTy]}>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('resetVault', { resetPassword: true })}
-                hitSlop={{ top: 10, bottom: 15 }}
-              >
+            <View style={[flexboxStyles.justifyCenter, flexboxStyles.directionRow, spacings.pvTy]}>
+              <TouchableOpacity onPress={handleForgotPassword} hitSlop={FOOTER_BUTTON_HIT_SLOP}>
                 <Text weight="medium" fontSize={12}>
-                  Forgot password?
+                  {t('Forgot Key Store passphrase?')}
                 </Text>
               </TouchableOpacity>
+              {biometricsEnabled && (
+                <>
+                  <Text weight="medium" fontSize={12}>
+                    {' | '}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={handleRetryBiometrics}
+                    hitSlop={FOOTER_BUTTON_HIT_SLOP}
+                  >
+                    <Text weight="medium" fontSize={12}>
+                      {t('Retry biometrics')}
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           </View>
         </Wrapper>

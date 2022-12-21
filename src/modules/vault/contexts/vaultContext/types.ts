@@ -1,18 +1,29 @@
+import { isWeb } from '@config/env'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import {
+  useVaultBiometricsDefaults,
+  UseVaultBiometricsReturnType
+} from '@modules/vault/hooks/useVaultBiometrics/types'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 
-export interface VaultContextReturnType {
+export interface VaultContextReturnType extends UseVaultBiometricsReturnType {
   vaultStatus: VAULT_STATUS
   createVault: ({
     password,
-    confirmPassword
+    confirmPassword,
+    optInForBiometricsUnlock,
+    nextRoute
   }: {
     password: string
     confirmPassword: string
-  }) => void
+    optInForBiometricsUnlock: boolean
+    nextRoute?: string
+  }) => Promise<any>
   resetVault: ({ password, confirmPassword }: { password: string; confirmPassword: string }) => void
-  unlockVault: ({ password }: { password: string }) => void
+  unlockVault: ({ password }: { password: string }) => Promise<any>
   lockVault: () => void
+  shouldLockWhenInactive: boolean
+  toggleShouldLockWhenInactive: (shouldLock: boolean) => void
   isValidPassword: ({ password }: { password: string }) => Promise<boolean>
   addToVault: ({ addr, item }: { addr: string; item: VaultItem }) => Promise<any>
   removeFromVault: ({ addr }: { addr: string }) => Promise<any>
@@ -49,10 +60,12 @@ export interface VaultContextReturnType {
 
 export const vaultContextDefaults: VaultContextReturnType = {
   vaultStatus: VAULT_STATUS.LOADING,
-  createVault: () => {},
+  createVault: () => Promise.resolve(),
   resetVault: () => {},
-  unlockVault: () => {},
+  unlockVault: () => Promise.resolve(false),
   lockVault: () => {},
+  shouldLockWhenInactive: !isWeb,
+  toggleShouldLockWhenInactive: () => {},
   isValidPassword: () => Promise.resolve(false),
   addToVault: () => Promise.resolve(false),
   removeFromVault: () => Promise.resolve(false),
@@ -61,5 +74,6 @@ export const vaultContextDefaults: VaultContextReturnType = {
   signTxnQuckAcc: () => Promise.resolve(false),
   signTxnExternalSigner: () => Promise.resolve(false),
   signMsgQuickAcc: () => Promise.resolve(false),
-  signMsgExternalSigner: () => Promise.resolve(false)
+  signMsgExternalSigner: () => Promise.resolve(false),
+  ...useVaultBiometricsDefaults
 }

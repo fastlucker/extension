@@ -80,7 +80,7 @@ const SignActions = ({ isLoading, approve, resolve, isDeployed, hasPrivileges }:
           <Button
             text={isLoading ? t('Signing...') : t('Sign')}
             onPress={approve}
-            disabled={isLoading || !isDeployed}
+            disabled={isLoading || !isDeployed || !hasPrivileges}
           />
         </View>
       </View>

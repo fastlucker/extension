@@ -1,0 +1,166 @@
+import { isValidPassword } from 'ambire-common/src/services/validations'
+import React, { useCallback } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { Image, Keyboard, TouchableWithoutFeedback, View } from 'react-native'
+
+import logo from '@assets/images/Ambire-Wallet-logo-colored-white-vertical.png'
+import KeyStoreIcon from '@assets/svg/KeyStoreIcon'
+import { isWeb } from '@config/env'
+import { useTranslation } from '@config/localization'
+import AnimatedArrows from '@modules/auth/components/AnimatedArrows'
+import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
+import useJsonLogin from '@modules/auth/hooks/useJsonLogin'
+import Button from '@modules/common/components/Button'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
+import InputPassword from '@modules/common/components/InputPassword'
+import Text from '@modules/common/components/Text'
+import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import useDisableNavigatingBack from '@modules/common/hooks/useDisableNavigatingBack'
+import spacings, { IS_SCREEN_SIZE_S } from '@modules/common/styles/spacings'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import { delayPromise } from '@modules/common/utils/promises'
+
+const AddAccountPasswordToVaultScreen = ({ navigation, route }: any) => {
+  const { t } = useTranslation()
+  const {
+    pendingLoginAccount: pendingEmailLoginAccount,
+    handleLogin: handleEmailLogin,
+    cancelLoginAttempts: cancelEmailLoginAttempts
+  } = useEmailLogin()
+  const {
+    handleLogin: handleJsonLogin,
+    data: pendingJsonLoginAccount,
+    cancelLoginAttempts: cancelJsonLoginAttempts
+  } = useJsonLogin()
+
+  const { loginType } = route.params
+
+  useDisableNavigatingBack(navigation)
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting }
+  } = useForm({
+    reValidateMode: 'onChange',
+    defaultValues: {
+      password: ''
+    }
+  })
+
+  const handleFormSubmit = useCallback(() => {
+    !isWeb && Keyboard.dismiss()
+
+    handleSubmit(async ({ password }) => {
+      // wait state update before Wallet calcs because
+      // when Wallet method is called on devices with slow CPU the UI freezes
+      await delayPromise(100)
+
+      loginType === 'email'
+        ? await handleEmailLogin({ password })
+        : await handleJsonLogin({ password })
+    })()
+  }, [handleSubmit, handleEmailLogin, handleJsonLogin, loginType])
+
+  const handleCancelLoginAttempts = useCallback(() => {
+    loginType === 'email' ? cancelEmailLoginAttempts() : cancelJsonLoginAttempts()
+    navigation.goBack()
+  }, [cancelEmailLoginAttempts, cancelJsonLoginAttempts, navigation, loginType])
+
+  return (
+    <GradientBackgroundWrapper>
+      <TouchableWithoutFeedback
+        onPress={() => {
+          !isWeb && Keyboard.dismiss()
+        }}
+      >
+        <Wrapper
+          contentContainerStyle={spacings.pbLg}
+          type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
+          extraHeight={220}
+        >
+          <View
+            style={[
+              flexboxStyles.directionRow,
+              flexboxStyles.justifyCenter,
+              flexboxStyles.alignCenter,
+              spacings.pv
+            ]}
+          >
+            <Image
+              source={logo}
+              style={{
+                height: IS_SCREEN_SIZE_S ? 96 : 136,
+                width: 120,
+                ...(isWeb ? { modalHeight: 120 } : {})
+              }}
+              resizeMode="contain"
+            />
+            <AnimatedArrows />
+            <KeyStoreIcon height={IS_SCREEN_SIZE_S ? 96 : 136} width={120} />
+          </View>
+
+          <View style={[isWeb && spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
+            <Text weight="regular" style={[spacings.mbMi, spacings.phTy]} fontSize={13}>
+              {t(
+                'When you add your account password to the Key Store, you will be able to sign transactions on this device using your passphrase only.'
+              )}
+            </Text>
+            <Text weight="regular" style={[spacings.mb, spacings.phTy]} fontSize={13}>
+              {t(
+                'If you reset your passphrase or remove the extension, the Key Store will be removed from the device, however you can still use your account password on any other device.'
+              )}
+            </Text>
+
+            <Controller
+              control={control}
+              rules={{ validate: isValidPassword }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <InputPassword
+                  onBlur={onBlur}
+                  placeholder={t('Ambire account password')}
+                  onChangeText={onChange}
+                  isValid={isValidPassword(value)}
+                  autoFocus={isWeb}
+                  disabled={isSubmitting}
+                  value={value}
+                  info={t('Enter the password for account {{accountAddr}}', {
+                    accountAddr: `${
+                      loginType === 'email'
+                        ? pendingEmailLoginAccount?._id?.slice(0, 4)
+                        : pendingJsonLoginAccount?.id?.slice(0, 4)
+                    }...${
+                      loginType === 'email'
+                        ? pendingEmailLoginAccount?._id?.slice(-4)
+                        : pendingJsonLoginAccount?.id?.slice(-4)
+                    }`
+                  })}
+                  error={
+                    errors.password &&
+                    (t('Please fill in at least 8 characters for password.') as string)
+                  }
+                  onSubmitEditing={handleFormSubmit}
+                />
+              )}
+              name="password"
+            />
+
+            <Button
+              disabled={isSubmitting || !watch('password', '')}
+              text={isSubmitting ? t('Adding to Key Store...') : t('Add password to Key Store')}
+              onPress={handleFormSubmit}
+            />
+
+            <Button
+              type="ghost"
+              text={t('Cancel Login Attempt')}
+              onPress={handleCancelLoginAttempts}
+            />
+          </View>
+        </Wrapper>
+      </TouchableWithoutFeedback>
+    </GradientBackgroundWrapper>
+  )
+}
+
+export default AddAccountPasswordToVaultScreen

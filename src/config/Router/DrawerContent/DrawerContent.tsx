@@ -29,11 +29,9 @@ import {
 } from '@react-navigation/drawer'
 
 import useGetSelectedRoute from '../hooks/useGetSelectedRoute'
-import AppLockButton from './AppLockButton'
-import BiometricsSignButton from './BiometricsSignButton'
 import ConnectedDapps from './ConnectedDapps'
 import GasIndicator from './GasIndicator'
-import ManageAppLockButton from './ManageAppLockButton'
+import ManageVaultLockButton from './ManageVaultLockButton'
 import styles from './styles'
 import Theme from './Theme'
 
@@ -160,9 +158,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         </Text>
         <View style={[spacings.mlTy, spacings.mbSm]}>
           <ConnectedDapps />
-          {!isWeb && <AppLockButton handleNavigate={handleNavigate} />}
-          {!isWeb && <ManageAppLockButton handleNavigate={handleNavigate} />}
-          {!isWeb && <BiometricsSignButton handleNavigate={handleNavigate} />}
+          {!isWeb && <ManageVaultLockButton handleNavigate={handleNavigate} />}
           <Theme />
           {settings.map((s) => (
             <TouchableOpacity key={s.name} onPress={() => handleNavigate(s.route)}>

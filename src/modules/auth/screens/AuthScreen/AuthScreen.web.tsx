@@ -9,8 +9,6 @@ import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
-import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
-import useVault from '@modules/vault/hooks/useVault'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 interface Props extends NativeStackScreenProps<any, 'auth'> {}
@@ -30,17 +28,8 @@ const AuthButton = ({ text, type = 'primary', routeName, onPress, disabled }: Bu
 
 const AuthScreen = ({ navigation }: Props) => {
   const { t } = useTranslation()
-  const { vaultStatus } = useVault()
 
-  const handleAuthButtonPress = (routeName: string) => {
-    if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED) {
-      navigation.navigate('createVault', {
-        nextRoute: routeName
-      })
-    } else {
-      navigation.navigate(routeName)
-    }
-  }
+  const handleAuthButtonPress = (routeName: string) => navigation.navigate(routeName)
 
   return (
     <GradientBackgroundWrapper>
@@ -49,7 +38,7 @@ const AuthScreen = ({ navigation }: Props) => {
         <View>
           <AuthButton
             text={t('Login With Email')}
-            routeName="emailLogin"
+            routeName="ambireAccountLogin"
             onPress={handleAuthButtonPress}
             hasBottomSpacing={false}
           />
@@ -66,7 +55,7 @@ const AuthScreen = ({ navigation }: Props) => {
           <AuthButton
             text={t('Import From JSON')}
             type="outline"
-            routeName="jsonLogin"
+            routeName="ambireAccountJsonLogin"
             onPress={handleAuthButtonPress}
           />
           <AuthButton

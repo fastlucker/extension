@@ -84,19 +84,6 @@ const SignActions = ({
     )
   }
 
-  if (willFail) {
-    return (
-      <Panel>
-        {renderTitle()}
-        {feeNote}
-        {rejectButton}
-      </Panel>
-    )
-  }
-  // TODO:
-  const isRecoveryMode =
-    signingStatus && signingStatus.finalBundle && signingStatus.finalBundle.recoveryMode
-
   const handleRequestSignConfirmation = () => approveTxn({})
 
   const handleFormSubmit = useCallback(() => {
@@ -109,6 +96,19 @@ const SignActions = ({
       await approveTxn({ code })
     })()
   }, [approveTxn, handleSubmit])
+
+  if (willFail) {
+    return (
+      <Panel>
+        {renderTitle()}
+        {feeNote}
+        {rejectButton}
+      </Panel>
+    )
+  }
+  // TODO:
+  const isRecoveryMode =
+    signingStatus && signingStatus.finalBundle && signingStatus.finalBundle.recoveryMode
 
   if (signingStatus && signingStatus.quickAcc) {
     return (

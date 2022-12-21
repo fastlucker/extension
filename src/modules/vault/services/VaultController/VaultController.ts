@@ -47,10 +47,10 @@ export default class VaultController {
     return new Promise((resolve, reject) => {
       if (!vault) {
         encrypt(password, JSON.stringify({}))
-          .then((blob: string) => {
-            this.storageController.setItem('vault', blob)
+          .then(async (blob: string) => {
             this.#password = password
             this.#memVault = {}
+            await this.storageController.setItemAsync('vault', blob)
             resolve(VAULT_STATUS.UNLOCKED)
           })
           .catch((err) => {
@@ -84,10 +84,10 @@ export default class VaultController {
 
     return new Promise((resolve, reject) => {
       encrypt(password, JSON.stringify({}))
-        .then((blob: string) => {
-          this.storageController.setItem('vault', blob)
+        .then(async (blob: string) => {
           this.#password = password
           this.#memVault = {}
+          await this.storageController.setItemAsync('vault', blob)
           resolve(VAULT_STATUS.UNLOCKED)
         })
         .catch((err) => {
@@ -102,10 +102,10 @@ export default class VaultController {
 
     return new Promise((resolve, reject) => {
       if (password === this.#password) {
-        encrypt(newPassword, JSON.stringify({}))
-          .then((blob: string) => {
-            this.storageController.setItem('vault', blob)
+        encrypt(newPassword, JSON.stringify(this.#memVault))
+          .then(async (blob: string) => {
             this.#password = newPassword
+            await this.storageController.setItemAsync('vault', blob)
             resolve(VAULT_STATUS.UNLOCKED)
           })
           .catch((err) => {
@@ -153,9 +153,9 @@ export default class VaultController {
 
     return new Promise((resolve, reject) => {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
-        .then((blob: string) => {
-          this.storageController.setItem('vault', blob)
+        .then(async (blob: string) => {
           this.#memVault = updatedVault
+          await this.storageController.setItemAsync('vault', blob)
           resolve(true)
         })
         .catch((err) => {
@@ -172,9 +172,9 @@ export default class VaultController {
 
     return new Promise((resolve, reject) => {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
-        .then((blob: string) => {
-          this.storageController.setItem('vault', blob)
+        .then(async (blob: string) => {
           this.#memVault = updatedVault
+          await this.storageController.setItemAsync('vault', blob)
           resolve(true)
         })
         .catch((err) => {
@@ -193,7 +193,6 @@ export default class VaultController {
   getSignerType({ addr }: { addr: string }) {
     if (!this.#memVault) throw new Error('Vault not initialized')
     const vaultItem = this.#memVault[addr]
-
     if (!vaultItem) throw new Error('Signer not found')
 
     return Promise.resolve(vaultItem.type)

@@ -3,9 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
 import LogOutIcon from '@assets/svg/LogOutIcon'
-import useAppLock from '@modules/app-lock/hooks/useAppLock'
-import useExternalSigners from '@modules/auth/hooks/useExternalSignerLogin'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Blockies from '@modules/common/components/Blockies'
 import Button from '@modules/common/components/Button'
 import CopyText from '@modules/common/components/CopyText'
@@ -37,9 +34,7 @@ interface Props {
 const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { t } = useTranslation()
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
-  const { removeSelectedAccPassword } = useBiometricsSign()
-  const { removeAppLock } = useAppLock()
-  const { removeFromVault, isSignerAddedToVault } = useVault()
+  const { removeFromVault } = useVault()
 
   const handleChangeAccount = (accountId: any) => {
     closeBottomSheet()
@@ -56,17 +51,6 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     const onChangeAccount = () => handleChangeAccount(account.id)
 
     const removeAccount = async () => {
-      // Remove account password, because it gets persisted in the iOS Keychain
-      // or in the Android Keystore.
-      await removeSelectedAccPassword(account.id)
-
-      // In case this account is the only one logged in,
-      // clean up the app passcode too.
-      const isLastAccount = accounts.length === 1
-      if (isLastAccount) {
-        removeAppLock(account.id)
-      }
-
       // Remove the external singer encrypted records, if needed.
       const allOtherAccounts = accounts.filter((acc) => acc.id !== account.id)
       const noOtherAccountsHaveTheSameExternalSigner = !allOtherAccounts.some(
