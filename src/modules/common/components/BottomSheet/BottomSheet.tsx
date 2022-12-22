@@ -1,7 +1,7 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { BackHandler, View } from 'react-native'
 import { Modalize, ModalizeProps } from 'react-native-modalize'
 
 import { isWeb } from '@config/env'
@@ -55,6 +55,25 @@ const BottomSheet: React.FC<Props> = ({
       }, ANIMATION_DURATION)
     }
   }, [isOpen, prevIsOpen])
+
+  // Hook up the back button (or action) to close the bottom sheet
+  useEffect(() => {
+    if (!isOpen) return
+
+    const backAction = () => {
+      if (isOpen) {
+        closeBottomSheet()
+        // Returning true prevents execution of the default native back handling
+        return true
+      }
+
+      return false
+    }
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction)
+
+    return () => backHandler.remove()
+  }, [closeBottomSheet, isOpen])
 
   return (
     <Portal hostName="global">
