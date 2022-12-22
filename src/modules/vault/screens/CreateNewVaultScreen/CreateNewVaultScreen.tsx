@@ -12,6 +12,8 @@ import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Toggle from '@modules/common/components/Toggle'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import { DEVICE_SECURITY_LEVEL } from '@modules/common/contexts/biometricsContext/constants'
+import useBiometrics from '@modules/common/hooks/useBiometrics'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -21,19 +23,19 @@ import useVault from '@modules/vault/hooks/useVault'
 const CreateNewVaultScreen = ({ route }: any) => {
   const { t } = useTranslation()
   const { createVault } = useVault()
-
+  const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const {
     control,
     handleSubmit,
     watch,
-
     formState: { errors, isSubmitting }
   } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
       password: '',
       confirmPassword: '',
-      optInForBiometricsUnlock: !isWeb,
+      optInForBiometricsUnlock:
+        !isWeb && hasBiometricsHardware && deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC,
       nextRoute: route.params?.nextRoute || 'auth'
     }
   })
@@ -105,17 +107,19 @@ const CreateNewVaultScreen = ({ route }: any) => {
               )}
               name="confirmPassword"
             />
-            {!isWeb && (
-              <View style={[spacings.mbLg, flexboxStyles.alignEnd]}>
-                <Controller
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <Toggle isOn={value} label={t('Biometrics unlock?')} onToggle={onChange} />
-                  )}
-                  name="optInForBiometricsUnlock"
-                />
-              </View>
-            )}
+            {!isWeb &&
+              hasBiometricsHardware &&
+              deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC && (
+                <View style={[spacings.mbLg, flexboxStyles.alignEnd]}>
+                  <Controller
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <Toggle isOn={value} label={t('Biometrics unlock?')} onToggle={onChange} />
+                    )}
+                    name="optInForBiometricsUnlock"
+                  />
+                </View>
+              )}
 
             <Button
               disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
