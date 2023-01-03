@@ -53,7 +53,9 @@ target 'ambire' do
   #   ┌─ libFlipper-Folly.a(Conv.o)
   #   └─ libRCT-Folly.a(Conv.o)
   # {@link https://github.com/facebook/react-native/issues/32016#issuecomment-979897732}
-  use_flipper!("Flipper" => "0.159.0", "Flipper-DoubleConversion" => "1.1.7")
+  if !ENV['CI']
+    use_flipper!("Flipper" => "0.159.0", "Flipper-DoubleConversion" => "1.1.7")
+  end
 
   post_install do |installer|
     react_native_post_install(installer)
