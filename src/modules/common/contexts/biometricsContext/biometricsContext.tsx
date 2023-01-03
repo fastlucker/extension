@@ -3,7 +3,6 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import { Platform } from 'react-native'
 
 import i18n, { useTranslation } from '@config/localization/localization'
-import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useToast from '@modules/common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@modules/common/services/device'
@@ -35,10 +34,6 @@ const BiometricsProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     ;(async () => {
-      // App lock and biometrics sign logic gets triggered
-      // only for logged in users. So if not logged in - no need to trigger.
-      if (authStatus !== AUTH_STATUS.AUTHENTICATED) return
-
       try {
         const hasHardware = await LocalAuthentication.hasHardwareAsync()
         setHasBiometricsHardware(hasHardware)
