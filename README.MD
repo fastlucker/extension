@@ -141,12 +141,6 @@ For webkit browsers (tested on Chrome only):
 yarn build:web:webkit
 ```
 
-For making a build for the Chrome Web Store:
-
-```bash
-yarn build:web:webkit:chrome-web-store
-```
-
 For gecko browsers (tested on Firefox only):
 
 ```bash
