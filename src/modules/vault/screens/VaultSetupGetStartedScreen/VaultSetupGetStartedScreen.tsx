@@ -26,7 +26,9 @@ const VaultSetupGetStartedScreen = ({ navigation }: any) => {
         <View style={[isWeb && spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
           <View style={[spacings.mbLg, spacings.phTy]}>
             <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={13}>
-              {t('Welcome to the Ambire Wallet extension. Let’s set up your Key Store passphrase.')}
+              {t('Welcome to the {{name}}. Let’s set up your Key Store passphrase.', {
+                name: isWeb ? t('Ambire Wallet extension') : t('Ambire Wallet')
+              })}
             </Text>
             <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={13}>
               {t(
@@ -40,7 +42,8 @@ const VaultSetupGetStartedScreen = ({ navigation }: any) => {
             </Text>
             <Text weight="light" color={colors.titan} fontSize={13}>
               {t(
-                '3.  You will use your passphrase to unlock the Ambire extension and sign transactions on this device.'
+                '3.  You will use your passphrase to unlock the {{name}} and sign transactions on this device.',
+                { name: isWeb ? t('Ambire extension') : t('Ambire Wallet') }
               )}
             </Text>
           </View>
