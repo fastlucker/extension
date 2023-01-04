@@ -1,13 +1,10 @@
-import { initRpcProviders } from 'ambire-common/src/services/provider'
-import React, { useEffect, useState } from 'react'
+import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
+import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import Router from '@config/Router'
-import { hasMigratedFromAsyncStorage, migrateFromAsyncStorage } from '@config/storage'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
-import { AppLockProvider } from '@modules/app-lock/contexts/appLockContext'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
-import { BiometricsSignProvider } from '@modules/biometrics-sign/contexts/biometricsSignContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
 import { AccountsProvider } from '@modules/common/contexts/accountsContext'
 import { AddressBookProvider } from '@modules/common/contexts/addressBookContext'
@@ -25,57 +22,47 @@ import { NetworkProvider } from '@modules/common/contexts/networkContext'
 import { PortfolioProvider } from '@modules/common/contexts/portfolioContext'
 import { PrivateModeProvider } from '@modules/common/contexts/privateModeContext'
 import { RequestsProvider } from '@modules/common/contexts/requestsContext'
+import { StorageProvider } from '@modules/common/contexts/storageContext'
 import { ThemeProvider } from '@modules/common/contexts/themeContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
 import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/unsupportedDAppsBottomSheetContext'
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 import useFonts from '@modules/common/hooks/useFonts'
 import { rpcProviders } from '@modules/common/services/providers'
+import { VaultProvider } from '@modules/vault/contexts/vaultContext'
 
 // Initialize rpc providers for all networks
-initRpcProviders(rpcProviders)
+const shouldInitProviders = !areRpcProvidersInitialized()
+if (shouldInitProviders) {
+  initRpcProviders(rpcProviders)
+}
 
 const AppLoading = () => {
-  // TODO: Remove `hasMigratedFromAsyncStorage` after a while (when everyone has migrated)
-  const [hasMigrated, setHasMigrated] = useState(hasMigratedFromAsyncStorage)
   const { fontsLoaded } = useFonts()
 
-  useEffect(() => {
-    ;(async () => {
-      if (!hasMigratedFromAsyncStorage) {
-        try {
-          await migrateFromAsyncStorage()
-          setHasMigrated(true)
-        } catch (e) {
-          throw new Error('AsyncStorage migration failed!')
-        }
-      }
-    })()
-  }, [])
-
-  if (!fontsLoaded || !hasMigrated) return null
+  if (!fontsLoaded) return null
 
   return (
     <PortalProvider>
       <LoaderProvider>
-        <ThemeProvider>
-          <SafeAreaProvider>
-            <KeyboardProvider>
-              <NetInfoProvider>
-                <ToastProvider>
-                  <ConstantsProvider>
-                    <AuthProvider>
-                      <AccountsProvider>
-                        <NetworkProvider>
-                          <PortfolioProvider>
-                            <GnosisProvider>
-                              <WalletConnectProvider>
-                                <AmbireExtensionProvider>
-                                  <RequestsProvider>
-                                    <AddressBookProvider>
+        <StorageProvider>
+          <ThemeProvider>
+            <SafeAreaProvider>
+              <KeyboardProvider>
+                <NetInfoProvider>
+                  <ToastProvider>
+                    <ConstantsProvider>
+                      <AuthProvider>
+                        <AccountsProvider>
+                          <NetworkProvider>
+                            <PortfolioProvider>
+                              <GnosisProvider>
+                                <WalletConnectProvider>
+                                  <AmbireExtensionProvider>
+                                    <RequestsProvider>
                                       <BiometricsProvider>
-                                        <BiometricsSignProvider>
-                                          <AppLockProvider>
+                                        <VaultProvider>
+                                          <AddressBookProvider>
                                             <AttentionGrabberProvider>
                                               <PrivateModeProvider>
                                                 <GasTankProvider>
@@ -90,24 +77,24 @@ const AppLoading = () => {
                                               </PrivateModeProvider>
                                             </AttentionGrabberProvider>
                                             <PortalHost name="global" />
-                                          </AppLockProvider>
-                                        </BiometricsSignProvider>
+                                          </AddressBookProvider>
+                                        </VaultProvider>
                                       </BiometricsProvider>
-                                    </AddressBookProvider>
-                                  </RequestsProvider>
-                                </AmbireExtensionProvider>
-                              </WalletConnectProvider>
-                            </GnosisProvider>
-                          </PortfolioProvider>
-                        </NetworkProvider>
-                      </AccountsProvider>
-                    </AuthProvider>
-                  </ConstantsProvider>
-                </ToastProvider>
-              </NetInfoProvider>
-            </KeyboardProvider>
-          </SafeAreaProvider>
-        </ThemeProvider>
+                                    </RequestsProvider>
+                                  </AmbireExtensionProvider>
+                                </WalletConnectProvider>
+                              </GnosisProvider>
+                            </PortfolioProvider>
+                          </NetworkProvider>
+                        </AccountsProvider>
+                      </AuthProvider>
+                    </ConstantsProvider>
+                  </ToastProvider>
+                </NetInfoProvider>
+              </KeyboardProvider>
+            </SafeAreaProvider>
+          </ThemeProvider>
+        </StorageProvider>
       </LoaderProvider>
     </PortalProvider>
   )

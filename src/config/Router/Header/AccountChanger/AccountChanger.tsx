@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
 import LogOutIcon from '@assets/svg/LogOutIcon'
-import useAppLock from '@modules/app-lock/hooks/useAppLock'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Blockies from '@modules/common/components/Blockies'
 import Button from '@modules/common/components/Button'
 import CopyText from '@modules/common/components/CopyText'
@@ -18,7 +16,7 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
+import useVault from '@modules/vault/hooks/useVault'
 
 import styles from './styles'
 
@@ -36,9 +34,7 @@ interface Props {
 const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { t } = useTranslation()
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
-  const { removeSelectedAccPassword } = useBiometricsSign()
-  const { removeAppLock } = useAppLock()
-  const { removeExternalSigner, externalSigners } = useExternalSigners()
+  const { removeFromVault } = useVault()
 
   const handleChangeAccount = (accountId: any) => {
     closeBottomSheet()
@@ -55,29 +51,23 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     const onChangeAccount = () => handleChangeAccount(account.id)
 
     const removeAccount = async () => {
-      // Remove account password, because it gets persisted in the iOS Keychain
-      // or in the Android Keystore.
-      await removeSelectedAccPassword(account.id)
-
-      // In case this account is the only one logged in,
-      // clean up the app passcode too.
-      const isLastAccount = accounts.length === 1
-      if (isLastAccount) {
-        removeAppLock(account.id)
-      }
-
       // Remove the external singer encrypted records, if needed.
-      const accountHasExternalSigner = !!externalSigners[account.signer?.address]
       const allOtherAccounts = accounts.filter((acc) => acc.id !== account.id)
       const noOtherAccountsHaveTheSameExternalSigner = !allOtherAccounts.some(
-        (acc) => !!externalSigners[acc.signer?.address]
+        (acc) =>
+          (acc?.signer?.address || acc?.signer?.one) ===
+          (account?.signer?.address || account?.signer?.one)
       )
-      if (accountHasExternalSigner && noOtherAccountsHaveTheSameExternalSigner) {
-        removeExternalSigner(account.signer?.address)
-      }
 
-      onRemoveAccount(account.id)
-      closeBottomSheet()
+      if (noOtherAccountsHaveTheSameExternalSigner) {
+        removeFromVault({ addr: account.signer?.address || account.signer?.one }).then(() => {
+          onRemoveAccount(account.id)
+          closeBottomSheet()
+        })
+      } else {
+        onRemoveAccount(account.id)
+        closeBottomSheet()
+      }
     }
 
     const handleRemoveAccount = () => {

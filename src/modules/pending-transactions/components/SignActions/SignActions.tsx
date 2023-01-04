@@ -1,26 +1,24 @@
 import { isTokenEligible } from 'ambire-common/src/helpers/sendTxnHelpers'
-import { isValidCode, isValidPassword } from 'ambire-common/src/services/validations'
-import React, { useEffect } from 'react'
+import { isValidCode } from 'ambire-common/src/services/validations'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { InteractionManager, Keyboard, View } from 'react-native'
+import { Keyboard, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
 import { isWeb } from '@config/env'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import InputConfirmationCode from '@modules/common/components/InputConfirmationCode'
-import InputPassword from '@modules/common/components/InputPassword'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
-import useToast from '@modules/common/hooks/useToast'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import isInt from '@modules/common/utils/isInt'
+import { delayPromise } from '@modules/common/utils/promises'
 
 import styles from './styles'
 
@@ -42,18 +40,14 @@ const SignActions = ({
     handleSubmit,
     resetField,
     watch,
-    formState: { errors }
+    formState: { errors, isSubmitting }
   } = useForm({
-    mode: 'onSubmit',
-    reValidateMode: 'onSubmit',
+    mode: 'onChange',
     defaultValues: {
-      code: '',
-      password: ''
+      code: ''
     }
   })
   const { t } = useTranslation()
-  const { selectedAccHasPassword, getSelectedAccPassword } = useBiometricsSign()
-  const { addToast } = useToast()
 
   // reset this every time the signing status changes
   useEffect(() => {
@@ -90,6 +84,19 @@ const SignActions = ({
     )
   }
 
+  const handleRequestSignConfirmation = () => approveTxn({})
+
+  const handleFormSubmit = useCallback(() => {
+    !isWeb && Keyboard.dismiss()
+
+    handleSubmit(async ({ code }: any) => {
+      // wait state update before Wallet calcs because
+      // when Wallet method is called on devices with slow CPU the UI freezes
+      await delayPromise(100)
+      await approveTxn({ code })
+    })()
+  }, [approveTxn, handleSubmit])
+
   if (willFail) {
     return (
       <Panel>
@@ -99,29 +106,9 @@ const SignActions = ({
       </Panel>
     )
   }
-
+  // TODO:
   const isRecoveryMode =
     signingStatus && signingStatus.finalBundle && signingStatus.finalBundle.recoveryMode
-
-  const handleRequestSignConfirmation = () => approveTxn({})
-
-  const onSubmit = async (values: { code: string; password: string }) => {
-    InteractionManager.runAfterInteractions(async () => {
-      if (!selectedAccHasPassword) {
-        return approveTxn({ quickAccCredentials: values })
-      }
-
-      try {
-        const password = await getSelectedAccPassword()
-
-        return approveTxn({
-          quickAccCredentials: { code: values.code, password }
-        })
-      } catch (e) {
-        addToast(t('Failed to confirm your identity.') as string, { error: true })
-      }
-    })
-  }
 
   if (signingStatus && signingStatus.quickAcc) {
     return (
@@ -130,11 +117,7 @@ const SignActions = ({
         {feeNote}
         <View>
           {signingStatus.confCodeRequired === 'otp' && (
-            <Text style={spacings.mbSm}>
-              {selectedAccHasPassword
-                ? t('Please enter your OTP code.')
-                : t('Please enter your OTP code and your password.')}
-            </Text>
+            <Text style={spacings.mbSm}>{t('Please enter your OTP code.')}</Text>
           )}
           {signingStatus.confCodeRequired === 'notRequired' && (
             <Text style={spacings.mbSm} fontSize={12} color={colors.turquoise}>
@@ -143,35 +126,12 @@ const SignActions = ({
               )}
             </Text>
           )}
-          {signingStatus.confCodeRequired === 'notRequired' && !selectedAccHasPassword && (
-            <Text style={spacings.mbSm}>{t('Please enter your password.')}</Text>
-          )}
           {signingStatus.confCodeRequired === 'email' && (
             <Text style={spacings.mbSm} weight="medium">
-              {t(
-                'A confirmation code was sent to your email, please enter it along with your password.'
-              )}
+              {t('A confirmation code was sent to your email.')}
             </Text>
           )}
         </View>
-        {!isRecoveryMode && !selectedAccHasPassword && (
-          <Controller
-            control={control}
-            rules={{ validate: isValidPassword }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <InputPassword
-                placeholder={t('Password')}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                disabled={signingStatus.inProgress}
-                containerStyle={signingStatus.confCodeRequired !== 'notRequired' && spacings.mbTy}
-                error={errors.password && (t('Please fill in a valid password.') as string)}
-              />
-            )}
-            name="password"
-          />
-        )}
         {signingStatus.confCodeRequired !== 'notRequired' && (
           <Controller
             control={control}
@@ -184,7 +144,6 @@ const SignActions = ({
                 disabled={signingStatus.inProgress}
                 isValid={isValidCode(value)}
                 value={value}
-                autoFocus={selectedAccHasPassword && !isWeb}
                 error={errors.code && (t('Invalid confirmation code.') as string)}
               />
             )}
@@ -195,19 +154,12 @@ const SignActions = ({
           <View style={styles.buttonWrapper}>{rejectButton}</View>
           <View style={styles.buttonWrapper}>
             <Button
-              text={signingStatus.inProgress ? t('Confirming...') : t('Confirm')}
+              text={isSubmitting ? t('Confirming...') : t('Confirm')}
               disabled={
-                signingStatus.inProgress ||
-                (!selectedAccHasPassword && !watch('password', '')) ||
+                isSubmitting ||
                 (signingStatus.confCodeRequired !== 'notRequired' && !watch('code', ''))
               }
-              onPress={() => {
-                Keyboard.dismiss()
-                // Needed because of the async animation of the keyboard aware scroll view after keyboard dismiss
-                setTimeout(() => {
-                  handleSubmit(onSubmit)()
-                }, 100)
-              }}
+              onPress={handleFormSubmit}
             />
           </View>
         </View>

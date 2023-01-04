@@ -12,15 +12,12 @@ import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
-import useAccounts from '@modules/common/hooks/useAccounts'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
-import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import ManifestImage from '@modules/extension/components/ManifestImage'
-import { browserAPI } from '@web/constants/browserAPI'
 import { BACKGROUND } from '@web/constants/paths'
 import { sendMessage } from '@web/services/ambexMessanger'
 
@@ -28,8 +25,7 @@ import styles from './styles'
 
 const PermissionRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const { selectedAcc: selectedAccount } = useAccounts()
-  const { network } = useNetwork()
+
   const { params } = useAmbireExtension()
   const { authStatus } = useAuth()
 
@@ -53,27 +49,22 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   const [isQueueDisplayed, setIsQueueDisplayed] = useState(false)
 
   const handlePermission = (permitted: boolean) => {
-    if (browserAPI && sendMessage) {
-      browserAPI?.storage?.local?.set(
-        { SELECTED_ACCOUNT: selectedAccount, NETWORK: network },
-        () => {
-          sendMessage({
-            type: 'grantPermission',
-            to: BACKGROUND,
-            data: {
-              permitted,
-              targetHost
-            }
-          })
-            .then(() => {
-              setFeedback({ success: true, permitted })
-            })
-            .catch(() => {
-              // TODO: should not happen but in case, implement something nicer for the user?
-              setFeedback({ success: false, permitted })
-            })
+    if (sendMessage) {
+      sendMessage({
+        type: 'grantPermission',
+        to: BACKGROUND,
+        data: {
+          permitted,
+          targetHost
         }
-      )
+      })
+        .then(() => {
+          setFeedback({ success: true, permitted })
+        })
+        .catch(() => {
+          // TODO: should not happen but in case, implement something nicer for the user?
+          setFeedback({ success: false, permitted })
+        })
     }
   }
 

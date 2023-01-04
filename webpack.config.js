@@ -1,11 +1,21 @@
+// The 'react-native-dotenv' package doesn't work in the NodeJS context (and
+// with commonjs imports), so alternatively, use 'dotend' package to load the
+// environment variables from the .env file.
+require('dotenv').config()
+
 const createExpoWebpackConfigAsync = require('@expo/webpack-config')
 const fs = require('fs')
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const { ExpoHtmlWebpackPlugin } = require('@expo/webpack-config/plugins/index')
-const nodeHtmlParser = require('node-html-parser')
-const fsExtra = require('fs-extra')
 const expoEnv = require('@expo/webpack-config/env')
+// Ignore adding the following packages to the dependencies list,
+// because they are already included in the expo package deps.
+// eslint-disable-next-line import/no-extraneous-dependencies
+const nodeHtmlParser = require('node-html-parser')
+// eslint-disable-next-line import/no-extraneous-dependencies
+const fsExtra = require('fs-extra')
+const webpack = require('webpack')
 const appJSON = require('./app.json')
 
 // Overrides the default generatedScriptTags
@@ -24,11 +34,44 @@ module.exports = async function (env, argv) {
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
 
+    // Directives to disallow a set of script-related privileges for a
+    // specific page. They prevent the browser extension being embedded or
+    // loaded as an <iframe /> in a potentially malicious website(s).
+    //   1. The "script-src" directive specifies valid sources for JavaScript.
+    //   This includes not only URLs loaded directly into <script> elements,
+    //   but also things like inline script event handlers (onclick) and XSLT
+    //   stylesheets which can trigger script execution. Must include at least
+    //   the 'self' keyword and may only contain secure sources.
+    //   2. The "object-src" directive may be required in some browsers that
+    //   support obsolete plugins and should be set to a secure source such as
+    //   'none' when needed. This may be necessary for browsers up until 2022.
+    //   3. The "frame-ancestors" directive specifies valid parents that may
+    //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
+    // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
+    // {@link https://web.dev/csp/}
+    const csp = "script-src 'self'; object-src 'self'; frame-ancestors 'none';"
+
+    if (process.env.WEB_ENGINE === 'webkit') {
+      manifest.content_security_policy = { extension_pages: csp }
+      // This value can be used to control the unique ID of an extension,
+      // when it is loaded during development. In prod, the ID is generated
+      // in Chrome Web Store and can't be changed.
+      // {@link https://developer.chrome.com/extensions/manifest/key}
+      // TODO: Figure out if this works for gecko
+      manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
+    }
+
     // Tweak manifest file, so it's compatible with gecko extensions specifics
     if (process.env.WEB_ENGINE === 'gecko') {
       manifest.manifest_version = 2
       manifest.background = {
         scripts: ['background.js']
+      }
+      manifest.browser_specific_settings = {
+        gecko: {
+          id: 'webextension@ambire.com',
+          strict_min_version: '68.0'
+        }
       }
       manifest.web_accessible_resources = ['*']
       manifest.host_permissions = undefined
@@ -37,6 +80,7 @@ module.exports = async function (env, argv) {
       manifest.externally_connectable = undefined
       manifest.permissions.splice(manifest.permissions.indexOf('scripting'), 1)
       manifest.permissions.push('<all_urls>')
+      manifest.content_security_policy = csp
     }
 
     const manifestJSON = JSON.stringify(manifest, null, 2)
@@ -138,6 +182,10 @@ module.exports = async function (env, argv) {
 
     config.plugins = [
       ...config.plugins,
+      // Buffer polyfill, used by web3
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer']
+      }),
       // Overrides ExpoCopyPlugin
       new CopyPlugin({
         patterns: [

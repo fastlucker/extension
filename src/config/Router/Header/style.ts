@@ -25,7 +25,7 @@ const styles = StyleSheet.create<Styles>({
     backgroundColor: colors.wooed,
     alignItems: 'center',
     paddingHorizontal: 20,
-    ...(isWeb ? { maxHeight: 80 } : {})
+    ...(isWeb ? { height: 80 } : {})
   },
   navIconContainerRegular: {
     width: 40,
@@ -40,7 +40,8 @@ const styles = StyleSheet.create<Styles>({
     flex: 1,
     // So it is vertically aligned well with the nav buttons,
     // even when there are none.
-    paddingVertical: 7
+    paddingVertical: 7,
+    paddingHorizontal: 10
   },
   switcherContainer: {
     backgroundColor: colors.valhalla,

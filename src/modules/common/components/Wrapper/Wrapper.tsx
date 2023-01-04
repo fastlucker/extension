@@ -103,7 +103,10 @@ const Wrapper = ({
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
         alwaysBounceVertical={false}
-        enableOnAndroid
+        // Glitchy on Android, even without `extraScrollHeight` and
+        // `extraHeight` props set.
+        // TODO: Find a better package, that supports Android better.
+        enableOnAndroid={false}
         keyboardOpeningTime={100}
         extraScrollHeight={hasBottomTabNav ? -TAB_BAR_HEIGHT : 0}
         // Adds extra offset between the keyboard and the focused input

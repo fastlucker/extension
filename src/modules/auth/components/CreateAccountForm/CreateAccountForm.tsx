@@ -5,9 +5,10 @@ import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
 import { LayoutAnimation, Linking, View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import { ambireCloudURL, termsAndPrivacyURL } from '@modules/auth/constants/URLs'
-import useAddNewAccount from '@modules/auth/hooks/useAddNewAccount'
+import useCreateAccount from '@modules/auth/hooks/useCreateAccount'
 import Button from '@modules/common/components/Button'
 import Checkbox from '@modules/common/components/Checkbox'
 import Input from '@modules/common/components/Input'
@@ -20,7 +21,7 @@ const days = Math.ceil(accountPresets.quickAccTimelock / 86400)
 
 const AddNewAccountScreen = () => {
   const { t } = useTranslation()
-  const { handleAddNewAccount, err, addAccErr } = useAddNewAccount()
+  const { handleAddNewAccount, err, addAccErr } = useCreateAccount()
   const {
     control,
     handleSubmit,
@@ -53,6 +54,7 @@ const AddNewAccountScreen = () => {
             placeholder={t('Email')}
             onChangeText={onChange}
             value={value}
+            autoFocus={isWeb}
             isValid={isEmail(value)}
             error={errors.email && (t('Please fill in a valid email.') as string)}
             keyboardType="email-address"

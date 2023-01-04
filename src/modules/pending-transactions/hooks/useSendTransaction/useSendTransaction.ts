@@ -4,30 +4,27 @@ import accountPresets from 'ambire-common/src/constants/accountPresets'
 import { getFeesData, isTokenEligible, toHexAmount } from 'ambire-common/src/helpers/sendTxnHelpers'
 import { getProvider } from 'ambire-common/src/services/provider'
 import { toBundleTxn } from 'ambire-common/src/services/requestToBundleTxn'
-import { ethers, Wallet } from 'ethers'
+import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import CONFIG from '@config/env'
-import i18n, { useTranslation } from '@config/localization/localization'
-import { SyncStorage } from '@config/storage'
-import useBiometricsSign from '@modules/biometrics-sign/hooks/useBiometricsSign'
+import i18n from '@config/localization/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
-import alert from '@modules/common/services/alert'
 import { fetchPost } from '@modules/common/services/fetch'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import isInt from '@modules/common/utils/isInt'
-import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
+import useVault from '@modules/vault/hooks/useVault'
+import { SIGNER_TYPES } from '@modules/vault/services/VaultController/types'
 import { errorCodes, errorValues } from '@web/constants/errors'
 
 type Props = {
   hardwareWalletOpenBottomSheet: () => void
-  externalSignerOpenBottomSheet: () => void
 }
 
 const relayerURL = CONFIG.RELAYER_URL
@@ -119,15 +116,10 @@ function getErrorMessage(e: any) {
   return (e && e?.message) || e
 }
 
-const useSendTransaction = ({
-  hardwareWalletOpenBottomSheet,
-  externalSignerOpenBottomSheet
-}: Props) => {
-  const { t } = useTranslation()
+const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
   const [estimation, setEstimation] = useState<any>(null)
   const [signingStatus, setSigningStatus] = useState<any>(false)
   const [feeSpeed, setFeeSpeed] = useState<any>(DEFAULT_SPEED)
-  const { selectedAccHasPassword, getSelectedAccPassword } = useBiometricsSign()
 
   const { addToast } = useToast()
   const { network }: any = useNetwork()
@@ -135,8 +127,8 @@ const useSendTransaction = ({
   const { currentAccGasTankState } = useGasTank()
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
+  const { signTxnQuckAcc, signTxnExternalSigner, getSignerType } = useVault()
 
-  const { decryptExternalSigner, externalSigners } = useExternalSigners()
   const [replaceTx, setReplaceTx] = useState(!!sendTxnState.replaceByDefault)
 
   const bundle = useMemo(
@@ -360,46 +352,26 @@ const useSendTransaction = ({
     })
   }, [bundle, estimation, feeSpeed, network, currentAccGasTankState.isEnabled, replaceTx])
 
-  const approveTxnImplExternalSigner = async ({ externalSignerCredentials }: any) => {
+  const approveTxnImplExternalSigner = async () => {
     if (!estimation) throw new Error('no estimation: should never happen')
 
     const finalBundle = getFinalBundle()
-    const provider = getProvider(network.id)
-    const signer = finalBundle.signer
-
     // a bit redundant cause we already called it at the beginning of approveTxn, but
     // we need to freeze finalBundle in the UI in case signing takes a long time (currently only to freeze the fee selector)
     setSigningStatus({ inProgress: true, finalBundle })
 
-    const privateKey: any = await decryptExternalSigner({
-      signerPublicAddr: signer.address,
-      password: externalSignerCredentials.password
-    })
-    if (!privateKey) throw new Error('Invalid signer password - signer decryption failed')
-
-    const wallet = new Wallet(privateKey)
-
-    if (relayerURL) {
-      // Temporary way of debugging the fee cost
-      // const initialLimit = finalBundle.gasLimit - getFeePaymentConsequences(estimation.selectedFeeToken, estimation).addedGas
-      // finalBundle.estimate({ relayerURL, fetch }).then(estimation => console.log('fee costs: ', estimation.gasLimit - initialLimit), estimation.selectedFeeToken).catch(console.error)
-      await finalBundle.sign(wallet)
-      // eslint-disable-next-line @typescript-eslint/return-await
-      return await finalBundle.submit({ relayerURL, fetch })
-    }
-    // eslint-disable-next-line @typescript-eslint/return-await
-    return await sendNoRelayer({
+    const res = await signTxnExternalSigner({
       finalBundle,
-      account,
-      network,
-      wallet,
-      estimation,
       feeSpeed,
-      provider
+      estimation,
+      account,
+      network
     })
+
+    return res
   }
 
-  const approveTxnImpl = async (device: any) => {
+  const approveTxnImplHW = async ({ device }: { device: any }) => {
     if (!estimation) throw new Error('no estimation: should never happen')
 
     const finalBundle = getFinalBundle()
@@ -443,7 +415,7 @@ const useSendTransaction = ({
     })
   }
 
-  const approveTxnImplQuickAcc = async ({ quickAccCredentials }: any) => {
+  const approveTxnImplQuickAcc = async ({ code }: { code?: string }) => {
     if (!estimation) throw new Error('no estimation: should never happen')
     if (!relayerURL)
       throw new Error('Email/Password account signing without the relayer is not supported yet')
@@ -460,7 +432,7 @@ const useSendTransaction = ({
         txns: finalBundle.txns,
         nonce: finalBundle.nonce,
         gasLimit: finalBundle.gasLimit,
-        ...(!canSkip2FA && { code: quickAccCredentials && quickAccCredentials.code }),
+        ...(!canSkip2FA && { code }),
         // This can be a boolean but it can also contain the new signer/primaryKeyBackup, which instructs /second-key to update acc upon successful signature
         recoveryMode: finalBundle.recoveryMode,
         canSkip2FA
@@ -475,7 +447,11 @@ const useSendTransaction = ({
       throw new Error(`Secondary key error: ${message}`)
     }
     if (confCodeRequired) {
-      setSigningStatus({ quickAcc: true, finalBundle, confCodeRequired })
+      setSigningStatus({
+        quickAcc: true,
+        finalBundle,
+        confCodeRequired
+      })
     } else {
       if (!signature) throw new Error('QuickAcc internal error: there should be a signature')
       if (!account.primaryKeyBackup)
@@ -487,135 +463,111 @@ const useSendTransaction = ({
         inProgress: true,
         confCodeRequired: canSkip2FA ? 'notRequired' : undefined
       })
-      if (!finalBundle.recoveryMode) {
-        // Make sure we let React re-render without blocking (decrypting and signing will block)
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 0))
-        const pwd = quickAccCredentials.password || alert('Enter password')
-        const wallet = await Wallet.fromEncryptedJson(JSON.parse(account.primaryKeyBackup), pwd)
-        await finalBundle.sign(wallet)
-      } else {
-        // set both .signature and .signatureTwo to the same value: the secondary signature
-        // this will trigger a timelocked txn
-        finalBundle.signature = signature
-      }
-      finalBundle.signatureTwo = signature
-      // eslint-disable-next-line @typescript-eslint/return-await
-      return await finalBundle.submit({ relayerURL, fetch })
+
+      const res = await signTxnQuckAcc({
+        finalBundle,
+        primaryKeyBackup: account.primaryKeyBackup,
+        signature
+      })
+
+      return res
     }
   }
 
-  const approveTxn = async ({ quickAccCredentials, externalSignerCredentials, device }: any) => {
+  const approveTxn = async ({ code, device }: { code?: string; device?: any }) => {
     if (signingStatus && signingStatus.inProgress) return
     setSigningStatus(signingStatus || { inProgress: true })
 
     const finalBundle = (signingStatus && signingStatus.finalBundle) || getFinalBundle()
     const signer = finalBundle.signer
 
-    if (externalSigners[signer.address] && !externalSignerCredentials) {
-      // External signer the biometrics sign enabled
-      if (selectedAccHasPassword) {
-        try {
-          const password = await getSelectedAccPassword()
-
-          // Fill in the credentials from the biometrics sign response,
-          // because they are needed for the next steps.
-          // eslint-disable-next-line no-param-reassign
-          externalSignerCredentials = { password }
-        } catch (e) {
-          addToast(t('Failed to confirm your identity.') as string, { error: true })
-          return
-        }
-      } else {
-        // External signer with password
-        !!externalSignerOpenBottomSheet && externalSignerOpenBottomSheet()
-        addToast(i18n.t('Please confirm this transaction with your signer password.') as string, {
-          timeout: 4000
-        })
-        setSigningStatus(null)
-        return
-      }
-    }
-
-    if (!bundle.signer.quickAccManager && !device && !externalSignerCredentials) {
-      !!hardwareWalletOpenBottomSheet && hardwareWalletOpenBottomSheet()
-      setSigningStatus(null)
-      return
-    }
+    let signerType
+    try {
+      const signerAddr = signer?.quickAccManager ? signer.one : signer.address
+      signerType = await getSignerType({ addr: signerAddr })
+    } catch (error) {}
 
     const requestIds = bundle.requestIds
     let approveTxnPromise
 
-    if (externalSignerCredentials) {
-      approveTxnPromise = approveTxnImplExternalSigner({ externalSignerCredentials })
-    } else {
-      approveTxnPromise = bundle.signer.quickAccManager
-        ? approveTxnImplQuickAcc({ quickAccCredentials })
-        : approveTxnImpl(device)
+    if (signerType === SIGNER_TYPES.quickAcc) {
+      approveTxnPromise = await approveTxnImplQuickAcc({ code })
     }
 
-    approveTxnPromise
-      .then((bundleResult) => {
-        // special case for approveTxnImplQuickAcc
-        if (!bundleResult) return
+    if (signerType === SIGNER_TYPES.external) {
+      approveTxnPromise = await approveTxnImplExternalSigner()
+    }
 
-        // do not to call this after onDismiss, cause it might cause state to be changed post-unmount
-        if (isMounted.current) setSigningStatus(null)
+    // TODO: If possible move the signing with HW in the vault
+    if (signerType === SIGNER_TYPES.hardware || !signerType) {
+      if (!device) {
+        !!hardwareWalletOpenBottomSheet && hardwareWalletOpenBottomSheet()
+        setSigningStatus(null)
+        return
+      }
 
-        // Inform everything that's waiting for the results (eg WalletConnect)
-        const skipResolve =
-          !bundleResult.success &&
-          bundleResult.message &&
-          bundleResult.message.match(/underpriced/i)
-        if (!skipResolve && requestIds)
-          resolveMany(requestIds, {
-            success: bundleResult.success,
-            result: bundleResult.txId,
-            message: bundleResult.message
-          })
+      approveTxnPromise = await approveTxnImplHW({ device })
+    }
 
-        if (bundleResult.success) {
-          onBroadcastedTxn(bundleResult.txId)
+    try {
+      const bundleResult = await approveTxnPromise
+      // special case for approveTxnImplQuickAcc
+      if (!bundleResult) return
+
+      // do not to call this after onDismiss, cause it might cause state to be changed post-unmount
+      if (isMounted.current) setSigningStatus(null)
+
+      // Inform everything that's waiting for the results (eg WalletConnect)
+      const skipResolve =
+        !bundleResult.success && bundleResult.message && bundleResult.message.match(/underpriced/i)
+      if (!skipResolve && requestIds)
+        resolveMany(requestIds, {
+          success: bundleResult.success,
+          result: bundleResult.txId,
+          message: bundleResult.message
+        })
+
+      if (bundleResult.success) {
+        onBroadcastedTxn(bundleResult.txId)
+        onDismissSendTxns()
+      } else {
+        // to force replacementBundle to be null, so it's not filled from previous state change in App.js in useEffect
+        // basically close the modal if the txn was already mined
+        if (bundleResult.message.includes('was already mined')) {
           onDismissSendTxns()
-        } else {
-          // to force replacementBundle to be null, so it's not filled from previous state change in App.js in useEffect
-          // basically close the modal if the txn was already mined
-          if (bundleResult.message.includes('was already mined')) {
-            onDismissSendTxns()
-          }
-          addToast(
-            i18n.t('Transaction error: {{error}}', {
-              error: getErrorMessage(bundleResult)
-            }) as string,
-            { error: true }
-          )
         }
-      })
-      .catch((e) => {
-        if (isMounted.current) setSigningStatus(null)
-        if (e && e.message.includes('must provide an Ethereum address')) {
-          addToast(
-            i18n.t(
-              "Signing error: not connected with the correct address. Make sure you're connected with {{address}}.",
-              { address: bundle.signer.address }
-            ) as string,
-            { error: true }
-          )
-        } else if (e && e.message.includes('0x6b0c')) {
-          // not sure if that's actually the case with this hellish error, but after unlocking the device it no longer appeared
-          // however, it stopped appearing after that even if the device is locked, so I'm not sure it's related...
-          addToast(
-            i18n.t(
-              'Ledger: unknown error (0x6b0c): is your Ledger unlocked and in the Ethereum application?'
-            ) as string,
-            { error: true }
-          )
-        } else {
-          addToast(i18n.t('Signing error: {{error}}', { error: getErrorMessage(e) }) as string, {
-            error: true
-          })
-        }
-      })
+        addToast(
+          i18n.t('Transaction error: {{error}}', {
+            error: getErrorMessage(bundleResult)
+          }) as string,
+          { error: true }
+        )
+      }
+    } catch (e) {
+      if (isMounted.current) setSigningStatus(null)
+      if (e && e.message.includes('must provide an Ethereum address')) {
+        addToast(
+          i18n.t(
+            "Signing error: not connected with the correct address. Make sure you're connected with {{address}}.",
+            { address: bundle.signer.address }
+          ) as string,
+          { error: true }
+        )
+      } else if (e && e.message.includes('0x6b0c')) {
+        // not sure if that's actually the case with this hellish error, but after unlocking the device it no longer appeared
+        // however, it stopped appearing after that even if the device is locked, so I'm not sure it's related...
+        addToast(
+          i18n.t(
+            'Ledger: unknown error (0x6b0c): is your Ledger unlocked and in the Ethereum application?'
+          ) as string,
+          { error: true }
+        )
+      } else {
+        addToast(i18n.t('Signing error: {{error}}', { error: getErrorMessage(e) }) as string, {
+          error: true
+        })
+      }
+    }
   }
 
   // Not applicable when .requestIds is not defined (replacement bundle)

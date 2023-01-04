@@ -1,21 +1,20 @@
-import { isEmail } from 'ambire-common/src/services/validations'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
+import { Keyboard } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
-import BottomSheet from '@modules/common/components/BottomSheet'
+import useExternalSignerLogin from '@modules/auth/hooks/useExternalSignerLogin'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
-import spacings from '@modules/common/styles/spacings'
-import ExternalSignerAuthorization from '@modules/external-signers/components/ExternalSignerAuthorization'
-import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
+import useToast from '@modules/common/hooks/useToast'
+import { delayPromise } from '@modules/common/utils/promises'
 
 const PrivateKeyForm = () => {
   const { t } = useTranslation()
-  const { addExternalSigner, hasRegisteredPassword } = useExternalSigners()
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { addExternalSigner } = useExternalSignerLogin()
+  const { addToast } = useToast()
+
   const {
     control,
     handleSubmit,
@@ -29,50 +28,45 @@ const PrivateKeyForm = () => {
   })
 
   const handleFormSubmit = useCallback(() => {
-    handleSubmit((props) => addExternalSigner(props, openBottomSheet))()
-  }, [handleSubmit, addExternalSigner, openBottomSheet])
+    !isWeb && Keyboard.dismiss()
 
-  const handleAuthorize = useCallback(
-    ({ password, confirmPassword }) => {
-      addExternalSigner({ password, confirmPassword, signer: watch('signer') })
-    },
-    [addExternalSigner, watch]
-  )
+    handleSubmit(async ({ signer }) => {
+      // wait state update before Wallet calcs because
+      // when Wallet method is called on devices with slow CPU the UI freezes
+      await delayPromise(100)
+
+      try {
+        const signerValue = signer.slice(0, 2) === '0x' ? signer.slice(2) : signer
+        await addExternalSigner({ signer: signerValue })
+      } catch (e) {
+        addToast(e.message || e, { error: true })
+      }
+    })()
+  }, [handleSubmit, addExternalSigner, addToast])
 
   return (
     <>
       <Controller
         control={control}
-        // TODO:
-        // rules={{ validate:  }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             onBlur={onBlur}
-            placeholder={t('Private Key')}
+            placeholder={t('Signer private key')}
             onChangeText={onChange}
             onSubmitEditing={handleFormSubmit}
             value={value}
-            isValid={isEmail(value)}
+            autoFocus={isWeb}
             error={errors.signer && (t('Please fill in a valid private key.') as string)}
-            info={t('Enter signer private key.') as string}
           />
         )}
         name="signer"
       />
-      <View style={spacings.mbTy}>
-        <Button
-          disabled={isSubmitting || !watch('signer', '')}
-          type="outline"
-          text={isSubmitting ? t('Logging in...') : t('Log In')}
-          onPress={handleFormSubmit}
-        />
-      </View>
-      <BottomSheet id="authorize" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <ExternalSignerAuthorization
-          hasRegisteredPassword={hasRegisteredPassword}
-          onAuthorize={handleAuthorize}
-        />
-      </BottomSheet>
+      <Button
+        disabled={isSubmitting || !watch('signer', '')}
+        type="outline"
+        text={isSubmitting ? t('Logging in...') : t('Log In')}
+        onPress={handleFormSubmit}
+      />
     </>
   )
 }

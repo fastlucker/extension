@@ -1,16 +1,15 @@
 import { isEmail } from 'ambire-common/src/services/validations'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { View } from 'react-native'
+import { Keyboard } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
-import Text from '@modules/common/components/Text'
-import Title from '@modules/common/components/Title'
 import spacings from '@modules/common/styles/spacings'
+import { delayPromise } from '@modules/common/utils/promises'
 
 const EmailLoginScreen = () => {
   const { t } = useTranslation()
@@ -18,6 +17,7 @@ const EmailLoginScreen = () => {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting }
   } = useForm({
     reValidateMode: 'onChange',
@@ -26,66 +26,90 @@ const EmailLoginScreen = () => {
     }
   })
 
-  const { handleLogin, cancelLoginAttempts, requiresEmailConfFor, err } = useEmailLogin()
+  const {
+    handleLogin,
+    cancelLoginAttempts,
+    requiresEmailConfFor,
+    requiresPassword,
+    pendingLoginAccount
+  } = useEmailLogin()
+
+  useEffect(() => {
+    if (requiresEmailConfFor) {
+      setValue('email', requiresEmailConfFor?.email || '')
+    }
+    if (!requiresEmailConfFor) setValue('email', '')
+  }, [requiresEmailConfFor, setValue])
 
   const handleFormSubmit = useCallback(() => {
-    handleSubmit(handleLogin)()
-  }, [])
+    !isWeb && Keyboard.dismiss()
+
+    handleSubmit(async ({ email }) => {
+      // wait state update before Wallet calcs because
+      // when Wallet method is called on devices with slow CPU the UI freezes
+      await delayPromise(100)
+
+      await handleLogin({ email })
+    })()
+  }, [handleSubmit, handleLogin])
+
+  const handleCancelLoginAttempts = useCallback(() => {
+    setValue('email', '')
+    cancelLoginAttempts()
+  }, [cancelLoginAttempts, setValue])
 
   return (
     <>
-      {!requiresEmailConfFor && (
-        <>
-          <Controller
-            control={control}
-            rules={{ validate: isEmail }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                onBlur={onBlur}
-                placeholder={t('Email')}
-                onChangeText={onChange}
-                onSubmitEditing={handleFormSubmit}
-                value={value}
-                isValid={isEmail(value)}
-                keyboardType="email-address"
-                error={errors.email && (t('Please fill in a valid email.') as string)}
-              />
-            )}
-            name="email"
+      <Controller
+        control={control}
+        rules={{ validate: isEmail }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            onBlur={onBlur}
+            placeholder={t('Email')}
+            onChangeText={onChange}
+            onSubmitEditing={handleSubmit(handleLogin)}
+            value={value}
+            autoFocus={isWeb}
+            isValid={isEmail(value)}
+            validLabel={pendingLoginAccount ? t('Email address confirmed') : ''}
+            keyboardType="email-address"
+            disabled={!!requiresEmailConfFor && !pendingLoginAccount}
+            info={
+              requiresEmailConfFor && !pendingLoginAccount
+                ? t(
+                    'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
+                    { email: requiresEmailConfFor?.email }
+                  )
+                : ''
+            }
+            error={errors.email && (t('Please fill in a valid email.') as string)}
+            containerStyle={requiresPassword ? spacings.mbTy : null}
           />
-          <View style={spacings.mbTy}>
-            <Button
-              disabled={isSubmitting || !watch('email', '')}
-              type="outline"
-              text={isSubmitting ? t('Logging in...') : t('Log In')}
-              onPress={handleFormSubmit}
-            />
-          </View>
-          {!!err && (
-            <Text appearance="danger" style={spacings.mbSm}>
-              {err}
-            </Text>
-          )}
-          <Text style={spacings.mbSm} fontSize={12}>
-            {t('A password will not be required, we will send a magic login link to your email.')}
-          </Text>
-        </>
-      )}
+        )}
+        name="email"
+      />
+
+      <Button
+        disabled={
+          (!!requiresEmailConfFor && !pendingLoginAccount) || isSubmitting || !watch('email', '')
+        }
+        type="outline"
+        text={
+          // eslint-disable-next-line no-nested-ternary
+          requiresEmailConfFor && !pendingLoginAccount
+            ? t('Waiting Email Confirmation')
+            : // eslint-disable-next-line no-nested-ternary
+            isSubmitting
+            ? t('Loading...')
+            : !pendingLoginAccount
+            ? t('Confirm Email')
+            : t('Log In')
+        }
+        onPress={handleFormSubmit}
+      />
       {!!requiresEmailConfFor && (
-        <>
-          <Title hasBottomSpacing={false} style={spacings.mbSm}>
-            {t('Email Login')}
-          </Title>
-          <Text style={spacings.mbSm} fontSize={12}>
-            {t(
-              'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
-              { email: requiresEmailConfFor?.email }
-            )}
-          </Text>
-          {isWeb && (
-            <Button type="danger" text={t('Cancel login attempt')} onPress={cancelLoginAttempts} />
-          )}
-        </>
+        <Button type="ghost" text={t('Cancel Login Attempt')} onPress={handleCancelLoginAttempts} />
       )}
     </>
   )

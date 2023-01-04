@@ -1,6 +1,7 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import useJsonLogin from '@modules/auth/hooks/useJsonLogin'
@@ -16,13 +17,13 @@ const JsonLoginScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper contentContainerStyle={spacings.mbLg}>
+      <Wrapper contentContainerStyle={spacings.pbLg}>
         <AmbireLogo />
         <Button
           disabled={inProgress}
           text={inProgress ? t('Importing...') : t('Select File')}
-          onPress={handleLogin}
-          hasBottomSpacing={!error}
+          onPress={() => handleLogin({})}
+          hasBottomSpacing={!error || isWeb}
         />
         {!!error && (
           <View style={spacings.ptTy}>

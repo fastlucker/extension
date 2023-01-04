@@ -16,21 +16,20 @@ import {
   headerGamma as defaultHeaderGamma
 } from '@config/Router/HeadersConfig'
 import styles, { tabBarItemWebStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
-import { SyncStorage } from '@config/storage'
-import useAppLock from '@modules/app-lock/hooks/useAppLock'
-import ManageAppLockScreen from '@modules/app-lock/screens/ManageAppLockScreen'
-import SetAppLockingScreen from '@modules/app-lock/screens/SetAppLockingScreen'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
+import { EmailLoginProvider } from '@modules/auth/contexts/emailLoginContext'
+import { JsonLoginProvider } from '@modules/auth/contexts/jsonLoginContext'
 import useAuth from '@modules/auth/hooks/useAuth'
+import AddAccountPasswordToVaultScreen from '@modules/auth/screens/AddAccountPasswordToVaultScreen'
 import AuthScreen from '@modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import BiometricsSignScreen from '@modules/biometrics-sign/screens/BiometricsSignScreen'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
+import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
@@ -51,6 +50,12 @@ import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import useVault from '@modules/vault/hooks/useVault'
+import CreateNewVaultScreen from '@modules/vault/screens/CreateNewVaultScreen'
+import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
+import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
+import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
@@ -67,10 +72,8 @@ const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
-const SetAppLockStack = createNativeStackNavigator()
-const ChangeLocalAuthStack = createNativeStackNavigator()
-const BiometricsStack = createNativeStackNavigator()
-const ManageAppLockingStack = createNativeStackNavigator()
+const EmailLoginStack = createNativeStackNavigator()
+const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 
@@ -79,9 +82,13 @@ const params = Object.fromEntries(urlSearchParams.entries())
 const isTempExtensionPopup = !!params.route || !!params.host
 const navigationEnabled = !isTempExtensionPopup
 
-const headerAlpha = navigationEnabled ? defaultHeaderAlpha : defaultHeaderBeta
+const headerAlpha = navigationEnabled
+  ? (props: any) => defaultHeaderAlpha({ ...props, backgroundColor: colors.martinique })
+  : defaultHeaderBeta
 const headerBeta = navigationEnabled ? defaultHeaderBeta : defaultHeaderBeta
-const headerGamma = navigationEnabled ? defaultHeaderGamma : defaultHeaderBeta
+const headerGamma = navigationEnabled
+  ? (props: any) => defaultHeaderGamma({ ...props, backgroundColor: colors.martinique })
+  : defaultHeaderBeta
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
@@ -115,78 +122,101 @@ const GasInformationStackScreen = () => {
   )
 }
 
-const SetAppLockStackScreen = () => {
+const EmailLoginStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <SetAppLockStack.Navigator screenOptions={{ header: headerBeta }}>
-      <SetAppLockStack.Screen
-        name="set-app-lock-screen"
-        component={SetAppLockingScreen}
-        options={{
-          title: t('App Lock')
-        }}
-      />
-    </SetAppLockStack.Navigator>
+    <EmailLoginProvider>
+      <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+        <EmailLoginStack.Screen
+          name="emailLogin"
+          options={{ title: t('Login') }}
+          component={EmailLoginScreen}
+        />
+        <EmailLoginStack.Screen
+          name="addAccountPasswordToVault"
+          options={{ title: t('Login') }}
+          component={AddAccountPasswordToVaultScreen}
+        />
+      </EmailLoginStack.Navigator>
+    </EmailLoginProvider>
   )
 }
 
-const BiometricsStackScreen = () => {
+const JsonLoginStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <BiometricsStack.Navigator screenOptions={{ header: headerBeta }}>
-      <BiometricsStack.Screen
-        name="biometrics-sign-change-screen"
-        component={BiometricsSignScreen}
-        options={{
-          title: t('Sign with Biometrics')
-        }}
-      />
-    </BiometricsStack.Navigator>
-  )
-}
-
-const ManageAppLockStackScreen = () => {
-  const { t } = useTranslation()
-
-  return (
-    <ManageAppLockingStack.Navigator screenOptions={{ header: headerBeta }}>
-      <ManageAppLockingStack.Screen
-        name="manage-app-lock-screen"
-        component={ManageAppLockScreen}
-        options={{
-          title: t('Manage App Lock')
-        }}
-      />
-    </ManageAppLockingStack.Navigator>
+    <JsonLoginProvider>
+      <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+        <JsonLoginStack.Screen
+          name="jsonLogin"
+          options={{ title: t('Import from JSON') }}
+          component={JsonLoginScreen}
+        />
+        <JsonLoginStack.Screen
+          name="addAccountPasswordToVault"
+          options={{ title: t('Login') }}
+          component={AddAccountPasswordToVaultScreen}
+        />
+      </JsonLoginStack.Navigator>
+    </JsonLoginProvider>
   )
 }
 
 const AuthStack = () => {
   const { t } = useTranslation()
+  const { getItem } = useStorageController()
+  const { vaultStatus } = useVault()
 
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
-  // Checks whether there is a pending email login attempt. It happens when user
-  // request email login and closes the extension. When the extension is opened
-  // the second time - an immediate email login attempt will be triggered.
-  const initialRouteName = SyncStorage.getItem('pendingLoginEmail') ? 'emailLogin' : 'auth'
+  if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+  const initialRouteName =
+    vaultStatus === VAULT_STATUS.NOT_INITIALIZED
+      ? 'createVaultGetStarted'
+      : // Checks whether there is a pending email login attempt. It happens when user
+      // request email login and closes the app. When the app is opened
+      // the second time - an immediate email login attempt will be triggered.
+      getItem('pendingLoginEmail')
+      ? 'ambireAccountLogin'
+      : 'auth'
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
-      <Stack.Screen options={{ title: t('Welcome') }} name="auth" component={AuthScreen} />
+      {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
+        <>
+          <Stack.Screen
+            name="createVaultGetStarted"
+            options={{ title: t('Welcome') }}
+            component={VaultSetupGetStartedScreen}
+          />
+          <Stack.Screen
+            name="createVault"
+            options={{ title: t('Setup Your Ambire Key Store') }}
+            component={CreateNewVaultScreen}
+          />
+        </>
+      )}
       <Stack.Screen
-        name="emailLogin"
-        options={{ title: t('Login') }}
-        component={EmailLoginScreen}
+        options={{ title: t('Welcome to\nAmbire Wallet Extension') }}
+        name="auth"
+        component={AuthScreen}
       />
       <Stack.Screen
-        name="jsonLogin"
-        options={{ title: t('Import from JSON') }}
-        component={JsonLoginScreen}
+        name="ambireAccountLogin"
+        options={{ title: t('Login'), headerShown: false }}
+        component={EmailLoginStackScreen}
+      />
+      <Stack.Screen
+        name="ambireAccountJsonLogin"
+        options={{ title: t('Import from JSON'), headerShown: false }}
+        component={JsonLoginStackScreen}
       />
       <Stack.Screen
         name="qrCodeLogin"
@@ -209,10 +239,13 @@ const AuthStack = () => {
 
 const NoConnectionStack = () => {
   const { t } = useTranslation()
+  const { vaultStatus } = useVault()
 
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
@@ -225,12 +258,44 @@ const NoConnectionStack = () => {
   )
 }
 
+const VaultStack = () => {
+  const { t } = useTranslation()
+  const { vaultStatus } = useVault()
+
+  useEffect(() => {
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
+
+  if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+  return (
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
+      <Stack.Screen
+        name="unlockVault"
+        options={{ title: t('Welcome Back') }}
+        component={UnlockVaultScreen}
+      />
+      <Stack.Screen
+        name="resetVault"
+        options={{ title: t('Reset your\nAmbire Key Store Lock') }}
+        component={ResetVaultScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
 const PermissionRequestStack = () => {
   const { t } = useTranslation()
 
+  const { vaultStatus } = useVault()
+
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   return (
     <Stack.Navigator
@@ -246,10 +311,13 @@ const PermissionRequestStack = () => {
 }
 const SwitchNetworkRequestStack = () => {
   const { t } = useTranslation()
+  const { vaultStatus } = useVault()
 
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   return (
     <Stack.Navigator
@@ -267,9 +335,13 @@ const SwitchNetworkRequestStack = () => {
 const PendingTransactionsStack = () => {
   const { t } = useTranslation()
 
+  const { vaultStatus } = useVault()
+
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
@@ -285,9 +357,13 @@ const PendingTransactionsStack = () => {
 const SignMessageStack = () => {
   const { t } = useTranslation()
 
+  const { vaultStatus } = useVault()
+
   useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
@@ -414,28 +490,30 @@ const AppDrawer = () => {
 
 const AppStack = () => {
   const { t } = useTranslation()
-  const { isLoading } = useAppLock()
+  const { getItem } = useStorageController()
+
+  const { vaultStatus } = useVault()
 
   useEffect(() => {
-    if (isLoading) return
-
-    SplashScreen.hideAsync()
-  }, [isLoading])
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
 
   useEffect(() => {
-    // Checks whether there is a pending email login attempt. It happens when user
-    // request email login and closes the extension. When the extension is opened
+    // Checks whether there is a pending email login attempt. It happens when
+    // user requests email login and closes the the app. When the app is opened
     // the second time - an immediate email login attempt will be triggered.
     // Redirect the user instead of using the `initialRouteName`,
     // because when 'auth-add-account' is set for `initialRouteName`,
     // the 'drawer' route never gets rendered, and therefore - upon successful
     // login attempt - the redirection to the 'dashboard' route breaks -
     // because this route doesn't exist (it's never being rendered).
-    const shouldAttemptLogin = !!SyncStorage.getItem('pendingLoginEmail')
+    const shouldAttemptLogin = !!getItem('pendingLoginEmail')
     if (shouldAttemptLogin) {
       navigate('auth-add-account')
     }
-  }, [])
+  }, [getItem])
 
   return (
     <MainStack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="drawer">
@@ -448,23 +526,8 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="manage-app-locking"
-        component={ManageAppLockStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
         name="signers"
         component={SignersStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="set-app-lock"
-        component={SetAppLockStackScreen}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name="biometrics-sign-change"
-        component={BiometricsStackScreen}
       />
       <MainStack.Screen
         name="auth-add-account"
@@ -517,6 +580,7 @@ const AppStack = () => {
 
 const Router = () => {
   const { authStatus } = useAuth()
+  const { vaultStatus } = useVault()
   const { connectionState } = useNetInfo()
   const { setParams } = useAmbireExtension()
 
@@ -554,11 +618,26 @@ const Router = () => {
       return <NoConnectionStack />
     }
 
+    // Vault loads in async manner, so always wait until it's being loaded,
+    // otherwise - other routes flash beforehand.
+    if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+    // When locked, always prompt the user to unlock it first.
+    if (VAULT_STATUS.LOCKED === vaultStatus) {
+      return <VaultStack />
+    }
+
+    // When not authenticated, take him to the Auth screens first,
+    // even without having a vault initialized yet.
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
       return <AuthStack />
     }
 
     if (authStatus === AUTH_STATUS.AUTHENTICATED) {
+      if (VAULT_STATUS.NOT_INITIALIZED === vaultStatus) {
+        return <VaultStack />
+      }
+
       if (params.route === 'permission-request') {
         return <PermissionRequestStack />
       }
@@ -581,12 +660,13 @@ const Router = () => {
         return <SwitchNetworkRequestStack />
       }
 
-      return <AppStack />
+      if (vaultStatus === VAULT_STATUS.UNLOCKED) {
+        return <AppStack />
+      }
     }
 
-    // authStatus === AUTH_STATUS.LOADING or anything else:
     return null
-  }, [connectionState, authStatus])
+  }, [connectionState, authStatus, vaultStatus])
 
   const handleOnReady = () => {
     // @ts-ignore for some reason TS complains about this 👇

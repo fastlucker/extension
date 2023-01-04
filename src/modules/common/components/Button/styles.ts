@@ -103,7 +103,9 @@ const styles = StyleSheet.create<Style>({
     fontSize: 16
   },
   buttonTextStylesSizeSmall: {
-    fontSize: 14
+    fontSize: 14,
+    // On iOS no visual difference, but on Android, it vertically centers better
+    lineHeight: 19
   },
 
   // Default button disabled styles

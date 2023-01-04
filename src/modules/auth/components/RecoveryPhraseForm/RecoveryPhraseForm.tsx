@@ -1,20 +1,15 @@
-import { isEmail } from 'ambire-common/src/services/validations'
 import { Wallet } from 'ethers'
 import React, { useCallback, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { InteractionManager, Keyboard, View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
+import { Keyboard } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
-import BottomSheet from '@modules/common/components/BottomSheet'
+import useExternalSignerLogin from '@modules/auth/hooks/useExternalSignerLogin'
 import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import useToast from '@modules/common/hooks/useToast'
-import spacings from '@modules/common/styles/spacings'
 import { delayPromise } from '@modules/common/utils/promises'
-import ExternalSignerAuthorization from '@modules/external-signers/components/ExternalSignerAuthorization'
-import useExternalSigners from '@modules/external-signers/hooks/useExternalSigners'
 
 const formatMnemonic = (mnemonic: string) =>
   mnemonic
@@ -25,8 +20,7 @@ const formatMnemonic = (mnemonic: string) =>
 const RecoveryPhraseForm = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
-  const { addExternalSigner, hasRegisteredPassword } = useExternalSigners()
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { addExternalSigner } = useExternalSignerLogin()
   const [memWallet, setMemWallet] = useState<any>(null)
   const {
     control,
@@ -48,63 +42,30 @@ const RecoveryPhraseForm = () => {
       // when Wallet method is called on devices with slow CPU the UI freezes
       await delayPromise(100)
 
-      InteractionManager.runAfterInteractions(async () => {
-        try {
-          const mnemonic = formatMnemonic(signer)
-          let wallet
+      try {
+        const mnemonic = formatMnemonic(signer)
+        let wallet
 
-          if (memWallet) {
-            wallet = memWallet
-          } else {
-            wallet = Wallet.fromMnemonic(mnemonic)
-          }
-
-          if (!wallet) throw new Error('Invalid secret recovery phrase')
-          setMemWallet(wallet)
-
-          await addExternalSigner({ signer: wallet.privateKey }, openBottomSheet)
-        } catch (e) {
-          addToast(e.message || e, { error: true })
+        if (memWallet) {
+          wallet = memWallet
+        } else {
+          wallet = Wallet.fromMnemonic(mnemonic)
         }
-      })
+
+        if (!wallet) throw new Error('Invalid secret recovery phrase')
+        setMemWallet(wallet)
+
+        await addExternalSigner({ signer: wallet.privateKey })
+      } catch (e) {
+        addToast(e.message || e, { error: true })
+      }
     })()
-  }, [memWallet, handleSubmit, addExternalSigner, openBottomSheet, addToast])
-
-  const handleAuthorize = useCallback(
-    async ({ password, confirmPassword }) => {
-      // wait state update before Wallet calcs because
-      // when Wallet method is called on devices with slow CPU the UI freezes
-      await delayPromise(100)
-
-      InteractionManager.runAfterInteractions(async () => {
-        try {
-          const mnemonic = formatMnemonic(watch('signer'))
-          let wallet
-
-          if (memWallet) {
-            wallet = memWallet
-          } else {
-            wallet = Wallet.fromMnemonic(mnemonic)
-          }
-
-          if (!wallet) throw new Error('Invalid secret recovery phrase')
-          setMemWallet(wallet)
-
-          await addExternalSigner({ password, confirmPassword, signer: wallet.privateKey })
-        } catch (e) {
-          addToast(e.message || e, { error: true })
-        }
-      })
-    },
-    [memWallet, addExternalSigner, watch, addToast]
-  )
+  }, [memWallet, handleSubmit, addExternalSigner, addToast])
 
   return (
     <>
       <Controller
         control={control}
-        // TODO:
-        // rules={{ validate:  }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             onBlur={onBlur}
@@ -115,9 +76,9 @@ const RecoveryPhraseForm = () => {
               }
               onChange(props)
             }}
+            autoFocus={isWeb}
             onSubmitEditing={handleFormSubmit}
             value={value}
-            isValid={isEmail(value)}
             error={errors.signer && (t('Please fill in a valid recovery phrase.') as string)}
             info={
               t(
@@ -128,20 +89,13 @@ const RecoveryPhraseForm = () => {
         )}
         name="signer"
       />
-      <View style={spacings.mbTy}>
-        <Button
-          disabled={isSubmitting || !watch('signer', '')}
-          type="outline"
-          text={isSubmitting ? t('Logging in...') : t('Log In')}
-          onPress={handleFormSubmit}
-        />
-      </View>
-      <BottomSheet id="authorize" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <ExternalSignerAuthorization
-          hasRegisteredPassword={hasRegisteredPassword}
-          onAuthorize={handleAuthorize}
-        />
-      </BottomSheet>
+
+      <Button
+        disabled={isSubmitting || !watch('signer', '')}
+        type="outline"
+        text={isSubmitting ? t('Logging in...') : t('Log In')}
+        onPress={handleFormSubmit}
+      />
     </>
   )
 }
