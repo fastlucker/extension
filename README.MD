@@ -26,12 +26,6 @@ yarn install
 
   No additional steps required.
 
-Alternatively, to run the project in web mode, run:
-
-```
-yarn install:web
-```
-
 ## Environment Variables
 
 Create ".env" file in the root directory and fill in all variables, see ".env-sample" for a reference.
@@ -80,6 +74,18 @@ yarn start
 
 Note: This command runs `react-native start`.
 
+Browser extension (web app) for webkit browsers (tested on Chrome only)::
+
+```bash
+yarn web:webkit
+```
+
+Browser extension (web app) for gecko browsers (tested on Firefox only)::
+
+```bash
+yarn web:gecko
+```
+
 ## Translations (Beta)
 
 To scan the project for translation labels and to update translations JSON files, run:
@@ -127,12 +133,18 @@ FIXME: building the iOS app locally with the Release build configuration fails. 
 
 For the CI builds, running in Release build configuration, the Flipper is not included (skipped by env variable in ios/Podfile). The workaround for the local builds with Release build configuration is commenting out `use_flipper!(...` in the Podfile and running "pod install" in the ios directory.
 
-## Building the web app locally
+## Building the browser extension (web app) locally
 
-Run:
+For webkit browsers (tested on Chrome only):
 
 ```bash
-yarn build:web
+yarn build:web:webkit
+```
+
+For gecko browsers (tested on Firefox only):
+
+```bash
+yarn build:web:gecko
 ```
 
 ## Versioning
