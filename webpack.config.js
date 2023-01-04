@@ -53,12 +53,15 @@ module.exports = async function (env, argv) {
 
     if (process.env.WEB_ENGINE === 'webkit') {
       manifest.content_security_policy = { extension_pages: csp }
+      // manifest.minimum_chrome_version = '88'
       // This value can be used to control the unique ID of an extension,
       // when it is loaded during development. In prod, the ID is generated
       // in Chrome Web Store and can't be changed.
       // {@link https://developer.chrome.com/extensions/manifest/key}
       // TODO: Figure out if this works for gecko
-      manifest.key = process.env.BROWSER_EXTENSION_KEY_DEV
+      if (process.env.CHROME_WEB_STORE !== 'true') {
+        manifest.key = process.env.BROWSER_EXTENSION_KEY_DEV
+      }
     }
 
     // Tweak manifest file, so it's compatible with gecko extensions specifics

@@ -26,6 +26,7 @@
     "build:ios:production:simulator": "eas build -p ios --profile production:simulator",
     "build:android:production:simulator": "eas build -p android --profile production:simulator",
     "build:web:webkit": "rm -rf ./webkit-prod && APP_ENV=production WEB_ENGINE=webkit WEBPACK_BUILD_OUTPUT_PATH=webkit-prod expo build:web",
+    "build:web:webkit:chrome-web-store": "rm -rf ./webkit-prod && APP_ENV=production WEB_ENGINE=webkit WEBPACK_BUILD_OUTPUT_PATH=webkit-prod CHROME_WEB_STORE=true expo build:web",
     "build:web:gecko": "rm -rf ./gecko-prod && APP_ENV=production WEB_ENGINE=gecko WEBPACK_BUILD_OUTPUT_PATH=gecko-prod expo build:web",
     "publish:development": "expo publish --release-channel development",
     "publish:staging": "APP_ENV=staging expo publish --release-channel staging",
