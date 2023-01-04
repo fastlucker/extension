@@ -58,9 +58,7 @@ module.exports = async function (env, argv) {
       // in Chrome Web Store and can't be changed.
       // {@link https://developer.chrome.com/extensions/manifest/key}
       // TODO: Figure out if this works for gecko
-      if (process.env.CHROME_WEB_STORE !== 'true') {
-        manifest.key = process.env.BROWSER_EXTENSION_KEY_DEV
-      }
+      manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
     }
 
     // Tweak manifest file, so it's compatible with gecko extensions specifics
