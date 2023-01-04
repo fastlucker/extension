@@ -26,12 +26,6 @@ yarn install
 
   No additional steps required.
 
-Alternatively, to run the project in web mode, run:
-
-```
-yarn install:web
-```
-
 ## Environment Variables
 
 Create ".env" file in the root directory and fill in all variables, see ".env-sample" for a reference.
@@ -79,6 +73,18 @@ yarn start
 ```
 
 Note: This command runs `react-native start`.
+
+Browser extension (web app) for webkit browsers (tested on Chrome only)::
+
+```bash
+yarn web:webkit
+```
+
+Browser extension (web app) for gecko browsers (tested on Firefox only)::
+
+```bash
+yarn web:gecko
+```
 
 ## Translations (Beta)
 
