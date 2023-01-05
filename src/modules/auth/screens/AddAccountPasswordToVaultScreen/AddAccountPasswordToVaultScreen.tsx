@@ -108,7 +108,8 @@ const AddAccountPasswordToVaultScreen = ({ navigation, route }: any) => {
             </Text>
             <Text weight="regular" style={[spacings.mb, spacings.phTy]} fontSize={13}>
               {t(
-                'If you reset your passphrase or remove the extension, the Key Store will be removed from the device, however you can still use your account password on any other device.'
+                'If you reset your passphrase or {{action}}, the Key Store will be removed from the device, however you can still use your account password on any other device.',
+                { action: isWeb ? t('remove the extension') : t('uninstall the app') }
               )}
             </Text>
 
