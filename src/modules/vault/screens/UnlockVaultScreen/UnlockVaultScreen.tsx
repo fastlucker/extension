@@ -63,6 +63,10 @@ const UnlockVaultScreen: React.FC<Props> = ({ onForgotPassword = () => {} }) => 
   }, [handleSubmit, unlockVault, setValue])
 
   const handleForgotPassword = useCallback(() => {
+    // Navigate only if vault is locked, which means that the VaultStack
+    // is mounted and the reset vault screen route exists.
+    // Otherwise, the user is in another navigation stack (or in temporarily
+    // locked state), so the reset vault screen route doesn't exist.
     if (vaultStatus === VAULT_STATUS.LOCKED) {
       navigate('resetVault', { resetPassword: true })
     }
