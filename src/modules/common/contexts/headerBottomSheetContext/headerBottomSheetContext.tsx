@@ -2,6 +2,7 @@ import React, { createContext, useMemo } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { isWeb } from '@config/env'
 import AccountChanger from '@config/Router/Header/AccountChanger'
 import NetworkChanger from '@config/Router/Header/NetworkChanger'
 import BottomSheet from '@modules/common/components/BottomSheet'
@@ -42,7 +43,7 @@ const HeaderBottomSheetProvider: React.FC = ({ children }) => {
         sheetRef={sheetRef}
         closeBottomSheet={closeHeaderBottomSheet}
         displayCancel={false}
-        adjustToContentHeight={false}
+        adjustToContentHeight={!isWeb}
       >
         <NetworkChanger />
         <View style={[styles.separator, spacings.mb]} />
