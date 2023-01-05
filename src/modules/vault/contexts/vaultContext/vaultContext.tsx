@@ -13,6 +13,7 @@ import { KEY_LOCK_KEYSTORE_WHEN_INACTIVE } from '@modules/vault/constants/storag
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useLockWhenInactive from '@modules/vault/hooks/useLockWhenInactive'
 import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
+import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultController from '@modules/vault/services/VaultController'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
@@ -38,6 +39,7 @@ const VaultProvider: React.FC = ({ children }) => {
   } = useVaultBiometrics()
   const [shouldLockWhenInactive, setShouldLockWhenInactive] = useState(true)
   const { authStatus } = useAuth()
+  const [shouldDisplayForgotPassword, setShouldDisplayForgotPassword] = useState(false)
 
   /**
    * For the extension, we need to get vault status from background.
@@ -388,6 +390,10 @@ const VaultProvider: React.FC = ({ children }) => {
     [setItem]
   )
 
+  const handleForgotPassword = useCallback(() => {
+    setShouldDisplayForgotPassword(true)
+  }, [])
+
   return (
     <VaultContext.Provider
       value={useMemo(
@@ -446,7 +452,11 @@ const VaultProvider: React.FC = ({ children }) => {
       {/* gets dismissed - the current route is always up to date. */}
       {vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY && (
         <SafeAreaView style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
-          <UnlockVaultScreen />
+          {shouldDisplayForgotPassword ? (
+            <ResetVaultScreen />
+          ) : (
+            <UnlockVaultScreen onForgotPassword={handleForgotPassword} />
+          )}
         </SafeAreaView>
       )}
       {children}
