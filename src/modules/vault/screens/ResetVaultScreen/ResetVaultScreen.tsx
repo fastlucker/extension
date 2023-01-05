@@ -61,7 +61,7 @@ const ResetVaultScreen: React.FC<Props> = ({ onGoBack = () => {} }) => {
             </View>
           )}
           <Wrapper
-            contentContainerStyle={[spacings.pbLg]}
+            contentContainerStyle={spacings.pbLg}
             type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
             extraHeight={220}
           >
