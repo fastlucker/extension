@@ -50,7 +50,8 @@ const ResetVaultScreen = () => {
             <View style={spacings.phTy}>
               <Text weight="regular" style={spacings.mbMi} fontSize={13}>
                 {t(
-                  'Ambire does not keep a copy of your Key Store passphrase. If you’re having trouble unlocking your extension, you will need to create a new Key Store passphrase.'
+                  'Ambire does not keep a copy of your Key Store passphrase. If you’re having trouble unlocking your {{name}}, you will need to create a new Key Store passphrase.',
+                  { name: isWeb ? t('extension') : t('app') }
                 )}
               </Text>
               <Text weight="regular" style={spacings.mbTy} fontSize={13}>
