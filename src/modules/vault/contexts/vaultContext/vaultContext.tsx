@@ -390,8 +390,8 @@ const VaultProvider: React.FC = ({ children }) => {
     [setItem]
   )
 
-  const handleForgotPassword = useCallback(() => {
-    setShouldDisplayForgotPassword(true)
+  const handleToggleForgotPassword = useCallback(() => {
+    setShouldDisplayForgotPassword((prev) => !prev)
   }, [])
 
   return (
@@ -453,9 +453,9 @@ const VaultProvider: React.FC = ({ children }) => {
       {vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY && (
         <SafeAreaView style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
           {shouldDisplayForgotPassword ? (
-            <ResetVaultScreen />
+            <ResetVaultScreen onGoBack={handleToggleForgotPassword} />
           ) : (
-            <UnlockVaultScreen onForgotPassword={handleForgotPassword} />
+            <UnlockVaultScreen onForgotPassword={handleToggleForgotPassword} />
           )}
         </SafeAreaView>
       )}
