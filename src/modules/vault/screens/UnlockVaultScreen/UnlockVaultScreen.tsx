@@ -21,7 +21,11 @@ import useVault from '@modules/vault/hooks/useVault'
 
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
-const UnlockVaultScreen = () => {
+interface Props {
+  onForgotPassword?: () => void
+}
+
+const UnlockVaultScreen: React.FC<Props> = ({ onForgotPassword = () => {} }) => {
   const { t } = useTranslation()
   const { unlockVault, vaultStatus, biometricsEnabled } = useVault()
   const {
@@ -58,10 +62,13 @@ const UnlockVaultScreen = () => {
     return handleSubmit(unlockVault)()
   }, [handleSubmit, unlockVault, setValue])
 
-  const handleForgotPassword = useCallback(
-    () => navigate('resetVault', { resetPassword: true }),
-    []
-  )
+  const handleForgotPassword = useCallback(() => {
+    if (vaultStatus === VAULT_STATUS.LOCKED) {
+      navigate('resetVault', { resetPassword: true })
+    }
+
+    onForgotPassword()
+  }, [vaultStatus, onForgotPassword])
 
   useDisableNavigatingBack()
 
