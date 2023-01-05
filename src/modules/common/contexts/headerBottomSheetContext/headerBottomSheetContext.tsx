@@ -43,7 +43,6 @@ const HeaderBottomSheetProvider: React.FC = ({ children }) => {
         sheetRef={sheetRef}
         closeBottomSheet={closeHeaderBottomSheet}
         displayCancel={false}
-        adjustToContentHeight={!isWeb}
       >
         <NetworkChanger />
         <View style={[styles.separator, spacings.mb]} />
