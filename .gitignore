@@ -255,6 +255,7 @@ lint/tmp/
 
 # Android Profiling
 *.hprof
+.cxx/
 
 ### ReactNative.Buck Stack ###
 buck-out/
