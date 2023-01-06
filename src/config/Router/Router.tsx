@@ -257,7 +257,7 @@ const NoConnectionStack = () => {
 
 const VaultStack = () => {
   const { t } = useTranslation()
-  const { vaultStatus, resetVault } = useVault()
+  const { vaultStatus, unlockVault, biometricsEnabled, resetVault } = useVault()
 
   useEffect(() => {
     if (vaultStatus === VAULT_STATUS.LOADING) return
@@ -272,7 +272,14 @@ const VaultStack = () => {
       <Stack.Screen
         name="unlockVault"
         options={{ title: t('Welcome Back') }}
-        component={UnlockVaultScreen}
+        component={(props) => (
+          <UnlockVaultScreen
+            {...props}
+            unlockVault={unlockVault}
+            vaultStatus={vaultStatus}
+            biometricsEnabled={biometricsEnabled}
+          />
+        )}
       />
       <Stack.Screen
         name="resetVault"

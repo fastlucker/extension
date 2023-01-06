@@ -459,7 +459,12 @@ const VaultProvider: React.FC = ({ children }) => {
               resetVault={resetVault}
             />
           ) : (
-            <UnlockVaultScreen onForgotPassword={handleToggleForgotPassword} />
+            <UnlockVaultScreen
+              onForgotPassword={handleToggleForgotPassword}
+              unlockVault={unlockVault}
+              vaultStatus={vaultStatus}
+              biometricsEnabled={biometricsEnabled}
+            />
           )}
         </SafeAreaView>
       )}
