@@ -260,7 +260,7 @@ const NoConnectionStack = () => {
 
 const VaultStack = () => {
   const { t } = useTranslation()
-  const { vaultStatus } = useVault()
+  const { vaultStatus, resetVault } = useVault()
 
   useEffect(() => {
     if (vaultStatus !== VAULT_STATUS.LOADING) {
@@ -280,7 +280,9 @@ const VaultStack = () => {
       <Stack.Screen
         name="resetVault"
         options={{ title: t('Reset your\nAmbire Key Store Lock') }}
-        component={ResetVaultScreen}
+        component={(props) => (
+          <ResetVaultScreen {...props} vaultStatus={vaultStatus} resetVault={resetVault} />
+        )}
       />
     </Stack.Navigator>
   )
