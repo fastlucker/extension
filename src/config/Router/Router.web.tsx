@@ -260,7 +260,7 @@ const NoConnectionStack = () => {
 
 const VaultStack = () => {
   const { t } = useTranslation()
-  const { vaultStatus } = useVault()
+  const { vaultStatus, unlockVault, resetVault, biometricsEnabled } = useVault()
 
   useEffect(() => {
     if (vaultStatus !== VAULT_STATUS.LOADING) {
@@ -275,12 +275,21 @@ const VaultStack = () => {
       <Stack.Screen
         name="unlockVault"
         options={{ title: t('Welcome Back') }}
-        component={UnlockVaultScreen}
+        component={(props) => (
+          <UnlockVaultScreen
+            {...props}
+            unlockVault={unlockVault}
+            vaultStatus={vaultStatus}
+            biometricsEnabled={biometricsEnabled}
+          />
+        )}
       />
       <Stack.Screen
         name="resetVault"
         options={{ title: t('Reset your\nAmbire Key Store Lock') }}
-        component={ResetVaultScreen}
+        component={(props) => (
+          <ResetVaultScreen {...props} vaultStatus={vaultStatus} resetVault={resetVault} />
+        )}
       />
     </Stack.Navigator>
   )
