@@ -478,6 +478,7 @@ yarn-error.log
 # Ruby / CocoaPods
 /ios/Pods/
 /vendor/bundle/
+Gemfile.lock
 
 # iOS local certificates & credentials
 ios/certs/*
