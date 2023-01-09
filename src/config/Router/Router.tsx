@@ -1,4 +1,3 @@
-import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
@@ -346,6 +345,7 @@ const TabsScreens = () => {
         component={DashboardStackScreen}
       />
       {/* TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback */}
+      {/* Also excluded from the bundle by including an empty EarnScreen.ios.tsx */}
       {isAndroid && (
         <Tab.Screen
           name="earn"
