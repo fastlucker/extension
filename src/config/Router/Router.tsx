@@ -267,26 +267,34 @@ const VaultStack = () => {
 
   if (vaultStatus === VAULT_STATUS.LOADING) return null
 
+  const renderResetVaultScreen = useCallback<(props: any) => JSX.Element>(
+    (props) => <ResetVaultScreen {...props} vaultStatus={vaultStatus} resetVault={resetVault} />,
+    [resetVault, vaultStatus]
+  )
+
+  const renderUnlockVaultScreen = useCallback<(props: any) => JSX.Element>(
+    (props) => (
+      <UnlockVaultScreen
+        {...props}
+        unlockVault={unlockVault}
+        vaultStatus={vaultStatus}
+        biometricsEnabled={biometricsEnabled}
+      />
+    ),
+    [biometricsEnabled, unlockVault, vaultStatus]
+  )
+
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
       <Stack.Screen
         name="unlockVault"
         options={{ title: t('Welcome Back') }}
-        component={(props) => (
-          <UnlockVaultScreen
-            {...props}
-            unlockVault={unlockVault}
-            vaultStatus={vaultStatus}
-            biometricsEnabled={biometricsEnabled}
-          />
-        )}
+        component={renderUnlockVaultScreen}
       />
       <Stack.Screen
         name="resetVault"
         options={{ title: t('Reset Ambire Key Store') }}
-        component={(props) => (
-          <ResetVaultScreen {...props} vaultStatus={vaultStatus} resetVault={resetVault} />
-        )}
+        component={renderResetVaultScreen}
       />
     </Stack.Navigator>
   )
