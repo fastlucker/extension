@@ -1,5 +1,4 @@
-// TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback
-// Also excluded from the bundle by including an empty DepositFiat.ios.tsx */}
+// For the iOS app, this feature should be excluded from the bundle.
 const DepositFiat = () => null
 
 export default DepositFiat
