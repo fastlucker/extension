@@ -17,17 +17,26 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
-import useVault from '@modules/vault/hooks/useVault'
+import { VaultContextReturnType } from '@modules/vault/contexts/vaultContext/types'
 
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
 interface Props {
   onForgotPassword?: () => void
+  // Do not use `useVault` hook in this component because it is causing a
+  // require cycle (this component is also used in the vaultContext).
+  unlockVault: VaultContextReturnType['unlockVault']
+  vaultStatus: VaultContextReturnType['vaultStatus']
+  biometricsEnabled: VaultContextReturnType['biometricsEnabled']
 }
 
-const UnlockVaultScreen: React.FC<Props> = ({ onForgotPassword = () => {} }) => {
+const UnlockVaultScreen: React.FC<Props> = ({
+  onForgotPassword = () => {},
+  unlockVault,
+  vaultStatus,
+  biometricsEnabled
+}) => {
   const { t } = useTranslation()
-  const { unlockVault, vaultStatus, biometricsEnabled } = useVault()
   const {
     control,
     handleSubmit,
