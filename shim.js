@@ -1,8 +1,9 @@
 /* eslint-disable */
 import { Buffer } from '@craftzdog/react-native-buffer'
 
-import { shim } from 'react-native-quick-base64';
+import { shim } from 'react-native-quick-base64'
 
+// Adds btoa and atob functions to global.
 shim()
 
 // Installed and imported because of a dependency that uses Buffer functions

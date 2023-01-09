@@ -1,8 +1,6 @@
-import { isiOS, isWeb } from './src/config/env'
+import './shim'
 
-if (!isWeb) {
-  import ('./shim')
-}
+import { isiOS, isWeb } from './src/config/env'
 
 import './global'
 import '@config/analytics/CrashAnalytics'
