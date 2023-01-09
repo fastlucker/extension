@@ -371,6 +371,7 @@ const TabsScreens = () => {
         component={SendScreen}
       />
       {/* TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback */}
+      {/* Also excluded from the bundle by including an empty SwapScreen.ios.tsx */}
       {isAndroid && (
         <Tab.Screen
           name="swap"
