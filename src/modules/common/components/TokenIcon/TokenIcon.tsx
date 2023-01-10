@@ -3,6 +3,7 @@ import { Image, ImageProps, View } from 'react-native'
 
 import MissingTokenIcon from '@assets/svg/MissingTokenIcon'
 import { getTokenIcon } from '@modules/common/services/icons'
+import { checkIfImageExists } from '@modules/common/utils/checkIfImageExists'
 
 import Spinner from '../Spinner'
 import styles from './styles'
@@ -16,26 +17,6 @@ interface Props extends Partial<ImageProps> {
   containerHeight?: number
   width?: number
   height?: number
-}
-
-/**
- * Check if an image exists or not using the ES6 Fetch API
- * {@link https://stackoverflow.com/a/56196999/1333836}
- */
-const checkIfImageExists = (uri?: string) => {
-  if (!uri) {
-    return Promise.resolve(false)
-  }
-
-  return fetch(uri, { method: 'HEAD' })
-    .then((res) => {
-      if (res.ok) {
-        return Promise.resolve(true)
-      }
-
-      return Promise.resolve(false)
-    })
-    .catch(() => Promise.resolve(false))
 }
 
 const TokenIcon: React.FC<Props> = ({
