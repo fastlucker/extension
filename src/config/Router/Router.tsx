@@ -1,4 +1,3 @@
-import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
@@ -257,7 +256,7 @@ const NoConnectionStack = () => {
 
 const VaultStack = () => {
   const { t } = useTranslation()
-  const { vaultStatus } = useVault()
+  const { vaultStatus, unlockVault, biometricsEnabled, resetVault } = useVault()
 
   useEffect(() => {
     if (vaultStatus === VAULT_STATUS.LOADING) return
@@ -267,17 +266,34 @@ const VaultStack = () => {
 
   if (vaultStatus === VAULT_STATUS.LOADING) return null
 
+  const renderResetVaultScreen = useCallback<(props: any) => JSX.Element>(
+    (props) => <ResetVaultScreen {...props} vaultStatus={vaultStatus} resetVault={resetVault} />,
+    [resetVault, vaultStatus]
+  )
+
+  const renderUnlockVaultScreen = useCallback<(props: any) => JSX.Element>(
+    (props) => (
+      <UnlockVaultScreen
+        {...props}
+        unlockVault={unlockVault}
+        vaultStatus={vaultStatus}
+        biometricsEnabled={biometricsEnabled}
+      />
+    ),
+    [biometricsEnabled, unlockVault, vaultStatus]
+  )
+
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
       <Stack.Screen
         name="unlockVault"
         options={{ title: t('Welcome Back') }}
-        component={UnlockVaultScreen}
+        component={renderUnlockVaultScreen}
       />
       <Stack.Screen
         name="resetVault"
         options={{ title: t('Reset Ambire Key Store') }}
-        component={ResetVaultScreen}
+        component={renderResetVaultScreen}
       />
     </Stack.Navigator>
   )
@@ -329,6 +345,7 @@ const TabsScreens = () => {
         component={DashboardStackScreen}
       />
       {/* TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback */}
+      {/* Also excluded from the bundle by including an empty EarnScreen.ios.tsx */}
       {isAndroid && (
         <Tab.Screen
           name="earn"
@@ -354,6 +371,7 @@ const TabsScreens = () => {
         component={SendScreen}
       />
       {/* TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback */}
+      {/* Also excluded from the bundle by including an empty SwapScreen.ios.tsx */}
       {isAndroid && (
         <Tab.Screen
           name="swap"

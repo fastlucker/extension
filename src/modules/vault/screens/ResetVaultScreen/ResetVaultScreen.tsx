@@ -18,15 +18,18 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
-import useVault from '@modules/vault/hooks/useVault'
+import { VaultContextReturnType } from '@modules/vault/contexts/vaultContext/types'
 
 interface Props {
   onGoBack?: () => void
+  // Do not use `useVault` hook in this component because it is causing a
+  // require cycle (this component is also used in the vaultContext).
+  resetVault: VaultContextReturnType['resetVault']
+  vaultStatus: VaultContextReturnType['vaultStatus']
 }
 
-const ResetVaultScreen: React.FC<Props> = ({ onGoBack = () => {} }) => {
+const ResetVaultScreen: React.FC<Props> = ({ onGoBack = () => {}, resetVault, vaultStatus }) => {
   const { t } = useTranslation()
-  const { resetVault, vaultStatus } = useVault()
 
   const {
     control,

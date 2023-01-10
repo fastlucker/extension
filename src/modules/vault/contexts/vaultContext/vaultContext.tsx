@@ -453,9 +453,18 @@ const VaultProvider: React.FC = ({ children }) => {
       {vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY && (
         <SafeAreaView style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
           {shouldDisplayForgotPassword ? (
-            <ResetVaultScreen onGoBack={handleToggleForgotPassword} />
+            <ResetVaultScreen
+              onGoBack={handleToggleForgotPassword}
+              vaultStatus={vaultStatus}
+              resetVault={resetVault}
+            />
           ) : (
-            <UnlockVaultScreen onForgotPassword={handleToggleForgotPassword} />
+            <UnlockVaultScreen
+              onForgotPassword={handleToggleForgotPassword}
+              unlockVault={unlockVault}
+              vaultStatus={vaultStatus}
+              biometricsEnabled={biometricsEnabled}
+            />
           )}
         </SafeAreaView>
       )}
