@@ -142,7 +142,7 @@ android {
         versionName "2.5"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
         if (isNewArchitectureEnabled()) {
-            // We configure the NDK build only if you decide to opt-in for the New Architecture.
+            // We configure the CMake build only if you decide to opt-in for the New Architecture.
             externalNativeBuild {
                 cmake {
                     arguments "-DPROJECT_BUILD_DIR=$buildDir",
