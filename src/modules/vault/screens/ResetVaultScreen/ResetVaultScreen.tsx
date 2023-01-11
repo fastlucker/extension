@@ -21,6 +21,7 @@ import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import { VaultContextReturnType } from '@modules/vault/contexts/vaultContext/types'
 
 interface Props {
+  hasGradientBackground?: boolean
   onGoBack?: () => void
   // Do not use `useVault` hook in this component because it is causing a
   // require cycle (this component is also used in the vaultContext).
@@ -28,7 +29,12 @@ interface Props {
   vaultStatus: VaultContextReturnType['vaultStatus']
 }
 
-const ResetVaultScreen: React.FC<Props> = ({ onGoBack = () => {}, resetVault, vaultStatus }) => {
+const ResetVaultScreen: React.FC<Props> = ({
+  hasGradientBackground = true,
+  onGoBack = () => {},
+  resetVault,
+  vaultStatus
+}) => {
   const { t } = useTranslation()
 
   const {
@@ -44,8 +50,10 @@ const ResetVaultScreen: React.FC<Props> = ({ onGoBack = () => {}, resetVault, va
     }
   })
 
+  const BackgroundWrapper = hasGradientBackground ? GradientBackgroundWrapper : React.Fragment
+
   return (
-    <GradientBackgroundWrapper>
+    <BackgroundWrapper>
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
@@ -138,7 +146,7 @@ const ResetVaultScreen: React.FC<Props> = ({ onGoBack = () => {}, resetVault, va
           </Wrapper>
         </>
       </TouchableWithoutFeedback>
-    </GradientBackgroundWrapper>
+    </BackgroundWrapper>
   )
 }
 
