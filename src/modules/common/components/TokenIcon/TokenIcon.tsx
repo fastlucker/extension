@@ -36,8 +36,8 @@ const TokenIcon: React.FC<Props> = ({
   useEffect(() => {
     ;(async () => {
       if (uri) {
-        const hasLoadedTheUriProp = await checkIfImageExists(uri)
-        if (hasLoadedTheUriProp) {
+        const hasLoadedUri = await checkIfImageExists(uri)
+        if (hasLoadedUri) {
           setValidUri(uri)
           setIsLoading(false)
           return
@@ -45,8 +45,8 @@ const TokenIcon: React.FC<Props> = ({
       }
 
       const alternativeUri = getTokenIcon(networkId, address)
-      const hasLoadedTheFallbackUri = await checkIfImageExists(alternativeUri)
-      if (hasLoadedTheFallbackUri) {
+      const hasLoadedFallbackUri = await checkIfImageExists(alternativeUri)
+      if (hasLoadedFallbackUri) {
         setValidUri(alternativeUri)
         setIsLoading(false)
         return
