@@ -22,6 +22,7 @@ import { VaultContextReturnType } from '@modules/vault/contexts/vaultContext/typ
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
 interface Props {
+  hasGradientBackground?: boolean
   onForgotPassword?: () => void
   // Do not use `useVault` hook in this component because it is causing a
   // require cycle (this component is also used in the vaultContext).
@@ -34,7 +35,8 @@ const UnlockVaultScreen: React.FC<Props> = ({
   onForgotPassword = () => {},
   unlockVault,
   vaultStatus,
-  biometricsEnabled
+  biometricsEnabled,
+  hasGradientBackground = true
 }) => {
   const { t } = useTranslation()
   const {
@@ -85,8 +87,10 @@ const UnlockVaultScreen: React.FC<Props> = ({
 
   useDisableNavigatingBack()
 
+  const BackgroundWrapper = hasGradientBackground ? GradientBackgroundWrapper : React.Fragment
+
   return (
-    <GradientBackgroundWrapper>
+    <BackgroundWrapper>
       <TouchableWithoutFeedback
         onPress={() => {
           !isWeb && Keyboard.dismiss()
@@ -163,7 +167,7 @@ const UnlockVaultScreen: React.FC<Props> = ({
           </View>
         </Wrapper>
       </TouchableWithoutFeedback>
-    </GradientBackgroundWrapper>
+    </BackgroundWrapper>
   )
 }
 
