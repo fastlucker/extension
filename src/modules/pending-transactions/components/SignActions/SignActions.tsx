@@ -190,7 +190,7 @@ const SignActions = ({
           <Button
             text={t('Sign')}
             onPress={handleRequestSignConfirmation}
-            disabled={!estimation || signingStatus}
+            disabled={!estimation || !!signingStatus}
           />
         </View>
       </View>

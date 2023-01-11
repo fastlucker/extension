@@ -5,10 +5,12 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTranslation } from '@config/localization'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
+import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
+import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { KEY_LOCK_KEYSTORE_WHEN_INACTIVE } from '@modules/vault/constants/storageKeys'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useLockWhenInactive from '@modules/vault/hooks/useLockWhenInactive'
@@ -451,22 +453,31 @@ const VaultProvider: React.FC = ({ children }) => {
       {/* all redirects are happening below overlay and when the overlay */}
       {/* gets dismissed - the current route is always up to date. */}
       {vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY && (
-        <SafeAreaView style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
-          {shouldDisplayForgotPassword ? (
-            <ResetVaultScreen
-              onGoBack={handleToggleForgotPassword}
-              vaultStatus={vaultStatus}
-              resetVault={resetVault}
-            />
-          ) : (
-            <UnlockVaultScreen
-              onForgotPassword={handleToggleForgotPassword}
-              unlockVault={unlockVault}
-              vaultStatus={vaultStatus}
-              biometricsEnabled={biometricsEnabled}
-            />
-          )}
-        </SafeAreaView>
+        <GradientBackgroundWrapper style={[StyleSheet.absoluteFill, styles.lockedContainer]}>
+          <SafeAreaView
+            style={
+              // otherwise, the content disappears when the parent is absolute
+              flexboxStyles.flex1
+            }
+          >
+            {shouldDisplayForgotPassword ? (
+              <ResetVaultScreen
+                onGoBack={handleToggleForgotPassword}
+                vaultStatus={vaultStatus}
+                resetVault={resetVault}
+                hasGradientBackground={false}
+              />
+            ) : (
+              <UnlockVaultScreen
+                onForgotPassword={handleToggleForgotPassword}
+                unlockVault={unlockVault}
+                vaultStatus={vaultStatus}
+                biometricsEnabled={biometricsEnabled}
+                hasGradientBackground={false}
+              />
+            )}
+          </SafeAreaView>
+        </GradientBackgroundWrapper>
       )}
       {children}
     </VaultContext.Provider>
