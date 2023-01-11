@@ -1,5 +1,5 @@
 import networks, { NetworkType } from 'ambire-common/src/constants/networks'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 // Using the ScrollView from 'react-native' was working just fine on all iOS
@@ -33,23 +33,6 @@ const NetworkChanger: React.FC = () => {
     () => allVisibleNetworks.map((n) => n.chainId).indexOf(network?.chainId || 0),
     [network?.chainId, allVisibleNetworks]
   )
-
-  useEffect(() => {
-    // There is a bug in React Native with the `contentOffset` prop.
-    // It doesn't work on Android only. So this is a workaround - use the
-    // `scrollTo` method instead to scroll to the current network.
-    // TODO: When migrating to Expo SDK v46 and React Native 0.69.0,
-    // double-check if this is still needed, because it looks like there is a
-    // fix which pinpoints a similar issue reported, see:
-    // {@link https://github.com/facebook/react-native/issues/30533#issuecomment-1178109921}
-    if (isAndroid) {
-      scrollRef?.current?.scrollTo({
-        x: 0,
-        y: SINGLE_ITEM_HEIGHT * currentNetworkIndex,
-        animated: true
-      })
-    }
-  }, [scrollRef, currentNetworkIndex])
 
   const handleChangeNetwork = useCallback(
     (_network: NetworkType) => {

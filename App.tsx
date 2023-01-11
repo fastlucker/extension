@@ -17,7 +17,7 @@ const App = () => {
     <GestureHandlerRootView
       style={[flexboxStyles.flex1, { backgroundColor: colors.hauntedDreams }]}
     >
-      <StatusBar style="light" />
+      <StatusBar style="light" backgroundColor={colors.wooed} />
 
       <AppLoading />
     </GestureHandlerRootView>

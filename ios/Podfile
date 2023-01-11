@@ -1,14 +1,12 @@
 require_relative '../node_modules/expo/scripts/autolinking'
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
-platform :ios, '12.4'
+platform :ios, '13.0'
 install! 'cocoapods', :deterministic_uuids => false
 
 require 'json'
 podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {}
 inhibit_all_warnings!
-
-production = ENV["PRODUCTION"] == "1"
 
 target 'ambire' do
   use_expo_modules!
@@ -26,8 +24,9 @@ target 'ambire' do
 
   use_react_native!(
     :path => config[:reactNativePath],
-    :production => production,
-    # to enable hermes on iOS, change `false` to `true` and then install pods
+    # Hermes is now enabled by default. Disable by setting this flag to false.
+    # Upcoming versions of React Native may rely on get_default_flags(), but
+    # we make it explicit here to aid in the React Native upgrade process.
     :hermes_enabled => true,
     # Use Flipper only for debug builds. Otherwise, it conflicts with the
     # OpenSSL framework dep of the react-native-quick-crypto package.
@@ -45,7 +44,12 @@ target 'ambire' do
   )
 
   post_install do |installer|
-    react_native_post_install(installer)
+    react_native_post_install(
+      installer,
+      # Set `mac_catalyst_enabled` to `true` in order to apply patches
+      # necessary for Mac Catalyst builds
+      :mac_catalyst_enabled => false
+    )
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
 
     # This is necessary for Xcode 14, because it signs resource bundles by
