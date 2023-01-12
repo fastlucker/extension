@@ -30,6 +30,8 @@ class HtmlWebpackPlugin extends ExpoHtmlWebpackPlugin {
 module.exports = async function (env, argv) {
   function processManifest(content) {
     const manifest = JSON.parse(content.toString())
+    // Temporarily the manifest is v2 for all browsers until the v3 is ready for prod and tested well
+    const manifestVersion = 2
 
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
@@ -49,9 +51,9 @@ module.exports = async function (env, argv) {
     //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
     // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
     // {@link https://web.dev/csp/}
-    const csp = "script-src 'self'; object-src 'self'; frame-ancestors 'none';"
+    const csp = "script-src: 'self'; object-src 'self'; frame-ancestors 'none';"
 
-    if (process.env.WEB_ENGINE === 'webkit') {
+    if (manifestVersion === 3) {
       manifest.content_security_policy = { extension_pages: csp }
       // This value can be used to control the unique ID of an extension,
       // when it is loaded during development. In prod, the ID is generated
@@ -62,7 +64,7 @@ module.exports = async function (env, argv) {
     }
 
     // Tweak manifest file, so it's compatible with gecko extensions specifics
-    if (process.env.WEB_ENGINE === 'gecko') {
+    if (manifestVersion === 2) {
       manifest.manifest_version = 2
       manifest.background = {
         scripts: ['background.js']
@@ -100,7 +102,7 @@ module.exports = async function (env, argv) {
 
   // adds files from /constants, /functions and /services as webpack entries
   fs.readdirSync('./web').forEach((dir) => {
-    if (['constants', 'functions', 'services'].includes(dir)) {
+    if (['constants', 'functions', 'message', 'services'].includes(dir)) {
       fs.readdirSync(`./web/${dir}`).forEach((file) => {
         entries[path.parse(file).name] = `./web/${dir}/${file}`
       })
