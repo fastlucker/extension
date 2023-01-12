@@ -35,9 +35,6 @@ const AddHardwareWalletSigner = () => {
         onPress={openBottomSheet}
         style={spacings.mbLg}
       />
-      <TextWarning appearance="info">
-        {t('For accessing the full signers management options, please visit the web app.')}
-      </TextWarning>
       <BottomSheet
         id="hardware-wallet-signer"
         sheetRef={sheetRef}
