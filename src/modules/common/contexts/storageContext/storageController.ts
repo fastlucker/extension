@@ -1,5 +1,4 @@
 import { MMKV } from 'react-native-mmkv'
-import browserAPI from 'webextension-polyfill'
 
 import { isExtension } from '@web/constants/browserAPI'
 
@@ -52,13 +51,13 @@ export class StorageController {
 
   async init() {
     if (isExtension) {
-      const result = await browserAPI.storage.local.get()
+      const result = await browser.storage.local.get()
 
       this.extensionSyncStorage = { ...defaultExtensionSyncStorage, ...result }
 
       // Subscribe to changes in order to always keep in sync the
-      // local `extensionSyncStorage` with the browserAPI.storage.local
-      browserAPI.storage.onChanged.addListener(this.handleOnExtensionStorageChange)
+      // local `extensionSyncStorage` with the browser.storage.local
+      browser.storage.onChanged.addListener(this.handleOnExtensionStorageChange)
     } else {
       this.mmkv = new MMKV()
     }
@@ -67,7 +66,7 @@ export class StorageController {
 
     return () =>
       isExtension
-        ? browserAPI.storage.onChanged.removeListener(this.handleOnExtensionStorageChange)
+        ? browser.storage.onChanged.removeListener(this.handleOnExtensionStorageChange)
         : null
   }
 
@@ -91,7 +90,7 @@ export class StorageController {
     if (isExtension) {
       this.extensionSyncStorage[key] = value
 
-      browserAPI.storage.local.set({ ...this.extensionSyncStorage, [key]: value })
+      browser.storage.local.set({ ...this.extensionSyncStorage, [key]: value })
     } else {
       this.mmkv?.set(key, value)
     }
@@ -99,7 +98,7 @@ export class StorageController {
 
   setItemAsync(key: string, value: string) {
     if (isExtension) {
-      const { local } = browserAPI.storage
+      const { local } = browser.storage
 
       return new Promise((resolve) => {
         this.extensionSyncStorage[key] = value
@@ -125,7 +124,7 @@ export class StorageController {
     if (isExtension) {
       delete this.extensionSyncStorage[key]
 
-      browserAPI.storage.local.remove([key])
+      browser.storage.local.remove([key])
     } else {
       this.mmkv?.delete(key)
     }
@@ -133,12 +132,12 @@ export class StorageController {
 
   removeItemAsync(key: string) {
     if (isExtension) {
-      const { local } = browserAPI.storage
+      const { local } = browser.storage
 
       return new Promise((resolve) => {
         delete this.extensionSyncStorage[key]
 
-        browserAPI.storage.local.remove([key])
+        browser.storage.local.remove([key])
 
         local.remove([key]).then(() => {
           resolve(true)

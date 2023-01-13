@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import browserAPI from 'webextension-polyfill'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
@@ -19,7 +18,7 @@ const WORKER_KEEP_ALIVE_MESSAGE = 'WORKER_KEEP_ALIVE_MESSAGE'
 const STORAGE_KEY = 'ambire_extension_state'
 
 // TODO: should be called only for extension. Skip if this code is used for web wallet
-!!setupAmbexMessenger && setupAmbexMessenger(CONTENT_SCRIPT, browserAPI)
+!!setupAmbexMessenger && setupAmbexMessenger(CONTENT_SCRIPT, browser)
 
 const AmbireExtensionProvider: React.FC = ({ children }) => {
   const { selectedAcc: selectedAccount } = useAccounts()
@@ -224,26 +223,26 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     let interval: any
-    if (browserAPI.tabs) {
-      browserAPI.tabs.query(
-        {
-          active: true,
-          currentWindow: true
-        },
-        ([currentTab]) => {
-          setLastActiveTab(currentTab)
-        }
-      )
-      /*
-       * As long as UI is open it will keep sending messages to service worker
-       * In service worker as this message is received
-       * if service worker is inactive it is reactivated and script re-loaded
-       * Time has been kept to 1000ms but can be reduced for even faster re-activation of service worker
-       */
-      interval = setInterval(() => {
-        browserAPI.runtime.sendMessage({ name: WORKER_KEEP_ALIVE_MESSAGE })
-      }, WORKER_KEEP_ALIVE_INTERVAL)
-    }
+    // if (browser.tabs) {
+    //   browser.tabs.query(
+    //     {
+    //       active: true,
+    //       currentWindow: true
+    //     },
+    //     ([currentTab]) => {
+    //       setLastActiveTab(currentTab)
+    //     }
+    //   )
+    //   /*
+    //    * As long as UI is open it will keep sending messages to service worker
+    //    * In service worker as this message is received
+    //    * if service worker is inactive it is reactivated and script re-loaded
+    //    * Time has been kept to 1000ms but can be reduced for even faster re-activation of service worker
+    //    */
+    //   interval = setInterval(() => {
+    //     browser.runtime.sendMessage({ name: WORKER_KEEP_ALIVE_MESSAGE })
+    //   }, WORKER_KEEP_ALIVE_INTERVAL)
+    // }
 
     return () => {
       clearInterval(interval)

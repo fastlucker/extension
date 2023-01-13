@@ -1,7 +1,5 @@
 // @ts-nocheck
 
-import browserAPI from 'webextension-polyfill'
-
 import { POPUP_HEIGHT, POPUP_WIDTH } from '@web/constants/spacings'
 
 export const DEFERRED_PERMISSION_WINDOWS = {}
@@ -12,7 +10,7 @@ async function deferTick(host, queue, route) {
     DEFERRED_PERMISSION_WINDOWS[host] = false
 
     // getting last focused window to position our popup correctly
-    const lastFocused = await browserAPI.windows.getLastFocused()
+    const lastFocused = await browser.windows.getLastFocused()
 
     const windowMarginRight = 20
     const windowMarginTop = 80
@@ -29,12 +27,12 @@ async function deferTick(host, queue, route) {
       top: popupTop
     }
 
-    const creating = browserAPI.windows.create(createData)
+    const creating = browser.windows.create(createData)
 
     creating.then((c) => {
       PERMISSION_WINDOWS[host] = c.id
       // FF does not place popup correctly on creation so we force update...
-      browserAPI.windows.update(c.id, {
+      browser.windows.update(c.id, {
         left: popupLeft,
         top: popupTop,
         focused: true,
