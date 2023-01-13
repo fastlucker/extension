@@ -12,7 +12,7 @@ import useToast from '@modules/common/hooks/useToast'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import AAVECard from '@modules/earn/components/AAVECard'
 import AmbireCard from '@modules/earn/components/AmbireCard'
-import YearnTesseractCard from '@modules/earn/components/YearnTesseractCard'
+// import YearnTesseractCard from '@modules/earn/components/YearnTesseractCard'
 import { CardsVisibilityProvider } from '@modules/earn/contexts/cardsVisibilityContext'
 
 const EarnScreen = () => {
@@ -48,13 +48,16 @@ const EarnScreen = () => {
                 addRequest={addRequest}
                 addToast={addToast}
               />
-              <YearnTesseractCard
+              {/* Temporarily disabled, because the lib stopped working on mobile */}
+              {/* and it is even causing a crash on the browser extension */}
+              {/* FIXME: https://github.com/AmbireTech/ambire-mobile-wallet/pull/774 */}
+              {/* <YearnTesseractCard
                 tokens={tokens}
                 networkId={network?.id}
                 selectedAcc={selectedAcc}
                 addRequest={addRequest}
                 addToast={addToast}
-              />
+              /> */}
             </>
           </CardsVisibilityProvider>
         )}
