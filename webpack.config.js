@@ -67,7 +67,7 @@ module.exports = async function (env, argv) {
     if (manifestVersion === 2) {
       manifest.manifest_version = 2
       manifest.background = {
-        page: 'background.html',
+        scripts: ['background.js'],
         persistent: true
       }
       manifest.browser_specific_settings = {
@@ -81,7 +81,6 @@ module.exports = async function (env, argv) {
       manifest.browser_action = JSON.parse(JSON.stringify(manifest.action))
       delete manifest.action
       manifest.externally_connectable = undefined
-      manifest.permissions.splice(manifest.permissions.indexOf('scripting'), 1)
       manifest.permissions.push('<all_urls>')
       // manifest.content_security_policy = csp
     }
@@ -210,11 +209,6 @@ module.exports = async function (env, argv) {
           {
             from: './web/manifest.json',
             to: 'manifest.json',
-            transform: processManifest
-          },
-          {
-            from: './web/background.html',
-            to: 'background.html',
             transform: processManifest
           }
         ]
