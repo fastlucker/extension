@@ -161,7 +161,7 @@
     "validator": "^13.7.0",
     "vm-browserify": "0.0.4",
     "web3": "^1.7.5",
-    "webextension-polyfill-ts": "0.26.0"
+    "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",

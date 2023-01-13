@@ -51,7 +51,7 @@ module.exports = async function (env, argv) {
     //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
     // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
     // {@link https://web.dev/csp/}
-    const csp = "script-src 'self' 'unsafe-inline'; object-src 'self'; frame-ancestors 'none';"
+    const csp = "script-src 'self'; object-src 'self'; frame-ancestors 'none';"
 
     if (manifestVersion === 3) {
       manifest.content_security_policy = { extension_pages: csp }
@@ -67,7 +67,8 @@ module.exports = async function (env, argv) {
     if (manifestVersion === 2) {
       manifest.manifest_version = 2
       manifest.background = {
-        scripts: ['background.js']
+        page: 'background.html',
+        persistent: true
       }
       manifest.browser_specific_settings = {
         gecko: {
@@ -82,7 +83,7 @@ module.exports = async function (env, argv) {
       manifest.externally_connectable = undefined
       manifest.permissions.splice(manifest.permissions.indexOf('scripting'), 1)
       manifest.permissions.push('<all_urls>')
-      manifest.content_security_policy = csp
+      // manifest.content_security_policy = csp
     }
 
     const manifestJSON = JSON.stringify(manifest, null, 2)
@@ -209,6 +210,11 @@ module.exports = async function (env, argv) {
           {
             from: './web/manifest.json',
             to: 'manifest.json',
+            transform: processManifest
+          },
+          {
+            from: './web/background.html',
+            to: 'background.html',
             transform: processManifest
           }
         ]
