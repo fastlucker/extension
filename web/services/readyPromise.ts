@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 class ReadyPromise {
   private _allCheck: boolean[] = []
 

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { ethErrors } from 'eth-rpc-errors'
 
 class PushEventHandlers {

@@ -51,7 +51,7 @@ module.exports = async function (env, argv) {
     //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
     // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
     // {@link https://web.dev/csp/}
-    const csp = "script-src: 'self'; object-src 'self'; frame-ancestors 'none';"
+    const csp = "script-src 'self' 'unsafe-inline'; object-src 'self'; frame-ancestors 'none';"
 
     if (manifestVersion === 3) {
       manifest.content_security_policy = { extension_pages: csp }

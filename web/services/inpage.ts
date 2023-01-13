@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { EventEmitter } from 'events'
 import log from 'loglevel'
@@ -47,7 +49,7 @@ export class EthereumProvider extends EventEmitter {
    */
   networkVersion: string | null = null
 
-  isRabby = true
+  isAmbire = true
 
   isMetaMask = true
 
@@ -302,7 +304,7 @@ const provider = new EthereumProvider()
 let cacheOtherProvider: EthereumProvider | null = null
 const rabbyProvider = new Proxy(provider, {
   deleteProperty: (target, prop) => {
-    if (prop === 'on' || prop === 'isRabby') {
+    if (prop === 'on' || prop === 'isAmbire') {
       // @ts-ignore
       delete target[prop]
     }
