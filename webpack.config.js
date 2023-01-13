@@ -67,7 +67,7 @@ module.exports = async function (env, argv) {
     if (manifestVersion === 2) {
       manifest.manifest_version = 2
       manifest.background = {
-        scripts: ['background.js'],
+        scripts: ['browser-polyfill.js', 'background.js'],
         persistent: true
       }
       manifest.browser_specific_settings = {
@@ -210,6 +210,10 @@ module.exports = async function (env, argv) {
             from: './web/manifest.json',
             to: 'manifest.json',
             transform: processManifest
+          },
+          {
+            from: 'node_modules/webextension-polyfill/dist/browser-polyfill.js',
+            to: 'browser-polyfill.js'
           }
         ]
       }),
