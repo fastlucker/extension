@@ -6,7 +6,6 @@ import useStorage from '@modules/common/hooks/useStorage'
 import { errorCodes } from '@web/constants/errors'
 import { BACKGROUND, CONTENT_SCRIPT } from '@web/constants/paths'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
-import { sendMessage, setupAmbexMessenger } from '@web/services/ambexMessanger'
 
 import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from './types'
 
@@ -16,9 +15,6 @@ const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
 const WORKER_KEEP_ALIVE_INTERVAL = 1000
 const WORKER_KEEP_ALIVE_MESSAGE = 'WORKER_KEEP_ALIVE_MESSAGE'
 const STORAGE_KEY = 'ambire_extension_state'
-
-// TODO: should be called only for extension. Skip if this code is used for web wallet
-!!setupAmbexMessenger && setupAmbexMessenger(CONTENT_SCRIPT, browser)
 
 const AmbireExtensionProvider: React.FC = ({ children }) => {
   const { selectedAcc: selectedAccount } = useAccounts()
@@ -152,15 +148,16 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
             rpcResult.result = resolution.result
           }
 
-          !!sendMessage &&
-            sendMessage({
-              type: 'web3CallResponse',
-              to: BACKGROUND,
-              data: {
-                originalMessage: req.originalMessage,
-                rpcResult
-              }
-            })
+          // TODO:
+          // !!sendMessage &&
+          //   sendMessage({
+          //     type: 'web3CallResponse',
+          //     to: BACKGROUND,
+          //     data: {
+          //       originalMessage: req.originalMessage,
+          //       rpcResult
+          //     }
+          //   })
         }
       }
       setRequests((prevRequests) => prevRequests.filter((x) => !ids.includes(x.id)))
@@ -170,13 +167,14 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
 
   const disconnectDapp = useCallback(
     (host: string) => {
-      sendMessage({
-        to: BACKGROUND,
-        type: 'removeFromPermissionsList',
-        data: { host }
-      }).then(() => {
-        setConnectedDapps(connectedDapps.filter((p) => p.host !== host))
-      })
+      // TODO:
+      // sendMessage({
+      //   to: BACKGROUND,
+      //   type: 'removeFromPermissionsList',
+      //   data: { host }
+      // }).then(() => {
+      //   setConnectedDapps(connectedDapps.filter((p) => p.host !== host))
+      // })
     },
     [connectedDapps]
   )
@@ -204,20 +202,21 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (!isTempExtensionPopup) {
-      !!sendMessage &&
-        sendMessage({
-          to: BACKGROUND,
-          type: 'getPermissionsList'
-        }).then((reply) => {
-          setConnectedDapps(
-            Object.keys(reply.data).map((host) => {
-              return {
-                host,
-                status: reply.data?.[host]
-              }
-            })
-          )
-        })
+      // TODO:
+      // !!sendMessage &&
+      //   sendMessage({
+      //     to: BACKGROUND,
+      //     type: 'getPermissionsList'
+      //   }).then((reply) => {
+      //     setConnectedDapps(
+      //       Object.keys(reply.data).map((host) => {
+      //         return {
+      //           host,
+      //           status: reply.data?.[host]
+      //         }
+      //       })
+      //     )
+      //   })
     }
   }, [isTempExtensionPopup])
 

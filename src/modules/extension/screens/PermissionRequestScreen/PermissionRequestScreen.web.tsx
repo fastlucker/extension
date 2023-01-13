@@ -19,7 +19,6 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import ManifestImage from '@modules/extension/components/ManifestImage'
 import { BACKGROUND } from '@web/constants/paths'
-import { sendMessage } from '@web/services/ambexMessanger'
 
 import styles from './styles'
 
@@ -49,23 +48,24 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   const [isQueueDisplayed, setIsQueueDisplayed] = useState(false)
 
   const handlePermission = (permitted: boolean) => {
-    if (sendMessage) {
-      sendMessage({
-        type: 'grantPermission',
-        to: BACKGROUND,
-        data: {
-          permitted,
-          targetHost
-        }
-      })
-        .then(() => {
-          setFeedback({ success: true, permitted })
-        })
-        .catch(() => {
-          // TODO: should not happen but in case, implement something nicer for the user?
-          setFeedback({ success: false, permitted })
-        })
-    }
+    // TODO:
+    // if (sendMessage) {
+    //   sendMessage({
+    //     type: 'grantPermission',
+    //     to: BACKGROUND,
+    //     data: {
+    //       permitted,
+    //       targetHost
+    //     }
+    //   })
+    //     .then(() => {
+    //       setFeedback({ success: true, permitted })
+    //     })
+    //     .catch(() => {
+    //       // TODO: should not happen but in case, implement something nicer for the user?
+    //       setFeedback({ success: false, permitted })
+    //     })
+    // }
   }
 
   useEffect(() => {

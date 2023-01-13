@@ -62,7 +62,6 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { BACKGROUND } from '@web/constants/paths'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
-import { sendMessage } from '@web/services/ambexMessanger'
 
 import { drawerWebStyle, navigationContainerDarkTheme } from './styles'
 
@@ -596,16 +595,17 @@ const Router = () => {
   const handleForceClose = () => {
     if (isTempExtensionPopup && !__DEV__) {
       if (params.route === 'permission-request') {
-        sendMessage(
-          {
-            type: 'clearPendingCallback',
-            to: BACKGROUND,
-            data: {
-              targetHost: params.host
-            }
-          },
-          { ignoreReply: true }
-        )
+        // TODO:
+        // sendMessage(
+        //   {
+        //     type: 'clearPendingCallback',
+        //     to: BACKGROUND,
+        //     data: {
+        //       targetHost: params.host
+        //     }
+        //   },
+        //   { ignoreReply: true }
+        // )
       }
     }
   }

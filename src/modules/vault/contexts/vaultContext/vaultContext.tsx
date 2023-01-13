@@ -21,7 +21,6 @@ import VaultController from '@modules/vault/services/VaultController'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 import { isExtension } from '@web/constants/browserAPI'
 import { BACKGROUND } from '@web/constants/paths'
-import { sendMessage } from '@web/services/ambexMessanger'
 
 import styles from './styles'
 import { vaultContextDefaults, VaultContextReturnType } from './types'
@@ -77,19 +76,20 @@ const VaultProvider: React.FC = ({ children }) => {
     }) => {
       if (isExtension) {
         return new Promise((resolve, reject) => {
-          sendMessage(
-            {
-              type: 'vaultController',
-              to: BACKGROUND,
-              data: {
-                method,
-                props
-              }
-            },
-            options || {}
-          )
-            .then((res: any) => resolve(res.data))
-            .catch((err) => reject(err))
+          // TODO:
+          // sendMessage(
+          //   {
+          //     type: 'vaultController',
+          //     to: BACKGROUND,
+          //     data: {
+          //       method,
+          //       props
+          //     }
+          //   },
+          //   options || {}
+          // )
+          //   .then((res: any) => resolve(res.data))
+          //   .catch((err) => reject(err))
         })
       }
 
