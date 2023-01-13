@@ -1,6 +1,7 @@
 // @ts-nocheck
 
-import { browserAPI } from '@web/constants/browserAPI'
+import browserAPI from 'webextension-polyfill'
+
 import { POPUP_HEIGHT, POPUP_WIDTH } from '@web/constants/spacings'
 
 export const DEFERRED_PERMISSION_WINDOWS = {}

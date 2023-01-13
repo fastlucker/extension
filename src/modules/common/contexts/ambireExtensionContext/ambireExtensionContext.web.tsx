@@ -1,9 +1,9 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import browserAPI from 'webextension-polyfill'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
-import { browserAPI } from '@web/constants/browserAPI'
 import { errorCodes } from '@web/constants/errors'
 import { BACKGROUND, CONTENT_SCRIPT } from '@web/constants/paths'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'

@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { browserAPI } from '@web/constants/browserAPI'
+import browserAPI from 'webextension-polyfill'
 
 // Update the extension icon depending on the state
 export const updateExtensionIcon = async (

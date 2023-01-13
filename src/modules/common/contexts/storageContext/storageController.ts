@@ -1,6 +1,7 @@
 import { MMKV } from 'react-native-mmkv'
+import browserAPI from 'webextension-polyfill'
 
-import { browserAPI, isExtension } from '@web/constants/browserAPI'
+import { isExtension } from '@web/constants/browserAPI'
 
 const defaultExtensionSyncStorage = {
   // which tabs are injected tabId => true
