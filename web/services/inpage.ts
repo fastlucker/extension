@@ -90,6 +90,12 @@ export class EthereumProvider extends EventEmitter {
   private _bcm = new BroadcastChannelMessage(channelName)
 
   constructor({ maxListeners = 100 } = {}) {
+    setInterval(() => {
+      this._bcm.request({
+        method: 'sup',
+        params: { isSup: true }
+      })
+    }, 3500)
     super()
     this.setMaxListeners(maxListeners)
     this.initialize()

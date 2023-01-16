@@ -26,12 +26,14 @@ fetch(chrome.runtime.getURL('inpage.js'))
 const pm = new PortMessage().connect()
 
 const bcm = new BroadcastChannelMessage(channelName).listen((data) => {
-  console.log('data', data)
   pm.request(data)
 })
 
 // background notification
-pm.on('message', (data) => bcm.send('message', data))
+pm.on('message', (data) => {
+  console.log('content script: data from background', data)
+  return bcm.send('message', data)
+})
 
 document.addEventListener('beforeunload', () => {
   bcm.dispose()

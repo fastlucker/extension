@@ -9,8 +9,33 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import AppLoading from '@modules/app-loading/screens/AppLoading'
 import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import { isExtension } from '@web/constants/browserAPI'
+import PortMessage from '@web/message/portMessage'
+import eventBus from '@web/services/eventBus'
 
 SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry error
+
+if (isExtension) {
+  const portMessageChannel = new PortMessage()
+
+  portMessageChannel.connect('popup')
+
+  portMessageChannel.listen((data) => {
+    console.log('ui - portMessageChannel', data)
+    if (data.type === 'broadcast') {
+      eventBus.emit(data.method, data.params)
+    }
+  })
+
+  eventBus.addEventListener('broadcastToBackground', (data) => {
+    console.log('ui - broadcastToBackground', data)
+    portMessageChannel.request({
+      type: 'broadcast',
+      method: data.method,
+      params: data.data
+    })
+  })
+}
 
 const App = () => {
   return (
