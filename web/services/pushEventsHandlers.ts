@@ -68,9 +68,9 @@ class PushEventHandlers {
     }
   }
 
-  'rabby:chainChanged' = (chain) => {
+  'ambire:chainChanged' = (chain) => {
     if (chain && chain.hex?.toLowerCase() !== this.provider.chainId?.toLowerCase()) {
-      this._emit('rabby:chainChanged', chain)
+      this._emit('ambire:chainChanged', chain)
     }
   }
 }

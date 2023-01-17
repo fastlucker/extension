@@ -18,7 +18,6 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import ManifestImage from '@modules/extension/components/ManifestImage'
-import { BACKGROUND } from '@web/constants/paths'
 
 import styles from './styles'
 

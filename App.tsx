@@ -10,8 +10,8 @@ import AppLoading from '@modules/app-loading/screens/AppLoading'
 import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserAPI'
+import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
-import eventBus from '@web/services/eventBus'
 
 SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry error
 

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 /**
  * this script is live in content-script / dapp's page
  */
@@ -76,6 +78,7 @@ abstract class Message extends EventEmitter {
   }
 
   _dispose = () => {
+    // eslint-disable-next-line no-restricted-syntax
     for (const request of this._waitingMap.values()) {
       request.reject(ethErrors.provider.userRejectedRequest())
     }

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import Message from './index'
 
 export default class BroadcastChannelMessage extends Message {

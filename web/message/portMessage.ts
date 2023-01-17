@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import Message from './index'
 
 class PortMessage extends Message {

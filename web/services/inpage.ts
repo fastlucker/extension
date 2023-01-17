@@ -1,4 +1,5 @@
 // @ts-nocheck
+// Script that is injected into dapp's context through content-script. it mounts ethereum to window
 
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { EventEmitter } from 'events'
@@ -90,12 +91,6 @@ export class EthereumProvider extends EventEmitter {
   private _bcm = new BroadcastChannelMessage(channelName)
 
   constructor({ maxListeners = 100 } = {}) {
-    setInterval(() => {
-      this._bcm.request({
-        method: 'sup',
-        params: { isSup: true }
-      })
-    }, 3500)
     super()
     this.setMaxListeners(maxListeners)
     this.initialize()
@@ -308,7 +303,7 @@ declare global {
 
 const provider = new EthereumProvider()
 let cacheOtherProvider: EthereumProvider | null = null
-const rabbyProvider = new Proxy(provider, {
+const ambireProvider = new Proxy(provider, {
   deleteProperty: (target, prop) => {
     if (prop === 'on' || prop === 'isAmbire') {
       // @ts-ignore
@@ -319,10 +314,10 @@ const rabbyProvider = new Proxy(provider, {
 })
 
 // provider.requestInternalMethods({ method: 'isDefaultWallet' }).then((isDefaultWallet) => {
-//   rabbyProvider.on('defaultWalletChanged', switchWalletNotice)
+//   ambireProvider.on('defaultWalletChanged', switchWalletNotice)
 //   let finalProvider: EthereumProvider | null = null
 //   if (isDefaultWallet || !cacheOtherProvider) {
-//     finalProvider = rabbyProvider
+//     finalProvider = ambireProvider
 //     Object.keys(finalProvider).forEach((key) => {
 //       window.ethereum[key] = (finalProvider as EthereumProvider)[key]
 //     })
@@ -340,17 +335,17 @@ const rabbyProvider = new Proxy(provider, {
 //     })
 //     if (!window.web3) {
 //       window.web3 = {
-//         currentProvider: rabbyProvider
+//         currentProvider: ambireProvider
 //       }
 //     }
 //     finalProvider._isReady = true
-//     finalProvider.on('rabby:chainChanged', switchChainNotice)
+//     finalProvider.on('ambire:chainChanged', switchChainNotice)
 //   } else {
 //     finalProvider = cacheOtherProvider
 //     // @ts-ignore
-//     delete rabbyProvider.on
+//     delete ambireProvider.on
 //     // @ts-ignore
-//     delete rabbyProvider.isRabby
+//     delete ambireProvider.isAmbire
 //     Object.keys(finalProvider).forEach((key) => {
 //       window.ethereum[key] = (finalProvider as EthereumProvider)[key]
 //     })
@@ -382,7 +377,7 @@ if (window.ethereum) {
   })
 }
 
-window.ethereum = rabbyProvider
+window.ethereum = ambireProvider
 
 Object.defineProperty(window, 'ethereum', {
   set(val) {
@@ -393,7 +388,7 @@ Object.defineProperty(window, 'ethereum', {
     cacheOtherProvider = val
   },
   get() {
-    return rabbyProvider
+    return ambireProvider
   }
 })
 

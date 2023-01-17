@@ -1,5 +1,5 @@
+import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
-import eventBus from '@web/services/eventBus'
 
 // for page provider
 browser.runtime.onConnect.addListener((port) => {
@@ -15,7 +15,6 @@ browser.runtime.onConnect.addListener((port) => {
           case 'controller':
           default:
             if (data.method) {
-              console.log('controller', data.method)
               // TODO:
               // return walletController[data.method].apply(null, data.params)
             }
@@ -24,11 +23,6 @@ browser.runtime.onConnect.addListener((port) => {
     })
 
     const boardcastCallback = (data: any) => {
-      // console.log('bg broadcast', {
-      //   type: 'broadcast',
-      //   method: data.method,
-      //   params: data.params
-      // })
       pm.request({
         type: 'broadcast',
         method: data.method,
@@ -60,7 +54,6 @@ browser.runtime.onConnect.addListener((port) => {
   const pm = new PortMessage(port)
 
   pm.listen(async (data) => {
-    console.log('bg pm', data)
     // TODO:
     // if (!appStoreLoaded) {
     //   throw ethErrors.provider.disconnected()
@@ -81,10 +74,3 @@ browser.runtime.onConnect.addListener((port) => {
     // return providerController(req)
   })
 })
-
-setInterval(() => {
-  eventBus.emit('broadcastToUI', {
-    method: 'sth',
-    params: { sup: true }
-  })
-}, 4000)

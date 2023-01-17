@@ -4,7 +4,6 @@ import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
 import { errorCodes } from '@web/constants/errors'
-import { BACKGROUND, CONTENT_SCRIPT } from '@web/constants/paths'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 
 import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from './types'
@@ -12,8 +11,7 @@ import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from
 const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
   ambireExtensionContextDefaults
 )
-const WORKER_KEEP_ALIVE_INTERVAL = 1000
-const WORKER_KEEP_ALIVE_MESSAGE = 'WORKER_KEEP_ALIVE_MESSAGE'
+
 const STORAGE_KEY = 'ambire_extension_state'
 
 const AmbireExtensionProvider: React.FC = ({ children }) => {
