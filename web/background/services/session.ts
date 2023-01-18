@@ -1,5 +1,3 @@
-// import { permissionService } from 'background/service'
-
 import permissionService from '@web/background/services/permission'
 import PortMessage from '@web/message/portMessage'
 
