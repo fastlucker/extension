@@ -102,7 +102,7 @@ module.exports = async function (env, argv) {
 
   // adds files from /constants, /functions and /services as webpack entries
   fs.readdirSync('./web').forEach((dir) => {
-    if (['constants', 'event', 'message', 'services', 'controller'].includes(dir)) {
+    if (['constants', 'event', 'message', 'services', 'controller', 'utils'].includes(dir)) {
       fs.readdirSync(`./web/${dir}`).forEach((file) => {
         entries[path.parse(file).name] = `./web/${dir}/${file}`
       })
