@@ -1,5 +1,6 @@
 // import { permissionService } from 'background/service'
 
+import permissionService from '@web/background/services/permission'
 import PortMessage from '@web/message/portMessage'
 
 export interface SessionProp {
@@ -67,15 +68,14 @@ const deleteSession = (key: string) => {
 
 const broadcastEvent = (ev: any, data?: any, origin?: string) => {
   let sessions: { key: string; data: Session }[] = []
-  // TODO:
-  // sessionMap.forEach((session, key) => {
-  //   if (session && permissionService.hasPermission(session.origin)) {
-  //     sessions.push({
-  //       key,
-  //       data: session
-  //     })
-  //   }
-  // })
+  sessionMap.forEach((session, key) => {
+    if (session && permissionService.hasPermission(session.origin)) {
+      sessions.push({
+        key,
+        data: session
+      })
+    }
+  })
 
   // same origin
   if (origin) {
