@@ -1,7 +1,7 @@
 import { Dimensions, ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@config/env'
-import { engine } from '@web/constants/browserAPI'
+import { engine } from '@web/constants/browserapi'
 
 interface Style {
   [key: string]: TextStyle | ViewStyle | ImageStyle

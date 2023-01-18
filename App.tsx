@@ -9,7 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import AppLoading from '@modules/app-loading/screens/AppLoading'
 import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import { isExtension } from '@web/constants/browserAPI'
+import { isExtension } from '@web/constants/browserapi'
 import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
 

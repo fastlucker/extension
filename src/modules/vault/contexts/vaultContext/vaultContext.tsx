@@ -19,7 +19,7 @@ import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultController from '@modules/vault/services/VaultController'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
-import { isExtension } from '@web/constants/browserAPI'
+import { isExtension } from '@web/constants/browserapi'
 
 import styles from './styles'
 import { vaultContextDefaults, VaultContextReturnType } from './types'

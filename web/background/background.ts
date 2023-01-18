@@ -1,5 +1,7 @@
+import sessionService from '@web/background/services/session'
 import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
+import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 // for page provider
 browser.runtime.onConnect.addListener((port) => {
@@ -63,9 +65,9 @@ browser.runtime.onConnect.addListener((port) => {
     if (sessionId === undefined || !port.sender?.url) {
       return
     }
-    // TODO:
-    // const origin = getOriginFromUrl(port.sender.url)
-    // const session = sessionService.getOrCreateSession(sessionId, origin)
+
+    const origin = getOriginFromUrl(port.sender.url)
+    const session = sessionService.getOrCreateSession(sessionId, origin)
     const req = { data, session, origin }
     // for background push to respective page
     req.session!.setPortMessage(pm)
