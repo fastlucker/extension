@@ -3,7 +3,7 @@
 import { max } from 'lodash'
 import LRU from 'lru-cache'
 
-import createPersistStore from '@web/utils/createPersistStorage'
+import createPersistStore from '@web/utils/persistStore'
 
 export interface ConnectedSite {
   origin: string

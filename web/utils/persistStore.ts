@@ -1,7 +1,7 @@
 import { debounce } from 'debounce'
 
 /* eslint-disable @typescript-eslint/ban-types */
-import storage from '@web/utils/browser-storage'
+import storage from '@web/webapi/browser-storage'
 
 const persistStorage = (name: string, obj: object) => {
   debounce(storage.set(name, obj), 1000)

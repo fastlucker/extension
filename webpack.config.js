@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 // The 'react-native-dotenv' package doesn't work in the NodeJS context (and
 // with commonjs imports), so alternatively, use 'dotend' package to load the
 // environment variables from the .env file.
@@ -100,14 +101,19 @@ module.exports = async function (env, argv) {
 
   const entries = {}
 
-  // adds files from /constants, /functions and /services as webpack entries
-  fs.readdirSync('./web').forEach((dir) => {
-    if (['constants', 'event', 'message', 'services', 'controller', 'utils'].includes(dir)) {
-      fs.readdirSync(`./web/${dir}`).forEach((file) => {
-        entries[path.parse(file).name] = `./web/${dir}/${file}`
-      })
+  const addEntriesFromDirectory = (directory) => {
+    const filesInDirectory = fs.readdirSync(directory)
+    for (const file of filesInDirectory) {
+      const absolute = path.join(directory, file)
+      if (fs.statSync(absolute).isDirectory()) {
+        addEntriesFromDirectory(absolute)
+      } else if (absolute.endsWith('.ts')) {
+        entries[path.parse(absolute).name] = `./${absolute.slice(0, -3)}`
+      }
     }
-  })
+  }
+
+  addEntriesFromDirectory('./web')
 
   const config = await createExpoWebpackConfigAsync(
     {
