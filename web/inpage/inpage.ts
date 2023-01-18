@@ -5,10 +5,10 @@ import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { EventEmitter } from 'events'
 import log from 'loglevel'
 
+import DedupePromise from '@web/inpage/services/dedupePromise'
+import PushEventHandlers from '@web/inpage/services/pushEventsHandlers'
+import ReadyPromise from '@web/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
-import DedupePromise from '@web/services/dedupePromise'
-import PushEventHandlers from '@web/services/pushEventsHandlers'
-import ReadyPromise from '@web/services/readyPromise'
 
 declare const channelName: any
 

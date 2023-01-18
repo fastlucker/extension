@@ -1,6 +1,6 @@
+import sessionService from '@web/background/services/session'
 import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
-import sessionService from '@web/services/session'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 // for page provider

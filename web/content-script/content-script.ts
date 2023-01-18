@@ -4,7 +4,7 @@
 import { nanoid } from 'nanoid'
 
 // Middleware for handling messages between dapps and the extension's background process
-// import { browserAPI, engine } from '@web/constants/browserAPI'
+// import { browserapi, engine } from '@web/constants/browserapi'
 import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
 import PortMessage from '@web/message/portMessage'
 
@@ -46,7 +46,7 @@ document.addEventListener('beforeunload', () => {
 
 // const initKeepWorkerAlive = () => {
 //   setInterval(() => {
-//     browserAPI.runtime.sendMessage({ name: WORKER_KEEP_ALIVE_MESSAGE })
+//     browserapi.runtime.sendMessage({ name: WORKER_KEEP_ALIVE_MESSAGE })
 //   }, WORKER_KEEP_ALIVE_INTERVAL)
 // }
 
