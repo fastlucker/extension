@@ -28,7 +28,7 @@ const DepositTokens = ({ selectedAcc, networkId }: Props) => {
   const { t } = useTranslation()
   const qrCodeRef: any = useRef(null)
   const { addToast } = useToast()
-  const networkDetails = networks.find(({ id }) => id === networkId)
+  const networkDetails = useMemo(() => networks.find(({ id }) => id === networkId), [networkId])
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
 
   const handleCopyAddress = useCallback(() => {
