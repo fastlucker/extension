@@ -31,10 +31,10 @@ const DepositTokens = ({ selectedAcc, networkId }: Props) => {
   const networkDetails = useMemo(() => networks.find(({ id }) => id === networkId), [networkId])
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
 
-  const handleCopyAddress = useCallback(() => {
+  const handleCopyAddress = () => {
     Clipboard.setStringAsync(selectedAcc)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
-  }, [selectedAcc, addToast, t])
+  }
 
   return (
     <>
