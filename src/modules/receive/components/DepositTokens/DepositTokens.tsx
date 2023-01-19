@@ -1,6 +1,6 @@
 import networks from 'ambire-common/src/constants/networks'
 import * as Clipboard from 'expo-clipboard'
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
@@ -30,10 +30,10 @@ const DepositTokens = ({ selectedAcc, networkId }: Props) => {
   const networkDetails = networks.find(({ id }) => id === networkId)
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
 
-  const handleCopyAddress = () => {
+  const handleCopyAddress = useCallback(() => {
     Clipboard.setStringAsync(selectedAcc)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
-  }
+  }, [selectedAcc, addToast, t])
 
   return (
     <>
