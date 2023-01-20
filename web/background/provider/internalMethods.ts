@@ -25,7 +25,6 @@ const getProviderState = async (req) => {
   const chainEnum = permissionService.getWithoutUpdate(origin)?.chain || 'ETH'
   const isUnlocked = true
   const networkVersion = '1'
-  console.log('networkIdMap[chainEnum]', networkIdMap[chainEnum])
   if (networkIdMap[chainEnum]) {
     // networkVersion = networkIdMap[chainEnum]
   } else {

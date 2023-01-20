@@ -1,10 +1,8 @@
 import providerController from '@web/background/provider/provider'
 import sessionService from '@web/background/services/session'
 import eventBus from '@web/event/eventBus'
-import { Message } from '@web/message/message'
+import PortMessage from '@web/message/portMessage'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
-
-const { PortMessage } = Message
 
 // for page provider
 browser.runtime.onConnect.addListener((port) => {

@@ -16,7 +16,6 @@ export default async <T = void>(req: ProviderRequest): Promise<T> => {
   } = req
 
   if (internalMethods[method]) {
-    console.log(method, req)
     return internalMethods[method](req)
   }
 

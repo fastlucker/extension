@@ -24,7 +24,6 @@ export class Session {
 
   constructor(data?: SessionProp | null) {
     if (data) {
-      console.log('constructor sesh', data)
       this.setProp(data)
     }
   }
@@ -34,8 +33,6 @@ export class Session {
   }
 
   setProp({ origin, icon, name }: SessionProp) {
-    console.log('constructor sesh', origin, icon, name)
-
     this.origin = origin
     this.icon = icon
     this.name = name

@@ -130,7 +130,6 @@ export class EthereumProvider extends EventEmitter {
       const { chainId, accounts, networkVersion, isUnlocked }: any = await this.request({
         method: 'getProviderState'
       })
-      console.log('inpage', chainId, accounts, networkVersion, isUnlocked)
       if (isUnlocked) {
         this._isUnlocked = true
         this._state.isUnlocked = true
@@ -162,7 +161,6 @@ export class EthereumProvider extends EventEmitter {
   }
 
   private _handleBackgroundMessage = ({ event, data }) => {
-    console.log('handle background message', event, data)
     if (this._pushEventHandlers[event]) {
       return this._pushEventHandlers[event](data)
     }

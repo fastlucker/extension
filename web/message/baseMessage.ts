@@ -45,7 +45,6 @@ abstract class Message extends EventEmitter {
   }
 
   onResponse = async ({ ident, res, err }: any = {}) => {
-    console.log('onResponse', ident, res, err, this._waitingMap.has(ident))
     // the url may update
     if (!this._waitingMap.has(ident)) {
       return
@@ -55,7 +54,6 @@ abstract class Message extends EventEmitter {
 
     this._requestIdPool.push(ident)
     this._waitingMap.delete(ident)
-    console.log('resolve', res)
     err ? reject(err) : resolve(res)
   }
 

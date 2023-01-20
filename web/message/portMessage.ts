@@ -18,7 +18,6 @@ class PortMessage extends Message {
   connect = (name?: string) => {
     this.port = browser.runtime.connect(undefined, name ? { name } : undefined)
     this.port.onMessage.addListener(({ _type_, data }) => {
-      console.log('connect onMessage listen', { _type_, data })
       if (_type_ === `${this._EVENT_PRE}message`) {
         this.emit('message', data)
         return
@@ -47,7 +46,6 @@ class PortMessage extends Message {
   send = (type, data) => {
     if (!this.port) return
     try {
-      console.log('send back res')
       this.port.postMessage({ _type_: `${this._EVENT_PRE}${type}`, data })
     } catch (e) {
       // DO NOTHING BUT CATCH THIS ERROR
