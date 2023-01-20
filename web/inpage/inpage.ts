@@ -3,7 +3,6 @@
 
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { EventEmitter } from 'events'
-import log from 'loglevel'
 
 import DedupePromise from '@web/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/inpage/services/pushEventsHandlers'
@@ -86,7 +85,15 @@ export class EthereumProvider extends EventEmitter {
 
   private _requestPromise = new ReadyPromise(2)
 
-  private _dedupePromise = new DedupePromise([])
+  private _dedupePromise = new DedupePromise([
+    'personal_sign',
+    'wallet_addEthereumChain',
+    'eth_sendTransaction',
+    'eth_signTypedData',
+    'eth_signTypedData_v1',
+    'eth_signTypedData_v3',
+    'eth_signTypedData_v4'
+  ])
 
   private _bcm = new BroadcastChannelMessage(channelName)
 
@@ -120,10 +127,10 @@ export class EthereumProvider extends EventEmitter {
     })
 
     try {
-      const { chainId, accounts, networkVersion, isUnlocked }: any =
-        await this.requestInternalMethods({
-          method: 'getProviderState'
-        })
+      const { chainId, accounts, networkVersion, isUnlocked }: any = await this.request({
+        method: 'getProviderState'
+      })
+      console.log('inpage', chainId, accounts, networkVersion, isUnlocked)
       if (isUnlocked) {
         this._isUnlocked = true
         this._state.isUnlocked = true
@@ -155,7 +162,7 @@ export class EthereumProvider extends EventEmitter {
   }
 
   private _handleBackgroundMessage = ({ event, data }) => {
-    log.log('[push event]', event, data)
+    console.log('handle background message', event, data)
     if (this._pushEventHandlers[event]) {
       return this._pushEventHandlers[event](data)
     }
@@ -191,20 +198,20 @@ export class EthereumProvider extends EventEmitter {
 
     return this._requestPromise.call(() => {
       if (data.method !== 'eth_call') {
-        log.log('[request]', JSON.stringify(data, null, 2))
+        console.log('[request]', JSON.stringify(data, null, 2))
       }
 
       return this._bcm
         .request(data)
         .then((res) => {
           if (data.method !== 'eth_call') {
-            log.log('[request: success]', data.method, res)
+            console.log('[request: success]', data.method, res)
           }
           return res
         })
         .catch((err) => {
           if (data.method !== 'eth_call') {
-            log.log('[request: error]', data.method, serializeError(err))
+            console.log('[request: error]', data.method, serializeError(err))
           }
           throw serializeError(err)
         })
@@ -313,61 +320,63 @@ const ambireProvider = new Proxy(provider, {
   }
 })
 
-// provider.requestInternalMethods({ method: 'isDefaultWallet' }).then((isDefaultWallet) => {
-//   ambireProvider.on('defaultWalletChanged', switchWalletNotice)
-//   let finalProvider: EthereumProvider | null = null
-//   if (isDefaultWallet || !cacheOtherProvider) {
-//     finalProvider = ambireProvider
-//     Object.keys(finalProvider).forEach((key) => {
-//       window.ethereum[key] = (finalProvider as EthereumProvider)[key]
-//     })
-//     Object.defineProperty(window, 'ethereum', {
-//       set() {
-//         provider.requestInternalMethods({
-//           method: 'hasOtherProvider',
-//           params: []
-//         })
-//         return finalProvider
-//       },
-//       get() {
-//         return finalProvider
-//       }
-//     })
-//     if (!window.web3) {
-//       window.web3 = {
-//         currentProvider: ambireProvider
-//       }
-//     }
-//     finalProvider._isReady = true
-//     finalProvider.on('ambire:chainChanged', switchChainNotice)
-//   } else {
-//     finalProvider = cacheOtherProvider
-//     // @ts-ignore
-//     delete ambireProvider.on
-//     // @ts-ignore
-//     delete ambireProvider.isAmbire
-//     Object.keys(finalProvider).forEach((key) => {
-//       window.ethereum[key] = (finalProvider as EthereumProvider)[key]
-//     })
-//     const keys = ['selectedAddress', 'chainId', 'networkVersion']
-//     keys.forEach((key) => {
-//       Object.defineProperty(cacheOtherProvider, key, {
-//         get() {
-//           return window.ethereum[key]
-//         },
-//         set(val) {
-//           window.ethereum[key] = val
-//         }
-//       })
-//     })
-//   }
-//   provider._cacheEventListenersBeforeReady.forEach(([event, handler]) => {
-//     ;(finalProvider as EthereumProvider).on(event, handler)
-//   })
-//   provider._cacheRequestsBeforeReady.forEach(({ resolve, reject, data }) => {
-//     ;(finalProvider as EthereumProvider).request(data).then(resolve).catch(reject)
-//   })
-// })
+provider.requestInternalMethods({ method: 'isDefaultWallet' }).then((isDefaultWallet) => {
+  isDefaultWallet = true
+  cacheOtherProvider = false
+  // ambireProvider.on('defaultWalletChanged', switchWalletNotice)
+  let finalProvider: EthereumProvider | null = null
+  if (isDefaultWallet || !cacheOtherProvider) {
+    finalProvider = ambireProvider
+    Object.keys(finalProvider).forEach((key) => {
+      window.ethereum[key] = (finalProvider as EthereumProvider)[key]
+    })
+    Object.defineProperty(window, 'ethereum', {
+      set() {
+        provider.requestInternalMethods({
+          method: 'hasOtherProvider',
+          params: []
+        })
+        return finalProvider
+      },
+      get() {
+        return finalProvider
+      }
+    })
+    if (!window.web3) {
+      window.web3 = {
+        currentProvider: ambireProvider
+      }
+    }
+    finalProvider._isReady = true
+    // finalProvider.on('ambire:chainChanged', switchChainNotice)
+  } else {
+    finalProvider = cacheOtherProvider
+    // @ts-ignore
+    delete ambireProvider.on
+    // @ts-ignore
+    delete ambireProvider.isAmbire
+    Object.keys(finalProvider).forEach((key) => {
+      window.ethereum[key] = (finalProvider as EthereumProvider)[key]
+    })
+    const keys = ['selectedAddress', 'chainId', 'networkVersion']
+    keys.forEach((key) => {
+      Object.defineProperty(cacheOtherProvider, key, {
+        get() {
+          return window.ethereum[key]
+        },
+        set(val) {
+          window.ethereum[key] = val
+        }
+      })
+    })
+  }
+  provider._cacheEventListenersBeforeReady.forEach(([event, handler]) => {
+    ;(finalProvider as EthereumProvider).on(event, handler)
+  })
+  provider._cacheRequestsBeforeReady.forEach(({ resolve, reject, data }) => {
+    ;(finalProvider as EthereumProvider).request(data).then(resolve).catch(reject)
+  })
+})
 
 if (window.ethereum) {
   cacheOtherProvider = window.ethereum

@@ -1,7 +1,10 @@
+import providerController from '@web/background/provider/provider'
 import sessionService from '@web/background/services/session'
 import eventBus from '@web/event/eventBus'
-import PortMessage from '@web/message/portMessage'
+import { Message } from '@web/message/message'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
+
+const { PortMessage } = Message
 
 // for page provider
 browser.runtime.onConnect.addListener((port) => {
@@ -72,7 +75,6 @@ browser.runtime.onConnect.addListener((port) => {
     // for background push to respective page
     req.session!.setPortMessage(pm)
 
-    // TODO:
-    // return providerController(req)
+    return providerController(req)
   })
 })
