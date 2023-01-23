@@ -61,7 +61,7 @@ const flowContext = flow
         session: { origin }
       }
     } = ctx
-
+    console.log('2')
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       // check lock
       // TODO: implement
@@ -93,6 +93,7 @@ const flowContext = flow
       },
       mapMethod
     } = ctx
+    console.log('3')
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       if (!permissionService.hasPermission(origin)) {
         if (connectOrigins.has(origin)) {
@@ -101,13 +102,11 @@ const flowContext = flow
         ctx.request.requestedApproval = true
         connectOrigins.add(origin)
         try {
-          const { defaultChain } = await notificationService.requestApproval(
-            {
-              params: { origin, name, icon },
-              approvalComponent: 'Connect'
-            },
-            { height: 390 }
-          )
+          console.log('in')
+          const { defaultChain } = await notificationService.requestApproval({
+            params: { origin, name, icon },
+            approvalComponent: 'Connect'
+          })
           connectOrigins.delete(origin)
           permissionService.addConnectedSite(origin, name, icon, defaultChain)
         } catch (e) {
@@ -128,6 +127,7 @@ const flowContext = flow
       },
       mapMethod
     } = ctx
+    console.log('4')
     const [approvalType, condition, options = {}] =
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
     let windowHeight = 800
@@ -158,7 +158,9 @@ const flowContext = flow
       // ctx.request.data.params[0] = message
       // ctx.request.data.params[1] = from
     }
+    console.log('5')
     if (approvalType && (!condition || !condition(ctx.request))) {
+      console.log('6')
       ctx.request.requestedApproval = true
       if (approvalType === 'SignTx' && !('chainId' in params[0])) {
         const site = permissionService.getConnectedSite(origin)
@@ -169,6 +171,7 @@ const flowContext = flow
           // }
         }
       }
+      console.log('7')
       ctx.approvalRes = await notificationService.requestApproval(
         {
           approvalComponent: approvalType,

@@ -29,15 +29,14 @@ const getProviderState = async (req) => {
     // networkVersion = networkIdMap[chainEnum]
   } else {
     // networkVersion = await providerController.netVersion(req)
-    networkIdMap[chainEnum] = '2.0'
+    networkIdMap[chainEnum] = '1'
   }
 
   return {
     chainId: '0x1',
     isUnlocked,
-    // TODO: accounts: isUnlocked ? await providerController.ethAccounts(req) : [],
-    accounts: isUnlocked ? ['0x15a45946F2561704203057165507404d9C37F762'] : [],
-    networkVersion: '2.0'
+    accounts: isUnlocked ? await providerController.ethAccounts(req) : [],
+    networkVersion
   }
 }
 

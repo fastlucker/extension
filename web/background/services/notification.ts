@@ -172,7 +172,7 @@ class NotificationService extends Events {
   }
 
   requestApproval = async (data, winProps?): Promise<any> => {
-    const currentAccount = preferenceService.getCurrentAccount()
+    // const currentAccount = preferenceService.getCurrentAccount()
     const reportExplain = (signingTxId?: string) => {
       // const explain = transactionHistoryService.getExplainCacheByApprovalId(
       //   approvalId
@@ -181,17 +181,17 @@ class NotificationService extends Events {
       // const explain = signingTx?.explain
       const explain = false
 
-      if (explain && currentAccount) {
-        // stats.report('preExecTransaction', {
-        //   type: currentAccount.brandName,
-        //   category: KEYRING_CATEGORY_MAP[currentAccount.type],
-        //   chainId: explain.native_token.chain,
-        //   success: explain.calcSuccess && explain.pre_exec.success,
-        //   createBy: data?.params.$ctx?.ga ? 'rabby' : 'dapp',
-        //   source: data?.params.$ctx?.ga?.source || '',
-        //   trigger: data?.params.$ctx?.ga.trigger || ''
-        // })
-      }
+      // if (explain && currentAccount) {
+      // stats.report('preExecTransaction', {
+      //   type: currentAccount.brandName,
+      //   category: KEYRING_CATEGORY_MAP[currentAccount.type],
+      //   chainId: explain.native_token.chain,
+      //   success: explain.calcSuccess && explain.pre_exec.success,
+      //   createBy: data?.params.$ctx?.ga ? 'rabby' : 'dapp',
+      //   source: data?.params.$ctx?.ga?.source || '',
+      //   trigger: data?.params.$ctx?.ga.trigger || ''
+      // })
+      // }
     }
     return new Promise((resolve, reject) => {
       // const uuid = uuidv4()

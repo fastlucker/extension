@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events'
 
 import { IS_WINDOWS } from '@web/constants/common'
+import { POPUP_HEIGHT, POPUP_WIDTH } from '@web/constants/spacings'
 
 const event = new EventEmitter()
 
@@ -13,10 +14,10 @@ browser.windows.onRemoved.addListener((winId) => {
   event.emit('windowRemoved', winId)
 })
 
-const BROWSER_HEADER = 80
+// const BROWSER_HEADER = 80
 const WINDOW_SIZE = {
-  width: 400 + (IS_WINDOWS ? 14 : 0), // idk why windows cut the width.
-  height: 600
+  width: POPUP_WIDTH + (IS_WINDOWS ? 14 : 0), // idk why windows cut the width.
+  height: POPUP_HEIGHT
 }
 
 const createFullScreenWindow = ({ url, ...rest }) => {
@@ -81,7 +82,7 @@ const remove = async (winId) => {
 }
 
 const openNotification = ({ route = '', ...rest } = {}): Promise<number | undefined> => {
-  const url = `notification.html${route && `#${route}`}`
+  const url = `index.html${route && `#${route}`}`
 
   return create({ url, ...rest })
 }

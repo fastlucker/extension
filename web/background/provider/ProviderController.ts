@@ -1,7 +1,9 @@
 import 'reflect-metadata'
 
+import { ethErrors } from 'eth-rpc-errors'
+
 import permissionService from '@web/background/services/permission'
-import { Session } from '@web/background/services/session'
+import sessionService, { Session } from '@web/background/services/session'
 import Wallet from '@web/background/wallet'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 
@@ -40,7 +42,7 @@ const v1SignTypedDataValidation = ({
   // if (from.toLowerCase() !== currentAddress)
   //   throw ethErrors.rpc.invalidParams('from should be same as current address')
 }
-const signTypedDataVlidation = ({
+const signTypedDataValidation = ({
   data: {
     params: [from, _]
   }
@@ -53,6 +55,7 @@ const signTypedDataVlidation = ({
 class ProviderController {
   @Reflect.metadata('PRIVATE', true)
   ethRpc = (req, forceChainServerId?: string) => {
+    console.log('ethRpc', req, forceChainServerId)
     // TODO:
     // const {
     //   data: { method, params },
@@ -121,18 +124,17 @@ class ProviderController {
 
   ethRequestAccounts = async ({ session: { origin } }) => {
     console.log('ethRequestAccounts', origin)
-    // TODO:
-    // if (!permissionService.hasPermission(origin)) {
-    //   throw ethErrors.provider.unauthorized()
-    // }
-    // const _account = await this.getCurrentAccount()
-    // const account = _account ? [_account.address.toLowerCase()] : []
-    // sessionService.broadcastEvent('accountsChanged', account)
+    if (!permissionService.hasPermission(origin)) {
+      throw ethErrors.provider.unauthorized()
+    }
+    const _account = null
+    const account = _account ? [_account.address.toLowerCase()] : []
+    sessionService.broadcastEvent('accountsChanged', account)
     // const connectSite = permissionService.getConnectedSite(origin)
     // if (connectSite) {
     //   const chain = CHAINS[connectSite.chain]
-    //   // rabby:chainChanged event must be sent before chainChanged event
-    //   sessionService.broadcastEvent('rabby:chainChanged', chain, origin)
+    //   // ambire:chainChanged event must be sent before chainChanged event
+    //   sessionService.broadcastEvent('ambire:chainChanged', chain, origin)
     //   sessionService.broadcastEvent(
     //     'chainChanged',
     //     {
@@ -142,7 +144,7 @@ class ProviderController {
     //     origin
     //   )
     // }
-    // return account
+    return account
   }
 
   @Reflect.metadata('SAFE', true)
@@ -156,7 +158,7 @@ class ProviderController {
   }
 
   ethCoinbase = async ({ session: { origin } }) => {
-    console.log('ethAccounts', origin)
+    console.log('ethCoinbase', origin)
     if (!permissionService.hasPermission(origin)) {
       return null
     }
@@ -259,7 +261,7 @@ class ProviderController {
     approvalRes
   }) => {}
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', signTypedDataVlidation])
+  @Reflect.metadata('APPROVAL', ['SignTypedData', signTypedDataValidation])
   ethSignTypedDataV3 = async ({
     data: {
       params: [from, data]
@@ -268,7 +270,7 @@ class ProviderController {
     approvalRes
   }) => {}
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', signTypedDataVlidation])
+  @Reflect.metadata('APPROVAL', ['SignTypedData', signTypedDataValidation])
   ethSignTypedDataV4 = async ({
     data: {
       params: [from, data]
