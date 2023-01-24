@@ -9,7 +9,8 @@ import permissionService from '@web/background/services/permission'
 import { EVENTS } from '@web/constants/common'
 import eventBus from '@web/event/eventBus'
 import PromiseFlow from '@web/utils/promiseFlow'
-import underline2Camelcase from '@web/utils/underline2Camelcase'
+
+// import underline2Camelcase from '@web/utils/underline2Camelcase'
 
 const isSignApproval = (type: string) => {
   const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SignTx']
@@ -27,33 +28,33 @@ const flow = new PromiseFlow<{
   approvalRes: any
 }>()
 const flowContext = flow
-  .use(async (ctx, next) => {
-    // check method
-    const {
-      data: { method }
-    } = ctx.request
-    ctx.mapMethod = underline2Camelcase(method)
-    if (Reflect.getMetadata('PRIVATE', providerController, ctx.mapMethod)) {
-      // Reject when dapp try to call private controller function
-      throw ethErrors.rpc.methodNotFound({
-        message: `method [${method}] doesn't has corresponding handler`,
-        data: ctx.request.data
-      })
-    }
-    if (!providerController[ctx.mapMethod]) {
-      // TODO: make rpc whitelist
-      if (method.startsWith('eth_') || method === 'net_version') {
-        return providerController.ethRpc(ctx.request)
-      }
+  // TODO: validate if this part of the flow is needed for our use case
+  // .use(async (ctx, next) => {
+  //   // check method
+  //   const {
+  //     data: { method }
+  //   } = ctx.request
+  //   ctx.mapMethod = underline2Camelcase(method)
+  //   if (Reflect.getMetadata('PRIVATE', providerController, ctx.mapMethod)) {
+  //     // Reject when dapp try to call private controller function
+  //     throw ethErrors.rpc.methodNotFound({
+  //       message: `method [${method}] doesn't has corresponding handler`,
+  //       data: ctx.request.data
+  //     })
+  //   }
+  //   if (!providerController[ctx.mapMethod]) {
+  //     if (method.startsWith('eth_') || method === 'net_version') {
+  //       return providerController.ethRpc(ctx.request)
+  //     }
 
-      throw ethErrors.rpc.methodNotFound({
-        message: `method [${method}] doesn't has corresponding handler`,
-        data: ctx.request.data
-      })
-    }
+  //     throw ethErrors.rpc.methodNotFound({
+  //       message: `method [${method}] doesn't has corresponding handler`,
+  //       data: ctx.request.data
+  //     })
+  //   }
 
-    return next()
-  })
+  //   return next()
+  // })
   .use(async (ctx, next) => {
     const {
       mapMethod,
@@ -61,7 +62,6 @@ const flowContext = flow
         session: { origin }
       }
     } = ctx
-    console.log('2')
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       // check lock
       // TODO: implement

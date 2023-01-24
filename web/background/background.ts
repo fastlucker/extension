@@ -7,15 +7,16 @@ import PortMessage from '@web/message/portMessage'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import permissionService from './services/permission'
+import storage from './webapi/storage'
 
 async function restoreAppState() {
+  const vaultState = await storage.get('vaultState')
+  VaultController.loadStore(vaultState)
+  VaultController.store.subscribe((value) => storage.set('vaultState', value))
   await permissionService.init()
 }
 
 restoreAppState()
-
-// TODO: Remove `storageController` as param
-const vault = new VaultController()
 
 // for page provider
 browser.runtime.onConnect.addListener((port) => {
@@ -31,8 +32,7 @@ browser.runtime.onConnect.addListener((port) => {
           case 'controller':
           default:
             if (data.method) {
-              // TODO: Figure out if this syntax with passing `vault` is correct
-              return WalletController[data.method].apply(null, data.params, vault)
+              return WalletController[data.method].apply(null, data.params)
             }
         }
       }
