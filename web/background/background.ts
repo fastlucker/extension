@@ -1,8 +1,17 @@
 import providerController from '@web/background/provider/provider'
 import sessionService from '@web/background/services/session'
+import { WalletController } from '@web/background/wallet'
 import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
+
+import permissionService from './services/permission'
+
+async function restoreAppState() {
+  await permissionService.init()
+}
+
+restoreAppState()
 
 // for page provider
 browser.runtime.onConnect.addListener((port) => {
@@ -18,8 +27,7 @@ browser.runtime.onConnect.addListener((port) => {
           case 'controller':
           default:
             if (data.method) {
-              // TODO:
-              // return walletController[data.method].apply(null, data.params)
+              return WalletController[data.method].apply(null, data.params)
             }
         }
       }

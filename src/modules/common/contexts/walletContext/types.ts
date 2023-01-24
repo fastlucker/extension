@@ -1,5 +1,11 @@
-import permissionService from '@web/background/services/permission'
+import { Object } from 'ts-toolbelt'
 
+import { WalletController as WalletControllerClass } from '@web/background/wallet'
+
+export type IExtractFromPromise<T> = T extends Promise<infer U> ? U : T
+
+// TODO: implement here but not used now to avoid too much ts checker error.
+// we will use it on almost biz store ready.
 export type WalletControllerType = Object.Merge<
   {
     [key in keyof WalletControllerClass]: WalletControllerClass[key] extends (
@@ -13,10 +19,4 @@ export type WalletControllerType = Object.Merge<
   Record<string, <T = any>(...params: any) => Promise<T>>
 >
 
-export class WalletController {
-  isUnlocked = () => true
-
-  getConnectedSite = permissionService.getConnectedSite
-}
-
-export default new WalletController()
+export type WalletController = Record<string, <T = any>(...params: any) => Promise<T>>

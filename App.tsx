@@ -7,6 +7,7 @@ import React from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import AppLoading from '@modules/app-loading/screens/AppLoading'
+import { WalletControllerType } from '@modules/common/contexts/walletContext/types'
 import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
@@ -14,6 +15,8 @@ import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
 
 SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry error
+
+let wallet: WalletControllerType
 
 if (isExtension) {
   const portMessageChannel = new PortMessage()
@@ -35,6 +38,21 @@ if (isExtension) {
       params: data.data
     })
   })
+
+  wallet = new Proxy(
+    {},
+    {
+      get(obj, key) {
+        return function (...params: any) {
+          return portMessageChannel.request({
+            type: 'controller',
+            method: key,
+            params
+          })
+        }
+      }
+    }
+  ) as WalletControllerType
 }
 
 const App = () => {
@@ -44,7 +62,7 @@ const App = () => {
     >
       <StatusBar style="light" backgroundColor={colors.wooed} />
 
-      <AppLoading />
+      <AppLoading wallet={wallet} />
     </GestureHandlerRootView>
   )
 }

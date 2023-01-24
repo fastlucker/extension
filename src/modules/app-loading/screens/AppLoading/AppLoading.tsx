@@ -27,6 +27,8 @@ import { ThemeProvider } from '@modules/common/contexts/themeContext'
 import { ToastProvider } from '@modules/common/contexts/toastContext'
 import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/unsupportedDAppsBottomSheetContext'
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
+import { WalletProvider } from '@modules/common/contexts/walletContext'
+import { WalletController } from '@modules/common/contexts/walletContext/types'
 import useFonts from '@modules/common/hooks/useFonts'
 import { rpcProviders } from '@modules/common/services/providers'
 import { VaultProvider } from '@modules/vault/contexts/vaultContext'
@@ -37,66 +39,68 @@ if (shouldInitProviders) {
   initRpcProviders(rpcProviders)
 }
 
-const AppLoading = () => {
+const AppLoading = ({ wallet }: { wallet: WalletController }) => {
   const { fontsLoaded } = useFonts()
 
   if (!fontsLoaded) return null
 
   return (
-    <PortalProvider>
-      <LoaderProvider>
-        <StorageProvider>
-          <ThemeProvider>
-            <SafeAreaProvider>
-              <KeyboardProvider>
-                <NetInfoProvider>
-                  <ToastProvider>
-                    <ConstantsProvider>
-                      <AuthProvider>
-                        <AccountsProvider>
-                          <NetworkProvider>
-                            <PortfolioProvider>
-                              <GnosisProvider>
-                                <WalletConnectProvider>
-                                  <AmbireExtensionProvider>
-                                    <RequestsProvider>
-                                      <BiometricsProvider>
-                                        <VaultProvider>
-                                          <AddressBookProvider>
-                                            <AttentionGrabberProvider>
-                                              <PrivateModeProvider>
-                                                <GasTankProvider>
-                                                  <UnsupportedDAppsBottomSheetProvider>
-                                                    <HeaderBottomSheetProvider>
-                                                      <LinkingProvider>
-                                                        <Router />
-                                                      </LinkingProvider>
-                                                    </HeaderBottomSheetProvider>
-                                                  </UnsupportedDAppsBottomSheetProvider>
-                                                </GasTankProvider>
-                                              </PrivateModeProvider>
-                                            </AttentionGrabberProvider>
-                                            <PortalHost name="global" />
-                                          </AddressBookProvider>
-                                        </VaultProvider>
-                                      </BiometricsProvider>
-                                    </RequestsProvider>
-                                  </AmbireExtensionProvider>
-                                </WalletConnectProvider>
-                              </GnosisProvider>
-                            </PortfolioProvider>
-                          </NetworkProvider>
-                        </AccountsProvider>
-                      </AuthProvider>
-                    </ConstantsProvider>
-                  </ToastProvider>
-                </NetInfoProvider>
-              </KeyboardProvider>
-            </SafeAreaProvider>
-          </ThemeProvider>
-        </StorageProvider>
-      </LoaderProvider>
-    </PortalProvider>
+    <WalletProvider wallet={wallet}>
+      <PortalProvider>
+        <LoaderProvider>
+          <StorageProvider>
+            <ThemeProvider>
+              <SafeAreaProvider>
+                <KeyboardProvider>
+                  <NetInfoProvider>
+                    <ToastProvider>
+                      <ConstantsProvider>
+                        <AuthProvider>
+                          <AccountsProvider>
+                            <NetworkProvider>
+                              <PortfolioProvider>
+                                <GnosisProvider>
+                                  <WalletConnectProvider>
+                                    <AmbireExtensionProvider>
+                                      <RequestsProvider>
+                                        <BiometricsProvider>
+                                          <VaultProvider>
+                                            <AddressBookProvider>
+                                              <AttentionGrabberProvider>
+                                                <PrivateModeProvider>
+                                                  <GasTankProvider>
+                                                    <UnsupportedDAppsBottomSheetProvider>
+                                                      <HeaderBottomSheetProvider>
+                                                        <LinkingProvider>
+                                                          <Router />
+                                                        </LinkingProvider>
+                                                      </HeaderBottomSheetProvider>
+                                                    </UnsupportedDAppsBottomSheetProvider>
+                                                  </GasTankProvider>
+                                                </PrivateModeProvider>
+                                              </AttentionGrabberProvider>
+                                              <PortalHost name="global" />
+                                            </AddressBookProvider>
+                                          </VaultProvider>
+                                        </BiometricsProvider>
+                                      </RequestsProvider>
+                                    </AmbireExtensionProvider>
+                                  </WalletConnectProvider>
+                                </GnosisProvider>
+                              </PortfolioProvider>
+                            </NetworkProvider>
+                          </AccountsProvider>
+                        </AuthProvider>
+                      </ConstantsProvider>
+                    </ToastProvider>
+                  </NetInfoProvider>
+                </KeyboardProvider>
+              </SafeAreaProvider>
+            </ThemeProvider>
+          </StorageProvider>
+        </LoaderProvider>
+      </PortalProvider>
+    </WalletProvider>
   )
 }
 
