@@ -1,3 +1,4 @@
+import VaultController from '@modules/vault/services/VaultController'
 import providerController from '@web/background/provider/provider'
 import sessionService from '@web/background/services/session'
 import { WalletController } from '@web/background/wallet'
@@ -13,6 +14,9 @@ async function restoreAppState() {
 
 restoreAppState()
 
+// TODO: Remove `storageController` as param
+const vault = new VaultController()
+
 // for page provider
 browser.runtime.onConnect.addListener((port) => {
   // TODO:
@@ -27,7 +31,8 @@ browser.runtime.onConnect.addListener((port) => {
           case 'controller':
           default:
             if (data.method) {
-              return WalletController[data.method].apply(null, data.params)
+              // TODO: Figure out if this syntax with passing `vault` is correct
+              return WalletController[data.method].apply(null, data.params, vault)
             }
         }
       }
