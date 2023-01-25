@@ -56,8 +56,9 @@ class VaultController {
   // create a new empty vault encrypted with password
   async createVault({ password }: { password: string }) {
     this.#password = password
-    const encryptBooted = await encrypt(password, JSON.stringify({}))
-    this.store.updateState({ booted: encryptBooted })
+    this.#vault = {}
+    const encryptedVault = await encrypt(password, JSON.stringify({}))
+    this.store.updateState({ vault: encryptedVault })
     this.memStore.updateState({ isUnlocked: true })
   }
 
@@ -134,6 +135,7 @@ class VaultController {
     this.#password = null
     this.cleanMemVault()
     this.#vault = null
+    this.memStore.updateState({ isUnlocked: false })
 
     return Promise.resolve(VAULT_STATUS.LOCKED)
   }

@@ -100,17 +100,15 @@ const VaultProvider: React.FC = ({ children }) => {
   )
 
   useEffect(() => {
-    const vault = getItem('vault')
-    if (!vault) {
+    const vaultState = getItem('vaultState')
+    console.log('vaultState', vaultState?.vault)
+    if (!vaultState?.vault) {
       setVaultStatus(VAULT_STATUS.NOT_INITIALIZED)
       return
     }
 
     requestVaultControllerMethod({
-      method: 'isVaultUnlocked',
-      // In case the background server is inactive wait less for the
-      // (unhandled promise response) reply before showing the locked screen
-      options: { replyTimeout: 1500 }
+      method: 'isVaultUnlocked'
     })
       .then((isUnlocked: boolean) => {
         setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
