@@ -1,7 +1,7 @@
 import VaultController from '@modules/vault/services/VaultController'
 import providerController from '@web/background/provider/provider'
 import sessionService from '@web/background/services/session'
-import { WalletController } from '@web/background/wallet'
+import WalletController from '@web/background/wallet'
 import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'

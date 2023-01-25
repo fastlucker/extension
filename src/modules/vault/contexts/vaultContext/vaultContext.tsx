@@ -76,7 +76,7 @@ const VaultProvider: React.FC = ({ children }) => {
       options?: { [key: string]: any }
     }) => {
       if (isExtension) {
-        return wallet.requestVaultControllerMethod(method, props, options)
+        return wallet.requestVaultControllerMethod(method, props)
         // return new Promise((resolve, reject) => {
         // sendMessage(
         //   {

@@ -1,3 +1,4 @@
+import VaultController from '@modules/vault/services/VaultController'
 import permissionService from '@web/background/services/permission'
 import sessionService from '@web/background/services/session'
 
@@ -6,9 +7,8 @@ export class WalletController {
 
   getConnectedSite = permissionService.getConnectedSite
 
-  requestVaultControllerMethod = (method, props, options) => {
-    // TODO: Fire vault controller singleton methods
-    return this.vault[method](props, options)
+  requestVaultControllerMethod = (method, props) => {
+    return VaultController[method](props)
   }
 
   setStorage = (key, value) => {
