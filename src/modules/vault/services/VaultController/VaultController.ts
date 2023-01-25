@@ -3,6 +3,7 @@ import { signMessage, signMessage712 } from 'adex-protocol-eth/js/Bundle'
 import { getProvider } from 'ambire-common/src/services/provider'
 import { Wallet } from 'ethers'
 import { arrayify, isHexString, toUtf8Bytes } from 'ethers/lib/utils'
+import { EventEmitter } from 'events'
 
 import { verifyMessage } from '@ambire/signature-validator'
 import CONFIG from '@config/env'
@@ -13,11 +14,6 @@ import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 
 import { Vault, VaultItem } from './types'
 
-interface MemStoreState {
-  isUnlocked: boolean
-  vault: Vault
-}
-
 const relayerURL = CONFIG.RELAYER_URL
 
 function getMessageAsBytes(msg: string) {
@@ -27,30 +23,23 @@ function getMessageAsBytes(msg: string) {
   }
   return arrayify(msg)
 }
-class VaultController {
+class VaultController extends EventEmitter {
   #password: string | null = null
 
-  #vault: Vault
+  #vault: Vault = null
 
   store!: ObservableStore<any>
 
-  memStore: ObservableStore<MemStoreState>
-
-  constructor() {
-    this.memStore = new ObservableStore({
-      isUnlocked: false,
-      vault: null
-    })
-
-    this.#vault = null
-  }
-
-  loadStore(initState) {
+  loadStore(initState: any) {
     this.store = new ObservableStore(initState)
   }
 
   isVaultUnlocked() {
     return Promise.resolve(!!this.#password)
+  }
+
+  setUnlocked(): void {
+    this.emit('unlock')
   }
 
   // create a new empty vault encrypted with password
@@ -59,7 +48,7 @@ class VaultController {
     this.#vault = {}
     const encryptedVault = await encrypt(password, JSON.stringify({}))
     this.store.putState(encryptedVault)
-    this.memStore.updateState({ isUnlocked: true })
+    this.setUnlocked.bind(this)
   }
 
   cleanMemVault() {
@@ -86,6 +75,7 @@ class VaultController {
           this.#password = password
           this.#vault = {}
           this.store.putState(blob)
+          this.setUnlocked.bind(this)
           resolve(VAULT_STATUS.UNLOCKED)
         })
         .catch((err) => {
@@ -123,6 +113,7 @@ class VaultController {
         .then((_vault: any) => {
           this.#password = password
           this.#vault = JSON.parse(_vault)
+          this.setUnlocked.bind(this)
           resolve(VAULT_STATUS.UNLOCKED)
         })
         .catch(() => {
@@ -135,7 +126,6 @@ class VaultController {
     this.#password = null
     this.cleanMemVault()
     this.#vault = null
-    this.memStore.updateState({ isUnlocked: false })
 
     return Promise.resolve(VAULT_STATUS.LOCKED)
   }
