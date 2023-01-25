@@ -58,7 +58,7 @@ class VaultController {
     this.#password = password
     this.#vault = {}
     const encryptedVault = await encrypt(password, JSON.stringify({}))
-    this.store.updateState({ vault: encryptedVault })
+    this.store.putState(encryptedVault)
     this.memStore.updateState({ isUnlocked: true })
   }
 
@@ -85,7 +85,7 @@ class VaultController {
         .then(async (blob: string) => {
           this.#password = password
           this.#vault = {}
-          this.store.updateState({ vault: blob })
+          this.store.putState(blob)
           resolve(VAULT_STATUS.UNLOCKED)
         })
         .catch((err) => {
@@ -103,7 +103,7 @@ class VaultController {
         encrypt(newPassword, JSON.stringify(this.#vault))
           .then(async (blob: string) => {
             this.#password = newPassword
-            this.store.updateState({ vault: blob })
+            this.store.putState(blob)
             resolve(VAULT_STATUS.UNLOCKED)
           })
           .catch((err) => {
@@ -116,7 +116,7 @@ class VaultController {
   }
 
   unlockVault({ password }: { password: string }) {
-    const vault = this.store.getState().vault
+    const vault = this.store.getState()
 
     return new Promise((resolve, reject) => {
       decrypt(password, vault)
@@ -154,7 +154,7 @@ class VaultController {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
         .then(async (blob: string) => {
           this.#vault = updatedVault
-          this.store.updateState({ vault: blob })
+          this.store.putState(blob)
           resolve(true)
         })
         .catch((err) => {
@@ -173,7 +173,7 @@ class VaultController {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
         .then(async (blob: string) => {
           this.#vault = updatedVault
-          this.store.updateState({ vault: blob })
+          this.store.putState(blob)
           resolve(true)
         })
         .catch((err) => {

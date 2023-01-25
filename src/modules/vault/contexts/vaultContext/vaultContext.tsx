@@ -100,9 +100,8 @@ const VaultProvider: React.FC = ({ children }) => {
   )
 
   useEffect(() => {
-    const vaultState = getItem('vaultState')
-    console.log('vaultState', vaultState?.vault)
-    if (!vaultState?.vault) {
+    const vault = getItem('vault')
+    if (!vault) {
       setVaultStatus(VAULT_STATUS.NOT_INITIALIZED)
       return
     }

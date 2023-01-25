@@ -10,9 +10,9 @@ import permissionService from './services/permission'
 import storage from './webapi/storage'
 
 async function restoreAppState() {
-  const vaultState = await storage.get('vaultState')
-  VaultController.loadStore(vaultState)
-  VaultController.store.subscribe((value) => storage.set('vaultState', value))
+  const vault = await storage.get('vault')
+  VaultController.loadStore(vault)
+  VaultController.store.subscribe((value) => storage.set('vault', value))
   await permissionService.init()
 }
 
