@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
+import { isExtension } from '@web/constants/browserapi'
 
 import { StorageController } from './storageController'
 
@@ -37,7 +38,9 @@ const StorageProvider: React.FC = ({ children }) => {
 
   const setItem = useCallback(
     (key: string, value: any) => {
-      extensionWallet.setStorage(key, value)
+      if (isExtension) {
+        extensionWallet.setStorage(key, value)
+      }
 
       return storageControllerInstance.setItem(key, value)
     },
