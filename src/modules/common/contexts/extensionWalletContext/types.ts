@@ -6,7 +6,7 @@ export type IExtractFromPromise<T> = T extends Promise<infer U> ? U : T
 
 // TODO: implement here but not used now to avoid too much ts checker error.
 // we will use it on almost biz store ready.
-export type WalletControllerType = Object.Merge<
+export type ExtensionWalletControllerType = Object.Merge<
   {
     [key in keyof WalletControllerClass]: WalletControllerClass[key] extends (
       ...args: infer ARGS

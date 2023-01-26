@@ -2,13 +2,13 @@ import React, { createContext, useMemo } from 'react'
 
 import {
   ExtensionWalletController,
-  WalletControllerType
+  ExtensionWalletControllerType
 } from '@modules/common/contexts/extensionWalletContext/types'
 import { isExtension } from '@web/constants/browserapi'
 import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
 
-let extensionWallet: WalletControllerType
+let extensionWallet: ExtensionWalletControllerType
 
 if (isExtension) {
   const portMessageChannel = new PortMessage()
@@ -44,7 +44,7 @@ if (isExtension) {
         }
       }
     }
-  ) as WalletControllerType
+  ) as ExtensionWalletControllerType
 }
 
 const ExtensionWalletContext = createContext<{
