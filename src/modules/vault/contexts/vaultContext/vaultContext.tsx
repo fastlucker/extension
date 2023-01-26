@@ -30,7 +30,7 @@ const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { wallet } = useExtensionWallet()
+  const { extensionWallet } = useExtensionWallet()
   const { onRemoveAllAccounts } = useAccounts()
   const { getItem, setItem, storageControllerInstance } = useStorageController()
   const {
@@ -76,7 +76,7 @@ const VaultProvider: React.FC = ({ children }) => {
       options?: { [key: string]: any }
     }) => {
       if (isExtension) {
-        return wallet.requestVaultControllerMethod(method, props)
+        return extensionWallet.requestVaultControllerMethod(method, props)
         // return new Promise((resolve, reject) => {
         // sendMessage(
         //   {
@@ -96,7 +96,7 @@ const VaultProvider: React.FC = ({ children }) => {
 
       return vaultController[method](props)
     },
-    [vaultController]
+    [vaultController, extensionWallet]
   )
 
   useEffect(() => {

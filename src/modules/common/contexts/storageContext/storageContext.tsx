@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import useWallet from '@modules/common/hooks/useExtensionWallet'
+import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 
 import { StorageController } from './storageController'
 
@@ -16,7 +16,7 @@ const StorageContext = createContext<{
 })
 
 const StorageProvider: React.FC = ({ children }) => {
-  const { wallet } = useWallet()
+  const { extensionWallet } = useExtensionWallet()
   const storageControllerInstance = useMemo(() => new StorageController(), [])
   const [isInitialized, setIsInitialized] = useState(storageControllerInstance.isInitialized)
 
@@ -37,11 +37,11 @@ const StorageProvider: React.FC = ({ children }) => {
 
   const setItem = useCallback(
     (key: string, value: any) => {
-      wallet.setStorage(key, value)
+      extensionWallet.setStorage(key, value)
 
       return storageControllerInstance.setItem(key, value)
     },
-    [storageControllerInstance, wallet]
+    [storageControllerInstance, extensionWallet]
   )
 
   const removeItem = useCallback(

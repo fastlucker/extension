@@ -19,4 +19,4 @@ export type WalletControllerType = Object.Merge<
   Record<string, <T = any>(...params: any) => Promise<T>>
 >
 
-export type WalletController = Record<string, <T = any>(...params: any) => Promise<T>>
+export type ExtensionWalletController = Record<string, <T = any>(...params: any) => Promise<T>>

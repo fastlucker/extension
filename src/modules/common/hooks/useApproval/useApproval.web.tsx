@@ -7,9 +7,9 @@ import { Approval } from '@web/background/services/notification'
 import { getUiType } from '@web/utils/uiType'
 
 export const useApproval = () => {
-  const { wallet } = useExtensionWallet()
+  const { extensionWallet } = useExtensionWallet()
 
-  const getApproval: () => Promise<Approval> = wallet.getApproval
+  const getApproval: () => Promise<Approval> = extensionWallet.getApproval
 
   const resolveApproval = async (
     data?: any,
@@ -22,7 +22,7 @@ export const useApproval = () => {
     const approval = await getApproval()
 
     if (approval) {
-      wallet.resolveApproval(data, forceReject, approvalId)
+      extensionWallet.resolveApproval(data, forceReject, approvalId)
     }
     if (stay) {
       return
@@ -37,14 +37,14 @@ export const useApproval = () => {
     async (err?: any, stay = false, isInternal = false) => {
       const approval = await getApproval()
       if (approval) {
-        await wallet.rejectApproval(err, stay, isInternal)
+        await extensionWallet.rejectApproval(err, stay, isInternal)
       }
       if (!stay) {
         // TODO:
         // history.push('/')
       }
     },
-    [getApproval, wallet]
+    [getApproval, extensionWallet]
   )
 
   useEffect(() => {

@@ -1,10 +1,10 @@
 import { createContext } from 'react'
 
-import { WalletController } from './types'
+import { ExtensionWalletController } from './types'
 
 // This context is needed for the browser extension only. For mobile, fallback to defaults.
 const ExtensionWalletContext = createContext<{
-  wallet: WalletController
+  extensionWallet: ExtensionWalletController
 } | null>(null)
 
 const ExtensionWalletProvider: React.FC<any> = ({ children }) => children

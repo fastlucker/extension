@@ -1,13 +1,14 @@
 import React, { createContext, useMemo } from 'react'
 
-import { WalletControllerType } from '@modules/common/contexts/extensionWalletContext/types'
+import {
+  ExtensionWalletController,
+  WalletControllerType
+} from '@modules/common/contexts/extensionWalletContext/types'
 import { isExtension } from '@web/constants/browserapi'
 import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
 
-import { WalletController } from './types'
-
-let wallet: WalletControllerType
+let extensionWallet: WalletControllerType
 
 if (isExtension) {
   const portMessageChannel = new PortMessage()
@@ -30,7 +31,7 @@ if (isExtension) {
     })
   })
 
-  wallet = new Proxy(
+  extensionWallet = new Proxy(
     {},
     {
       get(obj, key) {
@@ -47,14 +48,14 @@ if (isExtension) {
 }
 
 const ExtensionWalletContext = createContext<{
-  wallet: WalletController
+  extensionWallet: ExtensionWalletController
 } | null>(null)
 
 const ExtensionWalletProvider: React.FC<any> = ({ children }) => (
   <ExtensionWalletContext.Provider
     value={useMemo(
       () => ({
-        wallet
+        extensionWallet
       }),
       []
     )}
