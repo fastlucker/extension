@@ -1,9 +1,9 @@
 import { useContext } from 'react'
 
-import { WalletContext } from '@modules/common/contexts/walletContext'
+import { ExtensionWalletContext } from '@modules/common/contexts/extensionWalletContext'
 
 export default function useWallet() {
-  const context = useContext(WalletContext)
+  const context = useContext(ExtensionWalletContext)
 
   if (!context) {
     throw new Error('useWallet must be used within an WalletProvider')
