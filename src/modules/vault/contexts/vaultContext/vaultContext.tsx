@@ -66,32 +66,9 @@ const VaultProvider: React.FC = ({ children }) => {
   }, [getItem])
 
   const requestVaultControllerMethod = useCallback(
-    ({
-      method,
-      props,
-      options
-    }: {
-      method: string
-      props?: { [key: string]: any }
-      options?: { [key: string]: any }
-    }) => {
+    ({ method, props }: { method: string; props?: { [key: string]: any } }) => {
       if (isExtension) {
         return extensionWallet.requestVaultControllerMethod(method, props)
-        // return new Promise((resolve, reject) => {
-        // sendMessage(
-        //   {
-        //     type: 'vaultController',
-        //     to: BACKGROUND,
-        //     data: {
-        //       method,
-        //       props
-        //     }
-        //   },
-        //   options || {}
-        // )
-        //   .then((res: any) => resolve(res.data))
-        //   .catch((err) => reject(err))
-        // })
       }
 
       return vaultController[method](props)
