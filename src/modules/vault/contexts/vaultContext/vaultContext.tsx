@@ -7,9 +7,9 @@ import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
-import useWallet from '@modules/common/hooks/useWallet'
 import { navigate } from '@modules/common/services/navigation'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { KEY_LOCK_KEYSTORE_WHEN_INACTIVE } from '@modules/vault/constants/storageKeys'
@@ -30,7 +30,7 @@ const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { wallet } = useWallet()
+  const { wallet } = useExtensionWallet()
   const { onRemoveAllAccounts } = useAccounts()
   const { getItem, setItem, storageControllerInstance } = useStorageController()
   const {

@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect } from 'react'
 
-import useWallet from '@modules/common/hooks/useWallet'
+import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import { Approval } from '@web/background/services/notification'
 import { getUiType } from '@web/utils/uiType'
 
 export const useApproval = () => {
-  const { wallet } = useWallet()
+  const { wallet } = useExtensionWallet()
 
   const getApproval: () => Promise<Approval> = wallet.getApproval
 

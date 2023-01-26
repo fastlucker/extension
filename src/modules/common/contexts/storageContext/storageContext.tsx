@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import useWallet from '@modules/common/hooks/useWallet'
+import useWallet from '@modules/common/hooks/useExtensionWallet'
 
 import { StorageController } from './storageController'
 
