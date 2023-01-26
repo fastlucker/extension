@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import Message from './index'
+import Message from './baseMessage'
 
 export default class BroadcastChannelMessage extends Message {
   private _channel: BroadcastChannel

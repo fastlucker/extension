@@ -3,9 +3,9 @@
 // Content Script is mainly a relayer between pageContext(injected script) and the background service_worker
 import { nanoid } from 'nanoid'
 
+import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
 // Middleware for handling messages between dapps and the extension's background process
 // import { browserapi, engine } from '@web/constants/browserapi'
-import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
 import PortMessage from '@web/message/portMessage'
 
 const channelName = nanoid()
@@ -25,15 +25,10 @@ fetch(chrome.runtime.getURL('inpage.js'))
 
 const pm = new PortMessage().connect()
 
-const bcm = new BroadcastChannelMessage(channelName).listen((data) => {
-  pm.request(data)
-})
+const bcm = new BroadcastChannelMessage(channelName).listen((data) => pm.request(data))
 
 // background notification
-pm.on('message', (data) => {
-  console.log('content script: data from background', data)
-  return bcm.send('message', data)
-})
+pm.on('message', (data) => bcm.send('message', data))
 
 document.addEventListener('beforeunload', () => {
   bcm.dispose()

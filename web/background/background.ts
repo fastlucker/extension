@@ -1,7 +1,22 @@
+import VaultController from '@modules/vault/services/VaultController'
+import providerController from '@web/background/provider/provider'
 import sessionService from '@web/background/services/session'
+import WalletController from '@web/background/wallet'
 import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
+
+import permissionService from './services/permission'
+import storage from './webapi/storage'
+
+async function restoreAppState() {
+  const vault = await storage.get('vault')
+  VaultController.loadStore(vault)
+  VaultController.store.subscribe((value) => storage.set('vault', value))
+  await permissionService.init()
+}
+
+restoreAppState()
 
 // for page provider
 browser.runtime.onConnect.addListener((port) => {
@@ -17,8 +32,7 @@ browser.runtime.onConnect.addListener((port) => {
           case 'controller':
           default:
             if (data.method) {
-              // TODO:
-              // return walletController[data.method].apply(null, data.params)
+              return WalletController[data.method].apply(null, data.params)
             }
         }
       }
@@ -72,7 +86,6 @@ browser.runtime.onConnect.addListener((port) => {
     // for background push to respective page
     req.session!.setPortMessage(pm)
 
-    // TODO:
-    // return providerController(req)
+    return providerController(req)
   })
 })

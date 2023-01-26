@@ -1,3 +1,5 @@
+import 'reflect-metadata'
+
 import { debounce } from 'debounce'
 
 /* eslint-disable @typescript-eslint/ban-types */

@@ -7,6 +7,7 @@ import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
@@ -29,6 +30,7 @@ const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const { extensionWallet } = useExtensionWallet()
   const { onRemoveAllAccounts } = useAccounts()
   const { getItem, setItem, storageControllerInstance } = useStorageController()
   const {
@@ -64,37 +66,14 @@ const VaultProvider: React.FC = ({ children }) => {
   }, [getItem])
 
   const requestVaultControllerMethod = useCallback(
-    ({
-      method,
-      props,
-      options
-    }: {
-      method: string
-      props?: { [key: string]: any }
-      options?: { [key: string]: any }
-    }) => {
+    ({ method, props }: { method: string; props?: { [key: string]: any } }) => {
       if (isExtension) {
-        return new Promise((resolve, reject) => {
-          // TODO:
-          // sendMessage(
-          //   {
-          //     type: 'vaultController',
-          //     to: BACKGROUND,
-          //     data: {
-          //       method,
-          //       props
-          //     }
-          //   },
-          //   options || {}
-          // )
-          //   .then((res: any) => resolve(res.data))
-          //   .catch((err) => reject(err))
-        })
+        return extensionWallet.requestVaultControllerMethod(method, props)
       }
 
       return vaultController[method](props)
     },
-    [vaultController]
+    [vaultController, extensionWallet]
   )
 
   useEffect(() => {
@@ -105,10 +84,7 @@ const VaultProvider: React.FC = ({ children }) => {
     }
 
     requestVaultControllerMethod({
-      method: 'isVaultUnlocked',
-      // In case the background server is inactive wait less for the
-      // (unhandled promise response) reply before showing the locked screen
-      options: { replyTimeout: 1500 }
+      method: 'isVaultUnlocked'
     })
       .then((isUnlocked: boolean) => {
         setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)

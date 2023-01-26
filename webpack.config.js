@@ -223,8 +223,22 @@ module.exports = async function (env, argv) {
           }
         ]
       }),
-      // Overrides ExpoHtmlWebpackPlugin
-      new HtmlWebpackPlugin(env, templateIndex)
+      // Generate index.html Overrides ExpoHtmlWebpackPlugin
+      new HtmlWebpackPlugin(env, templateIndex),
+      // Generate notification.html
+      new HtmlWebpackPlugin(
+        {
+          ...env,
+          locations: {
+            ...locations,
+            production: {
+              ...locations.production,
+              indexHtml: './notification.html'
+            }
+          }
+        },
+        templateIndex
+      )
     ]
 
     // Disables chunking, minimization, and other optimizations that alter the default transpilation of the extension services files.

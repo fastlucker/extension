@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import Message from './index'
+import Message from './baseMessage'
 
 class PortMessage extends Message {
   port: any = null

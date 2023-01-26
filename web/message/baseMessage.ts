@@ -72,7 +72,6 @@ abstract class Message extends EventEmitter {
         e.code && (err.code = e.code)
         e.data && (err.data = e.data)
       }
-
       this.send('response', { ident, res, err })
     }
   }

@@ -3,10 +3,11 @@ import { signMessage, signMessage712 } from 'adex-protocol-eth/js/Bundle'
 import { getProvider } from 'ambire-common/src/services/provider'
 import { Wallet } from 'ethers'
 import { arrayify, isHexString, toUtf8Bytes } from 'ethers/lib/utils'
+import { EventEmitter } from 'events'
 
 import { verifyMessage } from '@ambire/signature-validator'
 import CONFIG from '@config/env'
-import { StorageController } from '@modules/common/contexts/storageContext/storageController'
+import { ObservableStore } from '@metamask/obs-store'
 import { decrypt, encrypt } from '@modules/common/services/passworder'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
@@ -22,57 +23,43 @@ function getMessageAsBytes(msg: string) {
   }
   return arrayify(msg)
 }
-export default class VaultController {
-  #password: string | null
+class VaultController extends EventEmitter {
+  #password: string | null = null
 
-  #memVault: Vault
+  #vault: Vault = null
 
-  storageController: StorageController
+  store!: ObservableStore<any>
 
-  constructor(storageController: StorageController) {
-    this.#password = null
-    this.#memVault = null
-
-    this.storageController = storageController
+  loadStore(initState: any) {
+    this.store = new ObservableStore(initState)
   }
 
   isVaultUnlocked() {
     return Promise.resolve(!!this.#password)
   }
 
-  // create a new empty vault encrypted with password
-  createVault({ password }: { password: string }) {
-    const vault = this.storageController.getItem('vault')
+  setUnlocked(): void {
+    this.emit('unlock')
+  }
 
-    return new Promise((resolve, reject) => {
-      if (!vault) {
-        encrypt(password, JSON.stringify({}))
-          .then(async (blob: string) => {
-            this.#password = password
-            this.#memVault = {}
-            await this.storageController.setItemAsync('vault', blob)
-            resolve(VAULT_STATUS.UNLOCKED)
-          })
-          .catch((err) => {
-            reject(new Error(err))
-          })
-      } else {
-        reject(new Error('Vault already initialized'))
-      }
-    })
+  // create a new empty vault encrypted with password
+  async createVault({ password }: { password: string }) {
+    this.#password = password
+    this.#vault = {}
+    const encryptedVault = await encrypt(password, JSON.stringify({}))
+    this.store.putState(encryptedVault)
+    this.setUnlocked.bind(this)
   }
 
   cleanMemVault() {
-    if (this.#memVault) {
-      // When assigning `this.#memVault` to an empty object,
+    if (this.#vault) {
+      // When assigning `this.#vault` to an empty object,
       // the garbage collector will clean the memory automatically.
       // This variant is super fast and will work in most cases, however,
       // it may keep the references to the objects in memory. See:
       // {@link https://stackoverflow.com/a/19316873/1333836}
       // So instead, delete properties one-by-one.
-      Object.keys(this.#memVault).forEach(
-        (key: string) => this.#memVault && delete this.#memVault[key]
-      )
+      Object.keys(this.#vault).forEach((key: string) => this.#vault && delete this.#vault[key])
     }
   }
 
@@ -86,8 +73,9 @@ export default class VaultController {
       encrypt(password, JSON.stringify({}))
         .then(async (blob: string) => {
           this.#password = password
-          this.#memVault = {}
-          await this.storageController.setItemAsync('vault', blob)
+          this.#vault = {}
+          this.store.putState(blob)
+          this.setUnlocked.bind(this)
           resolve(VAULT_STATUS.UNLOCKED)
         })
         .catch((err) => {
@@ -102,10 +90,10 @@ export default class VaultController {
 
     return new Promise((resolve, reject) => {
       if (password === this.#password) {
-        encrypt(newPassword, JSON.stringify(this.#memVault))
+        encrypt(newPassword, JSON.stringify(this.#vault))
           .then(async (blob: string) => {
             this.#password = newPassword
-            await this.storageController.setItemAsync('vault', blob)
+            this.store.putState(blob)
             resolve(VAULT_STATUS.UNLOCKED)
           })
           .catch((err) => {
@@ -118,13 +106,14 @@ export default class VaultController {
   }
 
   unlockVault({ password }: { password: string }) {
-    const vault = this.storageController.getItem('vault')
+    const vault = this.store.getState()
 
     return new Promise((resolve, reject) => {
       decrypt(password, vault)
         .then((_vault: any) => {
           this.#password = password
-          this.#memVault = JSON.parse(_vault)
+          this.#vault = JSON.parse(_vault)
+          this.setUnlocked.bind(this)
           resolve(VAULT_STATUS.UNLOCKED)
         })
         .catch(() => {
@@ -136,7 +125,7 @@ export default class VaultController {
   lockVault() {
     this.#password = null
     this.cleanMemVault()
-    this.#memVault = null
+    this.#vault = null
 
     return Promise.resolve(VAULT_STATUS.LOCKED)
   }
@@ -146,16 +135,16 @@ export default class VaultController {
   }
 
   addToVault({ addr, item }: { addr: string; item: VaultItem }) {
-    if (!this.#password || this.#memVault === null) throw new Error('Unauthenticated')
+    if (!this.#password || this.#vault === null) throw new Error('Unauthenticated')
 
-    const updatedVault = { ...this.#memVault }
+    const updatedVault = { ...this.#vault }
     updatedVault[addr] = item
 
     return new Promise((resolve, reject) => {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
         .then(async (blob: string) => {
-          this.#memVault = updatedVault
-          await this.storageController.setItemAsync('vault', blob)
+          this.#vault = updatedVault
+          this.store.putState(blob)
           resolve(true)
         })
         .catch((err) => {
@@ -165,16 +154,16 @@ export default class VaultController {
   }
 
   removeFromVault({ addr }: { addr: string }) {
-    if (!this.#password || this.#memVault === null) throw new Error('Unauthenticated')
+    if (!this.#password || this.#vault === null) throw new Error('Unauthenticated')
 
-    const updatedVault = { ...this.#memVault }
+    const updatedVault = { ...this.#vault }
     delete updatedVault[addr]
 
     return new Promise((resolve, reject) => {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
         .then(async (blob: string) => {
-          this.#memVault = updatedVault
-          await this.storageController.setItemAsync('vault', blob)
+          this.#vault = updatedVault
+          this.store.putState(blob)
           resolve(true)
         })
         .catch((err) => {
@@ -184,15 +173,15 @@ export default class VaultController {
   }
 
   isSignerAddedToVault({ addr }: { addr: string }) {
-    if (!this.#memVault) throw new Error('Vault not initialized')
-    const vaultItem = this.#memVault[addr]
+    if (!this.#vault) throw new Error('Vault not initialized')
+    const vaultItem = this.#vault[addr]
 
     return Promise.resolve(!!vaultItem)
   }
 
   getSignerType({ addr }: { addr: string }) {
-    if (!this.#memVault) throw new Error('Vault not initialized')
-    const vaultItem = this.#memVault[addr]
+    if (!this.#vault) throw new Error('Vault not initialized')
+    const vaultItem = this.#vault[addr]
     if (!vaultItem) throw new Error('Signer not found')
 
     return Promise.resolve(vaultItem.type)
@@ -207,10 +196,10 @@ export default class VaultController {
     primaryKeyBackup: string
     signature: any
   }) {
-    if (!this.#memVault) throw new Error('Vault not initialized')
+    if (!this.#vault) throw new Error('Vault not initialized')
     const bundle = new Bundle(finalBundle)
     const signer = bundle.signer
-    const vaultItem = this.#memVault[signer.address || signer.one]
+    const vaultItem = this.#vault[signer.address || signer.one]
 
     if (!vaultItem) throw new Error('Signer not found')
 
@@ -243,13 +232,13 @@ export default class VaultController {
     account: any
     network: any
   }) {
-    if (!this.#memVault) throw new Error('Vault not initialized')
+    if (!this.#vault) throw new Error('Vault not initialized')
 
     const provider = getProvider(network.id)
     const bundle = new Bundle(finalBundle)
 
     const signer = bundle.signer
-    const vaultItem = this.#memVault[signer.address || signer.one]
+    const vaultItem = this.#vault[signer.address || signer.one]
 
     if (!vaultItem) throw new Error('Signer not found')
 
@@ -287,9 +276,9 @@ export default class VaultController {
     isTypedData: any
     signature: any
   }) {
-    if (!this.#memVault) throw new Error('Vault not initialized')
+    if (!this.#vault) throw new Error('Vault not initialized')
 
-    const vaultItem = this.#memVault[account?.signer?.address || account?.signer?.one]
+    const vaultItem = this.#vault[account?.signer?.address || account?.signer?.one]
 
     if (!vaultItem) throw new Error('Signer not found')
 
@@ -343,9 +332,9 @@ export default class VaultController {
     dataV4: any
     isTypedData: any
   }) {
-    if (!this.#memVault) throw new Error('Vault not initialized')
+    if (!this.#vault) throw new Error('Vault not initialized')
 
-    const vaultItem = this.#memVault[account.signer?.address]
+    const vaultItem = this.#vault[account.signer?.address]
 
     if (!vaultItem) throw new Error('Signer not found')
 
@@ -376,3 +365,5 @@ export default class VaultController {
     return Promise.resolve({ sig, isValidSig })
   }
 }
+
+export default new VaultController()

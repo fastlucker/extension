@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "jsx": "react-native",
     "module": "ESNext",
+    "types": ["reflect-metadata"],
     "paths": {
       "@assets/*": ["src/assets/*"],
       "@modules/*": ["src/modules/*"],
