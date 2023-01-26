@@ -13,11 +13,7 @@ export class WalletController {
     return VaultController[method](props)
   }
 
-  setStorage = (key, value) => {
-    // TODO: Wire-up cases like change network
-
-    return sessionService.broadcastEvent(key, value)
-  }
+  setStorage = (key: string, value: any) => sessionService.broadcastEvent(key, value)
 
   getApproval = notificationService.getApproval
 
