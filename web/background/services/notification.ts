@@ -2,6 +2,7 @@ import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
 
+import { isDev } from '@config/env'
 import preferenceService from '@web/background/services/permission'
 import winMgr from '@web/background/webapi/window'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
@@ -73,6 +74,11 @@ class NotificationService extends Events {
     })
 
     winMgr.event.on('windowFocusChange', (winId: number) => {
+      // Otherwise, inspecting the notification popup (opening console) is
+      // triggering the logic and firing `this.rejectApproval()` call,
+      // which is closing the notification popup, and one can't inspect it.
+      if (isDev) return
+
       if (IS_CHROME && winId === chrome.windows.WINDOW_ID_NONE && IS_LINUX) {
         // When sign on Linux, will focus on -1 first then focus on sign window
         return
