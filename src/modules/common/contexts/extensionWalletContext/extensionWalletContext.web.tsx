@@ -16,14 +16,12 @@ if (isExtension) {
   portMessageChannel.connect('popup')
 
   portMessageChannel.listen((data) => {
-    console.log('ui - portMessageChannel', data)
     if (data.type === 'broadcast') {
       eventBus.emit(data.method, data.params)
     }
   })
 
   eventBus.addEventListener('broadcastToBackground', (data) => {
-    console.log('ui - broadcastToBackground', data)
     portMessageChannel.request({
       type: 'broadcast',
       method: data.method,
