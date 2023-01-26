@@ -2,6 +2,8 @@ import VaultController from '@modules/vault/services/VaultController'
 import permissionService from '@web/background/services/permission'
 import sessionService from '@web/background/services/session'
 
+import notificationService from './services/notification'
+
 export class WalletController {
   isUnlocked = () => true
 
@@ -15,6 +17,14 @@ export class WalletController {
     // TODO: Wire-up cases like change network
 
     return sessionService.broadcastEvent(key, value)
+  }
+
+  getApproval = notificationService.getApproval
+
+  resolveApproval = notificationService.resolveApproval
+
+  rejectApproval = (err?: string, stay = false, isInternal = false) => {
+    return notificationService.rejectApproval(err, stay, isInternal)
   }
 }
 
