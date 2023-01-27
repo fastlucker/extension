@@ -22,7 +22,7 @@ type JsonLoginContextData = {
   cancelLoginAttempts: () => void
   error: string | null
   inProgress: boolean
-  data: Account | null
+  pendingLoginWithQuickAccountData: Account | null
 }
 
 const JsonLoginContext = createContext<JsonLoginContextData>({
@@ -30,7 +30,7 @@ const JsonLoginContext = createContext<JsonLoginContextData>({
   cancelLoginAttempts: () => {},
   error: null,
   inProgress: false,
-  data: null
+  pendingLoginWithQuickAccountData: null
 })
 
 const JsonLoginProvider: React.FC = ({ children }) => {
@@ -38,7 +38,8 @@ const JsonLoginProvider: React.FC = ({ children }) => {
   const [error, setError] = useState<null | string>(null)
   const [inProgress, setInProgress] = useState<boolean>(false)
   const { onAddAccount } = useAccounts()
-  const [data, setData] = useState<Account | null>(null)
+  const [pendingLoginWithQuickAccountData, setPendingLoginWithQuickAccountData] =
+    useState<Account | null>(null)
   const { addToast } = useToast()
   const { addToVault } = useVault()
   const { onEOASelected } = useEOA()
@@ -49,10 +50,10 @@ const JsonLoginProvider: React.FC = ({ children }) => {
       setError('')
       setInProgress(true)
 
-      if (data) {
+      if (pendingLoginWithQuickAccountData) {
         try {
           const wallet = await Wallet.fromEncryptedJson(
-            JSON.parse(data.primaryKeyBackup),
+            JSON.parse(pendingLoginWithQuickAccountData.primaryKeyBackup),
             password as string
           )
 
@@ -68,7 +69,7 @@ const JsonLoginProvider: React.FC = ({ children }) => {
             }
           })
             .then(() => {
-              onAddAccount(data, { select: true })
+              onAddAccount(pendingLoginWithQuickAccountData, { select: true })
             })
             .catch((e) => {
               addToast(e.message || e, { error: true })
@@ -82,7 +83,6 @@ const JsonLoginProvider: React.FC = ({ children }) => {
       }
 
       const document = await DocumentPicker.getDocumentAsync({ type: 'application/json' })
-
       if (document.type !== 'success') {
         setInProgress(false)
         return setError(t('JSON file was not selected or something went wrong selecting it.'))
@@ -111,7 +111,7 @@ const JsonLoginProvider: React.FC = ({ children }) => {
       const accountType = signerExtra && signerExtra.type ? signerExtra.type : 'quickAcc'
 
       if (accountType === 'quickAcc') {
-        setData(fileContent)
+        setPendingLoginWithQuickAccountData(fileContent)
         setInProgress(false)
         return navigate('addAccountPasswordToVault', { loginType: 'json' })
       }
@@ -119,6 +119,13 @@ const JsonLoginProvider: React.FC = ({ children }) => {
       if (accountType === 'ledger') {
         return onEOASelected(fileContent.signer.address, fileContent.signerExtra)
           ?.then(() => navigate('dashboard'))
+          .catch(() =>
+            setError(
+              t(
+                'Something went wrong with importing this account from JSON. Either the JSON is invalid or there is a problem on our end. Please contact our support.'
+              )
+            )
+          )
           .finally(() => setInProgress(false))
       }
 
@@ -137,14 +144,12 @@ const JsonLoginProvider: React.FC = ({ children }) => {
           'Importing this account from JSON is not supported in the Ambire mobile app at this time.'
         )
       )
-
-      // Handle errors.
     },
-    [onEOASelected, addToVault, addToast, data, onAddAccount, t]
+    [onEOASelected, addToVault, addToast, pendingLoginWithQuickAccountData, onAddAccount, t]
   )
 
   const cancelLoginAttempts = useCallback(() => {
-    setData(null)
+    setPendingLoginWithQuickAccountData(null)
     setInProgress(false)
     setError(null)
   }, [])
@@ -156,10 +161,10 @@ const JsonLoginProvider: React.FC = ({ children }) => {
           handleLogin,
           error,
           inProgress,
-          data,
+          pendingLoginWithQuickAccountData,
           cancelLoginAttempts
         }),
-        [handleLogin, cancelLoginAttempts, error, inProgress, data]
+        [handleLogin, cancelLoginAttempts, error, inProgress, pendingLoginWithQuickAccountData]
       )}
     >
       {children}
