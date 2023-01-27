@@ -13,16 +13,20 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
+import useApproval from '@modules/common/hooks/useApproval'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import ManifestImage from '@modules/extension/components/ManifestImage'
+import { Approval } from '@web/background/services/notification'
 
 import styles from './styles'
 
 const PermissionRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
+  const { network } = useNetwork()
 
   const { params } = useAmbireExtension()
   const { authStatus } = useAuth()
@@ -38,6 +42,26 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   const queue = useMemo(() => (params.queue ? JSON.parse(atob(params.queue)) : []), [params.queue])
 
   const [loading, setLoading] = useState(false)
+  const { getApproval, rejectApproval, resolveApproval } = useApproval()
+  const [approval, setApproval] = useState<Approval | null>(null)
+
+  const init = async () => {
+    const approvalRes = await getApproval()
+    if (!approvalRes) {
+      window.close()
+      return null
+    }
+    console.log('approvalRes', approvalRes)
+    setApproval(approvalRes)
+    // if (approvalRes.data?.origin || approvalRes.data.params?.session.origin) {
+    //   document.title = approvalRes.data?.origin || approvalRes.data.params!.session.origin
+    // }
+  }
+
+  useEffect(() => {
+    init()
+  }, [])
+
   const [feedback, setFeedback] = useState<{
     success: boolean
     permitted: boolean
@@ -78,13 +102,14 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   }, [feedback, authStatus, navigation])
 
   const handleDenyButtonPress = () => {
-    setLoading(true)
-    handlePermission(false)
+    rejectApproval('User rejected the request.')
   }
 
   const handleAuthorizeButtonPress = () => {
     setLoading(true)
-    handlePermission(true)
+    resolveApproval({
+      defaultChain: network?.nativeAssetSymbol
+    })
   }
 
   const renderFeedback = () => {

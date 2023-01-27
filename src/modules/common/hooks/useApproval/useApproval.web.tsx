@@ -6,7 +6,7 @@ import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import { Approval } from '@web/background/services/notification'
 import { getUiType } from '@web/utils/uiType'
 
-export const useApproval = () => {
+const useApproval = () => {
   const { extensionWallet } = useExtensionWallet()
 
   const getApproval: () => Promise<Approval> = extensionWallet.getApproval
@@ -62,3 +62,5 @@ export const useApproval = () => {
     rejectApproval
   }
 }
+
+export default useApproval

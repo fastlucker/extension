@@ -1,10 +1,13 @@
 import 'reflect-metadata'
 
+import networks from 'ambire-common/src/constants/networks'
 import { ethErrors } from 'eth-rpc-errors'
+import { ethers } from 'ethers'
 
 import permissionService from '@web/background/services/permission'
 import sessionService, { Session } from '@web/background/services/session'
 import Wallet from '@web/background/wallet'
+import storage from '@web/background/webapi/storage'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 
 interface ApprovalRes {
@@ -54,13 +57,14 @@ const signTypedDataValidation = ({
 
 class ProviderController {
   ethRequestAccounts = async ({ session: { origin } }) => {
-    console.log('ethRequestAccounts', origin)
     if (!permissionService.hasPermission(origin)) {
       throw ethErrors.provider.unauthorized()
     }
-    const _account = null
-    const account = _account ? [_account.address.toLowerCase()] : []
+    const selectedAcc = await storage.get('selectedAcc')
+
+    const account = selectedAcc ? [selectedAcc] : []
     sessionService.broadcastEvent('accountsChanged', account)
+    return account
     // const connectSite = permissionService.getConnectedSite(origin)
     // if (connectSite) {
     //   const chain = CHAINS[connectSite.chain]
@@ -75,17 +79,17 @@ class ProviderController {
     //     origin
     //   )
     // }
-    return account
   }
 
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }) => {
-    console.log('ethAccounts', origin)
     if (!permissionService.hasPermission(origin) || !Wallet.isUnlocked()) {
       return []
     }
 
-    return []
+    const selectedAcc = await storage.get('selectedAcc')
+
+    return selectedAcc ? [selectedAcc] : []
   }
 
   ethCoinbase = async ({ session: { origin } }) => {
@@ -99,10 +103,13 @@ class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethChainId = ({ session }: { session: Session }) => {
-    // const origin = session.origin
-    // const site = permissionService.getWithoutUpdate(origin)
-    // return CHAINS[site?.chain || CHAINS_ENUM.ETH].hex
+  ethChainId = async ({ session }: { session: Session }) => {
+    const origin = session.origin
+    const site = permissionService.getWithoutUpdate(origin)
+    console.log('ethChainId site', site)
+    const networkId = await storage.get('networkId')
+    const network = networks.find((n) => n.id === networkId)
+    return ethers.utils.hexlify(network?.chainId || networks[0].chainId)
   }
 
   @Reflect.metadata('APPROVAL', [

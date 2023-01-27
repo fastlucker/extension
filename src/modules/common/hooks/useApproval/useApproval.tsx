@@ -1,6 +1,6 @@
 // Used for handling approval requests for the extension (not needed for mobile)
 
-export const useApproval = () => {
+const useApproval = () => {
   const getApproval: () => Promise<any> = () => Promise.resolve()
 
   const resolveApproval = async (
@@ -18,3 +18,5 @@ export const useApproval = () => {
     rejectApproval
   }
 }
+
+export default useApproval

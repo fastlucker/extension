@@ -1,5 +1,5 @@
 import * as SplashScreen from 'expo-splash-screen'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -28,6 +28,7 @@ import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
+import useApproval from '@modules/common/hooks/useApproval'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
@@ -60,7 +61,9 @@ import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
+import { Approval } from '@web/background/services/notification'
+import { isExtension } from '@web/constants/browserapi'
+import { getUiType } from '@web/utils/uiType'
 
 import { drawerWebStyle, navigationContainerDarkTheme } from './styles'
 
@@ -589,39 +592,31 @@ const Router = () => {
   const { authStatus } = useAuth()
   const { vaultStatus } = useVault()
   const { connectionState } = useNetInfo()
-  const { setParams } = useAmbireExtension()
+  const [approval, setApproval] = useState<Approval | undefined>()
+  const [ready, setReady] = useState<boolean>(false)
 
-  const handleForceClose = () => {
-    if (isTempExtensionPopup && !__DEV__) {
-      if (params.route === 'permission-request') {
-        // TODO:
-        // sendMessage(
-        //   {
-        //     type: 'clearPendingCallback',
-        //     to: BACKGROUND,
-        //     data: {
-        //       targetHost: params.host
-        //     }
-        //   },
-        //   { ignoreReply: true }
-        // )
+  const { getApproval } = useApproval()
+
+  const isInNotification = getUiType().isNotification
+
+  useEffect(() => {
+    ;(async () => {
+      if (isExtension) {
+        const res: Approval | undefined = await getApproval()
+        setApproval(res)
       }
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', handleForceClose)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleForceClose)
-    }
-  }, [])
-
-  useEffect(() => {
-    setParams(params)
-  }, [setParams])
+      setReady(true)
+    })()
+  }, [getApproval])
 
   const renderContent = useCallback(() => {
+    if (!ready) return null
+
+    if (isInNotification && !approval) {
+      window.close()
+      return null
+    }
+
     if (connectionState === ConnectionStates.NOT_CONNECTED) {
       return <NoConnectionStack />
     }
@@ -646,25 +641,16 @@ const Router = () => {
         return <VaultStack />
       }
 
-      if (params.route === 'permission-request') {
+      if (approval?.data?.approvalComponent === 'permission-request') {
         return <PermissionRequestStack />
       }
-      if (
-        params.route === USER_INTERVENTION_METHODS.eth_sendTransaction ||
-        params.route === USER_INTERVENTION_METHODS.gs_multi_send ||
-        params.route === USER_INTERVENTION_METHODS.ambire_sendBatchTransaction
-      ) {
+      if (approval?.data?.approvalComponent === 'send-transaction') {
         return <PendingTransactionsStack />
       }
-      if (
-        params.route === USER_INTERVENTION_METHODS.eth_sign ||
-        params.route === USER_INTERVENTION_METHODS.personal_sign ||
-        params.route === USER_INTERVENTION_METHODS.eth_signTypedData ||
-        params.route === USER_INTERVENTION_METHODS.eth_signTypedData_v4
-      ) {
+      if (approval?.data?.approvalComponent === 'sign-message') {
         return <SignMessageStack />
       }
-      if (params.route === USER_INTERVENTION_METHODS.wallet_switchEthereumChain) {
+      if (approval?.data?.approvalComponent === 'switch-network') {
         return <SwitchNetworkRequestStack />
       }
 
@@ -674,7 +660,7 @@ const Router = () => {
     }
 
     return null
-  }, [connectionState, authStatus, vaultStatus])
+  }, [connectionState, authStatus, vaultStatus, approval, isInNotification, ready])
 
   const handleOnReady = () => {
     // @ts-ignore for some reason TS complains about this 👇
