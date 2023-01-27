@@ -6,6 +6,7 @@ import * as FileSystem from 'expo-file-system'
 import React, { createContext, useCallback, useMemo, useState } from 'react'
 import { Keyboard } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useEOA from '@modules/common/hooks/useEOA'
@@ -90,8 +91,18 @@ const JsonLoginProvider: React.FC = ({ children }) => {
 
       let fileContent
       try {
-        fileContent = await FileSystem.readAsStringAsync(document.uri)
-        fileContent = JSON.parse(fileContent)
+        if (isWeb) {
+          fileContent = await fetch(document.uri, {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            }
+          })
+          fileContent = await fileContent.json()
+        } else {
+          fileContent = await FileSystem.readAsStringAsync(document.uri)
+          fileContent = JSON.parse(fileContent)
+        }
       } catch (exception) {
         setInProgress(false)
         return setError(
@@ -116,7 +127,7 @@ const JsonLoginProvider: React.FC = ({ children }) => {
         return navigate('addAccountPasswordToVault', { loginType: 'json' })
       }
 
-      if (accountType === 'ledger') {
+      if (accountType === 'ledger' && !isWeb) {
         return onEOASelected(fileContent.signer.address, fileContent.signerExtra)
           ?.then(() => navigate('dashboard'))
           .catch(() =>
@@ -133,7 +144,8 @@ const JsonLoginProvider: React.FC = ({ children }) => {
         setInProgress(false)
         return setError(
           t(
-            'This Ambire account was created using a Web3 wallet. It cannot be imported from JSON in the Ambire mobile app. To access this account, please use the "Login with External Signer" method.'
+            'This Ambire account was created using a Web3 wallet. It cannot be imported from JSON in the Ambire {{app}}. To access this account, please use the "Login with External Signer" method.',
+            { app: isWeb ? t('browser extension') : t('mobile app') }
           )
         )
       }
@@ -141,7 +153,11 @@ const JsonLoginProvider: React.FC = ({ children }) => {
       setInProgress(false)
       return setError(
         t(
-          'Importing this account from JSON is not supported in the Ambire mobile app at this time.'
+          'Importing this account type ({{type}}) from JSON is not supported in the Ambire {{app}} at this time.',
+          {
+            app: isWeb ? t('brower extension') : t('mobile app'),
+            type: fileContent.signerExtra.type
+          }
         )
       )
     },
