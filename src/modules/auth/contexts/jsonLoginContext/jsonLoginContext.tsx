@@ -8,6 +8,7 @@ import { Keyboard } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useEOA from '@modules/common/hooks/useEOA'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 import useVault from '@modules/vault/hooks/useVault'
@@ -40,6 +41,7 @@ const JsonLoginProvider: React.FC = ({ children }) => {
   const [data, setData] = useState<Account | null>(null)
   const { addToast } = useToast()
   const { addToVault } = useVault()
+  const { onEOASelected } = useEOA()
 
   const handleLogin = useCallback(
     async ({ password }: { password?: string }) => {
@@ -105,11 +107,34 @@ const JsonLoginProvider: React.FC = ({ children }) => {
         )
       }
 
-      setData(fileContent)
-      setInProgress(false)
-      navigate('addAccountPasswordToVault', { loginType: 'json' })
+      const { signerExtra } = fileContent
+      const accountType = signerExtra && signerExtra.type ? signerExtra.type : 'quickAcc'
+
+      if (accountType === 'quickAcc') {
+        setData(fileContent)
+        setInProgress(false)
+        return navigate('addAccountPasswordToVault', { loginType: 'json' })
+      }
+
+      if (accountType === 'ledger') {
+        return onEOASelected(fileContent.signer.address, fileContent.signerExtra)
+          ?.then(() => navigate('dashboard'))
+          .finally(() => setInProgress(false))
+      }
+
+      if (fileContent.signerExtra.type === 'trezor') {
+        // TODO
+        return
+      }
+
+      if (fileContent.signerExtra.type === 'Web3') {
+        // TODO
+        return
+      }
+
+      // Handle errors.
     },
-    [addToVault, addToast, data, onAddAccount, t]
+    [onEOASelected, addToVault, addToast, data, onAddAccount, t]
   )
 
   const cancelLoginAttempts = useCallback(() => {
