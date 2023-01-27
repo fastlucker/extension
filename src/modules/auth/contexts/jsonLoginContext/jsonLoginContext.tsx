@@ -122,15 +122,21 @@ const JsonLoginProvider: React.FC = ({ children }) => {
           .finally(() => setInProgress(false))
       }
 
-      if (fileContent.signerExtra.type === 'trezor') {
-        // TODO
-        return
+      if (fileContent.signerExtra.type === 'Web3') {
+        setInProgress(false)
+        return setError(
+          t(
+            'This Ambire account was created using a Web3 wallet. It cannot be imported from JSON in the Ambire mobile app. To access this account, please use the "Login with External Signer" method.'
+          )
+        )
       }
 
-      if (fileContent.signerExtra.type === 'Web3') {
-        // TODO
-        return
-      }
+      setInProgress(false)
+      return setError(
+        t(
+          'Importing this account from JSON is not supported in the Ambire mobile app at this time.'
+        )
+      )
 
       // Handle errors.
     },
