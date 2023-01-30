@@ -15,12 +15,14 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
+import useApproval from '@modules/common/hooks/useApproval'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import ManifestImage from '@modules/extension/components/ManifestImage'
+import { Approval } from '@web/background/services/notification'
 
 import styles from './styles'
 
@@ -28,6 +30,26 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { params } = useAmbireExtension()
   const { network, setNetwork } = useNetwork()
+  const { getApproval, rejectApproval, resolveApproval } = useApproval()
+
+  const [approval, setApproval] = useState<Approval | null>(null)
+
+  const init = async () => {
+    const approvalRes = await getApproval()
+    if (!approvalRes) {
+      window.close()
+      return null
+    }
+    console.log('approvalRes', approvalRes)
+    setApproval(approvalRes)
+    // if (approvalRes.data?.origin || approvalRes.data.params?.session.origin) {
+    //   document.title = approvalRes.data?.origin || approvalRes.data.params!.session.origin
+    // }
+  }
+
+  useEffect(() => {
+    init()
+  }, [])
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -35,108 +57,36 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
     })
   }, [t, navigation])
 
-  const targetHost = params.host
-
-  const queue = useMemo(() => (params.queue ? JSON.parse(atob(params.queue)) : []), [params.queue])
-
-  const sanitize2hex = (any) => {
-    if (any instanceof BigNumber) {
-      return any.toHexString()
+  const newNetwork = useMemo(() => {
+    const chainId = approval?.data?.params?.data?.[0]?.chainId
+    if (chainId) {
+      return networks.find((a) => {
+        return a.chainId === Number(chainId)
+      })
     }
+  }, [approval])
 
-    if (any === undefined || any === null) {
-      return any
-    }
-    return BigNumber.from(any).toHexString()
-  }
-
-  const message = useMemo(() => queue?.[0], [queue])
-  const newNetwork = useMemo(
-    () =>
-      networks.find((a) => {
-        return sanitize2hex(a.chainId) === sanitize2hex(message?.data?.params?.[0]?.chainId) // ethers BN ouputs 1 to 0x01 while some dapps ask for 0x1
-      }),
-    [message]
-  )
+  console.log(approval)
 
   // TODO:
   const [loading, setLoading] = useState(false)
 
   const handleDenyButtonPress = () => {
-    // TODO:
-    // !!sendMessage &&
-    //   sendMessage({
-    //     type: 'web3CallResponse',
-    //     to: BACKGROUND,
-    //     data: {
-    //       originalMessage: message,
-    //       rpcResult: {
-    //         jsonrpc: '2.0',
-    //         id: message?.data?.id,
-    //         error: 'Switching network canceled!'
-    //       }
-    //     }
-    //   })
-    // setTimeout(() => {
-    //   window.close()
-    // }, 200)
+    rejectApproval()
   }
 
   const handleSwitchNetworkButtonPress = () => {
     if (newNetwork) {
       setNetwork(newNetwork?.chainId)
-      // TODO:
-      // !!sendMessage &&
-      //   sendMessage({
-      //     type: 'web3CallResponse',
-      //     to: BACKGROUND,
-      //     data: {
-      //       originalMessage: message,
-      //       rpcResult: {
-      //         jsonrpc: '2.0',
-      //         id: message?.data?.id,
-      //         result: {
-      //           chainId: newNetwork?.chainId
-      //         },
-      //         success: true
-      //       }
-      //     }
-      //   })
+      resolveApproval(true)
     }
   }
 
-  useEffect(() => {
-    if (newNetwork?.name === network?.name) {
-      window.close()
-    }
-  }, [newNetwork?.name, network?.name])
-
-  const handleForceClose = () => {
-    // !!sendMessage &&
-    //   sendMessage(
-    //     {
-    //       type: 'web3CallResponse',
-    //       to: BACKGROUND,
-    //       data: {
-    //         originalMessage: message,
-    //         rpcResult: {
-    //           jsonrpc: '2.0',
-    //           id: message?.data?.id,
-    //           error: 'Switching network canceled!'
-    //         }
-    //       }
-    //     },
-    //     { ignoreReply: true }
-    //   )
-  }
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', handleForceClose)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleForceClose)
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (newNetwork?.name === network?.name) {
+  //     window.close()
+  //   }
+  // }, [newNetwork?.name, network?.name])
 
   return (
     <GradientBackgroundWrapper>
@@ -147,11 +97,11 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
         }}
       >
         <Panel type="filled">
-          <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
+          {/* <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
             <ManifestImage host={targetHost} size={64} fallback={() => <ManifestFallbackIcon />} />
-          </View>
+          </View> */}
 
-          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>{targetHost}</Title>
+          {/* <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>{targetHost}</Title> */}
 
           <View style={flexboxStyles.alignCenter}>{!!loading && <Spinner />}</View>
           {!loading && !!newNetwork && (
@@ -163,7 +113,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
                       {'Allow '}
                     </Text>
                     <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                      {targetHost}
+                      {/* {targetHost} */}
                     </Text>
                     <Text fontSize={14} weight="regular">
                       {' to switch the network?'}

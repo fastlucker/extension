@@ -2,6 +2,7 @@ import 'reflect-metadata'
 
 import networks from 'ambire-common/src/constants/networks'
 import { ethErrors } from 'eth-rpc-errors'
+import { intToHex } from 'ethereumjs-util'
 import { ethers } from 'ethers'
 
 import permissionService from '@web/background/services/permission'
@@ -64,21 +65,23 @@ class ProviderController {
 
     const account = selectedAcc ? [selectedAcc] : []
     sessionService.broadcastEvent('accountsChanged', account)
+
+    const connectSite = permissionService.getConnectedSite(origin)
+    if (connectSite) {
+      console.log('connectSite.chain', connectSite.chain)
+      // // ambire:chainChanged event must be sent before chainChanged event
+      // sessionService.broadcastEvent('ambire:chainChanged', chain, origin)
+      // sessionService.broadcastEvent(
+      //   'chainChanged',
+      //   {
+      //     chain: chain.hex,
+      //     networkVersion: chain.network
+      //   },
+      //   origin
+      // )
+    }
+
     return account
-    // const connectSite = permissionService.getConnectedSite(origin)
-    // if (connectSite) {
-    //   const chain = CHAINS[connectSite.chain]
-    //   // ambire:chainChanged event must be sent before chainChanged event
-    //   sessionService.broadcastEvent('ambire:chainChanged', chain, origin)
-    //   sessionService.broadcastEvent(
-    //     'chainChanged',
-    //     {
-    //       chain: chain.hex,
-    //       networkVersion: chain.network
-    //     },
-    //     origin
-    //   )
-    // }
   }
 
   @Reflect.metadata('SAFE', true)
@@ -217,7 +220,7 @@ class ProviderController {
     approvalRes
   }) => {}
 
-  @Reflect.metadata('APPROVAL', ['AddChain', false, { height: 390 }])
+  @Reflect.metadata('APPROVAL', ['AddChain', false])
   walletAddEthereumChain = ({
     data: {
       params: [chainParams]
@@ -240,19 +243,7 @@ class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', [
-    'switch-network',
-    ({ data, session }) => {
-      const connected = permissionService.getConnectedSite(session.origin)
-      if (connected) {
-        const { chainId } = data.params[0]
-
-        if (networks.find((n) => n.chainId === Number(chainId))) {
-          return true
-        }
-      }
-    }
-  ])
+  @Reflect.metadata('APPROVAL', ['switch-network', false])
   walletSwitchEthereumChain = ({
     data: {
       params: [chainParams]
@@ -272,20 +263,12 @@ class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    permissionService.updateConnectSite(
-      origin,
-      {
-        chain: network
-      },
-      true
-    )
-
-    sessionService.broadcastEvent('rabby:chainChanged', chain, origin)
+    sessionService.broadcastEvent('ambire:chainChanged', network, origin)
     sessionService.broadcastEvent(
       'chainChanged',
       {
-        chain: chain.hex,
-        networkVersion: chain.network
+        chain: intToHex(network.chainId),
+        networkVersion: `${network.chainId}`
       },
       origin
     )
@@ -293,7 +276,7 @@ class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['AddAsset', () => null, { height: 390 }])
+  @Reflect.metadata('APPROVAL', ['AddAsset', () => null])
   walletWatchAsset = () => {
     throw new Error('Ambire does not support adding tokens in this way for now.')
   }

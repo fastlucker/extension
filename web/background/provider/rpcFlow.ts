@@ -79,7 +79,6 @@ const flowContext = flow
       },
       mapMethod
     } = ctx
-    console.log('3')
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       if (!permissionService.hasPermission(origin)) {
         if (connectOrigins.has(origin)) {
@@ -112,36 +111,10 @@ const flowContext = flow
       },
       mapMethod
     } = ctx
-    console.log('4')
     const [approvalType, condition] =
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
-    if (approvalType === 'SignText') {
-      // let from
-      // let message
-      // const [first, second] = params
-      // // Compatible with wrong params order
-      // // ref: https://github.com/MetaMask/eth-json-rpc-middleware/blob/53c7361944c380e011f5f4ee1e184db746e26d73/src/wallet.ts#L284
-      // if (resemblesETHAddress(first) && !resemblesETHAddress(second)) {
-      //   from = first
-      //   message = second
-      // } else {
-      //   from = second
-      //   message = first
-      // }
-      // ctx.request.data.params[0] = message
-      // ctx.request.data.params[1] = from
-    }
     if (approvalType && (!condition || !condition(ctx.request))) {
       ctx.request.requestedApproval = true
-      if (approvalType === 'SignTx' && !('chainId' in params[0])) {
-        const site = permissionService.getConnectedSite(origin)
-        if (site) {
-          // const chain = Object.values(CHAINS).find((item) => item.enum === site.chain)
-          // if (chain) {
-          //   params[0].chainId = chain.id
-          // }
-        }
-      }
       ctx.approvalRes = await notificationService.requestApproval({
         approvalComponent: approvalType,
         params: {

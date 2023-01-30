@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 import { ethErrors } from 'eth-rpc-errors'
+import { intToHex } from 'ethereumjs-util'
 
 class PushEventHandlers {
   provider
@@ -68,9 +69,9 @@ class PushEventHandlers {
     }
   }
 
-  'ambire:chainChanged' = (chain) => {
-    if (chain && chain.hex?.toLowerCase() !== this.provider.chainId?.toLowerCase()) {
-      this._emit('ambire:chainChanged', chain)
+  'ambire:chainChanged' = (network) => {
+    if (network && intToHex(network?.chainId) !== this.provider.chainId?.toLowerCase()) {
+      this._emit('ambire:chainChanged', network)
     }
   }
 }
