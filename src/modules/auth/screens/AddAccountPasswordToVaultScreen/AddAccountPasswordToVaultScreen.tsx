@@ -29,7 +29,7 @@ const AddAccountPasswordToVaultScreen = ({ navigation, route }: any) => {
   } = useEmailLogin()
   const {
     handleLogin: handleJsonLogin,
-    data: pendingJsonLoginAccount,
+    pendingLoginWithQuickAccountData: pendingJsonLoginAccount,
     cancelLoginAttempts: cancelJsonLoginAttempts
   } = useJsonLogin()
 
