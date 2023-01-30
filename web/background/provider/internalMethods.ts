@@ -1,5 +1,6 @@
 import providerController from '@web/background/provider/ProviderController'
 import permissionService from '@web/background/services/permission'
+import WalletController from '@web/background/wallet'
 
 const networkIdMap: {
   [key: string]: string
@@ -23,7 +24,7 @@ const getProviderState = async (req) => {
   } = req
 
   const chainEnum = permissionService.getWithoutUpdate(origin)?.chain || 'ETH'
-  const isUnlocked = true
+  const isUnlocked = await WalletController.isUnlocked()
   const networkVersion = '1'
   if (networkIdMap[chainEnum]) {
     // networkVersion = networkIdMap[chainEnum]

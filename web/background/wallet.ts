@@ -5,7 +5,7 @@ import sessionService from '@web/background/services/session'
 import notificationService from './services/notification'
 
 export class WalletController {
-  isUnlocked = () => true
+  isUnlocked = () => VaultController.isVaultUnlocked()
 
   getConnectedSite = permissionService.getConnectedSite
 
