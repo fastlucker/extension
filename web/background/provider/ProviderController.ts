@@ -241,18 +241,17 @@ class ProviderController {
   }
 
   @Reflect.metadata('APPROVAL', [
-    'AddChain',
+    'switch-network',
     ({ data, session }) => {
-      // TODO:
-      // const connected = permissionService.getConnectedSite(session.origin)
-      // if (connected) {
-      //   const { chainId } = data.params[0]
-      //   if (Number(chainId) === CHAINS[connected.chain].id) {
-      //     return true
-      //   }
-      // }
-    },
-    { height: 390 }
+      const connected = permissionService.getConnectedSite(session.origin)
+      if (connected) {
+        const { chainId } = data.params[0]
+
+        if (networks.find((n) => n.chainId === Number(chainId))) {
+          return true
+        }
+      }
+    }
   ])
   walletSwitchEthereumChain = ({
     data: {
@@ -261,6 +260,36 @@ class ProviderController {
     session: { origin }
   }) => {
     console.log('walletSwitchEthereumChain', chainParams, origin)
+
+    let chainId = chainParams.chainId
+    if (typeof chainId === 'string') {
+      chainId = Number(chainId)
+    }
+
+    const network = networks.find((n) => n.chainId === chainId)
+
+    if (!network) {
+      throw new Error('This chain is not supported by Ambire yet.')
+    }
+
+    permissionService.updateConnectSite(
+      origin,
+      {
+        chain: network
+      },
+      true
+    )
+
+    sessionService.broadcastEvent('rabby:chainChanged', chain, origin)
+    sessionService.broadcastEvent(
+      'chainChanged',
+      {
+        chain: chain.hex,
+        networkVersion: chain.network
+      },
+      origin
+    )
+
     return null
   }
 

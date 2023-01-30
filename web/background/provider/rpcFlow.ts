@@ -2,6 +2,7 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 
+import VaultController from '@modules/vault/services/VaultController'
 import providerController from '@web/background/provider/ProviderController'
 import { ProviderRequest } from '@web/background/provider/types'
 import notificationService from '@web/background/services/notification'
@@ -50,10 +51,8 @@ const flowContext = flow
       }
     } = ctx
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
-      // check lock
-      // TODO: implement
-      const isUnlock = true
-
+      const isUnlock = await VaultController.isVaultUnlocked()
+      console.log('isUnlocked', isUnlock)
       if (!isUnlock) {
         if (lockedOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')
@@ -61,7 +60,7 @@ const flowContext = flow
         ctx.request.requestedApproval = true
         lockedOrigins.add(origin)
         try {
-          await notificationService.requestApproval({ lock: true }, { height: 628 })
+          await notificationService.requestApproval({ lock: true })
           lockedOrigins.delete(origin)
         } catch (e) {
           lockedOrigins.delete(origin)
@@ -114,20 +113,8 @@ const flowContext = flow
       mapMethod
     } = ctx
     console.log('4')
-    const [approvalType, condition, options = {}] =
+    const [approvalType, condition] =
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
-    let windowHeight = 800
-    if ('height' in options) {
-      windowHeight = options.height
-    } else {
-      const minHeight = 500
-      if (screen.availHeight < 880) {
-        windowHeight = screen.availHeight
-      }
-      if (windowHeight < minHeight) {
-        windowHeight = minHeight
-      }
-    }
     if (approvalType === 'SignText') {
       // let from
       // let message
@@ -144,9 +131,7 @@ const flowContext = flow
       // ctx.request.data.params[0] = message
       // ctx.request.data.params[1] = from
     }
-    console.log('5')
     if (approvalType && (!condition || !condition(ctx.request))) {
-      console.log('6')
       ctx.request.requestedApproval = true
       if (approvalType === 'SignTx' && !('chainId' in params[0])) {
         const site = permissionService.getConnectedSite(origin)
@@ -157,20 +142,16 @@ const flowContext = flow
           // }
         }
       }
-      console.log('7')
-      ctx.approvalRes = await notificationService.requestApproval(
-        {
-          approvalComponent: approvalType,
-          params: {
-            $ctx: ctx?.request?.data?.$ctx,
-            method,
-            data: ctx.request.data.params,
-            session: { origin, name, icon }
-          },
-          origin
+      ctx.approvalRes = await notificationService.requestApproval({
+        approvalComponent: approvalType,
+        params: {
+          $ctx: ctx?.request?.data?.$ctx,
+          method,
+          data: ctx.request.data.params,
+          session: { origin, name, icon }
         },
-        { height: windowHeight }
-      )
+        origin
+      })
       if (isSignApproval(approvalType)) {
         permissionService.updateConnectSite(origin, { isSigned: true }, true)
       } else {
@@ -186,6 +167,7 @@ const flowContext = flow
     // process request
     const [approvalType] = Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
     const { uiRequestComponent, ...rest } = approvalRes || {}
+    console.log('!!!!', approvalType, mapMethod, uiRequestComponent)
     const {
       session: { origin }
     } = request

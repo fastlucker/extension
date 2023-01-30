@@ -273,10 +273,8 @@ const VaultStack = () => {
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
-      <Stack.Screen
-        name="unlockVault"
-        options={{ title: t('Welcome Back') }}
-        component={(props) => (
+      <Stack.Screen name="unlockVault" options={{ title: t('Welcome Back') }}>
+        {(props) => (
           <UnlockVaultScreen
             {...props}
             unlockVault={unlockVault}
@@ -284,14 +282,12 @@ const VaultStack = () => {
             biometricsEnabled={biometricsEnabled}
           />
         )}
-      />
-      <Stack.Screen
-        name="resetVault"
-        options={{ title: t('Reset your\nAmbire Key Store Lock') }}
-        component={(props) => (
+      </Stack.Screen>
+      <Stack.Screen name="resetVault" options={{ title: t('Reset your\nAmbire Key Store Lock') }}>
+        {(props) => (
           <ResetVaultScreen {...props} vaultStatus={vaultStatus} resetVault={resetVault} />
         )}
-      />
+      </Stack.Screen>
     </Stack.Navigator>
   )
 }
