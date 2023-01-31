@@ -28,8 +28,6 @@ export class WalletController {
       origin,
       name: name!,
       icon: icon!,
-      // TODO: Ref from constants
-      chain: '0x1',
       isConnected: false,
       isSigned: false,
       isTop: false
