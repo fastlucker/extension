@@ -179,18 +179,12 @@ const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
     [requests, setRequests]
   )
 
-  const disconnectDapp = useCallback(
-    (host: string) => {
-      // TODO:
-      // sendMessage({
-      //   to: BACKGROUND,
-      //   type: 'removeFromPermissionsList',
-      //   data: { host }
-      // }).then(() => {
-      //   setConnectedDapps(connectedDapps.filter((p) => p.host !== host))
-      // })
+  const disconnectDapp = useCallback<AmbireExtensionContextReturnType['disconnectDapp']>(
+    async (origin) => {
+      await extensionWallet.removeConnectedSite(origin)
+      getCurrentSite()
     },
-    [connectedDapps]
+    [extensionWallet, getCurrentSite]
   )
 
   useEffect(() => {

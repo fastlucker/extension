@@ -100,17 +100,21 @@ const Balances = ({
 
   const handleConnectedStatusPress = () => {
     if (isConnected) {
-      alert('Disconnect Dapp', `Are you sere you want to disconnect ${tabHost}?`, [
-        {
-          text: t('Yes, disconnect dapp'),
-          onPress: () => disconnectDapp(tabHost),
-          style: 'destructive'
-        },
-        {
-          text: t('Cancel'),
-          style: 'cancel'
-        }
-      ])
+      alert(
+        'Disconnect Dapp',
+        `Are you sere you want to disconnect ${site.name} (${site.origin})?`,
+        [
+          {
+            text: t('Yes, disconnect dapp'),
+            onPress: () => disconnectDapp(site.origin),
+            style: 'destructive'
+          },
+          {
+            text: t('Cancel'),
+            style: 'cancel'
+          }
+        ]
+      )
     } else {
       showModal()
     }

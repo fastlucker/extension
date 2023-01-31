@@ -36,6 +36,11 @@ export class WalletController {
     }
   }
 
+  removeConnectedSite = (origin: ConnectedSite['origin']) => {
+    sessionService.broadcastEvent('accountsChanged', [], origin)
+    permissionService.removeConnectedSite(origin)
+  }
+
   getApproval = notificationService.getApproval
 
   resolveApproval = notificationService.resolveApproval

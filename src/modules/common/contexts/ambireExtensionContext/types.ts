@@ -21,7 +21,7 @@ export interface AmbireExtensionContextReturnType {
       queue?: string
     }>
   >
-  disconnectDapp: (hast: string) => void
+  disconnectDapp: (origin: ConnectedSite['origin']) => Promise<void>
 }
 
 export const ambireExtensionContextDefaults = {
@@ -32,5 +32,5 @@ export const ambireExtensionContextDefaults = {
   site: null,
   resolveMany: () => {},
   setParams: () => null,
-  disconnectDapp: () => {}
+  disconnectDapp: () => Promise.resolve()
 }
