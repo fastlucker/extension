@@ -64,19 +64,8 @@ const Balances = ({
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { isPrivateMode, togglePrivateMode, hidePrivateValue } = usePrivateMode()
-  const { site, connectedDapps, disconnectDapp } = useAmbireExtension()
+  const { site, disconnectDapp } = useAmbireExtension()
   const { isModalVisible, showModal, hideModal } = useModal()
-
-  const tabHost = useMemo(() => {
-    try {
-      if (site) {
-        return new URL(site.origin)
-      }
-    } catch (e) {
-      return null
-    }
-    return null
-  }, [site])
 
   const { cacheBreak } = useCacheBreak()
   const urlGetBalance = relayerURL
@@ -99,28 +88,25 @@ const Balances = ({
   const isConnected = site?.isConnected
 
   const handleConnectedStatusPress = () => {
-    if (isConnected) {
-      alert(
-        t('Are you sere you want to disconnect {{name}} ({{url}})?', {
-          name: site.name,
-          url: site.origin
-        }),
-        undefined,
-        [
-          {
-            text: t('Disconnect'),
-            onPress: () => disconnectDapp(site.origin),
-            style: 'destructive'
-          },
-          {
-            text: t('Cancel'),
-            style: 'cancel'
-          }
-        ]
-      )
-    } else {
-      showModal()
+    if (!isConnected) {
+      return showModal()
     }
+
+    alert(
+      t('Are you sere you want to disconnect {{name}} ({{url}})?', {
+        name: site.name,
+        url: site.origin
+      }),
+      undefined,
+      [
+        {
+          text: t('Disconnect'),
+          onPress: () => disconnectDapp(site.origin),
+          style: 'destructive'
+        },
+        { text: t('Cancel'), style: 'cancel' }
+      ]
+    )
   }
 
   useLayoutEffect(() => {
@@ -168,7 +154,7 @@ const Balances = ({
                 </View>
                 {!!hovered && (
                   <Text fontSize={12} weight="regular">
-                    {isConnected ? 'Connected' : 'Disconnected'}
+                    {isConnected ? t('Connected') : t('Disconnected')}
                   </Text>
                 )}
               </View>
@@ -308,7 +294,7 @@ const Balances = ({
       )}
       <Modal isVisible={isModalVisible} hideModal={hideModal}>
         <View style={[flexboxStyles.alignCenter, flexboxStyles.justifyCenter, spacings.mb]}>
-          <Title type="small">{tabHost}</Title>
+          {!!site?.name && <Title type="small">{site.name}</Title>}
           <Text>
             {t(
               "Ambire is not connected to the current webpage. To connect, find and click the connect button on the dApp's webpage."
