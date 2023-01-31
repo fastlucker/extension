@@ -101,11 +101,14 @@ const Balances = ({
   const handleConnectedStatusPress = () => {
     if (isConnected) {
       alert(
-        'Disconnect Dapp',
-        `Are you sere you want to disconnect ${site.name} (${site.origin})?`,
+        t('Are you sere you want to disconnect {{name}} ({{url}})?', {
+          name: site.name,
+          url: site.origin
+        }),
+        undefined,
         [
           {
-            text: t('Yes, disconnect dapp'),
+            text: t('Disconnect'),
             onPress: () => disconnectDapp(site.origin),
             style: 'destructive'
           },
