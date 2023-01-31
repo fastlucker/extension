@@ -40,7 +40,11 @@ const ConnectedDapps = ({ isIcon = false }: { isIcon?: boolean }) => {
 
         {!connectedDapps.length && (
           <View style={spacings.mb}>
-            <Text style={textStyles.center}>{t('You have no connected dapps!')}</Text>
+            <Text style={textStyles.center}>
+              {t(
+                "You have no connected dApps. To connect, find and click the connect button on the dApp's webpage."
+              )}
+            </Text>
           </View>
         )}
         {!!connectedDapps.length &&
