@@ -2,13 +2,13 @@ import useGasTankData from 'ambire-common/src/hooks/useGasTankData'
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import GasTankIcon from '@assets/svg/GasTankIcon'
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
+import BottomSheet from '@modules/common/components/BottomSheet'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Modal from '@modules/common/components/Modal'
-import useModal from '@modules/common/components/Modal/hooks/useModal'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
@@ -38,7 +38,9 @@ const GasTankScreen = () => {
   const { addRequest } = useRequests()
   const { addToast } = useToast()
   const portfolio = usePortfolio()
-  const { isModalVisible, showModal, hideModal } = useModal()
+
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
   const {
     balancesRes,
     gasTankBalances,
@@ -88,7 +90,7 @@ const GasTankScreen = () => {
         <GasTankStateToggle disabled={!gasTankBalances && !gasTankBalances?.length} />
         <Text style={[spacings.mbSm, spacings.mhSm]} fontSize={12}>
           {t('The Ambire Gas Tank is your special account for paying gas and saving on gas fees.')}
-          <Text color={colors.heliotrope} fontSize={12} onPress={showModal}>{`   ${t(
+          <Text color={colors.heliotrope} fontSize={12} onPress={openBottomSheet}>{`   ${t(
             'learn more...'
           )}`}</Text>
         </Text>
@@ -127,7 +129,13 @@ const GasTankScreen = () => {
           />
         </Panel>
       </Wrapper>
-      <Modal isVisible={isModalVisible} hideModal={hideModal}>
+
+      <BottomSheet
+        id="gas-tank"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+        cancelText="Close"
+      >
         <View
           style={[
             flexboxStyles.directionRow,
@@ -149,7 +157,7 @@ const GasTankScreen = () => {
         <Text fontSize={12} weight="regular">
           {t('Please note that only the listed tokens are eligible for filling up your gas tank.')}
         </Text>
-      </Modal>
+      </BottomSheet>
     </GradientBackgroundWrapper>
   )
 }

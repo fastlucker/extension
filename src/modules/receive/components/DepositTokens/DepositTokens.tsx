@@ -1,11 +1,12 @@
 import networks from 'ambire-common/src/constants/networks'
 import * as Clipboard from 'expo-clipboard'
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
 
 import CopyIcon from '@assets/svg/CopyIcon'
+import { isRelayerless } from '@config/env'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
@@ -27,7 +28,7 @@ const DepositTokens = ({ selectedAcc, networkId }: Props) => {
   const { t } = useTranslation()
   const qrCodeRef: any = useRef(null)
   const { addToast } = useToast()
-  const networkDetails = networks.find(({ id }) => id === networkId)
+  const networkDetails = useMemo(() => networks.find(({ id }) => id === networkId), [networkId])
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
 
   const handleCopyAddress = () => {
@@ -86,6 +87,7 @@ const DepositTokens = ({ selectedAcc, networkId }: Props) => {
         <View style={styles.supportedNetworksContainer}>
           {networks
             .filter(({ hide }) => !hide)
+            .filter((n) => isRelayerless || !n.relayerlessOnly)
             .map(({ id, name }: any) => (
               <View key={id} style={styles.supportedNetworksItem}>
                 <View style={{ marginBottom: 3 }}>
