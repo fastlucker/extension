@@ -284,7 +284,9 @@ const Balances = ({
         closeBottomSheet={closeBottomSheet}
         cancelText="Close"
       >
-        <View style={[flexboxStyles.alignCenter, flexboxStyles.justifyCenter, spacings.mb]}>
+        <View
+          style={[flexboxStyles.alignCenter, flexboxStyles.justifyCenter, spacings.mb, spacings.mt]}
+        >
           {!!site?.name && <Title type="small">{site.name}</Title>}
           <Text>
             {t(

@@ -36,7 +36,7 @@ const ConnectedDapps = ({ isIcon = false }: { isIcon?: boolean }) => {
         )}
       </TouchableOpacity>
       <BottomSheet id="connected-dapps" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <Title style={textStyles.center}>{t('Connected dApps')}</Title>
+        <Title style={[textStyles.center, spacings.mt]}>{t('Connected dApps')}</Title>
 
         {!connectedDapps.length && (
           <View style={spacings.mb}>
