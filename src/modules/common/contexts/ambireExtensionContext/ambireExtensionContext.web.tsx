@@ -22,12 +22,8 @@ const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
   const { network } = useNetwork()
   const { extensionWallet } = useExtensionWallet()
   const [site, setSite] = useState<AmbireExtensionContextReturnType['site']>(null)
-
   const [connectedDapps, setConnectedDapps] = useState<
-    {
-      host: string
-      status: boolean
-    }[]
+    AmbireExtensionContextReturnType['connectedDapps']
   >([])
   const [params, setParams] = useState<{
     route?: string
@@ -45,9 +41,15 @@ const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
     setSite(current)
   }, [extensionWallet])
 
+  const getConnectedSites = useCallback(async () => {
+    const connectedSites = await extensionWallet.getConnectedSites()
+    setConnectedDapps(connectedSites)
+  }, [extensionWallet])
+
   useEffect(() => {
     getCurrentSite()
-  }, [getCurrentSite])
+    getConnectedSites()
+  }, [getCurrentSite, getConnectedSites])
 
   const [requests, setRequests] = useStorage({
     key: STORAGE_KEY,
@@ -207,26 +209,6 @@ const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
       }
     }
   }, [params, queue, handleSendTransactions, handlePersonalSign])
-
-  useEffect(() => {
-    if (!isTempExtensionPopup) {
-      // TODO:
-      // !!sendMessage &&
-      //   sendMessage({
-      //     to: BACKGROUND,
-      //     type: 'getPermissionsList'
-      //   }).then((reply) => {
-      //     setConnectedDapps(
-      //       Object.keys(reply.data).map((host) => {
-      //         return {
-      //           host,
-      //           status: reply.data?.[host]
-      //         }
-      //       })
-      //     )
-      //   })
-    }
-  }, [isTempExtensionPopup])
 
   useEffect(() => {
     let interval: any

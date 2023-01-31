@@ -44,13 +44,14 @@ const ConnectedDapps = ({ isIcon = false }: { isIcon?: boolean }) => {
           </View>
         )}
         {!!connectedDapps.length &&
-          connectedDapps.map(({ host, status }: any, i: number) => {
+          connectedDapps.map(({ origin, name, isConnected }, i: number) => {
             return (
               <ConnectedWeb3DAppItem
-                key={host}
-                host={host}
-                status={status}
-                disconnect={disconnectDapp}
+                key={origin}
+                name={name}
+                origin={origin}
+                isConnected={isConnected}
+                disconnectDapp={disconnectDapp}
                 isLast={connectedDapps.length - 1 === i}
               />
             )

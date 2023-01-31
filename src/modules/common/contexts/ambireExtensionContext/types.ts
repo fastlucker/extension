@@ -1,10 +1,7 @@
 import { ConnectedSite } from '@web/background/services/permission'
 
 export interface AmbireExtensionContextReturnType {
-  connectedDapps: {
-    host: string
-    status: boolean
-  }[]
+  connectedDapps: ConnectedSite[]
   params: {
     route?: string
     host?: string

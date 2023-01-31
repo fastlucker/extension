@@ -39,6 +39,8 @@ export class WalletController {
     permissionService.removeConnectedSite(origin)
   }
 
+  getConnectedSites = permissionService.getConnectedSites
+
   getApproval = notificationService.getApproval
 
   resolveApproval = notificationService.resolveApproval
