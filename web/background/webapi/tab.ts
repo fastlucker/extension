@@ -30,6 +30,12 @@ const openIndexPage = (route = ''): Promise<number | undefined> => {
   return createTab(url)
 }
 
+export const getCurrentTab = async (): Promise<Tabs.Tab> => {
+  const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+
+  return tabs[0]
+}
+
 export default tabEvent
 
 export { createTab, openIndexPage }

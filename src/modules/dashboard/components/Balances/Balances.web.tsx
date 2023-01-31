@@ -64,19 +64,19 @@ const Balances = ({
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { isPrivateMode, togglePrivateMode, hidePrivateValue } = usePrivateMode()
-  const { lastActiveTab, connectedDapps, disconnectDapp } = useAmbireExtension()
+  const { site, connectedDapps, disconnectDapp } = useAmbireExtension()
   const { isModalVisible, showModal, hideModal } = useModal()
 
   const tabHost = useMemo(() => {
     try {
-      if (lastActiveTab) {
-        return new URL(lastActiveTab.url).host
+      if (site) {
+        return new URL(site.origin)
       }
     } catch (e) {
       return null
     }
     return null
-  }, [lastActiveTab])
+  }, [site])
 
   const { cacheBreak } = useCacheBreak()
   const urlGetBalance = relayerURL
@@ -96,26 +96,25 @@ const Balances = ({
     [data]
   )
 
-  const isConnected = useMemo(() => {
-    if (lastActiveTab) {
-      return connectedDapps.find((dapp) => dapp.host === tabHost)?.status
-    }
-    return null
-  }, [lastActiveTab, connectedDapps, tabHost])
+  const isConnected = site?.isConnected
 
   const handleConnectedStatusPress = () => {
     if (isConnected) {
-      alert('Disconnect Dapp', `Are you sere you want to disconnect ${tabHost}?`, [
-        {
-          text: t('Yes, disconnect dapp'),
-          onPress: () => disconnectDapp(tabHost),
-          style: 'destructive'
-        },
-        {
-          text: t('Cancel'),
-          style: 'cancel'
-        }
-      ])
+      alert(
+        'Disconnect Dapp',
+        `Are you sere you want to disconnect ${site.name} (${site.origin})?`,
+        [
+          {
+            text: t('Yes, disconnect dapp'),
+            onPress: () => disconnectDapp(site.origin),
+            style: 'destructive'
+          },
+          {
+            text: t('Cancel'),
+            style: 'cancel'
+          }
+        ]
+      )
     } else {
       showModal()
     }
@@ -309,7 +308,7 @@ const Balances = ({
           <Title type="small">{tabHost}</Title>
           <Text>
             {t(
-              "Ambire is not connected to this site. To connect to a web3 site, find and click the 'Connect Wallet' button."
+              "Ambire is not connected to the current webpage. To connect, find and click the connect button on the dApp's webpage."
             )}
           </Text>
         </View>

@@ -1,10 +1,13 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
+import { getCurrentTab } from '@web/background/webapi/tab'
 import { errorCodes } from '@web/constants/errors'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
+import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from './types'
 
@@ -14,9 +17,11 @@ const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
 
 const STORAGE_KEY = 'ambire_extension_state'
 
-const AmbireExtensionProvider: React.FC = ({ children }) => {
+const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
+  const { extensionWallet } = useExtensionWallet()
+  const [site, setSite] = useState<AmbireExtensionContextReturnType['site']>(null)
 
   const [connectedDapps, setConnectedDapps] = useState<
     {
@@ -29,9 +34,20 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
     host?: string
     queue?: string
   }>({})
-  const [lastActiveTab, setLastActiveTab] = useState<any>(null)
   const isTempExtensionPopup = useMemo(() => !!params.route || !!params.host, [params])
   const queue = useMemo(() => (params.queue ? JSON.parse(atob(params.queue)) : []), [params.queue])
+
+  const getCurrentSite = useCallback(async () => {
+    const tab = await getCurrentTab()
+    if (!tab.id || !tab.url) return
+    const domain = getOriginFromUrl(tab.url)
+    const current = await extensionWallet.getCurrentSite(tab.id, domain)
+    setSite(current)
+  }, [extensionWallet])
+
+  useEffect(() => {
+    getCurrentSite()
+  }, [getCurrentSite])
 
   const [requests, setRequests] = useStorage({
     key: STORAGE_KEY,
@@ -163,18 +179,12 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
     [requests, setRequests]
   )
 
-  const disconnectDapp = useCallback(
-    (host: string) => {
-      // TODO:
-      // sendMessage({
-      //   to: BACKGROUND,
-      //   type: 'removeFromPermissionsList',
-      //   data: { host }
-      // }).then(() => {
-      //   setConnectedDapps(connectedDapps.filter((p) => p.host !== host))
-      // })
+  const disconnectDapp = useCallback<AmbireExtensionContextReturnType['disconnectDapp']>(
+    async (origin) => {
+      await extensionWallet.removeConnectedSite(origin)
+      getCurrentSite()
     },
-    [connectedDapps]
+    [extensionWallet, getCurrentSite]
   )
 
   useEffect(() => {
@@ -254,7 +264,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
           params,
           requests,
           isTempExtensionPopup,
-          lastActiveTab,
+          site,
           resolveMany,
           setParams,
           disconnectDapp
@@ -264,7 +274,7 @@ const AmbireExtensionProvider: React.FC = ({ children }) => {
           params,
           requests,
           isTempExtensionPopup,
-          lastActiveTab,
+          site,
           resolveMany,
           setParams,
           disconnectDapp
