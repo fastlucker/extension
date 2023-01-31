@@ -1,10 +1,5 @@
 import providerController from '@web/background/provider/ProviderController'
-import permissionService from '@web/background/services/permission'
 import WalletController from '@web/background/wallet'
-
-const networkIdMap: {
-  [key: string]: string
-} = {}
 
 const tabCheckin = ({
   data: {
@@ -19,22 +14,14 @@ const tabCheckin = ({
 }
 
 const getProviderState = async (req) => {
-  const {
-    session: { origin }
-  } = req
-
-  const chainEnum = permissionService.getWithoutUpdate(origin)?.chain || 'ETH'
   const isUnlocked = await WalletController.isUnlocked()
-  const networkVersion = '1'
-  if (networkIdMap[chainEnum]) {
-    // networkVersion = networkIdMap[chainEnum]
-  } else {
-    // networkVersion = await providerController.netVersion(req)
-    networkIdMap[chainEnum] = '1'
-  }
+  let networkVersion: any = '1'
+
+  const chainId = await providerController.ethChainId()
+  networkVersion = await providerController.netVersion()
 
   return {
-    chainId: '0x1',
+    chainId,
     isUnlocked,
     accounts: isUnlocked ? await providerController.ethAccounts(req) : [],
     networkVersion
