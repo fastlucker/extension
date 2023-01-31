@@ -6,8 +6,10 @@ import * as FileSystem from 'expo-file-system'
 import React, { createContext, useCallback, useMemo, useState } from 'react'
 import { Keyboard } from 'react-native'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useEOA from '@modules/common/hooks/useEOA'
 import useToast from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
 import useVault from '@modules/vault/hooks/useVault'
@@ -21,7 +23,7 @@ type JsonLoginContextData = {
   cancelLoginAttempts: () => void
   error: string | null
   inProgress: boolean
-  data: Account | null
+  pendingLoginWithQuickAccountData: Account | null
 }
 
 const JsonLoginContext = createContext<JsonLoginContextData>({
@@ -29,7 +31,7 @@ const JsonLoginContext = createContext<JsonLoginContextData>({
   cancelLoginAttempts: () => {},
   error: null,
   inProgress: false,
-  data: null
+  pendingLoginWithQuickAccountData: null
 })
 
 const JsonLoginProvider: React.FC = ({ children }) => {
@@ -37,9 +39,11 @@ const JsonLoginProvider: React.FC = ({ children }) => {
   const [error, setError] = useState<null | string>(null)
   const [inProgress, setInProgress] = useState<boolean>(false)
   const { onAddAccount } = useAccounts()
-  const [data, setData] = useState<Account | null>(null)
+  const [pendingLoginWithQuickAccountData, setPendingLoginWithQuickAccountData] =
+    useState<Account | null>(null)
   const { addToast } = useToast()
   const { addToVault } = useVault()
+  const { onEOASelected } = useEOA()
 
   const handleLogin = useCallback(
     async ({ password }: { password?: string }) => {
@@ -47,10 +51,10 @@ const JsonLoginProvider: React.FC = ({ children }) => {
       setError('')
       setInProgress(true)
 
-      if (data) {
+      if (pendingLoginWithQuickAccountData) {
         try {
           const wallet = await Wallet.fromEncryptedJson(
-            JSON.parse(data.primaryKeyBackup),
+            JSON.parse(pendingLoginWithQuickAccountData.primaryKeyBackup),
             password as string
           )
 
@@ -66,7 +70,7 @@ const JsonLoginProvider: React.FC = ({ children }) => {
             }
           })
             .then(() => {
-              onAddAccount(data, { select: true })
+              onAddAccount(pendingLoginWithQuickAccountData, { select: true })
             })
             .catch((e) => {
               addToast(e.message || e, { error: true })
@@ -80,7 +84,6 @@ const JsonLoginProvider: React.FC = ({ children }) => {
       }
 
       const document = await DocumentPicker.getDocumentAsync({ type: 'application/json' })
-
       if (document.type !== 'success') {
         setInProgress(false)
         return setError(t('JSON file was not selected or something went wrong selecting it.'))
@@ -88,8 +91,18 @@ const JsonLoginProvider: React.FC = ({ children }) => {
 
       let fileContent
       try {
-        fileContent = await FileSystem.readAsStringAsync(document.uri)
-        fileContent = JSON.parse(fileContent)
+        if (isWeb) {
+          fileContent = await fetch(document.uri, {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            }
+          })
+          fileContent = await fileContent.json()
+        } else {
+          fileContent = await FileSystem.readAsStringAsync(document.uri)
+          fileContent = JSON.parse(fileContent)
+        }
       } catch (exception) {
         setInProgress(false)
         return setError(
@@ -105,15 +118,54 @@ const JsonLoginProvider: React.FC = ({ children }) => {
         )
       }
 
-      setData(fileContent)
+      const { signerExtra } = fileContent
+      const accountType = signerExtra && signerExtra.type ? signerExtra.type : 'quickAcc'
+
+      if (accountType === 'quickAcc') {
+        setPendingLoginWithQuickAccountData(fileContent)
+        setInProgress(false)
+        return navigate('addAccountPasswordToVault', { loginType: 'json' })
+      }
+
+      if (accountType === 'ledger' && !isWeb) {
+        return onEOASelected(fileContent.signer.address, fileContent.signerExtra)
+          ?.then(() => navigate('dashboard'))
+          .catch(() =>
+            setError(
+              t(
+                'Something went wrong with importing this account from JSON. Either the JSON is invalid or there is a problem on our end. Please contact our support.'
+              )
+            )
+          )
+          .finally(() => setInProgress(false))
+      }
+
+      if (fileContent.signerExtra.type === 'Web3') {
+        setInProgress(false)
+        return setError(
+          t(
+            'This Ambire account was created using a Web3 wallet. It cannot be imported from JSON in the Ambire {{app}}. To access this account, please use the "Login with External Signer" method.',
+            { app: isWeb ? t('browser extension') : t('mobile app') }
+          )
+        )
+      }
+
       setInProgress(false)
-      navigate('addAccountPasswordToVault', { loginType: 'json' })
+      return setError(
+        t(
+          'Importing this account type ({{type}}) from JSON is not supported in the Ambire {{app}} at this time.',
+          {
+            app: isWeb ? t('brower extension') : t('mobile app'),
+            type: fileContent.signerExtra.type
+          }
+        )
+      )
     },
-    [addToVault, addToast, data, onAddAccount, t]
+    [onEOASelected, addToVault, addToast, pendingLoginWithQuickAccountData, onAddAccount, t]
   )
 
   const cancelLoginAttempts = useCallback(() => {
-    setData(null)
+    setPendingLoginWithQuickAccountData(null)
     setInProgress(false)
     setError(null)
   }, [])
@@ -125,10 +177,10 @@ const JsonLoginProvider: React.FC = ({ children }) => {
           handleLogin,
           error,
           inProgress,
-          data,
+          pendingLoginWithQuickAccountData,
           cancelLoginAttempts
         }),
-        [handleLogin, cancelLoginAttempts, error, inProgress, data]
+        [handleLogin, cancelLoginAttempts, error, inProgress, pendingLoginWithQuickAccountData]
       )}
     >
       {children}

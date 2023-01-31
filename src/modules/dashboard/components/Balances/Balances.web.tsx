@@ -4,6 +4,7 @@ import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
 import React, { useLayoutEffect, useMemo } from 'react'
 import { TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 import { Pressable } from 'react-native-web-hover'
 
 import ConnectionStatusIcon from '@assets/svg/ConnectionStatusIcon'
@@ -13,9 +14,8 @@ import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import CONFIG, { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
+import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
-import Modal from '@modules/common/components/Modal'
-import useModal from '@modules/common/components/Modal/hooks/useModal'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
@@ -64,7 +64,7 @@ const Balances = ({
   const navigation: any = useNavigation()
   const { isPrivateMode, togglePrivateMode, hidePrivateValue } = usePrivateMode()
   const { site, disconnectDapp } = useAmbireExtension()
-  const { isModalVisible, showModal, hideModal } = useModal()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const { cacheBreak } = useCacheBreak()
   const urlGetBalance = relayerURL
@@ -88,7 +88,7 @@ const Balances = ({
 
   const handleConnectedStatusPress = () => {
     if (!isConnected) {
-      return showModal()
+      return openBottomSheet()
     }
 
     disconnectDapp(site.origin)
@@ -277,7 +277,13 @@ const Balances = ({
       ) : (
         content
       )}
-      <Modal isVisible={isModalVisible} hideModal={hideModal}>
+
+      <BottomSheet
+        id="dapp-connection-status"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+        cancelText="Close"
+      >
         <View style={[flexboxStyles.alignCenter, flexboxStyles.justifyCenter, spacings.mb]}>
           {!!site?.name && <Title type="small">{site.name}</Title>}
           <Text>
@@ -286,7 +292,7 @@ const Balances = ({
             )}
           </Text>
         </View>
-      </Modal>
+      </BottomSheet>
     </View>
   )
 }
