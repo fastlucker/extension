@@ -1,3 +1,5 @@
+import { ConnectedSite } from '@web/background/services/permission'
+
 export interface AmbireExtensionContextReturnType {
   connectedDapps: {
     host: string
@@ -10,7 +12,7 @@ export interface AmbireExtensionContextReturnType {
   }
   requests: any[] | null
   isTempExtensionPopup: boolean
-  lastActiveTab: any
+  site: ConnectedSite | null
   resolveMany: (ids: any, resolution: any) => any
   setParams: React.Dispatch<
     React.SetStateAction<{
@@ -27,7 +29,7 @@ export const ambireExtensionContextDefaults = {
   params: {},
   requests: [],
   isTempExtensionPopup: false,
-  lastActiveTab: null,
+  site: null,
   resolveMany: () => {},
   setParams: () => null,
   disconnectDapp: () => {}
