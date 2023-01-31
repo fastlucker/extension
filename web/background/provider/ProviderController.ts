@@ -106,10 +106,7 @@ class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethChainId = async ({ session }: { session: Session }) => {
-    const origin = session.origin
-    const site = permissionService.getWithoutUpdate(origin)
-    console.log('ethChainId site', site)
+  ethChainId = async () => {
     const networkId = await storage.get('networkId')
     const network = networks.find((n) => n.id === networkId)
     return ethers.utils.hexlify(network?.chainId || networks[0].chainId)
@@ -150,11 +147,11 @@ class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  netVersion = (req) => {
-    return this.ethRpc({
-      ...req,
-      data: { method: 'net_version', params: [] }
-    })
+  netVersion = async () => {
+    const networkId = await storage.get('networkId')
+    const network = networks.find((n) => n.id === networkId)
+
+    return network?.chainId
   }
 
   @Reflect.metadata('SAFE', true)
@@ -263,7 +260,7 @@ class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    sessionService.broadcastEvent('ambire:chainChanged', network, origin)
+    // sessionService.broadcastEvent('ambire:chainChanged', network, origin)
     sessionService.broadcastEvent(
       'chainChanged',
       {
