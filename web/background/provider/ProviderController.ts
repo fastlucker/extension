@@ -151,7 +151,7 @@ class ProviderController {
     const networkId = await storage.get('networkId')
     const network = networks.find((n) => n.id === networkId)
 
-    return network?.chainId
+    return network?.chainId ? network?.chainId.toString() : '1'
   }
 
   @Reflect.metadata('SAFE', true)

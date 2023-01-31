@@ -15,10 +15,8 @@ const tabCheckin = ({
 
 const getProviderState = async (req) => {
   const isUnlocked = await WalletController.isUnlocked()
-  let networkVersion: any = '1'
-
   const chainId = await providerController.ethChainId()
-  networkVersion = await providerController.netVersion()
+  const networkVersion = await providerController.netVersion()
 
   return {
     chainId,
