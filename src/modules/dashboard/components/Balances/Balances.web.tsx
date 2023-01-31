@@ -92,21 +92,7 @@ const Balances = ({
       return showModal()
     }
 
-    alert(
-      t('Are you sere you want to disconnect {{name}} ({{url}})?', {
-        name: site.name,
-        url: site.origin
-      }),
-      undefined,
-      [
-        {
-          text: t('Disconnect'),
-          onPress: () => disconnectDapp(site.origin),
-          style: 'destructive'
-        },
-        { text: t('Cancel'), style: 'cancel' }
-      ]
-    )
+    disconnectDapp(site.origin)
   }
 
   useLayoutEffect(() => {

@@ -18,7 +18,7 @@ export interface AmbireExtensionContextReturnType {
       queue?: string
     }>
   >
-  disconnectDapp: (origin: ConnectedSite['origin']) => Promise<void>
+  disconnectDapp: (origin: ConnectedSite['origin']) => void
 }
 
 export const ambireExtensionContextDefaults = {
