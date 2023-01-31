@@ -18,9 +18,8 @@ async function restoreAppState() {
 
 restoreAppState()
 
-// for page provider
+// listen for messages from UI
 browser.runtime.onConnect.addListener((port) => {
-  // TODO:
   if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
     const pm = new PortMessage(port)
     pm.listen((data) => {
