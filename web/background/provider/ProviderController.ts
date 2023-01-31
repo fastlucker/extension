@@ -217,7 +217,7 @@ class ProviderController {
     approvalRes
   }) => {}
 
-  @Reflect.metadata('APPROVAL', ['AddChain', false])
+  @Reflect.metadata('APPROVAL', ['switch-network', false])
   walletAddEthereumChain = ({
     data: {
       params: [chainParams]
@@ -236,7 +236,27 @@ class ProviderController {
       rpcUrl: string
     }
   }) => {
-    // TODO:
+    let chainId = chainParams.chainId
+    if (typeof chainId === 'string') {
+      chainId = Number(chainId)
+    }
+
+    const network = networks.find((n) => n.chainId === chainId)
+
+    if (!network) {
+      throw new Error('This chain is not supported by Ambire yet.')
+    }
+
+    // sessionService.broadcastEvent('ambire:chainChanged', network, origin)
+    sessionService.broadcastEvent(
+      'chainChanged',
+      {
+        chain: intToHex(network.chainId),
+        networkVersion: `${network.chainId}`
+      },
+      origin
+    )
+
     return null
   }
 
@@ -247,8 +267,6 @@ class ProviderController {
     },
     session: { origin }
   }) => {
-    console.log('walletSwitchEthereumChain', chainParams, origin)
-
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
@@ -306,11 +324,6 @@ class ProviderController {
   @Reflect.metadata('SAFE', true)
   netListening = () => {
     return true
-  }
-
-  @Reflect.metadata('PRIVATE', true)
-  private _checkAddress = async (address) => {
-    // TODO:
   }
 }
 

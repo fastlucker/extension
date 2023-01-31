@@ -51,8 +51,7 @@ const flowContext = flow
       }
     } = ctx
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
-      const isUnlock = await VaultController.isVaultUnlocked()
-      console.log('isUnlocked', isUnlock)
+      const isUnlock = VaultController.isVaultUnlocked()
       if (!isUnlock) {
         if (lockedOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')

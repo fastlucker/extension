@@ -87,7 +87,7 @@ const VaultProvider: React.FC = ({ children }) => {
     }
 
     requestVaultControllerMethod({
-      method: 'isVaultUnlocked'
+      method: 'isVaultUnlockedAsync'
     })
       .then((isUnlocked: boolean) => {
         setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
