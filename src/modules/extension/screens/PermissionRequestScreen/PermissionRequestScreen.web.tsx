@@ -89,9 +89,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
                       {'The dapp '}
                     </Text>
                     <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                      {approval?.data?.params?.origin
-                        ? new URL(approval?.data?.params?.origin).hostname
-                        : ''}
+                      {approval?.data?.params?.name || ''}
                     </Text>
                     <Text fontSize={14} weight="regular">
                       {' is requesting an authorization to communicate with Ambire Wallet'}
