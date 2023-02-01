@@ -1,3 +1,6 @@
+import { NetworkType } from 'ambire-common/src/constants/networks'
+import { intToHex } from 'ethereumjs-util'
+
 import VaultController from '@modules/vault/services/VaultController'
 import permissionService, { ConnectedSite } from '@web/background/services/permission'
 import sessionService from '@web/background/services/session'
@@ -47,6 +50,13 @@ export class WalletController {
 
   rejectApproval = (err?: string, stay = false, isInternal = false) => {
     return notificationService.rejectApproval(err, stay, isInternal)
+  }
+
+  networkChange = (network: NetworkType) => {
+    sessionService.broadcastEvent('chainChanged', {
+      chain: intToHex(network.chainId),
+      networkVersion: `${network.chainId}`
+    })
   }
 }
 
