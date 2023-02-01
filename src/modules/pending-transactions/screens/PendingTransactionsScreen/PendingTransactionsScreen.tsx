@@ -12,7 +12,6 @@ import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
@@ -26,6 +25,7 @@ import SigningWithAccount from '@modules/pending-transactions/components/Signing
 import TransactionSummary from '@modules/pending-transactions/components/TransactionSummary'
 import useSendTransaction from '@modules/pending-transactions/hooks/useSendTransaction'
 import { StackActions } from '@react-navigation/native'
+import { getUiType } from '@web/utils/uiType'
 
 const relayerURL = CONFIG.RELAYER_URL
 
@@ -41,9 +41,7 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
     close: hardwareWalletCloseBottomSheet
   } = useModalize()
 
-  const { isTempExtensionPopup } = useAmbireExtension()
-
-  if (isTempExtensionPopup) {
+  if (getUiType().isNotification) {
     navigation.navigate = () => window.close()
     navigation.goBack = () => window.close()
   }

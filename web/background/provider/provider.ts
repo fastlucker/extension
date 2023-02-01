@@ -1,5 +1,3 @@
-import { ethErrors } from 'eth-rpc-errors'
-
 import internalMethods from '@web/background/provider/internalMethods'
 import rpcFlow from '@web/background/provider/rpcFlow'
 import { ProviderRequest } from '@web/background/provider/types'
@@ -18,14 +16,6 @@ export default async <T = void>(req: ProviderRequest): Promise<T> => {
   if (internalMethods[method]) {
     return internalMethods[method](req)
   }
-
-  // TODO:
-  // const hasVault = keyringService.hasVault()
-  // if (!hasVault) {
-  //   throw ethErrors.provider.userRejectedRequest({
-  //     message: 'wallet must has at least one account'
-  //   })
-  // }
 
   return rpcFlow(req) as any
 }

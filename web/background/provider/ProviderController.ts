@@ -1,9 +1,10 @@
 import 'reflect-metadata'
 
 import networks from 'ambire-common/src/constants/networks'
+import { getProvider } from 'ambire-common/src/services/provider'
 import { ethErrors } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
-import { ethers } from 'ethers'
+import cloneDeep from 'lodash/cloneDeep'
 
 import permissionService from '@web/background/services/permission'
 import sessionService, { Session } from '@web/background/services/session'
@@ -57,6 +58,30 @@ const signTypedDataValidation = ({
 }
 
 class ProviderController {
+  ethRpc = async (req) => {
+    const {
+      data: { method, params },
+      session: { origin }
+    } = req
+
+    const networkId = await storage.get('networkId')
+    const provider = getProvider(networkId)
+
+    if (!permissionService.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
+      throw ethErrors.provider.unauthorized()
+    }
+
+    if (method === 'eth_estimateGas') {
+      return provider.estimateGas(params[0])
+    }
+
+    if (method === 'eth_blockNumber') {
+      return provider.getBlockNumber()
+    }
+
+    // TODO: handle the rest of the SAFE_RPC_METHODS
+  }
+
   ethRequestAccounts = async ({ session: { origin } }) => {
     if (!permissionService.hasPermission(origin)) {
       throw ethErrors.provider.unauthorized()
@@ -65,21 +90,6 @@ class ProviderController {
 
     const account = selectedAcc ? [selectedAcc] : []
     sessionService.broadcastEvent('accountsChanged', account)
-
-    const connectSite = permissionService.getConnectedSite(origin)
-    if (connectSite) {
-      console.log('connectSite.chain', connectSite.chain)
-      // // ambire:chainChanged event must be sent before chainChanged event
-      // sessionService.broadcastEvent('ambire:chainChanged', chain, origin)
-      // sessionService.broadcastEvent(
-      //   'chainChanged',
-      //   {
-      //     chain: chain.hex,
-      //     networkVersion: chain.network
-      //   },
-      //   origin
-      // )
-    }
 
     return account
   }
@@ -96,43 +106,23 @@ class ProviderController {
   }
 
   ethCoinbase = async ({ session: { origin } }) => {
-    console.log('ethCoinbase', origin)
     if (!permissionService.hasPermission(origin)) {
       return null
     }
 
-    // TODO:
-    return null
+    const selectedAcc = await storage.get('selectedAcc')
+
+    return selectedAcc || null
   }
 
   @Reflect.metadata('SAFE', true)
   ethChainId = async () => {
     const networkId = await storage.get('networkId')
     const network = networks.find((n) => n.id === networkId)
-    return ethers.utils.hexlify(network?.chainId || networks[0].chainId)
+    return intToHex(network?.chainId || networks[0].chainId)
   }
 
-  @Reflect.metadata('APPROVAL', [
-    'SignTx',
-    ({
-      data: {
-        params: [tx]
-      },
-      session
-    }) => {
-      // TODO:
-      // const currentAddress = preferenceService.getCurrentAccount()?.address.toLowerCase()
-      // const currentChain = permissionService.isInternalOrigin(session.origin)
-      //   ? Object.values(CHAINS).find((chain) => chain.id === tx.chainId)!.enum
-      //   : permissionService.getConnectedSite(session.origin)?.chain
-      // if (tx.from.toLowerCase() !== currentAddress) {
-      //   throw ethErrors.rpc.invalidParams('from should be same as current address')
-      // }
-      // if ('chainId' in tx && (!currentChain || Number(tx.chainId) !== CHAINS[currentChain].id)) {
-      //   throw ethErrors.rpc.invalidParams('chainId should be same as current chainId')
-      // }
-    }
-  ])
+  @Reflect.metadata('APPROVAL', ['send-txn', false])
   ethSendTransaction = async (options: {
     data: {
       $ctx?: any
@@ -143,7 +133,17 @@ class ProviderController {
     pushed: boolean
     result: any
   }) => {
-    // TODO:
+    if (options.pushed) return options.result
+
+    const {
+      data: {
+        params: [txParams]
+      },
+      session: { origin },
+      approvalRes
+    } = cloneDeep(options)
+
+    console.log('txParams', txParams)
   }
 
   @Reflect.metadata('SAFE', true)
