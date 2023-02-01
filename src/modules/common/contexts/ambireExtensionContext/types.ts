@@ -2,11 +2,6 @@ import { ConnectedSite } from '@web/background/services/permission'
 
 export interface AmbireExtensionContextReturnType {
   connectedDapps: ConnectedSite[]
-  params: {
-    route?: string
-    host?: string
-    queue?: string
-  }
   requests: any[] | null
   site: ConnectedSite | null
   resolveMany: (ids: any, resolution: any) => any
@@ -22,7 +17,6 @@ export interface AmbireExtensionContextReturnType {
 
 export const ambireExtensionContextDefaults = {
   connectedDapps: [],
-  params: {},
   requests: [],
   site: null,
   resolveMany: () => {},
