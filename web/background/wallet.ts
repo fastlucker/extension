@@ -58,6 +58,11 @@ export class WalletController {
       networkVersion: `${network.chainId}`
     })
   }
+
+  accountChange = (selectedAcc: string) => {
+    const account = selectedAcc ? [selectedAcc] : []
+    sessionService.broadcastEvent('accountsChanged', account)
+  }
 }
 
 export default new WalletController()
