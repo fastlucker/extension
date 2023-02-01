@@ -655,7 +655,7 @@ const Router = () => {
       if (approval?.data?.approvalComponent === 'permission-request') {
         return <PermissionRequestStack />
       }
-      if (approval?.data?.approvalComponent === 'send-transaction') {
+      if (approval?.data?.approvalComponent === 'send-txn') {
         return <PendingTransactionsStack />
       }
       if (approval?.data?.approvalComponent === 'sign-message') {
