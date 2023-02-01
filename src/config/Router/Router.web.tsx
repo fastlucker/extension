@@ -27,7 +27,6 @@ import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
-import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useApproval from '@modules/common/hooks/useApproval'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import useStorageController from '@modules/common/hooks/useStorageController'
@@ -77,10 +76,7 @@ const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 
-const urlSearchParams = new URLSearchParams(window?.location?.search)
-const params = Object.fromEntries(urlSearchParams.entries())
-const isTempExtensionPopup = !!params.route || !!params.host
-const navigationEnabled = !isTempExtensionPopup
+const navigationEnabled = !getUiType().isNotification
 
 const headerAlpha = navigationEnabled
   ? (props: any) => defaultHeaderAlpha({ ...props, backgroundColor: colors.martinique })

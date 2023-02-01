@@ -8,7 +8,6 @@ export interface AmbireExtensionContextReturnType {
     queue?: string
   }
   requests: any[] | null
-  isTempExtensionPopup: boolean
   site: ConnectedSite | null
   resolveMany: (ids: any, resolution: any) => any
   setParams: React.Dispatch<
@@ -25,7 +24,6 @@ export const ambireExtensionContextDefaults = {
   connectedDapps: [],
   params: {},
   requests: [],
-  isTempExtensionPopup: false,
   site: null,
   resolveMany: () => {},
   setParams: () => null,

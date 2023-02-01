@@ -8,7 +8,6 @@ import useAuth from '@modules/auth/hooks/useAuth'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
-import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
@@ -62,44 +61,9 @@ const PermissionRequestScreen = ({ navigation }: any) => {
     init()
   }, [])
 
-  const [feedback, setFeedback] = useState<{
-    success: boolean
-    permitted: boolean
-  } | null>(null)
   // const [feedbackCloseAnimated, setFeedbackCloseAnimated] = useState(false)
   // const [isCodeTooltipShown, setIsCodeTooltipShown] = useState(false)
   const [isQueueDisplayed, setIsQueueDisplayed] = useState(false)
-
-  const handlePermission = (permitted: boolean) => {
-    // TODO:
-    // if (sendMessage) {
-    //   sendMessage({
-    //     type: 'grantPermission',
-    //     to: BACKGROUND,
-    //     data: {
-    //       permitted,
-    //       targetHost
-    //     }
-    //   })
-    //     .then(() => {
-    //       setFeedback({ success: true, permitted })
-    //     })
-    //     .catch(() => {
-    //       // TODO: should not happen but in case, implement something nicer for the user?
-    //       setFeedback({ success: false, permitted })
-    //     })
-    // }
-  }
-
-  useEffect(() => {
-    if (feedback) {
-      setLoading(false)
-      // setTimeout(() => setFeedbackCloseAnimated(true), 100)
-      setTimeout(() => {
-        window.close()
-      }, 1200)
-    }
-  }, [feedback, authStatus, navigation])
 
   const handleDenyButtonPress = () => {
     rejectApproval('User rejected the request.')
@@ -110,30 +74,6 @@ const PermissionRequestScreen = ({ navigation }: any) => {
     resolveApproval({
       defaultChain: network?.nativeAssetSymbol
     })
-  }
-
-  const renderFeedback = () => {
-    if (feedback?.success) {
-      return feedback?.permitted ? (
-        <Text weight="medium" color={colors.turquoise}>
-          {t('Permission Granted!')}
-        </Text>
-      ) : (
-        <Text weight="medium" color={colors.pink}>
-          {t('Permission Denied!')}
-        </Text>
-      )
-    }
-
-    return (
-      <View style={spacings.pv}>
-        <Text style={[textStyles.center, spacings.phSm]} fontSize={14}>
-          {t(
-            "Could not communicate with extension's background service. Please close the window and try again"
-          )}
-        </Text>
-      </View>
-    )
   }
 
   return (
@@ -151,11 +91,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
 
           <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>{targetHost}</Title>
 
-          <View style={flexboxStyles.alignCenter}>
-            {!!loading && <Spinner />}
-            {!loading && !!feedback && renderFeedback()}
-          </View>
-          {!loading && !feedback && (
+          {!loading && (
             <>
               {!!queue.length && (
                 <TouchableOpacity

@@ -16,7 +16,6 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useDisableNavigatingBack from '@modules/common/hooks/useDisableNavigatingBack'
 import useRequests from '@modules/common/hooks/useRequests'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
@@ -29,6 +28,7 @@ import SignActions from '@modules/sign-message/components/SignActions'
 import useSignMessage from '@modules/sign-message/hooks/useSignMessage'
 import { UseSignMessageProps } from '@modules/sign-message/hooks/useSignMessage/types'
 import { errorCodes } from '@web/constants/errors'
+import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
 
@@ -52,7 +52,6 @@ const SignScreenScreen = ({ navigation }: any) => {
   const { account } = useAccounts()
   const { connections } = useWalletConnect()
   const { everythingToSign, resolveMany } = useRequests()
-  const { isTempExtensionPopup } = useAmbireExtension()
 
   const { handleSubmit, setValue, watch } = useForm({
     mode: 'onSubmit',
@@ -62,7 +61,7 @@ const SignScreenScreen = ({ navigation }: any) => {
     }
   })
 
-  if (isTempExtensionPopup) {
+  if (getUiType().isNotification) {
     navigation.navigate = () => window.close()
     navigation.goBack = () => window.close()
   }

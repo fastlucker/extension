@@ -33,7 +33,6 @@ const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
     host?: string
     queue?: string
   }>({})
-  const isTempExtensionPopup = useMemo(() => !!params.route || !!params.host, [params])
   const queue = useMemo(() => (params.queue ? JSON.parse(atob(params.queue)) : []), [params.queue])
 
   const getCurrentSite = useCallback(async () => {
@@ -234,34 +233,6 @@ const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
     }
   }, [params, queue, handleSendTransactions, handlePersonalSign])
 
-  useEffect(() => {
-    let interval: any
-    // if (browser.tabs) {
-    //   browser.tabs.query(
-    //     {
-    //       active: true,
-    //       currentWindow: true
-    //     },
-    //     ([currentTab]) => {
-    //       setLastActiveTab(currentTab)
-    //     }
-    //   )
-    //   /*
-    //    * As long as UI is open it will keep sending messages to service worker
-    //    * In service worker as this message is received
-    //    * if service worker is inactive it is reactivated and script re-loaded
-    //    * Time has been kept to 1000ms but can be reduced for even faster re-activation of service worker
-    //    */
-    //   interval = setInterval(() => {
-    //     browser.runtime.sendMessage({ name: WORKER_KEEP_ALIVE_MESSAGE })
-    //   }, WORKER_KEEP_ALIVE_INTERVAL)
-    // }
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [])
-
   return (
     <AmbireExtensionContext.Provider
       value={useMemo(
@@ -269,22 +240,12 @@ const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
           connectedDapps,
           params,
           requests,
-          isTempExtensionPopup,
           site,
           resolveMany,
           setParams,
           disconnectDapp
         }),
-        [
-          connectedDapps,
-          params,
-          requests,
-          isTempExtensionPopup,
-          site,
-          resolveMany,
-          setParams,
-          disconnectDapp
-        ]
+        [connectedDapps, params, requests, site, resolveMany, setParams, disconnectDapp]
       )}
     >
       {children}
