@@ -18,7 +18,7 @@ const ManifestImage = ({ host, fallback, size = 64 }: Props) => {
 
   useEffect(() => {
     // enforcing https by default?
-    fetch(`https://${host}/manifest.json`, {
+    fetch(`${host}/manifest.json`, {
       method: 'GET',
       headers: { 'Content-type': 'application/json;charset=UTF-8' }
     })
@@ -35,7 +35,7 @@ const ManifestImage = ({ host, fallback, size = 64 }: Props) => {
             json.icons
               .sort((a, b) => parseInt(a.size) - parseInt(b.size))
               .slice(0, 20)
-              .map((i) => `https://${host}/${i.src.replace(/^\//, '')}`)
+              .map((i) => `${host}/${i.src.replace(/^\//, '')}`)
           )
         }
       })

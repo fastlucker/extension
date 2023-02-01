@@ -1,10 +1,7 @@
 import { ConnectedSite } from '@web/background/services/permission'
 
 export interface AmbireExtensionContextReturnType {
-  connectedDapps: {
-    host: string
-    status: boolean
-  }[]
+  connectedDapps: ConnectedSite[]
   params: {
     route?: string
     host?: string
@@ -21,7 +18,7 @@ export interface AmbireExtensionContextReturnType {
       queue?: string
     }>
   >
-  disconnectDapp: (origin: ConnectedSite['origin']) => Promise<void>
+  disconnectDapp: (origin: ConnectedSite['origin']) => void
 }
 
 export const ambireExtensionContextDefaults = {

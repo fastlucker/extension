@@ -479,6 +479,12 @@ const TabsScreens = () => {
 }
 
 const AppDrawer = () => {
+  // Should never proceed to the main app drawer if it's a notification (popup),
+  // because these occurrences are only used to prompt specific actions.
+  if (getUiType().isNotification) {
+    return
+  }
+
   return (
     <Drawer.Navigator
       drawerContent={navigationEnabled ? DrawerContent : () => null}

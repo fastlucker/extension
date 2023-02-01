@@ -1,9 +1,11 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
+import alert from '@modules/common/services/alert'
 import { getCurrentTab } from '@web/background/webapi/tab'
 import { errorCodes } from '@web/constants/errors'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
@@ -18,16 +20,13 @@ const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
 const STORAGE_KEY = 'ambire_extension_state'
 
 const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
+  const { t } = useTranslation()
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
   const { extensionWallet } = useExtensionWallet()
   const [site, setSite] = useState<AmbireExtensionContextReturnType['site']>(null)
-
   const [connectedDapps, setConnectedDapps] = useState<
-    {
-      host: string
-      status: boolean
-    }[]
+    AmbireExtensionContextReturnType['connectedDapps']
   >([])
   const [params, setParams] = useState<{
     route?: string
@@ -45,9 +44,15 @@ const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
     setSite(current)
   }, [extensionWallet])
 
+  const getConnectedSites = useCallback(async () => {
+    const connectedSites = await extensionWallet.getConnectedSites()
+    setConnectedDapps(connectedSites)
+  }, [extensionWallet])
+
   useEffect(() => {
     getCurrentSite()
-  }, [getCurrentSite])
+    getConnectedSites()
+  }, [getCurrentSite, getConnectedSites])
 
   const [requests, setRequests] = useStorage({
     key: STORAGE_KEY,
@@ -180,11 +185,32 @@ const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
   )
 
   const disconnectDapp = useCallback<AmbireExtensionContextReturnType['disconnectDapp']>(
-    async (origin) => {
-      await extensionWallet.removeConnectedSite(origin)
-      getCurrentSite()
+    (origin) => {
+      const siteToDisconnect = connectedDapps.find((x) => x.origin === origin)
+
+      if (!siteToDisconnect) {
+        return
+      }
+
+      const disconnect = async () => {
+        await extensionWallet.removeConnectedSite(origin)
+        getCurrentSite()
+        getConnectedSites()
+      }
+
+      alert(
+        t('Are you sere you want to disconnect {{name}} ({{url}})?', {
+          name: siteToDisconnect.name,
+          url: siteToDisconnect.origin
+        }),
+        undefined,
+        [
+          { text: t('Disconnect'), onPress: disconnect, style: 'destructive' },
+          { text: t('Cancel'), style: 'cancel' }
+        ]
+      )
     },
-    [extensionWallet, getCurrentSite]
+    [connectedDapps, extensionWallet, getConnectedSites, getCurrentSite, t]
   )
 
   useEffect(() => {
@@ -207,26 +233,6 @@ const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
       }
     }
   }, [params, queue, handleSendTransactions, handlePersonalSign])
-
-  useEffect(() => {
-    if (!isTempExtensionPopup) {
-      // TODO:
-      // !!sendMessage &&
-      //   sendMessage({
-      //     to: BACKGROUND,
-      //     type: 'getPermissionsList'
-      //   }).then((reply) => {
-      //     setConnectedDapps(
-      //       Object.keys(reply.data).map((host) => {
-      //         return {
-      //           host,
-      //           status: reply.data?.[host]
-      //         }
-      //       })
-      //     )
-      //   })
-    }
-  }, [isTempExtensionPopup])
 
   useEffect(() => {
     let interval: any

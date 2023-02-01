@@ -36,21 +36,26 @@ const ConnectedDapps = ({ isIcon = false }: { isIcon?: boolean }) => {
         )}
       </TouchableOpacity>
       <BottomSheet id="connected-dapps" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <Title style={textStyles.center}>{t('Connected dApps')}</Title>
+        <Title style={[textStyles.center, spacings.mt]}>{t('Connected dApps')}</Title>
 
         {!connectedDapps.length && (
           <View style={spacings.mb}>
-            <Text style={textStyles.center}>{t('You have no connected dapps!')}</Text>
+            <Text style={textStyles.center}>
+              {t(
+                "You have no connected dApps. To connect, find and click the connect button on the dApp's webpage."
+              )}
+            </Text>
           </View>
         )}
         {!!connectedDapps.length &&
-          connectedDapps.map(({ host, status }: any, i: number) => {
+          connectedDapps.map(({ origin, name, isConnected }, i: number) => {
             return (
               <ConnectedWeb3DAppItem
-                key={host}
-                host={host}
-                status={status}
-                disconnect={disconnectDapp}
+                key={origin}
+                name={name}
+                origin={origin}
+                isConnected={isConnected}
+                disconnectDapp={disconnectDapp}
                 isLast={connectedDapps.length - 1 === i}
               />
             )
