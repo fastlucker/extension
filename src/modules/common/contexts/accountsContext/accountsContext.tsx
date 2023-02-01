@@ -2,13 +2,13 @@ import useAccounts, { UseAccountsReturnType } from 'ambire-common/src/hooks/useA
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
-import { isWeb } from '@config/env'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
-import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
+import useApproval from '@modules/common/hooks/useApproval'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToasts from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
+import { getUiType } from '@web/utils/uiType'
 
 const AccountsContext = createContext<UseAccountsReturnType>({
   accounts: [],
@@ -19,15 +19,12 @@ const AccountsContext = createContext<UseAccountsReturnType>({
   onRemoveAccount: () => {}
 })
 
-const AccountsProvider: React.FC = ({ children }) => {
+const AccountsProvider: React.FC<any> = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
-  // NOTE: AmbireExtensionProvider is initialized after AccountsProvider
-  // therefore the methods of useAmbireExtension can be used after
-  // the initialization of both providers.
-  const { isTempExtensionPopup, params } = useAmbireExtension()
+  const { getApproval } = useApproval()
 
   const onAdd = useCallback(
-    (opts) => {
+    async (opts) => {
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
         // Flipping the flag is all it's needed, because it changes the
         // Router state that redirects the user to the logged-in state screens.
@@ -38,9 +35,9 @@ const AccountsProvider: React.FC = ({ children }) => {
       // and there are no accounts added yet. (the Auth route will be opened at that time)
       // After adding the first account navigate to PermissionRequest screen
       // Otherwise, skip that step and open directly Dashboard
-      if (isWeb && isTempExtensionPopup) {
-        if (params.route === 'permission-request') {
-          navigate('permission-request')
+      if (getUiType().isNotification) {
+        const approval = await getApproval()
+        if (approval) {
           return
         }
       }
@@ -51,7 +48,7 @@ const AccountsProvider: React.FC = ({ children }) => {
         navigate('dashboard')
       }
     },
-    [authStatus, setAuthStatus, isTempExtensionPopup, params?.route]
+    [authStatus, setAuthStatus, getApproval]
   )
 
   const onRemoveLastAccount = useCallback(() => {

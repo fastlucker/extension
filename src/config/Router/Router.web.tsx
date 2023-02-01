@@ -62,7 +62,6 @@ import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Approval } from '@web/background/services/notification'
-import { isExtension } from '@web/constants/browserapi'
 import { getUiType } from '@web/utils/uiType'
 
 import { drawerWebStyle, navigationContainerDarkTheme } from './styles'
@@ -482,7 +481,7 @@ const AppDrawer = () => {
   // Should never proceed to the main app drawer if it's a notification (popup),
   // because these occurrences are only used to prompt specific actions.
   if (getUiType().isNotification) {
-    return
+    return null
   }
 
   return (
@@ -594,7 +593,7 @@ const Router = () => {
   const { authStatus } = useAuth()
   const { vaultStatus } = useVault()
   const { connectionState } = useNetInfo()
-  const [approval, setApproval] = useState<Approval | undefined>()
+  const [approval, setApproval] = useState<Approval | null>()
   const [ready, setReady] = useState<boolean>(false)
 
   const { getApproval } = useApproval()
@@ -603,13 +602,23 @@ const Router = () => {
 
   useEffect(() => {
     ;(async () => {
-      if (isExtension) {
-        const res: Approval | undefined = await getApproval()
+      if (isInNotification) {
+        const res = await getApproval()
         setApproval(res)
       }
       setReady(true)
     })()
-  }, [getApproval])
+  }, [
+    getApproval,
+    isInNotification,
+    // Re-get the approval since when the vault is locked and then unlocked -
+    // the approval data changes. Use case: extension is locked, user is
+    // authenticated, dApp requests something, user unlocks the extension.
+    vaultStatus,
+    // Re-get the approval since when there are no accounts and then - the user
+    // adds an account (and therefore - authenticates) - the approval data changes
+    authStatus
+  ])
 
   const renderContent = useCallback(() => {
     if (!ready) return null
