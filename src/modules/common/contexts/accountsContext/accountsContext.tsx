@@ -4,7 +4,7 @@ import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
-import useApproval from '@modules/common/hooks/useApproval'
+import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToasts from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
@@ -21,7 +21,7 @@ const AccountsContext = createContext<UseAccountsReturnType>({
 
 const AccountsProvider: React.FC<any> = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
-  const { getApproval } = useApproval()
+  const { approval } = useExtensionApproval()
 
   const onAdd = useCallback(
     async (opts) => {
@@ -36,7 +36,6 @@ const AccountsProvider: React.FC<any> = ({ children }) => {
       // After adding the first account navigate to PermissionRequest screen
       // Otherwise, skip that step and open directly Dashboard
       if (getUiType().isNotification) {
-        const approval = await getApproval()
         if (approval) {
           return
         }
@@ -48,7 +47,7 @@ const AccountsProvider: React.FC<any> = ({ children }) => {
         navigate('dashboard')
       }
     },
-    [authStatus, setAuthStatus, getApproval]
+    [authStatus, setAuthStatus, approval]
   )
 
   const onRemoveLastAccount = useCallback(() => {

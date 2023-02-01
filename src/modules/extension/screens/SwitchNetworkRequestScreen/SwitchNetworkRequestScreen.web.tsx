@@ -1,6 +1,5 @@
 import networks from 'ambire-common/src/constants/networks'
-import { BigNumber } from 'ethers'
-import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import React, { useLayoutEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import CrossChainArrowIcon from '@assets/svg/CrossChainArrowIcon'
@@ -15,14 +14,13 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
-import useApproval from '@modules/common/hooks/useApproval'
+import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import ManifestImage from '@modules/extension/components/ManifestImage'
-import { Approval } from '@web/background/services/notification'
 
 import styles from './styles'
 
@@ -30,26 +28,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { params } = useAmbireExtension()
   const { network, setNetwork } = useNetwork()
-  const { getApproval, rejectApproval, resolveApproval } = useApproval()
-
-  const [approval, setApproval] = useState<Approval | null>(null)
-
-  const init = async () => {
-    const approvalRes = await getApproval()
-    if (!approvalRes) {
-      window.close()
-      return null
-    }
-    console.log('approvalRes', approvalRes)
-    setApproval(approvalRes)
-    // if (approvalRes.data?.origin || approvalRes.data.params?.session.origin) {
-    //   document.title = approvalRes.data?.origin || approvalRes.data.params!.session.origin
-    // }
-  }
-
-  useEffect(() => {
-    init()
-  }, [])
+  const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
 
   useLayoutEffect(() => {
     navigation.setOptions({

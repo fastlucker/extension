@@ -1,0 +1,103 @@
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+
+import useAuth from '@modules/auth/hooks/useAuth'
+import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
+import useVault from '@modules/vault/hooks/useVault'
+import { Approval } from '@web/background/services/notification'
+import window from '@web/background/webapi/window'
+import { getUiType } from '@web/utils/uiType'
+
+import { UseExtensionApprovalReturnType } from './types'
+
+const ExtensionApprovalContext = createContext<UseExtensionApprovalReturnType>({
+  approval: null,
+  hasCheckedApprovalInitially: false,
+  getApproval: () => Promise.resolve(null),
+  resolveApproval: () => Promise.resolve(),
+  rejectApproval: () => Promise.resolve()
+})
+
+const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
+  const { authStatus } = useAuth()
+  const { vaultStatus } = useVault()
+  const { extensionWallet } = useExtensionWallet()
+  const [approval, setApproval] = useState<Approval | null>(null)
+  const [hasCheckedApprovalInitially, setHasCheckedApprovalInitially] = useState(false)
+
+  const getApproval: UseExtensionApprovalReturnType['getApproval'] = useCallback(
+    () => extensionWallet.getApproval(),
+    [extensionWallet]
+  )
+
+  const resolveApproval = useCallback<UseExtensionApprovalReturnType['resolveApproval']>(
+    async (data = undefined, stay = false, forceReject = false, approvalId = undefined) => {
+      const currentApproval = await getApproval()
+
+      if (currentApproval) {
+        extensionWallet.resolveApproval(data, forceReject, approvalId)
+      }
+
+      setApproval(currentApproval)
+    },
+    [extensionWallet, getApproval]
+  )
+
+  const rejectApproval = useCallback<UseExtensionApprovalReturnType['rejectApproval']>(
+    async (err = undefined, stay = false, isInternal = false) => {
+      const currentApproval = await getApproval()
+      if (approval) {
+        await extensionWallet.rejectApproval(err, stay, isInternal)
+      }
+
+      setApproval(currentApproval)
+    },
+    [getApproval, approval, extensionWallet]
+  )
+
+  // useEffect(() => {
+  //   if (!getUiType().isNotification) return
+
+  //   window.addEventListener('beforeunload', rejectApproval)
+
+  //   return () => window.removeEventListener('beforeunload', rejectApproval)
+  // }, [rejectApproval])
+
+  useEffect(() => {
+    ;(async () => {
+      if (getUiType().isNotification) {
+        const res = await getApproval()
+        setApproval(res)
+      }
+
+      setHasCheckedApprovalInitially(true)
+    })()
+  }, [
+    getApproval,
+    // Re-get the approval since when the vault is locked and then unlocked -
+    // the approval data changes. Use case: extension is locked, user is
+    // authenticated, dApp requests something, user unlocks the extension.
+    vaultStatus,
+    // Re-get the approval since when there are no accounts and then - the user
+    // adds an account (and therefore - authenticates) - the approval data changes
+    authStatus
+  ])
+
+  return (
+    <ExtensionApprovalContext.Provider
+      value={useMemo(
+        () => ({
+          approval,
+          hasCheckedApprovalInitially,
+          getApproval,
+          resolveApproval,
+          rejectApproval
+        }),
+        [approval, hasCheckedApprovalInitially, getApproval, resolveApproval, rejectApproval]
+      )}
+    >
+      {children}
+    </ExtensionApprovalContext.Provider>
+  )
+}
+
+export { ExtensionApprovalProvider, ExtensionApprovalContext }
