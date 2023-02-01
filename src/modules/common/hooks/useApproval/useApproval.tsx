@@ -1,16 +1,11 @@
 // Used for handling approval requests for the extension (not needed for mobile)
 
-const useApproval = () => {
-  const getApproval: () => Promise<any> = () => Promise.resolve()
+import { UseApprovalReturnType } from './types'
 
-  const resolveApproval = async (
-    data?: any,
-    stay = false,
-    forceReject = false,
-    approvalId?: string
-  ) => Promise.resolve()
-
-  const rejectApproval = async (err?, stay = false, isInternal = false) => Promise.resolve()
+const useApproval = (): UseApprovalReturnType => {
+  const getApproval = () => Promise.resolve(null)
+  const resolveApproval = () => Promise.resolve()
+  const rejectApproval = () => Promise.resolve()
 
   return {
     getApproval,

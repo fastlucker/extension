@@ -3,38 +3,38 @@
 import { useCallback, useEffect } from 'react'
 
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
-import { Approval } from '@web/background/services/notification'
 import { getUiType } from '@web/utils/uiType'
 
-const useApproval = () => {
+import { UseApprovalReturnType } from './types'
+
+const useApproval = (): UseApprovalReturnType => {
   const { extensionWallet } = useExtensionWallet()
 
-  const getApproval: () => Promise<Approval> = extensionWallet.getApproval
+  const getApproval: UseApprovalReturnType['getApproval'] = useCallback(
+    () => extensionWallet.getApproval(),
+    [extensionWallet]
+  )
 
-  const resolveApproval = async (
-    data?: any,
-    // eslint-disable-next-line default-param-last
-    stay = false,
-    // eslint-disable-next-line default-param-last
-    forceReject = false,
-    approvalId?: string
-  ) => {
-    const approval = await getApproval()
+  const resolveApproval = useCallback<UseApprovalReturnType['resolveApproval']>(
+    async (data = undefined, stay = false, forceReject = false, approvalId = undefined) => {
+      const approval = await getApproval()
 
-    if (approval) {
-      extensionWallet.resolveApproval(data, forceReject, approvalId)
-    }
-    if (stay) {
-      return
-    }
-    setTimeout(() => {
-      // TODO:
-      // history.replace('/')
-    })
-  }
+      if (approval) {
+        extensionWallet.resolveApproval(data, forceReject, approvalId)
+      }
+      if (stay) {
+        return
+      }
+      setTimeout(() => {
+        // TODO:
+        // history.replace('/')
+      })
+    },
+    [extensionWallet, getApproval]
+  )
 
-  const rejectApproval = useCallback(
-    async (err?: any, stay = false, isInternal = false) => {
+  const rejectApproval = useCallback<UseApprovalReturnType['rejectApproval']>(
+    async (err = undefined, stay = false, isInternal = false) => {
       const approval = await getApproval()
       if (approval) {
         await extensionWallet.rejectApproval(err, stay, isInternal)
