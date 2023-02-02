@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useLayoutEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import ManifestFallbackIcon from '@assets/svg/ManifestFallbackIcon'
@@ -9,14 +9,13 @@ import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
-import useApproval from '@modules/common/hooks/useApproval'
+import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import ManifestImage from '@modules/extension/components/ManifestImage'
-import { Approval } from '@web/background/services/notification'
 
 import styles from './styles'
 
@@ -31,22 +30,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   }, [t, navigation])
 
   const [loading, setLoading] = useState(false)
-  const { getApproval, rejectApproval, resolveApproval } = useApproval()
-  const [approval, setApproval] = useState<Approval | null>(null)
-
-  const init = async () => {
-    const approvalRes = await getApproval()
-    if (!approvalRes) {
-      window.close()
-      return
-    }
-
-    setApproval(approvalRes)
-  }
-
-  useEffect(() => {
-    init()
-  }, [])
+  const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
 
   const handleDenyButtonPress = () => {
     rejectApproval('User rejected the request.')
