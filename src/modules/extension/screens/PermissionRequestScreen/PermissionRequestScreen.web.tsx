@@ -25,7 +25,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: t('Dapp Wants Permission to Connect')
+      headerTitle: t('Webpage Wants to Connect')
     })
   }, [t, navigation])
 
