@@ -1,10 +1,11 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import useAuth from '@modules/auth/hooks/useAuth'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
+import useToast from '@modules/common/hooks/useToast'
 import useVault from '@modules/vault/hooks/useVault'
 import { Approval } from '@web/background/services/notification'
-import window from '@web/background/webapi/window'
 import { getUiType } from '@web/utils/uiType'
 
 import { UseExtensionApprovalReturnType } from './types'
@@ -18,6 +19,8 @@ const ExtensionApprovalContext = createContext<UseExtensionApprovalReturnType>({
 })
 
 const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
+  const { t } = useTranslation()
+  const { addToast } = useToast()
   const { authStatus } = useAuth()
   const { vaultStatus } = useVault()
   const { extensionWallet } = useExtensionWallet()
@@ -31,15 +34,21 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
 
   const resolveApproval = useCallback<UseExtensionApprovalReturnType['resolveApproval']>(
     async (data = undefined, stay = false, forceReject = false, approvalId = undefined) => {
-      const currentApproval = await getApproval()
-
-      if (currentApproval) {
-        extensionWallet.resolveApproval(data, forceReject, approvalId)
+      if (!approval) {
+        return addToast(
+          t(
+            'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.',
+            { error: true }
+          )
+        )
       }
 
-      setApproval(currentApproval)
+      await extensionWallet.resolveApproval(data, forceReject, approvalId)
+
+      const nextApproval = await getApproval()
+      setApproval(nextApproval)
     },
-    [extensionWallet, getApproval]
+    [addToast, approval, extensionWallet, getApproval, t]
   )
 
   const rejectApproval = useCallback<UseExtensionApprovalReturnType['rejectApproval']>(
@@ -65,8 +74,8 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     ;(async () => {
       if (getUiType().isNotification) {
-        const res = await getApproval()
-        setApproval(res)
+        const currentApproval = await getApproval()
+        setApproval(currentApproval)
       }
 
       setHasCheckedApprovalInitially(true)
