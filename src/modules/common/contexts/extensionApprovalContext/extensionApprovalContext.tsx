@@ -63,13 +63,13 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
     [getApproval, approval, extensionWallet]
   )
 
-  // useEffect(() => {
-  //   if (!getUiType().isNotification) return
+  useEffect(() => {
+    if (!getUiType().isNotification) return
 
-  //   window.addEventListener('beforeunload', rejectApproval)
+    window.addEventListener('beforeunload', rejectApproval)
 
-  //   return () => window.removeEventListener('beforeunload', rejectApproval)
-  // }, [rejectApproval])
+    return () => window.removeEventListener('beforeunload', rejectApproval)
+  }, [rejectApproval])
 
   useEffect(() => {
     ;(async () => {
