@@ -588,12 +588,11 @@ const Router = () => {
   const { authStatus } = useAuth()
   const { vaultStatus } = useVault()
   const { connectionState } = useNetInfo()
-  const { approval, hasCheckedApprovalInitially } = useExtensionApproval()
+  const { approval, hasCheckedForApprovalInitially } = useExtensionApproval()
   const isInNotification = getUiType().isNotification
 
   const renderContent = useCallback(() => {
-    console.log(approval, hasCheckedApprovalInitially)
-    if (!hasCheckedApprovalInitially) return null
+    if (!hasCheckedForApprovalInitially) return null
 
     if (isInNotification && !approval) {
       window.close()
@@ -644,7 +643,7 @@ const Router = () => {
 
     return null
   }, [
-    hasCheckedApprovalInitially,
+    hasCheckedForApprovalInitially,
     isInNotification,
     approval,
     connectionState,

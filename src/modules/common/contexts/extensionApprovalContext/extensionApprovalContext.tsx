@@ -12,7 +12,7 @@ import { UseExtensionApprovalReturnType } from './types'
 
 const ExtensionApprovalContext = createContext<UseExtensionApprovalReturnType>({
   approval: null,
-  hasCheckedApprovalInitially: false,
+  hasCheckedForApprovalInitially: false,
   getApproval: () => Promise.resolve(null),
   resolveApproval: () => Promise.resolve(),
   rejectApproval: () => Promise.resolve()
@@ -25,7 +25,7 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
   const { vaultStatus } = useVault()
   const { extensionWallet } = useExtensionWallet()
   const [approval, setApproval] = useState<Approval | null>(null)
-  const [hasCheckedApprovalInitially, setHasCheckedApprovalInitially] = useState(false)
+  const [hasCheckedForApprovalInitially, setHasCheckedForApprovalInitially] = useState(false)
 
   const getApproval: UseExtensionApprovalReturnType['getApproval'] = useCallback(
     () => extensionWallet.getApproval(),
@@ -85,7 +85,7 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
         setApproval(currentApproval)
       }
 
-      setHasCheckedApprovalInitially(true)
+      setHasCheckedForApprovalInitially(true)
     })()
   }, [
     getApproval,
@@ -103,12 +103,12 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
       value={useMemo(
         () => ({
           approval,
-          hasCheckedApprovalInitially,
+          hasCheckedForApprovalInitially,
           getApproval,
           resolveApproval,
           rejectApproval
         }),
-        [approval, hasCheckedApprovalInitially, getApproval, resolveApproval, rejectApproval]
+        [approval, hasCheckedForApprovalInitially, getApproval, resolveApproval, rejectApproval]
       )}
     >
       {children}
