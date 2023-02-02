@@ -4,7 +4,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
+import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useGnosisSafe from '@modules/common/hooks/useGnosis'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
@@ -56,8 +56,7 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { network }: any = useNetwork()
   const { requests: wcRequests, resolveMany: wcResolveMany } = useWalletConnect()
   const { requests: gnosisRequests, resolveMany: gnosisResolveMany } = useGnosisSafe()
-  const { requests: ambireExtensionRequests, resolveMany: ambireExtensionResolveMany } =
-    useAmbireExtension()
+  const { requests: extensionRequests, resolveMany: extensionResolveMany } = useExtensionApproval()
   const { addToast } = useToast()
   const { t } = useTranslation()
   const [internalRequests, setInternalRequests] = useState<any>([])
@@ -71,10 +70,10 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   const requests = useMemo(
     () =>
-      [...internalRequests, ...wcRequests, ...gnosisRequests, ...ambireExtensionRequests].filter(
+      [...internalRequests, ...wcRequests, ...gnosisRequests, ...extensionRequests].filter(
         ({ account }) => accounts.find(({ id }: any) => id === account)
       ),
-    [internalRequests, wcRequests, gnosisRequests, ambireExtensionRequests, accounts]
+    [internalRequests, wcRequests, gnosisRequests, extensionRequests, accounts]
   )
 
   // Handling transaction signing requests
@@ -143,10 +142,10 @@ const RequestsProvider: React.FC = ({ children }) => {
     (ids: any, resolution: any) => {
       gnosisResolveMany(ids, resolution)
       wcResolveMany(ids, resolution)
-      ambireExtensionResolveMany(ids, resolution)
+      extensionResolveMany(ids, resolution)
       setInternalRequests((reqs: any) => reqs.filter((x: any) => !ids.includes(x.id)))
     },
-    [gnosisResolveMany, wcResolveMany, ambireExtensionResolveMany]
+    [gnosisResolveMany, wcResolveMany, extensionResolveMany]
   )
 
   const showSendTxns = useCallback(

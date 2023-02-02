@@ -55,8 +55,8 @@ const AppLoading = () => {
                     <ConstantsProvider>
                       <AuthProvider>
                         <AccountsProvider>
-                          <ExtensionApprovalProvider>
-                            <NetworkProvider>
+                          <NetworkProvider>
+                            <ExtensionApprovalProvider>
                               <PortfolioProvider>
                                 <GnosisProvider>
                                   <WalletConnectProvider>
@@ -87,8 +87,8 @@ const AppLoading = () => {
                                   </WalletConnectProvider>
                                 </GnosisProvider>
                               </PortfolioProvider>
-                            </NetworkProvider>
-                          </ExtensionApprovalProvider>
+                            </ExtensionApprovalProvider>
+                          </NetworkProvider>
                         </AccountsProvider>
                       </AuthProvider>
                     </ConstantsProvider>

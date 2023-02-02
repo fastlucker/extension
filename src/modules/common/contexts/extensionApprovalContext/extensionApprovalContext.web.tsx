@@ -9,13 +9,16 @@ import { Approval } from '@web/background/services/notification'
 import { getUiType } from '@web/utils/uiType'
 
 import { UseExtensionApprovalReturnType } from './types'
+import useSignApproval from './useSignApproval'
 
 const ExtensionApprovalContext = createContext<UseExtensionApprovalReturnType>({
   approval: null,
+  requests: [],
   hasCheckedForApprovalInitially: false,
   getApproval: () => Promise.resolve(null),
   resolveApproval: () => Promise.resolve(),
-  rejectApproval: () => Promise.resolve()
+  rejectApproval: () => Promise.resolve(),
+  resolveMany: () => {}
 })
 
 const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
@@ -70,6 +73,8 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
     [approval, extensionWallet, getApproval, addToast, t]
   )
 
+  const { requests, resolveMany } = useSignApproval({ approval })
+
   useEffect(() => {
     if (!getUiType().isNotification) return
 
@@ -103,12 +108,22 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
       value={useMemo(
         () => ({
           approval,
+          requests,
           hasCheckedForApprovalInitially,
           getApproval,
           resolveApproval,
-          rejectApproval
+          rejectApproval,
+          resolveMany
         }),
-        [approval, hasCheckedForApprovalInitially, getApproval, resolveApproval, rejectApproval]
+        [
+          approval,
+          requests,
+          hasCheckedForApprovalInitially,
+          getApproval,
+          resolveApproval,
+          rejectApproval,
+          resolveMany
+        ]
       )}
     >
       {children}
