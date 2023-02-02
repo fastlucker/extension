@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useCallback, useLayoutEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import ManifestFallbackIcon from '@assets/svg/ManifestFallbackIcon'
@@ -22,26 +22,24 @@ import styles from './styles'
 const PermissionRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { network } = useNetwork()
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: t('Webpage Wants to Connect')
-    })
-  }, [t, navigation])
-
   const [loading, setLoading] = useState(false)
   const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
 
-  const handleDenyButtonPress = () => {
-    rejectApproval('User rejected the request.')
-  }
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerTitle: t('Webpage Wants to Connect') })
+  }, [t, navigation])
 
-  const handleAuthorizeButtonPress = () => {
+  const handleDenyButtonPress = useCallback(
+    () => rejectApproval(t('User rejected the request.')),
+    [t, rejectApproval]
+  )
+
+  const handleAuthorizeButtonPress = useCallback(() => {
     setLoading(true)
     resolveApproval({
       defaultChain: network?.nativeAssetSymbol
     })
-  }
+  }, [network?.nativeAssetSymbol, resolveApproval])
 
   return (
     <GradientBackgroundWrapper>
