@@ -29,7 +29,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   const [isSwitching, setIsSwitching] = useState(false)
 
   useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: t('Switch Network Request') })
+    navigation.setOptions({ headerTitle: t('Webpage Wants to Switch Network') })
   }, [t, navigation])
 
   // Cache it on purpose. Otherwise, when the user switches the network,
