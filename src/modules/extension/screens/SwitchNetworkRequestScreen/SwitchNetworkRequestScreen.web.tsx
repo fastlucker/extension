@@ -9,7 +9,6 @@ import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Panel from '@modules/common/components/Panel'
-import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
@@ -27,14 +26,19 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { network, setNetwork } = useNetwork()
   const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
+  const [isSwitching, setIsSwitching] = useState(false)
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: t('Switch Network Request')
-    })
+    navigation.setOptions({ headerTitle: t('Switch Network Request') })
   }, [t, navigation])
 
-  const newNetwork = useMemo(() => {
+  // Cache it on purpose. Otherwise, when the user switches the network,
+  // the current network changes really fast (for a split second),
+  //  and the user sees the wrong network icon (and info).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const currentNetwork = useMemo(() => network, [])
+
+  const nextNetwork = useMemo(() => {
     const chainId = approval?.data?.params?.data?.[0]?.chainId
 
     if (!chainId) return undefined
@@ -42,20 +46,18 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
     return networks.find((a) => a.chainId === Number(chainId))
   }, [approval])
 
-  // TODO:
-  const [loading, setLoading] = useState(false)
-
   const handleDenyButtonPress = useCallback(
     () => rejectApproval(t('User rejected the request.')),
     [t, rejectApproval]
   )
 
   const handleSwitchNetworkButtonPress = useCallback(() => {
-    if (newNetwork) {
-      setNetwork(newNetwork?.chainId)
+    setIsSwitching(true)
+    if (nextNetwork) {
+      setNetwork(nextNetwork?.chainId)
       resolveApproval(true)
     }
-  }, [newNetwork, resolveApproval, setNetwork])
+  }, [nextNetwork, resolveApproval, setNetwork])
 
   return (
     <GradientBackgroundWrapper>
@@ -80,8 +82,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
               : ''}
           </Title>
 
-          <View style={flexboxStyles.alignCenter}>{!!loading && <Spinner />}</View>
-          {!loading && !!newNetwork && (
+          {!!nextNetwork && (
             <>
               <View>
                 <Trans>
@@ -97,7 +98,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
                     </Text>
                   </Text>
                 </Trans>
-                {!!network && !!newNetwork && (
+                {!!currentNetwork && !!nextNetwork && (
                   <View
                     style={[spacings.mbLg, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
                   >
@@ -110,9 +111,9 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
                       ]}
                     >
                       <View style={styles.networkIconWrapper}>
-                        <NetworkIcon name={network?.id} width={64} height={64} />
+                        <NetworkIcon name={currentNetwork?.id} width={64} height={64} />
                       </View>
-                      <Text>{network?.name}</Text>
+                      <Text>{currentNetwork?.name}</Text>
                     </View>
                     <View style={spacings.pbMd}>
                       <CrossChainArrowIcon />
@@ -126,9 +127,9 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
                       ]}
                     >
                       <View style={styles.networkIconWrapper}>
-                        <NetworkIcon name={newNetwork?.id} width={64} height={64} />
+                        <NetworkIcon name={nextNetwork?.id} width={64} height={64} />
                       </View>
-                      <Text>{newNetwork?.name}</Text>
+                      <Text>{nextNetwork?.name}</Text>
                     </View>
                   </View>
                 )}
@@ -136,19 +137,25 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
 
               <View style={styles.buttonsContainer}>
                 <View style={styles.buttonWrapper}>
-                  <Button type="danger" onPress={handleDenyButtonPress} text={t('Deny')} />
+                  <Button
+                    disabled={isSwitching}
+                    type="danger"
+                    onPress={handleDenyButtonPress}
+                    text={t('Deny')}
+                  />
                 </View>
                 <View style={styles.buttonWrapper}>
                   <Button
+                    disabled={isSwitching}
                     type="outline"
                     onPress={handleSwitchNetworkButtonPress}
-                    text={t('Switch Network')}
+                    text={isSwitching ? t('Switching...') : t('Switch Network')}
                   />
                 </View>
               </View>
             </>
           )}
-          {!loading && !newNetwork && (
+          {!nextNetwork && (
             <View>
               <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
                 {t('Ambire Wallet does not support this network.')}
