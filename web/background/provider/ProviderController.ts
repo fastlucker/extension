@@ -71,15 +71,54 @@ class ProviderController {
       throw ethErrors.provider.unauthorized()
     }
 
-    if (method === 'eth_estimateGas') {
-      return provider.estimateGas(params[0])
+    if (method === 'eth_call') {
+      return provider.call(params[0])
+    }
+
+    if (method === 'eth_getBlockByNumber') {
+      const block = await provider.getBlock(params[0])
+      block.gasLimit = block.gasLimit.toHexString()
+      block.gasUsed = block.gasUsed.toHexString()
+      block.baseFeePerGas = block.baseFeePerGas.toHexString()
+      block._difficulty = block._difficulty.toHexString()
+
+      return Promise.resolve(block)
+    }
+
+    if (method === 'eth_getTransactionByHash') {
+      return provider.getTransaction(params[0])
+    }
+
+    if (method === 'eth_getTransactionReceipt') {
+      return provider.getTransactionReceipt(params[0])
+    }
+
+    if (method === 'eth_gasPrice') {
+      return provider.getGasPrice()
+    }
+
+    if (method === 'eth_getBalance') {
+      const selectedAcc = await storage.get('selectedAcc')
+      return provider.getBalance(selectedAcc)
+    }
+
+    if (method === 'eth_getCode') {
+      return provider.getCode(params[0])
     }
 
     if (method === 'eth_blockNumber') {
       return provider.getBlockNumber()
     }
 
-    // TODO: handle the rest of the SAFE_RPC_METHODS
+    if (method === 'eth_estimateGas') {
+      return provider.estimateGas(params[0])
+    }
+
+    if (method === 'eth_getCode') {
+      return provider.getCode(params[0])
+    }
+
+    // TODO: handle the rest of the SAFE_RPC_METHODS starting with eth_...
   }
 
   ethRequestAccounts = async ({ session: { origin } }) => {
