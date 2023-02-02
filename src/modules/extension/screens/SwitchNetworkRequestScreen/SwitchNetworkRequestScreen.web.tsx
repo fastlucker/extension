@@ -1,5 +1,5 @@
 import networks from 'ambire-common/src/constants/networks'
-import React, { useLayoutEffect, useMemo, useState } from 'react'
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import CrossChainArrowIcon from '@assets/svg/CrossChainArrowIcon'
@@ -36,26 +36,26 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
 
   const newNetwork = useMemo(() => {
     const chainId = approval?.data?.params?.data?.[0]?.chainId
-    if (chainId) {
-      return networks.find((a) => {
-        return a.chainId === Number(chainId)
-      })
-    }
+
+    if (!chainId) return undefined
+
+    return networks.find((a) => a.chainId === Number(chainId))
   }, [approval])
 
   // TODO:
   const [loading, setLoading] = useState(false)
 
-  const handleDenyButtonPress = () => {
-    rejectApproval('User rejected the request.')
-  }
+  const handleDenyButtonPress = useCallback(
+    () => rejectApproval(t('User rejected the request.')),
+    [t, rejectApproval]
+  )
 
-  const handleSwitchNetworkButtonPress = () => {
+  const handleSwitchNetworkButtonPress = useCallback(() => {
     if (newNetwork) {
       setNetwork(newNetwork?.chainId)
       resolveApproval(true)
     }
-  }
+  }, [newNetwork, resolveApproval, setNetwork])
 
   return (
     <GradientBackgroundWrapper>
@@ -162,4 +162,4 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   )
 }
 
-export default SwitchNetworkRequestScreen
+export default React.memo(SwitchNetworkRequestScreen)
