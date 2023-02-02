@@ -104,4 +104,4 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   )
 }
 
-export default PermissionRequestScreen
+export default React.memo(PermissionRequestScreen)
