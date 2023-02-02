@@ -1,3 +1,6 @@
+import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
+
+import { rpcProviders } from '@modules/common/services/providers'
 import VaultController from '@modules/vault/services/VaultController'
 import providerController from '@web/background/provider/provider'
 import sessionService from '@web/background/services/session'
@@ -9,18 +12,23 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import permissionService from './services/permission'
 import storage from './webapi/storage'
 
-async function restoreAppState() {
+async function init() {
+  // Initialize rpc providers for all networks
+  const shouldInitProviders = !areRpcProvidersInitialized()
+  if (shouldInitProviders) {
+    initRpcProviders(rpcProviders)
+  }
+
   const vault = await storage.get('vault')
   VaultController.loadStore(vault)
   VaultController.store.subscribe((value) => storage.set('vault', value))
   await permissionService.init()
 }
 
-restoreAppState()
+init()
 
-// for page provider
+// listen for messages from UI
 browser.runtime.onConnect.addListener((port) => {
-  // TODO:
   if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
     const pm = new PortMessage(port)
     pm.listen((data) => {

@@ -1,6 +1,5 @@
 import networks from 'ambire-common/src/constants/networks'
-import { BigNumber } from 'ethers'
-import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import CrossChainArrowIcon from '@assets/svg/CrossChainArrowIcon'
@@ -10,11 +9,10 @@ import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Panel from '@modules/common/components/Panel'
-import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
-import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
+import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -26,117 +24,40 @@ import styles from './styles'
 
 const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const { params } = useAmbireExtension()
   const { network, setNetwork } = useNetwork()
+  const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
+  const [isSwitching, setIsSwitching] = useState(false)
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: t('Switch Network Request')
-    })
+    navigation.setOptions({ headerTitle: t('Webpage Wants to Switch Network') })
   }, [t, navigation])
 
-  const targetHost = params.host
+  // Cache it on purpose. Otherwise, when the user switches the network,
+  // the current network changes really fast (for a split second),
+  //  and the user sees the wrong network icon (and info).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const currentNetwork = useMemo(() => network, [])
 
-  const queue = useMemo(() => (params.queue ? JSON.parse(atob(params.queue)) : []), [params.queue])
+  const nextNetwork = useMemo(() => {
+    const chainId = approval?.data?.params?.data?.[0]?.chainId
 
-  const sanitize2hex = (any) => {
-    if (any instanceof BigNumber) {
-      return any.toHexString()
-    }
+    if (!chainId) return undefined
 
-    if (any === undefined || any === null) {
-      return any
-    }
-    return BigNumber.from(any).toHexString()
-  }
+    return networks.find((a) => a.chainId === Number(chainId))
+  }, [approval])
 
-  const message = useMemo(() => queue?.[0], [queue])
-  const newNetwork = useMemo(
-    () =>
-      networks.find((a) => {
-        return sanitize2hex(a.chainId) === sanitize2hex(message?.data?.params?.[0]?.chainId) // ethers BN ouputs 1 to 0x01 while some dapps ask for 0x1
-      }),
-    [message]
+  const handleDenyButtonPress = useCallback(
+    () => rejectApproval(t('User rejected the request.')),
+    [t, rejectApproval]
   )
 
-  // TODO:
-  const [loading, setLoading] = useState(false)
-
-  const handleDenyButtonPress = () => {
-    // TODO:
-    // !!sendMessage &&
-    //   sendMessage({
-    //     type: 'web3CallResponse',
-    //     to: BACKGROUND,
-    //     data: {
-    //       originalMessage: message,
-    //       rpcResult: {
-    //         jsonrpc: '2.0',
-    //         id: message?.data?.id,
-    //         error: 'Switching network canceled!'
-    //       }
-    //     }
-    //   })
-    // setTimeout(() => {
-    //   window.close()
-    // }, 200)
-  }
-
-  const handleSwitchNetworkButtonPress = () => {
-    if (newNetwork) {
-      setNetwork(newNetwork?.chainId)
-      // TODO:
-      // !!sendMessage &&
-      //   sendMessage({
-      //     type: 'web3CallResponse',
-      //     to: BACKGROUND,
-      //     data: {
-      //       originalMessage: message,
-      //       rpcResult: {
-      //         jsonrpc: '2.0',
-      //         id: message?.data?.id,
-      //         result: {
-      //           chainId: newNetwork?.chainId
-      //         },
-      //         success: true
-      //       }
-      //     }
-      //   })
+  const handleSwitchNetworkButtonPress = useCallback(() => {
+    setIsSwitching(true)
+    if (nextNetwork) {
+      setNetwork(nextNetwork?.chainId)
+      resolveApproval(true)
     }
-  }
-
-  useEffect(() => {
-    if (newNetwork?.name === network?.name) {
-      window.close()
-    }
-  }, [newNetwork?.name, network?.name])
-
-  const handleForceClose = () => {
-    // !!sendMessage &&
-    //   sendMessage(
-    //     {
-    //       type: 'web3CallResponse',
-    //       to: BACKGROUND,
-    //       data: {
-    //         originalMessage: message,
-    //         rpcResult: {
-    //           jsonrpc: '2.0',
-    //           id: message?.data?.id,
-    //           error: 'Switching network canceled!'
-    //         }
-    //       }
-    //     },
-    //     { ignoreReply: true }
-    //   )
-  }
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', handleForceClose)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleForceClose)
-    }
-  }, [])
+  }, [nextNetwork, resolveApproval, setNetwork])
 
   return (
     <GradientBackgroundWrapper>
@@ -148,13 +69,20 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
       >
         <Panel type="filled">
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <ManifestImage host={targetHost} size={64} fallback={() => <ManifestFallbackIcon />} />
+            <ManifestImage
+              uri={approval?.data?.params?.session?.icon}
+              size={64}
+              fallback={() => <ManifestFallbackIcon />}
+            />
           </View>
 
-          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>{targetHost}</Title>
+          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+            {approval?.data?.params?.session?.origin
+              ? new URL(approval?.data?.params?.session?.origin).hostname
+              : ''}
+          </Title>
 
-          <View style={flexboxStyles.alignCenter}>{!!loading && <Spinner />}</View>
-          {!loading && !!newNetwork && (
+          {!!nextNetwork && (
             <>
               <View>
                 <Trans>
@@ -163,14 +91,14 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
                       {'Allow '}
                     </Text>
                     <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                      {targetHost}
+                      {approval?.data?.params?.session?.name || 'webpage'}
                     </Text>
                     <Text fontSize={14} weight="regular">
                       {' to switch the network?'}
                     </Text>
                   </Text>
                 </Trans>
-                {!!network && !!newNetwork && (
+                {!!currentNetwork && !!nextNetwork && (
                   <View
                     style={[spacings.mbLg, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
                   >
@@ -183,9 +111,9 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
                       ]}
                     >
                       <View style={styles.networkIconWrapper}>
-                        <NetworkIcon name={network?.id} width={64} height={64} />
+                        <NetworkIcon name={currentNetwork?.id} width={64} height={64} />
                       </View>
-                      <Text>{network?.name}</Text>
+                      <Text>{currentNetwork?.name}</Text>
                     </View>
                     <View style={spacings.pbMd}>
                       <CrossChainArrowIcon />
@@ -199,9 +127,9 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
                       ]}
                     >
                       <View style={styles.networkIconWrapper}>
-                        <NetworkIcon name={newNetwork?.id} width={64} height={64} />
+                        <NetworkIcon name={nextNetwork?.id} width={64} height={64} />
                       </View>
-                      <Text>{newNetwork?.name}</Text>
+                      <Text>{nextNetwork?.name}</Text>
                     </View>
                   </View>
                 )}
@@ -209,24 +137,52 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
 
               <View style={styles.buttonsContainer}>
                 <View style={styles.buttonWrapper}>
-                  <Button type="danger" onPress={handleDenyButtonPress} text={t('Deny')} />
+                  <Button
+                    disabled={isSwitching}
+                    type="danger"
+                    onPress={handleDenyButtonPress}
+                    text={t('Deny')}
+                  />
                 </View>
                 <View style={styles.buttonWrapper}>
                   <Button
+                    disabled={isSwitching}
                     type="outline"
                     onPress={handleSwitchNetworkButtonPress}
-                    text={t('Switch Network')}
+                    text={isSwitching ? t('Switching...') : t('Switch Network')}
                   />
                 </View>
               </View>
             </>
           )}
-          {!loading && !newNetwork && (
+          {!nextNetwork && (
             <View>
+              <Trans
+                values={{
+                  unsupportedNetworkName:
+                    approval?.data?.params?.data?.[0]?.chainName || t('an unsupported network')
+                }}
+              >
+                <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+                  <Text fontSize={14} weight="regular" color={colors.heliotrope}>
+                    {approval?.data?.params?.session?.name || 'Webpage'}
+                  </Text>
+                  <Text fontSize={14} weight="regular">
+                    {' wants to switch the network to {{unsupportedNetworkName}}.'}
+                  </Text>
+                </Text>
+              </Trans>
+
               <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-                {t('Ambire Wallet does not support this network.')}
+                {t(
+                  'Ambire Wallet does not support {{unsupportedNetworkName}} network, so this switch is not possible.',
+                  {
+                    unsupportedNetworkName:
+                      approval?.data?.params?.data?.[0]?.chainName || t('this')
+                  }
+                )}
               </Text>
-              <Button type="danger" onPress={handleDenyButtonPress} text={t('Cancel')} />
+              <Button type="danger" onPress={handleDenyButtonPress} text={t('Decline')} />
             </View>
           )}
         </Panel>
@@ -235,4 +191,4 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   )
 }
 
-export default SwitchNetworkRequestScreen
+export default React.memo(SwitchNetworkRequestScreen)

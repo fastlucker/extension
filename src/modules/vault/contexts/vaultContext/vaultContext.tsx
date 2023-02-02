@@ -7,6 +7,7 @@ import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
@@ -21,6 +22,7 @@ import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultController from '@modules/vault/services/VaultController'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 import { isExtension } from '@web/constants/browserapi'
+import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
 import { vaultContextDefaults, VaultContextReturnType } from './types'
@@ -33,6 +35,7 @@ const VaultProvider: React.FC = ({ children }) => {
   const { extensionWallet } = useExtensionWallet()
   const { onRemoveAllAccounts } = useAccounts()
   const { getItem, setItem, storageControllerInstance } = useStorageController()
+  const { resolveApproval } = useExtensionApproval()
   const {
     biometricsEnabled,
     getKeystorePassword,
@@ -84,7 +87,7 @@ const VaultProvider: React.FC = ({ children }) => {
     }
 
     requestVaultControllerMethod({
-      method: 'isVaultUnlocked'
+      method: 'isVaultUnlockedAsync'
     })
       .then((isUnlocked: boolean) => {
         setVaultStatus(isUnlocked ? VAULT_STATUS.UNLOCKED : VAULT_STATUS.LOCKED)
@@ -185,12 +188,24 @@ const VaultProvider: React.FC = ({ children }) => {
       })
         .then(() => {
           setVaultStatus(VAULT_STATUS.UNLOCKED)
+
+          // The unlock is approval. When unlocking - we need to resolve the
+          // approval to unlock in order to trigger the next approval in line
+          if (getUiType().isNotification) {
+            resolveApproval(true)
+          }
         })
         .catch((e) => {
           addToast(e?.message || e, { error: true })
         })
     },
-    [addToast, biometricsEnabled, getKeystorePassword, requestVaultControllerMethod]
+    [
+      addToast,
+      biometricsEnabled,
+      getKeystorePassword,
+      requestVaultControllerMethod,
+      resolveApproval
+    ]
   )
 
   const lockVault = useCallback(

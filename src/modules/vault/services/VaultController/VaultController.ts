@@ -35,6 +35,10 @@ class VaultController extends EventEmitter {
   }
 
   isVaultUnlocked() {
+    return !!this.#password
+  }
+
+  isVaultUnlockedAsync() {
     return Promise.resolve(!!this.#password)
   }
 

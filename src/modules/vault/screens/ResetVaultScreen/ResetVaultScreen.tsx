@@ -150,4 +150,4 @@ const ResetVaultScreen: React.FC<Props> = ({
   )
 }
 
-export default ResetVaultScreen
+export default React.memo(ResetVaultScreen)

@@ -1,10 +1,15 @@
 import 'reflect-metadata'
 
+import networks from 'ambire-common/src/constants/networks'
+import { getProvider } from 'ambire-common/src/services/provider'
 import { ethErrors } from 'eth-rpc-errors'
+import { intToHex } from 'ethereumjs-util'
+import cloneDeep from 'lodash/cloneDeep'
 
 import permissionService from '@web/background/services/permission'
 import sessionService, { Session } from '@web/background/services/session'
 import Wallet from '@web/background/wallet'
+import storage from '@web/background/webapi/storage'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 
 interface ApprovalRes {
@@ -53,79 +58,110 @@ const signTypedDataValidation = ({
 }
 
 class ProviderController {
+  ethRpc = async (req) => {
+    const {
+      data: { method, params },
+      session: { origin }
+    } = req
+
+    const networkId = await storage.get('networkId')
+    const provider = getProvider(networkId)
+
+    if (!permissionService.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
+      throw ethErrors.provider.unauthorized()
+    }
+
+    if (method === 'eth_call') {
+      return provider.call(params[0])
+    }
+
+    if (method === 'eth_getBlockByNumber') {
+      const block = await provider.getBlock(params[0])
+      block.gasLimit = block.gasLimit.toHexString()
+      block.gasUsed = block.gasUsed.toHexString()
+      block.baseFeePerGas = block.baseFeePerGas.toHexString()
+      block._difficulty = block._difficulty.toHexString()
+
+      return Promise.resolve(block)
+    }
+
+    if (method === 'eth_getTransactionByHash') {
+      return provider.getTransaction(params[0])
+    }
+
+    if (method === 'eth_getTransactionReceipt') {
+      return provider.getTransactionReceipt(params[0])
+    }
+
+    if (method === 'eth_gasPrice') {
+      return provider.getGasPrice()
+    }
+
+    if (method === 'eth_getBalance') {
+      const selectedAcc = await storage.get('selectedAcc')
+      return provider.getBalance(selectedAcc)
+    }
+
+    if (method === 'eth_getCode') {
+      return provider.getCode(params[0])
+    }
+
+    if (method === 'eth_blockNumber') {
+      return provider.getBlockNumber()
+    }
+
+    if (method === 'eth_estimateGas') {
+      return provider.estimateGas(params[0])
+    }
+
+    if (method === 'eth_getCode') {
+      return provider.getCode(params[0])
+    }
+
+    // TODO: handle the rest of the SAFE_RPC_METHODS starting with eth_...
+  }
+
   ethRequestAccounts = async ({ session: { origin } }) => {
-    console.log('ethRequestAccounts', origin)
     if (!permissionService.hasPermission(origin)) {
       throw ethErrors.provider.unauthorized()
     }
-    const _account = null
-    const account = _account ? [_account.address.toLowerCase()] : []
+    const selectedAcc = await storage.get('selectedAcc')
+
+    const account = selectedAcc ? [selectedAcc] : []
     sessionService.broadcastEvent('accountsChanged', account)
-    // const connectSite = permissionService.getConnectedSite(origin)
-    // if (connectSite) {
-    //   const chain = CHAINS[connectSite.chain]
-    //   // ambire:chainChanged event must be sent before chainChanged event
-    //   sessionService.broadcastEvent('ambire:chainChanged', chain, origin)
-    //   sessionService.broadcastEvent(
-    //     'chainChanged',
-    //     {
-    //       chain: chain.hex,
-    //       networkVersion: chain.network
-    //     },
-    //     origin
-    //   )
-    // }
+
     return account
   }
 
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }) => {
-    console.log('ethAccounts', origin)
     if (!permissionService.hasPermission(origin) || !Wallet.isUnlocked()) {
       return []
     }
 
-    return []
+    const selectedAcc = await storage.get('selectedAcc')
+
+    return selectedAcc ? [selectedAcc] : []
   }
 
   ethCoinbase = async ({ session: { origin } }) => {
-    console.log('ethCoinbase', origin)
     if (!permissionService.hasPermission(origin)) {
       return null
     }
 
-    // TODO:
-    return null
+    const selectedAcc = await storage.get('selectedAcc')
+
+    return selectedAcc || null
   }
 
   @Reflect.metadata('SAFE', true)
-  ethChainId = ({ session }: { session: Session }) => {
-    // const origin = session.origin
-    // const site = permissionService.getWithoutUpdate(origin)
-    // return CHAINS[site?.chain || CHAINS_ENUM.ETH].hex
+  ethChainId = async () => {
+    const networkId = await storage.get('networkId')
+    const network = networks.find((n) => n.id === networkId)
+    return intToHex(network?.chainId || networks[0].chainId)
   }
 
-  @Reflect.metadata('APPROVAL', [
-    'SignTx',
-    ({
-      data: {
-        params: [tx]
-      },
-      session
-    }) => {
-      // TODO:
-      // const currentAddress = preferenceService.getCurrentAccount()?.address.toLowerCase()
-      // const currentChain = permissionService.isInternalOrigin(session.origin)
-      //   ? Object.values(CHAINS).find((chain) => chain.id === tx.chainId)!.enum
-      //   : permissionService.getConnectedSite(session.origin)?.chain
-      // if (tx.from.toLowerCase() !== currentAddress) {
-      //   throw ethErrors.rpc.invalidParams('from should be same as current address')
-      // }
-      // if ('chainId' in tx && (!currentChain || Number(tx.chainId) !== CHAINS[currentChain].id)) {
-      //   throw ethErrors.rpc.invalidParams('chainId should be same as current chainId')
-      // }
-    }
-  ])
+  @Reflect.metadata('APPROVAL', ['send-txn', false])
   ethSendTransaction = async (options: {
     data: {
       $ctx?: any
@@ -136,15 +172,25 @@ class ProviderController {
     pushed: boolean
     result: any
   }) => {
-    // TODO:
+    if (options.pushed) return options.result
+
+    const {
+      data: {
+        params: [txParams]
+      },
+      session: { origin },
+      approvalRes
+    } = cloneDeep(options)
+
+    console.log('txParams', txParams)
   }
 
   @Reflect.metadata('SAFE', true)
-  netVersion = (req) => {
-    return this.ethRpc({
-      ...req,
-      data: { method: 'net_version', params: [] }
-    })
+  netVersion = async () => {
+    const networkId = await storage.get('networkId')
+    const network = networks.find((n) => n.id === networkId)
+
+    return network?.chainId ? network?.chainId.toString() : '1'
   }
 
   @Reflect.metadata('SAFE', true)
@@ -210,7 +256,7 @@ class ProviderController {
     approvalRes
   }) => {}
 
-  @Reflect.metadata('APPROVAL', ['AddChain', false, { height: 390 }])
+  @Reflect.metadata('APPROVAL', ['switch-network', false])
   walletAddEthereumChain = ({
     data: {
       params: [chainParams]
@@ -229,35 +275,62 @@ class ProviderController {
       rpcUrl: string
     }
   }) => {
-    // TODO:
+    let chainId = chainParams.chainId
+    if (typeof chainId === 'string') {
+      chainId = Number(chainId)
+    }
+
+    const network = networks.find((n) => n.chainId === chainId)
+
+    if (!network) {
+      throw new Error('This chain is not supported by Ambire yet.')
+    }
+
+    // sessionService.broadcastEvent('ambire:chainChanged', network, origin)
+    sessionService.broadcastEvent(
+      'chainChanged',
+      {
+        chain: intToHex(network.chainId),
+        networkVersion: `${network.chainId}`
+      },
+      origin
+    )
+
     return null
   }
 
-  @Reflect.metadata('APPROVAL', [
-    'AddChain',
-    ({ data, session }) => {
-      // TODO:
-      // const connected = permissionService.getConnectedSite(session.origin)
-      // if (connected) {
-      //   const { chainId } = data.params[0]
-      //   if (Number(chainId) === CHAINS[connected.chain].id) {
-      //     return true
-      //   }
-      // }
-    },
-    { height: 390 }
-  ])
+  @Reflect.metadata('APPROVAL', ['switch-network', false])
   walletSwitchEthereumChain = ({
     data: {
       params: [chainParams]
     },
     session: { origin }
   }) => {
-    console.log('walletSwitchEthereumChain', chainParams, origin)
+    let chainId = chainParams.chainId
+    if (typeof chainId === 'string') {
+      chainId = Number(chainId)
+    }
+
+    const network = networks.find((n) => n.chainId === chainId)
+
+    if (!network) {
+      throw new Error('This chain is not supported by Ambire yet.')
+    }
+
+    // sessionService.broadcastEvent('ambire:chainChanged', network, origin)
+    sessionService.broadcastEvent(
+      'chainChanged',
+      {
+        chain: intToHex(network.chainId),
+        networkVersion: `${network.chainId}`
+      },
+      origin
+    )
+
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['AddAsset', () => null, { height: 390 }])
+  @Reflect.metadata('APPROVAL', ['AddAsset', () => null])
   walletWatchAsset = () => {
     throw new Error('Ambire does not support adding tokens in this way for now.')
   }
@@ -290,11 +363,6 @@ class ProviderController {
   @Reflect.metadata('SAFE', true)
   netListening = () => {
     return true
-  }
-
-  @Reflect.metadata('PRIVATE', true)
-  private _checkAddress = async (address) => {
-    // TODO:
   }
 }
 

@@ -27,7 +27,7 @@ import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
-import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
+import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
@@ -60,7 +60,7 @@ import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
+import { getUiType } from '@web/utils/uiType'
 
 import { drawerWebStyle, navigationContainerDarkTheme } from './styles'
 
@@ -75,10 +75,7 @@ const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 
-const urlSearchParams = new URLSearchParams(window?.location?.search)
-const params = Object.fromEntries(urlSearchParams.entries())
-const isTempExtensionPopup = !!params.route || !!params.host
-const navigationEnabled = !isTempExtensionPopup
+const navigationEnabled = !getUiType().isNotification
 
 const headerAlpha = navigationEnabled
   ? (props: any) => defaultHeaderAlpha({ ...props, backgroundColor: colors.martinique })
@@ -270,10 +267,8 @@ const VaultStack = () => {
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
-      <Stack.Screen
-        name="unlockVault"
-        options={{ title: t('Welcome Back') }}
-        component={(props) => (
+      <Stack.Screen name="unlockVault" options={{ title: t('Welcome Back') }}>
+        {(props) => (
           <UnlockVaultScreen
             {...props}
             unlockVault={unlockVault}
@@ -281,14 +276,12 @@ const VaultStack = () => {
             biometricsEnabled={biometricsEnabled}
           />
         )}
-      />
-      <Stack.Screen
-        name="resetVault"
-        options={{ title: t('Reset your\nAmbire Key Store Lock') }}
-        component={(props) => (
+      </Stack.Screen>
+      <Stack.Screen name="resetVault" options={{ title: t('Reset your\nAmbire Key Store Lock') }}>
+        {(props) => (
           <ResetVaultScreen {...props} vaultStatus={vaultStatus} resetVault={resetVault} />
         )}
-      />
+      </Stack.Screen>
     </Stack.Navigator>
   )
 }
@@ -480,6 +473,12 @@ const TabsScreens = () => {
 }
 
 const AppDrawer = () => {
+  // Should never proceed to the main app drawer if it's a notification (popup),
+  // because these occurrences are only used to prompt specific actions.
+  if (getUiType().isNotification) {
+    return null
+  }
+
   return (
     <Drawer.Navigator
       drawerContent={navigationEnabled ? DrawerContent : () => null}
@@ -589,39 +588,17 @@ const Router = () => {
   const { authStatus } = useAuth()
   const { vaultStatus } = useVault()
   const { connectionState } = useNetInfo()
-  const { setParams } = useAmbireExtension()
-
-  const handleForceClose = () => {
-    if (isTempExtensionPopup && !__DEV__) {
-      if (params.route === 'permission-request') {
-        // TODO:
-        // sendMessage(
-        //   {
-        //     type: 'clearPendingCallback',
-        //     to: BACKGROUND,
-        //     data: {
-        //       targetHost: params.host
-        //     }
-        //   },
-        //   { ignoreReply: true }
-        // )
-      }
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', handleForceClose)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleForceClose)
-    }
-  }, [])
-
-  useEffect(() => {
-    setParams(params)
-  }, [setParams])
+  const { approval, hasCheckedForApprovalInitially } = useExtensionApproval()
+  const isInNotification = getUiType().isNotification
 
   const renderContent = useCallback(() => {
+    if (!hasCheckedForApprovalInitially) return null
+
+    if (isInNotification && !approval) {
+      window.close()
+      return null
+    }
+
     if (connectionState === ConnectionStates.NOT_CONNECTED) {
       return <NoConnectionStack />
     }
@@ -646,25 +623,16 @@ const Router = () => {
         return <VaultStack />
       }
 
-      if (params.route === 'permission-request') {
+      if (approval?.data?.approvalComponent === 'permission-request') {
         return <PermissionRequestStack />
       }
-      if (
-        params.route === USER_INTERVENTION_METHODS.eth_sendTransaction ||
-        params.route === USER_INTERVENTION_METHODS.gs_multi_send ||
-        params.route === USER_INTERVENTION_METHODS.ambire_sendBatchTransaction
-      ) {
+      if (approval?.data?.approvalComponent === 'send-txn') {
         return <PendingTransactionsStack />
       }
-      if (
-        params.route === USER_INTERVENTION_METHODS.eth_sign ||
-        params.route === USER_INTERVENTION_METHODS.personal_sign ||
-        params.route === USER_INTERVENTION_METHODS.eth_signTypedData ||
-        params.route === USER_INTERVENTION_METHODS.eth_signTypedData_v4
-      ) {
+      if (approval?.data?.approvalComponent === 'sign-message') {
         return <SignMessageStack />
       }
-      if (params.route === USER_INTERVENTION_METHODS.wallet_switchEthereumChain) {
+      if (approval?.data?.approvalComponent === 'switch-network') {
         return <SwitchNetworkRequestStack />
       }
 
@@ -674,7 +642,14 @@ const Router = () => {
     }
 
     return null
-  }, [connectionState, authStatus, vaultStatus])
+  }, [
+    hasCheckedForApprovalInitially,
+    isInNotification,
+    approval,
+    connectionState,
+    vaultStatus,
+    authStatus
+  ])
 
   const handleOnReady = () => {
     // @ts-ignore for some reason TS complains about this 👇

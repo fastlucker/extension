@@ -2,6 +2,7 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 
+import VaultController from '@modules/vault/services/VaultController'
 import providerController from '@web/background/provider/ProviderController'
 import { ProviderRequest } from '@web/background/provider/types'
 import notificationService from '@web/background/services/notification'
@@ -9,8 +10,7 @@ import permissionService from '@web/background/services/permission'
 import { EVENTS } from '@web/constants/common'
 import eventBus from '@web/event/eventBus'
 import PromiseFlow from '@web/utils/promiseFlow'
-
-// import underline2Camelcase from '@web/utils/underline2Camelcase'
+import underline2Camelcase from '@web/utils/underline2Camelcase'
 
 const isSignApproval = (type: string) => {
   const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SignTx']
@@ -28,33 +28,25 @@ const flow = new PromiseFlow<{
   approvalRes: any
 }>()
 const flowContext = flow
-  // TODO: validate if this part of the flow is needed for our use case
-  // .use(async (ctx, next) => {
-  //   // check method
-  //   const {
-  //     data: { method }
-  //   } = ctx.request
-  //   ctx.mapMethod = underline2Camelcase(method)
-  //   if (Reflect.getMetadata('PRIVATE', providerController, ctx.mapMethod)) {
-  //     // Reject when dapp try to call private controller function
-  //     throw ethErrors.rpc.methodNotFound({
-  //       message: `method [${method}] doesn't has corresponding handler`,
-  //       data: ctx.request.data
-  //     })
-  //   }
-  //   if (!providerController[ctx.mapMethod]) {
-  //     if (method.startsWith('eth_') || method === 'net_version') {
-  //       return providerController.ethRpc(ctx.request)
-  //     }
+  .use(async (ctx, next) => {
+    // check method
+    const {
+      data: { method }
+    } = ctx.request
+    ctx.mapMethod = underline2Camelcase(method)
+    if (!providerController[ctx.mapMethod]) {
+      if (method.startsWith('eth_') || method === 'net_version') {
+        return providerController.ethRpc(ctx.request)
+      }
 
-  //     throw ethErrors.rpc.methodNotFound({
-  //       message: `method [${method}] doesn't has corresponding handler`,
-  //       data: ctx.request.data
-  //     })
-  //   }
+      throw ethErrors.rpc.methodNotFound({
+        message: `method [${method}] doesn't has corresponding handler`,
+        data: ctx.request.data
+      })
+    }
 
-  //   return next()
-  // })
+    return next()
+  })
   .use(async (ctx, next) => {
     const {
       mapMethod,
@@ -63,10 +55,7 @@ const flowContext = flow
       }
     } = ctx
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
-      // check lock
-      // TODO: implement
-      const isUnlock = true
-
+      const isUnlock = VaultController.isVaultUnlocked()
       if (!isUnlock) {
         if (lockedOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')
@@ -74,7 +63,7 @@ const flowContext = flow
         ctx.request.requestedApproval = true
         lockedOrigins.add(origin)
         try {
-          await notificationService.requestApproval({ lock: true }, { height: 628 })
+          await notificationService.requestApproval({ lock: true })
           lockedOrigins.delete(origin)
         } catch (e) {
           lockedOrigins.delete(origin)
@@ -93,7 +82,6 @@ const flowContext = flow
       },
       mapMethod
     } = ctx
-    console.log('3')
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       if (!permissionService.hasPermission(origin)) {
         if (connectOrigins.has(origin)) {
@@ -102,10 +90,9 @@ const flowContext = flow
         ctx.request.requestedApproval = true
         connectOrigins.add(origin)
         try {
-          console.log('in')
           const { defaultChain } = await notificationService.requestApproval({
             params: { origin, name, icon },
-            approvalComponent: 'Connect'
+            approvalComponent: 'permission-request'
           })
           connectOrigins.delete(origin)
           permissionService.addConnectedSite(origin, name, icon, defaultChain)
@@ -127,64 +114,20 @@ const flowContext = flow
       },
       mapMethod
     } = ctx
-    console.log('4')
-    const [approvalType, condition, options = {}] =
+    const [approvalType, condition] =
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
-    let windowHeight = 800
-    if ('height' in options) {
-      windowHeight = options.height
-    } else {
-      const minHeight = 500
-      if (screen.availHeight < 880) {
-        windowHeight = screen.availHeight
-      }
-      if (windowHeight < minHeight) {
-        windowHeight = minHeight
-      }
-    }
-    if (approvalType === 'SignText') {
-      // let from
-      // let message
-      // const [first, second] = params
-      // // Compatible with wrong params order
-      // // ref: https://github.com/MetaMask/eth-json-rpc-middleware/blob/53c7361944c380e011f5f4ee1e184db746e26d73/src/wallet.ts#L284
-      // if (resemblesETHAddress(first) && !resemblesETHAddress(second)) {
-      //   from = first
-      //   message = second
-      // } else {
-      //   from = second
-      //   message = first
-      // }
-      // ctx.request.data.params[0] = message
-      // ctx.request.data.params[1] = from
-    }
-    console.log('5')
     if (approvalType && (!condition || !condition(ctx.request))) {
-      console.log('6')
       ctx.request.requestedApproval = true
-      if (approvalType === 'SignTx' && !('chainId' in params[0])) {
-        const site = permissionService.getConnectedSite(origin)
-        if (site) {
-          // const chain = Object.values(CHAINS).find((item) => item.enum === site.chain)
-          // if (chain) {
-          //   params[0].chainId = chain.id
-          // }
-        }
-      }
-      console.log('7')
-      ctx.approvalRes = await notificationService.requestApproval(
-        {
-          approvalComponent: approvalType,
-          params: {
-            $ctx: ctx?.request?.data?.$ctx,
-            method,
-            data: ctx.request.data.params,
-            session: { origin, name, icon }
-          },
-          origin
+      ctx.approvalRes = await notificationService.requestApproval({
+        approvalComponent: approvalType,
+        params: {
+          $ctx: ctx?.request?.data?.$ctx,
+          method,
+          data: ctx.request.data.params,
+          session: { origin, name, icon }
         },
-        { height: windowHeight }
-      )
+        origin
+      })
       if (isSignApproval(approvalType)) {
         permissionService.updateConnectSite(origin, { isSigned: true }, true)
       } else {
@@ -196,9 +139,11 @@ const flowContext = flow
   })
   .use(async (ctx) => {
     const { approvalRes, mapMethod, request } = ctx
+
     // process request
     const [approvalType] = Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
     const { uiRequestComponent, ...rest } = approvalRes || {}
+    console.log('!!!!', approvalType, mapMethod, uiRequestComponent)
     const {
       session: { origin }
     } = request

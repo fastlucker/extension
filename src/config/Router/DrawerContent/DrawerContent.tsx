@@ -121,7 +121,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
         <View style={[styles.quickActionsContainer, spacings.phLg, spacings.mbTy]}>
           <TouchableOpacity
             style={[styles.lockBtn, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
-            onPress={lockVault}
+            onPress={() => lockVault()}
           >
             <LockIcon height={20} color={colors.chetwode} />
             <Text color={colors.chetwode} weight="regular">
