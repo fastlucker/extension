@@ -94,7 +94,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
               </View>
 
               <Text fontSize={14} style={textStyles.center}>
-                {t('Dapps connection can be removed at any time from the extension settings.')}
+                {t('Webpage can be disconnected any time from the Ambire extension settings.')}
               </Text>
             </>
           )}
