@@ -5,9 +5,10 @@ import { ScrollView, View } from 'react-native'
 
 import { isRelayerless } from '@config/env'
 import Title from '@modules/common/components/Title'
+import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useNetwork from '@modules/common/hooks/useNetwork'
-import useToast from '@modules/common/hooks/useToast'
 import textStyles from '@modules/common/styles/utils/text'
+import { isExtension } from '@web/constants/browserapi'
 
 import NetworkChangerItem from './NetworkChangerItem'
 import styles, { SINGLE_ITEM_HEIGHT } from './styles'
@@ -15,8 +16,8 @@ import styles, { SINGLE_ITEM_HEIGHT } from './styles'
 const NetworkChanger: React.FC = () => {
   const { t } = useTranslation()
   const { network, setNetwork } = useNetwork()
-  const { addToast } = useToast()
   const scrollRef: any = useRef(null)
+  const { extensionWallet } = useExtensionWallet()
 
   const allVisibleNetworks = useMemo(
     () => networks.filter((n) => !n.hide).filter((n) => isRelayerless || !n.relayerlessOnly),
@@ -44,11 +45,11 @@ const NetworkChanger: React.FC = () => {
       if (_network.chainId === network?.chainId) return
 
       setNetwork(_network.chainId)
-      addToast(t('Network changed to {{network}}', { network: _network.name }) as string, {
-        timeout: 3000
-      })
+      if (isExtension) {
+        extensionWallet.networkChange(_network)
+      }
     },
-    [network?.chainId, setNetwork, addToast, t]
+    [network?.chainId, setNetwork, extensionWallet]
   )
 
   const renderNetwork = (_network: NetworkType, idx: number) => {

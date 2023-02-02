@@ -13,7 +13,6 @@ import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
-import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
@@ -26,7 +25,6 @@ import styles from './styles'
 
 const SwitchNetworkRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const { params } = useAmbireExtension()
   const { network, setNetwork } = useNetwork()
   const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
 
@@ -45,13 +43,11 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
     }
   }, [approval])
 
-  console.log(approval)
-
   // TODO:
   const [loading, setLoading] = useState(false)
 
   const handleDenyButtonPress = () => {
-    rejectApproval()
+    rejectApproval('User rejected the request.')
   }
 
   const handleSwitchNetworkButtonPress = () => {
@@ -60,12 +56,6 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
       resolveApproval(true)
     }
   }
-
-  // useEffect(() => {
-  //   if (newNetwork?.name === network?.name) {
-  //     window.close()
-  //   }
-  // }, [newNetwork?.name, network?.name])
 
   return (
     <GradientBackgroundWrapper>
@@ -76,11 +66,19 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
         }}
       >
         <Panel type="filled">
-          {/* <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <ManifestImage host={targetHost} size={64} fallback={() => <ManifestFallbackIcon />} />
-          </View> */}
+          <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
+            <ManifestImage
+              uri={approval?.data?.params?.session?.icon}
+              size={64}
+              fallback={() => <ManifestFallbackIcon />}
+            />
+          </View>
 
-          {/* <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>{targetHost}</Title> */}
+          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+            {approval?.data?.params?.session?.origin
+              ? new URL(approval?.data?.params?.session?.origin).hostname
+              : ''}
+          </Title>
 
           <View style={flexboxStyles.alignCenter}>{!!loading && <Spinner />}</View>
           {!loading && !!newNetwork && (
@@ -92,7 +90,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
                       {'Allow '}
                     </Text>
                     <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                      {/* {targetHost} */}
+                      {approval?.data?.params?.session?.name || 'dapp'}
                     </Text>
                     <Text fontSize={14} weight="regular">
                       {' to switch the network?'}

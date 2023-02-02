@@ -17,12 +17,13 @@ import styles from './styles'
 type Props = {
   name: ConnectedSite['name']
   origin: ConnectedSite['origin']
+  icon: ConnectedSite['icon']
   isConnected: ConnectedSite['isConnected']
   disconnectDapp: AmbireExtensionContextReturnType['disconnectDapp']
   isLast: boolean
 }
 
-const ConnectedDAppItem = ({ name, origin, isConnected, disconnectDapp, isLast }: Props) => {
+const ConnectedDAppItem = ({ name, origin, icon, isConnected, disconnectDapp, isLast }: Props) => {
   const { t } = useTranslation()
 
   return (
@@ -33,7 +34,7 @@ const ConnectedDAppItem = ({ name, origin, isConnected, disconnectDapp, isLast }
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
         <View style={[flexboxStyles.flex1, flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
           <ManifestImage
-            host={origin}
+            uri={icon}
             size={34}
             fallback={() => <ManifestFallbackIcon width={34} height={34} />}
           />
@@ -42,7 +43,7 @@ const ConnectedDAppItem = ({ name, origin, isConnected, disconnectDapp, isLast }
               {name}
             </Text>
             <Text fontSize={10} color={isConnected ? colors.turquoise : colors.pink}>
-              {isConnected ? t('Connected') : t('Blocked')} ({origin})
+              {isConnected ? t('Connected') : t('Blocked')} ({new URL(origin).hostname})
             </Text>
           </View>
         </View>

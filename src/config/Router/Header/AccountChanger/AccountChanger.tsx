@@ -10,6 +10,7 @@ import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import alert from '@modules/common/services/alert'
 import { navigate } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
@@ -17,6 +18,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import useVault from '@modules/vault/hooks/useVault'
+import { isExtension } from '@web/constants/browserapi'
 
 import styles from './styles'
 
@@ -35,10 +37,14 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { t } = useTranslation()
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
   const { removeFromVault } = useVault()
+  const { extensionWallet } = useExtensionWallet()
 
   const handleChangeAccount = (accountId: any) => {
     closeBottomSheet()
     onSelectAcc(accountId)
+    if (isExtension) {
+      extensionWallet.accountChange(accountId)
+    }
   }
 
   const handleGoToAddAccount = () => {
