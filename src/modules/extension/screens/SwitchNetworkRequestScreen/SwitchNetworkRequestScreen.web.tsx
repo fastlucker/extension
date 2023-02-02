@@ -157,10 +157,32 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
           )}
           {!nextNetwork && (
             <View>
+              <Trans
+                values={{
+                  unsupportedNetworkName:
+                    approval?.data?.params?.data?.[0]?.chainName || t('an unsupported network')
+                }}
+              >
+                <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+                  <Text fontSize={14} weight="regular" color={colors.heliotrope}>
+                    {approval?.data?.params?.session?.name || 'Webpage'}
+                  </Text>
+                  <Text fontSize={14} weight="regular">
+                    {' wants to switch the network to {{unsupportedNetworkName}}.'}
+                  </Text>
+                </Text>
+              </Trans>
+
               <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-                {t('Ambire Wallet does not support this network.')}
+                {t(
+                  'Ambire Wallet does not support {{unsupportedNetworkName}} network, so this switch is not possible.',
+                  {
+                    unsupportedNetworkName:
+                      approval?.data?.params?.data?.[0]?.chainName || t('this')
+                  }
+                )}
               </Text>
-              <Button type="danger" onPress={handleDenyButtonPress} text={t('Cancel')} />
+              <Button type="danger" onPress={handleDenyButtonPress} text={t('Decline')} />
             </View>
           )}
         </Panel>
