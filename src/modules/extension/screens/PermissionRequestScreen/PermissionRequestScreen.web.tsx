@@ -68,7 +68,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
                 <Trans>
                   <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
                     <Text fontSize={14} weight="regular">
-                      {'The dapp '}
+                      {'The dApp '}
                     </Text>
                     <Text fontSize={14} weight="regular" color={colors.heliotrope}>
                       {approval?.data?.params?.name || ''}

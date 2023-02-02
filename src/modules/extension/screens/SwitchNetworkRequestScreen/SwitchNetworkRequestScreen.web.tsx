@@ -91,7 +91,7 @@ const SwitchNetworkRequestScreen = ({ navigation }: any) => {
                       {'Allow '}
                     </Text>
                     <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                      {approval?.data?.params?.session?.name || 'dapp'}
+                      {approval?.data?.params?.session?.name || 'webpage'}
                     </Text>
                     <Text fontSize={14} weight="regular">
                       {' to switch the network?'}
