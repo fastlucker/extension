@@ -53,14 +53,21 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
 
   const rejectApproval = useCallback<UseExtensionApprovalReturnType['rejectApproval']>(
     async (err = undefined, stay = false, isInternal = false) => {
-      const currentApproval = await getApproval()
-      if (approval) {
-        await extensionWallet.rejectApproval(err, stay, isInternal)
+      if (!approval) {
+        return addToast(
+          t(
+            'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.',
+            { error: true }
+          )
+        )
       }
 
-      setApproval(currentApproval)
+      await extensionWallet.rejectApproval(err, stay, isInternal)
+
+      const nextApproval = await getApproval()
+      setApproval(nextApproval)
     },
-    [getApproval, approval, extensionWallet]
+    [approval, extensionWallet, getApproval, addToast, t]
   )
 
   useEffect(() => {
