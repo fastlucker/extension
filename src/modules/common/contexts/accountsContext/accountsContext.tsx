@@ -1,4 +1,7 @@
-import useAccounts, { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
+import useAccounts, {
+  UseAccountsProps,
+  UseAccountsReturnType
+} from 'ambire-common/src/hooks/useAccounts'
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
@@ -16,15 +19,16 @@ const AccountsContext = createContext<UseAccountsReturnType>({
   selectedAcc: '',
   onSelectAcc: () => {},
   onAddAccount: () => false,
-  onRemoveAccount: () => {}
+  onRemoveAccount: () => {},
+  onRemoveAllAccounts: () => {}
 })
 
 const AccountsProvider: React.FC<any> = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
   const { approval } = useExtensionApproval()
 
-  const onAdd = useCallback(
-    async (opts) => {
+  const onAdd = useCallback<UseAccountsProps['onAdd']>(
+    (opts) => {
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
         // Flipping the flag is all it's needed, because it changes the
         // Router state that redirects the user to the logged-in state screens.
@@ -50,7 +54,7 @@ const AccountsProvider: React.FC<any> = ({ children }) => {
     [authStatus, setAuthStatus, approval]
   )
 
-  const onRemoveLastAccount = useCallback(() => {
+  const onRemoveLastAccount = useCallback<UseAccountsProps['onRemoveLastAccount']>(() => {
     setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
   }, [setAuthStatus])
 
