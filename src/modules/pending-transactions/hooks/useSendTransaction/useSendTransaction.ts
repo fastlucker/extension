@@ -9,9 +9,8 @@ import { Interface } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import CONFIG from '@config/env'
-import i18n, { useTranslation } from '@config/localization/localization'
+import i18n from '@config/localization/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
-import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useGasTank from '@modules/common/hooks/useGasTank'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
@@ -23,7 +22,6 @@ import isInt from '@modules/common/utils/isInt'
 import useVault from '@modules/vault/hooks/useVault'
 import { SIGNER_TYPES } from '@modules/vault/services/VaultController/types'
 import { errorCodes, errorValues } from '@web/constants/errors'
-import { getUiType } from '@web/utils/uiType'
 
 type Props = {
   hardwareWalletOpenBottomSheet: () => void
@@ -123,11 +121,9 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
   const [signingStatus, setSigningStatus] = useState<any>(false)
   const [feeSpeed, setFeeSpeed] = useState<any>(DEFAULT_SPEED)
 
-  const { t } = useTranslation()
   const { addToast } = useToast()
   const { network }: any = useNetwork()
   const { account } = useAccounts()
-  const { rejectApproval } = useExtensionApproval()
   const { currentAccGasTankState } = useGasTank()
   const { onBroadcastedTxn, setSendTxnState, resolveMany, sendTxnState, eligibleRequests } =
     useRequests()
@@ -582,9 +578,6 @@ const useSendTransaction = ({ hardwareWalletOpenBottomSheet }: Props) => {
         ...errorValues[errorCodes.provider.userRejectedRequest],
         code: errorCodes.provider.userRejectedRequest
       })
-    if (getUiType().isNotification) {
-      rejectApproval(t('User rejected the transaction'))
-    }
   }
 
   // Only for replacement flow
