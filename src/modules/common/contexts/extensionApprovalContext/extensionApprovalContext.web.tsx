@@ -73,7 +73,7 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
     [approval, extensionWallet, getApproval, addToast, t]
   )
 
-  const { requests, resolveMany } = useSignApproval({ approval })
+  const { requests, resolveMany } = useSignApproval({ approval, resolveApproval, rejectApproval })
 
   useEffect(() => {
     if (!getUiType().isNotification) return

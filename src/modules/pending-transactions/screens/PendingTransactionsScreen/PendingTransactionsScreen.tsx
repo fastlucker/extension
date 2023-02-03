@@ -42,8 +42,8 @@ const PendingTransactionsScreen = ({ navigation }: any) => {
   } = useModalize()
 
   if (getUiType().isNotification) {
-    navigation.navigate = () => window.close()
-    navigation.goBack = () => window.close()
+    navigation.navigate = () => null
+    navigation.goBack = () => null
   }
 
   const {

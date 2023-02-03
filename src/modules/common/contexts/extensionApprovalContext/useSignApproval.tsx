@@ -3,12 +3,19 @@ import { useCallback, useEffect } from 'react'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
-import { Approval } from '@web/background/services/notification'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
+
+import { UseExtensionApprovalReturnType } from './types'
 
 const STORAGE_KEY = 'ambire_extension_state'
 
-const useSignApproval = ({ approval }: { approval: Approval | null }) => {
+type Props = {
+  approval: UseExtensionApprovalReturnType['approval']
+  resolveApproval: UseExtensionApprovalReturnType['resolveApproval']
+  rejectApproval: UseExtensionApprovalReturnType['rejectApproval']
+}
+
+const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) => {
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
   const [requests, setRequests] = useStorage({
@@ -108,7 +115,6 @@ const useSignApproval = ({ approval }: { approval: Approval | null }) => {
           }
 
           if (!resolution) {
-            rpcResult.success = false
           } else if (!resolution.success) {
             rpcResult.error = resolution
             rpcResult.success = false
