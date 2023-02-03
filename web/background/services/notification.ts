@@ -164,10 +164,11 @@ class NotificationService extends Events {
     } else {
       approval?.reject && approval?.reject(ethErrors.provider.userRejectedRequest<any>(err))
     }
-    // TODO: remove
-    // if (approval?.signingTxId) {
-    //   transactionHistoryService.removeSigningTx(approval.signingTxId)
-    // }
+    if (approval?.data?.approvalComponent === 'send-txn') {
+      // Removes all cached signing requests (otherwise they will be shown again
+      // in the browser extension UI, when it gets opened by the user)
+      browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })
+    }
 
     if (approval && this.approvals.length > 1) {
       this.deleteApproval(approval)
