@@ -3,6 +3,7 @@ import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
 
 import { isDev } from '@config/env'
+import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@modules/common/contexts/extensionApprovalContext/types'
 import preferenceService from '@web/background/services/permission'
 import winMgr from '@web/background/webapi/window'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
@@ -163,10 +164,11 @@ class NotificationService extends Events {
     } else {
       approval?.reject && approval?.reject(ethErrors.provider.userRejectedRequest<any>(err))
     }
-    // TODO: remove
-    // if (approval?.signingTxId) {
-    //   transactionHistoryService.removeSigningTx(approval.signingTxId)
-    // }
+    if (approval?.data?.approvalComponent === 'send-txn') {
+      // Removes all cached signing requests (otherwise they will be shown again
+      // in the browser extension UI, when it gets opened by the user)
+      browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })
+    }
 
     if (approval && this.approvals.length > 1) {
       this.deleteApproval(approval)
@@ -296,8 +298,10 @@ class NotificationService extends Events {
     })
     this.approvals = []
     this.currentApproval = null
-    // TODO:
-    // transactionHistoryService.removeAllSigningTx()
+
+    // Removes all cached signing requests (otherwise they will be shown again
+    // in the browser extension UI, when it gets opened by the user)
+    browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })
   }
 
   unLock = () => {

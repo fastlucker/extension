@@ -79,6 +79,9 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     if (!getUiType().isNotification) return
 
+    // Be aware, that this window listener might not get trigger on all
+    // browsers. The `rejectApproval` gets triggered on Chrome, even  without
+    // this listener. But it might be needed for other browsers or use-cases.
     window.addEventListener('beforeunload', rejectApproval)
 
     return () => window.removeEventListener('beforeunload', rejectApproval)

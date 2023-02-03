@@ -5,9 +5,7 @@ import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
 import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 
-import { UseExtensionApprovalReturnType } from './types'
-
-const STORAGE_KEY = 'ambire_extension_state'
+import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY, UseExtensionApprovalReturnType } from './types'
 
 type Props = {
   approval: UseExtensionApprovalReturnType['approval']
@@ -19,7 +17,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
   const [requests, setRequests] = useStorage({
-    key: STORAGE_KEY,
+    key: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
     defaultValue: [],
     setInit: (initialRequests) => (!Array.isArray(initialRequests) ? [] : initialRequests)
   })
