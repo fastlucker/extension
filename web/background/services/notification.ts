@@ -3,6 +3,7 @@ import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
 
 import { isDev } from '@config/env'
+import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@modules/common/contexts/extensionApprovalContext/types'
 import preferenceService from '@web/background/services/permission'
 import winMgr from '@web/background/webapi/window'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
@@ -296,8 +297,9 @@ class NotificationService extends Events {
     })
     this.approvals = []
     this.currentApproval = null
-    // TODO:
-    // transactionHistoryService.removeAllSigningTx()
+
+    // Removes all cached signing transaction requests
+    browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })
   }
 
   unLock = () => {
