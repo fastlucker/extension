@@ -298,7 +298,8 @@ class NotificationService extends Events {
     this.approvals = []
     this.currentApproval = null
 
-    // Removes all cached signing transaction requests
+    // Removes all cached signing requests (otherwise they will be shown again
+    // in the browser extension UI, when it gets opened by the user)
     browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })
   }
 
