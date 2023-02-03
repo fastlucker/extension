@@ -104,37 +104,16 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
       for (const req of requests.filter((x) => ids.includes(x.id))) {
         // only process non batch or first batch req
         if (!req.isBatch || req.id.endsWith(':0')) {
-          const rpcResult: any = {
-            jsonrpc: '2.0',
-            id: req.originalPayloadId,
-            txId: null,
-            hash: null,
-            result: null,
-            success: null,
-            error: null
-          }
-
           if (!resolution) {
+            rejectApproval('Nothing to resolve')
           } else if (!resolution.success) {
-            rpcResult.error = resolution
-            rpcResult.success = false
+            rejectApproval(resolution.message)
           } else {
             // onSuccess
-            rpcResult.success = true
-            rpcResult.txId = resolution.result
-            rpcResult.hash = resolution.result
-            rpcResult.result = resolution.result
+            resolveApproval({
+              hash: resolution.result
+            })
           }
-          // TODO:
-          // !!sendMessage &&
-          //   sendMessage({
-          //     type: 'web3CallResponse',
-          //     to: BACKGROUND,
-          //     data: {
-          //       originalMessage: req.originalMessage,
-          //       rpcResult
-          //     }
-          //   })
         }
       }
       setRequests((prevRequests) => prevRequests.filter((x) => !ids.includes(x.id)))

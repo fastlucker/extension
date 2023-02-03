@@ -143,7 +143,6 @@ const flowContext = flow
     // process request
     const [approvalType] = Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
     const { uiRequestComponent, ...rest } = approvalRes || {}
-    console.log('!!!!', approvalType, mapMethod, uiRequestComponent)
     const {
       session: { origin }
     } = request

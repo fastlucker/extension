@@ -40,9 +40,9 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
       if (!approval) {
         return addToast(
           t(
-            'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.',
-            { error: true }
-          )
+            'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.'
+          ),
+          { error: true }
         )
       }
 
@@ -56,12 +56,13 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
 
   const rejectApproval = useCallback<UseExtensionApprovalReturnType['rejectApproval']>(
     async (err = undefined, stay = false, isInternal = false) => {
+      console.log('rejectApproval', approval)
       if (!approval) {
         return addToast(
           t(
-            'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.',
-            { error: true }
-          )
+            'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.'
+          ),
+          { error: true }
         )
       }
 

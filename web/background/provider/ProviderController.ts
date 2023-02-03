@@ -1,3 +1,5 @@
+/* eslint-disable no-promise-executor-return */
+/* eslint-disable no-await-in-loop */
 import 'reflect-metadata'
 
 import networks from 'ambire-common/src/constants/networks'
@@ -27,6 +29,7 @@ interface ApprovalRes {
   traceId?: string
   $ctx?: any
   signingTxId?: string
+  hash?: string
 }
 
 interface Web3WalletPermission {
@@ -86,6 +89,26 @@ class ProviderController {
     }
 
     if (method === 'eth_getTransactionByHash') {
+      let fetchedTx = null
+      let failed = 0
+      while (fetchedTx === null && failed < 3) {
+        fetchedTx = await provider.getTransaction(params[0])
+        if (fetchedTx === null) {
+          await new Promise((r) => setTimeout(r, 1500))
+          failed++
+        }
+      }
+
+      if (fetchedTx) {
+        const response = provider._wrapTransaction(fetchedTx, params[0])
+        const txnData = await storage.get('transactionHistory')
+        if (txnData[params[0]]) {
+          response.data = txnData[params[0]]
+        }
+
+        return response
+      }
+
       return provider.getTransaction(params[0])
     }
 
@@ -178,11 +201,17 @@ class ProviderController {
       data: {
         params: [txParams]
       },
-      session: { origin },
       approvalRes
     } = cloneDeep(options)
 
-    console.log('txParams', txParams)
+    if (approvalRes) {
+      const txnHistory = (await storage.get('transactionHistory')) || {}
+      txnHistory[approvalRes.hash || ''] = txParams.data
+      await storage.set('transactionHistory', txnHistory)
+      return approvalRes?.hash
+    }
+
+    throw new Error('Transaction failed!')
   }
 
   @Reflect.metadata('SAFE', true)
