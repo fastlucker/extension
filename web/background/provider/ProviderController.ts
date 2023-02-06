@@ -88,6 +88,8 @@ class ProviderController {
       return Promise.resolve(block)
     }
 
+    // Ambire modifies the txn data but dapps need the original txn data that has been requested on ethSendTransaction
+    // therefore we override the data stored on the blockchain with the original one
     if (method === 'eth_getTransactionByHash') {
       let fetchedTx = null
       let failed = 0
@@ -101,9 +103,12 @@ class ProviderController {
 
       if (fetchedTx) {
         const response = provider._wrapTransaction(fetchedTx, params[0])
-        const txnData = await storage.get('transactionHistory')
-        if (txnData[params[0]]) {
-          response.data = txnData[params[0]]
+        const txns = await storage.get('transactionHistory')
+        if (txns[params[0]]) {
+          const txn = JSON.parse(txns[params[0]])
+          if (txn?.data) {
+            response.data = txn?.data
+          }
         }
 
         return response
@@ -206,7 +211,7 @@ class ProviderController {
 
     if (approvalRes) {
       const txnHistory = (await storage.get('transactionHistory')) || {}
-      txnHistory[approvalRes.hash || ''] = txParams.data
+      txnHistory[approvalRes.hash || ''] = JSON.stringify(txParams)
       await storage.set('transactionHistory', txnHistory)
       return approvalRes?.hash
     }
