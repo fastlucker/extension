@@ -48,6 +48,7 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
     onAddExtraToken({
       account: selectedAcc,
       address: tokenAddress,
+      // TODO: Double check if this is the correct way to handle this
       balance: '0',
       balanceRaw: '0',
       decimals: tokenDecimals,
