@@ -39,6 +39,7 @@ import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PermissionRequestScreen from '@modules/extension/screens/PermissionRequestScreen'
 import SwitchNetworkRequestScreen from '@modules/extension/screens/SwitchNetworkRequestScreen'
+import WatchTokenRequestScreen from '@modules/extension/screens/WatchTokenRequestScreen'
 import GasInformationScreen from '@modules/gas-tank/screens/GasInformationScreen'
 import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
@@ -327,6 +328,29 @@ const SwitchNetworkRequestStack = () => {
         options={{ title: t('Switch Network Request') }}
         name="switch-network-request"
         component={SwitchNetworkRequestScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+const WatchTokenRequestStack = () => {
+  const { t } = useTranslation()
+  const { vaultStatus } = useVault()
+
+  useEffect(() => {
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
+
+  return (
+    <Stack.Navigator
+      screenOptions={{ header: (props) => headerBeta({ ...props, backgroundColor: colors.wooed }) }}
+    >
+      <Stack.Screen
+        options={{ title: t('Watch Token Request') }}
+        name="watch-token-request"
+        component={WatchTokenRequestScreen}
       />
     </Stack.Navigator>
   )
@@ -634,6 +658,9 @@ const Router = () => {
       }
       if (approval?.data?.approvalComponent === 'switch-network') {
         return <SwitchNetworkRequestStack />
+      }
+      if (approval?.data?.approvalComponent === 'wallet_watchAsset') {
+        return <WatchTokenRequestStack />
       }
 
       if (vaultStatus === VAULT_STATUS.UNLOCKED) {
