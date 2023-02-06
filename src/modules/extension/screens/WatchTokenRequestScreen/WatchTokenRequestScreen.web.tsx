@@ -9,8 +9,10 @@ import Panel from '@modules/common/components/Panel'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
+import useAccounts from '@modules/common/hooks/useAccounts'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNetwork from '@modules/common/hooks/useNetwork'
+import usePortfolio from '@modules/common/hooks/usePortfolio'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -24,6 +26,8 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(false)
   const { approval, resolveApproval } = useExtensionApproval()
   const { network } = useNetwork()
+  const { selectedAcc } = useAccounts()
+  const { onAddExtraToken } = usePortfolio()
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerTitle: t('Webpage Wants to Add Token') })
@@ -33,11 +37,35 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
   // you will be able to see it in the Ambire Wallet in all cases.
   const handleSkipButtonPress = useCallback(() => resolveApproval(true), [resolveApproval])
 
-  const handleAuthorizeButtonPress = useCallback(() => {
+  const tokenSymbol = approval?.data?.params?.data?.options?.symbol
+  const tokenAddress = approval?.data?.params?.data?.options?.address
+  const tokenDecimals = approval?.data?.params?.data?.options?.decimals
+  const tokenImageUrl = ''
+
+  const handleAddTokenAnyways = useCallback(() => {
     setLoading(true)
 
+    onAddExtraToken({
+      account: selectedAcc,
+      address: tokenAddress,
+      balance: '0',
+      balanceRaw: '0',
+      decimals: tokenDecimals,
+      name: tokenSymbol,
+      network: network.id,
+      symbol: tokenSymbol,
+      tokenImageUrl
+    })
     resolveApproval(true)
-  }, [resolveApproval])
+  }, [
+    network.id,
+    onAddExtraToken,
+    resolveApproval,
+    selectedAcc,
+    tokenAddress,
+    tokenDecimals,
+    tokenSymbol
+  ])
 
   return (
     <GradientBackgroundWrapper>
@@ -63,12 +91,7 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
           {!loading && (
             <>
               <View>
-                <Trans
-                  values={{
-                    tokenSymbol: approval?.data?.params?.data?.options?.symbol,
-                    tokenAddress: approval?.data?.params?.data?.options?.address
-                  }}
-                >
+                <Trans values={{ tokenSymbol, tokenAddress }}>
                   <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
                     <Text fontSize={14} weight="regular">
                       {'The dApp '}
@@ -98,8 +121,8 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
                 <View style={styles.buttonWrapper}>
                   <Button
                     type="outline"
-                    accentColor={colors.titan_50}
-                    onPress={handleAuthorizeButtonPress}
+                    accentColor={colors.titan}
+                    onPress={handleAddTokenAnyways}
                     text={t('Add token anyways')}
                   />
                 </View>
