@@ -90,7 +90,7 @@ export class StorageController {
     if (isExtension) {
       this.extensionSyncStorage[key] = value
 
-      browser.storage.local.set({ ...this.extensionSyncStorage, [key]: value })
+      browser.storage.local.set({ [key]: value })
     } else {
       this.mmkv?.set(key, value)
     }
@@ -98,12 +98,10 @@ export class StorageController {
 
   setItemAsync(key: string, value: string) {
     if (isExtension) {
-      const { local } = browser.storage
-
       return new Promise((resolve) => {
         this.extensionSyncStorage[key] = value
 
-        local.set({ ...this.extensionSyncStorage, [key]: value }).then(() => {
+        browser.storage.local.set({ [key]: value }).then(() => {
           resolve(true)
         })
       })
