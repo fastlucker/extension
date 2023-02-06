@@ -653,7 +653,10 @@ const Router = () => {
       if (approval?.data?.approvalComponent === 'send-txn') {
         return <PendingTransactionsStack />
       }
-      if (approval?.data?.approvalComponent === 'sign-message') {
+      if (approval?.data?.approvalComponent === 'SignText') {
+        return <SignMessageStack />
+      }
+      if (approval?.data?.approvalComponent === 'SignTypedData') {
         return <SignMessageStack />
       }
       if (approval?.data?.approvalComponent === 'switch-network') {
