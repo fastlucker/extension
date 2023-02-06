@@ -227,52 +227,28 @@ class ProviderController {
   }
 
   @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedData = async ({
-    data: {
-      params: [data, from]
-    },
-    session,
-    approvalRes
-  }) => {
+  ethSignTypedData = async ({ approvalRes }: any) => {
     if (approvalRes) {
       return approvalRes?.hash
     }
   }
 
   @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedDataV1 = async ({
-    data: {
-      params: [data, from]
-    },
-    session,
-    approvalRes
-  }) => {
+  ethSignTypedDataV1 = async ({ approvalRes }: any) => {
     if (approvalRes) {
       return approvalRes?.hash
     }
   }
 
   @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedDataV3 = async ({
-    data: {
-      params: [from, data]
-    },
-    session,
-    approvalRes
-  }) => {
+  ethSignTypedDataV3 = async ({ approvalRes }: any) => {
     if (approvalRes) {
       return approvalRes?.hash
     }
   }
 
   @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedDataV4 = async ({
-    data: {
-      params: [from, data]
-    },
-    session,
-    approvalRes
-  }) => {
+  ethSignTypedDataV4 = async ({ approvalRes }: any) => {
     if (approvalRes) {
       return approvalRes?.hash
     }
@@ -283,8 +259,7 @@ class ProviderController {
     data: {
       params: [chainParams]
     },
-    session: { origin },
-    approvalRes
+    session: { origin }
   }: {
     data: {
       params: any[]

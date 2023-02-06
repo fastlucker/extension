@@ -25,13 +25,13 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
   const handleSignText = useCallback(
     async (msg: any, method: string) => {
       if (!msg) {
-        console.error('No msg request to sign', msg)
+        rejectApproval('No msg request to sign', msg)
         return
       }
       const id = `ambex_${msg.id}`
       const messageToSign = msg?.[0]
       if (!messageToSign) {
-        console.error('No msg request in received params')
+        rejectApproval('No msg request in received params', msg)
         return
       }
 
@@ -50,21 +50,20 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
           : [...prevRequests, request]
       )
     },
-    [network?.chainId, selectedAccount, setRequests]
+    [network?.chainId, selectedAccount, setRequests, rejectApproval]
   )
 
   // handles eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3 and eth_signTypedData_v4
   const handleSignTypedData = useCallback(
     async (msg: any, method: string) => {
       if (!msg) {
-        console.error('No msg request to sign', msg)
+        rejectApproval('No msg request to sign')
         return
       }
-      console.log('msg', msg)
       const id = `ambex_${msg.id}`
       const messageToSign = msg?.[1]
       if (!messageToSign) {
-        console.error('No msg request in received params')
+        rejectApproval('No msg request in received params')
         return
       }
 
@@ -83,7 +82,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
           : [...prevRequests, request]
       )
     },
-    [network?.chainId, selectedAccount, setRequests]
+    [network?.chainId, selectedAccount, setRequests, rejectApproval]
   )
 
   const handleSendTransactions = useCallback(
@@ -94,7 +93,8 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
           if (!txs[i].from) txs[i].from = selectedAccount
         }
       } else {
-        throw Error('No txs request in received params')
+        rejectApproval('No txs request in received params', txs)
+        return
       }
       // eslint-disable-next-line no-restricted-syntax, guard-for-in
       for (const ix in txs) {
@@ -116,7 +116,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         )
       }
     },
-    [network?.chainId, selectedAccount, setRequests]
+    [network?.chainId, selectedAccount, setRequests, rejectApproval]
   )
 
   const resolveMany = useCallback(
