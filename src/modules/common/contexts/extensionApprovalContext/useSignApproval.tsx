@@ -3,7 +3,6 @@ import { useCallback, useEffect } from 'react'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
-import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
 
 import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY, UseExtensionApprovalReturnType } from './types'
 
@@ -22,42 +21,66 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
     setInit: (initialRequests) => (!Array.isArray(initialRequests) ? [] : initialRequests)
   })
 
-  // eth_sign, personal_sign
-  const handlePersonalSign = useCallback(
-    async (message) => {
-      const payload = message.data
-
-      if (!payload) {
-        console.error('AmbExHook: no payload', message)
+  // handles eth_sign and personal_sign
+  const handleSignText = useCallback(
+    async (msg: any, method: string) => {
+      if (!msg) {
+        console.error('No msg request to sign', msg)
         return
       }
-
-      const id = `ambex_${payload.id}`
-      let messageToSign = payload?.params?.message || payload?.params[0]
-      if (
-        payload.method === USER_INTERVENTION_METHODS.eth_sign ||
-        payload.method === USER_INTERVENTION_METHODS.eth_signTypedData ||
-        payload.method === USER_INTERVENTION_METHODS.eth_signTypedData_v4
-      ) {
-        messageToSign = payload?.params[1]
-      }
+      const id = `ambex_${msg.id}`
+      const messageToSign = msg?.[0]
       if (!messageToSign) {
-        console.error('AmbExHook: no message in received payload')
+        console.error('No msg request in received params')
         return
       }
 
       const request = {
         id,
-        originalPayloadId: payload.id, // id for internal ambire requests purposes, originalPayloadId, to return
-        type: payload.method,
+        type: method,
         txn: messageToSign,
         chainId: network?.chainId,
-        account: selectedAccount,
-        originalMessage: message
+        account: selectedAccount
       }
 
+      // @ts-ignore
       setRequests((prevRequests) =>
-        prevRequests.find((x) => x.id === request.id) ? prevRequests : [...prevRequests, request]
+        prevRequests.find((x: any) => x.id === request.id)
+          ? prevRequests
+          : [...prevRequests, request]
+      )
+    },
+    [network?.chainId, selectedAccount, setRequests]
+  )
+
+  // handles eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3 and eth_signTypedData_v4
+  const handleSignTypedData = useCallback(
+    async (msg: any, method: string) => {
+      if (!msg) {
+        console.error('No msg request to sign', msg)
+        return
+      }
+      console.log('msg', msg)
+      const id = `ambex_${msg.id}`
+      const messageToSign = msg?.[1]
+      if (!messageToSign) {
+        console.error('No msg request in received params')
+        return
+      }
+
+      const request = {
+        id,
+        type: method,
+        txn: messageToSign,
+        chainId: network?.chainId,
+        account: selectedAccount
+      }
+
+      // @ts-ignore
+      setRequests((prevRequests) =>
+        prevRequests.find((x: any) => x.id === request.id)
+          ? prevRequests
+          : [...prevRequests, request]
       )
     },
     [network?.chainId, selectedAccount, setRequests]
@@ -71,7 +94,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
           if (!txs[i].from) txs[i].from = selectedAccount
         }
       } else {
-        throw Error('No txs in received payload')
+        throw Error('No txs request in received params')
       }
       // eslint-disable-next-line no-restricted-syntax, guard-for-in
       for (const ix in txs) {
@@ -99,7 +122,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
   const resolveMany = useCallback(
     (ids, resolution) => {
       // eslint-disable-next-line no-restricted-syntax
-      for (const req of requests.filter((x) => ids.includes(x.id))) {
+      for (const req of requests.filter((x: any) => ids.includes(x.id))) {
         // only process non batch or first batch req
         if (!req.isBatch || req.id.endsWith(':0')) {
           if (!resolution) {
@@ -114,15 +137,17 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
           }
         }
       }
+      // @ts-ignore
       setRequests((prevRequests) => prevRequests.filter((x) => !ids.includes(x.id)))
     },
-    [requests, setRequests]
+    [requests, setRequests, rejectApproval, resolveApproval]
   )
 
   useEffect(() => {
     if (approval) {
       const method = approval?.data?.params?.method
       const params = approval?.data?.params?.data
+
       if (
         method === 'eth_sendTransaction' ||
         method === 'gs_multi_send' ||
@@ -130,16 +155,21 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
       ) {
         handleSendTransactions(params)
       }
-      // if (
-      //   params.route === USER_INTERVENTION_METHODS.eth_sign ||
-      //   params.route === USER_INTERVENTION_METHODS.personal_sign ||
-      //   params.route === USER_INTERVENTION_METHODS.eth_signTypedData ||
-      //   params.route === USER_INTERVENTION_METHODS.eth_signTypedData_v4
-      // ) {
-      //   handlePersonalSign(message)
-      // }
+
+      if (method === 'personal_sign' || method === 'eth_sign') {
+        handleSignText(params, method)
+      }
+
+      if (
+        method === 'eth_signTypedData' ||
+        method === 'eth_signTypedData_v1' ||
+        method === 'eth_signTypedData_v3' ||
+        method === 'eth_signTypedData_v4'
+      ) {
+        handleSignTypedData(params, method)
+      }
     }
-  }, [approval, handleSendTransactions, handlePersonalSign])
+  }, [approval, handleSendTransactions, handleSignText, handleSignTypedData])
 
   return {
     requests,
