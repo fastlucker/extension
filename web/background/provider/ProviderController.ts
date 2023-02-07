@@ -328,7 +328,7 @@ class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['wallet_watchAsset', () => null])
+  @Reflect.metadata('APPROVAL', ['wallet_watchAsset', false])
   walletWatchAsset = () => true
 
   walletRequestPermissions = ({ data: { params: permissions } }) => {
