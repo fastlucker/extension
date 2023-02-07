@@ -28,7 +28,13 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         rejectApproval('No msg request to sign', msg)
         return
       }
-      const id = `ambex_${msg.id}`
+      if (msg?.[1]?.toLowerCase() !== selectedAccount.toLowerCase()) {
+        resolveApproval({
+          error: 'Invalid parameters: must use the current user address to sign'
+        })
+        return
+      }
+      const id = `ambex_${msg?.[0]}_${msg?.[1]}`
       const messageToSign = msg?.[0]
       if (!messageToSign) {
         rejectApproval('No msg request in received params', msg)
@@ -50,7 +56,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
           : [...prevRequests, request]
       )
     },
-    [network?.chainId, selectedAccount, setRequests, rejectApproval]
+    [network?.chainId, selectedAccount, setRequests, rejectApproval, resolveApproval]
   )
 
   // handles eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3 and eth_signTypedData_v4
@@ -60,7 +66,13 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         rejectApproval('No msg request to sign')
         return
       }
-      const id = `ambex_${msg.id}`
+      if (msg?.[0]?.toLowerCase() !== selectedAccount.toLowerCase()) {
+        resolveApproval({
+          error: 'Invalid parameters: must use the current user address to sign'
+        })
+        return
+      }
+      const id = `ambex_${msg?.[1]}`
       const messageToSign = msg?.[1]
       if (!messageToSign) {
         rejectApproval('No msg request in received params')
@@ -82,7 +94,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
           : [...prevRequests, request]
       )
     },
-    [network?.chainId, selectedAccount, setRequests, rejectApproval]
+    [network?.chainId, selectedAccount, setRequests, rejectApproval, resolveApproval]
   )
 
   const handleSendTransactions = useCallback(
