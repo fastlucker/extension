@@ -30,6 +30,7 @@ interface ApprovalRes {
   $ctx?: any
   signingTxId?: string
   hash?: string
+  error?: string
 }
 
 interface Web3WalletPermission {
@@ -38,6 +39,20 @@ interface Web3WalletPermission {
 
   // The date the permission was granted, in UNIX epoch time
   date?: number
+}
+
+const handleSignMessage = (approvalRes: ApprovalRes) => {
+  if (approvalRes) {
+    if (approvalRes?.error) {
+      throw ethErrors.rpc.invalidParams({
+        message: approvalRes?.error
+      })
+    }
+
+    return approvalRes?.hash
+  }
+
+  throw new Error('Internal error: approval result not found', approvalRes)
 }
 
 class ProviderController {
@@ -214,44 +229,32 @@ class ProviderController {
 
   @Reflect.metadata('APPROVAL', ['SignText', false])
   personalSign = async ({ approvalRes }: any) => {
-    if (approvalRes) {
-      return approvalRes?.hash
-    }
+    return handleSignMessage(approvalRes)
   }
 
   @Reflect.metadata('APPROVAL', ['SignText', false])
   ethSign = async ({ approvalRes }: any) => {
-    if (approvalRes) {
-      return approvalRes?.hash
-    }
+    return handleSignMessage(approvalRes)
   }
 
   @Reflect.metadata('APPROVAL', ['SignTypedData', false])
   ethSignTypedData = async ({ approvalRes }: any) => {
-    if (approvalRes) {
-      return approvalRes?.hash
-    }
+    return handleSignMessage(approvalRes)
   }
 
   @Reflect.metadata('APPROVAL', ['SignTypedData', false])
   ethSignTypedDataV1 = async ({ approvalRes }: any) => {
-    if (approvalRes) {
-      return approvalRes?.hash
-    }
+    return handleSignMessage(approvalRes)
   }
 
   @Reflect.metadata('APPROVAL', ['SignTypedData', false])
   ethSignTypedDataV3 = async ({ approvalRes }: any) => {
-    if (approvalRes) {
-      return approvalRes?.hash
-    }
+    return handleSignMessage(approvalRes)
   }
 
   @Reflect.metadata('APPROVAL', ['SignTypedData', false])
   ethSignTypedDataV4 = async ({ approvalRes }: any) => {
-    if (approvalRes) {
-      return approvalRes?.hash
-    }
+    return handleSignMessage(approvalRes)
   }
 
   @Reflect.metadata('APPROVAL', ['switch-network', false])
