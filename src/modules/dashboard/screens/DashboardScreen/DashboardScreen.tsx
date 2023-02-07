@@ -79,7 +79,6 @@ const DashboardScreen = () => {
             isCurrNetworkProtocolsLoading={!!isCurrNetworkProtocolsLoading}
             explorerUrl={network?.explorerUrl}
             networkId={network?.id}
-            networkRpc={network?.rpc}
             networkName={network?.name}
             selectedAcc={selectedAcc}
             onAddExtraToken={onAddExtraToken}
