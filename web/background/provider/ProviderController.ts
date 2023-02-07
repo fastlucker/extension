@@ -328,10 +328,8 @@ class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['AddAsset', () => null])
-  walletWatchAsset = () => {
-    throw new Error('Ambire does not support adding tokens in this way for now.')
-  }
+  @Reflect.metadata('APPROVAL', ['wallet_watchAsset', () => null])
+  walletWatchAsset = () => true
 
   walletRequestPermissions = ({ data: { params: permissions } }) => {
     const result: Web3WalletPermission[] = []
