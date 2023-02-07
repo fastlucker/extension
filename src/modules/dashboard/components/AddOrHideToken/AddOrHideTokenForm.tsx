@@ -3,7 +3,7 @@ import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { Token, UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio'
 import { isValidAddress } from 'ambire-common/src/services/address'
-import { Contract, getDefaultProvider } from 'ethers'
+import { Contract } from 'ethers'
 import { formatUnits, Interface } from 'ethers/lib/utils'
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -14,6 +14,7 @@ import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import Spinner from '@modules/common/components/Spinner'
 import useToast from '@modules/common/hooks/useToast'
+import { rpcProviders } from '@modules/common/services/providers'
 import spacings from '@modules/common/styles/spacings'
 
 import { MODES } from './constants'
@@ -32,7 +33,6 @@ interface Props {
   extraTokens: UsePortfolioReturnType['extraTokens']
   hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   networkId?: NetworkId
-  networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']
   selectedAcc: UseAccountsReturnType['selectedAcc']
 }
@@ -45,7 +45,6 @@ const AddOrHideTokenForm: React.FC<Props> = ({
   extraTokens,
   hiddenTokens,
   networkId,
-  networkRpc,
   networkName,
   selectedAcc
 }) => {
@@ -107,7 +106,7 @@ const AddOrHideTokenForm: React.FC<Props> = ({
     setShowError('')
 
     try {
-      const provider = getDefaultProvider(networkRpc)
+      const provider = networkId && rpcProviders[networkId]
       const tokenContract = new Contract(inputText, ERC20Interface, provider)
 
       const [balanceOf, name, symbol, decimals] = await Promise.all([

@@ -25,7 +25,6 @@ interface Props {
   protocols: UsePortfolioReturnType['protocols']
   explorerUrl?: NetworkType['explorerUrl']
   networkId?: NetworkId
-  networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']
   selectedAcc: UseAccountsReturnType['selectedAcc']
   isCurrNetworkBalanceLoading: boolean
@@ -44,7 +43,6 @@ const Assets = ({
   protocols,
   explorerUrl,
   networkId,
-  networkRpc,
   networkName,
   selectedAcc,
   isCurrNetworkBalanceLoading,
@@ -77,7 +75,6 @@ const Assets = ({
             hiddenTokens={hiddenTokens}
             protocols={protocols}
             networkId={networkId}
-            networkRpc={networkRpc}
             networkName={networkName}
             selectedAcc={selectedAcc}
             isCurrNetworkBalanceLoading={!!isCurrNetworkBalanceLoading}
