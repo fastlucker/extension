@@ -88,7 +88,8 @@ const PortfolioProvider: React.FC = ({ children }) => {
     otherProtocolsByNetworksLoading,
     isCurrNetworkProtocolsLoading,
     loadBalance,
-    loadProtocols
+    loadProtocols,
+    checkIsTokenEligibleForAddingAsExtraToken
   } = usePortfolio({
     useConstants,
     currentNetwork: network?.id as string,
@@ -113,6 +114,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
           requestOtherProtocolsRefresh,
           onAddExtraToken,
           onRemoveExtraToken,
+          checkIsTokenEligibleForAddingAsExtraToken,
           onAddHiddenToken,
           onRemoveHiddenToken,
           balancesByNetworksLoading,
@@ -134,6 +136,7 @@ const PortfolioProvider: React.FC = ({ children }) => {
           requestOtherProtocolsRefresh,
           onAddExtraToken,
           onRemoveExtraToken,
+          checkIsTokenEligibleForAddingAsExtraToken,
           onAddHiddenToken,
           onRemoveHiddenToken,
           balancesByNetworksLoading,
