@@ -3,13 +3,17 @@ import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
+import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@modules/common/contexts/extensionApprovalContext/types'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
+import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useGnosisSafe from '@modules/common/hooks/useGnosis'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import { navigate } from '@modules/common/services/navigation'
+import { isExtension } from '@web/constants/browserapi'
+import { getUiType } from '@web/utils/uiType'
 
 export interface RequestsContextReturnType {
   internalRequests: any
@@ -59,6 +63,8 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { requests: extensionRequests, resolveMany: extensionResolveMany } = useExtensionApproval()
   const { addToast } = useToast()
   const { t } = useTranslation()
+
+  const { extensionWallet } = useExtensionWallet()
   const [internalRequests, setInternalRequests] = useState<any>([])
   // Keeping track of sent transactions
   const [sentTxn, setSentTxn] = useState<any[]>([])
@@ -176,26 +182,59 @@ const RequestsProvider: React.FC = ({ children }) => {
     () =>
       requests.filter(
         ({ type, account }) =>
-          (type === 'personal_sign' ||
-            type === 'eth_sign' ||
-            type === 'eth_signTypedData_v4' ||
-            type === 'eth_signTypedData') &&
-          account === selectedAcc
+          [
+            'personal_sign',
+            'eth_sign',
+            'eth_signTypedData',
+            'eth_signTypedData_v1',
+            'eth_signTypedData_v3',
+            'eth_signTypedData_v4'
+          ].includes(type) && account === selectedAcc
       ),
     [requests, selectedAcc]
   )
 
+  // Open sign-message screen
   useEffect(() => {
-    if (everythingToSign.length) {
-      navigate('sign-message')
-    }
-  }, [everythingToSign.length])
+    ;(async () => {
+      let toSign = everythingToSign
 
+      if (isExtension && getUiType().isPopup) {
+        toSign = everythingToSign.filter(
+          (r) => r?.reqSrc !== BROWSER_EXTENSION_REQUESTS_STORAGE_KEY
+        )
+      }
+
+      if (toSign.length) {
+        navigate('sign-message')
+      } else if (
+        everythingToSign.filter((r) => r?.reqSrc === BROWSER_EXTENSION_REQUESTS_STORAGE_KEY)
+          .length &&
+        isExtension &&
+        getUiType().isPopup
+      ) {
+        extensionWallet.activeFirstApproval()
+        window.close()
+      }
+    })()
+  }, [everythingToSign, extensionWallet])
+
+  // Open pending-transactions screen
   useEffect(() => {
     if (sendTxnState?.showing && !prevSendTxnState?.showing) {
-      navigate('pending-transactions')
+      if (
+        eligibleRequests.filter((r) => r?.reqSrc === BROWSER_EXTENSION_REQUESTS_STORAGE_KEY)
+          .length &&
+        isExtension &&
+        getUiType().isPopup
+      ) {
+        extensionWallet.activeFirstApproval()
+        window.close()
+      } else {
+        navigate('pending-transactions')
+      }
     }
-  }, [sendTxnState?.showing, prevSendTxnState?.showing])
+  }, [sendTxnState?.showing, prevSendTxnState?.showing, eligibleRequests, extensionWallet])
 
   return (
     <RequestsContext.Provider

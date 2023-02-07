@@ -23,7 +23,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
 
   // handles eth_sign and personal_sign
   const handleSignText = useCallback(
-    async (msg: any, method: string) => {
+    async (msg: any, method: string, id: string) => {
       if (!msg) {
         rejectApproval('No msg request to sign', msg)
         return
@@ -34,16 +34,18 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         })
         return
       }
-      const id = `ambex_${msg?.[0]}_${msg?.[1]}`
+
       const messageToSign = msg?.[0]
       if (!messageToSign) {
         rejectApproval('No msg request in received params', msg)
         return
       }
 
+      console.log('handleSignText: id', id)
       const request = {
         id,
         type: method,
+        reqSrc: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
         txn: messageToSign,
         chainId: network?.chainId,
         account: selectedAccount
@@ -61,7 +63,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
 
   // handles eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3 and eth_signTypedData_v4
   const handleSignTypedData = useCallback(
-    async (msg: any, method: string) => {
+    async (msg: any, method: string, id: string) => {
       if (!msg) {
         rejectApproval('No msg request to sign')
         return
@@ -72,7 +74,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         })
         return
       }
-      const id = `ambex_${msg?.[1]}`
+
       const messageToSign = msg?.[1]
       if (!messageToSign) {
         rejectApproval('No msg request in received params')
@@ -82,6 +84,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
       const request = {
         id,
         type: method,
+        reqSrc: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
         txn: messageToSign,
         chainId: network?.chainId,
         account: selectedAccount
@@ -98,7 +101,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
   )
 
   const handleSendTransactions = useCallback(
-    async (txs: any) => {
+    async (txs: any, method: string, id: string) => {
       if (txs?.length) {
         // eslint-disable-next-line no-restricted-syntax
         for (const i in txs) {
@@ -110,10 +113,10 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
       }
       // eslint-disable-next-line no-restricted-syntax, guard-for-in
       for (const ix in txs) {
-        const internalHookId = `ambex_tx:${JSON.stringify(txs[ix])}`
         const request = {
-          id: internalHookId,
+          id,
           type: 'eth_sendTransaction',
+          reqSrc: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
           isBatch: txs.length > 1,
           txn: txs[ix],
           chainId: network?.chainId,
@@ -134,51 +137,53 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
   const resolveMany = useCallback(
     (ids, resolution) => {
       // eslint-disable-next-line no-restricted-syntax
-      for (const req of requests.filter((x: any) => ids.includes(x.id))) {
+      for (const req of requests.filter((r: any) => ids.includes(r.id))) {
         // only process non batch or first batch req
-        if (!req.isBatch || req.id.endsWith(':0')) {
-          if (!resolution) {
-            rejectApproval('Nothing to resolve')
-          } else if (!resolution.success) {
-            rejectApproval(resolution.message)
-          } else {
-            // onSuccess
-            resolveApproval({
-              hash: resolution.result
-            })
+        if (req.id === approval?.id) {
+          if (!req.isBatch) {
+            console.log('req', req)
+            if (!resolution) {
+              rejectApproval('Nothing to resolve')
+            } else if (!resolution.success) {
+              rejectApproval(resolution.message)
+            } else {
+              // onSuccess
+              resolveApproval({
+                hash: resolution.result
+              })
+            }
           }
         }
       }
       // @ts-ignore
       setRequests((prevRequests) => prevRequests.filter((x) => !ids.includes(x.id)))
     },
-    [requests, setRequests, rejectApproval, resolveApproval]
+    [requests, approval?.id, setRequests, rejectApproval, resolveApproval]
   )
 
   useEffect(() => {
     if (approval) {
       const method = approval?.data?.params?.method
       const params = approval?.data?.params?.data
+      const approvalId = approval?.id
 
       if (
-        method === 'eth_sendTransaction' ||
-        method === 'gs_multi_send' ||
-        method === 'ambire_sendBatchTransaction'
+        ['eth_sendTransaction', 'gs_multi_send', 'ambire_sendBatchTransaction'].includes(method)
       ) {
-        handleSendTransactions(params)
+        handleSendTransactions(params, method, approvalId)
       }
-
-      if (method === 'personal_sign' || method === 'eth_sign') {
-        handleSignText(params, method)
+      if (['personal_sign', 'eth_sign'].includes(method)) {
+        handleSignText(params, method, approvalId)
       }
-
       if (
-        method === 'eth_signTypedData' ||
-        method === 'eth_signTypedData_v1' ||
-        method === 'eth_signTypedData_v3' ||
-        method === 'eth_signTypedData_v4'
+        [
+          'eth_signTypedData',
+          'eth_signTypedData_v1',
+          'eth_signTypedData_v3',
+          'eth_signTypedData_v4'
+        ].includes(method)
       ) {
-        handleSignTypedData(params, method)
+        handleSignTypedData(params, method, approvalId)
       }
     }
   }, [approval, handleSendTransactions, handleSignText, handleSignTypedData])
