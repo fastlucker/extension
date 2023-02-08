@@ -1,3 +1,4 @@
+import { Token, UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio'
 import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { View } from 'react-native'
 
@@ -6,6 +7,7 @@ import { Trans, useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Panel from '@modules/common/components/Panel'
+import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
@@ -23,13 +25,17 @@ import styles from './styles'
 
 const WatchTokenRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const [loading, setLoading] = useState(false)
+  const [loadingTokenDetails, setLoadingTokenDetails] = useState(true)
+  const [error, setError] = useState('')
+  const [extraToken, setExtraToken] = useState<Token | null>(null)
+  const [isAdding, setIsAdding] = useState(false)
   const { approval, resolveApproval, rejectApproval } = useExtensionApproval()
   const { onAddExtraToken, checkIsTokenEligibleForAddingAsExtraToken } = usePortfolio()
   const { getTokenDetails } = useToken()
-  const [tokenEligibleStatus, setTokenEligibleStatus] = useState({
-    isEligible: false,
-    reason: ''
+  const [tokenEligibleStatus, setTokenEligibleStatus] = useState<
+    ReturnType<UsePortfolioReturnType['checkIsTokenEligibleForAddingAsExtraToken']>
+  >({
+    isEligible: false
   })
 
   useLayoutEffect(() => {
@@ -44,19 +50,44 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
   const tokenAddress = approval?.data?.params?.data?.options?.address
 
   useEffect(() => {
-    if (!tokenAddress) return
+    setLoadingTokenDetails(true)
+    setError('')
 
-    setTokenEligibleStatus(checkIsTokenEligibleForAddingAsExtraToken(tokenAddress))
-  }, [checkIsTokenEligibleForAddingAsExtraToken, tokenAddress])
+    if (!tokenAddress) {
+      setLoadingTokenDetails(false)
+      setError('')
+      return
+    }
+
+    ;(async () => {
+      try {
+        const token = await getTokenDetails(tokenAddress, MODES.ADD_TOKEN)
+        setExtraToken(token)
+
+        if (token) {
+          setTokenEligibleStatus(checkIsTokenEligibleForAddingAsExtraToken(token))
+        }
+      } catch {
+        setLoadingTokenDetails(false)
+        setError(t('Failed to load token details. Please try again later.'))
+      }
+
+      setLoadingTokenDetails(false)
+    })()
+    // Do not include the `checkIsTokenEligibleForAddingAsExtraToken`, because
+    // its deps (tokens, constants) are not properly memoized which triggers
+    // way too many re-renderings than needed (and loading indicator is shown)
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
+  }, [getTokenDetails, t, tokenAddress])
 
   const handleAddToken = useCallback(async () => {
-    setLoading(true)
+    setIsAdding(true)
 
-    const token = await getTokenDetails(tokenAddress, MODES.ADD_TOKEN)
-    onAddExtraToken(token)
-
-    // resolveApproval(true)
-  }, [getTokenDetails, onAddExtraToken, resolveApproval, tokenAddress])
+    if (extraToken) {
+      onAddExtraToken(extraToken)
+      resolveApproval(true)
+    }
+  }, [extraToken, onAddExtraToken, resolveApproval])
 
   const handleDenyButtonPress = useCallback(
     () => rejectApproval(t('User rejected the request.')),
@@ -84,7 +115,27 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
             {approval?.data?.origin ? new URL(approval?.data?.origin)?.hostname : ''}
           </Title>
 
-          {!loading && (
+          {!loadingTokenDetails && error && (
+            <>
+              <View>
+                <Text
+                  fontSize={14}
+                  weight="regular"
+                  style={[textStyles.center, spacings.phSm, spacings.mbLg]}
+                >
+                  {error}
+                </Text>
+              </View>
+
+              <View style={styles.buttonWrapper}>
+                <Button type="outline" onPress={handleDenyButtonPress} text={t('Dismiss')} />
+              </View>
+            </>
+          )}
+
+          {loadingTokenDetails && !error && <Spinner />}
+
+          {!loadingTokenDetails && !error && (
             <>
               <View>
                 <Trans values={{ tokenSymbol, tokenAddress }}>
@@ -118,14 +169,19 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
                 {tokenEligibleStatus.isEligible && (
                   <>
                     <View style={styles.buttonWrapper}>
-                      <Button type="danger" onPress={handleDenyButtonPress} text={t('Deny')} />
+                      <Button
+                        disabled={isAdding}
+                        type="danger"
+                        onPress={handleDenyButtonPress}
+                        text={t('Deny')}
+                      />
                     </View>
                     <View style={styles.buttonWrapper}>
                       <Button
+                        disabled={isAdding}
                         type="outline"
-                        accentColor={colors.titan}
                         onPress={handleAddToken}
-                        text={t('Add token')}
+                        text={isAdding ? t('Adding...') : t('Add token')}
                       />
                     </View>
                   </>
