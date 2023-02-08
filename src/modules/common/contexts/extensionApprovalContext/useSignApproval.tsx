@@ -1,3 +1,7 @@
+// Handles approval requests of type:
+// eth_sendTransaction, gs_multi_send, ambire_sendBatchTransaction
+// personal_sign, eth_sign
+// eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3, eth_signTypedData_v4
 import { useCallback, useEffect } from 'react'
 
 import useAccounts from '@modules/common/hooks/useAccounts'
@@ -29,6 +33,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         return
       }
       if (msg?.[1]?.toLowerCase() !== selectedAccount.toLowerCase()) {
+        // resolve with error to handle the error in the ProviderController
         resolveApproval({
           error: 'Invalid parameters: must use the current user address to sign'
         })
@@ -68,6 +73,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         return
       }
       if (msg?.[0]?.toLowerCase() !== selectedAccount.toLowerCase()) {
+        // resolve with error to handle the error in the ProviderController
         resolveApproval({
           error: 'Invalid parameters: must use the current user address to sign'
         })
@@ -99,6 +105,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
     [network?.chainId, selectedAccount, setRequests, rejectApproval, resolveApproval]
   )
 
+  // handles eth_sendTransaction, gs_multi_send, ambire_sendBatchTransaction
   const handleSendTransactions = useCallback(
     async (txs: any, method: string, id: string) => {
       if (txs?.length) {
@@ -133,6 +140,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
     [network?.chainId, selectedAccount, setRequests, rejectApproval]
   )
 
+  // resolves the requests and returns a response to the background service
   const resolveMany = useCallback(
     (ids, resolution) => {
       // eslint-disable-next-line no-restricted-syntax

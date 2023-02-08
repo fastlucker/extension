@@ -109,7 +109,7 @@ const flowContext = flow
     // check need approval
     const {
       request: {
-        data: { params, method },
+        data: { method },
         session: { origin, name, icon }
       },
       mapMethod
