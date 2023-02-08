@@ -41,7 +41,6 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         return
       }
 
-      console.log('handleSignText: id', id)
       const request = {
         id,
         type: method,
@@ -141,7 +140,6 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         // only process non batch or first batch req
         if (req.id === approval?.id) {
           if (!req.isBatch) {
-            console.log('req', req)
             if (!resolution) {
               rejectApproval('Nothing to resolve')
             } else if (!resolution.success) {

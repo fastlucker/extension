@@ -15,7 +15,7 @@ browser.windows.onRemoved.addListener((winId) => {
 })
 
 // const BROWSER_HEADER = 80
-const WINDOW_SIZE = {
+export const WINDOW_SIZE = {
   width: POPUP_WIDTH + (IS_WINDOWS ? 14 : 0), // idk why windows cut the width.
   height: POPUP_HEIGHT
 }
@@ -48,7 +48,7 @@ const create = async ({ url, ...rest }): Promise<number | undefined> => {
     width
   } = await browser.windows.getCurrent({
     windowTypes: ['normal']
-  } as Windows.GetInfo)
+  })
 
   const top = cTop
   const left = cLeft! + width! - WINDOW_SIZE.width

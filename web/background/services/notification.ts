@@ -5,7 +5,8 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { isDev } from '@config/env'
 import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@modules/common/contexts/extensionApprovalContext/types'
-import winMgr from '@web/background/webapi/window'
+import colors from '@modules/common/styles/colors'
+import winMgr, { WINDOW_SIZE } from '@web/background/webapi/window'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
 
 export interface Approval {
@@ -56,7 +57,7 @@ class NotificationService extends Events {
         text: `${val.length}`
       })
       browser.browserAction.setBadgeBackgroundColor({
-        color: '#FE815F'
+        color: colors.turquoise
       })
     }
   }
@@ -98,8 +99,20 @@ class NotificationService extends Events {
       const windows = await browser.windows.getAll()
       const existWindow = windows.find((window) => window.id === this.notifiWindowId)
       if (this.notifiWindowId !== null && !!existWindow) {
+        const {
+          top: cTop,
+          left: cLeft,
+          width
+        } = await browser.windows.getCurrent({
+          windowTypes: ['normal']
+        })
+
+        const top = cTop
+        const left = cLeft! + width! - WINDOW_SIZE.width
         browser.windows.update(this.notifiWindowId, {
-          focused: true
+          focused: true,
+          top,
+          left
         })
         return
       }

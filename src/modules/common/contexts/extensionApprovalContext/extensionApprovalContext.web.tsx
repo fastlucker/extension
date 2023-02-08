@@ -56,7 +56,6 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
 
   const rejectApproval = useCallback<UseExtensionApprovalReturnType['rejectApproval']>(
     async (err = undefined, stay = false, isInternal = false) => {
-      console.log('rejectApproval', approval)
       if (!approval) {
         return addToast(
           t(
