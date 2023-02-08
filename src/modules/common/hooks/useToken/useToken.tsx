@@ -34,7 +34,7 @@ export default function useToken(): UseTokenReturnType {
         const balance = formatUnits(balanceOf, decimals)
         token = {
           account: selectedAcc,
-          address: tokenAddress,
+          address: tokenAddress.toLocaleLowerCase(),
           network: network?.id || '',
           balance,
           balanceRaw: balanceOf.toString(),
