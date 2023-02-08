@@ -65,12 +65,12 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
         const token = await getTokenDetails(tokenAddress, MODES.ADD_TOKEN)
         setExtraToken(token)
 
-        if (token) {
-          setTokenEligibleStatus(checkIsTokenEligibleForAddingAsExtraToken(token))
-        }
+        if (!token) throw new Error('Failed to load token details.')
+
+        setTokenEligibleStatus(checkIsTokenEligibleForAddingAsExtraToken(token))
       } catch {
         setLoadingTokenDetails(false)
-        setError(t('Failed to load token details. Please try again later.'))
+        setError(t('Failed to load token details.'))
       }
 
       setLoadingTokenDetails(false)
@@ -123,13 +123,19 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
                   fontSize={14}
                   weight="regular"
                   style={[textStyles.center, spacings.phSm, spacings.mbLg]}
+                  appearance="danger"
                 >
                   {error}
                 </Text>
               </View>
 
               <View style={styles.buttonWrapper}>
-                <Button type="outline" onPress={handleDenyButtonPress} text={t('Dismiss')} />
+                <Button
+                  type="outline"
+                  accentColor={colors.titan}
+                  onPress={handleDenyButtonPress}
+                  text={t('Dismiss')}
+                />
               </View>
             </>
           )}
