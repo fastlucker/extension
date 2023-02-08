@@ -129,7 +129,7 @@ const AddOrHideTokenForm: React.FC<Props> = ({
         const balance = formatUnits(balanceOf, decimals)
         setTokenDetails({
           account: selectedAcc,
-          address: inputText,
+          address: inputText.toLowerCase(),
           network: networkId,
           balance,
           balanceRaw: balanceOf.toString(),
