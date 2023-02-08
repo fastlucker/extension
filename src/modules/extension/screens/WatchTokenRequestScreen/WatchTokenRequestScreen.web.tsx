@@ -140,7 +140,11 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
             </>
           )}
 
-          {loadingTokenDetails && !error && <Spinner />}
+          {loadingTokenDetails && !error && (
+            <View style={flexboxStyles.center}>
+              <Spinner />
+            </View>
+          )}
 
           {!loadingTokenDetails && !error && (
             <>
