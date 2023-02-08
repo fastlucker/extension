@@ -82,8 +82,24 @@ const RequestsProvider: React.FC = ({ children }) => {
     [internalRequests, wcRequests, gnosisRequests, extensionRequests, accounts]
   )
 
-  // Handling transaction signing requests
-  // Show the send transaction full-screen modal if we have a new txn
+  // Filter only the sign message requests
+  const everythingToSign = useMemo(
+    () =>
+      requests.filter(
+        ({ type, account }) =>
+          [
+            'personal_sign',
+            'eth_sign',
+            'eth_signTypedData',
+            'eth_signTypedData_v1',
+            'eth_signTypedData_v3',
+            'eth_signTypedData_v4'
+          ].includes(type) && account === selectedAcc
+      ),
+    [requests, selectedAcc]
+  )
+
+  // Filter only the send transaction requests
   const eligibleRequests = useMemo(
     () =>
       requests.filter(
@@ -176,25 +192,7 @@ const RequestsProvider: React.FC = ({ children }) => {
     [setSendTxnState]
   )
 
-  // Handling message signatures
-  // Network shouldn't matter here
-  const everythingToSign = useMemo(
-    () =>
-      requests.filter(
-        ({ type, account }) =>
-          [
-            'personal_sign',
-            'eth_sign',
-            'eth_signTypedData',
-            'eth_signTypedData_v1',
-            'eth_signTypedData_v3',
-            'eth_signTypedData_v4'
-          ].includes(type) && account === selectedAcc
-      ),
-    [requests, selectedAcc]
-  )
-
-  // Open sign-message screen
+  // Handle navigation for sign message requests
   useEffect(() => {
     ;(async () => {
       let toSign = everythingToSign
@@ -208,6 +206,10 @@ const RequestsProvider: React.FC = ({ children }) => {
       if (toSign.length) {
         navigate('sign-message')
       } else if (
+        // Extension only
+        // In case there is a pending sign msg request opened in a notification window
+        // and at the same time the popup window is triggered just force open
+        // the the notification window to finalize the request before being able to continue
         everythingToSign.filter((r) => r?.reqSrc === BROWSER_EXTENSION_REQUESTS_STORAGE_KEY)
           .length &&
         isExtension &&
@@ -219,9 +221,13 @@ const RequestsProvider: React.FC = ({ children }) => {
     })()
   }, [everythingToSign, extensionWallet])
 
-  // Open pending-transactions screen
+  // Handle navigation for send txn requests
   useEffect(() => {
     if (sendTxnState?.showing && !prevSendTxnState?.showing) {
+      // Extension only
+      // In case there is a pending send txn request opened in a notification window
+      // and at the same time the popup window is triggered just force open
+      // the the notification window to finalize the request before being able to continue
       if (
         eligibleRequests.filter((r) => r?.reqSrc === BROWSER_EXTENSION_REQUESTS_STORAGE_KEY)
           .length &&
