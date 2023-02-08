@@ -19,6 +19,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import { MODES } from '@modules/dashboard/components/AddOrHideToken/constants'
+import TokenItem from '@modules/dashboard/components/AddOrHideToken/TokenItem'
 import ManifestImage from '@modules/extension/components/ManifestImage'
 
 import styles from './styles'
@@ -163,6 +164,8 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
                     {tokenEligibleStatus.reason}
                   </Text>
                 )}
+
+                <TokenItem {...extraToken} />
               </View>
 
               <View style={styles.buttonsContainer}>
