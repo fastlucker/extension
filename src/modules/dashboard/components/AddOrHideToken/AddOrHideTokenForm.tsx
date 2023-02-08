@@ -1,10 +1,6 @@
-import ERC20ABI from 'adex-protocol-eth/abi/ERC20'
 import { NetworkId, NetworkType } from 'ambire-common/src/constants/networks'
-import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { Token, UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio'
 import { isValidAddress } from 'ambire-common/src/services/address'
-import { Contract } from 'ethers'
-import { formatUnits, Interface } from 'ethers/lib/utils'
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -14,13 +10,11 @@ import Button from '@modules/common/components/Button'
 import Input from '@modules/common/components/Input'
 import Spinner from '@modules/common/components/Spinner'
 import useToast from '@modules/common/hooks/useToast'
-import { rpcProviders } from '@modules/common/services/providers'
+import useToken from '@modules/common/hooks/useToken'
 import spacings from '@modules/common/styles/spacings'
 
 import { MODES } from './constants'
 import TokenItem from './TokenItem'
-
-const ERC20Interface = new Interface(ERC20ABI)
 
 const ADDRESS_LENGTH = 42
 const TOKEN_SYMBOL_MIN_LENGTH = 3
@@ -30,11 +24,8 @@ interface Props {
   onSubmit: (token: Token, formMode: MODES) => void
   enableSymbolSearch?: boolean
   tokens: UsePortfolioReturnType['tokens']
-  extraTokens: UsePortfolioReturnType['extraTokens']
-  hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   networkId?: NetworkId
   networkName?: NetworkType['name']
-  selectedAcc: UseAccountsReturnType['selectedAcc']
 }
 
 const AddOrHideTokenForm: React.FC<Props> = ({
@@ -42,15 +33,13 @@ const AddOrHideTokenForm: React.FC<Props> = ({
   onSubmit,
   enableSymbolSearch = false,
   tokens,
-  extraTokens,
-  hiddenTokens,
   networkId,
-  networkName,
-  selectedAcc
+  networkName
 }) => {
   const { t } = useTranslation()
   const [loading, setLoading] = useState<boolean>(false)
   const [tokenDetails, setTokenDetails] = useState<any>(null)
+  const { getTokenDetails } = useToken()
   const [showError, setShowError] = useState<string>('')
   const { addToast } = useToast()
 
@@ -106,40 +95,12 @@ const AddOrHideTokenForm: React.FC<Props> = ({
     setShowError('')
 
     try {
-      const provider = networkId && rpcProviders[networkId]
-      const tokenContract = new Contract(inputText, ERC20Interface, provider)
+      const token = await getTokenDetails(inputText)
 
-      const [balanceOf, name, symbol, decimals] = await Promise.all([
-        tokenContract.balanceOf(selectedAcc),
-        tokenContract.name(),
-        tokenContract.symbol(),
-        tokenContract.decimals()
-      ])
+      if (!token) throw new Error('Failed to load token info')
 
-      const isAlreadyHandled = (mode === MODES.ADD_TOKEN ? extraTokens : hiddenTokens).find(
-        (token) => token.address === inputText
-      )
-      if (isAlreadyHandled) {
-        setShowError(
-          mode === MODES.ADD_TOKEN
-            ? (t('The address you entered is already added.') as string)
-            : (t('The address/symbol you entered is already hidden.') as string)
-        )
-      } else {
-        const balance = formatUnits(balanceOf, decimals)
-        setTokenDetails({
-          account: selectedAcc,
-          address: inputText,
-          network: networkId,
-          balance,
-          balanceRaw: balanceOf.toString(),
-          tokenImageUrl: `https://storage.googleapis.com/zapper-fi-assets/tokens/${networkId}/${inputText}.png`,
-          name,
-          symbol,
-          decimals
-        })
-      }
-    } catch (e) {
+      setTokenDetails(token)
+    } catch {
       addToast('Failed to load token info', { error: true })
       setShowError(
         t(
