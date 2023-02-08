@@ -28,7 +28,6 @@ interface Props {
   extraTokens: UsePortfolioReturnType['extraTokens']
   hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   networkId?: NetworkId
-  networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']
   selectedAcc: UseAccountsReturnType['selectedAcc']
   onAddExtraToken: UsePortfolioReturnType['onAddExtraToken']
@@ -42,7 +41,6 @@ const AddOrHideToken = ({
   extraTokens,
   hiddenTokens,
   networkId,
-  networkRpc,
   networkName,
   selectedAcc,
   onAddExtraToken,
@@ -103,12 +101,8 @@ const AddOrHideToken = ({
                 mode={MODES.ADD_TOKEN}
                 onSubmit={handleOnSubmit}
                 tokens={tokens}
-                extraTokens={extraTokens}
-                hiddenTokens={hiddenTokens}
                 networkId={networkId}
-                networkRpc={networkRpc}
                 networkName={networkName}
-                selectedAcc={selectedAcc}
               />
               <HiddenOrExtraTokens
                 mode={MODES.ADD_TOKEN}
@@ -130,12 +124,8 @@ const AddOrHideToken = ({
                 mode={MODES.HIDE_TOKEN}
                 onSubmit={handleOnSubmit}
                 tokens={tokens}
-                extraTokens={extraTokens}
-                hiddenTokens={hiddenTokens}
                 networkId={networkId}
-                networkRpc={networkRpc}
                 networkName={networkName}
-                selectedAcc={selectedAcc}
               />
               <HiddenOrExtraTokens
                 mode={MODES.HIDE_TOKEN}
