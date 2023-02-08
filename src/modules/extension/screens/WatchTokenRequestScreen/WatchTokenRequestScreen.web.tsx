@@ -165,7 +165,7 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
                   </Text>
                 )}
 
-                <TokenItem {...extraToken} />
+                {extraToken && <TokenItem {...extraToken} />}
               </View>
 
               <View style={styles.buttonsContainer}>
