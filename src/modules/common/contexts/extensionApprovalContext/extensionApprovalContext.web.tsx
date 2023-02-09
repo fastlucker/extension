@@ -4,12 +4,18 @@ import { useTranslation } from 'react-i18next'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useToast from '@modules/common/hooks/useToast'
+import { delayPromise } from '@modules/common/utils/promises'
 import useVault from '@modules/vault/hooks/useVault'
 import { Approval } from '@web/background/services/notification'
 import { getUiType } from '@web/utils/uiType'
 
 import { UseExtensionApprovalReturnType } from './types'
 import useSignApproval from './useSignApproval'
+
+// In the cases when the dApp requests multiple approvals, but waits the
+// response from the prev one to request the next one. For example
+// this happens with https://polygonscan.com/ and https://bscscan.com/
+const MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS = 850
 
 const ExtensionApprovalContext = createContext<UseExtensionApprovalReturnType>({
   approval: null,
@@ -48,6 +54,8 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
 
       await extensionWallet.resolveApproval(data, forceReject, approvalId)
 
+      await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
+
       const nextApproval = await getApproval()
       setApproval(nextApproval)
     },
@@ -66,6 +74,8 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
       }
 
       await extensionWallet.rejectApproval(err, stay, isInternal)
+
+      await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)
