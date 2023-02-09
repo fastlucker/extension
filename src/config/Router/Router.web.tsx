@@ -1,7 +1,7 @@
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import DashboardIcon from '@assets/svg/DashboardIcon'
 import EarnIcon from '@assets/svg/EarnIcon'
@@ -26,6 +26,7 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
+import Spinner from '@modules/common/components/Spinner'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
@@ -33,6 +34,7 @@ import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
+import flexbox from '@modules/common/styles/utils/flexbox'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
@@ -500,7 +502,11 @@ const AppDrawer = () => {
   // Should never proceed to the main app drawer if it's a notification (popup),
   // because these occurrences are only used to prompt specific actions.
   if (getUiType().isNotification) {
-    return null
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
+        <Spinner />
+      </View>
+    )
   }
 
   return (
@@ -616,7 +622,12 @@ const Router = () => {
   const isInNotification = getUiType().isNotification
 
   const renderContent = useCallback(() => {
-    if (!hasCheckedForApprovalInitially) return null
+    if (!hasCheckedForApprovalInitially)
+      return (
+        <View style={[StyleSheet.absoluteFill, flexbox.center]}>
+          <Spinner />
+        </View>
+      )
 
     if (isInNotification && !approval) {
       window.close()
