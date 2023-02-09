@@ -184,7 +184,7 @@ class ProviderController {
     return intToHex(network?.chainId || networks[0].chainId)
   }
 
-  @Reflect.metadata('APPROVAL', ['send-txn', false])
+  @Reflect.metadata('APPROVAL', ['SendTransaction', false])
   ethSendTransaction = async (options: {
     data: {
       $ctx?: any
@@ -257,7 +257,7 @@ class ProviderController {
     return handleSignMessage(approvalRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['switch-network', false])
+  @Reflect.metadata('APPROVAL', ['SwitchNetwork', false])
   walletAddEthereumChain = ({
     data: {
       params: [chainParams]
@@ -298,7 +298,7 @@ class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['switch-network', false])
+  @Reflect.metadata('APPROVAL', ['SwitchNetwork', false])
   walletSwitchEthereumChain = ({
     data: {
       params: [chainParams]
@@ -328,7 +328,7 @@ class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['wallet_watchAsset', false])
+  @Reflect.metadata('APPROVAL', ['WalletWatchAsset', false])
   walletWatchAsset = () => true
 
   walletRequestPermissions = ({ data: { params: permissions } }) => {

@@ -174,7 +174,7 @@ class NotificationService extends Events {
     } else {
       approval?.reject && approval?.reject(ethErrors.provider.userRejectedRequest<any>(err))
     }
-    if (approval?.data?.approvalComponent === 'send-txn') {
+    if (approval?.data?.approvalComponent === 'SendTransaction') {
       // Removes all cached signing requests (otherwise they will be shown again
       // in the browser extension UI, when it gets opened by the user)
       browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })

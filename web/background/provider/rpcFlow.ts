@@ -92,7 +92,7 @@ const flowContext = flow
         try {
           const { defaultChain } = await notificationService.requestApproval({
             params: { origin, name, icon },
-            approvalComponent: 'permission-request'
+            approvalComponent: 'PermissionRequest'
           })
           connectOrigins.delete(origin)
           permissionService.addConnectedSite(origin, name, icon, defaultChain)

@@ -658,10 +658,10 @@ const Router = () => {
         return <VaultStack />
       }
 
-      if (approval?.data?.approvalComponent === 'permission-request') {
+      if (approval?.data?.approvalComponent === 'PermissionRequest') {
         return <PermissionRequestStack />
       }
-      if (approval?.data?.approvalComponent === 'send-txn') {
+      if (approval?.data?.approvalComponent === 'SendTransaction') {
         return <PendingTransactionsStack />
       }
       if (approval?.data?.approvalComponent === 'SignText') {
@@ -670,10 +670,10 @@ const Router = () => {
       if (approval?.data?.approvalComponent === 'SignTypedData') {
         return <SignMessageStack />
       }
-      if (approval?.data?.approvalComponent === 'switch-network') {
+      if (approval?.data?.approvalComponent === 'SwitchNetwork') {
         return <SwitchNetworkRequestStack />
       }
-      if (approval?.data?.approvalComponent === 'wallet_watchAsset') {
+      if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
         return <WatchTokenRequestStack />
       }
 
