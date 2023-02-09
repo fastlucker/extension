@@ -19,7 +19,7 @@ import useLockWhenInactive from '@modules/vault/hooks/useLockWhenInactive'
 import useVaultBiometrics from '@modules/vault/hooks/useVaultBiometrics'
 import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
-import VaultController from '@modules/vault/services/VaultController'
+import { Controller } from '@modules/vault/services/VaultController'
 import { VaultItem } from '@modules/vault/services/VaultController/types'
 import { isExtension } from '@web/constants/browserapi'
 import { getUiType } from '@web/utils/uiType'
@@ -52,8 +52,7 @@ const VaultProvider: React.FC = ({ children }) => {
    * and use this instance (singleton) instead.
    */
   const vaultController = useMemo(
-    () =>
-      !isExtension && storageControllerInstance && new VaultController(storageControllerInstance),
+    () => !isExtension && storageControllerInstance && new Controller(storageControllerInstance),
     [storageControllerInstance]
   )
   const [vaultStatus, setVaultStatus] = useState<VAULT_STATUS>(VAULT_STATUS.LOADING)

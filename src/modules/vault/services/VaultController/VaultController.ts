@@ -8,6 +8,7 @@ import { EventEmitter } from 'events'
 import { verifyMessage } from '@ambire/signature-validator'
 import CONFIG from '@config/env'
 import { ObservableStore } from '@metamask/obs-store'
+import { StorageController } from '@modules/common/contexts/storageContext/storageController'
 import { decrypt, encrypt } from '@modules/common/services/passworder'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
@@ -32,6 +33,14 @@ class VaultController extends EventEmitter {
 
   store!: ObservableStore<any>
 
+  storageController: StorageController
+
+  constructor(storageController: StorageController = {} as StorageController) {
+    super()
+
+    this.storageController = storageController
+  }
+
   loadStore(initState: any) {
     this.store = new ObservableStore(initState)
   }
@@ -53,7 +62,9 @@ class VaultController extends EventEmitter {
     this.#password = password
     this.#vault = {}
     const encryptedVault = await encrypt(password, JSON.stringify({}))
-    this.store.putState(encryptedVault)
+    isExtension
+      ? this.store.putState(encryptedVault)
+      : this.storageController?.setItemAsync('vault', encryptedVault)
     this.setUnlocked.bind(this)
   }
 
@@ -80,7 +91,9 @@ class VaultController extends EventEmitter {
         .then(async (blob: string) => {
           this.#password = password
           this.#vault = {}
-          this.store.putState(blob)
+          isExtension
+            ? this.store.putState(blob)
+            : this.storageController?.setItemAsync('vault', blob)
           this.setUnlocked.bind(this)
           resolve(VAULT_STATUS.UNLOCKED)
         })
@@ -99,7 +112,9 @@ class VaultController extends EventEmitter {
         encrypt(newPassword, JSON.stringify(this.#vault))
           .then(async (blob: string) => {
             this.#password = newPassword
-            this.store.putState(blob)
+            isExtension
+              ? this.store.putState(blob)
+              : this.storageController?.setItemAsync('vault', blob)
             resolve(VAULT_STATUS.UNLOCKED)
           })
           .catch((err) => {
@@ -112,7 +127,7 @@ class VaultController extends EventEmitter {
   }
 
   unlockVault({ password }: { password: string }) {
-    const vault = this.store.getState()
+    const vault = isExtension ? this.store.getState() : this.storageController.getItem('vault')
 
     return new Promise((resolve, reject) => {
       decrypt(password, vault)
@@ -155,7 +170,9 @@ class VaultController extends EventEmitter {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
         .then(async (blob: string) => {
           this.#vault = updatedVault
-          this.store.putState(blob)
+          isExtension
+            ? this.store.putState(blob)
+            : this.storageController?.setItemAsync('vault', blob)
           resolve(true)
         })
         .catch((err) => {
@@ -174,7 +191,9 @@ class VaultController extends EventEmitter {
       encrypt(this.#password as string, JSON.stringify(updatedVault))
         .then(async (blob: string) => {
           this.#vault = updatedVault
-          this.store.putState(blob)
+          isExtension
+            ? this.store.putState(blob)
+            : this.storageController?.setItemAsync('vault', blob)
           resolve(true)
         })
         .catch((err) => {
@@ -378,3 +397,5 @@ class VaultController extends EventEmitter {
 }
 
 export default new VaultController()
+
+export { VaultController as Controller }

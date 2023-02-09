@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import alert from '@modules/common/services/alert'
 import { getCurrentTab } from '@web/background/webapi/tab'
+import { isExtension } from '@web/constants/browserapi'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from './types'
@@ -12,7 +13,7 @@ const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
   ambireExtensionContextDefaults
 )
 
-const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
+const ExtensionProvider: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
   const { extensionWallet } = useExtensionWallet()
   const [site, setSite] = useState<AmbireExtensionContextReturnType['site']>(null)
@@ -82,5 +83,7 @@ const AmbireExtensionProvider: React.FC<any> = ({ children }) => {
     </AmbireExtensionContext.Provider>
   )
 }
+
+const AmbireExtensionProvider = isExtension ? ExtensionProvider : ({ children }) => children
 
 export { AmbireExtensionContext, AmbireExtensionProvider }
