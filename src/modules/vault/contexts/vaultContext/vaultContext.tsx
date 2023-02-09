@@ -130,10 +130,22 @@ const VaultProvider: React.FC = ({ children }) => {
       // Automatically unlock after vault initialization
       setVaultStatus(VAULT_STATUS.UNLOCKED)
 
+      // The unlock is approval. When unlocking - we need to resolve the
+      // approval to unlock in order to trigger the next approval in line
+      if (getUiType().isNotification) {
+        resolveApproval(true)
+      }
+
       !!nextRoute && navigate(nextRoute)
       return Promise.resolve()
     },
-    [requestVaultControllerMethod, addKeystorePasswordToDeviceSecureStore, addToast, t]
+    [
+      addToast,
+      t,
+      requestVaultControllerMethod,
+      addKeystorePasswordToDeviceSecureStore,
+      resolveApproval
+    ]
   )
 
   const resetVault = useCallback(

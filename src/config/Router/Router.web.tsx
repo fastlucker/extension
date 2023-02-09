@@ -1,7 +1,7 @@
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import DashboardIcon from '@assets/svg/DashboardIcon'
 import EarnIcon from '@assets/svg/EarnIcon'
@@ -26,6 +26,7 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
+import Spinner from '@modules/common/components/Spinner'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
@@ -33,12 +34,14 @@ import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
+import flexbox from '@modules/common/styles/utils/flexbox'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
 import PermissionRequestScreen from '@modules/extension/screens/PermissionRequestScreen'
 import SwitchNetworkRequestScreen from '@modules/extension/screens/SwitchNetworkRequestScreen'
+import WatchTokenRequestScreen from '@modules/extension/screens/WatchTokenRequestScreen'
 import GasInformationScreen from '@modules/gas-tank/screens/GasInformationScreen'
 import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
@@ -332,6 +335,29 @@ const SwitchNetworkRequestStack = () => {
   )
 }
 
+const WatchTokenRequestStack = () => {
+  const { t } = useTranslation()
+  const { vaultStatus } = useVault()
+
+  useEffect(() => {
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
+
+  return (
+    <Stack.Navigator
+      screenOptions={{ header: (props) => headerBeta({ ...props, backgroundColor: colors.wooed }) }}
+    >
+      <Stack.Screen
+        options={{ title: t('Watch Token Request') }}
+        name="watch-token-request"
+        component={WatchTokenRequestScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
 const PendingTransactionsStack = () => {
   const { t } = useTranslation()
 
@@ -476,7 +502,11 @@ const AppDrawer = () => {
   // Should never proceed to the main app drawer if it's a notification (popup),
   // because these occurrences are only used to prompt specific actions.
   if (getUiType().isNotification) {
-    return null
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
+        <Spinner />
+      </View>
+    )
   }
 
   return (
@@ -592,7 +622,12 @@ const Router = () => {
   const isInNotification = getUiType().isNotification
 
   const renderContent = useCallback(() => {
-    if (!hasCheckedForApprovalInitially) return null
+    if (!hasCheckedForApprovalInitially)
+      return (
+        <View style={[StyleSheet.absoluteFill, flexbox.center]}>
+          <Spinner />
+        </View>
+      )
 
     if (isInNotification && !approval) {
       window.close()
@@ -623,17 +658,23 @@ const Router = () => {
         return <VaultStack />
       }
 
-      if (approval?.data?.approvalComponent === 'permission-request') {
+      if (approval?.data?.approvalComponent === 'PermissionRequest') {
         return <PermissionRequestStack />
       }
-      if (approval?.data?.approvalComponent === 'send-txn') {
+      if (approval?.data?.approvalComponent === 'SendTransaction') {
         return <PendingTransactionsStack />
       }
-      if (approval?.data?.approvalComponent === 'sign-message') {
+      if (approval?.data?.approvalComponent === 'SignText') {
         return <SignMessageStack />
       }
-      if (approval?.data?.approvalComponent === 'switch-network') {
+      if (approval?.data?.approvalComponent === 'SignTypedData') {
+        return <SignMessageStack />
+      }
+      if (approval?.data?.approvalComponent === 'SwitchNetwork') {
         return <SwitchNetworkRequestStack />
+      }
+      if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
+        return <WatchTokenRequestStack />
       }
 
       if (vaultStatus === VAULT_STATUS.UNLOCKED) {

@@ -44,6 +44,10 @@ export class WalletController {
 
   getConnectedSites = permissionService.getConnectedSites
 
+  activeFirstApproval = () => {
+    notificationService.activeFirstApproval()
+  }
+
   getApproval = notificationService.getApproval
 
   resolveApproval = notificationService.resolveApproval

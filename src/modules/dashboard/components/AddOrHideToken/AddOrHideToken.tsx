@@ -101,11 +101,8 @@ const AddOrHideToken = ({
                 mode={MODES.ADD_TOKEN}
                 onSubmit={handleOnSubmit}
                 tokens={tokens}
-                extraTokens={extraTokens}
-                hiddenTokens={hiddenTokens}
                 networkId={networkId}
                 networkName={networkName}
-                selectedAcc={selectedAcc}
               />
               <HiddenOrExtraTokens
                 mode={MODES.ADD_TOKEN}
@@ -127,11 +124,8 @@ const AddOrHideToken = ({
                 mode={MODES.HIDE_TOKEN}
                 onSubmit={handleOnSubmit}
                 tokens={tokens}
-                extraTokens={extraTokens}
-                hiddenTokens={hiddenTokens}
                 networkId={networkId}
                 networkName={networkName}
-                selectedAcc={selectedAcc}
               />
               <HiddenOrExtraTokens
                 mode={MODES.HIDE_TOKEN}

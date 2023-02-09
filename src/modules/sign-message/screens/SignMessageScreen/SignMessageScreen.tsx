@@ -62,8 +62,8 @@ const SignScreenScreen = ({ navigation }: any) => {
   })
 
   if (getUiType().isNotification) {
-    navigation.navigate = () => window.close()
-    navigation.goBack = () => window.close()
+    navigation.navigate = () => null
+    navigation.goBack = () => null
   }
 
   const resolve = (outcome: any) => resolveMany([everythingToSign[0].id], outcome)

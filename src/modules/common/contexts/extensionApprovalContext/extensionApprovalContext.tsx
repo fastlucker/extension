@@ -5,10 +5,12 @@ import { UseExtensionApprovalReturnType } from './types'
 // This context is needed for the browser extension only. For mobile, fallback to defaults.
 const ExtensionApprovalContext = createContext<UseExtensionApprovalReturnType>({
   approval: null,
+  requests: [],
   hasCheckedForApprovalInitially: false,
   getApproval: () => Promise.resolve(null),
   resolveApproval: () => Promise.resolve(),
-  rejectApproval: () => Promise.resolve()
+  rejectApproval: () => Promise.resolve(),
+  resolveMany: () => {}
 })
 
 const ExtensionApprovalProvider: React.FC<any> = ({ children }) => children

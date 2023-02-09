@@ -1,15 +1,16 @@
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
+import { v4 as uuidv4 } from 'uuid'
 
 import { isDev } from '@config/env'
-import preferenceService from '@web/background/services/permission'
-import winMgr from '@web/background/webapi/window'
+import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@modules/common/contexts/extensionApprovalContext/types'
+import colors from '@modules/common/styles/colors'
+import winMgr, { WINDOW_SIZE } from '@web/background/webapi/window'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
 
 export interface Approval {
   id: string
-  taskId: number | null
   signingTxId?: string
   data: {
     params?: import('react').ComponentProps<any>['params']
@@ -24,12 +25,10 @@ export interface Approval {
 }
 
 const QUEUE_APPROVAL_COMPONENTS_WHITELIST = [
-  'SignTx',
+  'SendTransaction',
   'SignText',
   'SignTypedData',
-  'LedgerHardwareWaiting',
-  'QRHardWareWaiting',
-  'WatchAdrressWaiting'
+  'LedgerHardwareWaiting'
 ]
 
 // something need user approval in window
@@ -58,7 +57,7 @@ class NotificationService extends Events {
         text: `${val.length}`
       })
       browser.browserAction.setBadgeBackgroundColor({
-        color: '#FE815F'
+        color: colors.turquoise
       })
     }
   }
@@ -100,8 +99,20 @@ class NotificationService extends Events {
       const windows = await browser.windows.getAll()
       const existWindow = windows.find((window) => window.id === this.notifiWindowId)
       if (this.notifiWindowId !== null && !!existWindow) {
+        const {
+          top: cTop,
+          left: cLeft,
+          width
+        } = await browser.windows.getCurrent({
+          windowTypes: ['normal']
+        })
+
+        const top = cTop
+        const left = cLeft! + width! - WINDOW_SIZE.width
         browser.windows.update(this.notifiWindowId, {
-          focused: true
+          focused: true,
+          top,
+          left
         })
         return
       }
@@ -163,10 +174,11 @@ class NotificationService extends Events {
     } else {
       approval?.reject && approval?.reject(ethErrors.provider.userRejectedRequest<any>(err))
     }
-    // TODO: remove
-    // if (approval?.signingTxId) {
-    //   transactionHistoryService.removeSigningTx(approval.signingTxId)
-    // }
+    if (approval?.data?.approvalComponent === 'SendTransaction') {
+      // Removes all cached signing requests (otherwise they will be shown again
+      // in the browser extension UI, when it gets opened by the user)
+      browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })
+    }
 
     if (approval && this.approvals.length > 1) {
       this.deleteApproval(approval)
@@ -178,50 +190,27 @@ class NotificationService extends Events {
   }
 
   requestApproval = async (data, winProps?): Promise<any> => {
-    // const currentAccount = preferenceService.getCurrentAccount()
-    const reportExplain = (signingTxId?: string) => {
-      // const explain = transactionHistoryService.getExplainCacheByApprovalId(
-      //   approvalId
-      // );
-      // const signingTx = signingTxId ? transactionHistoryService.getSigningTx(signingTxId) : null
-      // const explain = signingTx?.explain
-      const explain = false
-
-      // if (explain && currentAccount) {
-      // stats.report('preExecTransaction', {
-      //   type: currentAccount.brandName,
-      //   category: KEYRING_CATEGORY_MAP[currentAccount.type],
-      //   chainId: explain.native_token.chain,
-      //   success: explain.calcSuccess && explain.pre_exec.success,
-      //   createBy: data?.params.$ctx?.ga ? 'rabby' : 'dapp',
-      //   source: data?.params.$ctx?.ga?.source || '',
-      //   trigger: data?.params.$ctx?.ga.trigger || ''
-      // })
-      // }
-    }
     return new Promise((resolve, reject) => {
-      // const uuid = uuidv4()
+      const uuid = uuidv4()
       let signingTxId
-      // if (data.approvalComponent === 'SignTx') {
-      //   signingTxId = transactionHistoryService.addSigningTx(data.params.data[0])
-      // }
 
       const approval: Approval = {
-        // taskId: uuid,
-        // id: uuid,
+        id: uuid,
         signingTxId,
         data,
         winProps,
         resolve(data) {
-          if (this.data.approvalComponent === 'SignTx') {
-            reportExplain(this.signingTxId)
-          }
+          // TODO: check if needed
+          // if (this.data.approvalComponent === 'SendTransaction') {
+          //   reportExplain(this.signingTxId)
+          // }
           resolve(data)
         },
         reject(data) {
-          if (this.data.approvalComponent === 'SignTx') {
-            reportExplain(this.signingTxId)
-          }
+          // TODO: check if needed
+          // if (this.data.approvalComponent === 'SendTransaction') {
+          //   reportExplain(this.signingTxId)
+          // }
           reject(data)
         }
       }
@@ -250,6 +239,7 @@ class NotificationService extends Events {
           this.currentApproval = approval
         }
       }
+      // TODO: might be needed for the Multichain UX feature
       if (
         ['wallet_switchEthereumChain', 'wallet_addEthereumChain'].includes(data?.params?.method)
       ) {
@@ -296,8 +286,10 @@ class NotificationService extends Events {
     })
     this.approvals = []
     this.currentApproval = null
-    // TODO:
-    // transactionHistoryService.removeAllSigningTx()
+
+    // Removes all cached signing requests (otherwise they will be shown again
+    // in the browser extension UI, when it gets opened by the user)
+    browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })
   }
 
   unLock = () => {

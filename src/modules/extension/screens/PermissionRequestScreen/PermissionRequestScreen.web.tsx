@@ -22,7 +22,7 @@ import styles from './styles'
 const PermissionRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const { network } = useNetwork()
-  const [loading, setLoading] = useState(false)
+  const [isAuthorizing, setIsAuthorizing] = useState(false)
   const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
 
   useLayoutEffect(() => {
@@ -35,7 +35,7 @@ const PermissionRequestScreen = ({ navigation }: any) => {
   )
 
   const handleAuthorizeButtonPress = useCallback(() => {
-    setLoading(true)
+    setIsAuthorizing(true)
     resolveApproval({
       defaultChain: network?.nativeAssetSymbol
     })
@@ -62,42 +62,44 @@ const PermissionRequestScreen = ({ navigation }: any) => {
             {approval?.data?.params?.origin ? new URL(approval?.data?.params?.origin).hostname : ''}
           </Title>
 
-          {!loading && (
-            <>
-              <View>
-                <Trans>
-                  <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-                    <Text fontSize={14} weight="regular">
-                      {'The dApp '}
-                    </Text>
-                    <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                      {approval?.data?.params?.name || ''}
-                    </Text>
-                    <Text fontSize={14} weight="regular">
-                      {' is requesting an authorization to communicate with Ambire Wallet'}
-                    </Text>
-                  </Text>
-                </Trans>
-              </View>
-
-              <View style={styles.buttonsContainer}>
-                <View style={styles.buttonWrapper}>
-                  <Button type="danger" onPress={handleDenyButtonPress} text={t('Deny')} />
-                </View>
-                <View style={styles.buttonWrapper}>
-                  <Button
-                    type="outline"
-                    onPress={handleAuthorizeButtonPress}
-                    text={t('Authorize')}
-                  />
-                </View>
-              </View>
-
-              <Text fontSize={14} style={textStyles.center}>
-                {t('Webpage can be disconnected any time from the Ambire extension settings.')}
+          <View>
+            <Trans>
+              <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+                <Text fontSize={14} weight="regular">
+                  {'The dApp '}
+                </Text>
+                <Text fontSize={14} weight="regular" color={colors.heliotrope}>
+                  {approval?.data?.params?.name || ''}
+                </Text>
+                <Text fontSize={14} weight="regular">
+                  {' is requesting an authorization to communicate with Ambire Wallet'}
+                </Text>
               </Text>
-            </>
-          )}
+            </Trans>
+          </View>
+
+          <View style={styles.buttonsContainer}>
+            <View style={styles.buttonWrapper}>
+              <Button
+                disabled={isAuthorizing}
+                type="danger"
+                onPress={handleDenyButtonPress}
+                text={t('Deny')}
+              />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <Button
+                type="outline"
+                onPress={handleAuthorizeButtonPress}
+                disabled={isAuthorizing}
+                text={isAuthorizing ? t('Authorizing...') : t('Authorize')}
+              />
+            </View>
+          </View>
+
+          <Text fontSize={14} style={textStyles.center}>
+            {t('Webpage can be disconnected any time from the Ambire extension settings.')}
+          </Text>
         </Panel>
       </Wrapper>
     </GradientBackgroundWrapper>

@@ -32,7 +32,8 @@ const TokenItem: React.FC<Props> = ({
 
       <View style={[spacings.mlTy, flexboxStyles.flex1]}>
         <Text>
-          {name} ({symbol})
+          {name}
+          {symbol ? ` (${symbol})` : ''}
         </Text>
 
         <Trans>

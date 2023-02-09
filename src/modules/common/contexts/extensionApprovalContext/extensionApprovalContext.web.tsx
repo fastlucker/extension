@@ -4,18 +4,28 @@ import { useTranslation } from 'react-i18next'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useToast from '@modules/common/hooks/useToast'
+import { delayPromise } from '@modules/common/utils/promises'
 import useVault from '@modules/vault/hooks/useVault'
 import { Approval } from '@web/background/services/notification'
 import { getUiType } from '@web/utils/uiType'
 
 import { UseExtensionApprovalReturnType } from './types'
+import useSignApproval from './useSignApproval'
+
+// In the cases when the dApp requests multiple approvals, but waits the
+// response from the prev one to request the next one. For example
+// this happens with https://polygonscan.com/ and https://bscscan.com/
+// when you try to "Add Token to Web3 Wallet".
+const MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS = 850
 
 const ExtensionApprovalContext = createContext<UseExtensionApprovalReturnType>({
   approval: null,
+  requests: [],
   hasCheckedForApprovalInitially: false,
   getApproval: () => Promise.resolve(null),
   resolveApproval: () => Promise.resolve(),
-  rejectApproval: () => Promise.resolve()
+  rejectApproval: () => Promise.resolve(),
+  resolveMany: () => {}
 })
 
 const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
@@ -37,13 +47,15 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
       if (!approval) {
         return addToast(
           t(
-            'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.',
-            { error: true }
-          )
+            'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.'
+          ),
+          { error: true }
         )
       }
 
       await extensionWallet.resolveApproval(data, forceReject, approvalId)
+
+      await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)
@@ -56,13 +68,15 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
       if (!approval) {
         return addToast(
           t(
-            'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.',
-            { error: true }
-          )
+            'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.'
+          ),
+          { error: true }
         )
       }
 
       await extensionWallet.rejectApproval(err, stay, isInternal)
+
+      await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)
@@ -70,9 +84,14 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
     [approval, extensionWallet, getApproval, addToast, t]
   )
 
+  const { requests, resolveMany } = useSignApproval({ approval, resolveApproval, rejectApproval })
+
   useEffect(() => {
     if (!getUiType().isNotification) return
 
+    // Be aware, that this window listener might not get trigger on all
+    // browsers. The `rejectApproval` gets triggered on Chrome, even  without
+    // this listener. But it might be needed for other browsers or use-cases.
     window.addEventListener('beforeunload', rejectApproval)
 
     return () => window.removeEventListener('beforeunload', rejectApproval)
@@ -103,12 +122,22 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
       value={useMemo(
         () => ({
           approval,
+          requests,
           hasCheckedForApprovalInitially,
           getApproval,
           resolveApproval,
-          rejectApproval
+          rejectApproval,
+          resolveMany
         }),
-        [approval, hasCheckedForApprovalInitially, getApproval, resolveApproval, rejectApproval]
+        [
+          approval,
+          requests,
+          hasCheckedForApprovalInitially,
+          getApproval,
+          resolveApproval,
+          rejectApproval,
+          resolveMany
+        ]
       )}
     >
       {children}

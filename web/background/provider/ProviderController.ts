@@ -1,3 +1,5 @@
+/* eslint-disable no-promise-executor-return */
+/* eslint-disable no-await-in-loop */
 import 'reflect-metadata'
 
 import networks from 'ambire-common/src/constants/networks'
@@ -6,6 +8,7 @@ import { ethErrors } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
 import cloneDeep from 'lodash/cloneDeep'
 
+import { APP_VERSION } from '@config/env'
 import permissionService from '@web/background/services/permission'
 import sessionService, { Session } from '@web/background/services/session'
 import Wallet from '@web/background/wallet'
@@ -21,12 +24,13 @@ interface ApprovalRes {
   isCancel?: boolean
   isSwap?: boolean
   isGnosis?: boolean
-  // TODO:
   account?: any
   extra?: Record<string, any>
   traceId?: string
   $ctx?: any
   signingTxId?: string
+  hash?: string
+  error?: string
 }
 
 interface Web3WalletPermission {
@@ -37,24 +41,18 @@ interface Web3WalletPermission {
   date?: number
 }
 
-const v1SignTypedDataValidation = ({
-  data: {
-    params: [_, from]
+const handleSignMessage = (approvalRes: ApprovalRes) => {
+  if (approvalRes) {
+    if (approvalRes?.error) {
+      throw ethErrors.rpc.invalidParams({
+        message: approvalRes?.error
+      })
+    }
+
+    return approvalRes?.hash
   }
-}) => {
-  // TODO:
-  // const currentAddress = preferenceService.getCurrentAccount()?.address.toLowerCase()
-  // if (from.toLowerCase() !== currentAddress)
-  //   throw ethErrors.rpc.invalidParams('from should be same as current address')
-}
-const signTypedDataValidation = ({
-  data: {
-    params: [from, _]
-  }
-}) => {
-  // const currentAddress = preferenceService.getCurrentAccount()?.address.toLowerCase()
-  // if (from.toLowerCase() !== currentAddress)
-  //   throw ethErrors.rpc.invalidParams('from should be same as current address')
+
+  throw new Error('Internal error: approval result not found', approvalRes)
 }
 
 class ProviderController {
@@ -85,7 +83,32 @@ class ProviderController {
       return Promise.resolve(block)
     }
 
+    // Ambire modifies the txn data but dapps need the original txn data that has been requested on ethSendTransaction
+    // therefore we override the data stored on the blockchain with the original one
     if (method === 'eth_getTransactionByHash') {
+      let fetchedTx = null
+      let failed = 0
+      while (fetchedTx === null && failed < 3) {
+        fetchedTx = await provider.getTransaction(params[0])
+        if (fetchedTx === null) {
+          await new Promise((r) => setTimeout(r, 1500))
+          failed++
+        }
+      }
+
+      if (fetchedTx) {
+        const response = provider._wrapTransaction(fetchedTx, params[0])
+        const txs = await storage.get('transactionHistory')
+        if (txs[params[0]]) {
+          const txn = JSON.parse(txs[params[0]])
+          if (txn?.data) {
+            response.data = txn?.data
+          }
+        }
+
+        return response
+      }
+
       return provider.getTransaction(params[0])
     }
 
@@ -161,7 +184,7 @@ class ProviderController {
     return intToHex(network?.chainId || networks[0].chainId)
   }
 
-  @Reflect.metadata('APPROVAL', ['send-txn', false])
+  @Reflect.metadata('APPROVAL', ['SendTransaction', false])
   ethSendTransaction = async (options: {
     data: {
       $ctx?: any
@@ -178,11 +201,17 @@ class ProviderController {
       data: {
         params: [txParams]
       },
-      session: { origin },
       approvalRes
     } = cloneDeep(options)
 
-    console.log('txParams', txParams)
+    if (approvalRes) {
+      const txnHistory = (await storage.get('transactionHistory')) || {}
+      txnHistory[approvalRes.hash || ''] = JSON.stringify(txParams)
+      await storage.set('transactionHistory', txnHistory)
+      return approvalRes?.hash
+    }
+
+    throw new Error('Transaction failed!')
   }
 
   @Reflect.metadata('SAFE', true)
@@ -195,74 +224,45 @@ class ProviderController {
 
   @Reflect.metadata('SAFE', true)
   web3ClientVersion = () => {
-    // TODO:
-    return 'TODO'
-    // return `Rabby/${process.env.release}`
+    return `Ambire v${APP_VERSION}`
   }
 
-  @Reflect.metadata('APPROVAL', [
-    'SignText',
-    ({
-      data: {
-        params: [_, from]
-      }
-    }) => {
-      // TODO:
-      // const currentAddress = preferenceService.getCurrentAccount()?.address.toLowerCase()
-      // if (from.toLowerCase() !== currentAddress)
-      //   throw ethErrors.rpc.invalidParams('from should be same as current address')
-    }
-  ])
-  personalSign = async ({ data, approvalRes, session }) => {
-    // TODO:
-    if (!data.params) return
+  @Reflect.metadata('APPROVAL', ['SignText', false])
+  personalSign = async ({ approvalRes }: any) => {
+    return handleSignMessage(approvalRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', v1SignTypedDataValidation])
-  ethSignTypedData = async ({
-    data: {
-      params: [data, from]
-    },
-    session,
-    approvalRes
-  }) => {
-    // TODO:
+  @Reflect.metadata('APPROVAL', ['SignText', false])
+  ethSign = async ({ approvalRes }: any) => {
+    return handleSignMessage(approvalRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', v1SignTypedDataValidation])
-  ethSignTypedDataV1 = async ({
-    data: {
-      params: [data, from]
-    },
-    session,
-    approvalRes
-  }) => {}
+  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
+  ethSignTypedData = async ({ approvalRes }: any) => {
+    return handleSignMessage(approvalRes)
+  }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', signTypedDataValidation])
-  ethSignTypedDataV3 = async ({
-    data: {
-      params: [from, data]
-    },
-    session,
-    approvalRes
-  }) => {}
+  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
+  ethSignTypedDataV1 = async ({ approvalRes }: any) => {
+    return handleSignMessage(approvalRes)
+  }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', signTypedDataValidation])
-  ethSignTypedDataV4 = async ({
-    data: {
-      params: [from, data]
-    },
-    session,
-    approvalRes
-  }) => {}
+  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
+  ethSignTypedDataV3 = async ({ approvalRes }: any) => {
+    return handleSignMessage(approvalRes)
+  }
 
-  @Reflect.metadata('APPROVAL', ['switch-network', false])
+  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
+  ethSignTypedDataV4 = async ({ approvalRes }: any) => {
+    return handleSignMessage(approvalRes)
+  }
+
+  @Reflect.metadata('APPROVAL', ['SwitchNetwork', false])
   walletAddEthereumChain = ({
     data: {
       params: [chainParams]
     },
-    session: { origin },
-    approvalRes
+    session: { origin }
   }: {
     data: {
       params: any[]
@@ -286,7 +286,6 @@ class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    // sessionService.broadcastEvent('ambire:chainChanged', network, origin)
     sessionService.broadcastEvent(
       'chainChanged',
       {
@@ -299,7 +298,7 @@ class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['switch-network', false])
+  @Reflect.metadata('APPROVAL', ['SwitchNetwork', false])
   walletSwitchEthereumChain = ({
     data: {
       params: [chainParams]
@@ -317,7 +316,6 @@ class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    // sessionService.broadcastEvent('ambire:chainChanged', network, origin)
     sessionService.broadcastEvent(
       'chainChanged',
       {
@@ -330,10 +328,8 @@ class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['AddAsset', () => null])
-  walletWatchAsset = () => {
-    throw new Error('Ambire does not support adding tokens in this way for now.')
-  }
+  @Reflect.metadata('APPROVAL', ['WalletWatchAsset', false])
+  walletWatchAsset = () => true
 
   walletRequestPermissions = ({ data: { params: permissions } }) => {
     const result: Web3WalletPermission[] = []

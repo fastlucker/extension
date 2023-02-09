@@ -13,7 +13,7 @@ import PromiseFlow from '@web/utils/promiseFlow'
 import underline2Camelcase from '@web/utils/underline2Camelcase'
 
 const isSignApproval = (type: string) => {
-  const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SignTx']
+  const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SendTransaction']
   return SIGN_APPROVALS.includes(type)
 }
 
@@ -92,7 +92,7 @@ const flowContext = flow
         try {
           const { defaultChain } = await notificationService.requestApproval({
             params: { origin, name, icon },
-            approvalComponent: 'permission-request'
+            approvalComponent: 'PermissionRequest'
           })
           connectOrigins.delete(origin)
           permissionService.addConnectedSite(origin, name, icon, defaultChain)
@@ -109,7 +109,7 @@ const flowContext = flow
     // check need approval
     const {
       request: {
-        data: { params, method },
+        data: { method },
         session: { origin, name, icon }
       },
       mapMethod
@@ -143,7 +143,6 @@ const flowContext = flow
     // process request
     const [approvalType] = Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
     const { uiRequestComponent, ...rest } = approvalRes || {}
-    console.log('!!!!', approvalType, mapMethod, uiRequestComponent)
     const {
       session: { origin }
     } = request
