@@ -56,7 +56,7 @@ const ExtensionWalletContext = createContext<{
   extensionWallet: ExtensionWalletController
 } | null>(null)
 
-const WalletProvider: React.FC<any> = ({ children }) => (
+const ExtensionWalletProvider: React.FC<any> = ({ children }) => (
   <ExtensionWalletContext.Provider
     value={useMemo(
       () => ({
@@ -68,7 +68,5 @@ const WalletProvider: React.FC<any> = ({ children }) => (
     {children}
   </ExtensionWalletContext.Provider>
 )
-
-const ExtensionWalletProvider = isExtension ? WalletProvider : ({ children }: any) => children
 
 export { ExtensionWalletProvider, ExtensionWalletContext }

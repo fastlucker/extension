@@ -7,7 +7,6 @@ import useToast from '@modules/common/hooks/useToast'
 import { delayPromise } from '@modules/common/utils/promises'
 import useVault from '@modules/vault/hooks/useVault'
 import { Approval } from '@web/background/services/notification'
-import { isExtension } from '@web/constants/browserapi'
 import { getUiType } from '@web/utils/uiType'
 
 import { UseExtensionApprovalReturnType } from './types'
@@ -29,7 +28,7 @@ const ExtensionApprovalContext = createContext<UseExtensionApprovalReturnType>({
   resolveMany: () => {}
 })
 
-const ApprovalProvider: React.FC<any> = ({ children }) => {
+const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { authStatus } = useAuth()
@@ -145,8 +144,5 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
     </ExtensionApprovalContext.Provider>
   )
 }
-
-// To avoid conflicts in web only environment
-const ExtensionApprovalProvider = isExtension ? ApprovalProvider : ({ children }: any) => children
 
 export { ExtensionApprovalProvider, ExtensionApprovalContext }
