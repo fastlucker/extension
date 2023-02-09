@@ -15,6 +15,7 @@ import useSignApproval from './useSignApproval'
 // In the cases when the dApp requests multiple approvals, but waits the
 // response from the prev one to request the next one. For example
 // this happens with https://polygonscan.com/ and https://bscscan.com/
+// when you try to "Add Token to Web3 Wallet".
 const MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS = 850
 
 const ExtensionApprovalContext = createContext<UseExtensionApprovalReturnType>({
