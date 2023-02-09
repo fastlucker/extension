@@ -83,7 +83,7 @@ module.exports = async function (env, argv) {
       delete manifest.action
       manifest.externally_connectable = undefined
       manifest.permissions.push('<all_urls>')
-      // manifest.content_security_policy = csp
+      manifest.content_security_policy = csp
     }
 
     const manifestJSON = JSON.stringify(manifest, null, 2)
