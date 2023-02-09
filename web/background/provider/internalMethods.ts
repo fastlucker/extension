@@ -38,8 +38,8 @@ const providerOverwrite = ({
 const hasOtherProvider = () => {
   // preferenceService.setHasOtherProvider(true)
   // TODO:
-  // const isRabby = preferenceService.getIsDefaultWallet()
-  // setPopupIcon(isRabby ? 'rabby' : 'metamask')
+  // const isAmbire = preferenceService.getIsDefaultWallet()
+  // setPopupIcon(isAmbire ? 'ambire' : 'metamask')
   return false
 }
 
