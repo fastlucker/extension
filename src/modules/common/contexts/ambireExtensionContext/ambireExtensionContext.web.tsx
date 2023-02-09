@@ -84,6 +84,7 @@ const ExtensionProvider: React.FC<any> = ({ children }) => {
   )
 }
 
-const AmbireExtensionProvider = isExtension ? ExtensionProvider : ({ children }) => children
+// To avoid conflicts in web only environment
+const AmbireExtensionProvider = isExtension ? ExtensionProvider : ({ children }: any) => children
 
 export { AmbireExtensionContext, AmbireExtensionProvider }
