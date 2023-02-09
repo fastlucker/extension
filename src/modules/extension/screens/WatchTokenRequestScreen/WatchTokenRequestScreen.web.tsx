@@ -43,10 +43,6 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
     navigation.setOptions({ headerTitle: t('Webpage Wants to Add Token') })
   }, [t, navigation])
 
-  // On skip, resolve, since if you have positive balance of this token,
-  // you will be able to see it in the Ambire Wallet in all cases.
-  const handleSkipButtonPress = useCallback(() => resolveApproval(true), [resolveApproval])
-
   const tokenSymbol = approval?.data?.params?.data?.options?.symbol
   const tokenAddress = approval?.data?.params?.data?.options?.address
 
@@ -89,6 +85,13 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
       resolveApproval(true)
     }
   }, [extraToken, onAddExtraToken, resolveApproval])
+
+  // On skip, resolve, since if you have positive balance of this token,
+  // you will be able to see it in the Ambire Wallet in all cases.
+  const handleSkipButtonPress = useCallback(() => {
+    setIsAdding(true)
+    resolveApproval(true)
+  }, [resolveApproval])
 
   const handleDenyButtonPress = useCallback(
     () => rejectApproval(t('User rejected the request.')),
@@ -191,7 +194,7 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
                     </View>
                     <View style={styles.buttonWrapper}>
                       <Button
-                        disabled={isAdding}
+                        disabled={isAdding || !extraToken}
                         type="outline"
                         onPress={handleAddToken}
                         text={isAdding ? t('Adding...') : t('Add token')}
@@ -201,7 +204,12 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
                 )}
                 {!tokenEligibleStatus.isEligible && (
                   <View style={styles.buttonWrapper}>
-                    <Button type="outline" onPress={handleSkipButtonPress} text={t('Okay')} />
+                    <Button
+                      disabled={isAdding}
+                      type="outline"
+                      onPress={handleSkipButtonPress}
+                      text={isAdding ? t('Confirming...') : t('Okay')}
+                    />
                   </View>
                 )}
               </View>
