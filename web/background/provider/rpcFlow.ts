@@ -13,7 +13,7 @@ import PromiseFlow from '@web/utils/promiseFlow'
 import underline2Camelcase from '@web/utils/underline2Camelcase'
 
 const isSignApproval = (type: string) => {
-  const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SignTx']
+  const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SendTransaction']
   return SIGN_APPROVALS.includes(type)
 }
 

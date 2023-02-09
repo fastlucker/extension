@@ -25,7 +25,7 @@ export interface Approval {
 }
 
 const QUEUE_APPROVAL_COMPONENTS_WHITELIST = [
-  'SignTx',
+  'SendTransaction',
   'SignText',
   'SignTypedData',
   'LedgerHardwareWaiting'
@@ -200,15 +200,17 @@ class NotificationService extends Events {
         data,
         winProps,
         resolve(data) {
-          if (this.data.approvalComponent === 'SignTx') {
-            reportExplain(this.signingTxId)
-          }
+          // TODO: check if needed
+          // if (this.data.approvalComponent === 'SendTransaction') {
+          //   reportExplain(this.signingTxId)
+          // }
           resolve(data)
         },
         reject(data) {
-          if (this.data.approvalComponent === 'SignTx') {
-            reportExplain(this.signingTxId)
-          }
+          // TODO: check if needed
+          // if (this.data.approvalComponent === 'SendTransaction') {
+          //   reportExplain(this.signingTxId)
+          // }
           reject(data)
         }
       }
@@ -237,6 +239,7 @@ class NotificationService extends Events {
           this.currentApproval = approval
         }
       }
+      // TODO: might be needed for the Multichain UX feature
       if (
         ['wallet_switchEthereumChain', 'wallet_addEthereumChain'].includes(data?.params?.method)
       ) {
