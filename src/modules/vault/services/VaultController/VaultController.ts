@@ -11,6 +11,8 @@ import { ObservableStore } from '@metamask/obs-store'
 import { decrypt, encrypt } from '@modules/common/services/passworder'
 import { sendNoRelayer } from '@modules/common/services/sendNoRelayer'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
+import sessionService from '@web/background/services/session'
+import { isExtension } from '@web/constants/browserapi'
 
 import { Vault, VaultItem } from './types'
 
@@ -130,6 +132,11 @@ class VaultController extends EventEmitter {
     this.#password = null
     this.cleanMemVault()
     this.#vault = null
+
+    if (isExtension) {
+      sessionService.broadcastEvent('accountsChanged', [])
+      sessionService.broadcastEvent('lock')
+    }
 
     return Promise.resolve(VAULT_STATUS.LOCKED)
   }
