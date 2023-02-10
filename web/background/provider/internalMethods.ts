@@ -40,7 +40,7 @@ const hasOtherProvider = () => {
   // TODO:
   // const isAmbire = preferenceService.getIsDefaultWallet()
   // setPopupIcon(isAmbire ? 'ambire' : 'metamask')
-  return false
+  return true
 }
 
 const isDefaultWallet = () => {

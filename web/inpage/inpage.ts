@@ -319,9 +319,10 @@ const ambireProvider = new Proxy(provider, {
 })
 
 provider.requestInternalMethods({ method: 'isDefaultWallet' }).then((isDefaultWallet) => {
+  // TODO: Take (ans switch this setting from the Ambire settings)
   isDefaultWallet = true
-  cacheOtherProvider = false
   // ambireProvider.on('defaultWalletChanged', switchWalletNotice)
+
   let finalProvider: EthereumProvider | null = null
   if (isDefaultWallet || !cacheOtherProvider) {
     finalProvider = ambireProvider
@@ -340,10 +341,8 @@ provider.requestInternalMethods({ method: 'isDefaultWallet' }).then((isDefaultWa
         return finalProvider
       }
     })
-    if (!window.web3) {
-      window.web3 = {
-        currentProvider: ambireProvider
-      }
+    window.web3 = {
+      currentProvider: ambireProvider
     }
     finalProvider._isReady = true
     // finalProvider.on('ambire:chainChanged', switchChainNotice)
@@ -399,10 +398,8 @@ Object.defineProperty(window, 'ethereum', {
   }
 })
 
-if (!window.web3) {
-  window.web3 = {
-    currentProvider: window.ethereum
-  }
+window.web3 = {
+  currentProvider: window.ethereum
 }
 
 window.dispatchEvent(new Event('ethereum#initialized'))
