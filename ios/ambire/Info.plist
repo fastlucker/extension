@@ -49,13 +49,14 @@
 		</dict>
 	</dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Ambire uses Bluetooth to connect to hardware wallet devices.</string>
+	<string>To connect and communicate with hardware wallet devices that manage your $(PRODUCT_NAME) account.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Ambire uses Bluetooth to connect to hardware wallet devices.</string>
+	<string>To connect and communicate with hardware wallet devices that manage your $(PRODUCT_NAME) account.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to use the camera</string>
+	<string>To connect to decentralized applications by scanning WalletConnect-compatible QR codes and to login to your $(PRODUCT_NAME) account by scanning $(PRODUCT_NAME)-compatible QR codes.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to use FaceID so you can authenticate and sign transactions easier as an alternative to using your account password.</string>
+	<string>To use it as an alternative method of authentication in addition to using your $(PRODUCT_NAME) Key Store password.</string>
+	<!-- TODO: Check if you can remove this -->
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to use the microphone</string>
 	<key>UILaunchStoryboardName</key>
