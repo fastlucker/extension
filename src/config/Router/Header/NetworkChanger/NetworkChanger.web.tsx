@@ -8,12 +8,17 @@ import Title from '@modules/common/components/Title'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import textStyles from '@modules/common/styles/utils/text'
+import { delayPromise } from '@modules/common/utils/promises'
 import { isExtension } from '@web/constants/browserapi'
 
 import NetworkChangerItem from './NetworkChangerItem'
 import styles, { SINGLE_ITEM_HEIGHT } from './styles'
 
-const NetworkChanger: React.FC = () => {
+interface Props {
+  closeBottomSheet?: () => void
+}
+
+const NetworkChanger: React.FC<Props> = ({ closeBottomSheet = () => {} }) => {
   const { t } = useTranslation()
   const { network, setNetwork } = useNetwork()
   const scrollRef: any = useRef(null)
@@ -40,16 +45,21 @@ const NetworkChanger: React.FC = () => {
   }, [])
 
   const handleChangeNetwork = useCallback(
-    (_network: NetworkType) => {
+    async (_network: NetworkType) => {
       if (!_network) return
       if (_network.chainId === network?.chainId) return
 
       setNetwork(_network.chainId)
       if (isExtension) {
         extensionWallet.networkChange(_network)
+
+        // Slight delay, so that the network selection animation executes,
+        // giving visual feedback to the user that the network has changed.
+        await delayPromise(200)
+        closeBottomSheet()
       }
     },
-    [network?.chainId, setNetwork, extensionWallet]
+    [network?.chainId, setNetwork, extensionWallet, closeBottomSheet]
   )
 
   const renderNetwork = (_network: NetworkType, idx: number) => {
