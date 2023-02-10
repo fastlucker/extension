@@ -13,6 +13,15 @@ export const EVENTS = {
   SIGN_FINISHED: 'SIGN_FINISHED'
 }
 
+// eslint-disable-next-line no-restricted-globals
+export const INTERNAL_REQUEST_ORIGIN = location.origin
+
+export const INTERNAL_REQUEST_SESSION = {
+  name: 'Ambire',
+  origin: INTERNAL_REQUEST_ORIGIN,
+  icon: '../assets/images/xicon@128.png'
+}
+
 export const SAFE_RPC_METHODS = [
   'eth_blockNumber',
   'eth_call',

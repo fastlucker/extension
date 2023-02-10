@@ -75,10 +75,12 @@ class ProviderController {
 
     if (method === 'eth_getBlockByNumber') {
       const block = await provider.getBlock(params[0])
-      block.gasLimit = block.gasLimit.toHexString()
-      block.gasUsed = block.gasUsed.toHexString()
-      block.baseFeePerGas = block.baseFeePerGas.toHexString()
-      block._difficulty = block._difficulty.toHexString()
+      if (block) {
+        block.gasLimit = block.gasLimit.toHexString()
+        block.gasUsed = block.gasUsed.toHexString()
+        block.baseFeePerGas = block.baseFeePerGas.toHexString()
+        block._difficulty = block._difficulty.toHexString()
+      }
 
       return Promise.resolve(block)
     }
@@ -117,7 +119,8 @@ class ProviderController {
     }
 
     if (method === 'eth_gasPrice') {
-      return provider.getGasPrice()
+      const res = await provider.getGasPrice()
+      return Promise.resolve(res?._hex)
     }
 
     if (method === 'eth_getBalance') {
@@ -139,6 +142,10 @@ class ProviderController {
 
     if (method === 'eth_getCode') {
       return provider.getCode(params[0])
+    }
+
+    if (method === 'eth_getTransactionCount') {
+      return provider.getTransactionCount(params[0])
     }
 
     // TODO: handle the rest of the SAFE_RPC_METHODS starting with eth_...

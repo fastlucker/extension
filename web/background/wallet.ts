@@ -4,7 +4,9 @@ import { intToHex } from 'ethereumjs-util'
 import VaultController from '@modules/vault/services/VaultController'
 import permissionService, { ConnectedSite } from '@web/background/services/permission'
 import sessionService from '@web/background/services/session'
+import { INTERNAL_REQUEST_ORIGIN } from '@web/constants/common'
 
+import provider from './provider/provider'
 import notificationService from './services/notification'
 
 export class WalletController {
@@ -66,6 +68,17 @@ export class WalletController {
   accountChange = (selectedAcc: string) => {
     const account = selectedAcc ? [selectedAcc] : []
     sessionService.broadcastEvent('accountsChanged', account)
+  }
+
+  sendRequest = <T = any>(data: any) => {
+    return provider<T>({
+      data,
+      session: {
+        name: 'Ambire',
+        origin: INTERNAL_REQUEST_ORIGIN,
+        icon: '../assets/images/xicon@128.png'
+      }
+    })
   }
 }
 
