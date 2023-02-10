@@ -71,10 +71,14 @@ module.exports = async function (env, argv) {
         scripts: ['browser-polyfill.js', 'background.js'],
         persistent: true
       }
-      manifest.browser_specific_settings = {
-        gecko: {
-          id: 'webextension@ambire.com',
-          strict_min_version: '68.0'
+      // Chrome extensions do not respect `browser_specific_settings`
+      // {@link https://stackoverflow.com/a/72527986/1333836}
+      if (process.env.WEB_ENGINE === 'gecko') {
+        manifest.browser_specific_settings = {
+          gecko: {
+            id: 'webextension@ambire.com',
+            strict_min_version: '68.0'
+          }
         }
       }
       manifest.web_accessible_resources = ['*']
