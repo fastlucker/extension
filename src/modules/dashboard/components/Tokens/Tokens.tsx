@@ -23,7 +23,6 @@ interface Props {
   hiddenTokens: UsePortfolioReturnType['hiddenTokens']
   protocols: UsePortfolioReturnType['protocols']
   networkId?: NetworkId
-  networkRpc?: NetworkType['rpc']
   networkName?: NetworkType['name']
   selectedAcc: UseAccountsReturnType['selectedAcc']
   isCurrNetworkBalanceLoading: boolean
@@ -40,7 +39,6 @@ const Tokens = ({
   hiddenTokens,
   protocols,
   networkId,
-  networkRpc,
   networkName,
   selectedAcc,
   isCurrNetworkBalanceLoading,
@@ -148,7 +146,6 @@ const Tokens = ({
       <AddOrHideToken
         tokens={tokens}
         networkId={networkId}
-        networkRpc={networkRpc}
         networkName={networkName}
         selectedAcc={selectedAcc}
         extraTokens={extraTokens}
