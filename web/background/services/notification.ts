@@ -180,7 +180,7 @@ class NotificationService extends Events {
     if (approval?.data?.approvalComponent === 'SendTransaction') {
       // Removes all cached signing requests (otherwise they will be shown again
       // in the browser extension UI, when it gets opened by the user)
-      browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })
+      browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
     }
 
     if (approval && this.approvals.length > 1) {
@@ -286,7 +286,7 @@ class NotificationService extends Events {
 
     // Removes all cached signing requests (otherwise they will be shown again
     // in the browser extension UI, when it gets opened by the user)
-    browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })
+    browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
   }
 
   unLock = () => {
