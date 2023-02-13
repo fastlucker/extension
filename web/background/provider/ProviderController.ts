@@ -140,10 +140,6 @@ class ProviderController {
       return provider.estimateGas(params[0])
     }
 
-    if (method === 'eth_getCode') {
-      return provider.getCode(params[0])
-    }
-
     if (method === 'eth_getTransactionCount') {
       return provider.getTransactionCount(params[0])
     }
