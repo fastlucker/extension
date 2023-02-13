@@ -20,12 +20,6 @@ interface StateProvider {
 }
 
 export class EthereumProvider extends EventEmitter {
-  currentAccount = ''
-
-  currentAccountType = ''
-
-  currentAccountBrand = ''
-
   chainId: string | null = null
 
   selectedAddress: string | null = null
