@@ -75,14 +75,24 @@ class ProviderController {
 
     if (method === 'eth_getBlockByNumber') {
       const block = await provider.getBlock(params[0])
-      if (block) {
+
+      if (!block) {
+        return Promise.resolve(null)
+      }
+
+      try {
         block.gasLimit = block.gasLimit.toHexString()
         block.gasUsed = block.gasUsed.toHexString()
         block.baseFeePerGas = block.baseFeePerGas.toHexString()
-        block._difficulty = block._difficulty.toHexString()
+
+        block._difficulty = block._difficulty?._isBigNumber
+          ? block._difficulty._hex
+          : block._difficulty.toHexString()
+      } catch {
+        // fail silently
       }
 
-      return Promise.resolve(block)
+      return Promise.resolve(block || null)
     }
 
     // Ambire modifies the txn data but dapps need the original txn data that has been requested on ethSendTransaction
