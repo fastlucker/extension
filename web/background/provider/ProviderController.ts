@@ -9,6 +9,7 @@ import { intToHex } from 'ethereumjs-util'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { APP_VERSION } from '@config/env'
+import { delayPromise } from '@modules/common/utils/promises'
 import permissionService from '@web/background/services/permission'
 import sessionService, { Session } from '@web/background/services/session'
 import Wallet from '@web/background/wallet'
@@ -143,6 +144,15 @@ class ProviderController {
     }
 
     if (method === 'eth_blockNumber') {
+      // FIXME: `provider.getBlockNumber` is causing a browser extension crash
+      // for some cases (seems like the provider gets cached or something).
+      // Delaying this a bit seems to fix the issue. You can reproduce it by
+      // using the https://www.myetherwallet.com/ dApp. In the dApp switch to
+      // the Polygon chain. Then close the dApp. Switch Ambire to Ethereum chain
+      // then open the dApp again. The dApp requests to switch chain to Polygon
+      // and when switched - the browser extension crashes.
+      await delayPromise(850)
+
       return provider.getBlockNumber()
     }
 
