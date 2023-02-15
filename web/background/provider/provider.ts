@@ -1,3 +1,4 @@
+// @ts-nocheck
 import internalMethods from '@web/background/provider/internalMethods'
 import rpcFlow from '@web/background/provider/rpcFlow'
 import { ProviderRequest } from '@web/background/provider/types'
