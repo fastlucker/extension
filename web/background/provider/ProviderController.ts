@@ -75,12 +75,24 @@ class ProviderController {
 
     if (method === 'eth_getBlockByNumber') {
       const block = await provider.getBlock(params[0])
-      block.gasLimit = block.gasLimit.toHexString()
-      block.gasUsed = block.gasUsed.toHexString()
-      block.baseFeePerGas = block.baseFeePerGas.toHexString()
-      block._difficulty = block._difficulty.toHexString()
 
-      return Promise.resolve(block)
+      if (!block) {
+        return Promise.resolve(null)
+      }
+
+      try {
+        block.gasLimit = block.gasLimit.toHexString()
+        block.gasUsed = block.gasUsed.toHexString()
+        block.baseFeePerGas = block.baseFeePerGas.toHexString()
+
+        block._difficulty = block._difficulty?._isBigNumber
+          ? block._difficulty._hex
+          : block._difficulty.toHexString()
+      } catch {
+        // fail silently
+      }
+
+      return Promise.resolve(block || null)
     }
 
     // Ambire modifies the txn data but dapps need the original txn data that has been requested on ethSendTransaction
@@ -117,7 +129,8 @@ class ProviderController {
     }
 
     if (method === 'eth_gasPrice') {
-      return provider.getGasPrice()
+      const res = await provider.getGasPrice()
+      return Promise.resolve(res?._hex)
     }
 
     if (method === 'eth_getBalance') {
@@ -137,8 +150,8 @@ class ProviderController {
       return provider.estimateGas(params[0])
     }
 
-    if (method === 'eth_getCode') {
-      return provider.getCode(params[0])
+    if (method === 'eth_getTransactionCount') {
+      return provider.getTransactionCount(params[0])
     }
 
     // TODO: handle the rest of the SAFE_RPC_METHODS starting with eth_...

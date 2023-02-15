@@ -22,7 +22,8 @@ const ThemeProvider: React.FC = ({ children }) => {
   const colorScheme = useColorScheme()
   const [themeType, setThemeType] = useStorage<THEME_TYPES>({
     key: 'theme',
-    defaultValue: DEFAULT_THEME
+    defaultValue: DEFAULT_THEME,
+    isStringStorage: true
   })
 
   const setTheme = useCallback(() => {

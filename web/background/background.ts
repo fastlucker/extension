@@ -1,16 +1,19 @@
+import networks from 'ambire-common/src/constants/networks'
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
+import { intToHex } from 'ethereumjs-util'
 
 import { rpcProviders } from '@modules/common/services/providers'
 import VaultController from '@modules/vault/services/VaultController'
+import buildinProvider from '@web/background/provider/buildinProvider'
 import providerController from '@web/background/provider/provider'
+import createSubscription from '@web/background/provider/subscriptionManager'
+import permissionService from '@web/background/services/permission'
 import sessionService from '@web/background/services/session'
 import WalletController from '@web/background/wallet'
+import storage from '@web/background/webapi/storage'
 import eventBus from '@web/event/eventBus'
 import PortMessage from '@web/message/portMessage'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
-
-import permissionService from './services/permission'
-import storage from './webapi/storage'
 
 async function init() {
   // Initialize rpc providers for all networks
@@ -28,7 +31,7 @@ async function init() {
 init()
 
 // listen for messages from UI
-browser.runtime.onConnect.addListener((port) => {
+browser.runtime.onConnect.addListener(async (port) => {
   if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
     const pm = new PortMessage(port)
     pm.listen((data) => {
@@ -76,6 +79,18 @@ browser.runtime.onConnect.addListener((port) => {
   }
 
   const pm = new PortMessage(port)
+  const provider = buildinProvider.currentProvider
+  const subscriptionManager = await createSubscription(provider)
+
+  subscriptionManager.events.on('notification', (message: any) => {
+    pm.send('message', {
+      event: 'message',
+      data: {
+        type: message.method,
+        data: message.params
+      }
+    })
+  })
 
   pm.listen(async (data) => {
     // TODO:
@@ -93,7 +108,22 @@ browser.runtime.onConnect.addListener((port) => {
     const req = { data, session, origin }
     // for background push to respective page
     req.session!.setPortMessage(pm)
+    // @ts-ignore
+    if (subscriptionManager.methods[data?.method]) {
+      const connectSite = permissionService.getConnectedSite(session!.origin)
+      if (connectSite) {
+        const selectedNetworkId = await storage.get('networkId')
+        const network = networks.find((n) => n.id === selectedNetworkId)
+        provider.chainId = intToHex(network?.chainId || networks[0].chainId)
+      }
+      // @ts-ignore
+      return subscriptionManager.methods[data.method].call(null, req)
+    }
 
     return providerController(req)
+  })
+
+  port.onDisconnect.addListener(() => {
+    subscriptionManager.destroy()
   })
 })

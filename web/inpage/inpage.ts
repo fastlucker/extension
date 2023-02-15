@@ -235,10 +235,14 @@ export class EthereumProvider extends EventEmitter {
         )
       ).then((result) => callback(null, result))
     }
-    const { method, params, ...rest } = payload
-    this.request({ method, params })
-      .then((result) => callback(null, { ...rest, method, result }))
-      .catch((error) => callback(error, { ...rest, method, error }))
+    if (typeof payload === 'object') {
+      const { method, params, ...rest } = payload
+      this.request({ method, params })
+        .then((result) => callback(null, { ...rest, method, result }))
+        .catch((error) => callback(error, { ...rest, method, error }))
+    } else {
+      callback(null)
+    }
   }
 
   send = (payload, callback?) => {

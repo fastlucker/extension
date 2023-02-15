@@ -1,3 +1,4 @@
+import networks from 'ambire-common/src/constants/networks'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
@@ -8,6 +9,8 @@ import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@modules/common/contexts
 import colors from '@modules/common/styles/colors'
 import winMgr, { WINDOW_SIZE } from '@web/background/webapi/window'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
+
+import storage from '../webapi/storage'
 
 export interface Approval {
   id: string
@@ -177,7 +180,7 @@ class NotificationService extends Events {
     if (approval?.data?.approvalComponent === 'SendTransaction') {
       // Removes all cached signing requests (otherwise they will be shown again
       // in the browser extension UI, when it gets opened by the user)
-      browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })
+      browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
     }
 
     if (approval && this.approvals.length > 1) {
@@ -190,6 +193,8 @@ class NotificationService extends Events {
   }
 
   requestApproval = async (data, winProps?): Promise<any> => {
+    const networkId = await storage.get('networkId')
+
     return new Promise((resolve, reject) => {
       const uuid = uuidv4()
       let signingTxId
@@ -200,17 +205,9 @@ class NotificationService extends Events {
         data,
         winProps,
         resolve(data) {
-          // TODO: check if needed
-          // if (this.data.approvalComponent === 'SendTransaction') {
-          //   reportExplain(this.signingTxId)
-          // }
           resolve(data)
         },
         reject(data) {
-          // TODO: check if needed
-          // if (this.data.approvalComponent === 'SendTransaction') {
-          //   reportExplain(this.signingTxId)
-          // }
           reject(data)
         }
       }
@@ -243,14 +240,14 @@ class NotificationService extends Events {
       if (
         ['wallet_switchEthereumChain', 'wallet_addEthereumChain'].includes(data?.params?.method)
       ) {
-        const chainId = data.params?.data?.[0]?.chainId
-        // TODO:
-        // const chain = Object.values(CHAINS).find((chain) =>
-        //   new BigNumber(chain.hex).isEqualTo(chainId)
-        // )
+        let chainId = data.params?.data?.[0]?.chainId
+        if (typeof chainId === 'string') {
+          chainId = Number(chainId)
+        }
 
-        const chain = null
-        if (chain) {
+        const network = networks.find((n) => n.chainId === chainId)
+
+        if (network?.id === networkId) {
           this.resolveApproval(null)
           return
         }
@@ -289,7 +286,7 @@ class NotificationService extends Events {
 
     // Removes all cached signing requests (otherwise they will be shown again
     // in the browser extension UI, when it gets opened by the user)
-    browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: [] })
+    browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
   }
 
   unLock = () => {
