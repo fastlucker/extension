@@ -5,15 +5,19 @@ import createSubscriptionManager from 'eth-json-rpc-filters/subscriptionManager'
 
 import storage from '@web/background/webapi/storage'
 
-const createSubscription = async (provider: any): Promise<any> => {
+const createSubscription = async (buildinProvider: any): Promise<any> => {
   const networkId = await storage.get('networkId')
-  const p = getProvider(networkId)
+  // We need to use the rpc provider directly for the blockTracker because
+  // the app crashes for unknown reason when we pass the buildinProvider to
+  // the blockTracker
+  // Usage: https://github.com/MetaMask/eth-block-tracker#usage
+  const provider = getProvider(networkId)
 
   const blockTracker = new PollingBlockTracker({
-    provider: p
+    provider
   })
   const { events, middleware } = createSubscriptionManager({
-    provider,
+    provider: buildinProvider,
     blockTracker
   })
   const { destroy } = middleware
