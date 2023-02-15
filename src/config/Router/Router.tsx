@@ -47,7 +47,7 @@ import PendingTransactionsScreen from '@modules/pending-transactions/screens/Pen
 import ProviderScreen from '@modules/receive/screens/ProviderScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
-import DataDeletionPolicy from '@modules/settings/screens/DataDeletionPolicy'
+import DataDeletionPolicyScreen from '@modules/settings/screens/DataDeletionPolicyScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
@@ -102,7 +102,7 @@ const DataDeletionPolicyStackScreen = () => {
     <DataDeletionPolicyStack.Navigator screenOptions={{ header: headerGamma }}>
       <DataDeletionPolicyStack.Screen
         name="data-deletion-policy-screen"
-        component={DataDeletionPolicy}
+        component={DataDeletionPolicyScreen}
         options={{
           title: t('Data Deletion Policy')
         }}
