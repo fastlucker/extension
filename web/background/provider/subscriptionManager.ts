@@ -1,10 +1,16 @@
+import { getProvider } from 'ambire-common/src/services/provider'
 import { PollingBlockTracker } from 'eth-block-tracker'
 // @ts-ignore
 import createSubscriptionManager from 'eth-json-rpc-filters/subscriptionManager'
 
-const createSubscription = (provider: any) => {
+import storage from '@web/background/webapi/storage'
+
+const createSubscription = async (provider: any): Promise<any> => {
+  const networkId = await storage.get('networkId')
+  const p = getProvider(networkId)
+
   const blockTracker = new PollingBlockTracker({
-    provider
+    provider: p
   })
   const { events, middleware } = createSubscriptionManager({
     provider,

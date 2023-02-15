@@ -31,7 +31,7 @@ async function init() {
 init()
 
 // listen for messages from UI
-browser.runtime.onConnect.addListener((port) => {
+browser.runtime.onConnect.addListener(async (port) => {
   if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
     const pm = new PortMessage(port)
     pm.listen((data) => {
@@ -80,7 +80,7 @@ browser.runtime.onConnect.addListener((port) => {
 
   const pm = new PortMessage(port)
   const provider = buildinProvider.currentProvider
-  const subscriptionManager = createSubscription(provider)
+  const subscriptionManager = await createSubscription(provider)
 
   subscriptionManager.events.on('notification', (message: any) => {
     pm.send('message', {
