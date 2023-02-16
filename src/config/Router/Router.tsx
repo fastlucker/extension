@@ -462,11 +462,13 @@ const AppStack = () => {
         component={AuthStack}
         options={{ headerShown: false }}
       />
-      <MainStack.Screen
-        name="connect"
-        component={ConnectScreen}
-        options={{ title: t('Connect a dApp') }}
-      />
+      {isAndroid && (
+        <MainStack.Screen
+          name="connect"
+          component={ConnectScreen}
+          options={{ title: t('Connect a dApp') }}
+        />
+      )}
       <MainStack.Screen
         name="receive"
         options={{ header: headerGamma }}
