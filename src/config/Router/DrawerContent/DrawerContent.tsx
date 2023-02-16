@@ -89,7 +89,9 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { name: t('Terms of Service'), url: termsAndPrivacyURL }
   ]
 
-  const additionalInfo = [{ name: t('Data Deletion Policy'), route: 'data-deletion-policy' }]
+  const additionalInfo = [
+    ...(!isWeb ? [{ name: t('Data Deletion Policy'), route: 'data-deletion-policy' }] : [])
+  ]
 
   const settings = [
     { name: t('Signers'), route: 'signers' }
