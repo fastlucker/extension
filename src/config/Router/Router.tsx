@@ -99,7 +99,7 @@ const DataDeletionPolicyStackScreen = () => {
   const { t } = useTranslation()
 
   return (
-    <DataDeletionPolicyStack.Navigator screenOptions={{ header: headerGamma }}>
+    <DataDeletionPolicyStack.Navigator screenOptions={{ header: headerBeta }}>
       <DataDeletionPolicyStack.Screen
         name="data-deletion-policy-screen"
         component={DataDeletionPolicyScreen}

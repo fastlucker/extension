@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { Linking } from 'react-native'
 
 import Button from '@modules/common/components/Button'
@@ -18,10 +18,12 @@ const DataDeletionPolicy = () => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper style={spacings.mt}>
-        <Text style={spacings.mbSm}>
-          <Text>{t('Ambire accounts are blockchain accounts and they contain ')}</Text>
-          <Text weight="regular">{t('no identifiable data.')}</Text>
-        </Text>
+        <Trans>
+          <Text style={spacings.mbSm}>
+            <Text>Ambire accounts are blockchain accounts and they contain </Text>
+            <Text weight="regular">no identifiable data.</Text>
+          </Text>
+        </Trans>
         <Text style={spacings.mbSm}>
           {t(
             'As such, there is no data deletion possible because 1) there is no identifiable data and 2) there is a significant risk of loss of funds if non-identifiable metadata is deleted, and 3) some account activities or non-identifiable will remain on the blockchain'
@@ -34,14 +36,14 @@ const DataDeletionPolicy = () => {
         </Text>
         <Text style={spacings.mbSm}>
           {t(
-            'There is a procedure to delete the email and it can be securely done via accessing the Ambire web app. From the security page:'
+            'There is a procedure to delete the email and it can be securely done via accessing the Ambire web app. In the security section:'
           )}
         </Text>
         <Text style={spacings.mbSm}>{t('1) Add a secondary signer key and')}</Text>
         <Text style={spacings.mbLg}>
           {t('2) Remove the email signer key\n(the only identifiable data there is).')}
         </Text>
-        <Button text={t('Manage identifiable data')} onPress={handleLinkPress} />
+        <Button type="primary" text={t('Manage identifiable data')} onPress={handleLinkPress} />
       </Wrapper>
     </GradientBackgroundWrapper>
   )
