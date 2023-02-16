@@ -47,6 +47,7 @@ import PendingTransactionsScreen from '@modules/pending-transactions/screens/Pen
 import ProviderScreen from '@modules/receive/screens/ProviderScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
+import DataDeletionPolicyScreen from '@modules/settings/screens/DataDeletionPolicyScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
 import SwapScreen from '@modules/swap/screens/SwapScreen'
@@ -76,6 +77,7 @@ const EmailLoginStack = createNativeStackNavigator()
 const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
+const DataDeletionPolicyStack = createNativeStackNavigator()
 
 const SignersStackScreen = () => {
   const { t } = useTranslation()
@@ -90,6 +92,22 @@ const SignersStackScreen = () => {
         }}
       />
     </SignersStack.Navigator>
+  )
+}
+
+const DataDeletionPolicyStackScreen = () => {
+  const { t } = useTranslation()
+
+  return (
+    <DataDeletionPolicyStack.Navigator screenOptions={{ header: headerBeta }}>
+      <DataDeletionPolicyStack.Screen
+        name="data-deletion-policy-screen"
+        component={DataDeletionPolicyScreen}
+        options={{
+          title: t('Data Deletion Policy')
+        }}
+      />
+    </DataDeletionPolicyStack.Navigator>
   )
 }
 
@@ -451,6 +469,11 @@ const AppStack = () => {
         options={{ headerShown: false }}
         name="signers"
         component={SignersStackScreen}
+      />
+      <MainStack.Screen
+        name="data-deletion-policy"
+        component={DataDeletionPolicyStackScreen}
+        options={{ headerShown: false }}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
