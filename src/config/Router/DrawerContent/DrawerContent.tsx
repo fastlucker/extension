@@ -161,7 +161,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
           {t('Settings')}
         </Text>
         <View style={[spacings.mlTy, spacings.mbSm]}>
-          <ConnectedDapps />
+          {isAndroid && <ConnectedDapps />}
           {!isWeb && <ManageVaultLockButton handleNavigate={handleNavigate} />}
           <Theme />
           {settings.map((s) => (
