@@ -15,7 +15,7 @@ const WalletConnectContext = createContext<WalletConnectContextReturnType>({
   handleConnect: () => {}
 })
 
-// This context currently is needed for the mobile app only. For web/extension, fallback to defaults.
+// This context currently is needed for the mobile app only. For the iOS/web/extension, fallback to defaults.
 const WalletConnectProvider: React.FC = ({ children }) => children
 
 export { WalletConnectContext, WalletConnectProvider }
