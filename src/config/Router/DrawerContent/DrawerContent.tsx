@@ -89,6 +89,10 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { name: t('Terms of Service'), url: termsAndPrivacyURL }
   ]
 
+  const additionalInfo = [
+    ...(!isWeb ? [{ name: t('Data Deletion Policy'), route: 'data-deletion-policy' }] : [])
+  ]
+
   const settings = [
     { name: t('Signers'), route: 'signers' }
     // TODO: Not implemented yet.
@@ -157,7 +161,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
           {t('Settings')}
         </Text>
         <View style={[spacings.mlTy, spacings.mbSm]}>
-          <ConnectedDapps />
+          {isAndroid && <ConnectedDapps />}
           {!isWeb && <ManageVaultLockButton handleNavigate={handleNavigate} />}
           <Theme />
           {settings.map((s) => (
@@ -176,6 +180,15 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
             </Text>
           </TouchableOpacity>
         ))}
+        <View style={[spacings.mlTy, spacings.mbSm]}>
+          {additionalInfo.map(({ name, route }) => (
+            <TouchableOpacity key={name} onPress={() => handleNavigate(route)}>
+              <Text style={spacings.mbSm} color={colors.titan_50}>
+                {name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         <View style={[flexboxStyles.directionRow, spacings.mtSm, spacings.mbMd]}>
           {social.map(({ Icon, url }) => (

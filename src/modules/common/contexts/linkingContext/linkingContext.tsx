@@ -1,6 +1,7 @@
 import * as Linking from 'expo-linking'
-import React, { createContext, useEffect } from 'react'
+import React, { createContext, useCallback, useEffect } from 'react'
 
+import { isAndroid, isWeb } from '@config/env'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 
 export interface LinkingContextReturnType {}
@@ -10,26 +11,33 @@ const LinkingContext = createContext<LinkingContextReturnType>({})
 const LinkingProvider: React.FC<any> = ({ children }) => {
   const { handleConnect } = useWalletConnect()
 
-  const handleIncomingURL = (url: string | null) => {
-    if (!url) return
+  const handleIncomingURL = useCallback(
+    (url: string | null) => {
+      if (!url) return
 
-    if (url.startsWith('wc:')) {
-      handleConnect(url)
-    } else if (url.includes('uri=wc:')) {
-      handleConnect(url.slice(url.indexOf('wc:')))
-    }
-  }
+      // Handle incoming WalletConnect URI (coming from a deep link)
+      if (isAndroid && url.startsWith('wc:')) {
+        handleConnect(url)
+      } else if (url.includes('uri=wc:')) {
+        handleConnect(url.slice(url.indexOf('wc:')))
+      }
+    },
+    [handleConnect]
+  )
 
   useEffect(() => {
+    // Mobile specific deep linking mechanism
+    if (isWeb) return
+
     Linking.getInitialURL().then(handleIncomingURL)
 
     const listenForIncomingURL = (e: any) => handleIncomingURL(e.url)
-    Linking.addEventListener('url', listenForIncomingURL)
+    const listener = Linking.addEventListener('url', listenForIncomingURL)
 
     return () => {
-      Linking.removeEventListener('url', listenForIncomingURL)
+      listener.remove()
     }
-  }, [])
+  }, [handleIncomingURL])
 
   return (
     // In case we need to provide some values in the future - replace children with the provider
