@@ -74,7 +74,7 @@ class ProviderController {
     }
 
     if (method === 'eth_getBlockByNumber') {
-      const block = await provider.getBlock(params[0])
+      const block = await provider.getBlock(Number(params[0]))
 
       if (!block) {
         return Promise.resolve(null)
@@ -89,10 +89,10 @@ class ProviderController {
           ? block._difficulty._hex
           : block._difficulty.toHexString()
       } catch {
-        // fail silently
+        return Promise.resolve(null)
       }
 
-      return Promise.resolve(block || null)
+      return Promise.resolve(block)
     }
 
     // Ambire modifies the txn data but dapps need the original txn data that has been requested on ethSendTransaction
@@ -143,7 +143,8 @@ class ProviderController {
     }
 
     if (method === 'eth_blockNumber') {
-      return provider.getBlockNumber()
+      const res = await provider.getBlockNumber()
+      return res ? intToHex(res) : null
     }
 
     if (method === 'eth_estimateGas') {
