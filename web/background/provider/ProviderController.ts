@@ -148,7 +148,8 @@ class ProviderController {
     }
 
     if (method === 'eth_estimateGas') {
-      return provider.estimateGas(params[0])
+      const res = await provider.getGasPrice(params[0])
+      return Promise.resolve(res?._hex)
     }
 
     if (method === 'eth_getTransactionCount') {
