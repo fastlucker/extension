@@ -26,18 +26,14 @@ const ConnectedDapps = ({ isIcon = false }: { isIcon?: boolean }) => {
 
   return (
     <>
-      <TouchableOpacity onPress={openBottomSheet}>
+      <TouchableOpacity onPress={openBottomSheet} style={spacings.mbSm}>
         {!!isIcon && (
           <View style={[flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}>
             <TransferIcon />
             <Text fontSize={9}>{t('dApps')}</Text>
           </View>
         )}
-        {!isIcon && (
-          <Text style={spacings.mbSm} color={colors.titan_50}>
-            {t('Connected dApps')}
-          </Text>
-        )}
+        {!isIcon && <Text color={colors.titan_50}>{t('Connected dApps')}</Text>}
       </TouchableOpacity>
       <BottomSheet id="connected-dapps" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <Title style={textStyles.center}>{t('Connected dApps')}</Title>

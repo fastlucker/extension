@@ -31,8 +31,8 @@ const Theme = () => {
 
   return (
     <>
-      <TouchableOpacity onPress={openBottomSheet}>
-        <Text style={spacings.mbSm} color={colors.titan_50}>
+      <TouchableOpacity onPress={openBottomSheet} style={spacings.mbSm}>
+        <Text color={colors.titan_50}>
           {t('Theme: {{themeName}}', { themeName: themeNames[themeType] })}
         </Text>
       </TouchableOpacity>
