@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { PermissionsAndroid, View } from 'react-native'
 import { BleManager } from 'react-native-ble-plx'
 import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 
@@ -12,8 +12,24 @@ import spacings from '@modules/common/styles/spacings'
 
 const RequireBluetooth: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
+  const [androidPermissionGranted, setAndroidPermissionGranted] = useState<boolean | null>(null)
   const [isBluetoothTurningOn, setIsBluetoothTurningOn] = useState(false)
   const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    ;(async () => {
+      const permissions = await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
+      ])
+
+      const allPermissionsGranted = Object.values(permissions).every(
+        (permission) => permission === PermissionsAndroid.RESULTS.GRANTED
+      )
+
+      setAndroidPermissionGranted(allPermissionsGranted)
+    })()
+  }, [])
 
   useEffect(() => {
     const subscription = new BleManager().onStateChange((state) => {
@@ -36,6 +52,18 @@ const RequireBluetooth: React.FC<any> = ({ children }) => {
   // This is because, on Android 11 and lower, a Bluetooth scan could
   // potentially be used to gather information about the location of the user.
   const state = isAndroid ? <RequireLocation>{children}</RequireLocation> : children
+
+  if (isAndroid && !androidPermissionGranted) {
+    return (
+      <View style={[spacings.ph]}>
+        <Text style={spacings.mbSm} fontSize={12}>
+          {t(
+            'Please grant permission to use Bluetooth, in order to connect to hardware wallet devices.'
+          )}
+        </Text>
+      </View>
+    )
+  }
 
   return isBluetoothPoweredOn ? (
     state
