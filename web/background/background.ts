@@ -1,12 +1,8 @@
-import networks from 'ambire-common/src/constants/networks'
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
-import { intToHex } from 'ethereumjs-util'
 
 import { rpcProviders } from '@modules/common/services/providers'
 import VaultController from '@modules/vault/services/VaultController'
-import buildinProvider from '@web/background/provider/buildinProvider'
 import providerController from '@web/background/provider/provider'
-import createSubscription from '@web/background/provider/subscriptionManager'
 import permissionService from '@web/background/services/permission'
 import sessionService from '@web/background/services/session'
 import WalletController from '@web/background/wallet'
@@ -79,18 +75,6 @@ browser.runtime.onConnect.addListener(async (port) => {
   }
 
   const pm = new PortMessage(port)
-  const provider = buildinProvider.currentProvider
-  const subscriptionManager = await createSubscription(provider)
-
-  subscriptionManager.events.on('notification', (message: any) => {
-    pm.send('message', {
-      event: 'message',
-      data: {
-        type: message.method,
-        data: message.params
-      }
-    })
-  })
 
   pm.listen(async (data) => {
     // TODO:
@@ -108,22 +92,13 @@ browser.runtime.onConnect.addListener(async (port) => {
     const req = { data, session, origin }
     // for background push to respective page
     req.session!.setPortMessage(pm)
-    // @ts-ignore
-    if (subscriptionManager.methods[data?.method]) {
-      const connectSite = permissionService.getConnectedSite(session!.origin)
-      if (connectSite) {
-        const selectedNetworkId = await storage.get('networkId')
-        const network = networks.find((n) => n.id === selectedNetworkId)
-        provider.chainId = intToHex(network?.chainId || networks[0].chainId)
-      }
-      // @ts-ignore
-      return subscriptionManager.methods[data.method].call(null, req)
+
+    // Temporarily resolves the subscription methods as successful
+    // but the rpc block subscription is actually not implemented because it causes app crashes
+    if (data?.method === 'eth_subscribe' || data?.method === 'eth_unsubscribe') {
+      return true
     }
 
     return providerController(req)
-  })
-
-  port.onDisconnect.addListener(() => {
-    subscriptionManager.destroy()
   })
 })

@@ -1,3 +1,4 @@
+// used for the eth_subscribe that is currently not implemented in the background.js file
 import networks from 'ambire-common/src/constants/networks'
 import { intToHex } from 'ethereumjs-util'
 // this script is injected into webpage's context
@@ -19,8 +20,6 @@ interface StateProvider {
 }
 
 export class EthereumProvider extends EventEmitter {
-  chainId: string | null = null
-
   selectedAddress: string | null = null
 
   $ctx?: any
@@ -85,7 +84,7 @@ export class EthereumProvider extends EventEmitter {
     const selectedNetworkId = await storage.get('networkId')
     const network = networks.find((n) => n.id === selectedNetworkId)
 
-    const networkId = this.chainId
+    const networkId = intToHex(network?.chainId)
 
     if (!providerController[mapMethod]) {
       // TODO: make rpc whitelist
@@ -123,7 +122,7 @@ export class EthereumProvider extends EventEmitter {
         })
       }
       case 'eth_chainId':
-        return intToHex(network?.chainId || networks[0].chainId)
+        return networkId
       default:
         return providerController[mapMethod](request)
     }
@@ -145,14 +144,10 @@ export class EthereumProvider extends EventEmitter {
       ).then((result) => callback(null, result))
     }
 
-    if (typeof payload === 'object') {
-      const { method, params, ...rest } = payload
-      this.request({ method, params })
-        .then((result) => callback(null, { ...rest, method, result }))
-        .catch((error) => callback(error, { ...rest, method, error }))
-    } else {
-      callback(null)
-    }
+    const { method, params, ...rest } = payload
+    this.request({ method, params })
+      .then((result) => callback(null, { ...rest, method, result: result || null }))
+      .catch((error) => callback(error, { ...rest, method, error }))
   }
 
   send = (payload, callback?) => {

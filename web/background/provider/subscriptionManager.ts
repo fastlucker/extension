@@ -1,42 +1,30 @@
-import { getProvider } from 'ambire-common/src/services/provider'
 import { PollingBlockTracker } from 'eth-block-tracker'
 // @ts-ignore
 import createSubscriptionManager from 'eth-json-rpc-filters/subscriptionManager'
 
-import storage from '@web/background/webapi/storage'
+import buildinProvider from '@web/background/provider/buildinProvider'
 
-const createSubscription = async (buildinProvider: any): Promise<any> => {
-  const networkId = await storage.get('networkId')
-  // We need to use the rpc provider directly for the blockTracker because
-  // the app crashes for unknown reason when we pass the buildinProvider to
-  // the blockTracker
-  // Usage: https://github.com/MetaMask/eth-block-tracker#usage
-  const provider = getProvider(networkId)
-
+const createSubscription = async (): Promise<any> => {
   const blockTracker = new PollingBlockTracker({
-    provider
+    provider: buildinProvider.currentProvider,
+    keepEventLoopActive: false,
+    setSkipCacheFlag: true,
+    pollingInterval: 5 * 1000 // 5 sec.
   })
   const { events, middleware } = createSubscriptionManager({
-    provider: buildinProvider,
+    provider: buildinProvider.currentProvider,
     blockTracker
   })
   const { destroy } = middleware
   const func = async (req: any) => {
     const { data } = req || {}
     const res: Record<string, any> = {}
-    let error = null
     await middleware(
       data,
       res,
       () => null,
-      (e: any) => {
-        error = e
-      }
+      () => {}
     )
-    if (error) {
-      // eslint-disable-next-line @typescript-eslint/no-throw-literal
-      throw error
-    }
     return res.result
   }
 

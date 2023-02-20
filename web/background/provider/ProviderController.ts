@@ -69,32 +69,6 @@ class ProviderController {
       throw ethErrors.provider.unauthorized()
     }
 
-    if (method === 'eth_call') {
-      return provider.call(params[0])
-    }
-
-    if (method === 'eth_getBlockByNumber') {
-      const block = await provider.getBlock(params[0])
-
-      if (!block) {
-        return Promise.resolve(null)
-      }
-
-      try {
-        block.gasLimit = block.gasLimit.toHexString()
-        block.gasUsed = block.gasUsed.toHexString()
-        block.baseFeePerGas = block.baseFeePerGas.toHexString()
-
-        block._difficulty = block._difficulty?._isBigNumber
-          ? block._difficulty._hex
-          : block._difficulty.toHexString()
-      } catch {
-        // fail silently
-      }
-
-      return Promise.resolve(block || null)
-    }
-
     // Ambire modifies the txn data but dapps need the original txn data that has been requested on ethSendTransaction
     // therefore we override the data stored on the blockchain with the original one
     if (method === 'eth_getTransactionByHash') {
@@ -124,37 +98,7 @@ class ProviderController {
       return provider.getTransaction(params[0])
     }
 
-    if (method === 'eth_getTransactionReceipt') {
-      return provider.getTransactionReceipt(params[0])
-    }
-
-    if (method === 'eth_gasPrice') {
-      const res = await provider.getGasPrice()
-      return Promise.resolve(res?._hex)
-    }
-
-    if (method === 'eth_getBalance') {
-      const selectedAcc = await storage.get('selectedAcc')
-      return provider.getBalance(selectedAcc)
-    }
-
-    if (method === 'eth_getCode') {
-      return provider.getCode(params[0])
-    }
-
-    if (method === 'eth_blockNumber') {
-      return provider.getBlockNumber()
-    }
-
-    if (method === 'eth_estimateGas') {
-      return provider.estimateGas(params[0])
-    }
-
-    if (method === 'eth_getTransactionCount') {
-      return provider.getTransactionCount(params[0])
-    }
-
-    // TODO: handle the rest of the SAFE_RPC_METHODS starting with eth_...
+    return provider.send(method, params)
   }
 
   ethRequestAccounts = async ({ session: { origin } }) => {
