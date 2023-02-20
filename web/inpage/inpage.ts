@@ -88,7 +88,6 @@ export class EthereumProvider extends EventEmitter {
   private _dedupePromise = new DedupePromise([
     'personal_sign',
     'wallet_addEthereumChain',
-    'eth_sendTransaction',
     'eth_signTypedData',
     'eth_signTypedData_v1',
     'eth_signTypedData_v3',
