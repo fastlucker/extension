@@ -1,6 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Linking, PermissionsAndroid, PermissionStatus, Platform, View } from 'react-native'
+import {
+  AppState,
+  Linking,
+  PermissionsAndroid,
+  PermissionStatus,
+  Platform,
+  View
+} from 'react-native'
 import { BleManager } from 'react-native-ble-plx'
 import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 
@@ -22,13 +29,14 @@ const SHOULD_ASK_FOR_EXTRA_PERMISSIONS = Platform.Version >= 31 && isAndroid
 
 const RequireBluetooth: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
+  const appState = useRef(AppState.currentState)
   const [androidPermissionStatus, setAndroidPermissionStatus] = useState<PermissionStatus | null>(
     SHOULD_ASK_FOR_EXTRA_PERMISSIONS ? null : PermissionsAndroid.RESULTS.GRANTED
   )
   const [isBluetoothTurningOn, setIsBluetoothTurningOn] = useState(false)
   const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState<boolean | null>(null)
 
-  const requestPermissions = useCallback(async () => {
+  const requestAndroidPermissions = useCallback(async () => {
     if (!SHOULD_ASK_FOR_EXTRA_PERMISSIONS) return
 
     const permissions = await PermissionsAndroid.requestMultiple([
@@ -54,8 +62,26 @@ const RequireBluetooth: React.FC<any> = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    requestPermissions()
-  }, [requestPermissions])
+    if (!isAndroid) return
+
+    requestAndroidPermissions()
+
+    // On Android, we need to request permissions again when the app comes to
+    // the foreground. This is because the user can revoke permissions while
+    // the app is in the background and also - can grant permissions.
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        // app has come to the foreground
+        requestAndroidPermissions()
+      }
+
+      appState.current = nextAppState
+    })
+
+    return () => {
+      subscription.remove()
+    }
+  }, [requestAndroidPermissions])
 
   useEffect(() => {
     const subscription = new BleManager().onStateChange((state) => {
@@ -74,6 +100,10 @@ const RequireBluetooth: React.FC<any> = ({ children }) => {
     BluetoothStateManager.enable()
   }
 
+  const handleOpenPermissionSettings = useCallback(async () => {
+    Linking.openSettings()
+  }, [])
+
   // On Android only, location permission (ACCESS_FINE_LOCATION) also is needed.
   // This is because, on Android 11 and lower, a Bluetooth scan could
   // potentially be used to gather information about the location of the user.
@@ -88,9 +118,9 @@ const RequireBluetooth: React.FC<any> = ({ children }) => {
           )}
         </Text>
         {androidPermissionStatus === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN ? (
-          <Button onPress={Linking.openSettings} text={t('Open permission settings')} />
+          <Button onPress={handleOpenPermissionSettings} text={t('Open permission settings')} />
         ) : (
-          <Button onPress={requestPermissions} text={t('Grant permission')} />
+          <Button onPress={requestAndroidPermissions} text={t('Grant permission')} />
         )}
       </View>
     )
