@@ -8,6 +8,7 @@ import DedupePromise from '@web/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
+import { logInfoWithPrefix } from '@web/utils/logger'
 
 declare const channelName: any
 
@@ -195,20 +196,20 @@ export class EthereumProvider extends EventEmitter {
 
     return this._requestPromise.call(() => {
       if (data.method !== 'eth_call') {
-        console.log('[request]', JSON.stringify(data, null, 2))
+        logInfoWithPrefix('[request]', JSON.stringify(data, null, 2))
       }
 
       return this._bcm
         .request(data)
         .then((res) => {
           if (data.method !== 'eth_call') {
-            console.log('[request: success]', data.method, res)
+            logInfoWithPrefix('[request: success]', data.method, res)
           }
           return res
         })
         .catch((err) => {
           if (data.method !== 'eth_call') {
-            console.log('[request: error]', data.method, serializeError(err))
+            logInfoWithPrefix('[request: error]', data.method, serializeError(err))
           }
           throw serializeError(err)
         })
