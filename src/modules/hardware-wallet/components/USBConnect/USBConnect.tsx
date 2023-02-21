@@ -51,7 +51,6 @@ const HardwareWalletConnect = ({ onSelectDevice, shouldWrap = true }: Props) => 
         devices={usbDevice ? [usbDevice] : []}
         refreshing={usbRefreshing}
         onSelectDevice={onSelectDevice}
-        onRefresh={handleOnRefresh}
       />
     </>
   )

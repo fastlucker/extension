@@ -57,7 +57,6 @@ const LedgerBluetoothConnect = ({
         devices={bluetoothDevices}
         refreshing={bluetoothRefreshing}
         onSelectDevice={onSelectDevice}
-        onRefresh={bluetoothReload}
       />
     </>
   )
