@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PermissionsAndroid, Platform, View } from 'react-native'
+import { Linking, PermissionsAndroid, PermissionStatus, Platform, View } from 'react-native'
 import { BleManager } from 'react-native-ble-plx'
 import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 
@@ -22,28 +22,40 @@ const SHOULD_ASK_FOR_EXTRA_PERMISSIONS = Platform.Version >= 31 && isAndroid
 
 const RequireBluetooth: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
-  const [androidPermissionGranted, setAndroidPermissionGranted] = useState<boolean | null>(
-    !SHOULD_ASK_FOR_EXTRA_PERMISSIONS
+  const [androidPermissionStatus, setAndroidPermissionStatus] = useState<PermissionStatus | null>(
+    SHOULD_ASK_FOR_EXTRA_PERMISSIONS ? null : PermissionsAndroid.RESULTS.GRANTED
   )
   const [isBluetoothTurningOn, setIsBluetoothTurningOn] = useState(false)
   const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState<boolean | null>(null)
 
-  useEffect(() => {
-    ;(async () => {
-      if (!SHOULD_ASK_FOR_EXTRA_PERMISSIONS) return
+  const requestPermissions = useCallback(async () => {
+    if (!SHOULD_ASK_FOR_EXTRA_PERMISSIONS) return
 
-      const permissions = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
-      ])
+    const permissions = await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
+    ])
 
-      const allPermissionsGranted = Object.values(permissions).every(
-        (permission) => permission === PermissionsAndroid.RESULTS.GRANTED
-      )
+    const allPermissionsGranted = Object.values(permissions).every(
+      (permission) => permission === PermissionsAndroid.RESULTS.GRANTED
+    )
 
-      setAndroidPermissionGranted(allPermissionsGranted)
-    })()
+    const onePermissionNeverAskAgain = Object.values(permissions).some(
+      (permission) => permission === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN
+    )
+
+    setAndroidPermissionStatus(
+      allPermissionsGranted
+        ? PermissionsAndroid.RESULTS.GRANTED
+        : onePermissionNeverAskAgain
+        ? PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN
+        : PermissionsAndroid.RESULTS.DENIED
+    )
   }, [])
+
+  useEffect(() => {
+    requestPermissions()
+  }, [requestPermissions])
 
   useEffect(() => {
     const subscription = new BleManager().onStateChange((state) => {
@@ -67,7 +79,7 @@ const RequireBluetooth: React.FC<any> = ({ children }) => {
   // potentially be used to gather information about the location of the user.
   const state = isAndroid ? <RequireLocation>{children}</RequireLocation> : children
 
-  if (isAndroid && !androidPermissionGranted) {
+  if (isAndroid && androidPermissionStatus !== PermissionsAndroid.RESULTS.GRANTED) {
     return (
       <View style={[spacings.ph]}>
         <Text style={spacings.mbSm} fontSize={12}>
@@ -75,6 +87,11 @@ const RequireBluetooth: React.FC<any> = ({ children }) => {
             'Please grant permission to use Bluetooth, in order to connect to hardware wallet devices.'
           )}
         </Text>
+        {androidPermissionStatus === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN ? (
+          <Button onPress={Linking.openSettings} text={t('Open permission settings')} />
+        ) : (
+          <Button onPress={requestPermissions} text={t('Grant permission')} />
+        )}
       </View>
     )
   }
