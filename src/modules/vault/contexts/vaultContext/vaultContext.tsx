@@ -1,7 +1,9 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigate } from 'react-router-dom'
 
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
@@ -31,6 +33,7 @@ const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
+  const webNavigate = useNavigate()
   const { t } = useTranslation()
   const { extensionWallet } = useExtensionWallet()
   const { onRemoveAllAccounts } = useAccounts()
@@ -128,7 +131,6 @@ const VaultProvider: React.FC = ({ children }) => {
 
       // Automatically unlock after vault initialization
       setVaultStatus(VAULT_STATUS.UNLOCKED)
-
       // The unlock is approval. When unlocking - we need to resolve the
       // approval to unlock in order to trigger the next approval in line
       if (getUiType().isNotification) {
@@ -136,6 +138,7 @@ const VaultProvider: React.FC = ({ children }) => {
       }
 
       !!nextRoute && navigate(nextRoute)
+      if (isWeb) webNavigate('/', { replace: true })
       return Promise.resolve()
     },
     [
@@ -143,7 +146,8 @@ const VaultProvider: React.FC = ({ children }) => {
       t,
       requestVaultControllerMethod,
       addKeystorePasswordToDeviceSecureStore,
-      resolveApproval
+      resolveApproval,
+      webNavigate
     ]
   )
 
@@ -199,12 +203,12 @@ const VaultProvider: React.FC = ({ children }) => {
       })
         .then(() => {
           setVaultStatus(VAULT_STATUS.UNLOCKED)
-
           // The unlock is approval. When unlocking - we need to resolve the
           // approval to unlock in order to trigger the next approval in line
           if (getUiType().isNotification) {
             resolveApproval(true)
           }
+          if (isWeb) webNavigate('/', { replace: true })
         })
         .catch((e) => {
           addToast(e?.message || e, { error: true })
@@ -215,7 +219,8 @@ const VaultProvider: React.FC = ({ children }) => {
       biometricsEnabled,
       getKeystorePassword,
       requestVaultControllerMethod,
-      resolveApproval
+      resolveApproval,
+      webNavigate
     ]
   )
 

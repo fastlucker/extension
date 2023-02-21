@@ -9,11 +9,8 @@ import Wrapper from '@modules/common/components/Wrapper'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-interface Props extends NativeStackScreenProps<any, 'no-connection'> {}
-
-const NoConnectionScreen: React.FC<Props> = () => {
+const NoConnectionScreen = () => {
   const { t } = useTranslation()
 
   return (

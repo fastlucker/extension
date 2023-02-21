@@ -9,6 +9,7 @@ import EmailLoginForm from '@modules/auth/components/EmailLoginForm'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Segments from '@modules/common/components/Segments'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -21,9 +22,9 @@ export enum FORM_TYPE {
 
 const segments = [{ value: FORM_TYPE.EMAIL_LOGIN }, { value: FORM_TYPE.CREATE_ACCOUNT }]
 
-const EmailLoginScreen = ({ navigation }: any) => {
+const EmailLoginScreen = () => {
   const { t } = useTranslation()
-
+  const navigation = useNavigation()
   const [formType, setFormType] = useState<FORM_TYPE>(FORM_TYPE.EMAIL_LOGIN)
 
   useLayoutEffect(() => {

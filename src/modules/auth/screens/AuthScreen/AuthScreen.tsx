@@ -7,12 +7,10 @@ import Button, { Props as ButtonDefaultProps } from '@modules/common/components/
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
-
-interface Props extends NativeStackScreenProps<any, 'auth'> {}
 
 interface ButtonProps extends Omit<ButtonDefaultProps, 'onPress'> {
   routeName: string
@@ -27,9 +25,9 @@ const AuthButton = ({ text, type = 'primary', routeName, onPress }: ButtonProps)
   return <Button text={text} type={type} onPress={handleButtonPress} />
 }
 
-const AuthScreen = ({ navigation }: Props) => {
+const AuthScreen = () => {
   const { t } = useTranslation()
-
+  const navigation = useNavigation()
   const handleAuthButtonPress = (routeName: string) => navigation.navigate(routeName)
 
   return (

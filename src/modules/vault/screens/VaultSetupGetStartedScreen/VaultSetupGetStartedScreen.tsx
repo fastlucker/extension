@@ -8,12 +8,14 @@ import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
-const VaultSetupGetStartedScreen = ({ navigation }: any) => {
+const VaultSetupGetStartedScreen = () => {
   const { t } = useTranslation()
+  const navigation = useNavigation()
 
   return (
     <GradientBackgroundWrapper>
@@ -51,7 +53,7 @@ const VaultSetupGetStartedScreen = ({ navigation }: any) => {
           <Button
             style={spacings.mt}
             text={t('Get Started')}
-            onPress={() => navigation.navigate('createVault')}
+            onPress={() => navigation.navigate('/create-vault', { replace: true })}
           />
         </View>
       </Wrapper>

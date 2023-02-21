@@ -1,11 +1,11 @@
 const UI_TYPE = {
-  // Tab: 'index',
+  Tab: 'index',
   Popup: 'index',
   Notification: 'notification'
 }
 
 type UiTypeCheck = {
-  // isTab: boolean
+  isTab: boolean
   isNotification: boolean
   isPopup: boolean
 }

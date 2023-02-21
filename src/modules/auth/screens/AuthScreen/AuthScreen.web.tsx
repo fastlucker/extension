@@ -7,11 +7,9 @@ import Button, { Props as ButtonDefaultProps } from '@modules/common/components/
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Text from '@modules/common/components/Text'
 import Wrapper from '@modules/common/components/Wrapper'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import spacings from '@modules/common/styles/spacings'
 import textStyles from '@modules/common/styles/utils/text'
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
-
-interface Props extends NativeStackScreenProps<any, 'auth'> {}
 
 interface ButtonProps extends Omit<ButtonDefaultProps, 'onPress'> {
   routeName: string
@@ -26,9 +24,9 @@ const AuthButton = ({ text, type = 'primary', routeName, onPress, disabled }: Bu
   return <Button text={text} type={type} disabled={disabled} onPress={handleButtonPress} />
 }
 
-const AuthScreen = ({ navigation }: Props) => {
+const AuthScreen = () => {
   const { t } = useTranslation()
-
+  const navigation = useNavigation()
   const handleAuthButtonPress = (routeName: string) => navigation.navigate(routeName)
 
   return (
@@ -38,13 +36,13 @@ const AuthScreen = ({ navigation }: Props) => {
         <View>
           <AuthButton
             text={t('Login With Email')}
-            routeName="ambireAccountLogin"
+            routeName="/ambire-account-login"
             onPress={handleAuthButtonPress}
             hasBottomSpacing={false}
           />
           <AuthButton
             text={t('Hardware Wallet (coming soon)')}
-            routeName="hardwareWallet"
+            routeName="/hardware-wallet"
             onPress={handleAuthButtonPress}
             disabled // temporary disabled until we have this feature
             style={spacings.mbLg}
@@ -55,13 +53,13 @@ const AuthScreen = ({ navigation }: Props) => {
           <AuthButton
             text={t('Import From JSON')}
             type="outline"
-            routeName="ambireAccountJsonLogin"
+            routeName="/ambire-account-json-login"
             onPress={handleAuthButtonPress}
           />
           <AuthButton
             text={t('Login with External Signer')}
             type="outline"
-            routeName="externalSigner"
+            routeName="/external-signer"
             onPress={handleAuthButtonPress}
           />
         </View>

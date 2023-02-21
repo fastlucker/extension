@@ -36,7 +36,7 @@ const CreateNewVaultScreen = ({ route }: any) => {
       confirmPassword: '',
       optInForBiometricsUnlock:
         !isWeb && hasBiometricsHardware && deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC,
-      nextRoute: route.params?.nextRoute || 'auth'
+      nextRoute: route?.params?.nextRoute || 'auth'
     }
   })
 
