@@ -165,17 +165,19 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
           {!isWeb && <ManageVaultLockButton handleNavigate={handleNavigate} />}
           <Theme />
           {settings.map((s) => (
-            <TouchableOpacity key={s.name} onPress={() => handleNavigate(s.route)}>
-              <Text style={spacings.mbSm} color={colors.titan_50}>
-                {s.name}
-              </Text>
+            <TouchableOpacity
+              key={s.name}
+              onPress={() => handleNavigate(s.route)}
+              style={spacings.mbSm}
+            >
+              <Text color={colors.titan_50}>{s.name}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
         {help.map(({ name, url }) => (
-          <TouchableOpacity key={name} onPress={() => Linking.openURL(url)}>
-            <Text fontSize={16} weight="regular" style={spacings.mbSm}>
+          <TouchableOpacity key={name} onPress={() => Linking.openURL(url)} style={spacings.mbSm}>
+            <Text fontSize={16} weight="regular">
               {name}
             </Text>
           </TouchableOpacity>
