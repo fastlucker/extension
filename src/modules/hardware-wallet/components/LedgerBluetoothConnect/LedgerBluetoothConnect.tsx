@@ -3,6 +3,7 @@ import { RefreshControl, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
 import DevicesList from '@modules/auth/components/DeviceList'
+import Button from '@modules/common/components/Button'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
@@ -48,12 +49,14 @@ const LedgerBluetoothConnect = ({
           {t('Available devices')}
         </Text>
         {!!bluetoothRefreshing && <Spinner />}
+        {!bluetoothRefreshing && (
+          <Button text="Rescan" type="outline" size="small" onPress={bluetoothReload} />
+        )}
       </View>
       <DevicesList
         devices={bluetoothDevices}
         refreshing={bluetoothRefreshing}
         onSelectDevice={onSelectDevice}
-        onRefresh={bluetoothReload}
       />
     </>
   )

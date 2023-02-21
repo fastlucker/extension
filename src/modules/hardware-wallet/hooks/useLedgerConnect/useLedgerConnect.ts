@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react'
-import { Observable } from 'rxjs'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Subscription as ReactNativeBlePlxSubscription } from 'react-native-ble-plx'
+import { Observable, Subscription as RxJSSubscription } from 'rxjs'
 
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
 import useToast from '@modules/common/hooks/useToast'
 import { CONNECTION_TYPE } from '@modules/hardware-wallet/constants'
+
+const SCAN_TIMEOUT = 40000 // 40 sec
 
 const deviceAddition = (device: any) => (devices: any) =>
   devices.some((i: any) => i.id === device.id) ? devices : devices.concat(device)
@@ -12,12 +15,11 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
   const { addToast } = useToast()
   const [devices, setDevices] = useState<any>([])
   const [refreshing, setRefreshing] = useState<any>(true)
+  const sub = useRef<RxJSSubscription | null>(null)
 
-  let sub: any
-
-  const startScan = async () => {
+  const startScan = useCallback(async () => {
     setRefreshing(true)
-    sub = new Observable(TransportBLE.listen).subscribe({
+    sub.current = new Observable<ReactNativeBlePlxSubscription>(TransportBLE.listen).subscribe({
       complete: () => {
         setRefreshing(false)
       },
@@ -40,20 +42,19 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
       }
     })
 
-    setTimeout(() => {
-      sub.complete()
-    }, 40000)
-  }
+    // @ts-ignore the `complete` method exist, probably bad typings
+    setTimeout(() => sub?.current?.complete(), SCAN_TIMEOUT)
+  }, [addToast])
 
   const reload = async () => {
-    if (sub) sub.unsubscribe()
+    if (sub.current) sub.current.unsubscribe()
     setRefreshing(false)
     startScan()
   }
 
   useEffect(() => {
     if (!shouldScan) {
-      if (sub) sub.unsubscribe()
+      if (sub.current) sub.current.unsubscribe()
 
       return
     }
@@ -61,9 +62,9 @@ const useLedgerConnect = (shouldScan: boolean = true) => {
     startScan()
 
     return () => {
-      if (sub) sub.unsubscribe()
+      if (sub.current) sub.current.unsubscribe()
     }
-  }, [shouldScan])
+  }, [shouldScan, startScan])
 
   return {
     devices,
