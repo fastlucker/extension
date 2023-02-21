@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AppState, PermissionsAndroid, View } from 'react-native'
+import { AppState, Linking, PermissionsAndroid, PermissionStatus, View } from 'react-native'
 import LocationServicesDialogBox from 'react-native-android-location-services-dialog-box'
 import { BleErrorCode } from 'react-native-ble-plx'
 import { Observable } from 'rxjs'
@@ -12,7 +12,7 @@ import spacings from '@modules/common/styles/spacings'
 
 const RequireLocation: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
-  const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null)
+  const [permissionStatus, setPermissionStatus] = useState<PermissionStatus>()
   // Assumes they are enabled by default and sets the flag
   // in case the `new Observable(TransportBLE.listen).subscribe` fails.
   const [locationServicesEnabled, setLocationServicesEnabled] = useState<boolean | null>(true)
@@ -45,23 +45,25 @@ const RequireLocation: React.FC<any> = ({ children }) => {
     }
   }, [])
 
-  useEffect(() => {
-    ;(async () => {
-      const permissionStatus = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: t('Location permission required'),
-          message: t(
-            'Ambire requires location permission to pair your device through Bluetooth. Ambire does not access your location information.'
-          ),
-          buttonNegative: t('Cancel'),
-          buttonPositive: t('Allow')
-        }
-      )
+  const requestPermissions = useCallback(async () => {
+    const status = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: t('Location permission required'),
+        message: t(
+          'Ambire requires location permission to pair your device through Bluetooth. Ambire does not access your location information.'
+        ),
+        buttonNegative: t('Cancel'),
+        buttonPositive: t('Allow')
+      }
+    )
 
-      setPermissionGranted(permissionStatus === PermissionsAndroid.RESULTS.GRANTED)
-    })()
-  }, [])
+    setPermissionStatus(status)
+  }, [t])
+
+  useEffect(() => {
+    requestPermissions()
+  }, [requestPermissions])
 
   const handleOpenLocationSettings = () =>
     LocationServicesDialogBox.checkLocationServicesIsEnabled({
@@ -70,7 +72,7 @@ const RequireLocation: React.FC<any> = ({ children }) => {
       openLocationServices: true
     })
 
-  if (!permissionGranted) {
+  if (permissionStatus !== PermissionsAndroid.RESULTS.GRANTED) {
     return (
       <View style={spacings.ph}>
         <Text style={spacings.mbSm} fontSize={12}>
@@ -83,6 +85,11 @@ const RequireLocation: React.FC<any> = ({ children }) => {
             'Location services are required, in order for us to pair your device through Bluetooth. Ambire does not access your location information.'
           )}
         </Text>
+        {permissionStatus === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN ? (
+          <Button onPress={Linking.openSettings} text={t('Open permission settings')} />
+        ) : (
+          <Button onPress={requestPermissions} text={t('Grant permission')} />
+        )}
       </View>
     )
   }
