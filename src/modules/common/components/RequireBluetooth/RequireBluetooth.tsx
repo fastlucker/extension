@@ -39,6 +39,8 @@ const RequireBluetooth: React.FC<any> = ({ children }) => {
   const requestAndroidPermissions = useCallback(async () => {
     if (!SHOULD_ASK_FOR_EXTRA_PERMISSIONS) return
 
+    // Since Android 12 (API level 31), the following extra permissions are needed
+    // {@link https://github.com/dotintent/react-native-ble-plx/issues/998#issuecomment-1187040049}
     const permissions = await PermissionsAndroid.requestMultiple([
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
