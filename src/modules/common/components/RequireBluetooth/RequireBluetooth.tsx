@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PermissionsAndroid, View } from 'react-native'
+import { PermissionsAndroid, Platform, View } from 'react-native'
 import { BleManager } from 'react-native-ble-plx'
 import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 
@@ -10,14 +10,28 @@ import RequireLocation from '@modules/common/components/RequireLocation'
 import Text from '@modules/common/components/Text'
 import spacings from '@modules/common/styles/spacings'
 
+/**
+ * Since Android 12 (API level 31), additional Bluetooth permissions are
+ * required to connect to devices. Because of a possible bug in the Android
+ * permissions library, these requests resolve to not granted (even though there
+ * is no need to be granted) on Android 11 and below. So based on the Android
+ * OS version (API level), we decide whether to ask for permissions or not.
+ * {@link https://github.com/facebook/react-native/issues/30158}
+ */
+const SHOULD_ASK_FOR_EXTRA_PERMISSIONS = Platform.Version >= 31 && isAndroid
+
 const RequireBluetooth: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
-  const [androidPermissionGranted, setAndroidPermissionGranted] = useState<boolean | null>(null)
+  const [androidPermissionGranted, setAndroidPermissionGranted] = useState<boolean | null>(
+    !SHOULD_ASK_FOR_EXTRA_PERMISSIONS
+  )
   const [isBluetoothTurningOn, setIsBluetoothTurningOn] = useState(false)
   const [isBluetoothPoweredOn, setInBluetoothPoweredOn] = useState<boolean | null>(null)
 
   useEffect(() => {
     ;(async () => {
+      if (!SHOULD_ASK_FOR_EXTRA_PERMISSIONS) return
+
       const permissions = await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
         PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
