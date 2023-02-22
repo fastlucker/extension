@@ -25,7 +25,8 @@ const ThemeProvider: React.FC = ({ children }) => {
     defaultValue: DEFAULT_THEME,
     isStringStorage: true
   })
-  // Migrating from v2.x to v3.x where the theme type was stored wrapped in quotes
+  // In Ambire v2.x the theme type was stored wrapped in quotes (by mistake).
+  // Since migrating to v3.x we need to remove the quotes from the theme type.
   const isMigrationNeeded =
     !!themeType && themeType[0] === '"' && themeType[themeType.length - 1] === '"'
   const [hasMigrated, setHasMigrated] = useState<boolean>(!isMigrationNeeded)
