@@ -47,7 +47,7 @@ const ThemeProvider: React.FC = ({ children }) => {
     // eslint-disable-next-line no-restricted-syntax
     for (const key of Object.keys(ThemeColors)) {
       // @ts-ignore
-      currentTheme[key] = ThemeColors[key][type || DEFAULT_THEME]
+      currentTheme[key] = ThemeColors[key][type] || ThemeColors[key][DEFAULT_THEME]
     }
 
     return currentTheme
