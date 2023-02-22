@@ -38,7 +38,7 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
   const [hasCheckedForApprovalInitially, setHasCheckedForApprovalInitially] = useState(false)
 
   const getApproval: UseExtensionApprovalReturnType['getApproval'] = useCallback(
-    () => extensionWallet.getApproval(),
+    () => extensionWallet!.getApproval(),
     [extensionWallet]
   )
 
@@ -53,7 +53,7 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
         )
       }
 
-      await extensionWallet.resolveApproval(data, forceReject, approvalId)
+      await extensionWallet!.resolveApproval(data, forceReject, approvalId)
 
       await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
 
@@ -74,7 +74,7 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
         )
       }
 
-      await extensionWallet.rejectApproval(err, stay, isInternal)
+      await extensionWallet!.rejectApproval(err, stay, isInternal)
 
       await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
 
