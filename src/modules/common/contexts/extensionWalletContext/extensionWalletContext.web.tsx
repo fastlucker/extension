@@ -1,7 +1,8 @@
 import React, { createContext, useMemo } from 'react'
 
 import {
-  ExtensionWalletController,
+  extensionWalletContextDefaults,
+  ExtensionWalletContextReturnType,
   ExtensionWalletControllerType
 } from '@modules/common/contexts/extensionWalletContext/types'
 import { isExtension } from '@web/constants/browserapi'
@@ -52,9 +53,9 @@ if (isExtension) {
   ) as ExtensionWalletControllerType
 }
 
-const ExtensionWalletContext = createContext<{
-  extensionWallet: ExtensionWalletController
-} | null>(null)
+const ExtensionWalletContext = createContext<ExtensionWalletContextReturnType>(
+  extensionWalletContextDefaults
+)
 
 const ExtensionWalletProvider: React.FC<any> = ({ children }) => (
   <ExtensionWalletContext.Provider
