@@ -51,7 +51,7 @@ const NetworkChanger: React.FC<Props> = ({ closeBottomSheet = () => {} }) => {
 
       setNetwork(_network.chainId)
       if (isExtension) {
-        extensionWallet.networkChange(_network)
+        extensionWallet!.networkChange(_network)
 
         // Slight delay, so that the network selection animation executes,
         // giving visual feedback to the user that the network has changed.

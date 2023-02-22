@@ -1,12 +1,19 @@
-import { createContext } from 'react'
+import React, { createContext, useMemo } from 'react'
 
-import { ExtensionWalletController } from '@modules/common/contexts/extensionWalletContext/types'
+import {
+  extensionWalletContextDefaults,
+  ExtensionWalletContextReturnType
+} from '@modules/common/contexts/extensionWalletContext/types'
 
 // This context is needed for the browser extension only. For mobile, fallback to defaults.
-const ExtensionWalletContext = createContext<{
-  extensionWallet: ExtensionWalletController
-} | null>(null)
+const ExtensionWalletContext = createContext<ExtensionWalletContextReturnType>(
+  extensionWalletContextDefaults
+)
 
-const ExtensionWalletProvider: React.FC<any> = ({ children }) => children
+const ExtensionWalletProvider: React.FC<any> = ({ children }) => (
+  <ExtensionWalletContext.Provider value={useMemo(() => extensionWalletContextDefaults, [])}>
+    {children}
+  </ExtensionWalletContext.Provider>
+)
 
 export { ExtensionWalletProvider, ExtensionWalletContext }

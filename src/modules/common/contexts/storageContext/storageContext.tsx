@@ -39,7 +39,7 @@ const StorageProvider: React.FC = ({ children }) => {
   const setItem = useCallback(
     (key: string, value: any) => {
       if (isExtension) {
-        extensionWallet.setStorage(key, value)
+        extensionWallet!.setStorage(key, value)
       }
 
       return storageControllerInstance.setItem(key, value)

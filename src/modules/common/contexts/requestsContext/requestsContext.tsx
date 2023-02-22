@@ -215,7 +215,7 @@ const RequestsProvider: React.FC = ({ children }) => {
         isExtension &&
         getUiType().isPopup
       ) {
-        extensionWallet.activeFirstApproval()
+        extensionWallet!.activeFirstApproval()
         window.close()
       }
     })()
@@ -234,7 +234,7 @@ const RequestsProvider: React.FC = ({ children }) => {
         isExtension &&
         getUiType().isPopup
       ) {
-        extensionWallet.activeFirstApproval()
+        extensionWallet!.activeFirstApproval()
         window.close()
       } else {
         navigate('pending-transactions')
