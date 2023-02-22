@@ -1,4 +1,4 @@
-import React, { createContext, useMemo } from 'react'
+import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { useColorScheme } from 'react-native'
 
 import useStorage from '@modules/common/hooks/useStorage'
@@ -25,9 +25,24 @@ const ThemeProvider: React.FC = ({ children }) => {
     defaultValue: DEFAULT_THEME,
     isStringStorage: true
   })
+  // Migrating from v2.x to v3.x where the theme type was stored wrapped in quotes
+  const isMigrationNeeded =
+    !!themeType && themeType[0] === '"' && themeType[themeType.length - 1] === '"'
+  const [hasMigrated, setHasMigrated] = useState<boolean>(!isMigrationNeeded)
+
+  useEffect(() => {
+    if (hasMigrated) return
+
+    // Removes the wrapping quotes from the `themeType` coming from the storage
+    const migratedThemeType = themeType!.slice(1, -1) as THEME_TYPES
+    setThemeType(migratedThemeType)
+
+    setHasMigrated(true)
+  }, [hasMigrated, setHasMigrated, setThemeType, themeType])
 
   const theme = useMemo(() => {
     const type = themeType === THEME_TYPES.AUTO ? colorScheme : themeType
+
     const currentTheme: any = {}
     // eslint-disable-next-line no-restricted-syntax
     for (const key of Object.keys(ThemeColors)) {
@@ -49,7 +64,7 @@ const ThemeProvider: React.FC = ({ children }) => {
         [themeType, setThemeType, theme]
       )}
     >
-      {children}
+      {hasMigrated && children}
     </ThemeContext.Provider>
   )
 }
