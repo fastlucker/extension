@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
 import LogOutIcon from '@assets/svg/LogOutIcon'
+import { isWeb } from '@config/env'
 import Blockies from '@modules/common/components/Blockies'
 import Button from '@modules/common/components/Button'
 import CopyText from '@modules/common/components/CopyText'
@@ -11,8 +12,8 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import alert from '@modules/common/services/alert'
-import { navigate } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -38,6 +39,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
   const { removeFromVault } = useVault()
   const { extensionWallet } = useExtensionWallet()
+  const navigation = useNavigation()
 
   const handleChangeAccount = (accountId: any) => {
     closeBottomSheet()
@@ -49,7 +51,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
 
   const handleGoToAddAccount = () => {
     closeBottomSheet()
-    navigate('auth-add-account')
+    navigation.navigate('/auth')
   }
 
   const renderAccount = (account: any) => {

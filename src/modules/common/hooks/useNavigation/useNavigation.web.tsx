@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom'
+import { useCallback } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 type Options = {
   state?: {
@@ -11,16 +12,31 @@ type Options = {
 
 const useNavigation = () => {
   const nav: any = useNavigate()
+  const prevRoute = useLocation()
 
-  const navigate = (url: string, options?: Options) => {
-    return nav(url, options)
-  }
+  const navigate = useCallback(
+    (to: string | number, options?: Options) => {
+      return nav(to, {
+        ...options,
+        state: {
+          ...(options?.state || {}),
+          prevRoute
+        }
+      })
+    },
+    [nav, prevRoute]
+  )
+
+  const goBack = useCallback(() => {
+    return nav(-1)
+  }, [nav])
 
   const setOptions = () => {}
 
   return {
     navigate,
-    setOptions
+    setOptions,
+    goBack
   }
 }
 

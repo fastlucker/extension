@@ -5,8 +5,9 @@ import WebView from 'react-native-webview'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Spinner from '@modules/common/components/Spinner'
 import Wrapper from '@modules/common/components/Wrapper'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import spacings from '@modules/common/styles/spacings'
-import { RouteProp, useNavigation } from '@react-navigation/native'
+import { RouteProp } from '@react-navigation/native'
 
 import styles from './styles'
 

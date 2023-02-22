@@ -24,7 +24,7 @@ const ManageVaultLockButton: React.FC<Props> = ({ handleNavigate }) => {
     )
 
   return (
-    <TouchableOpacity onPress={() => handleNavigate('manage-vault-lock')}>
+    <TouchableOpacity onPress={() => handleNavigate('/manage-vault-lock')}>
       <Text style={spacings.mbSm} color={colors.titan_50}>
         {t('Manage Key Store lock')}
       </Text>

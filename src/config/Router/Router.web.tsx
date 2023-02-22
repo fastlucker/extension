@@ -1,37 +1,29 @@
-import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import React, { lazy, Suspense } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Route, Routes } from 'react-router-dom'
+import { Outlet, Route, Routes } from 'react-router-dom'
 
-import useAuth from '@modules/auth/hooks/useAuth'
+import { headerBeta as defaultHeaderBeta } from '@config/Router/HeadersConfig'
 import Spinner from '@modules/common/components/Spinner'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
-import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
-import useNetInfo from '@modules/common/hooks/useNetInfo'
-import useStorageController from '@modules/common/hooks/useStorageController'
-import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
-import colors from '@modules/common/styles/colors'
 import flexbox from '@modules/common/styles/utils/flexbox'
-import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
+import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
-import { getUiType } from '@web/utils/uiType'
 
 import SortHat from './SortHat.web'
 
 const AsyncMainRoute = lazy(() => import('./MainRoutes.web'))
 
+const headerBeta = (
+  <>
+    {defaultHeaderBeta({})}
+    <Outlet />
+  </>
+)
+
 const Router = () => {
-  const { authStatus } = useAuth()
-
-  const { connectionState } = useNetInfo()
-  const { approval, hasCheckedForApprovalInitially } = useExtensionApproval()
-  const isInNotification = getUiType().isNotification
+  const { hasCheckedForApprovalInitially } = useExtensionApproval()
   const { vaultStatus, unlockVault, resetVault, biometricsEnabled } = useVault()
-
-  const isInTab = getUiType().isTab
-  const { getApproval } = useExtensionApproval()
-  const { extensionWallet } = useExtensionWallet()
 
   if (!hasCheckedForApprovalInitially) {
     return (
@@ -45,16 +37,22 @@ const Router = () => {
     <>
       <Routes>
         <Route path="/" element={<SortHat />} />
-        <Route
-          path="/unlock-vault"
-          element={
-            <UnlockVaultScreen
-              unlockVault={unlockVault}
-              vaultStatus={vaultStatus}
-              biometricsEnabled={biometricsEnabled}
-            />
-          }
-        />
+        <Route element={headerBeta}>
+          <Route
+            path="unlock-vault"
+            element={
+              <UnlockVaultScreen
+                unlockVault={unlockVault}
+                vaultStatus={vaultStatus}
+                biometricsEnabled={biometricsEnabled}
+              />
+            }
+          />
+          <Route
+            path="reset-vault"
+            element={<ResetVaultScreen resetVault={resetVault} vaultStatus={vaultStatus} />}
+          />
+        </Route>
       </Routes>
       <Suspense fallback={null}>
         <AsyncMainRoute />

@@ -42,11 +42,11 @@ const Router = () => {
     }
 
     if (vaultStatus === VAULT_STATUS.LOCKED) {
-      return navigate('/unlock-vault', { replace: true })
+      return navigate('/unlock-vault')
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      return navigate('/auth', { replace: true })
+      return navigate('/auth')
     }
 
     // if (!(await extensionWallet.isBooted())) {

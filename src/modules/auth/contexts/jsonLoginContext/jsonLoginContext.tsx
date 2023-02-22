@@ -10,8 +10,8 @@ import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useEOA from '@modules/common/hooks/useEOA'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useToast from '@modules/common/hooks/useToast'
-import { navigate } from '@modules/common/services/navigation'
 import useVault from '@modules/vault/hooks/useVault'
 
 type FormProps = {
@@ -39,6 +39,7 @@ const JsonLoginProvider: React.FC = ({ children }) => {
   const [error, setError] = useState<null | string>(null)
   const [inProgress, setInProgress] = useState<boolean>(false)
   const { onAddAccount } = useAccounts()
+  const { navigate } = useNavigation()
   const [pendingLoginWithQuickAccountData, setPendingLoginWithQuickAccountData] =
     useState<Account | null>(null)
   const { addToast } = useToast()
@@ -124,12 +125,16 @@ const JsonLoginProvider: React.FC = ({ children }) => {
       if (accountType === 'quickAcc') {
         setPendingLoginWithQuickAccountData(fileContent)
         setInProgress(false)
-        return navigate('addAccountPasswordToVault', { loginType: 'json' })
+        return navigate('/add-account-password-to-vault', {
+          state: {
+            loginType: 'json'
+          }
+        })
       }
 
       if (accountType === 'ledger' && !isWeb) {
         return onEOASelected(fileContent.signer.address, fileContent.signerExtra)
-          ?.then(() => navigate('dashboard'))
+          ?.then(() => navigate('/dashboard'))
           .catch(() =>
             setError(
               t(
@@ -161,7 +166,15 @@ const JsonLoginProvider: React.FC = ({ children }) => {
         )
       )
     },
-    [onEOASelected, addToVault, addToast, pendingLoginWithQuickAccountData, onAddAccount, t]
+    [
+      onEOASelected,
+      addToVault,
+      addToast,
+      pendingLoginWithQuickAccountData,
+      onAddAccount,
+      t,
+      navigate
+    ]
   )
 
   const cancelLoginAttempts = useCallback(() => {

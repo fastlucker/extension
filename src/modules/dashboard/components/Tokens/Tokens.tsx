@@ -7,12 +7,12 @@ import { View } from 'react-native'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 import AddOrHideToken from '@modules/dashboard/components/AddOrHideToken'
-import { useNavigation } from '@react-navigation/native'
 
 import TokensListLoader from '../Loaders/TokensListLoader'
 import TokenItem from './TokenItem'
@@ -54,9 +54,14 @@ const Tokens = ({
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
   const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')
 
-  const handleGoToDeposit = () => navigation.navigate('receive')
+  const handleGoToDeposit = () => navigation.navigate('/receive')
   const handleGoToSend = useCallback(
-    (symbol: string) => navigation.navigate('send', { tokenAddressOrSymbol: symbol.toString() }),
+    (symbol: string) =>
+      navigation.navigate('/send', {
+        state: {
+          tokenAddressOrSymbol: symbol.toString()
+        }
+      }),
     [navigation]
   )
 

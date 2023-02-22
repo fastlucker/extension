@@ -1,20 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { redirect, Route, Routes } from 'react-router-native'
+import React from 'react'
+import { Outlet, Route, Routes } from 'react-router-dom'
 
-import DashboardIcon from '@assets/svg/DashboardIcon'
-import EarnIcon from '@assets/svg/EarnIcon'
-import GasTankIcon from '@assets/svg/GasTankIcon'
-import SendIcon from '@assets/svg/SendIcon'
-import SwapIcon from '@assets/svg/SwapIcon'
-import TransferIcon from '@assets/svg/TransferIcon'
-import DrawerContent from '@config/Router/DrawerContent'
 import {
   headerAlpha as defaultHeaderAlpha,
   headerBeta as defaultHeaderBeta,
   headerGamma as defaultHeaderGamma
 } from '@config/Router/HeadersConfig'
-import styles, { tabBarItemWebStyle, tabBarLabelStyle, tabBarWebStyle } from '@config/Router/styles'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import { EmailLoginProvider } from '@modules/auth/contexts/emailLoginContext'
 import { JsonLoginProvider } from '@modules/auth/contexts/jsonLoginContext'
@@ -31,7 +22,6 @@ import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
-import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import flexbox from '@modules/common/styles/utils/flexbox'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
@@ -64,20 +54,60 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { getUiType } from '@web/utils/uiType'
 
+const navigationEnabled = !getUiType().isNotification
+
+const headerAlpha = (
+  <>
+    {navigationEnabled
+      ? defaultHeaderAlpha({ backgroundColor: colors.martinique })
+      : defaultHeaderBeta({})}
+    <Outlet />
+  </>
+)
+
+const headerBeta = (
+  <>
+    {defaultHeaderBeta({})}
+    <Outlet />
+  </>
+)
+
+const headerGamma = (
+  <>
+    {navigationEnabled
+      ? defaultHeaderGamma({ backgroundColor: colors.martinique })
+      : defaultHeaderBeta({})}
+    <Outlet />
+  </>
+)
+
 const MainRoutes = () => {
   return (
     <Routes>
-      <Route path="/no-connection" element={<NoConnectionScreen />} />
-      <Route path="/get-started" element={<VaultSetupGetStartedScreen />} />
-      <Route path="/create-vault" element={<CreateNewVaultScreen />} />
-      <Route path="/auth" element={<AuthScreen />} />
-      <Route path="/ambire-account-login" element={<EmailLoginScreen />} />
-      <Route path="/ambire-account-json-login" element={<JsonLoginScreen />} />
-      <Route path="/qr-code-login" element={<QRCodeLoginScreen />} />
-      <Route path="/hardware-wallet" element={<HardwareWalletConnectScreen />} />
-      <Route path="/external-signer" element={<ExternalSignerScreen />} />
+      <Route path="no-connection" element={<NoConnectionScreen />} />
+      <Route path="get-started" element={<VaultSetupGetStartedScreen />} />
+      <Route path="create-vault" element={<CreateNewVaultScreen />} />
+      <Route path="auth" element={<AuthScreen />} />
+      <Route path="ambire-account-login" element={<EmailLoginScreen />} />
+      <Route path="add-account-password-to-vault" element={<AddAccountPasswordToVaultScreen />} />
+      <Route path="ambire-account-json-login" element={<JsonLoginScreen />} />
+      <Route path="qr-code-login" element={<QRCodeLoginScreen />} />
+      <Route path="hardware-wallet" element={<HardwareWalletConnectScreen />} />
+      <Route path="external-signer" element={<ExternalSignerScreen />} />
 
-      <Route path="/dashboard" element={<DashboardScreen />} />
+      <Route element={headerAlpha}>
+        <Route path="dashboard" element={<DashboardScreen />} />
+        <Route path="collectibles" element={<CollectibleScreen />} />
+        <Route path="earn" element={<EarnScreen />} />
+        <Route path="receive" element={<ReceiveScreen />} />
+        <Route path="provider" element={<ProviderScreen />} />
+        <Route path="send" element={<SendScreen />} />
+        <Route path="pending-transactions" element={<PendingTransactionsScreen />} />
+        <Route path="sign-message" element={<SignMessageScreen />} />
+        <Route path="transactions" element={<TransactionsScreen />} />
+        <Route path="gas-tank" element={<GasTankScreen />} />
+        <Route path="gas-information" element={<GasInformationScreen />} />
+      </Route>
     </Routes>
   )
 }

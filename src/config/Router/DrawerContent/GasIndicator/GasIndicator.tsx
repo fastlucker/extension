@@ -55,7 +55,7 @@ const GasIndicator = ({ handleNavigate }: Props) => {
           top: 10,
           bottom: 5
         }}
-        onPress={() => handleNavigate('gas-information')}
+        onPress={() => handleNavigate('/gas-information')}
       >
         <Text fontSize={14} color={colors.titan_50}>
           {network?.nativeAssetSymbol}

@@ -137,7 +137,7 @@ const VaultProvider: React.FC = ({ children }) => {
         resolveApproval(true)
       }
 
-      !!nextRoute && navigate(nextRoute)
+      !!nextRoute && isWeb ? webNavigate(`/${nextRoute}`) : navigate(`/${nextRoute}`)
       if (isWeb) webNavigate('/', { replace: true })
       return Promise.resolve()
     },

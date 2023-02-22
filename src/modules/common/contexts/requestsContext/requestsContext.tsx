@@ -139,7 +139,7 @@ const RequestsProvider: React.FC = ({ children }) => {
       }
       setSentTxn((txn: any) => [...txn, { confirmed: false, hash }])
       addToast(t('Transaction signed and sent successfully!') as string, {
-        onClick: () => navigate('transactions'),
+        onClick: () => navigate('/transactions'),
         timeout: 15000
       })
     },
@@ -204,7 +204,7 @@ const RequestsProvider: React.FC = ({ children }) => {
       }
 
       if (toSign.length) {
-        navigate('sign-message')
+        navigate('/sign-message')
       } else if (
         // Extension only
         // In case there is a pending sign msg request opened in a notification window

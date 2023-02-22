@@ -1,4 +1,10 @@
-import { useNavigation as useNav } from '@react-navigation/native'
+import { useCallback } from 'react'
+
+import { NavigationProp, useNavigation as useNav } from '@react-navigation/native'
+
+interface Props extends NavigationProp<ReactNavigation.RootParamList> {
+  navigate: (url: string | number, options?: Options) => void
+}
 
 type Options = {
   state?: {
@@ -9,14 +15,15 @@ type Options = {
   relative?: 'route' | 'path'
 }
 
-const useNavigation = (): {
-  navigate: (url: string, options?: Options) => void
-} => {
-  const nav: any = useNav()
+const useNavigation = (): Props => {
+  const nav: NavigationProp<ReactNavigation.RootParamList> = useNav()
 
-  const navigate = (url: string, options?: Options) => {
-    return nav.navigate(url, options?.state)
-  }
+  const navigate = useCallback(
+    (to: string, options?: Options) => {
+      return nav.navigate(to, options?.state)
+    },
+    [nav]
+  )
 
   return {
     ...nav,

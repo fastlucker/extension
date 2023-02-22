@@ -81,7 +81,7 @@ const Header: React.FC<Props> = ({
   }
 
   const renderHeaderRight = withScanner ? (
-    <NavIconWrapper onPress={() => navigation.navigate('connect')}>
+    <NavIconWrapper onPress={() => navigation.navigate('/connect')}>
       <ScanIcon />
     </NavIconWrapper>
   ) : null

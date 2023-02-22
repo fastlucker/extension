@@ -12,7 +12,7 @@ import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useDisableNavigatingBack from '@modules/common/hooks/useDisableNavigatingBack'
-import { navigate } from '@modules/common/services/navigation'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
@@ -39,6 +39,7 @@ const UnlockVaultScreen: React.FC<Props> = ({
   hasGradientBackground = true
 }) => {
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
   const {
     control,
     handleSubmit,
@@ -79,11 +80,15 @@ const UnlockVaultScreen: React.FC<Props> = ({
     // Otherwise, the user is in another navigation stack (or in temporarily
     // locked state), so the reset vault screen route doesn't exist.
     if (vaultStatus === VAULT_STATUS.LOCKED) {
-      navigate('resetVault', { resetPassword: true })
+      navigate('/reset-vault', {
+        state: {
+          resetPassword: true
+        }
+      })
     }
 
     onForgotPassword()
-  }, [vaultStatus, onForgotPassword])
+  }, [vaultStatus, onForgotPassword, navigate])
 
   useDisableNavigatingBack()
 

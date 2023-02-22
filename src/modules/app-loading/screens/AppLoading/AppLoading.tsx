@@ -1,9 +1,9 @@
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { HashRouter, redirect, Route, Routes, useNavigate } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 
-import Router from '@config/Router'
+import AppRouter from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
@@ -32,6 +32,7 @@ import { WalletConnectProvider } from '@modules/common/contexts/walletConnectCon
 import useFonts from '@modules/common/hooks/useFonts'
 import { rpcProviders } from '@modules/common/services/providers'
 import { VaultProvider } from '@modules/vault/contexts/vaultContext'
+import { isExtension } from '@web/constants/browserapi'
 
 // Initialize rpc providers for all networks
 const shouldInitProviders = !areRpcProvidersInitialized()
@@ -45,7 +46,7 @@ const AppLoading = () => {
   if (!fontsLoaded) return null
 
   return (
-    <HashRouter>
+    <BrowserRouter basename={isExtension ? '/index.html' : ''}>
       <PortalProvider>
         <LoaderProvider>
           <StorageProvider>
@@ -73,7 +74,7 @@ const AppLoading = () => {
                                                       <UnsupportedDAppsBottomSheetProvider>
                                                         <HeaderBottomSheetProvider>
                                                           <LinkingProvider>
-                                                            <Router />
+                                                            <AppRouter />
                                                           </LinkingProvider>
                                                         </HeaderBottomSheetProvider>
                                                       </UnsupportedDAppsBottomSheetProvider>
@@ -102,7 +103,7 @@ const AppLoading = () => {
           </StorageProvider>
         </LoaderProvider>
       </PortalProvider>
-    </HashRouter>
+    </BrowserRouter>
   )
 }
 

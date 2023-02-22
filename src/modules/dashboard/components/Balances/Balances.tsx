@@ -15,6 +15,7 @@ import Button from '@modules/common/components/Button'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
@@ -22,7 +23,6 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import { useNavigation } from '@react-navigation/native'
 
 import Rewards from '../Rewards'
 import styles from './styles'
@@ -88,9 +88,9 @@ const Balances = ({
     // Exclude displaying balances for networks we don't support
     .filter(({ network }) => !!networkDetails(network))
 
-  const handleGoToSend = () => navigation.navigate('send')
-  const handleGoToReceive = () => navigation.navigate('receive')
-  const handleGoToGasTank = () => navigation.navigate('gas-tank')
+  const handleGoToSend = () => navigation.navigate('/send')
+  const handleGoToReceive = () => navigation.navigate('/receive')
+  const handleGoToGasTank = () => navigation.navigate('/gas-tank')
   const content = (
     <>
       <View style={flexboxStyles.directionRow}>

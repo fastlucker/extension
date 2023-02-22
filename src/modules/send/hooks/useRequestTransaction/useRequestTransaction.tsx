@@ -15,11 +15,12 @@ import TokenIcon from '@modules/common/components/TokenIcon'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useConstants from '@modules/common/hooks/useConstants'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useRequests from '@modules/common/hooks/useRequests'
 import useToast from '@modules/common/hooks/useToast'
-import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
+import { useIsFocused, useRoute } from '@react-navigation/native'
 
 const ERC20 = new Interface(erc20Abi)
 
