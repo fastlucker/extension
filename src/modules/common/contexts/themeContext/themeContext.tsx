@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useMemo } from 'react'
+import React, { createContext, useMemo } from 'react'
 import { useColorScheme } from 'react-native'
 
 import useStorage from '@modules/common/hooks/useStorage'
@@ -26,27 +26,27 @@ const ThemeProvider: React.FC = ({ children }) => {
     isStringStorage: true
   })
 
-  const setTheme = useCallback(() => {
+  const theme = useMemo(() => {
     const type = themeType === THEME_TYPES.AUTO ? colorScheme : themeType
-    const theme: any = {}
+    const currentTheme: any = {}
     // eslint-disable-next-line no-restricted-syntax
     for (const key of Object.keys(ThemeColors)) {
       // @ts-ignore
-      theme[key] = ThemeColors[key][type || DEFAULT_THEME]
+      currentTheme[key] = ThemeColors[key][type || DEFAULT_THEME]
     }
 
-    return theme
+    return currentTheme
   }, [themeType, colorScheme])
 
   return (
     <ThemeContext.Provider
       value={useMemo(
         () => ({
-          theme: setTheme(),
+          theme,
           themeType: themeType || DEFAULT_THEME,
           setThemeType
         }),
-        [themeType, setThemeType, setTheme]
+        [themeType, setThemeType, theme]
       )}
     >
       {children}
