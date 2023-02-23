@@ -21,18 +21,11 @@ import styles from './styles'
 const GetEncryptionPublicKeyRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
-  const { approval, resolveApproval, rejectApproval } = useExtensionApproval()
+  const { approval, rejectApproval } = useExtensionApproval()
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerTitle: t('Webpage Wants to Get Encryption Key') })
   }, [t, navigation])
-
-  const handleAuthorize = useCallback(async () => {
-    setIsAuthorizing(true)
-
-    // TODO:
-    // resolveApproval(true)
-  }, [])
 
   const handleDeny = useCallback(
     () => rejectApproval(t('User rejected the request.')),
@@ -67,11 +60,11 @@ const GetEncryptionPublicKeyRequestScreen = ({ navigation }: any) => {
                   {'The dApp '}
                 </Text>
                 <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                  {approval?.data?.params?.name || ''}
+                  {approval?.data?.params?.session?.name || ''}
                 </Text>
                 <Text fontSize={14} weight="regular">
                   {
-                    ' wants to get your public encryption key. By authorizing, this webpage will be able to compose encrypted messages to you.'
+                    ' wants to get your public encryption key. This method is deprecated and Ambire does not support it.'
                   }
                 </Text>
               </Text>
@@ -82,17 +75,9 @@ const GetEncryptionPublicKeyRequestScreen = ({ navigation }: any) => {
             <View style={styles.buttonWrapper}>
               <Button
                 disabled={isAuthorizing}
-                type="danger"
-                onPress={handleDeny}
-                text={t('Deny')}
-              />
-            </View>
-            <View style={styles.buttonWrapper}>
-              <Button
-                disabled={isAuthorizing}
                 type="outline"
-                onPress={handleAuthorize}
-                text={isAuthorizing ? t('Authorizing...') : t('Authorize')}
+                onPress={handleDeny}
+                text={t('Okay')}
               />
             </View>
           </View>
