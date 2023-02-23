@@ -13,6 +13,7 @@ import useVault from '@modules/vault/hooks/useVault'
 import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 
+import routesConfig from './routesConfig'
 import SortHat from './SortHat.web'
 
 const AsyncMainRoute = lazy(() => import('./MainRoutes.web'))
@@ -59,7 +60,8 @@ const Router = () => {
         <Route path="/" element={<SortHat />} />
         <Route element={headerBeta}>
           <Route
-            path="unlock-vault"
+            handle={{ title: 'Unlock' }}
+            path={routesConfig['unlock-vault'].route}
             element={
               <UnlockVaultScreen
                 unlockVault={unlockVault}
@@ -69,7 +71,7 @@ const Router = () => {
             }
           />
           <Route
-            path="reset-vault"
+            path={routesConfig['reset-vault'].route}
             element={<ResetVaultScreen resetVault={resetVault} vaultStatus={vaultStatus} />}
           />
         </Route>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { ColorValue, TouchableOpacity, View } from 'react-native'
 import { useLocation } from 'react-router-dom'
 
@@ -17,6 +17,7 @@ import colors from '@modules/common/styles/colors'
 import spacings, { SPACING_SM } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
+import routesConfig from '../routesConfig'
 import styles from './style'
 
 interface Props {
@@ -41,6 +42,11 @@ const Header: React.FC<Props> = ({
   const { hidePrivateValue } = usePrivateMode()
 
   const canGoBack = location?.state?.prevRoute?.key !== 'default'
+
+  const title = useMemo(
+    () => routesConfig[location.pathname?.substring(1)].title,
+    [location.pathname]
+  )
 
   const renderBottomSheetSwitcher = (
     <TouchableOpacity
@@ -124,7 +130,7 @@ const Header: React.FC<Props> = ({
       {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
       {mode === 'title' && (
         <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={2}>
-          {/* {title} */}
+          {title || ''}
         </Text>
       )}
       <View style={navIconContainer}>

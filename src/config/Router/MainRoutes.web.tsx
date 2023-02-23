@@ -46,6 +46,7 @@ import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStar
 import { getUiType } from '@web/utils/uiType'
 
 import BottomNav from './BottomNav/BottomNav'
+import routesConfig from './routesConfig'
 
 const navigationEnabled = !getUiType().isNotification
 
@@ -97,47 +98,56 @@ const MainRoutes = () => {
   return (
     <Routes>
       <Route element={headerBeta}>
-        <Route path="no-connection" element={<NoConnectionScreen />} />
-        <Route path="get-started" element={<VaultSetupGetStartedScreen />} />
-        <Route path="create-vault" element={<CreateNewVaultScreen />} />
-        <Route path="auth" element={<AuthScreen />} />
+        <Route path={routesConfig['no-connection'].route} element={<NoConnectionScreen />} />
+        <Route path={routesConfig['get-started'].route} element={<VaultSetupGetStartedScreen />} />
+        <Route path={routesConfig['create-vault'].route} element={<CreateNewVaultScreen />} />
+        <Route path={routesConfig.auth.route} element={<AuthScreen />} />
 
         <Route element={emailLoginProvider}>
-          <Route path="ambire-account-login" element={<EmailLoginScreen />} />
+          <Route path={routesConfig['ambire-account-login'].route} element={<EmailLoginScreen />} />
           <Route
-            path="ambire-account-login-password-confirm"
+            path={routesConfig['ambire-account-login-password-confirm'].route}
             element={<AddAccountPasswordToVaultScreen />}
           />
         </Route>
 
         <Route element={jsonLoginProvider}>
-          <Route path="ambire-account-json-login" element={<JsonLoginScreen />} />
           <Route
-            path="ambire-account-json-login-password-confirm"
+            path={routesConfig['ambire-account-json-login'].route}
+            element={<JsonLoginScreen />}
+          />
+          <Route
+            path={routesConfig['ambire-account-json-login-password-confirm'].route}
             element={<AddAccountPasswordToVaultScreen />}
           />
         </Route>
 
-        <Route path="qr-code-login" element={<QRCodeLoginScreen />} />
-        <Route path="hardware-wallet" element={<HardwareWalletConnectScreen />} />
-        <Route path="external-signer" element={<ExternalSignerScreen />} />
+        <Route path={routesConfig['qr-code-login'].route} element={<QRCodeLoginScreen />} />
+        <Route
+          path={routesConfig['hardware-wallet'].route}
+          element={<HardwareWalletConnectScreen />}
+        />
+        <Route path={routesConfig['external-signer'].route} element={<ExternalSignerScreen />} />
       </Route>
       <Route element={headerAlpha}>
         <Route element={footer}>
-          <Route path="dashboard" element={<DashboardScreen />} />
-          <Route path="collectibles" element={<CollectibleScreen />} />
-          <Route path="earn" element={<EarnScreen />} />
-          <Route path="send" element={<SendScreen />} />
-          <Route path="transactions" element={<TransactionsScreen />} />
-          <Route path="gas-tank" element={<GasTankScreen />} />
+          <Route path={routesConfig.dashboard.route} element={<DashboardScreen />} />
+          <Route path={routesConfig.collectibles.route} element={<CollectibleScreen />} />
+          <Route path={routesConfig.earn.route} element={<EarnScreen />} />
+          <Route path={routesConfig.send.route} element={<SendScreen />} />
+          <Route path={routesConfig.transactions.route} element={<TransactionsScreen />} />
+          <Route path={routesConfig['gas-tank'].route} element={<GasTankScreen />} />
         </Route>
       </Route>
       <Route element={headerBeta}>
-        <Route path="pending-transactions" element={<PendingTransactionsScreen />} />
-        <Route path="receive" element={<ReceiveScreen />} />
-        <Route path="provider" element={<ProviderScreen />} />
-        <Route path="sign-message" element={<SignMessageScreen />} />
-        <Route path="gas-information" element={<GasInformationScreen />} />
+        <Route
+          path={routesConfig['pending-transactions'].route}
+          element={<PendingTransactionsScreen />}
+        />
+        <Route path={routesConfig.receive.route} element={<ReceiveScreen />} />
+        <Route path={routesConfig.provider.route} element={<ProviderScreen />} />
+        <Route path={routesConfig['sign-message'].route} element={<SignMessageScreen />} />
+        <Route path={routesConfig['gas-information'].route} element={<GasInformationScreen />} />
       </Route>
     </Routes>
   )
