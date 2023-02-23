@@ -289,7 +289,9 @@ class ProviderController {
   walletWatchAsset = () => true
 
   @Reflect.metadata('APPROVAL', ['GetEncryptionPublicKey', false])
-  ethGetEncryptionPublicKey = () => true
+  ethGetEncryptionPublicKey = ({ approvalRes }: { approvalRes: string }) => {
+    return { result: approvalRes }
+  }
 
   walletRequestPermissions = ({ data: { params: permissions } }) => {
     const result: Web3WalletPermission[] = []
