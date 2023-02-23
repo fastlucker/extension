@@ -128,16 +128,16 @@ const MainRoutes = () => {
           <Route path="collectibles" element={<CollectibleScreen />} />
           <Route path="earn" element={<EarnScreen />} />
           <Route path="send" element={<SendScreen />} />
-          <Route path="pending-transactions" element={<PendingTransactionsScreen />} />
           <Route path="transactions" element={<TransactionsScreen />} />
           <Route path="gas-tank" element={<GasTankScreen />} />
         </Route>
-        <Route element={headerBeta}>
-          <Route path="receive" element={<ReceiveScreen />} />
-          <Route path="provider" element={<ProviderScreen />} />
-          <Route path="sign-message" element={<SignMessageScreen />} />
-          <Route path="gas-information" element={<GasInformationScreen />} />
-        </Route>
+      </Route>
+      <Route element={headerBeta}>
+        <Route path="pending-transactions" element={<PendingTransactionsScreen />} />
+        <Route path="receive" element={<ReceiveScreen />} />
+        <Route path="provider" element={<ProviderScreen />} />
+        <Route path="sign-message" element={<SignMessageScreen />} />
+        <Route path="gas-information" element={<GasInformationScreen />} />
       </Route>
     </Routes>
   )
