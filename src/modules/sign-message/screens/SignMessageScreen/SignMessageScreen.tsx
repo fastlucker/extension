@@ -1,6 +1,6 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { toUtf8String } from 'ethers/lib/utils'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
@@ -113,9 +113,11 @@ const SignScreenScreen = ({ navigation }: any) => {
 
   const prevToSign = usePrevious(msgToSign || {})
 
-  if (!Object.keys(msgToSign || {}).length && Object.keys(prevToSign || {}).length) {
-    navigation?.goBack()
-  }
+  useEffect(() => {
+    if (!Object.keys(msgToSign || {}).length && Object.keys(prevToSign || {}).length) {
+      navigation?.goBack()
+    }
+  }, [msgToSign, navigation, prevToSign])
 
   if (!msgToSign || !account) return null
 
