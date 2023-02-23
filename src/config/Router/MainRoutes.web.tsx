@@ -45,6 +45,8 @@ import CreateNewVaultScreen from '@modules/vault/screens/CreateNewVaultScreen'
 import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
 import { getUiType } from '@web/utils/uiType'
 
+import BottomNav from './BottomNav/BottomNav'
+
 const navigationEnabled = !getUiType().isNotification
 
 const headerAlpha = (
@@ -84,46 +86,58 @@ const jsonLoginProvider = (
   </JsonLoginProvider>
 )
 
+const footer = (
+  <>
+    <Outlet />
+    <BottomNav />
+  </>
+)
+
 const MainRoutes = () => {
   return (
     <Routes>
-      <Route path="no-connection" element={<NoConnectionScreen />} />
-      <Route path="get-started" element={<VaultSetupGetStartedScreen />} />
-      <Route path="create-vault" element={<CreateNewVaultScreen />} />
-      <Route path="auth" element={<AuthScreen />} />
+      <Route element={headerBeta}>
+        <Route path="no-connection" element={<NoConnectionScreen />} />
+        <Route path="get-started" element={<VaultSetupGetStartedScreen />} />
+        <Route path="create-vault" element={<CreateNewVaultScreen />} />
+        <Route path="auth" element={<AuthScreen />} />
 
-      <Route element={emailLoginProvider}>
-        <Route path="ambire-account-login" element={<EmailLoginScreen />} />
-        <Route
-          path="ambire-account-login-password-confirm"
-          element={<AddAccountPasswordToVaultScreen />}
-        />
+        <Route element={emailLoginProvider}>
+          <Route path="ambire-account-login" element={<EmailLoginScreen />} />
+          <Route
+            path="ambire-account-login-password-confirm"
+            element={<AddAccountPasswordToVaultScreen />}
+          />
+        </Route>
+
+        <Route element={jsonLoginProvider}>
+          <Route path="ambire-account-json-login" element={<JsonLoginScreen />} />
+          <Route
+            path="ambire-account-json-login-password-confirm"
+            element={<AddAccountPasswordToVaultScreen />}
+          />
+        </Route>
+
+        <Route path="qr-code-login" element={<QRCodeLoginScreen />} />
+        <Route path="hardware-wallet" element={<HardwareWalletConnectScreen />} />
+        <Route path="external-signer" element={<ExternalSignerScreen />} />
       </Route>
-
-      <Route element={jsonLoginProvider}>
-        <Route path="ambire-account-json-login" element={<JsonLoginScreen />} />
-        <Route
-          path="ambire-account-json-login-password-confirm"
-          element={<AddAccountPasswordToVaultScreen />}
-        />
-      </Route>
-
-      <Route path="qr-code-login" element={<QRCodeLoginScreen />} />
-      <Route path="hardware-wallet" element={<HardwareWalletConnectScreen />} />
-      <Route path="external-signer" element={<ExternalSignerScreen />} />
-
       <Route element={headerAlpha}>
-        <Route path="dashboard" element={<DashboardScreen />} />
-        <Route path="collectibles" element={<CollectibleScreen />} />
-        <Route path="earn" element={<EarnScreen />} />
-        <Route path="send" element={<SendScreen />} />
-        <Route path="pending-transactions" element={<PendingTransactionsScreen />} />
-        <Route path="transactions" element={<TransactionsScreen />} />
-        <Route path="gas-tank" element={<GasTankScreen />} />
-        <Route path="receive" element={<ReceiveScreen />} />
-        <Route path="provider" element={<ProviderScreen />} />
-        <Route path="sign-message" element={<SignMessageScreen />} />
-        <Route path="gas-information" element={<GasInformationScreen />} />
+        <Route element={footer}>
+          <Route path="dashboard" element={<DashboardScreen />} />
+          <Route path="collectibles" element={<CollectibleScreen />} />
+          <Route path="earn" element={<EarnScreen />} />
+          <Route path="send" element={<SendScreen />} />
+          <Route path="pending-transactions" element={<PendingTransactionsScreen />} />
+          <Route path="transactions" element={<TransactionsScreen />} />
+          <Route path="gas-tank" element={<GasTankScreen />} />
+        </Route>
+        <Route element={headerBeta}>
+          <Route path="receive" element={<ReceiveScreen />} />
+          <Route path="provider" element={<ProviderScreen />} />
+          <Route path="sign-message" element={<SignMessageScreen />} />
+          <Route path="gas-information" element={<GasInformationScreen />} />
+        </Route>
       </Route>
     </Routes>
   )
