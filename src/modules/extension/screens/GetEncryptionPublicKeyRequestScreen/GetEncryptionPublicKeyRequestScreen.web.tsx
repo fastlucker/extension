@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react'
+import React, { useCallback, useLayoutEffect } from 'react'
 import { View } from 'react-native'
 
 import ManifestFallbackIcon from '@assets/svg/ManifestFallbackIcon'
@@ -20,7 +20,6 @@ import styles from './styles'
 
 const GetEncryptionPublicKeyRequestScreen = ({ navigation }: any) => {
   const { t } = useTranslation()
-  const [isAuthorizing, setIsAuthorizing] = useState(false)
   const { approval, rejectApproval } = useExtensionApproval()
 
   useLayoutEffect(() => {
@@ -73,12 +72,7 @@ const GetEncryptionPublicKeyRequestScreen = ({ navigation }: any) => {
 
           <View style={styles.buttonsContainer}>
             <View style={styles.buttonWrapper}>
-              <Button
-                disabled={isAuthorizing}
-                type="outline"
-                onPress={handleDeny}
-                text={t('Okay')}
-              />
+              <Button type="outline" onPress={handleDeny} text={t('Okay')} />
             </View>
           </View>
         </Panel>
