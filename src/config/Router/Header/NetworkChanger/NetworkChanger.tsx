@@ -18,7 +18,11 @@ import textStyles from '@modules/common/styles/utils/text'
 import NetworkChangerItem from './NetworkChangerItem'
 import styles, { SINGLE_ITEM_HEIGHT } from './styles'
 
-const NetworkChanger: React.FC = () => {
+interface Props {
+  closeBottomSheet?: () => void
+}
+
+const NetworkChanger: React.FC<Props> = () => {
   const { t } = useTranslation()
   const { network, setNetwork } = useNetwork()
   const { addToast } = useToast()

@@ -88,6 +88,12 @@ const Input = ({
           />
           {!!hasButton && (
             <TouchableOpacity
+              // The `focusable` prop determines whether a component is user-focusable
+              // and appears in the keyboard tab flow. It's missing in the
+              // TouchableOpacity props, because it's react-native-web specific, see:
+              // {@link https://necolas.github.io/react-native-web/docs/accessibility/#keyboard-focus}
+              // @ts-ignore-next-line
+              focusable={false}
               onPress={onButtonPress}
               disabled={disabled}
               style={styles.button}

@@ -23,7 +23,6 @@ import Title from '@modules/common/components/Title'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
-import alert from '@modules/common/services/alert'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -64,19 +63,8 @@ const Balances = ({
   const { t } = useTranslation()
   const navigation: any = useNavigation()
   const { isPrivateMode, togglePrivateMode, hidePrivateValue } = usePrivateMode()
-  const { lastActiveTab, connectedDapps, disconnectDapp } = useAmbireExtension()
+  const { site, disconnectDapp } = useAmbireExtension()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-
-  const tabHost = useMemo(() => {
-    try {
-      if (lastActiveTab) {
-        return new URL(lastActiveTab.url).host
-      }
-    } catch (e) {
-      return null
-    }
-    return null
-  }, [lastActiveTab])
 
   const { cacheBreak } = useCacheBreak()
   const urlGetBalance = relayerURL
@@ -96,29 +84,14 @@ const Balances = ({
     [data]
   )
 
-  const isConnected = useMemo(() => {
-    if (lastActiveTab) {
-      return connectedDapps.find((dapp) => dapp.host === tabHost)?.status
-    }
-    return null
-  }, [lastActiveTab, connectedDapps, tabHost])
+  const isConnected = site?.isConnected
 
   const handleConnectedStatusPress = () => {
-    if (isConnected) {
-      alert('Disconnect Dapp', `Are you sere you want to disconnect ${tabHost}?`, [
-        {
-          text: t('Yes, disconnect dapp'),
-          onPress: () => disconnectDapp(tabHost),
-          style: 'destructive'
-        },
-        {
-          text: t('Cancel'),
-          style: 'cancel'
-        }
-      ])
-    } else {
-      openBottomSheet()
+    if (!isConnected) {
+      return openBottomSheet()
     }
+
+    disconnectDapp(site.origin)
   }
 
   useLayoutEffect(() => {
@@ -166,7 +139,7 @@ const Balances = ({
                 </View>
                 {!!hovered && (
                   <Text fontSize={12} weight="regular">
-                    {isConnected ? 'Connected' : 'Disconnected'}
+                    {isConnected ? t('Connected') : t('Disconnected')}
                   </Text>
                 )}
               </View>
@@ -311,11 +284,13 @@ const Balances = ({
         closeBottomSheet={closeBottomSheet}
         cancelText="Close"
       >
-        <View style={[flexboxStyles.alignCenter, flexboxStyles.justifyCenter, spacings.mb]}>
-          <Title type="small">{tabHost}</Title>
+        <View
+          style={[flexboxStyles.alignCenter, flexboxStyles.justifyCenter, spacings.mb, spacings.mt]}
+        >
+          {!!site?.name && <Title type="small">{site.name}</Title>}
           <Text>
             {t(
-              "Ambire is not connected to this site. To connect to a web3 site, find and click the 'Connect Wallet' button."
+              "Ambire is not connected to the current webpage. To connect, find and click the connect button on the dApp's webpage."
             )}
           </Text>
         </View>

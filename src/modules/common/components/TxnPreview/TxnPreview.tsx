@@ -16,6 +16,7 @@ import CloseIcon from '@assets/svg/CloseIcon'
 import DownArrowIcon from '@assets/svg/DownArrowIcon'
 import OpenIcon from '@assets/svg/OpenIcon'
 import UpArrowIcon from '@assets/svg/UpArrowIcon'
+import { isWeb } from '@config/env'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
 import Text from '@modules/common/components/Text'
 import TokenIcon from '@modules/common/components/TokenIcon'
@@ -164,7 +165,19 @@ const TxnPreview = ({
           </NavIconWrapper>
         )}
         <View style={[flexboxStyles.flex1, spacings.mrTy]}>
-          <View style={[flexboxStyles.directionRow, flexboxStyles.wrap, flexboxStyles.alignCenter]}>
+          <View
+            style={[
+              flexboxStyles.directionRow,
+              flexboxStyles.wrap,
+              flexboxStyles.alignCenter,
+              // Workaround for react-native-web issue, happening with long
+              // continuous strings. Otherwise, those strings go beyond the
+              // layout and break the UI.
+              // {@link https://github.com/necolas/react-native-web/issues/760#issuecomment-816941918}
+              // @ts-ignore-next-line
+              isWeb && { wordBreak: 'break-word' }
+            ]}
+          >
             {summary}
           </View>
           {!!isFirstFailing && (

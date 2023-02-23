@@ -4,6 +4,8 @@
     "baseUrl": ".",
     "jsx": "react-native",
     "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "types": ["chrome", "firefox-webext-browser", "reflect-metadata"],
     "paths": {
       "@assets/*": ["src/assets/*"],
       "@modules/*": ["src/modules/*"],

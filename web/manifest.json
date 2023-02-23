@@ -5,7 +5,7 @@
   "description": "Тhe easiest to use, most powerful and secure Web3 non-custodial solution you can get. It’s the smart solution all smart people use.",
   "version": "SYNCED_WITH_THE_APP_VERSION_VIA_THE_WEBPACK_CONFIG",
   "manifest_version": 3,
-  "permissions": ["storage", "tabs", "scripting"],
+  "permissions": ["storage", "tabs", "unlimitedStorage", "activeTab"],
   "background": {
     "service_worker": "background.js"
   },
@@ -25,10 +25,11 @@
   },
   "content_scripts": [
     {
+      "all_frames": true,
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
       "exclude_matches": ["*://doInWebPack.lan/*", "*://wallet.ambire.com/*"],
       "run_at": "document_start",
-      "js": ["injection.js", "content-script.js"]
+      "js": ["browser-polyfill.js", "content-script.js"]
     }
   ],
   "web_accessible_resources": [
