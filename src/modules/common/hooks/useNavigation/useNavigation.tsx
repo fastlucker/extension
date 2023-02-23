@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { NavigationProp, useNavigation as useNav } from '@react-navigation/native'
+import { NavigationProp, useNavigation as useReactNavigation } from '@react-navigation/native'
 
 interface Props extends NavigationProp<ReactNavigation.RootParamList> {
   navigate: (url: string | number, options?: Options) => void
@@ -16,7 +16,7 @@ type Options = {
 }
 
 const useNavigation = (): Props => {
-  const nav: NavigationProp<ReactNavigation.RootParamList> = useNav()
+  const nav: NavigationProp<ReactNavigation.RootParamList> = useReactNavigation()
 
   const navigate = useCallback(
     (to: string, options?: Options) => {

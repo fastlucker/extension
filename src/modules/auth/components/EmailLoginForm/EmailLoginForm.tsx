@@ -43,11 +43,13 @@ const EmailLoginScreen = () => {
 
   const handleFormSubmit = useCallback(() => {
     !isWeb && Keyboard.dismiss()
-
+    console.log('10')
     handleSubmit(async ({ email }) => {
+      console.log('20')
       // wait state update before Wallet calcs because
       // when Wallet method is called on devices with slow CPU the UI freezes
       await delayPromise(100)
+      console.log('30')
 
       await handleLogin({ email })
     })()

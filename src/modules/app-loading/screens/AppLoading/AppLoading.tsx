@@ -1,8 +1,9 @@
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 
+import { isWeb } from '@config/env'
 import AppRouter from '@config/Router'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
@@ -40,13 +41,15 @@ if (shouldInitProviders) {
   initRpcProviders(rpcProviders)
 }
 
+const Router = isExtension ? MemoryRouter : isWeb ? BrowserRouter : Fragment
+
 const AppLoading = () => {
   const { fontsLoaded } = useFonts()
 
   if (!fontsLoaded) return null
 
   return (
-    <BrowserRouter basename={isExtension ? '/index.html' : ''}>
+    <Router>
       <PortalProvider>
         <LoaderProvider>
           <StorageProvider>
@@ -103,7 +106,7 @@ const AppLoading = () => {
           </StorageProvider>
         </LoaderProvider>
       </PortalProvider>
-    </BrowserRouter>
+    </Router>
   )
 }
 

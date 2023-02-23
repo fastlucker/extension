@@ -34,7 +34,7 @@ const JsonLoginContext = createContext<JsonLoginContextData>({
   pendingLoginWithQuickAccountData: null
 })
 
-const JsonLoginProvider: React.FC = ({ children }) => {
+const JsonLoginProvider: React.FC<any> = ({ children }: any) => {
   const { t } = useTranslation()
   const [error, setError] = useState<null | string>(null)
   const [inProgress, setInProgress] = useState<boolean>(false)
@@ -125,7 +125,7 @@ const JsonLoginProvider: React.FC = ({ children }) => {
       if (accountType === 'quickAcc') {
         setPendingLoginWithQuickAccountData(fileContent)
         setInProgress(false)
-        return navigate('/add-account-password-to-vault', {
+        return navigate('/ambire-account-json-login-password-confirm', {
           state: {
             loginType: 'json'
           }

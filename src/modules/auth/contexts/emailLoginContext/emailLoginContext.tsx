@@ -36,7 +36,7 @@ const EmailLoginContext = createContext<EmailLoginContextData>({
 
 const EMAIL_VERIFICATION_RECHECK = 3000
 
-const EmailLoginProvider: React.FC = ({ children }) => {
+const EmailLoginProvider: React.FC<any> = ({ children }: any) => {
   const { addToast } = useToast()
   const { getItem, setItem, removeItem } = useStorageController()
   const { onAddAccount } = useAccounts()
@@ -137,7 +137,7 @@ const EmailLoginProvider: React.FC = ({ children }) => {
         setItem('pendingLoginAccount', JSON.stringify(body))
         // Delete the key so that it can't be used anymore on this browser
         removeItem('loginSessionKey')
-        navigate('/add-account-password-to-vault', { state: { loginType: 'email' } })
+        navigate('/ambire-account-login-password-confirm', { state: { loginType: 'email' } })
       } else {
         addToast(
           body.message
@@ -167,7 +167,7 @@ const EmailLoginProvider: React.FC = ({ children }) => {
           addToast(`Unexpected error: ${e.message || e}`, { error: true })
         }
       } else if (pendingLoginAccount && email) {
-        navigate('/add-account-password-to-vault', {
+        navigate('/ambire-account-login-password-confirm', {
           state: {
             loginType: 'email'
           }

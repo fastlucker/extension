@@ -15,19 +15,20 @@ import TokenIcon from '@modules/common/components/TokenIcon'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useConstants from '@modules/common/hooks/useConstants'
+import useIsScreenFocused from '@modules/common/hooks/useIsScreenFocused/useIsScreenFocused'
 import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useRequests from '@modules/common/hooks/useRequests'
+import useRoute from '@modules/common/hooks/useRoute'
 import useToast from '@modules/common/hooks/useToast'
-import { useIsFocused, useRoute } from '@react-navigation/native'
 
 const ERC20 = new Interface(erc20Abi)
 
 export default function useRequestTransaction() {
-  const isFocused = useIsFocused()
+  const isFocused = useIsScreenFocused()
   const { tokens, isCurrNetworkBalanceLoading } = usePortfolio()
-  const { params }: any = useRoute()
+  const { params } = useRoute()
   const navigation: any = useNavigation()
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()

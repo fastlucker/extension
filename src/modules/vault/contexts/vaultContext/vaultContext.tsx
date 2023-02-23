@@ -138,7 +138,6 @@ const VaultProvider: React.FC = ({ children }) => {
       }
 
       !!nextRoute && isWeb ? webNavigate(`/${nextRoute}`) : navigate(`/${nextRoute}`)
-      if (isWeb) webNavigate('/', { replace: true })
       return Promise.resolve()
     },
     [
@@ -208,7 +207,6 @@ const VaultProvider: React.FC = ({ children }) => {
           if (getUiType().isNotification) {
             resolveApproval(true)
           }
-          if (isWeb) webNavigate('/', { replace: true })
         })
         .catch((e) => {
           addToast(e?.message || e, { error: true })
@@ -219,8 +217,7 @@ const VaultProvider: React.FC = ({ children }) => {
       biometricsEnabled,
       getKeystorePassword,
       requestVaultControllerMethod,
-      resolveApproval,
-      webNavigate
+      resolveApproval
     ]
   )
 

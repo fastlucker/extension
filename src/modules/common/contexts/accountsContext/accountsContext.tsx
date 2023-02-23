@@ -50,7 +50,9 @@ const AccountsProvider: React.FC<any> = ({ children }) => {
 
       // If the user is authenticated, a manual redirect is needed,
       // because the logged-in state screens were already mounted.
+      console.log('in')
       if (opts.shouldRedirect) {
+        console.log('in in')
         isWeb ? nav('/dashboard') : navigate('/dashboard')
       }
     },
