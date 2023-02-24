@@ -11,6 +11,7 @@ import { AddressBookProvider } from '@modules/common/contexts/addressBookContext
 import { AmbireExtensionProvider } from '@modules/common/contexts/ambireExtensionContext'
 import { BiometricsProvider } from '@modules/common/contexts/biometricsContext'
 import { ConstantsProvider } from '@modules/common/contexts/constantsContext'
+import { ExtensionApprovalProvider } from '@modules/common/contexts/extensionApprovalContext'
 import { GasTankProvider } from '@modules/common/contexts/gasTankContext'
 import { GnosisProvider } from '@modules/common/contexts/gnosisContext'
 import { HeaderBottomSheetProvider } from '@modules/common/contexts/headerBottomSheetContext'
@@ -55,36 +56,38 @@ const AppLoading = () => {
                       <AuthProvider>
                         <AccountsProvider>
                           <NetworkProvider>
-                            <PortfolioProvider>
-                              <GnosisProvider>
-                                <WalletConnectProvider>
-                                  <AmbireExtensionProvider>
-                                    <RequestsProvider>
-                                      <BiometricsProvider>
-                                        <VaultProvider>
-                                          <AddressBookProvider>
-                                            <AttentionGrabberProvider>
-                                              <PrivateModeProvider>
-                                                <GasTankProvider>
-                                                  <UnsupportedDAppsBottomSheetProvider>
-                                                    <HeaderBottomSheetProvider>
-                                                      <LinkingProvider>
-                                                        <Router />
-                                                      </LinkingProvider>
-                                                    </HeaderBottomSheetProvider>
-                                                  </UnsupportedDAppsBottomSheetProvider>
-                                                </GasTankProvider>
-                                              </PrivateModeProvider>
-                                            </AttentionGrabberProvider>
-                                            <PortalHost name="global" />
-                                          </AddressBookProvider>
-                                        </VaultProvider>
-                                      </BiometricsProvider>
-                                    </RequestsProvider>
-                                  </AmbireExtensionProvider>
-                                </WalletConnectProvider>
-                              </GnosisProvider>
-                            </PortfolioProvider>
+                            <ExtensionApprovalProvider>
+                              <PortfolioProvider>
+                                <GnosisProvider>
+                                  <WalletConnectProvider>
+                                    <AmbireExtensionProvider>
+                                      <RequestsProvider>
+                                        <BiometricsProvider>
+                                          <VaultProvider>
+                                            <AddressBookProvider>
+                                              <AttentionGrabberProvider>
+                                                <PrivateModeProvider>
+                                                  <GasTankProvider>
+                                                    <UnsupportedDAppsBottomSheetProvider>
+                                                      <HeaderBottomSheetProvider>
+                                                        <LinkingProvider>
+                                                          <Router />
+                                                        </LinkingProvider>
+                                                      </HeaderBottomSheetProvider>
+                                                    </UnsupportedDAppsBottomSheetProvider>
+                                                  </GasTankProvider>
+                                                </PrivateModeProvider>
+                                              </AttentionGrabberProvider>
+                                              <PortalHost name="global" />
+                                            </AddressBookProvider>
+                                          </VaultProvider>
+                                        </BiometricsProvider>
+                                      </RequestsProvider>
+                                    </AmbireExtensionProvider>
+                                  </WalletConnectProvider>
+                                </GnosisProvider>
+                              </PortfolioProvider>
+                            </ExtensionApprovalProvider>
                           </NetworkProvider>
                         </AccountsProvider>
                       </AuthProvider>

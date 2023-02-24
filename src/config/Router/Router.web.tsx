@@ -1,7 +1,7 @@
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import DashboardIcon from '@assets/svg/DashboardIcon'
 import EarnIcon from '@assets/svg/EarnIcon'
@@ -26,19 +26,23 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
+import Spinner from '@modules/common/components/Spinner'
 import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
-import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
+import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
+import flexbox from '@modules/common/styles/utils/flexbox'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
+import GetEncryptionPublicKeyRequestScreen from '@modules/extension/screens/GetEncryptionPublicKeyRequestScreen'
 import PermissionRequestScreen from '@modules/extension/screens/PermissionRequestScreen'
 import SwitchNetworkRequestScreen from '@modules/extension/screens/SwitchNetworkRequestScreen'
+import WatchTokenRequestScreen from '@modules/extension/screens/WatchTokenRequestScreen'
 import GasInformationScreen from '@modules/gas-tank/screens/GasInformationScreen'
 import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
@@ -60,9 +64,7 @@ import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { BACKGROUND } from '@web/constants/paths'
-import { USER_INTERVENTION_METHODS } from '@web/constants/userInterventionMethods'
-import { sendMessage } from '@web/services/ambexMessanger'
+import { getUiType } from '@web/utils/uiType'
 
 import { drawerWebStyle, navigationContainerDarkTheme } from './styles'
 
@@ -77,10 +79,7 @@ const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 
-const urlSearchParams = new URLSearchParams(window?.location?.search)
-const params = Object.fromEntries(urlSearchParams.entries())
-const isTempExtensionPopup = !!params.route || !!params.host
-const navigationEnabled = !isTempExtensionPopup
+const navigationEnabled = !getUiType().isNotification
 
 const headerAlpha = navigationEnabled
   ? (props: any) => defaultHeaderAlpha({ ...props, backgroundColor: colors.martinique })
@@ -272,10 +271,8 @@ const VaultStack = () => {
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
-      <Stack.Screen
-        name="unlockVault"
-        options={{ title: t('Welcome Back') }}
-        component={(props) => (
+      <Stack.Screen name="unlockVault" options={{ title: t('Welcome Back') }}>
+        {(props) => (
           <UnlockVaultScreen
             {...props}
             unlockVault={unlockVault}
@@ -283,14 +280,12 @@ const VaultStack = () => {
             biometricsEnabled={biometricsEnabled}
           />
         )}
-      />
-      <Stack.Screen
-        name="resetVault"
-        options={{ title: t('Reset your\nAmbire Key Store Lock') }}
-        component={(props) => (
+      </Stack.Screen>
+      <Stack.Screen name="resetVault" options={{ title: t('Reset your\nAmbire Key Store Lock') }}>
+        {(props) => (
           <ResetVaultScreen {...props} vaultStatus={vaultStatus} resetVault={resetVault} />
         )}
-      />
+      </Stack.Screen>
     </Stack.Navigator>
   )
 }
@@ -336,6 +331,52 @@ const SwitchNetworkRequestStack = () => {
         options={{ title: t('Switch Network Request') }}
         name="switch-network-request"
         component={SwitchNetworkRequestScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+const WatchTokenRequestStack = () => {
+  const { t } = useTranslation()
+  const { vaultStatus } = useVault()
+
+  useEffect(() => {
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
+
+  return (
+    <Stack.Navigator
+      screenOptions={{ header: (props) => headerBeta({ ...props, backgroundColor: colors.wooed }) }}
+    >
+      <Stack.Screen
+        options={{ title: t('Watch Token Request') }}
+        name="watch-token-request"
+        component={WatchTokenRequestScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+const GetEncryptionPublicKeyRequestStack = () => {
+  const { t } = useTranslation()
+  const { vaultStatus } = useVault()
+
+  useEffect(() => {
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
+
+  return (
+    <Stack.Navigator
+      screenOptions={{ header: (props) => headerBeta({ ...props, backgroundColor: colors.wooed }) }}
+    >
+      <Stack.Screen
+        options={{ title: t('Get Encryption Public Key Request') }}
+        name="get-encryption-public-key-request"
+        component={GetEncryptionPublicKeyRequestScreen}
       />
     </Stack.Navigator>
   )
@@ -482,6 +523,16 @@ const TabsScreens = () => {
 }
 
 const AppDrawer = () => {
+  // Should never proceed to the main app drawer if it's a notification (popup),
+  // because these occurrences are only used to prompt specific actions.
+  if (getUiType().isNotification) {
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
+        <Spinner />
+      </View>
+    )
+  }
+
   return (
     <Drawer.Navigator
       drawerContent={navigationEnabled ? DrawerContent : () => null}
@@ -591,38 +642,22 @@ const Router = () => {
   const { authStatus } = useAuth()
   const { vaultStatus } = useVault()
   const { connectionState } = useNetInfo()
-  const { setParams } = useAmbireExtension()
-
-  const handleForceClose = () => {
-    if (isTempExtensionPopup && !__DEV__) {
-      if (params.route === 'permission-request') {
-        sendMessage(
-          {
-            type: 'clearPendingCallback',
-            to: BACKGROUND,
-            data: {
-              targetHost: params.host
-            }
-          },
-          { ignoreReply: true }
-        )
-      }
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', handleForceClose)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleForceClose)
-    }
-  }, [])
-
-  useEffect(() => {
-    setParams(params)
-  }, [setParams])
+  const { approval, hasCheckedForApprovalInitially } = useExtensionApproval()
+  const isInNotification = getUiType().isNotification
 
   const renderContent = useCallback(() => {
+    if (!hasCheckedForApprovalInitially)
+      return (
+        <View style={[StyleSheet.absoluteFill, flexbox.center]}>
+          <Spinner />
+        </View>
+      )
+
+    if (isInNotification && !approval) {
+      window.close()
+      return null
+    }
+
     if (connectionState === ConnectionStates.NOT_CONNECTED) {
       return <NoConnectionStack />
     }
@@ -647,26 +682,26 @@ const Router = () => {
         return <VaultStack />
       }
 
-      if (params.route === 'permission-request') {
+      if (approval?.data?.approvalComponent === 'PermissionRequest') {
         return <PermissionRequestStack />
       }
-      if (
-        params.route === USER_INTERVENTION_METHODS.eth_sendTransaction ||
-        params.route === USER_INTERVENTION_METHODS.gs_multi_send ||
-        params.route === USER_INTERVENTION_METHODS.ambire_sendBatchTransaction
-      ) {
+      if (approval?.data?.approvalComponent === 'SendTransaction') {
         return <PendingTransactionsStack />
       }
-      if (
-        params.route === USER_INTERVENTION_METHODS.eth_sign ||
-        params.route === USER_INTERVENTION_METHODS.personal_sign ||
-        params.route === USER_INTERVENTION_METHODS.eth_signTypedData ||
-        params.route === USER_INTERVENTION_METHODS.eth_signTypedData_v4
-      ) {
+      if (approval?.data?.approvalComponent === 'SignText') {
         return <SignMessageStack />
       }
-      if (params.route === USER_INTERVENTION_METHODS.wallet_switchEthereumChain) {
+      if (approval?.data?.approvalComponent === 'SignTypedData') {
+        return <SignMessageStack />
+      }
+      if (approval?.data?.approvalComponent === 'SwitchNetwork') {
         return <SwitchNetworkRequestStack />
+      }
+      if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
+        return <WatchTokenRequestStack />
+      }
+      if (approval?.data?.approvalComponent === 'GetEncryptionPublicKey') {
+        return <GetEncryptionPublicKeyRequestStack />
       }
 
       if (vaultStatus === VAULT_STATUS.UNLOCKED) {
@@ -675,7 +710,14 @@ const Router = () => {
     }
 
     return null
-  }, [connectionState, authStatus, vaultStatus])
+  }, [
+    hasCheckedForApprovalInitially,
+    isInNotification,
+    approval,
+    connectionState,
+    vaultStatus,
+    authStatus
+  ])
 
   const handleOnReady = () => {
     // @ts-ignore for some reason TS complains about this 👇

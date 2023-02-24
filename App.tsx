@@ -7,6 +7,7 @@ import React from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import AppLoading from '@modules/app-loading/screens/AppLoading'
+import { ExtensionWalletProvider } from '@modules/common/contexts/extensionWalletContext'
 import colors from '@modules/common/styles/colors'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
@@ -19,7 +20,9 @@ const App = () => {
     >
       <StatusBar style="light" backgroundColor={colors.wooed} />
 
-      <AppLoading />
+      <ExtensionWalletProvider>
+        <AppLoading />
+      </ExtensionWalletProvider>
     </GestureHandlerRootView>
   )
 }

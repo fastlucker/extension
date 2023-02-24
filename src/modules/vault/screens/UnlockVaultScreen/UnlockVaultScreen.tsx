@@ -171,4 +171,4 @@ const UnlockVaultScreen: React.FC<Props> = ({
   )
 }
 
-export default UnlockVaultScreen
+export default React.memo(UnlockVaultScreen)

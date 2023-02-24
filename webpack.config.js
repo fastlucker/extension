@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 // The 'react-native-dotenv' package doesn't work in the NodeJS context (and
 // with commonjs imports), so alternatively, use 'dotend' package to load the
 // environment variables from the .env file.
@@ -30,6 +31,8 @@ class HtmlWebpackPlugin extends ExpoHtmlWebpackPlugin {
 module.exports = async function (env, argv) {
   function processManifest(content) {
     const manifest = JSON.parse(content.toString())
+    // Temporarily the manifest is v2 for all browsers until the v3 is ready for prod and tested well
+    const manifestVersion = 2
 
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
@@ -51,7 +54,7 @@ module.exports = async function (env, argv) {
     // {@link https://web.dev/csp/}
     const csp = "script-src 'self'; object-src 'self'; frame-ancestors 'none';"
 
-    if (process.env.WEB_ENGINE === 'webkit') {
+    if (manifestVersion === 3) {
       manifest.content_security_policy = { extension_pages: csp }
       // This value can be used to control the unique ID of an extension,
       // when it is loaded during development. In prod, the ID is generated
@@ -62,15 +65,20 @@ module.exports = async function (env, argv) {
     }
 
     // Tweak manifest file, so it's compatible with gecko extensions specifics
-    if (process.env.WEB_ENGINE === 'gecko') {
+    if (manifestVersion === 2) {
       manifest.manifest_version = 2
       manifest.background = {
-        scripts: ['background.js']
+        scripts: ['browser-polyfill.js', 'background.js'],
+        persistent: true
       }
-      manifest.browser_specific_settings = {
-        gecko: {
-          id: 'webextension@ambire.com',
-          strict_min_version: '68.0'
+      // Chrome extensions do not respect `browser_specific_settings`
+      // {@link https://stackoverflow.com/a/72527986/1333836}
+      if (process.env.WEB_ENGINE === 'gecko') {
+        manifest.browser_specific_settings = {
+          gecko: {
+            id: 'webextension@ambire.com',
+            strict_min_version: '68.0'
+          }
         }
       }
       manifest.web_accessible_resources = ['*']
@@ -78,7 +86,6 @@ module.exports = async function (env, argv) {
       manifest.browser_action = JSON.parse(JSON.stringify(manifest.action))
       delete manifest.action
       manifest.externally_connectable = undefined
-      manifest.permissions.splice(manifest.permissions.indexOf('scripting'), 1)
       manifest.permissions.push('<all_urls>')
       manifest.content_security_policy = csp
     }
@@ -98,14 +105,19 @@ module.exports = async function (env, argv) {
 
   const entries = {}
 
-  // adds files from /constants, /functions and /services as webpack entries
-  fs.readdirSync('./web').forEach((dir) => {
-    if (['constants', 'functions', 'services'].includes(dir)) {
-      fs.readdirSync(`./web/${dir}`).forEach((file) => {
-        entries[path.parse(file).name] = `./web/${dir}/${file}`
-      })
+  const addEntriesFromDirectory = (directory) => {
+    const filesInDirectory = fs.readdirSync(directory)
+    for (const file of filesInDirectory) {
+      const absolute = path.join(directory, file)
+      if (fs.statSync(absolute).isDirectory()) {
+        addEntriesFromDirectory(absolute)
+      } else if (absolute.endsWith('.ts')) {
+        entries[path.parse(absolute).name] = `./${absolute.slice(0, -3)}`
+      }
     }
-  })
+  }
+
+  addEntriesFromDirectory('./web')
 
   const config = await createExpoWebpackConfigAsync(
     {
@@ -208,11 +220,29 @@ module.exports = async function (env, argv) {
             from: './web/manifest.json',
             to: 'manifest.json',
             transform: processManifest
+          },
+          {
+            from: 'node_modules/webextension-polyfill/dist/browser-polyfill.js',
+            to: 'browser-polyfill.js'
           }
         ]
       }),
-      // Overrides ExpoHtmlWebpackPlugin
-      new HtmlWebpackPlugin(env, templateIndex)
+      // Generate index.html Overrides ExpoHtmlWebpackPlugin
+      new HtmlWebpackPlugin(env, templateIndex),
+      // Generate notification.html
+      new HtmlWebpackPlugin(
+        {
+          ...env,
+          locations: {
+            ...locations,
+            production: {
+              ...locations.production,
+              indexHtml: './notification.html'
+            }
+          }
+        },
+        templateIndex
+      )
     ]
 
     // Disables chunking, minimization, and other optimizations that alter the default transpilation of the extension services files.

@@ -38,6 +38,7 @@ import {
 
 import appJSON from '../../../app.json'
 
+export const isDev = process.env.APP_ENV === 'development'
 export const isProd = process.env.APP_ENV === 'production'
 export const isStaging = process.env.APP_ENV === 'staging'
 

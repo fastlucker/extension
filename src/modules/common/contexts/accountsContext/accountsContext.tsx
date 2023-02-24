@@ -1,14 +1,17 @@
-import useAccounts, { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
+import useAccounts, {
+  UseAccountsProps,
+  UseAccountsReturnType
+} from 'ambire-common/src/hooks/useAccounts'
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
-import { isWeb } from '@config/env'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
-import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
+import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToasts from '@modules/common/hooks/useToast'
 import { navigate } from '@modules/common/services/navigation'
+import { getUiType } from '@web/utils/uiType'
 
 const AccountsContext = createContext<UseAccountsReturnType>({
   accounts: [],
@@ -16,17 +19,15 @@ const AccountsContext = createContext<UseAccountsReturnType>({
   selectedAcc: '',
   onSelectAcc: () => {},
   onAddAccount: () => false,
-  onRemoveAccount: () => {}
+  onRemoveAccount: () => {},
+  onRemoveAllAccounts: () => {}
 })
 
-const AccountsProvider: React.FC = ({ children }) => {
+const AccountsProvider: React.FC<any> = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
-  // NOTE: AmbireExtensionProvider is initialized after AccountsProvider
-  // therefore the methods of useAmbireExtension can be used after
-  // the initialization of both providers.
-  const { isTempExtensionPopup, params } = useAmbireExtension()
+  const { approval } = useExtensionApproval()
 
-  const onAdd = useCallback(
+  const onAdd = useCallback<UseAccountsProps['onAdd']>(
     (opts) => {
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
         // Flipping the flag is all it's needed, because it changes the
@@ -38,9 +39,8 @@ const AccountsProvider: React.FC = ({ children }) => {
       // and there are no accounts added yet. (the Auth route will be opened at that time)
       // After adding the first account navigate to PermissionRequest screen
       // Otherwise, skip that step and open directly Dashboard
-      if (isWeb && isTempExtensionPopup) {
-        if (params.route === 'permission-request') {
-          navigate('permission-request')
+      if (getUiType().isNotification) {
+        if (approval) {
           return
         }
       }
@@ -51,10 +51,10 @@ const AccountsProvider: React.FC = ({ children }) => {
         navigate('dashboard')
       }
     },
-    [authStatus, setAuthStatus, isTempExtensionPopup, params?.route]
+    [authStatus, setAuthStatus, approval]
   )
 
-  const onRemoveLastAccount = useCallback(() => {
+  const onRemoveLastAccount = useCallback<UseAccountsProps['onRemoveLastAccount']>(() => {
     setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
   }, [setAuthStatus])
 

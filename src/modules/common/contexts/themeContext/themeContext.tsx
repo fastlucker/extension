@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useMemo } from 'react'
+import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { useColorScheme } from 'react-native'
 
 import useStorage from '@modules/common/hooks/useStorage'
@@ -22,33 +22,50 @@ const ThemeProvider: React.FC = ({ children }) => {
   const colorScheme = useColorScheme()
   const [themeType, setThemeType] = useStorage<THEME_TYPES>({
     key: 'theme',
-    defaultValue: DEFAULT_THEME
+    defaultValue: DEFAULT_THEME,
+    isStringStorage: true
   })
+  // In Ambire v2.x the theme type was stored wrapped in quotes (by mistake).
+  // Since migrating to v3.x we need to remove the quotes from the theme type.
+  const isMigrationNeeded =
+    !!themeType && themeType[0] === '"' && themeType[themeType.length - 1] === '"'
+  const [hasMigrated, setHasMigrated] = useState<boolean>(!isMigrationNeeded)
 
-  const setTheme = useCallback(() => {
+  useEffect(() => {
+    if (hasMigrated) return
+
+    // Removes the wrapping quotes from the `themeType` coming from the storage
+    const migratedThemeType = themeType!.slice(1, -1) as THEME_TYPES
+    setThemeType(migratedThemeType)
+
+    setHasMigrated(true)
+  }, [hasMigrated, setHasMigrated, setThemeType, themeType])
+
+  const theme = useMemo(() => {
     const type = themeType === THEME_TYPES.AUTO ? colorScheme : themeType
-    const theme: any = {}
+
+    const currentTheme: any = {}
     // eslint-disable-next-line no-restricted-syntax
     for (const key of Object.keys(ThemeColors)) {
       // @ts-ignore
-      theme[key] = ThemeColors[key][type || DEFAULT_THEME]
+      currentTheme[key] = ThemeColors[key][type] || ThemeColors[key][DEFAULT_THEME]
     }
 
-    return theme
+    return currentTheme
   }, [themeType, colorScheme])
 
   return (
     <ThemeContext.Provider
       value={useMemo(
         () => ({
-          theme: setTheme(),
+          theme,
           themeType: themeType || DEFAULT_THEME,
           setThemeType
         }),
-        [themeType, setThemeType, setTheme]
+        [themeType, setThemeType, theme]
       )}
     >
-      {children}
+      {hasMigrated && children}
     </ThemeContext.Provider>
   )
 }
