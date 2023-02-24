@@ -10,6 +10,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -19,11 +20,12 @@ import ManifestImage from '@modules/extension/components/ManifestImage'
 
 import styles from './styles'
 
-const PermissionRequestScreen = ({ navigation }: any) => {
+const PermissionRequestScreen = () => {
   const { t } = useTranslation()
   const { network } = useNetwork()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
   const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
+  const navigation = useNavigation()
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerTitle: t('Webpage Wants to Connect') })

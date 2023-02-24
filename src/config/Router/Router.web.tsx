@@ -60,7 +60,6 @@ const Router = () => {
         <Route path="/" element={<SortHat />} />
         <Route element={headerBeta}>
           <Route
-            handle={{ title: 'Unlock' }}
             path={routesConfig['unlock-vault'].route}
             element={
               <UnlockVaultScreen

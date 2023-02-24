@@ -12,6 +12,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useToken from '@modules/common/hooks/useToken'
 import colors from '@modules/common/styles/colors'
@@ -24,8 +25,9 @@ import ManifestImage from '@modules/extension/components/ManifestImage'
 
 import styles from './styles'
 
-const WatchTokenRequestScreen = ({ navigation }: any) => {
+const WatchTokenRequestScreen = () => {
   const { t } = useTranslation()
+  const navigation = useNavigation()
   const [loadingTokenDetails, setLoadingTokenDetails] = useState(true)
   const [error, setError] = useState('')
   const [extraToken, setExtraToken] = useState<Token | null>(null)

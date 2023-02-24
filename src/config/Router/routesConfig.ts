@@ -99,6 +99,22 @@ const routesConfig: {
   'gas-information': {
     route: 'gas-information',
     title: 'Gas Information'
+  },
+  signers: {
+    route: 'signers',
+    title: 'Manage Signers'
+  },
+  'permission-request': {
+    route: 'permission-request',
+    title: 'Webpage Wants to Connect'
+  },
+  'switch-network': {
+    route: 'switch-network',
+    title: 'Webpage Wants to Switch Network'
+  },
+  'watch-asset': {
+    route: 'watch-asset',
+    title: 'Webpage Wants to Add Token'
   }
 }
 

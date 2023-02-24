@@ -14,14 +14,8 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
-import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
-import useNetInfo from '@modules/common/hooks/useNetInfo'
-import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
 import colors from '@modules/common/styles/colors'
-import flexbox from '@modules/common/styles/utils/flexbox'
-import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
@@ -37,10 +31,8 @@ import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
 import SendScreen from '@modules/send/screens/SendScreen'
 import SignersScreen from '@modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@modules/sign-message/screens/SignMessageScreen'
-import SwapScreen from '@modules/swap/screens/SwapScreen'
+// import SwapScreen from '@modules/swap/screens/SwapScreen'
 import TransactionsScreen from '@modules/transactions/screens/TransactionsScreen'
-import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
-import useVault from '@modules/vault/hooks/useVault'
 import CreateNewVaultScreen from '@modules/vault/screens/CreateNewVaultScreen'
 import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
 import { getUiType } from '@web/utils/uiType'
@@ -148,6 +140,18 @@ const MainRoutes = () => {
         <Route path={routesConfig.provider.route} element={<ProviderScreen />} />
         <Route path={routesConfig['sign-message'].route} element={<SignMessageScreen />} />
         <Route path={routesConfig['gas-information'].route} element={<GasInformationScreen />} />
+        <Route
+          path={routesConfig['permission-request'].route}
+          element={<PermissionRequestScreen />}
+        />
+        <Route
+          path={routesConfig['switch-network'].route}
+          element={<SwitchNetworkRequestScreen />}
+        />
+        <Route path={routesConfig['watch-asset'].route} element={<WatchTokenRequestScreen />} />
+      </Route>
+      <Route element={headerGamma}>
+        <Route path={routesConfig.signers.route} element={<SignersScreen />} />
       </Route>
     </Routes>
   )

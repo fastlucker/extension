@@ -16,6 +16,7 @@ import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import colors from '@modules/common/styles/colors'
 import spacings, { SPACING_SM } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
 import routesConfig from '../routesConfig'
 import styles from './style'
@@ -33,7 +34,6 @@ const Header: React.FC<Props> = ({
   withScanner = false,
   backgroundColor
 }) => {
-  // const title = getHeaderTitle(options, route.name)
   const { network } = useNetwork()
   const location = useLocation()
   const { selectedAcc } = useAccounts()
@@ -41,7 +41,8 @@ const Header: React.FC<Props> = ({
   const { openHeaderBottomSheet } = useHeaderBottomSheet()
   const { hidePrivateValue } = usePrivateMode()
 
-  const canGoBack = location?.state?.prevRoute?.key !== 'default'
+  const navigationEnabled = !getUiType().isNotification
+  const canGoBack = location?.state?.prevRoute?.key !== 'default' && navigationEnabled
 
   const title = useMemo(
     () => routesConfig[location.pathname?.substring(1)].title,

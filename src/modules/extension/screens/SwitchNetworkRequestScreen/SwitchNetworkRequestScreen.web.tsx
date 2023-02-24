@@ -13,6 +13,7 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -22,8 +23,9 @@ import ManifestImage from '@modules/extension/components/ManifestImage'
 
 import styles from './styles'
 
-const SwitchNetworkRequestScreen = ({ navigation }: any) => {
+const SwitchNetworkRequestScreen = () => {
   const { t } = useTranslation()
+  const navigation = useNavigation()
   const { network, setNetwork } = useNetwork()
   const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
   const [isSwitching, setIsSwitching] = useState(false)

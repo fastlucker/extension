@@ -29,7 +29,7 @@ export default function useRequestTransaction() {
   const isFocused = useIsScreenFocused()
   const { tokens, isCurrNetworkBalanceLoading } = usePortfolio()
   const { params } = useRoute()
-  const navigation: any = useNavigation()
+  const navigation = useNavigation()
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()

@@ -49,18 +49,31 @@ const Router = () => {
       return navigate('/auth')
     }
 
-    // if (!(await extensionWallet.isBooted())) {
-    //   setTo('/welcome')
-    //   return
-    // }
-
+    // TODO:
     // if ((await extensionWallet.hasPageStateCache()) && !isInNotification && !isInTab && !approval) {
     //   const cache = (await extensionWallet.getPageStateCache())!
     //   setTo(cache.path + (cache.search || ''))
     //   return
     // }
     if (approval && isInNotification) {
-      navigate('/approval')
+      if (approval?.data?.approvalComponent === 'PermissionRequest') {
+        return navigate('permission-request')
+      }
+      if (approval?.data?.approvalComponent === 'SendTransaction') {
+        return navigate('pending-transactions')
+      }
+      if (approval?.data?.approvalComponent === 'SignText') {
+        return navigate('sign-message')
+      }
+      if (approval?.data?.approvalComponent === 'SignTypedData') {
+        return navigate('sign-message')
+      }
+      if (approval?.data?.approvalComponent === 'SwitchNetwork') {
+        return navigate('switch-network')
+      }
+      if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
+        return navigate('watch-asset')
+      }
     } else {
       navigate('/dashboard')
     }

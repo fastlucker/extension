@@ -16,6 +16,10 @@ const useNavigation = () => {
 
   const navigate = useCallback(
     (to: string | number, options?: Options) => {
+      if (typeof to === 'string' && to?.[0] !== '/') {
+        to = `/${to}`
+      }
+
       return nav(to, {
         ...options,
         state: {

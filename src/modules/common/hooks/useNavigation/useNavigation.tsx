@@ -20,7 +20,8 @@ const useNavigation = (): Props => {
 
   const navigate = useCallback(
     (to: string, options?: Options) => {
-      return nav.navigate(to, options?.state)
+      // @ts-ignore
+      return nav.navigate(to?.[0] === '/' ? to.substring(1) : to, options?.state)
     },
     [nav]
   )

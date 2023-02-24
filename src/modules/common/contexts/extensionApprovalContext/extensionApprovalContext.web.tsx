@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import useAuth from '@modules/auth/hooks/useAuth'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useToast from '@modules/common/hooks/useToast'
 import { delayPromise } from '@modules/common/utils/promises'
 import useVault from '@modules/vault/hooks/useVault'
@@ -33,6 +34,7 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
   const { addToast } = useToast()
   const { authStatus } = useAuth()
   const { vaultStatus } = useVault()
+  const { navigate } = useNavigation()
   const { extensionWallet } = useExtensionWallet()
   const [approval, setApproval] = useState<Approval | null>(null)
   const [hasCheckedForApprovalInitially, setHasCheckedForApprovalInitially] = useState(false)
@@ -59,8 +61,15 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)
+
+      if (stay) {
+        return
+      }
+      setTimeout(() => {
+        navigate('/')
+      })
     },
-    [addToast, approval, extensionWallet, getApproval, t]
+    [addToast, approval, extensionWallet, getApproval, t, navigate]
   )
 
   const rejectApproval = useCallback<UseExtensionApprovalReturnType['rejectApproval']>(
@@ -80,8 +89,12 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)
+
+      if (!stay) {
+        navigate('/')
+      }
     },
-    [approval, extensionWallet, getApproval, addToast, t]
+    [approval, extensionWallet, getApproval, addToast, t, navigate]
   )
 
   const { requests, resolveMany } = useSignApproval({ approval, resolveApproval, rejectApproval })
