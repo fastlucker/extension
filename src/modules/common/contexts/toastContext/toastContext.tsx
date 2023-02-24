@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import CheckIcon from '@assets/svg/CheckIcon'
 import CloseIconRound from '@assets/svg/CloseIconRound'
 import ErrorIcon from '@assets/svg/ErrorIcon'
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import { Portal } from '@gorhom/portal'
 import Text from '@modules/common/components/Text'
@@ -38,6 +39,8 @@ const ToastProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
 
   useEffect(() => {
+    if (isWeb) return () => null
+
     let intervalAttemptingToSubscribe: ReturnType<typeof setInterval>
     let navigationRefSubscription = () => {}
 

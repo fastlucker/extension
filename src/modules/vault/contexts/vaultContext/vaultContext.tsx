@@ -1,7 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigate } from 'react-router-dom'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
@@ -11,9 +10,10 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
-import { navigate } from '@modules/common/services/navigation'
+import { navigate as mobileNav } from '@modules/common/services/navigation'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { KEY_LOCK_KEYSTORE_WHEN_INACTIVE } from '@modules/vault/constants/storageKeys'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
@@ -33,7 +33,7 @@ const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
-  const webNavigate = useNavigate()
+  const { navigate: webNav } = useNavigation()
   const { t } = useTranslation()
   const { extensionWallet } = useExtensionWallet()
   const { onRemoveAllAccounts } = useAccounts()
@@ -137,7 +137,7 @@ const VaultProvider: React.FC = ({ children }) => {
         resolveApproval(true)
       }
 
-      !!nextRoute && isWeb ? webNavigate(`/${nextRoute}`) : navigate(`/${nextRoute}`)
+      !!nextRoute && isWeb ? webNav(`/${nextRoute}`) : mobileNav(`/${nextRoute}`)
       return Promise.resolve()
     },
     [
@@ -146,7 +146,7 @@ const VaultProvider: React.FC = ({ children }) => {
       requestVaultControllerMethod,
       addKeystorePasswordToDeviceSecureStore,
       resolveApproval,
-      webNavigate
+      webNav
     ]
   )
 

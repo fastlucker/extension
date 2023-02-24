@@ -11,6 +11,10 @@ export const routeNameRef: React.RefObject<string> = React.createRef()
 // {@link https://reactnavigation.org/docs/navigating-without-navigation-prop/}
 export function navigate(name: string, params?: object): void {
   if (navigationRef?.current?.isReady()) {
+    if (name?.[0] === '/') {
+      name = name.substring(1)
+    }
+
     return navigationRef?.current?.navigate(name, params)
   }
 
