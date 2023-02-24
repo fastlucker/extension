@@ -39,6 +39,7 @@ import ConnectScreen from '@modules/connect/screens/ConnectScreen'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
+import GetEncryptionPublicKeyRequestScreen from '@modules/extension/screens/GetEncryptionPublicKeyRequestScreen'
 import PermissionRequestScreen from '@modules/extension/screens/PermissionRequestScreen'
 import SwitchNetworkRequestScreen from '@modules/extension/screens/SwitchNetworkRequestScreen'
 import WatchTokenRequestScreen from '@modules/extension/screens/WatchTokenRequestScreen'
@@ -353,6 +354,29 @@ const WatchTokenRequestStack = () => {
         options={{ title: t('Watch Token Request') }}
         name="watch-token-request"
         component={WatchTokenRequestScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+const GetEncryptionPublicKeyRequestStack = () => {
+  const { t } = useTranslation()
+  const { vaultStatus } = useVault()
+
+  useEffect(() => {
+    if (vaultStatus !== VAULT_STATUS.LOADING) {
+      SplashScreen.hideAsync()
+    }
+  }, [vaultStatus])
+
+  return (
+    <Stack.Navigator
+      screenOptions={{ header: (props) => headerBeta({ ...props, backgroundColor: colors.wooed }) }}
+    >
+      <Stack.Screen
+        options={{ title: t('Get Encryption Public Key Request') }}
+        name="get-encryption-public-key-request"
+        component={GetEncryptionPublicKeyRequestScreen}
       />
     </Stack.Navigator>
   )
@@ -675,6 +699,9 @@ const Router = () => {
       }
       if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
         return <WatchTokenRequestStack />
+      }
+      if (approval?.data?.approvalComponent === 'GetEncryptionPublicKey') {
+        return <GetEncryptionPublicKeyRequestStack />
       }
 
       if (vaultStatus === VAULT_STATUS.UNLOCKED) {
