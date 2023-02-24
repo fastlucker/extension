@@ -4,7 +4,9 @@ const useRoute = () => {
   const route = useLocation()
 
   return {
-    params: route.state || {}
+    ...route,
+    params: route.state || {},
+    path: route.pathname
   }
 }
 

@@ -1,13 +1,14 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { lazy, Suspense, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { Outlet, Route, Routes } from 'react-router-dom'
 
 import { headerBeta as defaultHeaderBeta } from '@config/Router/HeadersConfig'
 import useAuth from '@modules/auth/hooks/useAuth'
 import Spinner from '@modules/common/components/Spinner'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNavigation from '@modules/common/hooks/useNavigation'
+import useRoute from '@modules/common/hooks/useRoute'
 import flexbox from '@modules/common/styles/utils/flexbox'
 import useVault from '@modules/vault/hooks/useVault'
 import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
@@ -28,23 +29,23 @@ const headerBeta = (
 const Router = () => {
   const { hasCheckedForApprovalInitially } = useExtensionApproval()
   const { vaultStatus, unlockVault, resetVault, biometricsEnabled } = useVault()
-  const { pathname } = useLocation()
+  const { path } = useRoute()
   const { navigate } = useNavigation()
   const { authStatus } = useAuth()
   const prevAuthStatus = usePrevious(authStatus)
   const prevVaultStatus = usePrevious(vaultStatus)
 
   useEffect(() => {
-    if (pathname !== '/' && authStatus !== prevAuthStatus) {
+    if (path !== '/' && authStatus !== prevAuthStatus) {
       navigate('/')
     }
-  }, [authStatus, navigate, pathname, prevAuthStatus])
+  }, [authStatus, navigate, path, prevAuthStatus])
 
   useEffect(() => {
-    if (pathname !== '/' && vaultStatus !== prevVaultStatus) {
+    if (path !== '/' && vaultStatus !== prevVaultStatus) {
       navigate('/')
     }
-  }, [vaultStatus, navigate, pathname, prevVaultStatus])
+  }, [vaultStatus, navigate, path, prevVaultStatus])
 
   if (!hasCheckedForApprovalInitially) {
     return (

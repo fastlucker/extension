@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
 import { ColorValue, TouchableOpacity, View } from 'react-native'
-import { useLocation } from 'react-router-dom'
 
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import Blockies from '@modules/common/components/Blockies'
@@ -13,6 +12,7 @@ import useHeaderBottomSheet from '@modules/common/hooks/useHeaderBottomSheet'
 import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
+import useRoute from '@modules/common/hooks/useRoute'
 import colors from '@modules/common/styles/colors'
 import spacings, { SPACING_SM } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -35,19 +35,16 @@ const Header: React.FC<Props> = ({
   backgroundColor
 }) => {
   const { network } = useNetwork()
-  const location = useLocation()
+  const { params, path } = useRoute()
   const { selectedAcc } = useAccounts()
   const navigation = useNavigation()
   const { openHeaderBottomSheet } = useHeaderBottomSheet()
   const { hidePrivateValue } = usePrivateMode()
 
   const navigationEnabled = !getUiType().isNotification
-  const canGoBack = location?.state?.prevRoute?.key !== 'default' && navigationEnabled
+  const canGoBack = params?.prevRoute?.key !== 'default' && navigationEnabled
 
-  const title = useMemo(
-    () => routesConfig[location.pathname?.substring(1)].title,
-    [location.pathname]
-  )
+  const title = useMemo(() => routesConfig[path?.substring(1)].title, [path])
 
   const renderBottomSheetSwitcher = (
     <TouchableOpacity
