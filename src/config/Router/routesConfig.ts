@@ -115,6 +115,10 @@ const routesConfig: {
   'watch-asset': {
     route: 'watch-asset',
     title: 'Webpage Wants to Add Token'
+  },
+  menu: {
+    route: 'menu',
+    title: ''
   }
 }
 

@@ -38,6 +38,7 @@ import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStar
 import { getUiType } from '@web/utils/uiType'
 
 import BottomNav from './BottomNav/BottomNav'
+import DrawerContent from './DrawerContent/DrawerContent.web'
 import routesConfig from './routesConfig'
 
 const navigationEnabled = !getUiType().isNotification
@@ -132,6 +133,7 @@ const MainRoutes = () => {
         </Route>
       </Route>
       <Route element={headerBeta}>
+        <Route path={routesConfig.menu.route} element={<DrawerContent />} />
         <Route
           path={routesConfig['pending-transactions'].route}
           element={<PendingTransactionsScreen />}

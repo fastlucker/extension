@@ -92,7 +92,7 @@ const Header: React.FC<Props> = ({
   }
 
   const renderHeaderRight = (
-    <NavIconWrapper onPress={() => {}}>
+    <NavIconWrapper onPress={() => navigation.navigate('/menu')}>
       <Blockies borderRadius={13} size={10} seed={selectedAcc} />
     </NavIconWrapper>
   )
