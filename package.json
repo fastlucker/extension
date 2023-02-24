@@ -155,7 +155,6 @@
     "react-native-web-webview": "^1.0.2",
     "react-native-webview": "11.23.1",
     "react-router-dom": "^6.8.1",
-    "react-router-native": "^6.8.1",
     "readable-stream": "1.0.33",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
