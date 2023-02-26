@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
 
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
@@ -9,8 +8,6 @@ import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
-import useStorageController from '@modules/common/hooks/useStorageController'
-import colors from '@modules/common/styles/colors'
 import flexbox from '@modules/common/styles/utils/flexbox'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
@@ -73,6 +70,9 @@ const Router = () => {
       }
       if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
         return navigate('watch-asset')
+      }
+      if (approval?.data?.approvalComponent === 'GetEncryptionPublicKey') {
+        return navigate('get-encryption-public-key-request')
       }
     } else {
       navigate('/dashboard')

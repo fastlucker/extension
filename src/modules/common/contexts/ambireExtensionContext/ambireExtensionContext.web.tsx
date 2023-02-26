@@ -25,12 +25,12 @@ const ExtensionProvider: React.FC<any> = ({ children }) => {
     const tab = await getCurrentTab()
     if (!tab.id || !tab.url) return
     const domain = getOriginFromUrl(tab.url)
-    const current = await extensionWallet.getCurrentSite(tab.id, domain)
+    const current = await extensionWallet!.getCurrentSite(tab.id, domain)
     setSite(current)
   }, [extensionWallet])
 
   const getConnectedSites = useCallback(async () => {
-    const connectedSites = await extensionWallet.getConnectedSites()
+    const connectedSites = await extensionWallet!.getConnectedSites()
     setConnectedDapps(connectedSites)
   }, [extensionWallet])
 
@@ -48,7 +48,7 @@ const ExtensionProvider: React.FC<any> = ({ children }) => {
       }
 
       const disconnect = async () => {
-        await extensionWallet.removeConnectedSite(origin)
+        await extensionWallet!.removeConnectedSite(origin)
         getCurrentSite()
         getConnectedSites()
       }

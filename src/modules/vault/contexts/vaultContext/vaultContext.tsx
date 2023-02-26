@@ -73,7 +73,7 @@ const VaultProvider: React.FC = ({ children }) => {
   const requestVaultControllerMethod = useCallback(
     ({ method, props }: { method: string; props?: { [key: string]: any } }) => {
       if (isExtension) {
-        return extensionWallet.requestVaultControllerMethod(method, props)
+        return extensionWallet!.requestVaultControllerMethod(method, props)
       }
 
       return vaultController[method](props)

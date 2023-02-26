@@ -13,13 +13,13 @@ import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNavigation from '@modules/common/hooks/useNavigation'
+import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useToken from '@modules/common/hooks/useToken'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import { MODES } from '@modules/dashboard/components/AddOrHideToken/constants'
 import TokenItem from '@modules/dashboard/components/AddOrHideToken/TokenItem'
 import ManifestImage from '@modules/extension/components/ManifestImage'
 
@@ -32,6 +32,7 @@ const WatchTokenRequestScreen = () => {
   const [error, setError] = useState('')
   const [extraToken, setExtraToken] = useState<Token | null>(null)
   const [isAdding, setIsAdding] = useState(false)
+  const { network } = useNetwork()
   const { approval, resolveApproval, rejectApproval } = useExtensionApproval()
   const { onAddExtraToken, checkIsTokenEligibleForAddingAsExtraToken } = usePortfolio()
   const { getTokenDetails } = useToken()
@@ -60,15 +61,24 @@ const WatchTokenRequestScreen = () => {
 
     ;(async () => {
       try {
-        const token = await getTokenDetails(tokenAddress, MODES.ADD_TOKEN)
+        const token = await getTokenDetails(tokenAddress)
         setExtraToken(token)
 
-        if (!token) throw new Error('Failed to load token details.')
+        if (!token)
+          throw new Error(
+            t('Token does not appear to correspond to an ERC20 token on {{networkName}}.', {
+              networkName: network?.name
+            })
+          )
 
         setTokenEligibleStatus(checkIsTokenEligibleForAddingAsExtraToken(token))
       } catch {
         setLoadingTokenDetails(false)
-        setError(t('Failed to load token details.'))
+        setError(
+          t('Token does not appear to correspond to an ERC20 token on {{networkName}}.', {
+            networkName: network?.name
+          })
+        )
       }
 
       setLoadingTokenDetails(false)

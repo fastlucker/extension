@@ -45,7 +45,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     closeBottomSheet()
     onSelectAcc(accountId)
     if (isExtension) {
-      extensionWallet.accountChange(accountId)
+      extensionWallet!.accountChange(accountId)
     }
   }
 

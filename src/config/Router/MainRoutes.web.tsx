@@ -19,6 +19,7 @@ import colors from '@modules/common/styles/colors'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'
+import GetEncryptionPublicKeyRequestScreen from '@modules/extension/screens/GetEncryptionPublicKeyRequestScreen'
 import PermissionRequestScreen from '@modules/extension/screens/PermissionRequestScreen'
 import SwitchNetworkRequestScreen from '@modules/extension/screens/SwitchNetworkRequestScreen'
 import WatchTokenRequestScreen from '@modules/extension/screens/WatchTokenRequestScreen'
@@ -142,6 +143,10 @@ const MainRoutes = () => {
         <Route path={routesConfig.provider.route} element={<ProviderScreen />} />
         <Route path={routesConfig['sign-message'].route} element={<SignMessageScreen />} />
         <Route path={routesConfig['gas-information'].route} element={<GasInformationScreen />} />
+        <Route
+          path={routesConfig['get-encryption-public-key-request'].route}
+          element={<GetEncryptionPublicKeyRequestScreen />}
+        />
         <Route
           path={routesConfig['permission-request'].route}
           element={<PermissionRequestScreen />}

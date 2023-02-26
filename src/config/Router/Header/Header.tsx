@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import BurgerIcon from '@assets/svg/BurgerIcon'
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
 import ScanIcon from '@assets/svg/ScanIcon'
+import { isAndroid, isiOS } from '@config/env'
 import Blockies from '@modules/common/components/Blockies'
 import CopyText from '@modules/common/components/CopyText'
 import NavIconWrapper from '@modules/common/components/NavIconWrapper'
@@ -120,7 +121,8 @@ const Header: React.FC<Props> = ({
         </Text>
       )}
 
-      <View style={navIconContainer}>{renderHeaderRight}</View>
+      {isAndroid && <View style={navIconContainer}>{renderHeaderRight}</View>}
+      {isiOS && mode === 'title' && <View style={navIconContainer} />}
     </View>
   )
 }

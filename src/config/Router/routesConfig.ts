@@ -119,6 +119,14 @@ const routesConfig: {
   menu: {
     route: 'menu',
     title: ''
+  },
+  'manage-vault-lock': {
+    route: 'manage-vault-lock',
+    title: 'Manage Key Store Lock'
+  },
+  'get-encryption-public-key-request': {
+    route: 'get-encryption-public-key-request',
+    title: 'Get Encryption Public Key Request'
   }
 }
 

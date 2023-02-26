@@ -1,6 +1,6 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { toUtf8String } from 'ethers/lib/utils'
-import React, { useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
@@ -115,9 +115,11 @@ const SignScreenScreen = () => {
 
   const prevToSign = usePrevious(msgToSign || {})
 
-  if (!Object.keys(msgToSign || {}).length && Object.keys(prevToSign || {}).length) {
-    navigation?.goBack()
-  }
+  useEffect(() => {
+    if (!Object.keys(msgToSign || {}).length && Object.keys(prevToSign || {}).length) {
+      navigation?.goBack()
+    }
+  }, [msgToSign, navigation, prevToSign])
 
   if (!msgToSign || !account) return null
 
@@ -142,6 +144,8 @@ const SignScreenScreen = () => {
       </Wrapper>
     )
   }
+
+  const resetLoadingState = useCallback(() => setLoading(false), [setLoading])
 
   return (
     <>
@@ -207,7 +211,7 @@ const SignScreenScreen = () => {
       <BottomSheet
         id="sign"
         closeBottomSheet={closeBottomSheetQickAcc}
-        onClosed={() => setLoading(false)}
+        onClosed={resetLoadingState}
         sheetRef={sheetRefQickAcc}
       >
         <Title style={textStyles.center}>{t('Confirmation code')}</Title>
@@ -238,6 +242,7 @@ const SignScreenScreen = () => {
         id="hardware-wallet-sign"
         sheetRef={sheetRefHardwareWallet}
         closeBottomSheet={closeBottomSheetHardwareWallet}
+        onClosed={resetLoadingState}
       >
         <HardwareWalletSelectConnection
           onSelectDevice={(device: any) => {

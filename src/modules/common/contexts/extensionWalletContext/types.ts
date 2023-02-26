@@ -20,3 +20,11 @@ export type ExtensionWalletControllerType = Object.Merge<
 >
 
 export type ExtensionWalletController = Record<string, <T = any>(...params: any) => Promise<T>>
+
+export type ExtensionWalletContextReturnType = {
+  extensionWallet: ExtensionWalletController | null
+}
+
+export const extensionWalletContextDefaults: ExtensionWalletContextReturnType = {
+  extensionWallet: null
+}

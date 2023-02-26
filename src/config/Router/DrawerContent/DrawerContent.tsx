@@ -74,8 +74,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     // TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback
     ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: 'earn' }] : []),
     { Icon: SendIcon, name: t('Send'), route: 'send' },
-    // TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback
-    ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: 'swap' }] : []),
+    { Icon: SwapIcon, name: t('Swap'), route: 'swap' },
     { Icon: TransferIcon, name: t('Transactions'), route: 'transactions' },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
@@ -87,6 +86,10 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     { name: t('Help Center'), url: HELP_CENTER_URL },
     { name: t('Report an issue'), url: REPORT_ISSUE_URL },
     { name: t('Terms of Service'), url: termsAndPrivacyURL }
+  ]
+
+  const additionalInfo = [
+    ...(!isWeb ? [{ name: t('Data Deletion Policy'), route: 'data-deletion-policy' }] : [])
   ]
 
   const settings = [
@@ -157,25 +160,36 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
           {t('Settings')}
         </Text>
         <View style={[spacings.mlTy, spacings.mbSm]}>
-          <ConnectedDapps />
+          {isAndroid && <ConnectedDapps />}
           {!isWeb && <ManageVaultLockButton handleNavigate={handleNavigate} />}
           <Theme />
           {settings.map((s) => (
-            <TouchableOpacity key={s.name} onPress={() => handleNavigate(s.route)}>
-              <Text style={spacings.mbSm} color={colors.titan_50}>
-                {s.name}
-              </Text>
+            <TouchableOpacity
+              key={s.name}
+              onPress={() => handleNavigate(s.route)}
+              style={spacings.mbSm}
+            >
+              <Text color={colors.titan_50}>{s.name}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
         {help.map(({ name, url }) => (
-          <TouchableOpacity key={name} onPress={() => Linking.openURL(url)}>
-            <Text fontSize={16} weight="regular" style={spacings.mbSm}>
+          <TouchableOpacity key={name} onPress={() => Linking.openURL(url)} style={spacings.mbSm}>
+            <Text fontSize={16} weight="regular">
               {name}
             </Text>
           </TouchableOpacity>
         ))}
+        <View style={[spacings.mlTy, spacings.mbSm]}>
+          {additionalInfo.map(({ name, route }) => (
+            <TouchableOpacity key={name} onPress={() => handleNavigate(route)}>
+              <Text style={spacings.mbSm} color={colors.titan_50}>
+                {name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         <View style={[flexboxStyles.directionRow, spacings.mtSm, spacings.mbMd]}>
           {social.map(({ Icon, url }) => (
