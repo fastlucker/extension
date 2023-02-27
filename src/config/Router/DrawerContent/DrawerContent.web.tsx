@@ -26,7 +26,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import useVault from '@modules/vault/hooks/useVault'
 
-import { ROTES } from '../routesConfig'
+import { ROUTES } from '../routesConfig'
 import ConnectedDapps from './ConnectedDapps'
 import GasIndicator from './GasIndicator'
 import ManageVaultLockButton from './ManageVaultLockButton'
@@ -53,17 +53,17 @@ const DrawerContent = () => {
   )
 
   const menu = [
-    { Icon: DashboardIcon, name: t('Dashboard'), route: ROTES.dashboard },
+    { Icon: DashboardIcon, name: t('Dashboard'), route: ROUTES.dashboard },
     // TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback
-    ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: ROTES.earn }] : []),
-    { Icon: SendIcon, name: t('Send'), route: ROTES.send },
+    ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: ROUTES.earn }] : []),
+    { Icon: SendIcon, name: t('Send'), route: ROUTES.send },
     // TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback
-    ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: ROTES.swap }] : []),
-    { Icon: TransferIcon, name: t('Transactions'), route: ROTES.transactions },
+    ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap }] : []),
+    { Icon: TransferIcon, name: t('Transactions'), route: ROUTES.transactions },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
-    { Icon: DepositIcon, name: t('Deposit'), route: ROTES.receive },
-    { Icon: GasTankIcon, name: t('Gas Tank'), route: ROTES.gasTank }
+    { Icon: DepositIcon, name: t('Deposit'), route: ROUTES.receive },
+    { Icon: GasTankIcon, name: t('Gas Tank'), route: ROUTES.gasTank }
   ]
 
   const help = [
@@ -73,7 +73,7 @@ const DrawerContent = () => {
   ]
 
   const settings = [
-    { name: t('Signers'), route: ROTES.signers }
+    { name: t('Signers'), route: ROUTES.signers }
     // TODO: Not implemented yet.
     // { name: t('Security'), route: 'security' }
   ]

@@ -10,7 +10,7 @@ import { useCallback, useMemo, useState } from 'react'
 
 import { verifyMessage } from '@ambire/signature-validator'
 import CONFIG from '@config/env'
-import { ROTES } from '@config/Router/routesConfig'
+import { ROUTES } from '@config/Router/routesConfig'
 import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
@@ -232,7 +232,7 @@ const useSignMessage = ({
             }
 
             if (messagesToSign.length === 1) {
-              navigate(ROTES.dashboard)
+              navigate(ROUTES.dashboard)
             }
 
             addSignedMessage({

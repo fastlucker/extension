@@ -7,7 +7,7 @@ import PayTrieLogo from '@assets/svg/PayTrieLogo'
 import RampLogo from '@assets/svg/RampLogo'
 import TransakLogo from '@assets/svg/TransakLogo'
 import CONFIG from '@config/env'
-import { ROTES } from '@config/Router/routesConfig'
+import { ROUTES } from '@config/Router/routesConfig'
 import useNavigation from '@modules/common/hooks/useNavigation'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchGet } from '@modules/common/services/fetch'
@@ -49,7 +49,7 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
       gnosis: 'XDAI_*'
     }
 
-    navigate(ROTES.provider, {
+    navigate(ROUTES.provider, {
       state: {
         name,
         uri: `https://buy.ramp.network/?userAddress=${walletAddress}&hostApiKey=${RAMP_HOST_API_KEY}&swapAsset=${assetsList[networkId]}&finalUrl=ambire://&hostAppName=Ambire&hostLogoUrl=https://www.ambire.com/ambire-logo.png`
@@ -72,7 +72,7 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
       rightSideLabel: rightSideLabels[networkId]
     }
 
-    navigate(ROTES.provider, {
+    navigate(ROUTES.provider, {
       state: {
         name,
         uri: url.format(URL)
@@ -102,7 +102,7 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
       optimism: 'USDC'
     }
 
-    navigate(ROTES.provider, {
+    navigate(ROUTES.provider, {
       state: {
         name,
         uri: `${baseURL}?apiKey=${TRANSAK_API_KEY}&themeColor=282b33&disableWalletAddressForm=true&networks=${
@@ -118,7 +118,7 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
       `${relayerURL}/kriptomat/${walletAddress}/${networkId}`
     )
     if (kriptomatResponse.success && kriptomatResponse?.data?.url) {
-      navigate(ROTES.provider, {
+      navigate(ROUTES.provider, {
         state: {
           name,
           uri: url.format(kriptomatResponse.data.url)

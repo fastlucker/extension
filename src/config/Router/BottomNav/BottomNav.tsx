@@ -13,6 +13,7 @@ import colors from '@modules/common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import flexbox from '@modules/common/styles/utils/flexbox'
 
+import { ROUTES } from '../routesConfig'
 import styles from '../styles'
 
 const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
@@ -27,7 +28,7 @@ const Item = ({ icon, title, name }: any) => {
         alignItems: 'center',
         paddingVertical: 15
       }}
-      onPress={() => navigation.navigate(`/${name}`)}
+      onPress={() => navigation.navigate(name)}
     >
       <View
         style={{
@@ -47,28 +48,28 @@ const BottomNav = () => {
       <View style={[styles.backdropBlurWrapper]}>
         <View style={flexbox.directionRow}>
           <Item
-            name="dashboard"
+            name={ROUTES.dashboard}
             icon={<DashboardIcon width={tabsIconSize} height={tabsIconSize} />}
             title="Dashboard"
           />
           <Item
-            name="earn"
+            name={ROUTES.earn}
             icon={<EarnIcon width={tabsIconSize} height={tabsIconSize} />}
             title="Earn"
           />
           <Item
-            name="send"
+            name={ROUTES.send}
             icon={<SendIcon width={tabsIconSize} height={tabsIconSize} />}
             title="Send"
           />
           <Item
-            name="transactions"
+            name={ROUTES.transactions}
             icon={<TransferIcon width={tabsIconSize} height={tabsIconSize} />}
             title="Transactions"
           />
 
           <Item
-            name="gas-tank"
+            name={ROUTES.gasTank}
             icon={<GasTankIcon color={colors.titan} width={tabsIconSize} height={tabsIconSize} />}
             title="Gas Tank"
           />

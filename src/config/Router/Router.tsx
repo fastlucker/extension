@@ -63,7 +63,7 @@ import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import { ROTES } from './routesConfig'
+import { ROUTES } from './routesConfig'
 import { drawerStyle } from './styles'
 
 const Tab = createBottomTabNavigator()
@@ -85,7 +85,7 @@ const SignersStackScreen = () => {
   return (
     <SignersStack.Navigator screenOptions={{ header: headerGamma }}>
       <SignersStack.Screen
-        name={`${ROTES.signers}-screen`}
+        name={`${ROUTES.signers}-screen`}
         component={SignersScreen}
         options={{
           title: t('Manage Signers')
@@ -101,7 +101,7 @@ const DataDeletionPolicyStackScreen = () => {
   return (
     <DataDeletionPolicyStack.Navigator screenOptions={{ header: headerBeta }}>
       <DataDeletionPolicyStack.Screen
-        name={`${ROTES.dataDeletionPolicy}-screen`}
+        name={`${ROUTES.dataDeletionPolicy}-screen`}
         component={DataDeletionPolicyScreen}
         options={{
           title: t('Data Deletion Policy')
@@ -114,7 +114,7 @@ const DataDeletionPolicyStackScreen = () => {
 const GasTankStackScreen = () => {
   return (
     <GasTankStack.Navigator screenOptions={{ header: headerGamma }}>
-      <GasTankStack.Screen name={`${ROTES.gasTank}-screen`} component={GasTankScreen} />
+      <GasTankStack.Screen name={`${ROUTES.gasTank}-screen`} component={GasTankScreen} />
     </GasTankStack.Navigator>
   )
 }
@@ -123,7 +123,7 @@ const GasInformationStackScreen = () => {
   return (
     <GasInformationStack.Navigator screenOptions={{ header: headerGamma }}>
       <GasInformationStack.Screen
-        name={`${ROTES.gasInformation}-screen`}
+        name={`${ROUTES.gasInformation}-screen`}
         component={GasInformationScreen}
       />
     </GasInformationStack.Navigator>
@@ -136,7 +136,7 @@ const ManageVaultLockStackScreen = () => {
   return (
     <ManageVaultLockStack.Navigator screenOptions={{ header: headerBeta }}>
       <ManageVaultLockStack.Screen
-        name={`${ROTES.manageVaultLock}-screen`}
+        name={`${ROUTES.manageVaultLock}-screen`}
         component={ManageVaultLockScreen}
         options={{
           title: t('Manage Key Store Lock')
@@ -153,12 +153,12 @@ const EmailLoginStackScreen = () => {
     <EmailLoginProvider>
       <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
         <EmailLoginStack.Screen
-          name={`${ROTES.ambireAccountLogin}-screen`}
+          name={`${ROUTES.ambireAccountLogin}-screen`}
           options={{ title: t('Login') }}
           component={EmailLoginScreen}
         />
         <EmailLoginStack.Screen
-          name={ROTES.ambireAccountLoginPasswordConfirm}
+          name={ROUTES.ambireAccountLoginPasswordConfirm}
           options={{ title: t('Login') }}
           component={AddAccountPasswordToVaultScreen}
         />
@@ -174,12 +174,12 @@ const JsonLoginStackScreen = () => {
     <JsonLoginProvider>
       <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
         <JsonLoginStack.Screen
-          name={`${ROTES.ambireAccountJsonLogin}-screen`}
+          name={`${ROUTES.ambireAccountJsonLogin}-screen`}
           options={{ title: t('Import from JSON') }}
           component={JsonLoginScreen}
         />
         <JsonLoginStack.Screen
-          name={ROTES.ambireAccountJsonLoginPasswordConfirm}
+          name={ROUTES.ambireAccountJsonLoginPasswordConfirm}
           options={{ title: t('Login') }}
           component={AddAccountPasswordToVaultScreen}
         />
@@ -199,25 +199,25 @@ const AuthStack = () => {
 
   const initialRouteName =
     vaultStatus === VAULT_STATUS.NOT_INITIALIZED
-      ? ROTES.getStarted
+      ? ROUTES.getStarted
       : // Checks whether there is a pending email login attempt. It happens when user
       // request email login and closes the app. When the app is opened
       // the second time - an immediate email login attempt will be triggered.
       getItem('pendingLoginEmail')
-      ? ROTES.ambireAccountLogin
-      : `${ROTES.auth}-screen`
+      ? ROUTES.ambireAccountLogin
+      : `${ROUTES.auth}-screen`
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <>
           <Stack.Screen
-            name={ROTES.getStarted}
+            name={ROUTES.getStarted}
             options={{ title: t('Welcome') }}
             component={VaultSetupGetStartedScreen}
           />
           <Stack.Screen
-            name={ROTES.createVault}
+            name={ROUTES.createVault}
             options={{ title: t('Setup Ambire Key Store') }}
             component={CreateNewVaultScreen}
           />
@@ -225,31 +225,31 @@ const AuthStack = () => {
       )}
       <Stack.Screen
         options={{ title: t('Welcome to Ambire') }}
-        name={`${ROTES.auth}-screen`}
+        name={`${ROUTES.auth}-screen`}
         component={AuthScreen}
       />
       <Stack.Screen
-        name={ROTES.ambireAccountLogin}
+        name={ROUTES.ambireAccountLogin}
         options={{ title: t('Login'), headerShown: false }}
         component={EmailLoginStackScreen}
       />
       <Stack.Screen
-        name={ROTES.ambireAccountJsonLogin}
+        name={ROUTES.ambireAccountJsonLogin}
         options={{ title: t('Import from JSON'), headerShown: false }}
         component={JsonLoginStackScreen}
       />
       <Stack.Screen
-        name={ROTES.qrCodeLogin}
+        name={ROUTES.qrCodeLogin}
         options={{ title: t('Import with QR Code') }}
         component={QRCodeLoginScreen}
       />
       <Stack.Screen
-        name={ROTES.hardwareWallet}
+        name={ROUTES.hardwareWallet}
         options={{ title: t('Hardware Wallet') }}
         component={HardwareWalletConnectScreen}
       />
       <Stack.Screen
-        name={ROTES.externalSigner}
+        name={ROUTES.externalSigner}
         options={{ title: t('Login with External Signer') }}
         component={ExternalSignerScreen}
       />
@@ -268,7 +268,7 @@ const NoConnectionStack = () => {
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
       <Stack.Screen
         options={{ title: t('No connection') }}
-        name={ROTES.noConnection}
+        name={ROUTES.noConnection}
         component={NoConnectionScreen}
       />
     </Stack.Navigator>
@@ -307,12 +307,12 @@ const VaultStack = () => {
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
       <Stack.Screen
-        name={ROTES.unlockVault}
+        name={ROUTES.unlockVault}
         options={{ title: t('Welcome Back') }}
         component={renderUnlockVaultScreen}
       />
       <Stack.Screen
-        name={ROTES.resetVault}
+        name={ROUTES.resetVault}
         options={{ title: t('Reset Ambire Key Store') }}
         component={renderResetVaultScreen}
       />
@@ -323,8 +323,8 @@ const VaultStack = () => {
 const DashboardStackScreen = () => {
   return (
     <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
-      <DashboardStack.Screen name="dashboard-screen" component={DashboardScreen} />
-      <DashboardStack.Screen name="collectible-screen" component={CollectibleScreen} />
+      <DashboardStack.Screen name={`${ROUTES.dashboard}-screen`} component={DashboardScreen} />
+      <DashboardStack.Screen name={`${ROUTES.collectibles}-screen`} component={CollectibleScreen} />
     </DashboardStack.Navigator>
   )
 }
@@ -355,7 +355,7 @@ const TabsScreens = () => {
       )}
     >
       <Tab.Screen
-        name={ROTES.dashboard}
+        name={ROUTES.dashboard}
         options={{
           tabBarLabel: t('Dashboard'),
           headerTitle: t('Dashboard'),
@@ -369,7 +369,7 @@ const TabsScreens = () => {
       {/* Also excluded from the bundle by including an empty EarnScreen.ios.tsx */}
       {isAndroid && (
         <Tab.Screen
-          name={ROTES.earn}
+          name={ROUTES.earn}
           options={{
             tabBarLabel: t('Earn'),
             headerTitle: t('Earn'),
@@ -381,7 +381,7 @@ const TabsScreens = () => {
         />
       )}
       <Tab.Screen
-        name={ROTES.send}
+        name={ROUTES.send}
         options={{
           tabBarLabel: t('Send'),
           headerTitle: t('Send'),
@@ -392,7 +392,7 @@ const TabsScreens = () => {
         component={SendScreen}
       />
       <Tab.Screen
-        name={ROTES.swap}
+        name={ROUTES.swap}
         options={{
           tabBarLabel: t('Swap'),
           headerTitle: t('Swap'),
@@ -403,7 +403,7 @@ const TabsScreens = () => {
         component={SwapScreen}
       />
       <Tab.Screen
-        name={ROTES.transactions}
+        name={ROUTES.transactions}
         options={{
           tabBarLabel: t('Transactions'),
           headerTitle: t('Transactions'),
@@ -451,7 +451,7 @@ const AppStack = () => {
     // because this route doesn't exist (it's never being rendered).
     const shouldAttemptLogin = !!getItem('pendingLoginEmail')
     if (shouldAttemptLogin) {
-      navigate(ROTES.auth)
+      navigate(ROUTES.auth)
     }
   }, [getItem])
 
@@ -466,54 +466,54 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name={ROTES.signers}
+        name={ROUTES.signers}
         component={SignersStackScreen}
       />
       <MainStack.Screen
-        name={ROTES.dataDeletionPolicy}
+        name={ROUTES.dataDeletionPolicy}
         component={DataDeletionPolicyStackScreen}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name={ROTES.manageVaultLock}
+        name={ROUTES.manageVaultLock}
         component={ManageVaultLockStackScreen}
       />
-      <MainStack.Screen name={ROTES.auth} component={AuthStack} options={{ headerShown: false }} />
+      <MainStack.Screen name={ROUTES.auth} component={AuthStack} options={{ headerShown: false }} />
       {isAndroid && (
         <MainStack.Screen
-          name={ROTES.connect}
+          name={ROUTES.connect}
           component={ConnectScreen}
           options={{ title: t('Connect a dApp') }}
         />
       )}
       <MainStack.Screen
-        name={ROTES.receive}
+        name={ROUTES.receive}
         options={{ header: headerGamma }}
         component={ReceiveScreen}
       />
       <MainStack.Screen
-        name={ROTES.provider}
+        name={ROUTES.provider}
         options={{ title: t('Receive') }}
         component={ProviderScreen}
       />
       <MainStack.Screen
-        name={ROTES.pendingTransactions}
+        name={ROUTES.pendingTransactions}
         component={PendingTransactionsScreen}
         options={{ title: t('Pending Transaction') }}
       />
       <MainStack.Screen
-        name={ROTES.signMessage}
+        name={ROUTES.signMessage}
         component={SignMessageScreen}
         options={{ title: t('Sign') }}
       />
       <MainStack.Screen
-        name={ROTES.gasTank}
+        name={ROUTES.gasTank}
         component={GasTankStackScreen}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
-        name={ROTES.gasInformation}
+        name={ROUTES.gasInformation}
         component={GasInformationStackScreen}
         options={{ headerShown: false }}
       />

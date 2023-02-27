@@ -3,7 +3,7 @@ import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
-import { ROTES } from '@config/Router/routesConfig'
+import { ROUTES } from '@config/Router/routesConfig'
 import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@modules/common/contexts/extensionApprovalContext/types'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
@@ -141,7 +141,7 @@ const RequestsProvider: React.FC = ({ children }) => {
       }
       setSentTxn((txn: any) => [...txn, { confirmed: false, hash }])
       addToast(t('Transaction signed and sent successfully!') as string, {
-        onClick: () => navigate(ROTES.transactions),
+        onClick: () => navigate(ROUTES.transactions),
         timeout: 15000
       })
     },
@@ -206,7 +206,7 @@ const RequestsProvider: React.FC = ({ children }) => {
       }
 
       if (toSign.length) {
-        navigate(ROTES.signMessage)
+        navigate(ROUTES.signMessage)
       } else if (
         // Extension only
         // In case there is a pending sign msg request opened in a notification window
@@ -239,7 +239,7 @@ const RequestsProvider: React.FC = ({ children }) => {
         extensionWallet!.activeFirstApproval()
         window.close()
       } else {
-        navigate(ROTES.pendingTransactions)
+        navigate(ROUTES.pendingTransactions)
       }
     }
   }, [

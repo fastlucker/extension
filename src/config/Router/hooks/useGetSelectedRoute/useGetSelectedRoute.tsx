@@ -1,7 +1,7 @@
-import { ROTES } from '@config/Router/routesConfig'
+import { ROUTES } from '@config/Router/routesConfig'
 import { useNavigationState } from '@react-navigation/native'
 
-const defaultRoute: string = ROTES.dashboard
+const defaultRoute: string = ROUTES.dashboard
 
 // non-existent routes are navigator stacks containing the routes that represent an actual screen
 // these routes should be replaced with the default route on initial render

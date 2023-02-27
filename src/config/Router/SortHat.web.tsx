@@ -5,27 +5,22 @@ import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import Spinner from '@modules/common/components/Spinner'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
-import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useNavigation from '@modules/common/hooks/useNavigation'
-import useNetInfo from '@modules/common/hooks/useNetInfo'
 import flexbox from '@modules/common/styles/utils/flexbox'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
 import { getUiType } from '@web/utils/uiType'
 
-import { ROTES } from './routesConfig'
+import { ROUTES } from './routesConfig'
 
 const Router = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
-  const { connectionState } = useNetInfo()
-  const { approval, hasCheckedForApprovalInitially } = useExtensionApproval()
+  const { approval } = useExtensionApproval()
   const isInNotification = getUiType().isNotification
-  const { vaultStatus, unlockVault, resetVault, biometricsEnabled } = useVault()
+  const { vaultStatus } = useVault()
 
   const isInTab = getUiType().isTab
-  const { getApproval } = useExtensionApproval()
-  const { extensionWallet } = useExtensionWallet()
 
   const loadView = useCallback(async () => {
     if (vaultStatus === VAULT_STATUS.LOADING) return
@@ -36,15 +31,15 @@ const Router = () => {
     }
 
     if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED) {
-      return navigate(ROTES.getStarted)
+      return navigate(ROUTES.getStarted)
     }
 
     if (vaultStatus === VAULT_STATUS.LOCKED) {
-      return navigate(ROTES.unlockVault)
+      return navigate(ROUTES.unlockVault)
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      return navigate(ROTES.auth)
+      return navigate(ROUTES.auth)
     }
 
     // TODO:
@@ -55,28 +50,28 @@ const Router = () => {
     // }
     if (approval && isInNotification) {
       if (approval?.data?.approvalComponent === 'PermissionRequest') {
-        return navigate(ROTES.permissionRequest)
+        return navigate(ROUTES.permissionRequest)
       }
       if (approval?.data?.approvalComponent === 'SendTransaction') {
-        return navigate(ROTES.pendingTransactions)
+        return navigate(ROUTES.pendingTransactions)
       }
       if (approval?.data?.approvalComponent === 'SignText') {
-        return navigate(ROTES.signMessage)
+        return navigate(ROUTES.signMessage)
       }
       if (approval?.data?.approvalComponent === 'SignTypedData') {
-        return navigate(ROTES.signMessage)
+        return navigate(ROUTES.signMessage)
       }
       if (approval?.data?.approvalComponent === 'SwitchNetwork') {
-        return navigate(ROTES.switchNetwork)
+        return navigate(ROUTES.switchNetwork)
       }
       if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
-        return navigate(ROTES.watchAsset)
+        return navigate(ROUTES.watchAsset)
       }
       if (approval?.data?.approvalComponent === 'GetEncryptionPublicKey') {
-        return navigate(ROTES.getEncryptionPublicKeyRequest)
+        return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
     } else {
-      navigate(ROTES.dashboard)
+      navigate(ROUTES.dashboard)
     }
   }, [isInNotification, vaultStatus, approval, navigate, authStatus])
 

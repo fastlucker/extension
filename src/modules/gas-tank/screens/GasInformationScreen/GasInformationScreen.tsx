@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import InfoIcon from '@assets/svg/InfoIcon'
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
-import { ROTES } from '@config/Router/routesConfig'
+import { ROUTES } from '@config/Router/routesConfig'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Spinner from '@modules/common/components/Spinner'
@@ -58,7 +58,7 @@ const GasInformationScreen = () => {
   )
 
   const handleDepositButtonPress = () => {
-    navigate(ROTES.gasTank)
+    navigate(ROUTES.gasTank)
   }
 
   const LoadingContent = !!isLoading && !loaded && (

@@ -6,7 +6,7 @@ import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'reac
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import { HEADER_HEIGHT } from '@config/Router/Header/style'
-import { ROTES } from '@config/Router/routesConfig'
+import { ROUTES } from '@config/Router/routesConfig'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import InputPassword from '@modules/common/components/InputPassword'
@@ -81,7 +81,7 @@ const UnlockVaultScreen: React.FC<Props> = ({
     // Otherwise, the user is in another navigation stack (or in temporarily
     // locked state), so the reset vault screen route doesn't exist.
     if (vaultStatus === VAULT_STATUS.LOCKED) {
-      navigate(ROTES.resetVault, {
+      navigate(ROUTES.resetVault, {
         state: {
           resetPassword: true
         }

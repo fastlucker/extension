@@ -37,7 +37,7 @@ const AddAccountPasswordToVaultScreen = () => {
   } = useJsonLogin()
   const navigation = useNavigation()
   const { loginType } = route.params
-  console.log('loginType', loginType)
+
   useDisableNavigatingBack(navigation)
   const {
     control,

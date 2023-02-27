@@ -20,7 +20,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { DrawerHeaderProps } from '@react-navigation/drawer'
 import { getHeaderTitle } from '@react-navigation/elements'
 
-import { ROTES } from '../routesConfig'
+import { ROUTES } from '../routesConfig'
 import styles from './style'
 
 interface Props extends DrawerHeaderProps {
@@ -83,7 +83,7 @@ const Header: React.FC<Props> = ({
   }
 
   const renderHeaderRight = withScanner ? (
-    <NavIconWrapper onPress={() => navigation.navigate(ROTES.connect)}>
+    <NavIconWrapper onPress={() => navigation.navigate(ROUTES.connect)}>
       <ScanIcon />
     </NavIconWrapper>
   ) : null

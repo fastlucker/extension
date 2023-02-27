@@ -18,7 +18,7 @@ import spacings, { SPACING_SM } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { getUiType } from '@web/utils/uiType'
 
-import routesConfig, { ROTES } from '../routesConfig'
+import routesConfig, { ROUTES } from '../routesConfig'
 import styles from './style'
 
 interface Props {
@@ -42,7 +42,8 @@ const Header: React.FC<Props> = ({
   const { hidePrivateValue } = usePrivateMode()
 
   const navigationEnabled = !getUiType().isNotification
-  const canGoBack = params?.prevRoute?.key !== 'default' && navigationEnabled
+  const canGoBack =
+    params?.prevRoute?.key !== 'default' && params?.prevRoute?.path !== '/' && navigationEnabled
 
   const title = useMemo(() => routesConfig[path?.substring(1)].title, [path])
 
@@ -89,7 +90,7 @@ const Header: React.FC<Props> = ({
   }
 
   const renderHeaderRight = (
-    <NavIconWrapper onPress={() => navigation.navigate(ROTES.menu)}>
+    <NavIconWrapper onPress={() => navigation.navigate(ROUTES.menu)}>
       <Blockies borderRadius={13} size={10} seed={selectedAcc} />
     </NavIconWrapper>
   )

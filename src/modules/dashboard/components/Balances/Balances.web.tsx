@@ -14,7 +14,7 @@ import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import CONFIG, { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
-import { ROTES } from '@config/Router/routesConfig'
+import { ROUTES } from '@config/Router/routesConfig'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
@@ -108,9 +108,9 @@ const Balances = ({
     // Exclude displaying balances for networks we don't support
     .filter(({ network }) => !!networkDetails(network))
 
-  const handleGoToSend = () => navigation.navigate(ROTES.send)
-  const handleGoToReceive = () => navigation.navigate(ROTES.receive)
-  const handleGoToGasTank = () => navigation.navigate(ROTES.gasTank)
+  const handleGoToSend = () => navigation.navigate(ROUTES.send)
+  const handleGoToReceive = () => navigation.navigate(ROUTES.receive)
+  const handleGoToGasTank = () => navigation.navigate(ROUTES.gasTank)
   const content = (
     <>
       <View style={flexboxStyles.directionRow}>

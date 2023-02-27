@@ -1,4 +1,4 @@
-export enum ROTES {
+export enum ROUTES {
   unlockVault = 'unlock-vault',
   resetVault = 'reset-vault',
   noConnection = 'no-connection',
@@ -41,140 +41,140 @@ const routesConfig: {
     title: string
   }
 } = {
-  [ROTES.unlockVault]: {
-    route: ROTES.unlockVault,
+  [ROUTES.unlockVault]: {
+    route: ROUTES.unlockVault,
     title: 'Welcome Back'
   },
-  [ROTES.resetVault]: {
-    route: ROTES.resetVault,
+  [ROUTES.resetVault]: {
+    route: ROUTES.resetVault,
     title: 'Reset your\nAmbire Key Store Lock'
   },
-  [ROTES.noConnection]: {
-    route: ROTES.noConnection,
+  [ROUTES.noConnection]: {
+    route: ROUTES.noConnection,
     title: 'No Connection'
   },
-  [ROTES.getStarted]: {
-    route: ROTES.getStarted,
+  [ROUTES.getStarted]: {
+    route: ROUTES.getStarted,
     title: 'Welcome'
   },
-  [ROTES.createVault]: {
-    route: ROTES.createVault,
+  [ROUTES.createVault]: {
+    route: ROUTES.createVault,
     title: 'Setup Your Ambire Key Store'
   },
-  [ROTES.auth]: {
-    route: ROTES.auth,
+  [ROUTES.auth]: {
+    route: ROUTES.auth,
     title: 'Welcome to\nAmbire Wallet Extension'
   },
-  [ROTES.ambireAccountLogin]: {
-    route: ROTES.ambireAccountLogin,
+  [ROUTES.ambireAccountLogin]: {
+    route: ROUTES.ambireAccountLogin,
     title: 'Login'
   },
-  [ROTES.ambireAccountLoginPasswordConfirm]: {
-    route: ROTES.ambireAccountLoginPasswordConfirm,
+  [ROUTES.ambireAccountLoginPasswordConfirm]: {
+    route: ROUTES.ambireAccountLoginPasswordConfirm,
     title: 'Confirm Account Password'
   },
-  [ROTES.ambireAccountJsonLogin]: {
-    route: ROTES.ambireAccountJsonLogin,
+  [ROUTES.ambireAccountJsonLogin]: {
+    route: ROUTES.ambireAccountJsonLogin,
     title: 'Import from JSON'
   },
-  [ROTES.ambireAccountJsonLoginPasswordConfirm]: {
-    route: ROTES.ambireAccountJsonLoginPasswordConfirm,
+  [ROUTES.ambireAccountJsonLoginPasswordConfirm]: {
+    route: ROUTES.ambireAccountJsonLoginPasswordConfirm,
     title: 'Confirm Account Password'
   },
-  [ROTES.qrCodeLogin]: {
-    route: ROTES.qrCodeLogin,
+  [ROUTES.qrCodeLogin]: {
+    route: ROUTES.qrCodeLogin,
     title: 'Import with QR Code'
   },
-  [ROTES.hardwareWallet]: {
-    route: ROTES.hardwareWallet,
+  [ROUTES.hardwareWallet]: {
+    route: ROUTES.hardwareWallet,
     title: 'Login with Hardware Wallet'
   },
-  [ROTES.externalSigner]: {
-    route: ROTES.externalSigner,
+  [ROUTES.externalSigner]: {
+    route: ROUTES.externalSigner,
     title: 'Login with External Signer'
   },
-  [ROTES.dashboard]: {
-    route: ROTES.dashboard,
+  [ROUTES.dashboard]: {
+    route: ROUTES.dashboard,
     title: 'Dashboard'
   },
-  [ROTES.collectibles]: {
-    route: ROTES.collectibles,
+  [ROUTES.collectibles]: {
+    route: ROUTES.collectibles,
     title: 'Collectibles'
   },
-  [ROTES.earn]: {
-    route: ROTES.earn,
+  [ROUTES.earn]: {
+    route: ROUTES.earn,
     title: 'Earn'
   },
-  [ROTES.send]: {
-    route: ROTES.send,
+  [ROUTES.send]: {
+    route: ROUTES.send,
     title: 'Send'
   },
-  [ROTES.transactions]: {
-    route: ROTES.transactions,
+  [ROUTES.transactions]: {
+    route: ROUTES.transactions,
     title: 'Transactions'
   },
-  [ROTES.gasTank]: {
-    route: ROTES.gasTank,
+  [ROUTES.gasTank]: {
+    route: ROUTES.gasTank,
     title: 'Gas Tank'
   },
-  [ROTES.pendingTransactions]: {
-    route: ROTES.pendingTransactions,
+  [ROUTES.pendingTransactions]: {
+    route: ROUTES.pendingTransactions,
     title: 'Pending Transactions'
   },
-  [ROTES.receive]: {
-    route: ROTES.receive,
+  [ROUTES.receive]: {
+    route: ROUTES.receive,
     title: 'Receive'
   },
-  [ROTES.provider]: {
-    route: ROTES.provider,
+  [ROUTES.provider]: {
+    route: ROUTES.provider,
     title: 'Provider'
   },
-  [ROTES.signMessage]: {
-    route: ROTES.signMessage,
+  [ROUTES.signMessage]: {
+    route: ROUTES.signMessage,
     title: 'Sign Message'
   },
-  [ROTES.gasInformation]: {
-    route: ROTES.gasInformation,
+  [ROUTES.gasInformation]: {
+    route: ROUTES.gasInformation,
     title: 'Gas Information'
   },
-  [ROTES.signers]: {
-    route: ROTES.signers,
+  [ROUTES.signers]: {
+    route: ROUTES.signers,
     title: 'Manage Signers'
   },
-  [ROTES.permissionRequest]: {
-    route: ROTES.permissionRequest,
+  [ROUTES.permissionRequest]: {
+    route: ROUTES.permissionRequest,
     title: 'Webpage Wants to Connect'
   },
-  [ROTES.switchNetwork]: {
-    route: ROTES.switchNetwork,
+  [ROUTES.switchNetwork]: {
+    route: ROUTES.switchNetwork,
     title: 'Webpage Wants to Switch Network'
   },
-  [ROTES.watchAsset]: {
-    route: ROTES.watchAsset,
+  [ROUTES.watchAsset]: {
+    route: ROUTES.watchAsset,
     title: 'Webpage Wants to Add Token'
   },
-  [ROTES.menu]: {
-    route: ROTES.menu,
+  [ROUTES.menu]: {
+    route: ROUTES.menu,
     title: 'Menu'
   },
-  [ROTES.manageVaultLock]: {
-    route: ROTES.manageVaultLock,
+  [ROUTES.manageVaultLock]: {
+    route: ROUTES.manageVaultLock,
     title: 'Manage Key Store Lock'
   },
-  [ROTES.getEncryptionPublicKeyRequest]: {
-    route: ROTES.getEncryptionPublicKeyRequest,
+  [ROUTES.getEncryptionPublicKeyRequest]: {
+    route: ROUTES.getEncryptionPublicKeyRequest,
     title: 'Get Encryption Public Key Request'
   },
-  [ROTES.dataDeletionPolicy]: {
-    route: ROTES.dataDeletionPolicy,
+  [ROUTES.dataDeletionPolicy]: {
+    route: ROUTES.dataDeletionPolicy,
     title: 'Data Deletion Policy'
   },
-  [ROTES.connect]: {
-    route: ROTES.connect,
+  [ROUTES.connect]: {
+    route: ROUTES.connect,
     title: 'Connect a dApp'
   },
-  [ROTES.swap]: {
-    route: ROTES.swap,
+  [ROUTES.swap]: {
+    route: ROUTES.swap,
     title: 'Swap'
   }
 }

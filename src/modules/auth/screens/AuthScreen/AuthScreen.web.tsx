@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
-import { ROTES } from '@config/Router/routesConfig'
+import { ROUTES } from '@config/Router/routesConfig'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Button, { Props as ButtonDefaultProps } from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -37,13 +37,13 @@ const AuthScreen = () => {
         <View>
           <AuthButton
             text={t('Login With Email')}
-            routeName={ROTES.ambireAccountLogin}
+            routeName={ROUTES.ambireAccountLogin}
             onPress={handleAuthButtonPress}
             hasBottomSpacing={false}
           />
           <AuthButton
             text={t('Hardware Wallet (coming soon)')}
-            routeName={ROTES.hardwareWallet}
+            routeName={ROUTES.hardwareWallet}
             onPress={handleAuthButtonPress}
             disabled // temporary disabled until we have this feature
             style={spacings.mbLg}
@@ -54,13 +54,13 @@ const AuthScreen = () => {
           <AuthButton
             text={t('Import From JSON')}
             type="outline"
-            routeName={ROTES.ambireAccountJsonLogin}
+            routeName={ROUTES.ambireAccountJsonLogin}
             onPress={handleAuthButtonPress}
           />
           <AuthButton
             text={t('Login with External Signer')}
             type="outline"
-            routeName={ROTES.externalSigner}
+            routeName={ROUTES.externalSigner}
             onPress={handleAuthButtonPress}
           />
         </View>

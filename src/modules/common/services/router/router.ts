@@ -1,8 +1,10 @@
+import { ROUTES } from '@config/Router/routesConfig'
+
 export const isRouteWithTabBar = (routeName: string) =>
-  routeName === 'dashboard' ||
-  routeName === 'dashboard-screen' ||
-  routeName === 'collectible-screen' ||
-  routeName === 'earn' ||
-  routeName === 'send' ||
-  routeName === 'swap' ||
-  routeName === 'transactions'
+  routeName === ROUTES.dashboard ||
+  routeName === `${ROUTES.dashboard}-screen` ||
+  routeName === `${ROUTES.collectibles}-screen` ||
+  routeName === ROUTES.earn ||
+  routeName === ROUTES.send ||
+  routeName === ROUTES.swap ||
+  routeName === ROUTES.transactions

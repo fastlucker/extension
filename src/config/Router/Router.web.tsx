@@ -14,7 +14,7 @@ import useVault from '@modules/vault/hooks/useVault'
 import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 
-import { ROTES } from './routesConfig'
+import { ROUTES } from './routesConfig'
 import SortHat from './SortHat.web'
 
 const AsyncMainRoute = lazy(() => import('./MainRoutes.web'))
@@ -37,13 +37,13 @@ const Router = () => {
 
   useEffect(() => {
     if (path !== '/' && authStatus !== prevAuthStatus) {
-      navigate('/')
+      navigate('/', { replace: true })
     }
   }, [authStatus, navigate, path, prevAuthStatus])
 
   useEffect(() => {
     if (path !== '/' && vaultStatus !== prevVaultStatus) {
-      navigate('/')
+      navigate('/', { replace: true })
     }
   }, [vaultStatus, navigate, path, prevVaultStatus])
 
@@ -61,7 +61,7 @@ const Router = () => {
         <Route path="/" element={<SortHat />} />
         <Route element={headerBeta}>
           <Route
-            path={ROTES.unlockVault}
+            path={ROUTES.unlockVault}
             element={
               <UnlockVaultScreen
                 unlockVault={unlockVault}
@@ -71,7 +71,7 @@ const Router = () => {
             }
           />
           <Route
-            path={ROTES.resetVault}
+            path={ROUTES.resetVault}
             element={<ResetVaultScreen resetVault={resetVault} vaultStatus={vaultStatus} />}
           />
         </Route>

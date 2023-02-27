@@ -3,7 +3,7 @@ import { View } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
-import { ROTES } from '@config/Router/routesConfig'
+import { ROUTES } from '@config/Router/routesConfig'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Button from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -54,7 +54,7 @@ const VaultSetupGetStartedScreen = () => {
           <Button
             style={spacings.mt}
             text={t('Get Started')}
-            onPress={() => navigation.navigate(ROTES.createVault, { replace: true })}
+            onPress={() => navigation.navigate(ROUTES.createVault, { replace: true })}
           />
         </View>
       </Wrapper>
