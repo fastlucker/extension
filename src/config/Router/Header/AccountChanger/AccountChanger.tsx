@@ -4,6 +4,7 @@ import { TouchableOpacity, View } from 'react-native'
 
 import LogOutIcon from '@assets/svg/LogOutIcon'
 import { isWeb } from '@config/env'
+import { ROTES } from '@config/Router/routesConfig'
 import Blockies from '@modules/common/components/Blockies'
 import Button from '@modules/common/components/Button'
 import CopyText from '@modules/common/components/CopyText'
@@ -51,7 +52,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
 
   const handleGoToAddAccount = () => {
     closeBottomSheet()
-    navigation.navigate('/auth')
+    navigation.navigate(ROTES.auth)
   }
 
   const renderAccount = (account: any) => {

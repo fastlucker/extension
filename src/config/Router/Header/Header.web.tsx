@@ -18,7 +18,7 @@ import spacings, { SPACING_SM } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { getUiType } from '@web/utils/uiType'
 
-import routesConfig from '../routesConfig'
+import routesConfig, { ROTES } from '../routesConfig'
 import styles from './style'
 
 interface Props {
@@ -89,7 +89,7 @@ const Header: React.FC<Props> = ({
   }
 
   const renderHeaderRight = (
-    <NavIconWrapper onPress={() => navigation.navigate('/menu')}>
+    <NavIconWrapper onPress={() => navigation.navigate(ROTES.menu)}>
       <Blockies borderRadius={13} size={10} seed={selectedAcc} />
     </NavIconWrapper>
   )

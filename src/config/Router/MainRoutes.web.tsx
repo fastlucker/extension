@@ -40,7 +40,7 @@ import { getUiType } from '@web/utils/uiType'
 
 import BottomNav from './BottomNav/BottomNav'
 import DrawerContent from './DrawerContent/DrawerContent.web'
-import routesConfig from './routesConfig'
+import { ROTES } from './routesConfig'
 
 const navigationEnabled = !getUiType().isNotification
 
@@ -92,73 +92,58 @@ const MainRoutes = () => {
   return (
     <Routes>
       <Route element={headerBeta}>
-        <Route path={routesConfig['no-connection'].route} element={<NoConnectionScreen />} />
-        <Route path={routesConfig['get-started'].route} element={<VaultSetupGetStartedScreen />} />
-        <Route path={routesConfig['create-vault'].route} element={<CreateNewVaultScreen />} />
-        <Route path={routesConfig.auth.route} element={<AuthScreen />} />
+        <Route path={ROTES.noConnection} element={<NoConnectionScreen />} />
+        <Route path={ROTES.getStarted} element={<VaultSetupGetStartedScreen />} />
+        <Route path={ROTES.createVault} element={<CreateNewVaultScreen />} />
+        <Route path={ROTES.auth} element={<AuthScreen />} />
 
         <Route element={emailLoginProvider}>
-          <Route path={routesConfig['ambire-account-login'].route} element={<EmailLoginScreen />} />
+          <Route path={ROTES.ambireAccountLogin} element={<EmailLoginScreen />} />
           <Route
-            path={routesConfig['ambire-account-login-password-confirm'].route}
+            path={ROTES.ambireAccountLoginPasswordConfirm}
             element={<AddAccountPasswordToVaultScreen />}
           />
         </Route>
 
         <Route element={jsonLoginProvider}>
+          <Route path={ROTES.ambireAccountJsonLogin} element={<JsonLoginScreen />} />
           <Route
-            path={routesConfig['ambire-account-json-login'].route}
-            element={<JsonLoginScreen />}
-          />
-          <Route
-            path={routesConfig['ambire-account-json-login-password-confirm'].route}
+            path={ROTES.ambireAccountJsonLoginPasswordConfirm}
             element={<AddAccountPasswordToVaultScreen />}
           />
         </Route>
 
-        <Route path={routesConfig['qr-code-login'].route} element={<QRCodeLoginScreen />} />
-        <Route
-          path={routesConfig['hardware-wallet'].route}
-          element={<HardwareWalletConnectScreen />}
-        />
-        <Route path={routesConfig['external-signer'].route} element={<ExternalSignerScreen />} />
+        <Route path={ROTES.qrCodeLogin} element={<QRCodeLoginScreen />} />
+        <Route path={ROTES.hardwareWallet} element={<HardwareWalletConnectScreen />} />
+        <Route path={ROTES.externalSigner} element={<ExternalSignerScreen />} />
       </Route>
       <Route element={headerAlpha}>
         <Route element={footer}>
-          <Route path={routesConfig.dashboard.route} element={<DashboardScreen />} />
-          <Route path={routesConfig.collectibles.route} element={<CollectibleScreen />} />
-          <Route path={routesConfig.earn.route} element={<EarnScreen />} />
-          <Route path={routesConfig.send.route} element={<SendScreen />} />
-          <Route path={routesConfig.transactions.route} element={<TransactionsScreen />} />
-          <Route path={routesConfig['gas-tank'].route} element={<GasTankScreen />} />
+          <Route path={ROTES.dashboard} element={<DashboardScreen />} />
+          <Route path={ROTES.collectibles} element={<CollectibleScreen />} />
+          <Route path={ROTES.earn} element={<EarnScreen />} />
+          <Route path={ROTES.send} element={<SendScreen />} />
+          <Route path={ROTES.transactions} element={<TransactionsScreen />} />
+          <Route path={ROTES.gasTank} element={<GasTankScreen />} />
         </Route>
       </Route>
       <Route element={headerBeta}>
-        <Route path={routesConfig.menu.route} element={<DrawerContent />} />
+        <Route path={ROTES.menu} element={<DrawerContent />} />
+        <Route path={ROTES.pendingTransactions} element={<PendingTransactionsScreen />} />
+        <Route path={ROTES.receive} element={<ReceiveScreen />} />
+        <Route path={ROTES.provider} element={<ProviderScreen />} />
+        <Route path={ROTES.signMessage} element={<SignMessageScreen />} />
+        <Route path={ROTES.gasInformation} element={<GasInformationScreen />} />
         <Route
-          path={routesConfig['pending-transactions'].route}
-          element={<PendingTransactionsScreen />}
-        />
-        <Route path={routesConfig.receive.route} element={<ReceiveScreen />} />
-        <Route path={routesConfig.provider.route} element={<ProviderScreen />} />
-        <Route path={routesConfig['sign-message'].route} element={<SignMessageScreen />} />
-        <Route path={routesConfig['gas-information'].route} element={<GasInformationScreen />} />
-        <Route
-          path={routesConfig['get-encryption-public-key-request'].route}
+          path={ROTES.getEncryptionPublicKeyRequest}
           element={<GetEncryptionPublicKeyRequestScreen />}
         />
-        <Route
-          path={routesConfig['permission-request'].route}
-          element={<PermissionRequestScreen />}
-        />
-        <Route
-          path={routesConfig['switch-network'].route}
-          element={<SwitchNetworkRequestScreen />}
-        />
-        <Route path={routesConfig['watch-asset'].route} element={<WatchTokenRequestScreen />} />
+        <Route path={ROTES.permissionRequest} element={<PermissionRequestScreen />} />
+        <Route path={ROTES.switchNetwork} element={<SwitchNetworkRequestScreen />} />
+        <Route path={ROTES.watchAsset} element={<WatchTokenRequestScreen />} />
       </Route>
       <Route element={headerGamma}>
-        <Route path={routesConfig.signers.route} element={<SignersScreen />} />
+        <Route path={ROTES.signers} element={<SignersScreen />} />
       </Route>
     </Routes>
   )

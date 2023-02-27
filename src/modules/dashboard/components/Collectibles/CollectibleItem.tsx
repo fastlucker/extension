@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Image, TouchableOpacity, View } from 'react-native'
 
+import { ROTES } from '@config/Router/routesConfig'
 import FastImage from '@modules/common/components/FastImage'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
@@ -37,7 +38,7 @@ const CollectibleItem = ({
   const { navigate } = useNavigation()
 
   const handleCollectiblePress = () => {
-    navigate('collectible-screen', {
+    navigate(ROTES.collectibles, {
       state: {
         tokenId,
         network,

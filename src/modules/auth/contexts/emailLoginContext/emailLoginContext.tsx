@@ -4,6 +4,7 @@ import { Keyboard } from 'react-native'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
+import { ROTES } from '@config/Router/routesConfig'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useNavigation from '@modules/common/hooks/useNavigation'
 import useStorageController from '@modules/common/hooks/useStorageController'
@@ -137,7 +138,7 @@ const EmailLoginProvider: React.FC<any> = ({ children }: any) => {
         setItem('pendingLoginAccount', JSON.stringify(body))
         // Delete the key so that it can't be used anymore on this browser
         removeItem('loginSessionKey')
-        navigate('/ambire-account-login-password-confirm', { state: { loginType: 'email' } })
+        navigate(ROTES.ambireAccountLoginPasswordConfirm, { state: { loginType: 'email' } })
       } else {
         addToast(
           body.message
@@ -167,7 +168,7 @@ const EmailLoginProvider: React.FC<any> = ({ children }: any) => {
           addToast(`Unexpected error: ${e.message || e}`, { error: true })
         }
       } else if (pendingLoginAccount && email) {
-        navigate('/ambire-account-login-password-confirm', {
+        navigate(ROTES.ambireAccountLoginPasswordConfirm, {
           state: {
             loginType: 'email'
           }

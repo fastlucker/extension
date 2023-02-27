@@ -2,6 +2,7 @@ import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import { ROTES } from '@config/Router/routesConfig'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import Button, { Props as ButtonDefaultProps } from '@modules/common/components/Button'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
@@ -37,13 +38,13 @@ const AuthScreen = () => {
         <View style={flexboxStyles.flex1}>
           <AuthButton
             text={t('Login With Email')}
-            routeName="ambireAccountLogin"
+            routeName={ROTES.ambireAccountLogin}
             onPress={handleAuthButtonPress}
             hasBottomSpacing={false}
           />
           <AuthButton
             text={t('Hardware Wallet')}
-            routeName="hardwareWallet"
+            routeName={ROTES.hardwareWallet}
             onPress={handleAuthButtonPress}
             style={spacings.mbLg}
           />
@@ -53,19 +54,19 @@ const AuthScreen = () => {
           <AuthButton
             text={t('Import From JSON')}
             type="outline"
-            routeName="ambireAccountJsonLogin"
+            routeName={ROTES.ambireAccountJsonLogin}
             onPress={handleAuthButtonPress}
           />
           <AuthButton
             text={t('Login By QR Code')}
             type="outline"
-            routeName="qrCodeLogin"
+            routeName={ROTES.qrCodeLogin}
             onPress={handleAuthButtonPress}
           />
           <AuthButton
             text={t('Login with External Signer')}
             type="outline"
-            routeName="externalSigner"
+            routeName={ROTES.externalSigner}
             onPress={handleAuthButtonPress}
           />
         </View>

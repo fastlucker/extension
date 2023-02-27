@@ -8,6 +8,7 @@ import { Keyboard } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
+import { ROTES } from '@config/Router/routesConfig'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useEOA from '@modules/common/hooks/useEOA'
 import useNavigation from '@modules/common/hooks/useNavigation'
@@ -125,7 +126,7 @@ const JsonLoginProvider: React.FC<any> = ({ children }: any) => {
       if (accountType === 'quickAcc') {
         setPendingLoginWithQuickAccountData(fileContent)
         setInProgress(false)
-        return navigate('/ambire-account-json-login-password-confirm', {
+        return navigate(ROTES.ambireAccountJsonLoginPasswordConfirm, {
           state: {
             loginType: 'json'
           }
@@ -134,7 +135,7 @@ const JsonLoginProvider: React.FC<any> = ({ children }: any) => {
 
       if (accountType === 'ledger' && !isWeb) {
         return onEOASelected(fileContent.signer.address, fileContent.signerExtra)
-          ?.then(() => navigate('/dashboard'))
+          ?.then(() => navigate(ROTES.dashboard))
           .catch(() =>
             setError(
               t(

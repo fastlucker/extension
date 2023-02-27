@@ -5,6 +5,7 @@ import React, { useCallback, useMemo } from 'react'
 import { View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import { ROTES } from '@config/Router/routesConfig'
 import Button from '@modules/common/components/Button'
 import Text from '@modules/common/components/Text'
 import useNavigation from '@modules/common/hooks/useNavigation'
@@ -54,10 +55,10 @@ const Tokens = ({
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
   const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')
 
-  const handleGoToDeposit = () => navigation.navigate('/receive')
+  const handleGoToDeposit = () => navigation.navigate(ROTES.receive)
   const handleGoToSend = useCallback(
     (symbol: string) =>
-      navigation.navigate('/send', {
+      navigation.navigate(ROTES.send, {
         state: {
           tokenAddressOrSymbol: symbol.toString()
         }

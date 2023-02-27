@@ -11,8 +11,9 @@ import useNetInfo from '@modules/common/hooks/useNetInfo'
 import flexbox from '@modules/common/styles/utils/flexbox'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
-import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import { getUiType } from '@web/utils/uiType'
+
+import { ROTES } from './routesConfig'
 
 const Router = () => {
   const { authStatus } = useAuth()
@@ -35,15 +36,15 @@ const Router = () => {
     }
 
     if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED) {
-      return navigate('/get-started')
+      return navigate(ROTES.getStarted)
     }
 
     if (vaultStatus === VAULT_STATUS.LOCKED) {
-      return navigate('/unlock-vault')
+      return navigate(ROTES.unlockVault)
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      return navigate('/auth')
+      return navigate(ROTES.auth)
     }
 
     // TODO:
@@ -54,28 +55,28 @@ const Router = () => {
     // }
     if (approval && isInNotification) {
       if (approval?.data?.approvalComponent === 'PermissionRequest') {
-        return navigate('permission-request')
+        return navigate(ROTES.permissionRequest)
       }
       if (approval?.data?.approvalComponent === 'SendTransaction') {
-        return navigate('pending-transactions')
+        return navigate(ROTES.pendingTransactions)
       }
       if (approval?.data?.approvalComponent === 'SignText') {
-        return navigate('sign-message')
+        return navigate(ROTES.signMessage)
       }
       if (approval?.data?.approvalComponent === 'SignTypedData') {
-        return navigate('sign-message')
+        return navigate(ROTES.signMessage)
       }
       if (approval?.data?.approvalComponent === 'SwitchNetwork') {
-        return navigate('switch-network')
+        return navigate(ROTES.switchNetwork)
       }
       if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
-        return navigate('watch-asset')
+        return navigate(ROTES.watchAsset)
       }
       if (approval?.data?.approvalComponent === 'GetEncryptionPublicKey') {
-        return navigate('get-encryption-public-key-request')
+        return navigate(ROTES.getEncryptionPublicKeyRequest)
       }
     } else {
-      navigate('/dashboard')
+      navigate(ROTES.dashboard)
     }
   }, [isInNotification, vaultStatus, approval, navigate, authStatus])
 

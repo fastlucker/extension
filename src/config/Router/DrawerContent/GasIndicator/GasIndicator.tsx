@@ -6,6 +6,7 @@ import { TouchableOpacity } from 'react-native'
 import GasTankIcon from '@assets/svg/GasTankIcon'
 import CONFIG, { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
+import { ROTES } from '@config/Router/routesConfig'
 import Text from '@modules/common/components/Text'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import { fetchGet } from '@modules/common/services/fetch'
@@ -57,7 +58,7 @@ const GasIndicator = ({ handleNavigate }: Props) => {
           top: 10,
           bottom: 5
         }}
-        onPress={() => handleNavigate('/gas-information')}
+        onPress={() => handleNavigate(ROTES.gasInformation)}
       >
         <Text fontSize={14} color={colors.titan_50}>
           {network?.nativeAssetSymbol}

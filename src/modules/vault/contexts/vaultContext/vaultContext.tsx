@@ -2,7 +2,6 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import { StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
@@ -13,7 +12,6 @@ import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useNavigation from '@modules/common/hooks/useNavigation'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
-import { navigate as mobileNav } from '@modules/common/services/navigation'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { KEY_LOCK_KEYSTORE_WHEN_INACTIVE } from '@modules/vault/constants/storageKeys'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
@@ -33,7 +31,7 @@ const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
-  const { navigate: webNav } = useNavigation()
+  const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { extensionWallet } = useExtensionWallet()
   const { onRemoveAllAccounts } = useAccounts()
@@ -137,7 +135,7 @@ const VaultProvider: React.FC = ({ children }) => {
         resolveApproval(true)
       }
 
-      !!nextRoute && isWeb ? webNav(`/${nextRoute}`) : mobileNav(`/${nextRoute}`)
+      !!nextRoute && navigate(nextRoute)
       return Promise.resolve()
     },
     [
@@ -146,7 +144,7 @@ const VaultProvider: React.FC = ({ children }) => {
       requestVaultControllerMethod,
       addKeystorePasswordToDeviceSecureStore,
       resolveApproval,
-      webNav
+      navigate
     ]
   )
 

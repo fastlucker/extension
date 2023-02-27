@@ -26,6 +26,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import useVault from '@modules/vault/hooks/useVault'
 
+import { ROTES } from '../routesConfig'
 import ConnectedDapps from './ConnectedDapps'
 import GasIndicator from './GasIndicator'
 import ManageVaultLockButton from './ManageVaultLockButton'
@@ -52,17 +53,17 @@ const DrawerContent = () => {
   )
 
   const menu = [
-    { Icon: DashboardIcon, name: t('Dashboard'), route: '/dashboard' },
+    { Icon: DashboardIcon, name: t('Dashboard'), route: ROTES.dashboard },
     // TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback
-    ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: '/earn' }] : []),
-    { Icon: SendIcon, name: t('Send'), route: 'send' },
+    ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: ROTES.earn }] : []),
+    { Icon: SendIcon, name: t('Send'), route: ROTES.send },
     // TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback
-    ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: '/swap' }] : []),
-    { Icon: TransferIcon, name: t('Transactions'), route: '/transactions' },
+    ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: ROTES.swap }] : []),
+    { Icon: TransferIcon, name: t('Transactions'), route: ROTES.transactions },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
-    { Icon: DepositIcon, name: t('Deposit'), route: '/receive' },
-    { Icon: GasTankIcon, name: t('Gas Tank'), route: '/gas-tank' }
+    { Icon: DepositIcon, name: t('Deposit'), route: ROTES.receive },
+    { Icon: GasTankIcon, name: t('Gas Tank'), route: ROTES.gasTank }
   ]
 
   const help = [
@@ -72,7 +73,7 @@ const DrawerContent = () => {
   ]
 
   const settings = [
-    { name: t('Signers'), route: 'signers' }
+    { name: t('Signers'), route: ROTES.signers }
     // TODO: Not implemented yet.
     // { name: t('Security'), route: 'security' }
   ]

@@ -33,7 +33,7 @@ import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
-import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
+import { navigate } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
@@ -61,10 +61,10 @@ import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
-import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import { drawerStyle, navigationContainerDarkTheme } from './styles'
+import { ROTES } from './routesConfig'
+import { drawerStyle } from './styles'
 
 const Tab = createBottomTabNavigator()
 const Stack = createNativeStackNavigator()
@@ -85,7 +85,7 @@ const SignersStackScreen = () => {
   return (
     <SignersStack.Navigator screenOptions={{ header: headerGamma }}>
       <SignersStack.Screen
-        name="signers-screen"
+        name={`${ROTES.signers}-screen`}
         component={SignersScreen}
         options={{
           title: t('Manage Signers')
@@ -101,7 +101,7 @@ const DataDeletionPolicyStackScreen = () => {
   return (
     <DataDeletionPolicyStack.Navigator screenOptions={{ header: headerBeta }}>
       <DataDeletionPolicyStack.Screen
-        name="data-deletion-policy-screen"
+        name={`${ROTES.dataDeletionPolicy}-screen`}
         component={DataDeletionPolicyScreen}
         options={{
           title: t('Data Deletion Policy')
@@ -114,7 +114,7 @@ const DataDeletionPolicyStackScreen = () => {
 const GasTankStackScreen = () => {
   return (
     <GasTankStack.Navigator screenOptions={{ header: headerGamma }}>
-      <GasTankStack.Screen name="gas-tank-screen" component={GasTankScreen} />
+      <GasTankStack.Screen name={`${ROTES.gasTank}-screen`} component={GasTankScreen} />
     </GasTankStack.Navigator>
   )
 }
@@ -122,7 +122,10 @@ const GasTankStackScreen = () => {
 const GasInformationStackScreen = () => {
   return (
     <GasInformationStack.Navigator screenOptions={{ header: headerGamma }}>
-      <GasInformationStack.Screen name="gas-information-screen" component={GasInformationScreen} />
+      <GasInformationStack.Screen
+        name={`${ROTES.gasInformation}-screen`}
+        component={GasInformationScreen}
+      />
     </GasInformationStack.Navigator>
   )
 }
@@ -133,7 +136,7 @@ const ManageVaultLockStackScreen = () => {
   return (
     <ManageVaultLockStack.Navigator screenOptions={{ header: headerBeta }}>
       <ManageVaultLockStack.Screen
-        name="manage-vault-lock-screen"
+        name={`${ROTES.manageVaultLock}-screen`}
         component={ManageVaultLockScreen}
         options={{
           title: t('Manage Key Store Lock')
@@ -150,12 +153,12 @@ const EmailLoginStackScreen = () => {
     <EmailLoginProvider>
       <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
         <EmailLoginStack.Screen
-          name="emailLogin"
+          name={`${ROTES.ambireAccountLogin}-screen`}
           options={{ title: t('Login') }}
           component={EmailLoginScreen}
         />
         <EmailLoginStack.Screen
-          name="addAccountPasswordToVault"
+          name={ROTES.ambireAccountLoginPasswordConfirm}
           options={{ title: t('Login') }}
           component={AddAccountPasswordToVaultScreen}
         />
@@ -171,12 +174,12 @@ const JsonLoginStackScreen = () => {
     <JsonLoginProvider>
       <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
         <JsonLoginStack.Screen
-          name="jsonLogin"
+          name={`${ROTES.ambireAccountJsonLogin}-screen`}
           options={{ title: t('Import from JSON') }}
           component={JsonLoginScreen}
         />
         <JsonLoginStack.Screen
-          name="addAccountPasswordToVault"
+          name={ROTES.ambireAccountJsonLoginPasswordConfirm}
           options={{ title: t('Login') }}
           component={AddAccountPasswordToVaultScreen}
         />
@@ -196,25 +199,25 @@ const AuthStack = () => {
 
   const initialRouteName =
     vaultStatus === VAULT_STATUS.NOT_INITIALIZED
-      ? 'createVaultGetStarted'
+      ? ROTES.getStarted
       : // Checks whether there is a pending email login attempt. It happens when user
       // request email login and closes the app. When the app is opened
       // the second time - an immediate email login attempt will be triggered.
       getItem('pendingLoginEmail')
-      ? 'ambireAccountLogin'
-      : 'auth'
+      ? ROTES.ambireAccountLogin
+      : `${ROTES.auth}-screen`
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <>
           <Stack.Screen
-            name="createVaultGetStarted"
+            name={ROTES.getStarted}
             options={{ title: t('Welcome') }}
             component={VaultSetupGetStartedScreen}
           />
           <Stack.Screen
-            name="createVault"
+            name={ROTES.createVault}
             options={{ title: t('Setup Ambire Key Store') }}
             component={CreateNewVaultScreen}
           />
@@ -222,31 +225,31 @@ const AuthStack = () => {
       )}
       <Stack.Screen
         options={{ title: t('Welcome to Ambire') }}
-        name="auth"
+        name={`${ROTES.auth}-screen`}
         component={AuthScreen}
       />
       <Stack.Screen
-        name="ambireAccountLogin"
+        name={ROTES.ambireAccountLogin}
         options={{ title: t('Login'), headerShown: false }}
         component={EmailLoginStackScreen}
       />
       <Stack.Screen
-        name="ambireAccountJsonLogin"
+        name={ROTES.ambireAccountJsonLogin}
         options={{ title: t('Import from JSON'), headerShown: false }}
         component={JsonLoginStackScreen}
       />
       <Stack.Screen
-        name="qrCodeLogin"
+        name={ROTES.qrCodeLogin}
         options={{ title: t('Import with QR Code') }}
         component={QRCodeLoginScreen}
       />
       <Stack.Screen
-        name="hardwareWallet"
+        name={ROTES.hardwareWallet}
         options={{ title: t('Hardware Wallet') }}
         component={HardwareWalletConnectScreen}
       />
       <Stack.Screen
-        name="externalSigner"
+        name={ROTES.externalSigner}
         options={{ title: t('Login with External Signer') }}
         component={ExternalSignerScreen}
       />
@@ -265,7 +268,7 @@ const NoConnectionStack = () => {
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
       <Stack.Screen
         options={{ title: t('No connection') }}
-        name="no-connection"
+        name={ROTES.noConnection}
         component={NoConnectionScreen}
       />
     </Stack.Navigator>
@@ -304,12 +307,12 @@ const VaultStack = () => {
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
       <Stack.Screen
-        name="unlockVault"
+        name={ROTES.unlockVault}
         options={{ title: t('Welcome Back') }}
         component={renderUnlockVaultScreen}
       />
       <Stack.Screen
-        name="resetVault"
+        name={ROTES.resetVault}
         options={{ title: t('Reset Ambire Key Store') }}
         component={renderResetVaultScreen}
       />
@@ -352,7 +355,7 @@ const TabsScreens = () => {
       )}
     >
       <Tab.Screen
-        name="dashboard"
+        name={ROTES.dashboard}
         options={{
           tabBarLabel: t('Dashboard'),
           headerTitle: t('Dashboard'),
@@ -366,7 +369,7 @@ const TabsScreens = () => {
       {/* Also excluded from the bundle by including an empty EarnScreen.ios.tsx */}
       {isAndroid && (
         <Tab.Screen
-          name="earn"
+          name={ROTES.earn}
           options={{
             tabBarLabel: t('Earn'),
             headerTitle: t('Earn'),
@@ -378,7 +381,7 @@ const TabsScreens = () => {
         />
       )}
       <Tab.Screen
-        name="send"
+        name={ROTES.send}
         options={{
           tabBarLabel: t('Send'),
           headerTitle: t('Send'),
@@ -389,7 +392,7 @@ const TabsScreens = () => {
         component={SendScreen}
       />
       <Tab.Screen
-        name="swap"
+        name={ROTES.swap}
         options={{
           tabBarLabel: t('Swap'),
           headerTitle: t('Swap'),
@@ -400,7 +403,7 @@ const TabsScreens = () => {
         component={SwapScreen}
       />
       <Tab.Screen
-        name="transactions"
+        name={ROTES.transactions}
         options={{
           tabBarLabel: t('Transactions'),
           headerTitle: t('Transactions'),
@@ -442,13 +445,13 @@ const AppStack = () => {
     // user requests email login and closes the the app. When the app is opened
     // the second time - an immediate email login attempt will be triggered.
     // Redirect the user instead of using the `initialRouteName`,
-    // because when 'auth-add-account' is set for `initialRouteName`,
+    // because when '/auth' is set for `initialRouteName`,
     // the 'drawer' route never gets rendered, and therefore - upon successful
     // login attempt - the redirection to the 'dashboard' route breaks -
     // because this route doesn't exist (it's never being rendered).
     const shouldAttemptLogin = !!getItem('pendingLoginEmail')
     if (shouldAttemptLogin) {
-      navigate('auth-add-account')
+      navigate(ROTES.auth)
     }
   }, [getItem])
 
@@ -463,58 +466,54 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="signers"
+        name={ROTES.signers}
         component={SignersStackScreen}
       />
       <MainStack.Screen
-        name="data-deletion-policy"
+        name={ROTES.dataDeletionPolicy}
         component={DataDeletionPolicyStackScreen}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="manage-vault-lock"
+        name={ROTES.manageVaultLock}
         component={ManageVaultLockStackScreen}
       />
-      <MainStack.Screen
-        name="auth-add-account"
-        component={AuthStack}
-        options={{ headerShown: false }}
-      />
+      <MainStack.Screen name={ROTES.auth} component={AuthStack} options={{ headerShown: false }} />
       {isAndroid && (
         <MainStack.Screen
-          name="connect"
+          name={ROTES.connect}
           component={ConnectScreen}
           options={{ title: t('Connect a dApp') }}
         />
       )}
       <MainStack.Screen
-        name="receive"
+        name={ROTES.receive}
         options={{ header: headerGamma }}
         component={ReceiveScreen}
       />
       <MainStack.Screen
-        name="provider"
+        name={ROTES.provider}
         options={{ title: t('Receive') }}
         component={ProviderScreen}
       />
       <MainStack.Screen
-        name="pending-transactions"
+        name={ROTES.pendingTransactions}
         component={PendingTransactionsScreen}
         options={{ title: t('Pending Transaction') }}
       />
       <MainStack.Screen
-        name="sign-message"
+        name={ROTES.signMessage}
         component={SignMessageScreen}
         options={{ title: t('Sign') }}
       />
       <MainStack.Screen
-        name="gas-tank"
+        name={ROTES.gasTank}
         component={GasTankStackScreen}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
-        name="gas-information"
+        name={ROTES.gasInformation}
         component={GasInformationStackScreen}
         options={{ headerShown: false }}
       />
@@ -527,59 +526,37 @@ const Router = () => {
   const { connectionState } = useNetInfo()
   const { vaultStatus } = useVault()
 
-  const renderContent = useCallback(() => {
-    if (connectionState === ConnectionStates.NOT_CONNECTED) {
-      return <NoConnectionStack />
-    }
+  if (connectionState === ConnectionStates.NOT_CONNECTED) {
+    return <NoConnectionStack />
+  }
 
-    // Vault loads in async manner, so always wait until it's being loaded,
-    // otherwise - other routes flash beforehand.
-    if (vaultStatus === VAULT_STATUS.LOADING) return null
+  // Vault loads in async manner, so always wait until it's being loaded,
+  // otherwise - other routes flash beforehand.
+  if (vaultStatus === VAULT_STATUS.LOADING) return null
 
-    // When locked, always prompt the user to unlock it first.
-    if (VAULT_STATUS.LOCKED === vaultStatus) {
+  // When locked, always prompt the user to unlock it first.
+  if (VAULT_STATUS.LOCKED === vaultStatus) {
+    return <VaultStack />
+  }
+
+  // When not authenticated, take him to the Auth screens first,
+  // even without having a vault initialized yet.
+  if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
+    return <AuthStack />
+  }
+
+  if (authStatus === AUTH_STATUS.AUTHENTICATED) {
+    if (VAULT_STATUS.NOT_INITIALIZED === vaultStatus) {
       return <VaultStack />
     }
 
-    // When not authenticated, take him to the Auth screens first,
-    // even without having a vault initialized yet.
-    if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      return <AuthStack />
+    if (vaultStatus === VAULT_STATUS.UNLOCKED || vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
+      return <AppStack />
     }
-
-    if (authStatus === AUTH_STATUS.AUTHENTICATED) {
-      if (VAULT_STATUS.NOT_INITIALIZED === vaultStatus) {
-        return <VaultStack />
-      }
-
-      if (
-        vaultStatus === VAULT_STATUS.UNLOCKED ||
-        vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY
-      ) {
-        return <AppStack />
-      }
-    }
-
-    // authStatus === AUTH_STATUS.LOADING or anything else:
-    return null
-  }, [connectionState, authStatus, vaultStatus])
-
-  const handleOnReady = () => {
-    // @ts-ignore for some reason TS complains about this 👇
-    routeNameRef.current = navigationRef.current.getCurrentRoute()?.name
   }
 
-  return (
-    <NavigationContainer
-      // Part of the mechanism for being able to navigate without the navigation prop.
-      // For more details, see the NavigationService.
-      ref={navigationRef}
-      onReady={handleOnReady}
-      theme={navigationContainerDarkTheme}
-    >
-      {renderContent()}
-    </NavigationContainer>
-  )
+  // authStatus === AUTH_STATUS.LOADING or anything else:
+  return null
 }
 
 export default Router

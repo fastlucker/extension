@@ -1,10 +1,11 @@
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
-import React, { Fragment } from 'react'
+import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 
 import { isWeb } from '@config/env'
 import AppRouter from '@config/Router'
+import { navigationContainerDarkTheme } from '@config/Router/styles'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { AuthProvider } from '@modules/auth/contexts/authContext'
 import AttentionGrabberProvider from '@modules/common/components/AttentionGrabber'
@@ -31,8 +32,10 @@ import { ToastProvider } from '@modules/common/contexts/toastContext'
 import { UnsupportedDAppsBottomSheetProvider } from '@modules/common/contexts/unsupportedDAppsBottomSheetContext'
 import { WalletConnectProvider } from '@modules/common/contexts/walletConnectContext'
 import useFonts from '@modules/common/hooks/useFonts'
+import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
 import { rpcProviders } from '@modules/common/services/providers'
 import { VaultProvider } from '@modules/vault/contexts/vaultContext'
+import { NavigationContainer } from '@react-navigation/native'
 import { isExtension } from '@web/constants/browserapi'
 
 // Initialize rpc providers for all networks
@@ -41,7 +44,26 @@ if (shouldInitProviders) {
   initRpcProviders(rpcProviders)
 }
 
-const Router = isExtension ? MemoryRouter : isWeb ? BrowserRouter : Fragment
+const handleOnReady = () => {
+  // @ts-ignore for some reason TS complains about this 👇
+  routeNameRef.current = navigationRef.current.getCurrentRoute()?.name
+}
+
+const Router = isExtension
+  ? MemoryRouter
+  : isWeb
+  ? BrowserRouter
+  : ({ children }) => (
+      <NavigationContainer
+        // Part of the mechanism for being able to navigate without the navigation prop.
+        // For more details, see the NavigationService.
+        ref={navigationRef}
+        onReady={handleOnReady}
+        theme={navigationContainerDarkTheme}
+      >
+        {children}
+      </NavigationContainer>
+    )
 
 const AppLoading = () => {
   const { fontsLoaded } = useFonts()

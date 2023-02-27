@@ -29,6 +29,7 @@ import {
 } from '@react-navigation/drawer'
 
 import useGetSelectedRoute from '../hooks/useGetSelectedRoute'
+import { ROTES } from '../routesConfig'
 import ConnectedDapps from './ConnectedDapps'
 import GasIndicator from './GasIndicator'
 import ManageVaultLockButton from './ManageVaultLockButton'
@@ -70,16 +71,16 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   )
 
   const menu = [
-    { Icon: DashboardIcon, name: t('Dashboard'), route: 'dashboard' },
+    { Icon: DashboardIcon, name: t('Dashboard'), route: ROTES.dashboard },
     // TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback
-    ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: 'earn' }] : []),
-    { Icon: SendIcon, name: t('Send'), route: 'send' },
-    { Icon: SwapIcon, name: t('Swap'), route: 'swap' },
-    { Icon: TransferIcon, name: t('Transactions'), route: 'transactions' },
+    ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: ROTES.earn }] : []),
+    { Icon: SendIcon, name: t('Send'), route: ROTES.send },
+    { Icon: SwapIcon, name: t('Swap'), route: ROTES.swap },
+    { Icon: TransferIcon, name: t('Transactions'), route: ROTES.transactions },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
-    { Icon: DepositIcon, name: t('Deposit'), route: 'receive' },
-    { Icon: GasTankIcon, name: t('Gas Tank'), route: 'gas-tank' }
+    { Icon: DepositIcon, name: t('Deposit'), route: ROTES.receive },
+    { Icon: GasTankIcon, name: t('Gas Tank'), route: ROTES.gasTank }
   ]
 
   const help = [
@@ -89,11 +90,11 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   ]
 
   const additionalInfo = [
-    ...(!isWeb ? [{ name: t('Data Deletion Policy'), route: 'data-deletion-policy' }] : [])
+    ...(!isWeb ? [{ name: t('Data Deletion Policy'), route: ROTES.dataDeletionPolicy }] : [])
   ]
 
   const settings = [
-    { name: t('Signers'), route: 'signers' }
+    { name: t('Signers'), route: ROTES.signers }
     // TODO: Not implemented yet.
     // { name: t('Security'), route: 'security' }
   ]

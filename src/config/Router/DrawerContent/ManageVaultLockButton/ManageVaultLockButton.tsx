@@ -2,6 +2,7 @@ import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import { useTranslation } from '@config/localization'
+import { ROTES } from '@config/Router/routesConfig'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
@@ -24,7 +25,7 @@ const ManageVaultLockButton: React.FC<Props> = ({ handleNavigate }) => {
     )
 
   return (
-    <TouchableOpacity onPress={() => handleNavigate('/manage-vault-lock')} style={spacings.mbSm}>
+    <TouchableOpacity onPress={() => handleNavigate(ROTES.manageVaultLock)} style={spacings.mbSm}>
       <Text color={colors.titan_50}>{t('Manage Key Store lock')}</Text>
     </TouchableOpacity>
   )

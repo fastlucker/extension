@@ -1,132 +1,181 @@
+export enum ROTES {
+  unlockVault = 'unlock-vault',
+  resetVault = 'reset-vault',
+  noConnection = 'no-connection',
+  getStarted = 'get-started',
+  createVault = 'create-vault',
+  auth = 'auth',
+  ambireAccountLogin = 'ambire-account-login',
+  ambireAccountLoginPasswordConfirm = 'ambire-account-login-password-confirm',
+  ambireAccountJsonLogin = 'ambire-account-json-login',
+  ambireAccountJsonLoginPasswordConfirm = 'ambire-account-json-login-password-confirm',
+  qrCodeLogin = 'qr-code-login',
+  hardwareWallet = 'hardware-wallet',
+  externalSigner = 'external-signer',
+  dashboard = 'dashboard',
+  collectibles = 'collectibles',
+  earn = 'earn',
+  send = 'send',
+  transactions = 'transactions',
+  gasTank = 'gas-tank',
+  pendingTransactions = 'pending-transactions',
+  receive = 'receive',
+  provider = 'provider',
+  signMessage = 'sign-message',
+  gasInformation = 'gas-information',
+  signers = 'signers',
+  permissionRequest = 'permission-request',
+  switchNetwork = 'switch-network',
+  watchAsset = 'watch-asset',
+  menu = 'menu',
+  manageVaultLock = 'manage-vault-lock',
+  getEncryptionPublicKeyRequest = 'get-encryption-public-key-request',
+  dataDeletionPolicy = 'data-deletion-policy',
+  connect = 'connect',
+  swap = 'swap'
+}
+
 const routesConfig: {
   [key: string]: {
     route: string
     title: string
   }
 } = {
-  'unlock-vault': {
-    route: 'unlock-vault',
+  [ROTES.unlockVault]: {
+    route: ROTES.unlockVault,
     title: 'Welcome Back'
   },
-  'reset-vault': {
-    route: 'reset-vault',
+  [ROTES.resetVault]: {
+    route: ROTES.resetVault,
     title: 'Reset your\nAmbire Key Store Lock'
   },
-  'no-connection': {
-    route: 'no-connection',
+  [ROTES.noConnection]: {
+    route: ROTES.noConnection,
     title: 'No Connection'
   },
-  'get-started': {
-    route: 'get-started',
+  [ROTES.getStarted]: {
+    route: ROTES.getStarted,
     title: 'Welcome'
   },
-  'create-vault': {
-    route: 'create-vault',
+  [ROTES.createVault]: {
+    route: ROTES.createVault,
     title: 'Setup Your Ambire Key Store'
   },
-  auth: {
-    route: 'auth',
+  [ROTES.auth]: {
+    route: ROTES.auth,
     title: 'Welcome to\nAmbire Wallet Extension'
   },
-  'ambire-account-login': {
-    route: 'ambire-account-login',
+  [ROTES.ambireAccountLogin]: {
+    route: ROTES.ambireAccountLogin,
     title: 'Login'
   },
-  'ambire-account-login-password-confirm': {
-    route: 'ambire-account-login-password-confirm',
+  [ROTES.ambireAccountLoginPasswordConfirm]: {
+    route: ROTES.ambireAccountLoginPasswordConfirm,
     title: 'Confirm Account Password'
   },
-  'ambire-account-json-login': {
-    route: 'ambire-account-json-login',
+  [ROTES.ambireAccountJsonLogin]: {
+    route: ROTES.ambireAccountJsonLogin,
     title: 'Import from JSON'
   },
-  'ambire-account-json-login-password-confirm': {
-    route: 'ambire-account-json-login-password-confirm',
+  [ROTES.ambireAccountJsonLoginPasswordConfirm]: {
+    route: ROTES.ambireAccountJsonLoginPasswordConfirm,
     title: 'Confirm Account Password'
   },
-  'qr-code-login': {
-    route: 'qr-code-login',
+  [ROTES.qrCodeLogin]: {
+    route: ROTES.qrCodeLogin,
     title: 'Import with QR Code'
   },
-  'hardware-wallet': {
-    route: 'hardware-wallet',
+  [ROTES.hardwareWallet]: {
+    route: ROTES.hardwareWallet,
     title: 'Login with Hardware Wallet'
   },
-  'external-signer': {
-    route: 'external-signer',
+  [ROTES.externalSigner]: {
+    route: ROTES.externalSigner,
     title: 'Login with External Signer'
   },
-  dashboard: {
-    route: 'dashboard',
+  [ROTES.dashboard]: {
+    route: ROTES.dashboard,
     title: 'Dashboard'
   },
-  collectibles: {
-    route: 'collectibles',
+  [ROTES.collectibles]: {
+    route: ROTES.collectibles,
     title: 'Collectibles'
   },
-  earn: {
-    route: 'earn',
+  [ROTES.earn]: {
+    route: ROTES.earn,
     title: 'Earn'
   },
-  send: {
-    route: 'send',
+  [ROTES.send]: {
+    route: ROTES.send,
     title: 'Send'
   },
-  transactions: {
-    route: 'transactions',
+  [ROTES.transactions]: {
+    route: ROTES.transactions,
     title: 'Transactions'
   },
-  'gas-tank': {
-    route: 'gas-tank',
+  [ROTES.gasTank]: {
+    route: ROTES.gasTank,
     title: 'Gas Tank'
   },
-  'pending-transactions': {
-    route: 'pending-transactions',
+  [ROTES.pendingTransactions]: {
+    route: ROTES.pendingTransactions,
     title: 'Pending Transactions'
   },
-  receive: {
-    route: 'receive',
+  [ROTES.receive]: {
+    route: ROTES.receive,
     title: 'Receive'
   },
-  provider: {
-    route: 'provider',
+  [ROTES.provider]: {
+    route: ROTES.provider,
     title: 'Provider'
   },
-  'sign-message': {
-    route: 'sign-message',
+  [ROTES.signMessage]: {
+    route: ROTES.signMessage,
     title: 'Sign Message'
   },
-  'gas-information': {
-    route: 'gas-information',
+  [ROTES.gasInformation]: {
+    route: ROTES.gasInformation,
     title: 'Gas Information'
   },
-  signers: {
-    route: 'signers',
+  [ROTES.signers]: {
+    route: ROTES.signers,
     title: 'Manage Signers'
   },
-  'permission-request': {
-    route: 'permission-request',
+  [ROTES.permissionRequest]: {
+    route: ROTES.permissionRequest,
     title: 'Webpage Wants to Connect'
   },
-  'switch-network': {
-    route: 'switch-network',
+  [ROTES.switchNetwork]: {
+    route: ROTES.switchNetwork,
     title: 'Webpage Wants to Switch Network'
   },
-  'watch-asset': {
-    route: 'watch-asset',
+  [ROTES.watchAsset]: {
+    route: ROTES.watchAsset,
     title: 'Webpage Wants to Add Token'
   },
-  menu: {
-    route: 'menu',
-    title: ''
+  [ROTES.menu]: {
+    route: ROTES.menu,
+    title: 'Menu'
   },
-  'manage-vault-lock': {
-    route: 'manage-vault-lock',
+  [ROTES.manageVaultLock]: {
+    route: ROTES.manageVaultLock,
     title: 'Manage Key Store Lock'
   },
-  'get-encryption-public-key-request': {
-    route: 'get-encryption-public-key-request',
+  [ROTES.getEncryptionPublicKeyRequest]: {
+    route: ROTES.getEncryptionPublicKeyRequest,
     title: 'Get Encryption Public Key Request'
+  },
+  [ROTES.dataDeletionPolicy]: {
+    route: ROTES.dataDeletionPolicy,
+    title: 'Data Deletion Policy'
+  },
+  [ROTES.connect]: {
+    route: ROTES.connect,
+    title: 'Connect a dApp'
+  },
+  [ROTES.swap]: {
+    route: ROTES.swap,
+    title: 'Swap'
   }
 }
 
