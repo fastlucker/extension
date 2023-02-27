@@ -13,7 +13,7 @@ import { getUiType } from '@web/utils/uiType'
 
 import { ROUTES } from './routesConfig'
 
-const Router = () => {
+const SortHat = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
   const { approval } = useExtensionApproval()
@@ -86,4 +86,4 @@ const Router = () => {
   )
 }
 
-export default Router
+export default SortHat

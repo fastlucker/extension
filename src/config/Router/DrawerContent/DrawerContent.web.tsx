@@ -92,7 +92,7 @@ const DrawerContent = () => {
             flexboxStyles.directionRow,
             flexboxStyles.justifySpaceBetween,
             flexboxStyles.alignCenter,
-            spacings.mbTy
+            spacings.mbMd
           ]}
         >
           <GasIndicator handleNavigate={handleNavigate} />
@@ -108,43 +108,48 @@ const DrawerContent = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={spacings.mhTy}>
-          <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
-            {t('Menu')}
-          </Text>
-          <View style={[spacings.mlTy, spacings.mbMd]}>
-            {menu.map(({ Icon, name, route }) => {
-              const isActive = pathname === route
-              return (
-                <TouchableOpacity
-                  key={name}
-                  onPress={() => handleNavigate(route)}
-                  style={[styles.menuItem]}
-                >
-                  {isActive && <View style={styles.activeMenuItem} />}
-                  {!!Icon && <Icon color={isActive ? colors.titan : colors.titan_50} />}
-                  <Text style={spacings.mlTy} color={isActive ? colors.titan : colors.titan_50}>
-                    {name}
-                  </Text>
-                </TouchableOpacity>
-              )
-            })}
-          </View>
-
-          <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
-            {t('Settings')}
-          </Text>
-          <View style={[spacings.mlTy, spacings.mbSm]}>
-            <ConnectedDapps />
-            {!isWeb && <ManageVaultLockButton handleNavigate={handleNavigate} />}
-            <Theme />
-            {settings.map((s) => (
-              <TouchableOpacity key={s.name} onPress={() => handleNavigate(s.route)}>
-                <Text style={spacings.mbSm} color={colors.titan_50}>
-                  {s.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
+        <View style={spacings.mh}>
+          <View style={flexboxStyles.directionRow}>
+            <View style={flexboxStyles.flex1}>
+              <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
+                {t('Menu')}
+              </Text>
+              <View style={[spacings.mlTy, spacings.mbMd]}>
+                {menu.map(({ Icon, name, route }) => {
+                  const isActive = pathname === route
+                  return (
+                    <TouchableOpacity
+                      key={name}
+                      onPress={() => handleNavigate(route)}
+                      style={[styles.menuItem]}
+                    >
+                      {isActive && <View style={styles.activeMenuItem} />}
+                      {!!Icon && <Icon color={isActive ? colors.titan : colors.titan_50} />}
+                      <Text style={spacings.mlTy} color={isActive ? colors.titan : colors.titan_50}>
+                        {name}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            </View>
+            <View style={[flexboxStyles.flex1, spacings.pl]}>
+              <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
+                {t('Settings')}
+              </Text>
+              <View style={[spacings.mlTy, spacings.mbSm]}>
+                <ConnectedDapps />
+                {!isWeb && <ManageVaultLockButton handleNavigate={handleNavigate} />}
+                <Theme />
+                {settings.map((s) => (
+                  <TouchableOpacity key={s.name} onPress={() => handleNavigate(s.route)}>
+                    <Text style={spacings.mbSm} color={colors.titan_50}>
+                      {s.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
           </View>
 
           {help.map(({ name, url }) => (
