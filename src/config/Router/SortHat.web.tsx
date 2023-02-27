@@ -42,7 +42,7 @@ const SortHat = () => {
       return navigate(ROUTES.auth)
     }
 
-    // TODO:
+    // TODO: check if needed when switching from popup to tab view
     // if ((await extensionWallet.hasPageStateCache()) && !isInNotification && !isInTab && !approval) {
     //   const cache = (await extensionWallet.getPageStateCache())!
     //   setTo(cache.path + (cache.search || ''))
