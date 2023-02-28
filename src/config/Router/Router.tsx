@@ -1,7 +1,6 @@
 import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import DashboardIcon from '@assets/svg/DashboardIcon'
@@ -63,7 +62,7 @@ import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import { ROUTES } from './routesConfig'
+import routesConfig, { ROUTES } from './routesConfig'
 import { drawerStyle } from './styles'
 
 const Tab = createBottomTabNavigator()
@@ -80,15 +79,13 @@ const GasInformationStack = createNativeStackNavigator()
 const DataDeletionPolicyStack = createNativeStackNavigator()
 
 const SignersStackScreen = () => {
-  const { t } = useTranslation()
-
   return (
     <SignersStack.Navigator screenOptions={{ header: headerGamma }}>
       <SignersStack.Screen
         name={`${ROUTES.signers}-screen`}
         component={SignersScreen}
         options={{
-          title: t('Manage Signers')
+          title: routesConfig.signers.mobileTitle
         }}
       />
     </SignersStack.Navigator>
@@ -96,15 +93,13 @@ const SignersStackScreen = () => {
 }
 
 const DataDeletionPolicyStackScreen = () => {
-  const { t } = useTranslation()
-
   return (
     <DataDeletionPolicyStack.Navigator screenOptions={{ header: headerBeta }}>
       <DataDeletionPolicyStack.Screen
         name={`${ROUTES.dataDeletionPolicy}-screen`}
         component={DataDeletionPolicyScreen}
         options={{
-          title: t('Data Deletion Policy')
+          title: routesConfig['data-deletion-policy'].mobileTitle
         }}
       />
     </DataDeletionPolicyStack.Navigator>
@@ -131,15 +126,13 @@ const GasInformationStackScreen = () => {
 }
 
 const ManageVaultLockStackScreen = () => {
-  const { t } = useTranslation()
-
   return (
     <ManageVaultLockStack.Navigator screenOptions={{ header: headerBeta }}>
       <ManageVaultLockStack.Screen
         name={`${ROUTES.manageVaultLock}-screen`}
         component={ManageVaultLockScreen}
         options={{
-          title: t('Manage Key Store Lock')
+          title: routesConfig['manage-vault-lock'].mobileTitle
         }}
       />
     </ManageVaultLockStack.Navigator>
@@ -147,19 +140,17 @@ const ManageVaultLockStackScreen = () => {
 }
 
 const EmailLoginStackScreen = () => {
-  const { t } = useTranslation()
-
   return (
     <EmailLoginProvider>
       <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
         <EmailLoginStack.Screen
           name={`${ROUTES.ambireAccountLogin}-screen`}
-          options={{ title: t('Login') }}
+          options={{ title: routesConfig['ambire-account-login'].mobileTitle }}
           component={EmailLoginScreen}
         />
         <EmailLoginStack.Screen
           name={ROUTES.ambireAccountLoginPasswordConfirm}
-          options={{ title: t('Login') }}
+          options={{ title: routesConfig['ambire-account-login-password-confirm'].mobileTitle }}
           component={AddAccountPasswordToVaultScreen}
         />
       </EmailLoginStack.Navigator>
@@ -168,19 +159,19 @@ const EmailLoginStackScreen = () => {
 }
 
 const JsonLoginStackScreen = () => {
-  const { t } = useTranslation()
-
   return (
     <JsonLoginProvider>
       <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
         <JsonLoginStack.Screen
           name={`${ROUTES.ambireAccountJsonLogin}-screen`}
-          options={{ title: t('Import from JSON') }}
+          options={{ title: routesConfig['ambire-account-json-login'].mobileTitle }}
           component={JsonLoginScreen}
         />
         <JsonLoginStack.Screen
           name={ROUTES.ambireAccountJsonLoginPasswordConfirm}
-          options={{ title: t('Login') }}
+          options={{
+            title: routesConfig['ambire-account-json-login-password-confirm'].mobileTitle
+          }}
           component={AddAccountPasswordToVaultScreen}
         />
       </JsonLoginStack.Navigator>
@@ -189,7 +180,6 @@ const JsonLoginStackScreen = () => {
 }
 
 const AuthStack = () => {
-  const { t } = useTranslation()
   const { vaultStatus } = useVault()
   const { getItem } = useStorageController()
 
@@ -213,44 +203,47 @@ const AuthStack = () => {
         <>
           <Stack.Screen
             name={ROUTES.getStarted}
-            options={{ title: t('Welcome') }}
+            options={{ title: routesConfig['get-started'].mobileTitle }}
             component={VaultSetupGetStartedScreen}
           />
           <Stack.Screen
             name={ROUTES.createVault}
-            options={{ title: t('Setup Ambire Key Store') }}
+            options={{ title: routesConfig['create-vault'].mobileTitle }}
             component={CreateNewVaultScreen}
           />
         </>
       )}
       <Stack.Screen
-        options={{ title: t('Welcome to Ambire') }}
+        options={{ title: routesConfig.auth.mobileTitle }}
         name={`${ROUTES.auth}-screen`}
         component={AuthScreen}
       />
       <Stack.Screen
         name={ROUTES.ambireAccountLogin}
-        options={{ title: t('Login'), headerShown: false }}
+        options={{ title: routesConfig['ambire-account-login'].mobileTitle, headerShown: false }}
         component={EmailLoginStackScreen}
       />
       <Stack.Screen
         name={ROUTES.ambireAccountJsonLogin}
-        options={{ title: t('Import from JSON'), headerShown: false }}
+        options={{
+          title: routesConfig['ambire-account-json-login'].mobileTitle,
+          headerShown: false
+        }}
         component={JsonLoginStackScreen}
       />
       <Stack.Screen
         name={ROUTES.qrCodeLogin}
-        options={{ title: t('Import with QR Code') }}
+        options={{ title: routesConfig['qr-code-login'].mobileTitle }}
         component={QRCodeLoginScreen}
       />
       <Stack.Screen
         name={ROUTES.hardwareWallet}
-        options={{ title: t('Hardware Wallet') }}
+        options={{ title: routesConfig['hardware-wallet'].mobileTitle }}
         component={HardwareWalletConnectScreen}
       />
       <Stack.Screen
         name={ROUTES.externalSigner}
-        options={{ title: t('Login with External Signer') }}
+        options={{ title: routesConfig['external-signer'].mobileTitle }}
         component={ExternalSignerScreen}
       />
     </Stack.Navigator>
@@ -258,8 +251,6 @@ const AuthStack = () => {
 }
 
 const NoConnectionStack = () => {
-  const { t } = useTranslation()
-
   useEffect(() => {
     SplashScreen.hideAsync()
   }, [])
@@ -267,7 +258,7 @@ const NoConnectionStack = () => {
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
       <Stack.Screen
-        options={{ title: t('No connection') }}
+        options={{ title: routesConfig['no-connection'].mobileTitle }}
         name={ROUTES.noConnection}
         component={NoConnectionScreen}
       />
@@ -276,7 +267,6 @@ const NoConnectionStack = () => {
 }
 
 const VaultStack = () => {
-  const { t } = useTranslation()
   const { vaultStatus, unlockVault, biometricsEnabled, resetVault } = useVault()
 
   useEffect(() => {
@@ -308,12 +298,12 @@ const VaultStack = () => {
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
       <Stack.Screen
         name={ROUTES.unlockVault}
-        options={{ title: t('Welcome Back') }}
+        options={{ title: routesConfig['unlock-vault'].mobileTitle }}
         component={renderUnlockVaultScreen}
       />
       <Stack.Screen
         name={ROUTES.resetVault}
-        options={{ title: t('Reset Ambire Key Store') }}
+        options={{ title: routesConfig['reset-vault'].mobileTitle }}
         component={renderResetVaultScreen}
       />
     </Stack.Navigator>
@@ -330,8 +320,6 @@ const DashboardStackScreen = () => {
 }
 
 const TabsScreens = () => {
-  const { t } = useTranslation()
-
   const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
   return (
     <Tab.Navigator
@@ -357,8 +345,8 @@ const TabsScreens = () => {
       <Tab.Screen
         name={ROUTES.dashboard}
         options={{
-          tabBarLabel: t('Dashboard'),
-          headerTitle: t('Dashboard'),
+          tabBarLabel: routesConfig.dashboard.mobileTitle,
+          headerTitle: routesConfig.dashboard.mobileTitle,
           tabBarIcon: ({ color }) => (
             <DashboardIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -371,8 +359,8 @@ const TabsScreens = () => {
         <Tab.Screen
           name={ROUTES.earn}
           options={{
-            tabBarLabel: t('Earn'),
-            headerTitle: t('Earn'),
+            tabBarLabel: routesConfig.earn.mobileTitle,
+            headerTitle: routesConfig.earn.mobileTitle,
             tabBarIcon: ({ color }) => (
               <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
             )
@@ -383,8 +371,8 @@ const TabsScreens = () => {
       <Tab.Screen
         name={ROUTES.send}
         options={{
-          tabBarLabel: t('Send'),
-          headerTitle: t('Send'),
+          tabBarLabel: routesConfig.send.mobileTitle,
+          headerTitle: routesConfig.send.mobileTitle,
           tabBarIcon: ({ color }) => (
             <SendIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -394,8 +382,8 @@ const TabsScreens = () => {
       <Tab.Screen
         name={ROUTES.swap}
         options={{
-          tabBarLabel: t('Swap'),
-          headerTitle: t('Swap'),
+          tabBarLabel: routesConfig.swap.mobileTitle,
+          headerTitle: routesConfig.swap.mobileTitle,
           tabBarIcon: ({ color }) => (
             <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -405,8 +393,8 @@ const TabsScreens = () => {
       <Tab.Screen
         name={ROUTES.transactions}
         options={{
-          tabBarLabel: t('Transactions'),
-          headerTitle: t('Transactions'),
+          tabBarLabel: routesConfig.transactions.mobileTitle,
+          headerTitle: routesConfig.transactions.mobileTitle,
           tabBarIcon: ({ color }) => (
             <TransferIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -433,7 +421,6 @@ const AppDrawer = () => {
 }
 
 const AppStack = () => {
-  const { t } = useTranslation()
   const { getItem } = useStorageController()
 
   useEffect(() => {
@@ -484,7 +471,7 @@ const AppStack = () => {
         <MainStack.Screen
           name={ROUTES.connect}
           component={ConnectScreen}
-          options={{ title: t('Connect a dApp') }}
+          options={{ title: routesConfig.connect.mobileTitle }}
         />
       )}
       <MainStack.Screen
@@ -494,18 +481,18 @@ const AppStack = () => {
       />
       <MainStack.Screen
         name={ROUTES.provider}
-        options={{ title: t('Receive') }}
+        options={{ title: routesConfig.receive.mobileTitle }}
         component={ProviderScreen}
       />
       <MainStack.Screen
         name={ROUTES.pendingTransactions}
         component={PendingTransactionsScreen}
-        options={{ title: t('Pending Transaction') }}
+        options={{ title: routesConfig['pending-transactions'].mobileTitle }}
       />
       <MainStack.Screen
         name={ROUTES.signMessage}
         component={SignMessageScreen}
-        options={{ title: t('Sign') }}
+        options={{ title: routesConfig['sign-message'].mobileTitle }}
       />
       <MainStack.Screen
         name={ROUTES.gasTank}

@@ -45,7 +45,7 @@ const Header: React.FC<Props> = ({
   const canGoBack =
     params?.prevRoute?.key !== 'default' && params?.prevRoute?.path !== '/' && navigationEnabled
 
-  const title = useMemo(() => routesConfig[path?.substring(1)].title, [path])
+  const title = useMemo(() => routesConfig[path?.substring(1)].webTitle, [path])
 
   const renderBottomSheetSwitcher = (
     <TouchableOpacity
