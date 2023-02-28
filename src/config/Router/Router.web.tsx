@@ -3,6 +3,7 @@ import React, { lazy, Suspense, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Outlet, Route, Routes } from 'react-router-dom'
 
+import i18n from '@config/localization/localization'
 import { headerBeta as defaultHeaderBeta } from '@config/Router/HeadersConfig'
 import useAuth from '@modules/auth/hooks/useAuth'
 import Spinner from '@modules/common/components/Spinner'
@@ -13,11 +14,16 @@ import flexbox from '@modules/common/styles/utils/flexbox'
 import useVault from '@modules/vault/hooks/useVault'
 import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
+import { getUiType } from '@web/utils/uiType'
 
 import { ROUTES } from './routesConfig'
 import SortHat from './SortHat.web'
 
 const AsyncMainRoute = lazy(() => import('./MainRoutes.web'))
+
+if (getUiType().isNotification) {
+  document.title = i18n.t('Ambire Notification')
+}
 
 const headerBeta = (
   <>

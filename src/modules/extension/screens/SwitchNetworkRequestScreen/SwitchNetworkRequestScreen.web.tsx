@@ -1,5 +1,5 @@
 import networks from 'ambire-common/src/constants/networks'
-import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import CrossChainArrowIcon from '@assets/svg/CrossChainArrowIcon'
@@ -13,7 +13,6 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
-import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -25,14 +24,9 @@ import styles from './styles'
 
 const SwitchNetworkRequestScreen = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
   const { network, setNetwork } = useNetwork()
   const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
   const [isSwitching, setIsSwitching] = useState(false)
-
-  useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: t('Webpage Wants to Switch Network') })
-  }, [t, navigation])
 
   // Cache it on purpose. Otherwise, when the user switches the network,
   // the current network changes really fast (for a split second),
