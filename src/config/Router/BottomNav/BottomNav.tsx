@@ -9,6 +9,7 @@ import TransferIcon from '@assets/svg/TransferIcon'
 import Text from '@modules/common/components/Text'
 import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
 import useNavigation from '@modules/common/hooks/useNavigation'
+import useRoute from '@modules/common/hooks/useRoute'
 import colors from '@modules/common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import flexbox from '@modules/common/styles/utils/flexbox'
@@ -18,16 +19,27 @@ import styles from '../styles'
 
 const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
 
-const Item = ({ icon, title, name }: any) => {
+interface ItemProps {
+  Icon: React.FC<any>
+  title: string
+  name: ROUTES
+  isActive: boolean
+}
+
+let Item: React.FC<ItemProps> = ({ Icon, title, name, isActive }) => {
   const navigation = useNavigation()
+
   return (
     <TouchableOpacity
-      style={{
-        height: TAB_BAR_HEIGHT,
-        flex: 1,
-        alignItems: 'center',
-        paddingVertical: 15
-      }}
+      style={[
+        {
+          height: TAB_BAR_HEIGHT,
+          flex: 1,
+          alignItems: 'center',
+          paddingVertical: 15
+        },
+        isActive && { backgroundColor: colors.howl_65 }
+      ]}
       onPress={() => navigation.navigate(name)}
     >
       <View
@@ -35,42 +47,56 @@ const Item = ({ icon, title, name }: any) => {
           marginBottom: 5
         }}
       >
-        {icon}
+        <Icon
+          width={tabsIconSize}
+          height={tabsIconSize}
+          color={isActive ? colors.heliotrope : colors.titan}
+        />
       </View>
       <Text fontSize={10}>{title}</Text>
     </TouchableOpacity>
   )
 }
 
+Item = React.memo(Item)
+
 const BottomNav = () => {
+  const route = useRoute()
+  const { pathname } = route
+
   return (
     <View style={[styles.tabBarContainerWeb]}>
       <View style={[styles.backdropBlurWrapper]}>
         <View style={flexbox.directionRow}>
           <Item
             name={ROUTES.dashboard}
-            icon={<DashboardIcon width={tabsIconSize} height={tabsIconSize} />}
+            isActive={pathname === `/${ROUTES.dashboard}`}
+            Icon={DashboardIcon}
             title="Dashboard"
           />
           <Item
             name={ROUTES.earn}
-            icon={<EarnIcon width={tabsIconSize} height={tabsIconSize} />}
+            isActive={pathname === `/${ROUTES.earn}`}
+            Icon={EarnIcon}
             title="Earn"
           />
           <Item
             name={ROUTES.send}
-            icon={<SendIcon width={tabsIconSize} height={tabsIconSize} />}
+            isActive={pathname === `/${ROUTES.send}`}
+            Icon={SendIcon}
             title="Send"
           />
           <Item
             name={ROUTES.transactions}
-            icon={<TransferIcon width={tabsIconSize} height={tabsIconSize} />}
+            isActive={pathname === `/${ROUTES.transactions}`}
+            Icon={TransferIcon}
             title="Transactions"
           />
 
           <Item
             name={ROUTES.gasTank}
-            icon={<GasTankIcon color={colors.titan} width={tabsIconSize} height={tabsIconSize} />}
+            isActive={pathname === `/${ROUTES.gasTank}`}
+            Icon={GasTankIcon}
             title="Gas Tank"
           />
         </View>
@@ -79,4 +105,4 @@ const BottomNav = () => {
   )
 }
 
-export default BottomNav
+export default React.memo(BottomNav)
