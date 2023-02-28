@@ -38,8 +38,8 @@ export enum ROUTES {
 }
 
 const routesConfig: {
-  [key: string]: {
-    route: string
+  [key in ROUTES]: {
+    route: ROUTES
     title: string
   }
 } = {
