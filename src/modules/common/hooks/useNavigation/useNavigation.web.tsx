@@ -1,21 +1,14 @@
 import { useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-type Options = {
-  state?: {
-    [key: string]: any
-  }
-  replace?: boolean
-  preventScrollReset?: boolean
-  relative?: 'route' | 'path'
-}
+import { UseNavigationReturnType } from './types'
 
-const useNavigation = () => {
-  const nav: any = useNavigate()
+const useNavigation = (): UseNavigationReturnType => {
+  const nav = useNavigate()
   const prevRoute = useLocation()
 
-  const navigate = useCallback(
-    (to: string | number, options?: Options) => {
+  const navigate = useCallback<UseNavigationReturnType['navigate']>(
+    (to, options) => {
       if (typeof to === 'string' && to?.[0] !== '/') {
         to = `/${to}`
       }
