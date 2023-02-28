@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ColorValue, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
@@ -9,7 +9,7 @@ import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Text from '@modules/common/components/Text'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useHeaderBottomSheet from '@modules/common/hooks/useHeaderBottomSheet'
-import useNavigation from '@modules/common/hooks/useNavigation'
+import useNavigation, { titleEventStream } from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import useRoute from '@modules/common/hooks/useRoute'
@@ -40,6 +40,7 @@ const Header: React.FC<Props> = ({
   const { navigate } = useNavigation()
   const { openHeaderBottomSheet } = useHeaderBottomSheet()
   const { hidePrivateValue } = usePrivateMode()
+  const [title, setTitle] = useState('')
 
   const handleGoBack = useCallback(() => navigate(-1), [navigate])
   const handleGoMenu = useCallback(() => navigate(ROUTES.menu), [navigate])
@@ -48,7 +49,20 @@ const Header: React.FC<Props> = ({
   const canGoBack =
     params?.prevRoute?.key !== 'default' && params?.prevRoute?.path !== '/' && navigationEnabled
 
-  const title = useMemo(() => routesConfig[path?.substring(1)].webTitle, [path])
+  useEffect(() => {
+    if (!path) return
+
+    const nextRoute = path?.substring(1) as ROUTES
+    setTitle(routesConfig[nextRoute].webTitle)
+  }, [path])
+
+  useEffect(() => {
+    const subscription = titleEventStream!.subscribe({
+      next: (v) => setTitle(v)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   const renderBottomSheetSwitcher = (
     <TouchableOpacity

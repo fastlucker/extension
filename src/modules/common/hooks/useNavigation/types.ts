@@ -1,4 +1,5 @@
 import { NavigateOptions } from 'react-router-dom'
+import { Subject } from 'rxjs'
 
 import { ROUTES } from '@config/Router/routesConfig'
 import { NavigationProp } from '@react-navigation/native'
@@ -14,3 +15,5 @@ export type UseNavigationReturnType = Partial<
   Omit<NavigationProp<ReactNavigation.RootParamList>, 'navigate'>
 > &
   UseNavigationReturnTypeCommon
+
+export type TitleEventStreamType = Subject<string> | null
