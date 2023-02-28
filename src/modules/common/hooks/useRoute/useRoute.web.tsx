@@ -1,6 +1,8 @@
 import { useLocation } from 'react-router-dom'
 
-const useRoute = () => {
+import { UseRouteReturnType } from './types'
+
+const useRoute = (): UseRouteReturnType => {
   const route = useLocation()
 
   return {

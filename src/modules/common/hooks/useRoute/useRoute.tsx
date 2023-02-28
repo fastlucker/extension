@@ -1,14 +1,8 @@
-import { RouteProp, useRoute as useNativeRoute } from '@react-navigation/native'
+import { useRoute as useNativeRoute } from '@react-navigation/native'
 
-import type { ParamListBase } from '@react-navigation/routers'
+import { UseRouteReturnType } from './types'
 
-interface Props extends RouteProp<ParamListBase> {
-  params: {
-    [key: string]: any
-  }
-}
-
-const useRoute = (): Props => {
+const useRoute = (): UseRouteReturnType => {
   const route = useNativeRoute()
 
   return {
