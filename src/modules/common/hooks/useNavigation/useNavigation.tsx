@@ -1,11 +1,11 @@
 import { useCallback } from 'react'
 
-import { NavigationProp, useNavigation as useReactNavigation } from '@react-navigation/native'
+import { useNavigation as useReactNavigation } from '@react-navigation/native'
 
 import { UseNavigationReturnType } from './types'
 
 const useNavigation = (): UseNavigationReturnType => {
-  const nav: NavigationProp<ReactNavigation.RootParamList> = useReactNavigation()
+  const nav = useReactNavigation()
 
   const navigate = useCallback<UseNavigationReturnType['navigate']>(
     (to, options) => {
