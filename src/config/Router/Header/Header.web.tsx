@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { ColorValue, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
@@ -37,9 +37,12 @@ const Header: React.FC<Props> = ({
   const { network } = useNetwork()
   const { params, path } = useRoute()
   const { selectedAcc } = useAccounts()
-  const navigation = useNavigation()
+  const { navigate } = useNavigation()
   const { openHeaderBottomSheet } = useHeaderBottomSheet()
   const { hidePrivateValue } = usePrivateMode()
+
+  const handleGoBack = useCallback(() => navigate(-1), [navigate])
+  const handleGoMenu = useCallback(() => navigate(ROUTES.menu), [navigate])
 
   const navigationEnabled = !getUiType().isNotification
   const canGoBack =
@@ -80,7 +83,7 @@ const Header: React.FC<Props> = ({
   const renderHeaderLeft = () => {
     if (canGoBack) {
       return (
-        <NavIconWrapper onPress={() => navigation.navigate(-1)}>
+        <NavIconWrapper onPress={handleGoBack}>
           <LeftArrowIcon />
         </NavIconWrapper>
       )
@@ -90,7 +93,7 @@ const Header: React.FC<Props> = ({
   }
 
   const renderHeaderRight = (
-    <NavIconWrapper onPress={() => navigation.navigate(ROUTES.menu)}>
+    <NavIconWrapper onPress={handleGoMenu}>
       <Blockies borderRadius={13} size={10} seed={selectedAcc} />
     </NavIconWrapper>
   )

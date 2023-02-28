@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
@@ -40,7 +40,12 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const { accounts, selectedAcc, onSelectAcc, onRemoveAccount } = useAccounts()
   const { removeFromVault } = useVault()
   const { extensionWallet } = useExtensionWallet()
-  const navigation = useNavigation()
+  const { navigate } = useNavigation()
+
+  const handleGoToAddAccount = useCallback(() => {
+    closeBottomSheet()
+    navigate(ROUTES.auth)
+  }, [closeBottomSheet, navigate])
 
   const handleChangeAccount = (accountId: any) => {
     closeBottomSheet()
@@ -48,11 +53,6 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
     if (isExtension) {
       extensionWallet!.accountChange(accountId)
     }
-  }
-
-  const handleGoToAddAccount = () => {
-    closeBottomSheet()
-    navigation.navigate(ROUTES.auth)
   }
 
   const renderAccount = (account: any) => {

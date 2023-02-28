@@ -41,16 +41,11 @@ const DISCORD_URL = 'https://discord.gg/nMBGJsb'
 
 const DrawerContent = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
+  const { navigate } = useNavigation()
   const { pathname } = useRoute()
   const { lockVault } = useVault()
 
-  const handleNavigate = useCallback(
-    (route: string) => {
-      navigation.navigate(route)
-    },
-    [navigation]
-  )
+  const handleNavigate = useCallback((route: ROUTES) => navigate(route), [navigate])
 
   const menu = [
     { Icon: DashboardIcon, name: t('Dashboard'), route: ROUTES.dashboard },

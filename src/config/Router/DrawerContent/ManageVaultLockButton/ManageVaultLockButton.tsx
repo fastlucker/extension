@@ -10,7 +10,7 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 
 interface Props {
-  handleNavigate: (route: string) => void
+  handleNavigate: (route: ROUTES) => void
 }
 
 const ManageVaultLockButton: React.FC<Props> = ({ handleNavigate }) => {

@@ -16,7 +16,7 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 const VaultSetupGetStartedScreen = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
+  const { navigate } = useNavigation()
 
   return (
     <GradientBackgroundWrapper>
@@ -54,7 +54,7 @@ const VaultSetupGetStartedScreen = () => {
           <Button
             style={spacings.mt}
             text={t('Get Started')}
-            onPress={() => navigation.navigate(ROUTES.createVault, { replace: true })}
+            onPress={() => navigate(ROUTES.createVault, { replace: true })}
           />
         </View>
       </Wrapper>

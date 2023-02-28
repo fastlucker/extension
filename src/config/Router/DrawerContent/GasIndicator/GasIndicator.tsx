@@ -15,7 +15,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Props {
-  handleNavigate: (route: string) => void
+  handleNavigate: (route: ROUTES) => void
 }
 const relayerURL = CONFIG.RELAYER_URL
 

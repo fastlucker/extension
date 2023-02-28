@@ -14,22 +14,22 @@ import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
 
 interface ButtonProps extends Omit<ButtonDefaultProps, 'onPress'> {
-  routeName: string
-  onPress: (routeName: string) => void
+  routeName: ROUTES
+  onPress: (nextRoute: ROUTES) => void
 }
 
-const AuthButton = ({ text, type = 'primary', routeName, onPress }: ButtonProps) => {
+const AuthButton = React.memo(({ text, type = 'primary', routeName, onPress }: ButtonProps) => {
   const handleButtonPress = useCallback(() => {
     !!onPress && onPress(routeName)
   }, [onPress, routeName])
 
   return <Button text={text} type={type} onPress={handleButtonPress} />
-}
+})
 
 const AuthScreen = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
-  const handleAuthButtonPress = (routeName: string) => navigation.navigate(routeName)
+  const { navigate } = useNavigation()
+  const handleAuthButtonPress = useCallback((nextRoute: ROUTES) => navigate(nextRoute), [navigate])
 
   return (
     <GradientBackgroundWrapper>
@@ -75,4 +75,4 @@ const AuthScreen = () => {
   )
 }
 
-export default AuthScreen
+export default React.memo(AuthScreen)

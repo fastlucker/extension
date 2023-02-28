@@ -27,7 +27,9 @@ interface ItemProps {
 }
 
 let Item: React.FC<ItemProps> = ({ Icon, title, name, isActive }) => {
-  const navigation = useNavigation()
+  const { navigate } = useNavigation()
+
+  const handleOnPress = () => navigate(name)
 
   return (
     <TouchableOpacity
@@ -40,7 +42,7 @@ let Item: React.FC<ItemProps> = ({ Icon, title, name, isActive }) => {
         },
         isActive && { backgroundColor: colors.howl_65 }
       ]}
-      onPress={() => navigation.navigate(name)}
+      onPress={handleOnPress}
     >
       <View
         style={{

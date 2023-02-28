@@ -221,7 +221,7 @@ const RequestsProvider: React.FC = ({ children }) => {
         window.close()
       }
     })()
-  }, [everythingToSign, extensionWallet])
+  }, [everythingToSign, extensionWallet, navigate])
 
   // Handle navigation for send txn requests
   useEffect(() => {

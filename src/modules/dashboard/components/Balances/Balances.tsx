@@ -2,7 +2,7 @@ import networks, { NetworkId } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
-import React, { useLayoutEffect, useMemo } from 'react'
+import React, { useCallback, useLayoutEffect, useMemo } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import GasTankIcon from '@assets/svg/GasTankIcon'
@@ -56,7 +56,7 @@ const Balances = ({
   setNetwork
 }: Props) => {
   const { t } = useTranslation()
-  const navigation: any = useNavigation()
+  const { navigate } = useNavigation()
   const { isPrivateMode, togglePrivateMode, hidePrivateValue } = usePrivateMode()
   const { cacheBreak } = useCacheBreak()
   const urlGetBalance = relayerURL
@@ -89,9 +89,10 @@ const Balances = ({
     // Exclude displaying balances for networks we don't support
     .filter(({ network }) => !!networkDetails(network))
 
-  const handleGoToSend = () => navigation.navigate(ROUTES.send)
-  const handleGoToReceive = () => navigation.navigate(ROUTES.receive)
-  const handleGoToGasTank = () => navigation.navigate(ROUTES.gasTank)
+  const handleGoToSend = useCallback(() => navigate(ROUTES.send), [navigate])
+  const handleGoToReceive = useCallback(() => navigate(ROUTES.receive), [navigate])
+  const handleGoToGasTank = useCallback(() => navigate(ROUTES.gasTank), [navigate])
+
   const content = (
     <>
       <View style={flexboxStyles.directionRow}>

@@ -50,20 +50,20 @@ const Tokens = ({
   onRemoveHiddenToken
 }: Props) => {
   const { t } = useTranslation()
-  const navigation: any = useNavigation()
+  const { navigate } = useNavigation()
   const { hidePrivateValue } = usePrivateMode()
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
   const otherProtocols = protocols.filter(({ label }) => label !== 'Tokens')
 
-  const handleGoToDeposit = () => navigation.navigate(ROUTES.receive)
+  const handleGoToDeposit = useCallback(() => navigate(ROUTES.receive), [navigate])
   const handleGoToSend = useCallback(
     (symbol: string) =>
-      navigation.navigate(ROUTES.send, {
+      navigate(ROUTES.send, {
         state: {
           tokenAddressOrSymbol: symbol.toString()
         }
       }),
-    [navigation]
+    [navigate]
   )
 
   const shouldShowEmptyState = useMemo(
