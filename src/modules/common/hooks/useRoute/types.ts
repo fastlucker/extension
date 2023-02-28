@@ -1,7 +1,6 @@
 import { Location } from 'react-router-dom'
 
-import { RouteProp } from '@react-navigation/native'
-import { ParamListBase } from '@react-navigation/routers'
+import { ParamListBase, RouteProp } from '@react-navigation/native'
 
 export interface UseRouteReturnTypeMobile extends RouteProp<ParamListBase> {
   params: {
