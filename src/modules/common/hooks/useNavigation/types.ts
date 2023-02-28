@@ -1,14 +1,14 @@
+import { NavigateOptions } from 'react-router-dom'
+
 import { ROUTES } from '@config/Router/routesConfig'
+import { NavigationProp } from '@react-navigation/native'
 
-export type NavigateOptions = {
-  state?: {
-    [key: string]: any
-  }
-  replace?: boolean
-  preventScrollReset?: boolean
-  relative?: 'route' | 'path'
+interface UseNavigationReturnTypeCommon {
+  navigate: (to: ROUTES | number | '/', options?: NavigateOptions) => void
+  goBack: NavigationProp<ReactNavigation.RootParamList>['goBack']
 }
 
-export interface UseNavigationReturnType {
-  navigate: (to: ROUTES | number, options?: NavigateOptions) => void
-}
+export type UseNavigationReturnType = Partial<
+  Omit<NavigationProp<ReactNavigation.RootParamList>, 'navigate'>
+> &
+  UseNavigationReturnTypeCommon
