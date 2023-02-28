@@ -11,6 +11,7 @@ import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { isWeb } from '@config/env'
 import TokenIcon from '@modules/common/components/TokenIcon'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
@@ -104,11 +105,13 @@ export default function useRequestTransaction() {
       if (addr) {
         setAsset(addr)
       }
-      navigation.setParams({
-        tokenAddressOrSymbol: undefined
-      })
+      if (!isWeb) {
+        navigation.setParams({
+          tokenAddressOrSymbol: undefined
+        })
+      }
     }
-  }, [params?.tokenAddressOrSymbol, tokens])
+  }, [params?.tokenAddressOrSymbol, tokens, navigation])
 
   const maxAmount = useMemo(() => {
     if (!selectedAsset) return 0
