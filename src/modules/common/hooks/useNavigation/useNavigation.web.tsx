@@ -28,8 +28,13 @@ const useNavigation = (): UseNavigationReturnType => {
     return nav(-1)
   }, [nav])
 
-  // TODO:
-  const setOptions = () => {}
+  const setOptions = useCallback<UseNavigationReturnType['setOptions']>(({ headerTitle }) => {
+    if (headerTitle) {
+      document.title = headerTitle
+    }
+
+    // All other options are not supported in the web context
+  }, [])
 
   // Needed only in the mobile context
   const setParams = () => {}
