@@ -40,144 +40,179 @@ export enum ROUTES {
 const routesConfig: {
   [key in ROUTES]: {
     route: ROUTES
-    title: string
+    webTitle: string
+    mobileTitle: string
   }
 } = {
   [ROUTES.unlockVault]: {
     route: ROUTES.unlockVault,
-    title: i18n.t('Welcome Back')
+    webTitle: i18n.t('Welcome Back'),
+    mobileTitle: i18n.t('Welcome Back')
   },
   [ROUTES.resetVault]: {
     route: ROUTES.resetVault,
-    title: i18n.t('Reset your\nAmbire Key Store Lock')
+    webTitle: i18n.t('Reset your\nAmbire Key Store Lock'),
+    mobileTitle: i18n.t('Reset Ambire Key Store')
   },
   [ROUTES.noConnection]: {
     route: ROUTES.noConnection,
-    title: i18n.t('No Connection')
+    webTitle: i18n.t('No Connection'),
+    mobileTitle: i18n.t('No Connection')
   },
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
-    title: i18n.t('Welcome')
+    webTitle: i18n.t('Welcome'),
+    mobileTitle: i18n.t('Welcome')
   },
   [ROUTES.createVault]: {
     route: ROUTES.createVault,
-    title: i18n.t('Setup Your Ambire Key Store')
+    webTitle: i18n.t('Setup Your Ambire Key Store'),
+    mobileTitle: i18n.t('Setup Your Ambire Key Store')
   },
   [ROUTES.auth]: {
     route: ROUTES.auth,
-    title: i18n.t('Welcome to\nAmbire Wallet Extension')
+    webTitle: i18n.t('Welcome to\nAmbire Wallet Extension'),
+    mobileTitle: i18n.t('Welcome to Ambire')
   },
   [ROUTES.ambireAccountLogin]: {
     route: ROUTES.ambireAccountLogin,
-    title: i18n.t('Login')
+    webTitle: i18n.t('Login'),
+    mobileTitle: i18n.t('Login')
   },
   [ROUTES.ambireAccountLoginPasswordConfirm]: {
     route: ROUTES.ambireAccountLoginPasswordConfirm,
-    title: i18n.t('Confirm Account Password')
+    webTitle: i18n.t('Confirm Account Password'),
+    mobileTitle: i18n.t('Login')
   },
   [ROUTES.ambireAccountJsonLogin]: {
     route: ROUTES.ambireAccountJsonLogin,
-    title: i18n.t('Import from JSON')
+    webTitle: i18n.t('Import from JSON'),
+    mobileTitle: i18n.t('Import from JSON')
   },
   [ROUTES.ambireAccountJsonLoginPasswordConfirm]: {
     route: ROUTES.ambireAccountJsonLoginPasswordConfirm,
-    title: i18n.t('Confirm Account Password')
+    webTitle: i18n.t('Confirm Account Password'),
+    mobileTitle: i18n.t('Login')
   },
   [ROUTES.qrCodeLogin]: {
     route: ROUTES.qrCodeLogin,
-    title: i18n.t('Import with QR Code')
+    webTitle: i18n.t('Import with QR Code'),
+    mobileTitle: i18n.t('Import with QR Code')
   },
   [ROUTES.hardwareWallet]: {
     route: ROUTES.hardwareWallet,
-    title: i18n.t('Login with Hardware Wallet')
+    webTitle: i18n.t('Login with Hardware Wallet'),
+    mobileTitle: i18n.t('Login with Hardware Wallet')
   },
   [ROUTES.externalSigner]: {
     route: ROUTES.externalSigner,
-    title: i18n.t('Login with External Signer')
+    webTitle: i18n.t('Login with External Signer'),
+    mobileTitle: i18n.t('Login with External Signer')
   },
   [ROUTES.dashboard]: {
     route: ROUTES.dashboard,
-    title: i18n.t('Dashboard')
+    webTitle: i18n.t('Dashboard'),
+    mobileTitle: i18n.t('Dashboard')
   },
   [ROUTES.collectibles]: {
     route: ROUTES.collectibles,
-    title: i18n.t('Collectibles')
+    webTitle: i18n.t('Collectibles'),
+    mobileTitle: i18n.t('Collectibles')
   },
   [ROUTES.earn]: {
     route: ROUTES.earn,
-    title: i18n.t('Earn')
+    webTitle: i18n.t('Earn'),
+    mobileTitle: i18n.t('Earn')
   },
   [ROUTES.send]: {
     route: ROUTES.send,
-    title: i18n.t('Send')
+    webTitle: i18n.t('Send'),
+    mobileTitle: i18n.t('Send')
   },
   [ROUTES.transactions]: {
     route: ROUTES.transactions,
-    title: i18n.t('Transactions')
+    webTitle: i18n.t('Transactions'),
+    mobileTitle: i18n.t('Transactions')
   },
   [ROUTES.gasTank]: {
     route: ROUTES.gasTank,
-    title: i18n.t('Gas Tank')
+    webTitle: i18n.t('Gas Tank'),
+    mobileTitle: i18n.t('Gas Tank')
   },
   [ROUTES.pendingTransactions]: {
     route: ROUTES.pendingTransactions,
-    title: i18n.t('Pending Transactions')
+    webTitle: i18n.t('Pending Transactions'),
+    mobileTitle: i18n.t('Pending Transactions')
   },
   [ROUTES.receive]: {
     route: ROUTES.receive,
-    title: i18n.t('Receive')
+    webTitle: i18n.t('Receive'),
+    mobileTitle: i18n.t('Receive')
   },
   [ROUTES.provider]: {
     route: ROUTES.provider,
-    title: i18n.t('Provider')
+    webTitle: i18n.t('Provider'),
+    mobileTitle: i18n.t('Provider')
   },
   [ROUTES.signMessage]: {
     route: ROUTES.signMessage,
-    title: i18n.t('Sign Message')
+    webTitle: i18n.t('Sign Message'),
+    mobileTitle: i18n.t('Sign Message')
   },
   [ROUTES.gasInformation]: {
     route: ROUTES.gasInformation,
-    title: i18n.t('Gas Information')
+    webTitle: i18n.t('Gas Information'),
+    mobileTitle: i18n.t('Gas Information')
   },
   [ROUTES.signers]: {
     route: ROUTES.signers,
-    title: i18n.t('Manage Signers')
+    webTitle: i18n.t('Manage Signers'),
+    mobileTitle: i18n.t('Manage Signers')
   },
   [ROUTES.permissionRequest]: {
     route: ROUTES.permissionRequest,
-    title: i18n.t('Webpage Wants to Connect')
+    webTitle: i18n.t('Webpage Wants to Connect'),
+    mobileTitle: i18n.t('dApp Wants to Connect')
   },
   [ROUTES.switchNetwork]: {
     route: ROUTES.switchNetwork,
-    title: i18n.t('Webpage Wants to Switch Network')
+    webTitle: i18n.t('Webpage Wants to Switch Network'),
+    mobileTitle: i18n.t('dApp Wants to Switch Network')
   },
   [ROUTES.watchAsset]: {
     route: ROUTES.watchAsset,
-    title: i18n.t('Webpage Wants to Add Token')
+    webTitle: i18n.t('Webpage Wants to Add Token'),
+    mobileTitle: i18n.t('dApp Wants to Add Token')
   },
   [ROUTES.menu]: {
     route: ROUTES.menu,
-    title: i18n.t('Menu')
+    webTitle: i18n.t('Menu'),
+    mobileTitle: i18n.t('Side Menu')
   },
   [ROUTES.manageVaultLock]: {
     route: ROUTES.manageVaultLock,
-    title: i18n.t('Manage Key Store Lock')
+    webTitle: i18n.t('Manage Key Store Lock'),
+    mobileTitle: i18n.t('Manage Key Store Lock')
   },
   [ROUTES.getEncryptionPublicKeyRequest]: {
     route: ROUTES.getEncryptionPublicKeyRequest,
-    title: i18n.t('Get Encryption Public Key Request')
+    webTitle: i18n.t('Get Encryption Public Key Request'),
+    mobileTitle: i18n.t('Get Encryption Public Key Request')
   },
   [ROUTES.dataDeletionPolicy]: {
     route: ROUTES.dataDeletionPolicy,
-    title: i18n.t('Data Deletion Policy')
+    webTitle: i18n.t('Data Deletion Policy'),
+    mobileTitle: i18n.t('Data Deletion Policy')
   },
   [ROUTES.connect]: {
     route: ROUTES.connect,
-    title: i18n.t('Connect a dApp')
+    webTitle: i18n.t('Connect a dApp'),
+    mobileTitle: i18n.t('Connect a dApp')
   },
   [ROUTES.swap]: {
     route: ROUTES.swap,
-    title: i18n.t('Swap')
+    webTitle: i18n.t('Swap'),
+    mobileTitle: i18n.t('Swap')
   }
 }
 
