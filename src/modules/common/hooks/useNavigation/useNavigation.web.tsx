@@ -31,8 +31,12 @@ const useNavigation = (): UseNavigationReturnType => {
   // TODO:
   const setOptions = () => {}
 
+  // Needed only in the mobile context
+  const setParams = () => {}
+
   return {
     navigate,
+    setParams,
     setOptions,
     goBack
   }

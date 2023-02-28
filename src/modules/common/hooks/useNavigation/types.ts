@@ -6,6 +6,7 @@ import { NavigationProp } from '@react-navigation/native'
 interface UseNavigationReturnTypeCommon {
   navigate: (to: ROUTES | number | '/', options?: NavigateOptions) => void
   goBack: NavigationProp<ReactNavigation.RootParamList>['goBack']
+  setParams: NavigationProp<ReactNavigation.RootParamList>['setParams']
 }
 
 export type UseNavigationReturnType = Partial<

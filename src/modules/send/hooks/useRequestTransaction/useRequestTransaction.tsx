@@ -105,11 +105,12 @@ export default function useRequestTransaction() {
       if (addr) {
         setAsset(addr)
       }
-      if (!isWeb) {
-        navigation.setParams({
-          tokenAddressOrSymbol: undefined
-        })
-      }
+
+      // Clears the param so that it doesn't get cached (used) again
+      // @ts-ignore-next-line
+      navigation.setParams({
+        tokenAddressOrSymbol: undefined
+      })
     }
   }, [params?.tokenAddressOrSymbol, tokens, navigation])
 
