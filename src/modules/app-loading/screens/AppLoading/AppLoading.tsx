@@ -1,7 +1,7 @@
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { BrowserRouter, MemoryRouter } from 'react-router-dom'
+import { BrowserRouter, HashRouter } from 'react-router-dom'
 
 import { isWeb } from '@config/env'
 import AppRouter from '@config/Router'
@@ -50,7 +50,7 @@ const handleOnReady = () => {
 }
 
 const Router = isExtension
-  ? MemoryRouter
+  ? HashRouter
   : isWeb
   ? BrowserRouter
   : ({ children }) => (

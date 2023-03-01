@@ -82,7 +82,7 @@ const remove = async (winId) => {
 }
 
 const openNotification = ({ route = '', ...rest } = {}): Promise<number | undefined> => {
-  const url = `notification.html${route && `#${route}`}`
+  const url = `notification.html${route && `#/${route}`}`
 
   return create({ url, ...rest })
 }

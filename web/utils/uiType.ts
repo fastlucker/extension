@@ -1,7 +1,7 @@
 import { isWeb } from '@config/env'
 
 const UI_TYPE = {
-  Tab: 'index',
+  Tab: 'tab',
   Popup: 'index',
   Notification: 'notification'
 }
