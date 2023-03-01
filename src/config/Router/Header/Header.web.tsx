@@ -53,7 +53,7 @@ const Header: React.FC<Props> = ({
     if (!path) return
 
     const nextRoute = path?.substring(1) as ROUTES
-    setTitle(routesConfig[nextRoute].webTitle)
+    setTitle(routesConfig[nextRoute].title)
   }, [path])
 
   useEffect(() => {
