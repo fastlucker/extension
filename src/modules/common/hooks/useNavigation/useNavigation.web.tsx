@@ -2,10 +2,10 @@ import { useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Subject } from 'rxjs'
 
-import { TitleEventStreamType, UseNavigationReturnType } from './types'
+import { TitleChangeEventStreamType, UseNavigationReturnType } from './types'
 
-/* Event stream that gets triggered when the title should change */
-export const titleEventStream: TitleEventStreamType = new Subject<string>()
+// Event stream that gets triggered when the title changes
+export const titleChangeEventStream: TitleChangeEventStreamType = new Subject<string>()
 
 const useNavigation = (): UseNavigationReturnType => {
   const nav = useNavigate()
@@ -35,7 +35,7 @@ const useNavigation = (): UseNavigationReturnType => {
   const setOptions = useCallback<UseNavigationReturnType['setOptions']>(({ headerTitle }) => {
     if (headerTitle) {
       document.title = headerTitle
-      titleEventStream.next(headerTitle)
+      titleChangeEventStream.next(headerTitle)
     }
 
     // All other options are not supported in the web context

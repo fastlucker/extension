@@ -9,7 +9,7 @@ import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Text from '@modules/common/components/Text'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useHeaderBottomSheet from '@modules/common/hooks/useHeaderBottomSheet'
-import useNavigation, { titleEventStream } from '@modules/common/hooks/useNavigation'
+import useNavigation, { titleChangeEventStream } from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import useRoute from '@modules/common/hooks/useRoute'
@@ -57,7 +57,7 @@ const Header: React.FC<Props> = ({
   }, [path])
 
   useEffect(() => {
-    const subscription = titleEventStream!.subscribe({
+    const subscription = titleChangeEventStream!.subscribe({
       next: (v) => setTitle(v)
     })
 

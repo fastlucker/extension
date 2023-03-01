@@ -16,4 +16,4 @@ export type UseNavigationReturnType = Partial<
 > &
   UseNavigationReturnTypeCommon
 
-export type TitleEventStreamType = Subject<string> | null
+export type TitleChangeEventStreamType = Subject<string> | null
