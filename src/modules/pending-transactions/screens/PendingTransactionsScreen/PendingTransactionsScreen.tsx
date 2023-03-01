@@ -3,7 +3,7 @@ import React, { useEffect, useLayoutEffect } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import CONFIG, { isWeb } from '@config/env'
+import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
@@ -16,6 +16,7 @@ import useGasTank from '@modules/common/hooks/useGasTank'
 import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
+import useRoute from '@modules/common/hooks/useRoute'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import isInt from '@modules/common/utils/isInt'
@@ -33,6 +34,7 @@ const relayerURL = CONFIG.RELAYER_URL
 const PendingTransactionsScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
+  const { location } = useRoute()
   const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
   const { account } = useAccounts()
   const { network } = useNetwork()
@@ -75,38 +77,17 @@ const PendingTransactionsScreen = () => {
   }, [navigation, bundle?.txns?.length, t])
 
   useEffect(() => {
-    if (!isWeb) {
-      const unsubscribe = navigation?.addListener('beforeRemove', () => {
-        if (sendTxnState.showing) {
-          setSendTxnState({ showing: false })
-        }
-        if (everythingToSign.length) {
-          resolveMany([everythingToSign[0].id], {
-            message: t('Ambire user rejected the signature request')
-          })
-        }
-      })
-      return unsubscribe
+    return () => {
+      if (sendTxnState.showing) {
+        setSendTxnState({ showing: false })
+      }
+      if (everythingToSign.length) {
+        resolveMany([everythingToSign[0].id], {
+          message: t('Ambire user rejected the signature request')
+        })
+      }
     }
-  }, [navigation])
-
-  useEffect(() => {
-    if (!isWeb) {
-      const unsubscribe = navigation?.addListener('blur', () => {
-        if (sendTxnState.showing) {
-          setSendTxnState({ showing: false })
-        }
-        if (everythingToSign.length) {
-          resolveMany([everythingToSign[0].id], {
-            message: t('Ambire user rejected the signature request')
-          })
-        }
-        navigation.dispatch(StackActions.popToTop())
-      })
-
-      return unsubscribe
-    }
-  }, [navigation])
+  }, [everythingToSign, resolveMany, sendTxnState.showing, setSendTxnState, t])
 
   useEffect(() => {
     if (prevBundle?.txns?.length && !bundle?.txns?.length) {
