@@ -3,15 +3,16 @@ import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@config/localization'
+import { ROUTES } from '@config/Router/routesConfig'
 import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@modules/common/contexts/extensionApprovalContext/types'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
 import useGnosisSafe from '@modules/common/hooks/useGnosis'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useToast from '@modules/common/hooks/useToast'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
-import { navigate } from '@modules/common/services/navigation'
 import { isExtension } from '@web/constants/browserapi'
 import { getUiType } from '@web/utils/uiType'
 
@@ -58,6 +59,7 @@ const RequestsContext = createContext<RequestsContextReturnType>({
 const RequestsProvider: React.FC = ({ children }) => {
   const { accounts, selectedAcc } = useAccounts()
   const { network }: any = useNetwork()
+  const { navigate } = useNavigation()
   const { requests: wcRequests, resolveMany: wcResolveMany } = useWalletConnect()
   const { requests: gnosisRequests, resolveMany: gnosisResolveMany } = useGnosisSafe()
   const { requests: extensionRequests, resolveMany: extensionResolveMany } = useExtensionApproval()
@@ -139,11 +141,11 @@ const RequestsProvider: React.FC = ({ children }) => {
       }
       setSentTxn((txn: any) => [...txn, { confirmed: false, hash }])
       addToast(t('Transaction signed and sent successfully!') as string, {
-        onClick: () => navigate('transactions'),
+        onClick: () => navigate(ROUTES.transactions),
         timeout: 15000
       })
     },
-    [addToast, t]
+    [addToast, t, navigate]
   )
 
   const confirmSentTx = useCallback(
@@ -204,7 +206,7 @@ const RequestsProvider: React.FC = ({ children }) => {
       }
 
       if (toSign.length) {
-        navigate('sign-message')
+        navigate(ROUTES.signMessage)
       } else if (
         // Extension only
         // In case there is a pending sign msg request opened in a notification window
@@ -219,7 +221,7 @@ const RequestsProvider: React.FC = ({ children }) => {
         window.close()
       }
     })()
-  }, [everythingToSign, extensionWallet])
+  }, [everythingToSign, extensionWallet, navigate])
 
   // Handle navigation for send txn requests
   useEffect(() => {
@@ -237,10 +239,16 @@ const RequestsProvider: React.FC = ({ children }) => {
         extensionWallet!.activeFirstApproval()
         window.close()
       } else {
-        navigate('pending-transactions')
+        navigate(ROUTES.pendingTransactions)
       }
     }
-  }, [sendTxnState?.showing, prevSendTxnState?.showing, eligibleRequests, extensionWallet])
+  }, [
+    sendTxnState?.showing,
+    prevSendTxnState?.showing,
+    eligibleRequests,
+    extensionWallet,
+    navigate
+  ])
 
   return (
     <RequestsContext.Provider

@@ -4,7 +4,9 @@ import React, { useEffect, useState } from 'react'
 import { TouchableOpacity } from 'react-native'
 
 import GasTankIcon from '@assets/svg/GasTankIcon'
-import CONFIG from '@config/env'
+import CONFIG, { isWeb } from '@config/env'
+import { useTranslation } from '@config/localization'
+import { ROUTES } from '@config/Router/routesConfig'
 import Text from '@modules/common/components/Text'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import { fetchGet } from '@modules/common/services/fetch'
@@ -13,7 +15,7 @@ import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Props {
-  handleNavigate: (route: string) => void
+  handleNavigate: (route: ROUTES) => void
 }
 const relayerURL = CONFIG.RELAYER_URL
 
@@ -24,6 +26,7 @@ const GasIndicator = ({ handleNavigate }: Props) => {
   const [gasData, setGasData] = useState<any>(null)
   const { cacheBreak } = useCacheBreak()
   const { network } = useNetwork()
+  const { t } = useTranslation()
 
   useEffect(() => {
     let unmounted = false
@@ -55,7 +58,7 @@ const GasIndicator = ({ handleNavigate }: Props) => {
           top: 10,
           bottom: 5
         }}
-        onPress={() => handleNavigate('gas-information')}
+        onPress={() => handleNavigate(ROUTES.gasInformation)}
       >
         <Text fontSize={14} color={colors.titan_50}>
           {network?.nativeAssetSymbol}
@@ -82,7 +85,12 @@ const GasIndicator = ({ handleNavigate }: Props) => {
       </TouchableOpacity>
     )
   }
-  return null
+
+  return isWeb ? (
+    <Text fontSize={14} color={colors.titan_50}>
+      {t('Loading gas info...')}
+    </Text>
+  ) : null
 }
 
 export default GasIndicator

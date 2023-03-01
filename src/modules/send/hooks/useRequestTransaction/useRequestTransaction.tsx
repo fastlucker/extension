@@ -11,23 +11,26 @@ import { ethers } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { isWeb } from '@config/env'
 import TokenIcon from '@modules/common/components/TokenIcon'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useAddressBook from '@modules/common/hooks/useAddressBook'
 import useConstants from '@modules/common/hooks/useConstants'
+import useIsScreenFocused from '@modules/common/hooks/useIsScreenFocused/useIsScreenFocused'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePortfolio from '@modules/common/hooks/usePortfolio'
 import useRequests from '@modules/common/hooks/useRequests'
+import useRoute from '@modules/common/hooks/useRoute'
 import useToast from '@modules/common/hooks/useToast'
-import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 
 const ERC20 = new Interface(erc20Abi)
 
 export default function useRequestTransaction() {
-  const isFocused = useIsFocused()
+  const isFocused = useIsScreenFocused()
   const { tokens, isCurrNetworkBalanceLoading } = usePortfolio()
-  const { params }: any = useRoute()
-  const navigation: any = useNavigation()
+  const { params } = useRoute()
+  const navigation = useNavigation()
   const { network }: any = useNetwork()
   const { selectedAcc } = useAccounts()
   const { addRequest } = useRequests()
@@ -102,11 +105,14 @@ export default function useRequestTransaction() {
       if (addr) {
         setAsset(addr)
       }
+
+      // Clears the param so that it doesn't get cached (used) again
+      // @ts-ignore-next-line
       navigation.setParams({
         tokenAddressOrSymbol: undefined
       })
     }
-  }, [params?.tokenAddressOrSymbol, tokens])
+  }, [params?.tokenAddressOrSymbol, tokens, navigation])
 
   const maxAmount = useMemo(() => {
     if (!selectedAsset) return 0

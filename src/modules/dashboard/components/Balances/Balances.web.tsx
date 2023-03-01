@@ -2,7 +2,7 @@ import networks, { NetworkId } from 'ambire-common/src/constants/networks'
 import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/types'
-import React, { useLayoutEffect, useMemo } from 'react'
+import React, { useCallback, useLayoutEffect, useMemo } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 import { Pressable } from 'react-native-web-hover'
@@ -14,6 +14,7 @@ import ReceiveIcon from '@assets/svg/ReceiveIcon'
 import SendIcon from '@assets/svg/SendIcon'
 import CONFIG, { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
+import { ROUTES } from '@config/Router/routesConfig'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
 import NetworkIcon from '@modules/common/components/NetworkIcon'
@@ -21,6 +22,7 @@ import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import useAmbireExtension from '@modules/common/hooks/useAmbireExtension'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
 import useRelayerData from '@modules/common/hooks/useRelayerData'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
@@ -28,7 +30,6 @@ import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import { useNavigation } from '@react-navigation/native'
 
 import Rewards from '../Rewards'
 import styles from './styles'
@@ -61,7 +62,7 @@ const Balances = ({
   setNetwork
 }: Props) => {
   const { t } = useTranslation()
-  const navigation: any = useNavigation()
+  const { navigate } = useNavigation()
   const { isPrivateMode, togglePrivateMode, hidePrivateValue } = usePrivateMode()
   const { site, disconnectDapp } = useAmbireExtension()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -107,9 +108,10 @@ const Balances = ({
     // Exclude displaying balances for networks we don't support
     .filter(({ network }) => !!networkDetails(network))
 
-  const handleGoToSend = () => navigation.navigate('send')
-  const handleGoToReceive = () => navigation.navigate('receive')
-  const handleGoToGasTank = () => navigation.navigate('gas-tank')
+  const handleGoToSend = useCallback(() => navigate(ROUTES.send), [navigate])
+  const handleGoToReceive = useCallback(() => navigate(ROUTES.receive), [navigate])
+  const handleGoToGasTank = useCallback(() => navigate(ROUTES.gasTank), [navigate])
+
   const content = (
     <>
       <View style={flexboxStyles.directionRow}>

@@ -7,9 +7,10 @@ import PayTrieLogo from '@assets/svg/PayTrieLogo'
 import RampLogo from '@assets/svg/RampLogo'
 import TransakLogo from '@assets/svg/TransakLogo'
 import CONFIG from '@config/env'
+import { ROUTES } from '@config/Router/routesConfig'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchGet } from '@modules/common/services/fetch'
-import { useNavigation } from '@react-navigation/native'
 
 type UseProvidersProps = {
   walletAddress: string
@@ -30,20 +31,12 @@ type UseProvidersReturnType = {
   isLoading: any[]
 }
 
-type NavigateProp = (
-  route: 'provider',
-  params: {
-    name: string
-    uri: string
-  }
-) => void
-
 const { RAMP_HOST_API_KEY, PAYTRIE_PARTNER_URL, TRANSAK_API_KEY, TRANSAK_ENV, RELAYER_URL } = CONFIG
 
 const relayerURL = RELAYER_URL
 
 const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvidersReturnType => {
-  const { navigate }: { navigate: NavigateProp } = useNavigation()
+  const { navigate } = useNavigation()
   const { addToast } = useToast()
   const [isLoading, setLoading] = useState<any[]>([])
 
@@ -56,9 +49,11 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
       gnosis: 'XDAI_*'
     }
 
-    navigate('provider', {
-      name,
-      uri: `https://buy.ramp.network/?userAddress=${walletAddress}&hostApiKey=${RAMP_HOST_API_KEY}&swapAsset=${assetsList[networkId]}&finalUrl=ambire://&hostAppName=Ambire&hostLogoUrl=https://www.ambire.com/ambire-logo.png`
+    navigate(ROUTES.provider, {
+      state: {
+        name,
+        uri: `https://buy.ramp.network/?userAddress=${walletAddress}&hostApiKey=${RAMP_HOST_API_KEY}&swapAsset=${assetsList[networkId]}&finalUrl=ambire://&hostAppName=Ambire&hostLogoUrl=https://www.ambire.com/ambire-logo.png`
+      }
     })
   }
 
@@ -77,9 +72,11 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
       rightSideLabel: rightSideLabels[networkId]
     }
 
-    navigate('provider', {
-      name,
-      uri: url.format(URL)
+    navigate(ROUTES.provider, {
+      state: {
+        name,
+        uri: url.format(URL)
+      }
     })
   }
 
@@ -105,11 +102,13 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
       optimism: 'USDC'
     }
 
-    navigate('provider', {
-      name,
-      uri: `${baseURL}?apiKey=${TRANSAK_API_KEY}&themeColor=282b33&disableWalletAddressForm=true&networks=${
-        networksAlias[networkId] || networkId
-      }&defaultCryptoCurrency=${defaultCurrency[networkId]}&walletAddress=${walletAddress}`
+    navigate(ROUTES.provider, {
+      state: {
+        name,
+        uri: `${baseURL}?apiKey=${TRANSAK_API_KEY}&themeColor=282b33&disableWalletAddressForm=true&networks=${
+          networksAlias[networkId] || networkId
+        }&defaultCryptoCurrency=${defaultCurrency[networkId]}&walletAddress=${walletAddress}`
+      }
     })
   }
 
@@ -119,9 +118,11 @@ const useProviders = ({ walletAddress, networkId }: UseProvidersProps): UseProvi
       `${relayerURL}/kriptomat/${walletAddress}/${networkId}`
     )
     if (kriptomatResponse.success && kriptomatResponse?.data?.url) {
-      navigate('provider', {
-        name,
-        uri: url.format(kriptomatResponse.data.url)
+      navigate(ROUTES.provider, {
+        state: {
+          name,
+          uri: url.format(kriptomatResponse.data.url)
+        }
       })
     } else {
       addToast(`Error: ${kriptomatResponse.data ? kriptomatResponse.data : 'unexpected error'}`, {

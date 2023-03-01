@@ -5,12 +5,13 @@ import useAccounts, {
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import * as CrashAnalytics from '@config/analytics/CrashAnalytics'
+import { ROUTES } from '@config/Router/routesConfig'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
+import useNavigation from '@modules/common/hooks/useNavigation/useNavigation'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToasts from '@modules/common/hooks/useToast'
-import { navigate } from '@modules/common/services/navigation'
 import { getUiType } from '@web/utils/uiType'
 
 const AccountsContext = createContext<UseAccountsReturnType>({
@@ -26,6 +27,7 @@ const AccountsContext = createContext<UseAccountsReturnType>({
 const AccountsProvider: React.FC<any> = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
   const { approval } = useExtensionApproval()
+  const { navigate } = useNavigation()
 
   const onAdd = useCallback<UseAccountsProps['onAdd']>(
     (opts) => {
@@ -48,10 +50,10 @@ const AccountsProvider: React.FC<any> = ({ children }) => {
       // If the user is authenticated, a manual redirect is needed,
       // because the logged-in state screens were already mounted.
       if (opts.shouldRedirect) {
-        navigate('dashboard')
+        navigate(ROUTES.dashboard)
       }
     },
-    [authStatus, setAuthStatus, approval]
+    [authStatus, setAuthStatus, approval, navigate]
   )
 
   const onRemoveLastAccount = useCallback<UseAccountsProps['onRemoveLastAccount']>(() => {

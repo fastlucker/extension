@@ -16,12 +16,15 @@ import InputPassword from '@modules/common/components/InputPassword'
 import Text from '@modules/common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useDisableNavigatingBack from '@modules/common/hooks/useDisableNavigatingBack'
+import useNavigation from '@modules/common/hooks/useNavigation'
+import useRoute from '@modules/common/hooks/useRoute'
 import spacings, { IS_SCREEN_SIZE_S } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { delayPromise } from '@modules/common/utils/promises'
 
-const AddAccountPasswordToVaultScreen = ({ navigation, route }: any) => {
+const AddAccountPasswordToVaultScreen = () => {
   const { t } = useTranslation()
+  const route = useRoute()
   const {
     pendingLoginAccount: pendingEmailLoginAccount,
     handleLogin: handleEmailLogin,
@@ -32,7 +35,7 @@ const AddAccountPasswordToVaultScreen = ({ navigation, route }: any) => {
     pendingLoginWithQuickAccountData: pendingJsonLoginAccount,
     cancelLoginAttempts: cancelJsonLoginAttempts
   } = useJsonLogin()
-
+  const navigation = useNavigation()
   const { loginType } = route.params
 
   useDisableNavigatingBack(navigation)

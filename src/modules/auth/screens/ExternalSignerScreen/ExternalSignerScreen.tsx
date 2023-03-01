@@ -9,6 +9,7 @@ import RecoveryPhraseForm from '@modules/auth/components/RecoveryPhraseForm'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Segments from '@modules/common/components/Segments'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
@@ -21,9 +22,9 @@ export enum FORM_TYPE {
 
 const segments = [{ value: FORM_TYPE.PRIVATE_KEY }, { value: FORM_TYPE.RECOVERY_PHRASE }]
 
-const ExternalSignerScreen = ({ navigation }: any) => {
+const ExternalSignerScreen = () => {
   const { t } = useTranslation()
-
+  const navigation = useNavigation()
   const [formType, setFormType] = useState<FORM_TYPE>(FORM_TYPE.PRIVATE_KEY)
 
   useLayoutEffect(() => {
@@ -33,7 +34,7 @@ const ExternalSignerScreen = ({ navigation }: any) => {
           ? t('Login with Recovery Phrase')
           : t('Login with Private Key')
     })
-  }, [formType])
+  }, [formType, navigation, t])
 
   return (
     <GradientBackgroundWrapper>

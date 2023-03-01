@@ -8,10 +8,11 @@ import { Keyboard } from 'react-native'
 
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
+import { ROUTES } from '@config/Router/routesConfig'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useEOA from '@modules/common/hooks/useEOA'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useToast from '@modules/common/hooks/useToast'
-import { navigate } from '@modules/common/services/navigation'
 import useVault from '@modules/vault/hooks/useVault'
 
 type FormProps = {
@@ -34,11 +35,12 @@ const JsonLoginContext = createContext<JsonLoginContextData>({
   pendingLoginWithQuickAccountData: null
 })
 
-const JsonLoginProvider: React.FC = ({ children }) => {
+const JsonLoginProvider: React.FC<any> = ({ children }: any) => {
   const { t } = useTranslation()
   const [error, setError] = useState<null | string>(null)
   const [inProgress, setInProgress] = useState<boolean>(false)
   const { onAddAccount } = useAccounts()
+  const { navigate } = useNavigation()
   const [pendingLoginWithQuickAccountData, setPendingLoginWithQuickAccountData] =
     useState<Account | null>(null)
   const { addToast } = useToast()
@@ -124,12 +126,16 @@ const JsonLoginProvider: React.FC = ({ children }) => {
       if (accountType === 'quickAcc') {
         setPendingLoginWithQuickAccountData(fileContent)
         setInProgress(false)
-        return navigate('addAccountPasswordToVault', { loginType: 'json' })
+        return navigate(ROUTES.ambireAccountJsonLoginPasswordConfirm, {
+          state: {
+            loginType: 'json'
+          }
+        })
       }
 
       if (accountType === 'ledger' && !isWeb) {
         return onEOASelected(fileContent.signer.address, fileContent.signerExtra)
-          ?.then(() => navigate('dashboard'))
+          ?.then(() => navigate(ROUTES.dashboard))
           .catch(() =>
             setError(
               t(
@@ -161,7 +167,15 @@ const JsonLoginProvider: React.FC = ({ children }) => {
         )
       )
     },
-    [onEOASelected, addToVault, addToast, pendingLoginWithQuickAccountData, onAddAccount, t]
+    [
+      onEOASelected,
+      addToVault,
+      addToast,
+      pendingLoginWithQuickAccountData,
+      onAddAccount,
+      t,
+      navigate
+    ]
   )
 
   const cancelLoginAttempts = useCallback(() => {

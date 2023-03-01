@@ -14,14 +14,16 @@ import Toggle from '@modules/common/components/Toggle'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import { DEVICE_SECURITY_LEVEL } from '@modules/common/contexts/biometricsContext/constants'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
+import useRoute from '@modules/common/hooks/useRoute'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import KeyStoreLogo from '@modules/vault/components/KeyStoreLogo'
 import useVault from '@modules/vault/hooks/useVault'
 
-const CreateNewVaultScreen = ({ route }: any) => {
+const CreateNewVaultScreen = () => {
   const { t } = useTranslation()
+  const route = useRoute()
   const { createVault } = useVault()
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const {
@@ -36,7 +38,7 @@ const CreateNewVaultScreen = ({ route }: any) => {
       confirmPassword: '',
       optInForBiometricsUnlock:
         !isWeb && hasBiometricsHardware && deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC,
-      nextRoute: route.params?.nextRoute || 'auth'
+      nextRoute: route?.params?.nextRoute || 'auth'
     }
   })
 

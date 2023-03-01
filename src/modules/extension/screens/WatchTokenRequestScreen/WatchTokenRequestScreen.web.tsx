@@ -1,5 +1,5 @@
 import { Token, UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio'
-import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import ManifestFallbackIcon from '@assets/svg/ManifestFallbackIcon'
@@ -24,7 +24,7 @@ import ManifestImage from '@modules/extension/components/ManifestImage'
 
 import styles from './styles'
 
-const WatchTokenRequestScreen = ({ navigation }: any) => {
+const WatchTokenRequestScreen = () => {
   const { t } = useTranslation()
   const [loadingTokenDetails, setLoadingTokenDetails] = useState(true)
   const [error, setError] = useState('')
@@ -39,10 +39,6 @@ const WatchTokenRequestScreen = ({ navigation }: any) => {
   >({
     isEligible: false
   })
-
-  useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: t('Webpage Wants to Add Token') })
-  }, [t, navigation])
 
   const tokenSymbol = approval?.data?.params?.data?.options?.symbol
   const tokenAddress = approval?.data?.params?.data?.options?.address

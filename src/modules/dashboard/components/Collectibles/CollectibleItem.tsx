@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
 import { Image, TouchableOpacity, View } from 'react-native'
 
+import { ROUTES } from '@config/Router/routesConfig'
 import FastImage from '@modules/common/components/FastImage'
 import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import handleCollectibleUri from '@modules/dashboard/helpers/handleCollectibleUri'
-import { useNavigation } from '@react-navigation/native'
 
 import styles from './styles'
 
@@ -37,10 +38,12 @@ const CollectibleItem = ({
   const { navigate } = useNavigation()
 
   const handleCollectiblePress = () => {
-    navigate('collectible-screen', {
-      tokenId,
-      network,
-      address
+    navigate(ROUTES.collectibles, {
+      state: {
+        tokenId,
+        network,
+        address
+      }
     })
   }
 

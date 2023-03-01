@@ -1,20 +1,20 @@
 import { isWeb } from '@config/env'
 
 const UI_TYPE = {
-  // Tab: 'index',
+  Tab: 'index',
   Popup: 'index',
   Notification: 'notification'
 }
 
 type UiTypeCheck = {
-  // isTab: boolean
+  isTab: boolean
   isNotification: boolean
   isPopup: boolean
 }
 
 export const getUiType = (): UiTypeCheck => {
   if (!isWeb) {
-    return { isNotification: false, isPopup: false }
+    return { isNotification: false, isPopup: false, isTab: false }
   }
 
   const { pathname } = window.location

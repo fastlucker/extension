@@ -13,13 +13,13 @@ import Toggle from '@modules/common/components/Toggle'
 import Wrapper from '@modules/common/components/Wrapper'
 import { DEVICE_SECURITY_LEVEL } from '@modules/common/contexts/biometricsContext/constants'
 import useBiometrics from '@modules/common/hooks/useBiometrics'
+import useIsScreenFocused from '@modules/common/hooks/useIsScreenFocused'
 import useToast from '@modules/common/hooks/useToast'
 import alert from '@modules/common/services/alert'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import ManageLockVaultWhenInactive from '@modules/vault/components/ManageLockVaultWhenInactive'
 import useVault from '@modules/vault/hooks/useVault'
-import { useIsFocused } from '@react-navigation/native'
 
 import styles from './styles'
 
@@ -30,7 +30,7 @@ interface FormValues {
 const ManageVaultLockScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
-  const isFocused = useIsFocused()
+  const isFocused = useIsScreenFocused()
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const {
     isValidPassword,

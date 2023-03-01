@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
+import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import Button from '@modules/common/components/Button'
 import Panel from '@modules/common/components/Panel'
@@ -18,11 +19,11 @@ import Spinner from '@modules/common/components/Spinner'
 import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import TokenIcon from '@modules/common/components/TokenIcon'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import textStyles from '@modules/common/styles/utils/text'
-import { useNavigation } from '@react-navigation/native'
 
 import CustomFee from './CustomFee'
 import styles from './styles'
@@ -322,7 +323,18 @@ const FeeSelector = ({
             >
               {speed}
             </Text>
-            <Text numberOfLines={2} fontSize={12}>
+            <Text
+              numberOfLines={2}
+              fontSize={12}
+              style={
+                // Workaround for react-native-web issue, happening with long
+                // continuous strings. Otherwise, those strings go beyond the
+                // layout and break the UI.
+                // {@link https://github.com/necolas/react-native-web/issues/760#issuecomment-816941918}
+                // @ts-ignore-next-line
+                isWeb && { wordBreak: 'break-word' }
+              }
+            >
               {showInUSD
                 ? `$${formatFloatTokenAmount(baseFeeInFeeUSD, true, 4)}`
                 : formatFloatTokenAmount(baseFeeInFeeToken, true, decimals)}

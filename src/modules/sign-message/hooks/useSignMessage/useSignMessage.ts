@@ -10,6 +10,8 @@ import { useCallback, useMemo, useState } from 'react'
 
 import { verifyMessage } from '@ambire/signature-validator'
 import CONFIG from '@config/env'
+import { ROUTES } from '@config/Router/routesConfig'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToast from '@modules/common/hooks/useToast'
@@ -17,7 +19,6 @@ import { fetchPost } from '@modules/common/services/fetch'
 import { getWallet } from '@modules/common/services/getWallet/getWallet'
 import useVault from '@modules/vault/hooks/useVault'
 import { SIGNER_TYPES } from '@modules/vault/services/VaultController/types'
-import { useNavigation } from '@react-navigation/native'
 
 import { UseSignMessageProps, UseSignMessageReturnType } from './types'
 
@@ -231,7 +232,7 @@ const useSignMessage = ({
             }
 
             if (messagesToSign.length === 1) {
-              navigate('dashboard')
+              navigate(ROUTES.dashboard)
             }
 
             addSignedMessage({

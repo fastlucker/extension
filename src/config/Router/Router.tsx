@@ -1,7 +1,6 @@
 import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import DashboardIcon from '@assets/svg/DashboardIcon'
@@ -33,7 +32,7 @@ import { ConnectionStates } from '@modules/common/contexts/netInfoContext'
 import useNetInfo from '@modules/common/hooks/useNetInfo'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
-import { navigate, navigationRef, routeNameRef } from '@modules/common/services/navigation'
+import { navigate } from '@modules/common/services/navigation'
 import colors from '@modules/common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@modules/common/styles/spacings'
 import ConnectScreen from '@modules/connect/screens/ConnectScreen'
@@ -61,10 +60,10 @@ import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
 import VaultSetupGetStartedScreen from '@modules/vault/screens/VaultSetupGetStartedScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
-import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import { drawerStyle, navigationContainerDarkTheme } from './styles'
+import routesConfig, { ROUTES } from './routesConfig'
+import { drawerStyle } from './styles'
 
 const Tab = createBottomTabNavigator()
 const Stack = createNativeStackNavigator()
@@ -80,15 +79,13 @@ const GasInformationStack = createNativeStackNavigator()
 const DataDeletionPolicyStack = createNativeStackNavigator()
 
 const SignersStackScreen = () => {
-  const { t } = useTranslation()
-
   return (
     <SignersStack.Navigator screenOptions={{ header: headerGamma }}>
       <SignersStack.Screen
-        name="signers-screen"
+        name={`${ROUTES.signers}-screen`}
         component={SignersScreen}
         options={{
-          title: t('Manage Signers')
+          title: routesConfig.signers.title
         }}
       />
     </SignersStack.Navigator>
@@ -96,15 +93,13 @@ const SignersStackScreen = () => {
 }
 
 const DataDeletionPolicyStackScreen = () => {
-  const { t } = useTranslation()
-
   return (
     <DataDeletionPolicyStack.Navigator screenOptions={{ header: headerBeta }}>
       <DataDeletionPolicyStack.Screen
-        name="data-deletion-policy-screen"
+        name={`${ROUTES.dataDeletionPolicy}-screen`}
         component={DataDeletionPolicyScreen}
         options={{
-          title: t('Data Deletion Policy')
+          title: routesConfig['data-deletion-policy'].title
         }}
       />
     </DataDeletionPolicyStack.Navigator>
@@ -114,7 +109,7 @@ const DataDeletionPolicyStackScreen = () => {
 const GasTankStackScreen = () => {
   return (
     <GasTankStack.Navigator screenOptions={{ header: headerGamma }}>
-      <GasTankStack.Screen name="gas-tank-screen" component={GasTankScreen} />
+      <GasTankStack.Screen name={`${ROUTES.gasTank}-screen`} component={GasTankScreen} />
     </GasTankStack.Navigator>
   )
 }
@@ -122,21 +117,22 @@ const GasTankStackScreen = () => {
 const GasInformationStackScreen = () => {
   return (
     <GasInformationStack.Navigator screenOptions={{ header: headerGamma }}>
-      <GasInformationStack.Screen name="gas-information-screen" component={GasInformationScreen} />
+      <GasInformationStack.Screen
+        name={`${ROUTES.gasInformation}-screen`}
+        component={GasInformationScreen}
+      />
     </GasInformationStack.Navigator>
   )
 }
 
 const ManageVaultLockStackScreen = () => {
-  const { t } = useTranslation()
-
   return (
     <ManageVaultLockStack.Navigator screenOptions={{ header: headerBeta }}>
       <ManageVaultLockStack.Screen
-        name="manage-vault-lock-screen"
+        name={`${ROUTES.manageVaultLock}-screen`}
         component={ManageVaultLockScreen}
         options={{
-          title: t('Manage Key Store Lock')
+          title: routesConfig['manage-vault-lock'].title
         }}
       />
     </ManageVaultLockStack.Navigator>
@@ -144,19 +140,17 @@ const ManageVaultLockStackScreen = () => {
 }
 
 const EmailLoginStackScreen = () => {
-  const { t } = useTranslation()
-
   return (
     <EmailLoginProvider>
       <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
         <EmailLoginStack.Screen
-          name="emailLogin"
-          options={{ title: t('Login') }}
+          name={`${ROUTES.ambireAccountLogin}-screen`}
+          options={{ title: routesConfig['ambire-account-login'].title }}
           component={EmailLoginScreen}
         />
         <EmailLoginStack.Screen
-          name="addAccountPasswordToVault"
-          options={{ title: t('Login') }}
+          name={ROUTES.ambireAccountLoginPasswordConfirm}
+          options={{ title: routesConfig['ambire-account-login-password-confirm'].title }}
           component={AddAccountPasswordToVaultScreen}
         />
       </EmailLoginStack.Navigator>
@@ -165,19 +159,19 @@ const EmailLoginStackScreen = () => {
 }
 
 const JsonLoginStackScreen = () => {
-  const { t } = useTranslation()
-
   return (
     <JsonLoginProvider>
       <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
         <JsonLoginStack.Screen
-          name="jsonLogin"
-          options={{ title: t('Import from JSON') }}
+          name={`${ROUTES.ambireAccountJsonLogin}-screen`}
+          options={{ title: routesConfig['ambire-account-json-login'].title }}
           component={JsonLoginScreen}
         />
         <JsonLoginStack.Screen
-          name="addAccountPasswordToVault"
-          options={{ title: t('Login') }}
+          name={ROUTES.ambireAccountJsonLoginPasswordConfirm}
+          options={{
+            title: routesConfig['ambire-account-json-login-password-confirm'].title
+          }}
           component={AddAccountPasswordToVaultScreen}
         />
       </JsonLoginStack.Navigator>
@@ -186,7 +180,6 @@ const JsonLoginStackScreen = () => {
 }
 
 const AuthStack = () => {
-  const { t } = useTranslation()
   const { vaultStatus } = useVault()
   const { getItem } = useStorageController()
 
@@ -196,58 +189,61 @@ const AuthStack = () => {
 
   const initialRouteName =
     vaultStatus === VAULT_STATUS.NOT_INITIALIZED
-      ? 'createVaultGetStarted'
+      ? ROUTES.getStarted
       : // Checks whether there is a pending email login attempt. It happens when user
       // request email login and closes the app. When the app is opened
       // the second time - an immediate email login attempt will be triggered.
       getItem('pendingLoginEmail')
-      ? 'ambireAccountLogin'
-      : 'auth'
+      ? ROUTES.ambireAccountLogin
+      : `${ROUTES.auth}-screen`
 
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <>
           <Stack.Screen
-            name="createVaultGetStarted"
-            options={{ title: t('Welcome') }}
+            name={ROUTES.getStarted}
+            options={{ title: routesConfig['get-started'].title }}
             component={VaultSetupGetStartedScreen}
           />
           <Stack.Screen
-            name="createVault"
-            options={{ title: t('Setup Ambire Key Store') }}
+            name={ROUTES.createVault}
+            options={{ title: routesConfig['create-vault'].title }}
             component={CreateNewVaultScreen}
           />
         </>
       )}
       <Stack.Screen
-        options={{ title: t('Welcome to Ambire') }}
-        name="auth"
+        options={{ title: routesConfig.auth.title }}
+        name={`${ROUTES.auth}-screen`}
         component={AuthScreen}
       />
       <Stack.Screen
-        name="ambireAccountLogin"
-        options={{ title: t('Login'), headerShown: false }}
+        name={ROUTES.ambireAccountLogin}
+        options={{ title: routesConfig['ambire-account-login'].title, headerShown: false }}
         component={EmailLoginStackScreen}
       />
       <Stack.Screen
-        name="ambireAccountJsonLogin"
-        options={{ title: t('Import from JSON'), headerShown: false }}
+        name={ROUTES.ambireAccountJsonLogin}
+        options={{
+          title: routesConfig['ambire-account-json-login'].title,
+          headerShown: false
+        }}
         component={JsonLoginStackScreen}
       />
       <Stack.Screen
-        name="qrCodeLogin"
-        options={{ title: t('Import with QR Code') }}
+        name={ROUTES.qrCodeLogin}
+        options={{ title: routesConfig['qr-code-login'].title }}
         component={QRCodeLoginScreen}
       />
       <Stack.Screen
-        name="hardwareWallet"
-        options={{ title: t('Hardware Wallet') }}
+        name={ROUTES.hardwareWallet}
+        options={{ title: routesConfig['hardware-wallet'].title }}
         component={HardwareWalletConnectScreen}
       />
       <Stack.Screen
-        name="externalSigner"
-        options={{ title: t('Login with External Signer') }}
+        name={ROUTES.externalSigner}
+        options={{ title: routesConfig['external-signer'].title }}
         component={ExternalSignerScreen}
       />
     </Stack.Navigator>
@@ -255,8 +251,6 @@ const AuthStack = () => {
 }
 
 const NoConnectionStack = () => {
-  const { t } = useTranslation()
-
   useEffect(() => {
     SplashScreen.hideAsync()
   }, [])
@@ -264,8 +258,8 @@ const NoConnectionStack = () => {
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
       <Stack.Screen
-        options={{ title: t('No connection') }}
-        name="no-connection"
+        options={{ title: routesConfig['no-connection'].title }}
+        name={ROUTES.noConnection}
         component={NoConnectionScreen}
       />
     </Stack.Navigator>
@@ -273,7 +267,6 @@ const NoConnectionStack = () => {
 }
 
 const VaultStack = () => {
-  const { t } = useTranslation()
   const { vaultStatus, unlockVault, biometricsEnabled, resetVault } = useVault()
 
   useEffect(() => {
@@ -304,13 +297,13 @@ const VaultStack = () => {
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
       <Stack.Screen
-        name="unlockVault"
-        options={{ title: t('Welcome Back') }}
+        name={ROUTES.unlockVault}
+        options={{ title: routesConfig['unlock-vault'].title }}
         component={renderUnlockVaultScreen}
       />
       <Stack.Screen
-        name="resetVault"
-        options={{ title: t('Reset Ambire Key Store') }}
+        name={ROUTES.resetVault}
+        options={{ title: routesConfig['reset-vault'].title }}
         component={renderResetVaultScreen}
       />
     </Stack.Navigator>
@@ -320,15 +313,13 @@ const VaultStack = () => {
 const DashboardStackScreen = () => {
   return (
     <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
-      <DashboardStack.Screen name="dashboard-screen" component={DashboardScreen} />
-      <DashboardStack.Screen name="collectible-screen" component={CollectibleScreen} />
+      <DashboardStack.Screen name={`${ROUTES.dashboard}-screen`} component={DashboardScreen} />
+      <DashboardStack.Screen name={`${ROUTES.collectibles}-screen`} component={CollectibleScreen} />
     </DashboardStack.Navigator>
   )
 }
 
 const TabsScreens = () => {
-  const { t } = useTranslation()
-
   const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
   return (
     <Tab.Navigator
@@ -352,10 +343,10 @@ const TabsScreens = () => {
       )}
     >
       <Tab.Screen
-        name="dashboard"
+        name={ROUTES.dashboard}
         options={{
-          tabBarLabel: t('Dashboard'),
-          headerTitle: t('Dashboard'),
+          tabBarLabel: routesConfig.dashboard.title,
+          headerTitle: routesConfig.dashboard.title,
           tabBarIcon: ({ color }) => (
             <DashboardIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -366,10 +357,10 @@ const TabsScreens = () => {
       {/* Also excluded from the bundle by including an empty EarnScreen.ios.tsx */}
       {isAndroid && (
         <Tab.Screen
-          name="earn"
+          name={ROUTES.earn}
           options={{
-            tabBarLabel: t('Earn'),
-            headerTitle: t('Earn'),
+            tabBarLabel: routesConfig.earn.title,
+            headerTitle: routesConfig.earn.title,
             tabBarIcon: ({ color }) => (
               <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
             )
@@ -378,10 +369,10 @@ const TabsScreens = () => {
         />
       )}
       <Tab.Screen
-        name="send"
+        name={ROUTES.send}
         options={{
-          tabBarLabel: t('Send'),
-          headerTitle: t('Send'),
+          tabBarLabel: routesConfig.send.title,
+          headerTitle: routesConfig.send.title,
           tabBarIcon: ({ color }) => (
             <SendIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -389,10 +380,10 @@ const TabsScreens = () => {
         component={SendScreen}
       />
       <Tab.Screen
-        name="swap"
+        name={ROUTES.swap}
         options={{
-          tabBarLabel: t('Swap'),
-          headerTitle: t('Swap'),
+          tabBarLabel: routesConfig.swap.title,
+          headerTitle: routesConfig.swap.title,
           tabBarIcon: ({ color }) => (
             <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -400,10 +391,10 @@ const TabsScreens = () => {
         component={SwapScreen}
       />
       <Tab.Screen
-        name="transactions"
+        name={ROUTES.transactions}
         options={{
-          tabBarLabel: t('Transactions'),
-          headerTitle: t('Transactions'),
+          tabBarLabel: routesConfig.transactions.title,
+          headerTitle: routesConfig.transactions.title,
           tabBarIcon: ({ color }) => (
             <TransferIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -430,7 +421,6 @@ const AppDrawer = () => {
 }
 
 const AppStack = () => {
-  const { t } = useTranslation()
   const { getItem } = useStorageController()
 
   useEffect(() => {
@@ -442,13 +432,13 @@ const AppStack = () => {
     // user requests email login and closes the the app. When the app is opened
     // the second time - an immediate email login attempt will be triggered.
     // Redirect the user instead of using the `initialRouteName`,
-    // because when 'auth-add-account' is set for `initialRouteName`,
+    // because when '/auth' is set for `initialRouteName`,
     // the 'drawer' route never gets rendered, and therefore - upon successful
     // login attempt - the redirection to the 'dashboard' route breaks -
     // because this route doesn't exist (it's never being rendered).
     const shouldAttemptLogin = !!getItem('pendingLoginEmail')
     if (shouldAttemptLogin) {
-      navigate('auth-add-account')
+      navigate(ROUTES.auth)
     }
   }, [getItem])
 
@@ -463,58 +453,54 @@ const AppStack = () => {
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="signers"
+        name={ROUTES.signers}
         component={SignersStackScreen}
       />
       <MainStack.Screen
-        name="data-deletion-policy"
+        name={ROUTES.dataDeletionPolicy}
         component={DataDeletionPolicyStackScreen}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
         options={{ headerShown: false }}
-        name="manage-vault-lock"
+        name={ROUTES.manageVaultLock}
         component={ManageVaultLockStackScreen}
       />
-      <MainStack.Screen
-        name="auth-add-account"
-        component={AuthStack}
-        options={{ headerShown: false }}
-      />
+      <MainStack.Screen name={ROUTES.auth} component={AuthStack} options={{ headerShown: false }} />
       {isAndroid && (
         <MainStack.Screen
-          name="connect"
+          name={ROUTES.connect}
           component={ConnectScreen}
-          options={{ title: t('Connect a dApp') }}
+          options={{ title: routesConfig.connect.title }}
         />
       )}
       <MainStack.Screen
-        name="receive"
+        name={ROUTES.receive}
         options={{ header: headerGamma }}
         component={ReceiveScreen}
       />
       <MainStack.Screen
-        name="provider"
-        options={{ title: t('Receive') }}
+        name={ROUTES.provider}
+        options={{ title: routesConfig.receive.title }}
         component={ProviderScreen}
       />
       <MainStack.Screen
-        name="pending-transactions"
+        name={ROUTES.pendingTransactions}
         component={PendingTransactionsScreen}
-        options={{ title: t('Pending Transaction') }}
+        options={{ title: routesConfig['pending-transactions'].title }}
       />
       <MainStack.Screen
-        name="sign-message"
+        name={ROUTES.signMessage}
         component={SignMessageScreen}
-        options={{ title: t('Sign') }}
+        options={{ title: routesConfig['sign-message'].title }}
       />
       <MainStack.Screen
-        name="gas-tank"
+        name={ROUTES.gasTank}
         component={GasTankStackScreen}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
-        name="gas-information"
+        name={ROUTES.gasInformation}
         component={GasInformationStackScreen}
         options={{ headerShown: false }}
       />
@@ -527,59 +513,37 @@ const Router = () => {
   const { connectionState } = useNetInfo()
   const { vaultStatus } = useVault()
 
-  const renderContent = useCallback(() => {
-    if (connectionState === ConnectionStates.NOT_CONNECTED) {
-      return <NoConnectionStack />
-    }
+  if (connectionState === ConnectionStates.NOT_CONNECTED) {
+    return <NoConnectionStack />
+  }
 
-    // Vault loads in async manner, so always wait until it's being loaded,
-    // otherwise - other routes flash beforehand.
-    if (vaultStatus === VAULT_STATUS.LOADING) return null
+  // Vault loads in async manner, so always wait until it's being loaded,
+  // otherwise - other routes flash beforehand.
+  if (vaultStatus === VAULT_STATUS.LOADING) return null
 
-    // When locked, always prompt the user to unlock it first.
-    if (VAULT_STATUS.LOCKED === vaultStatus) {
+  // When locked, always prompt the user to unlock it first.
+  if (VAULT_STATUS.LOCKED === vaultStatus) {
+    return <VaultStack />
+  }
+
+  // When not authenticated, take him to the Auth screens first,
+  // even without having a vault initialized yet.
+  if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
+    return <AuthStack />
+  }
+
+  if (authStatus === AUTH_STATUS.AUTHENTICATED) {
+    if (VAULT_STATUS.NOT_INITIALIZED === vaultStatus) {
       return <VaultStack />
     }
 
-    // When not authenticated, take him to the Auth screens first,
-    // even without having a vault initialized yet.
-    if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      return <AuthStack />
+    if (vaultStatus === VAULT_STATUS.UNLOCKED || vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
+      return <AppStack />
     }
-
-    if (authStatus === AUTH_STATUS.AUTHENTICATED) {
-      if (VAULT_STATUS.NOT_INITIALIZED === vaultStatus) {
-        return <VaultStack />
-      }
-
-      if (
-        vaultStatus === VAULT_STATUS.UNLOCKED ||
-        vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY
-      ) {
-        return <AppStack />
-      }
-    }
-
-    // authStatus === AUTH_STATUS.LOADING or anything else:
-    return null
-  }, [connectionState, authStatus, vaultStatus])
-
-  const handleOnReady = () => {
-    // @ts-ignore for some reason TS complains about this 👇
-    routeNameRef.current = navigationRef.current.getCurrentRoute()?.name
   }
 
-  return (
-    <NavigationContainer
-      // Part of the mechanism for being able to navigate without the navigation prop.
-      // For more details, see the NavigationService.
-      ref={navigationRef}
-      onReady={handleOnReady}
-      theme={navigationContainerDarkTheme}
-    >
-      {renderContent()}
-    </NavigationContainer>
-  )
+  // authStatus === AUTH_STATUS.LOADING or anything else:
+  return null
 }
 
 export default Router

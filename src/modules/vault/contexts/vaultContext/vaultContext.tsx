@@ -9,9 +9,9 @@ import GradientBackgroundWrapper from '@modules/common/components/GradientBackgr
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useExtensionWallet from '@modules/common/hooks/useExtensionWallet'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
-import { navigate } from '@modules/common/services/navigation'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import { KEY_LOCK_KEYSTORE_WHEN_INACTIVE } from '@modules/vault/constants/storageKeys'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
@@ -31,6 +31,7 @@ const VaultContext = createContext<VaultContextReturnType>(vaultContextDefaults)
 
 const VaultProvider: React.FC = ({ children }) => {
   const { addToast } = useToast()
+  const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { extensionWallet } = useExtensionWallet()
   const { onRemoveAllAccounts } = useAccounts()
@@ -128,7 +129,6 @@ const VaultProvider: React.FC = ({ children }) => {
 
       // Automatically unlock after vault initialization
       setVaultStatus(VAULT_STATUS.UNLOCKED)
-
       // The unlock is approval. When unlocking - we need to resolve the
       // approval to unlock in order to trigger the next approval in line
       if (getUiType().isNotification) {
@@ -143,7 +143,8 @@ const VaultProvider: React.FC = ({ children }) => {
       t,
       requestVaultControllerMethod,
       addKeystorePasswordToDeviceSecureStore,
-      resolveApproval
+      resolveApproval,
+      navigate
     ]
   )
 
@@ -199,7 +200,6 @@ const VaultProvider: React.FC = ({ children }) => {
       })
         .then(() => {
           setVaultStatus(VAULT_STATUS.UNLOCKED)
-
           // The unlock is approval. When unlocking - we need to resolve the
           // approval to unlock in order to trigger the next approval in line
           if (getUiType().isNotification) {

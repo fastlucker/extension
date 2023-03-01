@@ -1,4 +1,5 @@
 import { isWeb } from '@config/env'
+import { ROUTES } from '@config/Router/routesConfig'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import {
   useVaultBiometricsDefaults,
@@ -17,7 +18,7 @@ export interface VaultContextReturnType extends UseVaultBiometricsReturnType {
     password: string
     confirmPassword: string
     optInForBiometricsUnlock: boolean
-    nextRoute?: string
+    nextRoute?: ROUTES
   }) => Promise<any>
   resetVault: ({ password, confirmPassword }: { password: string; confirmPassword: string }) => void
   unlockVault: ({ password }: { password: string }) => Promise<any>

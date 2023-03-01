@@ -17,6 +17,7 @@ import Title from '@modules/common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useDisableNavigatingBack from '@modules/common/hooks/useDisableNavigatingBack'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useRequests from '@modules/common/hooks/useRequests'
 import useWalletConnect from '@modules/common/hooks/useWalletConnect'
 import colors from '@modules/common/styles/colors'
@@ -47,8 +48,9 @@ const walletType = (signerExtra: any) => {
   return 'Web3'
 }
 
-const SignScreenScreen = ({ navigation }: any) => {
+const SignScreenScreen = () => {
   const { t } = useTranslation()
+  const navigation = useNavigation()
   const { account } = useAccounts()
   const { connections } = useWalletConnect()
   const { everythingToSign, resolveMany } = useRequests()

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ColorValue, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
@@ -9,17 +9,19 @@ import NetworkIcon from '@modules/common/components/NetworkIcon'
 import Text from '@modules/common/components/Text'
 import useAccounts from '@modules/common/hooks/useAccounts'
 import useHeaderBottomSheet from '@modules/common/hooks/useHeaderBottomSheet'
+import useNavigation, { titleChangeEventStream } from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import usePrivateMode from '@modules/common/hooks/usePrivateMode'
+import useRoute from '@modules/common/hooks/useRoute'
 import colors from '@modules/common/styles/colors'
 import spacings, { SPACING_SM } from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import { DrawerHeaderProps } from '@react-navigation/drawer'
-import { getHeaderTitle } from '@react-navigation/elements'
+import { getUiType } from '@web/utils/uiType'
 
+import routesConfig, { ROUTES } from '../routesConfig'
 import styles from './style'
 
-interface Props extends DrawerHeaderProps {
+interface Props {
   mode?: 'title' | 'bottom-sheet'
   withHamburger?: boolean
   backgroundColor?: ColorValue
@@ -30,17 +32,38 @@ const Header: React.FC<Props> = ({
   mode = 'bottom-sheet',
   withHamburger = false,
   withScanner = false,
-  backgroundColor,
-  navigation,
-  route,
-  options
+  backgroundColor
 }) => {
-  const canGoBack = navigation.canGoBack()
-  const title = getHeaderTitle(options, route.name)
   const { network } = useNetwork()
+  const { params, path } = useRoute()
   const { selectedAcc } = useAccounts()
+  const { navigate } = useNavigation()
   const { openHeaderBottomSheet } = useHeaderBottomSheet()
   const { hidePrivateValue } = usePrivateMode()
+  const [title, setTitle] = useState('')
+
+  const handleGoBack = useCallback(() => navigate(-1), [navigate])
+  const handleGoMenu = useCallback(() => navigate(ROUTES.menu), [navigate])
+
+  const navigationEnabled = !getUiType().isNotification
+  const canGoBack =
+    params?.prevRoute?.key !== 'default' && params?.prevRoute?.path !== '/' && navigationEnabled
+
+  useEffect(() => {
+    if (!path) return
+
+    const nextRoute = path?.substring(1) as ROUTES
+    setTitle(routesConfig[nextRoute].title)
+  }, [path])
+
+  useEffect(() => {
+    const subscription = titleChangeEventStream!.subscribe({
+      next: (v) => setTitle(v)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
   const renderBottomSheetSwitcher = (
     <TouchableOpacity
       style={[flexboxStyles.flex1, flexboxStyles.alignCenter]}
@@ -72,13 +95,9 @@ const Header: React.FC<Props> = ({
   )
 
   const renderHeaderLeft = () => {
-    if (typeof options.headerLeft === 'function') {
-      return options.headerLeft({})
-    }
-
     if (canGoBack) {
       return (
-        <NavIconWrapper onPress={navigation.goBack}>
+        <NavIconWrapper onPress={handleGoBack}>
           <LeftArrowIcon />
         </NavIconWrapper>
       )
@@ -88,7 +107,7 @@ const Header: React.FC<Props> = ({
   }
 
   const renderHeaderRight = (
-    <NavIconWrapper onPress={navigation.openDrawer}>
+    <NavIconWrapper onPress={handleGoMenu}>
       <Blockies borderRadius={13} size={10} seed={selectedAcc} />
     </NavIconWrapper>
   )
@@ -127,7 +146,7 @@ const Header: React.FC<Props> = ({
       {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
       {mode === 'title' && (
         <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={2}>
-          {title}
+          {title || ''}
         </Text>
       )}
       <View style={navIconContainer}>

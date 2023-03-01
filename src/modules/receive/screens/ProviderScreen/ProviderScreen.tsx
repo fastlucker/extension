@@ -5,17 +5,15 @@ import WebView from 'react-native-webview'
 import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
 import Spinner from '@modules/common/components/Spinner'
 import Wrapper from '@modules/common/components/Wrapper'
+import useNavigation from '@modules/common/hooks/useNavigation'
+import useRoute from '@modules/common/hooks/useRoute'
 import spacings from '@modules/common/styles/spacings'
-import { RouteProp, useNavigation } from '@react-navigation/native'
 
 import styles from './styles'
 
-interface Props {
-  route: RouteProp<{ params: { name: string; uri: string } }, 'params'>
-}
-
-const ProviderScreen = ({ route }: Props) => {
-  const { name, uri } = route.params
+const ProviderScreen = () => {
+  const { params } = useRoute()
+  const { name, uri } = params
   const { goBack, setOptions } = useNavigation()
 
   useEffect(() => {

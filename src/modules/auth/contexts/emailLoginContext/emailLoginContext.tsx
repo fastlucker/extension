@@ -4,11 +4,12 @@ import { Keyboard } from 'react-native'
 
 import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
+import { ROUTES } from '@config/Router/routesConfig'
 import useAccounts from '@modules/common/hooks/useAccounts'
+import useNavigation from '@modules/common/hooks/useNavigation'
 import useStorageController from '@modules/common/hooks/useStorageController'
 import useToast from '@modules/common/hooks/useToast'
 import { fetchCaught } from '@modules/common/services/fetch'
-import { navigate } from '@modules/common/services/navigation'
 import useVault from '@modules/vault/hooks/useVault'
 
 type FormProps = {
@@ -36,10 +37,11 @@ const EmailLoginContext = createContext<EmailLoginContextData>({
 
 const EMAIL_VERIFICATION_RECHECK = 3000
 
-const EmailLoginProvider: React.FC = ({ children }) => {
+const EmailLoginProvider: React.FC<any> = ({ children }: any) => {
   const { addToast } = useToast()
   const { getItem, setItem, removeItem } = useStorageController()
   const { onAddAccount } = useAccounts()
+  const { navigate } = useNavigation()
   const { addToVault } = useVault()
   const { t } = useTranslation()
 
@@ -136,7 +138,7 @@ const EmailLoginProvider: React.FC = ({ children }) => {
         setItem('pendingLoginAccount', JSON.stringify(body))
         // Delete the key so that it can't be used anymore on this browser
         removeItem('loginSessionKey')
-        navigate('addAccountPasswordToVault', { loginType: 'email' })
+        navigate(ROUTES.ambireAccountLoginPasswordConfirm, { state: { loginType: 'email' } })
       } else {
         addToast(
           body.message
@@ -147,7 +149,7 @@ const EmailLoginProvider: React.FC = ({ children }) => {
       }
       setRequiresConfFor(null)
     },
-    [addToast, getItem, removeItem, setItem]
+    [addToast, getItem, removeItem, setItem, navigate]
   )
 
   const handleLogin = useCallback(
@@ -166,7 +168,11 @@ const EmailLoginProvider: React.FC = ({ children }) => {
           addToast(`Unexpected error: ${e.message || e}`, { error: true })
         }
       } else if (pendingLoginAccount && email) {
-        navigate('addAccountPasswordToVault', { loginType: 'email' })
+        navigate(ROUTES.ambireAccountLoginPasswordConfirm, {
+          state: {
+            loginType: 'email'
+          }
+        })
       } else if (pendingLoginAccount && !password) {
         addToast('Password is required', { error: true })
       } else {
@@ -203,7 +209,15 @@ const EmailLoginProvider: React.FC = ({ children }) => {
 
       setInProgress(false)
     },
-    [addToVault, addToast, attemptLogin, handleAddAccount, pendingLoginAccount, removeItem]
+    [
+      addToVault,
+      addToast,
+      attemptLogin,
+      handleAddAccount,
+      pendingLoginAccount,
+      removeItem,
+      navigate
+    ]
   )
 
   const cancelLoginAttempts = useCallback(() => {
