@@ -16,7 +16,6 @@ import useGasTank from '@modules/common/hooks/useGasTank'
 import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import useRequests from '@modules/common/hooks/useRequests'
-import useRoute from '@modules/common/hooks/useRoute'
 import spacings from '@modules/common/styles/spacings'
 import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import isInt from '@modules/common/utils/isInt'
@@ -26,7 +25,6 @@ import SignActions from '@modules/pending-transactions/components/SignActions'
 import SigningWithAccount from '@modules/pending-transactions/components/SigningWithAccount'
 import TransactionSummary from '@modules/pending-transactions/components/TransactionSummary'
 import useSendTransaction from '@modules/pending-transactions/hooks/useSendTransaction'
-import { StackActions } from '@react-navigation/native'
 import { getUiType } from '@web/utils/uiType'
 
 const relayerURL = CONFIG.RELAYER_URL
@@ -34,7 +32,6 @@ const relayerURL = CONFIG.RELAYER_URL
 const PendingTransactionsScreen = () => {
   const { t } = useTranslation()
   const navigation = useNavigation()
-  const { location } = useRoute()
   const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
   const { account } = useAccounts()
   const { network } = useNetwork()
