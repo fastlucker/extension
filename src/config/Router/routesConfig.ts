@@ -36,7 +36,8 @@ export enum ROUTES {
   getEncryptionPublicKeyRequest = 'get-encryption-public-key-request',
   dataDeletionPolicy = 'data-deletion-policy',
   connect = 'connect',
-  swap = 'swap'
+  swap = 'swap',
+  onboarding = 'onboarding'
 }
 
 const routesConfig: {
@@ -255,6 +256,12 @@ const routesConfig: {
     route: ROUTES.swap,
     title: Platform.select({
       default: i18n.t('Swap')
+    })
+  },
+  [ROUTES.onboarding]: {
+    route: ROUTES.onboarding,
+    title: Platform.select({
+      default: i18n.t('Onboarding')
     })
   }
 }

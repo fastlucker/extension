@@ -1,28 +1,30 @@
 import React, { createContext, useMemo } from 'react'
 
 import useStorage from '@modules/common/hooks/useStorage'
+import { isExtension } from '@web/constants/browserapi'
 
-import { OnboardingContextReturnType } from './types'
+import { ONBOARDING_VALUES, OnboardingContextReturnType } from './types'
 
 const OnboardingContext = createContext<OnboardingContextReturnType>({
-  onBoarded: false,
-  setOnBoarded: () => {}
+  onboardingStatus: ONBOARDING_VALUES.NOT_ON_BOARDED,
+  setOnboardingStatus: () => {}
 })
 
 const OnboardingProvider: React.FC<any> = ({ children }) => {
-  const [onBoarded, setOnBoarded] = useStorage({
-    key: 'onBoarded',
-    defaultValue: false
+  const [onboardingStatus, setOnboardingStatus] = useStorage({
+    key: 'onboardingStatus',
+    defaultValue: isExtension ? ONBOARDING_VALUES.NOT_ON_BOARDED : ONBOARDING_VALUES.ON_BOARDED,
+    isStringStorage: true
   })
 
   return (
     <OnboardingContext.Provider
       value={useMemo(
         () => ({
-          onBoarded,
-          setOnBoarded
+          onboardingStatus,
+          setOnboardingStatus
         }),
-        [onBoarded, setOnBoarded]
+        [onboardingStatus, setOnboardingStatus]
       )}
     >
       {children}

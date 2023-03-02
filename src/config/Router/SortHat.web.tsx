@@ -7,6 +7,8 @@ import Spinner from '@modules/common/components/Spinner'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNavigation from '@modules/common/hooks/useNavigation'
 import flexbox from '@modules/common/styles/utils/flexbox'
+import { ONBOARDING_VALUES } from '@modules/onboarding/contexts/onboardingContext/types'
+import useOnboarding from '@modules/onboarding/hooks/useOnboarding'
 import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
 import { getUiType } from '@web/utils/uiType'
@@ -19,8 +21,7 @@ const SortHat = () => {
   const { approval } = useExtensionApproval()
   const isInNotification = getUiType().isNotification
   const { vaultStatus } = useVault()
-
-  const isInTab = getUiType().isTab
+  const { onboardingStatus } = useOnboarding()
 
   const loadView = useCallback(async () => {
     if (vaultStatus === VAULT_STATUS.LOADING) return
@@ -42,12 +43,6 @@ const SortHat = () => {
       return navigate(ROUTES.auth)
     }
 
-    // TODO: check if needed when switching from popup to tab view
-    // if ((await extensionWallet.hasPageStateCache()) && !isInNotification && !isInTab && !approval) {
-    //   const cache = (await extensionWallet.getPageStateCache())!
-    //   setTo(cache.path + (cache.search || ''))
-    //   return
-    // }
     if (approval && isInNotification) {
       if (approval?.data?.approvalComponent === 'PermissionRequest') {
         return navigate(ROUTES.permissionRequest)
@@ -71,9 +66,11 @@ const SortHat = () => {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
     } else {
-      navigate(ROUTES.dashboard)
+      navigate(
+        onboardingStatus === ONBOARDING_VALUES.ON_BOARDED ? ROUTES.dashboard : ROUTES.onboarding
+      )
     }
-  }, [isInNotification, vaultStatus, approval, navigate, authStatus])
+  }, [isInNotification, vaultStatus, approval, navigate, authStatus, onboardingStatus])
 
   useEffect(() => {
     loadView()
