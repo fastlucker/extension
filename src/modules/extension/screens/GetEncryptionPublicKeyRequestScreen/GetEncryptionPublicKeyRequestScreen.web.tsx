@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect } from 'react'
+import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
 import ManifestFallbackIcon from '@assets/svg/ManifestFallbackIcon'
@@ -18,13 +18,9 @@ import ManifestImage from '@modules/extension/components/ManifestImage'
 
 import styles from './styles'
 
-const GetEncryptionPublicKeyRequestScreen = ({ navigation }: any) => {
+const GetEncryptionPublicKeyRequestScreen = () => {
   const { t } = useTranslation()
   const { approval, rejectApproval } = useExtensionApproval()
-
-  useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: t('Webpage Wants to Get Encryption Key') })
-  }, [t, navigation])
 
   const handleDeny = useCallback(
     () => rejectApproval(t('User rejected the request.')),

@@ -119,7 +119,7 @@ const MainRoutes = () => {
           <Route path={ROUTES.qrCodeLogin} element={<QRCodeLoginScreen />} />
           <Route path={ROUTES.hardwareWallet} element={<HardwareWalletConnectScreen />} />
           <Route path={ROUTES.externalSigner} element={<ExternalSignerScreen />} />
-          <Route path="on-boarding" element={<OnBoardingScreen />} />
+          <Route path={ROUTES.onboarding} element={<OnBoardingScreen />} />
         </Route>
       </Route>
       <Route element={<PrivateRoute />}>

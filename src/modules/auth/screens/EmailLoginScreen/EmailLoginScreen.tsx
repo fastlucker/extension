@@ -31,7 +31,7 @@ const EmailLoginScreen = () => {
     navigation.setOptions({
       headerTitle: formType === FORM_TYPE.CREATE_ACCOUNT ? t('Create new Account') : t('Login')
     })
-  }, [formType])
+  }, [formType, navigation, t])
 
   return (
     <GradientBackgroundWrapper>

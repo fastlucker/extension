@@ -1,5 +1,6 @@
 const useIsScreenFocused = () => {
-  // TODO: implement for web
+  // TODO: Temporarily assume the screen is always on focus, but if later on
+  // needed for a web feature too - implement the logic.
   return true
 }
 

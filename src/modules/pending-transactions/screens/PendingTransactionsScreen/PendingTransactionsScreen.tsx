@@ -3,7 +3,7 @@ import React, { useEffect, useLayoutEffect } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import CONFIG, { isWeb } from '@config/env'
+import CONFIG from '@config/env'
 import { useTranslation } from '@config/localization'
 import BottomSheet from '@modules/common/components/BottomSheet'
 import Button from '@modules/common/components/Button'
@@ -25,7 +25,6 @@ import SignActions from '@modules/pending-transactions/components/SignActions'
 import SigningWithAccount from '@modules/pending-transactions/components/SigningWithAccount'
 import TransactionSummary from '@modules/pending-transactions/components/TransactionSummary'
 import useSendTransaction from '@modules/pending-transactions/hooks/useSendTransaction'
-import { StackActions } from '@react-navigation/native'
 import { getUiType } from '@web/utils/uiType'
 
 const relayerURL = CONFIG.RELAYER_URL
@@ -75,38 +74,17 @@ const PendingTransactionsScreen = () => {
   }, [navigation, bundle?.txns?.length, t])
 
   useEffect(() => {
-    if (!isWeb) {
-      const unsubscribe = navigation?.addListener('beforeRemove', () => {
-        if (sendTxnState.showing) {
-          setSendTxnState({ showing: false })
-        }
-        if (everythingToSign.length) {
-          resolveMany([everythingToSign[0].id], {
-            message: t('Ambire user rejected the signature request')
-          })
-        }
-      })
-      return unsubscribe
+    return () => {
+      if (sendTxnState.showing) {
+        setSendTxnState({ showing: false })
+      }
+      if (everythingToSign.length) {
+        resolveMany([everythingToSign[0].id], {
+          message: t('Ambire user rejected the signature request')
+        })
+      }
     }
-  }, [navigation])
-
-  useEffect(() => {
-    if (!isWeb) {
-      const unsubscribe = navigation?.addListener('blur', () => {
-        if (sendTxnState.showing) {
-          setSendTxnState({ showing: false })
-        }
-        if (everythingToSign.length) {
-          resolveMany([everythingToSign[0].id], {
-            message: t('Ambire user rejected the signature request')
-          })
-        }
-        navigation.dispatch(StackActions.popToTop())
-      })
-
-      return unsubscribe
-    }
-  }, [navigation])
+  }, [everythingToSign, resolveMany, sendTxnState.showing, setSendTxnState, t])
 
   useEffect(() => {
     if (prevBundle?.txns?.length && !bundle?.txns?.length) {

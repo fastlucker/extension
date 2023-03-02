@@ -65,9 +65,10 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
       if (stay) {
         return
       }
-      setTimeout(() => {
-        navigate('/')
-      })
+
+      // Navigate to the main route after the approval is resolved, which
+      // triggers the logic that determines where user should go next.
+      setTimeout(() => navigate('/'))
     },
     [addToast, approval, extensionWallet, getApproval, t, navigate]
   )
@@ -90,9 +91,9 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
       const nextApproval = await getApproval()
       setApproval(nextApproval)
 
-      if (!stay) {
-        navigate('/')
-      }
+      // Navigate to the main route after the approval is resolved, which
+      // triggers the logic that determines where user should go next.
+      if (!stay) navigate('/')
     },
     [approval, extensionWallet, getApproval, addToast, t, navigate]
   )

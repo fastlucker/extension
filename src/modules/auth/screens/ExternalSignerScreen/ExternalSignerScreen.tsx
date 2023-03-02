@@ -34,7 +34,7 @@ const ExternalSignerScreen = () => {
           ? t('Login with Recovery Phrase')
           : t('Login with Private Key')
     })
-  }, [formType])
+  }, [formType, navigation, t])
 
   return (
     <GradientBackgroundWrapper>

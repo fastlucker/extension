@@ -113,7 +113,9 @@ const styles = StyleSheet.create<Style>({
     maxHeight: TAB_BAR_HEIGHT,
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    borderTopColor: colors.waikawaGray,
+    borderTopWidth: 1
   },
   backdropBlurWrapper: {
     width: '100%',

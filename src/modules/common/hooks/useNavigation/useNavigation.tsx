@@ -2,7 +2,9 @@ import { useCallback } from 'react'
 
 import { useNavigation as useReactNavigation } from '@react-navigation/native'
 
-import { UseNavigationReturnType } from './types'
+import { TitleChangeEventStreamType, UseNavigationReturnType } from './types'
+
+export const titleChangeEventStream: TitleChangeEventStreamType = null
 
 const useNavigation = (): UseNavigationReturnType => {
   const nav = useReactNavigation()

@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { View } from 'react-native'
 
 import ManifestFallbackIcon from '@assets/svg/ManifestFallbackIcon'
@@ -10,7 +10,6 @@ import Text from '@modules/common/components/Text'
 import Title from '@modules/common/components/Title'
 import Wrapper from '@modules/common/components/Wrapper'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
-import useNavigation from '@modules/common/hooks/useNavigation'
 import useNetwork from '@modules/common/hooks/useNetwork'
 import colors from '@modules/common/styles/colors'
 import spacings from '@modules/common/styles/spacings'
@@ -25,11 +24,6 @@ const PermissionRequestScreen = () => {
   const { network } = useNetwork()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
   const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
-  const navigation = useNavigation()
-
-  useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: t('Webpage Wants to Connect') })
-  }, [t, navigation])
 
   const handleDenyButtonPress = useCallback(
     () => rejectApproval(t('User rejected the request.')),
