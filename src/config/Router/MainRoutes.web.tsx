@@ -26,6 +26,7 @@ import WatchTokenRequestScreen from '@modules/extension/screens/WatchTokenReques
 import GasInformationScreen from '@modules/gas-tank/screens/GasInformationScreen'
 import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
+import OnBoardingScreen from '@modules/onboarding/screens/OnBoardingScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import ProviderScreen from '@modules/receive/screens/ProviderScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
@@ -118,6 +119,7 @@ const MainRoutes = () => {
           <Route path={ROUTES.qrCodeLogin} element={<QRCodeLoginScreen />} />
           <Route path={ROUTES.hardwareWallet} element={<HardwareWalletConnectScreen />} />
           <Route path={ROUTES.externalSigner} element={<ExternalSignerScreen />} />
+          <Route path="on-boarding" element={<OnBoardingScreen />} />
         </Route>
       </Route>
       <Route element={<PrivateRoute />}>
