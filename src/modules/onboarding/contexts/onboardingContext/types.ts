@@ -5,6 +5,6 @@ export interface OnboardingContextReturnType {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum ONBOARDING_VALUES {
-  ON_BOARDED = 'onBoarded',
+  ON_BOARDED = 'on-boarded',
   NOT_ON_BOARDED = 'not-on-boarded'
 }
