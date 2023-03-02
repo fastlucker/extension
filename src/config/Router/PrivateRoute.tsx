@@ -20,6 +20,9 @@ const PrivateRoute = () => {
     }
   }, [vaultStatus, authStatus])
 
+  // returns empty fragment because React Router complains
+  // when the children of <Routes> are different from <Route /> and <Fragment />
+  // eslint-disable-next-line react/jsx-no-useless-fragment
   if (!isReady) return <></>
 
   let to = null

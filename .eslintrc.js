@@ -6,7 +6,6 @@ module.exports = {
     'no-nested-ternary': 'off',
     'prefer-promise-reject-errors': 'off',
     'no-underscore-dangle': 'off',
-    'react/jsx-no-useless-fragment': 'off'
   },
   env: {
     "browser": true,
