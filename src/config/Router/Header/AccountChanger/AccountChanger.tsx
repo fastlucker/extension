@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
 import LogOutIcon from '@assets/svg/LogOutIcon'
-import { isWeb } from '@config/env'
 import { ROUTES } from '@config/Router/routesConfig'
 import Blockies from '@modules/common/components/Blockies'
 import Button from '@modules/common/components/Button'
@@ -44,6 +43,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
 
   const handleGoToAddAccount = useCallback(() => {
     closeBottomSheet()
+
     navigate(ROUTES.auth)
   }, [closeBottomSheet, navigate])
 

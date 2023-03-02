@@ -12,6 +12,8 @@ import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNavigation from '@modules/common/hooks/useNavigation/useNavigation'
 import useStorage from '@modules/common/hooks/useStorage'
 import useToasts from '@modules/common/hooks/useToast'
+import { ONBOARDING_VALUES } from '@modules/onboarding/contexts/onboardingContext/types'
+import useOnboarding from '@modules/onboarding/hooks/useOnboarding'
 import { getUiType } from '@web/utils/uiType'
 
 const AccountsContext = createContext<UseAccountsReturnType>({
@@ -28,7 +30,7 @@ const AccountsProvider: React.FC<any> = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
   const { approval } = useExtensionApproval()
   const { navigate } = useNavigation()
-
+  const { onboardingStatus } = useOnboarding()
   const onAdd = useCallback<UseAccountsProps['onAdd']>(
     (opts) => {
       if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
@@ -50,10 +52,14 @@ const AccountsProvider: React.FC<any> = ({ children }) => {
       // If the user is authenticated, a manual redirect is needed,
       // because the logged-in state screens were already mounted.
       if (opts.shouldRedirect) {
-        navigate(ROUTES.dashboard)
+        if (onboardingStatus === ONBOARDING_VALUES.ON_BOARDED) {
+          navigate(ROUTES.dashboard)
+        } else {
+          navigate(ROUTES.onboarding)
+        }
       }
     },
-    [authStatus, setAuthStatus, approval, navigate]
+    [authStatus, setAuthStatus, approval, navigate, onboardingStatus]
   )
 
   const onRemoveLastAccount = useCallback<UseAccountsProps['onRemoveLastAccount']>(() => {

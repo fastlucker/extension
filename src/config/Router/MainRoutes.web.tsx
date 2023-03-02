@@ -26,6 +26,7 @@ import WatchTokenRequestScreen from '@modules/extension/screens/WatchTokenReques
 import GasInformationScreen from '@modules/gas-tank/screens/GasInformationScreen'
 import GasTankScreen from '@modules/gas-tank/screens/GasTankScreen'
 import HardwareWalletConnectScreen from '@modules/hardware-wallet/screens/HardwareWalletConnectScreen'
+import OnBoardingScreen from '@modules/onboarding/screens/OnBoardingScreen'
 import PendingTransactionsScreen from '@modules/pending-transactions/screens/PendingTransactionsScreen'
 import ProviderScreen from '@modules/receive/screens/ProviderScreen'
 import ReceiveScreen from '@modules/receive/screens/ReceiveScreen'
@@ -40,10 +41,11 @@ import { getUiType } from '@web/utils/uiType'
 
 import BottomNav from './BottomNav/BottomNav'
 import DrawerContent from './DrawerContent/DrawerContent.web'
+import PrivateRoute from './PrivateRoute'
 import { ROUTES } from './routesConfig'
+import TabOnlyRoute from './TabOnlyRoute'
 
 const navigationEnabled = !getUiType().isNotification
-
 const headerAlpha = (
   <>
     {navigationEnabled
@@ -93,57 +95,62 @@ const MainRoutes = () => {
     <Routes>
       <Route element={headerBeta}>
         <Route path={ROUTES.noConnection} element={<NoConnectionScreen />} />
-        <Route path={ROUTES.getStarted} element={<VaultSetupGetStartedScreen />} />
-        <Route path={ROUTES.createVault} element={<CreateNewVaultScreen />} />
-        <Route path={ROUTES.auth} element={<AuthScreen />} />
+        <Route element={<TabOnlyRoute />}>
+          <Route path={ROUTES.getStarted} element={<VaultSetupGetStartedScreen />} />
+          <Route path={ROUTES.createVault} element={<CreateNewVaultScreen />} />
+          <Route path={ROUTES.auth} element={<AuthScreen />} />
 
-        <Route element={emailLoginProvider}>
-          <Route path={ROUTES.ambireAccountLogin} element={<EmailLoginScreen />} />
+          <Route element={emailLoginProvider}>
+            <Route path={ROUTES.ambireAccountLogin} element={<EmailLoginScreen />} />
+            <Route
+              path={ROUTES.ambireAccountLoginPasswordConfirm}
+              element={<AddAccountPasswordToVaultScreen />}
+            />
+          </Route>
+
+          <Route element={jsonLoginProvider}>
+            <Route path={ROUTES.ambireAccountJsonLogin} element={<JsonLoginScreen />} />
+            <Route
+              path={ROUTES.ambireAccountJsonLoginPasswordConfirm}
+              element={<AddAccountPasswordToVaultScreen />}
+            />
+          </Route>
+
+          <Route path={ROUTES.qrCodeLogin} element={<QRCodeLoginScreen />} />
+          <Route path={ROUTES.hardwareWallet} element={<HardwareWalletConnectScreen />} />
+          <Route path={ROUTES.externalSigner} element={<ExternalSignerScreen />} />
+          <Route path={ROUTES.onboarding} element={<OnBoardingScreen />} />
+        </Route>
+      </Route>
+      <Route element={<PrivateRoute />}>
+        <Route element={headerAlpha}>
+          <Route element={footer}>
+            <Route path={ROUTES.dashboard} element={<DashboardScreen />} />
+            <Route path={ROUTES.collectibles} element={<CollectibleScreen />} />
+            <Route path={ROUTES.earn} element={<EarnScreen />} />
+            <Route path={ROUTES.send} element={<SendScreen />} />
+            <Route path={ROUTES.transactions} element={<TransactionsScreen />} />
+            <Route path={ROUTES.gasTank} element={<GasTankScreen />} />
+          </Route>
+        </Route>
+        <Route element={headerBeta}>
+          <Route path={ROUTES.menu} element={<DrawerContent />} />
+          <Route path={ROUTES.pendingTransactions} element={<PendingTransactionsScreen />} />
+          <Route path={ROUTES.receive} element={<ReceiveScreen />} />
+          <Route path={ROUTES.provider} element={<ProviderScreen />} />
+          <Route path={ROUTES.signMessage} element={<SignMessageScreen />} />
+          <Route path={ROUTES.gasInformation} element={<GasInformationScreen />} />
           <Route
-            path={ROUTES.ambireAccountLoginPasswordConfirm}
-            element={<AddAccountPasswordToVaultScreen />}
+            path={ROUTES.getEncryptionPublicKeyRequest}
+            element={<GetEncryptionPublicKeyRequestScreen />}
           />
+          <Route path={ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
+          <Route path={ROUTES.switchNetwork} element={<SwitchNetworkRequestScreen />} />
+          <Route path={ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
         </Route>
-
-        <Route element={jsonLoginProvider}>
-          <Route path={ROUTES.ambireAccountJsonLogin} element={<JsonLoginScreen />} />
-          <Route
-            path={ROUTES.ambireAccountJsonLoginPasswordConfirm}
-            element={<AddAccountPasswordToVaultScreen />}
-          />
+        <Route element={headerGamma}>
+          <Route path={ROUTES.signers} element={<SignersScreen />} />
         </Route>
-
-        <Route path={ROUTES.qrCodeLogin} element={<QRCodeLoginScreen />} />
-        <Route path={ROUTES.hardwareWallet} element={<HardwareWalletConnectScreen />} />
-        <Route path={ROUTES.externalSigner} element={<ExternalSignerScreen />} />
-      </Route>
-      <Route element={headerAlpha}>
-        <Route element={footer}>
-          <Route path={ROUTES.dashboard} element={<DashboardScreen />} />
-          <Route path={ROUTES.collectibles} element={<CollectibleScreen />} />
-          <Route path={ROUTES.earn} element={<EarnScreen />} />
-          <Route path={ROUTES.send} element={<SendScreen />} />
-          <Route path={ROUTES.transactions} element={<TransactionsScreen />} />
-          <Route path={ROUTES.gasTank} element={<GasTankScreen />} />
-        </Route>
-      </Route>
-      <Route element={headerBeta}>
-        <Route path={ROUTES.menu} element={<DrawerContent />} />
-        <Route path={ROUTES.pendingTransactions} element={<PendingTransactionsScreen />} />
-        <Route path={ROUTES.receive} element={<ReceiveScreen />} />
-        <Route path={ROUTES.provider} element={<ProviderScreen />} />
-        <Route path={ROUTES.signMessage} element={<SignMessageScreen />} />
-        <Route path={ROUTES.gasInformation} element={<GasInformationScreen />} />
-        <Route
-          path={ROUTES.getEncryptionPublicKeyRequest}
-          element={<GetEncryptionPublicKeyRequestScreen />}
-        />
-        <Route path={ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
-        <Route path={ROUTES.switchNetwork} element={<SwitchNetworkRequestScreen />} />
-        <Route path={ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
-      </Route>
-      <Route element={headerGamma}>
-        <Route path={ROUTES.signers} element={<SignersScreen />} />
       </Route>
     </Routes>
   )

@@ -242,6 +242,20 @@ module.exports = async function (env, argv) {
           }
         },
         templateIndex
+      ),
+      // Generate tab.html
+      new HtmlWebpackPlugin(
+        {
+          ...env,
+          locations: {
+            ...locations,
+            production: {
+              ...locations.production,
+              indexHtml: './tab.html'
+            }
+          }
+        },
+        templateIndex
       )
     ]
 

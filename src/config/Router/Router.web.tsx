@@ -5,12 +5,14 @@ import { Outlet, Route, Routes } from 'react-router-dom'
 
 import i18n from '@config/localization/localization'
 import { headerBeta as defaultHeaderBeta } from '@config/Router/HeadersConfig'
+import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
 import useAuth from '@modules/auth/hooks/useAuth'
 import Spinner from '@modules/common/components/Spinner'
 import useExtensionApproval from '@modules/common/hooks/useExtensionApproval'
 import useNavigation from '@modules/common/hooks/useNavigation'
 import useRoute from '@modules/common/hooks/useRoute'
 import flexbox from '@modules/common/styles/utils/flexbox'
+import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
 import useVault from '@modules/vault/hooks/useVault'
 import ResetVaultScreen from '@modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@modules/vault/screens/UnlockVaultScreen'
@@ -42,13 +44,23 @@ const Router = () => {
   const prevVaultStatus = usePrevious(vaultStatus)
 
   useEffect(() => {
-    if (path !== '/' && authStatus !== prevAuthStatus) {
+    if (
+      path !== '/' &&
+      authStatus !== prevAuthStatus &&
+      authStatus !== AUTH_STATUS.LOADING &&
+      prevAuthStatus !== AUTH_STATUS.LOADING
+    ) {
       navigate('/', { replace: true })
     }
   }, [authStatus, navigate, path, prevAuthStatus])
 
   useEffect(() => {
-    if (path !== '/' && vaultStatus !== prevVaultStatus) {
+    if (
+      path !== '/' &&
+      vaultStatus !== prevVaultStatus &&
+      vaultStatus !== VAULT_STATUS.LOADING &&
+      prevVaultStatus !== VAULT_STATUS.LOADING
+    ) {
       navigate('/', { replace: true })
     }
   }, [vaultStatus, navigate, path, prevVaultStatus])

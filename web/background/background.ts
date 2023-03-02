@@ -102,3 +102,11 @@ browser.runtime.onConnect.addListener(async (port) => {
     return providerController(req)
   })
 })
+
+// On first install, open Ambire Extension in new tab to start the login process
+browser.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === 'install') {
+    const extensionURL = browser.runtime.getURL('tab.html')
+    browser.tabs.create({ url: extensionURL })
+  }
+})
