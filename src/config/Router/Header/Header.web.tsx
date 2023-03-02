@@ -35,7 +35,7 @@ const Header: React.FC<Props> = ({
   backgroundColor
 }) => {
   const { network } = useNetwork()
-  const { params, path } = useRoute()
+  const { path, params } = useRoute()
   const { selectedAcc } = useAccounts()
   const { navigate } = useNavigation()
   const { openHeaderBottomSheet } = useHeaderBottomSheet()
@@ -46,7 +46,9 @@ const Header: React.FC<Props> = ({
 
   const navigationEnabled = !getUiType().isNotification
   const canGoBack =
-    params?.prevRoute?.key !== 'default' && params?.prevRoute?.path !== '/' && navigationEnabled
+    // If you have a location key that means you routed in-app. But if you
+    // don't that means you come from outside of the app or you just open it.
+    params?.prevRoute?.key !== 'default' && params?.prevRoute?.pathname !== '/' && navigationEnabled
 
   const title = useMemo(() => routesConfig[path?.substring(1)].webTitle, [path])
 
