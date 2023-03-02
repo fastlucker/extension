@@ -85,7 +85,7 @@ const SignersStackScreen = () => {
         name={`${ROUTES.signers}-screen`}
         component={SignersScreen}
         options={{
-          title: routesConfig.signers.mobileTitle
+          title: routesConfig.signers.title
         }}
       />
     </SignersStack.Navigator>
@@ -99,7 +99,7 @@ const DataDeletionPolicyStackScreen = () => {
         name={`${ROUTES.dataDeletionPolicy}-screen`}
         component={DataDeletionPolicyScreen}
         options={{
-          title: routesConfig['data-deletion-policy'].mobileTitle
+          title: routesConfig['data-deletion-policy'].title
         }}
       />
     </DataDeletionPolicyStack.Navigator>
@@ -132,7 +132,7 @@ const ManageVaultLockStackScreen = () => {
         name={`${ROUTES.manageVaultLock}-screen`}
         component={ManageVaultLockScreen}
         options={{
-          title: routesConfig['manage-vault-lock'].mobileTitle
+          title: routesConfig['manage-vault-lock'].title
         }}
       />
     </ManageVaultLockStack.Navigator>
@@ -145,12 +145,12 @@ const EmailLoginStackScreen = () => {
       <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
         <EmailLoginStack.Screen
           name={`${ROUTES.ambireAccountLogin}-screen`}
-          options={{ title: routesConfig['ambire-account-login'].mobileTitle }}
+          options={{ title: routesConfig['ambire-account-login'].title }}
           component={EmailLoginScreen}
         />
         <EmailLoginStack.Screen
           name={ROUTES.ambireAccountLoginPasswordConfirm}
-          options={{ title: routesConfig['ambire-account-login-password-confirm'].mobileTitle }}
+          options={{ title: routesConfig['ambire-account-login-password-confirm'].title }}
           component={AddAccountPasswordToVaultScreen}
         />
       </EmailLoginStack.Navigator>
@@ -164,13 +164,13 @@ const JsonLoginStackScreen = () => {
       <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
         <JsonLoginStack.Screen
           name={`${ROUTES.ambireAccountJsonLogin}-screen`}
-          options={{ title: routesConfig['ambire-account-json-login'].mobileTitle }}
+          options={{ title: routesConfig['ambire-account-json-login'].title }}
           component={JsonLoginScreen}
         />
         <JsonLoginStack.Screen
           name={ROUTES.ambireAccountJsonLoginPasswordConfirm}
           options={{
-            title: routesConfig['ambire-account-json-login-password-confirm'].mobileTitle
+            title: routesConfig['ambire-account-json-login-password-confirm'].title
           }}
           component={AddAccountPasswordToVaultScreen}
         />
@@ -203,47 +203,47 @@ const AuthStack = () => {
         <>
           <Stack.Screen
             name={ROUTES.getStarted}
-            options={{ title: routesConfig['get-started'].mobileTitle }}
+            options={{ title: routesConfig['get-started'].title }}
             component={VaultSetupGetStartedScreen}
           />
           <Stack.Screen
             name={ROUTES.createVault}
-            options={{ title: routesConfig['create-vault'].mobileTitle }}
+            options={{ title: routesConfig['create-vault'].title }}
             component={CreateNewVaultScreen}
           />
         </>
       )}
       <Stack.Screen
-        options={{ title: routesConfig.auth.mobileTitle }}
+        options={{ title: routesConfig.auth.title }}
         name={`${ROUTES.auth}-screen`}
         component={AuthScreen}
       />
       <Stack.Screen
         name={ROUTES.ambireAccountLogin}
-        options={{ title: routesConfig['ambire-account-login'].mobileTitle, headerShown: false }}
+        options={{ title: routesConfig['ambire-account-login'].title, headerShown: false }}
         component={EmailLoginStackScreen}
       />
       <Stack.Screen
         name={ROUTES.ambireAccountJsonLogin}
         options={{
-          title: routesConfig['ambire-account-json-login'].mobileTitle,
+          title: routesConfig['ambire-account-json-login'].title,
           headerShown: false
         }}
         component={JsonLoginStackScreen}
       />
       <Stack.Screen
         name={ROUTES.qrCodeLogin}
-        options={{ title: routesConfig['qr-code-login'].mobileTitle }}
+        options={{ title: routesConfig['qr-code-login'].title }}
         component={QRCodeLoginScreen}
       />
       <Stack.Screen
         name={ROUTES.hardwareWallet}
-        options={{ title: routesConfig['hardware-wallet'].mobileTitle }}
+        options={{ title: routesConfig['hardware-wallet'].title }}
         component={HardwareWalletConnectScreen}
       />
       <Stack.Screen
         name={ROUTES.externalSigner}
-        options={{ title: routesConfig['external-signer'].mobileTitle }}
+        options={{ title: routesConfig['external-signer'].title }}
         component={ExternalSignerScreen}
       />
     </Stack.Navigator>
@@ -258,7 +258,7 @@ const NoConnectionStack = () => {
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
       <Stack.Screen
-        options={{ title: routesConfig['no-connection'].mobileTitle }}
+        options={{ title: routesConfig['no-connection'].title }}
         name={ROUTES.noConnection}
         component={NoConnectionScreen}
       />
@@ -298,12 +298,12 @@ const VaultStack = () => {
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
       <Stack.Screen
         name={ROUTES.unlockVault}
-        options={{ title: routesConfig['unlock-vault'].mobileTitle }}
+        options={{ title: routesConfig['unlock-vault'].title }}
         component={renderUnlockVaultScreen}
       />
       <Stack.Screen
         name={ROUTES.resetVault}
-        options={{ title: routesConfig['reset-vault'].mobileTitle }}
+        options={{ title: routesConfig['reset-vault'].title }}
         component={renderResetVaultScreen}
       />
     </Stack.Navigator>
@@ -345,8 +345,8 @@ const TabsScreens = () => {
       <Tab.Screen
         name={ROUTES.dashboard}
         options={{
-          tabBarLabel: routesConfig.dashboard.mobileTitle,
-          headerTitle: routesConfig.dashboard.mobileTitle,
+          tabBarLabel: routesConfig.dashboard.title,
+          headerTitle: routesConfig.dashboard.title,
           tabBarIcon: ({ color }) => (
             <DashboardIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -359,8 +359,8 @@ const TabsScreens = () => {
         <Tab.Screen
           name={ROUTES.earn}
           options={{
-            tabBarLabel: routesConfig.earn.mobileTitle,
-            headerTitle: routesConfig.earn.mobileTitle,
+            tabBarLabel: routesConfig.earn.title,
+            headerTitle: routesConfig.earn.title,
             tabBarIcon: ({ color }) => (
               <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
             )
@@ -371,8 +371,8 @@ const TabsScreens = () => {
       <Tab.Screen
         name={ROUTES.send}
         options={{
-          tabBarLabel: routesConfig.send.mobileTitle,
-          headerTitle: routesConfig.send.mobileTitle,
+          tabBarLabel: routesConfig.send.title,
+          headerTitle: routesConfig.send.title,
           tabBarIcon: ({ color }) => (
             <SendIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -382,8 +382,8 @@ const TabsScreens = () => {
       <Tab.Screen
         name={ROUTES.swap}
         options={{
-          tabBarLabel: routesConfig.swap.mobileTitle,
-          headerTitle: routesConfig.swap.mobileTitle,
+          tabBarLabel: routesConfig.swap.title,
+          headerTitle: routesConfig.swap.title,
           tabBarIcon: ({ color }) => (
             <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -393,8 +393,8 @@ const TabsScreens = () => {
       <Tab.Screen
         name={ROUTES.transactions}
         options={{
-          tabBarLabel: routesConfig.transactions.mobileTitle,
-          headerTitle: routesConfig.transactions.mobileTitle,
+          tabBarLabel: routesConfig.transactions.title,
+          headerTitle: routesConfig.transactions.title,
           tabBarIcon: ({ color }) => (
             <TransferIcon color={color} width={tabsIconSize} height={tabsIconSize} />
           )
@@ -471,7 +471,7 @@ const AppStack = () => {
         <MainStack.Screen
           name={ROUTES.connect}
           component={ConnectScreen}
-          options={{ title: routesConfig.connect.mobileTitle }}
+          options={{ title: routesConfig.connect.title }}
         />
       )}
       <MainStack.Screen
@@ -481,18 +481,18 @@ const AppStack = () => {
       />
       <MainStack.Screen
         name={ROUTES.provider}
-        options={{ title: routesConfig.receive.mobileTitle }}
+        options={{ title: routesConfig.receive.title }}
         component={ProviderScreen}
       />
       <MainStack.Screen
         name={ROUTES.pendingTransactions}
         component={PendingTransactionsScreen}
-        options={{ title: routesConfig['pending-transactions'].mobileTitle }}
+        options={{ title: routesConfig['pending-transactions'].title }}
       />
       <MainStack.Screen
         name={ROUTES.signMessage}
         component={SignMessageScreen}
-        options={{ title: routesConfig['sign-message'].mobileTitle }}
+        options={{ title: routesConfig['sign-message'].title }}
       />
       <MainStack.Screen
         name={ROUTES.gasTank}

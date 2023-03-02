@@ -39,7 +39,12 @@ const ToastProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    if (isWeb) return () => null
+    // TODO: Temporarily assume that always has tab bar, since the notification
+    // position will be anyways different in the upcoming versions.
+    if (isWeb) {
+      setHasTabBar(true)
+      return
+    }
 
     let intervalAttemptingToSubscribe: ReturnType<typeof setInterval>
     let navigationRefSubscription = () => {}

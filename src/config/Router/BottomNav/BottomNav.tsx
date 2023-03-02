@@ -17,7 +17,7 @@ import flexbox from '@modules/common/styles/utils/flexbox'
 import { ROUTES } from '../routesConfig'
 import styles from '../styles'
 
-const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
+const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 34
 
 interface ItemProps {
   Icon: React.FC<any>
@@ -44,18 +44,14 @@ let Item: React.FC<ItemProps> = ({ Icon, title, name, isActive }) => {
       ]}
       onPress={handleOnPress}
     >
-      <View
-        style={{
-          marginBottom: 5
-        }}
-      >
-        <Icon
-          width={tabsIconSize}
-          height={tabsIconSize}
-          color={isActive ? colors.heliotrope : colors.titan}
-        />
-      </View>
-      <Text fontSize={10}>{title}</Text>
+      <Icon
+        width={tabsIconSize}
+        height={tabsIconSize}
+        color={isActive ? colors.heliotrope : colors.titan}
+      />
+      <Text color={isActive ? colors.heliotrope : colors.titan} fontSize={10}>
+        {title}
+      </Text>
     </TouchableOpacity>
   )
 }
