@@ -5,7 +5,7 @@ module.exports = {
     'class-methods-use-this': 'off',
     'no-nested-ternary': 'off',
     'prefer-promise-reject-errors': 'off',
-    'no-underscore-dangle': 'off',
+    'no-underscore-dangle': 'off'
   },
   env: {
     "browser": true,
