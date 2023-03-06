@@ -68,3 +68,20 @@ export const SAFE_RPC_METHODS = [
   'wallet_getPermissions',
   'net_version'
 ]
+
+export const SAFE_RPC_METHODS_AMBIRE_MUST_HANDLE = [
+  'eth_getTransactionByHash',
+  'eth_getEncryptionPublicKey',
+  'eth_accounts',
+  'eth_coinbase',
+  'eth_accounts',
+  'eth_requestAccounts',
+  'eth_sendTransaction',
+  'eth_chainId',
+  'eth_sign',
+  'eth_signTypedData',
+  'eth_signTypedData_v1',
+  'eth_signTypedData_v3',
+  'eth_signTypedData_v4',
+  'eth_getBalance'
+]

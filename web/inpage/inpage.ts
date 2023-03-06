@@ -5,6 +5,7 @@ import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { providers } from 'ethers'
 import { EventEmitter } from 'events'
 
+import { SAFE_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import DedupePromise from '@web/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/inpage/services/readyPromise'
@@ -220,7 +221,10 @@ export class EthereumProvider extends EventEmitter {
     this._requestPromiseCheckVisibility()
 
     return this._requestPromise.call(() => {
-      if (['eth_blockNumber', 'eth_call'].includes(data.method)) {
+      if (
+        data.method.startsWith('eth_') &&
+        !SAFE_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
+      ) {
         if (this.dAppOwnProvider) {
           // TODO: For testing only.
           // const ethBlockN = this.dAppOwnProvider.send(data.method, data.params)
