@@ -176,10 +176,11 @@ export class EthereumProvider extends EventEmitter {
         if (DAPP_PROVIDER_URLS[hostname]) {
           // eslint-disable-next-line no-restricted-syntax
           forIn(DAPP_PROVIDER_URLS[hostname], async (providerUrl, networkId) => {
-            const network = networks.find((n) => n.id === networkId) || networks[0]
+            const network = networks.find((n) => n.id === networkId)
+            if (!network) return
 
             try {
-              this.dAppOwnProviders[id] = new providers.JsonRpcProvider(providerUrl, {
+              this.dAppOwnProviders[network.id] = new providers.JsonRpcProvider(providerUrl, {
                 name: network.name,
                 chainId: network.chainId
               })
