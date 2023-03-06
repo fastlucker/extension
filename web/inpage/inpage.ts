@@ -9,7 +9,7 @@ import DedupePromise from '@web/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
-import { logInfoWithPrefix } from '@web/utils/logger'
+import logger, { logInfoWithPrefix } from '@web/utils/logger'
 
 declare const channelName: any
 
@@ -130,24 +130,6 @@ export class EthereumProvider extends EventEmitter {
     })
 
     try {
-      if (this.chainId) {
-        const name = networks.find((n) => n.chainId === this.chainId)?.name || networks[0].name
-        console.log('p chainId', this.chainId, name)
-        this.dAppOwnProvider = new providers.StaticJsonRpcProvider(
-          'https://mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1',
-          {
-            name,
-            chainId: this.chainId
-          }
-        )
-
-        // TODO: Check if it works.
-      }
-    } catch {
-      console.log('Provider failed to init!')
-    }
-
-    try {
       const { chainId, accounts, networkVersion, isUnlocked }: any = await this.request({
         method: 'getProviderState'
       })
@@ -164,6 +146,28 @@ export class EthereumProvider extends EventEmitter {
       })
 
       this._pushEventHandlers.accountsChanged(accounts)
+
+      try {
+        if (chainId) {
+          const { chainId, name } =
+            networks.find((n) => n.chainId === parseInt(chainId)) || networks[0]
+
+          console.log('dApp own provider initiated')
+
+          this.dAppOwnProvider = new providers.JsonRpcProvider(
+            'https://mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1',
+            {
+              name,
+              chainId
+            }
+          )
+
+          // TODO: Check if it works.
+        }
+      } catch (e) {
+        // fail silently
+        console.log('dApp own provider failed to init', e)
+      }
     } catch {
       //
     } finally {
@@ -216,13 +220,11 @@ export class EthereumProvider extends EventEmitter {
     this._requestPromiseCheckVisibility()
 
     return this._requestPromise.call(() => {
-      console.log('iiiiinpage!', JSON.stringify(data, null, 2))
-
-      if (data.method === 'eth_blockNumber') {
+      if (['eth_blockNumber', 'eth_call'].includes(data.method)) {
         if (this.dAppOwnProvider) {
           // TODO: For testing only.
           // const ethBlockN = this.dAppOwnProvider.send(data.method, data.params)
-          // ethBlockN.then((e) => console.log('response block n', e))
+          // ethBlockN.then((e) => console.log('response dapp provider', e))
 
           return this.dAppOwnProvider.send(data.method, data.params)
         }
