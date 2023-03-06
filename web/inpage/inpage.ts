@@ -1,7 +1,8 @@
-// @ts-nocheck
 // Script that is injected into dapp's context through content-script. it mounts ethereum to window
 
+import networks from 'ambire-common/src/constants/networks'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
+import { providers } from 'ethers'
 import { EventEmitter } from 'events'
 
 import DedupePromise from '@web/inpage/services/dedupePromise'
@@ -49,6 +50,8 @@ export class EthereumProvider extends EventEmitter {
    * @deprecated
    */
   networkVersion: string | null = null
+
+  dAppOwnProvider: providers.JsonRpcProvider | null = null
 
   isAmbire = true
 
@@ -127,6 +130,24 @@ export class EthereumProvider extends EventEmitter {
     })
 
     try {
+      if (this.chainId) {
+        const name = networks.find((n) => n.chainId === this.chainId)?.name || networks[0].name
+        console.log('p chainId', this.chainId, name)
+        this.dAppOwnProvider = new providers.StaticJsonRpcProvider(
+          'https://mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1',
+          {
+            name,
+            chainId: this.chainId
+          }
+        )
+
+        // TODO: Check if it works.
+      }
+    } catch {
+      console.log('Provider failed to init!')
+    }
+
+    try {
       const { chainId, accounts, networkVersion, isUnlocked }: any = await this.request({
         method: 'getProviderState'
       })
@@ -195,6 +216,18 @@ export class EthereumProvider extends EventEmitter {
     this._requestPromiseCheckVisibility()
 
     return this._requestPromise.call(() => {
+      console.log('iiiiinpage!', JSON.stringify(data, null, 2))
+
+      if (data.method === 'eth_blockNumber') {
+        if (this.dAppOwnProvider) {
+          // TODO: For testing only.
+          // const ethBlockN = this.dAppOwnProvider.send(data.method, data.params)
+          // ethBlockN.then((e) => console.log('response block n', e))
+
+          return this.dAppOwnProvider.send(data.method, data.params)
+        }
+      }
+
       if (data.method !== 'eth_call') {
         logInfoWithPrefix('[request]', JSON.stringify(data, null, 2))
       }
