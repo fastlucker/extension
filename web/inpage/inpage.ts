@@ -4,6 +4,7 @@ import networks, { NETWORKS } from 'ambire-common/src/constants/networks'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { providers } from 'ethers'
 import { EventEmitter } from 'events'
+import { forIn } from 'lodash'
 
 import { SAFE_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import DedupePromise from '@web/inpage/services/dedupePromise'
@@ -12,7 +13,7 @@ import ReadyPromise from '@web/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
 import logger, { logInfoWithPrefix } from '@web/utils/logger'
 
-const DAPP_PROVIDER_URLS = {
+const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string } } = {
   'app.uniswap.org': {
     [NETWORKS.ethereum]: 'https://mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1',
     [NETWORKS.polygon]: 'https://polygon-mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1',
@@ -71,7 +72,7 @@ export class EthereumProvider extends EventEmitter {
    */
   networkVersion: string | null = null
 
-  dAppOwnProviders: { [key: string]: providers.JsonRpcProvider } = {}
+  dAppOwnProviders: { [key: string]: providers.JsonRpcProvider | null } = {}
 
   isAmbire = true
 
@@ -167,27 +168,32 @@ export class EthereumProvider extends EventEmitter {
 
       this._pushEventHandlers.accountsChanged(accounts)
 
-      try {
-        if (chainId) {
-          const { chainId, name, id } =
-            networks.find((n) => n.chainId === parseInt(chainId)) || networks[0]
+      if (chainId) {
+        console.log('dApp own provider initiated')
 
-          console.log('dApp own provider initiated')
+        // eslint-disable-next-line no-restricted-globals
+        const { hostname } = location
+        if (DAPP_PROVIDER_URLS[hostname]) {
+          // eslint-disable-next-line no-restricted-syntax
+          forIn(DAPP_PROVIDER_URLS[hostname], async (providerUrl, networkId) => {
+            const network = networks.find((n) => n.id === networkId) || networks[0]
 
-          if (DAPP_PROVIDER_URLS[location.hostname]) {
-            Object.values(DAPP_PROVIDER_URLS[location.hostname]).forEach((url) => {
-              this.dAppOwnProviders[id] = new providers.JsonRpcProvider(url, {
-                name,
-                chainId
+            try {
+              this.dAppOwnProviders[id] = new providers.JsonRpcProvider(providerUrl, {
+                name: network.name,
+                chainId: network.chainId
               })
-            })
-          }
 
-          // TODO: Check if it works.
+              // Acts as a mechanism to check if the provider credentials work
+              // eslint-disable-next-line no-await-in-loop
+              await this.dAppOwnProviders[network.id]?.getNetwork()
+            } catch (e) {
+              this.dAppOwnProviders[network.id] = null
+              // fail silently
+              console.log(`dApp's own provider for ${network.name} network failed to init`, e)
+            }
+          })
         }
-      } catch (e) {
-        // fail silently
-        console.log('dApp own provider failed to init', e)
       }
     } catch {
       //
