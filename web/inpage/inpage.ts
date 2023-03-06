@@ -1,6 +1,6 @@
 // Script that is injected into dapp's context through content-script. it mounts ethereum to window
 
-import networks from 'ambire-common/src/constants/networks'
+import networks, { NETWORKS } from 'ambire-common/src/constants/networks'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { providers } from 'ethers'
 import { EventEmitter } from 'events'
@@ -11,6 +11,15 @@ import PushEventHandlers from '@web/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
 import logger, { logInfoWithPrefix } from '@web/utils/logger'
+
+const DAPP_PROVIDER_URLS = {
+  'app.uniswap.org': {
+    [NETWORKS.ethereum]: 'https://mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1',
+    [NETWORKS.polygon]: 'https://polygon-mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1',
+    [NETWORKS.optimism]: 'https://optimism-mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1',
+    [NETWORKS.arbitrum]: 'https://arbitrum-mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1'
+  }
+}
 
 declare const channelName: any
 
@@ -52,7 +61,7 @@ export class EthereumProvider extends EventEmitter {
    */
   networkVersion: string | null = null
 
-  dAppOwnProvider: providers.JsonRpcProvider | null = null
+  dAppOwnProviders: { [key: string]: providers.JsonRpcProvider } = {}
 
   isAmbire = true
 
@@ -150,18 +159,19 @@ export class EthereumProvider extends EventEmitter {
 
       try {
         if (chainId) {
-          const { chainId, name } =
+          const { chainId, name, id } =
             networks.find((n) => n.chainId === parseInt(chainId)) || networks[0]
 
           console.log('dApp own provider initiated')
 
-          this.dAppOwnProvider = new providers.JsonRpcProvider(
-            'https://mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1',
-            {
-              name,
-              chainId
-            }
-          )
+          if (DAPP_PROVIDER_URLS[location.hostname]) {
+            Object.values(DAPP_PROVIDER_URLS[location.hostname]).forEach((url) => {
+              this.dAppOwnProviders[id] = new providers.JsonRpcProvider(url, {
+                name,
+                chainId
+              })
+            })
+          }
 
           // TODO: Check if it works.
         }
@@ -225,12 +235,9 @@ export class EthereumProvider extends EventEmitter {
         data.method.startsWith('eth_') &&
         !SAFE_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
       ) {
-        if (this.dAppOwnProvider) {
-          // TODO: For testing only.
-          // const ethBlockN = this.dAppOwnProvider.send(data.method, data.params)
-          // ethBlockN.then((e) => console.log('response dapp provider', e))
-
-          return this.dAppOwnProvider.send(data.method, data.params)
+        const network = networks.find((n) => n.chainId === parseInt(this.chainId))
+        if (network?.id && this.dAppOwnProviders[network.id]) {
+          return this.dAppOwnProviders[network.id].send(data.method, data.params)
         }
       }
 
