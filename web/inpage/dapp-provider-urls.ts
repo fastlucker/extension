@@ -16,5 +16,12 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
     [NETWORKS.optimism]:
       'https://optimism-mainnet.gateway.pokt.network/v1/lb/62b3314e123e6f00397f19ca',
     [NETWORKS.polygon]: 'https://poly-mainnet.gateway.pokt.network/v1/lb/62b3314e123e6f00397f19ca'
+  },
+  'www.myetherwallet.com': {
+    [NETWORKS.ethereum]: 'wss://nodes.mewapi.io/ws/eth',
+    [NETWORKS.polygon]: 'wss://nodes.mewapi.io/ws/matic',
+    [NETWORKS['binance-smart-chain']]: 'wss://nodes.mewapi.io/ws/bsc',
+    [NETWORKS.moonbeam]: 'wss://wss.api.moonbeam.network',
+    [NETWORKS.moonriver]: 'wss://wss.api.moonriver.moonbeam.network'
   }
 }
