@@ -1,6 +1,6 @@
 // Script that is injected into dapp's context through content-script. it mounts ethereum to window
 
-import networks from 'ambire-common/src/constants/networks'
+import networks, { NetworkId, NETWORKS } from 'ambire-common/src/constants/networks'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
 import { providers } from 'ethers'
@@ -56,7 +56,9 @@ export class EthereumProvider extends EventEmitter {
    */
   networkVersion: string | null = null
 
-  dAppOwnProviders: { [key: string]: providers.JsonRpcProvider | null } = {}
+  dAppOwnProviders: {
+    [key in NetworkId]?: providers.JsonRpcProvider | providers.WebSocketProvider | null
+  } = {}
 
   isAmbire = true
 
