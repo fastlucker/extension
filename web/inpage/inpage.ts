@@ -7,7 +7,7 @@ import { providers } from 'ethers'
 import { EventEmitter } from 'events'
 import { forIn } from 'lodash'
 
-import { SAFE_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
+import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import DedupePromise from '@web/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/inpage/services/readyPromise'
@@ -241,7 +241,7 @@ export class EthereumProvider extends EventEmitter {
     return this._requestPromise.call(() => {
       if (
         data.method.startsWith('eth_') &&
-        !SAFE_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
+        !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
       ) {
         const network = networks.find((n) => intToHex(n.chainId) === this.chainId)
         if (network?.id && this.dAppOwnProviders[network.id]) {

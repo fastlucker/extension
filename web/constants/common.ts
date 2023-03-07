@@ -69,12 +69,11 @@ export const SAFE_RPC_METHODS = [
   'net_version'
 ]
 
-export const SAFE_RPC_METHODS_AMBIRE_MUST_HANDLE = [
+export const ETH_RPC_METHODS_AMBIRE_MUST_HANDLE = [
   'eth_getTransactionByHash',
   'eth_getEncryptionPublicKey',
   'eth_accounts',
   'eth_coinbase',
-  'eth_accounts',
   'eth_requestAccounts',
   'eth_sendTransaction',
   'eth_sign',
