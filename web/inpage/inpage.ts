@@ -243,12 +243,12 @@ export class EthereumProvider extends EventEmitter {
           return this.dAppOwnProviders[network.id]
             ?.send(data.method, data.params)
             .then((res) => {
-              logInfoWithPrefix('[⏩ forwarded request: success]', res)
+              logInfoWithPrefix('[⏩ forwarded request: success]', data.method, res)
 
               return res
             })
             .catch((err) => {
-              logInfoWithPrefix('[⏩ forwarded request: error]', err)
+              logInfoWithPrefix('[⏩ forwarded request: error]', data.method, err)
               throw err
             })
         }
