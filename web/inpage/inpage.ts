@@ -255,7 +255,7 @@ export class EthereumProvider extends EventEmitter {
               return res
             })
             .catch((err) => {
-              logInfoWithPrefix('[⏩ forwarded request: error]', data.method, err)
+              logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
               throw err
             })
         }
