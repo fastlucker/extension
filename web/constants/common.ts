@@ -81,6 +81,5 @@ export const SAFE_RPC_METHODS_AMBIRE_MUST_HANDLE = [
   'eth_signTypedData',
   'eth_signTypedData_v1',
   'eth_signTypedData_v3',
-  'eth_signTypedData_v4',
-  'eth_getBalance'
+  'eth_signTypedData_v4'
 ]
