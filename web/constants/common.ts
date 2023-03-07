@@ -77,7 +77,6 @@ export const SAFE_RPC_METHODS_AMBIRE_MUST_HANDLE = [
   'eth_accounts',
   'eth_requestAccounts',
   'eth_sendTransaction',
-  'eth_chainId',
   'eth_sign',
   'eth_signTypedData',
   'eth_signTypedData_v1',
