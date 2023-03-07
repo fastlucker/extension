@@ -2,6 +2,7 @@
 
 import networks from 'ambire-common/src/constants/networks'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
+import { intToHex } from 'ethereumjs-util'
 import { providers } from 'ethers'
 import { EventEmitter } from 'events'
 import { forIn } from 'lodash'
@@ -11,7 +12,7 @@ import DedupePromise from '@web/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
-import logger, { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
+import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
 import { DAPP_PROVIDER_URLS } from './dapp-provider-urls'
 
@@ -235,9 +236,21 @@ export class EthereumProvider extends EventEmitter {
         data.method.startsWith('eth_') &&
         !SAFE_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
       ) {
-        const network = networks.find((n) => n.chainId === parseInt(this.chainId))
+        const network = networks.find((n) => intToHex(n.chainId) === this.chainId)
         if (network?.id && this.dAppOwnProviders[network.id]) {
-          return this.dAppOwnProviders[network.id].send(data.method, data.params)
+          logInfoWithPrefix('[⏩ forwarded request]', data)
+
+          return this.dAppOwnProviders[network.id]
+            ?.send(data.method, data.params)
+            .then((res) => {
+              logInfoWithPrefix('[⏩ forwarded request: success]', res)
+
+              return res
+            })
+            .catch((err) => {
+              logInfoWithPrefix('[⏩ forwarded request: error]', err)
+              throw err
+            })
         }
       }
 
