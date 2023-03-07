@@ -151,35 +151,33 @@ export class EthereumProvider extends EventEmitter {
 
       this._pushEventHandlers.accountsChanged(accounts)
 
-      if (chainId) {
-        // eslint-disable-next-line no-restricted-globals
-        const { hostname } = location
-        if (DAPP_PROVIDER_URLS[hostname]) {
-          // eslint-disable-next-line no-restricted-syntax
-          forIn(DAPP_PROVIDER_URLS[hostname], async (providerUrl, networkId) => {
-            const network = networks.find((n) => n.id === networkId)
-            if (!network) return
+      // eslint-disable-next-line no-restricted-globals
+      const { hostname } = location
+      if (DAPP_PROVIDER_URLS[hostname]) {
+        // eslint-disable-next-line no-restricted-syntax
+        forIn(DAPP_PROVIDER_URLS[hostname], async (providerUrl, networkId) => {
+          const network = networks.find((n) => n.id === networkId)
+          if (!network) return
 
-            logInfoWithPrefix(`👌 The dApp's own provider initiated for ${network.name} network.`)
+          logInfoWithPrefix(`👌 The dApp's own provider initiated for ${network.name} network.`)
 
-            try {
-              this.dAppOwnProviders[network.id] = new providers.JsonRpcProvider(providerUrl, {
-                name: network.name,
-                chainId: network.chainId
-              })
+          try {
+            this.dAppOwnProviders[network.id] = new providers.JsonRpcProvider(providerUrl, {
+              name: network.name,
+              chainId: network.chainId
+            })
 
-              // Acts as a mechanism to check if the provider credentials work
-              // eslint-disable-next-line no-await-in-loop
-              await this.dAppOwnProviders[network.id]?.getNetwork()
-            } catch (e) {
-              this.dAppOwnProviders[network.id] = null
-              logWarnWithPrefix(
-                `The dApp's own provider for ${network.name} network failed to init.`,
-                e
-              )
-            }
-          })
-        }
+            // Acts as a mechanism to check if the provider credentials work
+            // eslint-disable-next-line no-await-in-loop
+            await this.dAppOwnProviders[network.id]?.getNetwork()
+          } catch (e) {
+            this.dAppOwnProviders[network.id] = null
+            logWarnWithPrefix(
+              `The dApp's own provider for ${network.name} network failed to init.`,
+              e
+            )
+          }
+        })
       }
     } catch {
       //
