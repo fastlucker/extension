@@ -11,7 +11,7 @@ import DedupePromise from '@web/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
-import logger, { logInfoWithPrefix } from '@web/utils/logger'
+import logger, { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
 import { DAPP_PROVIDER_URLS } from './dapp-provider-urls'
 
@@ -152,8 +152,6 @@ export class EthereumProvider extends EventEmitter {
       this._pushEventHandlers.accountsChanged(accounts)
 
       if (chainId) {
-        console.log('dApp own provider initiated')
-
         // eslint-disable-next-line no-restricted-globals
         const { hostname } = location
         if (DAPP_PROVIDER_URLS[hostname]) {
@@ -161,6 +159,8 @@ export class EthereumProvider extends EventEmitter {
           forIn(DAPP_PROVIDER_URLS[hostname], async (providerUrl, networkId) => {
             const network = networks.find((n) => n.id === networkId)
             if (!network) return
+
+            logInfoWithPrefix(`👌 The dApp's own provider initiated for ${network.name} network.`)
 
             try {
               this.dAppOwnProviders[network.id] = new providers.JsonRpcProvider(providerUrl, {
@@ -173,8 +173,10 @@ export class EthereumProvider extends EventEmitter {
               await this.dAppOwnProviders[network.id]?.getNetwork()
             } catch (e) {
               this.dAppOwnProviders[network.id] = null
-              // fail silently
-              console.log(`dApp's own provider for ${network.name} network failed to init`, e)
+              logWarnWithPrefix(
+                `The dApp's own provider for ${network.name} network failed to init.`,
+                e
+              )
             }
           })
         }
@@ -242,7 +244,7 @@ export class EthereumProvider extends EventEmitter {
       }
 
       if (data.method !== 'eth_call') {
-        logInfoWithPrefix('[request]', JSON.stringify(data, null, 2))
+        logInfoWithPrefix('[request]', data)
       }
 
       return this._bcm
