@@ -8,13 +8,12 @@ import { EventEmitter } from 'events'
 import { forIn } from 'lodash'
 
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
+import { DAPP_PROVIDER_URLS } from '@web/inpage/config/dapp-providers'
 import DedupePromise from '@web/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
-
-import { DAPP_PROVIDER_URLS } from './dapp-provider-urls'
 
 declare const channelName: any
 

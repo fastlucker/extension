@@ -1,7 +1,6 @@
 module.exports = {
   name: 'web',
-  displayName: 'web',
-
+  displayName: 'Browser Extension',
   preset: 'jest-puppeteer',
   // Longer timeout than the default one needed for heavier dapps, like https://myetherwallet.com,
   // otherwise, tests fail because the default timeout gets reached.

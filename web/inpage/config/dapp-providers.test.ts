@@ -1,14 +1,14 @@
 import { providers } from 'ethers'
 import puppeteer from 'puppeteer'
 
-import { DAPP_PROVIDER_URLS } from './dapp-provider-urls'
+import { DAPP_PROVIDER_URLS } from './dapp-providers'
 
-describe('Dapp Ethereum RPC provider credentials should work', () => {
+describe('Credentials for dApps own Ethereum RPC providers', () => {
   let browser
   let page
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({ headless: false })
+    browser = await puppeteer.launch({ headless: true })
     page = await browser.newPage()
   })
 
