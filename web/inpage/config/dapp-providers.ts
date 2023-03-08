@@ -23,5 +23,9 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
     [NETWORKS['binance-smart-chain']]: 'wss://nodes.mewapi.io/ws/bsc',
     [NETWORKS.moonbeam]: 'wss://wss.api.moonbeam.network',
     [NETWORKS.moonriver]: 'wss://wss.api.moonriver.moonbeam.network'
+  },
+  'pancakeswap.finance': {
+    [NETWORKS.ethereum]: 'https://eth-mainnet.nodereal.io/v1/13acdadd769d4128b5c4a994e42140b3',
+    [NETWORKS['binance-smart-chain']]: 'https://nodes.pancakeswap.info/'
   }
 }
