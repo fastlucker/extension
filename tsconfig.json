@@ -10,7 +10,7 @@
       "@assets/*": ["src/assets/*"],
       "@modules/*": ["src/modules/*"],
       "@config/*": ["src/config/*"],
-      "@web/*": ["web/*"]
+      "@web/*": ["src/web/*"]
     }
   },
   "exclude": [

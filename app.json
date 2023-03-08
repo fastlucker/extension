@@ -10,6 +10,11 @@
       "enabled": true,
       "fallbackToCacheTimeout": 45000
     },
+    "web": {
+      "build": {
+        "output": "src/web"
+      }
+    },
     "hooks": {
       "postPublish": [
         {

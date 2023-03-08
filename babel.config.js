@@ -44,7 +44,7 @@ module.exports = function (api) {
             '@assets': './src/assets',
             '@modules': './src/modules',
             '@config': './src/config',
-            '@web': './web'
+            '@web': './src/web'
           }
         }
       ]
