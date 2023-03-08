@@ -161,8 +161,6 @@ export class EthereumProvider extends EventEmitter {
           const network = networks.find((n) => n.id === networkId)
           if (!network || !providerUrl) return
 
-          logInfoWithPrefix(`👌 The dApp's own provider initiated for ${network.name} network.`)
-
           try {
             this.dAppOwnProviders[network.id] = providerUrl.startsWith('wss:')
               ? new providers.WebSocketProvider(providerUrl, {
@@ -177,6 +175,7 @@ export class EthereumProvider extends EventEmitter {
             // Acts as a mechanism to check if the provider credentials work
             // eslint-disable-next-line no-await-in-loop
             await this.dAppOwnProviders[network.id]?.getNetwork()
+            logInfoWithPrefix(`👌 The dApp's own provider initiated for ${network.name} network.`)
           } catch (e) {
             this.dAppOwnProviders[network.id] = null
             logWarnWithPrefix(
