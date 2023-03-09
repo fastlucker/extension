@@ -2,11 +2,11 @@ import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import EditIcon from '@assets/svg/EditIcon'
+import NumberInput from '@common/components/NumberInput'
+import Text from '@common/components/Text'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { useTranslation } from '@config/localization'
-import NumberInput from '@modules/common/components/NumberInput'
-import Text from '@modules/common/components/Text'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 

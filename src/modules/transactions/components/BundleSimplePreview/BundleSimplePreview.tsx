@@ -5,12 +5,12 @@ import { Trans, useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
 import OpenIcon from '@assets/svg/OpenIcon'
-import Panel from '@modules/common/components/Panel'
-import Text from '@modules/common/components/Text'
-import TxnPreview from '@modules/common/components/TxnPreview'
-import useConstants from '@modules/common/hooks/useConstants'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import Panel from '@common/components/Panel'
+import Text from '@common/components/Text'
+import TxnPreview from '@common/components/TxnPreview'
+import useConstants from '@common/hooks/useConstants'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
 

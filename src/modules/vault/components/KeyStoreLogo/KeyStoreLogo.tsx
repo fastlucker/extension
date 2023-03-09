@@ -1,8 +1,8 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import { DEVICE_WIDTH } from '@common/styles/spacings'
 import { isWeb } from '@config/env'
-import { DEVICE_WIDTH } from '@modules/common/styles/spacings'
 
 import LockSvg from './LockSvg'
 import styles from './styles'

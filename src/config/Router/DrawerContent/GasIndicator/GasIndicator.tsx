@@ -4,15 +4,15 @@ import React, { useEffect, useState } from 'react'
 import { TouchableOpacity } from 'react-native'
 
 import GasTankIcon from '@assets/svg/GasTankIcon'
+import Text from '@common/components/Text'
+import useNetwork from '@common/hooks/useNetwork'
+import { fetchGet } from '@common/services/fetch'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import CONFIG, { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import { ROUTES } from '@config/Router/routesConfig'
-import Text from '@modules/common/components/Text'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import { fetchGet } from '@modules/common/services/fetch'
-import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Props {
   handleNavigate: (route: ROUTES) => void

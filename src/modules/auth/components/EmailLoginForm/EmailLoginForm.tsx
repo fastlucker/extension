@@ -3,13 +3,13 @@ import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
 
+import Button from '@common/components/Button'
+import Input from '@common/components/Input'
+import spacings from '@common/styles/spacings'
+import { delayPromise } from '@common/utils/promises'
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import useEmailLogin from '@modules/auth/hooks/useEmailLogin'
-import Button from '@modules/common/components/Button'
-import Input from '@modules/common/components/Input'
-import spacings from '@modules/common/styles/spacings'
-import { delayPromise } from '@modules/common/utils/promises'
 
 const EmailLoginScreen = () => {
   const { t } = useTranslation()

@@ -1,6 +1,8 @@
 import React from 'react'
 import { Outlet, Route, Routes } from 'react-router-dom'
 
+import NoConnectionScreen from '@common/screens/NoConnectionScreen'
+import colors from '@common/styles/colors'
 import {
   headerAlpha as defaultHeaderAlpha,
   headerBeta as defaultHeaderBeta,
@@ -14,8 +16,6 @@ import EmailLoginScreen from '@modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@modules/auth/screens/JsonLoginScreen'
 import QRCodeLoginScreen from '@modules/auth/screens/QRCodeLoginScreen'
-import NoConnectionScreen from '@modules/common/screens/NoConnectionScreen'
-import colors from '@modules/common/styles/colors'
 import CollectibleScreen from '@modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@modules/earn/screens/EarnScreen'

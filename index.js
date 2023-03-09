@@ -1,10 +1,8 @@
 import './shim'
 
-import { isiOS, isWeb } from './src/config/env'
-
 import './global'
 import '@config/analytics/CrashAnalytics'
-import '@modules/common/services/layoutAnimation'
+import '@common/services/layoutAnimation'
 import 'react-native-gesture-handler'
 import 'expo-asset'
 

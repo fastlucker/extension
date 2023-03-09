@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native'
 
+import spacings from '@common/styles/spacings'
 import { isWeb } from '@config/env'
-import spacings from '@modules/common/styles/spacings'
 
 const styles = StyleSheet.create({
   sectionViewWrapper: {

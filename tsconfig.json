@@ -8,8 +8,9 @@
     "types": ["chrome", "firefox-webext-browser", "reflect-metadata"],
     "paths": {
       "@assets/*": ["src/assets/*"],
-      "@modules/*": ["src/modules/*"],
       "@config/*": ["src/config/*"],
+      "@common/*": ["src/common/*"],
+      "@modules/*": ["src/modules/*"],
       "@web/*": ["src/web/*"]
     }
   },

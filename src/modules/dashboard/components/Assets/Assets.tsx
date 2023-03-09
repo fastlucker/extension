@@ -4,12 +4,12 @@ import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/typ
 import React, { useContext } from 'react'
 import { Linking } from 'react-native'
 
+import AfterInteractions from '@common/components/AfterInteractions'
+import Panel from '@common/components/Panel'
+import Text from '@common/components/Text'
+import TextWarning from '@common/components/TextWarning'
+import spacings from '@common/styles/spacings'
 import { Trans } from '@config/localization'
-import AfterInteractions from '@modules/common/components/AfterInteractions'
-import Panel from '@modules/common/components/Panel'
-import Text from '@modules/common/components/Text'
-import TextWarning from '@modules/common/components/TextWarning'
-import spacings from '@modules/common/styles/spacings'
 import { AssetsToggleContext } from '@modules/dashboard/contexts/assetsToggleContext'
 
 import Collectibles from '../Collectibles'

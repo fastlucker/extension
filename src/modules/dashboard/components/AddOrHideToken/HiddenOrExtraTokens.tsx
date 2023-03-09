@@ -2,7 +2,7 @@ import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/typ
 import React from 'react'
 import { View } from 'react-native'
 
-import spacings from '@modules/common/styles/spacings'
+import spacings from '@common/styles/spacings'
 
 import { MODES } from './constants'
 import TokenItem from './TokenItem'

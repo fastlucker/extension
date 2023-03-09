@@ -1,13 +1,13 @@
 import React from 'react'
 
+import Button from '@common/components/Button'
+import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
+import QRCodeScanner from '@common/components/QRCodeScanner'
+import Text from '@common/components/Text'
+import Wrapper from '@common/components/Wrapper'
+import spacings from '@common/styles/spacings'
 import { useTranslation } from '@config/localization'
 import useQRCodeLogin from '@modules/auth/hooks/useQRCodeLogin'
-import Button from '@modules/common/components/Button'
-import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import QRCodeScanner from '@modules/common/components/QRCodeScanner'
-import Text from '@modules/common/components/Text'
-import Wrapper from '@modules/common/components/Wrapper'
-import spacings from '@modules/common/styles/spacings'
 
 const QRCodeLoginScreen = () => {
   const { t } = useTranslation()

@@ -1,17 +1,17 @@
 import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
+import Button, { Props as ButtonDefaultProps } from '@common/components/Button'
+import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
+import Text from '@common/components/Text'
+import Wrapper from '@common/components/Wrapper'
+import useNavigation from '@common/hooks/useNavigation'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
+import textStyles from '@common/styles/utils/text'
 import { useTranslation } from '@config/localization'
 import { ROUTES } from '@config/Router/routesConfig'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
-import Button, { Props as ButtonDefaultProps } from '@modules/common/components/Button'
-import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Text from '@modules/common/components/Text'
-import Wrapper from '@modules/common/components/Wrapper'
-import useNavigation from '@modules/common/hooks/useNavigation'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 
 interface ButtonProps extends Omit<ButtonDefaultProps, 'onPress'> {
   routeName: ROUTES

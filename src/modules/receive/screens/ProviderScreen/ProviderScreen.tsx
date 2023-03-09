@@ -2,12 +2,12 @@ import React, { useEffect, useLayoutEffect } from 'react'
 import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
-import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Spinner from '@modules/common/components/Spinner'
-import Wrapper from '@modules/common/components/Wrapper'
-import useNavigation from '@modules/common/hooks/useNavigation'
-import useRoute from '@modules/common/hooks/useRoute'
-import spacings from '@modules/common/styles/spacings'
+import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
+import Spinner from '@common/components/Spinner'
+import Wrapper from '@common/components/Wrapper'
+import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
+import spacings from '@common/styles/spacings'
 
 import styles from './styles'
 

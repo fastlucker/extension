@@ -1,7 +1,7 @@
 import React from 'react'
 import Svg, { Path } from 'react-native-svg'
 
-import colors from '@modules/common/styles/colors'
+import colors from '@common/styles/colors'
 
 interface Props {
   type: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'

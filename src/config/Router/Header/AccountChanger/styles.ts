@@ -1,7 +1,7 @@
 import { StyleSheet, ViewProps } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
 
 interface Styles {
   accountContainerActive: ViewProps

@@ -2,12 +2,12 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import Button from '@modules/common/components/Button'
-import Spinner from '@modules/common/components/Spinner'
-import Text from '@modules/common/components/Text'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import Button from '@common/components/Button'
+import Spinner from '@common/components/Spinner'
+import Text from '@common/components/Text'
+import useNetwork from '@common/hooks/useNetwork'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
 

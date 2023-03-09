@@ -1,10 +1,10 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import Text from '@common/components/Text'
+import spacings from '@common/styles/spacings'
 import { useTranslation } from '@config/localization'
 import DeviceItem from '@modules/auth/components/DeviceItem'
-import Text from '@modules/common/components/Text'
-import spacings from '@modules/common/styles/spacings'
 
 const DevicesList = ({ onSelectDevice, devices, refreshing }: any) => {
   const { t } = useTranslation()

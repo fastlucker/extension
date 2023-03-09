@@ -3,13 +3,13 @@ import React, { useCallback, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
 
+import Button from '@common/components/Button'
+import Input from '@common/components/Input'
+import useToast from '@common/hooks/useToast'
+import { delayPromise } from '@common/utils/promises'
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import useExternalSignerLogin from '@modules/auth/hooks/useExternalSignerLogin'
-import Button from '@modules/common/components/Button'
-import Input from '@modules/common/components/Input'
-import useToast from '@modules/common/hooks/useToast'
-import { delayPromise } from '@modules/common/utils/promises'
 
 const formatMnemonic = (mnemonic: string) =>
   mnemonic

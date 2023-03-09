@@ -2,11 +2,11 @@ import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import { UseNetworkReturnType } from 'ambire-common/src/hooks/useNetwork'
 import React from 'react'
 
+import Panel from '@common/components/Panel'
+import Text from '@common/components/Text'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
 import { useTranslation } from '@config/localization'
-import Panel from '@modules/common/components/Panel'
-import Text from '@modules/common/components/Text'
-import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
 import Providers from '@modules/receive/components/Providers'
 
 interface Props {

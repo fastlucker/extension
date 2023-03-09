@@ -1,6 +1,6 @@
 import React, { createContext, useMemo } from 'react'
 
-import useStorage from '@modules/common/hooks/useStorage'
+import useStorage from '@common/hooks/useStorage'
 import { isExtension } from '@web/constants/browserapi'
 
 import { ONBOARDING_VALUES, OnboardingContextReturnType } from './types'

@@ -1,10 +1,10 @@
 import React from 'react'
 import { TouchableOpacity } from 'react-native'
 
-import styles from '@modules/common/components/Button/styles'
-import Text from '@modules/common/components/Text'
-import useLoader from '@modules/common/hooks/useLoader'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import styles from '@common/components/Button/styles'
+import Text from '@common/components/Text'
+import useLoader from '@common/hooks/useLoader'
+import flexboxStyles from '@common/styles/utils/flexbox'
 
 const DeviceItem = ({ device, onSelect }: any) => {
   const { showLoader, hideLoader } = useLoader()

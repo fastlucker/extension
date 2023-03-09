@@ -6,11 +6,11 @@ import { useState } from 'react'
 import { Keyboard } from 'react-native'
 import performance from 'react-native-performance'
 
+import useAccounts from '@common/hooks/useAccounts'
+import useToast from '@common/hooks/useToast'
+import { fetchPost } from '@common/services/fetch'
 import CONFIG from '@config/env'
 import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useToast from '@modules/common/hooks/useToast'
-import { fetchPost } from '@modules/common/services/fetch'
 import useVault from '@modules/vault/hooks/useVault'
 
 type FormProps = {

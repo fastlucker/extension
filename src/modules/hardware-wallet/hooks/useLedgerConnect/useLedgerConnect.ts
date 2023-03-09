@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Subscription as ReactNativeBlePlxSubscription } from 'react-native-ble-plx'
 import { Observable, Subscription as RxJSSubscription } from 'rxjs'
 
+import useToast from '@common/hooks/useToast'
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble'
-import useToast from '@modules/common/hooks/useToast'
 import { CONNECTION_TYPE } from '@modules/hardware-wallet/constants'
 
 const SCAN_TIMEOUT = 40000 // 40 sec

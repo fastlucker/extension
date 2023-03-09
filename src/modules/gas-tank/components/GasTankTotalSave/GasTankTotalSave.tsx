@@ -2,11 +2,11 @@ import { NetworkId } from 'ambire-common/src/constants/networks'
 import React from 'react'
 import { View } from 'react-native'
 
+import Text from '@common/components/Text'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { useTranslation } from '@config/localization'
-import Text from '@modules/common/components/Text'
-import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 interface Props {
   totalSave: string

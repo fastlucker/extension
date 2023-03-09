@@ -1,6 +1,6 @@
 import { StyleSheet, ViewProps } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
+import colors from '@common/styles/colors'
 
 interface Style {
   appLockingItemContainer: ViewProps

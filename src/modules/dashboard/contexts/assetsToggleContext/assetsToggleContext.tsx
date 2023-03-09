@@ -2,9 +2,9 @@ import React, { createContext, useMemo, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 import { Path, Svg } from 'react-native-svg'
 
+import Text from '@common/components/Text'
+import colors from '@common/styles/colors'
 import { useTranslation } from '@config/localization'
-import Text from '@modules/common/components/Text'
-import colors from '@modules/common/styles/colors'
 
 import styles from './styles'
 

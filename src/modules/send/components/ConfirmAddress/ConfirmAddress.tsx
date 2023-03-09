@@ -4,13 +4,13 @@ import React, { useMemo } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import AddIcon from '@assets/svg/AddIcon'
+import Checkbox from '@common/components/Checkbox'
+import Text from '@common/components/Text'
+import useAddressBook from '@common/hooks/useAddressBook'
+import useConstants from '@common/hooks/useConstants'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { useTranslation } from '@config/localization'
-import Checkbox from '@modules/common/components/Checkbox'
-import Text from '@modules/common/components/Text'
-import useAddressBook from '@modules/common/hooks/useAddressBook'
-import useConstants from '@modules/common/hooks/useConstants'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 type Props = {
   onAddToAddressBook: () => any

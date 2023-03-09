@@ -1,7 +1,7 @@
 import React, { createContext, Dispatch, useEffect, useMemo, useState } from 'react'
 
+import useStorage from '@common/hooks/useStorage'
 import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
-import useStorage from '@modules/common/hooks/useStorage'
 
 type AuthContextData = {
   authStatus: AUTH_STATUS

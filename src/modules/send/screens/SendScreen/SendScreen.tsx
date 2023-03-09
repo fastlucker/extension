@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react'
 import { Keyboard, StyleSheet, View } from 'react-native'
 
+import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
+import Spinner from '@common/components/Spinner'
+import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { isiOS } from '@config/env'
-import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Spinner from '@modules/common/components/Spinner'
-import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import SendForm from '@modules/send/components/SendForm'
 import useRequestTransaction from '@modules/send/hooks/useRequestTransaction'
 

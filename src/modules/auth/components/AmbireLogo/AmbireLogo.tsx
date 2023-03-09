@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import { Image, Platform, TouchableWithoutFeedback, View } from 'react-native'
 
 import logo from '@assets/images/Ambire-Wallet-logo-colored-white-vertical.png'
+import AppVersion from '@common/components/AppVersion'
+import spacings, { IS_SCREEN_SIZE_S } from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { isWeb } from '@config/env'
-import AppVersion from '@modules/common/components/AppVersion'
-import spacings, { IS_SCREEN_SIZE_S } from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 

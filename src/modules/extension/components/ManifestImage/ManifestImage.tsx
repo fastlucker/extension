@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Image, View } from 'react-native'
 
-import Spinner from '@modules/common/components/Spinner'
-import commonStyles from '@modules/common/styles/utils/common'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import { checkIfImageExists } from '@modules/common/utils/checkIfImageExists'
+import Spinner from '@common/components/Spinner'
+import commonStyles from '@common/styles/utils/common'
+import flexboxStyles from '@common/styles/utils/flexbox'
+import { checkIfImageExists } from '@common/utils/checkIfImageExists'
 
 type Props = {
   uri: string

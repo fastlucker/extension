@@ -2,7 +2,7 @@ import { UsePortfolioReturnType } from 'ambire-common/src/hooks/usePortfolio/typ
 import React from 'react'
 import { View } from 'react-native'
 
-import usePrivateMode from '@modules/common/hooks/usePrivateMode'
+import usePrivateMode from '@common/hooks/usePrivateMode'
 
 import CollectiblesListLoader from '../Loaders/CollectiblesListLoader'
 import CollectibleItem from './CollectibleItem'

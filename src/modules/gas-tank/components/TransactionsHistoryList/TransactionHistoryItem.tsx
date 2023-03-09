@@ -3,12 +3,12 @@ import React, { useMemo } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 
 import OpenIcon from '@assets/svg/OpenIcon'
+import Text from '@common/components/Text'
+import TokenIcon from '@common/components/TokenIcon'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { formatUnits } from '@ethersproject/units'
-import Text from '@modules/common/components/Text'
-import TokenIcon from '@modules/common/components/TokenIcon'
-import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 

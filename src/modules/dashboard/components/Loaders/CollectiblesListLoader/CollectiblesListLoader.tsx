@@ -2,8 +2,8 @@ import React from 'react'
 import { View } from 'react-native'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
 
-import colors from '@modules/common/styles/colors'
-import { SPACING_MI, SPACING_TY } from '@modules/common/styles/spacings'
+import colors from '@common/styles/colors'
+import { SPACING_MI, SPACING_TY } from '@common/styles/spacings'
 
 import styles from './styles'
 

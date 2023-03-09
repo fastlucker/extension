@@ -1,11 +1,11 @@
 import React from 'react'
 
+import Panel from '@common/components/Panel'
+import Text from '@common/components/Text'
+import Toggle from '@common/components/Toggle'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { useTranslation } from '@config/localization'
-import Panel from '@modules/common/components/Panel'
-import Text from '@modules/common/components/Text'
-import Toggle from '@modules/common/components/Toggle'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 import useVault from '@modules/vault/hooks/useVault'
 
 import styles from './styles'

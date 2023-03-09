@@ -2,11 +2,11 @@ import React, { useCallback } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Linking } from 'react-native'
 
-import Button from '@modules/common/components/Button'
-import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Text from '@modules/common/components/Text'
-import Wrapper from '@modules/common/components/Wrapper'
-import spacings from '@modules/common/styles/spacings'
+import Button from '@common/components/Button'
+import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
+import Text from '@common/components/Text'
+import Wrapper from '@common/components/Wrapper'
+import spacings from '@common/styles/spacings'
 
 const MANAGE_IDENTIFIABLE_DATA_LINK = 'https://wallet.ambire.com/#/wallet/security'
 

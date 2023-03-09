@@ -1,10 +1,10 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { TAB_BAR_HEIGHT } from '@common/constants/router'
+import { FONT_FAMILIES } from '@common/hooks/useFonts'
+import colors from '@common/styles/colors'
+import { IS_SCREEN_SIZE_L, SPACING_TY } from '@common/styles/spacings'
 import { isiOS, isWeb } from '@config/env'
-import { TAB_BAR_HEIGHT } from '@modules/common/constants/router'
-import { FONT_FAMILIES } from '@modules/common/hooks/useFonts'
-import colors from '@modules/common/styles/colors'
-import { IS_SCREEN_SIZE_L, SPACING_TY } from '@modules/common/styles/spacings'
 
 interface Style {
   tabBarContainer: ViewStyle

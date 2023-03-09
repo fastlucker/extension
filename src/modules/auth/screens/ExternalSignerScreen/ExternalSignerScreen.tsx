@@ -1,18 +1,18 @@
 import React, { useLayoutEffect, useState } from 'react'
 import { Keyboard, LayoutAnimation, TouchableWithoutFeedback, View } from 'react-native'
 
+import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
+import Segments from '@common/components/Segments'
+import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
+import useNavigation from '@common/hooks/useNavigation'
+import { triggerLayoutAnimation } from '@common/services/layoutAnimation'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
 import PrivateKeyForm from '@modules/auth/components/PrivateKeyForm'
 import RecoveryPhraseForm from '@modules/auth/components/RecoveryPhraseForm'
-import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Segments from '@modules/common/components/Segments'
-import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import useNavigation from '@modules/common/hooks/useNavigation'
-import { triggerLayoutAnimation } from '@modules/common/services/layoutAnimation'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum FORM_TYPE {

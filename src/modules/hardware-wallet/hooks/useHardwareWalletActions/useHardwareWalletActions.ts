@@ -3,12 +3,12 @@ import privilegesOptions from 'ambire-common/src/constants/privilegesOptions'
 import { Interface } from 'ethers/lib/utils'
 import { useState } from 'react'
 
+import useAccounts from '@common/hooks/useAccounts'
+import useEOA from '@common/hooks/useEOA'
+import useNetwork from '@common/hooks/useNetwork'
+import useRequests from '@common/hooks/useRequests'
+import useToast from '@common/hooks/useToast'
 import i18n from '@config/localization/localization'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useEOA from '@modules/common/hooks/useEOA'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import useRequests from '@modules/common/hooks/useRequests'
-import useToast from '@modules/common/hooks/useToast'
 import { ledgerDeviceGetAddresses } from '@modules/hardware-wallet/services/ledger'
 
 // eslint-disable-next-line global-require

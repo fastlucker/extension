@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 
-import BottomSheet from '@modules/common/components/BottomSheet'
+import BottomSheet from '@common/components/BottomSheet'
 import BundleDetailedPreview from '@modules/transactions/components/BundleDetailedPreview'
 
 type DetailedBundleContextData = {

@@ -6,11 +6,11 @@ import KriptomatLogo from '@assets/svg/KriptomatLogo'
 import PayTrieLogo from '@assets/svg/PayTrieLogo'
 import RampLogo from '@assets/svg/RampLogo'
 import TransakLogo from '@assets/svg/TransakLogo'
+import useNavigation from '@common/hooks/useNavigation'
+import useToast from '@common/hooks/useToast'
+import { fetchGet } from '@common/services/fetch'
 import CONFIG from '@config/env'
 import { ROUTES } from '@config/Router/routesConfig'
-import useNavigation from '@modules/common/hooks/useNavigation'
-import useToast from '@modules/common/hooks/useToast'
-import { fetchGet } from '@modules/common/services/fetch'
 
 type UseProvidersProps = {
   walletAddress: string

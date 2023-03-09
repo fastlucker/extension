@@ -6,13 +6,13 @@ import * as FileSystem from 'expo-file-system'
 import React, { createContext, useCallback, useMemo, useState } from 'react'
 import { Keyboard } from 'react-native'
 
+import useAccounts from '@common/hooks/useAccounts'
+import useEOA from '@common/hooks/useEOA'
+import useNavigation from '@common/hooks/useNavigation'
+import useToast from '@common/hooks/useToast'
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import { ROUTES } from '@config/Router/routesConfig'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useEOA from '@modules/common/hooks/useEOA'
-import useNavigation from '@modules/common/hooks/useNavigation'
-import useToast from '@modules/common/hooks/useToast'
 import useVault from '@modules/vault/hooks/useVault'
 
 type FormProps = {

@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 
-import spacings from '@modules/common/styles/spacings'
+import spacings from '@common/styles/spacings'
 
 const styles = StyleSheet.create({
   logoWrapper: {

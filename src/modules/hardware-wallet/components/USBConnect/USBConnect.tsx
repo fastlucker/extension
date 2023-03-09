@@ -1,15 +1,15 @@
 import React from 'react'
 import { RefreshControl, View } from 'react-native'
 
+import Spinner from '@common/components/Spinner'
+import Text from '@common/components/Text'
+import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
+import textStyles from '@common/styles/utils/text'
 import { useTranslation } from '@config/localization'
 import DevicesList from '@modules/auth/components/DeviceList'
-import Spinner from '@modules/common/components/Spinner'
-import Text from '@modules/common/components/Text'
-import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 import useHardwareWalletHIDConnect from '@modules/hardware-wallet/hooks/useHardwareWalletHIDConnect/useHardwareWalletHIDConnect'
 
 interface Props {

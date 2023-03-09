@@ -1,10 +1,10 @@
 import logger from 'loglevel'
 
+import colors from '@common/styles/colors'
 import {
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV,
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
 } from '@env'
-import colors from '@modules/common/styles/colors'
 
 logger.setDefaultLevel(
   process.env.APP_ENV === 'production'

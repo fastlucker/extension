@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 // import { View } from 'react-native'
 // import { isAndroid } from '@config/env'
-import RequireBluetooth from '@modules/common/components/RequireBluetooth'
+import RequireBluetooth from '@common/components/RequireBluetooth'
 // import Segments from '@modules/common/components/Segments'
 // import spacings from '@modules/common/styles/spacings'
 import { CONNECTION_TYPE } from '@modules/hardware-wallet/constants'

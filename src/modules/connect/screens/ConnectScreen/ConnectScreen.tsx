@@ -1,10 +1,10 @@
 import React from 'react'
 
-import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import QRCodeScanner from '@modules/common/components/QRCodeScanner'
-import useIsScreenFocused from '@modules/common/hooks/useIsScreenFocused'
-import useNavigation from '@modules/common/hooks/useNavigation'
-import useWalletConnect from '@modules/common/hooks/useWalletConnect'
+import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
+import QRCodeScanner from '@common/components/QRCodeScanner'
+import useIsScreenFocused from '@common/hooks/useIsScreenFocused'
+import useNavigation from '@common/hooks/useNavigation'
+import useWalletConnect from '@common/hooks/useWalletConnect'
 
 const ConnectScreen = () => {
   const isFocused = useIsScreenFocused()

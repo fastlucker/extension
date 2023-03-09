@@ -1,13 +1,13 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import Button from '@common/components/Button'
+import useGasTank from '@common/hooks/useGasTank'
+import useToast from '@common/hooks/useToast'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { useTranslation } from '@config/localization'
-import Button from '@modules/common/components/Button'
-import useGasTank from '@modules/common/hooks/useGasTank'
-import useToast from '@modules/common/hooks/useToast'
-import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 import styles from './styles'
 

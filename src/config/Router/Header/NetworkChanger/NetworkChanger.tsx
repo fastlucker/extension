@@ -9,11 +9,11 @@ import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 // {@link https://stackoverflow.com/a/66166811/1333836}
 import { ScrollView } from 'react-native-gesture-handler'
 
+import Title from '@common/components/Title'
+import useNetwork from '@common/hooks/useNetwork'
+import useToast from '@common/hooks/useToast'
+import textStyles from '@common/styles/utils/text'
 import { isAndroid, isRelayerless } from '@config/env'
-import Title from '@modules/common/components/Title'
-import useNetwork from '@modules/common/hooks/useNetwork'
-import useToast from '@modules/common/hooks/useToast'
-import textStyles from '@modules/common/styles/utils/text'
 
 import NetworkChangerItem from './NetworkChangerItem'
 import styles, { SINGLE_ITEM_HEIGHT } from './styles'

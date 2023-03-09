@@ -1,8 +1,8 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@modules/common/styles/colors'
-import spacings, { SPACING_SM } from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import colors from '@common/styles/colors'
+import spacings, { SPACING_SM } from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 
 interface Style {
   backButton: ViewStyle

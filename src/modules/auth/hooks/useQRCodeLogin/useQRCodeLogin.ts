@@ -1,8 +1,8 @@
 import { validateImportedAccountProps } from 'ambire-common/src/services/validations'
 import { useState } from 'react'
 
+import useAccounts from '@common/hooks/useAccounts'
 import { useTranslation } from '@config/localization'
-import useAccounts from '@modules/common/hooks/useAccounts'
 
 export default function useQRCodeLogin() {
   const { t } = useTranslation()

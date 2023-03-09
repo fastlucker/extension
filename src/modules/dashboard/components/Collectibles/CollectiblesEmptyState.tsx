@@ -1,11 +1,11 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import Text from '@common/components/Text'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
+import textStyles from '@common/styles/utils/text'
 import { useTranslation } from '@config/localization'
-import Text from '@modules/common/components/Text'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
 

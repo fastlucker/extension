@@ -1,6 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import spacings from '@modules/common/styles/spacings'
+import spacings from '@common/styles/spacings'
 
 interface Style {
   itemsContainer: ViewStyle

@@ -1,13 +1,13 @@
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
+import Spinner from '@common/components/Spinner'
+import Text from '@common/components/Text'
+import useBiometrics from '@common/hooks/useBiometrics'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
 import { useTranslation } from '@config/localization'
 import { ROUTES } from '@config/Router/routesConfig'
-import Spinner from '@modules/common/components/Spinner'
-import Text from '@modules/common/components/Text'
-import useBiometrics from '@modules/common/hooks/useBiometrics'
-import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
 
 interface Props {
   handleNavigate: (route: ROUTES) => void

@@ -1,8 +1,8 @@
 import { Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import colors from '@common/styles/colors'
+import commonStyles from '@common/styles/utils/common'
 import { isAndroid, isWeb } from '@config/env'
-import colors from '@modules/common/styles/colors'
-import commonStyles from '@modules/common/styles/utils/common'
 
 export const HEADER_HEIGHT = Platform.select({
   web: 70,

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Observable } from 'rxjs'
 
+import useToast from '@common/hooks/useToast'
 import TransportHID from '@ledgerhq/react-native-hid'
-import useToast from '@modules/common/hooks/useToast'
 import { CONNECTION_TYPE } from '@modules/hardware-wallet/constants'
 
 const useHardwareWalletHIDConnect = () => {

@@ -1,13 +1,13 @@
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
+import NetworkIcon from '@common/components/NetworkIcon'
+import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import Text from '@common/components/Text'
+import colors from '@common/styles/colors'
+import flexboxStyles from '@common/styles/utils/flexbox'
+import textStyles from '@common/styles/utils/text'
 import { isWeb } from '@config/env'
-import NetworkIcon from '@modules/common/components/NetworkIcon'
-import { NetworkIconNameType } from '@modules/common/components/NetworkIcon/NetworkIcon'
-import Text from '@modules/common/components/Text'
-import colors from '@modules/common/styles/colors'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 
 import styles from './styles'
 

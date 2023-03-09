@@ -1,9 +1,9 @@
 import React from 'react'
 
-import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Wrapper from '@modules/common/components/Wrapper'
-import useAccounts from '@modules/common/hooks/useAccounts'
-import useNetwork from '@modules/common/hooks/useNetwork'
+import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
+import Wrapper from '@common/components/Wrapper'
+import useAccounts from '@common/hooks/useAccounts'
+import useNetwork from '@common/hooks/useNetwork'
 import DepositFiat from '@modules/receive/components/DepositFiat'
 import DepositTokens from '@modules/receive/components/DepositTokens'
 

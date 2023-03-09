@@ -3,13 +3,13 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import Button from '@common/components/Button'
+import Text from '@common/components/Text'
+import TokenIcon from '@common/components/TokenIcon'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
+import textStyles from '@common/styles/utils/text'
 import { Trans } from '@config/localization'
-import Button from '@modules/common/components/Button'
-import Text from '@modules/common/components/Text'
-import TokenIcon from '@modules/common/components/TokenIcon'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
-import textStyles from '@modules/common/styles/utils/text'
 
 interface Props extends Token {
   onPress?: () => void

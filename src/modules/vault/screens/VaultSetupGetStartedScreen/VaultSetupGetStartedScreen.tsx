@@ -1,18 +1,18 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import Button from '@common/components/Button'
+import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
+import Text from '@common/components/Text'
+import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
+import useNavigation from '@common/hooks/useNavigation'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { isWeb } from '@config/env'
 import { useTranslation } from '@config/localization'
 import { ROUTES } from '@config/Router/routesConfig'
 import AmbireLogo from '@modules/auth/components/AmbireLogo'
-import Button from '@modules/common/components/Button'
-import GradientBackgroundWrapper from '@modules/common/components/GradientBackgroundWrapper'
-import Text from '@modules/common/components/Text'
-import Wrapper, { WRAPPER_TYPES } from '@modules/common/components/Wrapper'
-import useNavigation from '@modules/common/hooks/useNavigation'
-import colors from '@modules/common/styles/colors'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
 
 const VaultSetupGetStartedScreen = () => {
   const { t } = useTranslation()

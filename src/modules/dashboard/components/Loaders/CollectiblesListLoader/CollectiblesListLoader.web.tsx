@@ -3,9 +3,9 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import Spinner from '@modules/common/components/Spinner'
-import spacings from '@modules/common/styles/spacings'
-import flexboxStyles from '@modules/common/styles/utils/flexbox'
+import Spinner from '@common/components/Spinner'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 
 const CollectiblesListLoader = () => {
   return (
