@@ -243,17 +243,23 @@ export class EthereumProvider extends EventEmitter {
       ) {
         const network = networks.find((n) => intToHex(n.chainId) === this.chainId)
         if (network?.id && this.dAppOwnProviders[network.id]) {
-          logInfoWithPrefix('[⏩ forwarded request]', data)
+          if (data.method !== 'eth_call') {
+            logInfoWithPrefix('[⏩ forwarded request]', data)
+          }
 
           return this.dAppOwnProviders[network.id]
             ?.send(data.method, data.params)
             .then((res) => {
-              logInfoWithPrefix('[⏩ forwarded request: success]', data.method, res)
+              if (data.method !== 'eth_call') {
+                logInfoWithPrefix('[⏩ forwarded request: success]', data.method, res)
+              }
 
               return res
             })
             .catch((err) => {
-              logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
+              if (data.method !== 'eth_call') {
+                logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
+              }
               throw err
             })
         }
