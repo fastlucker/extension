@@ -55,5 +55,15 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
     [NETWORKS.polygon]: 'https://polygon-rpc.com',
     [NETWORKS['binance-smart-chain']]: 'https://bsc-dataseed1.defibit.io',
     [NETWORKS.ethereum]: 'https://eth-mainnet.nodereal.io/v1/43f9100965104de49b580d1fa1ab28c0'
+  },
+  'www.bungee.exchange': {
+    [NETWORKS.ethereum]: 'https://cloudflare-eth.com',
+    [NETWORKS.polygon]: 'https://polygon-rpc.com',
+    [NETWORKS.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
+    [NETWORKS['binance-smart-chain']]: 'https://rpc.ankr.com/bsc',
+    [NETWORKS.fantom]: 'https://rpc.ankr.com/fantom',
+    [NETWORKS.arbitrum]: 'https://arb1.arbitrum.io/rpc',
+    [NETWORKS.gnosis]: 'https://rpc.gnosischain.com',
+    [NETWORKS.optimism]: 'https://mainnet.optimism.io'
   }
 }
