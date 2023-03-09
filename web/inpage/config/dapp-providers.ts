@@ -37,5 +37,9 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
     [NETWORKS.gnosis]: 'https://gnosis-nodes.1inch.io',
     [NETWORKS.avalanche]: 'https://avalanche-nodes.1inch.io',
     [NETWORKS.fantom]: 'https://fantom-nodes.1inch.io'
+  },
+  'app.gmx.io': {
+    [NETWORKS.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
+    [NETWORKS.arbitrum]: 'https://arb1.arbitrum.io/rpc'
   }
 }
