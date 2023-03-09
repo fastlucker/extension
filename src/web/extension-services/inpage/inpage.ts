@@ -4,10 +4,10 @@
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { EventEmitter } from 'events'
 
-import DedupePromise from '@web/inpage/services/dedupePromise'
-import PushEventHandlers from '@web/inpage/services/pushEventsHandlers'
-import ReadyPromise from '@web/inpage/services/readyPromise'
-import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
+import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
+import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
+import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
+import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
 declare const channelName: any

@@ -2,9 +2,9 @@ import { NetworkType } from 'ambire-common/src/constants/networks'
 import { intToHex } from 'ethereumjs-util'
 
 import VaultController from '@mobile/vault/services/VaultController'
-import permissionService, { ConnectedSite } from '@web/background/services/permission'
-import sessionService from '@web/background/services/session'
 import { INTERNAL_REQUEST_ORIGIN } from '@web/constants/common'
+import permissionService, { ConnectedSite } from '@web/extension-services/background/services/permission'
+import sessionService from '@web/extension-services/background/services/session'
 
 import provider from './provider/provider'
 import notificationService from './services/notification'

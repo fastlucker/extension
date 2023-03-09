@@ -1,5 +1,5 @@
-import permissionService from '@web/background/services/permission'
-import PortMessage from '@web/message/portMessage'
+import permissionService from '@web/extension-services/background/services/permission'
+import PortMessage from '@web/extension-services/message/portMessage'
 
 export interface SessionProp {
   origin: string

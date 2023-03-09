@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import useExtensionWallet from '@common/hooks/useExtensionWallet'
 import alert from '@common/services/alert'
-import { getCurrentTab } from '@web/background/webapi/tab'
 import { isExtension } from '@web/constants/browserapi'
+import { getCurrentTab } from '@web/extension-services/background/webapi/tab'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from './types'

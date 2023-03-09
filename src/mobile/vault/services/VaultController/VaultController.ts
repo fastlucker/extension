@@ -12,8 +12,8 @@ import { sendNoRelayer } from '@common/services/sendNoRelayer'
 import CONFIG from '@config/env'
 import { ObservableStore } from '@metamask/obs-store'
 import { VAULT_STATUS } from '@mobile/vault/constants/vaultStatus'
-import sessionService from '@web/background/services/session'
 import { isExtension } from '@web/constants/browserapi'
+import sessionService from '@web/extension-services/background/services/session'
 
 import { Vault, VaultItem } from './types'
 

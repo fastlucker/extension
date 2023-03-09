@@ -4,11 +4,11 @@ import { intToHex } from 'ethereumjs-util'
 // this script is injected into webpage's context
 import { EventEmitter } from 'events'
 
-import providerController from '@web/background/provider/ProviderController'
-import notificationService from '@web/background/services/notification'
-import wallet from '@web/background/wallet'
-import storage from '@web/background/webapi/storage'
 import { INTERNAL_REQUEST_SESSION } from '@web/constants/common'
+import providerController from '@web/extension-services/background/provider/ProviderController'
+import notificationService from '@web/extension-services/background/services/notification'
+import wallet from '@web/extension-services/background/wallet'
+import storage from '@web/extension-services/background/webapi/storage'
 import underline2Camelcase from '@web/utils/underline2Camelcase'
 
 interface StateProvider {

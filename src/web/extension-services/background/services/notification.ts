@@ -7,8 +7,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@common/contexts/extensionApprovalContext/types'
 import colors from '@common/styles/colors'
 import { isDev } from '@config/env'
-import winMgr, { WINDOW_SIZE } from '@web/background/webapi/window'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
+import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
 import storage from '../webapi/storage'
 

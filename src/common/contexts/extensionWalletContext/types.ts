@@ -1,6 +1,6 @@
 import { Object } from 'ts-toolbelt'
 
-import { WalletController as WalletControllerClass } from '@web/background/wallet'
+import { WalletController as WalletControllerClass } from '@web/extension-services/background/wallet'
 
 export type IExtractFromPromise<T> = T extends Promise<infer U> ? U : T
 

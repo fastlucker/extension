@@ -1,4 +1,4 @@
-import { ConnectedSite } from '@web/background/services/permission'
+import { ConnectedSite } from '@web/extension-services/background/services/permission'
 
 export interface AmbireExtensionContextReturnType {
   connectedDapps: ConnectedSite[]

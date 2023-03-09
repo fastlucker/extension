@@ -9,11 +9,11 @@ import { intToHex } from 'ethereumjs-util'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { APP_VERSION } from '@config/env'
-import permissionService from '@web/background/services/permission'
-import sessionService, { Session } from '@web/background/services/session'
-import Wallet from '@web/background/wallet'
-import storage from '@web/background/webapi/storage'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
+import permissionService from '@web/extension-services/background/services/permission'
+import sessionService, { Session } from '@web/extension-services/background/services/session'
+import Wallet from '@web/extension-services/background/wallet'
+import storage from '@web/extension-services/background/webapi/storage'
 
 interface ApprovalRes {
   type?: string

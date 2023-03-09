@@ -164,9 +164,9 @@ module.exports = async function (env, argv) {
 
     config.entry = {
       ...config.entry, // default entries
-      background: './src/web/background/background.ts', // custom entry needed for the extension
-      'content-script': './src/web/content-script/content-script.ts', // custom entry needed for the extension
-      inpage: './src/web/inpage/inpage.ts' // custom entry needed for the extension
+      background: './src/web/extension-services/background/background.ts', // custom entry needed for the extension
+      'content-script': './src/web/extension-services/content-script/content-script.ts', // custom entry needed for the extension
+      inpage: './src/web/extension-services/inpage/inpage.ts' // custom entry needed for the extension
     }
 
     config.plugins = [

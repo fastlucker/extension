@@ -1,4 +1,4 @@
-import { Approval } from '@web/background/services/notification'
+import { Approval } from '@web/extension-services/background/services/notification'
 
 export const BROWSER_EXTENSION_REQUESTS_STORAGE_KEY = 'ambire_extension_state'
 

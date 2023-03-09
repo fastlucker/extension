@@ -6,8 +6,8 @@ import {
   ExtensionWalletControllerType
 } from '@common/contexts/extensionWalletContext/types'
 import { isExtension } from '@web/constants/browserapi'
-import eventBus from '@web/event/eventBus'
-import PortMessage from '@web/message/portMessage'
+import eventBus from '@web/extension-services/event/eventBus'
+import PortMessage from '@web/extension-services/message/portMessage'
 
 let extensionWallet: ExtensionWalletControllerType
 

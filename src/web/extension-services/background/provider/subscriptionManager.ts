@@ -2,7 +2,7 @@ import { PollingBlockTracker } from 'eth-block-tracker'
 // @ts-ignore
 import createSubscriptionManager from 'eth-json-rpc-filters/subscriptionManager'
 
-import buildinProvider from '@web/background/provider/buildinProvider'
+import buildinProvider from '@web/extension-services/background/provider/buildinProvider'
 
 const createSubscription = async (): Promise<any> => {
   const blockTracker = new PollingBlockTracker({

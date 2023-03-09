@@ -2,13 +2,13 @@ import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/
 
 import { rpcProviders } from '@common/services/providers'
 import VaultController from '@mobile/vault/services/VaultController'
-import providerController from '@web/background/provider/provider'
-import permissionService from '@web/background/services/permission'
-import sessionService from '@web/background/services/session'
-import WalletController from '@web/background/wallet'
-import storage from '@web/background/webapi/storage'
-import eventBus from '@web/event/eventBus'
-import PortMessage from '@web/message/portMessage'
+import providerController from '@web/extension-services/background/provider/provider'
+import permissionService from '@web/extension-services/background/services/permission'
+import sessionService from '@web/extension-services/background/services/session'
+import WalletController from '@web/extension-services/background/wallet'
+import storage from '@web/extension-services/background/webapi/storage'
+import eventBus from '@web/extension-services/event/eventBus'
+import PortMessage from '@web/extension-services/message/portMessage'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 async function init() {

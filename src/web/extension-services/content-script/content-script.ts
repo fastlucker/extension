@@ -3,10 +3,10 @@
 // Content Script is mainly a relayer between pageContext(injected script) and the background service_worker
 import { nanoid } from 'nanoid'
 
-import BroadcastChannelMessage from '@web/message/broadcastChannelMessage'
+import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 // Middleware for handling messages between dapps and the extension's background process
 // import { browserapi, engine } from '@web/constants/browserapi'
-import PortMessage from '@web/message/portMessage'
+import PortMessage from '@web/extension-services/message/portMessage'
 
 const channelName = nanoid()
 

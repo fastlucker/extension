@@ -1,5 +1,5 @@
-import providerController from '@web/background/provider/ProviderController'
-import WalletController from '@web/background/wallet'
+import providerController from '@web/extension-services/background/provider/ProviderController'
+import WalletController from '@web/extension-services/background/wallet'
 
 const tabCheckin = ({
   data: {

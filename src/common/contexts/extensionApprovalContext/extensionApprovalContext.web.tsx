@@ -7,7 +7,7 @@ import useToast from '@common/hooks/useToast'
 import { delayPromise } from '@common/utils/promises'
 import useAuth from '@mobile/auth/hooks/useAuth'
 import useVault from '@mobile/vault/hooks/useVault'
-import { Approval } from '@web/background/services/notification'
+import { Approval } from '@web/extension-services/background/services/notification'
 import { getUiType } from '@web/utils/uiType'
 
 import { UseExtensionApprovalReturnType } from './types'

@@ -2,7 +2,7 @@ import React from 'react'
 import { Outlet } from 'react-router-dom'
 
 import useRoute from '@common/hooks/useRoute'
-import { openInternalPageInTab } from '@web/background/webapi/tab'
+import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
 
 const TabOnlyRoute = () => {
