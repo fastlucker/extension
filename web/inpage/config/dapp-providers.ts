@@ -41,5 +41,14 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
   'app.gmx.io': {
     [NETWORKS.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
     [NETWORKS.arbitrum]: 'https://arb1.arbitrum.io/rpc'
+  },
+  'stargate.finance': {
+    [NETWORKS.ethereum]: 'https://eth-mainnet.public.blastapi.io',
+    [NETWORKS['binance-smart-chain']]: 'https://bsc-dataseed4.binance.org',
+    [NETWORKS.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
+    [NETWORKS.polygon]: 'https://polygon-rpc.com',
+    [NETWORKS.arbitrum]: 'https://arb1.arbitrum.io/rpc',
+    [NETWORKS.optimism]: 'https://endpoints.omniatech.io/v1/op/mainnet/public',
+    [NETWORKS.fantom]: 'https://rpc.ftm.tools'
   }
 }
