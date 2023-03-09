@@ -3,8 +3,8 @@ import { useCallback, useEffect, useMemo } from 'react'
 import useRequests from '@common/hooks/useRequests'
 import useToast from '@common/hooks/useToast'
 import { useTranslation } from '@config/localization'
-import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
-import useAuth from '@modules/auth/hooks/useAuth'
+import { AUTH_STATUS } from '@mobile/auth/constants/authStatus'
+import useAuth from '@mobile/auth/hooks/useAuth'
 
 const stickyIds: number[] = []
 

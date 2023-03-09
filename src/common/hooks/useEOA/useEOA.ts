@@ -7,7 +7,7 @@ import useAccounts from '@common/hooks/useAccounts'
 import useToast from '@common/hooks/useToast'
 import { fetchPost } from '@common/services/fetch'
 import CONFIG from '@config/env'
-import { getProxyDeployBytecode } from '@modules/auth/services/IdentityProxyDeploy'
+import { getProxyDeployBytecode } from '@mobile/auth/services/IdentityProxyDeploy'
 
 const relayerURL = CONFIG.RELAYER_URL
 

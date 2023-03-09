@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 
-import { AUTH_STATUS } from '@modules/auth/constants/authStatus'
-import useAuth from '@modules/auth/hooks/useAuth'
-import { VAULT_STATUS } from '@modules/vault/constants/vaultStatus'
-import useVault from '@modules/vault/hooks/useVault'
+import { AUTH_STATUS } from '@mobile/auth/constants/authStatus'
+import useAuth from '@mobile/auth/hooks/useAuth'
+import { VAULT_STATUS } from '@mobile/vault/constants/vaultStatus'
+import useVault from '@mobile/vault/hooks/useVault'
 
 import { ROUTES } from './routesConfig'
 

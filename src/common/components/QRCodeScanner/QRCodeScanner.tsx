@@ -15,7 +15,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 import { APP_ID, isiOS } from '@config/env'
 import { useTranslation } from '@config/localization'
-import AmbireLogo from '@modules/auth/components/AmbireLogo'
+import AmbireLogo from '@mobile/auth/components/AmbireLogo'
 
 import Button from '../Button'
 import Wrapper from '../Wrapper'

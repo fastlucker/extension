@@ -7,7 +7,7 @@ import {
   ledgerSignMessage,
   ledgerSignMessage712,
   ledgerSignTransaction
-} from '@modules/hardware-wallet/services/ledger'
+} from '@mobile/hardware-wallet/services/ledger'
 
 const wallets: any = {}
 

@@ -6,7 +6,7 @@ import useToast from '@common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@common/services/device'
 import { requestLocalAuthFlagging } from '@common/services/requestPermissionFlagging'
 import i18n, { useTranslation } from '@config/localization/localization'
-import useAuth from '@modules/auth/hooks/useAuth'
+import useAuth from '@mobile/auth/hooks/useAuth'
 
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES } from './constants'
 import { biometricsContextDefaults, BiometricsContextReturnType } from './types'

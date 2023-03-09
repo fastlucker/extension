@@ -18,7 +18,7 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 import { ROUTES } from '@config/Router/routesConfig'
-import useVault from '@modules/vault/hooks/useVault'
+import useVault from '@mobile/vault/hooks/useVault'
 import { isExtension } from '@web/constants/browserapi'
 
 import styles from './styles'

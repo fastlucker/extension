@@ -9,7 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { ExtensionWalletProvider } from '@common/contexts/extensionWalletContext'
 import colors from '@common/styles/colors'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import AppLoading from '@modules/app-loading/screens/AppLoading'
+import AppLoading from '@mobile/app-loading/screens/AppLoading'
 
 SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry error
 

@@ -9,7 +9,7 @@ import { AmbireExtensionContextReturnType } from '@common/contexts/ambireExtensi
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import ManifestImage from '@modules/extension/components/ManifestImage'
+import ManifestImage from '@mobile/extension/components/ManifestImage'
 import { ConnectedSite } from '@web/background/services/permission'
 
 import styles from './styles'
