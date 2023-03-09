@@ -26,6 +26,16 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
   },
   'pancakeswap.finance': {
     [NETWORKS.ethereum]: 'https://eth-mainnet.nodereal.io/v1/13acdadd769d4128b5c4a994e42140b3',
-    [NETWORKS['binance-smart-chain']]: 'https://nodes.pancakeswap.info/'
+    [NETWORKS['binance-smart-chain']]: 'https://nodes.pancakeswap.info'
+  },
+  'app.1inch.io': {
+    [NETWORKS.ethereum]: 'https://web3-node.1inch.io',
+    [NETWORKS.polygon]: 'https://bor-nodes.1inch.io',
+    [NETWORKS['binance-smart-chain']]: 'https://bsc-nodes.1inch.io',
+    [NETWORKS.optimism]: 'https://optimism-nodes.1inch.io',
+    [NETWORKS.arbitrum]: 'https://arbitrum-nodes.1inch.io',
+    [NETWORKS.gnosis]: 'https://gnosis-nodes.1inch.io',
+    [NETWORKS.avalanche]: 'https://avalanche-nodes.1inch.io',
+    [NETWORKS.fantom]: 'https://fantom-nodes.1inch.io'
   }
 }
