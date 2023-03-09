@@ -65,5 +65,32 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
     [NETWORKS.arbitrum]: 'https://arb1.arbitrum.io/rpc',
     [NETWORKS.gnosis]: 'https://rpc.gnosischain.com',
     [NETWORKS.optimism]: 'https://mainnet.optimism.io'
+  },
+  'traderjoexyz.com': {
+    [NETWORKS.avalanche]: 'https://avalanche-mainnet.infura.io/v3/6cdd13dd4a2e477fbee3e414554b86d1',
+    [NETWORKS.arbitrum]: 'https://arbitrum-mainnet.infura.io/v3/6cdd13dd4a2e477fbee3e414554b86d1',
+    [NETWORKS['binance-smart-chain']]:
+      'https://bsc-mainnet.nodereal.io/v1/79d1a2d720f648edac151b01d496cb88'
+  },
+  'app.sushi.com': {
+    [NETWORKS.ethereum]:
+      'https://rpc.ankr.com/eth/9f7d929b018cdffb338517efa06f58359e86ff1ffd350bc889738523659e7972',
+    [NETWORKS.polygon]: 'https://polygon-rpc.com/',
+    [NETWORKS.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
+    [NETWORKS['binance-smart-chain']]: 'https://bsc-dataseed.binance.org',
+    [NETWORKS.fantom]: 'https://rpcapi.fantom.network',
+    [NETWORKS.moonbeam]: 'https://rpc.api.moonbeam.network',
+    [NETWORKS.moonriver]: 'https://rpc.moonriver.moonbeam.network',
+    [NETWORKS.arbitrum]: 'https://arb1.arbitrum.io/rpc',
+    [NETWORKS.gnosis]: 'https://rpc.gnosischain.com',
+    [NETWORKS.optimism]: 'https://mainnet.optimism.io',
+    [NETWORKS.andromeda]: 'https://andromeda.metis.io/?owner=1088'
+  },
+  'app.pooltogether.com': {
+    [NETWORKS.ethereum]:
+      'https://ethereum-mainnet-web3-provider-proxy.pooltogether-api.workers.dev',
+    [NETWORKS.polygon]: 'https://polygon-mainnet.infura.io/v3/1d6cb6d8f137423ab26111c61c0760ef',
+    [NETWORKS.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
+    [NETWORKS.optimism]: 'https://optimism-mainnet-web3-provider-proxy.pooltogether-api.workers.dev'
   }
 }
