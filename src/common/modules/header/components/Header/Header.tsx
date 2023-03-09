@@ -21,7 +21,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import { DrawerHeaderProps } from '@react-navigation/drawer'
 import { getHeaderTitle } from '@react-navigation/elements'
 
-import styles from './style'
+import styles from './styles'
 
 interface Props extends DrawerHeaderProps {
   mode?: 'title' | 'bottom-sheet'
