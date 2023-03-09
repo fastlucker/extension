@@ -3,10 +3,10 @@ import { getProvider } from 'ambire-common/src/services/provider'
 /* eslint-disable no-restricted-syntax */
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
 import useStorage from '@common/hooks/useStorage'
-import CONFIG from '@config/env'
 import { getSDKVersion, MessageFormatter, Methods } from '@gnosis.pm/safe-apps-sdk'
 
 export interface GnosisContextReturnType {

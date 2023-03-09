@@ -1,5 +1,5 @@
 // So that the localization gets initialized at the beginning.
-import '@config/localization'
+import '@common/config/localization'
 
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'

@@ -11,10 +11,10 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { isWeb } from '@common/config/env'
 import { TAB_BAR_HEIGHT } from '@common/constants/router'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { isWeb } from '@config/env'
 
 import createStyles from './styles'
 

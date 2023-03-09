@@ -1,7 +1,7 @@
 import networks, { NetworkId, NETWORKS, NetworkType } from 'ambire-common/src/constants/networks'
 import { providers } from 'ethers'
 
-import CONFIG from '@config/env'
+import CONFIG from '@common/config/env'
 
 // @ts-ignore
 const rpcProviders: { [key in NetworkId]: any } = {}

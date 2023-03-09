@@ -2,9 +2,9 @@ import { Wallet } from 'ethers'
 import { useCallback } from 'react'
 import { Keyboard } from 'react-native'
 
+import { isWeb } from '@common/config/env'
 import useEOA from '@common/hooks/useEOA'
 import useToast from '@common/hooks/useToast'
-import { isWeb } from '@config/env'
 import useVault from '@mobile/vault/hooks/useVault'
 
 type AddSignerFormValues = {

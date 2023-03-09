@@ -1,6 +1,6 @@
 import { LayoutAnimation, LayoutAnimationConfig, UIManager } from 'react-native'
 
-import { isAndroid } from '@config/env'
+import { isAndroid } from '@common/config/env'
 
 type Props = {
   config?: LayoutAnimationConfig

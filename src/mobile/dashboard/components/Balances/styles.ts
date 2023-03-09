@@ -1,8 +1,8 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import { isWeb } from '@config/env'
 
 interface Style {
   loadingContainer: ViewStyle

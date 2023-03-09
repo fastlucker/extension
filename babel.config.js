@@ -42,7 +42,6 @@ module.exports = function (api) {
 
             // absolute imports
             '@assets': './src/assets',
-            '@config': './src/config',
             '@common': './src/common',
             '@mobile': './src/mobile',
             '@web': './src/web'

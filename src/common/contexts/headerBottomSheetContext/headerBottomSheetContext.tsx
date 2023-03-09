@@ -3,9 +3,9 @@ import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import BottomSheet from '@common/components/BottomSheet'
+import AccountChanger from '@common/config/Router/Header/AccountChanger'
+import NetworkChanger from '@common/config/Router/Header/NetworkChanger'
 import spacings from '@common/styles/spacings'
-import AccountChanger from '@config/Router/Header/AccountChanger'
-import NetworkChanger from '@config/Router/Header/NetworkChanger'
 
 import styles from './styles'
 

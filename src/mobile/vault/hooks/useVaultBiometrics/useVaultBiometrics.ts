@@ -1,10 +1,10 @@
 import * as SecureStore from 'expo-secure-store'
 import { useCallback, useEffect, useState } from 'react'
 
+import { useTranslation } from '@common/config/localization'
 import useStorageController from '@common/hooks/useStorageController'
 import useToast from '@common/hooks/useToast'
 import { requestLocalAuthFlagging } from '@common/services/requestPermissionFlagging'
-import { useTranslation } from '@config/localization'
 import { SECURE_STORE_KEY_KEYSTORE_PASSWORD } from '@mobile/vault/constants/storageKeys'
 
 import { useVaultBiometricsDefaults, UseVaultBiometricsReturnType } from './types'

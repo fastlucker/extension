@@ -3,8 +3,8 @@ import { TouchableOpacity, View } from 'react-native'
 import { Path, Svg } from 'react-native-svg'
 
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
-import { useTranslation } from '@config/localization'
 
 import styles from './styles'
 

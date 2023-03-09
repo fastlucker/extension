@@ -5,11 +5,11 @@ import { View } from 'react-native'
 
 import InfoIcon from '@assets/svg/InfoIcon'
 import Text from '@common/components/Text'
+import { Trans, useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import { Trans, useTranslation } from '@config/localization'
 
 import TransactionHistoryItem from './TransactionHistoryItem'
 

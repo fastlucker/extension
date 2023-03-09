@@ -8,12 +8,12 @@ import BottomSheet from '@common/components/BottomSheet'
 import Input from '@common/components/Input'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import commonStyles from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import { useTranslation } from '@config/localization'
 
 import styles from './styles'
 

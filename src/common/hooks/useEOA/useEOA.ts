@@ -3,10 +3,10 @@ import { generateAddress2 } from 'ethereumjs-util'
 import { getAddress, hexZeroPad } from 'ethers/lib/utils'
 import { useCallback } from 'react'
 
+import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useToast from '@common/hooks/useToast'
 import { fetchPost } from '@common/services/fetch'
-import CONFIG from '@config/env'
 import { getProxyDeployBytecode } from '@mobile/auth/services/IdentityProxyDeploy'
 
 const relayerURL = CONFIG.RELAYER_URL

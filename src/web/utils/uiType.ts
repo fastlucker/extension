@@ -1,4 +1,4 @@
-import { isWeb } from '@config/env'
+import { isWeb } from '@common/config/env'
 
 const UI_TYPE = {
   Tab: 'tab',

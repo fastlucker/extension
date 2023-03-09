@@ -5,10 +5,10 @@ import { Keyboard } from 'react-native'
 
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
+import { isWeb } from '@common/config/env'
+import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import { delayPromise } from '@common/utils/promises'
-import { isWeb } from '@config/env'
-import { useTranslation } from '@config/localization'
 import useEmailLogin from '@mobile/auth/hooks/useEmailLogin'
 
 const EmailLoginScreen = () => {

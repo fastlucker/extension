@@ -19,10 +19,10 @@ import UpArrowIcon from '@assets/svg/UpArrowIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import { isWeb } from '@common/config/env'
 import useConstants from '@common/hooks/useConstants'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { isWeb } from '@config/env'
 
 import styles from './styles'
 

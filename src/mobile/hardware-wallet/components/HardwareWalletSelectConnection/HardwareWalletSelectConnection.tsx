@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 // import { View } from 'react-native'
-// import { isAndroid } from '@config/env'
+// import { isAndroid } from '@common/config/env'
 import RequireBluetooth from '@common/components/RequireBluetooth'
 // import Segments from '@mobile/common/components/Segments'
 // import spacings from '@mobile/common/styles/spacings'

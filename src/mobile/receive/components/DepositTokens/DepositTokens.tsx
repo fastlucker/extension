@@ -10,12 +10,12 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
+import { isRelayerless } from '@common/config/env'
 import useToast from '@common/hooks/useToast'
 import colors from '@common/styles/colors'
 import spacings, { DEVICE_WIDTH } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import { isRelayerless } from '@config/env'
 
 import styles from './styles'
 

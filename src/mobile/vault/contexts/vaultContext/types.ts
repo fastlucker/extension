@@ -1,5 +1,5 @@
-import { isWeb } from '@config/env'
-import { ROUTES } from '@config/Router/routesConfig'
+import { isWeb } from '@common/config/env'
+import { ROUTES } from '@common/config/Router/routesConfig'
 import { VAULT_STATUS } from '@mobile/vault/constants/vaultStatus'
 import {
   useVaultBiometricsDefaults,

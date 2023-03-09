@@ -2,8 +2,8 @@ import React from 'react'
 import { View } from 'react-native'
 
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
-import { useTranslation } from '@config/localization'
 import DeviceItem from '@mobile/auth/components/DeviceItem'
 
 const DevicesList = ({ onSelectDevice, devices, refreshing }: any) => {

@@ -1,6 +1,6 @@
 import { StyleSheet, TextStyle } from 'react-native'
 
-import { isWeb } from '@config/env'
+import { isWeb } from '@common/config/env'
 
 import colors from '../colors'
 

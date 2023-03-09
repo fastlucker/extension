@@ -6,9 +6,9 @@ import { View } from 'react-native'
 
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { useTranslation } from '@config/localization'
 import { DepositTokenBottomSheetProvider } from '@mobile/gas-tank/contexts/depositTokenBottomSheetContext'
 
 import TokensListItem from './TokensListItem'

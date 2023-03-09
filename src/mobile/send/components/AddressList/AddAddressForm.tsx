@@ -9,12 +9,12 @@ import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import RecipientInput from '@common/components/RecipientInput'
 import Title from '@common/components/Title'
+import { useTranslation } from '@common/config/localization'
 import useAddressBook from '@common/hooks/useAddressBook'
 import useConstants from '@common/hooks/useConstants'
 import useNetwork from '@common/hooks/useNetwork'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { useTranslation } from '@config/localization'
 
 interface Props {
   onSubmit: ({

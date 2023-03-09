@@ -2,9 +2,9 @@ import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import { View, ViewProps } from 'react-native'
 
+import { isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import { isWeb } from '@config/env'
 
 import styles from './styles'
 

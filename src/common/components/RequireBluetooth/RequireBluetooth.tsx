@@ -14,8 +14,8 @@ import BluetoothStateManager from 'react-native-bluetooth-state-manager'
 import Button from '@common/components/Button'
 import RequireLocation from '@common/components/RequireLocation'
 import Text from '@common/components/Text'
+import { isAndroid } from '@common/config/env'
 import spacings from '@common/styles/spacings'
-import { isAndroid } from '@config/env'
 
 /**
  * Since Android 12 (API level 31), additional Bluetooth permissions are

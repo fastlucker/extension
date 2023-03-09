@@ -6,11 +6,11 @@ import { TouchableOpacity, View } from 'react-native'
 import AddIcon from '@assets/svg/AddIcon'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import useAddressBook from '@common/hooks/useAddressBook'
 import useConstants from '@common/hooks/useConstants'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { useTranslation } from '@config/localization'
 
 type Props = {
   onAddToAddressBook: () => any

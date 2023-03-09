@@ -6,10 +6,10 @@ import { View } from 'react-native'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import { Trans } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import { Trans } from '@config/localization'
 
 interface Props extends Token {
   onPress?: () => void

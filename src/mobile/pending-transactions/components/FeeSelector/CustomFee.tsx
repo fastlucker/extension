@@ -4,9 +4,9 @@ import { TouchableOpacity, View } from 'react-native'
 import EditIcon from '@assets/svg/EditIcon'
 import NumberInput from '@common/components/NumberInput'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { useTranslation } from '@config/localization'
 
 import styles from './styles'
 

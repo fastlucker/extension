@@ -1,8 +1,8 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isiOS } from '@common/config/env'
 import colors from '@common/styles/colors'
 import { DEVICE_HEIGHT, DEVICE_WIDTH } from '@common/styles/spacings'
-import { isiOS } from '@config/env'
 
 interface Style {
   container: ViewStyle

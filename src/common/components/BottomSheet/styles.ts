@@ -1,5 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
 import {
   DEVICE_HEIGHT,
@@ -9,7 +10,6 @@ import {
   SPACING_SM,
   SPACING_TY
 } from '@common/styles/spacings'
-import { isWeb } from '@config/env'
 
 interface Styles {
   root: ViewStyle

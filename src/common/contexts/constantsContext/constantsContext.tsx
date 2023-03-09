@@ -10,10 +10,10 @@ import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
+import CONFIG from '@common/config/env'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import CONFIG from '@config/env'
 
 const ConstantsContext = createContext<{
   constants: UseConstantsReturnType['constants']

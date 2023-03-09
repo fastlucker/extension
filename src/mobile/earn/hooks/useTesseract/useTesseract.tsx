@@ -4,8 +4,8 @@ import { Contract } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
 import TesseractLogo from '@assets/images/tesseract.png'
+import i18n from '@common/config/localization/localization'
 import useToast from '@common/hooks/useToast'
-import i18n from '@config/localization/localization'
 
 const POLYGON_SCAN_IMAGES = 'https://polygonscan.com/token/images'
 const VAULTS: any = [

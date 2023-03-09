@@ -12,6 +12,7 @@ import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import TokenIcon from '@common/components/TokenIcon'
+import { isWeb } from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useAddressBook from '@common/hooks/useAddressBook'
 import useConstants from '@common/hooks/useConstants'
@@ -22,7 +23,6 @@ import usePortfolio from '@common/hooks/usePortfolio'
 import useRequests from '@common/hooks/useRequests'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
-import { isWeb } from '@config/env'
 
 const ERC20 = new Interface(erc20Abi)
 

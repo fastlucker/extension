@@ -3,10 +3,10 @@ import React from 'react'
 import { View } from 'react-native'
 
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { useTranslation } from '@config/localization'
 
 interface Props {
   totalSave: string

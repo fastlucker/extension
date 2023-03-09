@@ -2,10 +2,10 @@ import React from 'react'
 import { View } from 'react-native'
 
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import { useTranslation } from '@config/localization'
 
 import styles from './styles'
 

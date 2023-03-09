@@ -1,7 +1,7 @@
 import './shim'
 
 import './global'
-import '@config/analytics/CrashAnalytics'
+import '@common/config/analytics/CrashAnalytics'
 import '@common/services/layoutAnimation'
 import 'react-native-gesture-handler'
 import 'expo-asset'

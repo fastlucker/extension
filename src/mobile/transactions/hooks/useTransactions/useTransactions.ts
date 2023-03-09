@@ -3,12 +3,12 @@ import { Bundle } from 'adex-protocol-eth/js'
 import useCacheBreak from 'ambire-common/src/hooks/useCacheBreak'
 import { useCallback } from 'react'
 
+import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
 import useRelayerData from '@common/hooks/useRelayerData'
 import useRequests from '@common/hooks/useRequests'
 import useToast from '@common/hooks/useToast'
-import CONFIG from '@config/env'
 
 // 10% in geth and most EVM chain RPCs; relayer wants 12%
 const RBF_THRESHOLD = 1.14

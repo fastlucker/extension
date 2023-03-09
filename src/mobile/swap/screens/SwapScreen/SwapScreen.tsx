@@ -5,10 +5,10 @@ import WebView from 'react-native-webview'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Spinner from '@common/components/Spinner'
 import Wrapper from '@common/components/Wrapper'
+import CONFIG, { isiOS } from '@common/config/env'
 import useGnosis from '@common/hooks/useGnosis'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import CONFIG, { isiOS } from '@config/env'
 
 import styles from './styles'
 

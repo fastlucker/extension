@@ -10,12 +10,12 @@ import Recipient from '@common/components/Recipient'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
+import { isWeb } from '@common/config/env'
+import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import commonStyles from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import { isWeb } from '@config/env'
-import { useTranslation } from '@config/localization'
 
 interface Props {
   isHidden: boolean

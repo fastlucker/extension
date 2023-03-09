@@ -4,9 +4,9 @@ import React from 'react'
 
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import { useTranslation } from '@config/localization'
 import Providers from '@mobile/receive/components/Providers'
 
 interface Props {

@@ -5,9 +5,9 @@ import { BackHandler, View } from 'react-native'
 import { Modalize, ModalizeProps } from 'react-native-modalize'
 
 import Button from '@common/components/Button'
+import { isWeb } from '@common/config/env'
+import { HEADER_HEIGHT } from '@common/config/Router/Header/style'
 import { DEVICE_HEIGHT } from '@common/styles/spacings'
-import { isWeb } from '@config/env'
-import { HEADER_HEIGHT } from '@config/Router/Header/style'
 import { Portal } from '@gorhom/portal'
 
 import Backdrop from './Backdrop'

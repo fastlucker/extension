@@ -1,4 +1,4 @@
-import { isWeb } from '@config/env'
+import { isWeb } from '@common/config/env'
 
 export const TAB_BAR_HEIGHT = isWeb ? 80 : 63
 export const TAB_BAR_ICON_SIZE = 22

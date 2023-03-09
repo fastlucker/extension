@@ -1,7 +1,6 @@
 import React from 'react'
 
 import Text from '@common/components/Text'
-import spacings from '@common/styles/spacings'
 import CONFIG, {
   APP_VERSION,
   BUILD_NUMBER,
@@ -9,8 +8,9 @@ import CONFIG, {
   isWeb,
   RELEASE_CHANNEL,
   RUNTIME_VERSION
-} from '@config/env'
-import { useTranslation } from '@config/localization'
+} from '@common/config/env'
+import { useTranslation } from '@common/config/localization'
+import spacings from '@common/styles/spacings'
 
 import styles from './styles'
 

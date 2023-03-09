@@ -2,12 +2,12 @@ import React from 'react'
 import { View } from 'react-native'
 
 import Button from '@common/components/Button'
+import { useTranslation } from '@common/config/localization'
 import useGasTank from '@common/hooks/useGasTank'
 import useToast from '@common/hooks/useToast'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { useTranslation } from '@config/localization'
 
 import styles from './styles'
 

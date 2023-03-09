@@ -2,14 +2,14 @@ import { Wallet } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { Keyboard } from 'react-native'
 
+import CONFIG from '@common/config/env'
+import { useTranslation } from '@common/config/localization'
+import { ROUTES } from '@common/config/Router/routesConfig'
 import useAccounts from '@common/hooks/useAccounts'
 import useNavigation from '@common/hooks/useNavigation'
 import useStorageController from '@common/hooks/useStorageController'
 import useToast from '@common/hooks/useToast'
 import { fetchCaught } from '@common/services/fetch'
-import CONFIG from '@config/env'
-import { useTranslation } from '@config/localization'
-import { ROUTES } from '@config/Router/routesConfig'
 import useVault from '@mobile/vault/hooks/useVault'
 
 type FormProps = {

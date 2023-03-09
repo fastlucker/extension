@@ -5,11 +5,11 @@ import Button, { Props as ButtonDefaultProps } from '@common/components/Button'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
+import { useTranslation } from '@common/config/localization'
+import { ROUTES } from '@common/config/Router/routesConfig'
 import useNavigation from '@common/hooks/useNavigation'
 import spacings from '@common/styles/spacings'
 import textStyles from '@common/styles/utils/text'
-import { useTranslation } from '@config/localization'
-import { ROUTES } from '@config/Router/routesConfig'
 import AmbireLogo from '@mobile/auth/components/AmbireLogo'
 
 interface ButtonProps extends Omit<ButtonDefaultProps, 'onPress'> {

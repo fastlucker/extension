@@ -2,13 +2,13 @@ import usePortfolio, { UsePortfolioReturnType } from 'ambire-common/src/hooks/us
 import React, { createContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState } from 'react-native'
 
+import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useConstants from '@common/hooks/useConstants'
 import useNetwork from '@common/hooks/useNetwork'
 import useStorage from '@common/hooks/useStorage'
 import useToasts from '@common/hooks/useToast'
 import { fetchGet } from '@common/services/fetch'
-import CONFIG from '@config/env'
 
 interface PortfolioContextReturnType extends UsePortfolioReturnType {}
 

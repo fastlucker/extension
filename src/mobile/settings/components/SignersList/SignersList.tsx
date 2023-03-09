@@ -8,6 +8,7 @@ import { View } from 'react-native'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
+import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useConstants from '@common/hooks/useConstants'
 import useNetwork from '@common/hooks/useNetwork'
@@ -18,7 +19,6 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import CONFIG from '@config/env'
 
 const SignersList = () => {
   const { t } = useTranslation()

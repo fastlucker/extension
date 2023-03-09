@@ -3,11 +3,11 @@ import useWalletConnect, {
 } from 'ambire-common/src/hooks/useWalletConnect'
 import React, { createContext, useCallback, useMemo } from 'react'
 
+import i18n from '@common/config/localization/localization'
 import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
 import useStorage from '@common/hooks/useStorage'
 import useToasts from '@common/hooks/useToast'
-import i18n from '@config/localization/localization'
 
 export interface WalletConnectContextReturnType extends UseWalletConnectReturnType {
   handleConnect: (uri: string) => void

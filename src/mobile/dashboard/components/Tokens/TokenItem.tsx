@@ -6,10 +6,10 @@ import { TouchableOpacity, View } from 'react-native'
 import SendIcon from '@assets/svg/SendIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import { isWeb } from '@common/config/env'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import { isWeb } from '@config/env'
 
 import styles from './styles'
 

@@ -1,5 +1,5 @@
-import { isWeb } from '@config/env'
-import i18n from '@config/localization/localization'
+import { isWeb } from '@common/config/env'
+import i18n from '@common/config/localization/localization'
 import { serialize } from '@ethersproject/transactions'
 import AppEth from '@ledgerhq/hw-app-eth'
 

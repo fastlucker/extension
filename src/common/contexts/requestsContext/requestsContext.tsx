@@ -2,6 +2,8 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useTranslation } from '@common/config/localization'
+import { ROUTES } from '@common/config/Router/routesConfig'
 import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@common/contexts/extensionApprovalContext/types'
 import useAccounts from '@common/hooks/useAccounts'
 import useExtensionApproval from '@common/hooks/useExtensionApproval'
@@ -11,8 +13,6 @@ import useNavigation from '@common/hooks/useNavigation'
 import useNetwork from '@common/hooks/useNetwork'
 import useToast from '@common/hooks/useToast'
 import useWalletConnect from '@common/hooks/useWalletConnect'
-import { useTranslation } from '@config/localization'
-import { ROUTES } from '@config/Router/routesConfig'
 import { isExtension } from '@web/constants/browserapi'
 import { getUiType } from '@web/utils/uiType'
 

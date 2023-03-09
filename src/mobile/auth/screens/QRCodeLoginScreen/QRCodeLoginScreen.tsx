@@ -5,8 +5,8 @@ import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrap
 import QRCodeScanner from '@common/components/QRCodeScanner'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
+import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
-import { useTranslation } from '@config/localization'
 import useQRCodeLogin from '@mobile/auth/hooks/useQRCodeLogin'
 
 const QRCodeLoginScreen = () => {

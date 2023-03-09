@@ -4,10 +4,10 @@ import { Keyboard } from 'react-native'
 
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
+import { isWeb } from '@common/config/env'
+import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import { delayPromise } from '@common/utils/promises'
-import { isWeb } from '@config/env'
-import { useTranslation } from '@config/localization'
 import useExternalSignerLogin from '@mobile/auth/hooks/useExternalSignerLogin'
 
 const PrivateKeyForm = () => {

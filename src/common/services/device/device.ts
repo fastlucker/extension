@@ -1,7 +1,7 @@
 import { Platform } from 'react-native'
 
+import i18n from '@common/config/localization/localization'
 import { DEVICE_SUPPORTED_AUTH_TYPES } from '@common/contexts/biometricsContext/constants'
-import i18n from '@config/localization/localization'
 
 export const getDeviceSupportedAuthTypesLabel = (types: DEVICE_SUPPORTED_AUTH_TYPES[]) => {
   if (Platform.OS === 'ios') {

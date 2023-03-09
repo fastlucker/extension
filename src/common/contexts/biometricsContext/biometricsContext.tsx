@@ -2,10 +2,10 @@ import * as LocalAuthentication from 'expo-local-authentication'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { Platform } from 'react-native'
 
+import i18n, { useTranslation } from '@common/config/localization/localization'
 import useToast from '@common/hooks/useToast'
 import { getDeviceSupportedAuthTypesLabel } from '@common/services/device'
 import { requestLocalAuthFlagging } from '@common/services/requestPermissionFlagging'
-import i18n, { useTranslation } from '@config/localization/localization'
 import useAuth from '@mobile/auth/hooks/useAuth'
 
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES } from './constants'

@@ -1,6 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { HEADER_HEIGHT } from '@config/Router/Header/style'
+import { HEADER_HEIGHT } from '@common/config/Router/Header/style'
 
 interface Style {
   backgroundImgWrapper: ViewStyle

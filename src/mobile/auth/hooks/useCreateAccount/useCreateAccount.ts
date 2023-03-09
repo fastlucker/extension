@@ -6,10 +6,10 @@ import { useState } from 'react'
 import { Keyboard } from 'react-native'
 import performance from 'react-native-performance'
 
+import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useToast from '@common/hooks/useToast'
 import { fetchPost } from '@common/services/fetch'
-import CONFIG from '@config/env'
 import { getProxyDeployBytecode } from '@mobile/auth/services/IdentityProxyDeploy'
 import useVault from '@mobile/vault/hooks/useVault'
 

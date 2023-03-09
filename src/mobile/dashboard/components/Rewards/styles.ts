@@ -1,9 +1,9 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
 import commonStyles from '@common/styles/utils/common'
-import { isWeb } from '@config/env'
 
 interface Style {
   rewardFlag: ViewStyle

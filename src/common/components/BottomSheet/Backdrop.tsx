@@ -5,9 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import CloseIcon from '@assets/svg/CloseIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
+import { isiOS, isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { isiOS, isWeb } from '@config/env'
 
 import styles from './styles'
 

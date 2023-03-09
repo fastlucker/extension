@@ -1,8 +1,8 @@
 import * as Linking from 'expo-linking'
 import React, { createContext, useCallback, useEffect } from 'react'
 
+import { isAndroid, isWeb } from '@common/config/env'
 import useWalletConnect from '@common/hooks/useWalletConnect'
-import { isAndroid, isWeb } from '@config/env'
 
 export interface LinkingContextReturnType {}
 
