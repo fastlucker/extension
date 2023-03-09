@@ -4,11 +4,11 @@ import { Keyboard } from 'react-native'
 
 import CONFIG from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
-import { ROUTES } from '@common/config/Router/routesConfig'
 import useAccounts from '@common/hooks/useAccounts'
 import useNavigation from '@common/hooks/useNavigation'
 import useStorageController from '@common/hooks/useStorageController'
 import useToast from '@common/hooks/useToast'
+import { ROUTES } from '@common/modules/router/config/routesConfig'
 import { fetchCaught } from '@common/services/fetch'
 import useVault from '@mobile/vault/hooks/useVault'
 

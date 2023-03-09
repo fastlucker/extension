@@ -7,7 +7,6 @@
     "lib": ["ESNext", "DOM"],
     "types": ["chrome", "firefox-webext-browser", "reflect-metadata"],
     "paths": {
-      "@assets/*": ["src/assets/*"],
       "@common/*": ["src/common/*"],
       "@mobile/*": ["src/mobile/*"],
       "@web/*": ["src/web/*"]

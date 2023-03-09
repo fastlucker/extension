@@ -30,9 +30,9 @@ module.exports = function (api) {
           ],
           alias: {
             // alias for better crypto performance on mobile
-            'scrypt-js': './src/config/alias/scrypt.js',
+            'scrypt-js': './src/common/config/alias/scrypt.js',
             // alias for better crypto performance on mobile
-            '@ethersproject/pbkdf2': './src/config/alias/pbkdf2.js',
+            '@ethersproject/pbkdf2': './src/common/config/alias/pbkdf2.js',
             // node's crypto polyfill for React Native
             'crypto': 'react-native-quick-crypto',
             // stream-browserify: used by react-native-quick-crypto
@@ -41,7 +41,6 @@ module.exports = function (api) {
             'buffer': '@craftzdog/react-native-buffer',
 
             // absolute imports
-            '@assets': './src/assets',
             '@common': './src/common',
             '@mobile': './src/mobile',
             '@web': './src/web'

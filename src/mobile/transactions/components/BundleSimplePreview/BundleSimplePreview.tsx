@@ -4,7 +4,7 @@ import isEqual from 'react-fast-compare'
 import { Trans, useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
-import OpenIcon from '@assets/svg/OpenIcon'
+import OpenIcon from '@common/assets/svg/OpenIcon'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import TxnPreview from '@common/components/TxnPreview'

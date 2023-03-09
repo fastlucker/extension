@@ -2,7 +2,7 @@ import * as Clipboard from 'expo-clipboard'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import CopyIcon from '@assets/svg/CopyIcon'
+import CopyIcon from '@common/assets/svg/CopyIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import useToast from '@common/hooks/useToast'
 

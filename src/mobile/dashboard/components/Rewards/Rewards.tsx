@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { Linking, ScrollView, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import RewardsFlag from '@assets/svg/RewardFlag/RewardFlag'
+import RewardsFlag from '@common/assets/svg/RewardFlag/RewardFlag'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'

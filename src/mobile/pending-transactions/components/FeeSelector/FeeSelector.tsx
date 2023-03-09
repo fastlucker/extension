@@ -9,7 +9,7 @@ import { ethers } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
-import InfoIcon from '@assets/svg/InfoIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Select from '@common/components/Select'

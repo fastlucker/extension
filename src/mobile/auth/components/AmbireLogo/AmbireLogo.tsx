@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Image, Platform, TouchableWithoutFeedback, View } from 'react-native'
+import { Image, TouchableWithoutFeedback, View } from 'react-native'
 
-import logo from '@assets/images/Ambire-Wallet-logo-colored-white-vertical.png'
+import logo from '@common/assets/images/Ambire-Wallet-logo-colored-white-vertical.png'
 import AppVersion from '@common/components/AppVersion'
 import { isWeb } from '@common/config/env'
 import spacings, { IS_SCREEN_SIZE_S } from '@common/styles/spacings'

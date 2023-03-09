@@ -9,7 +9,7 @@ import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 
-import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import Blockies from '@common/components/Blockies'
 import Button from '@common/components/Button'
 import FastImage from '@common/components/FastImage'

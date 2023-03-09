@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import DownArrowIcon from '@assets/svg/DownArrowIcon'
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import Input, { InputProps } from '@common/components/Input'
 import useAddressBook from '@common/hooks/useAddressBook'
 import spacings from '@common/styles/spacings'

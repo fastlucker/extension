@@ -3,7 +3,7 @@ import { UseAccountsReturnType } from 'ambire-common/src/hooks/useAccounts'
 import React from 'react'
 import { View } from 'react-native'
 
-import InfoIcon from '@assets/svg/InfoIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'

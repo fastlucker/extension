@@ -7,9 +7,9 @@ import React from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { ExtensionWalletProvider } from '@common/contexts/extensionWalletContext'
+import AppInit from '@common/screens/AppInit'
 import colors from '@common/styles/colors'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import AppLoading from '@mobile/app-loading/screens/AppLoading'
 
 SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry error
 
@@ -21,7 +21,7 @@ const App = () => {
       <StatusBar style="light" backgroundColor={colors.wooed} />
 
       <ExtensionWalletProvider>
-        <AppLoading />
+        <AppInit />
       </ExtensionWalletProvider>
     </GestureHandlerRootView>
   )

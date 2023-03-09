@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Image, Linking, TouchableOpacity, View } from 'react-native'
 
-import MissingIcon from '@assets/svg/MissingIcon'
+import MissingIcon from '@common/assets/svg/MissingIcon'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'

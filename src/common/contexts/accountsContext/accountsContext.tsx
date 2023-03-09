@@ -5,11 +5,11 @@ import useAccounts, {
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import * as CrashAnalytics from '@common/config/analytics/CrashAnalytics'
-import { ROUTES } from '@common/config/Router/routesConfig'
 import useExtensionApproval from '@common/hooks/useExtensionApproval'
 import useNavigation from '@common/hooks/useNavigation/useNavigation'
 import useStorage from '@common/hooks/useStorage'
 import useToasts from '@common/hooks/useToast'
+import { ROUTES } from '@common/modules/router/config/routesConfig'
 import { AUTH_STATUS } from '@mobile/auth/constants/authStatus'
 import useAuth from '@mobile/auth/hooks/useAuth'
 import { ONBOARDING_VALUES } from '@mobile/onboarding/contexts/onboardingContext/types'

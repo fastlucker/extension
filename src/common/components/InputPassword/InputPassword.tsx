@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
-import InvisibilityIcon from '@assets/svg/InvisibilityIcon'
-import VisibilityIcon from '@assets/svg/VisibilityIcon'
+import InvisibilityIcon from '@common/assets/svg/InvisibilityIcon'
+import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import Input, { InputProps } from '@common/components/Input'
 
 interface Props extends InputProps {}

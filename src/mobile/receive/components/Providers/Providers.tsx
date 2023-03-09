@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
-import InfoIcon from '@assets/svg/InfoIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'

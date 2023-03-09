@@ -3,7 +3,7 @@ import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import GasTankIcon from '@assets/svg/GasTankIcon'
+import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'

@@ -1,7 +1,7 @@
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
-import EditIcon from '@assets/svg/EditIcon'
+import EditIcon from '@common/assets/svg/EditIcon'
 import NumberInput from '@common/components/NumberInput'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'

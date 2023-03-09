@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Image, ImageProps, View } from 'react-native'
 
-import MissingTokenIcon from '@assets/svg/MissingTokenIcon'
+import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import { getTokenIcon } from '@common/services/icons'
 import { checkIfImageExists } from '@common/utils/checkIfImageExists'
 

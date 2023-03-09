@@ -1,7 +1,7 @@
 import { NavigateOptions } from 'react-router-dom'
 import { Subject } from 'rxjs'
 
-import { ROUTES } from '@common/config/Router/routesConfig'
+import { ROUTES } from '@common/modules/router/config/routesConfig'
 import { NavigationProp } from '@react-navigation/native'
 
 interface UseNavigationReturnTypeCommon {

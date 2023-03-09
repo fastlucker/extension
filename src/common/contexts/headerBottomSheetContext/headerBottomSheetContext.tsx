@@ -2,9 +2,9 @@ import React, { createContext, useMemo } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import AccountChanger from '@common/components/AccountChanger'
 import BottomSheet from '@common/components/BottomSheet'
-import AccountChanger from '@common/config/Router/Header/AccountChanger'
-import NetworkChanger from '@common/config/Router/Header/NetworkChanger'
+import NetworkChanger from '@common/components/NetworkChanger'
 import spacings from '@common/styles/spacings'
 
 import styles from './styles'

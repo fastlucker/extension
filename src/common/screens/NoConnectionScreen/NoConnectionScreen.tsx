@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Satellite from '@assets/svg/Satellite'
+import Satellite from '@common/assets/svg/Satellite'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'

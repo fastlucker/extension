@@ -1,7 +1,7 @@
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
-import CheckIcon from '@assets/svg/CheckIcon'
+import CheckIcon from '@common/assets/svg/CheckIcon'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
 import flexboxStyles from '@common/styles/utils/flexbox'

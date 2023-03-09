@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, ViewStyle } from 'react-native'
 
-import InfoIcon from '@assets/svg/InfoIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'

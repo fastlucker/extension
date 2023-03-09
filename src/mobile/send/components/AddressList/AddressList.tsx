@@ -2,7 +2,7 @@ import { Address } from 'ambire-common/src/hooks/useAddressBook'
 import React, { useMemo } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
-import BinIcon from '@assets/svg/BinIcon'
+import BinIcon from '@common/assets/svg/BinIcon'
 import Blockies from '@common/components/Blockies'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'

@@ -9,9 +9,9 @@ import useNetwork from '@common/hooks/useNetwork'
 import useRequests from '@common/hooks/useRequests'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { DetailedBundleProvider } from '@mobile/send/contexts/detailedBundleContext'
+import TransactionsSectionList from '@mobile/transactions/components/TransactionsSectionList'
 import useTransactions from '@mobile/transactions/hooks/useTransactions'
 
-import TransactionsSectionList from '../../components/TransactionsSectionList'
 import styles from './styles'
 
 const TransactionsScreen = () => {

@@ -8,11 +8,11 @@ import { Keyboard } from 'react-native'
 
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
-import { ROUTES } from '@common/config/Router/routesConfig'
 import useAccounts from '@common/hooks/useAccounts'
 import useEOA from '@common/hooks/useEOA'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
+import { ROUTES } from '@common/modules/router/config/routesConfig'
 import useVault from '@mobile/vault/hooks/useVault'
 
 type FormProps = {

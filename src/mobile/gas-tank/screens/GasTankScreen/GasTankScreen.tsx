@@ -4,7 +4,7 @@ import React, { useMemo } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import GasTankIcon from '@assets/svg/GasTankIcon'
+import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Panel from '@common/components/Panel'

@@ -5,7 +5,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, View } from 'react-native'
 
-import InfoIcon from '@assets/svg/InfoIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import InputConfirmationCode from '@common/components/InputConfirmationCode'

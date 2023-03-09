@@ -14,7 +14,7 @@ import { formatUnits, Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import isEqual from 'react-fast-compare'
 
-import AmbireLogo from '@assets/images/Ambire.png'
+import AmbireLogo from '@common/assets/images/Ambire.png'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import CONFIG from '@common/config/env'

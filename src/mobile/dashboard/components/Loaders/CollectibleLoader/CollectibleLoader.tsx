@@ -2,7 +2,7 @@ import React from 'react'
 import { View } from 'react-native'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
 
-import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import colors from '@common/styles/colors'
 import { SPACING_MI, SPACING_TY } from '@common/styles/spacings'

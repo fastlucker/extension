@@ -2,7 +2,7 @@ import { ethers } from 'ethers'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { BackHandler, Image, TouchableOpacity, View } from 'react-native'
 
-import LeftArrowIcon from '@assets/svg/LeftArrowIcon'
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import Button from '@common/components/Button'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import NumberInput from '@common/components/NumberInput'

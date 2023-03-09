@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Linking, Platform, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import CameraCorners from '@assets/svg/CameraCorners'
+import CameraCorners from '@common/assets/svg/CameraCorners'
 import Text from '@common/components/Text'
 import { APP_ID, isiOS } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'

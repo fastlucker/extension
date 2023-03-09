@@ -3,7 +3,7 @@ import * as SplashScreen from 'expo-splash-screen'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Satellite from '@assets/svg/Satellite'
+import Satellite from '@common/assets/svg/Satellite'
 import Button from '@common/components/Button'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Spinner from '@common/components/Spinner'

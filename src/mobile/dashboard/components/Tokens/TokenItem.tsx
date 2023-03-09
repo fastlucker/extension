@@ -3,7 +3,7 @@ import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
-import SendIcon from '@assets/svg/SendIcon'
+import SendIcon from '@common/assets/svg/SendIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { isWeb } from '@common/config/env'

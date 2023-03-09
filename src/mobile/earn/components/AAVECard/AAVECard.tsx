@@ -11,7 +11,7 @@ import { Interface } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
 
-import AAVELogo from '@assets/images/AAVE.png'
+import AAVELogo from '@common/assets/images/AAVE.png'
 import { useTranslation } from '@common/config/localization'
 import Card from '@mobile/earn/components/Card'
 import { CARDS } from '@mobile/earn/contexts/cardsVisibilityContext'

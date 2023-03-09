@@ -1,4 +1,4 @@
-import { ROUTES } from '@common/config/Router/routesConfig'
+import { ROUTES } from '@common/modules/router/config/routesConfig'
 
 export const isRouteWithTabBar = (routeName: string) =>
   routeName === ROUTES.dashboard ||

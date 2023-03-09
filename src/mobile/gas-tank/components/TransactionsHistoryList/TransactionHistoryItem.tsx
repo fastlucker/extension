@@ -2,7 +2,7 @@ import { NetworkId } from 'ambire-common/src/constants/networks'
 import React, { useMemo } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 
-import OpenIcon from '@assets/svg/OpenIcon'
+import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import colors from '@common/styles/colors'

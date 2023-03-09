@@ -3,7 +3,7 @@ import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/servic
 import React, { useMemo } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
-import AddIcon from '@assets/svg/AddIcon'
+import AddIcon from '@common/assets/svg/AddIcon'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'

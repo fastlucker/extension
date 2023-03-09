@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
 
-import CopyIcon from '@assets/svg/CopyIcon'
+import CopyIcon from '@common/assets/svg/CopyIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'

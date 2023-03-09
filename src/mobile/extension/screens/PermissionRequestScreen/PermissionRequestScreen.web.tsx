@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import { View } from 'react-native'
 
-import ManifestFallbackIcon from '@assets/svg/ManifestFallbackIcon'
+import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Button from '@common/components/Button'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Panel from '@common/components/Panel'

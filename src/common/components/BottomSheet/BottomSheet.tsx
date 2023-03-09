@@ -6,7 +6,7 @@ import { Modalize, ModalizeProps } from 'react-native-modalize'
 
 import Button from '@common/components/Button'
 import { isWeb } from '@common/config/env'
-import { HEADER_HEIGHT } from '@common/config/Router/Header/style'
+import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
 import { DEVICE_HEIGHT } from '@common/styles/spacings'
 import { Portal } from '@gorhom/portal'
 

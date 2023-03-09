@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { Animated, Easing, Platform, StyleSheet, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import CloseIcon from '@assets/svg/CloseIcon'
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import { isiOS, isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
