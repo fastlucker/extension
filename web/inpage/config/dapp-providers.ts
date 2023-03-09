@@ -50,5 +50,10 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
     [NETWORKS.arbitrum]: 'https://arb1.arbitrum.io/rpc',
     [NETWORKS.optimism]: 'https://endpoints.omniatech.io/v1/op/mainnet/public',
     [NETWORKS.fantom]: 'https://rpc.ftm.tools'
+  },
+  'apeswap.finance': {
+    [NETWORKS.polygon]: 'https://polygon-rpc.com',
+    [NETWORKS['binance-smart-chain']]: 'https://bsc-dataseed1.defibit.io',
+    [NETWORKS.ethereum]: 'https://eth-mainnet.nodereal.io/v1/43f9100965104de49b580d1fa1ab28c0'
   }
 }
