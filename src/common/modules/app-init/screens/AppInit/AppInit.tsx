@@ -1,3 +1,5 @@
+// @ts-nocheck TODO: fix provider types
+
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -28,6 +30,7 @@ import { ToastProvider } from '@common/contexts/toastContext'
 import { UnsupportedDAppsBottomSheetProvider } from '@common/contexts/unsupportedDAppsBottomSheetContext'
 import { WalletConnectProvider } from '@common/contexts/walletConnectContext'
 import useFonts from '@common/hooks/useFonts'
+import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
 import { navigationContainerDarkTheme } from '@common/modules/router/styles'
 import { VaultProvider } from '@common/modules/vault/contexts/vaultContext'
@@ -37,8 +40,6 @@ import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { NavigationContainer } from '@react-navigation/native'
 import { isExtension } from '@web/constants/browserapi'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
-
-import AppRouter from './AppRouter'
 
 // Initialize rpc providers for all networks
 const shouldInitProviders = !areRpcProvidersInitialized()

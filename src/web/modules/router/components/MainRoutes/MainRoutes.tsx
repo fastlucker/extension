@@ -19,6 +19,7 @@ import {
   headerBeta as defaultHeaderBeta,
   headerGamma as defaultHeaderGamma
 } from '@common/modules/header/config/headerConfig'
+import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import PendingTransactionsScreen from '@common/modules/pending-transactions/screens/PendingTransactionsScreen'
 import ProviderScreen from '@common/modules/receive/screens/ProviderScreen'
 import ReceiveScreen from '@common/modules/receive/screens/ReceiveScreen'
@@ -30,18 +31,17 @@ import SignMessageScreen from '@common/modules/sign-message/screens/SignMessageS
 import TransactionsScreen from '@common/modules/transactions/screens/TransactionsScreen'
 import CreateNewVaultScreen from '@common/modules/vault/screens/CreateNewVaultScreen'
 import VaultSetupGetStartedScreen from '@common/modules/vault/screens/VaultSetupGetStartedScreen'
-import NoConnectionScreen from '@common/screens/NoConnectionScreen'
 import colors from '@common/styles/colors'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
+import GetEncryptionPublicKeyRequestScreen from '@web/modules/approval-requests/screens/GetEncryptionPublicKeyRequestScreen'
+import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
+import SwitchNetworkRequestScreen from '@web/modules/approval-requests/screens/SwitchNetworkRequestScreen'
+import WatchTokenRequestScreen from '@web/modules/approval-requests/screens/WatchTokenRequestScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import BottomNav from '@web/modules/router/components/BottomNav'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
-import GetEncryptionPublicKeyRequestScreen from '@web/screens/GetEncryptionPublicKeyRequestScreen'
-import PermissionRequestScreen from '@web/screens/PermissionRequestScreen'
-import SwitchNetworkRequestScreen from '@web/screens/SwitchNetworkRequestScreen'
-import WatchTokenRequestScreen from '@web/screens/WatchTokenRequestScreen'
 import { getUiType } from '@web/utils/uiType'
 
 const navigationEnabled = !getUiType().isNotification
