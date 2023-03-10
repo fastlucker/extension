@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 
+import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
+import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/config/routesConfig'
-import { AUTH_STATUS } from '@mobile/auth/constants/authStatus'
-import useAuth from '@mobile/auth/hooks/useAuth'
-import { VAULT_STATUS } from '@mobile/vault/constants/vaultStatus'
-import useVault from '@mobile/vault/hooks/useVault'
+import { VAULT_STATUS } from '@common/modules/vault/constants/vaultStatus'
+import useVault from '@common/modules/vault/hooks/useVault'
 
 const PrivateRoute = () => {
   const { vaultStatus } = useVault()

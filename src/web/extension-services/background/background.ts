@@ -1,7 +1,7 @@
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 
+import VaultController from '@common/modules/vault/services/VaultController'
 import { rpcProviders } from '@common/services/providers'
-import VaultController from '@mobile/vault/services/VaultController'
 import providerController from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'

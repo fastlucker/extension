@@ -6,8 +6,8 @@ import { useCallback } from 'react'
 import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useToast from '@common/hooks/useToast'
+import { getProxyDeployBytecode } from '@common/modules/auth/services/IdentityProxyDeploy'
 import { fetchPost } from '@common/services/fetch'
-import { getProxyDeployBytecode } from '@mobile/auth/services/IdentityProxyDeploy'
 
 const relayerURL = CONFIG.RELAYER_URL
 

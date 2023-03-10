@@ -2,7 +2,7 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 
-import VaultController from '@mobile/vault/services/VaultController'
+import VaultController from '@common/modules/vault/services/VaultController'
 import { EVENTS } from '@web/constants/common'
 import providerController from '@web/extension-services/background/provider/ProviderController'
 import { ProviderRequest } from '@web/extension-services/background/provider/types'

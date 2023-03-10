@@ -4,9 +4,9 @@ import { Platform } from 'react-native'
 
 import i18n, { useTranslation } from '@common/config/localization/localization'
 import useToast from '@common/hooks/useToast'
+import useAuth from '@common/modules/auth/hooks/useAuth'
 import { getDeviceSupportedAuthTypesLabel } from '@common/services/device'
 import { requestLocalAuthFlagging } from '@common/services/requestPermissionFlagging'
-import useAuth from '@mobile/auth/hooks/useAuth'
 
 import { DEVICE_SECURITY_LEVEL, DEVICE_SUPPORTED_AUTH_TYPES } from './constants'
 import { biometricsContextDefaults, BiometricsContextReturnType } from './types'
