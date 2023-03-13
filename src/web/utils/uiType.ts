@@ -1,4 +1,5 @@
 import { isWeb } from '@common/config/env'
+import { isExtension } from '@web/constants/browserapi'
 
 const UI_TYPE = {
   Tab: 'tab',
@@ -15,6 +16,10 @@ type UiTypeCheck = {
 export const getUiType = (): UiTypeCheck => {
   if (!isWeb) {
     return { isNotification: false, isPopup: false, isTab: false }
+  }
+
+  if (isWeb && !isExtension) {
+    return { isNotification: false, isPopup: false, isTab: true }
   }
 
   const { pathname } = window.location
