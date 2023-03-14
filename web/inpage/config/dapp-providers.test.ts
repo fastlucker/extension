@@ -1,4 +1,3 @@
-import { providers } from 'ethers'
 import puppeteer from 'puppeteer'
 
 import { DAPP_PROVIDER_URLS } from './dapp-providers'
@@ -26,16 +25,33 @@ describe('Credentials for dApps own Ethereum RPC providers', () => {
       for (const [networkId, providerUrl] of Object.entries(providerUrls)) {
         it(`should create a valid provider for ${networkId}`, async () => {
           const networkData = await page.evaluate((providerUrl: string) => {
-            const provider = providerUrl.startsWith('wss:')
-              ? new providers.WebSocketProvider(providerUrl)
-              : new providers.JsonRpcProvider(providerUrl)
+            const testRpcCall = JSON.stringify({
+              jsonrpc: '2.0',
+              method: 'eth_blockNumber',
+              params: [],
+              id: 1
+            })
 
-            return provider.getNetwork()
+            if (providerUrl.startsWith('wss:')) {
+              return new Promise((resolve) => {
+                const socket = new WebSocket(providerUrl)
+
+                socket.onmessage = ({ data }) => resolve(JSON.parse(data))
+                socket.onopen = () => socket.send(testRpcCall)
+              })
+            }
+
+            return fetch(providerUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: testRpcCall
+            }).then((res) => res.json())
           }, providerUrl)
 
           expect(networkData).toMatchObject({
-            chainId: expect.any(Number),
-            name: expect.any(String)
+            id: expect.any(Number),
+            jsonrpc: expect.any(String),
+            result: expect.any(String)
           })
         })
       }
