@@ -33,12 +33,20 @@ describe('Credentials for dApps own Ethereum RPC providers', () => {
             })
 
             if (providerUrl.startsWith('wss:')) {
-              return new Promise((resolve) => {
-                const socket = new WebSocket(providerUrl)
+              const socket = new WebSocket(providerUrl)
 
-                socket.onmessage = ({ data }) => resolve(JSON.parse(data))
+              return new Promise((resolve, reject) => {
+                socket.onmessage = ({ data }) => {
+                  resolve(JSON.parse(data))
+                  socket.close()
+                }
+                socket.onerror = (error) => {
+                  reject(error)
+                  socket.close()
+                }
+
                 socket.onopen = () => socket.send(testRpcCall)
-              })
+              }).finally(() => socket.close())
             }
 
             return fetch(providerUrl, {
