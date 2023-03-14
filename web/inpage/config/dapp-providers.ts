@@ -92,5 +92,12 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
     [NETWORKS.polygon]: 'https://polygon-mainnet.infura.io/v3/1d6cb6d8f137423ab26111c61c0760ef',
     [NETWORKS.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
     [NETWORKS.optimism]: 'https://optimism-mainnet-web3-provider-proxy.pooltogether-api.workers.dev'
+  },
+  'stake.lido.fi': {
+    [NETWORKS.ethereum]: 'https://stake.lido.fi/api/rpc?chainId=1'
   }
+  // Note: Returns 500 for `eth_chainId`, `net_version` and other rpc methods
+  // 'polygon.lido.fi': {
+  //   [NETWORKS.ethereum]: 'https://polygon.lido.fi/api/rpc?chainId=1'
+  // }
 }
