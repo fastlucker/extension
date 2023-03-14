@@ -37,7 +37,7 @@
     "expo:install": "expo install",
     "eas:secret:list": "eas secret:list",
     "eas:secret:push": "eas secret:push --scope project --env-file .env",
-    "test:e2e:web": "jest --config=./web/jest.config.js"
+    "test:e2e:web": "jest --config=./src/web/jest.config.js"
   },
   "engines": {
     "node": "16.13.0"

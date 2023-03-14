@@ -1,0 +1,97 @@
+import { BlurView } from 'expo-blur'
+import React, { useEffect } from 'react'
+import { Animated, Easing, Platform, StyleSheet, TouchableOpacity } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+
+import CloseIcon from '@common/assets/svg/CloseIcon'
+import NavIconWrapper from '@common/components/NavIconWrapper'
+import { isiOS, isWeb } from '@common/config/env'
+import colors from '@common/styles/colors'
+import flexboxStyles from '@common/styles/utils/flexbox'
+
+import styles from './styles'
+
+interface Props {
+  isBottomSheetVisible: boolean
+  isVisible: boolean
+  onPress: () => void
+}
+
+const ANIMATION_DURATION: number = 250
+
+const Backdrop = ({ isBottomSheetVisible, isVisible, onPress }: Props) => {
+  const opacity = React.useRef(new Animated.Value(0)).current
+  const insets = useSafeAreaInsets()
+  // The header should start a little bit below the end of the notch,
+  // and right in the vertical middle of the nav.
+  const notchInset = Platform.select({
+    web: 20,
+    default: insets.top + 10
+  })
+
+  useEffect(() => {
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: ANIMATION_DURATION,
+      easing: Easing.linear,
+      useNativeDriver: !isWeb
+    }).start()
+  }, [])
+
+  useEffect(() => {
+    if (!isBottomSheetVisible) {
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: ANIMATION_DURATION,
+        easing: Easing.linear,
+        useNativeDriver: !isWeb
+      }).start()
+    }
+  }, [isBottomSheetVisible])
+
+  return (
+    <Animated.View
+      style={[
+        styles.backDrop,
+        {
+          opacity: opacity.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 1]
+          })
+        }
+      ]}
+      pointerEvents={isVisible ? 'auto' : 'none'}
+    >
+      <TouchableOpacity style={flexboxStyles.flex1} activeOpacity={1} onPress={onPress}>
+        <NavIconWrapper onPress={onPress} style={[styles.closeBtn, { top: notchInset }]}>
+          <CloseIcon />
+        </NavIconWrapper>
+        {isiOS ? (
+          // The blurred view works on iOS only
+          <BlurView
+            intensity={55}
+            tint="dark"
+            style={[
+              StyleSheet.absoluteFillObject,
+              {
+                opacity: 0.98
+              }
+            ]}
+          />
+        ) : (
+          <Animated.View
+            style={[
+              StyleSheet.absoluteFillObject,
+              {
+                backgroundColor: colors.valhalla,
+                opacity: 0.8
+              }
+            ]}
+          />
+        )}
+      </TouchableOpacity>
+    </Animated.View>
+  )
+}
+
+export default React.memo(Backdrop)
