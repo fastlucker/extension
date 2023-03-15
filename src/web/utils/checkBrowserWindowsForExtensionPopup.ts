@@ -7,15 +7,15 @@ export async function checkBrowserWindowsForExtensionPopup(): Promise<ReturnType
   const windows = await browser.windows.getAll({ populate: true })
 
   const result: ReturnType = { extensionPopupExists: false }
-  for (const window of windows) {
+  windows.forEach((window) => {
     if (
       window.type === 'popup' &&
-      window?.tabs?.some((tab) => tab?.url?.includes(process.env.BROWSER_EXTENSION_ID || ''))
+      window?.tabs?.some((tab) => tab?.url?.includes(browser.runtime.id))
     ) {
       result.extensionPopupExists = true
       result.windowId = window.id
     }
-  }
+  })
 
   return result
 }
