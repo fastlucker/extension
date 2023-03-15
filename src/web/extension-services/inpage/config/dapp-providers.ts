@@ -95,9 +95,32 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
   },
   'stake.lido.fi': {
     [NETWORKS.ethereum]: 'https://stake.lido.fi/api/rpc?chainId=1'
-  }
+  },
   // Note: Returns 500 for `eth_chainId`, `net_version` and other rpc methods
   // 'polygon.lido.fi': {
   //   [NETWORKS.ethereum]: 'https://polygon.lido.fi/api/rpc?chainId=1'
   // }
+  'swap.cow.fi': {
+    [NETWORKS.ethereum]: 'https://mainnet.infura.io/v3/1221fd11e90849509afafd330ec7acc6',
+    [NETWORKS.gnosis]: 'https://rpc.gnosis.gateway.fm'
+  },
+  'app.hop.exchange': {
+    [NETWORKS.ethereum]: 'https://mainnet.infura.io/v3/84842078b09946638c03157f83405213',
+    [NETWORKS.polygon]: 'https://polygon-rpc.com',
+    [NETWORKS.gnosis]: 'https://rpc.gnosis.gateway.fm',
+    [NETWORKS.optimism]: 'https://optimism-mainnet.infura.io/v3/84842078b09946638c03157f83405213',
+    [NETWORKS.arbitrum]: 'https://arb1.arbitrum.io/rpc'
+  },
+  'sudoswap.xyz': {
+    [NETWORKS.ethereum]: 'https://eth-mainnet.g.alchemy.com/v2/PJG1MyfrI9qb_JdOJJVSa5stBo5O7uyU'
+  },
+  'app.paraswap.io': {
+    [NETWORKS.ethereum]: 'https://eth.llamarpc.com',
+    [NETWORKS.polygon]: 'https://polygon-rpc.com',
+    [NETWORKS.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
+    [NETWORKS.arbitrum]: 'https://arb1.arbitrum.io/rpc',
+    [NETWORKS.fantom]: 'https://rpcapi.fantom.network',
+    [NETWORKS.optimism]: 'https://mainnet.optimism.io',
+    [NETWORKS['binance-smart-chain']]: 'https://bsc-dataseed1.defibit.io'
+  }
 }
