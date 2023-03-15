@@ -122,5 +122,11 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
     [NETWORKS.fantom]: 'https://rpcapi.fantom.network',
     [NETWORKS.optimism]: 'https://mainnet.optimism.io',
     [NETWORKS['binance-smart-chain']]: 'https://bsc-dataseed1.defibit.io'
+  },
+  'app.balancer.fi': {
+    [NETWORKS.ethereum]: 'https://mainnet.infura.io/v3/daaa68ec242643719749dd1caba2fc66',
+    [NETWORKS.polygon]: 'https://polygon-mainnet.infura.io/v3/daaa68ec242643719749dd1caba2fc66',
+    [NETWORKS.arbitrum]: 'https://arb-mainnet.g.alchemy.com/v2/VBeQgTCRqqPtuuEPsFzRdwKXzDyN6aFh',
+    [NETWORKS.gnosis]: 'https://poa-xdai.gateway.pokt.network/v1/lb/91bc0e12a76e7a84dd76189d'
   }
 }
