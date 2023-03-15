@@ -1,14 +1,19 @@
-// @ts-nocheck
 // Script that is injected into dapp's context through content-script. it mounts ethereum to window
 
+import networks, { NetworkId } from 'ambire-common/src/constants/networks'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
+import { intToHex } from 'ethereumjs-util'
+import { providers } from 'ethers'
 import { EventEmitter } from 'events'
+import { forIn } from 'lodash'
 
+import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
+import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
-import { logInfoWithPrefix } from '@web/utils/logger'
+import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
 declare const channelName: any
 
@@ -49,6 +54,10 @@ export class EthereumProvider extends EventEmitter {
    * @deprecated
    */
   networkVersion: string | null = null
+
+  dAppOwnProviders: {
+    [key in NetworkId]?: providers.JsonRpcProvider | providers.WebSocketProvider | null
+  } = {}
 
   isAmbire = true
 
@@ -143,6 +152,39 @@ export class EthereumProvider extends EventEmitter {
       })
 
       this._pushEventHandlers.accountsChanged(accounts)
+
+      // eslint-disable-next-line no-restricted-globals
+      const { hostname } = location
+      if (DAPP_PROVIDER_URLS[hostname]) {
+        // eslint-disable-next-line no-restricted-syntax
+        forIn(DAPP_PROVIDER_URLS[hostname], async (providerUrl, networkId) => {
+          const network = networks.find((n) => n.id === networkId)
+          if (!network || !providerUrl) return
+
+          try {
+            this.dAppOwnProviders[network.id] = providerUrl.startsWith('wss:')
+              ? new providers.WebSocketProvider(providerUrl, {
+                  name: network.name,
+                  chainId: network.chainId
+                })
+              : new providers.JsonRpcProvider(providerUrl, {
+                  name: network.name,
+                  chainId: network.chainId
+                })
+
+            // Acts as a mechanism to check if the provider credentials work
+            // eslint-disable-next-line no-await-in-loop
+            await this.dAppOwnProviders[network.id]?.getNetwork()
+            logInfoWithPrefix(`👌 The dApp's own provider initiated for ${network.name} network.`)
+          } catch (e) {
+            this.dAppOwnProviders[network.id] = null
+            logWarnWithPrefix(
+              `The dApp's own provider for ${network.name} network failed to init.`,
+              e
+            )
+          }
+        })
+      }
     } catch {
       //
     } finally {
@@ -195,8 +237,36 @@ export class EthereumProvider extends EventEmitter {
     this._requestPromiseCheckVisibility()
 
     return this._requestPromise.call(() => {
+      if (
+        data.method.startsWith('eth_') &&
+        !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
+      ) {
+        const network = networks.find((n) => intToHex(n.chainId) === this.chainId)
+        if (network?.id && this.dAppOwnProviders[network.id]) {
+          if (data.method !== 'eth_call') {
+            logInfoWithPrefix('[⏩ forwarded request]', data)
+          }
+
+          return this.dAppOwnProviders[network.id]
+            ?.send(data.method, data.params)
+            .then((res) => {
+              if (data.method !== 'eth_call') {
+                logInfoWithPrefix('[⏩ forwarded request: success]', data.method, res)
+              }
+
+              return res
+            })
+            .catch((err) => {
+              if (data.method !== 'eth_call') {
+                logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
+              }
+              throw err
+            })
+        }
+      }
+
       if (data.method !== 'eth_call') {
-        logInfoWithPrefix('[request]', JSON.stringify(data, null, 2))
+        logInfoWithPrefix('[request]', data)
       }
 
       return this._bcm
