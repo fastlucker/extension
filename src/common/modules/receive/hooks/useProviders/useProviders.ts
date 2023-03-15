@@ -9,7 +9,7 @@ import TransakLogo from '@common/assets/svg/TransakLogo'
 import CONFIG from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
-import { ROUTES } from '@common/modules/router/config/routesConfig'
+import { ROUTES } from '@common/modules/router/constants/common'
 import { fetchGet } from '@common/services/fetch'
 
 type UseProvidersProps = {
