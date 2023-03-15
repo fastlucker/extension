@@ -33,6 +33,7 @@ import CreateNewVaultScreen from '@common/modules/vault/screens/CreateNewVaultSc
 import VaultSetupGetStartedScreen from '@common/modules/vault/screens/VaultSetupGetStartedScreen'
 import colors from '@common/styles/colors'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
+import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/approval-requests/screens/GetEncryptionPublicKeyRequestScreen'
 import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
 import SwitchNetworkRequestScreen from '@web/modules/approval-requests/screens/SwitchNetworkRequestScreen'
@@ -93,6 +94,7 @@ const MainRoutes = () => {
   return (
     <Routes>
       <Route>
+        {/* TODO: Wrap all in AuthLayoutWrapper via Outlet */}
         <Route path={ROUTES.noConnection} element={<NoConnectionScreen />} />
         <Route element={<TabOnlyRoute />}>
           <Route path={ROUTES.getStarted} element={<VaultSetupGetStartedScreen />} />
