@@ -92,7 +92,7 @@ const footer = (
 const MainRoutes = () => {
   return (
     <Routes>
-      <Route element={headerBeta}>
+      <Route>
         <Route path={ROUTES.noConnection} element={<NoConnectionScreen />} />
         <Route element={<TabOnlyRoute />}>
           <Route path={ROUTES.getStarted} element={<VaultSetupGetStartedScreen />} />
