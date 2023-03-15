@@ -130,7 +130,7 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
     [NETWORKS.gnosis]: 'https://poa-xdai.gateway.pokt.network/v1/lb/91bc0e12a76e7a84dd76189d'
   },
   'app.aelin.xyz': {
-    [NETWORKS.ethereum]: 'https://mainnet.infura.io/v3/c4bb906ed6904c42b19c95825fe55f39',
+    [NETWORKS.ethereum]: 'https://eth-mainnet.g.alchemy.com/v2/ZiZqTPedjN8yIQlaaJ5uZXMU7eI9A9ab',
     [NETWORKS.optimism]: 'https://opt-mainnet.g.alchemy.com/v2/nkwspVwpu6Yyst5x9MI5bm4lUysOEUAS',
     [NETWORKS.polygon]: 'https://polygon-mainnet.g.alchemy.com/v2/exQuQ4Bh3aTvZz22vXMG9DOoK6RG8Fgm',
     [NETWORKS.arbitrum]: 'https://arb-mainnet.g.alchemy.com/v2/jm6UWDyOE-KOydCL_jFQwu_7VkAWUXJb'
