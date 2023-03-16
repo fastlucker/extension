@@ -13,6 +13,7 @@ import { ROUTES } from '@common/modules/router/config/routesConfig'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
@@ -66,11 +67,16 @@ const GetStartedScreen = () => {
         )}
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent>
-        <Text>Welcome</Text>
-        <Text>to the Ambire Wallet Extension</Text>
-        <Text>v2.0</Text>
-        <Text>Logo</Text>
-        <AmbireLogo />
+        <View style={[text.center, flexboxStyles.justifySpaceBetween, flexboxStyles.flex1]}>
+          <View>
+            <Text fontSize={40} weight="semiBold">
+              {t('Welcome')}
+            </Text>
+            <Text fontSize={20}>{t('to the Ambire Wallet Extension')}</Text>
+            <Text fontSize={30}>v2.0</Text>
+          </View>
+          <AmbireLogo shouldExpand={false} />
+        </View>
       </AuthLayoutWrapperSideContent>
     </>
   )
