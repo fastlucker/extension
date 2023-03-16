@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react'
 import { View } from 'react-native'
+import { Outlet } from 'react-router-dom'
 
 import {
   headerAlpha as defaultHeaderAlpha,
@@ -10,15 +11,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 const AuthLayoutWrapperContext = createContext(true)
 
-const AuthLayoutWrapper: any = ({ children }) => {
-  return (
-    <AuthLayoutWrapperContext.Provider value={true}>
-      <View style={flexbox.directionRow}>{children}</View>
-    </AuthLayoutWrapperContext.Provider>
-  )
-}
-
-const MainContent: React.FC<any> = ({ children }) => {
+export const AuthLayoutWrapperMainContent: React.FC<any> = ({ children }) => {
   const context = useContext(AuthLayoutWrapperContext)
 
   if (!context) {
@@ -33,7 +26,15 @@ const MainContent: React.FC<any> = ({ children }) => {
   )
 }
 
-const SideContent: React.FC<any> = ({ children }) => {
+const AuthLayoutWrapper = (
+  <AuthLayoutWrapperContext.Provider value={true}>
+    <View style={[flexbox.directionRow, flexbox.flex1]}>
+      <Outlet />
+    </View>
+  </AuthLayoutWrapperContext.Provider>
+)
+
+export const AuthLayoutWrapperSideContent: React.FC<any> = ({ children }) => {
   const context = useContext(AuthLayoutWrapperContext)
 
   if (!context) {
@@ -42,8 +43,5 @@ const SideContent: React.FC<any> = ({ children }) => {
 
   return <View style={{ backgroundColor: 'green', width: 500 }}>{children}</View>
 }
-
-AuthLayoutWrapper.SideContent = SideContent
-AuthLayoutWrapper.MainContent = MainContent
 
 export default AuthLayoutWrapper

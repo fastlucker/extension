@@ -27,10 +27,8 @@ import { ROUTES } from '@common/modules/router/config/routesConfig'
 import SendScreen from '@common/modules/send/screens/SendScreen'
 import SignersScreen from '@common/modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@common/modules/sign-message/screens/SignMessageScreen'
-// import SwapScreen from '@mobile/swap/screens/SwapScreen'
 import TransactionsScreen from '@common/modules/transactions/screens/TransactionsScreen'
 import CreateNewVaultScreen from '@common/modules/vault/screens/CreateNewVaultScreen'
-import VaultSetupGetStartedScreen from '@common/modules/vault/screens/VaultSetupGetStartedScreen'
 import colors from '@common/styles/colors'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
@@ -38,6 +36,7 @@ import GetEncryptionPublicKeyRequestScreen from '@web/modules/approval-requests/
 import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
 import SwitchNetworkRequestScreen from '@web/modules/approval-requests/screens/SwitchNetworkRequestScreen'
 import WatchTokenRequestScreen from '@web/modules/approval-requests/screens/WatchTokenRequestScreen'
+import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import BottomNav from '@web/modules/router/components/BottomNav'
 import NavMenu from '@web/modules/router/components/NavMenu'
@@ -93,11 +92,10 @@ const footer = (
 const MainRoutes = () => {
   return (
     <Routes>
-      <Route>
-        {/* TODO: Wrap all in AuthLayoutWrapper via Outlet */}
+      <Route element={AuthLayoutWrapper}>
         <Route path={ROUTES.noConnection} element={<NoConnectionScreen />} />
         <Route element={<TabOnlyRoute />}>
-          <Route path={ROUTES.getStarted} element={<VaultSetupGetStartedScreen />} />
+          <Route path={ROUTES.getStarted} element={<GetStartedScreen />} />
           <Route path={ROUTES.createVault} element={<CreateNewVaultScreen />} />
           <Route path={ROUTES.auth} element={<AuthScreen />} />
 
