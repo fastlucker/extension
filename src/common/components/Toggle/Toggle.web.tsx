@@ -1,3 +1,5 @@
+import './styles.css'
+
 import React from 'react'
 
 import Text from '@common/components/Text'
