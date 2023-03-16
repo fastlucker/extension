@@ -48,6 +48,7 @@ const colors = {
   titan_50: 'rgba(235, 236, 255, 0.5)',
 
   zircon: '#F7F8FF',
+  mischka: '#D6D7E1',
 
   white: '#FFFFFF',
   black: '#000000'

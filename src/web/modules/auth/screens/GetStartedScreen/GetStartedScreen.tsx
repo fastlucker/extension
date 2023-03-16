@@ -1,11 +1,10 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
 import Button from '@common/components/Button'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
-import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
-import { isWeb } from '@common/config/env'
+import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import AmbireLogo from '@common/modules/auth/components/AmbireLogo'
@@ -21,36 +20,36 @@ import {
 const GetStartedScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const handleAuthButtonPress = useCallback((nextRoute: ROUTES) => navigate(nextRoute), [navigate])
 
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={13}>
-          {t('Welcome to the {{name}}. Let’s set up your Key Store passphrase.', {
-            name: isWeb ? t('Ambire Wallet extension') : t('Ambire Wallet')
-          })}
-        </Text>
-        <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={13}>
-          {t(
-            '1.  Ambire Key Store will protect your Ambire wallet with email password or external signer on this device.'
-          )}
-        </Text>
-        <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={13}>
-          {t(
-            '2.  First, pick your Ambire Key Store passphrase. It is unique for this device and it should be different from your account password.'
-          )}
-        </Text>
-        <Text weight="light" color={colors.titan} fontSize={13}>
-          {t(
-            '3.  You will use your passphrase to unlock the {{name}} and sign transactions on this device.',
-            { name: isWeb ? t('Ambire extension') : t('Ambire Wallet') }
-          )}
-        </Text>
+        <Button
+          text={t('Email account')}
+          onPress={() => handleAuthButtonPress(ROUTES.ambireAccountLogin)}
+        />
+        <Button
+          text={t('HW Login (coming soon)')}
+          onPress={() => handleAuthButtonPress(ROUTES.hardwareWallet)}
+          disabled // temporary disabled until we have this feature
+        />
+        <Button
+          text={t('Import account')}
+          onPress={() => handleAuthButtonPress(ROUTES.externalSigner)}
+        />
+
+        <View style={{ marginVertical: 70, height: 2, backgroundColor: colors.mischka }} />
 
         <Button
-          style={spacings.mt}
-          text={t('Get Started')}
-          onPress={() => navigate(ROUTES.createVault, { replace: true })}
+          text={t('Import From JSON')}
+          type="outline"
+          onPress={() => handleAuthButtonPress(ROUTES.ambireAccountJsonLogin)}
+        />
+        <Button
+          text={t('View mode (coming soon)')}
+          disabled // temporary disabled until we have this feature
+          type="outline"
         />
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent>
