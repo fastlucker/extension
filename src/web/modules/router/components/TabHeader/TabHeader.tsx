@@ -1,0 +1,69 @@
+import React, { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
+
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
+import NavIconWrapper from '@common/components/NavIconWrapper'
+import Text from '@common/components/Text'
+import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
+import routesConfig, { ROUTES } from '@common/modules/router/config/routesConfig'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
+
+import styles from './styles'
+
+const TabHeader: React.FC<any> = () => {
+  const { t } = useTranslation()
+  const { path, params } = useRoute()
+  const { navigate } = useNavigation()
+
+  const handleGoBack = useCallback(() => navigate(-1), [navigate])
+
+  const navigationEnabled = !getUiType().isNotification
+  const canGoBack =
+    // If you have a location key that means you routed in-app. But if you
+    // don't that means you come from outside of the app or you just open it.
+    params?.prevRoute?.key !== 'default' && params?.prevRoute?.pathname !== '/' && navigationEnabled
+
+  const renderHeaderLeft = () => {
+    if (canGoBack) {
+      return (
+        <NavIconWrapper
+          onPress={handleGoBack}
+          style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}
+        >
+          <LeftArrowIcon width={50} height={50} color={colors.martinique} />
+          <Text fontSize={18} weight="regular" color={colors.martinique} style={spacings.ml}>
+            {t('Back')}
+          </Text>
+        </NavIconWrapper>
+      )
+    }
+
+    return null
+  }
+
+  const nextRoute = path?.substring(1) as ROUTES
+  const { title } = routesConfig[nextRoute]
+
+  return (
+    <View style={[styles.container, spacings.pv, spacings.ph]}>
+      <View>{renderHeaderLeft()}</View>
+      {title && (
+        <Text
+          fontSize={18}
+          weight="regular"
+          style={[styles.title, spacings.pl, canGoBack ? { paddingRight: 140 } : spacings.pr]}
+          numberOfLines={2}
+        >
+          {title}
+        </Text>
+      )}
+    </View>
+  )
+}
+
+export default React.memo(TabHeader)
