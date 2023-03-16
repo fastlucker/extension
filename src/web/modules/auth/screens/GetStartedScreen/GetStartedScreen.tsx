@@ -38,7 +38,7 @@ const GetStartedScreen = () => {
           disabled // temporary disabled until we have this feature
         />
         <Button
-          text={t('Import account')}
+          text={t('Import Account')}
           onPress={() => handleAuthButtonPress(ROUTES.externalSigner)}
         />
 
@@ -53,12 +53,12 @@ const GetStartedScreen = () => {
         {advanceModeEnabled && (
           <>
             <Button
-              text={t('Import From JSON')}
+              text={t('Import JSON')}
               type="outline"
               onPress={() => handleAuthButtonPress(ROUTES.ambireAccountJsonLogin)}
             />
             <Button
-              text={t('View mode (coming soon)')}
+              text={t('View Mode (coming soon)')}
               disabled // temporary disabled until we have this feature
               type="outline"
             />

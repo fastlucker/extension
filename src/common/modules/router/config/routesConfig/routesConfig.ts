@@ -67,9 +67,7 @@ const routesConfig: {
   },
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
-    title: Platform.select({
-      default: i18n.t('Welcome')
-    })
+    title: ''
   },
   [ROUTES.createVault]: {
     route: ROUTES.createVault,

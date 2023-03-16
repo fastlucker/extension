@@ -52,16 +52,14 @@ const TabHeader: React.FC<any> = () => {
   return (
     <View style={[styles.container, spacings.pv, spacings.ph]}>
       <View>{renderHeaderLeft()}</View>
-      {title && (
-        <Text
-          fontSize={18}
-          weight="regular"
-          style={[styles.title, spacings.pl, canGoBack ? { paddingRight: 140 } : spacings.pr]}
-          numberOfLines={2}
-        >
-          {title}
-        </Text>
-      )}
+      <Text
+        fontSize={18}
+        weight="regular"
+        style={[styles.title, spacings.pl, canGoBack ? { paddingRight: 140 } : spacings.pr]}
+        numberOfLines={2}
+      >
+        {title || ' '}
+      </Text>
     </View>
   )
 }
