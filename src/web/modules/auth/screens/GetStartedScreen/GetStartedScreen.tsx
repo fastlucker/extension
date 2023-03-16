@@ -1,9 +1,10 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { View } from 'react-native'
 
 import Button from '@common/components/Button'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
+import Toggle from '@common/components/Toggle'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -20,6 +21,8 @@ import {
 const GetStartedScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const [advanceModeEnabled, setAdvancedModeEnabled] = useState(true)
+
   const handleAuthButtonPress = useCallback((nextRoute: ROUTES) => navigate(nextRoute), [navigate])
 
   return (
@@ -41,16 +44,26 @@ const GetStartedScreen = () => {
 
         <View style={{ marginVertical: 70, height: 2, backgroundColor: colors.mischka }} />
 
-        <Button
-          text={t('Import From JSON')}
-          type="outline"
-          onPress={() => handleAuthButtonPress(ROUTES.ambireAccountJsonLogin)}
+        <Toggle
+          id="advanced-mode-toggle"
+          isOn={advanceModeEnabled}
+          label={t('Advanced mode')}
+          onToggle={setAdvancedModeEnabled}
         />
-        <Button
-          text={t('View mode (coming soon)')}
-          disabled // temporary disabled until we have this feature
-          type="outline"
-        />
+        {advanceModeEnabled && (
+          <>
+            <Button
+              text={t('Import From JSON')}
+              type="outline"
+              onPress={() => handleAuthButtonPress(ROUTES.ambireAccountJsonLogin)}
+            />
+            <Button
+              text={t('View mode (coming soon)')}
+              disabled // temporary disabled until we have this feature
+              type="outline"
+            />
+          </>
+        )}
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent>
         <Text>Welcome</Text>
