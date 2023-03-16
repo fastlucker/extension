@@ -16,6 +16,7 @@ import useVault from '@common/modules/vault/hooks/useVault'
 import ResetVaultScreen from '@common/modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@common/modules/vault/screens/UnlockVaultScreen'
 import flexbox from '@common/styles/utils/flexbox'
+import { HardwareWalletsProvider } from '@web/modules/hardware-wallet/contexts/hardwareWalletsContext'
 import SortHat from '@web/modules/router/components/SortHat'
 
 const AsyncMainRoute = lazy(() => import('@web/modules/router/components/MainRoutes'))
@@ -67,7 +68,7 @@ const Router = () => {
   }
 
   return (
-    <>
+    <HardwareWalletsProvider>
       <Routes>
         <Route path="/" element={<SortHat />} />
         <Route element={headerBeta}>
@@ -90,7 +91,7 @@ const Router = () => {
       <Suspense fallback={null}>
         <AsyncMainRoute />
       </Suspense>
-    </>
+    </HardwareWalletsProvider>
   )
 }
 

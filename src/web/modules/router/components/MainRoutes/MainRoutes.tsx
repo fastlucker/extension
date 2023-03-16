@@ -30,12 +30,14 @@ import TransactionsScreen from '@common/modules/transactions/screens/Transaction
 import CreateNewVaultScreen from '@common/modules/vault/screens/CreateNewVaultScreen'
 import VaultSetupGetStartedScreen from '@common/modules/vault/screens/VaultSetupGetStartedScreen'
 import colors from '@common/styles/colors'
+import AccountsImporterScreen from '@web/modules/accounts-importer/screens/AccountsImporterScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/approval-requests/screens/GetEncryptionPublicKeyRequestScreen'
 import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
 import SwitchNetworkRequestScreen from '@web/modules/approval-requests/screens/SwitchNetworkRequestScreen'
 import WatchTokenRequestScreen from '@web/modules/approval-requests/screens/WatchTokenRequestScreen'
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
+import RequestLedgerPermissionScreen from '@web/modules/hardware-wallet/screens/RequestLedgerPermissionScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import BottomNav from '@web/modules/router/components/BottomNav'
 import NavMenu from '@web/modules/router/components/NavMenu'
@@ -118,7 +120,12 @@ const MainRoutes = () => {
             element={<HardwareWalletSelectorScreen />}
           />
           <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
+          <Route
+            path={WEB_ROUTES.hardwareWalletLedgerPermission}
+            element={<RequestLedgerPermissionScreen />}
+          />
           <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerScreen />} />
+          <Route path={WEB_ROUTES.accountsImporter} element={<AccountsImporterScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
         </Route>
       </Route>
