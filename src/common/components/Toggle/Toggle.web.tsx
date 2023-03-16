@@ -3,17 +3,22 @@ import React from 'react'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
 
-type Props = {
-  id: string
-  isOn: boolean
-  onToggle: React.ChangeEventHandler<HTMLInputElement> | undefined
-  label?: string
-}
+import { ToggleProps } from './types'
 
-const Toggle: React.FC<Props> = ({ id, isOn, onToggle, label }) => {
+const Toggle: React.FC<ToggleProps> = ({ id, isOn, onToggle, label }) => {
+  const handleOnToggle: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    onToggle(e.target.checked)
+  }
+
   return (
     <label className="toggle" htmlFor={id}>
-      <input className="toggle__input" type="checkbox" checked={isOn} id={id} onChange={onToggle} />
+      <input
+        className="toggle__input"
+        type="checkbox"
+        checked={isOn}
+        id={id}
+        onChange={handleOnToggle}
+      />
       <div className="toggle__fill" />
       <Text fontSize={18} weight="regular" color={colors.martinique}>
         {label}
