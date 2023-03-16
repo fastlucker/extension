@@ -67,7 +67,10 @@ const routesConfig: {
   },
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
-    title: ''
+    title: Platform.select({
+      default: i18n.t('Welcome'),
+      web: ''
+    })
   },
   [ROUTES.createVault]: {
     route: ROUTES.createVault,
@@ -85,7 +88,8 @@ const routesConfig: {
   [ROUTES.ambireAccountLogin]: {
     route: ROUTES.ambireAccountLogin,
     title: Platform.select({
-      default: i18n.t('Login')
+      default: i18n.t('Login'),
+      web: ''
     })
   },
   [ROUTES.ambireAccountLoginPasswordConfirm]: {
