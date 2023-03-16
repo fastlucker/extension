@@ -1,29 +1,24 @@
-// TODO: implement a toggle switch on web
 import React from 'react'
-import { View } from 'react-native'
 
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
-
-import styles from './styles'
 
 type Props = {
+  id: string
   isOn: boolean
-  onToggle: (isOn: boolean) => void
+  onToggle: React.ChangeEventHandler<HTMLInputElement> | undefined
   label?: string
 }
 
-const Toggle = ({ isOn, onToggle, label }: Props) => {
+const Toggle: React.FC<Props> = ({ id, isOn, onToggle, label }) => {
   return (
-    <View style={styles.container}>
-      {!!label && (
-        <Text style={spacings.mrTy} color={isOn ? colors.heliotrope : colors.chetwode}>
-          {label}
-        </Text>
-      )}
-      <Text>Here should be a toggle switch for web</Text>
-    </View>
+    <label className="toggle" htmlFor={id}>
+      <input className="toggle__input" type="checkbox" checked={isOn} id={id} onChange={onToggle} />
+      <div className="toggle__fill" />
+      <Text fontSize={18} weight="regular" color={colors.martinique}>
+        {label}
+      </Text>
+    </label>
   )
 }
 
