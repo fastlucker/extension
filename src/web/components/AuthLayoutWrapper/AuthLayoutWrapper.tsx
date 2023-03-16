@@ -45,7 +45,7 @@ export const AuthLayoutWrapperSideContent: React.FC<any> = ({ children }) => {
       colors={['#ae60ff', '#28e7a7']}
       start={{ x: 1, y: 0 }}
       end={{ x: 0, y: 1 }}
-      style={[spacings.phLg, { width: '33%', paddingTop: 80 }]}
+      style={[{ width: '33%', paddingTop: 80, paddingHorizontal: 60 }]}
     >
       {children}
     </LinearGradient>
