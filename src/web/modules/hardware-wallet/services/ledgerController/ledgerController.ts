@@ -19,6 +19,12 @@ class LedgerController {
 
   hasHIDPermission: null | boolean
 
+  accounts: any
+
+  hdPath: any
+
+  isWebHID: boolean
+
   transport: null | Transport
 
   app: null | LedgerEth
@@ -27,7 +33,12 @@ class LedgerController {
     this.page = 0
     this.perPage = 5
     this.hdk = new HDKey()
+    this.accounts = []
     this.hasHIDPermission = null
+    // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
+    this.isWebHID = true
+    // TODO: it is temporarily hardcoded
+    this.hdPath = "m/44'/60'/0'/0/0"
     this.transport = null
     this.app = null
   }
@@ -47,7 +58,15 @@ class LedgerController {
     }
   }
 
-  async unlock(hdPath?, force?: boolean): Promise<string> {
+  setHdPath(hdPath: any) {
+    // Reset HDKey if the path changes
+    if (this.hdPath !== hdPath) {
+      this.hdk = new HDKey()
+    }
+    this.hdPath = hdPath
+  }
+
+  async unlock(hdPath?, force?: boolean) {
     if (force) {
       hdPath = this.hdPath
     }
@@ -64,29 +83,27 @@ class LedgerController {
 
       return address
     }
-    return new Promise((resolve, reject) => {
-      this._sendMessage(
-        {
-          action: 'ledger-unlock',
-          params: {
-            hdPath: path
-          }
-        },
-        ({ success, payload }) => {
-          if (success) {
-            this.hdk.publicKey = Buffer.from(payload.publicKey, 'hex')
-            this.hdk.chainCode = Buffer.from(payload.chainCode, 'hex')
-            resolve(payload.address)
-          } else {
-            reject(payload.error || 'Unknown error')
-          }
-        }
-      )
-    })
+
+    return null
+    // TODO: impl when not isWebHID
   }
 
   authorizeHIDPermission() {
     this.hasHIDPermission = true
+  }
+
+  getAccounts() {
+    return Promise.resolve(this.accounts.slice())
+  }
+
+  async getAddresses(start: number, end: number) {
+    const from = start
+    const to = end
+    await this.unlock()
+
+    const accounts: Account[] = await this._getAccountsBIP44(from, to)
+
+    return accounts
   }
 
   getFirstPage() {
@@ -104,7 +121,6 @@ class LedgerController {
 
   async __getPage(increment: number) {
     this.page += increment
-
     if (this.page <= 0) {
       this.page = 1
     }
@@ -123,7 +139,8 @@ class LedgerController {
 
     for (let i = from; i < to; i++) {
       const path = this._getPathForIndex(i)
-      const address = await this.unlock(path)
+      // eslint-disable-next-line no-await-in-loop
+      const address = (await this.unlock(path)) as string
       // TODO:
       // const valid = this.implementFullBIP44 ? await this._hasPreviousTransactions(address) : true
       accounts.push({
@@ -144,7 +161,16 @@ class LedgerController {
   }
 
   _getPathForIndex(index: number) {
-    return `m/44'/60'/${index}'/0/0`
+    // Check if the path is BIP 44 (Ledger Live)
+    return this._isLedgerLiveHdPath() ? `m/44'/60'/${index}'/0/0` : `${this.hdPath}/${index}`
+  }
+
+  _isLedgerLiveHdPath() {
+    return this.hdPath === "m/44'/60'/0'/0/0"
+  }
+
+  _toLedgerPath(path: string) {
+    return path.toString().replace('m/', '')
   }
 }
 

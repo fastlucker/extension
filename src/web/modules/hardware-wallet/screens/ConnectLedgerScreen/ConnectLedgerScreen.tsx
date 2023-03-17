@@ -23,14 +23,14 @@ const ConnectLedgerScreen = () => {
     if (!supportWebHID) {
       navigate(WEB_ROUTES.accountsImporter, {
         state: {
-          type: HARDWARE_WALLETS.LEDGER,
+          walletType: HARDWARE_WALLETS.LEDGER,
           isWebHID: false
         }
       })
     } else if (!hasConnectedLedger) {
       navigate(WEB_ROUTES.accountsImporter, {
         state: {
-          type: HARDWARE_WALLETS.LEDGER,
+          walletType: HARDWARE_WALLETS.LEDGER,
           isWebHID: true
         }
       })

@@ -23,7 +23,7 @@ const RequestLedgerPermissionScreen = () => {
 
       navigate(WEB_ROUTES.accountsImporter, {
         state: {
-          type: HARDWARE_WALLETS.LEDGER,
+          walletType: HARDWARE_WALLETS.LEDGER,
           isWebHID: true
         }
       })
