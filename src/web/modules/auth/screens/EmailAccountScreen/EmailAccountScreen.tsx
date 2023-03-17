@@ -1,23 +1,25 @@
 import React from 'react'
 
+import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import EmailLoginForm from '@common/modules/auth/components/EmailLoginForm'
+import { ROUTES } from '@common/modules/router/config/routesConfig'
 import spacings from '@common/styles/spacings'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 
-const EmailLoginScreen = () => {
+const EmailAccountScreen = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
+  const { navigate } = useNavigation()
 
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <EmailLoginForm />
+        <Button text={t('Log In')} onPress={() => navigate(ROUTES.authEmailLogin)} />
+        <Button text={t('Create New')} onPress={() => navigate(ROUTES.authEmailRegister)} />
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent>
         <Text weight="regular" fontSize={16} style={spacings.mb}>
@@ -39,4 +41,4 @@ const EmailLoginScreen = () => {
   )
 }
 
-export default EmailLoginScreen
+export default EmailAccountScreen

@@ -31,7 +31,7 @@ const GetStartedScreen = () => {
       <AuthLayoutWrapperMainContent>
         <Button
           text={t('Email account')}
-          onPress={() => handleAuthButtonPress(ROUTES.ambireAccountLogin)}
+          onPress={() => handleAuthButtonPress(ROUTES.authEmailAccount)}
         />
         <Button
           text={t('HW Login (coming soon)')}

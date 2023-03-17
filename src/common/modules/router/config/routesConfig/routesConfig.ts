@@ -9,6 +9,9 @@ export enum ROUTES {
   getStarted = 'get-started',
   createVault = 'create-vault',
   auth = 'auth',
+  authEmailAccount = 'auth-email-account',
+  authEmailLogin = 'auth-email-login',
+  authEmailRegister = 'auth-email-register',
   ambireAccountLogin = 'ambire-account-login',
   ambireAccountLoginPasswordConfirm = 'ambire-account-login-password-confirm',
   ambireAccountJsonLogin = 'ambire-account-json-login',
@@ -71,6 +74,18 @@ const routesConfig: {
       default: i18n.t('Welcome'),
       web: ''
     })
+  },
+  [ROUTES.authEmailAccount]: {
+    route: ROUTES.authEmailAccount,
+    title: ''
+  },
+  [ROUTES.authEmailLogin]: {
+    route: ROUTES.authEmailLogin,
+    title: ''
+  },
+  [ROUTES.authEmailRegister]: {
+    route: ROUTES.authEmailRegister,
+    title: ''
   },
   [ROUTES.createVault]: {
     route: ROUTES.createVault,

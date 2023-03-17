@@ -35,7 +35,9 @@ import GetEncryptionPublicKeyRequestScreen from '@web/modules/approval-requests/
 import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
 import SwitchNetworkRequestScreen from '@web/modules/approval-requests/screens/SwitchNetworkRequestScreen'
 import WatchTokenRequestScreen from '@web/modules/approval-requests/screens/WatchTokenRequestScreen'
+import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
+import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import BottomNav from '@web/modules/router/components/BottomNav'
@@ -99,8 +101,12 @@ const MainRoutes = () => {
           <Route path={ROUTES.createVault} element={<CreateNewVaultScreen />} />
           <Route path={ROUTES.auth} element={<AuthScreen />} />
 
+          <Route path={ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
           <Route element={emailLoginProvider}>
-            <Route path={ROUTES.ambireAccountLogin} element={<EmailLoginScreen />} />
+            {/* TODO: Temporarily wire-up */}
+            {/* <Route path={ROUTES.ambireAccountLogin} element={<EmailLoginScreen />} /> */}
+            <Route path={ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
+            <Route path={ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
             <Route
               path={ROUTES.ambireAccountLoginPasswordConfirm}
               element={<AddAccountPasswordToVaultScreen />}
