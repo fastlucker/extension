@@ -20,8 +20,8 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: [colors.wooed, colors.clay]
   },
   primaryText: {
-    [THEME_TYPES.LIGHT]: colors.black,
-    [THEME_TYPES.DARK]: colors.white
+    [THEME_TYPES.LIGHT]: colors.martinique,
+    [THEME_TYPES.DARK]: colors.titan
   },
   secondaryText: {
     [THEME_TYPES.LIGHT]: colors.white,

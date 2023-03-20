@@ -3,11 +3,9 @@ import { View } from 'react-native'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import EmailLoginForm from '@common/modules/auth/components/EmailLoginForm'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
-import flexbox from '@common/styles/utils/flexbox'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
@@ -17,7 +15,6 @@ import styles from './styles'
 
 const EmailLoginScreen = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
 
   return (
     <>

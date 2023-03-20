@@ -117,10 +117,15 @@ const AddNewAccountScreen: React.FC<Props> = ({ themeType }) => {
           <Checkbox value={value} onValueChange={() => onChange(!value)}>
             <Trans t={t}>
               <Text fontSize={12}>
-                <Text fontSize={12} onPress={() => onChange(!value)}>
+                <Text fontSize={12} onPress={() => onChange(!value)} themeType={themeType}>
                   {'I agree to the '}
                 </Text>
-                <Text fontSize={12} onPress={() => Linking.openURL(termsAndPrivacyURL)} underline>
+                <Text
+                  fontSize={12}
+                  onPress={() => Linking.openURL(termsAndPrivacyURL)}
+                  underline
+                  themeType={themeType}
+                >
                   Terms of Service and Privacy policy.
                 </Text>
               </Text>
@@ -151,10 +156,15 @@ const AddNewAccountScreen: React.FC<Props> = ({ themeType }) => {
           >
             <Trans t={t}>
               <Text fontSize={12}>
-                <Text fontSize={12} onPress={() => onChange(!value)}>
+                <Text fontSize={12} onPress={() => onChange(!value)} themeType={themeType}>
                   {'Backup on '}
                 </Text>
-                <Text fontSize={12} onPress={() => Linking.openURL(ambireCloudURL)} underline>
+                <Text
+                  fontSize={12}
+                  onPress={() => Linking.openURL(ambireCloudURL)}
+                  underline
+                  themeType={themeType}
+                >
                   Ambire Cloud.
                 </Text>
               </Text>
@@ -171,7 +181,7 @@ const AddNewAccountScreen: React.FC<Props> = ({ themeType }) => {
         render={({ field: { onChange, value } }) =>
           watch('backup', true) === false ? (
             <Checkbox value={value} onValueChange={() => onChange(!value)}>
-              <Text fontSize={12} onPress={() => onChange(!value)}>
+              <Text fontSize={12} onPress={() => onChange(!value)} themeType={themeType}>
                 {t(
                   'In case you forget your password or lose your backup, you will have to wait {{days}} days and pay the recovery fee to restore access to your account.',
                   { days }

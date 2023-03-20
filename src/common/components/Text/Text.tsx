@@ -2,7 +2,9 @@ import React from 'react'
 import { StyleSheet, Text as RNText, TextProps, TextStyle } from 'react-native'
 
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
+import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 
 import styles, { TEXT_SCALE } from './styles'
 
@@ -17,6 +19,7 @@ export interface Props extends TextProps {
   appearance?: TextAppearance
   fontSize?: number
   color?: string
+  themeType?: THEME_TYPES
 }
 
 const textStyles: { [key in TextTypes]: TextStyle } = {
@@ -48,14 +51,22 @@ const Text: React.FC<Props> = ({
   fontSize: _fontSize,
   color,
   style = {},
+  themeType = THEME_TYPES.DARK,
   ...rest
 }) => {
   const fontSize = _fontSize ? _fontSize + TEXT_SCALE : _fontSize
+  const { styles: defaultThemeStyles, lightThemeStyles, darkThemeStyles } = useTheme()
+  const themeStyles =
+    themeType === THEME_TYPES.AUTO
+      ? defaultThemeStyles
+      : themeType === THEME_TYPES.LIGHT
+      ? lightThemeStyles
+      : darkThemeStyles
 
   return (
     <RNText
       style={StyleSheet.flatten([
-        styles.text,
+        { color: themeStyles.primaryText },
         textStyles[type],
         { fontFamily: textWeights[weight] },
         !!underline && styles.underline,
