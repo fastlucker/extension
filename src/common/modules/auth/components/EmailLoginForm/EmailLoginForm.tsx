@@ -11,7 +11,7 @@ import useEmailLogin from '@common/modules/auth/hooks/useEmailLogin'
 import spacings from '@common/styles/spacings'
 import { delayPromise } from '@common/utils/promises'
 
-const EmailLoginScreen = () => {
+const EmailLoginForm = () => {
   const { t } = useTranslation()
   const {
     control,
@@ -114,4 +114,4 @@ const EmailLoginScreen = () => {
   )
 }
 
-export default EmailLoginScreen
+export default EmailLoginForm
