@@ -16,10 +16,15 @@ import { ambireCloudURL, termsAndPrivacyURL } from '@common/modules/auth/constan
 import useCreateAccount from '@common/modules/auth/hooks/useCreateAccount'
 import { triggerLayoutAnimation } from '@common/services/layoutAnimation'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 
 const days = Math.ceil(accountPresets.quickAccTimelock / 86400)
 
-const AddNewAccountScreen = () => {
+interface Props {
+  themeType?: THEME_TYPES
+}
+
+const AddNewAccountScreen: React.FC<Props> = ({ themeType }) => {
   const { t } = useTranslation()
   const { handleAddNewAccount, err, addAccErr } = useCreateAccount()
   const {
@@ -50,6 +55,7 @@ const AddNewAccountScreen = () => {
         rules={{ validate: isEmail }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
+            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Email')}
             onChangeText={onChange}
@@ -68,6 +74,7 @@ const AddNewAccountScreen = () => {
         rules={{ validate: isValidPassword }}
         render={({ field: { onChange, onBlur, value } }) => (
           <InputPassword
+            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Password')}
             onChangeText={onChange}
@@ -88,6 +95,7 @@ const AddNewAccountScreen = () => {
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
+            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Confirm password')}
             onChangeText={onChange}

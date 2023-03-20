@@ -1,23 +1,27 @@
 import React from 'react'
+import { View } from 'react-native'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import CreateAccountForm from '@common/modules/auth/components/CreateAccountForm'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 
+import styles from '../EmailLoginScreen/styles'
+
 const EmailRegisterScreen = () => {
   const { t } = useTranslation()
-  const navigation = useNavigation()
 
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <CreateAccountForm />
+        <View style={styles.contentWrapper}>
+          <CreateAccountForm themeType={THEME_TYPES.LIGHT} />
+        </View>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent>
         <Text weight="regular" fontSize={16} style={spacings.mb}>

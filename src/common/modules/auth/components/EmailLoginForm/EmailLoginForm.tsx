@@ -9,9 +9,14 @@ import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useEmailLogin from '@common/modules/auth/hooks/useEmailLogin'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import { delayPromise } from '@common/utils/promises'
 
-const EmailLoginForm = () => {
+interface Props {
+  themeType?: THEME_TYPES
+}
+
+const EmailLoginForm: React.FC<Props> = ({ themeType = THEME_TYPES.DARK }) => {
   const { t } = useTranslation()
   const {
     control,
@@ -64,6 +69,7 @@ const EmailLoginForm = () => {
         rules={{ validate: isEmail }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
+            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Email')}
             onChangeText={onChange}
@@ -93,7 +99,7 @@ const EmailLoginForm = () => {
         disabled={
           (!!requiresEmailConfFor && !pendingLoginAccount) || isSubmitting || !watch('email', '')
         }
-        type="outline"
+        type="primary"
         text={
           // eslint-disable-next-line no-nested-ternary
           requiresEmailConfFor && !pendingLoginAccount
