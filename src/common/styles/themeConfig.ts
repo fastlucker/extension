@@ -30,6 +30,34 @@ const ThemeColors = {
   panelBackground: {
     [THEME_TYPES.LIGHT]: colors.white,
     [THEME_TYPES.DARK]: colors.black
+  },
+  buttonBackground: {
+    [THEME_TYPES.DARK]: colors.howl,
+    [THEME_TYPES.LIGHT]: colors.melrose_15
+  },
+  buttonBorder: {
+    [THEME_TYPES.DARK]: colors.howl,
+    [THEME_TYPES.LIGHT]: colors.scampi_20
+  },
+  buttonBorderFocused: {
+    [THEME_TYPES.DARK]: colors.titan,
+    [THEME_TYPES.LIGHT]: colors.violet
+  },
+  buttonBorderValid: {
+    [THEME_TYPES.DARK]: colors.turquoise,
+    [THEME_TYPES.LIGHT]: colors.greenHaze
+  },
+  buttonBorderInvalid: {
+    [THEME_TYPES.DARK]: colors.pink,
+    [THEME_TYPES.LIGHT]: colors.radicalRed
+  },
+  buttonText: {
+    [THEME_TYPES.DARK]: colors.titan,
+    [THEME_TYPES.LIGHT]: colors.martinique
+  },
+  buttonPlaceholderText: {
+    [THEME_TYPES.DARK]: colors.waikawaGray,
+    [THEME_TYPES.LIGHT]: colors.martinique_35
   }
 }
 
