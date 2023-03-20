@@ -18,6 +18,7 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import Card from '@web/components/Card'
 
 const GetStartedScreen = () => {
   const { t } = useTranslation()
@@ -29,19 +30,33 @@ const GetStartedScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <Button
-          text={t('Email account')}
-          onPress={() => handleAuthButtonPress(ROUTES.authEmailAccount)}
-        />
-        <Button
-          text={t('HW Login (coming soon)')}
-          onPress={() => handleAuthButtonPress(ROUTES.hardwareWallet)}
-          disabled // temporary disabled until we have this feature
-        />
-        <Button
-          text={t('Import Account')}
-          onPress={() => handleAuthButtonPress(ROUTES.externalSigner)}
-        />
+        <View style={[flexboxStyles.directionRow, flexboxStyles.justifyCenter]}>
+          <Card text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, rerum?">
+            <Button
+              text={t('Email account')}
+              onPress={() => handleAuthButtonPress(ROUTES.authEmailAccount)}
+              hasBottomSpacing={false}
+            />
+          </Card>
+          <Card
+            style={{ marginHorizontal: 40 }}
+            text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, rerum?"
+          >
+            <Button
+              text={t('HW Login (coming soon)')}
+              onPress={() => handleAuthButtonPress(ROUTES.hardwareWallet)}
+              disabled // temporary disabled until we have this feature
+              hasBottomSpacing={false}
+            />
+          </Card>
+          <Card text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, rerum?">
+            <Button
+              text={t('Import Account')}
+              onPress={() => handleAuthButtonPress(ROUTES.externalSigner)}
+              hasBottomSpacing={false}
+            />
+          </Card>
+        </View>
 
         <View style={{ marginVertical: 70, height: 2, backgroundColor: colors.mischka }} />
 
