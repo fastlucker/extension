@@ -43,11 +43,12 @@ const AccountsImporterScreen = () => {
     return <HDManager walletType={walletType} />
   }
 
+  // TODO: implement when not ledger or trezor
+
   const [getAccounts] = useWalletControllerRequest(
     async (firstFlag, start?, end?, cb?): Promise<Account[]> => {
       setIsLoading(true)
 
-      console.log('is firstFlag', firstFlag)
       return firstFlag
         ? // eslint-disable-next-line @typescript-eslint/return-await
           await hardwareWallets[walletType].getFirstPage()
@@ -90,9 +91,7 @@ const AccountsImporterScreen = () => {
 
   const init = async () => {
     // setHasError(false)
-
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    console.log('init')
     const _importedAccounts = await hardwareWallets[walletType].getAccounts()
 
     setImportedAccounts(_importedAccounts)
@@ -101,19 +100,14 @@ const AccountsImporterScreen = () => {
 
   useEffect(() => {
     init()
-    // if (!isMnemonics) {
-    //   stats.report('connectHardware', {
-    //     type: keyring
-    //   })
-    // }
-    return () => {
-      // wallet.requestKeyring(keyring, 'cleanUp', keyringId.current ?? null)
-    }
   }, [])
 
-  console.log('AccountsImporterScreen params: ', params)
-  console.log('accounts', accounts)
-  console.log('imported accounts', importedAccounts)
+  useEffect(() => {
+    return () => {
+      hardwareWallets[walletType].cleanUp()
+    }
+  }, [hardwareWallets, walletType])
+
   return (
     <GradientBackgroundWrapper>
       <Wrapper>

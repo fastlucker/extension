@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useMemo, useState } from 'react'
 
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
-import LedgerController from '@web/modules/hardware-wallet/services/ledgerController'
+import LedgerController from '@web/modules/hardware-wallet/services/LedgerController'
 
 import {
   HARDWARE_WALLETS_KEYS,

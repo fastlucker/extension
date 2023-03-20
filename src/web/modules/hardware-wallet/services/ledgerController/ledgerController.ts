@@ -81,6 +81,7 @@ class LedgerController {
       this.hdk.publicKey = Buffer.from(publicKey, 'hex')
       this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
 
+      console.log('unlock', address)
       return address
     }
 
@@ -117,6 +118,13 @@ class LedgerController {
 
   getPreviousPage() {
     return this.__getPage(-1)
+  }
+
+  async cleanUp() {
+    this.app = null
+    if (this.transport) this.transport.close()
+    this.transport = null
+    this.hdk = new HDKey()
   }
 
   async __getPage(increment: number) {

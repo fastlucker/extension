@@ -117,6 +117,7 @@ module.exports = async function (env, argv) {
     // {@link https://github.com/react-native-web-community/react-native-web-webview}
     config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
     config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
+    config.resolve.alias['p-queue'] = 'p-queue/dist/index.js'
 
     // The files in the /web directory should be transpiled not just copied
     const excludeCopyPlugin = config.plugins.findIndex(

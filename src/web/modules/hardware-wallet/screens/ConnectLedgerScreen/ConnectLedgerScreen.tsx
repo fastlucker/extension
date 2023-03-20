@@ -17,8 +17,6 @@ const ConnectLedgerScreen = () => {
   const onSubmit = async () => {
     const supportWebHID = await TransportWebHID.isSupported()
     const hasConnectedLedger = await hasConnectedLedgerDevice()
-    console.log('supportWebHID', supportWebHID)
-    console.log('hasConnectedLedger', hasConnectedLedger)
 
     if (!supportWebHID) {
       navigate(WEB_ROUTES.accountsImporter, {
@@ -27,7 +25,7 @@ const ConnectLedgerScreen = () => {
           isWebHID: false
         }
       })
-    } else if (!hasConnectedLedger) {
+    } else if (hasConnectedLedger) {
       navigate(WEB_ROUTES.accountsImporter, {
         state: {
           walletType: HARDWARE_WALLETS.LEDGER,

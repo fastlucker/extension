@@ -1,3 +1,3 @@
-import LedgerController from './ledgerController'
+import LedgerController from './LedgerController'
 
 export default LedgerController
