@@ -43,7 +43,7 @@ const GetStartedScreen = () => {
             text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, rerum?"
           >
             <Button
-              text={t('HW Login (coming soon)')}
+              text={t('HW Login')}
               onPress={() => handleAuthButtonPress(ROUTES.hardwareWallet)}
               disabled // temporary disabled until we have this feature
               hasBottomSpacing={false}
@@ -58,7 +58,7 @@ const GetStartedScreen = () => {
           </Card>
         </View>
 
-        <View style={{ marginVertical: 70, height: 2, backgroundColor: colors.mischka }} />
+        <View style={{ marginVertical: 70, height: 1, backgroundColor: colors.mischka }} />
 
         <Toggle
           id="advanced-mode-toggle"

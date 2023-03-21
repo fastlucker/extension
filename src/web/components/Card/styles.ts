@@ -1,4 +1,4 @@
-import { StyleSheet, ViewProps } from 'react-native'
+import { Styles, StyleSheet, ViewProps } from 'react-native'
 import { TextProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
@@ -9,9 +9,9 @@ interface Style {
   text: TextProps
 }
 
-const styles = StyleSheet.create<Style>({
+const styles = StyleSheet.create<Styles>({
   container: {
-    width: 320,
+    width: 230,
     backgroundColor: colors.melrose_15,
     borderWidth: 1,
     borderColor: colors.scampi_20,
@@ -20,8 +20,7 @@ const styles = StyleSheet.create<Style>({
     ...spacings.pv
   },
   text: {
-    textAlign: 'center',
-    marginBottom: 30
+    textAlign: 'center'
   }
 })
 

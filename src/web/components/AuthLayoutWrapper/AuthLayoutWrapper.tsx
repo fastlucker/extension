@@ -4,7 +4,7 @@ import { View } from 'react-native'
 import { Outlet } from 'react-router-dom'
 
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_LG } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import TabHeader from '@web/modules/router/components/TabHeader'
 
@@ -28,7 +28,18 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({ children }) => {
   return (
     <View style={[flexbox.flex1, { backgroundColor: colors.zircon }]}>
       <TabHeader />
-      <View style={[spacings.pbLg, spacings.phLg, { marginTop: 180 }]}>{children}</View>
+      <View style={[flexbox.flex1, flexbox.justifyCenter]}>
+        <View
+          style={[
+            spacings.pbLg,
+            spacings.phLg,
+            flexbox.alignSelfCenter,
+            { width: 770 + SPACING_LG * 2 }
+          ]}
+        >
+          {children}
+        </View>
+      </View>
     </View>
   )
 }
