@@ -44,7 +44,7 @@ const EmailAccountScreen = () => {
           </Card>
         </View>
       </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent>
+      <AuthLayoutWrapperSideContent backgroundType="beta">
         <Text weight="regular" fontSize={16} style={spacings.mb}>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae harum eaque
           repellendus porro in ea architecto, ullam facere fugit. Obcaecati eius impedit magnam,

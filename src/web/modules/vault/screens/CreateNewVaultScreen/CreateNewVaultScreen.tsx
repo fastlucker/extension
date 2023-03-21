@@ -112,7 +112,7 @@ const CreateNewVaultScreen = () => {
           onPress={handleSubmit(createVault)}
         />
       </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent>
+      <AuthLayoutWrapperSideContent backgroundType="beta">
         <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={13}>
           {t('Welcome to the {{name}}. Let’s set up your Key Store passphrase.', {
             name: isWeb ? t('Ambire Wallet extension') : t('Ambire Wallet')

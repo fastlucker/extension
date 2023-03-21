@@ -47,7 +47,14 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({ children }) => {
   )
 }
 
-export const AuthLayoutWrapperSideContent: React.FC<any> = ({ children }) => {
+interface Props {
+  backgroundType?: 'alpha' | 'beta'
+}
+
+export const AuthLayoutWrapperSideContent: React.FC<Props> = ({
+  backgroundType = 'alpha',
+  children
+}) => {
   const context = useContext(AuthLayoutWrapperContext)
 
   if (!context) {
@@ -62,7 +69,7 @@ export const AuthLayoutWrapperSideContent: React.FC<any> = ({ children }) => {
       style={styles.sideContentContainer}
     >
       {children}
-      <Ameba style={styles.ameba} />
+      <Ameba style={backgroundType === 'alpha' ? styles.amebaAlpha : styles.amebaBeta} />
     </LinearGradient>
   )
 }

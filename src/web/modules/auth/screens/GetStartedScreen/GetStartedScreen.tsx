@@ -8,12 +8,12 @@ import Toggle from '@common/components/Toggle'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import AmbireLogo from '@common/modules/auth/components/AmbireLogo'
 import { ROUTES } from '@common/modules/router/config/routesConfig'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import AmbireLogo from '@web/components/AmbireLogo/AmbireLogo'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
@@ -90,7 +90,9 @@ const GetStartedScreen = () => {
             <Text fontSize={20}>{t('to the Ambire Wallet Extension')}</Text>
             <Text fontSize={30}>v2.0</Text>
           </View>
-          <AmbireLogo shouldExpand={false} />
+          <AmbireLogo
+            style={{ position: 'absolute', bottom: 27, right: '50%', marginRight: -46, zIndex: 10 }}
+          />
         </View>
       </AuthLayoutWrapperSideContent>
     </>
