@@ -4,15 +4,14 @@ import { View } from 'react-native'
 import Title from '@common/components/Title'
 import spacings from '@common/styles/spacings'
 import LedgerManager from '@web/modules/accounts-importer/components/LedgerManager'
+import TrezorManager from '@web/modules/accounts-importer/components/TrezorManager'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import { HARDWARE_WALLETS_KEYS } from '@web/modules/hardware-wallet/contexts/hardwareWalletsContext/types'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
 
-// import TrezorManager from '@web/modules/accounts-importer/components/TrezorManager'
-
 const MANAGER_MAP = {
-  [HARDWARE_WALLETS.LEDGER]: LedgerManager
-  // [HARDWARE_WALLETS.TREZOR]: TrezorManager
+  [HARDWARE_WALLETS.LEDGER]: LedgerManager,
+  [HARDWARE_WALLETS.TREZOR]: TrezorManager
 }
 
 const HDManager = ({
