@@ -29,6 +29,10 @@ const AccountsImporterScreen = () => {
   const isLedger = walletType === HARDWARE_WALLETS.LEDGER
   const isTrezor = walletType === HARDWARE_WALLETS.TREZOR
 
+  if (isLedger || isTrezor) {
+    return <HDManager walletType={walletType} />
+  }
+
   const [isLoading, setIsLoading] = useState(true)
   const [accounts, setAccounts] = useState<any[]>([])
   const [importedAccounts, setImportedAccounts] = useState<any[]>([])
@@ -36,12 +40,9 @@ const AccountsImporterScreen = () => {
   const [end, setEnd] = useState(1)
   const [currentPage, setCurrentPage] = useState(1)
 
-  const { hardwareWallets } = useHardwareWallets()
   const { t } = useTranslation()
 
-  if (isLedger || isTrezor) {
-    return <HDManager walletType={walletType} />
-  }
+  const { hardwareWallets } = useHardwareWallets()
 
   // TODO: implement when not ledger or trezor
 
@@ -99,6 +100,7 @@ const AccountsImporterScreen = () => {
   }
 
   useEffect(() => {
+    console.log('in init')
     init()
   }, [])
 

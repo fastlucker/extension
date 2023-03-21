@@ -54,7 +54,10 @@ const LedgerManager: React.FC<Props> = ({ type = 'Ledger Live', ...props }) => {
           i += 5
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error(e.message)
+      return
+    }
     stoppedRef.current = true
     // maybe stop by manual, so we need restart
     if (i !== index + MAX_ACCOUNT_COUNT) {

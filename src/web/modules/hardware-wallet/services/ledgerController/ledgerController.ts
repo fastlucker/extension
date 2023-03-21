@@ -54,6 +54,7 @@ class LedgerController {
         this.app = new LedgerEth(this.transport as Transport)
       } catch (e: any) {
         // Silent fail
+        Promise.reject(new Error('Permission Rejected'))
       }
     }
   }
