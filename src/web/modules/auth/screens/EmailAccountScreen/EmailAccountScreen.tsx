@@ -1,4 +1,5 @@
 import React from 'react'
+import { View } from 'react-native'
 
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -6,10 +7,12 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/config/routesConfig'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import Card from '@web/components/Card'
 
 const EmailAccountScreen = () => {
   const { t } = useTranslation()
@@ -18,8 +21,28 @@ const EmailAccountScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <Button text={t('Log In')} onPress={() => navigate(ROUTES.authEmailLogin)} />
-        <Button text={t('Create New')} onPress={() => navigate(ROUTES.authEmailRegister)} />
+        <View style={[flexbox.directionRow, flexbox.justifyCenter]}>
+          <Card
+            text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, rerum?"
+            style={spacings.mr}
+          >
+            <Button
+              hasBottomSpacing={false}
+              text={t('Log In')}
+              onPress={() => navigate(ROUTES.authEmailLogin)}
+            />
+          </Card>
+          <Card
+            text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, rerum?"
+            style={spacings.ml}
+          >
+            <Button
+              hasBottomSpacing={false}
+              text={t('Create New')}
+              onPress={() => navigate(ROUTES.authEmailRegister)}
+            />
+          </Card>
+        </View>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent>
         <Text weight="regular" fontSize={16} style={spacings.mb}>
