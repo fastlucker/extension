@@ -34,7 +34,7 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({ children }) => {
             spacings.pbLg,
             spacings.phLg,
             flexbox.alignSelfCenter,
-            { width: 770 + SPACING_LG * 2 }
+            { minWidth: 770 + SPACING_LG * 2, minHeight: 600 }
           ]}
         >
           {children}
