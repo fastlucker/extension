@@ -6,7 +6,10 @@ import { Outlet } from 'react-router-dom'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import Ameba from '@web/assets/svg/ameba'
 import TabHeader from '@web/modules/router/components/TabHeader'
+
+import styles from './styles'
 
 const AuthLayoutWrapperContext = createContext(true)
 
@@ -56,9 +59,10 @@ export const AuthLayoutWrapperSideContent: React.FC<any> = ({ children }) => {
       colors={['#ae60ff', '#28e7a7']}
       start={{ x: 1, y: 0 }}
       end={{ x: 0, y: 1 }}
-      style={[{ width: '33%', paddingTop: 80, paddingHorizontal: 60 }]}
+      style={styles.sideContentContainer}
     >
       {children}
+      <Ameba style={styles.ameba} />
     </LinearGradient>
   )
 }
