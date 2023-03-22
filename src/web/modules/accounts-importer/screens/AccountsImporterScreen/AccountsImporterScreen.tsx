@@ -5,7 +5,9 @@ import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrap
 import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
 import useRoute from '@common/hooks/useRoute'
+import useToast from '@common/hooks/useToast'
 import useWalletControllerRequest from '@web/hooks/useWalletControllerRequest'
+import AccountsList from '@web/modules/accounts-importer/components/AccountsList'
 import HDManager from '@web/modules/accounts-importer/components/HDManager'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
@@ -22,7 +24,7 @@ export interface Account {
 
 const AccountsImporterScreen = () => {
   const { params } = useRoute()
-
+  const { addToast } = useToast()
   const { walletType, isMnemonics, isWebHID, ledgerLive, path, brand } = params
 
   const isGrid = walletType === HARDWARE_WALLETS.GRIDPLUS
@@ -77,12 +79,12 @@ const AccountsImporterScreen = () => {
         if (isLedger) {
           // setHasError(true)
           try {
-            // wallet.requestKeyring(keyring, 'cleanUp', keyringId.current ?? null)
+            hardwareWallets[walletType]?.cleanUp()
           } catch (e) {
             console.log(e)
           }
         } else {
-          // message.error('Please check the connection with your wallet')
+          addToast(t('Please check the connection with your wallet.'))
         }
 
         setIsLoading(false)
@@ -100,20 +102,24 @@ const AccountsImporterScreen = () => {
   }
 
   useEffect(() => {
-    console.log('in init')
     init()
   }, [])
 
   useEffect(() => {
     return () => {
-      hardwareWallets[walletType].cleanUp()
+      try {
+        hardwareWallets[walletType].cleanUp()
+      } catch (e) {
+        console.log(e)
+      }
     }
   }, [hardwareWallets, walletType])
 
   return (
     <GradientBackgroundWrapper>
       <Wrapper>
-        <Title>Accounts Importer Screen</Title>
+        {isGrid && <Title>{`Connected to a ${walletType} hardware device`}</Title>}
+        <AccountsList accounts={accounts} />
       </Wrapper>
     </GradientBackgroundWrapper>
   )

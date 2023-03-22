@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
+import LatticeController from '@web/modules/hardware-wallet/services/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/services/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/services/TrezorController'
 
@@ -17,7 +18,8 @@ const HardwareWalletsContext = createContext<HardwareWalletsContextReturnType>(
 const HardwareWalletsProvider: React.FC<any> = ({ children }: any) => {
   const [hardwareWallets] = useState<HardwareWalletsContextReturnType['hardwareWallets']>({
     [HARDWARE_WALLETS.LEDGER]: new LedgerController(),
-    [HARDWARE_WALLETS.TREZOR]: new TrezorController()
+    [HARDWARE_WALLETS.TREZOR]: new TrezorController(),
+    [HARDWARE_WALLETS.GRIDPLUS]: new LatticeController()
   })
 
   useEffect(() => {

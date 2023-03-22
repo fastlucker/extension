@@ -118,6 +118,7 @@ module.exports = async function (env, argv) {
     config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
     config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
     config.resolve.alias['p-queue'] = 'p-queue/dist/index.js'
+    // config.resolve.alias.crypto = 'crypto-browserify'
 
     // The files in the /web directory should be transpiled not just copied
     const excludeCopyPlugin = config.plugins.findIndex(

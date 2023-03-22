@@ -1,6 +1,7 @@
 module.exports = function (api) {
   api.cache(true)
-  return {
+
+  const config = {
     presets: ['babel-preset-expo'],
     plugins: [
       ['@babel/plugin-proposal-export-namespace-from'],
@@ -13,6 +14,36 @@ module.exports = function (api) {
         }
       ],
       ['react-native-reanimated/plugin'],
+      [
+        'module-resolver',
+        {
+          root: ['./src'],
+          extensions: [
+            '.ios.ts',
+            '.android.ts',
+            '.ts',
+            '.ios.tsx',
+            '.android.tsx',
+            '.tsx',
+            '.jsx',
+            '.js',
+            '.json'
+          ],
+          alias: {
+            // absolute imports
+            '@common': './src/common',
+            '@mobile': './src/mobile',
+            '@web': './src/web'
+          }
+        }
+      ]
+    ]
+  }
+
+  const mobileConfig = {
+    ...config,
+    plugins: [
+      ...config.plugins,
       [
         'module-resolver',
         {
@@ -49,4 +80,8 @@ module.exports = function (api) {
       ]
     ]
   }
+
+  const isMobile = process.env.PLATFORM === 'mobile';
+
+  return isMobile ? mobileConfig : config
 }

@@ -36,7 +36,19 @@ const HardwareWalletSelectorScreen = () => {
             name="Ledger"
             onSelect={() => navigate(WEB_ROUTES.hardwareWalletLedger)}
           />
-          <HardwareWalletSelectorItem name="GRID+" />
+          <HardwareWalletSelectorItem
+            name="GRID+"
+            onSelect={async () => {
+              try {
+                await hardwareWallets[HARDWARE_WALLETS.GRIDPLUS].unlock()
+              } catch (error: any) {
+                addToast(error.message)
+              }
+              navigate(WEB_ROUTES.accountsImporter, {
+                state: { walletType: HARDWARE_WALLETS.GRIDPLUS }
+              })
+            }}
+          />
         </View>
       </Wrapper>
     </GradientBackgroundWrapper>

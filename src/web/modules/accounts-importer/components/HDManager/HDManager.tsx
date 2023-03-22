@@ -22,7 +22,11 @@ const HDManager = ({
   const { hardwareWallets } = useHardwareWallets()
 
   const closeConnect = React.useCallback(() => {
-    hardwareWallets[walletType].cleanUp()
+    try {
+      hardwareWallets[walletType].cleanUp()
+    } catch (e) {
+      console.log(e)
+    }
   }, [hardwareWallets, walletType])
 
   React.useEffect(() => {
