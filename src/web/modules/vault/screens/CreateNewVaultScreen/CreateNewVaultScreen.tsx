@@ -20,11 +20,13 @@ import KeyStoreLogo from '@common/modules/vault/components/KeyStoreLogo'
 import useVault from '@common/modules/vault/hooks/useVault'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import styles from '@web/modules/auth/screens/EmailLoginScreen/styles'
 
 const CreateNewVaultScreen = () => {
   const { t } = useTranslation()
@@ -50,67 +52,71 @@ const CreateNewVaultScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <Controller
-          control={control}
-          rules={{ validate: isValidPassword }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <InputPassword
-              onBlur={onBlur}
-              placeholder={t('Enter Passphrase')}
-              onChangeText={onChange}
-              isValid={isValidPassword(value)}
-              autoFocus={isWeb}
-              value={value}
-              error={
-                errors.password &&
-                (t('Please fill in at least 8 characters for passphrase.') as string)
-              }
-              containerStyle={spacings.mbTy}
-              onSubmitEditing={handleSubmit(createVault)}
-            />
-          )}
-          name="password"
-        />
-        <Controller
-          control={control}
-          rules={{
-            validate: (value) => watch('password', '') === value
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              onBlur={onBlur}
-              placeholder={t('Repeat Passphrase')}
-              onChangeText={onChange}
-              value={value}
-              isValid={!!value && watch('password', '') === value}
-              secureTextEntry
-              error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
-              autoCorrect={false}
-              onSubmitEditing={handleSubmit(createVault)}
-              containerStyle={spacings.mbSm}
-            />
-          )}
-          name="confirmPassword"
-        />
-        {!isWeb &&
-          hasBiometricsHardware &&
-          deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC && (
-            <View style={[spacings.mbLg, flexboxStyles.alignEnd]}>
-              <Controller
-                control={control}
-                render={({ field: { onChange, value } }) => (
-                  <Toggle isOn={value} label={t('Biometrics unlock?')} onToggle={onChange} />
-                )}
-                name="optInForBiometricsUnlock"
+        <View style={styles.contentWrapper}>
+          <Controller
+            control={control}
+            rules={{ validate: isValidPassword }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <InputPassword
+                themeType={THEME_TYPES.LIGHT}
+                onBlur={onBlur}
+                placeholder={t('Enter Passphrase')}
+                onChangeText={onChange}
+                isValid={isValidPassword(value)}
+                autoFocus={isWeb}
+                value={value}
+                error={
+                  errors.password &&
+                  (t('Please fill in at least 8 characters for passphrase.') as string)
+                }
+                containerStyle={spacings.mbTy}
+                onSubmitEditing={handleSubmit(createVault)}
               />
-            </View>
-          )}
+            )}
+            name="password"
+          />
+          <Controller
+            control={control}
+            rules={{
+              validate: (value) => watch('password', '') === value
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                themeType={THEME_TYPES.LIGHT}
+                onBlur={onBlur}
+                placeholder={t('Repeat Passphrase')}
+                onChangeText={onChange}
+                value={value}
+                isValid={!!value && watch('password', '') === value}
+                secureTextEntry
+                error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
+                autoCorrect={false}
+                onSubmitEditing={handleSubmit(createVault)}
+                containerStyle={spacings.mbSm}
+              />
+            )}
+            name="confirmPassword"
+          />
+          {!isWeb &&
+            hasBiometricsHardware &&
+            deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC && (
+              <View style={[spacings.mbLg, flexboxStyles.alignEnd]}>
+                <Controller
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <Toggle isOn={value} label={t('Biometrics unlock?')} onToggle={onChange} />
+                  )}
+                  name="optInForBiometricsUnlock"
+                />
+              </View>
+            )}
 
-        <Button
-          disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
-          text={isSubmitting ? t('Setting up...') : t('Setup Ambire Key Store')}
-          onPress={handleSubmit(createVault)}
-        />
+          <Button
+            disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
+            text={isSubmitting ? t('Setting up...') : t('Setup Ambire Key Store')}
+            onPress={handleSubmit(createVault)}
+          />
+        </View>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
         <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={13}>
