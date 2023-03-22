@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import React, { createContext, useContext } from 'react'
-import { View } from 'react-native'
+import { View, ViewProps } from 'react-native'
 import { Outlet } from 'react-router-dom'
 
 import colors from '@common/styles/colors'
@@ -47,13 +47,15 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({ children }) => {
   )
 }
 
-interface Props {
+interface Props extends ViewProps {
   backgroundType?: 'alpha' | 'beta'
 }
 
 export const AuthLayoutWrapperSideContent: React.FC<Props> = ({
   backgroundType = 'alpha',
-  children
+  children,
+  style,
+  ...rest
 }) => {
   const context = useContext(AuthLayoutWrapperContext)
 
@@ -66,7 +68,8 @@ export const AuthLayoutWrapperSideContent: React.FC<Props> = ({
       colors={['#ae60ff', '#28e7a7']}
       start={{ x: 1, y: 0 }}
       end={{ x: 0, y: 1 }}
-      style={styles.sideContentContainer}
+      style={[styles.sideContentContainer, style]}
+      {...rest}
     >
       {children}
       <Ameba style={backgroundType === 'alpha' ? styles.amebaAlpha : styles.amebaBeta} />
