@@ -31,23 +31,23 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: colors.white,
     [THEME_TYPES.DARK]: colors.black
   },
-  buttonBackground: {
+  inputBackground: {
     [THEME_TYPES.DARK]: colors.howl,
     [THEME_TYPES.LIGHT]: colors.melrose_15
   },
-  buttonBorder: {
+  inputBorder: {
     [THEME_TYPES.DARK]: colors.howl,
     [THEME_TYPES.LIGHT]: colors.scampi_20
   },
-  buttonBorderFocused: {
+  inputBorderFocused: {
     [THEME_TYPES.DARK]: colors.titan,
     [THEME_TYPES.LIGHT]: colors.violet
   },
-  buttonBorderValid: {
+  inputBorderValid: {
     [THEME_TYPES.DARK]: colors.turquoise,
     [THEME_TYPES.LIGHT]: colors.greenHaze
   },
-  buttonBorderInvalid: {
+  inputBorderInvalid: {
     [THEME_TYPES.DARK]: colors.pink,
     [THEME_TYPES.LIGHT]: colors.radicalRed
   },

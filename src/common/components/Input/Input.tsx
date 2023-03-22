@@ -76,12 +76,12 @@ const Input = ({
   const inputWrapperStyles = [
     styles.inputWrapper,
     {
-      backgroundColor: themeStyles?.buttonBackground,
-      borderBottomColor: themeStyles?.buttonBorder
+      backgroundColor: themeStyles?.inputBackground,
+      borderBottomColor: themeStyles?.inputBorder
     },
-    !!error && { borderBottomColor: themeStyles?.buttonBorderInvalid },
-    isFocused && { borderBottomColor: themeStyles?.buttonBorderFocused },
-    isValid && { borderBottomColor: themeStyles?.buttonBorderValid },
+    !!error && { borderBottomColor: themeStyles?.inputBorderInvalid },
+    isFocused && { borderBottomColor: themeStyles?.inputBorderFocused },
+    isValid && { borderBottomColor: themeStyles?.inputBorderValid },
     disabled && styles.disabled
   ]
 
@@ -89,7 +89,7 @@ const Input = ({
     styles.input,
     !!hasButton && spacings.pr0,
     {
-      // backgroundColor: themeStyles?.buttonBackground,
+      // backgroundColor: themeStyles?.inputBackground,
       color: themeStyles?.buttonText
     }
   ]
@@ -146,7 +146,7 @@ const Input = ({
       )}
 
       {!!info && (
-        <Text style={[styles.infoText, infoTextStyle]} fontSize={12}>
+        <Text style={[styles.infoText, infoTextStyle]} fontSize={12} themeType={themeType}>
           {info}
         </Text>
       )}
