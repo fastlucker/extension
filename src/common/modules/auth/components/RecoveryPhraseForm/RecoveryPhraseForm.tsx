@@ -9,7 +9,12 @@ import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import useExternalSignerLogin from '@common/modules/auth/hooks/useExternalSignerLogin'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import { delayPromise } from '@common/utils/promises'
+
+interface Props {
+  themeType: THEME_TYPES
+}
 
 const formatMnemonic = (mnemonic: string) =>
   mnemonic
@@ -17,7 +22,7 @@ const formatMnemonic = (mnemonic: string) =>
     .replace(/,/g, ' ')
     .replace(/\s{2,}/g, ' ')
 
-const RecoveryPhraseForm = () => {
+const RecoveryPhraseForm: React.FC<Props> = ({ themeType }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { addExternalSigner } = useExternalSignerLogin()
@@ -68,6 +73,7 @@ const RecoveryPhraseForm = () => {
         control={control}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
+            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Recovery phrase')}
             onChangeText={(props) => {

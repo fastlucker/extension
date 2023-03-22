@@ -5,7 +5,6 @@ import { EmailLoginProvider } from '@common/modules/auth/contexts/emailLoginCont
 import { JsonLoginProvider } from '@common/modules/auth/contexts/jsonLoginContext'
 import AddAccountPasswordToVaultScreen from '@common/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import AuthScreen from '@common/modules/auth/screens/AuthScreen'
-import ExternalSignerScreen from '@common/modules/auth/screens/ExternalSignerScreen'
 import QRCodeLoginScreen from '@common/modules/auth/screens/QRCodeLoginScreen'
 import CollectibleScreen from '@common/modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
@@ -36,6 +35,7 @@ import WatchTokenRequestScreen from '@web/modules/approval-requests/screens/Watc
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
 import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
+import ExternalSignerLoginScreen from '@web/modules/auth/screens/ExternalSignerLoginScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
 import JsonLoginScreen from '@web/modules/auth/screens/JsonLoginScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
@@ -123,7 +123,7 @@ const MainRoutes = () => {
 
           <Route path={ROUTES.qrCodeLogin} element={<QRCodeLoginScreen />} />
           <Route path={ROUTES.hardwareWallet} element={<HardwareWalletConnectScreen />} />
-          <Route path={ROUTES.externalSigner} element={<ExternalSignerScreen />} />
+          <Route path={ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
           <Route path={ROUTES.onboarding} element={<OnBoardingScreen />} />
         </Route>
       </Route>

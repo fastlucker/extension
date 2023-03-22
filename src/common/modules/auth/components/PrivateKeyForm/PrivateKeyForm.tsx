@@ -8,9 +8,14 @@ import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import useExternalSignerLogin from '@common/modules/auth/hooks/useExternalSignerLogin'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import { delayPromise } from '@common/utils/promises'
 
-const PrivateKeyForm = () => {
+interface Props {
+  themeType: THEME_TYPES
+}
+
+const PrivateKeyForm: React.FC<Props> = ({ themeType }) => {
   const { t } = useTranslation()
   const { addExternalSigner } = useExternalSignerLogin()
   const { addToast } = useToast()
@@ -50,6 +55,7 @@ const PrivateKeyForm = () => {
         control={control}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
+            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Signer private key')}
             onChangeText={onChange}
