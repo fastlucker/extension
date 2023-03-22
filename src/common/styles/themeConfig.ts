@@ -51,6 +51,10 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: colors.pink,
     [THEME_TYPES.LIGHT]: colors.radicalRed
   },
+  inputIcon: {
+    [THEME_TYPES.DARK]: colors.titan,
+    [THEME_TYPES.LIGHT]: colors.martinique_35
+  },
   buttonText: {
     [THEME_TYPES.DARK]: colors.titan,
     [THEME_TYPES.LIGHT]: colors.martinique
