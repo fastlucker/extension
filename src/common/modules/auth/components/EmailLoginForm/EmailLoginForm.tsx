@@ -116,8 +116,8 @@ const EmailLoginForm: React.FC<Props> = ({ themeType = THEME_TYPES.DARK }) => {
       />
       {!!requiresEmailConfFor && (
         <Button
-          type="outline"
-          accentColor={colors.howl}
+          type={themeType === THEME_TYPES.LIGHT ? 'outline' : 'ghost'}
+          accentColor={themeType === THEME_TYPES.LIGHT ? colors.howl : undefined}
           text={t('Cancel Login Attempt')}
           onPress={handleCancelLoginAttempts}
         />
