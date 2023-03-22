@@ -11,6 +11,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/config/routesConfig'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import AmbireLogo from '@web/components/AmbireLogo/AmbireLogo'
@@ -68,16 +69,32 @@ const GetStartedScreen = () => {
         />
         {advanceModeEnabled && (
           <>
-            <Button
-              text={t('Import JSON')}
-              type="outline"
-              onPress={() => handleAuthButtonPress(ROUTES.ambireAccountJsonLogin)}
-            />
-            <Button
-              text={t('View Mode (coming soon)')}
-              disabled // temporary disabled until we have this feature
-              type="outline"
-            />
+            <View style={flexboxStyles.directionRow}>
+              <Button
+                text={t('Import JSON')}
+                type="outline"
+                style={[{ minWidth: 190 }, spacings.mrMd]}
+                accentColor={colors.violet}
+                onPress={() => handleAuthButtonPress(ROUTES.ambireAccountJsonLogin)}
+              />
+              <Text fontSize={12} themeType={THEME_TYPES.LIGHT}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget ipsum mattis,
+                pretium nibh vel, venenatis ligula.
+              </Text>
+            </View>
+            <View style={flexboxStyles.directionRow}>
+              <Button
+                accentColor={colors.violet}
+                text={t('View Mode')}
+                disabled // temporary disabled until we have this feature
+                type="outline"
+                style={[{ minWidth: 190 }, spacings.mrMd]}
+              />
+              <Text fontSize={12} themeType={THEME_TYPES.LIGHT}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget ipsum mattis,
+                pretium nibh vel, venenatis ligula.
+              </Text>
+            </View>
           </>
         )}
       </AuthLayoutWrapperMainContent>
