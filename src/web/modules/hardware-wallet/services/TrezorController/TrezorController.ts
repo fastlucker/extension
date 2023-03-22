@@ -60,6 +60,9 @@ class TrezorController {
         this.model = event.payload.features.model
       }
     })
+  }
+
+  init() {
     if (!this.trezorConnectInitiated) {
       trezorConnect.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true })
       this.trezorConnectInitiated = true
