@@ -11,6 +11,7 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import styles from '@web/modules/auth/screens/EmailLoginScreen/styles'
 
 const JsonLoginScreen = () => {
   const { t } = useTranslation()
@@ -19,19 +20,21 @@ const JsonLoginScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <Button
-          disabled={inProgress}
-          text={inProgress ? t('Importing...') : t('Select File')}
-          onPress={() => handleLogin({})}
-          hasBottomSpacing={!error || isWeb}
-        />
-        {!!error && (
-          <View style={spacings.ptTy}>
-            <Text appearance="danger" fontSize={12} style={spacings.ph}>
-              {error}
-            </Text>
-          </View>
-        )}
+        <View style={styles.contentWrapper}>
+          <Button
+            disabled={inProgress}
+            text={inProgress ? t('Importing...') : t('Import JSON')}
+            onPress={() => handleLogin({})}
+            hasBottomSpacing={!error || isWeb}
+          />
+          {!!error && (
+            <View style={spacings.ptTy}>
+              <Text appearance="danger" fontSize={12} style={spacings.ph}>
+                {error}
+              </Text>
+            </View>
+          )}
+        </View>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
         <Text weight="regular" fontSize={16} style={spacings.mb}>

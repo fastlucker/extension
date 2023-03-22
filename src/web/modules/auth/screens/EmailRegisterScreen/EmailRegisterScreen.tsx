@@ -10,8 +10,7 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-
-import styles from '../EmailLoginScreen/styles'
+import styles from '@web/modules/auth/screens/EmailLoginScreen/styles'
 
 const EmailRegisterScreen = () => {
   const { t } = useTranslation()
