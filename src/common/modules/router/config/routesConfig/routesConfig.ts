@@ -277,9 +277,7 @@ const routesConfig: {
   },
   [ROUTES.onboarding]: {
     route: ROUTES.onboarding,
-    title: Platform.select({
-      default: i18n.t('Onboarding')
-    })
+    title: ''
   }
 }
 
