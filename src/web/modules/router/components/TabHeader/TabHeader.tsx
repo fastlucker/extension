@@ -11,7 +11,6 @@ import routesConfig, { ROUTES } from '@common/modules/router/config/routesConfig
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
 
@@ -22,11 +21,7 @@ const TabHeader: React.FC<any> = () => {
 
   const handleGoBack = useCallback(() => navigate(-1), [navigate])
 
-  const navigationEnabled = !getUiType().isNotification
-  const canGoBack =
-    // If you have a location key that means you routed in-app. But if you
-    // don't that means you come from outside of the app or you just open it.
-    params?.prevRoute?.key !== 'default' && params?.prevRoute?.pathname !== '/' && navigationEnabled
+  const canGoBack = !!params?.prevRoute
 
   const renderHeaderLeft = () => {
     if (canGoBack) {
