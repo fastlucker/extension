@@ -20,6 +20,7 @@ export interface Props extends TextProps {
   fontSize?: number
   color?: string
   themeType?: THEME_TYPES
+  shouldScale?: boolean
 }
 
 const textStyles: { [key in TextTypes]: TextStyle } = {
@@ -52,9 +53,10 @@ const Text: React.FC<Props> = ({
   color,
   style = {},
   themeType = THEME_TYPES.DARK,
+  shouldScale = true,
   ...rest
 }) => {
-  const fontSize = _fontSize ? _fontSize + TEXT_SCALE : _fontSize
+  const fontSize = _fontSize ? (shouldScale ? _fontSize + TEXT_SCALE : _fontSize) : _fontSize
   const { styles: defaultThemeStyles, lightThemeStyles, darkThemeStyles } = useTheme()
   const themeStyles =
     themeType === THEME_TYPES.AUTO

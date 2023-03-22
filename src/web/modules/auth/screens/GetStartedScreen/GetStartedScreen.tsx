@@ -69,28 +69,40 @@ const GetStartedScreen = () => {
         />
         {advanceModeEnabled && (
           <>
-            <View style={flexboxStyles.directionRow}>
+            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
               <Button
                 text={t('Import JSON')}
                 type="outline"
-                style={[{ minWidth: 190 }, spacings.mrMd]}
+                hasBottomSpacing={false}
+                style={[{ minWidth: 190, backgroundColor: colors.melrose_15 }, spacings.mrMd]}
                 accentColor={colors.violet}
                 onPress={() => handleAuthButtonPress(ROUTES.ambireAccountJsonLogin)}
               />
-              <Text fontSize={12} themeType={THEME_TYPES.LIGHT}>
+              <Text
+                shouldScale={false}
+                fontSize={12}
+                weight="regular"
+                themeType={THEME_TYPES.LIGHT}
+              >
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget ipsum mattis,
                 pretium nibh vel, venenatis ligula.
               </Text>
             </View>
-            <View style={flexboxStyles.directionRow}>
+            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
               <Button
                 accentColor={colors.violet}
                 text={t('View Mode')}
                 disabled // temporary disabled until we have this feature
                 type="outline"
-                style={[{ minWidth: 190 }, spacings.mrMd]}
+                hasBottomSpacing={false}
+                style={[{ minWidth: 190, backgroundColor: colors.melrose_15 }, spacings.mrMd]}
               />
-              <Text fontSize={12} themeType={THEME_TYPES.LIGHT}>
+              <Text
+                shouldScale={false}
+                fontSize={12}
+                weight="regular"
+                themeType={THEME_TYPES.LIGHT}
+              >
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget ipsum mattis,
                 pretium nibh vel, venenatis ligula.
               </Text>
