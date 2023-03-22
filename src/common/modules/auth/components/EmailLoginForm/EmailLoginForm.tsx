@@ -8,6 +8,7 @@ import Input from '@common/components/Input'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useEmailLogin from '@common/modules/auth/hooks/useEmailLogin'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import { delayPromise } from '@common/utils/promises'
@@ -114,7 +115,12 @@ const EmailLoginForm: React.FC<Props> = ({ themeType = THEME_TYPES.DARK }) => {
         onPress={handleFormSubmit}
       />
       {!!requiresEmailConfFor && (
-        <Button type="ghost" text={t('Cancel Login Attempt')} onPress={handleCancelLoginAttempts} />
+        <Button
+          type="outline"
+          accentColor={colors.howl}
+          text={t('Cancel Login Attempt')}
+          onPress={handleCancelLoginAttempts}
+        />
       )}
     </>
   )
