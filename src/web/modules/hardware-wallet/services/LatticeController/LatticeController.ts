@@ -199,31 +199,6 @@ class LatticeKeyring extends EventEmitter {
   //-------------------------------------------------------------------
   // Internal methods and interface to SDK
   //-------------------------------------------------------------------
-  // Find the account index of the requested address.
-  // Note that this is the BIP39 path index, not the index in the address cache.
-  async _findSignerIdx(address) {
-    // Take note if this was already unlocked
-    const wasUnlocked = this.isUnlocked()
-    // Unlock and get the wallet UID. We will bypass the reconnection
-    // step if we are able to rehydrate an SDK session with state data.
-    await this.unlock(true)
-    let accountIdx = await this._accountIdxInCurrentWallet(address)
-    if (accountIdx !== null) {
-      return accountIdx
-    }
-    // If this was unlocked already, the `this.unlock` call did not sync
-    // data with the Lattice. We should force a sync by reconnecting.
-    if (wasUnlocked) {
-      await this._connect()
-      // Check the new wallet and see if there is a match
-      accountIdx = await this._accountIdxInCurrentWallet(address)
-      if (accountIdx !== null) {
-        return accountIdx
-      }
-    }
-    // If we could not find a match, exit here
-    throw new Error('Account not found in active Lattice wallet. Please switch.')
-  }
 
   async _accountIdxInCurrentWallet(address) {
     // Get the wallet UID associated with the signer and make sure

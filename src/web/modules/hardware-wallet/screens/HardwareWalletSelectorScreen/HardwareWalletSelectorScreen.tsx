@@ -24,12 +24,12 @@ const HardwareWalletSelectorScreen = () => {
             onSelect={async () => {
               try {
                 await hardwareWallets[HARDWARE_WALLETS.TREZOR].unlock()
+                navigate(WEB_ROUTES.accountsImporter, {
+                  state: { walletType: HARDWARE_WALLETS.TREZOR }
+                })
               } catch (error: any) {
-                addToast(error.message)
+                addToast(error.message, { error: true })
               }
-              navigate(WEB_ROUTES.accountsImporter, {
-                state: { walletType: HARDWARE_WALLETS.TREZOR }
-              })
             }}
           />
           <HardwareWalletSelectorItem
@@ -41,12 +41,12 @@ const HardwareWalletSelectorScreen = () => {
             onSelect={async () => {
               try {
                 await hardwareWallets[HARDWARE_WALLETS.GRIDPLUS].unlock()
+                navigate(WEB_ROUTES.accountsImporter, {
+                  state: { walletType: HARDWARE_WALLETS.GRIDPLUS }
+                })
               } catch (error: any) {
-                addToast(error.message)
+                addToast(error.message, { error: true })
               }
-              navigate(WEB_ROUTES.accountsImporter, {
-                state: { walletType: HARDWARE_WALLETS.GRIDPLUS }
-              })
             }}
           />
         </View>
