@@ -46,8 +46,6 @@ const AccountsImporterScreen = () => {
 
   const { hardwareWallets } = useHardwareWallets()
 
-  // TODO: implement when not ledger or trezor
-
   const [getAccounts] = useWalletControllerRequest(
     async (firstFlag, start?, end?, cb?): Promise<Account[]> => {
       setIsLoading(true)
@@ -65,7 +63,8 @@ const AccountsImporterScreen = () => {
       onSuccess(_accounts, { args: [, , , cb] }) {
         if (_accounts.length <= 0) {
           setIsLoading(false)
-          // message.error('No accounts found')
+          addToast(t('No accounts found'))
+
           return
         }
         if (_accounts.length < 5) {
@@ -118,8 +117,10 @@ const AccountsImporterScreen = () => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper>
-        {isGrid && <Title>{`Connected to a ${walletType} hardware device`}</Title>}
-        <AccountsList accounts={accounts} />
+        {isGrid && (
+          <Title>{t('Connected to a {{walletType}} hardware device', { walletType })}</Title>
+        )}
+        <AccountsList accounts={accounts} loading={isLoading} />
       </Wrapper>
     </GradientBackgroundWrapper>
   )

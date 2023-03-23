@@ -103,7 +103,7 @@ const LedgerManager: React.FC<Props> = ({ type = 'Ledger Live', ...props }) => {
     return newData
   }, [accountList])
 
-  return <AccountsList accounts={fullData} {...props} />
+  return <AccountsList accounts={fullData} loading={loading} {...props} />
 }
 
 export default LedgerManager
