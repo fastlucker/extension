@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, ViewStyle } from 'react-native'
 
-import logo from '@web/components/AmbireLogo/logo.svg'
+import logo from '@web/assets/svg/ambire-white-small-logo.svg'
 
 type Props = {
   style?: ViewStyle
