@@ -7,7 +7,7 @@ type Props = {
   style?: ViewStyle
 }
 
-const AmbireLogo: React.FC<Props> = ({ style }) => {
+const AmbireSmallWhiteLogo: React.FC<Props> = ({ style }) => {
   return (
     <View style={style}>
       <img src={logo} style={{ width: 92.4, height: 33.1 }} alt="Ambire Logo" />
@@ -15,4 +15,4 @@ const AmbireLogo: React.FC<Props> = ({ style }) => {
   )
 }
 
-export default AmbireLogo
+export default AmbireSmallWhiteLogo

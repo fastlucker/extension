@@ -13,7 +13,7 @@ import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import AmbireLogo from '@web/components/AmbireLogo/AmbireLogo'
+import AmbireSmallWhiteLogo from '@web/components/AmbireSmallWhiteLogo'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
@@ -120,7 +120,7 @@ const GetStartedScreen = () => {
             <Text fontSize={20}>{t('to the Ambire Wallet Extension')}</Text>
             <Text fontSize={30}>v2.0</Text>
           </View>
-          <AmbireLogo style={styles.logo} />
+          <AmbireSmallWhiteLogo style={styles.logo} />
         </View>
       </AuthLayoutWrapperSideContent>
     </>
