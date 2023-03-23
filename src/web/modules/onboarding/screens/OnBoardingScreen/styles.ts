@@ -3,6 +3,7 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 interface Style {
   title: TextStyle
   sideContent: ViewStyle
+  pinExtension: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -14,6 +15,12 @@ const styles = StyleSheet.create<Style>({
   sideContent: {
     position: 'relative',
     zIndex: -1
+  },
+  pinExtension: {
+    position: 'fixed',
+    right: 100,
+    top: -1,
+    zIndex: 10
   }
 })
 

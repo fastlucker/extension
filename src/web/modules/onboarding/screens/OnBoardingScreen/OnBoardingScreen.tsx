@@ -35,14 +35,7 @@ const OnBoardingScreen = () => {
         >
           {t('You are ready!')}
         </Text>
-        <PinExtension
-          style={{
-            position: 'fixed',
-            right: 90,
-            top: -15,
-            zIndex: 10
-          }}
-        />
+        <PinExtension style={styles.pinExtension} />
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta" style={styles.sideContent} />
     </>
