@@ -38,7 +38,7 @@ const JsonLoginScreen = () => {
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
         <Text weight="regular" fontSize={16} style={spacings.mb}>
-          Import JSON
+          {t('Import JSON')}
         </Text>
         <Text weight="regular" fontSize={16}>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae harum eaque
