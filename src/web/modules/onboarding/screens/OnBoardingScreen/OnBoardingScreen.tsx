@@ -2,17 +2,17 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Text from '@common/components/Text'
-import AmbireLogo from '@common/modules/auth/components/AmbireLogo'
-import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
-import text from '@common/styles/utils/text'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import ConfettiLogo from '@web/modules/onboarding/components/ConfettiLogo'
 import PinExtension from '@web/modules/onboarding/components/PinExtension/PinExtension'
 import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
 import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
+
+import styles from './styles'
 
 const OnBoardingScreen = () => {
   const { t } = useTranslation()
@@ -25,12 +25,13 @@ const OnBoardingScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <AmbireLogo shouldExpand={false} />
+        <ConfettiLogo />
         <Text
           themeType={THEME_TYPES.LIGHT}
           shouldScale={false}
           fontSize={20}
-          style={[spacings.mbLg, text.center]}
+          weight="medium"
+          style={styles.title}
         >
           {t('You are ready!')}
         </Text>
@@ -43,10 +44,7 @@ const OnBoardingScreen = () => {
           }}
         />
       </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent
-        backgroundType="beta"
-        style={{ position: 'relative', zIndex: -1 }}
-      ></AuthLayoutWrapperSideContent>
+      <AuthLayoutWrapperSideContent backgroundType="beta" style={styles.sideContent} />
     </>
   )
 }
