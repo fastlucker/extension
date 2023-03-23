@@ -47,11 +47,11 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({ children }) => {
   )
 }
 
-interface Props extends ViewProps {
+interface AuthLayoutWrapperSideContentProps extends ViewProps {
   backgroundType?: 'alpha' | 'beta'
 }
 
-export const AuthLayoutWrapperSideContent: React.FC<Props> = ({
+export const AuthLayoutWrapperSideContent: React.FC<AuthLayoutWrapperSideContentProps> = ({
   backgroundType = 'alpha',
   children,
   style,
