@@ -11,7 +11,7 @@ export enum THEME_TYPES {
 }
 
 export type ThemeProps = {
-  [key in keyof typeof ThemeColors]: ColorValue | ColorValue[]
+  [key in keyof typeof ThemeColors]: ColorValue
 }
 
 const ThemeColors = {

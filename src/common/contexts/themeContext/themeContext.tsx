@@ -10,7 +10,7 @@ const DEFAULT_THEME = THEME_TYPES.DARK
 export interface ThemeContextReturnType {
   darkThemeStyles: ThemeProps
   lightThemeStyles: ThemeProps
-  theme?: ThemeProps
+  theme: ThemeProps
   themeType: THEME_TYPES
   setThemeType: (item: THEME_TYPES) => void
 }
@@ -30,6 +30,7 @@ const lightThemeStyles = getThemeByType(THEME_TYPES.LIGHT)
 const darkThemeStyles = getThemeByType(THEME_TYPES.DARK)
 
 const ThemeContext = createContext<ThemeContextReturnType>({
+  theme: lightThemeStyles,
   lightThemeStyles,
   darkThemeStyles,
   themeType: THEME_TYPES.DARK,

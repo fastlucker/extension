@@ -36,7 +36,7 @@ export interface InputProps extends TextInputProps {
 }
 
 const Input = ({
-  themeType = THEME_TYPES.DARK,
+  themeType,
   label,
   button,
   buttonProps,
@@ -54,13 +54,7 @@ const Input = ({
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
-  const { styles: defaultThemeStyles, lightThemeStyles, darkThemeStyles } = useTheme()
-  const themeStyles =
-    themeType === THEME_TYPES.AUTO
-      ? defaultThemeStyles
-      : themeType === THEME_TYPES.LIGHT
-      ? lightThemeStyles
-      : darkThemeStyles
+  const { theme } = useTheme({ forceThemeType: themeType })
 
   const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(true)
@@ -76,12 +70,12 @@ const Input = ({
   const inputWrapperStyles = [
     styles.inputWrapper,
     {
-      backgroundColor: themeStyles?.inputBackground,
-      borderBottomColor: themeStyles?.inputBorder
+      backgroundColor: theme.inputBackground,
+      borderBottomColor: theme.inputBorder
     },
-    !!error && { borderBottomColor: themeStyles?.inputBorderInvalid },
-    isFocused && { borderBottomColor: themeStyles?.inputBorderFocused },
-    isValid && { borderBottomColor: themeStyles?.inputBorderValid },
+    !!error && { borderBottomColor: theme.inputBorderInvalid },
+    isFocused && { borderBottomColor: theme.inputBorderFocused },
+    isValid && { borderBottomColor: theme.inputBorderValid },
     disabled && styles.disabled
   ]
 
@@ -89,8 +83,8 @@ const Input = ({
     styles.input,
     !!hasButton && spacings.pr0,
     {
-      // backgroundColor: themeStyles?.inputBackground,
-      color: themeStyles?.buttonText
+      // backgroundColor: theme.inputBackground,
+      color: theme.buttonText
     }
   ]
 
@@ -101,7 +95,7 @@ const Input = ({
         <View style={inputWrapperStyles}>
           {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
           <TextInput
-            placeholderTextColor={themeStyles?.buttonPlaceholderText}
+            placeholderTextColor={theme.buttonPlaceholderText}
             style={inputStyles}
             autoCapitalize="none"
             autoCorrect={false}

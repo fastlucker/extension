@@ -52,23 +52,17 @@ const Text: React.FC<Props> = ({
   fontSize: _fontSize,
   color,
   style = {},
-  themeType = THEME_TYPES.DARK,
+  themeType,
   shouldScale = true,
   ...rest
 }) => {
   const fontSize = _fontSize ? (shouldScale ? _fontSize + TEXT_SCALE : _fontSize) : _fontSize
-  const { styles: defaultThemeStyles, lightThemeStyles, darkThemeStyles } = useTheme()
-  const themeStyles =
-    themeType === THEME_TYPES.AUTO
-      ? defaultThemeStyles
-      : themeType === THEME_TYPES.LIGHT
-      ? lightThemeStyles
-      : darkThemeStyles
+  const { theme } = useTheme({ forceThemeType: themeType })
 
   return (
     <RNText
       style={StyleSheet.flatten([
-        { color: themeStyles.primaryText },
+        { color: theme.primaryText },
         textStyles[type],
         { fontFamily: textWeights[weight] },
         !!underline && styles.underline,
