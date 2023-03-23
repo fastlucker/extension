@@ -1,5 +1,6 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import { isWeb } from '@common/config/env'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import spacings from '@common/styles/spacings'
 
@@ -29,7 +30,7 @@ const styles = StyleSheet.create<Style>({
     // Centers the content (used because of the borderBottomWidth)
     paddingTop: 2,
     fontSize: 16,
-    fontFamily: FONT_FAMILIES.MEDIUM,
+    fontFamily: isWeb ? FONT_FAMILIES.MEDIUM : FONT_FAMILIES.LIGHT,
     flex: 1,
     height: 48,
     ...spacings.phTy

@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -128,7 +129,12 @@ const Input = ({
       </View>
 
       {!!error && (
-        <Text style={styles.errorText} weight="regular" fontSize={12} appearance="danger">
+        <Text
+          style={styles.errorText}
+          weight={isWeb ? 'regular' : undefined}
+          fontSize={12}
+          appearance="danger"
+        >
           {error}
         </Text>
       )}
