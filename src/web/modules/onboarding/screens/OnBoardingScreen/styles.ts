@@ -17,8 +17,9 @@ const styles = StyleSheet.create<Style>({
     zIndex: -1
   },
   pinExtension: {
+    // @ts-ignore-next-line web only property
     position: 'fixed',
-    right: 100,
+    right: 110,
     top: -1,
     zIndex: 10
   }
