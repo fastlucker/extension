@@ -1,12 +1,11 @@
-import { Styles, StyleSheet, ViewProps } from 'react-native'
-import { TextProps } from 'react-native-svg'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 
-interface Style {
-  container: ViewProps
-  text: TextProps
+interface Styles {
+  container: ViewStyle
+  text: TextStyle
 }
 
 const styles = StyleSheet.create<Styles>({
