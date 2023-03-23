@@ -1,7 +1,7 @@
 import React from 'react'
-import { Image, View, ViewStyle } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
-import logoSvg from '@web/components/AmbireLogo/logo.svg'
+import logo from '@web/components/AmbireLogo/logo.svg'
 
 type Props = {
   style?: ViewStyle
@@ -10,7 +10,7 @@ type Props = {
 const AmbireLogo: React.FC<Props> = ({ style }) => {
   return (
     <View style={style}>
-      <Image source={logoSvg} style={{ width: 92.4, height: 33.1 }} resizeMode="contain" />
+      <img src={logo} style={{ width: 92.4, height: 33.1 }} alt="Ambire Logo" />
     </View>
   )
 }
