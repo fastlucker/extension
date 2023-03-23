@@ -1,4 +1,4 @@
-import { View } from 'react-native'
+import { View, ViewProps } from 'react-native'
 
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
@@ -7,7 +7,13 @@ import textStyles from '@common/styles/utils/text'
 
 import styles from './styles'
 
-const Card = ({ style, text, children }) => (
+interface Props {
+  style?: ViewProps['style']
+  text?: string
+  children: React.ReactNode
+}
+
+const Card: React.FC<Props> = ({ style, text, children }) => (
   <View style={[styles.container, style]}>
     {text && (
       <Text themeType={THEME_TYPES.LIGHT} style={[spacings.mb, textStyles.center]} fontSize={14}>

@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react'
 import { View } from 'react-native'
 
 import Button from '@common/components/Button'
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import Wrapper from '@common/components/Wrapper'
@@ -20,6 +19,8 @@ import {
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import Card from '@web/components/Card'
+
+import styles from './styles'
 
 const GetStartedScreen = () => {
   const { t } = useTranslation()
@@ -59,7 +60,7 @@ const GetStartedScreen = () => {
           </Card>
         </View>
 
-        <View style={{ marginVertical: 70, height: 1, backgroundColor: colors.mischka }} />
+        <View style={styles.hr} />
 
         <Toggle
           id="advanced-mode-toggle"
@@ -119,9 +120,7 @@ const GetStartedScreen = () => {
             <Text fontSize={20}>{t('to the Ambire Wallet Extension')}</Text>
             <Text fontSize={30}>v2.0</Text>
           </View>
-          <AmbireLogo
-            style={{ position: 'absolute', bottom: 27, right: '50%', marginRight: -46, zIndex: 10 }}
-          />
+          <AmbireLogo style={styles.logo} />
         </View>
       </AuthLayoutWrapperSideContent>
     </>
