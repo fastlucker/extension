@@ -12,7 +12,7 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import Card from '@web/components/Card'
+import Card from '@web/modules/auth/components/Card'
 
 const EmailAccountScreen = () => {
   const { t } = useTranslation()

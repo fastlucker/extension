@@ -18,7 +18,7 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import Card from '@web/components/Card'
+import Card from '@web/modules/auth/components/Card'
 
 import styles from './styles'
 
