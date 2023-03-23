@@ -84,7 +84,6 @@ const Input = ({
     styles.input,
     !!hasButton && spacings.pr0,
     {
-      // backgroundColor: theme.inputBackground,
       color: theme.buttonText
     }
   ]
