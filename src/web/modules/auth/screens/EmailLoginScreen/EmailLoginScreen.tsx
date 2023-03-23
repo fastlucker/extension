@@ -10,8 +10,7 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-
-import styles from './styles'
+import styles from '@web/components/AuthLayoutWrapper/styles'
 
 const EmailLoginScreen = () => {
   const { t } = useTranslation()
@@ -19,7 +18,7 @@ const EmailLoginScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <View style={styles.contentWrapper}>
+        <View style={styles.mainContentWrapper}>
           <EmailLoginForm themeType={THEME_TYPES.LIGHT} />
         </View>
       </AuthLayoutWrapperMainContent>

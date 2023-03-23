@@ -26,7 +26,7 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import styles from '@web/modules/auth/screens/EmailLoginScreen/styles'
+import styles from '@web/components/AuthLayoutWrapper/styles'
 
 const CreateNewVaultScreen = () => {
   const { t } = useTranslation()
@@ -52,7 +52,7 @@ const CreateNewVaultScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <View style={styles.contentWrapper}>
+        <View style={styles.mainContentWrapper}>
           <Controller
             control={control}
             rules={{ validate: isValidPassword }}

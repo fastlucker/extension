@@ -11,7 +11,7 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import styles from '@web/modules/auth/screens/EmailLoginScreen/styles'
+import styles from '@web/components/AuthLayoutWrapper/styles'
 
 const JsonLoginScreen = () => {
   const { t } = useTranslation()
@@ -20,7 +20,7 @@ const JsonLoginScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <View style={styles.contentWrapper}>
+        <View style={styles.mainContentWrapper}>
           <Button
             disabled={inProgress}
             text={inProgress ? t('Importing...') : t('Import JSON')}

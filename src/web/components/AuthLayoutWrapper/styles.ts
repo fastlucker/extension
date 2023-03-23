@@ -1,12 +1,17 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 interface Style {
+  mainContentWrapper: ViewStyle
   sideContentContainer: ViewStyle
   amebaAlpha: ViewStyle
   amebaBeta: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
+  mainContentWrapper: {
+    width: 315,
+    alignSelf: 'center'
+  },
   sideContentContainer: {
     width: '33%',
     paddingTop: 80,

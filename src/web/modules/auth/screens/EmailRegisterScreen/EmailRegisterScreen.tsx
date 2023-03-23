@@ -10,7 +10,7 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import styles from '@web/modules/auth/screens/EmailLoginScreen/styles'
+import styles from '@web/components/AuthLayoutWrapper/styles'
 
 const EmailRegisterScreen = () => {
   const { t } = useTranslation()
@@ -18,7 +18,7 @@ const EmailRegisterScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <View style={styles.contentWrapper}>
+        <View style={styles.mainContentWrapper}>
           <CreateAccountForm themeType={THEME_TYPES.LIGHT} />
         </View>
       </AuthLayoutWrapperMainContent>
