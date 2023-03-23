@@ -6,7 +6,7 @@ import { Outlet } from 'react-router-dom'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import Ameba from '@web/assets/svg/ameba'
+import Ameba from '@web/components/AuthLayoutWrapper/Ameba'
 import TabHeader from '@web/modules/router/components/TabHeader'
 
 import styles from './styles'
