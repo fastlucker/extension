@@ -76,7 +76,7 @@ const ThemeProvider: React.FC = ({ children }) => {
           themeType: themeType || DEFAULT_THEME,
           setThemeType
         }),
-        [themeType, setThemeType, themeType]
+        [themeType, setThemeType, theme]
       )}
     >
       {hasMigrated && children}
