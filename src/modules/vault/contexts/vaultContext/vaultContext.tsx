@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { UseFormSetError } from 'react-hook-form'
 import { StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -175,7 +176,11 @@ const VaultProvider: React.FC = ({ children }) => {
   )
 
   const unlockVault = useCallback(
-    async ({ password: incomingPassword }: { password?: string } = {}) => {
+    async (
+      // eslint-disable-next-line default-param-last
+      { password: incomingPassword }: { password?: string } = {},
+      setError: UseFormSetError<{ password: string }>
+    ) => {
       let password = incomingPassword
 
       if (biometricsEnabled && !password) {
@@ -207,16 +212,10 @@ const VaultProvider: React.FC = ({ children }) => {
           }
         })
         .catch((e) => {
-          addToast(e?.message || e, { error: true })
+          setError('password', { message: e?.message || e })
         })
     },
-    [
-      addToast,
-      biometricsEnabled,
-      getKeystorePassword,
-      requestVaultControllerMethod,
-      resolveApproval
-    ]
+    [biometricsEnabled, getKeystorePassword, requestVaultControllerMethod, resolveApproval]
   )
 
   const lockVault = useCallback(
