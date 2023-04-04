@@ -27,7 +27,6 @@ const OnBoardingScreen = () => {
       <AuthLayoutWrapperMainContent>
         <ConfettiLogo />
         <Text
-          themeType={THEME_TYPES.LIGHT}
           shouldScale={false}
           fontSize={20}
           weight="medium"

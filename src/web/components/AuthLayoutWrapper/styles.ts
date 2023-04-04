@@ -10,7 +10,9 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   mainContentWrapper: {
     width: 315,
-    alignSelf: 'center'
+    alignSelf: 'center',
+    justifyContent: 'center',
+    flex: 1
   },
   sideContentContainer: {
     width: '33%',

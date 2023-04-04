@@ -11,11 +11,7 @@ import useExternalSignerLogin from '@common/modules/auth/hooks/useExternalSigner
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import { delayPromise } from '@common/utils/promises'
 
-interface Props {
-  themeType: THEME_TYPES
-}
-
-const PrivateKeyForm: React.FC<Props> = ({ themeType }) => {
+const PrivateKeyForm: React.FC<any> = () => {
   const { t } = useTranslation()
   const { addExternalSigner } = useExternalSignerLogin()
   const { addToast } = useToast()
@@ -55,7 +51,6 @@ const PrivateKeyForm: React.FC<Props> = ({ themeType }) => {
         control={control}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Signer private key')}
             onChangeText={onChange}

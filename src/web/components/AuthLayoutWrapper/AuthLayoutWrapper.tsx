@@ -3,6 +3,7 @@ import React, { createContext, useContext } from 'react'
 import { View, ViewProps } from 'react-native'
 import { Outlet } from 'react-router-dom'
 
+import Wrapper from '@common/components/Wrapper'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -71,7 +72,9 @@ export const AuthLayoutWrapperSideContent: React.FC<AuthLayoutWrapperSideContent
       style={[styles.sideContentContainer, style]}
       {...rest}
     >
-      {children}
+      <Wrapper contentContainerStyle={[spacings.ph0, { flexGrow: 1 }]} showsVerticalScrollIndicator={false}>
+        {children}
+      </Wrapper>
       <Ameba style={backgroundType === 'alpha' ? styles.amebaAlpha : styles.amebaBeta} />
     </LinearGradient>
   )

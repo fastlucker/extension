@@ -19,7 +19,6 @@ export interface Props extends TextProps {
   appearance?: TextAppearance
   fontSize?: number
   color?: string
-  themeType?: THEME_TYPES
   shouldScale?: boolean
 }
 

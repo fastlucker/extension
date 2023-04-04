@@ -16,7 +16,7 @@ interface Props {
 const Card: React.FC<Props> = ({ style, text, children }) => (
   <View style={[styles.container, style]}>
     {text && (
-      <Text themeType={THEME_TYPES.LIGHT} style={[spacings.mb, textStyles.center]} fontSize={14}>
+      <Text style={[spacings.mb, textStyles.center]} fontSize={14}>
         {text}
       </Text>
     )}

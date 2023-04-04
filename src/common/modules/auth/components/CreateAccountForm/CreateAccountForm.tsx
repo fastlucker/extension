@@ -20,11 +20,7 @@ import { THEME_TYPES } from '@common/styles/themeConfig'
 
 const days = Math.ceil(accountPresets.quickAccTimelock / 86400)
 
-interface Props {
-  themeType?: THEME_TYPES
-}
-
-const AddNewAccountScreen: React.FC<Props> = ({ themeType }) => {
+const AddNewAccountScreen: React.FC<any> = () => {
   const { t } = useTranslation()
   const { handleAddNewAccount, err, addAccErr } = useCreateAccount()
   const {
@@ -55,7 +51,6 @@ const AddNewAccountScreen: React.FC<Props> = ({ themeType }) => {
         rules={{ validate: isEmail }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Email')}
             onChangeText={onChange}
@@ -74,7 +69,6 @@ const AddNewAccountScreen: React.FC<Props> = ({ themeType }) => {
         rules={{ validate: isValidPassword }}
         render={({ field: { onChange, onBlur, value } }) => (
           <InputPassword
-            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Password')}
             onChangeText={onChange}
@@ -95,7 +89,6 @@ const AddNewAccountScreen: React.FC<Props> = ({ themeType }) => {
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Confirm password')}
             onChangeText={onChange}
@@ -117,14 +110,13 @@ const AddNewAccountScreen: React.FC<Props> = ({ themeType }) => {
           <Checkbox value={value} onValueChange={() => onChange(!value)}>
             <Trans t={t}>
               <Text fontSize={12}>
-                <Text fontSize={12} onPress={() => onChange(!value)} themeType={themeType}>
+                <Text fontSize={12} onPress={() => onChange(!value)}>
                   {'I agree to the '}
                 </Text>
                 <Text
                   fontSize={12}
                   onPress={() => Linking.openURL(termsAndPrivacyURL)}
                   underline
-                  themeType={themeType}
                 >
                   Terms of Service and Privacy policy.
                 </Text>
@@ -156,14 +148,13 @@ const AddNewAccountScreen: React.FC<Props> = ({ themeType }) => {
           >
             <Trans t={t}>
               <Text fontSize={12}>
-                <Text fontSize={12} onPress={() => onChange(!value)} themeType={themeType}>
+                <Text fontSize={12} onPress={() => onChange(!value)}>
                   {'Backup on '}
                 </Text>
                 <Text
                   fontSize={12}
                   onPress={() => Linking.openURL(ambireCloudURL)}
                   underline
-                  themeType={themeType}
                 >
                   Ambire Cloud.
                 </Text>
@@ -181,7 +172,7 @@ const AddNewAccountScreen: React.FC<Props> = ({ themeType }) => {
         render={({ field: { onChange, value } }) =>
           watch('backup', true) === false ? (
             <Checkbox value={value} onValueChange={() => onChange(!value)}>
-              <Text fontSize={12} onPress={() => onChange(!value)} themeType={themeType}>
+              <Text fontSize={12} onPress={() => onChange(!value)}>
                 {t(
                   'In case you forget your password or lose your backup, you will have to wait {{days}} days and pay the recovery fee to restore access to your account.',
                   { days }

@@ -7,18 +7,16 @@ import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import useEmailLogin from '@common/modules/auth/hooks/useEmailLogin'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import { delayPromise } from '@common/utils/promises'
 
-interface Props {
-  themeType?: THEME_TYPES
-}
-
-const EmailLoginForm: React.FC<Props> = ({ themeType = THEME_TYPES.DARK }) => {
+const EmailLoginForm: React.FC<any> = () => {
   const { t } = useTranslation()
+  const { themeType } = useTheme()
   const {
     control,
     handleSubmit,
@@ -70,7 +68,6 @@ const EmailLoginForm: React.FC<Props> = ({ themeType = THEME_TYPES.DARK }) => {
         rules={{ validate: isEmail }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Email')}
             onChangeText={onChange}

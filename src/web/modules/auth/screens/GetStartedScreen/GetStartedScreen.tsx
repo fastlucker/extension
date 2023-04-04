@@ -25,7 +25,7 @@ import styles from './styles'
 const GetStartedScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const [advanceModeEnabled, setAdvancedModeEnabled] = useState(true)
+  const [advanceModeEnabled, setAdvancedModeEnabled] = useState(false)
 
   const handleAuthButtonPress = useCallback((nextRoute: ROUTES) => navigate(nextRoute), [navigate])
 
@@ -83,7 +83,6 @@ const GetStartedScreen = () => {
                 shouldScale={false}
                 fontSize={12}
                 weight="regular"
-                themeType={THEME_TYPES.LIGHT}
               >
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget ipsum mattis,
                 pretium nibh vel, venenatis ligula.
@@ -102,7 +101,6 @@ const GetStartedScreen = () => {
                 shouldScale={false}
                 fontSize={12}
                 weight="regular"
-                themeType={THEME_TYPES.LIGHT}
               >
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget ipsum mattis,
                 pretium nibh vel, venenatis ligula.

@@ -12,17 +12,13 @@ import useExternalSignerLogin from '@common/modules/auth/hooks/useExternalSigner
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import { delayPromise } from '@common/utils/promises'
 
-interface Props {
-  themeType: THEME_TYPES
-}
-
 const formatMnemonic = (mnemonic: string) =>
   mnemonic
     .replace(/;/g, ' ')
     .replace(/,/g, ' ')
     .replace(/\s{2,}/g, ' ')
 
-const RecoveryPhraseForm: React.FC<Props> = ({ themeType }) => {
+const RecoveryPhraseForm: React.FC<any> = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { addExternalSigner } = useExternalSignerLogin()
@@ -73,7 +69,6 @@ const RecoveryPhraseForm: React.FC<Props> = ({ themeType }) => {
         control={control}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            themeType={themeType}
             onBlur={onBlur}
             placeholder={t('Recovery phrase')}
             onChangeText={(props) => {

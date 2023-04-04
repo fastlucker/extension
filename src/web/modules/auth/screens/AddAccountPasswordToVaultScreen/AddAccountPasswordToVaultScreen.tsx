@@ -102,7 +102,6 @@ const AddAccountPasswordToVaultScreen = () => {
 
         <View>
           <Text
-            themeType={THEME_TYPES.LIGHT}
             weight="regular"
             style={[spacings.mbMi, spacings.phTy]}
             fontSize={13}
@@ -112,7 +111,6 @@ const AddAccountPasswordToVaultScreen = () => {
             )}
           </Text>
           <Text
-            themeType={THEME_TYPES.LIGHT}
             weight="regular"
             style={[spacings.mb, spacings.phTy]}
             fontSize={13}
@@ -128,7 +126,6 @@ const AddAccountPasswordToVaultScreen = () => {
             rules={{ validate: isValidPassword }}
             render={({ field: { onChange, onBlur, value } }) => (
               <InputPassword
-                themeType={THEME_TYPES.LIGHT}
                 onBlur={onBlur}
                 placeholder={t('Ambire account password')}
                 onChangeText={onChange}

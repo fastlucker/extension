@@ -81,6 +81,7 @@ export const lightOnlyRoutesOnWeb = [
   ROUTES.ambireAccountJsonLogin,
   ROUTES.ambireAccountJsonLoginPasswordConfirm,
   ROUTES.ambireAccountLoginPasswordConfirm,
+  ROUTES.externalSigner,
   ROUTES.onboarding
 ]
 

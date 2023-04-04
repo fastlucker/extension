@@ -20,7 +20,6 @@ import commonStyles from '@common/styles/utils/common'
 import styles from './styles'
 
 export interface InputProps extends TextInputProps {
-  themeType?: THEME_TYPES
   info?: string | boolean
   // Error message - Active if there is some error message string passed
   error?: string | boolean
@@ -37,7 +36,6 @@ export interface InputProps extends TextInputProps {
 }
 
 const Input = ({
-  themeType,
   label,
   button,
   buttonProps,
@@ -145,7 +143,7 @@ const Input = ({
       )}
 
       {!!info && (
-        <Text style={[styles.infoText, infoTextStyle]} fontSize={12} themeType={themeType}>
+        <Text style={[styles.infoText, infoTextStyle]} fontSize={12}>
           {info}
         </Text>
       )}

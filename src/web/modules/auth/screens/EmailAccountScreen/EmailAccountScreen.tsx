@@ -6,6 +6,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/config/routesConfig'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
@@ -45,14 +46,14 @@ const EmailAccountScreen = () => {
         </View>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
-        <Text weight="regular" fontSize={16} style={spacings.mb}>
+        <Text weight="regular" fontSize={16} style={spacings.mb} color={colors.titan}>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae harum eaque
           repellendus porro in ea architecto, ullam facere fugit. Obcaecati eius impedit magnam,
           voluptates voluptatibus ex assumenda similique exercitationem repellat harum facere nemo
           voluptate illum eaque praesentium ut accusantium, quasi earum quo. Necessitatibus at
           aperiam veritatis repellendus, nesciunt veniam eum!
         </Text>
-        <Text weight="regular" fontSize={16}>
+        <Text weight="regular" fontSize={16} color={colors.titan}>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae harum eaque
           repellendus porro in ea architecto, ullam facere fugit. Obcaecati eius impedit magnam,
           voluptates voluptatibus ex assumenda similique exercitationem repellat harum facere nemo

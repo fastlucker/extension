@@ -58,7 +58,6 @@ const CreateNewVaultScreen = () => {
             rules={{ validate: isValidPassword }}
             render={({ field: { onChange, onBlur, value } }) => (
               <InputPassword
-                themeType={THEME_TYPES.LIGHT}
                 onBlur={onBlur}
                 placeholder={t('Enter Passphrase')}
                 onChangeText={onChange}
@@ -82,7 +81,6 @@ const CreateNewVaultScreen = () => {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                themeType={THEME_TYPES.LIGHT}
                 onBlur={onBlur}
                 placeholder={t('Repeat Passphrase')}
                 onChangeText={onChange}
