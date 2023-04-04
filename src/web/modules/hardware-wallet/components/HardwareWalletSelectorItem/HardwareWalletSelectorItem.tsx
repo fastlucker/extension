@@ -17,7 +17,7 @@ const HardwareWalletSelectorItem = ({ name, onSelect }: Props) => {
 
   return (
     <View style={styles.itemContainer}>
-      <Text>{t('Login with{{name}}', { name })}</Text>
+      <Text>{t('Login with {{name}}', { name })}</Text>
       <Button text={name} onPress={onSelect} />
     </View>
   )
