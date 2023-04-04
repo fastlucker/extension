@@ -76,11 +76,13 @@ const GasTankScreen = () => {
 
   const sortedTokens = useMemo(
     () =>
-      availableFeeAssets?.sort((a: any, b: any) => {
-        const decreasing = b.balanceUSD - a.balanceUSD
-        if (decreasing === 0) return a.symbol.localeCompare(b.symbol)
-        return decreasing
-      }),
+      availableFeeAssets
+        ?.filter((item: any) => !item.disableGasTankDeposit)
+        .sort((a: any, b: any) => {
+          const decreasing = b.balanceUSD - a.balanceUSD
+          if (decreasing === 0) return a.symbol.toUpperCase().localeCompare(b.symbol.toUpperCase())
+          return decreasing
+        }),
     [availableFeeAssets]
   )
 
