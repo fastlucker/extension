@@ -167,7 +167,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
             {Platform.OS === 'ios' && (
               <Text style={spacings.mbSm} fontSize={12}>
                 {t(
-                  "To enable camera access for Ambire, please follow these steps:\n\n1. Tap the 'Open Settings' button below.\n\nToggle the switch next to 'Camera' to the right to allow Ambire to access your camera."
+                  "To enable camera access for Ambire, please follow these steps:\n\n1. Tap the 'Open Settings' button below.\n\n2. Toggle the switch next to 'Camera' to the right to allow Ambire to access your camera."
                 )}
               </Text>
             )}
