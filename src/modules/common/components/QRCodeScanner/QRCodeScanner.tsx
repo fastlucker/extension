@@ -72,11 +72,6 @@ const QRCodeScanner = ({ onScan }: Props) => {
     !!onScan && onScan(data)
   }
 
-  const requestCameraPermissionAgain = async () => {
-    const { status } = await requestPermissionFlagging(Camera.requestCameraPermissionsAsync)
-    setPermission(status)
-  }
-
   const handleGoToSettings = () =>
     Platform.OS === 'ios'
       ? Linking.openURL(`app-settings://camera/${APP_ID}`)
@@ -115,7 +110,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
               flexboxStyles.justifyCenter,
               { marginBottom: insets.bottom }
             ]
-          : [flexboxStyles.flex1, spacings.mbLg, flexboxStyles.justifySpaceBetween]
+          : [flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]
       }
     >
       {!permission && (
@@ -167,27 +162,19 @@ const QRCodeScanner = ({ onScan }: Props) => {
           <AmbireLogo shouldExpand={false} />
           <View>
             <Text style={spacings.mbMi} fontSize={12}>
-              {t('The request for accessing the phone camera was denied.')}
+              {t('The request for accessing the phone camera was previously denied.')}
             </Text>
-            {Platform.OS === 'android' && permission !== PermissionStatus.DENIED && (
-              <Button
-                style={spacings.mtSm}
-                type="outline"
-                text={t('Request Camera Permission')}
-                onPress={requestCameraPermissionAgain}
-              />
-            )}
             {Platform.OS === 'ios' && (
               <Text style={spacings.mbSm} fontSize={12}>
                 {t(
-                  'To be able to scan the login QR code, go to: Settings/Ambire app and check Alow Camera Access.'
+                  "To enable camera access for Ambire, please follow these steps:\n\n1. Tap the 'Open Settings' button below.\n\nToggle the switch next to 'Camera' to the right to allow Ambire to access your camera."
                 )}
               </Text>
             )}
             {Platform.OS === 'android' && (
               <Text fontSize={12}>
                 {t(
-                  "Or if you've previously chosen don't ask again - to be able to scan the login QR code, first go to Settings. Then - select Ambire app from the list of installed apps. Finally, check alow camera access."
+                  "To enable camera access for Ambire, please follow these steps:\n\n1. Tap the 'Open Settings' button below..\n\n2. Tap 'Permissions' and toggle the switch next to 'Camera' to the right to allow Ambire to access your camera."
                 )}
               </Text>
             )}
