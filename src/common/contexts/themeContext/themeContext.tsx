@@ -1,49 +1,49 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 import { useColorScheme } from 'react-native'
 
+import useRoute from '@common/hooks/useRoute'
 import useStorage from '@common/hooks/useStorage'
-import ThemeColors, { THEME_TYPES, ThemeProps } from '@common/styles/themeConfig'
+import { ROUTES } from '@common/modules/router/config/routesConfig'
+import ThemeColors, {
+  lightOnlyRoutesOnWeb,
+  THEME_TYPES,
+  ThemeProps
+} from '@common/styles/themeConfig'
 
 // Change the default theme to `auto` once the light theme is ready
 const DEFAULT_THEME = THEME_TYPES.DARK
 
 export interface ThemeContextReturnType {
-  darkThemeStyles: ThemeProps
-  lightThemeStyles: ThemeProps
-  theme: ThemeProps
+  theme?: ThemeProps
   themeType: THEME_TYPES
   setThemeType: (item: THEME_TYPES) => void
 }
 
-const getThemeByType = (_type: THEME_TYPES) => {
-  const currentTheme: any = {}
-  // eslint-disable-next-line no-restricted-syntax
-  for (const key of Object.keys(ThemeColors)) {
-    // @ts-ignore
-    currentTheme[key] = ThemeColors[key][_type] || ThemeColors[key][DEFAULT_THEME]
-  }
-
-  return currentTheme
-}
-
-const lightThemeStyles = getThemeByType(THEME_TYPES.LIGHT)
-const darkThemeStyles = getThemeByType(THEME_TYPES.DARK)
-
 const ThemeContext = createContext<ThemeContextReturnType>({
-  theme: lightThemeStyles,
-  lightThemeStyles,
-  darkThemeStyles,
   themeType: THEME_TYPES.DARK,
   setThemeType: () => {}
 })
 
 const ThemeProvider: React.FC = ({ children }) => {
   const colorScheme = useColorScheme()
+  const { path } = useRoute()
+
   const [themeType, setThemeType] = useStorage<THEME_TYPES>({
     key: 'theme',
     defaultValue: DEFAULT_THEME,
     isStringStorage: true
   })
+
+  const [sessionTheme, setSessionTheme] = useState(themeType || DEFAULT_THEME)
+
+  useEffect(() => {
+    if (lightOnlyRoutesOnWeb.includes(path?.substring(1) as ROUTES)) {
+      setSessionTheme(THEME_TYPES.LIGHT)
+    } else if (sessionTheme !== themeType || !lightOnlyRoutesOnWeb.includes(path?.substring(1) as ROUTES)) {
+      setSessionTheme(themeType as THEME_TYPES)
+    }
+  }, [path, themeType, setSessionTheme])
+
   // In Ambire v2.x the theme type was stored wrapped in quotes (by mistake).
   // Since migrating to v3.x we need to remove the quotes from the theme type.
   const isMigrationNeeded =
@@ -61,19 +61,26 @@ const ThemeProvider: React.FC = ({ children }) => {
   }, [hasMigrated, setHasMigrated, setThemeType, themeType])
 
   const theme = useMemo(() => {
-    const type = themeType === THEME_TYPES.AUTO ? colorScheme : themeType
+    const type = sessionTheme === THEME_TYPES.AUTO ? colorScheme : sessionTheme
 
-    return getThemeByType(type)
-  }, [themeType, colorScheme])
+    const currentTheme: any = {}
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key of Object.keys(ThemeColors)) {
+      // @ts-ignore
+      currentTheme[key] = ThemeColors[key][type] || ThemeColors[key][DEFAULT_THEME]
+    }
+
+    return currentTheme
+  }, [sessionTheme, colorScheme])
+
+  console.log(sessionTheme)
 
   return (
     <ThemeContext.Provider
       value={useMemo(
         () => ({
           theme,
-          lightThemeStyles,
-          darkThemeStyles,
-          themeType: themeType || DEFAULT_THEME,
+          themeType: sessionTheme,
           setThemeType
         }),
         [themeType, setThemeType, theme]

@@ -52,12 +52,11 @@ const Text: React.FC<Props> = ({
   fontSize: _fontSize,
   color,
   style = {},
-  themeType,
   shouldScale = true,
   ...rest
 }) => {
   const fontSize = _fontSize ? (shouldScale ? _fontSize + TEXT_SCALE : _fontSize) : _fontSize
-  const { theme } = useTheme({ forceThemeType: themeType })
+  const { theme } = useTheme()
 
   return (
     <RNText
@@ -75,7 +74,7 @@ const Text: React.FC<Props> = ({
         },
         !!appearance && { color: textAppearances[appearance] },
         !!color && { color },
-        style
+        style,
       ])}
       {...rest}
     >

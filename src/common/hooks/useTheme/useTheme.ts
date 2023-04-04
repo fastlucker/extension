@@ -1,15 +1,8 @@
 import { useContext, useMemo } from 'react'
 
 import { ThemeContext } from '@common/contexts/themeContext'
-import { THEME_TYPES } from '@common/styles/themeConfig'
 
-export default function useTheme<CreateStyles>({
-  createStyles,
-  forceThemeType
-}: {
-  createStyles?: CreateStyles
-  forceThemeType?: THEME_TYPES
-} = {}) {
+export default function useTheme<CreateStyles>(createStyles?: CreateStyles) {
   const context = useContext(ThemeContext)
 
   if (!context) {
@@ -23,16 +16,6 @@ export default function useTheme<CreateStyles>({
     () => (typeof createStyles === 'function' ? createStyles(context.theme) : {}),
     [context?.theme]
   )
-
-  if (forceThemeType) {
-    const themes = {
-      [THEME_TYPES.LIGHT]: context.lightThemeStyles,
-      [THEME_TYPES.DARK]: context.darkThemeStyles
-    }
-
-    // @ts-ignore types mismatch, which is fine
-    if (themes[forceThemeType]) context.theme = themes[forceThemeType]
-  }
 
   return {
     ...context,

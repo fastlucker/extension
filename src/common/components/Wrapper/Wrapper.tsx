@@ -48,7 +48,7 @@ const Wrapper = ({
   extraHeight,
   ...rest
 }: Props) => {
-  const { styles } = useTheme({ createStyles })
+  const { styles } = useTheme(createStyles)
   const insets = useSafeAreaInsets()
 
   const horizontalSpacing = isWeb ? spacings.ph0 : spacings.ph

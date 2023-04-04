@@ -55,7 +55,7 @@ const Input = ({
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
-  const { theme } = useTheme({ forceThemeType: themeType })
+  const { theme } = useTheme()
 
   const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(true)

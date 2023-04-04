@@ -8,7 +8,7 @@ import useTheme from '@common/hooks/useTheme'
 interface Props extends InputProps {}
 
 const InputPassword: React.FC<Props> = ({ onChangeText, themeType, ...rest }) => {
-  const { theme } = useTheme({ forceThemeType: themeType })
+  const { theme } = useTheme()
   const [secureTextEntry, setSecureTextEntry] = useState(true)
 
   const handleToggleSecureTextEntry = () => setSecureTextEntry(!secureTextEntry)

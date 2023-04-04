@@ -44,7 +44,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const handleGoToAddAccount = useCallback(() => {
     closeBottomSheet()
 
-    navigate(ROUTES.auth)
+    navigate(ROUTES.getStarted)
   }, [closeBottomSheet, navigate])
 
   const handleChangeAccount = (accountId: any) => {

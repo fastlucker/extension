@@ -114,11 +114,11 @@ const GetStartedScreen = () => {
       <AuthLayoutWrapperSideContent>
         <View style={[text.center, flexboxStyles.justifySpaceBetween, flexboxStyles.flex1]}>
           <View>
-            <Text fontSize={40} weight="semiBold">
+            <Text fontSize={40} weight="semiBold" color={colors.titan}>
               {t('Welcome')}
             </Text>
-            <Text fontSize={20}>{t('to the Ambire Wallet Extension')}</Text>
-            <Text fontSize={30}>v2.0</Text>
+            <Text fontSize={20} color={colors.titan}>{t('to the Ambire Wallet Extension')}</Text>
+            <Text fontSize={30} color={colors.titan}>v2.0</Text>
           </View>
           <AmbireSmallWhiteLogo style={styles.logo} />
         </View>

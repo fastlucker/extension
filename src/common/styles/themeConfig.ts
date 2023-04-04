@@ -1,5 +1,7 @@
 import { ColorValue } from 'react-native'
 
+import { ROUTES } from '@common/modules/router/config/routesConfig'
+
 import colors from './colors'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -64,5 +66,22 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: colors.martinique_35
   }
 }
+
+// TODO: import from MOBILE_ROUTES
+export const lightOnlyRoutesOnMobile = [
+
+]
+
+// TODO: import from WEB_ROUTES
+export const lightOnlyRoutesOnWeb = [
+  ROUTES.getStarted,
+  ROUTES.authEmailAccount,
+  ROUTES.authEmailLogin,
+  ROUTES.authEmailRegister,
+  ROUTES.ambireAccountJsonLogin,
+  ROUTES.ambireAccountJsonLoginPasswordConfirm,
+  ROUTES.ambireAccountLoginPasswordConfirm,
+  ROUTES.onboarding
+]
 
 export default ThemeColors
