@@ -43,7 +43,7 @@ const Theme = () => {
           <Button
             key={type}
             text={themeNames[type]}
-            // disabled={type !== THEME_TYPES.DARK}
+            disabled={type !== THEME_TYPES.DARK}
             onPress={() => handleOnThemeChange(type)}
           />
         ))}
