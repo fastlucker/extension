@@ -12,7 +12,7 @@ import useAccounts from '@common/hooks/useAccounts'
 import useEOA from '@common/hooks/useEOA'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
-import { ROUTES } from '@common/modules/router/config/routesConfig'
+import { ROUTES } from '@common/modules/router/constants/common'
 import useVault from '@common/modules/vault/hooks/useVault'
 
 type FormProps = {

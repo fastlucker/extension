@@ -1,6 +1,6 @@
 import { ColorValue } from 'react-native'
 
-import { ROUTES } from '@common/modules/router/config/routesConfig'
+import { ROUTES } from '@common/modules/router/constants/common'
 
 import colors from './colors'
 

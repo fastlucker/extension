@@ -116,6 +116,8 @@ module.exports = async function (env, argv) {
     // (web implementation) of React Native's WebView. See:
     // {@link https://github.com/react-native-web-community/react-native-web-webview}
     config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
+    config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
+    config.resolve.alias['p-queue'] = 'p-queue/dist/index.js'
 
     // The files in the /web directory should be transpiled not just copied
     const excludeCopyPlugin = config.plugins.findIndex(
@@ -181,6 +183,10 @@ module.exports = async function (env, argv) {
             to: 'assets'
           },
           {
+            from: './src/web/vendor',
+            to: 'vendor'
+          },
+          {
             from: './src/web/public/style.css',
             to: 'style.css',
             transform(content) {
@@ -211,6 +217,10 @@ module.exports = async function (env, argv) {
           {
             from: './src/web/public/tab.html',
             to: 'tab.html'
+          },
+          {
+            from: './src/web/public/trezor-usb-permissions.html',
+            to: 'trezor-usb-permissions.html'
           }
         ]
       })

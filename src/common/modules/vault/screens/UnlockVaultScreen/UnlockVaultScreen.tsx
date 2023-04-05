@@ -1,6 +1,6 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useCallback, useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, UseFormSetError } from 'react-hook-form'
 import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 
 import Button from '@common/components/Button'
@@ -13,7 +13,7 @@ import { useTranslation } from '@common/config/localization'
 import useDisableNavigatingBack from '@common/hooks/useDisableNavigatingBack'
 import useNavigation from '@common/hooks/useNavigation'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
-import { ROUTES } from '@common/modules/router/config/routesConfig'
+import { ROUTES } from '@common/modules/router/constants/common'
 import KeyStoreLogo from '@common/modules/vault/components/KeyStoreLogo'
 import { VAULT_STATUS } from '@common/modules/vault/constants/vaultStatus'
 import { VaultContextReturnType } from '@common/modules/vault/contexts/vaultContext/types'
@@ -27,7 +27,10 @@ interface Props {
   onForgotPassword?: () => void
   // Do not use `useVault` hook in this component because it is causing a
   // require cycle (this component is also used in the vaultContext).
-  unlockVault: VaultContextReturnType['unlockVault']
+  unlockVault: (
+    { password }: { password: string },
+    setError: UseFormSetError<{ password: string }>
+  ) => Promise<any>
   vaultStatus: VaultContextReturnType['vaultStatus']
   biometricsEnabled: VaultContextReturnType['biometricsEnabled']
 }
@@ -46,6 +49,7 @@ const UnlockVaultScreen: React.FC<Props> = ({
     handleSubmit,
     watch,
     setValue,
+    setError,
     formState: { errors, isSubmitting }
   } = useForm({
     reValidateMode: 'onChange',
@@ -66,14 +70,14 @@ const UnlockVaultScreen: React.FC<Props> = ({
     // not when the app comes back in active state. Which messes up
     // the biometrics prompt (it freezes and the promise never resolves).
     if (vaultStatus === VAULT_STATUS.LOCKED) {
-      handleSubmit(unlockVault)()
+      handleSubmit((data) => unlockVault(data, setError))()
     }
-  }, [biometricsEnabled, handleSubmit, unlockVault, vaultStatus])
+  }, [biometricsEnabled, handleSubmit, setError, unlockVault, vaultStatus])
 
   const handleRetryBiometrics = useCallback(() => {
     setValue('password', '')
-    return handleSubmit(unlockVault)()
-  }, [handleSubmit, unlockVault, setValue])
+    return handleSubmit((data) => unlockVault(data, setError))()
+  }, [setValue, handleSubmit, unlockVault, setError])
 
   const handleForgotPassword = useCallback(() => {
     // Navigate only if vault is locked, which means that the VaultStack
@@ -130,10 +134,11 @@ const UnlockVaultScreen: React.FC<Props> = ({
                   onChangeText={onChange}
                   isValid={isValidPassword(value)}
                   value={value}
-                  onSubmitEditing={handleSubmit(unlockVault)}
+                  onSubmitEditing={handleSubmit((data) => unlockVault(data, setError))}
                   error={
                     errors.password &&
-                    (t('Please fill in at least 8 characters for passphrase.') as string)
+                    (errors.password.message ||
+                      t('Please fill in at least 8 characters for passphrase.'))
                   }
                   containerStyle={spacings.mbTy}
                 />
@@ -145,7 +150,7 @@ const UnlockVaultScreen: React.FC<Props> = ({
               <Button
                 disabled={isSubmitting || !watch('password', '')}
                 text={isSubmitting ? t('Unlocking...') : t('Unlock')}
-                onPress={handleSubmit(unlockVault)}
+                onPress={handleSubmit((data) => unlockVault(data, setError))}
               />
             </View>
             <View style={[flexboxStyles.justifyCenter, flexboxStyles.directionRow, spacings.pvTy]}>

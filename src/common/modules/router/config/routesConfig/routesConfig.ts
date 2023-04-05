@@ -1,51 +1,11 @@
 import { Platform } from 'react-native'
 
 import i18n from '@common/config/localization/localization'
-
-export enum ROUTES {
-  unlockVault = 'unlock-vault',
-  resetVault = 'reset-vault',
-  noConnection = 'no-connection',
-  getStarted = 'get-started',
-  createVault = 'create-vault',
-  auth = 'auth',
-  authEmailAccount = 'auth-email-account',
-  authEmailLogin = 'auth-email-login',
-  authEmailRegister = 'auth-email-register',
-  ambireAccountLogin = 'ambire-account-login',
-  ambireAccountLoginPasswordConfirm = 'ambire-account-login-password-confirm',
-  ambireAccountJsonLogin = 'ambire-account-json-login',
-  ambireAccountJsonLoginPasswordConfirm = 'ambire-account-json-login-password-confirm',
-  qrCodeLogin = 'qr-code-login',
-  hardwareWallet = 'hardware-wallet',
-  externalSigner = 'external-signer',
-  dashboard = 'dashboard',
-  collectibles = 'collectibles',
-  earn = 'earn',
-  send = 'send',
-  transactions = 'transactions',
-  gasTank = 'gas-tank',
-  pendingTransactions = 'pending-transactions',
-  receive = 'receive',
-  provider = 'provider',
-  signMessage = 'sign-message',
-  gasInformation = 'gas-information',
-  signers = 'signers',
-  permissionRequest = 'permission-request',
-  switchNetwork = 'switch-network',
-  watchAsset = 'watch-asset',
-  menu = 'menu',
-  manageVaultLock = 'manage-vault-lock',
-  getEncryptionPublicKeyRequest = 'get-encryption-public-key-request',
-  dataDeletionPolicy = 'data-deletion-policy',
-  connect = 'connect',
-  swap = 'swap',
-  onboarding = 'onboarding'
-}
+import { ROUTES } from '@common/modules/router/constants/common'
 
 const routesConfig: {
-  [key in ROUTES]: {
-    route: ROUTES
+  [key: keyof typeof ROUTES]: {
+    route: keyof typeof ROUTES
     title: string
   }
 } = {
@@ -137,6 +97,12 @@ const routesConfig: {
     route: ROUTES.hardwareWallet,
     title: Platform.select({
       default: i18n.t('Login with Hardware Wallet')
+    })
+  },
+  [ROUTES.hardwareWalletLedger]: {
+    route: ROUTES.hardwareWalletLedger,
+    title: Platform.select({
+      default: i18n.t('Connect a Ledger Device')
     })
   },
   [ROUTES.externalSigner]: {

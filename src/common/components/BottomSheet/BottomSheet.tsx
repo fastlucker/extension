@@ -92,7 +92,6 @@ const BottomSheet: React.FC<Props> = ({
         handlePosition="inside"
         useNativeDriver={!isWeb}
         avoidKeyboardLikeIOS
-        modalTopOffset={HEADER_HEIGHT + 10}
         {...(!isWeb ? { modalTopOffset: HEADER_HEIGHT + 10 } : {})}
         {...(isWeb ? { modalHeight: DEVICE_HEIGHT - HEADER_HEIGHT - 10 } : {})}
         threshold={100}
@@ -111,8 +110,10 @@ const BottomSheet: React.FC<Props> = ({
         {...(flatListProps
           ? {
               flatListProps: {
-                ...flatListProps,
-                contentContainerStyle: styles.containerInnerWrapper
+                bounces: false,
+                keyboardShouldPersistTaps: 'handled',
+                contentContainerStyle: styles.containerInnerWrapper,
+                ...flatListProps
               }
             }
           : {})}

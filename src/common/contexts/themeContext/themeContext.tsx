@@ -3,7 +3,6 @@ import { useColorScheme } from 'react-native'
 
 import useRoute from '@common/hooks/useRoute'
 import useStorage from '@common/hooks/useStorage'
-import { ROUTES } from '@common/modules/router/config/routesConfig'
 import ThemeColors, {
   lightOnlyRoutesOnWeb,
   THEME_TYPES,

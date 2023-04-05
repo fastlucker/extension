@@ -10,12 +10,13 @@ import useRoute from '@common/hooks/useRoute'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { headerBeta as defaultHeaderBeta } from '@common/modules/header/config/headerConfig'
-import { ROUTES } from '@common/modules/router/config/routesConfig'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { VAULT_STATUS } from '@common/modules/vault/constants/vaultStatus'
 import useVault from '@common/modules/vault/hooks/useVault'
 import ResetVaultScreen from '@common/modules/vault/screens/ResetVaultScreen'
 import UnlockVaultScreen from '@common/modules/vault/screens/UnlockVaultScreen'
 import flexbox from '@common/styles/utils/flexbox'
+import { HardwareWalletsProvider } from '@web/modules/hardware-wallet/contexts/hardwareWalletsContext'
 import SortHat from '@web/modules/router/components/SortHat'
 
 const AsyncMainRoute = lazy(() => import('@web/modules/router/components/MainRoutes'))
@@ -67,12 +68,12 @@ const Router = () => {
   }
 
   return (
-    <>
+    <HardwareWalletsProvider>
       <Routes>
         <Route path="/" element={<SortHat />} />
         <Route element={headerBeta}>
           <Route
-            path={ROUTES.unlockVault}
+            path={WEB_ROUTES.unlockVault}
             element={
               <UnlockVaultScreen
                 unlockVault={unlockVault}
@@ -82,7 +83,7 @@ const Router = () => {
             }
           />
           <Route
-            path={ROUTES.resetVault}
+            path={WEB_ROUTES.resetVault}
             element={<ResetVaultScreen resetVault={resetVault} vaultStatus={vaultStatus} />}
           />
         </Route>
@@ -90,7 +91,7 @@ const Router = () => {
       <Suspense fallback={null}>
         <AsyncMainRoute />
       </Suspense>
-    </>
+    </HardwareWalletsProvider>
   )
 }
 
