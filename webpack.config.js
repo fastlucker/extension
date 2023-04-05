@@ -183,6 +183,10 @@ module.exports = async function (env, argv) {
             to: 'assets'
           },
           {
+            from: './src/web/vendor',
+            to: 'vendor'
+          },
+          {
             from: './src/web/public/style.css',
             to: 'style.css',
             transform(content) {
@@ -213,6 +217,10 @@ module.exports = async function (env, argv) {
           {
             from: './src/web/public/tab.html',
             to: 'tab.html'
+          },
+          {
+            from: './src/web/public/trezor-usb-permissions.html',
+            to: 'trezor-usb-permissions.html'
           }
         ]
       })
