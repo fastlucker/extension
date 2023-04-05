@@ -31,7 +31,9 @@ const GetStartedScreen = () => {
     <>
       <AuthLayoutWrapperMainContent>
         <View style={[flexboxStyles.directionRow, flexboxStyles.justifyCenter]}>
-          <Card text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, rerum?">
+          <Card
+            text={t('Sign in your Ambire wallet with your email and manage your crypto assets.')}
+          >
             <Button
               text={t('Email account')}
               onPress={() => handleAuthButtonPress(ROUTES.authEmailAccount)}
@@ -40,7 +42,7 @@ const GetStartedScreen = () => {
           </Card>
           <Card
             style={{ marginHorizontal: 40 }}
-            text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, rerum?"
+            text={t('Safeguard your crypto assets by signing in with a trusted hardware wallet.')}
           >
             <Button
               text={t('HW Login')}
@@ -49,7 +51,7 @@ const GetStartedScreen = () => {
               hasBottomSpacing={false}
             />
           </Card>
-          <Card text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, rerum?">
+          <Card text={t('Import your existing Ambire account with a private key or passphrase.')}>
             <Button
               text={t('Import Account')}
               onPress={() => handleAuthButtonPress(ROUTES.externalSigner)}
@@ -77,13 +79,10 @@ const GetStartedScreen = () => {
                 accentColor={colors.violet}
                 onPress={() => handleAuthButtonPress(ROUTES.ambireAccountJsonLogin)}
               />
-              <Text
-                shouldScale={false}
-                fontSize={12}
-                weight="regular"
-              >
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget ipsum mattis,
-                pretium nibh vel, venenatis ligula.
+              <Text shouldScale={false} fontSize={12} weight="regular">
+                {t(
+                  'Import your wallet by uploading a JSON file. Access your existing wallet securely without the need to manually enter your private key or passphrase.'
+                )}
               </Text>
             </View>
             <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
@@ -95,13 +94,10 @@ const GetStartedScreen = () => {
                 hasBottomSpacing={false}
                 style={[{ minWidth: 190, backgroundColor: colors.melrose_15 }, spacings.mrMd]}
               />
-              <Text
-                shouldScale={false}
-                fontSize={12}
-                weight="regular"
-              >
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget ipsum mattis,
-                pretium nibh vel, venenatis ligula.
+              <Text shouldScale={false} fontSize={12} weight="regular">
+                {t(
+                  'Enter a public Ethereum address to access view mode, a non-interactive way to monitor balances, transaction history, and token holdings for any Ethereum account.'
+                )}
               </Text>
             </View>
           </>
@@ -113,8 +109,12 @@ const GetStartedScreen = () => {
             <Text fontSize={40} weight="semiBold" color={colors.titan}>
               {t('Welcome')}
             </Text>
-            <Text fontSize={20} color={colors.titan}>{t('to the Ambire Wallet Extension')}</Text>
-            <Text fontSize={30} color={colors.titan}>v2.0</Text>
+            <Text fontSize={20} color={colors.titan}>
+              {t('to the Ambire Wallet Extension')}
+            </Text>
+            <Text fontSize={30} color={colors.titan}>
+              v2.0
+            </Text>
           </View>
           <AmbireSmallWhiteLogo style={styles.logo} />
         </View>
