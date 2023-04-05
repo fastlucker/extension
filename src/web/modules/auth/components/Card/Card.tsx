@@ -2,7 +2,7 @@ import { View, ViewProps } from 'react-native'
 
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
-import { THEME_TYPES } from '@common/styles/themeConfig'
+import flexbox from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
 import styles from './styles'
@@ -16,7 +16,7 @@ interface Props {
 const Card: React.FC<Props> = ({ style, text, children }) => (
   <View style={[styles.container, style]}>
     {text && (
-      <Text style={[spacings.mb, textStyles.center]} fontSize={14}>
+      <Text style={[spacings.mb, textStyles.center, flexbox.flex1]} fontSize={14}>
         {text}
       </Text>
     )}
