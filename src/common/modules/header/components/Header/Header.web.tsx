@@ -13,10 +13,12 @@ import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigati
 import useNetwork from '@common/hooks/useNetwork'
 import usePrivateMode from '@common/hooks/usePrivateMode'
 import useRoute from '@common/hooks/useRoute'
-import routesConfig, { ROUTES } from '@common/modules/router/config/routesConfig'
+import routesConfig from '@common/modules/router/config/routesConfig'
+import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import { isExtension } from '@web/constants/browserapi'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
@@ -46,16 +48,20 @@ const Header: React.FC<Props> = ({
   const handleGoMenu = useCallback(() => navigate(ROUTES.menu), [navigate])
 
   const navigationEnabled = !getUiType().isNotification
-  const canGoBack =
+  let canGoBack =
     // If you have a location key that means you routed in-app. But if you
     // don't that means you come from outside of the app or you just open it.
     params?.prevRoute?.key !== 'default' && params?.prevRoute?.pathname !== '/' && navigationEnabled
 
+  if (isExtension && getUiType().isTab) {
+    canGoBack = true
+  }
+
   useEffect(() => {
     if (!path) return
 
-    const nextRoute = path?.substring(1) as ROUTES
-    setTitle(routesConfig[nextRoute].title)
+    const nextRoute = path?.substring(1)
+    setTitle(routesConfig[nextRoute]?.title || '')
   }, [path])
 
   useEffect(() => {
