@@ -9,7 +9,7 @@ import UnstoppableDomainIcon from '@common/assets/svg/UnstoppableDomainIcon'
 import Input, { InputProps } from '@common/components/Input'
 import Title from '@common/components/Title'
 import { isWeb } from '@common/config/env'
-import spacings, { DEVICE_HEIGHT, DEVICE_WIDTH, SPACING } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
@@ -39,12 +39,6 @@ const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValid
     openBottomSheet()
   }, [openBottomSheet])
 
-  // Wraps the container in order to fit the whole horizontal space available
-  const qrCodeScannerContainerStyle = {
-    width: DEVICE_WIDTH - SPACING * 2,
-    height: DEVICE_HEIGHT / 2
-  }
-
   return (
     <>
       <Input
@@ -72,9 +66,7 @@ const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValid
       {!isWeb && (
         <BottomSheet id="add-token" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
           <Title style={textStyles.center}>{t('Scan recipient QR code')}</Title>
-          <View style={qrCodeScannerContainerStyle}>
-            <QRCodeScanner onScan={handleOnScan} />
-          </View>
+          <QRCodeScanner onScan={handleOnScan} />
         </BottomSheet>
       )}
     </>
