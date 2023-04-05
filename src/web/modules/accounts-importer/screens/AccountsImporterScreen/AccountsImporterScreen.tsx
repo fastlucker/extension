@@ -6,7 +6,9 @@ import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
+import useToast from '@common/hooks/useToast'
 import useWalletControllerRequest from '@web/hooks/useWalletControllerRequest'
+import AccountsList from '@web/modules/accounts-importer/components/AccountsList'
 import HDManager from '@web/modules/accounts-importer/components/HDManager'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
@@ -23,6 +25,7 @@ export interface Account {
 
 const AccountsImporterScreen = () => {
   const { params } = useRoute()
+  const { addToast } = useToast()
   const { goBack } = useNavigation()
 
   const { walletType, isMnemonics, isWebHID, ledgerLive, path, brand } = params
@@ -52,8 +55,6 @@ const AccountsImporterScreen = () => {
 
   const { hardwareWallets } = useHardwareWallets()
 
-  // TODO: implement when not ledger or trezor
-
   const [getAccounts] = useWalletControllerRequest(
     async (firstFlag, start?, end?, cb?): Promise<Account[]> => {
       setIsLoading(true)
@@ -71,7 +72,8 @@ const AccountsImporterScreen = () => {
       onSuccess(_accounts, { args: [, , , cb] }) {
         if (_accounts.length <= 0) {
           setIsLoading(false)
-          // message.error('No accounts found')
+          addToast(t('No accounts found'))
+
           return
         }
         if (_accounts.length < 5) {
@@ -85,12 +87,12 @@ const AccountsImporterScreen = () => {
         if (isLedger) {
           // setHasError(true)
           try {
-            // wallet.requestKeyring(keyring, 'cleanUp', keyringId.current ?? null)
+            hardwareWallets[walletType]?.cleanUp()
           } catch (e) {
             console.log(e)
           }
         } else {
-          // message.error('Please check the connection with your wallet')
+          addToast(t('Please check the connection with your wallet.'))
         }
 
         setIsLoading(false)
@@ -117,14 +119,21 @@ const AccountsImporterScreen = () => {
     if (!walletType) return () => {}
 
     return () => {
-      hardwareWallets[walletType].cleanUp()
+      try {
+        hardwareWallets[walletType].cleanUp()
+      } catch (e) {
+        console.log(e)
+      }
     }
   }, [hardwareWallets, walletType])
 
   return (
     <GradientBackgroundWrapper>
       <Wrapper>
-        <Title>Accounts Importer Screen</Title>
+        {isGrid && (
+          <Title>{t('Connected to a {{walletType}} hardware device', { walletType })}</Title>
+        )}
+        <AccountsList accounts={accounts} loading={isLoading} />
       </Wrapper>
     </GradientBackgroundWrapper>
   )

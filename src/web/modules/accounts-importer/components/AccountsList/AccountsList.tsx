@@ -1,6 +1,7 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -16,7 +17,11 @@ export interface Account {
   balance?: number
 }
 
-const AccountsList = ({ accounts }: { accounts: Account[] }) => {
+const AccountsList = ({ accounts, loading }: { accounts: Account[]; loading?: boolean }) => {
+  if (loading) {
+    return <Spinner />
+  }
+
   return (
     <View>
       {accounts.map((acc, idx) => {
@@ -48,4 +53,4 @@ const AccountsList = ({ accounts }: { accounts: Account[] }) => {
   )
 }
 
-export default AccountsList
+export default React.memo(AccountsList)

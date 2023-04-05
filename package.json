@@ -113,6 +113,7 @@
     "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",
     "expo-updates": "~0.15.6",
+    "gridplus-sdk": "1.2.4",
     "hdkey": "^0.7.1",
     "https-browserify": "~0.0.0",
     "i18next": "^21.6.0",
