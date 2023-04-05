@@ -14,6 +14,7 @@ import useToast from '@common/hooks/useToast'
 import useWalletConnect from '@common/hooks/useWalletConnect'
 import { ROUTES } from '@common/modules/router/constants/common'
 import { isExtension } from '@web/constants/browserapi'
+import { checkBrowserWindowsForExtensionPopup } from '@web/utils/checkBrowserWindowsForExtensionPopup'
 import { getUiType } from '@web/utils/uiType'
 
 export interface RequestsContextReturnType {
@@ -217,31 +218,47 @@ const RequestsProvider: React.FC = ({ children }) => {
         isExtension &&
         getUiType().isPopup
       ) {
-        extensionWallet!.activeFirstApproval()
-        window.close()
+        const { extensionPopupExists } = await checkBrowserWindowsForExtensionPopup()
+        if (extensionPopupExists) {
+          extensionWallet!.activeFirstApproval()
+          window.close()
+        } else {
+          browser.storage.local.set({
+            [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([])
+          })
+        }
       }
     })()
   }, [everythingToSign, extensionWallet, navigate])
 
   // Handle navigation for send txn requests
   useEffect(() => {
-    if (sendTxnState?.showing && !prevSendTxnState?.showing) {
-      // Extension only
-      // In case there is a pending send txn request opened in a notification window
-      // and at the same time the popup window is triggered just force open
-      // the the notification window to finalize the request before being able to continue
-      if (
-        eligibleRequests.filter((r) => r?.reqSrc === BROWSER_EXTENSION_REQUESTS_STORAGE_KEY)
-          .length &&
-        isExtension &&
-        getUiType().isPopup
-      ) {
-        extensionWallet!.activeFirstApproval()
-        window.close()
-      } else {
-        navigate(ROUTES.pendingTransactions)
+    ;(async () => {
+      if (sendTxnState?.showing && !prevSendTxnState?.showing) {
+        // Extension only
+        // In case there is a pending send txn request opened in a notification window
+        // and at the same time the popup window is triggered just force open
+        // the the notification window to finalize the request before being able to continue
+        if (
+          eligibleRequests.filter((r) => r?.reqSrc === BROWSER_EXTENSION_REQUESTS_STORAGE_KEY)
+            .length &&
+          isExtension &&
+          getUiType().isPopup
+        ) {
+          const { extensionPopupExists } = await checkBrowserWindowsForExtensionPopup()
+          if (extensionPopupExists) {
+            extensionWallet!.activeFirstApproval()
+            window.close()
+          } else {
+            browser.storage.local.set({
+              [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([])
+            })
+          }
+        } else {
+          navigate(ROUTES.pendingTransactions)
+        }
       }
-    }
+    })()
   }, [
     sendTxnState?.showing,
     prevSendTxnState?.showing,

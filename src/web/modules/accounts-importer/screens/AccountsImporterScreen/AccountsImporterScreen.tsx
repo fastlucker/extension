@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
+import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import useWalletControllerRequest from '@web/hooks/useWalletControllerRequest'
@@ -25,11 +26,19 @@ export interface Account {
 const AccountsImporterScreen = () => {
   const { params } = useRoute()
   const { addToast } = useToast()
+  const { goBack } = useNavigation()
+
   const { walletType, isMnemonics, isWebHID, ledgerLive, path, brand } = params
 
   const isGrid = walletType === HARDWARE_WALLETS.GRIDPLUS
   const isLedger = walletType === HARDWARE_WALLETS.LEDGER
   const isTrezor = walletType === HARDWARE_WALLETS.TREZOR
+
+  useEffect(() => {
+    if (!walletType) {
+      goBack()
+    }
+  }, [goBack, walletType])
 
   if (isLedger || isTrezor) {
     return <HDManager walletType={walletType} />
@@ -101,10 +110,14 @@ const AccountsImporterScreen = () => {
   }
 
   useEffect(() => {
-    init()
-  }, [])
+    if (walletType) {
+      init()
+    }
+  }, [walletType])
 
   useEffect(() => {
+    if (!walletType) return () => {}
+
     return () => {
       try {
         hardwareWallets[walletType].cleanUp()

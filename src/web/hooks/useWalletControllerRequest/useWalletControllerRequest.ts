@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 
+/**
+ * Simplifies handling asynchronous requests in a React component while managing
+ * its state and preventing errors that can occur when the component is unmounted.
+ */
 const useWalletControllerRequest = <TReqArgs extends any[] = any[], TRet = any>(
   requestFn: (...args: TReqArgs) => TRet | Promise<TRet>,
   {
