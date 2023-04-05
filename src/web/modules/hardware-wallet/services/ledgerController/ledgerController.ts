@@ -52,9 +52,10 @@ class LedgerController {
       try {
         this.transport = await TransportWebHID.create()
         this.app = new LedgerEth(this.transport as Transport)
+
+        return null
       } catch (e: any) {
-        // Silent fail
-        Promise.reject(new Error('Permission Rejected'))
+        return Promise.reject(new Error('Permission Rejected'))
       }
     }
   }
@@ -76,14 +77,17 @@ class LedgerController {
     }
     const path = hdPath ? this._toLedgerPath(hdPath) : this.hdPath
     if (this.isWebHID) {
-      await this.makeApp()
-      const res = await this.app!.getAddress(path, false, true)
-      const { address, publicKey, chainCode } = res
-      this.hdk.publicKey = Buffer.from(publicKey, 'hex')
-      this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
+      try {
+        await this.makeApp()
+        const res = await this.app!.getAddress(path, false, true)
+        const { address, publicKey, chainCode } = res
+        this.hdk.publicKey = Buffer.from(publicKey, 'hex')
+        this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
 
-      console.log('unlock', address)
-      return address
+        return address
+      } catch (e) {
+        throw new Error(e)
+      }
     }
 
     return null
@@ -166,6 +170,7 @@ class LedgerController {
       //   break
       // }
     }
+
     return accounts
   }
 
