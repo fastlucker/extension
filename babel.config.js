@@ -13,7 +13,14 @@ module.exports = function (api) {
           path: '.env'
         }
       ],
-      ['react-native-reanimated/plugin'],
+      ['react-native-reanimated/plugin']
+    ]
+  }
+
+  const webConfig = {
+    ...config,
+    plugins: [
+      ...config.plugins,
       [
         'module-resolver',
         {
@@ -65,11 +72,11 @@ module.exports = function (api) {
             // alias for better crypto performance on mobile
             '@ethersproject/pbkdf2': './src/common/config/alias/pbkdf2.js',
             // node's crypto polyfill for React Native
-            'crypto': 'react-native-quick-crypto',
+            crypto: 'react-native-quick-crypto',
             // stream-browserify: used by react-native-quick-crypto
-            'stream': 'stream-browserify',
+            stream: 'stream-browserify',
             // @craftzdog/react-native-buffer: used by react-native-quick-crypto
-            'buffer': '@craftzdog/react-native-buffer',
+            buffer: '@craftzdog/react-native-buffer',
 
             // absolute imports
             '@common': './src/common',
@@ -81,7 +88,7 @@ module.exports = function (api) {
     ]
   }
 
-  const isMobile = process.env.PLATFORM === 'mobile';
+  const isMobile = !process.env.WEB_ENGINE
 
-  return isMobile ? mobileConfig : config
+  return isMobile ? mobileConfig : webConfig
 }
