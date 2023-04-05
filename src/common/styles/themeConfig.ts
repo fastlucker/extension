@@ -1,6 +1,6 @@
 import { ColorValue } from 'react-native'
 
-import { ROUTES } from '@common/modules/router/constants/common'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 import colors from './colors'
 
@@ -67,22 +67,18 @@ const ThemeColors = {
   }
 }
 
-// TODO: import from MOBILE_ROUTES
-export const lightOnlyRoutesOnMobile = [
+export const lightOnlyRoutesOnMobile = []
 
-]
-
-// TODO: import from WEB_ROUTES
 export const lightOnlyRoutesOnWeb = [
-  ROUTES.getStarted,
-  ROUTES.authEmailAccount,
-  ROUTES.authEmailLogin,
-  ROUTES.authEmailRegister,
-  ROUTES.ambireAccountJsonLogin,
-  ROUTES.ambireAccountJsonLoginPasswordConfirm,
-  ROUTES.ambireAccountLoginPasswordConfirm,
-  ROUTES.externalSigner,
-  ROUTES.onboarding
+  WEB_ROUTES.getStarted,
+  WEB_ROUTES.authEmailAccount,
+  WEB_ROUTES.authEmailLogin,
+  WEB_ROUTES.authEmailRegister,
+  WEB_ROUTES.ambireAccountJsonLogin,
+  WEB_ROUTES.ambireAccountJsonLoginPasswordConfirm,
+  WEB_ROUTES.ambireAccountLoginPasswordConfirm,
+  WEB_ROUTES.externalSigner,
+  WEB_ROUTES.onboarding
 ]
 
 export default ThemeColors
