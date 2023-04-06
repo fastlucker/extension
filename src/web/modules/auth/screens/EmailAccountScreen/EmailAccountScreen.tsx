@@ -24,7 +24,9 @@ const EmailAccountScreen = () => {
       <AuthLayoutWrapperMainContent>
         <View style={[flexbox.directionRow, flexbox.justifyCenter]}>
           <Card
-            text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, rerum?"
+            text={t(
+              'Sign in to your Ambire wallet using your email for a simple and secure access to your crypto.'
+            )}
             style={spacings.mr}
           >
             <Button
@@ -34,7 +36,9 @@ const EmailAccountScreen = () => {
             />
           </Card>
           <Card
-            text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, rerum?"
+            text={t(
+              'Create a new Ambire wallet with just your email and start managing your crypto.'
+            )}
             style={spacings.ml}
           >
             <Button
@@ -47,18 +51,14 @@ const EmailAccountScreen = () => {
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
         <Text weight="regular" fontSize={16} style={spacings.mb} color={colors.titan}>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae harum eaque
-          repellendus porro in ea architecto, ullam facere fugit. Obcaecati eius impedit magnam,
-          voluptates voluptatibus ex assumenda similique exercitationem repellat harum facere nemo
-          voluptate illum eaque praesentium ut accusantium, quasi earum quo. Necessitatibus at
-          aperiam veritatis repellendus, nesciunt veniam eum!
+          {t(
+            "Explore Ambire's powerful and user-friendly wallet options by logging in with your existing account or registering a new one via email. Both options provide secure access to your crypto assets while making self-custody and management simple and intuitive."
+          )}
         </Text>
         <Text weight="regular" fontSize={16} color={colors.titan}>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae harum eaque
-          repellendus porro in ea architecto, ullam facere fugit. Obcaecati eius impedit magnam,
-          voluptates voluptatibus ex assumenda similique exercitationem repellat harum facere nemo
-          voluptate illum eaque praesentium ut accusantium, quasi earum quo. Necessitatibus at
-          aperiam veritatis repellendus, nesciunt veniam eum!
+          {t(
+            'Get started with Ambire today and enjoy a seamless experience tailored to your needs.'
+          )}
         </Text>
       </AuthLayoutWrapperSideContent>
     </>
