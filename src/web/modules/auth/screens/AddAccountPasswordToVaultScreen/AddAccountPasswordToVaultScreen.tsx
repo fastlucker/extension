@@ -20,7 +20,6 @@ import useEmailLogin from '@common/modules/auth/hooks/useEmailLogin'
 import useJsonLogin from '@common/modules/auth/hooks/useJsonLogin'
 import colors from '@common/styles/colors'
 import spacings, { IS_SCREEN_SIZE_S } from '@common/styles/spacings'
-import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { delayPromise } from '@common/utils/promises'
 import {
@@ -101,20 +100,12 @@ const AddAccountPasswordToVaultScreen = () => {
         </View>
 
         <View>
-          <Text
-            weight="regular"
-            style={[spacings.mbMi, spacings.phTy]}
-            fontSize={13}
-          >
+          <Text weight="regular" style={[spacings.mbMi, spacings.phTy]} fontSize={13}>
             {t(
               'When you add your account password to the Key Store, you will be able to sign transactions on this device using your passphrase only.'
             )}
           </Text>
-          <Text
-            weight="regular"
-            style={[spacings.mb, spacings.phTy]}
-            fontSize={13}
-          >
+          <Text weight="regular" style={[spacings.mb, spacings.phTy]} fontSize={13}>
             {t(
               'If you reset your passphrase or {{action}}, the Key Store will be removed from the device, however you can still use your account password on any other device.',
               { action: isWeb ? t('remove the extension') : t('uninstall the app') }
@@ -169,16 +160,10 @@ const AddAccountPasswordToVaultScreen = () => {
         </View>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
-        <Text>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius veritatis earum ad placeat.
-          Rem itaque harum excepturi recusandae sit voluptas ipsum ipsa optio, vero fuga ea! Libero
-          tempora hic dolores ipsam. Expedita praesentium iusto sint minima et. Ex atque iusto
-          facilis, odit quod fuga commodi. Ipsam laudantium, earum eaque ipsum neque voluptate. Qui
-          perferendis sunt a ab nulla dignissimos eligendi repellat, autem omnis excepturi
-          asperiores molestiae dolore ratione cupiditate, consequatur illo, odit quod aliquam cum
-          libero suscipit earum ad possimus? Culpa corrupti aut dolorem praesentium veritatis ad
-          cupiditate, non sapiente quam accusantium voluptatibus ab adipisci tenetur nostrum
-          consequatur repellendus ipsa.
+        <Text weight="regular" color={colors.titan}>
+          {t(
+            'When you add your account password to the Key Store, you will be able to sign transactions on this device using your passphrase only.'
+          )}
         </Text>
       </AuthLayoutWrapperSideContent>
     </>

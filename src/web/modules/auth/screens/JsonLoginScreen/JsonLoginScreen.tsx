@@ -6,6 +6,7 @@ import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useJsonLogin from '@common/modules/auth/hooks/useJsonLogin'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import {
   AuthLayoutWrapperMainContent,
@@ -37,15 +38,11 @@ const JsonLoginScreen = () => {
         </View>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
-        <Text weight="regular" fontSize={16} style={spacings.mb}>
+        <Text weight="regular" fontSize={16} style={spacings.mb} color={colors.titan}>
           {t('Import JSON')}
         </Text>
-        <Text weight="regular" fontSize={16}>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae harum eaque
-          repellendus porro in ea architecto, ullam facere fugit. Obcaecati eius impedit magnam,
-          voluptates voluptatibus ex assumenda similique exercitationem repellat harum facere nemo
-          voluptate illum eaque praesentium ut accusantium, quasi earum quo. Necessitatibus at
-          aperiam veritatis repellendus, nesciunt veniam eum!
+        <Text weight="regular" color={colors.titan}>
+          {t('Upload a JSON file to quickly and securely access your existing wallet.')}
         </Text>
       </AuthLayoutWrapperSideContent>
     </>
