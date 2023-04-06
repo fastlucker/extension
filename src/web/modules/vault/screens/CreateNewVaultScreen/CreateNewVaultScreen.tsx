@@ -14,6 +14,7 @@ import { DEVICE_SECURITY_LEVEL } from '@common/contexts/biometricsContext/consta
 import useBiometrics from '@common/hooks/useBiometrics'
 import useRoute from '@common/hooks/useRoute'
 import { ROUTES } from '@common/modules/router/constants/common'
+import useVault from '@common/modules/vault/hooks/useVault'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
