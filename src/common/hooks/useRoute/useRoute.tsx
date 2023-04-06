@@ -1,13 +1,18 @@
-import { useRoute as useNativeRoute } from '@react-navigation/native'
+import { navigationRef } from '@common/services/navigation'
 
 import { UseRouteReturnType } from './types'
 
 const useRoute = (): UseRouteReturnType => {
-  const route = useNativeRoute()
-
+  const route = navigationRef.current.getCurrentRoute()
+console.log({
+  ...route,
+  params: route?.params || {},
+  path: route?.name
+})
   return {
     ...route,
-    params: route?.params || {}
+    params: route?.params || {},
+    path: route?.name
   }
 }
 
