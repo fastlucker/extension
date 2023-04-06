@@ -3,6 +3,7 @@ import { useColorScheme } from 'react-native'
 
 import useRoute from '@common/hooks/useRoute'
 import useStorage from '@common/hooks/useStorage'
+import { ROUTES } from '@common/modules/router/constants/common'
 import ThemeColors, {
   lightOnlyRoutesOnWeb,
   THEME_TYPES,
@@ -36,11 +37,11 @@ const ThemeProvider: React.FC = ({ children }) => {
   const [sessionTheme, setSessionTheme] = useState(themeType || DEFAULT_THEME)
 
   useEffect(() => {
-    if (lightOnlyRoutesOnWeb.includes(path?.substring(1) as ROUTES)) {
+    if (lightOnlyRoutesOnWeb.includes(path?.substring(1) as keyof typeof ROUTES)) {
       setSessionTheme(THEME_TYPES.LIGHT)
     } else if (
       sessionTheme !== themeType ||
-      !lightOnlyRoutesOnWeb.includes(path?.substring(1) as ROUTES)
+      !lightOnlyRoutesOnWeb.includes(path?.substring(1) as keyof typeof ROUTES)
     ) {
       setSessionTheme(themeType as THEME_TYPES)
     }
