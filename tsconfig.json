@@ -5,12 +5,11 @@
     "jsx": "react-native",
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
-    "types": ["chrome", "firefox-webext-browser", "reflect-metadata"],
+    "types": ["chrome", "firefox-webext-browser", "reflect-metadata", "jest"],
     "paths": {
-      "@assets/*": ["src/assets/*"],
-      "@modules/*": ["src/modules/*"],
-      "@config/*": ["src/config/*"],
-      "@web/*": ["web/*"]
+      "@common/*": ["src/common/*"],
+      "@mobile/*": ["src/mobile/*"],
+      "@web/*": ["src/web/*"]
     }
   },
   "exclude": [

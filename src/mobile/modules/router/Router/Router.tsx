@@ -1,0 +1,559 @@
+import { BlurView } from 'expo-blur'
+import * as SplashScreen from 'expo-splash-screen'
+import React, { useCallback, useEffect } from 'react'
+import { View } from 'react-native'
+
+import DashboardIcon from '@common/assets/svg/DashboardIcon'
+import EarnIcon from '@common/assets/svg/EarnIcon'
+import SendIcon from '@common/assets/svg/SendIcon'
+import SwapIcon from '@common/assets/svg/SwapIcon'
+import TransferIcon from '@common/assets/svg/TransferIcon'
+import { isAndroid } from '@common/config/env'
+import { TAB_BAR_BLUR } from '@common/constants/router'
+import { ConnectionStates } from '@common/contexts/netInfoContext'
+import useNetInfo from '@common/hooks/useNetInfo'
+import useStorageController from '@common/hooks/useStorageController'
+import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
+import { EmailLoginProvider } from '@common/modules/auth/contexts/emailLoginContext'
+import { JsonLoginProvider } from '@common/modules/auth/contexts/jsonLoginContext'
+import useAuth from '@common/modules/auth/hooks/useAuth'
+import AddAccountPasswordToVaultScreen from '@common/modules/auth/screens/AddAccountPasswordToVaultScreen'
+import AuthScreen from '@common/modules/auth/screens/AuthScreen'
+import EmailLoginScreen from '@common/modules/auth/screens/EmailLoginScreen'
+import ExternalSignerScreen from '@common/modules/auth/screens/ExternalSignerScreen'
+import JsonLoginScreen from '@common/modules/auth/screens/JsonLoginScreen'
+import QRCodeLoginScreen from '@common/modules/auth/screens/QRCodeLoginScreen'
+import CollectibleScreen from '@common/modules/dashboard/screens/CollectibleScreen'
+import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
+import EarnScreen from '@common/modules/earn/screens/EarnScreen'
+import GasInformationScreen from '@common/modules/gas-tank/screens/GasInformationScreen'
+import GasTankScreen from '@common/modules/gas-tank/screens/GasTankScreen'
+import { headerAlpha, headerBeta, headerGamma } from '@common/modules/header/config/headerConfig'
+import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
+import PendingTransactionsScreen from '@common/modules/pending-transactions/screens/PendingTransactionsScreen'
+import ProviderScreen from '@common/modules/receive/screens/ProviderScreen'
+import ReceiveScreen from '@common/modules/receive/screens/ReceiveScreen'
+import routesConfig from '@common/modules/router/config/routesConfig'
+import { MOBILE_ROUTES, ROUTES } from '@common/modules/router/constants/common'
+import styles, {
+  drawerStyle,
+  horizontalTabBarLabelStyle,
+  tabBarItemStyle,
+  tabBarLabelStyle,
+  tabBarStyle
+} from '@common/modules/router/styles'
+import SendScreen from '@common/modules/send/screens/SendScreen'
+import DataDeletionPolicyScreen from '@common/modules/settings/screens/DataDeletionPolicyScreen'
+import SignersScreen from '@common/modules/settings/screens/SignersScreen'
+import SignMessageScreen from '@common/modules/sign-message/screens/SignMessageScreen'
+import SwapScreen from '@common/modules/swap/screens/SwapScreen'
+import TransactionsScreen from '@common/modules/transactions/screens/TransactionsScreen'
+import { VAULT_STATUS } from '@common/modules/vault/constants/vaultStatus'
+import useVault from '@common/modules/vault/hooks/useVault'
+import CreateNewVaultScreen from '@common/modules/vault/screens/CreateNewVaultScreen'
+import ManageVaultLockScreen from '@common/modules/vault/screens/ManageVaultLockScreen'
+import ResetVaultScreen from '@common/modules/vault/screens/ResetVaultScreen'
+import UnlockVaultScreen from '@common/modules/vault/screens/UnlockVaultScreen'
+import VaultSetupGetStartedScreen from '@common/modules/vault/screens/VaultSetupGetStartedScreen'
+import { navigate } from '@common/services/navigation'
+import colors from '@common/styles/colors'
+import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
+import ConnectScreen from '@mobile/modules/connect/screens/ConnectScreen'
+import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
+import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
+import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createDrawerNavigator } from '@react-navigation/drawer'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+
+const Tab = createBottomTabNavigator()
+const Stack = createNativeStackNavigator()
+const Drawer = createDrawerNavigator()
+const MainStack = createNativeStackNavigator()
+const DashboardStack = createNativeStackNavigator()
+const SignersStack = createNativeStackNavigator()
+const ManageVaultLockStack = createNativeStackNavigator()
+const EmailLoginStack = createNativeStackNavigator()
+const JsonLoginStack = createNativeStackNavigator()
+const GasTankStack = createNativeStackNavigator()
+const GasInformationStack = createNativeStackNavigator()
+const DataDeletionPolicyStack = createNativeStackNavigator()
+
+const SignersStackScreen = () => {
+  return (
+    <SignersStack.Navigator screenOptions={{ header: headerGamma }}>
+      <SignersStack.Screen
+        name={`${MOBILE_ROUTES.signers}-screen`}
+        component={SignersScreen}
+        options={{
+          title: routesConfig[ROUTES.signers].title
+        }}
+      />
+    </SignersStack.Navigator>
+  )
+}
+
+const DataDeletionPolicyStackScreen = () => {
+  return (
+    <DataDeletionPolicyStack.Navigator screenOptions={{ header: headerBeta }}>
+      <DataDeletionPolicyStack.Screen
+        name={`${MOBILE_ROUTES.dataDeletionPolicy}-screen`}
+        component={DataDeletionPolicyScreen}
+        options={{
+          title: routesConfig[ROUTES.dataDeletionPolicy].title
+        }}
+      />
+    </DataDeletionPolicyStack.Navigator>
+  )
+}
+
+const GasTankStackScreen = () => {
+  return (
+    <GasTankStack.Navigator screenOptions={{ header: headerGamma }}>
+      <GasTankStack.Screen name={`${MOBILE_ROUTES.gasTank}-screen`} component={GasTankScreen} />
+    </GasTankStack.Navigator>
+  )
+}
+
+const GasInformationStackScreen = () => {
+  return (
+    <GasInformationStack.Navigator screenOptions={{ header: headerGamma }}>
+      <GasInformationStack.Screen
+        name={`${MOBILE_ROUTES.gasInformation}-screen`}
+        component={GasInformationScreen}
+      />
+    </GasInformationStack.Navigator>
+  )
+}
+
+const ManageVaultLockStackScreen = () => {
+  return (
+    <ManageVaultLockStack.Navigator screenOptions={{ header: headerBeta }}>
+      <ManageVaultLockStack.Screen
+        name={`${MOBILE_ROUTES.manageVaultLock}-screen`}
+        component={ManageVaultLockScreen}
+        options={{
+          title: routesConfig[ROUTES.manageVaultLock].title
+        }}
+      />
+    </ManageVaultLockStack.Navigator>
+  )
+}
+
+const EmailLoginStackScreen = () => {
+  return (
+    <EmailLoginProvider>
+      <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+        <EmailLoginStack.Screen
+          name={`${MOBILE_ROUTES.ambireAccountLogin}-screen`}
+          options={{ title: routesConfig[ROUTES.ambireAccountLogin].title }}
+          component={EmailLoginScreen}
+        />
+        <EmailLoginStack.Screen
+          name={MOBILE_ROUTES.ambireAccountLoginPasswordConfirm}
+          options={{ title: routesConfig[ROUTES.ambireAccountJsonLoginPasswordConfirm].title }}
+          component={AddAccountPasswordToVaultScreen}
+        />
+      </EmailLoginStack.Navigator>
+    </EmailLoginProvider>
+  )
+}
+
+const JsonLoginStackScreen = () => {
+  return (
+    <JsonLoginProvider>
+      <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+        <JsonLoginStack.Screen
+          name={`${MOBILE_ROUTES.ambireAccountJsonLogin}-screen`}
+          options={{ title: routesConfig[ROUTES.ambireAccountJsonLogin].title }}
+          component={JsonLoginScreen}
+        />
+        <JsonLoginStack.Screen
+          name={MOBILE_ROUTES.ambireAccountJsonLoginPasswordConfirm}
+          options={{
+            title: routesConfig[ROUTES.ambireAccountJsonLoginPasswordConfirm].title
+          }}
+          component={AddAccountPasswordToVaultScreen}
+        />
+      </JsonLoginStack.Navigator>
+    </JsonLoginProvider>
+  )
+}
+
+const AuthStack = () => {
+  const { vaultStatus } = useVault()
+  const { getItem } = useStorageController()
+
+  useEffect(() => {
+    SplashScreen.hideAsync()
+  }, [])
+
+  const initialRouteName =
+    vaultStatus === VAULT_STATUS.NOT_INITIALIZED
+      ? MOBILE_ROUTES.getStarted
+      : // Checks whether there is a pending email login attempt. It happens when user
+      // request email login and closes the app. When the app is opened
+      // the second time - an immediate email login attempt will be triggered.
+      getItem('pendingLoginEmail')
+      ? MOBILE_ROUTES.ambireAccountLogin
+      : `${MOBILE_ROUTES.auth}-screen`
+
+  return (
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
+      {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
+        <>
+          <Stack.Screen
+            name={MOBILE_ROUTES.getStarted}
+            options={{ title: routesConfig[ROUTES.getStarted].title }}
+            component={VaultSetupGetStartedScreen}
+          />
+          <Stack.Screen
+            name={MOBILE_ROUTES.createVault}
+            options={{ title: routesConfig[ROUTES.createVault].title }}
+            component={CreateNewVaultScreen}
+          />
+        </>
+      )}
+      <Stack.Screen
+        options={{ title: routesConfig[ROUTES.auth].title }}
+        name={`${MOBILE_ROUTES.auth}-screen`}
+        component={AuthScreen}
+      />
+      <Stack.Screen
+        name={MOBILE_ROUTES.ambireAccountLogin}
+        options={{ title: routesConfig[ROUTES.ambireAccountLogin].title, headerShown: false }}
+        component={EmailLoginStackScreen}
+      />
+      <Stack.Screen
+        name={MOBILE_ROUTES.ambireAccountJsonLogin}
+        options={{
+          title: routesConfig[ROUTES.ambireAccountJsonLogin].title,
+          headerShown: false
+        }}
+        component={JsonLoginStackScreen}
+      />
+      <Stack.Screen
+        name={MOBILE_ROUTES.qrCodeLogin}
+        options={{ title: routesConfig[ROUTES.qrCodeLogin].title }}
+        component={QRCodeLoginScreen}
+      />
+      <Stack.Screen
+        name={MOBILE_ROUTES.hardwareWallet}
+        options={{ title: routesConfig[ROUTES.hardwareWallet].title }}
+        component={HardwareWalletConnectScreen}
+      />
+      <Stack.Screen
+        name={MOBILE_ROUTES.externalSigner}
+        options={{ title: routesConfig[ROUTES.externalSigner].title }}
+        component={ExternalSignerScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+const NoConnectionStack = () => {
+  useEffect(() => {
+    SplashScreen.hideAsync()
+  }, [])
+
+  return (
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+      <Stack.Screen
+        options={{ title: routesConfig[ROUTES.noConnection].title }}
+        name={MOBILE_ROUTES.noConnection}
+        component={NoConnectionScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+const VaultStack = () => {
+  const { vaultStatus, unlockVault, biometricsEnabled, resetVault } = useVault()
+
+  useEffect(() => {
+    if (vaultStatus === VAULT_STATUS.LOADING) return
+
+    SplashScreen.hideAsync()
+  }, [vaultStatus])
+
+  if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+  const renderResetVaultScreen = useCallback<(props: any) => JSX.Element>(
+    (props) => <ResetVaultScreen {...props} vaultStatus={vaultStatus} resetVault={resetVault} />,
+    [resetVault, vaultStatus]
+  )
+
+  const renderUnlockVaultScreen = useCallback<(props: any) => JSX.Element>(
+    (props) => (
+      <UnlockVaultScreen
+        {...props}
+        unlockVault={unlockVault}
+        vaultStatus={vaultStatus}
+        biometricsEnabled={biometricsEnabled}
+      />
+    ),
+    [biometricsEnabled, unlockVault, vaultStatus]
+  )
+
+  return (
+    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
+      <Stack.Screen
+        name={MOBILE_ROUTES.unlockVault}
+        options={{ title: routesConfig[ROUTES.unlockVault].title }}
+        component={renderUnlockVaultScreen}
+      />
+      <Stack.Screen
+        name={MOBILE_ROUTES.resetVault}
+        options={{ title: routesConfig[ROUTES.resetVault].title }}
+        component={renderResetVaultScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+const DashboardStackScreen = () => {
+  return (
+    <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
+      <DashboardStack.Screen
+        name={`${MOBILE_ROUTES.dashboard}-screen`}
+        component={DashboardScreen}
+      />
+      <DashboardStack.Screen
+        name={`${MOBILE_ROUTES.collectibles}-screen`}
+        component={CollectibleScreen}
+      />
+    </DashboardStack.Navigator>
+  )
+}
+
+const TabsScreens = () => {
+  const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 24
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        header: headerAlpha,
+        tabBarActiveTintColor: colors.heliotrope,
+        tabBarInactiveTintColor: colors.titan,
+        tabBarActiveBackgroundColor: colors.howl_65,
+        tabBarStyle,
+        tabBarLabelStyle: IS_SCREEN_SIZE_L ? horizontalTabBarLabelStyle : tabBarLabelStyle,
+        tabBarItemStyle
+      }}
+      tabBar={(props: any) => (
+        <View style={[styles.tabBarContainer]}>
+          <BlurView intensity={TAB_BAR_BLUR} tint="dark" style={[styles.backdropBlurWrapper]}>
+            <View style={{ paddingBottom: props.insets.bottom }}>
+              <BottomTabBar {...props} insets={{ bottom: 0 }} />
+            </View>
+          </BlurView>
+        </View>
+      )}
+    >
+      <Tab.Screen
+        name={MOBILE_ROUTES.dashboard}
+        options={{
+          tabBarLabel: routesConfig[ROUTES.dashboard].title,
+          headerTitle: routesConfig[ROUTES.dashboard].title,
+          tabBarIcon: ({ color }) => (
+            <DashboardIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={DashboardStackScreen}
+      />
+      {/* TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback */}
+      {/* Also excluded from the bundle by including an empty EarnScreen.ios.tsx */}
+      {isAndroid && (
+        <Tab.Screen
+          name={MOBILE_ROUTES.earn}
+          options={{
+            tabBarLabel: routesConfig[ROUTES.earn].title,
+            headerTitle: routesConfig[ROUTES.earn].title,
+            tabBarIcon: ({ color }) => (
+              <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+            )
+          }}
+          component={EarnScreen}
+        />
+      )}
+      <Tab.Screen
+        name={MOBILE_ROUTES.send}
+        options={{
+          tabBarLabel: routesConfig[ROUTES.send].title,
+          headerTitle: routesConfig[ROUTES.send].title,
+          tabBarIcon: ({ color }) => (
+            <SendIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={SendScreen}
+      />
+      <Tab.Screen
+        name={MOBILE_ROUTES.swap}
+        options={{
+          tabBarLabel: routesConfig[ROUTES.swap].title,
+          headerTitle: routesConfig[ROUTES.swap].title,
+          tabBarIcon: ({ color }) => (
+            <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={SwapScreen}
+      />
+      <Tab.Screen
+        name={MOBILE_ROUTES.transactions}
+        options={{
+          tabBarLabel: routesConfig[ROUTES.transactions].title,
+          headerTitle: routesConfig[ROUTES.transactions].title,
+          tabBarIcon: ({ color }) => (
+            <TransferIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={TransactionsScreen}
+      />
+    </Tab.Navigator>
+  )
+}
+
+const AppDrawer = () => {
+  return (
+    <Drawer.Navigator
+      drawerContent={SideNavMenu}
+      screenOptions={{
+        headerShown: false,
+        drawerType: 'front',
+        drawerStyle
+      }}
+    >
+      <Drawer.Screen name="tabs" component={TabsScreens} />
+    </Drawer.Navigator>
+  )
+}
+
+const AppStack = () => {
+  const { getItem } = useStorageController()
+
+  useEffect(() => {
+    SplashScreen.hideAsync()
+  }, [])
+
+  useEffect(() => {
+    // Checks whether there is a pending email login attempt. It happens when
+    // user requests email login and closes the the app. When the app is opened
+    // the second time - an immediate email login attempt will be triggered.
+    // Redirect the user instead of using the `initialRouteName`,
+    // because when '/auth' is set for `initialRouteName`,
+    // the 'drawer' route never gets rendered, and therefore - upon successful
+    // login attempt - the redirection to the 'dashboard' route breaks -
+    // because this route doesn't exist (it's never being rendered).
+    const shouldAttemptLogin = !!getItem('pendingLoginEmail')
+    if (shouldAttemptLogin) {
+      navigate(MOBILE_ROUTES.auth)
+    }
+  }, [getItem])
+
+  return (
+    <MainStack.Navigator screenOptions={{ header: headerBeta }}>
+      <MainStack.Screen
+        name="drawer"
+        component={AppDrawer}
+        options={{
+          headerShown: false
+        }}
+      />
+      <MainStack.Screen
+        options={{ headerShown: false }}
+        name={MOBILE_ROUTES.signers}
+        component={SignersStackScreen}
+      />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.dataDeletionPolicy}
+        component={DataDeletionPolicyStackScreen}
+        options={{ headerShown: false }}
+      />
+      <MainStack.Screen
+        options={{ headerShown: false }}
+        name={MOBILE_ROUTES.manageVaultLock}
+        component={ManageVaultLockStackScreen}
+      />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.auth}
+        component={AuthStack}
+        options={{ headerShown: false }}
+      />
+      {isAndroid && (
+        <MainStack.Screen
+          name={MOBILE_ROUTES.connect}
+          component={ConnectScreen}
+          options={{ title: routesConfig[ROUTES.connect].title }}
+        />
+      )}
+      <MainStack.Screen
+        name={MOBILE_ROUTES.receive}
+        options={{ header: headerGamma }}
+        component={ReceiveScreen}
+      />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.provider}
+        options={{ title: routesConfig[ROUTES.receive].title }}
+        component={ProviderScreen}
+      />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.pendingTransactions}
+        component={PendingTransactionsScreen}
+        options={{ title: routesConfig[ROUTES.pendingTransactions].title }}
+      />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.signMessage}
+        component={SignMessageScreen}
+        options={{ title: routesConfig[ROUTES.signMessage].title }}
+      />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.gasTank}
+        component={GasTankStackScreen}
+        options={{ headerShown: false }}
+      />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.gasInformation}
+        component={GasInformationStackScreen}
+        options={{ headerShown: false }}
+      />
+    </MainStack.Navigator>
+  )
+}
+
+const Router = () => {
+  const { authStatus } = useAuth()
+  const { connectionState } = useNetInfo()
+  const { vaultStatus } = useVault()
+
+  if (connectionState === ConnectionStates.NOT_CONNECTED) {
+    return <NoConnectionStack />
+  }
+
+  // Vault loads in async manner, so always wait until it's being loaded,
+  // otherwise - other routes flash beforehand.
+  if (vaultStatus === VAULT_STATUS.LOADING) return null
+
+  // When locked, always prompt the user to unlock it first.
+  if (VAULT_STATUS.LOCKED === vaultStatus) {
+    return <VaultStack />
+  }
+
+  // When not authenticated, take him to the Auth screens first,
+  // even without having a vault initialized yet.
+  if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
+    return <AuthStack />
+  }
+
+  if (authStatus === AUTH_STATUS.AUTHENTICATED) {
+    if (VAULT_STATUS.NOT_INITIALIZED === vaultStatus) {
+      return <VaultStack />
+    }
+
+    if (vaultStatus === VAULT_STATUS.UNLOCKED || vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
+      return <AppStack />
+    }
+  }
+
+  // authStatus === AUTH_STATUS.LOADING or anything else:
+  return null
+}
+
+export default Router

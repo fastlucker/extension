@@ -5,28 +5,13 @@
 require('dotenv').config()
 
 const createExpoWebpackConfigAsync = require('@expo/webpack-config')
-const fs = require('fs')
+
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
-const { ExpoHtmlWebpackPlugin } = require('@expo/webpack-config/plugins/index')
 const expoEnv = require('@expo/webpack-config/env')
-// Ignore adding the following packages to the dependencies list,
-// because they are already included in the expo package deps.
 // eslint-disable-next-line import/no-extraneous-dependencies
-const nodeHtmlParser = require('node-html-parser')
-// eslint-disable-next-line import/no-extraneous-dependencies
-const fsExtra = require('fs-extra')
 const webpack = require('webpack')
 const appJSON = require('./app.json')
-
-// Overrides the default generatedScriptTags
-// generatedScriptTags is used to add the entry files as scripts in index.html
-// but we heed only the app.js entry because the other entries are extension services running as background processes in the browser
-class HtmlWebpackPlugin extends ExpoHtmlWebpackPlugin {
-  generatedScriptTags() {
-    return super.generatedScriptTags(['app.js'])
-  }
-}
 
 module.exports = async function (env, argv) {
   function processManifest(content) {
@@ -103,22 +88,6 @@ module.exports = async function (env, argv) {
     return style
   }
 
-  const entries = {}
-
-  const addEntriesFromDirectory = (directory) => {
-    const filesInDirectory = fs.readdirSync(directory)
-    for (const file of filesInDirectory) {
-      const absolute = path.join(directory, file)
-      if (fs.statSync(absolute).isDirectory()) {
-        addEntriesFromDirectory(absolute)
-      } else if (absolute.endsWith('.ts')) {
-        entries[path.parse(absolute).name] = `./${absolute.slice(0, -3)}`
-      }
-    }
-  }
-
-  addEntriesFromDirectory('./web')
-
   const config = await createExpoWebpackConfigAsync(
     {
       ...env,
@@ -127,17 +96,28 @@ module.exports = async function (env, argv) {
     argv
   )
 
-  const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
-  const templateIndex = (0, nodeHtmlParser.parse)(
-    (0, fsExtra.readFileSync)(locations.template.indexHtml, { encoding: 'utf8' })
-  )
-
   // Customize webpack only for web
   if (process.env.WEB_ENGINE) {
+    config.resolve.alias.web = path.resolve(__dirname, 'src/web')
+
+    const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
+    const templatePath = (fileName = '') => path.join(__dirname, './src/web', fileName)
+    const templatePaths = {
+      get: templatePath,
+      folder: templatePath(),
+      indexHtml: templatePath('index.html'),
+      manifest: templatePath('manifest.json'),
+      serveJson: templatePath('serve.json'),
+      favicon: templatePath('favicon.ico')
+    }
+    locations.template = templatePaths
+
     // Alias the 'react-native-webview' package, in order to add support
     // (web implementation) of React Native's WebView. See:
     // {@link https://github.com/react-native-web-community/react-native-web-webview}
     config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
+    config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
+    config.resolve.alias['p-queue'] = 'p-queue/dist/index.js'
 
     // The files in the /web directory should be transpiled not just copied
     const excludeCopyPlugin = config.plugins.findIndex(
@@ -176,37 +156,38 @@ module.exports = async function (env, argv) {
         config.plugins.splice(excludeHotModuleReplacementPlugin, 1)
       }
 
-      // Use default webpack devServer config
       config.devServer = {
-        ...config.devServer,
-        hot: false
+        ...config.devServer, // use the default webpack devServer config
+        hot: true
       }
       // writeToDisk: output dev bundled files (in /webkit-dev or /gecko-dev) to import them as unpacked extension in the browser
       config.devServer.writeToDisk = true
     }
 
     config.entry = {
-      // Default entries
-      ...config.entry,
-      // Our custom extension specific entries
-      ...entries
+      ...config.entry, // default entries
+      background: './src/web/extension-services/background/background.ts', // custom entry needed for the extension
+      'content-script': './src/web/extension-services/content-script/content-script.ts', // custom entry needed for the extension
+      inpage: './src/web/extension-services/inpage/inpage.ts' // custom entry needed for the extension
     }
 
     config.plugins = [
       ...config.plugins,
-      // Buffer polyfill, used by web3
       new webpack.ProvidePlugin({
-        Buffer: ['buffer', 'Buffer']
+        Buffer: ['buffer', 'Buffer'] // buffer polyfill, used by web3
       }),
-      // Overrides ExpoCopyPlugin
       new CopyPlugin({
         patterns: [
           {
-            from: './web/assets',
+            from: './src/web/assets',
             to: 'assets'
           },
           {
-            from: './web/style.css',
+            from: './src/web/vendor',
+            to: 'vendor'
+          },
+          {
+            from: './src/web/public/style.css',
             to: 'style.css',
             transform(content) {
               if (process.env.WEB_ENGINE === 'gecko') {
@@ -217,32 +198,32 @@ module.exports = async function (env, argv) {
             }
           },
           {
-            from: './web/manifest.json',
+            from: './src/web/public/manifest.json',
             to: 'manifest.json',
             transform: processManifest
           },
           {
-            from: 'node_modules/webextension-polyfill/dist/browser-polyfill.js',
+            from: './node_modules/webextension-polyfill/dist/browser-polyfill.js',
             to: 'browser-polyfill.js'
+          },
+          {
+            from: './src/web/public/index.html',
+            to: 'index.html'
+          },
+          {
+            from: './src/web/public/notification.html',
+            to: 'notification.html'
+          },
+          {
+            from: './src/web/public/tab.html',
+            to: 'tab.html'
+          },
+          {
+            from: './src/web/public/trezor-usb-permissions.html',
+            to: 'trezor-usb-permissions.html'
           }
         ]
-      }),
-      // Generate index.html Overrides ExpoHtmlWebpackPlugin
-      new HtmlWebpackPlugin(env, templateIndex),
-      // Generate notification.html
-      new HtmlWebpackPlugin(
-        {
-          ...env,
-          locations: {
-            ...locations,
-            production: {
-              ...locations.production,
-              indexHtml: './notification.html'
-            }
-          }
-        },
-        templateIndex
-      )
+      })
     ]
 
     // Disables chunking, minimization, and other optimizations that alter the default transpilation of the extension services files.
