@@ -31,7 +31,8 @@ const SortHat = () => {
     }
 
     if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED) {
-      return navigate(ROUTES.getStarted)
+      // TODO: return navigate(ROUTES.getStarted)
+      return navigate(ROUTES.createVault)
     }
 
     if (vaultStatus === VAULT_STATUS.LOCKED) {
@@ -39,7 +40,8 @@ const SortHat = () => {
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      return navigate(ROUTES.auth)
+      // TODO: return navigate(ROUTES.auth)
+      return navigate(ROUTES.getStarted)
     }
 
     if (approval && isInNotification) {

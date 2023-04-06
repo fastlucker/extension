@@ -9,6 +9,7 @@ import CopyText from '@common/components/CopyText'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
+import { isWeb } from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useExtensionWallet from '@common/hooks/useExtensionWallet'
 import useNavigation from '@common/hooks/useNavigation'
@@ -44,7 +45,7 @@ const AccountChanger: React.FC<Props> = ({ closeBottomSheet }) => {
   const handleGoToAddAccount = useCallback(() => {
     closeBottomSheet()
 
-    navigate(ROUTES.auth)
+    navigate(isWeb ? ROUTES.getStarted : ROUTES.auth)
   }, [closeBottomSheet, navigate])
 
   const handleChangeAccount = (accountId: any) => {
