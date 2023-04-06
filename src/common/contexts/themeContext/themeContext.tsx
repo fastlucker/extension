@@ -38,7 +38,10 @@ const ThemeProvider: React.FC = ({ children }) => {
   useEffect(() => {
     if (lightOnlyRoutesOnWeb.includes(path?.substring(1) as ROUTES)) {
       setSessionTheme(THEME_TYPES.LIGHT)
-    } else if (sessionTheme !== themeType || !lightOnlyRoutesOnWeb.includes(path?.substring(1) as ROUTES)) {
+    } else if (
+      sessionTheme !== themeType ||
+      !lightOnlyRoutesOnWeb.includes(path?.substring(1) as ROUTES)
+    ) {
       setSessionTheme(themeType as THEME_TYPES)
     }
   }, [path, themeType, setSessionTheme])
@@ -71,8 +74,6 @@ const ThemeProvider: React.FC = ({ children }) => {
 
     return currentTheme
   }, [sessionTheme, colorScheme])
-
-  console.log(sessionTheme)
 
   return (
     <ThemeContext.Provider
