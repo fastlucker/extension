@@ -33,7 +33,8 @@ const MOBILE_ROUTES = {
   dataDeletionPolicy: 'data-deletion-policy',
   manageVaultLock: 'manage-vault-lock',
   noConnection: 'no-connection',
-  hardwareWallet: 'hardware-wallet'
+  hardwareWallet: 'hardware-wallet',
+  web3: 'web3'
 }
 
 const WEB_ROUTES = {

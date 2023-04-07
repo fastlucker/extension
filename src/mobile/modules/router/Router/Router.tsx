@@ -3,6 +3,7 @@ import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 
+import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import DashboardIcon from '@common/assets/svg/DashboardIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
@@ -61,6 +62,8 @@ import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
 import ConnectScreen from '@mobile/modules/connect/screens/ConnectScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
+import Web3BrowserScreen from '@mobile/modules/web3/screens/Web3BrowserScreen'
+import Web3Screen from '@mobile/modules/web3/screens/Web3Screen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -72,6 +75,7 @@ const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
 const ManageVaultLockStack = createNativeStackNavigator()
+const Web3Stack = createNativeStackNavigator()
 const EmailLoginStack = createNativeStackNavigator()
 const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
@@ -136,6 +140,29 @@ const ManageVaultLockStackScreen = () => {
         }}
       />
     </ManageVaultLockStack.Navigator>
+  )
+}
+
+const Web3StackScreen = () => {
+  return (
+    <Web3Stack.Navigator screenOptions={{ headerShown: true }}>
+      <Web3Stack.Screen
+        name={`${MOBILE_ROUTES.web3}-screen`}
+        component={Web3Screen}
+        options={{
+          title: 'Web3',
+          header: headerAlpha
+        }}
+      />
+      <Web3Stack.Screen
+        name={`${MOBILE_ROUTES.web3}-browser`}
+        component={Web3BrowserScreen}
+        options={{
+          title: 'Web3',
+          header: headerGamma
+        }}
+      />
+    </Web3Stack.Navigator>
   )
 }
 
@@ -406,6 +433,19 @@ const TabsScreens = () => {
           )
         }}
         component={TransactionsScreen}
+      />
+      <Tab.Screen
+        name={MOBILE_ROUTES.web3}
+        options={{
+          tabBarLabel: 'Web3',
+          headerTitle: 'Web3',
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            // temp icon type and size: tabsIconSize - 6 TODO: replace when redesigning
+            <DAppsIcon color={color} width={tabsIconSize - 6} height={tabsIconSize - 6} />
+          )
+        }}
+        component={Web3StackScreen}
       />
     </Tab.Navigator>
   )
