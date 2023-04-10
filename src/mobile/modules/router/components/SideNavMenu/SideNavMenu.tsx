@@ -21,7 +21,7 @@ import { termsAndPrivacyURL } from '@common/modules/auth/constants/URLs'
 import ConnectedDapps from '@common/modules/nav-menu/components/ConnectedDapps'
 import GasIndicator from '@common/modules/nav-menu/components/GasIndicator'
 import ManageVaultLockButton from '@common/modules/nav-menu/components/ManageVaultLockButton'
-import Theme from '@common/modules/nav-menu/components/Theme'
+// import Theme from '@common/modules/nav-menu/components/Theme'
 import styles from '@common/modules/nav-menu/styles'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useVault from '@common/modules/vault/hooks/useVault'
@@ -162,7 +162,8 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
         <View style={[spacings.mlTy, spacings.mbSm]}>
           {isAndroid && <ConnectedDapps />}
           {!isWeb && <ManageVaultLockButton handleNavigate={handleNavigate} />}
-          <Theme />
+          {/* TODO: Temporary disabled since v3.1.1 as part of the Apple app review feedback */}
+          {/* <Theme /> */}
           {settings.map((s) => (
             <TouchableOpacity
               key={s.name}
