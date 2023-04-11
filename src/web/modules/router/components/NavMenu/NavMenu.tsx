@@ -51,7 +51,6 @@ const NavMenu = () => {
     // TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback
     ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: ROUTES.earn }] : []),
     { Icon: SendIcon, name: t('Send'), route: ROUTES.send },
-    // TODO: Temporary disabled for iOS since v1.6.0 as part of the Apple app review feedback
     ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap }] : []),
     { Icon: TransferIcon, name: t('Transactions'), route: ROUTES.transactions },
     // TODO: Not implemented yet.
