@@ -359,21 +359,17 @@ const TabsScreens = () => {
         }}
         component={DashboardStackScreen}
       />
-      {/* TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback */}
-      {/* Also excluded from the bundle by including an empty EarnScreen.ios.tsx */}
-      {isAndroid && (
-        <Tab.Screen
-          name={MOBILE_ROUTES.earn}
-          options={{
-            tabBarLabel: routesConfig[ROUTES.earn].title,
-            headerTitle: routesConfig[ROUTES.earn].title,
-            tabBarIcon: ({ color }) => (
-              <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-            )
-          }}
-          component={EarnScreen}
-        />
-      )}
+      <Tab.Screen
+        name={MOBILE_ROUTES.earn}
+        options={{
+          tabBarLabel: routesConfig[ROUTES.earn].title,
+          headerTitle: routesConfig[ROUTES.earn].title,
+          tabBarIcon: ({ color }) => (
+            <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={EarnScreen}
+      />
       <Tab.Screen
         name={MOBILE_ROUTES.send}
         options={{
