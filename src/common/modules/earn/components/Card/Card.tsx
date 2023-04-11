@@ -35,7 +35,8 @@ const Card = ({
   onValidate,
   warning,
   areDepositsDisabled,
-  iconStyle
+  iconStyle,
+  customInfo
 }: any) => {
   const [segment, setSegment] = useState<Segment>(areDepositsDisabled ? 'Withdraw' : 'Deposit')
   const { network }: any = useNetwork()
@@ -212,26 +213,32 @@ const Card = ({
               />
             </View>
           </View>
-          <NumberInput
-            onChangeText={setAmount}
-            keyboardType="numeric"
-            autoCorrect={false}
-            value={amount.toString()}
-            button={t('MAX')}
-            onButtonPress={setMaxAmount}
-            disabled={Number(currentToken?.balance || 0) === 0}
-            labelComponent={amountLabel}
-          />
-          <Button
-            disabled={
-              disabled ||
-              amount <= 0 ||
-              amount > Number(currentToken?.balance || 0) ||
-              (areDepositsDisabled && segment === 'Deposit')
-            }
-            onPress={() => onValidate(segment, token, amount)}
-            text={segment}
-          />
+          {!!customInfo && segment === 'Withdraw' ? (
+            customInfo
+          ) : (
+            <>
+              <NumberInput
+                onChangeText={setAmount}
+                keyboardType="numeric"
+                autoCorrect={false}
+                value={amount.toString()}
+                button={t('MAX')}
+                onButtonPress={setMaxAmount}
+                disabled={Number(currentToken?.balance || 0) === 0}
+                labelComponent={amountLabel}
+              />
+              <Button
+                disabled={
+                  disabled ||
+                  amount <= 0 ||
+                  amount > Number(currentToken?.balance || 0) ||
+                  (areDepositsDisabled && segment === 'Deposit')
+                }
+                onPress={() => onValidate(segment, token, amount)}
+                text={segment}
+              />
+            </>
+          )}
           {!disabled && (
             <View style={spacings.pt}>
               <Text style={spacings.mbTy} fontSize={16} color={colors.baileyBells} weight="medium">
