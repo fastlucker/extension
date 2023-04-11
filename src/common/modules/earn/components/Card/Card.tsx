@@ -1,3 +1,4 @@
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { ethers } from 'ethers'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { BackHandler, Image, TouchableOpacity, View } from 'react-native'
@@ -41,6 +42,7 @@ const Card = ({
   const [segment, setSegment] = useState<Segment>(areDepositsDisabled ? 'Withdraw' : 'Deposit')
   const { network }: any = useNetwork()
   const [tokens, setTokens] = useState<any>([])
+  const prevTokens = usePrevious(tokens)
   const [token, setToken] = useState<any>()
   const [amount, setAmount] = useState<any>(0)
   const [disabled, setDisabled] = useState<any>(true)
@@ -147,12 +149,28 @@ const Card = ({
         value,
         icon: () => <TokenIcon withContainer uri={icon} networkId={network?.id} address={address} />
       })),
-    [tokens]
+    [network?.id, tokens]
   )
-
   useEffect(() => {
-    if (assetsItems.length && !token) setToken(assetsItems[0]?.value)
-  }, [assetsItems])
+    if (!assetsItems.length) return
+
+    if (!token) {
+      setToken(assetsItems[0].value)
+
+      return
+    }
+
+    if (assetsItems.every(({ value }) => value !== token)) {
+      // Try persisting the currently selected by it's label, instead of address.
+      // Use case: WALLET and ADX tokens withdraw and deposit addresses are
+      // different. However, they are displayed with the same label. So try to
+      // match the label and persist the currently selected one.
+      const prevTokenLabel = prevTokens?.find(({ value }) => value === token)?.label
+      const nextToken = assetsItems.find(({ label }) => label === prevTokenLabel) || assetsItems[0]
+
+      setToken(nextToken.value)
+    }
+  }, [assetsItems, prevTokens, token])
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
