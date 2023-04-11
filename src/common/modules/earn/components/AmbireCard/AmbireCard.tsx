@@ -13,6 +13,7 @@ import { BigNumber, constants, Contract, utils } from 'ethers'
 import { formatUnits, Interface, parseUnits } from 'ethers/lib/utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import isEqual from 'react-fast-compare'
+import { View } from 'react-native'
 
 import AmbireLogo from '@common/assets/images/Ambire.png'
 import Button from '@common/components/Button'
@@ -22,6 +23,7 @@ import useRelayerData from '@common/hooks/useRelayerData'
 import Card from '@common/modules/earn/components/Card'
 import { CARDS } from '@common/modules/earn/contexts/cardsVisibilityContext'
 import { getTokenIcon } from '@common/services/icons'
+import spacings from '@common/styles/spacings'
 
 const ADX_TOKEN_ADDRESS = '0xade00c28244d5ce17d72e40330b1c318cd12b7c3'
 const ADX_STAKING_TOKEN_ADDRESS = '0xb6456b57f03352be48bf101b46c1752a0813491a'
@@ -228,15 +230,17 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
       if (token && token.type === 'withdraw' && leaveLog && parseFloat(leaveLog.walletValue) > 0) {
         setCustomInfo(
           <>
-            <Text>
+            <Text weight="medium" style={spacings.mbSm}>
               {msToDaysHours(lockedRemainingTime)}
-              <Text>{' until '}</Text>
-              <Text>
+              <Text weight="medium">{' until '}</Text>
+              <Text weight="medium">
                 {parseFloat(leaveLog.walletValue).toFixed(4)} {selectedToken.label}
               </Text>
-              <Text>{' becomes available for withdraw'}</Text>
+              <Text weight="medium">{' becomes available for withdraw'}</Text>
             </Text>
-            <Text>{`* Because of pending to withdraw, you are not able to unstaking more ${selectedToken.label} until unbond period is end.`}</Text>
+            <Text
+              style={spacings.mbSm}
+            >{`* Because of pending to withdraw, you are not able to unstaking more ${selectedToken.label} until unbond period is end.`}</Text>
 
             <Button
               type="outline"
