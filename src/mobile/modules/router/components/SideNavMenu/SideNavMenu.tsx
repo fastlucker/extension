@@ -16,12 +16,12 @@ import TransferIcon from '@common/assets/svg/TransferIcon'
 import TwitterIcon from '@common/assets/svg/TwitterIcon'
 import AppVersion from '@common/components/AppVersion'
 import Text from '@common/components/Text'
-import { isAndroid, isiOS, isWeb } from '@common/config/env'
+import { isAndroid, isWeb } from '@common/config/env'
 import { termsAndPrivacyURL } from '@common/modules/auth/constants/URLs'
 import ConnectedDapps from '@common/modules/nav-menu/components/ConnectedDapps'
 import GasIndicator from '@common/modules/nav-menu/components/GasIndicator'
 import ManageVaultLockButton from '@common/modules/nav-menu/components/ManageVaultLockButton'
-import Theme from '@common/modules/nav-menu/components/Theme'
+// import Theme from '@common/modules/nav-menu/components/Theme'
 import styles from '@common/modules/nav-menu/styles'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useVault from '@common/modules/vault/hooks/useVault'
@@ -71,8 +71,7 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
 
   const menu = [
     { Icon: DashboardIcon, name: t('Dashboard'), route: ROUTES.dashboard },
-    // TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback
-    ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: ROUTES.earn }] : []),
+    { Icon: EarnIcon, name: t('Earn'), route: ROUTES.earn },
     { Icon: SendIcon, name: t('Send'), route: ROUTES.send },
     { Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap },
     { Icon: TransferIcon, name: t('Transactions'), route: ROUTES.transactions },
@@ -162,7 +161,8 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
         <View style={[spacings.mlTy, spacings.mbSm]}>
           {isAndroid && <ConnectedDapps />}
           {!isWeb && <ManageVaultLockButton handleNavigate={handleNavigate} />}
-          <Theme />
+          {/* TODO: Temporary disabled since v3.1.1 as part of the Apple app review feedback */}
+          {/* <Theme /> */}
           {settings.map((s) => (
             <TouchableOpacity
               key={s.name}

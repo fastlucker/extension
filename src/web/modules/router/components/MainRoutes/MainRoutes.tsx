@@ -3,11 +3,7 @@ import { Outlet, Route, Routes } from 'react-router-dom'
 
 import { EmailLoginProvider } from '@common/modules/auth/contexts/emailLoginContext'
 import { JsonLoginProvider } from '@common/modules/auth/contexts/jsonLoginContext'
-import AddAccountPasswordToVaultScreen from '@common/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import AuthScreen from '@common/modules/auth/screens/AuthScreen'
-import EmailLoginScreen from '@common/modules/auth/screens/EmailLoginScreen'
-import ExternalSignerScreen from '@common/modules/auth/screens/ExternalSignerScreen'
-import JsonLoginScreen from '@common/modules/auth/screens/JsonLoginScreen'
 import CollectibleScreen from '@common/modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@common/modules/earn/screens/EarnScreen'
@@ -18,6 +14,7 @@ import {
   headerBeta as defaultHeaderBeta,
   headerGamma as defaultHeaderGamma
 } from '@common/modules/header/config/headerConfig'
+import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import PendingTransactionsScreen from '@common/modules/pending-transactions/screens/PendingTransactionsScreen'
 import ProviderScreen from '@common/modules/receive/screens/ProviderScreen'
 import ReceiveScreen from '@common/modules/receive/screens/ReceiveScreen'
@@ -25,16 +22,21 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import SendScreen from '@common/modules/send/screens/SendScreen'
 import SignersScreen from '@common/modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@common/modules/sign-message/screens/SignMessageScreen'
-// import SwapScreen from '@mobile/swap/screens/SwapScreen'
 import TransactionsScreen from '@common/modules/transactions/screens/TransactionsScreen'
-import CreateNewVaultScreen from '@common/modules/vault/screens/CreateNewVaultScreen'
-import VaultSetupGetStartedScreen from '@common/modules/vault/screens/VaultSetupGetStartedScreen'
 import colors from '@common/styles/colors'
+import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
 import AccountsImporterScreen from '@web/modules/accounts-importer/screens/AccountsImporterScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/approval-requests/screens/GetEncryptionPublicKeyRequestScreen'
 import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
 import SwitchNetworkRequestScreen from '@web/modules/approval-requests/screens/SwitchNetworkRequestScreen'
 import WatchTokenRequestScreen from '@web/modules/approval-requests/screens/WatchTokenRequestScreen'
+import AddAccountPasswordToVaultScreen from '@web/modules/auth/screens/AddAccountPasswordToVaultScreen'
+import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
+import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
+import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
+import ExternalSignerLoginScreen from '@web/modules/auth/screens/ExternalSignerLoginScreen'
+import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
+import JsonLoginScreen from '@web/modules/auth/screens/JsonLoginScreen'
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import RequestLedgerPermissionScreen from '@web/modules/hardware-wallet/screens/RequestLedgerPermissionScreen'
@@ -43,6 +45,7 @@ import BottomNav from '@web/modules/router/components/BottomNav'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
+import CreateNewVaultScreen from '@web/modules/vault/screens/CreateNewVaultScreen'
 import { getUiType } from '@web/utils/uiType'
 
 const navigationEnabled = !getUiType().isNotification
@@ -93,14 +96,19 @@ const footer = (
 const MainRoutes = () => {
   return (
     <Routes>
-      <Route element={headerBeta}>
+      <Route element={AuthLayoutWrapper}>
+        <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
         <Route element={<TabOnlyRoute />}>
-          <Route path={WEB_ROUTES.getStarted} element={<VaultSetupGetStartedScreen />} />
+          <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
           <Route path={WEB_ROUTES.createVault} element={<CreateNewVaultScreen />} />
           <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
 
+          <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
           <Route element={emailLoginProvider}>
-            <Route path={WEB_ROUTES.ambireAccountLogin} element={<EmailLoginScreen />} />
+            {/* TODO: Temporarily wire-up */}
+            {/* <Route path={WEB_ROUTES.ambireAccountLogin} element={<EmailLoginScreen />} /> */}
+            <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
+            <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
             <Route
               path={WEB_ROUTES.ambireAccountLoginPasswordConfirm}
               element={<AddAccountPasswordToVaultScreen />}
@@ -124,7 +132,7 @@ const MainRoutes = () => {
             path={WEB_ROUTES.hardwareWalletLedgerPermission}
             element={<RequestLedgerPermissionScreen />}
           />
-          <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerScreen />} />
+          <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
           <Route path={WEB_ROUTES.accountsImporter} element={<AccountsImporterScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
         </Route>

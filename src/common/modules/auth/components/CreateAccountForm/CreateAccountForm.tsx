@@ -16,10 +16,11 @@ import { ambireCloudURL, termsAndPrivacyURL } from '@common/modules/auth/constan
 import useCreateAccount from '@common/modules/auth/hooks/useCreateAccount'
 import { triggerLayoutAnimation } from '@common/services/layoutAnimation'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 
 const days = Math.ceil(accountPresets.quickAccTimelock / 86400)
 
-const AddNewAccountScreen = () => {
+const AddNewAccountScreen: React.FC<any> = () => {
   const { t } = useTranslation()
   const { handleAddNewAccount, err, addAccErr } = useCreateAccount()
   const {
@@ -112,7 +113,11 @@ const AddNewAccountScreen = () => {
                 <Text fontSize={12} onPress={() => onChange(!value)}>
                   {'I agree to the '}
                 </Text>
-                <Text fontSize={12} onPress={() => Linking.openURL(termsAndPrivacyURL)} underline>
+                <Text
+                  fontSize={12}
+                  onPress={() => Linking.openURL(termsAndPrivacyURL)}
+                  underline
+                >
                   Terms of Service and Privacy policy.
                 </Text>
               </Text>
@@ -146,7 +151,11 @@ const AddNewAccountScreen = () => {
                 <Text fontSize={12} onPress={() => onChange(!value)}>
                   {'Backup on '}
                 </Text>
-                <Text fontSize={12} onPress={() => Linking.openURL(ambireCloudURL)} underline>
+                <Text
+                  fontSize={12}
+                  onPress={() => Linking.openURL(ambireCloudURL)}
+                  underline
+                >
                   Ambire Cloud.
                 </Text>
               </Text>

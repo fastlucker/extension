@@ -4,7 +4,7 @@ const COMMON_ROUTES = {
   getStarted: 'get-started',
   createVault: 'create-vault',
   auth: 'auth',
-  ambireAccountLogin: 'ambire-account-login',
+  ambireAccountLogin: 'ambire-account-email-login',
   ambireAccountLoginPasswordConfirm: 'ambire-account-login-password-confirm',
   ambireAccountJsonLogin: 'ambire-account-json-login',
   ambireAccountJsonLoginPasswordConfirm: 'ambire-account-json-login-password-confirm',
@@ -23,7 +23,8 @@ const COMMON_ROUTES = {
   gasInformation: 'gas-information',
   signers: 'signers',
   menu: 'menu',
-  swap: 'swap'
+  swap: 'swap',
+  noConnection: 'no-connection'
 }
 
 const MOBILE_ROUTES = {
@@ -46,7 +47,10 @@ const WEB_ROUTES = {
   watchAsset: 'watch-asset',
   hardwareWalletSelect: 'hardware-wallet/select',
   hardwareWalletLedger: 'hardware-wallet/ledger',
-  hardwareWalletLedgerPermission: 'hardware-wallet/ledger-permission'
+  hardwareWalletLedgerPermission: 'hardware-wallet/ledger-permission',
+  authEmailAccount: 'auth-email-account',
+  authEmailLogin: 'auth-email-login',
+  authEmailRegister: 'auth-email-register'
 }
 
 const ROUTES = {

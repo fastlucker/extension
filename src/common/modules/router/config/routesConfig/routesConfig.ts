@@ -4,7 +4,7 @@ import i18n from '@common/config/localization/localization'
 import { ROUTES } from '@common/modules/router/constants/common'
 
 const routesConfig: {
-  [key: keyof typeof ROUTES]: {
+  [key in keyof typeof ROUTES]: {
     route: keyof typeof ROUTES
     title: string
   }
@@ -31,8 +31,21 @@ const routesConfig: {
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
-      default: i18n.t('Welcome')
+      default: i18n.t('Welcome'),
+      web: ''
     })
+  },
+  [ROUTES.authEmailAccount]: {
+    route: ROUTES.authEmailAccount,
+    title: ''
+  },
+  [ROUTES.authEmailLogin]: {
+    route: ROUTES.authEmailLogin,
+    title: ''
+  },
+  [ROUTES.authEmailRegister]: {
+    route: ROUTES.authEmailRegister,
+    title: ''
   },
   [ROUTES.createVault]: {
     route: ROUTES.createVault,
@@ -50,7 +63,8 @@ const routesConfig: {
   [ROUTES.ambireAccountLogin]: {
     route: ROUTES.ambireAccountLogin,
     title: Platform.select({
-      default: i18n.t('Login')
+      default: i18n.t('Login'),
+      web: ''
     })
   },
   [ROUTES.ambireAccountLoginPasswordConfirm]: {
@@ -229,9 +243,7 @@ const routesConfig: {
   },
   [ROUTES.onboarding]: {
     route: ROUTES.onboarding,
-    title: Platform.select({
-      default: i18n.t('Onboarding')
-    })
+    title: ''
   }
 }
 
