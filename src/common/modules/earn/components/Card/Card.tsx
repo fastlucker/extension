@@ -1,3 +1,4 @@
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { ethers } from 'ethers'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { BackHandler, Image, TouchableOpacity, View } from 'react-native'
@@ -41,6 +42,7 @@ const Card = ({
   const [segment, setSegment] = useState<Segment>(areDepositsDisabled ? 'Withdraw' : 'Deposit')
   const { network }: any = useNetwork()
   const [tokens, setTokens] = useState<any>([])
+  const prevTokens = usePrevious(tokens)
   const [token, setToken] = useState<any>()
   const [amount, setAmount] = useState<any>(0)
   const [disabled, setDisabled] = useState<any>(true)
@@ -147,15 +149,28 @@ const Card = ({
         value,
         icon: () => <TokenIcon withContainer uri={icon} networkId={network?.id} address={address} />
       })),
-    [tokens]
+    [network?.id, tokens]
   )
   useEffect(() => {
     if (!assetsItems.length) return
 
-    if (!token || assetsItems.every(({ value }) => value !== token)) {
-      setToken(assetsItems[0]?.value)
+    if (!token) {
+      setToken(assetsItems[0].value)
+
+      return
     }
-  }, [assetsItems, token])
+
+    if (assetsItems.every(({ value }) => value !== token)) {
+      // Try matching the token that should be selected by default by label.
+      // Use case: WALLET and ADX tokens withdraw and deposit have different
+      // addressed, but the same label. So we need to match the label to
+      // leave the currently selected token as it is. Or fallback to the first.
+      const prevTokenLabel = prevTokens?.find(({ value }) => value === token)?.label
+      const nextToken = assetsItems.find(({ label }) => label === prevTokenLabel) || assetsItems[0]
+
+      setToken(nextToken?.value)
+    }
+  }, [assetsItems, prevTokens, token])
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
