@@ -161,10 +161,10 @@ const Card = ({
     }
 
     if (assetsItems.every(({ value }) => value !== token)) {
-      // Try matching the token that should be selected by default by label.
-      // Use case: WALLET and ADX tokens withdraw and deposit have different
-      // addressed, but the same label. So we need to match the label to
-      // leave the currently selected token as it is. Or fallback to the first.
+      // Try persisting the currently selected by it's label, instead of address.
+      // Use case: WALLET and ADX tokens withdraw and deposit addresses are
+      // different. However, they are displayed with the same label. So try to
+      // match the label and persist the currently selected one.
       const prevTokenLabel = prevTokens?.find(({ value }) => value === token)?.label
       const nextToken = assetsItems.find(({ label }) => label === prevTokenLabel) || assetsItems[0]
 
