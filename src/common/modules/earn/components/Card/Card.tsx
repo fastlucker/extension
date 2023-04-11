@@ -168,7 +168,7 @@ const Card = ({
       const prevTokenLabel = prevTokens?.find(({ value }) => value === token)?.label
       const nextToken = assetsItems.find(({ label }) => label === prevTokenLabel) || assetsItems[0]
 
-      setToken(nextToken?.value)
+      setToken(nextToken.value)
     }
   }, [assetsItems, prevTokens, token])
 
