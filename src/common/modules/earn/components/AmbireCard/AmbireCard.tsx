@@ -236,11 +236,11 @@ const AmbireCard = ({ tokens, networkId, selectedAcc, addRequest }: Props) => {
               <Text weight="medium">
                 {parseFloat(leaveLog.walletValue).toFixed(4)} {selectedToken.label}
               </Text>
-              <Text weight="medium">{' becomes available for withdraw'}</Text>
+              <Text weight="medium">{' becomes available for withdraw.'}</Text>
             </Text>
             <Text
               style={spacings.mbSm}
-            >{`* Because of pending to withdraw, you are not able to unstaking more ${selectedToken.label} until unbond period is end.`}</Text>
+            >{`* Because of funds that are pending withdrawal, you are not able to unstake more ${selectedToken.label} tokens until the unbond period is over.`}</Text>
 
             <Button
               type="outline"
