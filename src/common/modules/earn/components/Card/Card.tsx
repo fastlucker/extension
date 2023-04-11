@@ -149,10 +149,13 @@ const Card = ({
       })),
     [tokens]
   )
-
   useEffect(() => {
-    if (assetsItems.length && !token) setToken(assetsItems[0]?.value)
-  }, [assetsItems])
+    if (!assetsItems.length) return
+
+    if (!token || assetsItems.every(({ value }) => value !== token)) {
+      setToken(assetsItems[0]?.value)
+    }
+  }, [assetsItems, token])
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi]}>
