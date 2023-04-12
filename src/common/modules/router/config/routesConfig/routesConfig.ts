@@ -87,12 +87,6 @@ const routesConfig: {
       default: i18n.t('Login')
     })
   },
-  [ROUTES.qrCodeLogin]: {
-    route: ROUTES.qrCodeLogin,
-    title: Platform.select({
-      default: i18n.t('Import with QR Code')
-    })
-  },
   [ROUTES.hardwareWallet]: {
     route: ROUTES.hardwareWallet,
     title: Platform.select({

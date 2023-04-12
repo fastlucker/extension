@@ -22,7 +22,6 @@ import AuthScreen from '@common/modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@common/modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@common/modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@common/modules/auth/screens/JsonLoginScreen'
-import QRCodeLoginScreen from '@common/modules/auth/screens/QRCodeLoginScreen'
 import CollectibleScreen from '@common/modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@common/modules/earn/screens/EarnScreen'
@@ -230,11 +229,6 @@ const AuthStack = () => {
           headerShown: false
         }}
         component={JsonLoginStackScreen}
-      />
-      <Stack.Screen
-        name={MOBILE_ROUTES.qrCodeLogin}
-        options={{ title: routesConfig[ROUTES.qrCodeLogin].title }}
-        component={QRCodeLoginScreen}
       />
       <Stack.Screen
         name={MOBILE_ROUTES.hardwareWallet}
