@@ -29,7 +29,6 @@ const COMMON_ROUTES = {
 
 const MOBILE_ROUTES = {
   ...COMMON_ROUTES,
-  qrCodeLogin: 'qr-code-login',
   connect: 'connect',
   dataDeletionPolicy: 'data-deletion-policy',
   manageVaultLock: 'manage-vault-lock',
