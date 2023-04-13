@@ -1,3 +1,4 @@
+import networks from 'ambire-common/src/constants/networks'
 import React, { useEffect, useRef, useState } from 'react'
 import { View } from 'react-native'
 import { WebView } from 'react-native-webview'
@@ -9,9 +10,37 @@ import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
-import injectionScript from '@mobile/modules/web3/services/webview-inpage/injection'
+// import injectionScript from '@mobile/modules/web3/services/webview-inpage/injection'
+import EthereumProvider from '@mobile/modules/web3/services/webview-inpage/EthereumProvider'
+import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 
 import styles from './styles'
+
+const provider = new EthereumProvider({ networks, DAPP_PROVIDER_URLS })
+
+const realProvider = `
+  alert('Provider injected!')
+
+  window.ethereum = {
+    request: function (args) {
+      // Send a message to the React Native side
+      window.ReactNativeWebView.postMessage(JSON.stringify(args));
+      return new Promise((resolve, reject) => {
+        // Handle the response from the React Native side
+        window.addEventListener("message", function (event) {
+          const response = JSON.parse(event.data);
+          if (response.success) {
+            resolve(response.result);
+          } else {
+            reject(response.error);
+          }
+        });
+      });
+    },
+  };
+
+  true;
+`
 
 const dummyProvider = `
   alert('Dummy provider injected!')
@@ -72,14 +101,18 @@ const Web3BrowserScreen = () => {
   useEffect(() => {}, [])
 
   // Define a function to handle messages from the injected EthereumProvider
-  const handleEthereumProviderMessage = (event) => {
-    const msg = JSON.parse(event.nativeEvent.data)
-    console.log('msg', msg)
-    // if (typeof event?.nativeEvent?.data === 'object') {
-    //   // Parse the message data
-    //   const { type, payload } = JSON.parse(event?.nativeEvent?.data)
-    //   console.log(type, payload)
-    // }
+  const handleEthereumProviderMessage = async (event) => {
+    const request = JSON.parse(event.nativeEvent.data)
+    console.log('request', request)
+
+    // Interact with your EthereumProvider instance and get the response
+    // TODO: Figure out why this hangs.
+    const response = await provider.request(request)
+
+    console.log('response', response)
+
+    // TODO: Send the response back to the WebView
+    webViewRef?.current?.postMessage(JSON.stringify(response))
   }
 
   const selectedDappUrl = route?.params?.selectedDappUrl
@@ -92,7 +125,8 @@ const Web3BrowserScreen = () => {
             ref={webViewRef}
             source={{ uri: selectedDappUrl }}
             onMessage={handleEthereumProviderMessage}
-            injectedJavaScriptBeforeContentLoaded={dummyProvider}
+            injectedJavaScriptBeforeContentLoaded={realProvider}
+            // injectedJavaScriptBeforeContentLoaded={dummyProvider}
             // TODO:
             // injectedJavaScript={scriptToInject}
             startInLoadingState
