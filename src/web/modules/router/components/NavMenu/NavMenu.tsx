@@ -17,7 +17,7 @@ import AppVersion from '@common/components/AppVersion'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
-import { isAndroid, isiOS, isWeb } from '@common/config/env'
+import { isAndroid, isWeb } from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import { termsAndPrivacyURL } from '@common/modules/auth/constants/URLs'
@@ -48,8 +48,7 @@ const NavMenu = () => {
 
   const menu = [
     { Icon: DashboardIcon, name: t('Dashboard'), route: ROUTES.dashboard },
-    // TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback
-    ...(!isiOS ? [{ Icon: EarnIcon, name: t('Earn'), route: ROUTES.earn }] : []),
+    { Icon: EarnIcon, name: t('Earn'), route: ROUTES.earn },
     { Icon: SendIcon, name: t('Send'), route: ROUTES.send },
     ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap }] : []),
     { Icon: TransferIcon, name: t('Transactions'), route: ROUTES.transactions },

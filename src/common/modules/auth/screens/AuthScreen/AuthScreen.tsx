@@ -58,12 +58,6 @@ const AuthScreen = () => {
             onPress={handleAuthButtonPress}
           />
           <AuthButton
-            text={t('Login By QR Code')}
-            type="outline"
-            routeName={ROUTES.qrCodeLogin}
-            onPress={handleAuthButtonPress}
-          />
-          <AuthButton
             text={t('Login with External Signer')}
             type="outline"
             routeName={ROUTES.externalSigner}

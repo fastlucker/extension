@@ -22,7 +22,6 @@ import AuthScreen from '@common/modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@common/modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@common/modules/auth/screens/ExternalSignerScreen'
 import JsonLoginScreen from '@common/modules/auth/screens/JsonLoginScreen'
-import QRCodeLoginScreen from '@common/modules/auth/screens/QRCodeLoginScreen'
 import CollectibleScreen from '@common/modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@common/modules/earn/screens/EarnScreen'
@@ -232,11 +231,6 @@ const AuthStack = () => {
         component={JsonLoginStackScreen}
       />
       <Stack.Screen
-        name={MOBILE_ROUTES.qrCodeLogin}
-        options={{ title: routesConfig[ROUTES.qrCodeLogin].title }}
-        component={QRCodeLoginScreen}
-      />
-      <Stack.Screen
         name={MOBILE_ROUTES.hardwareWallet}
         options={{ title: routesConfig[ROUTES.hardwareWallet].title }}
         component={HardwareWalletConnectScreen}
@@ -359,21 +353,17 @@ const TabsScreens = () => {
         }}
         component={DashboardStackScreen}
       />
-      {/* TODO: Temporary disabled for iOS since v1.9.2 as part of the Apple app review feedback */}
-      {/* Also excluded from the bundle by including an empty EarnScreen.ios.tsx */}
-      {isAndroid && (
-        <Tab.Screen
-          name={MOBILE_ROUTES.earn}
-          options={{
-            tabBarLabel: routesConfig[ROUTES.earn].title,
-            headerTitle: routesConfig[ROUTES.earn].title,
-            tabBarIcon: ({ color }) => (
-              <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-            )
-          }}
-          component={EarnScreen}
-        />
-      )}
+      <Tab.Screen
+        name={MOBILE_ROUTES.earn}
+        options={{
+          tabBarLabel: routesConfig[ROUTES.earn].title,
+          headerTitle: routesConfig[ROUTES.earn].title,
+          tabBarIcon: ({ color }) => (
+            <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+          )
+        }}
+        component={EarnScreen}
+      />
       <Tab.Screen
         name={MOBILE_ROUTES.send}
         options={{
