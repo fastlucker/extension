@@ -22,6 +22,10 @@ const realProvider = `
   alert('Provider injected!')
 
   window.ethereum = {
+    isMetaMask: false,
+    isConnected: function () {
+      return true
+    },
     request: function (args) {
       // Send a message to the React Native side
       window.ReactNativeWebView.postMessage(JSON.stringify(args));
@@ -112,7 +116,9 @@ const Web3BrowserScreen = () => {
     console.log('response', response)
 
     // TODO: Send the response back to the WebView
-    webViewRef?.current?.postMessage(JSON.stringify(response))
+    webViewRef?.current?.injectJavaScript(
+      `window.dispatchEvent(new MessageEvent('message', { data: '${JSON.stringify(response)}' }));`
+    )
   }
 
   const selectedDappUrl = route?.params?.selectedDappUrl
