@@ -47,7 +47,8 @@ class EthereumProvider extends EventEmitter {
 
   isMetaMask = true
 
-  _isReady = false
+  // TODO: Temporarily set to true to avoid breaking the app
+  _isReady = true
 
   _isConnected = false
 
@@ -190,6 +191,27 @@ class EthereumProvider extends EventEmitter {
     if (!data) {
       throw ethErrors.rpc.invalidRequest()
     }
+
+    // TODO: Temporarily return dummy:
+    switch (data.method) {
+      case 'eth_accounts':
+        return ['0xdd2a7Dc3d038b5EA4164D41B3617aDa5eb4179bf']
+      case 'eth_chainId':
+        return '0x1'
+      case 'net_version':
+        return '1'
+      case 'eth_requestAccounts':
+        return ['0xdd2a7Dc3d038b5EA4164D41B3617aDa5eb4179bf']
+      case 'personal_sign':
+        return '0xYourSignedMessage'
+      case 'eth_sendTransaction':
+        return '0xYourTransactionHash'
+      // Add more methods as needed
+      default:
+    }
+
+    // TODO: Try with:
+    // window.ReactNativeWebView.postMessage(JSON.stringify(message))
 
     return this._requestPromise.call(() => {
       if (
