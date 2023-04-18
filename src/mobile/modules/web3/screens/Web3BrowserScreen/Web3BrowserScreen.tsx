@@ -21,24 +21,30 @@ const provider = new EthereumProvider({ networks, DAPP_PROVIDER_URLS })
 const realProvider = `
   alert('Provider injected!')
 
+  function handleProviderResponse(response) {
+    alert('Response came in web view: ' + JSON.stringify(response));
+    const { id, success, result, error } = response;
+    if (success) {
+      window.ethereum.promises[id].resolve(result);
+    } else {
+      window.ethereum.promises[id].reject(error);
+    }
+    delete window.ethereum.promises[id];
+  }
+
   window.ethereum = {
     isMetaMask: false,
     isConnected: function () {
       return true
     },
+    promises: {},
     request: function (args) {
-      // Send a message to the React Native side
-      window.ReactNativeWebView.postMessage(JSON.stringify(args));
+      const id = Date.now() + Math.random(); // Generate a unique ID
+      // Send a message to the React Native side with the ID
+      window.ReactNativeWebView.postMessage(JSON.stringify({ ...args, id }));
       return new Promise((resolve, reject) => {
-        // Handle the response from the React Native side
-        window.addEventListener("message", function (event) {
-          const response = JSON.parse(event.data);
-          if (response.success) {
-            resolve(response.result);
-          } else {
-            reject(response.error);
-          }
-        });
+        // Save the resolve and reject functions with the ID
+        window.ethereum.promises[id] = { resolve, reject };
       });
     },
   };
@@ -111,14 +117,19 @@ const Web3BrowserScreen = () => {
 
     // Interact with your EthereumProvider instance and get the response
     // TODO: Figure out why this hangs.
-    const response = await provider.request(request)
+    const result = await provider.request(request)
+
+    const response = {
+      id: request.id,
+      method: request.method,
+      success: true, // or false if there is an error
+      result // or error: {} if there is an error
+    }
 
     console.log('response', response)
 
     // TODO: Send the response back to the WebView
-    webViewRef?.current?.injectJavaScript(
-      `window.dispatchEvent(new MessageEvent('message', { data: '${JSON.stringify(response)}' }));`
-    )
+    webViewRef?.current?.injectJavaScript(`handleProviderResponse(${JSON.stringify(response)});`)
   }
 
   const selectedDappUrl = route?.params?.selectedDappUrl
