@@ -1,13 +1,5 @@
 import RNFS from 'react-native-fs'
 
-import { ethErrors } from 'eth-rpc-errors'
-
-import { providers } from 'ethers'
-import { EventEmitter } from 'events'
-import { forIn } from 'lodash'
-
-import { Platform } from 'react-native'
-
 import { useEffect, useState } from 'react'
 
 const interval = 1000
