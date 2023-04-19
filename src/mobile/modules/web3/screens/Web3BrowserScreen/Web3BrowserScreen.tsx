@@ -1,114 +1,22 @@
 import networks from 'ambire-common/src/constants/networks'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef } from 'react'
 import { View } from 'react-native'
 import { WebView } from 'react-native-webview'
 
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Spinner from '@common/components/Spinner'
 import Wrapper from '@common/components/Wrapper'
-import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
-import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
-// import injectionScript from '@mobile/modules/web3/services/webview-inpage/injection'
-import EthereumProvider from '@mobile/modules/web3/services/webview-inpage/EthereumProvider'
-import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
+import useGetProviderInjection from '@mobile/modules/web3/services/webview-inpage/injection-script'
 
 import styles from './styles'
 
-const provider = new EthereumProvider({ networks, DAPP_PROVIDER_URLS })
-
-const realProvider = `
-  alert('Provider injected!')
-
-  function handleProviderResponse(response) {
-    alert('Response came in web view: ' + JSON.stringify(response));
-    const { id, success, result, error } = response;
-    if (success) {
-      window.ethereum.promises[id].resolve(result);
-    } else {
-      window.ethereum.promises[id].reject(error);
-    }
-    delete window.ethereum.promises[id];
-  }
-
-  window.ethereum = {
-    isMetaMask: false,
-    isConnected: function () {
-      return true
-    },
-    promises: {},
-    request: function (args) {
-      const id = Date.now() + Math.random(); // Generate a unique ID
-      // Send a message to the React Native side with the ID
-      window.ReactNativeWebView.postMessage(JSON.stringify({ ...args, id }));
-      return new Promise((resolve, reject) => {
-        // Save the resolve and reject functions with the ID
-        window.ethereum.promises[id] = { resolve, reject };
-      });
-    },
-  };
-
-  true;
-`
-
-const dummyProvider = `
-  alert('Dummy provider injected!')
-  window.ReactNativeWebView = window.ReactNativeWebView || {};
-
-  window.ReactNativeWebView.postMessage = function (message) {
-    window.ReactNativeWebView.postMessage(JSON.stringify(message));
-  };
-
-  function handleRequest(args) {
-    alert('Request received: ' + JSON.stringify(args));
-    switch (args.method) {
-      case 'eth_accounts':
-        return ['0x742d35Cc6634C0532925a3b844Bc454e4438f44e'];
-      default:
-        throw new Error('Method not supported: ' + args.method);
-    }
-  }
-
-  const customProvider = {
-    isMetaMask: false,
-    isConnected: function () {
-      return true
-    },
-    request: async function (args) {
-      switch (args.method) {
-        case 'eth_accounts':
-          return ['0xdd2a7Dc3d038b5EA4164D41B3617aDa5eb4179bf']
-        case 'eth_chainId':
-          return '0x1'
-        case 'net_version':
-          return '1'
-        case 'eth_requestAccounts':
-          return ['0xdd2a7Dc3d038b5EA4164D41B3617aDa5eb4179bf']
-        case 'personal_sign':
-          return '0xYourSignedMessage'
-        case 'eth_sendTransaction':
-          return '0xYourTransactionHash'
-        // Add more methods as needed
-        default:
-          throw new Error('Method ' + args.method + ' not supported')
-      }
-    }
-  };
-
-  window.ethereum = customProvider;
-  true;
-`
-
 const Web3BrowserScreen = () => {
-  const [scriptToInject, setScriptToInject] = useState<any>(null)
-
   const webViewRef = useRef(null)
   const route = useRoute()
-  const { goBack } = useNavigation()
-  const { addToast } = useToast()
 
-  useEffect(() => {}, [])
+  const providerToInject = useGetProviderInjection()
 
   // Define a function to handle messages from the injected EthereumProvider
   const handleEthereumProviderMessage = async (event) => {
@@ -117,19 +25,14 @@ const Web3BrowserScreen = () => {
 
     // Interact with your EthereumProvider instance and get the response
     // TODO: Figure out why this hangs.
-    const result = await provider.request(request)
+    // const response = await provider.request(request)
 
-    const response = {
-      id: request.id,
-      method: request.method,
-      success: true, // or false if there is an error
-      result // or error: {} if there is an error
-    }
-
-    console.log('response', response)
+    // console.log('response', response)
 
     // TODO: Send the response back to the WebView
-    webViewRef?.current?.injectJavaScript(`handleProviderResponse(${JSON.stringify(response)});`)
+    // webViewRef?.current?.injectJavaScript(
+    //   `window.dispatchEvent(new MessageEvent('message', { data: '${JSON.stringify(response)}' }));`
+    // )
   }
 
   const selectedDappUrl = route?.params?.selectedDappUrl
@@ -142,10 +45,7 @@ const Web3BrowserScreen = () => {
             ref={webViewRef}
             source={{ uri: selectedDappUrl }}
             onMessage={handleEthereumProviderMessage}
-            injectedJavaScriptBeforeContentLoaded={realProvider}
-            // injectedJavaScriptBeforeContentLoaded={dummyProvider}
-            // TODO:
-            // injectedJavaScript={scriptToInject}
+            injectedJavaScriptBeforeContentLoaded={providerToInject}
             startInLoadingState
             renderLoading={() => (
               <View style={styles.loadingWrapper}>
