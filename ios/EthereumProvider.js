@@ -1,8 +1,6 @@
 /* eslint-disable max-classes-per-file */
 // import { ethErrors } from 'eth-rpc-errors'
 
-// import { EventEmitter } from 'events'
-
 const intToHex = function (i) {
   if (!Number.isSafeInteger(i) || i < 0) {
     throw new Error(`Received an invalid integer type: ${i}`)
@@ -185,6 +183,21 @@ alert('injection')
 
 const $ = document.querySelector.bind(document)
 
+function handleProviderResponse(response) {
+  alert(`Response came in web view: ${JSON.stringify(response)}`)
+  try {
+    const { id, success, result, error } = response
+    if (success) {
+      window.ethereum.promises[id].resolve(result)
+    } else {
+      window.ethereum.promises[id].reject(error)
+    }
+    delete window.ethereum.promises[id]
+  } catch (error) {
+    alert(error)
+  }
+}
+
 class EthereumProvider {
   chainId = null
 
@@ -206,6 +219,8 @@ class EthereumProvider {
   _initialized = false
 
   _isUnlocked = false
+
+  promises = {}
 
   _cacheRequestsBeforeReady = []
 
@@ -247,31 +262,26 @@ class EthereumProvider {
   }
 
   initialize = async () => {
-    if (window?.ReactNativeWebView) {
-      window.ReactNativeWebView.postMessage(
-        JSON.stringify({
-          method: 'tabCheckin',
-          params: { origin }
-        }),
-        '*'
-      )
-      this._requestPromise.check(2)
-    }
     domReadyCall(() => {
       const origin = location?.origin
       const icon =
         $('head > link[rel~="icon"]')?.href || $('head > meta[itemprop="image"]')?.content
       const name = document.title || $('head > meta[name="title"]')?.content || origin
-      this._bcm.request({
-        method: 'tabCheckin',
-        params: { icon, name, origin }
-      })
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          method: 'tabCheckin',
+          params: { icon, name, origin }
+        }),
+        '*'
+      )
       this._requestPromise.check(2)
     })
+    alert('1')
     try {
       const { chainId, accounts, networkVersion, isUnlocked } = await this.request({
         method: 'getProviderState'
       })
+      alert('4')
       if (isUnlocked) {
         this._isUnlocked = true
         this._state.isUnlocked = true
@@ -298,6 +308,7 @@ class EthereumProvider {
 
   // TODO: support multi request!
   request = async (data) => {
+    alert(`3${this._isReady}`)
     if (!this._isReady) {
       const promise = new Promise((resolve, reject) => {
         this._cacheRequestsBeforeReady.push({
@@ -312,28 +323,12 @@ class EthereumProvider {
   }
 
   _request = async (data) => {
+    alert(`3-1: ${data}`)
+
     if (!data) {
       // throw ethErrors.rpc.invalidRequest()
     }
-    // TODO: Temporarily return dummy:
-    switch (data.method) {
-      case 'eth_accounts':
-        return ['0xdd2a7Dc3d038b5EA4164D41B3617aDa5eb4179bf']
-      case 'eth_chainId':
-        return '0x1'
-      case 'net_version':
-        return '1'
-      case 'eth_requestAccounts':
-        return ['0xdd2a7Dc3d038b5EA4164D41B3617aDa5eb4179bf']
-      case 'personal_sign':
-        return '0xYourSignedMessage'
-      case 'eth_sendTransaction':
-        return '0xYourTransactionHash'
-      // Add more methods as needed
-      default:
-    }
-    // TODO: Try with:
-    // window.ReactNativeWebView.postMessage(JSON.stringify(message))
+
     return this._requestPromise.call(() => {
       if (
         data.method.startsWith('eth_') &&
@@ -351,15 +346,12 @@ class EthereumProvider {
             })
         }
       }
-      return window?.ReactNativeWebView
-        ? window?.ReactNativeWebView?.postMessage(JSON.stringify(data), '*')
-        : null
-      // .then((res) => {
-      //   return res
-      // })
-      // .catch((err) => {
-      //   throw serializeError(err)
-      // })
+      window.ReactNativeWebView.postMessage(JSON.stringify(data), '*')
+      return new Promise((resolve, reject) => {
+        // Save the resolve and reject functions with the ID
+        const id = Date.now() + Math.random()
+        window.ethereum.promises[id] = { resolve, reject }
+      })
     })
   }
 

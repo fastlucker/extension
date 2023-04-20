@@ -10,10 +10,6 @@ const useGetProviderInjection = () => {
   const filePath = `${RNFS.MainBundlePath}/EthereumProvider.js`
 
   useEffect(() => {
-    RNFS.readDir(RNFS.MainBundlePath).then((res) => {
-      console.log('res', res)
-    })
-
     let intervalId
     let prevModifiedTime
 
