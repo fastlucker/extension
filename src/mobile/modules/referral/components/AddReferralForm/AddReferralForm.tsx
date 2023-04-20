@@ -89,6 +89,7 @@ const AddReferralForm = ({ onSubmit }: Props) => {
       />
 
       <Button
+        style={spacings.mtTy}
         onPress={handleSubmit}
         text={t('Submit')}
         disabled={!addr || !isValidAddress(uDAddress || ensAddress || addr)}
