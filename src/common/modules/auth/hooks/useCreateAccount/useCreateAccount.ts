@@ -8,6 +8,7 @@ import performance from 'react-native-performance'
 
 import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
+import useStorageController from '@common/hooks/useStorageController'
 import useToast from '@common/hooks/useToast'
 import { getProxyDeployBytecode } from '@common/modules/auth/services/IdentityProxyDeploy'
 import useVault from '@common/modules/vault/hooks/useVault'
@@ -23,6 +24,7 @@ export default function useCreateAccount() {
   const [err, setErr] = useState<string>('')
   const [addAccErr, setAddAccErr] = useState<string>('')
   const [inProgress, setInProgress] = useState<boolean | string>(false)
+  const { getItem } = useStorageController()
 
   const { onAddAccount } = useAccounts()
   const { addToast } = useToast()
@@ -101,6 +103,8 @@ export default function useCreateAccount() {
       await firstKeyWallet.encrypt(req.password, accountPresets.encryptionOpts)
     )
 
+    const referral = getItem('pendingReferral')
+
     const createResp = await fetchPost(`${CONFIG.RELAYER_URL}/identity/${identityAddr}`, {
       email: req.email,
       primaryKeyBackup: req.backup ? undefined : primaryKeyBackup,
@@ -109,7 +113,8 @@ export default function useCreateAccount() {
       identityFactoryAddr,
       baseIdentityAddr,
       privileges,
-      quickAccSigner: signer
+      quickAccSigner: signer,
+      ...(!!referral && { referral })
     })
     if (createResp.message === 'EMAIL_ALREADY_USED') {
       setErr('An account with this email already exists')

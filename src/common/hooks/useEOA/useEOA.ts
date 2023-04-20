@@ -9,6 +9,8 @@ import useToast from '@common/hooks/useToast'
 import { getProxyDeployBytecode } from '@common/modules/auth/services/IdentityProxyDeploy'
 import { fetchPost } from '@common/services/fetch'
 
+import useStorageController from '../useStorageController'
+
 const relayerURL = CONFIG.RELAYER_URL
 
 // EOA implementation = Externally Owned Account
@@ -16,6 +18,7 @@ const relayerURL = CONFIG.RELAYER_URL
 export default function useEOA() {
   const { onAddAccount } = useAccounts()
   const { addToast } = useToast()
+  const { getItem } = useStorageController()
 
   const getAccountByAddr = useCallback(async (idAddr, signerAddr) => {
     // In principle, we need these values to be able to operate in relayerless mode,
@@ -74,12 +77,15 @@ export default function useEOA() {
     )
 
     if (relayerURL) {
+      const referral = getItem('pendingReferral')
+
       const createResp = await fetchPost(`${relayerURL}/identity/${identityAddr}`, {
         salt,
         identityFactoryAddr,
         baseIdentityAddr,
         privileges,
-        signerType
+        signerType,
+        ...(!!referral && { referral })
       })
       if (
         !createResp.success &&
