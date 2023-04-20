@@ -28,6 +28,10 @@ const routesConfig: {
       default: i18n.t('No Connection')
     })
   },
+  [ROUTES.addReferral]: {
+    route: ROUTES.addReferral,
+    title: ''
+  },
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({

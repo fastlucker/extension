@@ -201,6 +201,11 @@ const AuthStack = () => {
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <>
           <Stack.Screen
+            name={MOBILE_ROUTES.addReferral}
+            options={{ title: routesConfig[ROUTES.addReferral].title }}
+            component={VaultSetupGetStartedScreen}
+          />
+          <Stack.Screen
             name={MOBILE_ROUTES.getStarted}
             options={{ title: routesConfig[ROUTES.getStarted].title }}
             component={VaultSetupGetStartedScreen}
