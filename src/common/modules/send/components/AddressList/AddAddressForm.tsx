@@ -105,16 +105,6 @@ const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
     })
   }
 
-  const setValidationLabel = () => {
-    if (uDAddress) {
-      return t('Valid Unstoppable domainsⓇ domain')
-    }
-    if (ensAddress) {
-      return t('Valid Ethereum Name ServicesⓇ domain')
-    }
-    return ''
-  }
-
   return (
     <>
       <View style={[spacings.mbSm, flexboxStyles.alignCenter]}>
@@ -134,7 +124,6 @@ const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
         containerStyle={spacings.mbTy}
         placeholder={t('Address / Unstoppable domainsⓇ / Ethereum Name ServicesⓇ domain')}
         isValid={!!uDAddress || !!ensAddress}
-        validLabel={setValidationLabel()}
         error={
           checkedIsUDAddress.current &&
           !!addr &&
