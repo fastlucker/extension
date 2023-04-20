@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
 import Button from '@common/components/Button'
@@ -6,17 +6,33 @@ import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrap
 import Text from '@common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import { isWeb } from '@common/config/env'
-import { useTranslation } from '@common/config/localization'
+import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useStorageController from '@common/hooks/useStorageController'
 import AmbireLogo from '@common/modules/auth/components/AmbireLogo'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import AddReferralForm, {
+  AddReferralFormValues
+} from '@mobile/modules/referral/components/AddReferralForm'
 
 const AddReferralScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { setItem } = useStorageController()
+
+  const handleSubmit = useCallback(
+    (values: AddReferralFormValues) => {
+      console.log(values)
+
+      setItem('pendingReferral', values.address)
+
+      navigate(ROUTES.getStarted, { replace: true })
+    },
+    [navigate, setItem]
+  )
 
   return (
     <GradientBackgroundWrapper>
@@ -36,11 +52,7 @@ const AddReferralScreen = () => {
             </Text>
           </View>
 
-          <Button
-            style={spacings.mt}
-            text={t('Get Started')}
-            onPress={() => navigate(ROUTES.getStarted, { replace: true })}
-          />
+          <AddReferralForm onSubmit={handleSubmit} />
         </View>
       </Wrapper>
     </GradientBackgroundWrapper>
