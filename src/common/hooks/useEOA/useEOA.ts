@@ -77,7 +77,7 @@ export default function useEOA() {
     )
 
     if (relayerURL) {
-      const referral = getItem('pendingReferral')
+      const referral = JSON.parse(getItem('pendingReferral') || null)
 
       const createResp = await fetchPost(`${relayerURL}/identity/${identityAddr}`, {
         salt,
@@ -85,7 +85,7 @@ export default function useEOA() {
         baseIdentityAddr,
         privileges,
         signerType,
-        ...(!!referral && { referral })
+        ...(!!referral && { referral: referral.hexAddress })
       })
       if (
         !createResp.success &&

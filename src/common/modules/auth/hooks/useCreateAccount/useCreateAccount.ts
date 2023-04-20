@@ -103,7 +103,7 @@ export default function useCreateAccount() {
       await firstKeyWallet.encrypt(req.password, accountPresets.encryptionOpts)
     )
 
-    const referral = getItem('pendingReferral')
+    const referral = JSON.parse(getItem('pendingReferral') || null)
 
     const createResp = await fetchPost(`${CONFIG.RELAYER_URL}/identity/${identityAddr}`, {
       email: req.email,
@@ -114,7 +114,7 @@ export default function useCreateAccount() {
       baseIdentityAddr,
       privileges,
       quickAccSigner: signer,
-      ...(!!referral && { referral })
+      ...(!!referral && { referral: referral.hexAddress })
     })
     if (createResp.message === 'EMAIL_ALREADY_USED') {
       setErr('An account with this email already exists')

@@ -18,16 +18,18 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 
 export type AddReferralFormValues = {
   address: Address['address']
+  hexAddress: Address['address']
   type: Address['type']
 }
 
 interface Props {
+  initialValue: string
   onSubmit: ({ address, type }: AddReferralFormValues) => void
 }
 
-const AddReferralForm = ({ onSubmit }: Props) => {
+const AddReferralForm = ({ onSubmit, initialValue }: Props) => {
   const { t } = useTranslation()
-  const [addr, setAddr] = useState<string>('')
+  const [addr, setAddr] = useState<string>(initialValue || '')
   const [uDAddress, setUDAddress] = useState<string>('')
   const [ensAddress, setEnsAddress] = useState<string>('')
 
@@ -65,7 +67,8 @@ const AddReferralForm = ({ onSubmit }: Props) => {
 
   const handleSubmit = () => {
     onSubmit({
-      address: uDAddress || ensAddress || addr,
+      address: addr,
+      hexAddress: uDAddress || ensAddress || addr,
       type: uDAddress ? 'ud' : ensAddress ? 'ens' : 'pub'
     })
   }

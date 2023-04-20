@@ -22,13 +22,13 @@ import AddReferralForm, {
 const AddReferralScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { setItem } = useStorageController()
+  const { setItem, getItem } = useStorageController()
 
   const handleSubmit = useCallback(
     (values: AddReferralFormValues) => {
       console.log(values)
 
-      setItem('pendingReferral', values.address)
+      setItem('pendingReferral', JSON.stringify(values))
 
       navigate(ROUTES.getStarted, { replace: true })
     },
@@ -38,6 +38,9 @@ const AddReferralScreen = () => {
   const handleSkip = useCallback(() => {
     navigate(ROUTES.getStarted, { replace: true })
   }, [navigate])
+
+  const pendingReferral = JSON.parse(getItem('pendingReferral') || null)
+  const initialValue = pendingReferral ? pendingReferral.address : ''
 
   return (
     <GradientBackgroundWrapper>
@@ -67,7 +70,7 @@ const AddReferralScreen = () => {
             </Text>
           </View>
 
-          <AddReferralForm onSubmit={handleSubmit} />
+          <AddReferralForm initialValue={initialValue} onSubmit={handleSubmit} />
 
           <Trans>
             <Text weight="light" color={colors.titan} fontSize={16} style={spacings.mtLg}>
