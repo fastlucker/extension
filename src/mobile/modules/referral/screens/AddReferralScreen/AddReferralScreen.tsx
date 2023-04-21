@@ -6,6 +6,7 @@ import Text from '@common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useToast from '@common/hooks/useToast'
 import AmbireLogo from '@common/modules/auth/components/AmbireLogo'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
@@ -20,16 +21,34 @@ import useReferral from '../../hooks/useReferral'
 
 const AddReferralScreen = () => {
   const { t } = useTranslation()
+  const { addToast } = useToast()
   const { navigate } = useNavigation()
-  const { setPendingReferral, getPendingReferral } = useReferral()
+  const { setPendingReferral, getPendingReferral, checkIfAddressIsEligibleForReferral } =
+    useReferral()
 
   const handleSubmit = useCallback(
-    (values: AddReferralFormValues) => {
-      setPendingReferral(values)
+    async (values: AddReferralFormValues) => {
+      try {
+        const response = await checkIfAddressIsEligibleForReferral(values.hexAddress)
 
-      navigate(ROUTES.getStarted, { replace: true })
+        // TODO: handle error!
+        if (!response) {
+          return
+        }
+
+        setPendingReferral(values)
+
+        navigate(ROUTES.getStarted, { replace: true })
+      } catch (e) {
+        addToast(
+          t('Checking if the referral address is eligible failed. Please try again later.'),
+          {
+            error: true
+          }
+        )
+      }
     },
-    [navigate, setPendingReferral]
+    [checkIfAddressIsEligibleForReferral, setPendingReferral, navigate, addToast, t]
   )
 
   const handleSkip = useCallback(() => {
