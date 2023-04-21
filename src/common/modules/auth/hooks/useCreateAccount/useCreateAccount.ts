@@ -114,7 +114,7 @@ export default function useCreateAccount() {
       baseIdentityAddr,
       privileges,
       quickAccSigner: signer,
-      ...(!!referral && { referral: referral.hexAddress })
+      ...(!!referral && { referralAddr: referral.hexAddress })
     })
     if (createResp.message === 'EMAIL_ALREADY_USED') {
       setErr('An account with this email already exists')
