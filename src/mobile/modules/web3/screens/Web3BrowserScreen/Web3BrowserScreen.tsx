@@ -1,4 +1,5 @@
 import networks from 'ambire-common/src/constants/networks'
+import { providers } from 'ethers'
 import React, { useRef } from 'react'
 import { View } from 'react-native'
 import { WebView } from 'react-native-webview'
@@ -32,8 +33,16 @@ const Web3BrowserScreen = () => {
     const req = { data, session, origin }
     const result = await providerController(req)
     console.log('result', result)
+
+    const response = {
+      id: data.id,
+      method: data.method,
+      success: true, // or false if there is an error
+      result // or error: {} if there is an error
+    }
+
     if (result) {
-      webViewRef?.current?.injectJavaScript(`handleProviderResponse(${JSON.stringify(result)});`)
+      webViewRef?.current?.injectJavaScript(`handleProviderResponse(${JSON.stringify(response)});`)
     }
   }
 

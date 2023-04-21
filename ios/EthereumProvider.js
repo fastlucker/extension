@@ -179,12 +179,11 @@ const domReadyCall = (callback) => {
   }
 }
 
-alert('injection')
-
 const $ = document.querySelector.bind(document)
 
+// This func is dynamically called from the RN side via the webViewRef?.current?.injectJavaScript method
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function handleProviderResponse(response) {
-  alert(`Response came in web view: ${JSON.stringify(response)}`)
   try {
     const { id, success, result, error } = response
     if (success) {
@@ -194,7 +193,7 @@ function handleProviderResponse(response) {
     }
     delete window.ethereum.promises[id]
   } catch (error) {
-    alert(error)
+    console.error(error)
   }
 }
 
@@ -244,7 +243,7 @@ class EthereumProvider {
 
   _pushEventHandlers
 
-  _requestPromise = new ReadyPromise(2)
+  _requestPromise = new ReadyPromise(1)
 
   _dedupePromise = new DedupePromise([
     'personal_sign',
@@ -274,14 +273,12 @@ class EthereumProvider {
         }),
         '*'
       )
-      this._requestPromise.check(2)
+      this._requestPromise.check(1)
     })
-    alert('1')
     try {
       const { chainId, accounts, networkVersion, isUnlocked } = await this.request({
         method: 'getProviderState'
       })
-      alert('4')
       if (isUnlocked) {
         this._isUnlocked = true
         this._state.isUnlocked = true
@@ -293,6 +290,35 @@ class EthereumProvider {
         networkVersion
       })
       this._pushEventHandlers.accountsChanged(accounts)
+
+      // eslint-disable-next-line no-restricted-globals
+      // TODO:
+      // const { hostname } = location
+      // if (DAPP_PROVIDER_URLS[hostname]) {
+      //   // eslint-disable-next-line no-restricted-syntax
+      //   Object.entries(DAPP_PROVIDER_URLS[hostname]).forEach(async ([networkId, providerUrl]) => {
+      //     const network = networks.find((n) => n.id === networkId)
+      //     if (!network || !providerUrl) return
+
+      //     try {
+      //       this.dAppOwnProviders[network.id] = providerUrl.startsWith('wss:')
+      //         ? new providers.WebSocketProvider(providerUrl, {
+      //             name: network.name,
+      //             chainId: network.chainId
+      //           })
+      //         : new providers.JsonRpcProvider(providerUrl, {
+      //             name: network.name,
+      //             chainId: network.chainId
+      //           })
+
+      //       // Acts as a mechanism to check if the provider credentials work
+      //       // eslint-disable-next-line no-await-in-loop
+      //       await this.dAppOwnProviders[network.id]?.getNetwork()
+      //     } catch (e) {
+      //       this.dAppOwnProviders[network.id] = null
+      //     }
+      //   })
+      // }
     } catch {
       //
     } finally {
@@ -308,7 +334,6 @@ class EthereumProvider {
 
   // TODO: support multi request!
   request = async (data) => {
-    alert(`3${this._isReady}`)
     if (!this._isReady) {
       const promise = new Promise((resolve, reject) => {
         this._cacheRequestsBeforeReady.push({
@@ -323,33 +348,33 @@ class EthereumProvider {
   }
 
   _request = async (data) => {
-    alert(`3-1: ${data}`)
-
     if (!data) {
       // throw ethErrors.rpc.invalidRequest()
     }
-
     return this._requestPromise.call(() => {
-      if (
-        data.method.startsWith('eth_') &&
-        !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
-      ) {
-        const network = [].find((n) => intToHex(n.chainId) === this.chainId)
-        if (network?.id && this.dAppOwnProviders[network.id]) {
-          return this.dAppOwnProviders[network.id]
-            ?.send(data.method, data.params)
-            .then((res) => {
-              return res
-            })
-            .catch((err) => {
-              throw err
-            })
-        }
-      }
+      // TODO:
+      // if (
+      //   data.method.startsWith('eth_') &&
+      //   !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
+      // ) {
+      //   // eslint-disable-next-line no-undef
+      //   const network = networks?.find((n) => intToHex(n.chainId) === this.chainId)
+      //   if (network?.id && this.dAppOwnProviders[network.id]) {
+      //     return this.dAppOwnProviders[network.id]
+      //       ?.send(data.method, data.params)
+      //       .then((res) => {
+      //         return res
+      //       })
+      //       .catch((err) => {
+      //         throw err
+      //       })
+      //   }
+      // }
+      const id = Date.now() + Math.random()
+      data.id = id
       window.ReactNativeWebView.postMessage(JSON.stringify(data), '*')
       return new Promise((resolve, reject) => {
         // Save the resolve and reject functions with the ID
-        const id = Date.now() + Math.random()
         window.ethereum.promises[id] = { resolve, reject }
       })
     })
