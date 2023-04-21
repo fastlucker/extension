@@ -8,8 +8,7 @@ import useAccounts from '@common/hooks/useAccounts'
 import useToast from '@common/hooks/useToast'
 import { getProxyDeployBytecode } from '@common/modules/auth/services/IdentityProxyDeploy'
 import { fetchPost } from '@common/services/fetch'
-
-import useStorageController from '../useStorageController'
+import useReferral from '@mobile/modules/referral/hooks/useReferral'
 
 const relayerURL = CONFIG.RELAYER_URL
 
@@ -18,7 +17,7 @@ const relayerURL = CONFIG.RELAYER_URL
 export default function useEOA() {
   const { onAddAccount } = useAccounts()
   const { addToast } = useToast()
-  const { getItem } = useStorageController()
+  const { getPendingReferral } = useReferral()
 
   const getAccountByAddr = useCallback(async (idAddr, signerAddr) => {
     // In principle, we need these values to be able to operate in relayerless mode,
@@ -77,7 +76,7 @@ export default function useEOA() {
     )
 
     if (relayerURL) {
-      const referral = JSON.parse(getItem('pendingReferral') || null)
+      const referral = getPendingReferral()
 
       const createResp = await fetchPost(`${relayerURL}/identity/${identityAddr}`, {
         salt,

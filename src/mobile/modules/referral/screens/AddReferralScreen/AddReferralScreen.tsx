@@ -1,14 +1,11 @@
 import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
-import Button from '@common/components/Button'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
-import { isWeb } from '@common/config/env'
 import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useStorageController from '@common/hooks/useStorageController'
 import AmbireLogo from '@common/modules/auth/components/AmbireLogo'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
@@ -19,28 +16,28 @@ import AddReferralForm, {
   AddReferralFormValues
 } from '@mobile/modules/referral/components/AddReferralForm'
 
+import useReferral from '../../hooks/useReferral'
+
 const AddReferralScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { setItem, getItem } = useStorageController()
+  const { setPendingReferral, getPendingReferral } = useReferral()
 
   const handleSubmit = useCallback(
     (values: AddReferralFormValues) => {
-      console.log(values)
-
-      setItem('pendingReferral', JSON.stringify(values))
+      setPendingReferral(values)
 
       navigate(ROUTES.getStarted, { replace: true })
     },
-    [navigate, setItem]
+    [navigate, setPendingReferral]
   )
 
   const handleSkip = useCallback(() => {
     navigate(ROUTES.getStarted, { replace: true })
   }, [navigate])
 
-  const pendingReferral = JSON.parse(getItem('pendingReferral') || null)
-  const initialValue = pendingReferral ? pendingReferral.address : ''
+  const pendingReferral = getPendingReferral()
+  const initialValue = pendingReferral ? pendingReferral?.address : ''
 
   return (
     <GradientBackgroundWrapper>
