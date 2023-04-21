@@ -13,6 +13,7 @@ import useToast from '@common/hooks/useToast'
 import { getProxyDeployBytecode } from '@common/modules/auth/services/IdentityProxyDeploy'
 import useVault from '@common/modules/vault/hooks/useVault'
 import { fetchPost } from '@common/services/fetch'
+import useReferral from '@mobile/modules/referral/hooks/useReferral'
 
 type FormProps = {
   email: string
@@ -25,6 +26,7 @@ export default function useCreateAccount() {
   const [addAccErr, setAddAccErr] = useState<string>('')
   const [inProgress, setInProgress] = useState<boolean | string>(false)
   const { getItem } = useStorageController()
+  const { getPendingReferral } = useReferral()
 
   const { onAddAccount } = useAccounts()
   const { addToast } = useToast()
@@ -103,7 +105,7 @@ export default function useCreateAccount() {
       await firstKeyWallet.encrypt(req.password, accountPresets.encryptionOpts)
     )
 
-    const referral = JSON.parse(getItem('pendingReferral') || null)
+    const referral = getPendingReferral()
 
     const createResp = await fetchPost(`${CONFIG.RELAYER_URL}/identity/${identityAddr}`, {
       email: req.email,
