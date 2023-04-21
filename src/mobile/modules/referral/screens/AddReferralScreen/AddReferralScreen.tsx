@@ -31,10 +31,14 @@ const AddReferralScreen = () => {
       try {
         const response = await checkIfAddressIsEligibleForReferral(values.hexAddress)
 
-        // TODO: handle error!
-        if (!response) {
+        if (!response?.success) {
+          addToast(response?.message || t('This address is not eligible for referral.'), {
+            error: true
+          })
           return
         }
+
+        addToast(t('Referral added successfully!'))
 
         setPendingReferral(values)
 
