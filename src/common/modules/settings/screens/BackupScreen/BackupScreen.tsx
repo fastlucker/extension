@@ -1,5 +1,6 @@
 import { Account } from 'ambire-common/src/hooks/useAccounts'
 import * as FileSystem from 'expo-file-system'
+import * as MediaLibrary from 'expo-media-library'
 import * as Sharing from 'expo-sharing'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -15,22 +16,22 @@ import spacings from '@common/styles/spacings'
 
 async function requestStoragePermission() {
   if (Platform.OS === 'android') {
-    // TODO:
-    // const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
-    // if (status !== 'granted') {
-    //   alert('Sorry, we need media library permission to save the file.');
-    //   return false;
-    // }
+    const { status } = await MediaLibrary.requestPermissionsAsync()
+    if (status !== 'granted') {
+      alert('Sorry, we need media library permission to save the file.')
+      return false
+    }
   }
   return true
 }
 
 async function exportJSON(objectToSave: Account) {
-  const permission = await requestStoragePermission()
+  // TODO: check if this is needed
+  // const permission = await requestStoragePermission()
 
-  if (!permission) {
-    return
-  }
+  // if (!permission) {
+  //   return
+  // }
 
   const fileName = `${objectToSave.id}.json`
   const jsonString = JSON.stringify(objectToSave, null, 2)
@@ -43,13 +44,30 @@ async function exportJSON(objectToSave: Account) {
   })
 
   if (Platform.OS === 'android') {
-    // Move file to Download folder on Android
-    const downloadFolderUri = 'file:///storage/emulated/0/Download/'
-    await FileSystem.moveAsync({
-      from: tempUri,
-      to: downloadFolderUri + fileName
-    })
-    alert(`File saved to: ${downloadFolderUri}${fileName}`)
+    // TODO: Refine the fequest permission flow:
+    const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
+    // Check if permission granted
+    if (permissions.granted) {
+      // Get the directory uri that was approved
+      let directoryUri = permissions.directoryUri
+      // Create file and pass it's SAF URI
+      await FileSystem.StorageAccessFramework.createFileAsync(
+        directoryUri,
+        fileName,
+        'application/json'
+      )
+        .then(async (fileUri) => {
+          // Save data to newly created file
+          await FileSystem.writeAsStringAsync(tempUri, jsonString, {
+            encoding: FileSystem.EncodingType.UTF8
+          })
+        })
+        .catch((e) => {
+          console.log('error', e)
+        })
+    } else {
+      alert('You must allow permission to save.')
+    }
   } else {
     // Use Sharing module for iOS
     await Sharing.shareAsync(tempUri, {
