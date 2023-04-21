@@ -8,7 +8,6 @@ import performance from 'react-native-performance'
 
 import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
-import useStorageController from '@common/hooks/useStorageController'
 import useToast from '@common/hooks/useToast'
 import { getProxyDeployBytecode } from '@common/modules/auth/services/IdentityProxyDeploy'
 import useVault from '@common/modules/vault/hooks/useVault'
@@ -25,8 +24,7 @@ export default function useCreateAccount() {
   const [err, setErr] = useState<string>('')
   const [addAccErr, setAddAccErr] = useState<string>('')
   const [inProgress, setInProgress] = useState<boolean | string>(false)
-  const { getItem } = useStorageController()
-  const { getPendingReferral } = useReferral()
+  const { getPendingReferral, removePendingReferral } = useReferral()
 
   const { onAddAccount } = useAccounts()
   const { addToast } = useToast()
@@ -126,6 +124,8 @@ export default function useCreateAccount() {
       setErr(`Unexpected sign up error: ${createResp.message || 'unknown'}`)
       return
     }
+
+    removePendingReferral()
 
     const addr = await firstKeyWallet.getAddress()
     addToVault({

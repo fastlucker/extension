@@ -17,7 +17,7 @@ const relayerURL = CONFIG.RELAYER_URL
 export default function useEOA() {
   const { onAddAccount } = useAccounts()
   const { addToast } = useToast()
-  const { getPendingReferral } = useReferral()
+  const { getPendingReferral, removePendingReferral } = useReferral()
 
   const getAccountByAddr = useCallback(async (idAddr, signerAddr) => {
     // In principle, we need these values to be able to operate in relayerless mode,
@@ -86,11 +86,14 @@ export default function useEOA() {
         signerType,
         ...(!!referral && { referral: referral.hexAddress })
       })
+
       if (
         !createResp.success &&
         !(createResp.message && createResp.message.includes('already exists'))
       )
         throw createResp
+
+      removePendingReferral()
     }
 
     return {

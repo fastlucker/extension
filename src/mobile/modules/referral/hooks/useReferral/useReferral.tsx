@@ -12,7 +12,7 @@ export type Referral = {
 }
 
 export default function useReferral() {
-  const { setItem, getItem } = useStorageController()
+  const { setItem, getItem, removeItem } = useStorageController()
 
   const setPendingReferral = useCallback(
     (referral: Referral) => {
@@ -32,8 +32,13 @@ export default function useReferral() {
     return pendingReferral
   }, [getItem])
 
+  const removePendingReferral = useCallback(() => {
+    removeItem(REFERRAL_STORAGE_KEY)
+  }, [removeItem])
+
   return {
     setPendingReferral,
-    getPendingReferral
+    getPendingReferral,
+    removePendingReferral
   }
 }
