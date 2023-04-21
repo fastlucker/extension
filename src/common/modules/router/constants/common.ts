@@ -24,7 +24,8 @@ const COMMON_ROUTES = {
   signers: 'signers',
   menu: 'menu',
   swap: 'swap',
-  noConnection: 'no-connection'
+  noConnection: 'no-connection',
+  backup: 'backup'
 }
 
 const MOBILE_ROUTES = {

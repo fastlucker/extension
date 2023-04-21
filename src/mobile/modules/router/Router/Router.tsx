@@ -42,6 +42,7 @@ import styles, {
   tabBarStyle
 } from '@common/modules/router/styles'
 import SendScreen from '@common/modules/send/screens/SendScreen'
+import BackupScreen from '@common/modules/settings/screens/BackupScreen'
 import DataDeletionPolicyScreen from '@common/modules/settings/screens/DataDeletionPolicyScreen'
 import SignersScreen from '@common/modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@common/modules/sign-message/screens/SignMessageScreen'
@@ -76,6 +77,7 @@ const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 const DataDeletionPolicyStack = createNativeStackNavigator()
+const BackupStack = createNativeStackNavigator()
 
 const SignersStackScreen = () => {
   return (
@@ -102,6 +104,20 @@ const DataDeletionPolicyStackScreen = () => {
         }}
       />
     </DataDeletionPolicyStack.Navigator>
+  )
+}
+
+const BackupStackScreen = () => {
+  return (
+    <BackupStack.Navigator screenOptions={{ header: headerGamma }}>
+      <BackupStack.Screen
+        name={`${MOBILE_ROUTES.backup}-screen`}
+        component={BackupScreen}
+        options={{
+          title: routesConfig[ROUTES.backup].title
+        }}
+      />
+    </BackupStack.Navigator>
   )
 }
 
@@ -455,6 +471,11 @@ const AppStack = () => {
       <MainStack.Screen
         name={MOBILE_ROUTES.dataDeletionPolicy}
         component={DataDeletionPolicyStackScreen}
+        options={{ headerShown: false }}
+      />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.backup}
+        component={BackupStackScreen}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
