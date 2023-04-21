@@ -15,7 +15,14 @@ const get = async (prop?) => {
 }
 
 const set = async (prop, value): Promise<void> => {
-  storage.set(prop, value)
+  let val
+  if (typeof value === 'string') {
+    val = value
+  } else {
+    val = JSON.stringify(value)
+  }
+
+  storage.set(prop, val)
 }
 
 const byteInUse = async (): Promise<number> => {

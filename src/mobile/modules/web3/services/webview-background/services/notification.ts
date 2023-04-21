@@ -41,6 +41,13 @@ class NotificationService extends Events {
 
   isLocked = false
 
+  openApprovalModal: (req: any) => void
+
+  constructor({ openApprovalModal }: { openApprovalModal: (req: any) => void }) {
+    super()
+    this.openApprovalModal = openApprovalModal
+  }
+
   get approvals() {
     return this._approvals
   }
@@ -55,7 +62,7 @@ class NotificationService extends Events {
 
       const approval = this.approvals[0]
       this.currentApproval = approval
-      this.openNotification(approval.winProps, true)
+      this.openNotification(approval)
     } catch (e) {
       // TODO:
       // Sentry.captureException(`activeFirstApproval failed: ${JSON.stringify(e)}`)
@@ -190,7 +197,7 @@ class NotificationService extends Events {
           focused: true
         })
       } else {
-        this.openNotification(approval.winProps)
+        this.openNotification(approval)
       }
     })
   }
@@ -230,21 +237,12 @@ class NotificationService extends Events {
     this.isLocked = true
   }
 
-  openNotification = (winProps, ignoreLock = false) => {
-    console.log('should open a notification modal in the mobile app')
-    // // Only use ignoreLock flag when approval exist but no notification window exist
-    // if (!ignoreLock) {
-    //   if (this.isLocked) return
-    //   this.lock()
-    // }
-    // if (this.notifiWindowId !== null) {
-    //   winMgr.remove(this.notifiWindowId)
-    //   this.notifiWindowId = null
-    // }
-    // winMgr.openNotification(winProps).then((winId) => {
-    //   this.notifiWindowId = winId!
-    // })
+  openNotification = (approval) => {
+    console.log('open an approval modal in the mobile app')
+    if (this.openApprovalModal) {
+      this.openApprovalModal(approval.data)
+    }
   }
 }
 
-export default new NotificationService()
+export default NotificationService

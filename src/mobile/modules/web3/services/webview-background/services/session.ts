@@ -1,5 +1,3 @@
-import permissionService from '@mobile/modules/web3/services/webview-background/services/permission'
-
 export interface SessionProp {
   origin: string
   icon: string
@@ -61,7 +59,7 @@ const deleteSession = (key: string) => {
 const broadcastEvent = (ev: any, data?: any, origin?: string) => {
   let sessions: { key: string; data: Session }[] = []
   sessionMap.forEach((session, key) => {
-    if (session && permissionService.hasPermission(session.origin)) {
+    if (session) {
       sessions.push({
         key,
         data: session

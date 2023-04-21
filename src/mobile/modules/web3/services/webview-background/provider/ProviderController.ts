@@ -9,11 +9,9 @@ import { intToHex } from 'ethereumjs-util'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { APP_VERSION } from '@common/config/env'
-import permissionService from '@mobile/modules/web3/services/webview-background/services/permission'
 import sessionService, {
   Session
 } from '@mobile/modules/web3/services/webview-background/services/session'
-import Wallet from '@mobile/modules/web3/services/webview-background/wallet'
 import storage from '@mobile/modules/web3/services/webview-background/webapi/storage'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 
@@ -67,7 +65,7 @@ class ProviderController {
     const networkId = await storage.get('networkId')
     const provider = getProvider(networkId)
 
-    if (!permissionService.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
+    if (!SAFE_RPC_METHODS.includes(method)) {
       throw ethErrors.provider.unauthorized()
     }
 
@@ -104,9 +102,6 @@ class ProviderController {
   }
 
   ethRequestAccounts = async ({ session: { origin } }) => {
-    if (!permissionService.hasPermission(origin)) {
-      throw ethErrors.provider.unauthorized()
-    }
     const selectedAcc = await storage.get('selectedAcc')
 
     const account = selectedAcc ? [selectedAcc] : []
@@ -117,20 +112,12 @@ class ProviderController {
 
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }) => {
-    if (!permissionService.hasPermission(origin) || !Wallet.isUnlocked()) {
-      return []
-    }
-
     const selectedAcc = await storage.get('selectedAcc')
 
     return selectedAcc ? [selectedAcc] : []
   }
 
   ethCoinbase = async ({ session: { origin } }) => {
-    if (!permissionService.hasPermission(origin)) {
-      return null
-    }
-
     const selectedAcc = await storage.get('selectedAcc')
 
     return selectedAcc || null
@@ -306,9 +293,9 @@ class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }) => {
     const result: Web3WalletPermission[] = []
-    if (Wallet.isUnlocked() && Wallet.getConnectedSite(origin)) {
-      result.push({ parentCapability: 'eth_accounts' })
-    }
+
+    result.push({ parentCapability: 'eth_accounts' })
+
     return result
   }
 

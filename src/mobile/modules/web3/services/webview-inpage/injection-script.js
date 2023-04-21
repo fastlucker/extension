@@ -4,6 +4,7 @@ import networks from 'ambire-common/src/constants/networks'
 import { useEffect, useState } from 'react'
 // TODO: fix path
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
+import eventEmitterScript from './EventEmitterScript'
 
 const interval = 1000
 
@@ -57,6 +58,7 @@ const useGetProviderInjection = () => {
   }, [filePath, provider])
 
   const script = `
+    ${eventEmitterScript}
     const networks = ${JSON.stringify(networks)};
     const DAPP_PROVIDER_URLS = ${JSON.stringify(DAPP_PROVIDER_URLS)};
     ${provider}

@@ -2,14 +2,12 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 
-import VaultController from '@common/modules/vault/services/VaultController'
 import eventBus from '@mobile/modules/web3/services/event/eventBus'
 import PromiseFlow from '@mobile/modules/web3/services/utils/promiseFlow'
 import underline2Camelcase from '@mobile/modules/web3/services/utils/underline2Camelcase'
 import providerController from '@mobile/modules/web3/services/webview-background/provider/ProviderController'
 import { ProviderRequest } from '@mobile/modules/web3/services/webview-background/provider/types'
-import notificationService from '@mobile/modules/web3/services/webview-background/services/notification'
-import permissionService from '@mobile/modules/web3/services/webview-background/services/permission'
+import NotificationService from '@mobile/modules/web3/services/webview-background/services/notification'
 
 export const EVENTS = {
   broadcastToUI: 'broadcastToUI',
@@ -23,15 +21,13 @@ const isSignApproval = (type: string) => {
   return SIGN_APPROVALS.includes(type)
 }
 
-const lockedOrigins = new Set<string>()
-const connectOrigins = new Set<string>()
-
 const flow = new PromiseFlow<{
   request: ProviderRequest & {
     session: Exclude<ProviderRequest, void>
   }
   mapMethod: string
   approvalRes: any
+  openApprovalModal: (req: any) => void
 }>()
 const flowContext = flow
   .use(async (ctx, next) => {
@@ -54,76 +50,20 @@ const flowContext = flow
     return next()
   })
   .use(async (ctx, next) => {
-    const {
-      mapMethod,
-      request: {
-        session: { origin }
-      }
-    } = ctx
-    if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
-      const isUnlock = VaultController.isVaultUnlocked()
-      if (!isUnlock) {
-        if (lockedOrigins.has(origin)) {
-          throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')
-        }
-        ctx.request.requestedApproval = true
-        lockedOrigins.add(origin)
-        try {
-          await notificationService.requestApproval({ lock: true })
-          lockedOrigins.delete(origin)
-        } catch (e) {
-          lockedOrigins.delete(origin)
-          throw e
-        }
-      }
-    }
-
-    return next()
-  })
-  .use(async (ctx, next) => {
-    // check connect
-    const {
-      request: {
-        session: { origin, name, icon }
-      },
-      mapMethod
-    } = ctx
-    if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
-      if (!permissionService.hasPermission(origin)) {
-        if (connectOrigins.has(origin)) {
-          throw ethErrors.rpc.resourceNotFound('Already processing connect. Please wait.')
-        }
-        ctx.request.requestedApproval = true
-        connectOrigins.add(origin)
-        try {
-          const { defaultChain } = await notificationService.requestApproval({
-            params: { origin, name, icon },
-            approvalComponent: 'PermissionRequest'
-          })
-          connectOrigins.delete(origin)
-          permissionService.addConnectedSite(origin, name, icon, defaultChain)
-        } catch (e) {
-          connectOrigins.delete(origin)
-          throw e
-        }
-      }
-    }
-
-    return next()
-  })
-  .use(async (ctx, next) => {
     // check need approval
     const {
       request: {
         data: { method },
         session: { origin, name, icon }
       },
-      mapMethod
+      mapMethod,
+      openApprovalModal
     } = ctx
     const [approvalType, condition] =
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
     if (approvalType && (!condition || !condition(ctx.request))) {
       ctx.request.requestedApproval = true
+      const notificationService = new NotificationService({ openApprovalModal })
       ctx.approvalRes = await notificationService.requestApproval({
         approvalComponent: approvalType,
         params: {
@@ -134,17 +74,12 @@ const flowContext = flow
         },
         origin
       })
-      if (isSignApproval(approvalType)) {
-        permissionService.updateConnectSite(origin, { isSigned: true }, true)
-      } else {
-        permissionService.touchConnectedSite(origin)
-      }
     }
 
     return next()
   })
   .use(async (ctx) => {
-    const { approvalRes, mapMethod, request } = ctx
+    const { approvalRes, mapMethod, request, openApprovalModal } = ctx
 
     // process request
     const [approvalType] = Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
@@ -185,6 +120,7 @@ const flowContext = flow
       })
     async function requestApprovalLoop({ uiRequestComponent, ...rest }) {
       ctx.request.requestedApproval = true
+      const notificationService = new NotificationService({ openApprovalModal })
       const res = await notificationService.requestApproval({
         approvalComponent: uiRequestComponent,
         params: rest,
@@ -206,12 +142,13 @@ const flowContext = flow
   })
   .callback()
 
-export default (request: ProviderRequest) => {
-  const ctx: any = { request: { ...request, requestedApproval: false } }
+export default (request: ProviderRequest, openApprovalModal) => {
+  const ctx: any = { request: { ...request, requestedApproval: false }, openApprovalModal }
   return flowContext(ctx).finally(() => {
     if (ctx.request.requestedApproval) {
       flow.requestedApproval = false
       // only unlock notification if current flow is an approval flow
+      const notificationService = new NotificationService({ openApprovalModal })
       notificationService.unLock()
     }
   })

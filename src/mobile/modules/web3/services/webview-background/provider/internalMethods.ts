@@ -1,5 +1,4 @@
 import providerController from '@mobile/modules/web3/services/webview-background/provider/ProviderController'
-import WalletController from '@mobile/modules/web3/services/webview-background/wallet'
 
 const tabCheckin = ({
   data: {
@@ -14,7 +13,8 @@ const tabCheckin = ({
 }
 
 const getProviderState = async (req) => {
-  const isUnlocked = await WalletController.isUnlocked()
+  // Hardcoded on mobile
+  const isUnlocked = true
   const chainId = await providerController.ethChainId()
   const networkVersion = await providerController.netVersion()
 

@@ -197,7 +197,7 @@ function handleProviderResponse(response) {
   }
 }
 
-class EthereumProvider {
+class EthereumProvider extends EventEmitter {
   chainId = null
 
   selectedAddress = null
@@ -211,13 +211,13 @@ class EthereumProvider {
   isMetaMask = false
 
   // TODO: Temporarily set to true to avoid breaking the app
-  _isReady = true
+  _isReady = false
 
-  _isConnected = false
+  _isConnected = true
 
   _initialized = false
 
-  _isUnlocked = false
+  _isUnlocked = true
 
   promises = {}
 
@@ -227,8 +227,8 @@ class EthereumProvider {
 
   _state = {
     accounts: null,
-    isConnected: false,
-    isUnlocked: false,
+    isConnected: true,
+    isUnlocked: true,
     initialized: false,
     isPermanentlyDisconnected: false
   }
@@ -255,6 +255,7 @@ class EthereumProvider {
   ])
 
   constructor() {
+    super()
     this.initialize()
     this.shimLegacy()
     this._pushEventHandlers = new PushEventHandlers(this)
