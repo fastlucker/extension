@@ -1,20 +1,14 @@
 import { Address } from 'ambire-common/src/hooks/useAddressBook'
-import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
+import { isValidAddress } from 'ambire-common/src/services/address'
 import { getBip44Items, resolveENSDomain } from 'ambire-common/src/services/ensDomains'
 import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 
 import Button from '@common/components/Button'
-import Input from '@common/components/Input'
 import RecipientInput from '@common/components/RecipientInput'
-import Title from '@common/components/Title'
 import { useTranslation } from '@common/config/localization'
-import useAddressBook from '@common/hooks/useAddressBook'
-import useConstants from '@common/hooks/useConstants'
 import useNetwork from '@common/hooks/useNetwork'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
 
 export type AddReferralFormValues = {
   address: Address['address']
@@ -37,6 +31,7 @@ const AddReferralForm = ({ onSubmit, initialValue }: Props) => {
   const checkedIsUDAddress: any = useRef(false)
   const { network }: any = useNetwork()
 
+  // TODO: Duplicated logic. Consider moving it and re-using it in the RecipientInput.
   useEffect(() => {
     ;(async () => {
       if (addr) {
@@ -45,6 +40,7 @@ const AddReferralForm = ({ onSubmit, initialValue }: Props) => {
     })()
   }, [addr, uDAddress])
 
+  // TODO: Duplicated logic. Consider moving it and re-using it in the RecipientInput.
   useEffect(() => {
     if (timer.current) {
       clearTimeout(timer.current)
