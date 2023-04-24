@@ -26,7 +26,7 @@ const DataDeletionPolicy = () => {
     const fileType = 'application/json'
     const tempUri = FileSystem.cacheDirectory + fileName
 
-    // Check if sharing is available on the device
+    // Built on top of the Web Share API, which has limited browser support
     const isAvailable = await Sharing.isAvailableAsync()
     if (!isAvailable) {
       const handleCopyToClipboard = () => Clipboard.setStringAsync(jsonString)
