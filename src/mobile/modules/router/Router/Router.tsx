@@ -61,6 +61,7 @@ import ConnectScreen from '@mobile/modules/connect/screens/ConnectScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import AddReferralScreen from '@mobile/modules/referral/screens/AddReferralScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
+import BackupScreen from '@mobile/modules/settings/screens/BackupScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -77,6 +78,7 @@ const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 const DataDeletionPolicyStack = createNativeStackNavigator()
+const BackupStack = createNativeStackNavigator()
 
 const SignersStackScreen = () => {
   return (
@@ -103,6 +105,20 @@ const DataDeletionPolicyStackScreen = () => {
         }}
       />
     </DataDeletionPolicyStack.Navigator>
+  )
+}
+
+const BackupStackScreen = () => {
+  return (
+    <BackupStack.Navigator screenOptions={{ header: headerGamma }}>
+      <BackupStack.Screen
+        name={`${MOBILE_ROUTES.backup}-screen`}
+        component={BackupScreen}
+        options={{
+          title: routesConfig[ROUTES.backup].title
+        }}
+      />
+    </BackupStack.Navigator>
   )
 }
 
@@ -461,6 +477,11 @@ const AppStack = () => {
       <MainStack.Screen
         name={MOBILE_ROUTES.dataDeletionPolicy}
         component={DataDeletionPolicyStackScreen}
+        options={{ headerShown: false }}
+      />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.backup}
+        component={BackupStackScreen}
         options={{ headerShown: false }}
       />
       <MainStack.Screen

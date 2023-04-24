@@ -242,6 +242,10 @@ const routesConfig: {
   [ROUTES.onboarding]: {
     route: ROUTES.onboarding,
     title: ''
+  },
+  [ROUTES.backup]: {
+    route: ROUTES.backup,
+    title: ''
   }
 }
 

@@ -107,7 +107,7 @@ export default function useCreateAccount() {
 
     const createResp = await fetchPost(`${CONFIG.RELAYER_URL}/identity/${identityAddr}`, {
       email: req.email,
-      primaryKeyBackup: req.backup ? undefined : primaryKeyBackup,
+      primaryKeyBackup: req.backup ? primaryKeyBackup : undefined,
       secondKeySecret,
       salt,
       identityFactoryAddr,
