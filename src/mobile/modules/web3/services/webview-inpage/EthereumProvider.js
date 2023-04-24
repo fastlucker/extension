@@ -558,6 +558,4 @@ window.web3 = {
   currentProvider: window.ethereum
 }
 
-alert('injection finished')
-
 window.dispatchEvent(new Event('ethereum#initialized'))
