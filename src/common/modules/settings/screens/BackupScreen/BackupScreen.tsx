@@ -1,90 +1,62 @@
-import { Account } from 'ambire-common/src/hooks/useAccounts'
+import * as Clipboard from 'expo-clipboard'
 import * as FileSystem from 'expo-file-system'
-import * as MediaLibrary from 'expo-media-library'
 import * as Sharing from 'expo-sharing'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-// import * as Permissions from 'expo-permissions';
-import { Platform } from 'react-native'
 
 import Button from '@common/components/Button'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
+import { isAndroid } from '@common/config/env'
+import i18n from '@common/config/localization/localization'
 import useAccounts from '@common/hooks/useAccounts'
+import useToast from '@common/hooks/useToast'
+import alert from '@common/services/alert'
 import spacings from '@common/styles/spacings'
 
-async function requestStoragePermission() {
-  if (Platform.OS === 'android') {
-    const { status } = await MediaLibrary.requestPermissionsAsync()
-    if (status !== 'granted') {
-      alert('Sorry, we need media library permission to save the file.')
-      return false
-    }
-  }
-  return true
-}
+const DataDeletionPolicy = () => {
+  const { t } = useTranslation()
+  const { account } = useAccounts()
+  const { addToast } = useToast()
 
-async function exportJSON(objectToSave: Account) {
-  // TODO: check if this is needed
-  // const permission = await requestStoragePermission()
+  const handleExport = useCallback(async () => {
+    const fileName = `${account?.id || 'ambire-account-backup'}.json`
+    const jsonString = JSON.stringify(account, null, 2)
+    const fileType = 'application/json'
+    const tempUri = FileSystem.cacheDirectory + fileName
 
-  // if (!permission) {
-  //   return
-  // }
+    // Check if sharing is available on the device
+    const isAvailable = await Sharing.isAvailableAsync()
+    if (!isAvailable) {
+      const handleCopyToClipboard = () => Clipboard.setStringAsync(jsonString)
+      addToast(t('Copied to clipboard!') as string, { timeout: 2500 })
 
-  const fileName = `${objectToSave.id}.json`
-  const jsonString = JSON.stringify(objectToSave, null, 2)
-  const fileType = 'application/json'
-  const tempUri = FileSystem.cacheDirectory + fileName
-
-  // Write JSON to temporary file
-  await FileSystem.writeAsStringAsync(tempUri, jsonString, {
-    encoding: FileSystem.EncodingType.UTF8
-  })
-
-  if (Platform.OS === 'android') {
-    // TODO: Refine the fequest permission flow:
-    const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
-    // Check if permission granted
-    if (permissions.granted) {
-      // Get the directory uri that was approved
-      let directoryUri = permissions.directoryUri
-      // Create file and pass it's SAF URI
-      await FileSystem.StorageAccessFramework.createFileAsync(
-        directoryUri,
-        fileName,
-        'application/json'
+      alert(
+        i18n.t('Sharing module is not available on this device.'),
+        i18n.t('Account JSON backup been copied to clipboard.'),
+        [
+          { text: t('Copy to clipboard'), onPress: handleCopyToClipboard },
+          { text: t('Cancel'), style: 'cancel' }
+        ]
       )
-        .then(async (fileUri) => {
-          // Save data to newly created file
-          await FileSystem.writeAsStringAsync(tempUri, jsonString, {
-            encoding: FileSystem.EncodingType.UTF8
-          })
-        })
-        .catch((e) => {
-          console.log('error', e)
-        })
-    } else {
-      alert('You must allow permission to save.')
+
+      alert('Sharing is not available on this device. JSON data has been copied to clipboard.')
+      return
     }
-  } else {
-    // Use Sharing module for iOS
+
+    // Write JSON to temporary file
+    await FileSystem.writeAsStringAsync(tempUri, jsonString, {
+      encoding: FileSystem.EncodingType.UTF8
+    })
+
+    // Use Sharing module for both Android and iOS
     await Sharing.shareAsync(tempUri, {
       mimeType: fileType,
       dialogTitle: 'Save JSON file',
       UTI: 'public.json'
     })
-  }
-}
-
-const DataDeletionPolicy = () => {
-  const { t } = useTranslation()
-  const { account } = useAccounts()
-
-  const handleExport = useCallback(() => {
-    exportJSON(account as Account)
-  }, [account])
+  }, [account, addToast, t])
 
   return (
     <GradientBackgroundWrapper>
@@ -94,13 +66,18 @@ const DataDeletionPolicy = () => {
         </Text>
         <Text style={spacings.mbLg}>
           {t(
-            "Downloads a backup of your current account ({{accountAddress}}) encrypted with your password. It's safe to store in iCloud/Google Drive, but you cannot use it to restore your account if you forget the password. You can only import this in Ambire, it's not importable in other wallets.",
+            "{{action}} a backup of your current account ({{accountAddress}}) encrypted with your password. It's safe to store in iCloud/Google Drive, but you cannot use it to restore your account if you forget the password. You can only import this in Ambire, it's not importable in other wallets.",
             {
-              accountAddress: `${account?.id?.slice(0, 5)}...${account?.id?.slice(-3)}`
+              accountAddress: `${account?.id?.slice(0, 5)}...${account?.id?.slice(-3)}`,
+              action: isAndroid ? t('Export') : t('Download')
             }
           )}
         </Text>
-        <Button type="primary" text={t('Download JSON backup')} onPress={handleExport} />
+        <Button
+          type="primary"
+          text={t('{{action}} JSON backup', { action: isAndroid ? t('Export') : t('Download') })}
+          onPress={handleExport}
+        />
       </Wrapper>
     </GradientBackgroundWrapper>
   )
