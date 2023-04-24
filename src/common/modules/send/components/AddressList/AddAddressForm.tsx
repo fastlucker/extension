@@ -122,7 +122,7 @@ const AddAddressForm = ({ onSubmit, address, uDAddr, ensAddr }: Props) => {
         isValidUDomain={!!uDAddress}
         isValidEns={!!ensAddress}
         containerStyle={spacings.mbTy}
-        placeholder={t('Address / Unstoppable domainsⓇ / Ethereum Name ServicesⓇ domain')}
+        placeholder={t('Address / UDⓇ / ENSⓇ domain')}
         isValid={!!uDAddress || !!ensAddress}
         error={
           checkedIsUDAddress.current &&
