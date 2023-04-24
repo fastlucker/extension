@@ -22,19 +22,26 @@ export default function useAccountBackup() {
     // Built on top of the Web Share API, which has limited browser support
     const isAvailable = await Sharing.isAvailableAsync()
     if (!isAvailable) {
-      const handleCopyToClipboard = () => Clipboard.setStringAsync(jsonString)
-      addToast(t('Copied to clipboard!') as string, { timeout: 2500 })
+      const handleCopyToClipboard = async () => {
+        try {
+          await Clipboard.setStringAsync(jsonString)
+          addToast(t('Copied to clipboard!') as string, { timeout: 2500 })
+        } catch {
+          addToast(t('Copying to clipboard failed. Please contact customer support.'), {
+            error: true
+          })
+        }
+      }
 
       alert(
         t('Sharing module is not available on this device.'),
-        t('Account JSON backup been copied to clipboard.'),
+        t('Alternatively, you can copy Account JSON backup to clipboard.'),
         [
           { text: t('Copy to clipboard'), onPress: handleCopyToClipboard },
           { text: t('Cancel'), style: 'cancel' }
         ]
       )
 
-      alert('Sharing is not available on this device. JSON data has been copied to clipboard.')
       return
     }
 
