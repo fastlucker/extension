@@ -1,8 +1,6 @@
 /* eslint-disable max-classes-per-file */
 // import { ethErrors } from 'eth-rpc-errors'
 
-// import { EventEmitter } from 'events'
-
 const intToHex = function (i) {
   if (!Number.isSafeInteger(i) || i < 0) {
     throw new Error(`Received an invalid integer type: ${i}`)
@@ -181,11 +179,25 @@ const domReadyCall = (callback) => {
   }
 }
 
-alert('injection')
-
 const $ = document.querySelector.bind(document)
 
-class EthereumProvider {
+// This func is dynamically called from the RN side via the webViewRef?.current?.injectJavaScript method
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function handleProviderResponse(response) {
+  try {
+    const { id, success, result, error } = response
+    if (success) {
+      window.ethereum.promises[id].resolve(result)
+    } else {
+      window.ethereum.promises[id].reject(error)
+    }
+    delete window.ethereum.promises[id]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+class EthereumProvider extends EventEmitter {
   chainId = null
 
   selectedAddress = null
@@ -199,13 +211,15 @@ class EthereumProvider {
   isMetaMask = false
 
   // TODO: Temporarily set to true to avoid breaking the app
-  _isReady = true
+  _isReady = false
 
-  _isConnected = false
+  _isConnected = true
 
   _initialized = false
 
-  _isUnlocked = false
+  _isUnlocked = true
+
+  promises = {}
 
   _cacheRequestsBeforeReady = []
 
@@ -213,8 +227,8 @@ class EthereumProvider {
 
   _state = {
     accounts: null,
-    isConnected: false,
-    isUnlocked: false,
+    isConnected: true,
+    isUnlocked: true,
     initialized: false,
     isPermanentlyDisconnected: false
   }
@@ -229,7 +243,7 @@ class EthereumProvider {
 
   _pushEventHandlers
 
-  _requestPromise = new ReadyPromise(2)
+  _requestPromise = new ReadyPromise(1)
 
   _dedupePromise = new DedupePromise([
     'personal_sign',
@@ -241,32 +255,26 @@ class EthereumProvider {
   ])
 
   constructor() {
+    super()
     this.initialize()
     this.shimLegacy()
     this._pushEventHandlers = new PushEventHandlers(this)
   }
 
   initialize = async () => {
-    if (window?.ReactNativeWebView) {
-      window.ReactNativeWebView.postMessage(
-        JSON.stringify({
-          method: 'tabCheckin',
-          params: { origin }
-        }),
-        '*'
-      )
-      this._requestPromise.check(2)
-    }
     domReadyCall(() => {
       const origin = location?.origin
       const icon =
         $('head > link[rel~="icon"]')?.href || $('head > meta[itemprop="image"]')?.content
       const name = document.title || $('head > meta[name="title"]')?.content || origin
-      this._bcm.request({
-        method: 'tabCheckin',
-        params: { icon, name, origin }
-      })
-      this._requestPromise.check(2)
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          method: 'tabCheckin',
+          params: { icon, name, origin }
+        }),
+        '*'
+      )
+      this._requestPromise.check(1)
     })
     try {
       const { chainId, accounts, networkVersion, isUnlocked } = await this.request({
@@ -283,6 +291,35 @@ class EthereumProvider {
         networkVersion
       })
       this._pushEventHandlers.accountsChanged(accounts)
+
+      // eslint-disable-next-line no-restricted-globals
+      // TODO:
+      // const { hostname } = location
+      // if (DAPP_PROVIDER_URLS[hostname]) {
+      //   // eslint-disable-next-line no-restricted-syntax
+      //   Object.entries(DAPP_PROVIDER_URLS[hostname]).forEach(async ([networkId, providerUrl]) => {
+      //     const network = networks.find((n) => n.id === networkId)
+      //     if (!network || !providerUrl) return
+
+      //     try {
+      //       this.dAppOwnProviders[network.id] = providerUrl.startsWith('wss:')
+      //         ? new providers.WebSocketProvider(providerUrl, {
+      //             name: network.name,
+      //             chainId: network.chainId
+      //           })
+      //         : new providers.JsonRpcProvider(providerUrl, {
+      //             name: network.name,
+      //             chainId: network.chainId
+      //           })
+
+      //       // Acts as a mechanism to check if the provider credentials work
+      //       // eslint-disable-next-line no-await-in-loop
+      //       await this.dAppOwnProviders[network.id]?.getNetwork()
+      //     } catch (e) {
+      //       this.dAppOwnProviders[network.id] = null
+      //     }
+      //   })
+      // }
     } catch {
       //
     } finally {
@@ -315,51 +352,32 @@ class EthereumProvider {
     if (!data) {
       // throw ethErrors.rpc.invalidRequest()
     }
-    // TODO: Temporarily return dummy:
-    switch (data.method) {
-      case 'eth_accounts':
-        return ['0xdd2a7Dc3d038b5EA4164D41B3617aDa5eb4179bf']
-      case 'eth_chainId':
-        return '0x1'
-      case 'net_version':
-        return '1'
-      case 'eth_requestAccounts':
-        return ['0xdd2a7Dc3d038b5EA4164D41B3617aDa5eb4179bf']
-      case 'personal_sign':
-        return '0xYourSignedMessage'
-      case 'eth_sendTransaction':
-        return '0xYourTransactionHash'
-      // Add more methods as needed
-      default:
-    }
-    // TODO: Try with:
-    // window.ReactNativeWebView.postMessage(JSON.stringify(message))
     return this._requestPromise.call(() => {
-      if (
-        data.method.startsWith('eth_') &&
-        !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
-      ) {
-        const network = [].find((n) => intToHex(n.chainId) === this.chainId)
-        if (network?.id && this.dAppOwnProviders[network.id]) {
-          return this.dAppOwnProviders[network.id]
-            ?.send(data.method, data.params)
-            .then((res) => {
-              return res
-            })
-            .catch((err) => {
-              throw err
-            })
-        }
-      }
-      return window?.ReactNativeWebView
-        ? window?.ReactNativeWebView?.postMessage(JSON.stringify(data), '*')
-        : null
-      // .then((res) => {
-      //   return res
-      // })
-      // .catch((err) => {
-      //   throw serializeError(err)
-      // })
+      // TODO:
+      // if (
+      //   data.method.startsWith('eth_') &&
+      //   !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
+      // ) {
+      //   // eslint-disable-next-line no-undef
+      //   const network = networks?.find((n) => intToHex(n.chainId) === this.chainId)
+      //   if (network?.id && this.dAppOwnProviders[network.id]) {
+      //     return this.dAppOwnProviders[network.id]
+      //       ?.send(data.method, data.params)
+      //       .then((res) => {
+      //         return res
+      //       })
+      //       .catch((err) => {
+      //         throw err
+      //       })
+      //   }
+      // }
+      const id = Date.now() + Math.random()
+      data.id = id
+      window.ReactNativeWebView.postMessage(JSON.stringify(data), '*')
+      return new Promise((resolve, reject) => {
+        // Save the resolve and reject functions with the ID
+        window.ethereum.promises[id] = { resolve, reject }
+      })
     })
   }
 

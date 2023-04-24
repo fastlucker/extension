@@ -1,3 +1,5 @@
+import { isWeb } from '@common/config/env'
+
 export const IS_CHROME = /Chrome\//i.test(global.navigator?.userAgent)
 
 export const IS_FIREFOX = /Firefox\//i.test(global.navigator?.userAgent)
@@ -14,7 +16,7 @@ export const EVENTS = {
 }
 
 // eslint-disable-next-line no-restricted-globals
-export const INTERNAL_REQUEST_ORIGIN = location.origin
+export const INTERNAL_REQUEST_ORIGIN = isWeb ? location.origin : null
 
 export const INTERNAL_REQUEST_SESSION = {
   name: 'Ambire',

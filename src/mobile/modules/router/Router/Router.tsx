@@ -61,6 +61,7 @@ import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
 import ConnectScreen from '@mobile/modules/connect/screens/ConnectScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
+import { PermissionProvider } from '@mobile/modules/web3/contexts/permissionContext'
 import Web3BrowserScreen from '@mobile/modules/web3/screens/Web3BrowserScreen'
 import Web3Screen from '@mobile/modules/web3/screens/Web3Screen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -144,24 +145,26 @@ const ManageVaultLockStackScreen = () => {
 
 const Web3StackScreen = () => {
   return (
-    <Web3Stack.Navigator screenOptions={{ headerShown: true }}>
-      <Web3Stack.Screen
-        name={`${MOBILE_ROUTES.web3}-screen`}
-        component={Web3Screen}
-        options={{
-          title: 'Web3',
-          header: headerAlpha
-        }}
-      />
-      <Web3Stack.Screen
-        name={`${MOBILE_ROUTES.web3}-browser`}
-        component={Web3BrowserScreen}
-        options={{
-          title: 'Web3',
-          header: headerGamma
-        }}
-      />
-    </Web3Stack.Navigator>
+    <PermissionProvider>
+      <Web3Stack.Navigator screenOptions={{ headerShown: true }}>
+        <Web3Stack.Screen
+          name={`${MOBILE_ROUTES.web3}-screen`}
+          component={Web3Screen}
+          options={{
+            title: 'Web3',
+            header: headerAlpha
+          }}
+        />
+        <Web3Stack.Screen
+          name={`${MOBILE_ROUTES.web3}-browser`}
+          component={Web3BrowserScreen}
+          options={{
+            title: 'Web3',
+            header: headerGamma
+          }}
+        />
+      </Web3Stack.Navigator>
+    </PermissionProvider>
   )
 }
 
