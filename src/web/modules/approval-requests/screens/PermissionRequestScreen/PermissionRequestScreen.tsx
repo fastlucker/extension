@@ -9,7 +9,7 @@ import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
-import useExtensionApproval from '@common/hooks/useExtensionApproval'
+import useApproval from '@common/hooks/useApproval'
 import useNetwork from '@common/hooks/useNetwork'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -23,7 +23,7 @@ const PermissionRequestScreen = () => {
   const { t } = useTranslation()
   const { network } = useNetwork()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
-  const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
+  const { approval, rejectApproval, resolveApproval } = useApproval()
 
   const handleDenyButtonPress = useCallback(
     () => rejectApproval(t('User rejected the request.')),

@@ -5,7 +5,7 @@ import Events from 'events'
 import { v4 as uuidv4 } from 'uuid'
 
 // import { isDev } from '@common/config/env'
-// import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@common/contexts/extensionApprovalContext/types'
+// import { APPROVAL_REQUESTS_STORAGE_KEY } from '@common/contexts/approvalContext/types'
 import storage from '../webapi/storage'
 
 export interface Approval {
@@ -119,7 +119,7 @@ class NotificationService extends Events {
       // Removes all cached signing requests (otherwise they will be shown again
       // in the browser extension UI, when it gets opened by the user)
       // TODO: mobile impl
-      // browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
+      // browser.storage.local.set({ [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
     }
 
     if (approval && this.approvals.length > 1) {
@@ -226,7 +226,7 @@ class NotificationService extends Events {
     // Removes all cached signing requests (otherwise they will be shown again
     // in the browser extension UI, when it gets opened by the user)
     // TODO: mobile impl
-    // browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
+    // browser.storage.local.set({ [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
   }
 
   unLock = () => {
@@ -240,7 +240,8 @@ class NotificationService extends Events {
   openNotification = (approval) => {
     console.log('open an approval modal in the mobile app')
     if (this.openApprovalModal) {
-      this.openApprovalModal(approval.data)
+      console.log('openNotification', approval)
+      this.openApprovalModal(approval)
     }
   }
 }

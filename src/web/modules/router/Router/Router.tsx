@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native'
 import { Outlet, Route, Routes } from 'react-router-dom'
 
 import Spinner from '@common/components/Spinner'
-import useExtensionApproval from '@common/hooks/useExtensionApproval'
+import useApproval from '@common/hooks/useApproval'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
@@ -29,7 +29,7 @@ const headerBeta = (
 )
 
 const Router = () => {
-  const { hasCheckedForApprovalInitially } = useExtensionApproval()
+  const { hasCheckedForApprovalInitially } = useApproval()
   const { vaultStatus, unlockVault, resetVault, biometricsEnabled } = useVault()
   const { path } = useRoute()
   const { navigate } = useNavigation()

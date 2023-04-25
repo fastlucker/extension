@@ -79,6 +79,15 @@ class PushEventHandlers {
     this._emit('accountsChanged', [])
     this._emit('disconnect', disconnectError)
     this._emit('close', disconnectError)
+
+    const id = Date.now() + Math.random()
+    data.id = id
+    window.ReactNativeWebView.postMessage(
+      JSON.stringify({
+        method: 'disconnect'
+      }),
+      '*'
+    )
   }
 
   accountsChanged = (accounts) => {

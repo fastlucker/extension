@@ -19,7 +19,7 @@ import useSignApproval from './useSignApproval'
 // when you try to "Add Token to Web3 Wallet".
 const MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS = 850
 
-const ExtensionApprovalContext = createContext<UseExtensionApprovalReturnType>({
+const ApprovalContext = createContext<UseExtensionApprovalReturnType>({
   approval: null,
   requests: [],
   hasCheckedForApprovalInitially: false,
@@ -29,7 +29,7 @@ const ExtensionApprovalContext = createContext<UseExtensionApprovalReturnType>({
   resolveMany: () => {}
 })
 
-const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
+const ApprovalProvider: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { authStatus } = useAuth()
@@ -132,7 +132,7 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
   ])
 
   return (
-    <ExtensionApprovalContext.Provider
+    <ApprovalContext.Provider
       value={useMemo(
         () => ({
           approval,
@@ -155,8 +155,8 @@ const ExtensionApprovalProvider: React.FC<any> = ({ children }) => {
       )}
     >
       {children}
-    </ExtensionApprovalContext.Provider>
+    </ApprovalContext.Provider>
   )
 }
 
-export { ExtensionApprovalProvider, ExtensionApprovalContext }
+export { ApprovalProvider, ApprovalContext }

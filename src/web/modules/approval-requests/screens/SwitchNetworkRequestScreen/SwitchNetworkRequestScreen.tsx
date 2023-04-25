@@ -12,7 +12,7 @@ import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
-import useExtensionApproval from '@common/hooks/useExtensionApproval'
+import useApproval from '@common/hooks/useApproval'
 import useNetwork from '@common/hooks/useNetwork'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -25,7 +25,7 @@ import styles from './styles'
 const SwitchNetworkRequestScreen = () => {
   const { t } = useTranslation()
   const { network, setNetwork } = useNetwork()
-  const { approval, rejectApproval, resolveApproval } = useExtensionApproval()
+  const { approval, rejectApproval, resolveApproval } = useApproval()
   const [isSwitching, setIsSwitching] = useState(false)
 
   // Cache it on purpose. Otherwise, when the user switches the network,

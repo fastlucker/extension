@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import Spinner from '@common/components/Spinner'
-import useExtensionApproval from '@common/hooks/useExtensionApproval'
+import useApproval from '@common/hooks/useApproval'
 import useNavigation from '@common/hooks/useNavigation'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
@@ -17,7 +17,7 @@ import { getUiType } from '@web/utils/uiType'
 const SortHat = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
-  const { approval } = useExtensionApproval()
+  const { approval } = useApproval()
   const isInNotification = getUiType().isNotification
   const { vaultStatus } = useVault()
   const { onboardingStatus } = useOnboarding()

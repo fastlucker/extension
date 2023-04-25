@@ -5,7 +5,7 @@ import useAccounts, {
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import * as CrashAnalytics from '@common/config/analytics/CrashAnalytics'
-import useExtensionApproval from '@common/hooks/useExtensionApproval'
+import useApproval from '@common/hooks/useApproval'
 import useNavigation from '@common/hooks/useNavigation/useNavigation'
 import useStorage from '@common/hooks/useStorage'
 import useToasts from '@common/hooks/useToast'
@@ -28,7 +28,7 @@ const AccountsContext = createContext<UseAccountsReturnType>({
 
 const AccountsProvider: React.FC<any> = ({ children }) => {
   const { setAuthStatus, authStatus } = useAuth()
-  const { approval } = useExtensionApproval()
+  const { approval } = useApproval()
   const { navigate } = useNavigation()
   const { onboardingStatus } = useOnboarding()
   const onAdd = useCallback<UseAccountsProps['onAdd']>(

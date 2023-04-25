@@ -11,7 +11,7 @@ import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
-import useExtensionApproval from '@common/hooks/useExtensionApproval'
+import useApproval from '@common/hooks/useApproval'
 import useNetwork from '@common/hooks/useNetwork'
 import usePortfolio from '@common/hooks/usePortfolio'
 import useToken from '@common/hooks/useToken'
@@ -31,7 +31,7 @@ const WatchTokenRequestScreen = () => {
   const [extraToken, setExtraToken] = useState<Token | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const { network } = useNetwork()
-  const { approval, resolveApproval, rejectApproval } = useExtensionApproval()
+  const { approval, resolveApproval, rejectApproval } = useApproval()
   const { onAddExtraToken, checkIsTokenEligibleForAddingAsExtraToken } = usePortfolio()
   const { getTokenDetails } = useToken()
   const [tokenEligibleStatus, setTokenEligibleStatus] = useState<

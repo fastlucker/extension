@@ -29,7 +29,7 @@ import { getUiType } from '@web/utils/uiType'
 
 const relayerURL = CONFIG.RELAYER_URL
 
-const PendingTransactionsScreen = () => {
+const PendingTransactionsScreen = ({ isInBottomSheet }: { isInBottomSheet?: boolean }) => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
@@ -68,10 +68,12 @@ const PendingTransactionsScreen = () => {
   const prevBundle: any = usePrevious(bundle)
 
   useLayoutEffect(() => {
-    navigation?.setOptions({
-      headerTitle: t('Pending Transactions: {{numTxns}}', { numTxns: bundle?.txns?.length })
-    })
-  }, [navigation, bundle?.txns?.length, t])
+    if (!isInBottomSheet) {
+      navigation?.setOptions({
+        headerTitle: t('Pending Transactions: {{numTxns}}', { numTxns: bundle?.txns?.length })
+      })
+    }
+  }, [navigation, bundle?.txns?.length, t, isInBottomSheet])
 
   useEffect(() => {
     return () => {
@@ -105,7 +107,11 @@ const PendingTransactionsScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={190}>
+      <Wrapper
+        type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
+        extraHeight={190}
+        style={isInBottomSheet && spacings.ph0}
+      >
         <SigningWithAccount />
         <TransactionSummary bundle={bundle} estimation={estimation} />
         {!!canProceed && (

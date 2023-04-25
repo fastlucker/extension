@@ -1,6 +1,9 @@
+import { isExtension } from '@web/constants/browserapi'
 import { Approval } from '@web/extension-services/background/services/notification'
 
-export const BROWSER_EXTENSION_REQUESTS_STORAGE_KEY = 'ambire_extension_state'
+export const APPROVAL_REQUESTS_STORAGE_KEY = isExtension
+  ? 'ambire_extension_state'
+  : 'approval_requests_state'
 
 export type UseExtensionApprovalReturnType = {
   approval: Approval | null

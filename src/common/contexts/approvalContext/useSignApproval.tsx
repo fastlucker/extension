@@ -8,7 +8,7 @@ import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
 import useStorage from '@common/hooks/useStorage'
 
-import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY, UseExtensionApprovalReturnType } from './types'
+import { APPROVAL_REQUESTS_STORAGE_KEY, UseExtensionApprovalReturnType } from './types'
 
 type Props = {
   approval: UseExtensionApprovalReturnType['approval']
@@ -20,10 +20,14 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
   const [requests, setRequests] = useStorage({
-    key: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
+    key: APPROVAL_REQUESTS_STORAGE_KEY,
     defaultValue: [],
     setInit: (initialRequests) => (!Array.isArray(initialRequests) ? [] : initialRequests)
   })
+
+  useEffect(() => {
+    setRequests([])
+  }, [])
 
   // handles eth_sign and personal_sign
   const handleSignText = useCallback(
@@ -49,7 +53,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
       const request = {
         id,
         type: method,
-        reqSrc: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
+        reqSrc: APPROVAL_REQUESTS_STORAGE_KEY,
         txn: messageToSign,
         chainId: network?.chainId,
         account: selectedAccount
@@ -89,7 +93,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
       const request = {
         id,
         type: method,
-        reqSrc: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
+        reqSrc: APPROVAL_REQUESTS_STORAGE_KEY,
         txn: messageToSign,
         chainId: network?.chainId,
         account: selectedAccount
@@ -122,7 +126,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         const request = {
           id,
           type: 'eth_sendTransaction',
-          reqSrc: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
+          reqSrc: APPROVAL_REQUESTS_STORAGE_KEY,
           isBatch: txs.length > 1,
           txn: txs[ix],
           chainId: network?.chainId,

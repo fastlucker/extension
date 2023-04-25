@@ -1,17 +1,22 @@
 // TODO: fill in the missing types
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
+import { truncate } from 'lodash'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { useModalize } from 'react-native-modalize'
 
+import BottomSheet from '@common/components/BottomSheet'
+import { isAndroid, isiOS } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
-import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@common/contexts/extensionApprovalContext/types'
+import { APPROVAL_REQUESTS_STORAGE_KEY } from '@common/contexts/approvalContext/types'
 import useAccounts from '@common/hooks/useAccounts'
-import useExtensionApproval from '@common/hooks/useExtensionApproval'
+import useApproval from '@common/hooks/useApproval'
 import useExtensionWallet from '@common/hooks/useExtensionWallet'
 import useGnosisSafe from '@common/hooks/useGnosis'
 import useNavigation from '@common/hooks/useNavigation'
 import useNetwork from '@common/hooks/useNetwork'
 import useToast from '@common/hooks/useToast'
 import useWalletConnect from '@common/hooks/useWalletConnect'
+import PendingTransactionsScreen from '@common/modules/pending-transactions/screens/PendingTransactionsScreen'
 import { ROUTES } from '@common/modules/router/constants/common'
 import { isExtension } from '@web/constants/browserapi'
 import { checkBrowserWindowsForExtensionPopup } from '@web/utils/checkBrowserWindowsForExtensionPopup'
@@ -63,9 +68,10 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { navigate } = useNavigation()
   const { requests: wcRequests, resolveMany: wcResolveMany } = useWalletConnect()
   const { requests: gnosisRequests, resolveMany: gnosisResolveMany } = useGnosisSafe()
-  const { requests: extensionRequests, resolveMany: extensionResolveMany } = useExtensionApproval()
+  const { requests: approvalRequests, resolveMany: approvalResolveMany } = useApproval()
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const { extensionWallet } = useExtensionWallet()
   const [internalRequests, setInternalRequests] = useState<any>([])
@@ -77,12 +83,13 @@ const RequestsProvider: React.FC = ({ children }) => {
     []
   )
 
+  console.log(approvalRequests)
   const requests = useMemo(
     () =>
-      [...internalRequests, ...wcRequests, ...gnosisRequests, ...extensionRequests].filter(
+      [...internalRequests, ...wcRequests, ...gnosisRequests, ...approvalRequests].filter(
         ({ account }) => accounts.find(({ id }: any) => id === account)
       ),
-    [internalRequests, wcRequests, gnosisRequests, extensionRequests, accounts]
+    [internalRequests, wcRequests, gnosisRequests, approvalRequests, accounts]
   )
 
   // Filter only the sign message requests
@@ -167,10 +174,10 @@ const RequestsProvider: React.FC = ({ children }) => {
     (ids: any, resolution: any) => {
       gnosisResolveMany(ids, resolution)
       wcResolveMany(ids, resolution)
-      extensionResolveMany(ids, resolution)
+      approvalResolveMany(ids, resolution)
       setInternalRequests((reqs: any) => reqs.filter((x: any) => !ids.includes(x.id)))
     },
-    [gnosisResolveMany, wcResolveMany, extensionResolveMany]
+    [gnosisResolveMany, wcResolveMany, approvalResolveMany]
   )
 
   const showSendTxns = useCallback(
@@ -201,9 +208,7 @@ const RequestsProvider: React.FC = ({ children }) => {
       let toSign = everythingToSign
 
       if (isExtension && getUiType().isPopup) {
-        toSign = everythingToSign.filter(
-          (r) => r?.reqSrc !== BROWSER_EXTENSION_REQUESTS_STORAGE_KEY
-        )
+        toSign = everythingToSign.filter((r) => r?.reqSrc !== APPROVAL_REQUESTS_STORAGE_KEY)
       }
 
       if (toSign.length) {
@@ -213,8 +218,7 @@ const RequestsProvider: React.FC = ({ children }) => {
         // In case there is a pending sign msg request opened in a notification window
         // and at the same time the popup window is triggered just force open
         // the the notification window to finalize the request before being able to continue
-        everythingToSign.filter((r) => r?.reqSrc === BROWSER_EXTENSION_REQUESTS_STORAGE_KEY)
-          .length &&
+        everythingToSign.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
         isExtension &&
         getUiType().isPopup
       ) {
@@ -224,7 +228,7 @@ const RequestsProvider: React.FC = ({ children }) => {
           window.close()
         } else {
           browser.storage.local.set({
-            [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([])
+            [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([])
           })
         }
       }
@@ -240,8 +244,7 @@ const RequestsProvider: React.FC = ({ children }) => {
         // and at the same time the popup window is triggered just force open
         // the the notification window to finalize the request before being able to continue
         if (
-          eligibleRequests.filter((r) => r?.reqSrc === BROWSER_EXTENSION_REQUESTS_STORAGE_KEY)
-            .length &&
+          eligibleRequests.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
           isExtension &&
           getUiType().isPopup
         ) {
@@ -251,9 +254,14 @@ const RequestsProvider: React.FC = ({ children }) => {
             window.close()
           } else {
             browser.storage.local.set({
-              [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([])
+              [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([])
             })
           }
+        } else if (
+          eligibleRequests.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
+          (isiOS || isAndroid)
+        ) {
+          openBottomSheet()
         } else {
           navigate(ROUTES.pendingTransactions)
         }
@@ -264,9 +272,11 @@ const RequestsProvider: React.FC = ({ children }) => {
     prevSendTxnState?.showing,
     eligibleRequests,
     extensionWallet,
-    navigate
+    navigate,
+    openBottomSheet
   ])
 
+  console.log(eligibleRequests.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length)
   return (
     <RequestsContext.Provider
       value={useMemo(
@@ -301,6 +311,13 @@ const RequestsProvider: React.FC = ({ children }) => {
       )}
     >
       {children}
+      <BottomSheet
+        id="approval-bottom-sheet"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+      >
+        <PendingTransactionsScreen isInBottomSheet={truncate} />
+      </BottomSheet>
     </RequestsContext.Provider>
   )
 }
