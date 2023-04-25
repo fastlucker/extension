@@ -10,15 +10,19 @@ import { useTranslation } from '@common/config/localization'
 import useNetwork from '@common/hooks/useNetwork'
 import spacings from '@common/styles/spacings'
 
+type ISODateString = string
+
 export type AddReferralFormValues = {
+  // Can be a UD domain, ENS domain or a public address.
   address: Address['address']
-  hexAddress: Address['address']
   type: Address['type']
+  hexAddress: Address['address']
+  submittedAt: ISODateString
 }
 
 interface Props {
   initialValue: string
-  onSubmit: ({ address, type }: AddReferralFormValues) => void
+  onSubmit: (values: AddReferralFormValues) => void
 }
 
 const AddReferralForm = ({ onSubmit, initialValue }: Props) => {
@@ -64,8 +68,9 @@ const AddReferralForm = ({ onSubmit, initialValue }: Props) => {
   const handleSubmit = () => {
     onSubmit({
       address: addr,
+      type: uDAddress ? 'ud' : ensAddress ? 'ens' : 'pub',
       hexAddress: uDAddress || ensAddress || addr,
-      type: uDAddress ? 'ud' : ensAddress ? 'ens' : 'pub'
+      submittedAt: new Date().toISOString()
     })
   }
 
