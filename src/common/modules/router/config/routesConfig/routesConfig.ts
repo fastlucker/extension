@@ -30,7 +30,8 @@ const routesConfig: {
   },
   [ROUTES.addReferral]: {
     route: ROUTES.addReferral,
-    title: ''
+    // Next screen has title, this makes the transition smoother (no logo jump effect)
+    title: ' '
   },
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
