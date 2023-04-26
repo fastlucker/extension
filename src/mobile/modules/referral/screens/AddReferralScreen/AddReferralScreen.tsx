@@ -32,20 +32,25 @@ const AddReferralScreen = () => {
         const response = await checkIfAddressIsEligibleForReferral(values.hexAddress)
 
         if (!response?.success) {
-          addToast(response?.message || t('This address is not eligible for referral.'), {
-            error: true
-          })
+          addToast(
+            response?.message || t('This address is not eligible for invitation reference.'),
+            {
+              error: true
+            }
+          )
           return
         }
 
-        addToast(t('Referral added successfully!'))
+        addToast(t('Invitation reference added successfully!'))
 
         setPendingReferral(values)
 
         navigate(ROUTES.getStarted, { replace: true })
       } catch (e) {
         addToast(
-          t('Checking if the referral address is eligible failed. Please try again later.'),
+          t(
+            'Checking if the address is eligible for invitation reference failed. Please try again later.'
+          ),
           {
             error: true
           }
@@ -78,14 +83,6 @@ const AddReferralScreen = () => {
               color={colors.titan}
               fontSize={20}
             >
-              {t('Enter Referral Address')}
-            </Text>
-            <Text
-              weight="light"
-              style={[spacings.mb, text.center]}
-              color={colors.titan}
-              fontSize={12}
-            >
               {t('Who invited you to Ambire?')}
             </Text>
           </View>
@@ -95,7 +92,7 @@ const AddReferralScreen = () => {
           <Trans>
             <Text weight="light" color={colors.titan} fontSize={16} style={spacings.mtLg}>
               <Text weight="light" color={colors.titan} fontSize={16}>
-                {"Don't have a referral address? "}
+                {"Don't have an invitation reference? "}
               </Text>
               <Text
                 weight="light"
