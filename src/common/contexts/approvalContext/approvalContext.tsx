@@ -1,4 +1,5 @@
-import React, { createContext, useCallback, useEffect, useMemo } from 'react'
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import React, { createContext, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import useNavigation from '@common/hooks/useNavigation'
@@ -22,7 +23,8 @@ const ApprovalContext = createContext<UseExtensionApprovalReturnType>({
   getApproval: () => Promise.resolve(null),
   resolveApproval: () => Promise.resolve(),
   rejectApproval: () => Promise.resolve(),
-  resolveMany: () => {}
+  resolveMany: () => {},
+  rejectAllApprovals: () => {}
 })
 
 const ApprovalProvider: React.FC<any> = ({ children }) => {
@@ -91,21 +93,27 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)
-
-      // Navigate to the main route after the approval is resolved, which
-      // triggers the logic that determines where user should go next.
-      if (!stay) navigate('/')
     },
-    [requestNotificationServiceMethod, approval, getApproval, addToast, t, navigate, setApproval]
+    [requestNotificationServiceMethod, approval, getApproval, addToast, t, setApproval]
   )
 
-  const { requests, resolveMany } = useSignApproval({ approval, resolveApproval, rejectApproval })
+  const { requests, resolveMany, setRequests } = useSignApproval({
+    approval,
+    resolveApproval,
+    rejectApproval
+  })
 
-  // useEffect(() => {
-  //   return () => {
-  //     rejectApproval()
-  //   }
-  // }, [rejectApproval])
+  const rejectAllApprovals = useCallback(async () => {
+    await requestNotificationServiceMethod({
+      method: 'rejectAllApprovals'
+    })
+
+    if (approval?.data?.approvalComponent === 'SendTransaction') {
+      // Removes all cached signing requests (otherwise they will be shown again
+      // in the browser extension UI, when it gets opened by the user)
+      setRequests([])
+    }
+  }, [requestNotificationServiceMethod, setRequests, approval])
 
   return (
     <ApprovalContext.Provider
@@ -116,9 +124,18 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
           getApproval,
           resolveApproval,
           rejectApproval,
-          resolveMany
+          resolveMany,
+          rejectAllApprovals
         }),
-        [approval, requests, getApproval, resolveApproval, rejectApproval, resolveMany]
+        [
+          approval,
+          requests,
+          getApproval,
+          resolveApproval,
+          rejectApproval,
+          resolveMany,
+          rejectAllApprovals
+        ]
       )}
     >
       {children}

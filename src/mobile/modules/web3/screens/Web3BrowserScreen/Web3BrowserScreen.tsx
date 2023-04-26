@@ -20,11 +20,15 @@ const Web3BrowserScreen = () => {
   const route = useRoute()
   const { hasPermission, removePermission, setSelectedDappUrl, openBottomSheetPermission } =
     usePermission()
-  const { requestNotificationServiceMethod } = useNotification()
+  const { requestNotificationServiceMethod, setWebViewRef } = useNotification()
 
   const selectedDappUrl = route?.params?.selectedDappUrl
 
   const providerToInject = useGetProviderInjection()
+
+  useEffect(() => {
+    setWebViewRef(webViewRef.current)
+  }, [setWebViewRef])
 
   useEffect(() => {
     setSelectedDappUrl(route?.params?.selectedDappUrl)

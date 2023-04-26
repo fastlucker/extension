@@ -4,8 +4,6 @@ import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
 import { v4 as uuidv4 } from 'uuid'
 
-// import { isDev } from '@common/config/env'
-// import { APPROVAL_REQUESTS_STORAGE_KEY } from '@common/contexts/approvalContext/types'
 import storage from '../webapi/storage'
 
 export interface Approval {
@@ -43,9 +41,18 @@ class NotificationService extends Events {
 
   openApprovalModal: (req: any) => void
 
-  constructor({ openApprovalModal }: { openApprovalModal: (req: any) => void }) {
+  webViewRef: any
+
+  constructor({
+    openApprovalModal,
+    webViewRef
+  }: {
+    openApprovalModal: (req: any) => void
+    webViewRef: any
+  }) {
     super()
     this.openApprovalModal = openApprovalModal
+    this.webViewRef = webViewRef
   }
 
   get approvals() {
@@ -66,7 +73,6 @@ class NotificationService extends Events {
     } catch (e) {
       // TODO:
       // Sentry.captureException(`activeFirstApproval failed: ${JSON.stringify(e)}`)
-      this.clear()
     }
   }
 
@@ -101,34 +107,24 @@ class NotificationService extends Events {
     }
 
     this.emit('resolve', data)
+    // this.webViewRef?.injectJavaScript(`handleEvent(${JSON.stringify(data)});`)
   }
 
   rejectApproval = async (err?: string, stay = false, isInternal = false) => {
     const approval = this.currentApproval
-
-    if (this.approvals.length <= 1) {
-      await this.clear(stay) // TODO: FIXME
-    }
 
     if (isInternal) {
       approval?.reject && approval?.reject(ethErrors.rpc.internal(err))
     } else {
       approval?.reject && approval?.reject(ethErrors.provider.userRejectedRequest<any>(err))
     }
-    if (approval?.data?.approvalComponent === 'SendTransaction') {
-      // Removes all cached signing requests (otherwise they will be shown again
-      // in the browser extension UI, when it gets opened by the user)
-      // TODO: mobile impl
-      // browser.storage.local.set({ [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
-    }
 
     if (approval && this.approvals.length > 1) {
       this.deleteApproval(approval)
       this.currentApproval = this.approvals[0]
-    } else {
-      await this.clear(stay)
     }
     this.emit('reject', err)
+    // this.webViewRef?.injectJavaScript(`handleEvent(${JSON.stringify(err)});`)
   }
 
   requestApproval = async (data, winProps?): Promise<any> => {
@@ -192,27 +188,8 @@ class NotificationService extends Events {
         }
       }
 
-      if (this.notifiWindowId !== null) {
-        browser.windows.update(this.notifiWindowId, {
-          focused: true
-        })
-      } else {
-        this.openNotification(approval)
-      }
+      this.openNotification(approval)
     })
-  }
-
-  clear = async (stay = false) => {
-    this.approvals = []
-    this.currentApproval = null
-    if (this.notifiWindowId !== null && !stay) {
-      try {
-        await winMgr.remove(this.notifiWindowId)
-      } catch (e) {
-        // ignore error
-      }
-      this.notifiWindowId = null
-    }
   }
 
   rejectAllApprovals = () => {
@@ -222,11 +199,6 @@ class NotificationService extends Events {
     })
     this.approvals = []
     this.currentApproval = null
-
-    // Removes all cached signing requests (otherwise they will be shown again
-    // in the browser extension UI, when it gets opened by the user)
-    // TODO: mobile impl
-    // browser.storage.local.set({ [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
   }
 
   unLock = () => {
@@ -238,9 +210,7 @@ class NotificationService extends Events {
   }
 
   openNotification = (approval) => {
-    console.log('open an approval modal in the mobile app')
     if (this.openApprovalModal) {
-      console.log('openNotification', approval)
       this.openApprovalModal(approval)
     }
   }

@@ -4,6 +4,7 @@
 // eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3, eth_signTypedData_v4
 import { useCallback, useEffect } from 'react'
 
+import { isAndroid, isiOS } from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
 import useStorage from '@common/hooks/useStorage'
@@ -26,7 +27,9 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
   })
 
   useEffect(() => {
-    setRequests([])
+    if (isiOS || isAndroid) {
+      setRequests([])
+    }
   }, [])
 
   // handles eth_sign and personal_sign
@@ -119,6 +122,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         }
       } else {
         rejectApproval('No txs request in received params', txs)
+        setRequests([])
         return
       }
       // eslint-disable-next-line no-restricted-syntax, guard-for-in
@@ -200,7 +204,8 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
 
   return {
     requests,
-    resolveMany
+    resolveMany,
+    setRequests
   }
 }
 

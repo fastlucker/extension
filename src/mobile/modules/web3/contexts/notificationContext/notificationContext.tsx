@@ -14,22 +14,28 @@ type NotificationContextData = {
   }) => any
   approval: Approval | null
   setApproval: React.Dispatch<React.SetStateAction<Approval | null>>
+  setWebViewRef: React.Dispatch<any>
 }
 
 const NotificationContext = createContext<NotificationContextData>({
   requestNotificationServiceMethod: () => {},
   approval: null,
-  setApproval: () => {}
+  setApproval: () => {},
+  setWebViewRef: () => {}
 })
 
 const NotificationProvider: React.FC<any> = ({ children }) => {
   const [approval, setApproval] = useState<Approval | null>(null)
+  const [webViewRef, setWebViewRef] = useState<any>(null)
 
   const openApprovalModal = (appr: Approval | null) => {
     setApproval(appr)
   }
 
-  const notificationService: any = useMemo(() => new NotificationService({ openApprovalModal }), [])
+  const notificationService: any = useMemo(
+    () => new NotificationService({ openApprovalModal, webViewRef }),
+    []
+  )
 
   const requestNotificationServiceMethod = useCallback(
     ({ method, props }: { method: string; props?: { [key: string]: any } }) => {
@@ -44,7 +50,8 @@ const NotificationProvider: React.FC<any> = ({ children }) => {
         () => ({
           requestNotificationServiceMethod,
           approval,
-          setApproval
+          setApproval,
+          setWebViewRef
         }),
         [requestNotificationServiceMethod, approval, setApproval]
       )}

@@ -1,6 +1,5 @@
 // TODO: fill in the missing types
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
-import { truncate } from 'lodash'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 
@@ -18,6 +17,7 @@ import useToast from '@common/hooks/useToast'
 import useWalletConnect from '@common/hooks/useWalletConnect'
 import PendingTransactionsScreen from '@common/modules/pending-transactions/screens/PendingTransactionsScreen'
 import { ROUTES } from '@common/modules/router/constants/common'
+import colors from '@common/styles/colors'
 import { isExtension } from '@web/constants/browserapi'
 import { checkBrowserWindowsForExtensionPopup } from '@web/utils/checkBrowserWindowsForExtensionPopup'
 import { getUiType } from '@web/utils/uiType'
@@ -68,7 +68,11 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { navigate } = useNavigation()
   const { requests: wcRequests, resolveMany: wcResolveMany } = useWalletConnect()
   const { requests: gnosisRequests, resolveMany: gnosisResolveMany } = useGnosisSafe()
-  const { requests: approvalRequests, resolveMany: approvalResolveMany } = useApproval()
+  const {
+    requests: approvalRequests,
+    resolveMany: approvalResolveMany,
+    rejectAllApprovals
+  } = useApproval()
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -83,7 +87,6 @@ const RequestsProvider: React.FC = ({ children }) => {
     []
   )
 
-  console.log(approvalRequests)
   const requests = useMemo(
     () =>
       [...internalRequests, ...wcRequests, ...gnosisRequests, ...approvalRequests].filter(
@@ -238,34 +241,36 @@ const RequestsProvider: React.FC = ({ children }) => {
   // Handle navigation for send txn requests
   useEffect(() => {
     ;(async () => {
-      if (sendTxnState?.showing && !prevSendTxnState?.showing) {
-        // Extension only
-        // In case there is a pending send txn request opened in a notification window
-        // and at the same time the popup window is triggered just force open
-        // the the notification window to finalize the request before being able to continue
-        if (
-          eligibleRequests.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
-          isExtension &&
-          getUiType().isPopup
-        ) {
-          const { extensionPopupExists } = await checkBrowserWindowsForExtensionPopup()
-          if (extensionPopupExists) {
-            extensionWallet!.activeFirstApproval()
-            window.close()
+      setTimeout(async () => {
+        if (sendTxnState?.showing && !prevSendTxnState?.showing) {
+          // Extension only
+          // In case there is a pending send txn request opened in a notification window
+          // and at the same time the popup window is triggered just force open
+          // the the notification window to finalize the request before being able to continue
+          if (
+            eligibleRequests.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
+            isExtension &&
+            getUiType().isPopup
+          ) {
+            const { extensionPopupExists } = await checkBrowserWindowsForExtensionPopup()
+            if (extensionPopupExists) {
+              extensionWallet!.activeFirstApproval()
+              window.close()
+            } else {
+              browser.storage.local.set({
+                [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([])
+              })
+            }
+          } else if (
+            eligibleRequests.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
+            (isiOS || isAndroid)
+          ) {
+            openBottomSheet()
           } else {
-            browser.storage.local.set({
-              [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([])
-            })
+            navigate(ROUTES.pendingTransactions)
           }
-        } else if (
-          eligibleRequests.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
-          (isiOS || isAndroid)
-        ) {
-          openBottomSheet()
-        } else {
-          navigate(ROUTES.pendingTransactions)
         }
-      }
+      }, 1)
     })()
   }, [
     sendTxnState?.showing,
@@ -276,7 +281,6 @@ const RequestsProvider: React.FC = ({ children }) => {
     openBottomSheet
   ])
 
-  console.log(eligibleRequests.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length)
   return (
     <RequestsContext.Provider
       value={useMemo(
@@ -314,9 +318,14 @@ const RequestsProvider: React.FC = ({ children }) => {
       <BottomSheet
         id="approval-bottom-sheet"
         sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
+        closeBottomSheet={() => {
+          closeBottomSheet()
+          // !!rejectAllApprovals && rejectAllApprovals()
+        }}
+        style={{ backgroundColor: colors.martinique }}
+        displayCancel={false}
       >
-        <PendingTransactionsScreen isInBottomSheet={truncate} />
+        <PendingTransactionsScreen isInBottomSheet closeBottomSheet={closeBottomSheet} />
       </BottomSheet>
     </RequestsContext.Provider>
   )
