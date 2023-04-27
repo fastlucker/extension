@@ -1,13 +1,11 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
-import React, { createContext, useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { delayPromise } from '@common/utils/promises'
-import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
 
-import { UseExtensionApprovalReturnType } from './types'
+import { UseApprovalProps, UseApprovalReturnType } from './types'
 import useSignApproval from './useSignApproval'
 
 // In the cases when the dApp requests multiple approvals, but waits the
@@ -16,24 +14,16 @@ import useSignApproval from './useSignApproval'
 // when you try to "Add Token to Web3 Wallet".
 const MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS = 850
 
-const ApprovalContext = createContext<UseExtensionApprovalReturnType>({
-  approval: null,
-  requests: [],
-  hasCheckedForApprovalInitially: false,
-  getApproval: () => Promise.resolve(null),
-  resolveApproval: () => Promise.resolve(),
-  rejectApproval: () => Promise.resolve(),
-  resolveMany: () => {},
-  rejectAllApprovals: () => {}
-})
-
-const ApprovalProvider: React.FC<any> = ({ children }) => {
+const useApproval = ({
+  requestNotificationServiceMethod,
+  approval,
+  setApproval
+}: UseApprovalProps) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
-  const { requestNotificationServiceMethod, approval, setApproval } = useWeb3()
 
-  const getApproval: UseExtensionApprovalReturnType['getApproval'] = useCallback(
+  const getApproval: UseApprovalReturnType['getApproval'] = useCallback(
     () =>
       requestNotificationServiceMethod({
         method: 'getApproval'
@@ -41,7 +31,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
     [requestNotificationServiceMethod]
   )
 
-  const resolveApproval = useCallback<UseExtensionApprovalReturnType['resolveApproval']>(
+  const resolveApproval = useCallback<UseApprovalReturnType['resolveApproval']>(
     async (data = undefined, stay = false, forceReject = false, approvalId = undefined) => {
       if (!approval) {
         return addToast(
@@ -73,7 +63,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
     [requestNotificationServiceMethod, addToast, approval, getApproval, t, navigate, setApproval]
   )
 
-  const rejectApproval = useCallback<UseExtensionApprovalReturnType['rejectApproval']>(
+  const rejectApproval = useCallback<UseApprovalReturnType['rejectApproval']>(
     async (err = undefined, stay = false, isInternal = false) => {
       if (!approval) {
         return addToast(
@@ -115,23 +105,14 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
     }
   }, [requestNotificationServiceMethod, setRequests, approval])
 
-  return (
-    <ApprovalContext.Provider
-      value={useMemo(
-        () => ({
-          requests,
-          getApproval,
-          resolveApproval,
-          rejectApproval,
-          resolveMany,
-          rejectAllApprovals
-        }),
-        [requests, getApproval, resolveApproval, rejectApproval, resolveMany, rejectAllApprovals]
-      )}
-    >
-      {children}
-    </ApprovalContext.Provider>
-  )
+  return {
+    requests,
+    getApproval,
+    resolveApproval,
+    rejectApproval,
+    resolveMany,
+    rejectAllApprovals
+  }
 }
 
-export { ApprovalProvider, ApprovalContext }
+export default useApproval

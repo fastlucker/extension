@@ -5,9 +5,9 @@ import Events from 'events'
 import { v4 as uuidv4 } from 'uuid'
 
 import { isDev } from '@common/config/env'
-import { APPROVAL_REQUESTS_STORAGE_KEY } from '@common/contexts/approvalContext/types'
 import colors from '@common/styles/colors'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
+import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
 import storage from '../webapi/storage'

@@ -7,15 +7,9 @@ import { useCallback, useEffect, useState } from 'react'
 import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
 
-import { APPROVAL_REQUESTS_STORAGE_KEY, UseExtensionApprovalReturnType } from './types'
+import { APPROVAL_REQUESTS_STORAGE_KEY, UseSignApprovalProps } from './types'
 
-type Props = {
-  approval: UseExtensionApprovalReturnType['approval']
-  resolveApproval: UseExtensionApprovalReturnType['resolveApproval']
-  rejectApproval: UseExtensionApprovalReturnType['rejectApproval']
-}
-
-const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) => {
+const useSignApproval = ({ approval, resolveApproval, rejectApproval }: UseSignApprovalProps) => {
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
   const [requests, setRequests] = useState([])

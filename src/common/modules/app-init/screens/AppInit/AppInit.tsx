@@ -7,7 +7,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import AttentionGrabberProvider from '@common/components/AttentionGrabber'
 import { AccountsProvider } from '@common/contexts/accountsContext'
 import { AddressBookProvider } from '@common/contexts/addressBookContext'
-import { ApprovalProvider } from '@common/contexts/approvalContext'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { GasTankProvider } from '@common/contexts/gasTankContext'
@@ -74,36 +73,34 @@ const AppInit = () => {
                           <AccountsProvider>
                             <NetworkProvider>
                               <Web3Provider>
-                                <ApprovalProvider>
-                                  <PortfolioProvider>
-                                    <GnosisProvider>
-                                      <WalletConnectProvider>
-                                        <RequestsProvider>
-                                          <BiometricsProvider>
-                                            <VaultProvider>
-                                              <AddressBookProvider>
-                                                <AttentionGrabberProvider>
-                                                  <PrivateModeProvider>
-                                                    <GasTankProvider>
-                                                      <UnsupportedDAppsBottomSheetProvider>
-                                                        <HeaderBottomSheetProvider>
-                                                          <LinkingProvider>
-                                                            <AppRouter />
-                                                          </LinkingProvider>
-                                                        </HeaderBottomSheetProvider>
-                                                      </UnsupportedDAppsBottomSheetProvider>
-                                                    </GasTankProvider>
-                                                  </PrivateModeProvider>
-                                                </AttentionGrabberProvider>
-                                                <PortalHost name="global" />
-                                              </AddressBookProvider>
-                                            </VaultProvider>
-                                          </BiometricsProvider>
-                                        </RequestsProvider>
-                                      </WalletConnectProvider>
-                                    </GnosisProvider>
-                                  </PortfolioProvider>
-                                </ApprovalProvider>
+                                <PortfolioProvider>
+                                  <GnosisProvider>
+                                    <WalletConnectProvider>
+                                      <RequestsProvider>
+                                        <BiometricsProvider>
+                                          <VaultProvider>
+                                            <AddressBookProvider>
+                                              <AttentionGrabberProvider>
+                                                <PrivateModeProvider>
+                                                  <GasTankProvider>
+                                                    <UnsupportedDAppsBottomSheetProvider>
+                                                      <HeaderBottomSheetProvider>
+                                                        <LinkingProvider>
+                                                          <AppRouter />
+                                                        </LinkingProvider>
+                                                      </HeaderBottomSheetProvider>
+                                                    </UnsupportedDAppsBottomSheetProvider>
+                                                  </GasTankProvider>
+                                                </PrivateModeProvider>
+                                              </AttentionGrabberProvider>
+                                              <PortalHost name="global" />
+                                            </AddressBookProvider>
+                                          </VaultProvider>
+                                        </BiometricsProvider>
+                                      </RequestsProvider>
+                                    </WalletConnectProvider>
+                                  </GnosisProvider>
+                                </PortfolioProvider>
                               </Web3Provider>
                             </NetworkProvider>
                           </AccountsProvider>

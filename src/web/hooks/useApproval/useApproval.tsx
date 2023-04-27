@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 
-import { ApprovalContext } from '@common/contexts/approvalContext'
+import { ApprovalContext } from '@web/contexts/approvalContext'
 
 export default function useApproval() {
   const context = useContext(ApprovalContext)

@@ -10,18 +10,10 @@ import providerController from '@mobile/modules/web3/services/webview-background
 import { Approval } from '@mobile/modules/web3/services/webview-background/services/notification'
 import sessionService from '@mobile/modules/web3/services/webview-background/services/session'
 
+import { Web3ContextData } from './types'
+import useApproval from './useApproval'
 import useNotification from './useNotification'
 import usePermission from './usePermission'
-
-type Web3ContextData = {
-  checkHasPermission: (dappURL: string) => boolean
-  addPermission: (dappURL: string) => void
-  setSelectedDappUrl: React.Dispatch<React.SetStateAction<string>>
-  approval: Approval | null
-  setApproval: React.Dispatch<React.SetStateAction<Approval | null>>
-  setWeb3ViewRef: React.Dispatch<any>
-  handleWeb3Request: ({ data }: { data: any }) => any
-}
 
 const Web3Context = createContext<Web3ContextData>({
   checkHasPermission: () => false,
@@ -30,7 +22,13 @@ const Web3Context = createContext<Web3ContextData>({
   approval: null,
   setApproval: () => {},
   setWeb3ViewRef: () => {},
-  handleWeb3Request: () => {}
+  handleWeb3Request: () => {},
+  requests: null,
+  getApproval: () => Promise.resolve(null),
+  resolveApproval: () => {},
+  rejectApproval: () => {},
+  resolveMany: () => {},
+  rejectAllApprovals: () => {}
 })
 
 const Web3Provider: React.FC<any> = ({ children }) => {
@@ -54,6 +52,15 @@ const Web3Provider: React.FC<any> = ({ children }) => {
     web3ViewRef,
     setApproval
   })
+
+  const {
+    requests,
+    getApproval,
+    resolveApproval,
+    rejectApproval,
+    resolveMany,
+    rejectAllApprovals
+  } = useApproval({ requestNotificationServiceMethod, approval, setApproval })
 
   useEffect(() => {
     if (!prevSelectedDappUrl && selectedDappUrl) {
@@ -109,9 +116,27 @@ const Web3Provider: React.FC<any> = ({ children }) => {
           setSelectedDappUrl,
           approval,
           setApproval,
-          handleWeb3Request
+          handleWeb3Request,
+          requests,
+          getApproval,
+          resolveApproval,
+          rejectApproval,
+          resolveMany,
+          rejectAllApprovals
         }),
-        [checkHasPermission, addPermission, approval, setApproval, handleWeb3Request]
+        [
+          checkHasPermission,
+          addPermission,
+          approval,
+          setApproval,
+          handleWeb3Request,
+          requests,
+          getApproval,
+          resolveApproval,
+          rejectApproval,
+          resolveMany,
+          rejectAllApprovals
+        ]
       )}
     >
       {children}

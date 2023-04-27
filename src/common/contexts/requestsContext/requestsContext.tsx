@@ -6,9 +6,7 @@ import { useModalize } from 'react-native-modalize'
 import BottomSheet from '@common/components/BottomSheet'
 import { isAndroid, isiOS } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
-import { APPROVAL_REQUESTS_STORAGE_KEY } from '@common/contexts/approvalContext/types'
 import useAccounts from '@common/hooks/useAccounts'
-import useApproval from '@common/hooks/useApproval'
 import useExtensionWallet from '@common/hooks/useExtensionWallet'
 import useGnosisSafe from '@common/hooks/useGnosis'
 import useNavigation from '@common/hooks/useNavigation'
@@ -19,8 +17,11 @@ import PendingTransactionsScreen from '@common/modules/pending-transactions/scre
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import { isExtension } from '@web/constants/browserapi'
+import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'
 import { checkBrowserWindowsForExtensionPopup } from '@web/utils/checkBrowserWindowsForExtensionPopup'
 import { getUiType } from '@web/utils/uiType'
+
+import useWeb3Approval from './useWeb3Approval'
 
 export interface RequestsContextReturnType {
   internalRequests: any
@@ -68,11 +69,7 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { navigate } = useNavigation()
   const { requests: wcRequests, resolveMany: wcResolveMany } = useWalletConnect()
   const { requests: gnosisRequests, resolveMany: gnosisResolveMany } = useGnosisSafe()
-  const {
-    requests: approvalRequests,
-    resolveMany: approvalResolveMany,
-    rejectAllApprovals
-  } = useApproval()
+  const { requests: approvalRequests, resolveMany: approvalResolveMany } = useWeb3Approval()
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
