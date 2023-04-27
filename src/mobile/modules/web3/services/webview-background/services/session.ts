@@ -11,14 +11,14 @@ export class Session {
 
   name = ''
 
-  webViewRef = null
+  web3ViewRef = null
 
   pushMessage(event: any, data: any) {
-    this.webViewRef?.current?.injectJavaScript(`handleBackgroundMessage(${JSON.stringify(data)});`)
+    this.web3ViewRef?.injectJavaScript(`handleBackgroundMessage(${JSON.stringify(data)});`)
   }
 
-  constructor(data: SessionProp | null, webViewRef: any) {
-    this.webViewRef = webViewRef
+  constructor(data: SessionProp | null, web3ViewRef: any) {
+    this.web3ViewRef = web3ViewRef
     if (data) {
       this.setProp(data)
     }
@@ -38,19 +38,19 @@ const getSession = (key: string) => {
   return sessionMap.get(key)
 }
 
-const createSession = (key: string, data: null | SessionProp, webViewRef) => {
-  const session = new Session(data, webViewRef)
+const createSession = (key: string, data: null | SessionProp, web3ViewRef) => {
+  const session = new Session(data, web3ViewRef)
   sessionMap.set(key, session)
 
   return session
 }
 
-const getOrCreateSession = (id: number, origin: string, webViewRef) => {
+const getOrCreateSession = (id: number | string, origin: string, web3ViewRef) => {
   if (sessionMap.has(`${id}-${origin}`)) {
     return getSession(`${id}-${origin}`)
   }
 
-  return createSession(`${id}-${origin}`, null, webViewRef)
+  return createSession(`${id}-${origin}`, null, web3ViewRef)
 }
 const deleteSession = (key: string) => {
   sessionMap.delete(key)

@@ -11,7 +11,7 @@ const usePermission = ({ selectedDappUrl }: { selectedDappUrl: string }) => {
     setInit: (p: any) => (!Array.isArray(p) ? [] : p)
   })
 
-  const hasPermission = useCallback(
+  const checkHasPermission = useCallback(
     (dappURL: string) => {
       return permission?.includes(dappURL) as boolean
     },
@@ -20,12 +20,12 @@ const usePermission = ({ selectedDappUrl }: { selectedDappUrl: string }) => {
 
   const addPermission = useCallback(
     (dappURL: string) => {
-      if (!hasPermission(dappURL)) {
+      if (!checkHasPermission(dappURL)) {
         permission?.push(dappURL)
         setPermission(permission)
       }
     },
-    [permission, setPermission, hasPermission]
+    [permission, setPermission, checkHasPermission]
   )
 
   const removePermission = useCallback(
@@ -44,7 +44,7 @@ const usePermission = ({ selectedDappUrl }: { selectedDappUrl: string }) => {
   }, [selectedDappUrl, addPermission])
 
   return {
-    hasPermission,
+    checkHasPermission,
     addPermission,
     grantPermission,
     removePermission

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { View } from 'react-native'
 import { WebView } from 'react-native-webview'
 
@@ -8,8 +8,6 @@ import Wrapper from '@common/components/Wrapper'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
-import providerController from '@mobile/modules/web3/services/webview-background/provider/provider'
-import sessionService from '@mobile/modules/web3/services/webview-background/services/session'
 import useGetProviderInjection from '@mobile/modules/web3/services/webview-inpage/injection-script'
 
 import styles from './styles'
@@ -18,80 +16,40 @@ const Web3BrowserScreen = () => {
   const webViewRef = useRef(null)
   const route = useRoute()
 
-  const {
-    requestNotificationServiceMethod,
-    setWeb3ViewRef,
-    hasPermission,
-    removePermission,
-    setSelectedDappUrl,
-    openBottomSheetPermission
-  } = useWeb3()
+  const { setWeb3ViewRef, handleWeb3Request, checkHasPermission, setSelectedDappUrl } = useWeb3()
 
   const selectedDappUrl = route?.params?.selectedDappUrl
 
   const providerToInject = useGetProviderInjection()
 
+  const hasPermission = useMemo(
+    () => !!checkHasPermission(selectedDappUrl),
+    [selectedDappUrl, checkHasPermission]
+  )
+
   useEffect(() => {
     setWeb3ViewRef(webViewRef.current)
-  }, [setWeb3ViewRef])
-
-  useEffect(() => {
     setSelectedDappUrl(route?.params?.selectedDappUrl)
     return () => {
+      setWeb3ViewRef(null)
       setSelectedDappUrl('')
     }
-  }, [route?.params?.selectedDappUrl, setSelectedDappUrl])
-
-  useEffect(() => {
-    if (!hasPermission(selectedDappUrl)) {
-      setTimeout(() => {
-        openBottomSheetPermission()
-      }, 1)
-    }
-  }, [hasPermission, openBottomSheetPermission, selectedDappUrl])
+  }, [route?.params?.selectedDappUrl, setWeb3ViewRef, setSelectedDappUrl])
 
   // Define a function to handle messages from the injected EthereumProvider
-  const handleEthereumProviderMessage = async (event) => {
+  const handleEthereumProviderMessage = async (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data)
-
-      // console.log('data', data)
-
-      if (data.method === 'disconnect') {
-        removePermission(selectedDappUrl)
-        return
-      }
-
-      const sessionId = selectedDappUrl
-      const origin = selectedDappUrl
-      const session = sessionService.getOrCreateSession(sessionId, origin, webViewRef)
-      const req = { data, session, origin }
-
-      const result = await providerController(req, requestNotificationServiceMethod)
-
-      console.log('result', result)
-
-      const response = {
-        id: data.id,
-        method: data.method,
-        success: true, // or false if there is an error
-        result // or error: {} if there is an error
-      }
-
-      if (result) {
-        webViewRef?.current?.injectJavaScript(
-          `handleProviderResponse(${JSON.stringify(response)});`
-        )
-      }
+      handleWeb3Request({ data })
     } catch (error) {
-      console.log(error)
+      console.error(error)
     }
   }
 
   return (
     <GradientBackgroundWrapper>
       <Wrapper style={spacings.ph0} hasBottomTabNav>
-        {!!hasPermission(selectedDappUrl || '') && (
+        {!!hasPermission && (
           <WebView
             ref={webViewRef}
             source={{ uri: selectedDappUrl }}
