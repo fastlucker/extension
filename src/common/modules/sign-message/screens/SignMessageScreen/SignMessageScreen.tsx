@@ -48,7 +48,13 @@ const walletType = (signerExtra: any) => {
   return 'Web3'
 }
 
-const SignScreenScreen = () => {
+const SignScreenScreen = ({
+  isInBottomSheet,
+  closeBottomSheet
+}: {
+  isInBottomSheet?: boolean
+  closeBottomSheet?: (dest?: 'default' | 'alwaysOpen' | undefined) => void
+}) => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { account } = useAccounts()
@@ -70,7 +76,9 @@ const SignScreenScreen = () => {
 
   const resolve = (outcome: any) => resolveMany([everythingToSign[0].id], outcome)
 
-  useDisableNavigatingBack(navigation)
+  if (!isInBottomSheet) {
+    useDisableNavigatingBack(navigation)
+  }
 
   const {
     ref: sheetRefQickAcc,
@@ -104,7 +112,8 @@ const SignScreenScreen = () => {
     messagesToSign: everythingToSign,
     resolve,
     onConfirmationCodeRequired,
-    openBottomSheetHardwareWallet
+    openBottomSheetHardwareWallet,
+    isInBottomSheet
   })
 
   const connection = useMemo(
@@ -117,41 +126,56 @@ const SignScreenScreen = () => {
 
   useEffect(() => {
     if (!Object.keys(msgToSign || {}).length && Object.keys(prevToSign || {}).length) {
-      navigation?.goBack()
+      if (isInBottomSheet) {
+        !!closeBottomSheet && closeBottomSheet()
+      } else {
+        navigation.goBack()
+      }
     }
-  }, [msgToSign, navigation, prevToSign])
-
-  if (!msgToSign || !account) return null
-
-  if (typeDataErr) {
-    return (
-      <Wrapper>
-        <Panel>
-          <Text fontSize={17} appearance="danger" style={spacings.mb}>
-            {t('Invalid signing request: {{typeDataErr}}', { typeDataErr })}
-          </Text>
-          <Button
-            type="danger"
-            text={t('Reject')}
-            onPress={() =>
-              resolve({
-                message: 'Signature denied',
-                code: errorCodes.provider.userRejectedRequest
-              })
-            }
-          />
-        </Panel>
-      </Wrapper>
-    )
-  }
+  }, [msgToSign, navigation, prevToSign, isInBottomSheet, closeBottomSheet])
 
   const resetLoadingState = useCallback(() => setLoading(false), [setLoading])
 
+  if (!msgToSign || !account) return null
+
+  const GradientWrapper = isInBottomSheet ? React.Fragment : GradientBackgroundWrapper
+
+  if (typeDataErr) {
+    return (
+      <GradientWrapper>
+        <Wrapper style={isInBottomSheet && spacings.ph0}>
+          <Panel>
+            <Text fontSize={17} appearance="danger" style={spacings.mb}>
+              {t('Invalid signing request: {{typeDataErr}}', { typeDataErr })}
+            </Text>
+            <Button
+              type="danger"
+              text={t('Reject')}
+              onPress={() =>
+                resolve({
+                  message: 'Signature denied',
+                  code: errorCodes.provider.userRejectedRequest
+                })
+              }
+            />
+          </Panel>
+        </Wrapper>
+      </GradientWrapper>
+    )
+  }
+
   return (
     <>
-      <GradientBackgroundWrapper>
-        <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={180}>
-          <Title style={[textStyles.center, spacings.mbTy]} hasBottomSpacing={false}>
+      <GradientWrapper>
+        <Wrapper
+          type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
+          extraHeight={180}
+          style={isInBottomSheet && spacings.ph0}
+        >
+          <Title
+            style={[textStyles.center, isInBottomSheet ? spacings.mb : spacings.mbTy]}
+            hasBottomSpacing={false}
+          >
             {t('Signing with account')}
           </Title>
           <Panel type="filled" contentContainerStyle={[spacings.pvTy, spacings.phTy]}>
@@ -207,7 +231,7 @@ const SignScreenScreen = () => {
             />
           </Panel>
         </Wrapper>
-      </GradientBackgroundWrapper>
+      </GradientWrapper>
       <BottomSheet
         id="sign"
         closeBottomSheet={closeBottomSheetQickAcc}

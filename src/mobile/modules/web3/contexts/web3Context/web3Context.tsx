@@ -6,6 +6,7 @@ import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Title from '@common/components/Title'
 import useNavigation from '@common/hooks/useNavigation'
+import text from '@common/styles/utils/text'
 import providerController from '@mobile/modules/web3/services/webview-background/provider/provider'
 import { Approval } from '@mobile/modules/web3/services/webview-background/services/notification'
 import sessionService from '@mobile/modules/web3/services/webview-background/services/session'
@@ -161,7 +162,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
           }, 10)
         }}
       >
-        <Title>Allow dApp to Connect</Title>
+        <Title style={text.center}>Allow dApp to Connect</Title>
         <Button text="Allow" onPress={grantPermission} />
       </BottomSheet>
     </Web3Context.Provider>

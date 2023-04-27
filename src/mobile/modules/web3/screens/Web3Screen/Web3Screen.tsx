@@ -6,8 +6,6 @@ import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
 
-import styles from './styles'
-
 const Web3Screen = () => {
   const navigation = useNavigation()
 
@@ -21,20 +19,19 @@ const Web3Screen = () => {
   }
 
   return (
-    <>
-      <GradientBackgroundWrapper>
-        <Wrapper hasBottomTabNav>
-          <Button
-            text={'UniSwap'}
-            onPress={() => handleOpenDapp('https://app.uniswap.org/#/swap')}
-          />
-          <Button
-            text={'PoolTogether'}
-            onPress={() => handleOpenDapp('https://app.pooltogether.com/')}
-          />
-        </Wrapper>
-      </GradientBackgroundWrapper>
-    </>
+    <GradientBackgroundWrapper>
+      <Wrapper hasBottomTabNav>
+        <Button text="UniSwap" onPress={() => handleOpenDapp('https://app.uniswap.org/#/swap')} />
+        <Button
+          text="PoolTogether"
+          onPress={() => handleOpenDapp('https://app.pooltogether.com/')}
+        />
+        <Button
+          text="SigTool for EVM"
+          onPress={() => handleOpenDapp('https://sigtool.ambire.com/')}
+        />
+      </Wrapper>
+    </GradientBackgroundWrapper>
   )
 }
 

@@ -15,6 +15,7 @@ import useToast from '@common/hooks/useToast'
 import useWalletConnect from '@common/hooks/useWalletConnect'
 import PendingTransactionsScreen from '@common/modules/pending-transactions/screens/PendingTransactionsScreen'
 import { ROUTES } from '@common/modules/router/constants/common'
+import SignMessageScreen from '@common/modules/sign-message/screens/SignMessageScreen'
 import colors from '@common/styles/colors'
 import { isExtension } from '@web/constants/browserapi'
 import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'
@@ -72,7 +73,17 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { requests: approvalRequests, resolveMany: approvalResolveMany } = useWeb3Approval()
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const {
+    ref: sheetRefSendTxn,
+    open: openBottomSheetSendTxn,
+    close: closeBottomSheetSendTxn
+  } = useModalize()
+
+  const {
+    ref: sheetRefSignMsg,
+    open: openBottomSheetSignMsg,
+    close: closeBottomSheetSignMsg
+  } = useModalize()
 
   const { extensionWallet } = useExtensionWallet()
   const [internalRequests, setInternalRequests] = useState<any>([])
@@ -129,13 +140,6 @@ const RequestsProvider: React.FC = ({ children }) => {
   }))
 
   const prevSendTxnState: any = usePrevious(sendTxnState)
-
-  console.log(
-    'eligibleRequests',
-    eligibleRequests.length,
-    sendTxnState?.showing,
-    prevSendTxnState?.showing
-  )
 
   useEffect(() => {
     setSendTxnState((prev) => ({
@@ -219,7 +223,14 @@ const RequestsProvider: React.FC = ({ children }) => {
       }
 
       if (toSign.length) {
-        navigate(ROUTES.signMessage)
+        if (
+          (isiOS || isAndroid) &&
+          everythingToSign.filter((r) => r?.reqSrc !== APPROVAL_REQUESTS_STORAGE_KEY)
+        ) {
+          openBottomSheetSignMsg()
+        } else {
+          navigate(ROUTES.signMessage)
+        }
       } else if (
         // Extension only
         // In case there is a pending sign msg request opened in a notification window
@@ -240,7 +251,7 @@ const RequestsProvider: React.FC = ({ children }) => {
         }
       }
     })()
-  }, [everythingToSign, extensionWallet, navigate])
+  }, [everythingToSign, extensionWallet, navigate, openBottomSheetSignMsg])
 
   // Handle navigation for send txn requests
   useEffect(() => {
@@ -269,7 +280,7 @@ const RequestsProvider: React.FC = ({ children }) => {
             eligibleRequests.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
             (isiOS || isAndroid)
           ) {
-            openBottomSheet()
+            openBottomSheetSendTxn()
           } else {
             navigate(ROUTES.pendingTransactions)
           }
@@ -282,7 +293,7 @@ const RequestsProvider: React.FC = ({ children }) => {
     eligibleRequests,
     extensionWallet,
     navigate,
-    openBottomSheet
+    openBottomSheetSendTxn
   ])
 
   return (
@@ -320,15 +331,26 @@ const RequestsProvider: React.FC = ({ children }) => {
     >
       {children}
       <BottomSheet
-        id="approval-bottom-sheet"
-        sheetRef={sheetRef}
+        id="bottom-sheet-send-txn"
+        sheetRef={sheetRefSendTxn}
         closeBottomSheet={() => {
-          closeBottomSheet()
+          closeBottomSheetSendTxn()
         }}
         style={{ backgroundColor: colors.martinique }}
         displayCancel={false}
       >
-        <PendingTransactionsScreen isInBottomSheet closeBottomSheet={closeBottomSheet} />
+        <PendingTransactionsScreen isInBottomSheet closeBottomSheet={closeBottomSheetSendTxn} />
+      </BottomSheet>
+      <BottomSheet
+        id="bottom-sheet-sign-msg"
+        sheetRef={sheetRefSignMsg}
+        closeBottomSheet={() => {
+          closeBottomSheetSignMsg()
+        }}
+        style={{ backgroundColor: colors.martinique }}
+        displayCancel={false}
+      >
+        <SignMessageScreen isInBottomSheet closeBottomSheet={closeBottomSheetSignMsg} />
       </BottomSheet>
     </RequestsContext.Provider>
   )
