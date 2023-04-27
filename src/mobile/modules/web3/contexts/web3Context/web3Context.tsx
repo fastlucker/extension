@@ -72,6 +72,13 @@ const Web3Provider: React.FC<any> = ({ children }) => {
     }
   }, [checkHasPermission, openBottomSheetPermission, prevSelectedDappUrl, selectedDappUrl])
 
+  useEffect(() => {
+    if ((!selectedDappUrl || !web3ViewRef) && requests.length) {
+      rejectAllApprovals()
+      setApproval(null)
+    }
+  }, [requests, selectedDappUrl, web3ViewRef, rejectAllApprovals])
+
   const handleWeb3Request = useCallback(
     async ({ data }: { data: any }) => {
       try {

@@ -97,13 +97,8 @@ const useApproval = ({
     await requestNotificationServiceMethod({
       method: 'rejectAllApprovals'
     })
-
-    if (approval?.data?.approvalComponent === 'SendTransaction') {
-      // Removes all cached signing requests (otherwise they will be shown again
-      // in the browser extension UI, when it gets opened by the user)
-      setRequests([])
-    }
-  }, [requestNotificationServiceMethod, setRequests, approval])
+    setRequests([])
+  }, [requestNotificationServiceMethod, setRequests])
 
   return {
     requests,

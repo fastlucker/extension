@@ -130,6 +130,13 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   const prevSendTxnState: any = usePrevious(sendTxnState)
 
+  console.log(
+    'eligibleRequests',
+    eligibleRequests.length,
+    sendTxnState?.showing,
+    prevSendTxnState?.showing
+  )
+
   useEffect(() => {
     setSendTxnState((prev) => ({
       showing: !!eligibleRequests.length,
@@ -317,7 +324,6 @@ const RequestsProvider: React.FC = ({ children }) => {
         sheetRef={sheetRef}
         closeBottomSheet={() => {
           closeBottomSheet()
-          // !!rejectAllApprovals && rejectAllApprovals()
         }}
         style={{ backgroundColor: colors.martinique }}
         displayCancel={false}
