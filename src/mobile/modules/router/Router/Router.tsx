@@ -57,6 +57,7 @@ import VaultSetupGetStartedScreen from '@common/modules/vault/screens/VaultSetup
 import { navigate } from '@common/services/navigation'
 import colors from '@common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
+import OnboardingOnFirstLoginScreen from '@mobile/modules/auth/screens/OnboardingOnFirstLoginScreen'
 import ConnectScreen from '@mobile/modules/connect/screens/ConnectScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
@@ -78,6 +79,7 @@ const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 const DataDeletionPolicyStack = createNativeStackNavigator()
 const BackupStack = createNativeStackNavigator()
+const OnboardingOnFirstLoginStack = createNativeStackNavigator()
 
 const SignersStackScreen = () => {
   return (
@@ -120,6 +122,20 @@ const BackupStackScreen = () => {
     </BackupStack.Navigator>
   )
 }
+
+// const OnboardingOnFirstLoginStackScreen = () => {
+//   return (
+//     <OnboardingOnFirstLoginStack.Navigator screenOptions={{ header: headerGamma }}>
+//       <OnboardingOnFirstLoginStack.Screen
+//         name={`${MOBILE_ROUTES.onboardingOnFirstLogin}-screen`}
+//         component={OnboardingOnFirstLoginScreen}
+//         options={{
+//           title: routesConfig[ROUTES.onboardingOnFirstLogin].title
+//         }}
+//       />
+//     </OnboardingOnFirstLoginStack.Navigator>
+//   )
+// }
 
 const GasTankStackScreen = () => {
   return (
@@ -213,7 +229,10 @@ const AuthStack = () => {
       : `${MOBILE_ROUTES.auth}-screen`
 
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
+    <Stack.Navigator
+      screenOptions={{ header: headerBeta }}
+      initialRouteName={ROUTES.onboardingOnFirstLogin}
+    >
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <>
           <Stack.Screen
@@ -255,6 +274,11 @@ const AuthStack = () => {
         name={MOBILE_ROUTES.externalSigner}
         options={{ title: routesConfig[ROUTES.externalSigner].title }}
         component={ExternalSignerScreen}
+      />
+      <Stack.Screen
+        options={{ headerShown: false }}
+        name={MOBILE_ROUTES.onboardingOnFirstLogin}
+        component={OnboardingOnFirstLoginScreen}
       />
     </Stack.Navigator>
   )
