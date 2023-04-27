@@ -23,7 +23,7 @@ interface Props {
   cancelText?: string
   displayCancel?: boolean
   adjustToContentHeight?: boolean
-  style: ViewStyle
+  style?: ViewStyle
   flatListProps?: ModalizeProps['flatListProps']
 }
 

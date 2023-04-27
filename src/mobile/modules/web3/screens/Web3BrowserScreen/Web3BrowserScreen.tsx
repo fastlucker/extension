@@ -7,8 +7,7 @@ import Spinner from '@common/components/Spinner'
 import Wrapper from '@common/components/Wrapper'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
-import useNotification from '@mobile/modules/web3/hooks/useNotification'
-import usePermission from '@mobile/modules/web3/hooks/usePermission'
+import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
 import providerController from '@mobile/modules/web3/services/webview-background/provider/provider'
 import sessionService from '@mobile/modules/web3/services/webview-background/services/session'
 import useGetProviderInjection from '@mobile/modules/web3/services/webview-inpage/injection-script'
@@ -18,17 +17,23 @@ import styles from './styles'
 const Web3BrowserScreen = () => {
   const webViewRef = useRef(null)
   const route = useRoute()
-  const { hasPermission, removePermission, setSelectedDappUrl, openBottomSheetPermission } =
-    usePermission()
-  const { requestNotificationServiceMethod, setWebViewRef } = useNotification()
+
+  const {
+    requestNotificationServiceMethod,
+    setWeb3ViewRef,
+    hasPermission,
+    removePermission,
+    setSelectedDappUrl,
+    openBottomSheetPermission
+  } = useWeb3()
 
   const selectedDappUrl = route?.params?.selectedDappUrl
 
   const providerToInject = useGetProviderInjection()
 
   useEffect(() => {
-    setWebViewRef(webViewRef.current)
-  }, [setWebViewRef])
+    setWeb3ViewRef(webViewRef.current)
+  }, [setWeb3ViewRef])
 
   useEffect(() => {
     setSelectedDappUrl(route?.params?.selectedDappUrl)
@@ -49,7 +54,9 @@ const Web3BrowserScreen = () => {
   const handleEthereumProviderMessage = async (event) => {
     try {
       const data = JSON.parse(event.nativeEvent.data)
+
       // console.log('data', data)
+
       if (data.method === 'disconnect') {
         removePermission(selectedDappUrl)
         return
@@ -61,6 +68,7 @@ const Web3BrowserScreen = () => {
       const req = { data, session, origin }
 
       const result = await providerController(req, requestNotificationServiceMethod)
+
       console.log('result', result)
 
       const response = {

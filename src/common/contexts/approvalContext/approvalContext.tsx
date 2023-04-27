@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { delayPromise } from '@common/utils/promises'
-import useNotification from '@mobile/modules/web3/hooks/useNotification'
+import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
 
 import { UseExtensionApprovalReturnType } from './types'
 import useSignApproval from './useSignApproval'
@@ -31,7 +31,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
-  const { requestNotificationServiceMethod, approval, setApproval } = useNotification()
+  const { requestNotificationServiceMethod, approval, setApproval } = useWeb3()
 
   const getApproval: UseExtensionApprovalReturnType['getApproval'] = useCallback(
     () =>
@@ -119,7 +119,6 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
     <ApprovalContext.Provider
       value={useMemo(
         () => ({
-          approval,
           requests,
           getApproval,
           resolveApproval,
@@ -127,15 +126,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
           resolveMany,
           rejectAllApprovals
         }),
-        [
-          approval,
-          requests,
-          getApproval,
-          resolveApproval,
-          rejectApproval,
-          resolveMany,
-          rejectAllApprovals
-        ]
+        [requests, getApproval, resolveApproval, rejectApproval, resolveMany, rejectAllApprovals]
       )}
     >
       {children}

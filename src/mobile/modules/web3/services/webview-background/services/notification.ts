@@ -41,18 +41,18 @@ class NotificationService extends Events {
 
   openApprovalModal: (req: any) => void
 
-  webViewRef: any
+  web3ViewRef: any
 
   constructor({
     openApprovalModal,
-    webViewRef
+    web3ViewRef
   }: {
     openApprovalModal: (req: any) => void
-    webViewRef: any
+    web3ViewRef: any
   }) {
     super()
     this.openApprovalModal = openApprovalModal
-    this.webViewRef = webViewRef
+    this.web3ViewRef = web3ViewRef
   }
 
   get approvals() {
@@ -107,7 +107,7 @@ class NotificationService extends Events {
     }
 
     this.emit('resolve', data)
-    // this.webViewRef?.injectJavaScript(`handleEvent(${JSON.stringify(data)});`)
+    // this.web3ViewRef?.injectJavaScript(`handleEvent(${JSON.stringify(data)});`)
   }
 
   rejectApproval = async (err?: string, stay = false, isInternal = false) => {
@@ -124,7 +124,7 @@ class NotificationService extends Events {
       this.currentApproval = this.approvals[0]
     }
     this.emit('reject', err)
-    // this.webViewRef?.injectJavaScript(`handleEvent(${JSON.stringify(err)});`)
+    // this.web3ViewRef?.injectJavaScript(`handleEvent(${JSON.stringify(err)});`)
   }
 
   requestApproval = async (data, winProps?): Promise<any> => {

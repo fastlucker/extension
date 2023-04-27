@@ -34,8 +34,7 @@ import { VaultProvider } from '@common/modules/vault/contexts/vaultContext'
 import { navigationRef, routeNameRef } from '@common/services/navigation'
 import { rpcProviders } from '@common/services/providers'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
-import { NotificationProvider } from '@mobile/modules/web3/contexts/notificationContext'
-import { PermissionProvider } from '@mobile/modules/web3/contexts/permissionContext'
+import { Web3Provider } from '@mobile/modules/web3/contexts/web3Context'
 import { NavigationContainer } from '@react-navigation/native'
 
 // Initialize rpc providers for all networks
@@ -74,40 +73,38 @@ const AppInit = () => {
                         <AuthProvider>
                           <AccountsProvider>
                             <NetworkProvider>
-                              <PermissionProvider>
-                                <NotificationProvider>
-                                  <ApprovalProvider>
-                                    <PortfolioProvider>
-                                      <GnosisProvider>
-                                        <WalletConnectProvider>
-                                          <RequestsProvider>
-                                            <BiometricsProvider>
-                                              <VaultProvider>
-                                                <AddressBookProvider>
-                                                  <AttentionGrabberProvider>
-                                                    <PrivateModeProvider>
-                                                      <GasTankProvider>
-                                                        <UnsupportedDAppsBottomSheetProvider>
-                                                          <HeaderBottomSheetProvider>
-                                                            <LinkingProvider>
-                                                              <AppRouter />
-                                                            </LinkingProvider>
-                                                          </HeaderBottomSheetProvider>
-                                                        </UnsupportedDAppsBottomSheetProvider>
-                                                      </GasTankProvider>
-                                                    </PrivateModeProvider>
-                                                  </AttentionGrabberProvider>
-                                                  <PortalHost name="global" />
-                                                </AddressBookProvider>
-                                              </VaultProvider>
-                                            </BiometricsProvider>
-                                          </RequestsProvider>
-                                        </WalletConnectProvider>
-                                      </GnosisProvider>
-                                    </PortfolioProvider>
-                                  </ApprovalProvider>
-                                </NotificationProvider>
-                              </PermissionProvider>
+                              <Web3Provider>
+                                <ApprovalProvider>
+                                  <PortfolioProvider>
+                                    <GnosisProvider>
+                                      <WalletConnectProvider>
+                                        <RequestsProvider>
+                                          <BiometricsProvider>
+                                            <VaultProvider>
+                                              <AddressBookProvider>
+                                                <AttentionGrabberProvider>
+                                                  <PrivateModeProvider>
+                                                    <GasTankProvider>
+                                                      <UnsupportedDAppsBottomSheetProvider>
+                                                        <HeaderBottomSheetProvider>
+                                                          <LinkingProvider>
+                                                            <AppRouter />
+                                                          </LinkingProvider>
+                                                        </HeaderBottomSheetProvider>
+                                                      </UnsupportedDAppsBottomSheetProvider>
+                                                    </GasTankProvider>
+                                                  </PrivateModeProvider>
+                                                </AttentionGrabberProvider>
+                                                <PortalHost name="global" />
+                                              </AddressBookProvider>
+                                            </VaultProvider>
+                                          </BiometricsProvider>
+                                        </RequestsProvider>
+                                      </WalletConnectProvider>
+                                    </GnosisProvider>
+                                  </PortfolioProvider>
+                                </ApprovalProvider>
+                              </Web3Provider>
                             </NetworkProvider>
                           </AccountsProvider>
                         </AuthProvider>

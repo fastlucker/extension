@@ -1,11 +1,13 @@
-// Handles approval requests in the mobile apps of type:
+// Handles approval requests of type:
 // eth_sendTransaction, gs_multi_send, ambire_sendBatchTransaction
 // personal_sign, eth_sign
 // eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3, eth_signTypedData_v4
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 
+import { isAndroid, isiOS } from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
+import useStorage from '@common/hooks/useStorage'
 
 import { APPROVAL_REQUESTS_STORAGE_KEY, UseExtensionApprovalReturnType } from './types'
 
@@ -18,7 +20,17 @@ type Props = {
 const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) => {
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
-  const [requests, setRequests] = useState([])
+  const [requests, setRequests] = useStorage({
+    key: APPROVAL_REQUESTS_STORAGE_KEY,
+    defaultValue: [],
+    setInit: (initialRequests) => (!Array.isArray(initialRequests) ? [] : initialRequests)
+  })
+
+  useEffect(() => {
+    if (isiOS || isAndroid) {
+      setRequests([])
+    }
+  }, [])
 
   // handles eth_sign and personal_sign
   const handleSignText = useCallback(
