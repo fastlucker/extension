@@ -14,7 +14,9 @@ export class Session {
   web3ViewRef = null
 
   pushMessage(event: any, data: any) {
-    this.web3ViewRef?.injectJavaScript(`handleBackgroundMessage(${JSON.stringify(data)});`)
+    this.web3ViewRef?.injectJavaScript(
+      `handleBackgroundMessage(${JSON.stringify({ event, data })});`
+    )
   }
 
   constructor(data: SessionProp | null, web3ViewRef: any) {

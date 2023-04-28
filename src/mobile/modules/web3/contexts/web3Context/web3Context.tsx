@@ -6,7 +6,9 @@ import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Title from '@common/components/Title'
 import useNavigation from '@common/hooks/useNavigation'
+import colors from '@common/styles/colors'
 import text from '@common/styles/utils/text'
+import SwitchNetworkRequestScreen from '@mobile/modules/web3/components/SwitchNetworkRequestScreen'
 import providerController from '@mobile/modules/web3/services/webview-background/provider/provider'
 import { Approval } from '@mobile/modules/web3/services/webview-background/services/notification'
 import sessionService from '@mobile/modules/web3/services/webview-background/services/session'
@@ -39,12 +41,17 @@ const Web3Provider: React.FC<any> = ({ children }) => {
     open: openBottomSheetPermission,
     close: closeBottomSheetPermission
   } = useModalize()
+  const {
+    ref: sheetRefSwitchNetwork,
+    open: openBottomSheetSwitchNetwork,
+    close: closeBottomSheetSwitchNetwork
+  } = useModalize()
 
   const [selectedDappUrl, setSelectedDappUrl] = useState<string>('')
   const prevSelectedDappUrl = usePrevious(selectedDappUrl)
   const [web3ViewRef, setWeb3ViewRef] = useState<any>(null)
   const [approval, setApproval] = useState<Approval | null>(null)
-
+  const prevApproval = usePrevious(approval)
   const { checkHasPermission, addPermission, removePermission, grantPermission } = usePermission({
     selectedDappUrl
   })
@@ -79,6 +86,15 @@ const Web3Provider: React.FC<any> = ({ children }) => {
     }
   }, [requests, selectedDappUrl, web3ViewRef, rejectAllApprovals])
 
+  useEffect(() => {
+    if (
+      prevApproval?.data?.approvalComponent !== 'SwitchNetwork' &&
+      approval?.data?.approvalComponent === 'SwitchNetwork'
+    ) {
+      openBottomSheetSwitchNetwork()
+    }
+  }, [approval, prevApproval, openBottomSheetSwitchNetwork])
+
   const handleWeb3Request = useCallback(
     async ({ data }: { data: any }) => {
       try {
@@ -92,6 +108,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         const session = sessionService.getOrCreateSession(sessionId, origin, web3ViewRef)
         const req = { data, session, origin }
 
+        console.log(data)
         const result = await providerController(req, requestNotificationServiceMethod)
         console.log('result', result)
 
@@ -168,6 +185,17 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       >
         <Title style={text.center}>Allow dApp to Connect</Title>
         <Button text="Allow" onPress={grantPermission} />
+      </BottomSheet>
+      <BottomSheet
+        id="switch-network-approval"
+        sheetRef={sheetRefSwitchNetwork}
+        closeBottomSheet={closeBottomSheetSwitchNetwork}
+        style={{ backgroundColor: colors.martinique }}
+      >
+        <SwitchNetworkRequestScreen
+          isInBottomSheet
+          closeBottomSheet={closeBottomSheetSwitchNetwork}
+        />
       </BottomSheet>
     </Web3Context.Provider>
   )

@@ -206,6 +206,15 @@ function handleProviderResponse(response) {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function handleBackgroundMessage({ event, data }) {
+  if (window.ethereum._pushEventHandlers[event]) {
+    return window.ethereum._pushEventHandlers[event](data)
+  }
+
+  window.ethereum.emit(event, data)
+}
+
 class EthereumProvider extends EventEmitter {
   chainId = null
 
