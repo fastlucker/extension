@@ -57,8 +57,8 @@ import VaultSetupGetStartedScreen from '@common/modules/vault/screens/VaultSetup
 import { navigate } from '@common/services/navigation'
 import colors from '@common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
-import OnboardingOnFirstLoginScreen from '@mobile/modules/auth/screens/OnboardingOnFirstLoginScreen'
 import ConnectScreen from '@mobile/modules/connect/screens/ConnectScreen'
+import OnboardingOnFirstLoginScreen from '@mobile/modules/dashboard/screens/OnboardingOnFirstLoginScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
 import BackupScreen from '@mobile/modules/settings/screens/BackupScreen'
@@ -122,20 +122,6 @@ const BackupStackScreen = () => {
     </BackupStack.Navigator>
   )
 }
-
-// const OnboardingOnFirstLoginStackScreen = () => {
-//   return (
-//     <OnboardingOnFirstLoginStack.Navigator screenOptions={{ header: headerGamma }}>
-//       <OnboardingOnFirstLoginStack.Screen
-//         name={`${MOBILE_ROUTES.onboardingOnFirstLogin}-screen`}
-//         component={OnboardingOnFirstLoginScreen}
-//         options={{
-//           title: routesConfig[ROUTES.onboardingOnFirstLogin].title
-//         }}
-//       />
-//     </OnboardingOnFirstLoginStack.Navigator>
-//   )
-// }
 
 const GasTankStackScreen = () => {
   return (
@@ -275,11 +261,6 @@ const AuthStack = () => {
         options={{ title: routesConfig[ROUTES.externalSigner].title }}
         component={ExternalSignerScreen}
       />
-      <Stack.Screen
-        options={{ headerShown: false }}
-        name={MOBILE_ROUTES.onboardingOnFirstLogin}
-        component={OnboardingOnFirstLoginScreen}
-      />
     </Stack.Navigator>
   )
 }
@@ -345,8 +326,17 @@ const VaultStack = () => {
 }
 
 const DashboardStackScreen = () => {
+  const storageController = useStorageController()
+  const hasNotCompletedOnboarding = !storageController.getItem('onboardingCompletedAt')
+
   return (
     <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
+      {hasNotCompletedOnboarding && (
+        <DashboardStack.Screen
+          name={`${MOBILE_ROUTES.onboardingOnFirstLogin}-screen`}
+          component={OnboardingOnFirstLoginScreen}
+        />
+      )}
       <DashboardStack.Screen
         name={`${MOBILE_ROUTES.dashboard}-screen`}
         component={DashboardScreen}
