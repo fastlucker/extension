@@ -83,6 +83,9 @@ const OnboardingOnFirstLoginScreen = () => {
     <Portal hostName="global">
       <View style={StyleSheet.absoluteFill}>
         <AppIntroSlider
+          dotStyle={styles.dotStyle}
+          activeDotStyle={styles.activeDotStyle}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           data={slides}
           onDone={markOnboardingOnFirstLoginAsCompleted}

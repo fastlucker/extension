@@ -1,10 +1,13 @@
-import { StyleSheet, TextStyle } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 
 interface Style {
   titleText: TextStyle
   descriptionText: TextStyle
+  dotStyle: ViewStyle
+  activeDotStyle: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -19,6 +22,14 @@ const styles = StyleSheet.create<Style>({
     marginBottom: 70,
     marginHorizontal: 40,
     ...spacings.mt
+  },
+  dotStyle: {
+    backgroundColor: colors.clay
+  },
+  activeDotStyle: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.clay
   }
 })
 
