@@ -84,7 +84,7 @@ const OnboardingOnFirstLoginScreen = () => {
   )
 
   // The lib requires `key` as an unique id prop, use `id` prop instead
-  const keyExtractor = useCallback((item) => item.id.toString(), [])
+  const keyExtractor = useCallback((item: OnboardingSlide) => item.id.toString(), [])
 
   const NextButton = useCallback(
     () => (
@@ -124,4 +124,4 @@ const OnboardingOnFirstLoginScreen = () => {
   )
 }
 
-export default OnboardingOnFirstLoginScreen
+export default React.memo(OnboardingOnFirstLoginScreen)
