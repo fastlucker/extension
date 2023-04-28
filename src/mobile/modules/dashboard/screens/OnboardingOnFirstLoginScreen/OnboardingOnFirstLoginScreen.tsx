@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Image, StyleSheet, View } from 'react-native'
 import AppIntroSlider from 'react-native-app-intro-slider'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -6,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import { MOBILE_ROUTES } from '@common/modules/router/constants/common'
+import colors from '@common/styles/colors'
 import flexbox from '@common/styles/utils/flexbox'
 import { Portal } from '@gorhom/portal'
 
@@ -48,6 +50,7 @@ const slides: OnboardingSlide[] = [
 ]
 
 const OnboardingOnFirstLoginScreen = () => {
+  const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { markOnboardingOnFirstLoginAsCompleted, hasCompletedOnboarding } =
     useOnboardingOnFirstLogin()
@@ -89,6 +92,16 @@ const OnboardingOnFirstLoginScreen = () => {
           renderItem={renderItem}
           data={slides}
           onDone={markOnboardingOnFirstLoginAsCompleted}
+          renderNextButton={() => (
+            <Text style={styles.callToActionButton} color={colors.waikawaGray} fontSize={18}>
+              {t('Next')}
+            </Text>
+          )}
+          renderDoneButton={() => (
+            <Text style={styles.callToActionButton} color={colors.waikawaGray} fontSize={18}>
+              {t('Done')}
+            </Text>
+          )}
         />
       </View>
     </Portal>

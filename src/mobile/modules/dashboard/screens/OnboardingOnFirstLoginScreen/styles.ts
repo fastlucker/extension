@@ -8,6 +8,7 @@ interface Style {
   descriptionText: TextStyle
   dotStyle: ViewStyle
   activeDotStyle: ViewStyle
+  callToActionButton: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -30,6 +31,10 @@ const styles = StyleSheet.create<Style>({
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: colors.clay
+  },
+  callToActionButton: {
+    marginRight: 36,
+    marginTop: 10
   }
 })
 
