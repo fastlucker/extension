@@ -10,18 +10,19 @@ import text from '@common/styles/utils/text'
 import { Portal } from '@gorhom/portal'
 
 import useOnboardingOnFirstLogin from '../../hooks/useOnboardingOnFirstLogin'
+import { OnboardingSlide } from './types'
 
 // TODO: Pull these from a Relayer route.
-const slides = [
+const slides: OnboardingSlide[] = [
   {
     key: '1',
     titleText: 'Swap crypto seamlessly',
     descriptionText: 'Get the top rates & exchange immediately, right at your fingertips',
     image:
       'https://fastly.picsum.photos/id/794/500/500.jpg?hmac=1saBjisE0yXnOU6Y-GFe2H_t66Mc3rqlzja4DPy_mXA',
-    backgroundColor: '##904DFF',
-    titleTextColor: '##904DFF',
-    descriptionTextColor: '##24263D'
+    backgroundColor: '#EBECFF',
+    titleTextColor: '#904DFF',
+    descriptionTextColor: '#24263D'
   },
   {
     key: '2',
@@ -30,8 +31,8 @@ const slides = [
     image:
       'https://fastly.picsum.photos/id/835/500/500.jpg?hmac=QnpnNG0BSK7JQNhA9VokyFMyhTwTtifkHYHWSsd2YAU',
     backgroundColor: '#febe29',
-    titleTextColor: '##904DFF',
-    descriptionTextColor: '##24263D'
+    titleTextColor: '#904DFF',
+    descriptionTextColor: '#24263D'
   },
   {
     key: '3',
@@ -40,8 +41,8 @@ const slides = [
     image:
       'https://fastly.picsum.photos/id/82/500/500.jpg?hmac=SBl_t1w-gmq7jLkcwDJHDQG5MsYX_Pdr3_gTaYW_UaU',
     backgroundColor: '#59b2ab',
-    titleTextColor: '##904DFF',
-    descriptionTextColor: '##24263D'
+    titleTextColor: '#904DFF',
+    descriptionTextColor: '#24263D'
   }
 ]
 
