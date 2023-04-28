@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, StyleSheet, View } from 'react-native'
 import AppIntroSlider from 'react-native-app-intro-slider'
@@ -62,22 +62,46 @@ const OnboardingOnFirstLoginScreen = () => {
     }
   }, [hasCompletedOnboarding, navigate])
 
-  const renderItem = ({ item }) => (
-    <SafeAreaView style={[{ backgroundColor: item.backgroundColor }, flexbox.flex1]}>
-      {/* TODO: Logo */}
-      <Text weight="semiBold" color={item.titleTextColor} fontSize={40} style={styles.titleText}>
-        {item.titleText}
+  const renderItem = useCallback(
+    ({ item }) => (
+      <SafeAreaView style={[{ backgroundColor: item.backgroundColor }, flexbox.flex1]}>
+        {/* TODO: Logo */}
+        <Text weight="semiBold" color={item.titleTextColor} fontSize={40} style={styles.titleText}>
+          {item.titleText}
+        </Text>
+        <Image style={flexbox.flex1} resizeMode="contain" source={{ uri: item.image }} />
+        <Text
+          fontSize={20}
+          weight="regular"
+          color={item.descriptionTextColor}
+          style={styles.descriptionText}
+        >
+          {item.descriptionText}
+        </Text>
+      </SafeAreaView>
+    ),
+    []
+  )
+
+  // The lib requires `key` as an unique id prop, use `id` prop instead
+  const keyExtractor = useCallback((item) => item.id.toString(), [])
+
+  const NextButton = useCallback(
+    () => (
+      <Text style={styles.callToActionButton} color={colors.waikawaGray} fontSize={18}>
+        {t('Next')}
       </Text>
-      <Image style={flexbox.flex1} resizeMode="contain" source={{ uri: item.image }} />
-      <Text
-        fontSize={20}
-        weight="regular"
-        color={item.descriptionTextColor}
-        style={styles.descriptionText}
-      >
-        {item.descriptionText}
+    ),
+    [t]
+  )
+
+  const DoneButton = useCallback(
+    () => (
+      <Text style={styles.callToActionButton} color={colors.waikawaGray} fontSize={18}>
+        {t('Done')}
       </Text>
-    </SafeAreaView>
+    ),
+    [t]
   )
 
   if (hasCompletedOnboarding) return null
@@ -88,20 +112,12 @@ const OnboardingOnFirstLoginScreen = () => {
         <AppIntroSlider
           dotStyle={styles.dotStyle}
           activeDotStyle={styles.activeDotStyle}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={keyExtractor}
           renderItem={renderItem}
           data={slides}
           onDone={markOnboardingOnFirstLoginAsCompleted}
-          renderNextButton={() => (
-            <Text style={styles.callToActionButton} color={colors.waikawaGray} fontSize={18}>
-              {t('Next')}
-            </Text>
-          )}
-          renderDoneButton={() => (
-            <Text style={styles.callToActionButton} color={colors.waikawaGray} fontSize={18}>
-              {t('Done')}
-            </Text>
-          )}
+          renderNextButton={NextButton}
+          renderDoneButton={DoneButton}
         />
       </View>
     </Portal>
