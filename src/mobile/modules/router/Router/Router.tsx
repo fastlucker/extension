@@ -58,6 +58,8 @@ import { navigate } from '@common/services/navigation'
 import colors from '@common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
 import ConnectScreen from '@mobile/modules/connect/screens/ConnectScreen'
+import { OnboardingOnFirstLoginProvider } from '@mobile/modules/dashboard/context/onboardingOnFirstLoginContext'
+import useOnboardingOnFirstLogin from '@mobile/modules/dashboard/hooks/useOnboardingOnFirstLogin'
 import OnboardingOnFirstLoginScreen from '@mobile/modules/dashboard/screens/OnboardingOnFirstLoginScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
@@ -79,7 +81,6 @@ const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
 const DataDeletionPolicyStack = createNativeStackNavigator()
 const BackupStack = createNativeStackNavigator()
-const OnboardingOnFirstLoginStack = createNativeStackNavigator()
 
 const SignersStackScreen = () => {
   return (
@@ -215,10 +216,7 @@ const AuthStack = () => {
       : `${MOBILE_ROUTES.auth}-screen`
 
   return (
-    <Stack.Navigator
-      screenOptions={{ header: headerBeta }}
-      initialRouteName={ROUTES.onboardingOnFirstLogin}
-    >
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <>
           <Stack.Screen
@@ -325,18 +323,22 @@ const VaultStack = () => {
   )
 }
 
-const DashboardStackScreen = () => {
-  const storageController = useStorageController()
-  const hasNotCompletedOnboarding = !storageController.getItem('onboardingCompletedAt')
+const DashboardStackScreenNavigator = () => {
+  const { hasCompletedOnboarding } = useOnboardingOnFirstLogin()
 
   return (
-    <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
-      {hasNotCompletedOnboarding && (
-        <DashboardStack.Screen
-          name={`${MOBILE_ROUTES.onboardingOnFirstLogin}-screen`}
-          component={OnboardingOnFirstLoginScreen}
-        />
-      )}
+    <DashboardStack.Navigator
+      initialRouteName={
+        hasCompletedOnboarding
+          ? `${MOBILE_ROUTES.dashboard}-screen`
+          : `${MOBILE_ROUTES.onboardingOnFirstLogin}-screen`
+      }
+      screenOptions={{ headerShown: false }}
+    >
+      <DashboardStack.Screen
+        name={`${MOBILE_ROUTES.onboardingOnFirstLogin}-screen`}
+        component={OnboardingOnFirstLoginScreen}
+      />
       <DashboardStack.Screen
         name={`${MOBILE_ROUTES.dashboard}-screen`}
         component={DashboardScreen}
@@ -346,6 +348,14 @@ const DashboardStackScreen = () => {
         component={CollectibleScreen}
       />
     </DashboardStack.Navigator>
+  )
+}
+
+const DashboardStackScreen = () => {
+  return (
+    <OnboardingOnFirstLoginProvider>
+      <DashboardStackScreenNavigator />
+    </OnboardingOnFirstLoginProvider>
   )
 }
 
