@@ -383,10 +383,16 @@ class EthereumProvider extends EventEmitter {
       const id = Date.now() + Math.random()
       data.id = id
       window.ReactNativeWebView.postMessage(JSON.stringify(data), '*')
-      return new Promise((resolve, reject) => {
+      const promise = new Promise((resolve, reject) => {
         // Save the resolve and reject functions with the ID
         window.ethereum.promises[id] = { resolve, reject }
       })
+
+      promise.catch((err) => {
+        throw err
+      })
+
+      return promise
     })
   }
 

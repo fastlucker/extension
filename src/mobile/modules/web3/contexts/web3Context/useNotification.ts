@@ -4,8 +4,8 @@ import NotificationService, {
   Approval
 } from '@mobile/modules/web3/services/webview-background/services/notification'
 
-const useNotification = ({ web3ViewRef, setApproval }: any) => {
-  const openApprovalModal = useCallback(
+const useNotification = ({ setApproval }: any) => {
+  const requestNotificationApproval = useCallback(
     (appr: Approval | null) => {
       setApproval(appr)
     },
@@ -13,8 +13,8 @@ const useNotification = ({ web3ViewRef, setApproval }: any) => {
   )
 
   const notificationService: any = useMemo(
-    () => new NotificationService({ openApprovalModal, web3ViewRef }),
-    [web3ViewRef, openApprovalModal]
+    () => new NotificationService({ requestNotificationApproval }),
+    [requestNotificationApproval]
   )
 
   const requestNotificationServiceMethod = useCallback(

@@ -58,7 +58,7 @@ const flowContext = flow
     // check need approval
     const {
       request: {
-        data: { method },
+        data: { method, id },
         session: { origin, name, icon }
       },
       mapMethod,
@@ -68,8 +68,6 @@ const flowContext = flow
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
     if (approvalType && (!condition || !condition(ctx.request))) {
       ctx.request.requestedApproval = true
-      // const notificationService = new NotificationService({ openApprovalModal })
-
       ctx.approvalRes = await requestNotificationServiceMethod({
         method: 'requestApproval',
         props: {
@@ -77,6 +75,7 @@ const flowContext = flow
           params: {
             $ctx: ctx?.request?.data?.$ctx,
             method,
+            id,
             data: ctx.request.data.params,
             session: { origin, name, icon }
           },
@@ -173,7 +172,6 @@ export default (
     if (ctx.request.requestedApproval) {
       flow.requestedApproval = false
       // only unlock notification if current flow is an approval flow
-
       requestNotificationServiceMethod({
         method: 'unLock'
       })

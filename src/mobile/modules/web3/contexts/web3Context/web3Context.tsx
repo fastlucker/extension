@@ -50,7 +50,6 @@ const Web3Provider: React.FC<any> = ({ children }) => {
   })
 
   const { requestNotificationServiceMethod } = useNotification({
-    web3ViewRef,
     setApproval
   })
 
@@ -83,7 +82,6 @@ const Web3Provider: React.FC<any> = ({ children }) => {
   const handleWeb3Request = useCallback(
     async ({ data }: { data: any }) => {
       try {
-        // console.log('data', data)
         if (data.method === 'disconnect') {
           removePermission(selectedDappUrl)
           return
@@ -108,7 +106,13 @@ const Web3Provider: React.FC<any> = ({ children }) => {
           web3ViewRef?.injectJavaScript(`handleProviderResponse(${JSON.stringify(response)});`)
         }
       } catch (error) {
-        console.log(error)
+        const response = {
+          id: data.id,
+          method: data.method,
+          success: false, // or false if there is an error
+          error // or error: {} if there is an error
+        }
+        web3ViewRef?.injectJavaScript(`handleProviderResponse(${JSON.stringify(response)});`)
       }
     },
     [web3ViewRef, selectedDappUrl, requestNotificationServiceMethod, removePermission]

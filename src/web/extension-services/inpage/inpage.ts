@@ -260,7 +260,7 @@ export class EthereumProvider extends EventEmitter {
               if (data.method !== 'eth_call') {
                 logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
               }
-              throw err
+              throw serializeError(err)
             })
         }
       }

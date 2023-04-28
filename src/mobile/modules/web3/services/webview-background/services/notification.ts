@@ -39,20 +39,15 @@ class NotificationService extends Events {
 
   isLocked = false
 
-  openApprovalModal: (req: any) => void
-
-  web3ViewRef: any
+  requestNotificationApproval: (req: any) => void
 
   constructor({
-    openApprovalModal,
-    web3ViewRef
+    requestNotificationApproval
   }: {
-    openApprovalModal: (req: any) => void
-    web3ViewRef: any
+    requestNotificationApproval: (req: any) => void
   }) {
     super()
-    this.openApprovalModal = openApprovalModal
-    this.web3ViewRef = web3ViewRef
+    this.requestNotificationApproval = requestNotificationApproval
   }
 
   get approvals() {
@@ -76,7 +71,7 @@ class NotificationService extends Events {
     }
   }
 
-  deleteApproval = (approval) => {
+  deleteApproval = (approval: any) => {
     if (approval && this.approvals.length > 1) {
       this.approvals = this.approvals.filter((item) => approval.id !== item.id)
     } else {
@@ -87,7 +82,7 @@ class NotificationService extends Events {
 
   getApproval = () => this.currentApproval
 
-  resolveApproval = async (data?: any, forceReject = false, approvalId?: string) => {
+  resolveApproval = async ({ data, forceReject = false, approvalId }: any) => {
     if (approvalId && approvalId !== this.currentApproval?.id) return
     if (forceReject) {
       this.currentApproval?.reject &&
@@ -105,12 +100,10 @@ class NotificationService extends Events {
     } else {
       this.currentApproval = null
     }
-
     this.emit('resolve', data)
-    // this.web3ViewRef?.injectJavaScript(`handleEvent(${JSON.stringify(data)});`)
   }
 
-  rejectApproval = async (err?: string, stay = false, isInternal = false) => {
+  rejectApproval = async ({ err, stay = false, isInternal = false }: any) => {
     const approval = this.currentApproval
 
     if (isInternal) {
@@ -124,7 +117,6 @@ class NotificationService extends Events {
       this.currentApproval = this.approvals[0]
     }
     this.emit('reject', err)
-    // this.web3ViewRef?.injectJavaScript(`handleEvent(${JSON.stringify(err)});`)
   }
 
   requestApproval = async (data, winProps?): Promise<any> => {
@@ -135,7 +127,7 @@ class NotificationService extends Events {
       let signingTxId
 
       const approval: Approval = {
-        id: uuid,
+        id: data?.params?.id || uuid,
         signingTxId,
         data,
         winProps,
@@ -210,8 +202,8 @@ class NotificationService extends Events {
   }
 
   openNotification = (approval) => {
-    if (this.openApprovalModal) {
-      this.openApprovalModal(approval)
+    if (this.requestNotificationApproval) {
+      this.requestNotificationApproval(approval)
     }
   }
 }

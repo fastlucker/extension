@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { delayPromise } from '@common/utils/promises'
 
@@ -21,7 +20,6 @@ const useApproval = ({
 }: UseApprovalProps) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
-  const { navigate } = useNavigation()
 
   const getApproval: UseApprovalReturnType['getApproval'] = useCallback(
     () =>
@@ -51,16 +49,8 @@ const useApproval = ({
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)
-
-      if (stay) {
-        return
-      }
-
-      // Navigate to the main route after the approval is resolved, which
-      // triggers the logic that determines where user should go next.
-      setTimeout(() => navigate('/'))
     },
-    [requestNotificationServiceMethod, addToast, approval, getApproval, t, navigate, setApproval]
+    [requestNotificationServiceMethod, addToast, approval, getApproval, t, setApproval]
   )
 
   const rejectApproval = useCallback<UseApprovalReturnType['rejectApproval']>(
