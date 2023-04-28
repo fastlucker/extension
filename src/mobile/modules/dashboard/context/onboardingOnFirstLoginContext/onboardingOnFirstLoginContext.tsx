@@ -5,7 +5,7 @@ import useStorage from '@common/hooks/useStorage'
 // Type alias for ISO 8601 date strings
 type ISODateString = string
 
-const ONBOARDING_COMPLETED_AT_STORAGE_KEY = 'onboardingCompletedAtTest14'
+const ONBOARDING_COMPLETED_AT_STORAGE_KEY = 'onboardingCompletedAt'
 
 const OnBoardingOnFirstLoginContext = createContext<any>({
   markOnboardingOnFirstLoginAsCompleted: () => {},
