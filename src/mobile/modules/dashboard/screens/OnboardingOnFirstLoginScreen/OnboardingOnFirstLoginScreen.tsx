@@ -1,21 +1,22 @@
 import React, { useEffect } from 'react'
 import { Image, StyleSheet, View } from 'react-native'
 import AppIntroSlider from 'react-native-app-intro-slider'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import { MOBILE_ROUTES } from '@common/modules/router/constants/common'
-import spacings, { DEVICE_HEIGHT } from '@common/styles/spacings'
-import text from '@common/styles/utils/text'
+import flexbox from '@common/styles/utils/flexbox'
 import { Portal } from '@gorhom/portal'
 
 import useOnboardingOnFirstLogin from '../../hooks/useOnboardingOnFirstLogin'
+import styles from './styles'
 import { OnboardingSlide } from './types'
 
 // TODO: Pull these from a Relayer route.
 const slides: OnboardingSlide[] = [
   {
-    key: '1',
+    id: 1,
     titleText: 'Swap crypto seamlessly',
     descriptionText: 'Get the top rates & exchange immediately, right at your fingertips',
     image:
@@ -25,7 +26,7 @@ const slides: OnboardingSlide[] = [
     descriptionTextColor: '#24263D'
   },
   {
-    key: '2',
+    id: 2,
     titleText: 'Title 2',
     descriptionText: 'Other cool stuff',
     image:
@@ -35,7 +36,7 @@ const slides: OnboardingSlide[] = [
     descriptionTextColor: '#24263D'
   },
   {
-    key: '3',
+    id: 3,
     titleText: 'Rocket guy',
     descriptionText: "I'm already out of descriptions\n\nLorem ipsum bla bla bla",
     image:
@@ -59,32 +60,21 @@ const OnboardingOnFirstLoginScreen = () => {
   }, [hasCompletedOnboarding, navigate])
 
   const renderItem = ({ item }) => (
-    <View
-      style={{
-        backgroundColor: item.backgroundColor,
-        flex: 1,
-        justifyContent: 'center'
-      }}
-    >
-      {console.log(item)}
+    <SafeAreaView style={[{ backgroundColor: item.backgroundColor }, flexbox.flex1]}>
       {/* TODO: Logo */}
-      <Text
-        weight="semiBold"
-        color={item.titleTextColor}
-        fontSize={40}
-        style={[text.center, spacings.mb]}
-      >
+      <Text weight="semiBold" color={item.titleTextColor} fontSize={40} style={styles.titleText}>
         {item.titleText}
       </Text>
-      <Image
-        style={[{ width: '100%', height: DEVICE_HEIGHT / 2 }, spacings.mb]}
-        resizeMode="contain"
-        source={{ uri: item.image }}
-      />
-      <Text fontSize={20} weight="regular" color={item.descriptionTextColor} style={text.center}>
+      <Image style={flexbox.flex1} resizeMode="contain" source={{ uri: item.image }} />
+      <Text
+        fontSize={20}
+        weight="regular"
+        color={item.descriptionTextColor}
+        style={styles.descriptionText}
+      >
         {item.descriptionText}
       </Text>
-    </View>
+    </SafeAreaView>
   )
 
   if (hasCompletedOnboarding) return null
