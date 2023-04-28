@@ -2,46 +2,46 @@ import React, { useEffect } from 'react'
 import { Image, StyleSheet, View } from 'react-native'
 import AppIntroSlider from 'react-native-app-intro-slider'
 
-import Button from '@common/components/Button'
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import { MOBILE_ROUTES } from '@common/modules/router/constants/common'
-import alert from '@common/services/alert'
-import spacings from '@common/styles/spacings'
+import spacings, { DEVICE_HEIGHT } from '@common/styles/spacings'
 import text from '@common/styles/utils/text'
 import { Portal } from '@gorhom/portal'
 
 import useOnboardingOnFirstLogin from '../../hooks/useOnboardingOnFirstLogin'
 
+// TODO: Pull these from a Relayer route.
 const slides = [
   {
     key: '1',
-    title: 'Title 1',
-    text: 'Description.\nNew line!\nSay something cool!',
+    titleText: 'Swap crypto seamlessly',
+    descriptionText: 'Get the top rates & exchange immediately, right at your fingertips',
     image:
       'https://fastly.picsum.photos/id/794/500/500.jpg?hmac=1saBjisE0yXnOU6Y-GFe2H_t66Mc3rqlzja4DPy_mXA',
-    backgroundColor: '#59b2ab',
-    textColor: '#000'
+    backgroundColor: '##904DFF',
+    titleTextColor: '##904DFF',
+    descriptionTextColor: '##24263D'
   },
   {
     key: '2',
-    title: 'Title 2',
-    text: 'Other cool stuff',
+    titleText: 'Title 2',
+    descriptionText: 'Other cool stuff',
     image:
       'https://fastly.picsum.photos/id/835/500/500.jpg?hmac=QnpnNG0BSK7JQNhA9VokyFMyhTwTtifkHYHWSsd2YAU',
     backgroundColor: '#febe29',
-    textColor: '#000'
+    titleTextColor: '##904DFF',
+    descriptionTextColor: '##24263D'
   },
   {
     key: '3',
-    title: 'Rocket guy',
-    text: "I'm already out of descriptions\n\nLorem ipsum bla bla bla",
+    titleText: 'Rocket guy',
+    descriptionText: "I'm already out of descriptions\n\nLorem ipsum bla bla bla",
     image:
       'https://fastly.picsum.photos/id/82/500/500.jpg?hmac=SBl_t1w-gmq7jLkcwDJHDQG5MsYX_Pdr3_gTaYW_UaU',
-    backgroundColor: '#22bcb5',
-    textColor: '#000'
+    backgroundColor: '#59b2ab',
+    titleTextColor: '##904DFF',
+    descriptionTextColor: '##24263D'
   }
 ]
 
@@ -52,6 +52,7 @@ const OnboardingOnFirstLoginScreen = () => {
 
   useEffect(() => {
     if (hasCompletedOnboarding) {
+      // TODO: Figure out how to make different animation, like a fade in one.
       navigate(`${MOBILE_ROUTES.dashboard}-screen`, {})
     }
   }, [hasCompletedOnboarding, navigate])
@@ -64,16 +65,23 @@ const OnboardingOnFirstLoginScreen = () => {
         justifyContent: 'center'
       }}
     >
-      <Text color={item.textColor} fontSize={20} style={[text.center, spacings.mb]}>
-        {item.title}
+      {console.log(item)}
+      {/* TODO: Logo */}
+      <Text
+        weight="semiBold"
+        color={item.titleTextColor}
+        fontSize={40}
+        style={[text.center, spacings.mb]}
+      >
+        {item.titleText}
       </Text>
       <Image
-        style={[{ width: '100%', height: 500 }, spacings.mb]}
+        style={[{ width: '100%', height: DEVICE_HEIGHT / 2 }, spacings.mb]}
         resizeMode="contain"
         source={{ uri: item.image }}
       />
-      <Text color={item.textColor} style={text.center}>
-        {item.text}
+      <Text fontSize={20} weight="regular" color={item.descriptionTextColor} style={text.center}>
+        {item.descriptionText}
       </Text>
     </View>
   )
