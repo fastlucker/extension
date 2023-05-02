@@ -1,15 +1,7 @@
-import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { serializeError } from 'eth-rpc-errors'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import { useModalize } from 'react-native-modalize'
 
-import BottomSheet from '@common/components/BottomSheet'
-import Button from '@common/components/Button'
-import Title from '@common/components/Title'
-import useNavigation from '@common/hooks/useNavigation'
-import colors from '@common/styles/colors'
-import text from '@common/styles/utils/text'
-import SwitchNetworkRequest from '@mobile/modules/web3/components/SwitchNetworkRequest'
+import ApprovalBottomSheets from '@mobile/modules/web3/components/ApprovalBottomSheets'
 import providerController from '@mobile/modules/web3/services/webview-background/provider/provider'
 import { Approval } from '@mobile/modules/web3/services/webview-background/services/notification'
 import sessionService from '@mobile/modules/web3/services/webview-background/services/session'
@@ -36,23 +28,9 @@ const Web3Context = createContext<Web3ContextData>({
 })
 
 const Web3Provider: React.FC<any> = ({ children }) => {
-  const { goBack } = useNavigation()
-  const {
-    ref: sheetRefPermission,
-    open: openBottomSheetPermission,
-    close: closeBottomSheetPermission
-  } = useModalize()
-  const {
-    ref: sheetRefSwitchNetwork,
-    open: openBottomSheetSwitchNetwork,
-    close: closeBottomSheetSwitchNetwork
-  } = useModalize()
-
   const [selectedDappUrl, setSelectedDappUrl] = useState<string>('')
-  const prevSelectedDappUrl = usePrevious(selectedDappUrl)
   const [web3ViewRef, setWeb3ViewRef] = useState<any>(null)
   const [approval, setApproval] = useState<Approval | null>(null)
-  const prevApproval = usePrevious(approval)
   const { checkHasPermission, addPermission, removePermission, grantPermission } = usePermission({
     selectedDappUrl
   })
@@ -71,30 +49,11 @@ const Web3Provider: React.FC<any> = ({ children }) => {
   } = useApproval({ requestNotificationServiceMethod, approval, setApproval })
 
   useEffect(() => {
-    if (!prevSelectedDappUrl && selectedDappUrl) {
-      if (!checkHasPermission(selectedDappUrl)) {
-        setTimeout(() => {
-          openBottomSheetPermission()
-        }, 1)
-      }
-    }
-  }, [checkHasPermission, openBottomSheetPermission, prevSelectedDappUrl, selectedDappUrl])
-
-  useEffect(() => {
     if ((!selectedDappUrl || !web3ViewRef) && requests.length) {
       rejectAllApprovals()
       setApproval(null)
     }
   }, [requests, selectedDappUrl, web3ViewRef, rejectAllApprovals])
-
-  useEffect(() => {
-    if (
-      prevApproval?.data?.approvalComponent !== 'SwitchNetwork' &&
-      approval?.data?.approvalComponent === 'SwitchNetwork'
-    ) {
-      openBottomSheetSwitchNetwork()
-    }
-  }, [approval, prevApproval, openBottomSheetSwitchNetwork])
 
   const handleWeb3Request = useCallback(
     async ({ data }: { data: any }) => {
@@ -171,37 +130,12 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       )}
     >
       {children}
-      <BottomSheet
-        id="allow-dapp-to-connect"
-        sheetRef={sheetRefPermission}
-        closeBottomSheet={() => {
-          setTimeout(() => {
-            if (!checkHasPermission(selectedDappUrl)) {
-              closeBottomSheetPermission()
-              goBack()
-            } else {
-              closeBottomSheetPermission()
-            }
-          }, 10)
-        }}
-      >
-        <Title style={text.center}>Allow dApp to Connect</Title>
-        <Button
-          text="Allow"
-          onPress={() => {
-            grantPermission()
-            closeBottomSheetPermission()
-          }}
-        />
-      </BottomSheet>
-      <BottomSheet
-        id="switch-network-approval"
-        sheetRef={sheetRefSwitchNetwork}
-        closeBottomSheet={closeBottomSheetSwitchNetwork}
-        style={{ backgroundColor: colors.martinique }}
-      >
-        <SwitchNetworkRequest isInBottomSheet closeBottomSheet={closeBottomSheetSwitchNetwork} />
-      </BottomSheet>
+      <ApprovalBottomSheets
+        approval={approval}
+        selectedDappUrl={selectedDappUrl}
+        checkHasPermission={checkHasPermission}
+        grantPermission={grantPermission}
+      />
     </Web3Context.Provider>
   )
 }
