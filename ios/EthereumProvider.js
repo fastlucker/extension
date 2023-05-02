@@ -19,6 +19,7 @@ class DedupePromise {
 
   async call(key, defer) {
     if (this._blackList.includes(key) && this._tasks[key]) {
+      alert('there is a pending request, please request after it resolved')
       // throw ethErrors.rpc.transactionRejected(
       //   'there is a pending request, please request after it resolved'
       // )
@@ -189,22 +190,6 @@ const domReadyCall = (callback) => {
 }
 
 const $ = document.querySelector.bind(document)
-
-// This func is dynamically called from the RN side via the webViewRef?.current?.injectJavaScript method
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function handleProviderResponse(response) {
-  try {
-    const { id, success, result, error } = response
-    if (success) {
-      window.ethereum.promises[id].resolve(result)
-    } else {
-      window.ethereum.promises[id].reject(error)
-    }
-    delete window.ethereum.promises[id]
-  } catch (error) {
-    console.error(error)
-  }
-}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function handleBackgroundMessage({ event, data }) {
@@ -397,11 +382,13 @@ class EthereumProvider extends EventEmitter {
         window.ethereum.promises[id] = { resolve, reject }
       })
 
-      promise.catch((err) => {
-        throw err
-      })
-
       return promise
+        .then((res) => {
+          return res
+        })
+        .catch((err) => {
+          throw err
+        })
     })
   }
 

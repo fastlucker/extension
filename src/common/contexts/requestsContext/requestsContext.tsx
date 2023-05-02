@@ -216,21 +216,10 @@ const RequestsProvider: React.FC = ({ children }) => {
   // Handle navigation for sign message requests
   useEffect(() => {
     ;(async () => {
-      let toSign = everythingToSign
-
-      if (isExtension && getUiType().isPopup) {
-        toSign = everythingToSign.filter((r) => r?.reqSrc !== APPROVAL_REQUESTS_STORAGE_KEY)
-      }
+      const toSign = everythingToSign.filter((r) => r?.reqSrc !== APPROVAL_REQUESTS_STORAGE_KEY)
 
       if (toSign.length) {
-        if (
-          (isiOS || isAndroid) &&
-          everythingToSign.filter((r) => r?.reqSrc !== APPROVAL_REQUESTS_STORAGE_KEY)
-        ) {
-          openBottomSheetSignMsg()
-        } else {
-          navigate(ROUTES.signMessage)
-        }
+        navigate(ROUTES.signMessage)
       } else if (
         // Extension only
         // In case there is a pending sign msg request opened in a notification window
@@ -249,6 +238,11 @@ const RequestsProvider: React.FC = ({ children }) => {
             [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([])
           })
         }
+      } else if (
+        everythingToSign.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
+        (isiOS || isAndroid)
+      ) {
+        openBottomSheetSignMsg()
       }
     })()
   }, [everythingToSign, extensionWallet, navigate, openBottomSheetSignMsg])

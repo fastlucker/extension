@@ -1,4 +1,5 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
+import { serializeError } from 'eth-rpc-errors'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 
@@ -112,24 +113,27 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         const result = await providerController(req, requestNotificationServiceMethod)
         console.log('result', result)
 
-        const response = {
-          id: data.id,
-          method: data.method,
-          success: true, // or false if there is an error
-          result // or error: {} if there is an error
-        }
+        const response = { id: data.id, result }
 
-        if (result) {
-          web3ViewRef?.injectJavaScript(`handleProviderResponse(${JSON.stringify(response)});`)
-        }
+        web3ViewRef?.injectJavaScript(`
+            if (window.ethereum.promises[${response.id}]) {
+              window.ethereum.promises[${response.id}].resolve(${JSON.stringify(response.result)});
+              delete window.ethereum.promises[${response.id}]
+            }
+          `)
+        setApproval(null)
       } catch (error) {
-        const response = {
-          id: data.id,
-          method: data.method,
-          success: false, // or false if there is an error
-          error // or error: {} if there is an error
+        const response = { id: data.id, error }
+
+        web3ViewRef?.injectJavaScript(`
+        if (window.ethereum.promises[${response.id}]) {
+          window.ethereum.promises[${response.id}].reject(${JSON.stringify(
+          serializeError({ message: error.message || 'User rejected the request.' })
+        )});
+          delete window.ethereum.promises[${response.id}]
         }
-        web3ViewRef?.injectJavaScript(`handleProviderResponse(${JSON.stringify(response)});`)
+      `)
+        setApproval(null)
       }
     },
     [web3ViewRef, selectedDappUrl, requestNotificationServiceMethod, removePermission]

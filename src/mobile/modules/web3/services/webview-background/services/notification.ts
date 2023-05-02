@@ -2,7 +2,6 @@ import networks from 'ambire-common/src/constants/networks'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
-import { v4 as uuidv4 } from 'uuid'
 
 import storage from '../webapi/storage'
 
@@ -68,6 +67,7 @@ class NotificationService extends Events {
     } catch (e) {
       // TODO:
       // Sentry.captureException(`activeFirstApproval failed: ${JSON.stringify(e)}`)
+      this.clear()
     }
   }
 
@@ -106,6 +106,10 @@ class NotificationService extends Events {
   rejectApproval = async ({ err, stay = false, isInternal = false }: any) => {
     const approval = this.currentApproval
 
+    if (this.approvals.length <= 1) {
+      this.clear() // TODO: FIXME
+    }
+
     if (isInternal) {
       approval?.reject && approval?.reject(ethErrors.rpc.internal(err))
     } else {
@@ -115,27 +119,28 @@ class NotificationService extends Events {
     if (approval && this.approvals.length > 1) {
       this.deleteApproval(approval)
       this.currentApproval = this.approvals[0]
+    } else {
+      this.clear()
     }
+
     this.emit('reject', err)
   }
 
-  requestApproval = async (data, winProps?): Promise<any> => {
+  requestApproval = async (data): Promise<any> => {
     const networkId = await storage.get('networkId')
 
     return new Promise((resolve, reject) => {
-      const uuid = uuidv4()
       let signingTxId
 
       const approval: Approval = {
-        id: data?.params?.id || uuid,
+        id: data?.params?.id,
         signingTxId,
         data,
-        winProps,
-        resolve(data) {
-          resolve(data)
+        resolve(d) {
+          resolve(d)
         },
-        reject(data) {
-          reject(data)
+        reject(error) {
+          reject(error)
         }
       }
 
@@ -182,6 +187,11 @@ class NotificationService extends Events {
 
       this.openNotification(approval)
     })
+  }
+
+  clear = () => {
+    this.approvals = []
+    this.currentApproval = null
   }
 
   rejectAllApprovals = () => {

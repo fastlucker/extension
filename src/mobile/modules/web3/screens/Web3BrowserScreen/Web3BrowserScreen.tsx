@@ -56,6 +56,9 @@ const Web3BrowserScreen = () => {
             onMessage={handleEthereumProviderMessage}
             injectedJavaScriptBeforeContentLoaded={providerToInject}
             startInLoadingState
+            onError={(syntheticEvent) => {
+              console.warn('WebView error: ', syntheticEvent)
+            }}
             renderLoading={() => (
               <View style={styles.loadingWrapper}>
                 <Spinner />
