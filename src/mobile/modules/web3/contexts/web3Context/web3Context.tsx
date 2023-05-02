@@ -61,7 +61,6 @@ const Web3Provider: React.FC<any> = ({ children }) => {
     setApproval
   })
 
-  console.log('web3', approval)
   const {
     requests,
     getApproval,
