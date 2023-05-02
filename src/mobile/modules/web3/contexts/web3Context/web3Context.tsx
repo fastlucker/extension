@@ -1,10 +1,16 @@
+import { NetworkType } from 'ambire-common/src/constants/networks'
 import { serializeError } from 'eth-rpc-errors'
+import { intToHex } from 'ethereumjs-util'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
+import useAccounts from '@common/hooks/useAccounts'
+import useNetwork from '@common/hooks/useNetwork'
 import ApprovalBottomSheets from '@mobile/modules/web3/components/ApprovalBottomSheets'
 import providerController from '@mobile/modules/web3/services/webview-background/provider/provider'
 import { Approval } from '@mobile/modules/web3/services/webview-background/services/notification'
-import sessionService from '@mobile/modules/web3/services/webview-background/services/session'
+import sessionService, {
+  Session
+} from '@mobile/modules/web3/services/webview-background/services/session'
 
 import { Web3ContextData } from './types'
 import useApproval from './useApproval'
@@ -28,9 +34,12 @@ const Web3Context = createContext<Web3ContextData>({
 })
 
 const Web3Provider: React.FC<any> = ({ children }) => {
+  const { selectedAcc } = useAccounts()
+  const { network } = useNetwork()
   const [selectedDappUrl, setSelectedDappUrl] = useState<string>('')
   const [web3ViewRef, setWeb3ViewRef] = useState<any>(null)
   const [approval, setApproval] = useState<Approval | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
   const { checkHasPermission, addPermission, removePermission, grantPermission } = usePermission({
     selectedDappUrl
   })
@@ -52,6 +61,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
     if ((!selectedDappUrl || !web3ViewRef) && requests.length) {
       rejectAllApprovals()
       setApproval(null)
+      setSession(null)
     }
   }, [requests, selectedDappUrl, web3ViewRef, rejectAllApprovals])
 
@@ -65,8 +75,13 @@ const Web3Provider: React.FC<any> = ({ children }) => {
 
         const sessionId = selectedDappUrl
         const origin = selectedDappUrl
-        const session = sessionService.getOrCreateSession(sessionId, origin, web3ViewRef)
-        const req = { data, session, origin }
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const s = sessionService.getOrCreateSession(sessionId, origin, web3ViewRef)
+        const req = { data, session: s, origin }
+
+        if (!session) {
+          setSession(session)
+        }
 
         console.log(data)
         const result = await providerController(req, requestNotificationServiceMethod)
@@ -93,8 +108,32 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       `)
       }
     },
-    [web3ViewRef, selectedDappUrl, requestNotificationServiceMethod, removePermission]
+    [web3ViewRef, selectedDappUrl, session, requestNotificationServiceMethod, removePermission]
   )
+
+  useEffect(() => {
+    if (network && selectedDappUrl) {
+      const networkChange = (net: NetworkType) => {
+        sessionService.broadcastEvent('chainChanged', {
+          chain: intToHex(net.chainId),
+          networkVersion: `${net.chainId}`
+        })
+      }
+
+      networkChange(network)
+    }
+  }, [network, selectedDappUrl])
+
+  useEffect(() => {
+    if (selectedAcc && selectedDappUrl) {
+      const accountChange = (acc: string) => {
+        const account = acc ? [acc] : []
+        sessionService.broadcastEvent('accountsChanged', account)
+      }
+
+      accountChange(selectedAcc)
+    }
+  }, [selectedAcc, selectedDappUrl])
 
   return (
     <Web3Context.Provider
