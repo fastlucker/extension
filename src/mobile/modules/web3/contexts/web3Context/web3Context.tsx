@@ -9,7 +9,7 @@ import Title from '@common/components/Title'
 import useNavigation from '@common/hooks/useNavigation'
 import colors from '@common/styles/colors'
 import text from '@common/styles/utils/text'
-import SwitchNetworkRequestScreen from '@mobile/modules/web3/components/SwitchNetworkRequestScreen'
+import SwitchNetworkRequest from '@mobile/modules/web3/components/SwitchNetworkRequest'
 import providerController from '@mobile/modules/web3/services/webview-background/provider/provider'
 import { Approval } from '@mobile/modules/web3/services/webview-background/services/notification'
 import sessionService from '@mobile/modules/web3/services/webview-background/services/session'
@@ -20,14 +20,14 @@ import useNotification from './useNotification'
 import usePermission from './usePermission'
 
 const Web3Context = createContext<Web3ContextData>({
+  approval: null,
+  requests: null,
   checkHasPermission: () => false,
   addPermission: () => {},
   setSelectedDappUrl: () => {},
-  approval: null,
   setApproval: () => {},
   setWeb3ViewRef: () => {},
   handleWeb3Request: () => {},
-  requests: null,
   getApproval: () => Promise.resolve(null),
   resolveApproval: () => {},
   rejectApproval: () => {},
@@ -92,7 +92,6 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       prevApproval?.data?.approvalComponent !== 'SwitchNetwork' &&
       approval?.data?.approvalComponent === 'SwitchNetwork'
     ) {
-      // console.log(approval)
       openBottomSheetSwitchNetwork()
     }
   }, [approval, prevApproval, openBottomSheetSwitchNetwork])
@@ -142,14 +141,14 @@ const Web3Provider: React.FC<any> = ({ children }) => {
     <Web3Context.Provider
       value={useMemo(
         () => ({
+          approval,
+          requests,
           setWeb3ViewRef,
           checkHasPermission,
           addPermission,
           setSelectedDappUrl,
-          approval,
           setApproval,
           handleWeb3Request,
-          requests,
           getApproval,
           resolveApproval,
           rejectApproval,
@@ -157,12 +156,12 @@ const Web3Provider: React.FC<any> = ({ children }) => {
           rejectAllApprovals
         }),
         [
+          approval,
+          requests,
           checkHasPermission,
           addPermission,
-          approval,
           setApproval,
           handleWeb3Request,
-          requests,
           getApproval,
           resolveApproval,
           rejectApproval,
@@ -187,7 +186,13 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         }}
       >
         <Title style={text.center}>Allow dApp to Connect</Title>
-        <Button text="Allow" onPress={grantPermission} />
+        <Button
+          text="Allow"
+          onPress={() => {
+            grantPermission()
+            closeBottomSheetPermission()
+          }}
+        />
       </BottomSheet>
       <BottomSheet
         id="switch-network-approval"
@@ -195,10 +200,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         closeBottomSheet={closeBottomSheetSwitchNetwork}
         style={{ backgroundColor: colors.martinique }}
       >
-        <SwitchNetworkRequestScreen
-          isInBottomSheet
-          closeBottomSheet={closeBottomSheetSwitchNetwork}
-        />
+        <SwitchNetworkRequest isInBottomSheet closeBottomSheet={closeBottomSheetSwitchNetwork} />
       </BottomSheet>
     </Web3Context.Provider>
   )

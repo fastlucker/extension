@@ -3,14 +3,14 @@ import { Approval } from '@mobile/modules/web3/services/webview-background/servi
 export const APPROVAL_REQUESTS_STORAGE_KEY = 'approval_requests_state'
 
 export type Web3ContextData = {
+  approval: Approval | null
+  requests: any[] | null
   checkHasPermission: (dappURL: string) => boolean
   addPermission: (dappURL: string) => void
   setSelectedDappUrl: React.Dispatch<React.SetStateAction<string>>
-  approval: Approval | null
   setApproval: React.Dispatch<React.SetStateAction<Approval | null>>
   setWeb3ViewRef: React.Dispatch<any>
   handleWeb3Request: ({ data }: { data: any }) => any
-  requests: any[] | null
   getApproval: () => Promise<Approval | null>
   resolveApproval: (data: any, stay?: boolean, forceReject?: boolean, approvalId?: string) => void
   rejectApproval: (err: any, stay?: boolean, isInternal?: boolean) => void

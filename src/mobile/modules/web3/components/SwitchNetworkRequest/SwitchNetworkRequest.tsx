@@ -21,7 +21,7 @@ import ManifestImage from '@web/components/ManifestImage'
 
 import styles from './styles'
 
-const SwitchNetworkRequestScreen = ({
+const SwitchNetworkRequest = ({
   isInBottomSheet,
   closeBottomSheet
 }: {
@@ -190,4 +190,4 @@ const SwitchNetworkRequestScreen = ({
   )
 }
 
-export default React.memo(SwitchNetworkRequestScreen)
+export default React.memo(SwitchNetworkRequest)

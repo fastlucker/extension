@@ -49,25 +49,20 @@ const Web3BrowserScreen = () => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper style={spacings.ph0} hasBottomTabNav>
-        {!!hasPermission && (
-          <WebView
-            ref={webViewRef}
-            source={{ uri: selectedDappUrl }}
-            onMessage={handleEthereumProviderMessage}
-            injectedJavaScriptBeforeContentLoaded={providerToInject}
-            startInLoadingState
-            onError={(syntheticEvent) => {
-              console.warn('WebView error: ', syntheticEvent)
-            }}
-            renderLoading={() => (
-              <View style={styles.loadingWrapper}>
-                <Spinner />
-              </View>
-            )}
-            containerStyle={styles.container}
-            style={styles.webview}
-          />
-        )}
+        <WebView
+          ref={webViewRef}
+          source={{ uri: hasPermission ? selectedDappUrl : null }}
+          onMessage={handleEthereumProviderMessage}
+          injectedJavaScriptBeforeContentLoaded={providerToInject}
+          startInLoadingState
+          renderLoading={() => (
+            <View style={styles.loadingWrapper}>
+              <Spinner />
+            </View>
+          )}
+          containerStyle={styles.container}
+          style={styles.webview}
+        />
       </Wrapper>
     </GradientBackgroundWrapper>
   )

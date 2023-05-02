@@ -5,10 +5,9 @@ import useStorage from '@common/hooks/useStorage'
 const STORAGE_KEY = 'dapps_permission'
 
 const usePermission = ({ selectedDappUrl }: { selectedDappUrl: string }) => {
-  const [permission, setPermission] = useStorage({
+  const [permission, setPermission] = useStorage<string[] | null>({
     key: STORAGE_KEY,
-    defaultValue: [],
-    setInit: (p: any) => (!Array.isArray(p) ? [] : p)
+    defaultValue: []
   })
 
   const checkHasPermission = useCallback(
@@ -22,7 +21,8 @@ const usePermission = ({ selectedDappUrl }: { selectedDappUrl: string }) => {
     (dappURL: string) => {
       if (!checkHasPermission(dappURL)) {
         permission?.push(dappURL)
-        setPermission(permission)
+        // @ts-ignore
+        setPermission([...permission])
       }
     },
     [permission, setPermission, checkHasPermission]
@@ -39,7 +39,7 @@ const usePermission = ({ selectedDappUrl }: { selectedDappUrl: string }) => {
     if (selectedDappUrl) {
       addPermission(selectedDappUrl)
     } else {
-      console.error('selectedDappUrl is undefined')
+      console.error('selectedDappUrl is not defined')
     }
   }, [selectedDappUrl, addPermission])
 
