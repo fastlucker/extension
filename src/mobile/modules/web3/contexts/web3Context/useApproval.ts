@@ -20,6 +20,7 @@ const useApproval = ({
 }: UseApprovalProps) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
+  console.log('useApproval', approval)
 
   const getApproval: UseApprovalReturnType['getApproval'] = useCallback(
     () =>

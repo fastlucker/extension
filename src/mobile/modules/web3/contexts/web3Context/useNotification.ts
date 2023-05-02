@@ -6,8 +6,8 @@ import NotificationService, {
 
 const useNotification = ({ setApproval }: any) => {
   const requestNotificationApproval = useCallback(
-    (appr: Approval | null) => {
-      setApproval(appr)
+    (approval: Approval | null) => {
+      setApproval(approval)
     },
     [setApproval]
   )

@@ -61,6 +61,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
     setApproval
   })
 
+  console.log('web3', approval)
   const {
     requests,
     getApproval,
@@ -92,6 +93,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       prevApproval?.data?.approvalComponent !== 'SwitchNetwork' &&
       approval?.data?.approvalComponent === 'SwitchNetwork'
     ) {
+      // console.log(approval)
       openBottomSheetSwitchNetwork()
     }
   }, [approval, prevApproval, openBottomSheetSwitchNetwork])
@@ -121,7 +123,6 @@ const Web3Provider: React.FC<any> = ({ children }) => {
               delete window.ethereum.promises[${response.id}]
             }
           `)
-        setApproval(null)
       } catch (error) {
         const response = { id: data.id, error }
 
@@ -133,7 +134,6 @@ const Web3Provider: React.FC<any> = ({ children }) => {
           delete window.ethereum.promises[${response.id}]
         }
       `)
-        setApproval(null)
       }
     },
     [web3ViewRef, selectedDappUrl, requestNotificationServiceMethod, removePermission]
