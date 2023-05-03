@@ -7,7 +7,6 @@ import PromiseFlow from '@mobile/modules/web3/services/utils/promiseFlow'
 import underline2Camelcase from '@mobile/modules/web3/services/utils/underline2Camelcase'
 import providerController from '@mobile/modules/web3/services/webview-background/provider/ProviderController'
 import { ProviderRequest } from '@mobile/modules/web3/services/webview-background/provider/types'
-import NotificationService from '@mobile/modules/web3/services/webview-background/services/notification'
 
 export const EVENTS = {
   broadcastToUI: 'broadcastToUI',
@@ -27,7 +26,13 @@ const flow = new PromiseFlow<{
   }
   mapMethod: string
   approvalRes: any
-  openApprovalModal: (req: any) => void
+  requestNotificationServiceMethod: ({
+    method,
+    props
+  }: {
+    method: string
+    props?: { [key: string]: any }
+  }) => any
 }>()
 const flowContext = flow
   .use(async (ctx, next) => {
@@ -53,33 +58,36 @@ const flowContext = flow
     // check need approval
     const {
       request: {
-        data: { method },
+        data: { method, id },
         session: { origin, name, icon }
       },
       mapMethod,
-      openApprovalModal
+      requestNotificationServiceMethod
     } = ctx
     const [approvalType, condition] =
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
     if (approvalType && (!condition || !condition(ctx.request))) {
       ctx.request.requestedApproval = true
-      const notificationService = new NotificationService({ openApprovalModal })
-      ctx.approvalRes = await notificationService.requestApproval({
-        approvalComponent: approvalType,
-        params: {
-          $ctx: ctx?.request?.data?.$ctx,
-          method,
-          data: ctx.request.data.params,
-          session: { origin, name, icon }
-        },
-        origin
+      ctx.approvalRes = await requestNotificationServiceMethod({
+        method: 'requestApproval',
+        props: {
+          approvalComponent: approvalType,
+          params: {
+            $ctx: ctx?.request?.data?.$ctx,
+            method,
+            id,
+            data: ctx.request.data.params,
+            session: { origin, name, icon }
+          },
+          origin
+        }
       })
     }
 
     return next()
   })
   .use(async (ctx) => {
-    const { approvalRes, mapMethod, request, openApprovalModal } = ctx
+    const { approvalRes, mapMethod, request, requestNotificationServiceMethod } = ctx
 
     // process request
     const [approvalType] = Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
@@ -120,14 +128,18 @@ const flowContext = flow
       })
     async function requestApprovalLoop({ uiRequestComponent, ...rest }) {
       ctx.request.requestedApproval = true
-      const notificationService = new NotificationService({ openApprovalModal })
-      const res = await notificationService.requestApproval({
-        approvalComponent: uiRequestComponent,
-        params: rest,
-        origin,
-        approvalType,
-        isUnshift: true
+
+      const res = await requestNotificationServiceMethod({
+        method: 'requestApproval',
+        props: {
+          approvalComponent: uiRequestComponent,
+          params: rest,
+          origin,
+          approvalType,
+          isUnshift: true
+        }
       })
+
       if (res.uiRequestComponent) {
         return await requestApprovalLoop(res)
       }
@@ -142,14 +154,27 @@ const flowContext = flow
   })
   .callback()
 
-export default (request: ProviderRequest, openApprovalModal) => {
-  const ctx: any = { request: { ...request, requestedApproval: false }, openApprovalModal }
+export default (
+  request: ProviderRequest,
+  requestNotificationServiceMethod: ({
+    method,
+    props
+  }: {
+    method: string
+    props?: { [key: string]: any }
+  }) => any
+) => {
+  const ctx: any = {
+    request: { ...request, requestedApproval: false },
+    requestNotificationServiceMethod
+  }
   return flowContext(ctx).finally(() => {
     if (ctx.request.requestedApproval) {
       flow.requestedApproval = false
       // only unlock notification if current flow is an approval flow
-      const notificationService = new NotificationService({ openApprovalModal })
-      notificationService.unLock()
+      requestNotificationServiceMethod({
+        method: 'unLock'
+      })
     }
   })
 }

@@ -19,6 +19,7 @@ class DedupePromise {
 
   async call(key, defer) {
     if (this._blackList.includes(key) && this._tasks[key]) {
+      alert('there is a pending request, please request after it resolved')
       // throw ethErrors.rpc.transactionRejected(
       //   'there is a pending request, please request after it resolved'
       // )
@@ -79,6 +80,15 @@ class PushEventHandlers {
     this._emit('accountsChanged', [])
     this._emit('disconnect', disconnectError)
     this._emit('close', disconnectError)
+
+    const id = Date.now() + Math.random()
+    data.id = id
+    window.ReactNativeWebView.postMessage(
+      JSON.stringify({
+        method: 'disconnect'
+      }),
+      '*'
+    )
   }
 
   accountsChanged = (accounts) => {
@@ -181,20 +191,13 @@ const domReadyCall = (callback) => {
 
 const $ = document.querySelector.bind(document)
 
-// This func is dynamically called from the RN side via the webViewRef?.current?.injectJavaScript method
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function handleProviderResponse(response) {
-  try {
-    const { id, success, result, error } = response
-    if (success) {
-      window.ethereum.promises[id].resolve(result)
-    } else {
-      window.ethereum.promises[id].reject(error)
-    }
-    delete window.ethereum.promises[id]
-  } catch (error) {
-    console.error(error)
+function handleBackgroundMessage({ event, data }) {
+  if (window.ethereum._pushEventHandlers[event]) {
+    return window.ethereum._pushEventHandlers[event](data)
   }
+
+  window.ethereum.emit(event, data)
 }
 
 class EthereumProvider extends EventEmitter {
@@ -262,18 +265,27 @@ class EthereumProvider extends EventEmitter {
   }
 
   initialize = async () => {
-    domReadyCall(() => {
+    domReadyCall(async () => {
       const origin = location?.origin
       const icon =
         $('head > link[rel~="icon"]')?.href || $('head > meta[itemprop="image"]')?.content
       const name = document.title || $('head > meta[name="title"]')?.content || origin
-      window.ReactNativeWebView.postMessage(
-        JSON.stringify({
-          method: 'tabCheckin',
-          params: { icon, name, origin }
-        }),
-        '*'
-      )
+
+      await (function () {
+        const id = Date.now() + Math.random()
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({
+            method: 'tabCheckin',
+            id,
+            params: { icon, name, origin }
+          }),
+          '*'
+        )
+        return new Promise((resolve) => {
+          window.ethereum.promises[id] = { resolve }
+        })
+      })()
+
       this._requestPromise.check(1)
     })
     try {
@@ -374,10 +386,18 @@ class EthereumProvider extends EventEmitter {
       const id = Date.now() + Math.random()
       data.id = id
       window.ReactNativeWebView.postMessage(JSON.stringify(data), '*')
-      return new Promise((resolve, reject) => {
+      const promise = new Promise((resolve, reject) => {
         // Save the resolve and reject functions with the ID
         window.ethereum.promises[id] = { resolve, reject }
       })
+
+      return promise
+        .then((res) => {
+          return res
+        })
+        .catch((err) => {
+          throw err
+        })
     })
   }
 
@@ -557,7 +577,5 @@ Object.defineProperty(window, 'ethereum', {
 window.web3 = {
   currentProvider: window.ethereum
 }
-
-alert('injection finished')
 
 window.dispatchEvent(new Event('ethereum#initialized'))

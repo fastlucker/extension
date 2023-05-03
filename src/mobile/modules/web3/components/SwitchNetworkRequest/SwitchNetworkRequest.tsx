@@ -1,5 +1,5 @@
 import networks from 'ambire-common/src/constants/networks'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import CrossChainArrowIcon from '@common/assets/svg/CrossChainArrowIcon'
@@ -9,7 +9,6 @@ import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrap
 import NetworkIcon from '@common/components/NetworkIcon'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
-import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
 import useNetwork from '@common/hooks/useNetwork'
@@ -17,15 +16,21 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
+import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
 import ManifestImage from '@web/components/ManifestImage'
-import useApproval from '@web/hooks/useApproval'
 
 import styles from './styles'
 
-const SwitchNetworkRequestScreen = () => {
+const SwitchNetworkRequest = ({
+  isInBottomSheet,
+  closeBottomSheet
+}: {
+  isInBottomSheet?: boolean
+  closeBottomSheet?: (dest?: 'default' | 'alwaysOpen' | undefined) => void
+}) => {
   const { t } = useTranslation()
   const { network, setNetwork } = useNetwork()
-  const { approval, rejectApproval, resolveApproval } = useApproval()
+  const { approval, rejectApproval, resolveApproval } = useWeb3()
   const [isSwitching, setIsSwitching] = useState(false)
 
   // Cache it on purpose. Otherwise, when the user switches the network,
@@ -42,26 +47,36 @@ const SwitchNetworkRequestScreen = () => {
     return networks.find((a) => a.chainId === Number(chainId))
   }, [approval])
 
-  const handleDenyButtonPress = useCallback(
-    () => rejectApproval(t('User rejected the request.')),
-    [t, rejectApproval]
-  )
+  const handleDenyButtonPress = useCallback(() => {
+    rejectApproval(t('User rejected the request.'))
+    !!closeBottomSheet && closeBottomSheet()
+  }, [t, rejectApproval, closeBottomSheet])
 
   const handleSwitchNetworkButtonPress = useCallback(() => {
     setIsSwitching(true)
     if (nextNetwork) {
       setNetwork(nextNetwork?.chainId)
       resolveApproval(true)
+      !!closeBottomSheet && closeBottomSheet()
     }
-  }, [nextNetwork, resolveApproval, setNetwork])
+  }, [nextNetwork, resolveApproval, setNetwork, closeBottomSheet])
+
+  useEffect(() => {
+    return () => {
+      handleDenyButtonPress()
+    }
+  }, [handleDenyButtonPress])
+
+  const GradientWrapper = isInBottomSheet ? React.Fragment : GradientBackgroundWrapper
 
   return (
-    <GradientBackgroundWrapper>
+    <GradientWrapper>
       <Wrapper
         hasBottomTabNav={false}
         contentContainerStyle={{
           paddingTop: 0
         }}
+        style={isInBottomSheet && spacings.ph0}
       >
         <Panel type="filled">
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
@@ -72,11 +87,11 @@ const SwitchNetworkRequestScreen = () => {
             />
           </View>
 
-          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+          {/* <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
             {approval?.data?.params?.session?.origin
               ? new URL(approval?.data?.params?.session?.origin).hostname
               : ''}
-          </Title>
+          </Title> */}
 
           {!!nextNetwork && (
             <>
@@ -131,24 +146,12 @@ const SwitchNetworkRequestScreen = () => {
                 )}
               </View>
 
-              <View style={styles.buttonsContainer}>
-                <View style={styles.buttonWrapper}>
-                  <Button
-                    disabled={isSwitching}
-                    type="danger"
-                    onPress={handleDenyButtonPress}
-                    text={t('Deny')}
-                  />
-                </View>
-                <View style={styles.buttonWrapper}>
-                  <Button
-                    disabled={isSwitching}
-                    type="outline"
-                    onPress={handleSwitchNetworkButtonPress}
-                    text={isSwitching ? t('Switching...') : t('Switch Network')}
-                  />
-                </View>
-              </View>
+              <Button
+                disabled={isSwitching}
+                type="outline"
+                onPress={handleSwitchNetworkButtonPress}
+                text={isSwitching ? t('Switching...') : t('Switch Network')}
+              />
             </>
           )}
           {!nextNetwork && (
@@ -183,8 +186,8 @@ const SwitchNetworkRequestScreen = () => {
           )}
         </Panel>
       </Wrapper>
-    </GradientBackgroundWrapper>
+    </GradientWrapper>
   )
 }
 
-export default React.memo(SwitchNetworkRequestScreen)
+export default React.memo(SwitchNetworkRequest)

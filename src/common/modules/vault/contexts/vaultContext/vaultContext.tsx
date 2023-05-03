@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import { useTranslation } from '@common/config/localization'
 import useAccounts from '@common/hooks/useAccounts'
-import useExtensionApproval from '@common/hooks/useExtensionApproval'
 import useExtensionWallet from '@common/hooks/useExtensionWallet'
 import useNavigation from '@common/hooks/useNavigation'
 import useStorageController from '@common/hooks/useStorageController'
@@ -23,6 +22,7 @@ import { Controller } from '@common/modules/vault/services/VaultController'
 import { VaultItem } from '@common/modules/vault/services/VaultController/types'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
+import useApproval from '@web/hooks/useApproval'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
@@ -37,7 +37,7 @@ const VaultProvider: React.FC = ({ children }) => {
   const { extensionWallet } = useExtensionWallet()
   const { onRemoveAllAccounts } = useAccounts()
   const { getItem, setItem, storageControllerInstance } = useStorageController()
-  const { resolveApproval } = useExtensionApproval()
+  const { resolveApproval } = useApproval()
   const {
     biometricsEnabled,
     getKeystorePassword,

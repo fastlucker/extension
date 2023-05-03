@@ -2,10 +2,7 @@ import networks from 'ambire-common/src/constants/networks'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
-import { v4 as uuidv4 } from 'uuid'
 
-// import { isDev } from '@common/config/env'
-// import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@common/contexts/extensionApprovalContext/types'
 import storage from '../webapi/storage'
 
 export interface Approval {
@@ -41,11 +38,15 @@ class NotificationService extends Events {
 
   isLocked = false
 
-  openApprovalModal: (req: any) => void
+  requestNotificationApproval: (req: any) => void
 
-  constructor({ openApprovalModal }: { openApprovalModal: (req: any) => void }) {
+  constructor({
+    requestNotificationApproval
+  }: {
+    requestNotificationApproval: (req: any) => void
+  }) {
     super()
-    this.openApprovalModal = openApprovalModal
+    this.requestNotificationApproval = requestNotificationApproval
   }
 
   get approvals() {
@@ -70,7 +71,7 @@ class NotificationService extends Events {
     }
   }
 
-  deleteApproval = (approval) => {
+  deleteApproval = (approval: any) => {
     if (approval && this.approvals.length > 1) {
       this.approvals = this.approvals.filter((item) => approval.id !== item.id)
     } else {
@@ -81,7 +82,7 @@ class NotificationService extends Events {
 
   getApproval = () => this.currentApproval
 
-  resolveApproval = async (data?: any, forceReject = false, approvalId?: string) => {
+  resolveApproval = async ({ data, forceReject = false, approvalId }: any) => {
     if (approvalId && approvalId !== this.currentApproval?.id) return
     if (forceReject) {
       this.currentApproval?.reject &&
@@ -99,15 +100,14 @@ class NotificationService extends Events {
     } else {
       this.currentApproval = null
     }
-
     this.emit('resolve', data)
   }
 
-  rejectApproval = async (err?: string, stay = false, isInternal = false) => {
+  rejectApproval = async ({ err, stay = false, isInternal = false }: any) => {
     const approval = this.currentApproval
 
     if (this.approvals.length <= 1) {
-      await this.clear(stay) // TODO: FIXME
+      this.clear() // TODO: FIXME
     }
 
     if (isInternal) {
@@ -115,39 +115,32 @@ class NotificationService extends Events {
     } else {
       approval?.reject && approval?.reject(ethErrors.provider.userRejectedRequest<any>(err))
     }
-    if (approval?.data?.approvalComponent === 'SendTransaction') {
-      // Removes all cached signing requests (otherwise they will be shown again
-      // in the browser extension UI, when it gets opened by the user)
-      // TODO: mobile impl
-      // browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
-    }
 
     if (approval && this.approvals.length > 1) {
       this.deleteApproval(approval)
       this.currentApproval = this.approvals[0]
     } else {
-      await this.clear(stay)
+      this.clear()
     }
+
     this.emit('reject', err)
   }
 
-  requestApproval = async (data, winProps?): Promise<any> => {
+  requestApproval = async (data): Promise<any> => {
     const networkId = await storage.get('networkId')
 
     return new Promise((resolve, reject) => {
-      const uuid = uuidv4()
       let signingTxId
 
       const approval: Approval = {
-        id: uuid,
+        id: data?.params?.id,
         signingTxId,
         data,
-        winProps,
-        resolve(data) {
-          resolve(data)
+        resolve(d) {
+          resolve(d)
         },
-        reject(data) {
-          reject(data)
+        reject(error) {
+          reject(error)
         }
       }
 
@@ -192,27 +185,13 @@ class NotificationService extends Events {
         }
       }
 
-      if (this.notifiWindowId !== null) {
-        browser.windows.update(this.notifiWindowId, {
-          focused: true
-        })
-      } else {
-        this.openNotification(approval)
-      }
+      this.openNotification(approval)
     })
   }
 
-  clear = async (stay = false) => {
+  clear = () => {
     this.approvals = []
     this.currentApproval = null
-    if (this.notifiWindowId !== null && !stay) {
-      try {
-        await winMgr.remove(this.notifiWindowId)
-      } catch (e) {
-        // ignore error
-      }
-      this.notifiWindowId = null
-    }
   }
 
   rejectAllApprovals = () => {
@@ -222,11 +201,6 @@ class NotificationService extends Events {
     })
     this.approvals = []
     this.currentApproval = null
-
-    // Removes all cached signing requests (otherwise they will be shown again
-    // in the browser extension UI, when it gets opened by the user)
-    // TODO: mobile impl
-    // browser.storage.local.set({ [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
   }
 
   unLock = () => {
@@ -238,9 +212,8 @@ class NotificationService extends Events {
   }
 
   openNotification = (approval) => {
-    console.log('open an approval modal in the mobile app')
-    if (this.openApprovalModal) {
-      this.openApprovalModal(approval.data)
+    if (this.requestNotificationApproval) {
+      this.requestNotificationApproval(approval)
     }
   }
 }

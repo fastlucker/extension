@@ -1,29 +1,18 @@
-// Handles approval requests of type:
+// Handles approval requests in the mobile apps of type:
 // eth_sendTransaction, gs_multi_send, ambire_sendBatchTransaction
 // personal_sign, eth_sign
 // eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3, eth_signTypedData_v4
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
-import useStorage from '@common/hooks/useStorage'
 
-import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY, UseExtensionApprovalReturnType } from './types'
+import { APPROVAL_REQUESTS_STORAGE_KEY, UseSignApprovalProps } from './types'
 
-type Props = {
-  approval: UseExtensionApprovalReturnType['approval']
-  resolveApproval: UseExtensionApprovalReturnType['resolveApproval']
-  rejectApproval: UseExtensionApprovalReturnType['rejectApproval']
-}
-
-const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) => {
+const useSignApproval = ({ approval, resolveApproval, rejectApproval }: UseSignApprovalProps) => {
   const { selectedAcc: selectedAccount } = useAccounts()
   const { network } = useNetwork()
-  const [requests, setRequests] = useStorage({
-    key: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
-    defaultValue: [],
-    setInit: (initialRequests) => (!Array.isArray(initialRequests) ? [] : initialRequests)
-  })
+  const [requests, setRequests] = useState([])
 
   // handles eth_sign and personal_sign
   const handleSignText = useCallback(
@@ -49,7 +38,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
       const request = {
         id,
         type: method,
-        reqSrc: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
+        reqSrc: APPROVAL_REQUESTS_STORAGE_KEY,
         txn: messageToSign,
         chainId: network?.chainId,
         account: selectedAccount
@@ -89,7 +78,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
       const request = {
         id,
         type: method,
-        reqSrc: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
+        reqSrc: APPROVAL_REQUESTS_STORAGE_KEY,
         txn: messageToSign,
         chainId: network?.chainId,
         account: selectedAccount
@@ -115,6 +104,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         }
       } else {
         rejectApproval('No txs request in received params', txs)
+        setRequests([])
         return
       }
       // eslint-disable-next-line no-restricted-syntax, guard-for-in
@@ -122,7 +112,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         const request = {
           id,
           type: 'eth_sendTransaction',
-          reqSrc: BROWSER_EXTENSION_REQUESTS_STORAGE_KEY,
+          reqSrc: APPROVAL_REQUESTS_STORAGE_KEY,
           isBatch: txs.length > 1,
           txn: txs[ix],
           chainId: network?.chainId,
@@ -196,7 +186,8 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
 
   return {
     requests,
-    resolveMany
+    resolveMany,
+    setRequests
   }
 }
 

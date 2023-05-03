@@ -27,7 +27,6 @@ const useGetProviderInjection = () => {
 
             RNFS.readFile(filePath, 'utf8')
               .then((newContents) => {
-                console.log(`Reloaded ${filePath}`)
                 setProvider(newContents)
               })
               .catch((error) => {

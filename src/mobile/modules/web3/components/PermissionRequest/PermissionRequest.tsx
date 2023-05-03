@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { View } from 'react-native'
 
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
@@ -14,38 +14,49 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 import ManifestImage from '@web/components/ManifestImage'
-import useApproval from '@web/hooks/useApproval'
 
-import styles from './styles'
-
-const GetEncryptionPublicKeyRequestScreen = () => {
+const PermissionRequest = ({
+  isInBottomSheet,
+  closeBottomSheet,
+  grantPermission,
+  tabSessionData
+}: {
+  isInBottomSheet?: boolean
+  closeBottomSheet?: (dest?: 'default' | 'alwaysOpen' | undefined) => void
+  grantPermission: () => void
+  tabSessionData: any
+}) => {
   const { t } = useTranslation()
-  const { approval, rejectApproval } = useApproval()
+  const [isAuthorizing, setIsAuthorizing] = useState(false)
 
-  const handleDeny = useCallback(
-    () => rejectApproval(t('User rejected the request.')),
-    [t, rejectApproval]
-  )
+  const handleAuthorizeButtonPress = useCallback(() => {
+    setIsAuthorizing(true)
+    grantPermission()
+    !!closeBottomSheet && closeBottomSheet()
+  }, [grantPermission, closeBottomSheet])
+
+  const GradientWrapper = isInBottomSheet ? React.Fragment : GradientBackgroundWrapper
 
   return (
-    <GradientBackgroundWrapper>
+    <GradientWrapper>
       <Wrapper
         hasBottomTabNav={false}
         contentContainerStyle={{
           paddingTop: 0
         }}
+        style={isInBottomSheet && spacings.ph0}
       >
         <Panel type="filled">
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
             <ManifestImage
-              uri={approval?.data?.params?.session?.icon}
+              uri={tabSessionData?.params?.icon}
               size={64}
               fallback={() => <ManifestFallbackIcon />}
             />
           </View>
 
           <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {approval?.data?.origin ? new URL(approval?.data?.origin)?.hostname : ''}
+            {tabSessionData?.params?.name || 'webpage'}
           </Title>
 
           <View>
@@ -55,26 +66,25 @@ const GetEncryptionPublicKeyRequestScreen = () => {
                   {'The dApp '}
                 </Text>
                 <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                  {approval?.data?.params?.session?.name || ''}
+                  {tabSessionData?.params?.name || ''}
                 </Text>
                 <Text fontSize={14} weight="regular">
-                  {
-                    ' wants to get your public encryption key. This method is deprecated and Ambire does not support it.'
-                  }
+                  {' is requesting an authorization to communicate with Ambire Wallet'}
                 </Text>
               </Text>
             </Trans>
           </View>
 
-          <View style={styles.buttonsContainer}>
-            <View style={styles.buttonWrapper}>
-              <Button type="outline" onPress={handleDeny} text={t('Okay')} />
-            </View>
-          </View>
+          <Button
+            type="outline"
+            onPress={handleAuthorizeButtonPress}
+            disabled={isAuthorizing}
+            text={isAuthorizing ? t('Authorizing...') : t('Authorize')}
+          />
         </Panel>
       </Wrapper>
-    </GradientBackgroundWrapper>
+    </GradientWrapper>
   )
 }
 
-export default React.memo(GetEncryptionPublicKeyRequestScreen)
+export default React.memo(PermissionRequest)
