@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { View } from 'react-native'
 import { WebView } from 'react-native-webview'
 
@@ -16,16 +16,11 @@ const Web3BrowserScreen = () => {
   const webViewRef = useRef(null)
   const route = useRoute()
 
-  const { setWeb3ViewRef, handleWeb3Request, checkHasPermission, setSelectedDappUrl } = useWeb3()
+  const { setWeb3ViewRef, handleWeb3Request, setSelectedDappUrl } = useWeb3()
 
   const selectedDappUrl = route?.params?.selectedDappUrl
 
   const providerToInject = useGetProviderInjection()
-
-  const hasPermission = useMemo(
-    () => !!checkHasPermission(selectedDappUrl),
-    [selectedDappUrl, checkHasPermission]
-  )
 
   useEffect(() => {
     setWeb3ViewRef(webViewRef.current)
@@ -51,7 +46,7 @@ const Web3BrowserScreen = () => {
       <Wrapper style={spacings.ph0} hasBottomTabNav>
         <WebView
           ref={webViewRef}
-          source={{ uri: hasPermission ? selectedDappUrl : null }}
+          source={{ uri: selectedDappUrl }}
           onMessage={handleEthereumProviderMessage}
           injectedJavaScriptBeforeContentLoaded={providerToInject}
           startInLoadingState

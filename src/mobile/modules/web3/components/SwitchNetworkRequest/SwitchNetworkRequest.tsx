@@ -25,8 +25,8 @@ const SwitchNetworkRequest = ({
   isInBottomSheet,
   closeBottomSheet
 }: {
-  isInBottomSheet: boolean
-  closeBottomSheet: (dest?: 'default' | 'alwaysOpen' | undefined) => void
+  isInBottomSheet?: boolean
+  closeBottomSheet?: (dest?: 'default' | 'alwaysOpen' | undefined) => void
 }) => {
   const { t } = useTranslation()
   const { network, setNetwork } = useNetwork()
@@ -49,7 +49,7 @@ const SwitchNetworkRequest = ({
 
   const handleDenyButtonPress = useCallback(() => {
     rejectApproval(t('User rejected the request.'))
-    closeBottomSheet()
+    !!closeBottomSheet && closeBottomSheet()
   }, [t, rejectApproval, closeBottomSheet])
 
   const handleSwitchNetworkButtonPress = useCallback(() => {
@@ -57,7 +57,7 @@ const SwitchNetworkRequest = ({
     if (nextNetwork) {
       setNetwork(nextNetwork?.chainId)
       resolveApproval(true)
-      closeBottomSheet()
+      !!closeBottomSheet && closeBottomSheet()
     }
   }, [nextNetwork, resolveApproval, setNetwork, closeBottomSheet])
 

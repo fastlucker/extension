@@ -1,4 +1,5 @@
 import { NetworkType } from 'ambire-common/src/constants/networks'
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { serializeError } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
@@ -37,10 +38,21 @@ const Web3Provider: React.FC<any> = ({ children }) => {
   const { selectedAcc } = useAccounts()
   const { network } = useNetwork()
   const [selectedDappUrl, setSelectedDappUrl] = useState<string>('')
+  const prevSelectedDappUrl = usePrevious(selectedDappUrl)
   const [web3ViewRef, setWeb3ViewRef] = useState<any>(null)
+  const prevWeb3ViewRef = usePrevious(web3ViewRef)
   const [approval, setApproval] = useState<Approval | null>(null)
   const [session, setSession] = useState<Session | null>(null)
-  const { checkHasPermission, addPermission, removePermission, grantPermission } = usePermission({
+  const [tabSessionData, setTabSessionData] = useState(null)
+  const {
+    checkHasPermission,
+    addPermission,
+    removePermission,
+    grantPermission,
+    sheetRefPermission,
+    openBottomSheetPermission,
+    closeBottomSheetPermission
+  } = usePermission({
     selectedDappUrl
   })
 
@@ -58,16 +70,30 @@ const Web3Provider: React.FC<any> = ({ children }) => {
   } = useApproval({ requestNotificationServiceMethod, approval, setApproval })
 
   useEffect(() => {
-    if ((!selectedDappUrl || !web3ViewRef) && requests.length) {
+    if ((!selectedDappUrl && !!prevSelectedDappUrl) || (!web3ViewRef && !!prevWeb3ViewRef)) {
       rejectAllApprovals()
       setApproval(null)
       setSession(null)
+      setTabSessionData(null)
     }
-  }, [requests, selectedDappUrl, web3ViewRef, rejectAllApprovals])
+  }, [
+    requests,
+    selectedDappUrl,
+    prevSelectedDappUrl,
+    web3ViewRef,
+    prevWeb3ViewRef,
+    rejectAllApprovals
+  ])
 
   const handleWeb3Request = useCallback(
     async ({ data }: { data: any }) => {
       try {
+        if (!checkHasPermission(selectedDappUrl) && data.method === 'tabCheckin') {
+          setTabSessionData(data)
+          openBottomSheetPermission()
+          return
+        }
+
         if (data.method === 'disconnect') {
           removePermission(selectedDappUrl)
           return
@@ -83,11 +109,11 @@ const Web3Provider: React.FC<any> = ({ children }) => {
           setSession(session)
         }
 
-        console.log(data)
+        // console.log(data)
         const result = await providerController(req, requestNotificationServiceMethod)
         console.log('result', result)
 
-        const response = { id: data.id, result }
+        const response = { id: data.id, result: data.method === 'tabCheckin' ? true : result }
 
         web3ViewRef?.injectJavaScript(`
             if (window.ethereum.promises[${response.id}]) {
@@ -108,7 +134,15 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       `)
       }
     },
-    [web3ViewRef, selectedDappUrl, session, requestNotificationServiceMethod, removePermission]
+    [
+      web3ViewRef,
+      selectedDappUrl,
+      session,
+      requestNotificationServiceMethod,
+      removePermission,
+      checkHasPermission,
+      openBottomSheetPermission
+    ]
   )
 
   useEffect(() => {
@@ -134,6 +168,13 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       accountChange(selectedAcc)
     }
   }, [selectedAcc, selectedDappUrl])
+
+  const handleGrantPermission = async () => {
+    grantPermission()
+    setTimeout(() => {
+      handleWeb3Request({ data: tabSessionData })
+    }, 100)
+  }
 
   return (
     <Web3Context.Provider
@@ -173,7 +214,10 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         approval={approval}
         selectedDappUrl={selectedDappUrl}
         checkHasPermission={checkHasPermission}
-        grantPermission={grantPermission}
+        grantPermission={handleGrantPermission}
+        sheetRefPermission={sheetRefPermission}
+        closeBottomSheetPermission={closeBottomSheetPermission}
+        tabSessionData={tabSessionData}
       />
     </Web3Context.Provider>
   )

@@ -1,14 +1,20 @@
 import { useCallback } from 'react'
+import { useModalize } from 'react-native-modalize'
 
 import useStorage from '@common/hooks/useStorage'
 
 const STORAGE_KEY = 'dapps_permission'
-
 const usePermission = ({ selectedDappUrl }: { selectedDappUrl: string }) => {
   const [permission, setPermission] = useStorage<string[] | null>({
     key: STORAGE_KEY,
     defaultValue: []
   })
+
+  const {
+    ref: sheetRefPermission,
+    open: openBottomSheetPermission,
+    close: closeBottomSheetPermission
+  } = useModalize()
 
   const checkHasPermission = useCallback(
     (dappURL: string) => {
@@ -47,7 +53,10 @@ const usePermission = ({ selectedDappUrl }: { selectedDappUrl: string }) => {
     checkHasPermission,
     addPermission,
     grantPermission,
-    removePermission
+    removePermission,
+    sheetRefPermission,
+    openBottomSheetPermission,
+    closeBottomSheetPermission
   }
 }
 

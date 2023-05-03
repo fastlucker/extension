@@ -265,18 +265,27 @@ class EthereumProvider extends EventEmitter {
   }
 
   initialize = async () => {
-    domReadyCall(() => {
+    domReadyCall(async () => {
       const origin = location?.origin
       const icon =
         $('head > link[rel~="icon"]')?.href || $('head > meta[itemprop="image"]')?.content
       const name = document.title || $('head > meta[name="title"]')?.content || origin
-      window.ReactNativeWebView.postMessage(
-        JSON.stringify({
-          method: 'tabCheckin',
-          params: { icon, name, origin }
-        }),
-        '*'
-      )
+
+      await (function () {
+        const id = Date.now() + Math.random()
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({
+            method: 'tabCheckin',
+            id,
+            params: { icon, name, origin }
+          }),
+          '*'
+        )
+        return new Promise((resolve) => {
+          window.ethereum.promises[id] = { resolve }
+        })
+      })()
+
       this._requestPromise.check(1)
     })
     try {
