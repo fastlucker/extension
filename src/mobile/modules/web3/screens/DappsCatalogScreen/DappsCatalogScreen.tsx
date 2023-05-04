@@ -1,12 +1,18 @@
-import React, { useCallback } from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SvgUri } from 'react-native-svg'
 
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
+import SearchIcon from '@common/assets/svg/SearchIcon'
+import SortIcon from '@common/assets/svg/SortIcon'
 import FastImage from '@common/components/FastImage'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
+import Input from '@common/components/Input'
 import NetworkIcon from '@common/components/NetworkIcon'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import Title from '@common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import useNetwork from '@common/hooks/useNetwork'
@@ -15,6 +21,7 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import useDapps from '@mobile/modules/web3/hooks/useDapps'
 
 import styles from './styles'
@@ -22,7 +29,14 @@ import styles from './styles'
 const DappsCatalogScreen = () => {
   const { navigate } = useNavigation()
   const { network } = useNetwork()
-  const { filteredCatalog } = useDapps()
+  const { filteredCatalog, search, onSearchChange } = useDapps()
+  const { t } = useTranslation()
+  const [loaded, setLoaded] = useState<boolean>(false)
+  useEffect(() => {
+    if (filteredCatalog.length && !loaded) {
+      setLoaded(true)
+    }
+  }, [filteredCatalog, loaded])
 
   const handleOpenDapp = useCallback(
     async (item: any) => {
@@ -58,7 +72,10 @@ const DappsCatalogScreen = () => {
       <TouchableOpacity
         style={styles.catalogItem}
         activeOpacity={0.8}
-        onPress={() => handleOpenDapp(item)}
+        onPress={() => {
+          handleOpenDapp(item)
+          Keyboard.dismiss()
+        }}
       >
         <View style={[flexbox.directionRow, spacings.mb]}>
           <View style={spacings.mrTy}>
@@ -84,19 +101,20 @@ const DappsCatalogScreen = () => {
           </View>
         </View>
         <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-          {item.networks.slice(0, 8).map((n: string, index: number, arr: string | any[]) => {
+          {item.networks.slice(0, 7).map((n: string, index: number, arr: string | any[]) => {
             return (
               <View
                 style={[
                   styles.networkIcon,
                   { marginLeft: index ? -5 : 0, zIndex: arr.length - index }
                 ]}
+                key={n}
               >
                 <NetworkIcon name={n as any} width={22} height={22} />
               </View>
             )
           })}
-          {item.networks.length > 8 && (
+          {item.networks.length > 7 && (
             <Text
               style={[spacings.plMi, { height: 6, lineHeight: 14 }]}
               fontSize={28}
@@ -112,13 +130,40 @@ const DappsCatalogScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper
-        hasBottomTabNav
-        type={WRAPPER_TYPES.FLAT_LIST}
-        data={sortFiltered(filteredCatalog)}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-      />
+      <View style={[spacings.ph, spacings.mb]}>
+        <Title style={[text.center, spacings.pbSm]} numberOfLines={1}>
+          {t('Web3 dApp Catalog')}
+        </Title>
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <View style={[flexbox.flex1, spacings.prTy]}>
+            <Input
+              containerStyle={spacings.mb0}
+              placeholder={t('Search filter')}
+              onChangeText={onSearchChange}
+              leftIcon={() => <SearchIcon />}
+              value={search}
+            />
+          </View>
+          <TouchableOpacity>
+            <SortIcon />
+          </TouchableOpacity>
+        </View>
+      </View>
+      {!loaded && (
+        <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+          <Spinner />
+        </View>
+      )}
+      {!!loaded && (
+        <Wrapper
+          hasBottomTabNav
+          type={WRAPPER_TYPES.FLAT_LIST}
+          data={sortFiltered(filteredCatalog)}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          keyboardDismissMode="on-drag"
+        />
+      )}
     </GradientBackgroundWrapper>
   )
 }
