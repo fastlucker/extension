@@ -61,8 +61,9 @@ import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
 import ConnectScreen from '@mobile/modules/connect/screens/ConnectScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
+import { DappsProvider } from '@mobile/modules/web3/contexts/dappsContext'
+import DappsCatalogScreen from '@mobile/modules/web3/screens/DappsCatalogScreen'
 import Web3BrowserScreen from '@mobile/modules/web3/screens/Web3BrowserScreen'
-import Web3Screen from '@mobile/modules/web3/screens/Web3Screen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -144,24 +145,26 @@ const ManageVaultLockStackScreen = () => {
 
 const Web3StackScreen = () => {
   return (
-    <Web3Stack.Navigator screenOptions={{ headerShown: true }}>
-      <Web3Stack.Screen
-        name={`${MOBILE_ROUTES.web3}-screen`}
-        component={Web3Screen}
-        options={{
-          title: 'Web3',
-          header: headerAlpha
-        }}
-      />
-      <Web3Stack.Screen
-        name={`${MOBILE_ROUTES.web3}-browser`}
-        component={Web3BrowserScreen}
-        options={{
-          title: 'Web3',
-          header: headerGamma
-        }}
-      />
-    </Web3Stack.Navigator>
+    <DappsProvider>
+      <Web3Stack.Navigator screenOptions={{ headerShown: true }}>
+        <Web3Stack.Screen
+          name={`${MOBILE_ROUTES.dappsCatalog}-screen`}
+          component={DappsCatalogScreen}
+          options={{
+            title: 'Dapps Catalog',
+            header: headerAlpha
+          }}
+        />
+        <Web3Stack.Screen
+          name={`${MOBILE_ROUTES.web3Browser}-screen`}
+          component={Web3BrowserScreen}
+          options={{
+            title: 'Web3',
+            header: headerGamma
+          }}
+        />
+      </Web3Stack.Navigator>
+    </DappsProvider>
   )
 }
 
@@ -392,17 +395,6 @@ const TabsScreens = () => {
         component={EarnScreen}
       />
       <Tab.Screen
-        name={MOBILE_ROUTES.send}
-        options={{
-          tabBarLabel: routesConfig[ROUTES.send].title,
-          headerTitle: routesConfig[ROUTES.send].title,
-          tabBarIcon: ({ color }) => (
-            <SendIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-          )
-        }}
-        component={SendScreen}
-      />
-      <Tab.Screen
         name={MOBILE_ROUTES.swap}
         options={{
           tabBarLabel: routesConfig[ROUTES.swap].title,
@@ -425,7 +417,7 @@ const TabsScreens = () => {
         component={TransactionsScreen}
       />
       <Tab.Screen
-        name={MOBILE_ROUTES.web3}
+        name={MOBILE_ROUTES.dappsCatalog}
         options={{
           tabBarLabel: 'Web3',
           headerTitle: 'Web3',
@@ -518,6 +510,11 @@ const AppStack = () => {
         name={MOBILE_ROUTES.receive}
         options={{ header: headerGamma }}
         component={ReceiveScreen}
+      />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.send}
+        options={{ header: headerGamma }}
+        component={SendScreen}
       />
       <MainStack.Screen
         name={MOBILE_ROUTES.provider}

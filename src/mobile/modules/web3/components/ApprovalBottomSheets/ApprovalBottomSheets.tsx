@@ -13,6 +13,8 @@ import PermissionRequest from '../PermissionRequest'
 type Props = {
   approval: Web3ContextData['approval']
   selectedDappUrl: string
+  resolveApproval: Web3ContextData['resolveApproval']
+  rejectApproval: Web3ContextData['rejectApproval']
   checkHasPermission: Web3ContextData['checkHasPermission']
   grantPermission: () => void
   sheetRefPermission: React.RefObject<any>
@@ -23,6 +25,8 @@ type Props = {
 const ApprovalBottomSheets = ({
   approval,
   selectedDappUrl,
+  resolveApproval,
+  rejectApproval,
   checkHasPermission,
   grantPermission,
   sheetRefPermission,
@@ -52,16 +56,14 @@ const ApprovalBottomSheets = ({
       <BottomSheet
         id="allow-dapp-to-connect"
         sheetRef={sheetRefPermission}
-        closeBottomSheet={() => {
+        onClosed={() => {
           setTimeout(() => {
             if (!checkHasPermission(selectedDappUrl)) {
-              closeBottomSheetPermission()
               goBack()
-            } else {
-              closeBottomSheetPermission()
             }
           }, 10)
         }}
+        closeBottomSheet={closeBottomSheetPermission}
       >
         <PermissionRequest
           isInBottomSheet
@@ -76,7 +78,13 @@ const ApprovalBottomSheets = ({
         closeBottomSheet={closeBottomSheetSwitchNetwork}
         style={{ backgroundColor: colors.martinique }}
       >
-        <SwitchNetworkRequest isInBottomSheet closeBottomSheet={closeBottomSheetSwitchNetwork} />
+        <SwitchNetworkRequest
+          isInBottomSheet
+          approval={approval}
+          resolveApproval={resolveApproval}
+          rejectApproval={rejectApproval}
+          closeBottomSheet={closeBottomSheetSwitchNetwork}
+        />
       </BottomSheet>
     </>
   )
