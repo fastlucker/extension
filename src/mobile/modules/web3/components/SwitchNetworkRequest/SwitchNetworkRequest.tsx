@@ -9,6 +9,7 @@ import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrap
 import NetworkIcon from '@common/components/NetworkIcon'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
+import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
 import useNetwork from '@common/hooks/useNetwork'
@@ -16,21 +17,28 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
+import { Web3ContextData } from '@mobile/modules/web3/contexts/web3Context/types'
 import ManifestImage from '@web/components/ManifestImage'
 
 import styles from './styles'
 
-const SwitchNetworkRequest = ({
-  isInBottomSheet,
-  closeBottomSheet
-}: {
+type Props = {
+  approval: Web3ContextData['approval']
+  resolveApproval: Web3ContextData['resolveApproval']
+  rejectApproval: Web3ContextData['rejectApproval']
   isInBottomSheet?: boolean
   closeBottomSheet?: (dest?: 'default' | 'alwaysOpen' | undefined) => void
-}) => {
+}
+
+const SwitchNetworkRequest = ({
+  isInBottomSheet,
+  closeBottomSheet,
+  approval,
+  rejectApproval,
+  resolveApproval
+}: Props) => {
   const { t } = useTranslation()
   const { network, setNetwork } = useNetwork()
-  const { approval, rejectApproval, resolveApproval } = useWeb3()
   const [isSwitching, setIsSwitching] = useState(false)
 
   // Cache it on purpose. Otherwise, when the user switches the network,
@@ -87,11 +95,11 @@ const SwitchNetworkRequest = ({
             />
           </View>
 
-          {/* <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {approval?.data?.params?.session?.origin
-              ? new URL(approval?.data?.params?.session?.origin).hostname
-              : ''}
-          </Title> */}
+          {!!approval?.data?.params?.session?.name && (
+            <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+              {approval?.data?.params?.session?.name}
+            </Title>
+          )}
 
           {!!nextNetwork && (
             <>

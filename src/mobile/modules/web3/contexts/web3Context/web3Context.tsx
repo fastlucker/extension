@@ -212,6 +212,8 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       {children}
       <ApprovalBottomSheets
         approval={approval}
+        resolveApproval={resolveApproval}
+        rejectApproval={rejectApproval}
         selectedDappUrl={selectedDappUrl}
         checkHasPermission={checkHasPermission}
         grantPermission={handleGrantPermission}

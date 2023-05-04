@@ -17,6 +17,7 @@ interface Props {
   id?: string
   sheetRef: React.RefObject<Modalize>
   closeBottomSheet: (dest?: 'alwaysOpen' | 'default' | undefined) => void
+  onBackdropPress?: () => void
   onClosed?: () => void
   children?: React.ReactNode
   // Preferences
@@ -41,6 +42,7 @@ const BottomSheet: React.FC<Props> = ({
   adjustToContentHeight = !isWeb,
   style = {},
   onClosed,
+  onBackdropPress,
   flatListProps
 }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -83,7 +85,10 @@ const BottomSheet: React.FC<Props> = ({
         <Backdrop
           isVisible={isBackdropVisible}
           isBottomSheetVisible={isOpen}
-          onPress={closeBottomSheet}
+          onPress={() => {
+            closeBottomSheet()
+            !!onBackdropPress && onBackdropPress()
+          }}
         />
       )}
       <Modalize
