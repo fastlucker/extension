@@ -8,6 +8,7 @@ interface Style {
   catalogItem: ViewStyle
   dappIcon: ImageStyle
   networkIcon: ViewStyle
+  filterItem: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -28,6 +29,14 @@ const styles = StyleSheet.create<Style>({
     backgroundColor: colors.titan,
     borderColor: colors.valhalla,
     borderWidth: 2
+  },
+  filterItem: {
+    height: 50,
+    ...spacings.ph,
+    ...common.borderRadiusPrimary,
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center'
   }
 })
 

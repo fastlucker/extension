@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 import { SvgUri } from 'react-native-svg'
 
+import CheckIcon from '@common/assets/svg/CheckIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import SearchIcon from '@common/assets/svg/SearchIcon'
 import SortIcon from '@common/assets/svg/SortIcon'
+import BottomSheet from '@common/components/BottomSheet'
 import FastImage from '@common/components/FastImage'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Input from '@common/components/Input'
@@ -29,9 +32,13 @@ import styles from './styles'
 const DappsCatalogScreen = () => {
   const { navigate } = useNavigation()
   const { network } = useNetwork()
-  const { filteredCatalog, search, onSearchChange } = useDapps()
+  const { filteredCatalog, search, categories, categoryFilter, onSearchChange, onCategorySelect } =
+    useDapps()
   const { t } = useTranslation()
   const [loaded, setLoaded] = useState<boolean>(false)
+
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
   useEffect(() => {
     if (filteredCatalog.length && !loaded) {
       setLoaded(true)
@@ -144,7 +151,7 @@ const DappsCatalogScreen = () => {
               value={search}
             />
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={openBottomSheet as any}>
             <SortIcon />
           </TouchableOpacity>
         </View>
@@ -164,6 +171,34 @@ const DappsCatalogScreen = () => {
           keyboardDismissMode="on-drag"
         />
       )}
+      <BottomSheet
+        id="dapps-filter-bottom-sheet"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+      >
+        <Title style={text.center}>{t('Filter dApps by')}</Title>
+        <View style={spacings.pt}>
+          {categories
+            // will temporarily support only these 2 categories
+            .filter((e) => e.name === 'all' || e.name === 'favorites')
+            .map((category: any) => {
+              return (
+                <TouchableOpacity
+                  style={[
+                    styles.filterItem,
+                    categoryFilter?.name === category.name && { backgroundColor: colors.howl }
+                  ]}
+                  onPress={() => onCategorySelect(category)}
+                >
+                  <Text fontSize={16} style={text.capitalize}>
+                    {category.name}
+                  </Text>
+                  {categoryFilter?.name === category.name && <CheckIcon />}
+                </TouchableOpacity>
+              )
+            })}
+        </View>
+      </BottomSheet>
     </GradientBackgroundWrapper>
   )
 }
