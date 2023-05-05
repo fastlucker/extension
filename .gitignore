@@ -487,9 +487,14 @@ android/keystores/*
 # EAS build credentials
 credentials.json
 
-# Web
+# Extension(web) build output folders for webkit browsers
 /webkit-dev
 /webkit-prod
 
+# Extension(web) build output folders for gecko browsers
 /gecko-dev
 /gecko-prod
+
+# Mobile injection provider
+/ios/EthereumProvider.js
+/android/app/src/main/assets/EthereumProvider.js
