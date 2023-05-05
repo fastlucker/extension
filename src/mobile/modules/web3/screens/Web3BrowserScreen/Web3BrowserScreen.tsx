@@ -20,7 +20,7 @@ const Web3BrowserScreen = () => {
 
   const selectedDappUrl = route?.params?.selectedDappUrl
 
-  const providerToInject = useGetProviderInjection()
+  const { script: providerToInject } = useGetProviderInjection()
 
   useEffect(() => {
     setWeb3ViewRef(webViewRef.current)
@@ -35,6 +35,7 @@ const Web3BrowserScreen = () => {
   const handleEthereumProviderMessage = async (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data)
+      console.log('message', data)
       handleWeb3Request({ data })
     } catch (error) {
       console.error(error)
@@ -46,10 +47,12 @@ const Web3BrowserScreen = () => {
       <Wrapper style={spacings.ph0} hasBottomTabNav>
         <WebView
           ref={webViewRef}
-          source={{ uri: selectedDappUrl }}
+          source={{ uri: providerToInject ? selectedDappUrl : null }}
           onMessage={handleEthereumProviderMessage}
           injectedJavaScriptBeforeContentLoaded={providerToInject}
+          javaScriptEnabled
           startInLoadingState
+          bounces={false}
           renderLoading={() => (
             <View style={styles.loadingWrapper}>
               <Spinner />
