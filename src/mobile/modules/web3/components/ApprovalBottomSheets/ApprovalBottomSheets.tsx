@@ -3,12 +3,14 @@ import React, { useEffect } from 'react'
 import { useModalize } from 'react-native-modalize'
 
 import BottomSheet from '@common/components/BottomSheet'
+import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import colors from '@common/styles/colors'
+import GetEncryptionPublicKeyRequest from '@mobile/modules/web3/components/GetEncryptionPublicKeyRequest'
+import PermissionRequest from '@mobile/modules/web3/components/PermissionRequest'
 import SwitchNetworkRequest from '@mobile/modules/web3/components/SwitchNetworkRequest'
+import WatchTokenRequest from '@mobile/modules/web3/components/WatchTokenRequest'
 import { Web3ContextData } from '@mobile/modules/web3/contexts/web3Context/types'
-
-import PermissionRequest from '../PermissionRequest'
 
 type Props = {
   approval: Web3ContextData['approval']
@@ -42,6 +44,18 @@ const ApprovalBottomSheets = ({
     close: closeBottomSheetSwitchNetwork
   } = useModalize()
 
+  const {
+    ref: sheetRefWatchToken,
+    open: openBottomSheetWatchToken,
+    close: closeBottomSheetWatchToken
+  } = useModalize()
+
+  const {
+    ref: sheetRefGetEncryptionPublicKey,
+    open: openBottomSheetGetEncryptionPublicKey,
+    close: closeBottomSheetGetEncryptionPublicKey
+  } = useModalize()
+
   useEffect(() => {
     if (
       prevApproval?.data?.approvalComponent !== 'SwitchNetwork' &&
@@ -49,7 +63,26 @@ const ApprovalBottomSheets = ({
     ) {
       openBottomSheetSwitchNetwork()
     }
-  }, [approval, prevApproval, openBottomSheetSwitchNetwork])
+    if (
+      prevApproval?.data?.approvalComponent !== 'WalletWatchAsset' &&
+      approval?.data?.approvalComponent === 'WalletWatchAsset'
+    ) {
+      openBottomSheetWatchToken()
+    }
+    if (
+      prevApproval?.data?.approvalComponent !== 'GetEncryptionPublicKey' &&
+      approval?.data?.approvalComponent === 'GetEncryptionPublicKey'
+    ) {
+      openBottomSheetGetEncryptionPublicKey()
+    }
+  }, [
+    approval,
+    prevApproval,
+    openBottomSheetSwitchNetwork,
+    openBottomSheetWatchToken,
+    openBottomSheetGetEncryptionPublicKey
+  ])
+  const { t } = useTranslation()
 
   return (
     <>
@@ -86,8 +119,36 @@ const ApprovalBottomSheets = ({
           closeBottomSheet={closeBottomSheetSwitchNetwork}
         />
       </BottomSheet>
+      <BottomSheet
+        id="watch-token-approval"
+        sheetRef={sheetRefWatchToken}
+        closeBottomSheet={closeBottomSheetWatchToken}
+        style={{ backgroundColor: colors.martinique }}
+      >
+        <WatchTokenRequest
+          isInBottomSheet
+          approval={approval}
+          resolveApproval={resolveApproval}
+          rejectApproval={rejectApproval}
+          closeBottomSheet={closeBottomSheetWatchToken}
+        />
+      </BottomSheet>
+      <BottomSheet
+        id="get-encryption-public-key-approval"
+        sheetRef={sheetRefGetEncryptionPublicKey}
+        closeBottomSheet={closeBottomSheetGetEncryptionPublicKey}
+        style={{ backgroundColor: colors.martinique }}
+        cancelText={t('Okay')}
+      >
+        <GetEncryptionPublicKeyRequest
+          isInBottomSheet
+          approval={approval}
+          rejectApproval={rejectApproval}
+          closeBottomSheet={closeBottomSheetGetEncryptionPublicKey}
+        />
+      </BottomSheet>
     </>
   )
 }
 
-export default ApprovalBottomSheets
+export default React.memo(ApprovalBottomSheets)
