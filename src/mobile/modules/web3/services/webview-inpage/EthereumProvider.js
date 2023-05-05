@@ -86,8 +86,7 @@ class PushEventHandlers {
     window.ReactNativeWebView.postMessage(
       JSON.stringify({
         method: 'disconnect'
-      }),
-      '*'
+      })
     )
   }
 
@@ -278,8 +277,7 @@ class EthereumProvider extends EventEmitter {
             method: 'tabCheckin',
             id,
             params: { icon, name, origin }
-          }),
-          '*'
+          })
         )
         return new Promise((resolve) => {
           window.ethereum.promises[id] = { resolve }
@@ -385,7 +383,7 @@ class EthereumProvider extends EventEmitter {
       // }
       const id = Date.now() + Math.random()
       data.id = id
-      window.ReactNativeWebView.postMessage(JSON.stringify(data), '*')
+      window.ReactNativeWebView.postMessage(JSON.stringify(data))
       const promise = new Promise((resolve, reject) => {
         // Save the resolve and reject functions with the ID
         window.ethereum.promises[id] = { resolve, reject }

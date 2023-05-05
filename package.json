@@ -2,10 +2,10 @@
   "name": "ambire-mobile-wallet",
   "main": "index.js",
   "scripts": {
-    "android": "expo run:android",
+    "android": "./scripts/expo-run-android.sh android",
     "android:staging": "APP_ENV=staging yarn android",
     "android:production": "APP_ENV=production yarn android",
-    "ios": "./scripts/build.sh ios",
+    "ios": "./scripts/expo-run-ios.sh ios",
     "ios:staging": "APP_ENV=staging yarn ios",
     "ios:production": "APP_ENV=production yarn ios",
     "web:webkit": "rm -rf ./webkit-dev && WEB_ENGINE=webkit WEBPACK_BUILD_OUTPUT_PATH=webkit-dev APP_ENV=development expo start --web",
