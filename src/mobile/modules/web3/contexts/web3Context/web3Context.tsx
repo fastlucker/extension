@@ -1,17 +1,20 @@
-import { NetworkType } from 'ambire-common/src/constants/networks'
+import networks, { NetworkType } from 'ambire-common/src/constants/networks'
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { serializeError } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
+import { providers } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
 import ApprovalBottomSheets from '@mobile/modules/web3/components/ApprovalBottomSheets'
+import DappJsonRpcProvider from '@mobile/modules/web3/services/dappProvider/DappJsonRpcProvider'
 import providerController from '@mobile/modules/web3/services/webview-background/provider/provider'
 import { Approval } from '@mobile/modules/web3/services/webview-background/services/notification'
 import sessionService, {
   Session
 } from '@mobile/modules/web3/services/webview-background/services/session'
+import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 
 import { Web3ContextData } from './types'
 import useApproval from './useApproval'
@@ -109,9 +112,39 @@ const Web3Provider: React.FC<any> = ({ children }) => {
           setSession(session)
         }
 
-        // console.log(data)
-        const result = await providerController(req, requestNotificationServiceMethod)
-        console.log('result', result)
+        let result: any
+
+        const dappProvider = DAPP_PROVIDER_URLS?.[data?.hostname]
+        if (data.handleRequestByDappProvider && dappProvider) {
+          const net: NetworkType =
+            networks.find((n) => intToHex(n.chainId) === data?.chainId) || (network as NetworkType)
+          const providerUrl = dappProvider?.[net?.id]
+          if (providerUrl) {
+            try {
+              const provider = providerUrl.startsWith('wss:')
+                ? new providers.WebSocketProvider(providerUrl, {
+                    name: net?.name,
+                    chainId: net?.chainId
+                  })
+                : new DappJsonRpcProvider(
+                    { url: providerUrl, origin: data.origin },
+                    {
+                      name: net?.name,
+                      chainId: net?.chainId
+                    }
+                  )
+
+              result = await provider.send(data.method, data.params)
+            } catch (e) {
+              console.error('dapp provider error', e)
+            }
+          }
+        }
+
+        if (!result) {
+          result = await providerController(req, requestNotificationServiceMethod)
+          console.log('result', result)
+        }
 
         const response = { id: data.id, result: data.method === 'tabCheckin' ? true : result }
 
@@ -141,7 +174,8 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       requestNotificationServiceMethod,
       removePermission,
       checkHasPermission,
-      openBottomSheetPermission
+      openBottomSheetPermission,
+      network
     ]
   )
 

@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-restricted-globals */
+/* eslint-disable no-param-reassign */
 /* eslint-disable max-classes-per-file */
 // import { ethErrors } from 'eth-rpc-errors'
 
@@ -206,8 +209,6 @@ class EthereumProvider extends EventEmitter {
 
   networkVersion = null
 
-  dAppOwnProviders = {}
-
   isAmbire = true
 
   isMetaMask = false
@@ -301,35 +302,6 @@ class EthereumProvider extends EventEmitter {
         networkVersion
       })
       this._pushEventHandlers.accountsChanged(accounts)
-
-      // eslint-disable-next-line no-restricted-globals
-      // TODO:
-      // const { hostname } = location
-      // if (DAPP_PROVIDER_URLS[hostname]) {
-      //   // eslint-disable-next-line no-restricted-syntax
-      //   Object.entries(DAPP_PROVIDER_URLS[hostname]).forEach(async ([networkId, providerUrl]) => {
-      //     const network = networks.find((n) => n.id === networkId)
-      //     if (!network || !providerUrl) return
-
-      //     try {
-      //       this.dAppOwnProviders[network.id] = providerUrl.startsWith('wss:')
-      //         ? new providers.WebSocketProvider(providerUrl, {
-      //             name: network.name,
-      //             chainId: network.chainId
-      //           })
-      //         : new providers.JsonRpcProvider(providerUrl, {
-      //             name: network.name,
-      //             chainId: network.chainId
-      //           })
-
-      //       // Acts as a mechanism to check if the provider credentials work
-      //       // eslint-disable-next-line no-await-in-loop
-      //       await this.dAppOwnProviders[network.id]?.getNetwork()
-      //     } catch (e) {
-      //       this.dAppOwnProviders[network.id] = null
-      //     }
-      //   })
-      // }
     } catch {
       //
     } finally {
@@ -360,29 +332,23 @@ class EthereumProvider extends EventEmitter {
 
   _request = async (data) => {
     if (!data) {
+      // TODO:
       // throw ethErrors.rpc.invalidRequest()
     }
     return this._requestPromise.call(() => {
-      // TODO:
-      // if (
-      //   data.method.startsWith('eth_') &&
-      //   !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
-      // ) {
-      //   // eslint-disable-next-line no-undef
-      //   const network = networks?.find((n) => intToHex(n.chainId) === this.chainId)
-      //   if (network?.id && this.dAppOwnProviders[network.id]) {
-      //     return this.dAppOwnProviders[network.id]
-      //       ?.send(data.method, data.params)
-      //       .then((res) => {
-      //         return res
-      //       })
-      //       .catch((err) => {
-      //         throw err
-      //       })
-      //   }
-      // }
       const id = Date.now() + Math.random()
       data.id = id
+
+      if (
+        data.method.startsWith('eth_') &&
+        !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
+      ) {
+        data.handleRequestByDappProvider = true
+        data.origin = location?.origin
+        data.hostname = location?.hostname
+        data.chainId = this.chainId
+      }
+
       window.ReactNativeWebView.postMessage(JSON.stringify(data))
       const promise = new Promise((resolve, reject) => {
         // Save the resolve and reject functions with the ID
