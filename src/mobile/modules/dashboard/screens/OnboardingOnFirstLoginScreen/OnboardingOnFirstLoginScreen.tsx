@@ -4,10 +4,13 @@ import { Image, StyleSheet, View } from 'react-native'
 import AppIntroSlider from 'react-native-app-intro-slider'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
+import AmbireLogo from '@common/modules/auth/components/AmbireLogo'
 import { MOBILE_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { Portal } from '@gorhom/portal'
 
@@ -65,7 +68,7 @@ const OnboardingOnFirstLoginScreen = () => {
   const renderItem = useCallback(
     ({ item }) => (
       <SafeAreaView style={[{ backgroundColor: item.backgroundColor }, flexbox.flex1]}>
-        {/* TODO: Logo */}
+        <AmbireLogoHorizontal style={[flexbox.alignSelfCenter, spacings.mtSm]} />
         <Text weight="semiBold" color={item.titleTextColor} fontSize={40} style={styles.titleText}>
           {item.titleText}
         </Text>
