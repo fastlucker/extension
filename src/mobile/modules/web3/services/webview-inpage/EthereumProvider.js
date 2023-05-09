@@ -1,9 +1,8 @@
+/* eslint-disable @typescript-eslint/no-throw-literal */
 /* eslint-disable no-undef */
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-param-reassign */
 /* eslint-disable max-classes-per-file */
-// import { ethErrors } from 'eth-rpc-errors'
-
 const intToHex = function (i) {
   if (!Number.isSafeInteger(i) || i < 0) {
     throw new Error(`Received an invalid integer type: ${i}`)
@@ -22,10 +21,11 @@ class DedupePromise {
 
   async call(key, defer) {
     if (this._blackList.includes(key) && this._tasks[key]) {
-      alert('there is a pending request, please request after it resolved')
-      // throw ethErrors.rpc.transactionRejected(
-      //   'there is a pending request, please request after it resolved'
-      // )
+      // throw ethErrors.rpc.transactionRejected
+      throw {
+        code: -32003,
+        message: 'There is a pending request, please request after it resolved'
+      }
     }
 
     return new Promise((resolve) => {
@@ -78,8 +78,11 @@ class PushEventHandlers {
     this.provider._state.isConnected = false
     this.provider._state.accounts = null
     this.provider.selectedAddress = null
-    // const disconnectError = ethErrors.provider.disconnected()
-    const disconnectError = ''
+    // disconnectError = ethErrors.provider.disconnected
+    const disconnectError = {
+      code: 4900,
+      message: 'The provider is disconnected from all chains.'
+    }
     this._emit('accountsChanged', [])
     this._emit('disconnect', disconnectError)
     this._emit('close', disconnectError)
@@ -332,8 +335,11 @@ class EthereumProvider extends EventEmitter {
 
   _request = async (data) => {
     if (!data) {
-      // TODO:
-      // throw ethErrors.rpc.invalidRequest()
+      // throw ethErrors.rpc.invalidRequest
+      throw {
+        code: -32600,
+        message: 'The JSON sent is not a valid Request object.'
+      }
     }
     return this._requestPromise.call(() => {
       const id = Date.now() + Math.random()

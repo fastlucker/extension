@@ -2,7 +2,6 @@ import networks, { NetworkType } from 'ambire-common/src/constants/networks'
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { serializeError } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
-import { providers } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import useAccounts from '@common/hooks/useAccounts'
@@ -121,20 +120,17 @@ const Web3Provider: React.FC<any> = ({ children }) => {
           const providerUrl = dappProvider?.[net?.id]
           if (providerUrl) {
             try {
-              const provider = providerUrl.startsWith('wss:')
-                ? new providers.WebSocketProvider(providerUrl, {
+              if (!providerUrl.startsWith('wss:')) {
+                const provider = new DappJsonRpcProvider(
+                  { url: providerUrl, origin: data.origin },
+                  {
                     name: net?.name,
                     chainId: net?.chainId
-                  })
-                : new DappJsonRpcProvider(
-                    { url: providerUrl, origin: data.origin },
-                    {
-                      name: net?.name,
-                      chainId: net?.chainId
-                    }
-                  )
+                  }
+                )
 
-              result = await provider.send(data.method, data.params)
+                result = await provider.send(data.method, data.params)
+              }
             } catch (e) {
               console.error('dapp provider error', e)
             }
@@ -156,7 +152,6 @@ const Web3Provider: React.FC<any> = ({ children }) => {
           `)
       } catch (error) {
         const response = { id: data.id, error }
-
         web3ViewRef?.injectJavaScript(`
         if (window.ethereum.promises[${response.id}]) {
           window.ethereum.promises[${response.id}].reject(${JSON.stringify(
