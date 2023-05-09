@@ -2,6 +2,7 @@ import accountPresets from 'ambire-common/src/constants/accountPresets'
 import { generateAddress2 } from 'ethereumjs-util'
 import { getAddress, hexZeroPad } from 'ethers/lib/utils'
 import { useCallback } from 'react'
+import { Platform } from 'react-native'
 
 import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
@@ -84,7 +85,7 @@ export default function useEOA() {
         baseIdentityAddr,
         privileges,
         signerType,
-        ...(!!referral && { referralAddr: referral.hexAddress })
+        ...(!!referral && { referralAddr: referral.hexAddress, registeredFrom: Platform.OS })
       })
 
       if (

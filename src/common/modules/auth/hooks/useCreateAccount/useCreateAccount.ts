@@ -3,7 +3,7 @@ import { generateAddress2 } from 'ethereumjs-util'
 import { Wallet } from 'ethers'
 import { AbiCoder, getAddress, id, keccak256 } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { Keyboard } from 'react-native'
+import { Keyboard, Platform } from 'react-native'
 import performance from 'react-native-performance'
 
 import CONFIG from '@common/config/env'
@@ -114,7 +114,7 @@ export default function useCreateAccount() {
       baseIdentityAddr,
       privileges,
       quickAccSigner: signer,
-      ...(!!referral && { referralAddr: referral.hexAddress })
+      ...(!!referral && { referralAddr: referral.hexAddress, registeredFrom: Platform.OS })
     })
     if (createResp.message === 'EMAIL_ALREADY_USED') {
       setErr('An account with this email already exists')
