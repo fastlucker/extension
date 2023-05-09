@@ -35,7 +35,6 @@ const Web3BrowserScreen = () => {
   const handleEthereumProviderMessage = async (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data)
-      console.log('message', data)
       handleWeb3Request({ data })
     } catch (error) {
       console.error(error)
