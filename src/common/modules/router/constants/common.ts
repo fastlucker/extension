@@ -30,6 +30,7 @@ const COMMON_ROUTES = {
 
 const MOBILE_ROUTES = {
   ...COMMON_ROUTES,
+  addReferral: 'add-referral',
   connect: 'connect',
   dataDeletionPolicy: 'data-deletion-policy',
   manageVaultLock: 'manage-vault-lock',

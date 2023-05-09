@@ -28,6 +28,11 @@ const routesConfig: {
       default: i18n.t('No Connection')
     })
   },
+  [ROUTES.addReferral]: {
+    route: ROUTES.addReferral,
+    // Next screen has title, this makes the transition smoother (no logo jump effect)
+    title: ' '
+  },
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
