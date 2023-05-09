@@ -35,10 +35,8 @@ export default function useReferral() {
   }, [getItem])
 
   const checkIfAddressIsEligibleForReferral = useCallback((hexAddress: string) => {
-    // TODO: Temporarily bypass (always resolve successfully) until server eligibility check is implemented.
-    return Promise.resolve({ success: true })
-    // const url = `${CONFIG.RELAYER_URL}/promotions/referral-check/${hexAddress}`
-    // return fetchGet(url)
+    const url = `${CONFIG.RELAYER_URL}/promotions/referral-check/${hexAddress}`
+    return fetchGet(url)
   }, [])
 
   const removePendingReferral = useCallback(() => {
