@@ -139,7 +139,6 @@ const Web3Provider: React.FC<any> = ({ children }) => {
 
         if (!result) {
           result = await providerController(req, requestNotificationServiceMethod)
-          console.log('result', result)
         }
 
         const response = { id: data.id, result: data.method === 'tabCheckin' ? true : result }
