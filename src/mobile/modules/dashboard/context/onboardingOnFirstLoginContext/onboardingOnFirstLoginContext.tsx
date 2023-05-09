@@ -13,9 +13,9 @@ const OnBoardingOnFirstLoginContext = createContext<any>({
 })
 
 const OnboardingOnFirstLoginProvider: React.FC = ({ children }) => {
-  const [completedOnboardingAt, setCompletedOnboardingAt] = useStorage({
+  const [completedOnboardingAt, setCompletedOnboardingAt] = useStorage<string>({
     key: ONBOARDING_COMPLETED_AT_STORAGE_KEY,
-    defaultValue: false,
+    defaultValue: '',
     isStringStorage: true
   })
 
