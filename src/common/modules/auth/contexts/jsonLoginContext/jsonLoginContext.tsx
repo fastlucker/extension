@@ -2,9 +2,9 @@ import { Account } from 'ambire-common/src/hooks/useAccounts'
 import { validateImportedAccountProps } from 'ambire-common/src/services/validations'
 import { Wallet } from 'ethers'
 import * as DocumentPicker from 'expo-document-picker'
-import * as FileSystem from 'expo-file-system'
 import React, { createContext, useCallback, useMemo, useState } from 'react'
 import { Keyboard } from 'react-native'
+import RNFS from 'react-native-fs'
 
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
@@ -102,7 +102,7 @@ const JsonLoginProvider: React.FC<any> = ({ children }: any) => {
           })
           fileContent = await fileContent.json()
         } else {
-          fileContent = await FileSystem.readAsStringAsync(document.uri)
+          fileContent = await RNFS.readFile(document.uri, 'utf8')
           fileContent = JSON.parse(fileContent)
         }
       } catch (exception) {

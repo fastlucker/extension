@@ -5,6 +5,7 @@ import useAccounts, {
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import * as CrashAnalytics from '@common/config/analytics/CrashAnalytics'
+import { isWeb } from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation/useNavigation'
 import useStorage from '@common/hooks/useStorage'
 import useToasts from '@common/hooks/useToast'
@@ -52,7 +53,7 @@ const AccountsProvider: React.FC<any> = ({ children }) => {
       // If the user is authenticated, a manual redirect is needed,
       // because the logged-in state screens were already mounted.
       if (opts.shouldRedirect) {
-        if (onboardingStatus === ONBOARDING_VALUES.ON_BOARDED) {
+        if (onboardingStatus === ONBOARDING_VALUES.ON_BOARDED || !isWeb) {
           navigate(ROUTES.dashboard)
         } else {
           navigate(ROUTES.onboarding)
