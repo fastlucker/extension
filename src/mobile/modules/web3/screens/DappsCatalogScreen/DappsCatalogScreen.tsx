@@ -176,7 +176,7 @@ const DappsCatalogScreen = () => {
       >
         <View style={flexbox.flex1}>
           <View style={[spacings.ph, spacings.mb]}>
-            <Title style={[text.center, spacings.pbSm]} numberOfLines={1}>
+            <Title type="small" style={spacings.pbSm} numberOfLines={1}>
               {t('Web3 dApp Catalog')}
             </Title>
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
