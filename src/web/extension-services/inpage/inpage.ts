@@ -7,6 +7,7 @@ import { providers } from 'ethers'
 import { EventEmitter } from 'events'
 import { forIn } from 'lodash'
 
+import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
@@ -174,7 +175,11 @@ export class EthereumProvider extends EventEmitter {
 
             // Acts as a mechanism to check if the provider credentials work
             // eslint-disable-next-line no-await-in-loop
-            await this.dAppOwnProviders[network.id]?.getNetwork()
+            await Promise.race([
+              this.dAppOwnProviders[network.id]?.getNetwork(),
+              // Timeouts after 3 secs because sometimes the provider call hangs with no response
+              delayPromise(3000)
+            ])
             logInfoWithPrefix(`👌 The dApp's own provider initiated for ${network.name} network.`)
           } catch (e) {
             this.dAppOwnProviders[network.id] = null
