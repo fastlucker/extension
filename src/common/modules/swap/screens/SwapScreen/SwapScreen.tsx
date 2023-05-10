@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react'
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
+import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
@@ -49,9 +50,8 @@ const INJECTED_JAVASCRIPT = `
 
 const SwapScreen = () => {
   const { sushiSwapIframeRef, hash, handleIncomingMessage } = useGnosis()
-
-  const webviewHtml = useMemo(
-    () => `
+  const [loading, setLoading] = useState(false)
+  const webviewHtml = `
     <!DOCTYPE html>
       <html>
         <head>
@@ -62,12 +62,25 @@ const SwapScreen = () => {
           </style>
         </head>
         <body>
-          <iframe id=${hash} src="${'https://swap.ambire.com/v0.2.0/#/'}" allow="autoplay; encrypted-media"></iframe>
+          <iframe id="uniswap" src="${'https://swap.ambire.com/v0.2.0/#/'}" allow="autoplay; encrypted-media"></iframe>
         </body>
       </html>
-    `,
-    [hash]
-  )
+    `
+
+  const prevHash = usePrevious(hash)
+  useEffect(() => {
+    if (hash !== prevHash) {
+      setLoading(true)
+    }
+  }, [prevHash, hash])
+
+  useEffect(() => {
+    if (loading) {
+      setTimeout(() => {
+        setLoading(false)
+      }, 500)
+    }
+  }, [loading])
 
   return (
     <GradientBackgroundWrapper>
@@ -75,7 +88,7 @@ const SwapScreen = () => {
       <WebView
         key={hash}
         ref={sushiSwapIframeRef}
-        source={{ html: webviewHtml }}
+        source={{ html: loading ? '' : webviewHtml }}
         javaScriptEnabled
         injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
         injectedJavaScript={INJECTED_JAVASCRIPT}
@@ -86,6 +99,7 @@ const SwapScreen = () => {
         startInLoadingState
         scrollEnabled
         nestedScrollEnabled
+        cacheEnabled={false}
         renderLoading={() => (
           <View style={styles.loadingWrapper}>
             <Spinner />

@@ -55,9 +55,7 @@ const GnosisProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     const newHash = CONFIG.SWAP_URL + network.chainId + selectedAcc
-    setTimeout(() => {
-      setHash(newHash)
-    }, 200)
+    setHash(newHash)
   }, [network, selectedAcc])
 
   const handlePersonalSign = useCallback(
@@ -239,22 +237,18 @@ const GnosisProvider: React.FC = ({ children }) => {
     [selectedAcc, network?.chainId, network?.id, handlePersonalSign, handleSendTransactions]
   )
 
-  const send = useCallback(
-    (data: any, requestId: any, error?: any) => {
-      const sdkVersion = getSDKVersion()
-      const msg = error
-        ? MessageFormatter.makeErrorResponse(requestId, error, sdkVersion)
-        : MessageFormatter.makeResponse(requestId, data, sdkVersion)
+  const send = useCallback((data: any, requestId: any, error?: any) => {
+    const sdkVersion = getSDKVersion()
+    const msg = error
+      ? MessageFormatter.makeErrorResponse(requestId, error, sdkVersion)
+      : MessageFormatter.makeResponse(requestId, data, sdkVersion)
 
-      sushiSwapIframeRef?.current?.injectJavaScript(`
+    sushiSwapIframeRef?.current?.injectJavaScript(`
       (function() {
-        window.postMessage(${JSON.stringify(msg)}, '*');
-        document.getElementById("${hash}").contentWindow.postMessage(${JSON.stringify(msg)}, '*');
+        document.getElementById("uniswap").contentWindow.postMessage(${JSON.stringify(msg)}, '*');
       })();
     `)
-    },
-    [hash]
-  )
+  }, [])
 
   const canHandleMessage = useCallback(
     (msg: any) => {
