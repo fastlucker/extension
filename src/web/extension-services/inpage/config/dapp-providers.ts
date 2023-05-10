@@ -73,8 +73,7 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
       'https://bsc-mainnet.nodereal.io/v1/79d1a2d720f648edac151b01d496cb88'
   },
   'app.sushi.com': {
-    [NETWORKS.ethereum]:
-      'https://rpc.ankr.com/eth/9f7d929b018cdffb338517efa06f58359e86ff1ffd350bc889738523659e7972',
+    [NETWORKS.ethereum]: 'https://eth-mainnet.g.alchemy.com/v2/COpzSDPut2F6jOFtgZOCia5woilJXSlA',
     [NETWORKS.polygon]: 'https://polygon-rpc.com/',
     [NETWORKS.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
     [NETWORKS['binance-smart-chain']]: 'https://bsc-dataseed.binance.org',
