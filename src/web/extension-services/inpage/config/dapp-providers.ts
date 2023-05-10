@@ -100,7 +100,7 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
   //   [NETWORKS.ethereum]: 'https://polygon.lido.fi/api/rpc?chainId=1'
   // }
   'swap.cow.fi': {
-    [NETWORKS.ethereum]: 'https://mainnet.infura.io/v3/1221fd11e90849509afafd330ec7acc6',
+    [NETWORKS.ethereum]: 'https://mainnet.infura.io/v3/586e7e6b7c7e437aa41f5da496a749f5',
     [NETWORKS.gnosis]: 'https://rpc.gnosis.gateway.fm'
   },
   'app.hop.exchange': {
