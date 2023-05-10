@@ -60,6 +60,7 @@ import colors from '@common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
 import ConnectScreen from '@mobile/modules/connect/screens/ConnectScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
+import AddReferralScreen from '@mobile/modules/referral/screens/AddReferralScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
 import BackupScreen from '@mobile/modules/settings/screens/BackupScreen'
 import { DappsProvider } from '@mobile/modules/web3/contexts/dappsContext'
@@ -234,7 +235,7 @@ const AuthStack = () => {
 
   const initialRouteName =
     vaultStatus === VAULT_STATUS.NOT_INITIALIZED
-      ? MOBILE_ROUTES.getStarted
+      ? MOBILE_ROUTES.addReferral
       : // Checks whether there is a pending email login attempt. It happens when user
       // request email login and closes the app. When the app is opened
       // the second time - an immediate email login attempt will be triggered.
@@ -246,6 +247,11 @@ const AuthStack = () => {
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <>
+          <Stack.Screen
+            name={MOBILE_ROUTES.addReferral}
+            options={{ title: routesConfig[ROUTES.addReferral].title }}
+            component={AddReferralScreen}
+          />
           <Stack.Screen
             name={MOBILE_ROUTES.getStarted}
             options={{ title: routesConfig[ROUTES.getStarted].title }}
