@@ -6,6 +6,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 
 import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
+import { delayPromise } from '@common/utils/promises'
 import ApprovalBottomSheets from '@mobile/modules/web3/components/ApprovalBottomSheets'
 import DappJsonRpcProvider from '@mobile/modules/web3/services/dappProvider/DappJsonRpcProvider'
 import providerController from '@mobile/modules/web3/services/webview-background/provider/provider'
@@ -129,7 +130,14 @@ const Web3Provider: React.FC<any> = ({ children }) => {
                   }
                 )
 
-                result = await provider.send(data.method, data.params)
+                // Sometimes (on random occasions) the `provider.send` hangs.
+                // And the dApp freezes too, waiting for a response (forever).
+                // So after some magic time, resolve the promise, to prevent the freeze.
+                const MAGIC_WAITING_FOR_RESPONSE_TIME = 3000
+                result = await Promise.race([
+                  provider.send(data.method, data.params),
+                  delayPromise(MAGIC_WAITING_FOR_RESPONSE_TIME)
+                ])
               }
             } catch (e) {
               console.error('dapp provider error', e)
