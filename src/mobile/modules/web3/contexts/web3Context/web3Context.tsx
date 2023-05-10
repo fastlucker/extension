@@ -21,6 +21,22 @@ import useApproval from './useApproval'
 import useNotification from './useNotification'
 import usePermission from './usePermission'
 
+function getHostname(url: string) {
+  const matches = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n?]+)/)
+  if (matches && matches.length >= 2) {
+    return matches[1]
+  }
+  return null // Return null or handle the case when the URL doesn't match the expected format.
+}
+
+async function asyncForEach(array: any[], callback: (item: any) => any) {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const item of array) {
+    // eslint-disable-next-line no-await-in-loop
+    await callback(item)
+  }
+}
+
 const Web3Context = createContext<Web3ContextData>({
   approval: null,
   requests: null,
@@ -46,7 +62,14 @@ const Web3Provider: React.FC<any> = ({ children }) => {
   const prevWeb3ViewRef = usePrevious(web3ViewRef)
   const [approval, setApproval] = useState<Approval | null>(null)
   const [session, setSession] = useState<Session | null>(null)
-  const [tabSessionData, setTabSessionData] = useState(null)
+  const [tabSessionData, setTabSessionData] = useState<any>(null)
+  const [dappProviders, setDappsProviders] = useState<
+    {
+      network: NetworkType
+      provider: any
+    }[]
+  >([])
+
   const {
     checkHasPermission,
     addPermission,
@@ -78,6 +101,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       setApproval(null)
       setSession(null)
       setTabSessionData(null)
+      setDappsProviders([])
     }
   }, [
     requests,
@@ -88,13 +112,56 @@ const Web3Provider: React.FC<any> = ({ children }) => {
     rejectAllApprovals
   ])
 
+  useEffect(() => {
+    ;(async () => {
+      try {
+        if (!selectedDappUrl || !tabSessionData?.params?.origin) return
+        const providers: {
+          network: NetworkType
+          provider: any
+        }[] = []
+        const dappUrls: any =
+          DAPP_PROVIDER_URLS?.[getHostname(tabSessionData?.params?.origin) as string]
+        if (dappUrls) {
+          asyncForEach(Object.keys(dappUrls), async (rpcNetwork: any) => {
+            const net: NetworkType =
+              networks.find((n) => n.id === rpcNetwork) || (network as NetworkType)
+            if (!dappUrls[rpcNetwork].startsWith('wss:')) {
+              const provider = new DappJsonRpcProvider(
+                { url: dappUrls[rpcNetwork], origin: tabSessionData?.params?.origin },
+                {
+                  name: net?.name,
+                  chainId: net?.chainId
+                }
+              )
+
+              await Promise.race([
+                provider?.getNetwork(),
+                // Timeouts after 3 secs because sometimes the `provider.send` hangs with no response
+                delayPromise(3000)
+              ])
+              providers.push({
+                network: net as NetworkType,
+                provider
+              })
+            }
+          })
+
+          setDappsProviders(providers)
+        }
+      } catch (error) {}
+    })()
+  }, [selectedDappUrl, tabSessionData, network])
+
   const handleWeb3Request = useCallback(
     async ({ data }: { data: any }) => {
       try {
-        if (!checkHasPermission(selectedDappUrl) && data.method === 'tabCheckin') {
+        if (data.method === 'tabCheckin') {
           setTabSessionData(data)
-          openBottomSheetPermission()
-          return
+          if (!checkHasPermission(selectedDappUrl)) {
+            openBottomSheetPermission()
+            return
+          }
         }
 
         if (data.method === 'disconnect') {
@@ -103,7 +170,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         }
 
         const sessionId = selectedDappUrl
-        const origin = selectedDappUrl
+        const origin = tabSessionData?.params?.origin || data?.params?.origin || selectedDappUrl
         // eslint-disable-next-line @typescript-eslint/no-shadow
         const s = sessionService.getOrCreateSession(sessionId, origin, web3ViewRef)
         const req = { data, session: s, origin }
@@ -114,34 +181,19 @@ const Web3Provider: React.FC<any> = ({ children }) => {
 
         let result: any
 
-        const dappProvider = DAPP_PROVIDER_URLS?.[data?.hostname]
-        if (data.handleRequestByDappProvider && dappProvider) {
-          const net: NetworkType =
-            networks.find((n) => intToHex(n.chainId) === data?.chainId) || (network as NetworkType)
-          const providerUrl = dappProvider?.[net?.id]
-          if (providerUrl) {
-            try {
-              if (!providerUrl.startsWith('wss:')) {
-                const provider = new DappJsonRpcProvider(
-                  { url: providerUrl, origin: data.origin },
-                  {
-                    name: net?.name,
-                    chainId: net?.chainId
-                  }
-                )
+        const dappProvider = dappProviders.find(
+          (item) => intToHex(item?.network?.chainId) === data?.chainId
+        )?.provider
 
-                // Sometimes (on random occasions) the `provider.send` hangs.
-                // And the dApp freezes too, waiting for a response (forever).
-                // So after some magic time, resolve the promise, to prevent the freeze.
-                const MAGIC_WAITING_FOR_RESPONSE_TIME = 3000
-                result = await Promise.race([
-                  provider.send(data.method, data.params),
-                  delayPromise(MAGIC_WAITING_FOR_RESPONSE_TIME)
-                ])
-              }
-            } catch (e) {
-              console.error('dapp provider error', e)
-            }
+        if (data.handleRequestByDappProvider && !!dappProvider) {
+          try {
+            result = await Promise.race([
+              dappProvider.send(data.method, data.params),
+              // Timeouts after 3 secs because sometimes the `provider.send` hangs with no response
+              delayPromise(3000)
+            ])
+          } catch (e) {
+            console.error('dapp provider error', e)
           }
         }
 
@@ -171,13 +223,14 @@ const Web3Provider: React.FC<any> = ({ children }) => {
     },
     [
       web3ViewRef,
-      selectedDappUrl,
       session,
+      dappProviders,
+      tabSessionData?.params?.origin,
+      selectedDappUrl,
       requestNotificationServiceMethod,
       removePermission,
       checkHasPermission,
-      openBottomSheetPermission,
-      network
+      openBottomSheetPermission
     ]
   )
 
