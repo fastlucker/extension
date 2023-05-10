@@ -4,6 +4,7 @@ TARGET=$3
 ENV='.env'
 
 prebuild_ios(){
+	# Copy JS files for injection
 	cp ./src/mobile/modules/web3/services/webview-inpage/EthereumProvider.js ios
 }
 
