@@ -252,6 +252,7 @@ export class EthereumProvider extends EventEmitter {
             logInfoWithPrefix('[⏩ forwarded request]', data)
           }
 
+          // TODO: Fallback to our provider
           return this.dAppOwnProviders[network.id]
             ?.send(data.method, data.params)
             .then((res) => {
