@@ -1,3 +1,6 @@
+// Copied over from the `import { EventEmitter } from 'events'` module, so that
+// the source code can be injected and used in the webview, because otherwise
+// the EventEmitter library has modules that the webview can't compile.
 const eventEmitterScript = `
 function EventEmitter() {}
 
