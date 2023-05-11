@@ -4,7 +4,6 @@ import { Wallet } from 'ethers'
 import * as DocumentPicker from 'expo-document-picker'
 import React, { createContext, useCallback, useMemo, useState } from 'react'
 import { Keyboard } from 'react-native'
-import RNFS from 'react-native-fs'
 
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
@@ -14,6 +13,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useVault from '@common/modules/vault/hooks/useVault'
+import { getFileContentAsJson } from '@common/services/file'
 
 type FormProps = {
   password?: string
@@ -93,18 +93,7 @@ const JsonLoginProvider: React.FC<any> = ({ children }: any) => {
 
       let fileContent
       try {
-        if (isWeb) {
-          fileContent = await fetch(document.uri, {
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json'
-            }
-          })
-          fileContent = await fileContent.json()
-        } else {
-          fileContent = await RNFS.readFile(document.uri, 'utf8')
-          fileContent = JSON.parse(fileContent)
-        }
+        fileContent = (await getFileContentAsJson(document.uri)) as unknown as Account
       } catch (exception) {
         setInProgress(false)
         return setError(
