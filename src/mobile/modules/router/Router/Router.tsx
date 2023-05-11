@@ -168,7 +168,7 @@ const Web3StackScreen = () => {
           name={`${MOBILE_ROUTES.dappsCatalog}-screen`}
           component={DappsCatalogScreen}
           options={{
-            title: 'Dapps Catalog',
+            title: routesConfig[ROUTES.dappsCatalog].title,
             header: headerAlpha
           }}
         />
