@@ -247,6 +247,14 @@ const routesConfig: {
   [ROUTES.backup]: {
     route: ROUTES.backup,
     title: ''
+  },
+  [ROUTES.web3Browser]: {
+    route: ROUTES.web3Browser,
+    title: ''
+  },
+  [ROUTES.dappsCatalog]: {
+    route: ROUTES.dappsCatalog,
+    title: i18n.t('dApps')
   }
 }
 

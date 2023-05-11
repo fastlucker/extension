@@ -176,7 +176,7 @@ const Web3StackScreen = () => {
           name={`${MOBILE_ROUTES.web3Browser}-screen`}
           component={Web3BrowserScreen}
           options={{
-            title: 'Web3',
+            title: routesConfig[ROUTES.web3Browser].title,
             header: headerGamma
           }}
         />
@@ -441,8 +441,8 @@ const TabsScreens = () => {
       <Tab.Screen
         name={MOBILE_ROUTES.dappsCatalog}
         options={{
-          tabBarLabel: 'Web3',
-          headerTitle: 'Web3',
+          tabBarLabel: routesConfig[ROUTES.dappsCatalog].title,
+          headerTitle: routesConfig[ROUTES.dappsCatalog].title,
           headerShown: false,
           tabBarIcon: ({ color }) => (
             // temp icon type and size: tabsIconSize - 6 TODO: replace when redesigning
