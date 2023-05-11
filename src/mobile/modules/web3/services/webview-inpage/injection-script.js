@@ -4,6 +4,7 @@ import networks from 'ambire-common/src/constants/networks'
 import { useEffect, useState } from 'react'
 // TODO: fix path
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
+import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { isiOS } from '@common/config/env'
 import eventEmitterScript from './EventEmitterScript'
 
@@ -18,6 +19,9 @@ const useGetProviderInjection = () => {
             ${eventEmitterScript}
             const networks = ${JSON.stringify(networks)};
             const DAPP_PROVIDER_URLS = ${JSON.stringify(DAPP_PROVIDER_URLS)};
+            const ETH_RPC_METHODS_AMBIRE_MUST_HANDLE = ${JSON.stringify(
+              ETH_RPC_METHODS_AMBIRE_MUST_HANDLE
+            )};
             ${script}
           `)
           })
@@ -30,6 +34,9 @@ const useGetProviderInjection = () => {
             ${eventEmitterScript}
             const networks = ${JSON.stringify(networks)};
             const DAPP_PROVIDER_URLS = ${JSON.stringify(DAPP_PROVIDER_URLS)};
+            const ETH_RPC_METHODS_AMBIRE_MUST_HANDLE = ${JSON.stringify(
+              ETH_RPC_METHODS_AMBIRE_MUST_HANDLE
+            )};
             ${script}
           `)
           })

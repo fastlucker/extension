@@ -168,20 +168,6 @@ class ReadyPromise {
   }
 }
 
-const ETH_RPC_METHODS_AMBIRE_MUST_HANDLE = [
-  'eth_getTransactionByHash',
-  'eth_getEncryptionPublicKey',
-  'eth_accounts',
-  'eth_coinbase',
-  'eth_requestAccounts',
-  'eth_sendTransaction',
-  'eth_sign',
-  'eth_signTypedData',
-  'eth_signTypedData_v1',
-  'eth_signTypedData_v3',
-  'eth_signTypedData_v4'
-]
-
 const domReadyCall = (callback) => {
   if (document.readyState === 'complete') {
     callback()
