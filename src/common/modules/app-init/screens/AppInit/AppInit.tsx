@@ -76,13 +76,13 @@ const AppInit = () => {
                                 <PortfolioProvider>
                                   <GnosisProvider>
                                     <WalletConnectProvider>
-                                      <RequestsProvider>
-                                        <BiometricsProvider>
-                                          <VaultProvider>
-                                            <AddressBookProvider>
-                                              <AttentionGrabberProvider>
-                                                <PrivateModeProvider>
-                                                  <GasTankProvider>
+                                      <GasTankProvider>
+                                        <RequestsProvider>
+                                          <BiometricsProvider>
+                                            <VaultProvider>
+                                              <AddressBookProvider>
+                                                <AttentionGrabberProvider>
+                                                  <PrivateModeProvider>
                                                     <UnsupportedDAppsBottomSheetProvider>
                                                       <HeaderBottomSheetProvider>
                                                         <LinkingProvider>
@@ -90,14 +90,14 @@ const AppInit = () => {
                                                         </LinkingProvider>
                                                       </HeaderBottomSheetProvider>
                                                     </UnsupportedDAppsBottomSheetProvider>
-                                                  </GasTankProvider>
-                                                </PrivateModeProvider>
-                                              </AttentionGrabberProvider>
-                                              <PortalHost name="global" />
-                                            </AddressBookProvider>
-                                          </VaultProvider>
-                                        </BiometricsProvider>
-                                      </RequestsProvider>
+                                                  </PrivateModeProvider>
+                                                </AttentionGrabberProvider>
+                                                <PortalHost name="global" />
+                                              </AddressBookProvider>
+                                            </VaultProvider>
+                                          </BiometricsProvider>
+                                        </RequestsProvider>
+                                      </GasTankProvider>
                                     </WalletConnectProvider>
                                   </GnosisProvider>
                                 </PortfolioProvider>
