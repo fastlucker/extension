@@ -2,16 +2,25 @@ import { MMKV } from 'react-native-mmkv'
 
 const storage = new MMKV()
 
-const get = async (prop?) => {
+const get = async (prop?: string) => {
   const keys = storage.getAllKeys()
-  const result: any = {}
+  const fullStorage: { [key: string]: string | undefined } = {}
   if (keys) {
     keys.forEach((key) => {
-      result[key] = storage.getString(key)
+      fullStorage[key] = storage.getString(key)
     })
   }
 
-  return prop ? storage.getString(prop) : result
+  if (!prop) return fullStorage
+
+  let result = storage.getString(prop)
+  try {
+    result = JSON.parse(result || '')
+  } catch {
+    // parsing failed, but that's fine, could be a string
+  }
+
+  return result
 }
 
 const set = async (prop, value): Promise<void> => {
