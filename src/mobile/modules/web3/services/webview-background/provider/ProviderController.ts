@@ -6,6 +6,7 @@ import networks from 'ambire-common/src/constants/networks'
 import { getProvider } from 'ambire-common/src/services/provider'
 import { ethErrors } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
+import { isString } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { APP_VERSION } from '@common/config/env'
@@ -86,7 +87,7 @@ class ProviderController {
         const response = provider._wrapTransaction(fetchedTx, params[0])
         const txs = await storage.get('transactionHistory')
         if (txs[params[0]]) {
-          const txn = JSON.parse(txs[params[0]])
+          const txn = txs[params[0]]
           if (txn?.data) {
             response.data = txn?.data
           }
@@ -152,8 +153,12 @@ class ProviderController {
 
     if (approvalRes) {
       const txnHistory = (await storage.get('transactionHistory')) || {}
-      txnHistory[approvalRes.hash || ''] = JSON.stringify(txParams)
-      await storage.set('transactionHistory', txnHistory)
+
+      if (approvalRes?.hash && !isString(txnHistory)) {
+        txnHistory[approvalRes.hash] = txParams
+        await storage.set('transactionHistory', txnHistory)
+      }
+
       return approvalRes?.hash
     }
 
