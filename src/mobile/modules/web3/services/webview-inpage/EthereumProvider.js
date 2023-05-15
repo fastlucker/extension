@@ -202,7 +202,6 @@ class EthereumProvider extends EventEmitter {
 
   isMetaMask = false
 
-  // TODO: Temporarily set to true to avoid breaking the app
   _isReady = false
 
   _isConnected = true
@@ -451,9 +450,7 @@ const ambireProvider = new Proxy(provider, {
 })
 
 provider.requestInternalMethods({ method: 'isDefaultWallet' }).then((isDefaultWallet) => {
-  // TODO: Take (ans switch this setting from the Ambire settings)
   isDefaultWallet = true
-  // ambireProvider.on('defaultWalletChanged', switchWalletNotice)
 
   let finalProvider = null
   if (isDefaultWallet || !cacheOtherProvider) {
