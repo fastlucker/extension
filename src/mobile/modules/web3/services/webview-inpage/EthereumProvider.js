@@ -10,6 +10,10 @@ const intToHex = function (i) {
   return `0x${i.toString(16)}`
 }
 
+/**
+ * FIXME: Copied over from the DedupePromise on the browser extension, because
+ * importing the file in here is complicated (serialization limitation).
+ */
 class DedupePromise {
   _blackList
 
@@ -43,6 +47,10 @@ class DedupePromise {
   }
 }
 
+/**
+ * FIXME: Copied over from the DedupePromise on the browser extension, because
+ * importing the file in here is complicated (serialization limitation).
+ */
 class PushEventHandlers {
   provider
 
@@ -127,6 +135,10 @@ class PushEventHandlers {
   }
 }
 
+/**
+ * FIXME: Copied over from the DedupePromise on the browser extension, because
+ * importing the file in here is complicated (serialization limitation).
+ */
 class ReadyPromise {
   _allCheck = []
 
@@ -329,16 +341,9 @@ class EthereumProvider extends EventEmitter {
     return this._requestPromise.call(() => {
       const id = Date.now() + Math.random()
       data.id = id
-
-      if (
-        data.method.startsWith('eth_') &&
-        !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
-      ) {
-        data.handleRequestByDappProvider = true
-        data.origin = location?.origin
-        data.hostname = location?.hostname
-        data.chainId = this.chainId
-      }
+      data.origin = location?.origin
+      data.hostname = location?.hostname
+      data.chainId = this.chainId
 
       window.ReactNativeWebView.postMessage(JSON.stringify(data))
       const promise = new Promise((resolve, reject) => {

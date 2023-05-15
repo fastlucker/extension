@@ -14,6 +14,7 @@ import { Approval } from '@mobile/modules/web3/services/webview-background/servi
 import sessionService, {
   Session
 } from '@mobile/modules/web3/services/webview-background/services/session'
+import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 
 import { Web3ContextData } from './types'
@@ -185,7 +186,11 @@ const Web3Provider: React.FC<any> = ({ children }) => {
           (item) => intToHex(item?.network?.chainId) === data?.chainId
         )?.provider
 
-        if (data.handleRequestByDappProvider && !!dappProvider) {
+        if (
+          dappProvider &&
+          data.method.startsWith('eth_') &&
+          !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
+        ) {
           try {
             result = await Promise.race([
               dappProvider.send(data.method, data.params),
