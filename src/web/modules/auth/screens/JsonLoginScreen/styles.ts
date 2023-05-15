@@ -17,11 +17,12 @@ const styles = StyleSheet.create<Styles>({
     ...common.borderRadiusPrimary,
     ...spacings.ph,
     ...spacings.pv,
-    ...common.shadowSecondary,
+    ...common.shadowPrimary,
     borderWidth: 1,
     borderColor: colors.scampi_20,
     // @ts-ignore
-    cursor: 'pointer'
+    cursor: 'pointer',
+    ...spacings.mbMd
   },
   dropArea: {
     borderRadius: 6,

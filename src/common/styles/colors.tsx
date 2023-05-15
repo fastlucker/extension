@@ -20,6 +20,7 @@ const colors = {
   lightMustard: '#FFD04D',
   mustard: '#FFBC00',
   darkMustard: '#8C6800',
+  husk: '#B89C4B',
 
   lightPink: '#FF7C95',
   pink: '#FF4367',

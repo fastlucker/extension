@@ -111,16 +111,7 @@ const JsonLoginProvider: React.FC<any> = ({ children }: any) => {
             fileContent = JSON.parse(fileContent)
           }
         } else if (!!file && isWeb) {
-          const fileReaderPromise = new Promise((resolve, reject) => {
-            const reader: any = new FileReader()
-            reader.onload = () => {
-              resolve(JSON.parse(reader.result))
-            }
-            reader.onerror = reject
-            reader.readAsText(file[0])
-          })
-
-          fileContent = await fileReaderPromise
+          fileContent = file
         }
       } catch (exception) {
         setInProgress(false)

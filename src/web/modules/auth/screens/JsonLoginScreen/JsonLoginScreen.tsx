@@ -23,8 +23,18 @@ const JsonLoginScreen = () => {
   const { t } = useTranslation()
   const { handleLogin, error, inProgress } = useJsonLogin()
   const [file, setFile] = useState<any>(null)
-  const onDrop = useCallback((res: any) => {
-    setFile(res)
+  const onDrop = useCallback(async (res: any) => {
+    const fileReaderPromise = new Promise((resolve, reject) => {
+      const reader: any = new FileReader()
+      reader.onload = () => {
+        resolve(JSON.parse(reader.result))
+      }
+      reader.onerror = reject
+      reader.readAsText(res[0])
+    })
+
+    const json = await fileReaderPromise
+    setFile(json)
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
@@ -38,45 +48,63 @@ const JsonLoginScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <View style={styles.mainContentWrapper}>
-          {/* @ts-ignore */}
-          <View {...getRootProps()} style={s.dropAreaContainer}>
-            <View style={s.dropArea}>
-              <input {...getInputProps()} />
-              <JsonIcon />
-              {isDragActive ? (
-                <Text weight="regular" style={text.center}>
-                  {t('Drop the files here...')}
-                </Text>
-              ) : (
-                <Trans>
+        <div
+          {...getRootProps()}
+          style={{
+            display: 'flex',
+            flex: 1,
+            flexDirection: 'column'
+          }}
+        >
+          <View style={styles.mainContentWrapper}>
+            {/* @ts-ignore */}
+            <View style={s.dropAreaContainer}>
+              <View style={s.dropArea}>
+                <input {...getInputProps()} />
+                <JsonIcon />
+                {isDragActive ? (
                   <Text weight="regular" style={text.center}>
-                    {'Drop your JSON file here,\nor '}
-                    <Text color={colors.violet} weight="regular">
-                      upload
-                    </Text>
-                    <Text weight="regular">{' from your computer.'}</Text>
+                    {t('Drop your file here...')}
                   </Text>
-                </Trans>
-              )}
+                ) : (
+                  <Trans>
+                    <Text weight="regular" style={text.center}>
+                      {'Drop your JSON file here,\nor '}
+                      <Text color={colors.violet} weight="regular">
+                        upload
+                      </Text>
+                      <Text weight="regular">{' from your computer.'}</Text>
+                    </Text>
+                  </Trans>
+                )}
+              </View>
             </View>
+
+            {!!file && (
+              <>
+                <View style={spacings.mbLg}>
+                  <Text weight="regular" style={[text.center, spacings.mb]} color={colors.husk}>
+                    {t('Legacy Account found:')}
+                    <Text weight="semiBold" style={spacings.phTy} color={colors.husk}>
+                      {`${file?.id?.slice(0, 5)}...${file?.id?.slice(-5)}`}
+                    </Text>
+                  </Text>
+                </View>
+                <Button
+                  disabled={inProgress}
+                  text={inProgress ? t('Importing...') : t('Import Account')}
+                  onPress={() => handleLogin({ file })}
+                  hasBottomSpacing={!error || isWeb}
+                />
+              </>
+            )}
+            {!!error && (
+              <View style={spacings.mbLg}>
+                <Text appearance="danger">{error}</Text>
+              </View>
+            )}
           </View>
-          {!!file && (
-            <Button
-              disabled={inProgress}
-              text={inProgress ? t('Importing...') : t('Import Account')}
-              onPress={() => handleLogin({ file })}
-              hasBottomSpacing={!error || isWeb}
-            />
-          )}
-          {!!error && (
-            <View style={spacings.ptTy}>
-              <Text appearance="danger" fontSize={12} style={spacings.ph}>
-                {error}
-              </Text>
-            </View>
-          )}
-        </View>
+        </div>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
         <Text weight="regular" fontSize={16} style={spacings.mb} color={colors.titan}>
