@@ -156,6 +156,8 @@ const Web3Provider: React.FC<any> = ({ children }) => {
 
   const handleWeb3Request = useCallback(
     async ({ data }: { data: any }) => {
+      if (!selectedDappUrl) return
+
       try {
         if (data.method === 'tabCheckin') {
           setTabSessionData(data)
