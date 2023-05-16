@@ -212,7 +212,7 @@ class EthereumProvider extends EventEmitter {
 
   isAmbire = true
 
-  isMetaMask = false
+  isMetaMask = IS_METAMASK
 
   _isReady = false
 

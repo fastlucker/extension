@@ -7,11 +7,15 @@ import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-p
 import { isiOS } from '@common/config/env'
 import eventEmitterScript from './EventEmitterScript'
 
+// TODO: Wire up to Ambire setting "behave like MetaMask"
+const IS_METAMASK = false
+
 const commonScript = `
   ${eventEmitterScript}
 
   const networks = ${JSON.stringify(networks)};
   const DAPP_PROVIDER_URLS = ${JSON.stringify(DAPP_PROVIDER_URLS)};
+  const IS_METAMASK = ${IS_METAMASK};
 `
 
 const useGetProviderInjection = () => {
