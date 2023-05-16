@@ -30,6 +30,8 @@ export interface InputProps extends TextInputProps {
   onButtonPress?: () => void
   disabled?: boolean
   containerStyle?: any
+  inputStyle?: any
+  inputWrapperStyle?: any
   infoTextStyle?: any
   leftIcon?: () => JSX.Element | JSX.Element
 }
@@ -47,6 +49,8 @@ const Input = ({
   onButtonPress = () => {},
   disabled,
   containerStyle,
+  inputStyle,
+  inputWrapperStyle,
   infoTextStyle,
   leftIcon,
   ...rest
@@ -74,7 +78,8 @@ const Input = ({
     !!error && { borderBottomColor: theme.inputBorderInvalid },
     isFocused && { borderBottomColor: theme.inputBorderFocused },
     isValid && { borderBottomColor: theme.inputBorderValid },
-    disabled && styles.disabled
+    disabled && styles.disabled,
+    inputWrapperStyle
   ]
 
   const inputStyles = [
@@ -82,7 +87,8 @@ const Input = ({
     !!hasButton && spacings.pr0,
     {
       color: theme.buttonText
-    }
+    },
+    inputStyle
   ]
 
   return (
