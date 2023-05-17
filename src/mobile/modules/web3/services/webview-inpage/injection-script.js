@@ -6,66 +6,14 @@ import { useEffect, useState } from 'react'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import { isiOS } from '@common/config/env'
 import eventEmitterScript from './EventEmitterScript'
-import ambireSvg from './ambire-svg-script'
+import replaceMetamaskWithAmbireInDapps from './ReplaceMetamaskWithAmbireInDapps'
 
 // TODO: Wire up to Ambire setting "behave like MetaMask"
 const IS_METAMASK = true
 
 const commonScript = `
   ${eventEmitterScript}
-
-  function replaceMetamaskWithAmbire(textToFind, replacementText) {
-    document.querySelectorAll('body, body *').forEach(node => {
-      Array.from(node.childNodes).forEach(childNode => {
-        if (childNode.nodeType === Node.TEXT_NODE) {
-          const text = childNode.nodeValue;
-          const replacedText = text.replace(new RegExp(textToFind, 'gi'), replacementText);
-
-          if (text.toLowerCase().includes(textToFind.toLowerCase())) {
-            let ancestorNode = childNode.parentNode;
-            let maxLevels = 4;
-            while (ancestorNode && maxLevels > 0) {
-              maxLevels--;
-              const imgElements = ancestorNode.querySelectorAll('img');
-              if (imgElements.length > 0) {
-                const imgElement = document.createElement('img');
-                imgElement.src = "${ambireSvg}";
-                imgParent = imgElements[0].parentNode;
-                imgParent.insertBefore(imgElement, imgParent.firstChild);
-                imgElements[0].remove()
-
-                break;
-              }
-
-              const svgElements = ancestorNode.querySelectorAll('svg');
-              if (svgElements.length > 0) {
-                const imgElement = document.createElement('img');
-                imgElement.src = "${ambireSvg}";
-                svgParent = svgElements[0].parentNode;
-                svgParent.insertBefore(imgElement, svgParent.firstChild);
-                svgElements[0].remove();
-
-                break;
-              }
-
-              ancestorNode = ancestorNode.parentNode;
-            }
-          }
-
-          childNode.nodeValue = replacedText;
-        }
-      });
-    });
-  };
-
-  let timeoutId;
-  const observer = new MutationObserver((mutationsList) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      window.ReactNativeWebView.postMessage(JSON.stringify({ mutation: mutationsList[mutationsList.length - 1] }));
-    }, 80);
-  });
-  observer.observe(document, { childList: true, subtree: true });
+  ${replaceMetamaskWithAmbireInDapps}
 
   const networks = ${JSON.stringify(networks)};
   const DAPP_PROVIDER_URLS = ${JSON.stringify(DAPP_PROVIDER_URLS)};
