@@ -14,7 +14,7 @@ const IS_METAMASK = true
 const commonScript = `
   ${eventEmitterScript}
 
-  function replaceTextInNodes(textToFind, replacementText) {
+  function replaceMetamaskWithAmbire(textToFind, replacementText) {
     document.querySelectorAll('body, body *').forEach(node => {
       Array.from(node.childNodes).forEach(childNode => {
         if (childNode.nodeType === Node.TEXT_NODE) {
@@ -26,18 +26,23 @@ const commonScript = `
             let maxLevels = 4;
             while (ancestorNode && maxLevels > 0) {
               maxLevels--;
-              const imgElements = ancestorNode.getElementsByTagName('img');
+              const imgElements = ancestorNode.querySelectorAll('img');
               if (imgElements.length > 0) {
-                imgElements[0].src = "${ambireSvg}";
+                const imgElement = document.createElement('img');
+                imgElement.src = "${ambireSvg}";
+                imgParent = imgElements[0].parentNode;
+                imgParent.insertBefore(imgElement, imgParent.firstChild);
+                imgElements[0].remove()
+
                 break;
               }
 
-              const svgElements = ancestorNode.getElementsByTagName('svg');
+              const svgElements = ancestorNode.querySelectorAll('svg');
               if (svgElements.length > 0) {
                 const imgElement = document.createElement('img');
                 imgElement.src = "${ambireSvg}";
-                ancestorNode.insertBefore(imgElement, ancestorNode.firstChild);
-
+                svgParent = svgElements[0].parentNode;
+                svgParent.insertBefore(imgElement, svgParent.firstChild);
                 svgElements[0].remove();
 
                 break;

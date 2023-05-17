@@ -43,7 +43,7 @@ const Web3BrowserScreen = () => {
     try {
       const data = JSON.parse(event.nativeEvent.data)
       if (data.mutation) {
-        webViewRef?.current?.injectJavaScript("replaceTextInNodes('metamask', 'Ambire')")
+        webViewRef?.current?.injectJavaScript("replaceMetamaskWithAmbire('metamask', 'Ambire')")
         return
       }
 
