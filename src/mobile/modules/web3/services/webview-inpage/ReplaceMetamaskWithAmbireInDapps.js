@@ -51,7 +51,7 @@ const replaceMetamaskWithAmbireInDapps = `
   const observer = new MutationObserver((mutationsList) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
-      window.ReactNativeWebView.postMessage(JSON.stringify({ mutation: mutationsList[mutationsList.length - 1] }));
+      replaceMetamaskWithAmbire('metamask', 'Ambire')
     }, 80);
   });
   observer.observe(document, { childList: true, subtree: true });

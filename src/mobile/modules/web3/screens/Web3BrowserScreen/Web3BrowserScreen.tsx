@@ -42,10 +42,6 @@ const Web3BrowserScreen = () => {
   const onMessage = async (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data)
-      if (data.mutation) {
-        webViewRef?.current?.injectJavaScript("replaceMetamaskWithAmbire('metamask', 'Ambire')")
-        return
-      }
 
       // Handle messages sent by the injected EthereumProvider
       handleWeb3Request({ data })
