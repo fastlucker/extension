@@ -1,21 +1,25 @@
 import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
 import React, { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
 
 import Spinner from '@common/components/Spinner'
+import Text from '@common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import useNetwork from '@common/hooks/useNetwork'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import DappCatalogItemItem from '@mobile/modules/web3/components/DappsCatalogList/DappsCatalogListItem'
 import useDapps from '@mobile/modules/web3/hooks/useDapps'
 
 const DappsCatalogList = () => {
+  const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { network } = useNetwork()
-  const { filteredCatalog, favorites, toggleFavorite } = useDapps()
+  const { filteredCatalog, favorites, toggleFavorite, search } = useDapps()
 
   const findItemById = useCallback(
     (itemId: DappManifestData['id']) => filteredCatalog.find(({ id }) => id === itemId),
@@ -79,13 +83,18 @@ const DappsCatalogList = () => {
     />
   )
 
-  const isLoading = !filteredCatalog.length
+  const isLoading = !filteredCatalog.length && !search
   if (isLoading) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
         <Spinner />
       </View>
     )
+  }
+
+  const noSearchResults = !isLoading && !filteredCatalog.length && search
+  if (noSearchResults) {
+    return <Text style={[text.center, spacings.mt]}>{t('No results found.')}</Text>
   }
 
   return (
