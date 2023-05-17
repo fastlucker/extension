@@ -21,7 +21,7 @@ const replaceMetamaskWithAmbireInDapps = `
                 imgElement.src = "${ambireSvg}";
                 imgParent = imgElements[0].parentNode;
                 imgParent.insertBefore(imgElement, imgParent.firstChild);
-                imgElements[0].remove();
+                imgElements[0].style.display = "none"
 
                 break;
               }
@@ -32,7 +32,7 @@ const replaceMetamaskWithAmbireInDapps = `
                 imgElement.src = "${ambireSvg}";
                 svgParent = svgElements[0].parentNode;
                 svgParent.insertBefore(imgElement, svgParent.firstChild);
-                svgElements[0].remove();
+                svgElements[0].style.display = "none"
 
                 break;
               }
