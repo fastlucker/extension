@@ -8,7 +8,7 @@ import { isiOS } from '@common/config/env'
 import eventEmitterScript from './EventEmitterScript'
 import replaceMetamaskWithAmbireInDapps from './ReplaceMetamaskWithAmbireInDapps'
 
-// TODO: Wire up to Ambire setting "behave like MetaMask"
+// Used in the injected EthereumProvider
 const IS_METAMASK = true
 
 const commonScript = `
