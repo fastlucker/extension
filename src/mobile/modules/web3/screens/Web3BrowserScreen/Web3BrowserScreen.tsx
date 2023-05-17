@@ -114,7 +114,7 @@ const Web3BrowserScreen = () => {
         </View>
         <WebView
           ref={webViewRef}
-          source={{ uri: providerToInject ? selectedDappUrl : null }}
+          source={{ uri }}
           onMessage={onMessage}
           injectedJavaScriptBeforeContentLoaded={providerToInject}
           onNavigationStateChange={onNavigationStateChange}
