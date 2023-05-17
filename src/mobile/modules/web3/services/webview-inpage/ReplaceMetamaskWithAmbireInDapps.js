@@ -10,7 +10,7 @@ const replaceMetamaskWithAmbireInDapps = `
           const text = childNode.nodeValue;
           const replacedText = text.replace(new RegExp(textToFind, 'gi'), replacementText);
 
-          if (text.toLowerCase().includes(textToFind.toLowerCase()) && text.length === textToFind.length) {
+          if (/^metamask$/i.test(text)) {
             let ancestorNode = childNode.parentNode;
             let maxLevels = 3;
             while (ancestorNode && maxLevels > 0) {
@@ -21,7 +21,7 @@ const replaceMetamaskWithAmbireInDapps = `
                 imgElement.src = "${ambireSvg}";
                 imgParent = imgElements[0].parentNode;
                 imgParent.insertBefore(imgElement, imgParent.firstChild);
-                imgElements[0].remove()
+                imgElements[0].remove();
 
                 break;
               }
@@ -48,10 +48,15 @@ const replaceMetamaskWithAmbireInDapps = `
   };
 
   let timeoutId;
+  const mutationsQueue = [];
+
   const observer = new MutationObserver((mutationsList) => {
+    mutationsQueue.push(...mutationsList);
     clearTimeout(timeoutId);
+
     timeoutId = setTimeout(() => {
       replaceMetamaskWithAmbire('metamask', 'Ambire')
+      mutationsQueue.length = 0; // Clear the mutation queue
     }, 80);
   });
   observer.observe(document, { childList: true, subtree: true });
