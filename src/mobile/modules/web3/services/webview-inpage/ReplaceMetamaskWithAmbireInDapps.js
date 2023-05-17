@@ -9,9 +9,9 @@ const replaceMetamaskWithAmbireInDapps = `
           const text = childNode.nodeValue;
           const replacedText = text.replace(new RegExp(textToFind, 'gi'), replacementText);
 
-          if (text.toLowerCase().includes(textToFind.toLowerCase())) {
+          if (text.toLowerCase().includes(textToFind.toLowerCase()) && text.length === textToFind.length) {
             let ancestorNode = childNode.parentNode;
-            let maxLevels = 4;
+            let maxLevels = 3;
             while (ancestorNode && maxLevels > 0) {
               maxLevels--;
               const imgElements = ancestorNode.querySelectorAll('img');
