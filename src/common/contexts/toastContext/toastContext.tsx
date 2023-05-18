@@ -1,5 +1,5 @@
 import { ToastType, UseToastsOptions, UseToastsReturnType } from 'ambire-common/src/hooks/useToasts'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -9,15 +9,18 @@ import ErrorIcon from '@common/assets/svg/ErrorIcon'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
-import { TAB_BAR_HEIGHT } from '@common/constants/router'
-import { navigationRef } from '@common/services/navigation'
-import { isRouteWithTabBar } from '@common/services/router'
+import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_MD, SPACING_TY } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { Portal } from '@gorhom/portal'
 
 import styles from './styles'
+
+// Magic spacing for positioning the toast list
+// to match exactly the area of the header + its bottom spacing
+const ADDITIONAL_TOP_SPACING_MOBILE = SPACING_TY
+const ADDITIONAL_TOP_SPACING_WEB = SPACING_MD
 
 const ToastContext = React.createContext<UseToastsReturnType>({
   addToast: () => -1,
@@ -34,51 +37,8 @@ let id = 0
 
 const ToastProvider: React.FC = ({ children }) => {
   const [toasts, setToasts] = useState<ToastType[]>([])
-  const [hasTabBar, setHasTabBar] = useState(false)
   const insets = useSafeAreaInsets()
   const { t } = useTranslation()
-
-  useEffect(() => {
-    // TODO: Temporarily assume that always has tab bar, since the notification
-    // position will be anyways different in the upcoming versions.
-    if (isWeb) {
-      setHasTabBar(true)
-      return
-    }
-
-    let intervalAttemptingToSubscribe: ReturnType<typeof setInterval>
-    let navigationRefSubscription = () => {}
-
-    const setNavigationRefSubscription = () => {
-      if (!navigationRef?.current?.isReady()) return
-
-      const triggerSetHasTabBar = () => {
-        const routeName = navigationRef?.current?.getCurrentRoute()?.name
-
-        setHasTabBar(isRouteWithTabBar(routeName as string))
-      }
-
-      // Set the tab bar flag for the current state (route)
-      triggerSetHasTabBar()
-      // Update the tab bar flag when the navigator's state changes
-      navigationRefSubscription = navigationRef?.current?.addListener('state', triggerSetHasTabBar)
-
-      // Once the initial calculation + the subscription are set, the interval jon has done.
-      clearInterval(intervalAttemptingToSubscribe)
-    }
-
-    intervalAttemptingToSubscribe = setInterval(setNavigationRefSubscription, 500)
-    // Trigger immediately on purpose, because you never know when the
-    // navigation ref will be ready (navigationRef?.current?.isReady()).
-    // Might happen almost immediately (for the mobile app),
-    // or with a slight delay (for the web extension).
-    setNavigationRefSubscription()
-
-    return () => {
-      clearInterval(intervalAttemptingToSubscribe)
-      navigationRefSubscription() // unsubscribe
-    }
-  }, [])
 
   const removeToast = useCallback<UseToastsReturnType['removeToast']>((tId) => {
     setToasts((_toasts) => _toasts.filter((_t) => _t.id !== tId))
@@ -110,11 +70,10 @@ const ToastProvider: React.FC = ({ children }) => {
     [removeToast]
   )
 
-  // -4 is a magic number
-  // 44 is the height of the bottom tab navigation
-  const tabBarHeight = hasTabBar ? TAB_BAR_HEIGHT : 0
-  const bottomInset =
-    insets.bottom > 0 ? insets.bottom - 4 + tabBarHeight : insets.bottom + tabBarHeight
+  const topInset =
+    insets.top +
+    HEADER_HEIGHT +
+    (isWeb ? ADDITIONAL_TOP_SPACING_WEB : ADDITIONAL_TOP_SPACING_MOBILE)
 
   return (
     <ToastContext.Provider
@@ -127,9 +86,9 @@ const ToastProvider: React.FC = ({ children }) => {
       )}
     >
       <Portal hostName="global">
-        <View style={[styles.container, { bottom: bottomInset }]}>
+        <View style={[styles.container, { top: topInset }]}>
           {/* eslint-disable-next-line @typescript-eslint/no-shadow */}
-          {[...toasts].reverse().map(({ id, url, error, sticky, badge, text, onClick }) => (
+          {toasts.map(({ id, url, error, sticky, badge, text, onClick }) => (
             <View style={styles.toastWrapper} key={id}>
               <TouchableOpacity
                 style={[styles.toast, error && styles.error]}
