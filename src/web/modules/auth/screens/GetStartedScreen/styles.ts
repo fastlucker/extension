@@ -11,6 +11,7 @@ const styles = StyleSheet.create<Styles>({
   hr: {
     marginVertical: 70,
     height: 1,
+    width: 352,
     backgroundColor: colors.mischka
   },
   logo: {

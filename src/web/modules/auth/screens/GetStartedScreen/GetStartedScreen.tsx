@@ -17,71 +17,93 @@ import {
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import Card from '@web/modules/auth/components/Card'
+import EmailIcon from '@web/modules/auth/screens/GetStartedScreen/EmailIcon'
+import HWIcon from '@web/modules/auth/screens/GetStartedScreen/HWIcon'
+import ImportAccountIcon from '@web/modules/auth/screens/GetStartedScreen/ImportAccountIcon'
+import DownArrow from '@web/modules/auth/screens/GetStartedScreen/DownArrow'
 
 import styles from './styles'
 
 const GetStartedScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const [advanceModeEnabled, setAdvancedModeEnabled] = useState(false)
+  const [advanceModeEnabled, setAdvancedModeEnabled] = useState(true)
 
   const handleAuthButtonPress = useCallback((nextRoute: any) => navigate(nextRoute), [navigate])
 
   return (
-    <>
-      <AuthLayoutWrapperMainContent>
-        <View style={[flexboxStyles.directionRow, flexboxStyles.justifyCenter]}>
+    <AuthLayoutWrapperMainContent>
+      <View style={[flexboxStyles.center]}>
+        <Text fontSize={20}>Welcome to Ambire</Text>
+        <Text>Choose Account Type</Text>
+        <View style={[flexboxStyles.directionRow]}>
           <Card
-            text={t('Sign in your Ambire wallet with your email and manage your crypto assets.')}
+            title={t('Email account')}
+            text={t(
+              'Create a smart account with email and password. This account will be recoverable via your email address.'
+            )}
+            icon={<EmailIcon />}
           >
             <Button
-              text={t('Email account')}
+              text={t('Create Email Account')}
               onPress={() => handleAuthButtonPress(ROUTES.authEmailAccount)}
               hasBottomSpacing={false}
             />
           </Card>
           <Card
-            style={{ marginHorizontal: 40 }}
-            text={t('Safeguard your crypto assets by signing in with a trusted hardware wallet.')}
+            style={{ marginHorizontal: 16 }}
+            title={t('Hardware wallet')}
+            text={t(
+              'Import multiple accounts from a hardware wallet device: we support Trezor, Ledger and Grid+ Lattice.\nYou can import your existing legacy accounts and smart accounts.'
+            )}
+            icon={<HWIcon />}
           >
             <Button
-              text={t('HW Login')}
+              text={t('Import From Hardware Wallet')}
               onPress={() => handleAuthButtonPress(ROUTES.hardwareWalletSelect)}
               disabled // temporary disabled until we have this feature
               hasBottomSpacing={false}
             />
           </Card>
-          <Card text={t('Import your existing Ambire account with a private key or passphrase.')}>
+          <Card
+            title={t('Legacy Account')}
+            text={t(
+              'Import a private key or seed phrase from a traditional wallet like Metamask.\nYou can import a legacy account but also create a fresh smart account from the same keys.'
+            )}
+            icon={<ImportAccountIcon />}
+          >
             <Button
-              text={t('Import Account')}
+              text={t('Import Legacy Account')}
               onPress={() => handleAuthButtonPress(ROUTES.externalSigner)}
               hasBottomSpacing={false}
             />
           </Card>
         </View>
+      </View>
 
+      <View style={[flexboxStyles.flex1, flexboxStyles.directionRow, flexboxStyles.justifyCenter]}>
         <View style={styles.hr} />
-
-        <Toggle
-          id="advanced-mode-toggle"
-          isOn={advanceModeEnabled}
-          label={t('Advanced mode')}
-          onToggle={setAdvancedModeEnabled}
-        />
+        <DownArrow />
+        <Text fontSize={16} weight="medium">
+          Show more options
+        </Text>
+        <View style={styles.hr} />
+      </View>
+      <View>
         {advanceModeEnabled && (
           <>
             <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
               <Button
-                text={t('Import JSON')}
+                text={t('Import From File')}
                 type="outline"
                 hasBottomSpacing={false}
-                style={[{ minWidth: 190, backgroundColor: colors.melrose_15 }, spacings.mrMd]}
+                style={[{ minWidth: 190 }, spacings.mrMd]}
                 accentColor={colors.violet}
                 onPress={() => handleAuthButtonPress(ROUTES.ambireAccountJsonLogin)}
               />
               <Text shouldScale={false} fontSize={12} weight="regular">
                 {t(
-                  'Import your wallet by uploading a JSON file. Access your existing wallet securely without the need to manually enter your private key or passphrase.'
+                  'Import an account from a JSON file. The account needs to be exported from Ambire Wallet. Files exported from other wallet providers are not supported.'
                 )}
               </Text>
             </View>
@@ -92,34 +114,18 @@ const GetStartedScreen = () => {
                 disabled // temporary disabled until we have this feature
                 type="outline"
                 hasBottomSpacing={false}
-                style={[{ minWidth: 190, backgroundColor: colors.melrose_15 }, spacings.mrMd]}
+                style={[{ minWidth: 190 }, spacings.mrMd]}
               />
               <Text shouldScale={false} fontSize={12} weight="regular">
                 {t(
-                  'Enter a public Ethereum address to access view mode, a non-interactive way to monitor balances, transaction history, and token holdings for any Ethereum account.'
+                  'Import an account in view-only mode, only via the address. You can import multiple at once.'
                 )}
               </Text>
             </View>
           </>
         )}
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent>
-        <View style={[text.center, flexboxStyles.justifySpaceBetween, flexboxStyles.flex1]}>
-          <View>
-            <Text fontSize={40} weight="semiBold" color={colors.titan}>
-              {t('Welcome')}
-            </Text>
-            <Text fontSize={20} color={colors.titan}>
-              {t('to the Ambire Wallet Extension')}
-            </Text>
-            <Text fontSize={30} color={colors.titan}>
-              v2.0
-            </Text>
-          </View>
-          <AmbireSmallWhiteLogo style={styles.logo} />
-        </View>
-      </AuthLayoutWrapperSideContent>
-    </>
+      </View>
+    </AuthLayoutWrapperMainContent>
   )
 }
 
