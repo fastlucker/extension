@@ -8,7 +8,6 @@ import CloseIconRound from '@common/assets/svg/CloseIconRound'
 import ErrorIcon from '@common/assets/svg/ErrorIcon'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
-import { useTranslation } from '@common/config/localization'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_MD, SPACING_TY } from '@common/styles/spacings'
@@ -38,7 +37,6 @@ let id = 0
 const ToastProvider: React.FC = ({ children }) => {
   const [toasts, setToasts] = useState<ToastType[]>([])
   const insets = useSafeAreaInsets()
-  const { t } = useTranslation()
 
   const removeToast = useCallback<UseToastsReturnType['removeToast']>((tId) => {
     setToasts((_toasts) => _toasts.filter((_t) => _t.id !== tId))
@@ -106,10 +104,7 @@ const ToastProvider: React.FC = ({ children }) => {
                   <View style={spacings.prTy}>{error ? <ErrorIcon /> : <CheckIcon />}</View>
                 )}
                 <View style={flexboxStyles.flex1}>
-                  <Text weight="medium" color={colors.patriotBlue} fontSize={12}>
-                    {error ? t('Oops') : t('Success')}
-                  </Text>
-                  <Text numberOfLines={7} color={colors.patriotBlue} fontSize={12}>
+                  <Text numberOfLines={7} color={colors.patriotBlue} weight="regular" fontSize={12}>
                     {text}
                   </Text>
                 </View>
