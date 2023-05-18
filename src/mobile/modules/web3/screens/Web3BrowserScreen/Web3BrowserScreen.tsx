@@ -1,16 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { TouchableHighlight, View } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler'
 import { WebView, WebViewNavigation } from 'react-native-webview'
 
-import Button from '@common/components/Button'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Input from '@common/components/Input'
 import Spinner from '@common/components/Spinner'
 import Wrapper from '@common/components/Wrapper'
 import useRoute from '@common/hooks/useRoute'
 import colors from '@common/styles/colors'
-import spacings, { SPACING_MI, SPACING_TY } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { AntDesign } from '@expo/vector-icons'
 import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
@@ -41,10 +39,11 @@ const Web3BrowserScreen = () => {
     }
   }, [route?.params?.selectedDappUrl, setWeb3ViewRef, setSelectedDappUrl])
 
-  // Define a function to handle messages from the injected EthereumProvider
-  const handleEthereumProviderMessage = async (event: any) => {
+  const onMessage = async (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data)
+
+      // Handle messages sent by the injected EthereumProvider
       handleWeb3Request({ data })
     } catch (error) {
       console.error(error)
@@ -116,9 +115,9 @@ const Web3BrowserScreen = () => {
         <WebView
           ref={webViewRef}
           source={{ uri }}
-          onMessage={handleEthereumProviderMessage}
-          onNavigationStateChange={onNavigationStateChange}
+          onMessage={onMessage}
           injectedJavaScriptBeforeContentLoaded={providerToInject}
+          onNavigationStateChange={onNavigationStateChange}
           javaScriptEnabled
           startInLoadingState
           bounces={false}

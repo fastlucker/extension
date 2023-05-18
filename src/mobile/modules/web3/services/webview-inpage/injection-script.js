@@ -6,12 +6,14 @@ import { useEffect, useState } from 'react'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import { isiOS } from '@common/config/env'
 import eventEmitterScript from './EventEmitterScript'
+import replaceMetamaskWithAmbireInDapps from './ReplaceMetamaskWithAmbireInDapps'
 
-// TODO: Wire up to Ambire setting "behave like MetaMask"
-const IS_METAMASK = false
+// Used in the injected EthereumProvider
+const IS_METAMASK = true
 
 const commonScript = `
   ${eventEmitterScript}
+  ${replaceMetamaskWithAmbireInDapps}
 
   const networks = ${JSON.stringify(networks)};
   const DAPP_PROVIDER_URLS = ${JSON.stringify(DAPP_PROVIDER_URLS)};
