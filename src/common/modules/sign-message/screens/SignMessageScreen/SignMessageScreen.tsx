@@ -1,9 +1,9 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { toUtf8String } from 'ethers/lib/utils'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Image, View } from 'react-native'
+import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import Blockies from '@common/components/Blockies'
@@ -19,7 +19,6 @@ import useAccounts from '@common/hooks/useAccounts'
 import useDisableNavigatingBack from '@common/hooks/useDisableNavigatingBack'
 import useNavigation from '@common/hooks/useNavigation'
 import useRequests from '@common/hooks/useRequests'
-import useWalletConnect from '@common/hooks/useWalletConnect'
 import SignActions from '@common/modules/sign-message/components/SignActions'
 import useSignMessage from '@common/modules/sign-message/hooks/useSignMessage'
 import { UseSignMessageProps } from '@common/modules/sign-message/hooks/useSignMessage/types'
@@ -58,7 +57,6 @@ const SignScreenScreen = ({
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { account } = useAccounts()
-  const { connections } = useWalletConnect()
   const { everythingToSign, resolveMany } = useRequests()
 
   const { handleSubmit, setValue, watch } = useForm({
@@ -115,12 +113,6 @@ const SignScreenScreen = ({
     openBottomSheetHardwareWallet,
     isInBottomSheet
   })
-
-  const connection = useMemo(
-    () => connections?.find(({ uri }: any) => uri === msgToSign?.wcUri),
-    [connections, msgToSign?.wcUri]
-  )
-  const dApp = connection ? connection?.session?.peerMeta || null : null
 
   const prevToSign = usePrevious(msgToSign || {})
 
@@ -197,19 +189,9 @@ const SignScreenScreen = ({
           </Panel>
           <Panel>
             <Title type="small">{t('Sign message')}</Title>
-            {!!dApp && (
-              <View style={[spacings.mbTy, flexboxStyles.directionRow]}>
-                {!!dApp.icons?.[0] && (
-                  <Image source={{ uri: dApp.icons[0] }} style={styles.image} />
-                )}
-                <Text style={flexboxStyles.flex1} fontSize={14}>
-                  {t('{{name}} is requesting your signature.', { name: dApp.name })}
-                </Text>
-              </View>
-            )}
-            {!dApp && (
-              <Text style={spacings.mbTy}>{t('A dApp is requesting your signature.')}</Text>
-            )}
+            {/* TODO: display dapp source */}
+            <Text style={spacings.mbTy}>{t('A dApp is requesting your signature.')}</Text>
+
             <Text style={spacings.mbTy} color={colors.titan_50} fontSize={14}>
               {everythingToSign?.length > 1
                 ? t('You have {{number}} more pending requests.', {

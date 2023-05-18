@@ -25,8 +25,6 @@ import { RequestsProvider } from '@common/contexts/requestsContext'
 import { StorageProvider } from '@common/contexts/storageContext'
 import { ThemeProvider } from '@common/contexts/themeContext'
 import { ToastProvider } from '@common/contexts/toastContext'
-import { UnsupportedDAppsBottomSheetProvider } from '@common/contexts/unsupportedDAppsBottomSheetContext'
-import { WalletConnectProvider } from '@common/contexts/walletConnectContext'
 import useFonts from '@common/hooks/useFonts'
 import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
@@ -68,32 +66,28 @@ const AppInit = () => {
                                 <ApprovalProvider>
                                   <PortfolioProvider>
                                     <GnosisProvider>
-                                      <WalletConnectProvider>
-                                        <AmbireExtensionProvider>
-                                          <RequestsProvider>
-                                            <BiometricsProvider>
-                                              <VaultProvider>
-                                                <AddressBookProvider>
-                                                  <AttentionGrabberProvider>
-                                                    <PrivateModeProvider>
-                                                      <GasTankProvider>
-                                                        <UnsupportedDAppsBottomSheetProvider>
-                                                          <HeaderBottomSheetProvider>
-                                                            <LinkingProvider>
-                                                              <AppRouter />
-                                                            </LinkingProvider>
-                                                          </HeaderBottomSheetProvider>
-                                                        </UnsupportedDAppsBottomSheetProvider>
-                                                      </GasTankProvider>
-                                                    </PrivateModeProvider>
-                                                  </AttentionGrabberProvider>
-                                                  <PortalHost name="global" />
-                                                </AddressBookProvider>
-                                              </VaultProvider>
-                                            </BiometricsProvider>
-                                          </RequestsProvider>
-                                        </AmbireExtensionProvider>
-                                      </WalletConnectProvider>
+                                      <AmbireExtensionProvider>
+                                        <RequestsProvider>
+                                          <BiometricsProvider>
+                                            <VaultProvider>
+                                              <AddressBookProvider>
+                                                <AttentionGrabberProvider>
+                                                  <PrivateModeProvider>
+                                                    <GasTankProvider>
+                                                      <HeaderBottomSheetProvider>
+                                                        <LinkingProvider>
+                                                          <AppRouter />
+                                                        </LinkingProvider>
+                                                      </HeaderBottomSheetProvider>
+                                                    </GasTankProvider>
+                                                  </PrivateModeProvider>
+                                                </AttentionGrabberProvider>
+                                                <PortalHost name="global" />
+                                              </AddressBookProvider>
+                                            </VaultProvider>
+                                          </BiometricsProvider>
+                                        </RequestsProvider>
+                                      </AmbireExtensionProvider>
                                     </GnosisProvider>
                                   </PortfolioProvider>
                                 </ApprovalProvider>
