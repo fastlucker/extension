@@ -38,9 +38,9 @@ const replaceMetamaskWithAmbireInDapps = `
 
               ancestorNode = ancestorNode.parentNode;
             }
-          }
 
-          childNode.nodeValue = replacedText;
+            childNode.nodeValue = replacedText;
+          }
         }
       });
     });
