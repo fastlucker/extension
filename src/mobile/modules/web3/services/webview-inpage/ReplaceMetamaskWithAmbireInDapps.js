@@ -15,24 +15,23 @@ const replaceMetamaskWithAmbireInDapps = `
             let maxLevels = 3;
             while (ancestorNode && maxLevels > 0) {
               maxLevels--;
-              const imgElements = ancestorNode.querySelectorAll('img');
-              if (imgElements.length > 0) {
-                const imgElement = document.createElement('img');
-                imgElement.src = "${ambireSvg}";
-                imgParent = imgElements[0].parentNode;
-                imgParent.insertBefore(imgElement, imgParent.firstChild);
-                imgElements[0].style.display = "none"
 
-                break;
-              }
+              const imgElement = ancestorNode.querySelector('img');
+              const svgElement = ancestorNode.querySelector('svg');
 
-              const svgElements = ancestorNode.querySelectorAll('svg');
-              if (svgElements.length > 0) {
-                const imgElement = document.createElement('img');
-                imgElement.src = "${ambireSvg}";
-                svgParent = svgElements[0].parentNode;
-                svgParent.insertBefore(imgElement, svgParent.firstChild);
-                svgElements[0].style.display = "none"
+              if (imgElement || svgElement) {
+                const newImgElement = document.createElement('img');
+                newImgElement.src = "${ambireSvg}";
+
+                if (imgElement) {
+                  imgElement.parentNode.insertBefore(newImgElement, imgElement);
+                  imgElement.style.display = "none";
+                }
+
+                if (svgElement) {
+                  svgElement.parentNode.insertBefore(newImgElement, svgElement);
+                  svgElement.style.display = "none";
+                }
 
                 break;
               }
