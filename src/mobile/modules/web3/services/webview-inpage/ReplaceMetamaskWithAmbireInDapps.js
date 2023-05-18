@@ -38,7 +38,9 @@ const replaceMetamaskWithAmbireInDapps = `
 
               ancestorNode = ancestorNode.parentNode;
             }
+          }
 
+          if (text !== replacedText) {
             childNode.nodeValue = replacedText;
           }
         }
