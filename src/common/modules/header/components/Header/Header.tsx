@@ -4,17 +4,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
-import ScanIcon from '@common/assets/svg/ScanIcon'
 import Blockies from '@common/components/Blockies'
 import CopyText from '@common/components/CopyText'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
-import { isAndroid, isiOS } from '@common/config/env'
+import { isiOS } from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useHeaderBottomSheet from '@common/hooks/useHeaderBottomSheet'
 import useNetwork from '@common/hooks/useNetwork'
 import usePrivateMode from '@common/hooks/usePrivateMode'
-import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -26,13 +24,13 @@ import styles from './styles'
 interface Props extends DrawerHeaderProps {
   mode?: 'title' | 'bottom-sheet'
   withHamburger?: boolean
-  withScanner?: boolean
+  withHeaderRight?: boolean
 }
 
 const Header: React.FC<Props> = ({
   mode = 'bottom-sheet',
   withHamburger = false,
-  withScanner = false,
+  withHeaderRight = false,
   navigation,
   route,
   options
@@ -82,11 +80,7 @@ const Header: React.FC<Props> = ({
     return null
   }
 
-  const renderHeaderRight = withScanner ? (
-    <NavIconWrapper onPress={() => navigation.navigate(ROUTES.connect)}>
-      <ScanIcon />
-    </NavIconWrapper>
-  ) : null
+  const renderHeaderRight = null
 
   // On the left and on the right side, there is always reserved space
   // for the nav bar buttons. And so that in case a title is present,
@@ -122,7 +116,7 @@ const Header: React.FC<Props> = ({
         </Text>
       )}
 
-      {isAndroid && <View style={navIconContainer}>{renderHeaderRight}</View>}
+      {/* <View style={navIconContainer}>{renderHeaderRight}</View> */}
       {isiOS && mode === 'title' && <View style={navIconContainer} />}
     </View>
   )

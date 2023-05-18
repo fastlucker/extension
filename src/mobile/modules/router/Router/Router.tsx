@@ -58,7 +58,6 @@ import VaultSetupGetStartedScreen from '@common/modules/vault/screens/VaultSetup
 import { navigate } from '@common/services/navigation'
 import colors from '@common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
-import ConnectScreen from '@mobile/modules/connect/screens/ConnectScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import AddReferralScreen from '@mobile/modules/referral/screens/AddReferralScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
@@ -526,13 +525,6 @@ const AppStack = () => {
         component={AuthStack}
         options={{ headerShown: false }}
       />
-      {isAndroid && (
-        <MainStack.Screen
-          name={MOBILE_ROUTES.connect}
-          component={ConnectScreen}
-          options={{ title: routesConfig[ROUTES.connect].title }}
-        />
-      )}
       <MainStack.Screen
         name={MOBILE_ROUTES.receive}
         options={{ header: headerGamma }}

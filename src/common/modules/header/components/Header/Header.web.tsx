@@ -27,13 +27,13 @@ interface Props {
   mode?: 'title' | 'bottom-sheet'
   withHamburger?: boolean
   backgroundColor?: ColorValue
-  withScanner?: boolean
+  withHeaderRight?: boolean
 }
 
 const Header: React.FC<Props> = ({
   mode = 'bottom-sheet',
   withHamburger = false,
-  withScanner = false,
+  withHeaderRight = false,
   backgroundColor
 }) => {
   const { network } = useNetwork()
@@ -158,7 +158,7 @@ const Header: React.FC<Props> = ({
         </Text>
       )}
       <View style={navIconContainer}>
-        {(!!withHamburger || !!withScanner) && renderHeaderRight}
+        {(!!withHamburger || !!withHeaderRight) && renderHeaderRight}
       </View>
     </View>
   )

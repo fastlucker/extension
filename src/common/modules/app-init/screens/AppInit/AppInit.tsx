@@ -23,8 +23,6 @@ import { RequestsProvider } from '@common/contexts/requestsContext'
 import { StorageProvider } from '@common/contexts/storageContext'
 import { ThemeProvider } from '@common/contexts/themeContext'
 import { ToastProvider } from '@common/contexts/toastContext'
-import { UnsupportedDAppsBottomSheetProvider } from '@common/contexts/unsupportedDAppsBottomSheetContext'
-import { WalletConnectProvider } from '@common/contexts/walletConnectContext'
 import useFonts from '@common/hooks/useFonts'
 import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
@@ -75,30 +73,26 @@ const AppInit = () => {
                               <Web3Provider>
                                 <PortfolioProvider>
                                   <GnosisProvider>
-                                    <WalletConnectProvider>
-                                      <GasTankProvider>
-                                        <RequestsProvider>
-                                          <BiometricsProvider>
-                                            <VaultProvider>
-                                              <AddressBookProvider>
-                                                <AttentionGrabberProvider>
-                                                  <PrivateModeProvider>
-                                                    <UnsupportedDAppsBottomSheetProvider>
-                                                      <HeaderBottomSheetProvider>
-                                                        <LinkingProvider>
-                                                          <AppRouter />
-                                                        </LinkingProvider>
-                                                      </HeaderBottomSheetProvider>
-                                                    </UnsupportedDAppsBottomSheetProvider>
-                                                  </PrivateModeProvider>
-                                                </AttentionGrabberProvider>
-                                                <PortalHost name="global" />
-                                              </AddressBookProvider>
-                                            </VaultProvider>
-                                          </BiometricsProvider>
-                                        </RequestsProvider>
-                                      </GasTankProvider>
-                                    </WalletConnectProvider>
+                                    <GasTankProvider>
+                                      <RequestsProvider>
+                                        <BiometricsProvider>
+                                          <VaultProvider>
+                                            <AddressBookProvider>
+                                              <AttentionGrabberProvider>
+                                                <PrivateModeProvider>
+                                                  <HeaderBottomSheetProvider>
+                                                    <LinkingProvider>
+                                                      <AppRouter />
+                                                    </LinkingProvider>
+                                                  </HeaderBottomSheetProvider>
+                                                </PrivateModeProvider>
+                                              </AttentionGrabberProvider>
+                                              <PortalHost name="global" />
+                                            </AddressBookProvider>
+                                          </VaultProvider>
+                                        </BiometricsProvider>
+                                      </RequestsProvider>
+                                    </GasTankProvider>
                                   </GnosisProvider>
                                 </PortfolioProvider>
                               </Web3Provider>

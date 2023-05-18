@@ -12,7 +12,6 @@ import useGnosisSafe from '@common/hooks/useGnosis'
 import useNavigation from '@common/hooks/useNavigation'
 import useNetwork from '@common/hooks/useNetwork'
 import useToast from '@common/hooks/useToast'
-import useWalletConnect from '@common/hooks/useWalletConnect'
 import PendingTransactionsScreen from '@common/modules/pending-transactions/screens/PendingTransactionsScreen'
 import { ROUTES } from '@common/modules/router/constants/common'
 import SignMessageScreen from '@common/modules/sign-message/screens/SignMessageScreen'
@@ -68,7 +67,6 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { accounts, selectedAcc } = useAccounts()
   const { network }: any = useNetwork()
   const { navigate } = useNavigation()
-  const { requests: wcRequests, resolveMany: wcResolveMany } = useWalletConnect()
   const { requests: gnosisRequests, resolveMany: gnosisResolveMany } = useGnosisSafe()
   const { requests: approvalRequests, resolveMany: approvalResolveMany } = useWeb3Approval()
   const { addToast } = useToast()
@@ -97,10 +95,10 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   const requests = useMemo(
     () =>
-      [...internalRequests, ...wcRequests, ...gnosisRequests, ...approvalRequests].filter(
-        ({ account }) => accounts.find(({ id }: any) => id === account)
+      [...internalRequests, ...gnosisRequests, ...approvalRequests].filter(({ account }) =>
+        accounts.find(({ id }: any) => id === account)
       ),
-    [internalRequests, wcRequests, gnosisRequests, approvalRequests, accounts]
+    [internalRequests, gnosisRequests, approvalRequests, accounts]
   )
 
   // Filter only the sign message requests
@@ -184,11 +182,10 @@ const RequestsProvider: React.FC = ({ children }) => {
   const resolveMany = useCallback(
     (ids: any, resolution: any) => {
       gnosisResolveMany(ids, resolution)
-      wcResolveMany(ids, resolution)
       approvalResolveMany(ids, resolution)
       setInternalRequests((reqs: any) => reqs.filter((x: any) => !ids.includes(x.id)))
     },
-    [gnosisResolveMany, wcResolveMany, approvalResolveMany]
+    [gnosisResolveMany, approvalResolveMany]
   )
 
   const showSendTxns = useCallback(
