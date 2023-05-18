@@ -37,7 +37,7 @@ const DappsProvider: React.FC<any> = ({ children }) => {
     categories,
     loadCurrentDappData,
     removeCustomDapp
-  } = useDapps({ useStorage, fetch })
+  } = useDapps({ useStorage, fetch, applicationType: 'mobile' })
 
   return (
     <DappsContext.Provider
