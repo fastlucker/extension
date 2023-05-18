@@ -190,6 +190,8 @@ out/
 .gradle/
 build/
 
+android/.idea
+
 # Local configuration file (sdk path, etc)
 local.properties
 
