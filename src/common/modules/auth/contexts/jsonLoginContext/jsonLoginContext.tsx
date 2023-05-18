@@ -50,7 +50,6 @@ const JsonLoginProvider: React.FC<any> = ({ children }: any) => {
 
   const handleLogin = useCallback(
     async ({ password, file }: { password?: string; file?: any }) => {
-      console.log('handleLogin', file)
       Keyboard.dismiss()
       setError('')
       setInProgress(true)
