@@ -9,6 +9,7 @@ interface Style {
   dotStyle: ViewStyle
   activeDotStyle: ViewStyle
   callToActionButton: ViewStyle
+  fallbackBackground: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -35,6 +36,9 @@ const styles = StyleSheet.create<Style>({
   callToActionButton: {
     marginRight: 36,
     marginTop: 10
+  },
+  fallbackBackground: {
+    backgroundColor: colors.titan
   }
 })
 

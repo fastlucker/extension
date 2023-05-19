@@ -1,14 +1,17 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, StyleSheet, View } from 'react-native'
 import AppIntroSlider from 'react-native-app-intro-slider'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
+import Button from '@common/components/Button'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import AmbireLogo from '@common/modules/auth/components/AmbireLogo'
 import { MOBILE_ROUTES } from '@common/modules/router/constants/common'
+import { fetchGet } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -18,45 +21,17 @@ import useOnboardingOnFirstLogin from '../../hooks/useOnboardingOnFirstLogin'
 import styles from './styles'
 import { OnboardingSlide } from './types'
 
-// TODO: Pull these from a Relayer route.
-const slides: OnboardingSlide[] = [
-  {
-    id: 1,
-    titleText: 'Swap crypto seamlessly',
-    descriptionText: 'Get the top rates & exchange immediately, right at your fingertips',
-    image:
-      'https://fastly.picsum.photos/id/794/500/500.jpg?hmac=1saBjisE0yXnOU6Y-GFe2H_t66Mc3rqlzja4DPy_mXA',
-    backgroundColor: '#EBECFF',
-    titleTextColor: '#904DFF',
-    descriptionTextColor: '#24263D'
-  },
-  {
-    id: 2,
-    titleText: 'Title 2',
-    descriptionText: 'Other cool stuff',
-    image:
-      'https://fastly.picsum.photos/id/835/500/500.jpg?hmac=QnpnNG0BSK7JQNhA9VokyFMyhTwTtifkHYHWSsd2YAU',
-    backgroundColor: '#febe29',
-    titleTextColor: '#904DFF',
-    descriptionTextColor: '#24263D'
-  },
-  {
-    id: 3,
-    titleText: 'Rocket guy',
-    descriptionText: "I'm already out of descriptions\n\nLorem ipsum bla bla bla",
-    image:
-      'https://fastly.picsum.photos/id/82/500/500.jpg?hmac=SBl_t1w-gmq7jLkcwDJHDQG5MsYX_Pdr3_gTaYW_UaU',
-    backgroundColor: '#59b2ab',
-    titleTextColor: '#904DFF',
-    descriptionTextColor: '#24263D'
-  }
-]
-
 const OnboardingOnFirstLoginScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { markOnboardingOnFirstLoginAsCompleted, hasCompletedOnboarding } =
-    useOnboardingOnFirstLogin()
+  const {
+    slides,
+    slidesLoading,
+    slidesError,
+    markOnboardingOnFirstLoginAsCompleted,
+    hasCompletedOnboarding,
+    fetchSlides
+  } = useOnboardingOnFirstLogin()
 
   useEffect(() => {
     if (hasCompletedOnboarding) {
@@ -107,22 +82,54 @@ const OnboardingOnFirstLoginScreen = () => {
     [t]
   )
 
+  const renderContent = () => {
+    if (slidesLoading) {
+      return (
+        <View style={[StyleSheet.absoluteFill, flexbox.center, styles.fallbackBackground]}>
+          <Spinner />
+        </View>
+      )
+    }
+
+    if (slidesError) {
+      return (
+        <View style={[StyleSheet.absoluteFill, flexbox.center, styles.fallbackBackground]}>
+          <Text fontSize={16} color={colors.howl} style={[spacings.mh, spacings.mb]}>
+            {slidesError}
+          </Text>
+
+          <View style={flexbox.directionRow}>
+            <Button
+              type="outline"
+              accentColor={colors.heliotrope}
+              text={t('Skip')}
+              style={spacings.mhTy}
+            />
+            <Button text={t('Try again')} style={spacings.mhTy} onPress={fetchSlides} />
+          </View>
+        </View>
+      )
+    }
+
+    return (
+      <AppIntroSlider
+        dotStyle={styles.dotStyle}
+        activeDotStyle={styles.activeDotStyle}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        data={slides}
+        onDone={markOnboardingOnFirstLoginAsCompleted}
+        renderNextButton={NextButton}
+        renderDoneButton={DoneButton}
+      />
+    )
+  }
+
   if (hasCompletedOnboarding) return null
 
   return (
     <Portal hostName="global">
-      <View style={StyleSheet.absoluteFill}>
-        <AppIntroSlider
-          dotStyle={styles.dotStyle}
-          activeDotStyle={styles.activeDotStyle}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-          data={slides}
-          onDone={markOnboardingOnFirstLoginAsCompleted}
-          renderNextButton={NextButton}
-          renderDoneButton={DoneButton}
-        />
-      </View>
+      <View style={StyleSheet.absoluteFill}>{renderContent()}</View>
     </Portal>
   )
 }
