@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import useStorage from '@common/hooks/useStorage'
 import { fetchGet } from '@common/services/fetch'
-
-import { OnboardingSlide } from '../../screens/OnboardingOnFirstLoginScreen/types'
+import { OnboardingSlide } from '@mobile/modules/dashboard/screens/OnboardingOnFirstLoginScreen/types'
 
 // Type alias for ISO 8601 date strings
 type ISODateString = string
