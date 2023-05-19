@@ -54,9 +54,9 @@ const GnosisProvider: React.FC = ({ children }) => {
   })
 
   useEffect(() => {
-    const newHash = CONFIG.SWAP_URL + network.chainId + selectedAcc
+    const newHash = CONFIG.SWAP_URL + network?.chainId + selectedAcc
     setHash(newHash)
-  }, [network, selectedAcc])
+  }, [network?.chainId, selectedAcc])
 
   const handlePersonalSign = useCallback(
     (msg: any) => {
