@@ -78,7 +78,7 @@ const SwapScreen = () => {
     if (loading) {
       setTimeout(() => {
         setLoading(false)
-      }, 500)
+      }, 200)
     }
   }, [loading])
 

@@ -93,9 +93,9 @@ const AppInit = () => {
                                     <GnosisProvider>
                                       <WalletConnectProvider>
                                         <AmbireExtensionProvider>
-                                          <RequestsProvider>
-                                            <BiometricsProvider>
-                                              <VaultProvider>
+                                          <VaultProvider>
+                                            <RequestsProvider>
+                                              <BiometricsProvider>
                                                 <AddressBookProvider>
                                                   <AttentionGrabberProvider>
                                                     <PrivateModeProvider>
@@ -112,9 +112,9 @@ const AppInit = () => {
                                                   </AttentionGrabberProvider>
                                                   <PortalHost name="global" />
                                                 </AddressBookProvider>
-                                              </VaultProvider>
-                                            </BiometricsProvider>
-                                          </RequestsProvider>
+                                              </BiometricsProvider>
+                                            </RequestsProvider>
+                                          </VaultProvider>
                                         </AmbireExtensionProvider>
                                       </WalletConnectProvider>
                                     </GnosisProvider>
