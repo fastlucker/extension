@@ -93,20 +93,30 @@ const OnboardingOnFirstLoginScreen = () => {
 
     if (slidesError) {
       return (
-        <View style={[StyleSheet.absoluteFill, flexbox.center, styles.fallbackBackground]}>
-          <Text fontSize={16} color={colors.howl} style={[spacings.mh, spacings.mb]}>
-            {slidesError}
-          </Text>
+        <View style={[StyleSheet.absoluteFill, styles.fallbackBackground]}>
+          <SafeAreaView style={flexbox.flex1}>
+            <AmbireLogoHorizontal style={[flexbox.alignSelfCenter, spacings.mtSm]} />
+            <View style={[flexbox.flex1, flexbox.center]}>
+              <Text
+                fontSize={20}
+                weight="regular"
+                color={colors.waikawaGray}
+                style={styles.descriptionText}
+              >
+                {slidesError}
+              </Text>
 
-          <View style={flexbox.directionRow}>
-            <Button
-              type="outline"
-              accentColor={colors.heliotrope}
-              text={t('Skip')}
-              style={spacings.mhTy}
-            />
-            <Button text={t('Try again')} style={spacings.mhTy} onPress={fetchSlides} />
-          </View>
+              <View style={flexbox.directionRow}>
+                <Button
+                  type="outline"
+                  accentColor={colors.heliotrope}
+                  text={t('Skip')}
+                  style={spacings.mhTy}
+                />
+                <Button text={t('Try again')} style={spacings.mhTy} onPress={fetchSlides} />
+              </View>
+            </View>
+          </SafeAreaView>
         </View>
       )
     }
