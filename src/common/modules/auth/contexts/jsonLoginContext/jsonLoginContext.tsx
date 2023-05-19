@@ -17,10 +17,11 @@ import useVault from '@common/modules/vault/hooks/useVault'
 
 type FormProps = {
   password?: string
+  file: any
 }
 
 type JsonLoginContextData = {
-  handleLogin: ({ password }: FormProps) => Promise<void>
+  handleLogin: ({ password, file }: FormProps) => Promise<void>
   cancelLoginAttempts: () => void
   error: string | null
   inProgress: boolean
@@ -48,12 +49,12 @@ const JsonLoginProvider: React.FC<any> = ({ children }: any) => {
   const { onEOASelected } = useEOA()
 
   const handleLogin = useCallback(
-    async ({ password }: { password?: string }) => {
+    async ({ password, file }: { password?: string; file?: any }) => {
       Keyboard.dismiss()
       setError('')
       setInProgress(true)
 
-      if (pendingLoginWithQuickAccountData) {
+      if (pendingLoginWithQuickAccountData && !file) {
         try {
           const wallet = await Wallet.fromEncryptedJson(
             JSON.parse(pendingLoginWithQuickAccountData.primaryKeyBackup),
@@ -85,25 +86,31 @@ const JsonLoginProvider: React.FC<any> = ({ children }: any) => {
         return
       }
 
-      const document = await DocumentPicker.getDocumentAsync({ type: 'application/json' })
-      if (document.type !== 'success') {
-        setInProgress(false)
-        return setError(t('JSON file was not selected or something went wrong selecting it.'))
-      }
-
+      let document
       let fileContent
+
       try {
-        if (isWeb) {
-          fileContent = await fetch(document.uri, {
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json'
-            }
-          })
-          fileContent = await fileContent.json()
-        } else {
-          fileContent = await FileSystem.readAsStringAsync(document.uri)
-          fileContent = JSON.parse(fileContent)
+        if (!file) {
+          document = await DocumentPicker.getDocumentAsync({ type: 'application/json' })
+          if (document.type !== 'success') {
+            setInProgress(false)
+            return setError(t('JSON file was not selected or something went wrong selecting it.'))
+          }
+
+          if (isWeb) {
+            fileContent = await fetch(document.uri, {
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+              }
+            })
+            fileContent = await fileContent.json()
+          } else {
+            fileContent = await FileSystem.readAsStringAsync(document.uri)
+            fileContent = JSON.parse(fileContent)
+          }
+        } else if (!!file && isWeb) {
+          fileContent = file
         }
       } catch (exception) {
         setInProgress(false)
