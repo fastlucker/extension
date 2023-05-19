@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -24,6 +24,16 @@ interface Props extends InputProps {
 const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValidEns, ...rest }) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
+  const setValidationLabel = useMemo(() => {
+    if (isValidUDomain) {
+      return t('Valid Unstoppable domainsⓇ domain')
+    }
+    if (isValidEns) {
+      return t('Valid Ethereum Name ServicesⓇ domain')
+    }
+    return ''
+  }, [isValidUDomain, isValidEns, t])
 
   const handleOnScan = useCallback(
     (code: string) => {
@@ -61,6 +71,7 @@ const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValid
         }}
         onButtonPress={() => null}
         onChangeText={onChangeText}
+        validLabel={setValidationLabel}
         {...rest}
       />
       {!isWeb && (

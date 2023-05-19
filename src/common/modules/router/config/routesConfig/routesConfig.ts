@@ -28,6 +28,11 @@ const routesConfig: {
       default: i18n.t('No Connection')
     })
   },
+  [ROUTES.addReferral]: {
+    route: ROUTES.addReferral,
+    // Next screen has title, this makes the transition smoother (no logo jump effect)
+    title: ' '
+  },
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
@@ -81,7 +86,8 @@ const routesConfig: {
   [ROUTES.ambireAccountJsonLogin]: {
     route: ROUTES.ambireAccountJsonLogin,
     title: Platform.select({
-      default: i18n.t('Import from JSON')
+      web: i18n.t('Import From JSON File'),
+      default: i18n.t('Import From File')
     })
   },
   [ROUTES.ambireAccountJsonLoginPasswordConfirm]: {
@@ -246,6 +252,14 @@ const routesConfig: {
   [ROUTES.backup]: {
     route: ROUTES.backup,
     title: ''
+  },
+  [ROUTES.web3Browser]: {
+    route: ROUTES.web3Browser,
+    title: ''
+  },
+  [ROUTES.dappsCatalog]: {
+    route: ROUTES.dappsCatalog,
+    title: i18n.t('dApps')
   }
 }
 

@@ -30,11 +30,15 @@ const COMMON_ROUTES = {
 
 const MOBILE_ROUTES = {
   ...COMMON_ROUTES,
+  addReferral: 'add-referral',
   connect: 'connect',
   dataDeletionPolicy: 'data-deletion-policy',
   manageVaultLock: 'manage-vault-lock',
+  onboardingOnFirstLogin: 'onboarding-on-first-login',
+  noConnection: 'no-connection',
   hardwareWallet: 'hardware-wallet',
-  onboardingOnFirstLogin: 'onboarding-on-first-login'
+  dappsCatalog: 'dapps-catalog',
+  web3Browser: 'web3-browser'
 }
 
 const WEB_ROUTES = {
