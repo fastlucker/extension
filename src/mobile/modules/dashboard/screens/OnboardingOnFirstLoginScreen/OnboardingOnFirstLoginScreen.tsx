@@ -112,6 +112,7 @@ const OnboardingOnFirstLoginScreen = () => {
                   accentColor={colors.heliotrope}
                   text={t('Skip')}
                   style={spacings.mhTy}
+                  onPress={markOnboardingOnFirstLoginAsCompleted}
                 />
                 <Button text={t('Try again')} style={spacings.mhTy} onPress={fetchSlides} />
               </View>
