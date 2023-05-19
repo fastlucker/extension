@@ -82,7 +82,8 @@ const routesConfig: {
   [ROUTES.ambireAccountJsonLogin]: {
     route: ROUTES.ambireAccountJsonLogin,
     title: Platform.select({
-      default: i18n.t('Import from JSON')
+      web: i18n.t('Import From JSON File'),
+      default: i18n.t('Import From File')
     })
   },
   [ROUTES.ambireAccountJsonLoginPasswordConfirm]: {
