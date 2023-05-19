@@ -8,7 +8,6 @@ import DepositIcon from '@common/assets/svg/DepositIcon'
 import DiscordIcon from '@common/assets/svg/DiscordIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
-import LockIcon from '@common/assets/svg/LockIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
 import TelegramIcon from '@common/assets/svg/TelegramIcon'
@@ -16,9 +15,7 @@ import TransferIcon from '@common/assets/svg/TransferIcon'
 import TwitterIcon from '@common/assets/svg/TwitterIcon'
 import AppVersion from '@common/components/AppVersion'
 import Text from '@common/components/Text'
-import { isAndroid, isWeb } from '@common/config/env'
 import { termsAndPrivacyURL } from '@common/modules/auth/constants/URLs'
-import ConnectedDapps from '@common/modules/nav-menu/components/ConnectedDapps'
 import GasIndicator from '@common/modules/nav-menu/components/GasIndicator'
 import ManageVaultLockButton from '@common/modules/nav-menu/components/ManageVaultLockButton'
 // import Theme from '@common/modules/nav-menu/components/Theme'
@@ -88,7 +85,7 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
   ]
 
   const additionalInfo = [
-    ...(!isWeb ? [{ name: t('Data Deletion Policy'), route: ROUTES.dataDeletionPolicy }] : []),
+    { name: t('Data Deletion Policy'), route: ROUTES.dataDeletionPolicy },
     { name: t('Backup account'), route: ROUTES.backup }
   ]
 
@@ -108,31 +105,12 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
     <DrawerContentScrollView
       {...props}
       alwaysBounceVertical={false}
-      style={!isWeb && spacings.mt}
+      style={spacings.mt}
       ref={scrollRef}
     >
-      <View
-        style={[
-          spacings.mh,
-          isWeb ? spacings.mbTy : spacings.mbSm,
-          isWeb ? spacings.mtMi : spacings.mbTy
-        ]}
-      >
+      <View style={[spacings.mh, spacings.mbSm, spacings.mbTy]}>
         <GasIndicator handleNavigate={handleNavigate} />
       </View>
-      {isWeb && (
-        <View style={[styles.quickActionsContainer, spacings.phLg, spacings.mbTy]}>
-          <TouchableOpacity
-            style={[styles.lockBtn, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
-            onPress={() => lockVault()}
-          >
-            <LockIcon height={20} color={colors.chetwode} />
-            <Text color={colors.chetwode} weight="regular">
-              {t('Lock')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
       <View style={spacings.mhLg}>
         <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
           {t('Menu')}
@@ -160,8 +138,7 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
           {t('Settings')}
         </Text>
         <View style={[spacings.mlTy, spacings.mbSm]}>
-          {isAndroid && <ConnectedDapps />}
-          {!isWeb && <ManageVaultLockButton handleNavigate={handleNavigate} />}
+          <ManageVaultLockButton handleNavigate={handleNavigate} />
           {/* TODO: Temporary disabled since v3.1.1 as part of the Apple app review feedback */}
           {/* <Theme /> */}
           {settings.map((s) => (

@@ -2,7 +2,6 @@ import { Account } from 'ambire-common/src/hooks/useAccounts'
 import { validateImportedAccountProps } from 'ambire-common/src/services/validations'
 import { Wallet } from 'ethers'
 import * as DocumentPicker from 'expo-document-picker'
-import * as FileSystem from 'expo-file-system'
 import React, { createContext, useCallback, useMemo, useState } from 'react'
 import { Keyboard } from 'react-native'
 
@@ -14,6 +13,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useVault from '@common/modules/vault/hooks/useVault'
+import { getFileContentAsJson } from '@common/services/file'
 
 type FormProps = {
   password?: string
@@ -97,18 +97,7 @@ const JsonLoginProvider: React.FC<any> = ({ children }: any) => {
             return setError(t('JSON file was not selected or something went wrong selecting it.'))
           }
 
-          if (isWeb) {
-            fileContent = await fetch(document.uri, {
-              headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json'
-              }
-            })
-            fileContent = await fileContent.json()
-          } else {
-            fileContent = await FileSystem.readAsStringAsync(document.uri)
-            fileContent = JSON.parse(fileContent)
-          }
+          fileContent = (await getFileContentAsJson(document.uri)) as unknown as Account
         } else if (!!file && isWeb) {
           fileContent = file
         }

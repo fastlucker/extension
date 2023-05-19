@@ -1,6 +1,6 @@
 import { Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import { isAndroid, isWeb } from '@common/config/env'
+import { isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
 import commonStyles from '@common/styles/utils/common'
 
@@ -50,7 +50,6 @@ const styles = StyleSheet.create<Styles>({
     paddingLeft: 10,
     paddingRight: 15,
     marginLeft: 10,
-    marginRight: isAndroid ? 10 : 0,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
