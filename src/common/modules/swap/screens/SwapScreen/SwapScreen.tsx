@@ -10,6 +10,9 @@ import colors from '@common/styles/colors'
 
 import styles from './styles'
 
+// Not in env for easy OTA updates
+const SWAP_URL = 'https://swap.ambire.com/v0.2.0/#/'
+
 const INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED = `(function() {
   window.addEventListener('message', (msg) => {
     window.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
@@ -62,7 +65,7 @@ const SwapScreen = () => {
           </style>
         </head>
         <body>
-          <iframe id="uniswap" src="${'https://swap.ambire.com/v0.2.0/#/'}" allow="autoplay; encrypted-media"></iframe>
+          <iframe id="uniswap" src="${SWAP_URL}" allow="autoplay; encrypted-media"></iframe>
         </body>
       </html>
     `
@@ -76,6 +79,7 @@ const SwapScreen = () => {
 
   useEffect(() => {
     if (loading) {
+      // To ensure a proper transition/update of the webview url with the new hash
       setTimeout(() => {
         setLoading(false)
       }, 200)
