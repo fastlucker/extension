@@ -1,23 +1,29 @@
 // TODO: fill in the missing types
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { useModalize } from 'react-native-modalize'
 
+import BottomSheet from '@common/components/BottomSheet'
+import { isAndroid, isiOS } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
-import { BROWSER_EXTENSION_REQUESTS_STORAGE_KEY } from '@common/contexts/extensionApprovalContext/types'
 import useAccounts from '@common/hooks/useAccounts'
-import useExtensionApproval from '@common/hooks/useExtensionApproval'
 import useExtensionWallet from '@common/hooks/useExtensionWallet'
 import useGnosisSafe from '@common/hooks/useGnosis'
 import useNavigation from '@common/hooks/useNavigation'
 import useNetwork from '@common/hooks/useNetwork'
 import useToast from '@common/hooks/useToast'
-import useWalletConnect from '@common/hooks/useWalletConnect'
+import PendingTransactionsScreen from '@common/modules/pending-transactions/screens/PendingTransactionsScreen'
 import { ROUTES } from '@common/modules/router/constants/common'
+import SignMessageScreen from '@common/modules/sign-message/screens/SignMessageScreen'
 import { VAULT_STATUS } from '@common/modules/vault/constants/vaultStatus'
 import useVault from '@common/modules/vault/hooks/useVault'
+import colors from '@common/styles/colors'
 import { isExtension } from '@web/constants/browserapi'
+import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'
 import { checkBrowserWindowsForExtensionPopup } from '@web/utils/checkBrowserWindowsForExtensionPopup'
 import { getUiType } from '@web/utils/uiType'
+
+import useWeb3Approval from './useWeb3Approval'
 
 export interface RequestsContextReturnType {
   internalRequests: any
@@ -63,12 +69,24 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { accounts, selectedAcc } = useAccounts()
   const { network }: any = useNetwork()
   const { navigate } = useNavigation()
-  const { requests: wcRequests, resolveMany: wcResolveMany } = useWalletConnect()
-  const { requests: gnosisRequests, resolveMany: gnosisResolveMany } = useGnosisSafe()
-  const { requests: extensionRequests, resolveMany: extensionResolveMany } = useExtensionApproval()
+  const { vaultStatus } = useVault()
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { vaultStatus } = useVault()
+
+  const { requests: gnosisRequests, resolveMany: gnosisResolveMany } = useGnosisSafe()
+  const { requests: approvalRequests, resolveMany: approvalResolveMany } = useWeb3Approval()
+
+  const {
+    ref: sheetRefSendTxn,
+    open: openBottomSheetSendTxn,
+    close: closeBottomSheetSendTxn
+  } = useModalize()
+
+  const {
+    ref: sheetRefSignMsg,
+    open: openBottomSheetSignMsg,
+    close: closeBottomSheetSignMsg
+  } = useModalize()
 
   const { extensionWallet } = useExtensionWallet()
   const [internalRequests, setInternalRequests] = useState<any>([])
@@ -82,10 +100,10 @@ const RequestsProvider: React.FC = ({ children }) => {
 
   const requests = useMemo(
     () =>
-      [...internalRequests, ...wcRequests, ...gnosisRequests, ...extensionRequests].filter(
-        ({ account }) => accounts.find(({ id }: any) => id === account)
+      [...internalRequests, ...gnosisRequests, ...approvalRequests].filter(({ account }) =>
+        accounts.find(({ id }: any) => id === account)
       ),
-    [internalRequests, wcRequests, gnosisRequests, extensionRequests, accounts]
+    [internalRequests, gnosisRequests, approvalRequests, accounts]
   )
 
   // Filter only the sign message requests
@@ -172,11 +190,10 @@ const RequestsProvider: React.FC = ({ children }) => {
   const resolveMany = useCallback(
     (ids: any, resolution: any) => {
       gnosisResolveMany(ids, resolution)
-      wcResolveMany(ids, resolution)
-      extensionResolveMany(ids, resolution)
+      approvalResolveMany(ids, resolution)
       setInternalRequests((reqs: any) => reqs.filter((x: any) => !ids.includes(x.id)))
     },
-    [gnosisResolveMany, wcResolveMany, extensionResolveMany]
+    [gnosisResolveMany, approvalResolveMany]
   )
 
   const showSendTxns = useCallback(
@@ -205,13 +222,7 @@ const RequestsProvider: React.FC = ({ children }) => {
   // Handle navigation for sign message requests
   useEffect(() => {
     ;(async () => {
-      let toSign = everythingToSign
-
-      if (isExtension && getUiType().isPopup) {
-        toSign = everythingToSign.filter(
-          (r) => r?.reqSrc !== BROWSER_EXTENSION_REQUESTS_STORAGE_KEY
-        )
-      }
+      const toSign = everythingToSign.filter((r) => r?.reqSrc !== APPROVAL_REQUESTS_STORAGE_KEY)
 
       if (toSign.length && vaultStatus === VAULT_STATUS.UNLOCKED) {
         navigate(ROUTES.signMessage)
@@ -220,8 +231,7 @@ const RequestsProvider: React.FC = ({ children }) => {
         // In case there is a pending sign msg request opened in a notification window
         // and at the same time the popup window is triggered just force open
         // the the notification window to finalize the request before being able to continue
-        everythingToSign.filter((r) => r?.reqSrc === BROWSER_EXTENSION_REQUESTS_STORAGE_KEY)
-          .length &&
+        everythingToSign.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
         isExtension &&
         getUiType().isPopup
       ) {
@@ -231,47 +241,59 @@ const RequestsProvider: React.FC = ({ children }) => {
           window.close()
         } else {
           browser.storage.local.set({
-            [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([])
+            [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([])
           })
         }
+      } else if (
+        everythingToSign.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
+        (isiOS || isAndroid)
+      ) {
+        openBottomSheetSignMsg()
       }
     })()
-  }, [everythingToSign, extensionWallet, vaultStatus, navigate])
+  }, [everythingToSign, extensionWallet, vaultStatus, navigate, openBottomSheetSignMsg])
 
   // Handle navigation for send txn requests
   useEffect(() => {
     ;(async () => {
-      if (sendTxnState?.showing && !prevSendTxnState?.showing) {
-        // Extension only
-        // In case there is a pending send txn request opened in a notification window
-        // and at the same time the popup window is triggered just force open
-        // the the notification window to finalize the request before being able to continue
-        if (
-          eligibleRequests.filter((r) => r?.reqSrc === BROWSER_EXTENSION_REQUESTS_STORAGE_KEY)
-            .length &&
-          isExtension &&
-          getUiType().isPopup
-        ) {
-          const { extensionPopupExists } = await checkBrowserWindowsForExtensionPopup()
-          if (extensionPopupExists) {
-            extensionWallet!.activeFirstApproval()
-            window.close()
+      setTimeout(async () => {
+        if (sendTxnState?.showing && !prevSendTxnState?.showing) {
+          // Extension only
+          // In case there is a pending send txn request opened in a notification window
+          // and at the same time the popup window is triggered just force open
+          // the the notification window to finalize the request before being able to continue
+          if (
+            eligibleRequests.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
+            isExtension &&
+            getUiType().isPopup
+          ) {
+            const { extensionPopupExists } = await checkBrowserWindowsForExtensionPopup()
+            if (extensionPopupExists) {
+              extensionWallet!.activeFirstApproval()
+              window.close()
+            } else {
+              browser.storage.local.set({
+                [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([])
+              })
+            }
+          } else if (
+            eligibleRequests.filter((r) => r?.reqSrc === APPROVAL_REQUESTS_STORAGE_KEY).length &&
+            (isiOS || isAndroid)
+          ) {
+            openBottomSheetSendTxn()
           } else {
-            browser.storage.local.set({
-              [BROWSER_EXTENSION_REQUESTS_STORAGE_KEY]: JSON.stringify([])
-            })
+            navigate(ROUTES.pendingTransactions)
           }
-        } else {
-          navigate(ROUTES.pendingTransactions)
         }
-      }
+      }, 1)
     })()
   }, [
     sendTxnState?.showing,
     prevSendTxnState?.showing,
     eligibleRequests,
     extensionWallet,
-    navigate
+    navigate,
+    openBottomSheetSendTxn
   ])
 
   return (
@@ -308,6 +330,28 @@ const RequestsProvider: React.FC = ({ children }) => {
       )}
     >
       {children}
+      <BottomSheet
+        id="bottom-sheet-send-txn"
+        sheetRef={sheetRefSendTxn}
+        closeBottomSheet={() => {
+          closeBottomSheetSendTxn()
+        }}
+        style={{ backgroundColor: colors.martinique }}
+        displayCancel={false}
+      >
+        <PendingTransactionsScreen isInBottomSheet closeBottomSheet={closeBottomSheetSendTxn} />
+      </BottomSheet>
+      <BottomSheet
+        id="bottom-sheet-sign-msg"
+        sheetRef={sheetRefSignMsg}
+        closeBottomSheet={() => {
+          closeBottomSheetSignMsg()
+        }}
+        style={{ backgroundColor: colors.martinique }}
+        displayCancel={false}
+      >
+        <SignMessageScreen isInBottomSheet closeBottomSheet={closeBottomSheetSignMsg} />
+      </BottomSheet>
     </RequestsContext.Provider>
   )
 }

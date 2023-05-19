@@ -3,6 +3,7 @@ import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 
+import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import DashboardIcon from '@common/assets/svg/DashboardIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
@@ -21,7 +22,6 @@ import AddAccountPasswordToVaultScreen from '@common/modules/auth/screens/AddAcc
 import AuthScreen from '@common/modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@common/modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@common/modules/auth/screens/ExternalSignerScreen'
-import JsonLoginScreen from '@common/modules/auth/screens/JsonLoginScreen'
 import CollectibleScreen from '@common/modules/dashboard/screens/CollectibleScreen'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
 import EarnScreen from '@common/modules/earn/screens/EarnScreen'
@@ -57,10 +57,14 @@ import VaultSetupGetStartedScreen from '@common/modules/vault/screens/VaultSetup
 import { navigate } from '@common/services/navigation'
 import colors from '@common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
-import ConnectScreen from '@mobile/modules/connect/screens/ConnectScreen'
+import JsonLoginScreen from '@mobile/modules/auth/screens/JsonLoginScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
+import AddReferralScreen from '@mobile/modules/referral/screens/AddReferralScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
 import BackupScreen from '@mobile/modules/settings/screens/BackupScreen'
+import { DappsProvider } from '@mobile/modules/web3/contexts/dappsContext'
+import DappsCatalogScreen from '@mobile/modules/web3/screens/DappsCatalogScreen'
+import Web3BrowserScreen from '@mobile/modules/web3/screens/Web3BrowserScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -72,6 +76,7 @@ const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
 const SignersStack = createNativeStackNavigator()
 const ManageVaultLockStack = createNativeStackNavigator()
+const Web3Stack = createNativeStackNavigator()
 const EmailLoginStack = createNativeStackNavigator()
 const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
@@ -154,6 +159,31 @@ const ManageVaultLockStackScreen = () => {
   )
 }
 
+const Web3StackScreen = () => {
+  return (
+    <DappsProvider>
+      <Web3Stack.Navigator screenOptions={{ headerShown: true }}>
+        <Web3Stack.Screen
+          name={`${MOBILE_ROUTES.dappsCatalog}-screen`}
+          component={DappsCatalogScreen}
+          options={{
+            title: routesConfig[ROUTES.dappsCatalog].title,
+            header: headerAlpha
+          }}
+        />
+        <Web3Stack.Screen
+          name={`${MOBILE_ROUTES.web3Browser}-screen`}
+          component={Web3BrowserScreen}
+          options={{
+            title: routesConfig[ROUTES.web3Browser].title,
+            header: headerGamma
+          }}
+        />
+      </Web3Stack.Navigator>
+    </DappsProvider>
+  )
+}
+
 const EmailLoginStackScreen = () => {
   return (
     <EmailLoginProvider>
@@ -204,7 +234,7 @@ const AuthStack = () => {
 
   const initialRouteName =
     vaultStatus === VAULT_STATUS.NOT_INITIALIZED
-      ? MOBILE_ROUTES.getStarted
+      ? MOBILE_ROUTES.addReferral
       : // Checks whether there is a pending email login attempt. It happens when user
       // request email login and closes the app. When the app is opened
       // the second time - an immediate email login attempt will be triggered.
@@ -216,6 +246,11 @@ const AuthStack = () => {
     <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <>
+          <Stack.Screen
+            name={MOBILE_ROUTES.addReferral}
+            options={{ title: routesConfig[ROUTES.addReferral].title }}
+            component={AddReferralScreen}
+          />
           <Stack.Screen
             name={MOBILE_ROUTES.getStarted}
             options={{ title: routesConfig[ROUTES.getStarted].title }}
@@ -381,17 +416,6 @@ const TabsScreens = () => {
         component={EarnScreen}
       />
       <Tab.Screen
-        name={MOBILE_ROUTES.send}
-        options={{
-          tabBarLabel: routesConfig[ROUTES.send].title,
-          headerTitle: routesConfig[ROUTES.send].title,
-          tabBarIcon: ({ color }) => (
-            <SendIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-          )
-        }}
-        component={SendScreen}
-      />
-      <Tab.Screen
         name={MOBILE_ROUTES.swap}
         options={{
           tabBarLabel: routesConfig[ROUTES.swap].title,
@@ -412,6 +436,19 @@ const TabsScreens = () => {
           )
         }}
         component={TransactionsScreen}
+      />
+      <Tab.Screen
+        name={MOBILE_ROUTES.dappsCatalog}
+        options={{
+          tabBarLabel: routesConfig[ROUTES.dappsCatalog].title,
+          headerTitle: routesConfig[ROUTES.dappsCatalog].title,
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            // temp icon type and size: tabsIconSize - 6 TODO: replace when redesigning
+            <DAppsIcon color={color} width={tabsIconSize - 6} height={tabsIconSize - 6} />
+          )
+        }}
+        component={Web3StackScreen}
       />
     </Tab.Navigator>
   )
@@ -488,17 +525,15 @@ const AppStack = () => {
         component={AuthStack}
         options={{ headerShown: false }}
       />
-      {isAndroid && (
-        <MainStack.Screen
-          name={MOBILE_ROUTES.connect}
-          component={ConnectScreen}
-          options={{ title: routesConfig[ROUTES.connect].title }}
-        />
-      )}
       <MainStack.Screen
         name={MOBILE_ROUTES.receive}
         options={{ header: headerGamma }}
         component={ReceiveScreen}
+      />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.send}
+        options={{ header: headerGamma }}
+        component={SendScreen}
       />
       <MainStack.Screen
         name={MOBILE_ROUTES.provider}

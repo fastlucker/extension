@@ -557,6 +557,8 @@ PODS:
     - React-Core
     - SDWebImage (~> 5.11.1)
     - SDWebImageWebPCoder (~> 0.8.4)
+  - RNFS (2.20.0):
+    - React-Core
   - RNGestureHandler (2.8.0):
     - React-Core
   - RNReanimated (2.12.0):
@@ -716,6 +718,7 @@ DEPENDENCIES:
   - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
   - "RNCMaskedView (from `../node_modules/@react-native-masked-view/masked-view`)"
   - RNFastImage (from `../node_modules/react-native-fast-image`)
+  - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -923,6 +926,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-masked-view/masked-view"
   RNFastImage:
     :path: "../node_modules/react-native-fast-image"
+  RNFS:
+    :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNReanimated:
@@ -1048,6 +1053,7 @@ SPEC CHECKSUMS:
   RNCCheckbox: 38989bbd3d7d536adf24ba26c6b3e6cefe0bea6f
   RNCMaskedView: bc0170f389056201c82a55e242e5d90070e18e5a
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
   RNReanimated: 2a91e85fcd343f8af3c58d3425b99fdd285590a5
   RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
