@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, TouchableOpacity, View } from 'react-native'
 
+import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import DashboardIcon from '@common/assets/svg/DashboardIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import DiscordIcon from '@common/assets/svg/DiscordIcon'
@@ -21,7 +22,6 @@ import ManageVaultLockButton from '@common/modules/nav-menu/components/ManageVau
 // import Theme from '@common/modules/nav-menu/components/Theme'
 import styles from '@common/modules/nav-menu/styles'
 import { ROUTES } from '@common/modules/router/constants/common'
-import useVault from '@common/modules/vault/hooks/useVault'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -42,7 +42,6 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
   const { t } = useTranslation()
   const { navigation } = props
   const { name: routeName } = useGetSelectedRoute()
-  const { lockVault } = useVault()
   const scrollRef: any = useRef(null)
 
   const isDrawerOpen = useDrawerStatus() === 'open'
@@ -75,7 +74,8 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
     { Icon: DepositIcon, name: t('Deposit'), route: ROUTES.receive },
-    { Icon: GasTankIcon, name: t('Gas Tank'), route: ROUTES.gasTank }
+    { Icon: GasTankIcon, name: t('Gas Tank'), route: ROUTES.gasTank },
+    { Icon: DAppsIcon, name: t('dApps'), route: ROUTES.dappsCatalog }
   ]
 
   const help = [
@@ -125,7 +125,18 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
                 style={[styles.menuItem]}
               >
                 {isActive && <View style={styles.activeMenuItem} />}
-                {!!Icon && <Icon color={isActive ? colors.titan : colors.titan_50} />}
+                {!!Icon && (
+                  <View
+                    style={{
+                      width: 24,
+                      height: 24,
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Icon color={isActive ? colors.titan : colors.titan_50} />
+                  </View>
+                )}
                 <Text style={spacings.mlTy} color={isActive ? colors.titan : colors.titan_50}>
                   {name}
                 </Text>
