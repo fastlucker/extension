@@ -56,8 +56,6 @@ const Web3BrowserScreen = () => {
     setCanGoForward(navState.canGoForward)
   }, [])
 
-  const uri = providerToInject ? selectedDappUrl : null
-
   return (
     <ErrorBoundary>
       <GradientBackgroundWrapper>
@@ -103,7 +101,7 @@ const Web3BrowserScreen = () => {
               disabled
               inputStyle={styles.addressInputStyle}
               inputWrapperStyle={styles.addressInputWrapperStyle}
-              value={uri || ''}
+              value={selectedDappUrl || ''}
             />
             <TouchableHighlight
               hitSlop={HIT_SLOP}
@@ -116,7 +114,7 @@ const Web3BrowserScreen = () => {
           </View>
           <WebView
             ref={webViewRef}
-            source={{ uri }}
+            source={providerToInject ? { uri: selectedDappUrl } : { html: '' }}
             onMessage={onMessage}
             injectedJavaScriptBeforeContentLoaded={providerToInject}
             onNavigationStateChange={onNavigationStateChange}

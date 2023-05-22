@@ -104,6 +104,8 @@ const DappsCatalogList = () => {
       style={spacings.mbTy}
       data={sortFiltered(filteredCatalog)}
       renderItem={renderItem}
+      initialNumToRender={7}
+      windowSize={4}
       keyExtractor={(item) => item.id}
       keyboardDismissMode="on-drag"
     />
