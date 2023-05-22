@@ -1,22 +1,19 @@
-import React, { useMemo, useState } from 'react'
+import usePrevious from 'ambire-common/src/hooks/usePrevious'
+import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Spinner from '@common/components/Spinner'
-import Wrapper from '@common/components/Wrapper'
-import CONFIG, { isiOS } from '@common/config/env'
 import useGnosis from '@common/hooks/useGnosis'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
 
 import styles from './styles'
 
-const INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED = `(function() {
-  document.addEventListener('message', function (msg) {
-    document.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
-  });
+// Not in env for easy OTA updates
+const SWAP_URL = 'https://swap.ambire.com/v0.2.0/#/'
 
+const INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED = `(function() {
   window.addEventListener('message', (msg) => {
     window.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
   });
@@ -54,89 +51,69 @@ const INJECTED_JAVASCRIPT = `
   ${HIGHLIGHT_COLOR}
 `
 
-// Set the iframe height with 100% and no scroll (Scroll-y in body).
-// https://stackoverflow.com/a/5956269/1333836
-const INJECTED_WRAPPING_CSS = `
-  <style type="text/css" media="screen">
-    body, html { width: 100%; height: 100%; overflow: hidden; }
-
-    * { padding: 0; margin: 0; }
-
-    iframe { width: 100%; height: 100%; overflow: hidden; border: none; }
-  </style>
-`
-
 const SwapScreen = () => {
   const { sushiSwapIframeRef, hash, handleIncomingMessage } = useGnosis()
-  const [loaded, setLoaded] = useState<boolean>(false)
-
-  const webviewHtml = useMemo(
-    () => `
+  const [loading, setLoading] = useState(false)
+  const webviewHtml = `
     <!DOCTYPE html>
       <html>
-        <head>${INJECTED_WRAPPING_CSS}</head>
+        <head>
+          <style type="text/css" media="screen">
+            body, html { width: 100%; height: 100%; }
+            * { padding: 0; margin: 0; }
+            iframe { width: 100%; height: 100%; border: none; }
+          </style>
+        </head>
         <body>
-          <iframe id=${hash} src="${CONFIG.SWAP_URL}" scrolling="no" allow="autoplay; encrypted-media"></iframe>
+          <iframe id="uniswap" src="${SWAP_URL}" allow="autoplay; encrypted-media"></iframe>
         </body>
       </html>
-    `,
-    [hash]
-  )
+    `
 
-  const webviewSource = useMemo(() => {
-    // Workaround: In order for the webview to load properly SushiSwap on iOS,
-    // the url should be loaded first as a uri source
-    // and instantly after that as a html(iframe) source.
-    if (isiOS) {
-      return loaded ? { html: webviewHtml } : { uri: CONFIG.SWAP_URL }
+  const prevHash = usePrevious(hash)
+  useEffect(() => {
+    if (hash !== prevHash) {
+      setLoading(true)
     }
+  }, [prevHash, hash])
 
-    return { html: webviewHtml }
-  }, [loaded, webviewHtml])
+  useEffect(() => {
+    if (loading) {
+      // To ensure a proper transition/update of the webview url with the new hash
+      setTimeout(() => {
+        setLoading(false)
+      }, 200)
+    }
+  }, [loading])
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav style={spacings.phTy}>
-        {/* Note: this doesn't work on Android emulator. */}
-        {/* It displays a blank screen only, no matter if the source is */}
-        {/* html or uri. Supposedly, its caused by the SushiSwap html */}
-        {/* because it works with other uri-s and it works with custom html */}
-        <WebView
-          key={hash}
-          ref={sushiSwapIframeRef}
-          originWhitelist={['*']}
-          source={webviewSource}
-          injectedJavaScriptForMainFrameOnly
-          injectedJavaScriptBeforeContentLoadedForMainFrameOnly
-          setSupportMultipleWindows
-          javaScriptEnabled
-          injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
-          injectedJavaScript={INJECTED_JAVASCRIPT}
-          containerStyle={styles.container}
-          style={styles.webview}
-          bounces={false}
-          onLoadEnd={() => {
-            if (!loaded) {
-              // Just to make sure the url loads first on iOS before the html
-              setTimeout(() => {
-                setLoaded(true)
-              }, 50)
-            }
-          }}
-          setBuiltInZoomControls={false}
-          overScrollMode="never" // prevents the Android bounce effect (blue shade when scroll to end)
-          startInLoadingState
-          renderLoading={() => (
-            <View style={styles.loadingWrapper}>
-              <Spinner />
-            </View>
-          )}
-          onMessage={(event) => {
-            const msg = JSON.parse(event.nativeEvent.data)
-            handleIncomingMessage(msg)
-          }}
-        />
-      </Wrapper>
+      {/* Note: might not work properly on Android emulator with this URL. */}
+      <WebView
+        key={hash}
+        ref={sushiSwapIframeRef}
+        source={{ html: loading ? '' : webviewHtml }}
+        javaScriptEnabled
+        injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
+        injectedJavaScript={INJECTED_JAVASCRIPT}
+        containerStyle={styles.container}
+        style={styles.webview}
+        bounces={false}
+        setBuiltInZoomControls={false}
+        startInLoadingState
+        scrollEnabled
+        nestedScrollEnabled
+        cacheEnabled={false}
+        renderLoading={() => (
+          <View style={styles.loadingWrapper}>
+            <Spinner />
+          </View>
+        )}
+        onMessage={(event) => {
+          const msg = JSON.parse(event.nativeEvent.data)
+          handleIncomingMessage(msg)
+        }}
+      />
     </GradientBackgroundWrapper>
   )
 }

@@ -15,6 +15,8 @@ import useToast from '@common/hooks/useToast'
 import PendingTransactionsScreen from '@common/modules/pending-transactions/screens/PendingTransactionsScreen'
 import { ROUTES } from '@common/modules/router/constants/common'
 import SignMessageScreen from '@common/modules/sign-message/screens/SignMessageScreen'
+import { VAULT_STATUS } from '@common/modules/vault/constants/vaultStatus'
+import useVault from '@common/modules/vault/hooks/useVault'
 import colors from '@common/styles/colors'
 import { isExtension } from '@web/constants/browserapi'
 import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'
@@ -67,10 +69,13 @@ const RequestsProvider: React.FC = ({ children }) => {
   const { accounts, selectedAcc } = useAccounts()
   const { network }: any = useNetwork()
   const { navigate } = useNavigation()
-  const { requests: gnosisRequests, resolveMany: gnosisResolveMany } = useGnosisSafe()
-  const { requests: approvalRequests, resolveMany: approvalResolveMany } = useWeb3Approval()
+  const { vaultStatus } = useVault()
   const { addToast } = useToast()
   const { t } = useTranslation()
+
+  const { requests: gnosisRequests, resolveMany: gnosisResolveMany } = useGnosisSafe()
+  const { requests: approvalRequests, resolveMany: approvalResolveMany } = useWeb3Approval()
+
   const {
     ref: sheetRefSendTxn,
     open: openBottomSheetSendTxn,
@@ -127,6 +132,7 @@ const RequestsProvider: React.FC = ({ children }) => {
       ),
     [requests, network?.chainId, selectedAcc]
   )
+
   // Docs: the state is { showing: bool, replacementBundle, replaceByDefault: bool, mustReplaceNonce: number }
   // mustReplaceNonce is set when the end goal is to replace a particular transaction, and if that txn gets mined we should stop the user from doing anything
   // mustReplaceNonce must always be used together with either replaceByDefault: true or replacementBundle
@@ -134,19 +140,21 @@ const RequestsProvider: React.FC = ({ children }) => {
     showing: boolean
     [key: string]: any
   }>(() => ({
-    showing: !!eligibleRequests.length
+    showing: false
   }))
 
   const prevSendTxnState: any = usePrevious(sendTxnState)
 
   useEffect(() => {
-    setSendTxnState((prev) => ({
-      showing: !!eligibleRequests.length,
-      // we only keep those if there are transactions, otherwise zero them
-      replaceByDefault: eligibleRequests.length ? prev.replaceByDefault : null,
-      mustReplaceNonce: eligibleRequests.length ? prev.mustReplaceNonce : null
-    }))
-  }, [eligibleRequests.length])
+    if (vaultStatus === VAULT_STATUS.UNLOCKED) {
+      setSendTxnState((prev) => ({
+        showing: !!eligibleRequests.length,
+        // we only keep those if there are transactions, otherwise zero them
+        replaceByDefault: eligibleRequests.length ? prev.replaceByDefault : null,
+        mustReplaceNonce: eligibleRequests.length ? prev.mustReplaceNonce : null
+      }))
+    }
+  }, [eligibleRequests.length, vaultStatus])
 
   const onBroadcastedTxn = useCallback(
     (hash: any) => {
@@ -189,8 +197,9 @@ const RequestsProvider: React.FC = ({ children }) => {
   )
 
   const showSendTxns = useCallback(
-    (replacementBundle: any, replaceByDefault = false) =>
-      setSendTxnState({ showing: true, replacementBundle, replaceByDefault }),
+    (replacementBundle: any, replaceByDefault = false) => {
+      return setSendTxnState({ showing: true, replacementBundle, replaceByDefault })
+    },
     [setSendTxnState]
   )
   // keep values such as replaceByDefault and mustReplaceNonce; those will be reset on any setSendTxnState/showSendTxns
@@ -215,7 +224,7 @@ const RequestsProvider: React.FC = ({ children }) => {
     ;(async () => {
       const toSign = everythingToSign.filter((r) => r?.reqSrc !== APPROVAL_REQUESTS_STORAGE_KEY)
 
-      if (toSign.length) {
+      if (toSign.length && vaultStatus === VAULT_STATUS.UNLOCKED) {
         navigate(ROUTES.signMessage)
       } else if (
         // Extension only
@@ -242,7 +251,7 @@ const RequestsProvider: React.FC = ({ children }) => {
         openBottomSheetSignMsg()
       }
     })()
-  }, [everythingToSign, extensionWallet, navigate, openBottomSheetSignMsg])
+  }, [everythingToSign, extensionWallet, vaultStatus, navigate, openBottomSheetSignMsg])
 
   // Handle navigation for send txn requests
   useEffect(() => {

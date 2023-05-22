@@ -74,9 +74,9 @@ const AppInit = () => {
                                 <PortfolioProvider>
                                   <GnosisProvider>
                                     <GasTankProvider>
-                                      <RequestsProvider>
-                                        <BiometricsProvider>
-                                          <VaultProvider>
+                                      <VaultProvider>
+                                        <RequestsProvider>
+                                          <BiometricsProvider>
                                             <AddressBookProvider>
                                               <AttentionGrabberProvider>
                                                 <PrivateModeProvider>
@@ -89,9 +89,9 @@ const AppInit = () => {
                                               </AttentionGrabberProvider>
                                               <PortalHost name="global" />
                                             </AddressBookProvider>
-                                          </VaultProvider>
-                                        </BiometricsProvider>
-                                      </RequestsProvider>
+                                          </BiometricsProvider>
+                                        </RequestsProvider>
+                                      </VaultProvider>
                                     </GasTankProvider>
                                   </GnosisProvider>
                                 </PortfolioProvider>
