@@ -1,6 +1,7 @@
 import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
 import React, { useCallback } from 'react'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
+import ErrorBoundary from 'react-native-error-boundary'
 import { SvgUri } from 'react-native-svg'
 
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
@@ -61,7 +62,9 @@ const DappCatalogListItem: React.FC<Props> = ({
           {iconUrl ? (
             iconUrl.endsWith('.svg') ? (
               <View style={[common.borderRadiusPrimary, common.hidden]}>
-                <SvgUri width={46} height={46} uri={iconUrl} />
+                <ErrorBoundary FallbackComponent={() => <ManifestFallbackIcon />}>
+                  <SvgUri width={46} height={46} uri={iconUrl} />
+                </ErrorBoundary>
               </View>
             ) : (
               <FastImage style={styles.dappIcon as any} source={{ uri: iconUrl }} />

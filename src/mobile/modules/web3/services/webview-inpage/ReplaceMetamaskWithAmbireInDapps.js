@@ -4,13 +4,21 @@ const ambireSvg =
 
 const replaceMetamaskWithAmbireInDapps = `
   function replaceMetamaskWithAmbire(textToFind, replacementText) {
-    document.querySelectorAll('body, body *').forEach(node => {
+    let additionalNodes = [];
+    const onboardElement = document.querySelector("onboard-v2");
+
+    if (onboardElement && onboardElement.shadowRoot) {
+      additionalNodes = Array.from(onboardElement.shadowRoot.querySelectorAll('*'));
+    }
+
+    const nodes = [...Array.from(document.querySelectorAll('body, body *')), ...additionalNodes];
+    nodes.forEach(node => {
       Array.from(node.childNodes).forEach(childNode => {
         if (childNode.nodeType === Node.TEXT_NODE) {
           const text = childNode.nodeValue;
           const replacedText = text.replace(new RegExp(textToFind, 'gi'), replacementText);
 
-          if (/^metamask$/i.test(text)) {
+          if (/^metamask$/i.test(text.trim())) {
             let ancestorNode = childNode.parentNode;
             let maxLevels = 3;
             while (ancestorNode && maxLevels > 0) {
@@ -60,7 +68,8 @@ const replaceMetamaskWithAmbireInDapps = `
       mutationsQueue.length = 0; // Clear the mutation queue
     }, 80);
   });
-  observer.observe(document, { childList: true, subtree: true });
+
+  observer.observe(document, { childList: true, subtree: true, attributes: true });
 `
 
 export default replaceMetamaskWithAmbireInDapps

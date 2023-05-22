@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { TouchableHighlight, View } from 'react-native'
+import ErrorBoundary from 'react-native-error-boundary'
 import { WebView, WebViewNavigation } from 'react-native-webview'
 
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
@@ -58,79 +59,81 @@ const Web3BrowserScreen = () => {
   const uri = providerToInject ? selectedDappUrl : null
 
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper style={spacings.ph0} hasBottomTabNav>
-        <View
-          style={[
-            flexbox.directionRow,
-            flexbox.alignCenter,
-            spacings.pbTy,
-            spacings.prSm,
-            spacings.plSm
-          ]}
-        >
-          <TouchableHighlight
-            hitSlop={HIT_SLOP}
-            onPress={webViewRef.current?.goBack}
-            style={[styles.webviewButtonCommon, styles.left]}
-            disabled={!canGoBack}
-            underlayColor={colors.heliotrope}
+    <ErrorBoundary>
+      <GradientBackgroundWrapper>
+        <Wrapper style={spacings.ph0} hasBottomTabNav>
+          <View
+            style={[
+              flexbox.directionRow,
+              flexbox.alignCenter,
+              spacings.pbTy,
+              spacings.prSm,
+              spacings.plSm
+            ]}
           >
-            <AntDesign
-              color={canGoBack ? colors.white : colors.titan_50}
-              name="left"
-              size={24}
-              spot
+            <TouchableHighlight
+              hitSlop={HIT_SLOP}
+              onPress={webViewRef.current?.goBack}
+              style={[styles.webviewButtonCommon, styles.left]}
+              disabled={!canGoBack}
+              underlayColor={colors.heliotrope}
+            >
+              <AntDesign
+                color={canGoBack ? colors.white : colors.titan_50}
+                name="left"
+                size={24}
+                spot
+              />
+            </TouchableHighlight>
+            <TouchableHighlight
+              hitSlop={HIT_SLOP}
+              onPress={webViewRef.current?.goForward}
+              style={[styles.webviewButtonCommon, styles.right]}
+              disabled={!canGoForward}
+              underlayColor={colors.heliotrope}
+            >
+              <AntDesign
+                color={canGoForward ? colors.white : colors.titan_50}
+                name="right"
+                size={24}
+              />
+            </TouchableHighlight>
+            <Input
+              containerStyle={[flexbox.flex1, spacings.mb0]}
+              disabled
+              inputStyle={styles.addressInputStyle}
+              inputWrapperStyle={styles.addressInputWrapperStyle}
+              value={uri || ''}
             />
-          </TouchableHighlight>
-          <TouchableHighlight
-            hitSlop={HIT_SLOP}
-            onPress={webViewRef.current?.goForward}
-            style={[styles.webviewButtonCommon, styles.right]}
-            disabled={!canGoForward}
-            underlayColor={colors.heliotrope}
-          >
-            <AntDesign
-              color={canGoForward ? colors.white : colors.titan_50}
-              name="right"
-              size={24}
-            />
-          </TouchableHighlight>
-          <Input
-            containerStyle={[flexbox.flex1, spacings.mb0]}
-            disabled
-            inputStyle={styles.addressInputStyle}
-            inputWrapperStyle={styles.addressInputWrapperStyle}
-            value={uri || ''}
+            <TouchableHighlight
+              hitSlop={HIT_SLOP}
+              onPress={webViewRef.current?.reload}
+              style={[styles.webviewButtonCommon, styles.reload]}
+              underlayColor={colors.heliotrope}
+            >
+              <AntDesign name="reload1" size={22} color={colors.white} />
+            </TouchableHighlight>
+          </View>
+          <WebView
+            ref={webViewRef}
+            source={{ uri }}
+            onMessage={onMessage}
+            injectedJavaScriptBeforeContentLoaded={providerToInject}
+            onNavigationStateChange={onNavigationStateChange}
+            javaScriptEnabled
+            startInLoadingState
+            bounces={false}
+            renderLoading={() => (
+              <View style={styles.loadingWrapper}>
+                <Spinner />
+              </View>
+            )}
+            containerStyle={styles.container}
+            style={styles.webview}
           />
-          <TouchableHighlight
-            hitSlop={HIT_SLOP}
-            onPress={webViewRef.current?.reload}
-            style={[styles.webviewButtonCommon, styles.reload]}
-            underlayColor={colors.heliotrope}
-          >
-            <AntDesign name="reload1" size={22} color={colors.white} />
-          </TouchableHighlight>
-        </View>
-        <WebView
-          ref={webViewRef}
-          source={{ uri }}
-          onMessage={onMessage}
-          injectedJavaScriptBeforeContentLoaded={providerToInject}
-          onNavigationStateChange={onNavigationStateChange}
-          javaScriptEnabled
-          startInLoadingState
-          bounces={false}
-          renderLoading={() => (
-            <View style={styles.loadingWrapper}>
-              <Spinner />
-            </View>
-          )}
-          containerStyle={styles.container}
-          style={styles.webview}
-        />
-      </Wrapper>
-    </GradientBackgroundWrapper>
+        </Wrapper>
+      </GradientBackgroundWrapper>
+    </ErrorBoundary>
   )
 }
 
