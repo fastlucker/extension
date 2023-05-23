@@ -1,30 +1,38 @@
+import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
 import React, { useCallback, useState } from 'react'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
+import ErrorBoundary from 'react-native-error-boundary'
+import { SvgUri } from 'react-native-svg'
 
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Button from '@common/components/Button'
+import FastImage from '@common/components/FastImage'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Panel from '@common/components/Panel'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-import ManifestImage from '@web/components/ManifestImage'
+import getHostname from '@common/utils/getHostname'
+
+import styles from './styles'
 
 const PermissionRequest = ({
   isInBottomSheet,
   closeBottomSheet,
   grantPermission,
-  tabSessionData
+  selectedDapp
 }: {
   isInBottomSheet?: boolean
   closeBottomSheet?: (dest?: 'default' | 'alwaysOpen' | undefined) => void
   grantPermission: () => void
-  tabSessionData: any
+  selectedDapp: DappManifestData | null
 }) => {
   const { t } = useTranslation()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
@@ -37,6 +45,18 @@ const PermissionRequest = ({
 
   const GradientWrapper = isInBottomSheet ? React.Fragment : GradientBackgroundWrapper
 
+  if (!selectedDapp) {
+    return (
+      <GradientWrapper>
+        <View
+          style={[StyleSheet.absoluteFill, flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}
+        >
+          <Spinner />
+        </View>
+      </GradientWrapper>
+    )
+  }
+
   return (
     <GradientWrapper>
       <Wrapper
@@ -48,15 +68,23 @@ const PermissionRequest = ({
       >
         <Panel type="filled">
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <ManifestImage
-              uri={tabSessionData?.params?.icon}
-              size={64}
-              fallback={() => <ManifestFallbackIcon />}
-            />
+            {selectedDapp.iconUrl ? (
+              selectedDapp.iconUrl.endsWith('.svg') ? (
+                <View style={[common.borderRadiusPrimary, common.hidden]}>
+                  <ErrorBoundary FallbackComponent={() => <ManifestFallbackIcon />}>
+                    <SvgUri width={46} height={46} uri={selectedDapp.iconUrl} />
+                  </ErrorBoundary>
+                </View>
+              ) : (
+                <FastImage style={styles.dappIcon as any} source={{ uri: selectedDapp.iconUrl }} />
+              )
+            ) : (
+              <ManifestFallbackIcon />
+            )}
           </View>
 
           <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {tabSessionData?.params?.name || 'webpage'}
+            {selectedDapp?.name || 'webpage'}
           </Title>
 
           <View>
@@ -66,7 +94,7 @@ const PermissionRequest = ({
                   {'The dApp '}
                 </Text>
                 <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                  {tabSessionData?.params?.name || ''}
+                  {selectedDapp ? getHostname(selectedDapp.url) : ''}
                 </Text>
                 <Text fontSize={14} weight="regular">
                   {' is requesting an authorization to communicate with Ambire Wallet'}

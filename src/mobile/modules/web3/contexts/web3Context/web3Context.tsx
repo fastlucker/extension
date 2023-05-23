@@ -1,11 +1,14 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import networks, { NetworkType } from 'ambire-common/src/constants/networks'
+import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { serializeError } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
+import getHostname from '@common/utils/getHostname'
 import { delayPromise } from '@common/utils/promises'
 import ApprovalBottomSheets from '@mobile/modules/web3/components/ApprovalBottomSheets'
 import DappJsonRpcProvider from '@mobile/modules/web3/services/dappProvider/DappJsonRpcProvider'
@@ -22,14 +25,6 @@ import useApproval from './useApproval'
 import useNotification from './useNotification'
 import usePermission from './usePermission'
 
-function getHostname(url: string) {
-  const matches = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n?]+)/)
-  if (matches && matches.length >= 2) {
-    return matches[1]
-  }
-  return null // Return null or handle the case when the URL doesn't match the expected format.
-}
-
 async function asyncForEach(array: any[], callback: (item: any) => any) {
   // eslint-disable-next-line no-restricted-syntax
   for (const item of array) {
@@ -41,9 +36,11 @@ async function asyncForEach(array: any[], callback: (item: any) => any) {
 const Web3Context = createContext<Web3ContextData>({
   approval: null,
   requests: null,
+  selectedDapp: null,
+  selectedDappUrl: '',
   checkHasPermission: () => false,
   addPermission: () => {},
-  setSelectedDappUrl: () => {},
+  setSelectedDapp: () => {},
   setApproval: () => {},
   setWeb3ViewRef: () => {},
   handleWeb3Request: () => {},
@@ -57,7 +54,8 @@ const Web3Context = createContext<Web3ContextData>({
 const Web3Provider: React.FC<any> = ({ children }) => {
   const { selectedAcc } = useAccounts()
   const { network } = useNetwork()
-  const [selectedDappUrl, setSelectedDappUrl] = useState<string>('')
+  const [selectedDapp, setSelectedDapp] = useState<DappManifestData | null>(null)
+  const selectedDappUrl = useMemo(() => (selectedDapp ? selectedDapp.url : ''), [selectedDapp])
   const prevSelectedDappUrl = usePrevious(selectedDappUrl)
   const [web3ViewRef, setWeb3ViewRef] = useState<any>(null)
   const prevWeb3ViewRef = usePrevious(web3ViewRef)
@@ -70,6 +68,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       provider: any
     }[]
   >([])
+  const handledMethodsTimestamps: any = useRef({})
 
   const {
     checkHasPermission,
@@ -103,6 +102,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
       setSession(null)
       setTabSessionData(null)
       setDappsProviders([])
+      handledMethodsTimestamps.current = {}
     }
   }, [
     requests,
@@ -156,76 +156,85 @@ const Web3Provider: React.FC<any> = ({ children }) => {
 
   const handleWeb3Request = useCallback(
     async ({ data }: { data: any }) => {
-      if (!selectedDappUrl) return
+      if (handledMethodsTimestamps?.current?.[data.method]) {
+        console.log(data.method, Date.now() - handledMethodsTimestamps?.current?.[data.method])
+      }
+      if (
+        !handledMethodsTimestamps?.current?.[data.method] ||
+        Date.now() - handledMethodsTimestamps?.current?.[data.method] >= 30
+      ) {
+        handledMethodsTimestamps.current[data.method] = Date.now()
+        if (!selectedDappUrl) return
 
-      try {
-        if (data.method === 'tabCheckin') {
-          setTabSessionData(data)
-          if (!checkHasPermission(selectedDappUrl)) {
-            openBottomSheetPermission()
+        try {
+          if (data.method === 'tabCheckin') {
+            setTabSessionData(data)
+            if (!checkHasPermission(selectedDappUrl)) {
+              openBottomSheetPermission()
+              return
+            }
+          }
+
+          if (data.method === 'disconnect') {
+            removePermission(selectedDappUrl)
             return
           }
-        }
 
-        if (data.method === 'disconnect') {
-          removePermission(selectedDappUrl)
-          return
-        }
+          const sessionId = selectedDappUrl
+          const origin = tabSessionData?.params?.origin || data?.params?.origin || selectedDappUrl
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          const s = sessionService.getOrCreateSession(sessionId, origin, web3ViewRef)
+          const req = { data, session: s, origin }
 
-        const sessionId = selectedDappUrl
-        const origin = tabSessionData?.params?.origin || data?.params?.origin || selectedDappUrl
-        // eslint-disable-next-line @typescript-eslint/no-shadow
-        const s = sessionService.getOrCreateSession(sessionId, origin, web3ViewRef)
-        const req = { data, session: s, origin }
-
-        if (!session) {
-          setSession(session)
-        }
-
-        let result: any
-
-        const dappProvider = dappProviders.find(
-          (item) => intToHex(item?.network?.chainId) === data?.chainId
-        )?.provider
-
-        if (
-          dappProvider &&
-          data.method.startsWith('eth_') &&
-          !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
-        ) {
-          try {
-            result = await Promise.race([
-              dappProvider.send(data.method, data.params),
-              // Timeouts after 3 secs because sometimes the `provider.send` hangs with no response
-              delayPromise(3000)
-            ])
-          } catch (e) {
-            console.error('dapp provider error', e)
+          if (!session) {
+            setSession(session)
           }
-        }
 
-        if (!result) {
-          result = await providerController(req, requestNotificationServiceMethod)
-        }
+          let result: any
 
-        const response = { id: data.id, result: data.method === 'tabCheckin' ? true : result }
+          const dappProvider = dappProviders.find(
+            (item) => intToHex(item?.network?.chainId) === data?.chainId
+          )?.provider
 
-        web3ViewRef?.injectJavaScript(`
+          if (
+            dappProvider &&
+            data.method.startsWith('eth_') &&
+            !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
+          ) {
+            try {
+              result = await Promise.race([
+                dappProvider.send(data.method, data.params),
+                // Timeouts after 3 secs because sometimes the `provider.send` hangs with no response
+                delayPromise(3000)
+              ])
+            } catch (e) {
+              console.error('dapp provider error', e)
+            }
+          }
+
+          if (!result) {
+            result = await providerController(req, requestNotificationServiceMethod)
+          }
+
+          const response = { id: data.id, result: data.method === 'tabCheckin' ? true : result }
+
+          web3ViewRef?.injectJavaScript(`
             if (window.ethereum.promises[${response.id}]) {
               window.ethereum.promises[${response.id}].resolve(${JSON.stringify(response.result)});
               delete window.ethereum.promises[${response.id}]
             }
           `)
-      } catch (error) {
-        const response = { id: data.id, error }
-        web3ViewRef?.injectJavaScript(`
+        } catch (error) {
+          const response = { id: data.id, error }
+          web3ViewRef?.injectJavaScript(`
         if (window.ethereum.promises[${response.id}]) {
           window.ethereum.promises[${response.id}].reject(${JSON.stringify(
-          serializeError({ message: error.message || 'User rejected the request.' })
-        )});
+            serializeError({ message: error.message || 'User rejected the request.' })
+          )});
           delete window.ethereum.promises[${response.id}]
         }
       `)
+        }
       }
     },
     [
@@ -278,10 +287,12 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         () => ({
           approval,
           requests,
+          selectedDapp,
+          selectedDappUrl,
           setWeb3ViewRef,
           checkHasPermission,
           addPermission,
-          setSelectedDappUrl,
+          setSelectedDapp,
           setApproval,
           handleWeb3Request,
           getApproval,
@@ -293,6 +304,8 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         [
           approval,
           requests,
+          selectedDapp,
+          selectedDappUrl,
           checkHasPermission,
           addPermission,
           setApproval,
@@ -310,12 +323,11 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         approval={approval}
         resolveApproval={resolveApproval}
         rejectApproval={rejectApproval}
-        selectedDappUrl={selectedDappUrl}
+        selectedDapp={selectedDapp}
         checkHasPermission={checkHasPermission}
         grantPermission={handleGrantPermission}
         sheetRefPermission={sheetRefPermission}
         closeBottomSheetPermission={closeBottomSheetPermission}
-        tabSessionData={tabSessionData}
       />
     </Web3Context.Provider>
   )

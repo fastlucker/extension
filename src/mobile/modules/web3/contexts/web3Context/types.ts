@@ -1,3 +1,5 @@
+import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
+
 import { Approval } from '@mobile/modules/web3/services/webview-background/services/notification'
 
 export const APPROVAL_REQUESTS_STORAGE_KEY = 'approval_requests_state'
@@ -5,9 +7,11 @@ export const APPROVAL_REQUESTS_STORAGE_KEY = 'approval_requests_state'
 export type Web3ContextData = {
   approval: Approval | null
   requests: any[] | null
+  selectedDapp: DappManifestData | null
+  selectedDappUrl: string
   checkHasPermission: (dappURL: string) => boolean
   addPermission: (dappURL: string) => void
-  setSelectedDappUrl: React.Dispatch<React.SetStateAction<string>>
+  setSelectedDapp: React.Dispatch<React.SetStateAction<DappManifestData | null>>
   setApproval: React.Dispatch<React.SetStateAction<Approval | null>>
   setWeb3ViewRef: React.Dispatch<any>
   handleWeb3Request: ({ data }: { data: any }) => any

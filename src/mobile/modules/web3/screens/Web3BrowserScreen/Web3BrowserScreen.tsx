@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { TouchableHighlight, View } from 'react-native'
+import { StyleSheet, TouchableHighlight, View } from 'react-native'
 import ErrorBoundary from 'react-native-error-boundary'
 import { WebView, WebViewNavigation } from 'react-native-webview'
 
@@ -7,7 +7,6 @@ import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrap
 import Input from '@common/components/Input'
 import Spinner from '@common/components/Spinner'
 import Wrapper from '@common/components/Wrapper'
-import useRoute from '@common/hooks/useRoute'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -21,24 +20,19 @@ const HIT_SLOP = { bottom: 15, left: 5, right: 5, top: 15 }
 
 const Web3BrowserScreen = () => {
   const webViewRef = useRef<WebView | null>(null)
-  const route = useRoute()
   const [canGoBack, setCanGoBack] = useState(false)
   const [canGoForward, setCanGoForward] = useState(false)
 
-  const { setWeb3ViewRef, handleWeb3Request, setSelectedDappUrl } = useWeb3()
-
-  const selectedDappUrl = route?.params?.selectedDappUrl
-
+  const { selectedDappUrl, setWeb3ViewRef, handleWeb3Request, setSelectedDapp } = useWeb3()
   const { script: providerToInject } = useGetProviderInjection()
 
   useEffect(() => {
     setWeb3ViewRef(webViewRef.current)
-    setSelectedDappUrl(route?.params?.selectedDappUrl)
     return () => {
       setWeb3ViewRef(null)
-      setSelectedDappUrl('')
+      setSelectedDapp(null)
     }
-  }, [route?.params?.selectedDappUrl, setWeb3ViewRef, setSelectedDappUrl])
+  }, [setWeb3ViewRef, setSelectedDapp])
 
   const onMessage = async (event: any) => {
     try {
@@ -55,6 +49,16 @@ const Web3BrowserScreen = () => {
     setCanGoBack(navState.canGoBack)
     setCanGoForward(navState.canGoForward)
   }, [])
+
+  if (!selectedDappUrl) {
+    return (
+      <GradientBackgroundWrapper>
+        <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+          <Spinner />
+        </View>
+      </GradientBackgroundWrapper>
+    )
+  }
 
   return (
     <ErrorBoundary>

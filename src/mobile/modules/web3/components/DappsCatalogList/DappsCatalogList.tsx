@@ -14,11 +14,13 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import DappCatalogItemItem from '@mobile/modules/web3/components/DappsCatalogList/DappsCatalogListItem'
 import useDapps from '@mobile/modules/web3/hooks/useDapps'
+import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
 
 const DappsCatalogList = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { network } = useNetwork()
+  const { setSelectedDapp } = useWeb3()
   const { filteredCatalog, favorites, toggleFavorite, search } = useDapps()
 
   const findItemById = useCallback(
@@ -33,13 +35,10 @@ const DappsCatalogList = () => {
       const item = findItemById(itemId)
       if (!item) return
 
-      navigate(`${ROUTES.web3Browser}-screen`, {
-        state: {
-          selectedDappUrl: item.url
-        }
-      })
+      setSelectedDapp(item)
+      navigate(`${ROUTES.web3Browser}-screen`)
     },
-    [findItemById, navigate]
+    [findItemById, navigate, setSelectedDapp]
   )
 
   const handleToggleFavorite = useCallback(

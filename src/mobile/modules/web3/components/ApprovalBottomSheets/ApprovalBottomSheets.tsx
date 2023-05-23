@@ -1,3 +1,4 @@
+import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useEffect } from 'react'
 import { useModalize } from 'react-native-modalize'
@@ -14,26 +15,24 @@ import { Web3ContextData } from '@mobile/modules/web3/contexts/web3Context/types
 
 type Props = {
   approval: Web3ContextData['approval']
-  selectedDappUrl: string
+  selectedDapp: DappManifestData | null
   resolveApproval: Web3ContextData['resolveApproval']
   rejectApproval: Web3ContextData['rejectApproval']
   checkHasPermission: Web3ContextData['checkHasPermission']
   grantPermission: () => void
   sheetRefPermission: React.RefObject<any>
   closeBottomSheetPermission: (dest?: 'default' | 'alwaysOpen' | undefined) => void
-  tabSessionData: any
 }
 
 const ApprovalBottomSheets = ({
   approval,
-  selectedDappUrl,
+  selectedDapp,
   resolveApproval,
   rejectApproval,
   checkHasPermission,
   grantPermission,
   sheetRefPermission,
-  closeBottomSheetPermission,
-  tabSessionData
+  closeBottomSheetPermission
 }: Props) => {
   const prevApproval: any = usePrevious(approval)
   const { goBack } = useNavigation()
@@ -91,7 +90,7 @@ const ApprovalBottomSheets = ({
         sheetRef={sheetRefPermission}
         onClosed={() => {
           setTimeout(() => {
-            if (!checkHasPermission(selectedDappUrl)) {
+            if (!!selectedDapp && !checkHasPermission(selectedDapp.url)) {
               goBack()
             }
           }, 10)
@@ -100,7 +99,7 @@ const ApprovalBottomSheets = ({
       >
         <PermissionRequest
           isInBottomSheet
-          tabSessionData={tabSessionData}
+          selectedDapp={selectedDapp}
           closeBottomSheet={closeBottomSheetPermission}
           grantPermission={grantPermission}
         />

@@ -1,42 +1,16 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { ImageStyle, StyleSheet } from 'react-native'
 
-import colors from '@common/styles/colors'
-import spacings, { SPACING_SM } from '@common/styles/spacings'
-import commonStyles from '@common/styles/utils/common'
+import common from '@common/styles/utils/common'
 
 interface Style {
-  showQueueButton: ViewStyle
-  textarea: ViewStyle
-  buttonsContainer: ViewStyle
-  buttonWrapper: ViewStyle
+  dappIcon: ImageStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  showQueueButton: {
-    position: 'absolute',
-    right: SPACING_SM,
-    top: SPACING_SM,
-    borderRadius: 50,
-    padding: 3,
-    backgroundColor: colors.wooed
-  },
-  textarea: {
-    minHeight: 120,
-    flex: 1,
-    backgroundColor: colors.mirage,
-    ...commonStyles.borderRadiusPrimary,
-    ...spacings.ph,
-    ...spacings.pv,
-    ...spacings.mbLg
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    marginHorizontal: -5,
-    ...spacings.mbTy
-  },
-  buttonWrapper: {
-    marginHorizontal: 5,
-    flex: 1
+  dappIcon: {
+    width: 64,
+    height: 64,
+    ...common.borderRadiusPrimary
   }
 })
 
