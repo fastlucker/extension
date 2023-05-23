@@ -33,16 +33,37 @@ const replaceMetamaskWithAmbireInDapps = `
                 newImgElement.src = "${ambireSvg}";
 
                 if (imgElement) {
+                  if (imgElement.clientHeight) {
+                    newImgElement.style.height = imgElement.clientHeight + 'px';
+                  }
+                  if (imgElement.clientWidth) {
+                    newImgElement.style.width = imgElement.clientWidth + 'px';
+                  }
+
                   imgElement.parentNode.insertBefore(newImgElement, imgElement);
                   imgElement.style.display = "none";
                 }
 
                 if (svgElement) {
+                  if (svgElement.clientHeight) {
+                    newImgElement.style.height = svgElement.clientHeight + 'px';
+                  }
+                  if (svgElement.clientWidth) {
+                    newImgElement.style.width = svgElement.clientWidth + 'px';
+                  }
+
                   svgElement.parentNode.insertBefore(newImgElement, svgElement);
                   svgElement.style.display = "none";
                 }
 
                 if (imgElementByRole) {
+                  if (imgElementByRole.clientHeight) {
+                    newImgElement.style.height = imgElementByRole.clientHeight + 'px';
+                  }
+                  if (imgElementByRole.clientWidth) {
+                    newImgElement.style.width = imgElementByRole.clientWidth + 'px';
+                  }
+
                   imgElementByRole.parentNode.insertBefore(newImgElement, imgElementByRole);
                   imgElementByRole.style.display = "none";
                 }
