@@ -6,7 +6,7 @@ const replaceMetamaskWithAmbireInDapps = `
   function replaceMetamaskWithAmbire(textToFind, replacementText) {
     let additionalNodes = [];
     const onboardElement = document.querySelector("onboard-v2");
-
+    // @web3-onboard/core is with shadowed root and have to be handled separately
     if (onboardElement && onboardElement.shadowRoot) {
       additionalNodes = Array.from(onboardElement.shadowRoot.querySelectorAll('*'));
     }
@@ -20,14 +20,15 @@ const replaceMetamaskWithAmbireInDapps = `
 
           if (/^metamask$/i.test(text.trim())) {
             let ancestorNode = childNode.parentNode;
-            let maxLevels = 3;
+            let maxLevels = 4;
             while (ancestorNode && maxLevels > 0) {
               maxLevels--;
 
               const imgElement = ancestorNode.querySelector('img');
               const svgElement = ancestorNode.querySelector('svg');
+              const imgElementByRole = ancestorNode.querySelector('[role="img"]');
 
-              if (imgElement || svgElement) {
+              if (imgElement || svgElement || imgElementByRole) {
                 const newImgElement = document.createElement('img');
                 newImgElement.src = "${ambireSvg}";
 
@@ -39,6 +40,11 @@ const replaceMetamaskWithAmbireInDapps = `
                 if (svgElement) {
                   svgElement.parentNode.insertBefore(newImgElement, svgElement);
                   svgElement.style.display = "none";
+                }
+
+                if (imgElementByRole) {
+                  imgElementByRole.parentNode.insertBefore(newImgElement, imgElementByRole);
+                  imgElementByRole.style.display = "none";
                 }
 
                 break;

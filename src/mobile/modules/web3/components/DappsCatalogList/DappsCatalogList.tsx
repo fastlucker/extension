@@ -86,7 +86,14 @@ const DappsCatalogList = () => {
   const isLoading = !filteredCatalog.length && !search
   if (isLoading) {
     return (
-      <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          flexbox.alignCenter,
+          flexbox.justifyCenter,
+          { zIndex: -1 }
+        ]}
+      >
         <Spinner />
       </View>
     )
