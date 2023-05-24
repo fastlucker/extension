@@ -113,6 +113,7 @@ const ApprovalBottomSheets = ({
         <SwitchNetworkRequest
           isInBottomSheet
           approval={approval}
+          selectedDapp={selectedDapp}
           resolveApproval={resolveApproval}
           rejectApproval={rejectApproval}
           closeBottomSheet={closeBottomSheetSwitchNetwork}
@@ -127,6 +128,7 @@ const ApprovalBottomSheets = ({
         <WatchTokenRequest
           isInBottomSheet
           approval={approval}
+          selectedDapp={selectedDapp}
           resolveApproval={resolveApproval}
           rejectApproval={rejectApproval}
           closeBottomSheet={closeBottomSheetWatchToken}
@@ -142,6 +144,7 @@ const ApprovalBottomSheets = ({
         <GetEncryptionPublicKeyRequest
           isInBottomSheet
           approval={approval}
+          selectedDapp={selectedDapp}
           rejectApproval={rejectApproval}
           closeBottomSheet={closeBottomSheetGetEncryptionPublicKey}
         />

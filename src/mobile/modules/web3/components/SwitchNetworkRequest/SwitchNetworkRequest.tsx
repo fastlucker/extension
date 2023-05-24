@@ -1,9 +1,9 @@
 import networks from 'ambire-common/src/constants/networks'
+import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import CrossChainArrowIcon from '@common/assets/svg/CrossChainArrowIcon'
-import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Button from '@common/components/Button'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -17,8 +17,9 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
+import getHostname from '@common/utils/getHostname'
+import DappIcon from '@mobile/modules/web3/components/DappIcon'
 import { Web3ContextData } from '@mobile/modules/web3/contexts/web3Context/types'
-import ManifestImage from '@web/components/ManifestImage'
 
 import styles from './styles'
 
@@ -28,6 +29,7 @@ type Props = {
   rejectApproval: Web3ContextData['rejectApproval']
   isInBottomSheet?: boolean
   closeBottomSheet?: (dest?: 'default' | 'alwaysOpen' | undefined) => void
+  selectedDapp: DappManifestData | null
 }
 
 const SwitchNetworkRequest = ({
@@ -35,7 +37,8 @@ const SwitchNetworkRequest = ({
   closeBottomSheet,
   approval,
   rejectApproval,
-  resolveApproval
+  resolveApproval,
+  selectedDapp
 }: Props) => {
   const { t } = useTranslation()
   const { network, setNetwork } = useNetwork()
@@ -88,16 +91,12 @@ const SwitchNetworkRequest = ({
       >
         <Panel type="filled">
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <ManifestImage
-              uri={approval?.data?.params?.session?.icon}
-              size={64}
-              fallback={() => <ManifestFallbackIcon />}
-            />
+            <DappIcon iconUrl={selectedDapp?.iconUrl || ''} />
           </View>
 
-          {!!approval?.data?.params?.session?.name && (
+          {(!!selectedDapp || !!approval?.data?.params?.session?.name) && (
             <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-              {approval?.data?.params?.session?.name}
+              {selectedDapp?.name || approval?.data?.params?.session?.name}
             </Title>
           )}
 
@@ -110,7 +109,9 @@ const SwitchNetworkRequest = ({
                       {'Allow '}
                     </Text>
                     <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                      {approval?.data?.params?.session?.name || 'webpage'}
+                      {selectedDapp
+                        ? getHostname(selectedDapp?.url)
+                        : approval?.data?.params?.session?.name || 'webpage'}
                     </Text>
                     <Text fontSize={14} weight="regular">
                       {' to switch the network?'}

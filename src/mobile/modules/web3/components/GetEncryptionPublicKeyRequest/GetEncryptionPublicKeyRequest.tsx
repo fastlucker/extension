@@ -1,7 +1,7 @@
+import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
 import React, { useEffect } from 'react'
 import { View } from 'react-native'
 
-import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
@@ -12,14 +12,16 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
+import getHostname from '@common/utils/getHostname'
+import DappIcon from '@mobile/modules/web3/components/DappIcon'
 import { Web3ContextData } from '@mobile/modules/web3/contexts/web3Context/types'
-import ManifestImage from '@web/components/ManifestImage'
 
 type Props = {
   approval: Web3ContextData['approval']
 
   rejectApproval: Web3ContextData['rejectApproval']
   isInBottomSheet?: boolean
+  selectedDapp: DappManifestData | null
   closeBottomSheet?: (dest?: 'default' | 'alwaysOpen' | undefined) => void
 }
 
@@ -27,6 +29,7 @@ const GetEncryptionPublicKeyRequest = ({
   isInBottomSheet,
   closeBottomSheet,
   approval,
+  selectedDapp,
   rejectApproval
 }: Props) => {
   const { t } = useTranslation()
@@ -51,16 +54,14 @@ const GetEncryptionPublicKeyRequest = ({
       >
         <Panel type="filled">
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <ManifestImage
-              uri={approval?.data?.params?.session?.icon}
-              size={64}
-              fallback={() => <ManifestFallbackIcon />}
-            />
+            <DappIcon iconUrl={selectedDapp?.iconUrl || ''} />
           </View>
 
-          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {approval?.data?.params?.session?.name || 'webpage'}
-          </Title>
+          {(!!selectedDapp || !!approval?.data?.params?.session?.name) && (
+            <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+              {selectedDapp?.name || approval?.data?.params?.session?.name}
+            </Title>
+          )}
 
           <View>
             <Trans>
@@ -69,7 +70,9 @@ const GetEncryptionPublicKeyRequest = ({
                   {'The dApp '}
                 </Text>
                 <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                  {approval?.data?.params?.session?.name || 'webpage'}
+                  {selectedDapp
+                    ? getHostname(selectedDapp?.url)
+                    : approval?.data?.params?.session?.name || 'webpage'}
                 </Text>
                 <Text fontSize={14} weight="regular">
                   {

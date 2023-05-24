@@ -1,20 +1,16 @@
 import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
 import React, { useCallback } from 'react'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
-import ErrorBoundary from 'react-native-error-boundary'
-import { SvgUri } from 'react-native-svg'
 
-import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import StarIcon from '@common/assets/svg/StarIcon'
-import FastImage from '@common/components/FastImage'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
+import DappIcon from '../DappIcon'
 import styles from './styles'
 
 interface Props {
@@ -59,19 +55,7 @@ const DappCatalogListItem: React.FC<Props> = ({
     >
       <View style={[flexbox.directionRow, spacings.mb]}>
         <View style={spacings.mrTy}>
-          {iconUrl ? (
-            iconUrl.endsWith('.svg') ? (
-              <View style={[common.borderRadiusPrimary, common.hidden]}>
-                <ErrorBoundary FallbackComponent={() => <ManifestFallbackIcon />}>
-                  <SvgUri width={46} height={46} uri={iconUrl} />
-                </ErrorBoundary>
-              </View>
-            ) : (
-              <FastImage style={styles.dappIcon as any} source={{ uri: iconUrl }} />
-            )
-          ) : (
-            <ManifestFallbackIcon />
-          )}
+          <DappIcon iconUrl={iconUrl} size={46} />
         </View>
         <View style={flexbox.flex1}>
           <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
