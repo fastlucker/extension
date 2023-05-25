@@ -12,6 +12,7 @@ const expoEnv = require('@expo/webpack-config/env')
 // eslint-disable-next-line import/no-extraneous-dependencies
 const webpack = require('webpack')
 const appJSON = require('./app.json')
+const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
 module.exports = async function (env, argv) {
   function processManifest(content) {
@@ -175,6 +176,9 @@ module.exports = async function (env, argv) {
       ...config.plugins,
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'] // buffer polyfill, used by web3
+      }),
+      new AssetReplacePlugin({
+        '#PAGEPROVIDER#': 'inpage'
       }),
       new CopyPlugin({
         patterns: [
