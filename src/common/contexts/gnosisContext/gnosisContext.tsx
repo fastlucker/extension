@@ -247,6 +247,8 @@ const GnosisProvider: React.FC = ({ children }) => {
       (function() {
         document.getElementById("uniswap").contentWindow.postMessage(${JSON.stringify(msg)}, '*');
       })();
+
+      true;
     `)
   }, [])
 

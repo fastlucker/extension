@@ -22,7 +22,9 @@ export class Session {
           window.handleBackgroundMessage(${dataToPass});
         } catch (e) {
           alert('Ambire could not send message to the dapp (handleBackgroundMessage): ' + e)
-        }`
+        }
+
+        true;`
       )
     } catch (e) {
       console.error('Ambire could not send message to the dapp (handleBackgroundMessage). ', e)
