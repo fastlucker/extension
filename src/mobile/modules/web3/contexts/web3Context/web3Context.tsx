@@ -236,6 +236,8 @@ const Web3Provider: React.FC<any> = ({ children }) => {
               window.ethereum.promises[${response.id}].resolve(${JSON.stringify(response.result)});
               delete window.ethereum.promises[${response.id}]
             }
+
+            true;
           `)
       } catch (error) {
         const response = { id: data.id, error }
@@ -246,6 +248,8 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         )});
           delete window.ethereum.promises[${response.id}]
         }
+
+        true;
       `)
       }
     },

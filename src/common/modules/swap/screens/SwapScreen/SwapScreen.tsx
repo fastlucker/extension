@@ -17,7 +17,10 @@ const INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED = `(function() {
   window.addEventListener('message', (msg) => {
     window.ReactNativeWebView.postMessage(JSON.stringify(msg.data));
   });
-})();`
+})();
+
+true;
+`
 
 // Scales the webview a little bit, in order for the content to fit
 // based on all spacings in our app, and to prevent horizontal scroll.
@@ -49,6 +52,8 @@ const INJECTED_JAVASCRIPT = `
   ${DISABLE_ZOOM}
   ${TEXT_SELECTION_COLOR}
   ${HIGHLIGHT_COLOR}
+
+  true;
 `
 
 const SwapScreen = () => {
