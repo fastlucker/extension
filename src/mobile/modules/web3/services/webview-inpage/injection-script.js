@@ -11,6 +11,12 @@ import replaceMetamaskWithAmbireInDapps from './ReplaceMetamaskWithAmbireInDapps
 // Used in the injected EthereumProvider
 const IS_METAMASK = true
 
+// Use for debugging only, inject this in the commonScript
+// window.onerror = function(message, sourcefile, lineno, colno, error) {
+//   alert("Message: " + message + " - Source: " + sourcefile + " Line: " + lineno + ":" + colno + " Error: " + JSON.stringify(error));
+//   return true;
+// };
+
 const commonScript = `
   ${eventEmitterScript}
   ${replaceMetamaskWithAmbireInDapps}
@@ -30,6 +36,8 @@ const useGetProviderInjection = () => {
             setProvider(`
             ${commonScript}
             ${ethereumProviderScript}
+
+            true;
           `)
           })
           .catch((error) => {
@@ -40,6 +48,8 @@ const useGetProviderInjection = () => {
             setProvider(`
             ${commonScript}
             ${ethereumProviderScript}
+
+            true;
           `)
           })
           .catch((error) => {
