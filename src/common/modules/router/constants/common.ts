@@ -34,7 +34,10 @@ const MOBILE_ROUTES = {
   connect: 'connect',
   dataDeletionPolicy: 'data-deletion-policy',
   manageVaultLock: 'manage-vault-lock',
-  hardwareWallet: 'hardware-wallet'
+  noConnection: 'no-connection',
+  hardwareWallet: 'hardware-wallet',
+  dappsCatalog: 'dapps-catalog',
+  web3Browser: 'web3-browser'
 }
 
 const WEB_ROUTES = {

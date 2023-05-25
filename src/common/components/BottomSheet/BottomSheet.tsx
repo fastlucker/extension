@@ -1,7 +1,7 @@
 import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { BackHandler, View } from 'react-native'
+import { BackHandler, View, ViewStyle } from 'react-native'
 import { Modalize, ModalizeProps } from 'react-native-modalize'
 
 import Button from '@common/components/Button'
@@ -17,12 +17,14 @@ interface Props {
   id?: string
   sheetRef: React.RefObject<Modalize>
   closeBottomSheet: (dest?: 'alwaysOpen' | 'default' | undefined) => void
+  onBackdropPress?: () => void
   onClosed?: () => void
   children?: React.ReactNode
   // Preferences
   cancelText?: string
   displayCancel?: boolean
   adjustToContentHeight?: boolean
+  style?: ViewStyle
   flatListProps?: ModalizeProps['flatListProps']
 }
 
@@ -38,7 +40,9 @@ const BottomSheet: React.FC<Props> = ({
   cancelText: _cancelText,
   closeBottomSheet = () => {},
   adjustToContentHeight = !isWeb,
+  style = {},
   onClosed,
+  onBackdropPress,
   flatListProps
 }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -81,12 +85,15 @@ const BottomSheet: React.FC<Props> = ({
         <Backdrop
           isVisible={isBackdropVisible}
           isBottomSheetVisible={isOpen}
-          onPress={closeBottomSheet}
+          onPress={() => {
+            closeBottomSheet()
+            !!onBackdropPress && onBackdropPress()
+          }}
         />
       )}
       <Modalize
         ref={sheetRef}
-        modalStyle={styles.bottomSheet}
+        modalStyle={[styles.bottomSheet, style]}
         rootStyle={styles.root}
         handleStyle={styles.dragger}
         handlePosition="inside"

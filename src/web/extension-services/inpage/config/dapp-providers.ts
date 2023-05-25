@@ -8,7 +8,7 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
     [NETWORKS.arbitrum]: 'https://arbitrum-mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1'
   },
   'app.aave.com': {
-    [NETWORKS.ethereum]: 'https://rpc.ankr.com/eth',
+    [NETWORKS.ethereum]: 'https://eth-mainnet.gateway.pokt.network/v1/lb/62b3314e123e6f00397f19ca',
     [NETWORKS.arbitrum]: ' https://arb1.arbitrum.io/rpc',
     [NETWORKS.avalanche]:
       'https://avax-mainnet.gateway.pokt.network/v1/lb/62b3314e123e6f00397f19ca/ext/bc/C/rpc',
@@ -73,8 +73,7 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
       'https://bsc-mainnet.nodereal.io/v1/79d1a2d720f648edac151b01d496cb88'
   },
   'app.sushi.com': {
-    [NETWORKS.ethereum]:
-      'https://rpc.ankr.com/eth/9f7d929b018cdffb338517efa06f58359e86ff1ffd350bc889738523659e7972',
+    [NETWORKS.ethereum]: 'https://eth-mainnet.g.alchemy.com/v2/COpzSDPut2F6jOFtgZOCia5woilJXSlA',
     [NETWORKS.polygon]: 'https://polygon-rpc.com/',
     [NETWORKS.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
     [NETWORKS['binance-smart-chain']]: 'https://bsc-dataseed.binance.org',
@@ -101,7 +100,7 @@ export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string }
   //   [NETWORKS.ethereum]: 'https://polygon.lido.fi/api/rpc?chainId=1'
   // }
   'swap.cow.fi': {
-    [NETWORKS.ethereum]: 'https://mainnet.infura.io/v3/1221fd11e90849509afafd330ec7acc6',
+    [NETWORKS.ethereum]: 'https://mainnet.infura.io/v3/586e7e6b7c7e437aa41f5da496a749f5',
     [NETWORKS.gnosis]: 'https://rpc.gnosis.gateway.fm'
   },
   'app.hop.exchange': {

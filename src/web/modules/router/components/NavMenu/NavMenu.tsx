@@ -17,7 +17,7 @@ import AppVersion from '@common/components/AppVersion'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
-import { isAndroid, isWeb } from '@common/config/env'
+import { isWeb } from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import { termsAndPrivacyURL } from '@common/modules/auth/constants/URLs'
@@ -50,7 +50,6 @@ const NavMenu = () => {
     { Icon: DashboardIcon, name: t('Dashboard'), route: ROUTES.dashboard },
     { Icon: EarnIcon, name: t('Earn'), route: ROUTES.earn },
     { Icon: SendIcon, name: t('Send'), route: ROUTES.send },
-    ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap }] : []),
     { Icon: TransferIcon, name: t('Transactions'), route: ROUTES.transactions },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
