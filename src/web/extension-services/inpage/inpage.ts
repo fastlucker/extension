@@ -523,7 +523,7 @@ if (isDefaultWallet || !cacheOtherProvider) {
   // @ts-ignore
   delete ambireProvider.isAmbire
   // @ts-ignore
-  delete rabbyProvider._isAmbire
+  delete ambireProvider._isAmbire
   Object.keys(finalProvider).forEach((key) => {
     // @ts-ignore
     window.ethereum[key] = (finalProvider as EthereumProvider)[key]
