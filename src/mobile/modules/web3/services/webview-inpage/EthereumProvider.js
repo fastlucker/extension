@@ -194,8 +194,7 @@ const domReadyCall = (callback) => {
 
 const $ = document.querySelector.bind(document)
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function handleBackgroundMessage({ event, data }) {
+window.handleBackgroundMessage = function ({ event, data }) {
   if (window.ethereum._pushEventHandlers[event]) {
     return window.ethereum._pushEventHandlers[event](data)
   }

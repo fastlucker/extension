@@ -14,9 +14,19 @@ export class Session {
   web3ViewRef = null
 
   pushMessage(event: any, data: any) {
-    this.web3ViewRef?.injectJavaScript(
-      `handleBackgroundMessage(${JSON.stringify({ event, data })});`
-    )
+    try {
+      const dataToPass = JSON.stringify({ event, data })
+
+      this.web3ViewRef?.injectJavaScript(
+        `try {
+          window.handleBackgroundMessage(${dataToPass});
+        } catch (e) {
+          alert('Ambire could not send message to the dapp (handleBackgroundMessage): ' + e)
+        }`
+      )
+    } catch (e) {
+      console.error('Ambire could not send message to the dapp (handleBackgroundMessage). ', e)
+    }
   }
 
   constructor(data: SessionProp | null, web3ViewRef: any) {
