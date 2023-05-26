@@ -11,9 +11,11 @@ import Title from '@common/components/Title'
 import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useConstants from '@common/hooks/useConstants'
+import useNavigation from '@common/hooks/useNavigation'
 import useNetwork from '@common/hooks/useNetwork'
 import useRelayerData from '@common/hooks/useRelayerData'
 import useToast from '@common/hooks/useToast'
+import { MOBILE_ROUTES } from '@common/modules/router/constants/common'
 import { triggerLayoutAnimation } from '@common/services/layoutAnimation'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -26,6 +28,7 @@ const SignersList = () => {
   const { selectedAcc, account: selectedAccount, onAddAccount } = useAccounts()
   const { constants } = useConstants()
   const { network: selectedNetwork } = useNetwork()
+  const { navigate } = useNavigation()
   const { cacheBreak } = useCacheBreak({
     breakPoint: 30000,
     refreshInterval: 40000
@@ -79,6 +82,11 @@ const SignersList = () => {
       const handleOnMakeDefaultBtnClicked = () =>
         onMakeDefaultBtnClicked(selectedAccount, addr, isQuickAcc)
 
+      const handleOnEnable2Fa = () =>
+        navigate(MOBILE_ROUTES.otp2FA, { state: { signerAddress: addr } })
+
+      const otpEnabled = data ? data.otpEnabled : null
+
       return (
         <Text type="small" key={addr} style={spacings.mb}>
           {privText}{' '}
@@ -92,6 +100,17 @@ const SignersList = () => {
               onPress={handleOnMakeDefaultBtnClicked}
             >
               {t('Make default')}
+            </Text>
+          )}
+          {isQuickAcc && data.otpEnabled !== null && (
+            <Text
+              type="small"
+              weight="medium"
+              style={{ color: colors.turquoise }}
+              onPress={handleOnEnable2Fa}
+            >
+              {' '}
+              {otpEnabled ? t('Disable 2FA') : t('Enable 2FA')}
             </Text>
           )}
         </Text>
