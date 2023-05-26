@@ -117,7 +117,8 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
         </Text>
         <View style={[spacings.mlTy, spacings.mbMd]}>
           {menu.map(({ Icon, name, route }) => {
-            const isActive = routeName === route
+            const isActive = routeName.includes(route)
+
             return (
               <TouchableOpacity
                 key={name}
