@@ -534,10 +534,13 @@ if (window.ethereum && !window.ethereum._isAmbire) {
 if (isDefaultWallet || !cacheOtherProvider) {
   finalProvider = ambireProvider
   try {
+    const customizeEthereum = {
+      ...window.ethereum
+    }
     Object.keys(finalProvider).forEach((key) => {
-      window.ethereum[key] = finalProvider[key]
+      customizeEthereum[key] = finalProvider[key]
     })
-    patchProvider(window.ethereum)
+    patchProvider(customizeEthereum)
     Object.defineProperty(window, 'ethereum', {
       set() {
         provider.requestInternalMethods({
