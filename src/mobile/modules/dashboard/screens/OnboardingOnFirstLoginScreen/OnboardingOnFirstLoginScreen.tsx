@@ -1,8 +1,10 @@
 import { StatusBar } from 'expo-status-bar'
+import AnimatedLottieView from 'lottie-react-native'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, StyleSheet, View } from 'react-native'
 import AppIntroSlider from 'react-native-app-intro-slider'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
@@ -14,9 +16,11 @@ import { MOBILE_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import { Portal } from '@gorhom/portal'
 import useOnboardingOnFirstLogin from '@mobile/modules/dashboard/hooks/useOnboardingOnFirstLogin'
 
+import ErrorAnimation from './error-animation.json'
 import styles from './styles'
 import { OnboardingSlide } from './types'
 
@@ -93,27 +97,35 @@ const OnboardingOnFirstLoginScreen = () => {
     if (slidesError) {
       return (
         <View style={[StyleSheet.absoluteFill, styles.fallbackBackground]}>
-          <SafeAreaView style={flexbox.flex1}>
-            <AmbireLogoHorizontal style={[flexbox.alignSelfCenter, spacings.mtSm]} />
+          <SafeAreaView style={[flexbox.flex1, spacings.mhLg]}>
+            <AmbireLogoHorizontal style={[flexbox.alignSelfCenter, spacings.mtSm, spacings.mbLg]} />
+            <View style={[flexbox.flex1, flexbox.justifyCenter]}>
+              <AnimatedLottieView
+                style={[{ width: 173, height: 173 }, flexbox.alignSelfCenter]}
+                source={ErrorAnimation}
+                autoPlay
+                loop
+              />
+            </View>
             <View style={[flexbox.flex1, flexbox.center]}>
-              <Text
-                fontSize={20}
-                weight="regular"
-                color={colors.waikawaGray}
-                style={styles.descriptionText}
-              >
-                {slidesError}
-              </Text>
+              <View style={[flexbox.flex1, flexbox.justifyCenter]}>
+                <Text fontSize={20} weight="regular" color={colors.waikawaGray} style={text.center}>
+                  {slidesError}
+                </Text>
+              </View>
 
-              <View style={flexbox.directionRow}>
-                <Button
-                  type="outline"
-                  accentColor={colors.heliotrope}
-                  text={t('Skip')}
-                  style={spacings.mhTy}
-                  onPress={markOnboardingOnFirstLoginAsCompleted}
-                />
+              <View style={[{ width: '100%' }, spacings.mbLg]}>
                 <Button text={t('Try again')} style={spacings.mhTy} onPress={fetchSlides} />
+                <TouchableOpacity style={flexbox.alignCenter}>
+                  <Text
+                    fontSize={20}
+                    weight="regular"
+                    color={colors.waikawaGray}
+                    onPress={markOnboardingOnFirstLoginAsCompleted}
+                  >
+                    {t('Skip')}
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
           </SafeAreaView>
