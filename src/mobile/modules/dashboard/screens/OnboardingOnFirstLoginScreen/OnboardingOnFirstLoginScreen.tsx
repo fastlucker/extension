@@ -115,7 +115,12 @@ const OnboardingOnFirstLoginScreen = () => {
               </View>
 
               <View style={[{ width: '100%' }, spacings.mbLg]}>
-                <Button text={t('Try again')} style={spacings.mhTy} onPress={fetchSlides} />
+                <Button
+                  text={t('Try again')}
+                  style={spacings.mhTy}
+                  textStyle={{ fontSize: 20 }}
+                  onPress={fetchSlides}
+                />
                 <TouchableOpacity
                   style={[flexbox.alignCenter, spacings.mb]}
                   onPress={markOnboardingOnFirstLoginAsCompleted}
