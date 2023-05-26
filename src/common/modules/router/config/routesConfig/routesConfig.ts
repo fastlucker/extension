@@ -260,6 +260,10 @@ const routesConfig: {
   [ROUTES.dappsCatalog]: {
     route: ROUTES.dappsCatalog,
     title: i18n.t('dApps')
+  },
+  [ROUTES.otp2FA]: {
+    route: ROUTES.otp2FA,
+    title: i18n.t('2FA')
   }
 }
 
