@@ -116,13 +116,11 @@ const OnboardingOnFirstLoginScreen = () => {
 
               <View style={[{ width: '100%' }, spacings.mbLg]}>
                 <Button text={t('Try again')} style={spacings.mhTy} onPress={fetchSlides} />
-                <TouchableOpacity style={flexbox.alignCenter}>
-                  <Text
-                    fontSize={20}
-                    weight="regular"
-                    color={colors.waikawaGray}
-                    onPress={markOnboardingOnFirstLoginAsCompleted}
-                  >
+                <TouchableOpacity
+                  style={[flexbox.alignCenter, spacings.mb]}
+                  onPress={markOnboardingOnFirstLoginAsCompleted}
+                >
+                  <Text fontSize={20} weight="regular" color={colors.waikawaGray}>
                     {t('Skip')}
                   </Text>
                 </TouchableOpacity>
