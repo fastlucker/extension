@@ -50,7 +50,7 @@ const OnboardingOnFirstLoginProvider: React.FC<any> = ({ children }) => {
     }
 
     setSlidesLoading(false)
-  }, [])
+  }, [t])
 
   const hasCompletedOnboarding = !!completedOnboardingAt
   useEffect(() => {
