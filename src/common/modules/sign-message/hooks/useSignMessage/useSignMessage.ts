@@ -37,7 +37,8 @@ const useSignMessage = ({
   messagesToSign,
   resolve,
   onConfirmationCodeRequired,
-  openBottomSheetHardwareWallet
+  openBottomSheetHardwareWallet,
+  isInBottomSheet
 }: UseSignMessageProps): UseSignMessageReturnType => {
   const { network } = useNetwork()
   const { addToast } = useToast()
@@ -231,7 +232,7 @@ const useSignMessage = ({
               addToast('Invalid signature!', { error: true })
             }
 
-            if (messagesToSign.length === 1) {
+            if (messagesToSign.length === 1 && !isInBottomSheet) {
               navigate(ROUTES.dashboard)
             }
 
@@ -269,7 +270,8 @@ const useSignMessage = ({
       isTypedData,
       addSignedMessage,
       dApp,
-      requestedChainId
+      requestedChainId,
+      isInBottomSheet
     ]
   )
 

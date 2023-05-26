@@ -2,7 +2,6 @@ import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import Spinner from '@common/components/Spinner'
-import useExtensionApproval from '@common/hooks/useExtensionApproval'
 import useNavigation from '@common/hooks/useNavigation'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
@@ -10,6 +9,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import { VAULT_STATUS } from '@common/modules/vault/constants/vaultStatus'
 import useVault from '@common/modules/vault/hooks/useVault'
 import flexbox from '@common/styles/utils/flexbox'
+import useApproval from '@web/hooks/useApproval'
 import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
 import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
 import { getUiType } from '@web/utils/uiType'
@@ -17,7 +17,7 @@ import { getUiType } from '@web/utils/uiType'
 const SortHat = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
-  const { approval } = useExtensionApproval()
+  const { approval } = useApproval()
   const isInNotification = getUiType().isNotification
   const { vaultStatus } = useVault()
   const { onboardingStatus } = useOnboarding()

@@ -3,7 +3,7 @@ import { generateAddress2 } from 'ethereumjs-util'
 import { Wallet } from 'ethers'
 import { AbiCoder, getAddress, id, keccak256 } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { Keyboard } from 'react-native'
+import { Keyboard, Platform } from 'react-native'
 import performance from 'react-native-performance'
 
 import CONFIG from '@common/config/env'
@@ -12,6 +12,7 @@ import useToast from '@common/hooks/useToast'
 import { getProxyDeployBytecode } from '@common/modules/auth/services/IdentityProxyDeploy'
 import useVault from '@common/modules/vault/hooks/useVault'
 import { fetchPost } from '@common/services/fetch'
+import useReferral from '@mobile/modules/referral/hooks/useReferral'
 
 type FormProps = {
   email: string
@@ -23,6 +24,7 @@ export default function useCreateAccount() {
   const [err, setErr] = useState<string>('')
   const [addAccErr, setAddAccErr] = useState<string>('')
   const [inProgress, setInProgress] = useState<boolean | string>(false)
+  const { getPendingReferral, removePendingReferral } = useReferral()
 
   const { onAddAccount } = useAccounts()
   const { addToast } = useToast()
@@ -101,6 +103,8 @@ export default function useCreateAccount() {
       await firstKeyWallet.encrypt(req.password, accountPresets.encryptionOpts)
     )
 
+    const referral = getPendingReferral()
+
     const createResp = await fetchPost(`${CONFIG.RELAYER_URL}/identity/${identityAddr}`, {
       email: req.email,
       primaryKeyBackup: req.backup ? primaryKeyBackup : undefined,
@@ -109,7 +113,8 @@ export default function useCreateAccount() {
       identityFactoryAddr,
       baseIdentityAddr,
       privileges,
-      quickAccSigner: signer
+      quickAccSigner: signer,
+      ...(!!referral && { referralAddr: referral.hexAddress, registeredFrom: Platform.OS })
     })
     if (createResp.message === 'EMAIL_ALREADY_USED') {
       setErr('An account with this email already exists')
@@ -119,6 +124,8 @@ export default function useCreateAccount() {
       setErr(`Unexpected sign up error: ${createResp.message || 'unknown'}`)
       return
     }
+
+    removePendingReferral()
 
     const addr = await firstKeyWallet.getAddress()
     addToVault({

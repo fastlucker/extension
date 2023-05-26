@@ -8,6 +8,7 @@ import Button from '@common/components/Button'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import Title from '@common/components/Title'
 import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import CONFIG from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
@@ -23,13 +24,20 @@ import TransactionSummary from '@common/modules/pending-transactions/components/
 import useSendTransaction from '@common/modules/pending-transactions/hooks/useSendTransaction'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import isInt from '@common/utils/isInt'
 import HardwareWalletSelectConnection from '@mobile/modules/hardware-wallet/components/HardwareWalletSelectConnection'
 import { getUiType } from '@web/utils/uiType'
 
 const relayerURL = CONFIG.RELAYER_URL
 
-const PendingTransactionsScreen = () => {
+const PendingTransactionsScreen = ({
+  isInBottomSheet,
+  closeBottomSheet
+}: {
+  isInBottomSheet?: boolean
+  closeBottomSheet?: (dest?: 'default' | 'alwaysOpen' | undefined) => void
+}) => {
   const { t } = useTranslation()
   const navigation = useNavigation()
   const { setSendTxnState, sendTxnState, resolveMany, everythingToSign } = useRequests()
@@ -68,10 +76,12 @@ const PendingTransactionsScreen = () => {
   const prevBundle: any = usePrevious(bundle)
 
   useLayoutEffect(() => {
-    navigation?.setOptions({
-      headerTitle: t('Pending Transactions: {{numTxns}}', { numTxns: bundle?.txns?.length })
-    })
-  }, [navigation, bundle?.txns?.length, t])
+    if (!isInBottomSheet) {
+      navigation?.setOptions({
+        headerTitle: t('Pending Transactions: {{numTxns}}', { numTxns: bundle?.txns?.length })
+      })
+    }
+  }, [navigation, bundle?.txns?.length, t, isInBottomSheet])
 
   useEffect(() => {
     return () => {
@@ -88,7 +98,19 @@ const PendingTransactionsScreen = () => {
 
   useEffect(() => {
     if (prevBundle?.txns?.length && !bundle?.txns?.length) {
-      navigation?.goBack()
+      if (isInBottomSheet) {
+        if (sendTxnState.showing) {
+          setSendTxnState({ showing: false })
+        }
+        if (everythingToSign.length) {
+          resolveMany([everythingToSign[0].id], {
+            message: t('Ambire user rejected the signature request')
+          })
+        }
+        !!closeBottomSheet && closeBottomSheet()
+      } else {
+        navigation?.goBack()
+      }
     }
   })
 
@@ -103,9 +125,20 @@ const PendingTransactionsScreen = () => {
       </GradientBackgroundWrapper>
     )
 
+  const GradientWrapper = isInBottomSheet ? React.Fragment : GradientBackgroundWrapper
+
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW} extraHeight={190}>
+    <GradientWrapper>
+      <Wrapper
+        type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
+        extraHeight={190}
+        style={isInBottomSheet && spacings.ph0}
+      >
+        {isInBottomSheet && (
+          <Title style={text.center}>
+            {t('Pending Transactions: {{numTxns}}', { numTxns: bundle?.txns?.length })}
+          </Title>
+        )}
         <SigningWithAccount />
         <TransactionSummary bundle={bundle} estimation={estimation} />
         {!!canProceed && (
@@ -191,7 +224,7 @@ const PendingTransactionsScreen = () => {
           />
         </BottomSheet>
       </Wrapper>
-    </GradientBackgroundWrapper>
+    </GradientWrapper>
   )
 }
 

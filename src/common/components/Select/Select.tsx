@@ -23,9 +23,10 @@ interface Props {
   setValue?: (value: any) => void
   label?: string
   extraText?: string
+  hasArrow?: boolean
 }
 
-const Select = ({ value, setValue, items, label, extraText }: Props) => {
+const Select = ({ value, setValue, items, label, extraText, hasArrow = true }: Props) => {
   const [searchValue, setSearchValue] = useState('')
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -85,18 +86,22 @@ const Select = ({ value, setValue, items, label, extraText }: Props) => {
             leftIcon={item?.icon}
             containerStyle={spacings.mbSm}
             button={
-              <View pointerEvents="none">
-                {!!extraText && (
-                  <View style={styles.extra}>
-                    <Text fontSize={12} color={colors.heliotrope}>
-                      {extraText}
-                    </Text>
-                  </View>
-                )}
-                <NavIconWrapper onPress={() => null}>
-                  <DownArrowIcon width={34} height={34} />
-                </NavIconWrapper>
-              </View>
+              hasArrow ? (
+                <View pointerEvents="none">
+                  {!!extraText && (
+                    <View style={styles.extra}>
+                      <Text fontSize={12} color={colors.heliotrope}>
+                        {extraText}
+                      </Text>
+                    </View>
+                  )}
+                  <NavIconWrapper onPress={() => null}>
+                    <DownArrowIcon width={34} height={34} />
+                  </NavIconWrapper>
+                </View>
+              ) : (
+                <></>
+              )
             }
           />
         </View>

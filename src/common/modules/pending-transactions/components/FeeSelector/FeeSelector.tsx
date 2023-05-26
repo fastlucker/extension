@@ -44,7 +44,6 @@ const WalletDiscountBanner = ({
   tokens,
   estimation,
   setCurrency,
-  navigate,
   feeSpeed,
   isGasTankEnabled,
   network
@@ -147,7 +146,7 @@ const FeeSelector = ({
 
   useEffect(() => {
     if (currency) {
-      const tokens = estimation.remainingFeeTokenBalances || [
+      const tokens = estimation?.remainingFeeTokenBalances || [
         { symbol: network.nativeAssetSymbol, decimals: 18 }
       ]
       const token = tokens.find(({ symbol }: any) => symbol === currency)
