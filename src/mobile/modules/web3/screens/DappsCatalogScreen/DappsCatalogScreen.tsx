@@ -4,6 +4,7 @@ import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'reac
 import { useModalize } from 'react-native-modalize'
 
 import CheckIcon from '@common/assets/svg/CheckIcon'
+import CloseIconRound from '@common/assets/svg/CloseIconRound'
 import SearchIcon from '@common/assets/svg/SearchIcon'
 import SortIcon from '@common/assets/svg/SortIcon'
 import BottomSheet from '@common/components/BottomSheet'
@@ -45,6 +46,11 @@ const DappsCatalogScreen = () => {
                   placeholder={t('Search filter')}
                   onChangeText={onSearchChange}
                   leftIcon={() => <SearchIcon />}
+                  button={<CloseIconRound color={!search ? colors.titan_50 : colors.titan} />}
+                  buttonProps={{
+                    onPress: () => onSearchChange(''),
+                    disabled: !search
+                  }}
                   value={search}
                 />
               </View>

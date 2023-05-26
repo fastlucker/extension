@@ -19,59 +19,71 @@ const replaceMetamaskWithAmbireInDapps = `
           const replacedText = text.replace(new RegExp(textToFind, 'gi'), replacementText);
 
           if (/^metamask$/i.test(text.trim())) {
-            let ancestorNode = childNode.parentNode;
-            let maxLevels = 4;
-            while (ancestorNode && maxLevels > 0) {
-              maxLevels--;
+            function lookForMMIcon() {
+              let ancestorNode = childNode.parentNode;
+              let maxLevels = 4;
+              while (ancestorNode && maxLevels > 0) {
+                maxLevels--;
 
-              const imgElement = ancestorNode.querySelector('img');
-              const svgElement = ancestorNode.querySelector('svg');
-              const imgElementByRole = ancestorNode.querySelector('[role="img"]');
+                const imgElement = ancestorNode.querySelector('img');
+                const svgElement = ancestorNode.querySelector('svg');
+                const imgElementByRole = ancestorNode.querySelector('[role="img"]');
 
-              if (imgElement || svgElement || imgElementByRole) {
-                const newImgElement = document.createElement('img');
-                newImgElement.src = "${ambireSvg}";
+                if (imgElement || svgElement || imgElementByRole) {
+                  const newImgElement = document.createElement('img');
+                  newImgElement.src = "${ambireSvg}";
 
-                if (imgElement) {
-                  if (imgElement.clientHeight) {
-                    newImgElement.style.height = imgElement.clientHeight + 'px';
+                  if (imgElement) {
+                    if (imgElement.clientHeight) {
+                      newImgElement.style.height = imgElement.clientHeight + 'px';
+                    }
+                    if (imgElement.clientWidth) {
+                      newImgElement.style.width = imgElement.clientWidth + 'px';
+                    }
+
+                    imgElement.parentNode.insertBefore(newImgElement, imgElement);
+                    imgElement.style.display = "none";
                   }
-                  if (imgElement.clientWidth) {
-                    newImgElement.style.width = imgElement.clientWidth + 'px';
+
+                  if (svgElement) {
+                    if (svgElement.clientHeight) {
+                      newImgElement.style.height = svgElement.clientHeight + 'px';
+                    }
+                    if (svgElement.clientWidth) {
+                      newImgElement.style.width = svgElement.clientWidth + 'px';
+                    }
+
+                    svgElement.parentNode.insertBefore(newImgElement, svgElement);
+                    svgElement.style.display = "none";
                   }
 
-                  imgElement.parentNode.insertBefore(newImgElement, imgElement);
-                  imgElement.style.display = "none";
+                  if (imgElementByRole) {
+                    if (imgElementByRole.clientHeight) {
+                      newImgElement.style.height = imgElementByRole.clientHeight + 'px';
+                    }
+                    if (imgElementByRole.clientWidth) {
+                      newImgElement.style.width = imgElementByRole.clientWidth + 'px';
+                    }
+
+                    imgElementByRole.parentNode.insertBefore(newImgElement, imgElementByRole);
+                    imgElementByRole.style.display = "none";
+                  }
+
+                  break;
                 }
 
-                if (svgElement) {
-                  if (svgElement.clientHeight) {
-                    newImgElement.style.height = svgElement.clientHeight + 'px';
-                  }
-                  if (svgElement.clientWidth) {
-                    newImgElement.style.width = svgElement.clientWidth + 'px';
-                  }
-
-                  svgElement.parentNode.insertBefore(newImgElement, svgElement);
-                  svgElement.style.display = "none";
-                }
-
-                if (imgElementByRole) {
-                  if (imgElementByRole.clientHeight) {
-                    newImgElement.style.height = imgElementByRole.clientHeight + 'px';
-                  }
-                  if (imgElementByRole.clientWidth) {
-                    newImgElement.style.width = imgElementByRole.clientWidth + 'px';
-                  }
-
-                  imgElementByRole.parentNode.insertBefore(newImgElement, imgElementByRole);
-                  imgElementByRole.style.display = "none";
-                }
-
-                break;
+                ancestorNode = ancestorNode.parentNode;
               }
+            }
 
-              ancestorNode = ancestorNode.parentNode;
+            // For some reason the onboard-v2 lib renders wallet icons async and we should wait for the MM icon to be
+            // rendered in order to replace it with our own icon
+            if (onboardElement) {
+              setTimeout(() => {
+                lookForMMIcon()
+              }, 500)
+            } else {
+              lookForMMIcon()
             }
           }
 
