@@ -1,3 +1,4 @@
+import { StatusBar } from 'expo-status-bar'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, StyleSheet, View } from 'react-native'
@@ -9,6 +10,7 @@ import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
+import { MOBILE_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -137,6 +139,7 @@ const OnboardingOnFirstLoginScreen = () => {
 
   return (
     <Portal hostName="global">
+      <StatusBar style="dark" backgroundColor={colors.wooed} />
       <View style={StyleSheet.absoluteFill}>{renderContent()}</View>
     </Portal>
   )
