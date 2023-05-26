@@ -6,10 +6,8 @@ import { View } from 'react-native'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import DashboardIcon from '@common/assets/svg/DashboardIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
-import SendIcon from '@common/assets/svg/SendIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
 import TransferIcon from '@common/assets/svg/TransferIcon'
-import { isAndroid } from '@common/config/env'
 import { TAB_BAR_BLUR } from '@common/constants/router'
 import { ConnectionStates } from '@common/contexts/netInfoContext'
 import useNetInfo from '@common/hooks/useNetInfo'
@@ -58,6 +56,9 @@ import { navigate } from '@common/services/navigation'
 import colors from '@common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
 import JsonLoginScreen from '@mobile/modules/auth/screens/JsonLoginScreen'
+import { OnboardingOnFirstLoginProvider } from '@mobile/modules/dashboard/context/onboardingOnFirstLoginContext'
+import useOnboardingOnFirstLogin from '@mobile/modules/dashboard/hooks/useOnboardingOnFirstLogin'
+import OnboardingOnFirstLoginScreen from '@mobile/modules/dashboard/screens/OnboardingOnFirstLoginScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import AddReferralScreen from '@mobile/modules/referral/screens/AddReferralScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
@@ -243,7 +244,7 @@ const AuthStack = () => {
       : `${MOBILE_ROUTES.auth}-screen`
 
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <>
           <Stack.Screen
@@ -355,9 +356,22 @@ const VaultStack = () => {
   )
 }
 
-const DashboardStackScreen = () => {
+const DashboardStackScreenNavigator = () => {
+  const { hasCompletedOnboarding } = useOnboardingOnFirstLogin()
+
   return (
-    <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
+    <DashboardStack.Navigator
+      initialRouteName={
+        hasCompletedOnboarding
+          ? `${MOBILE_ROUTES.dashboard}-screen`
+          : `${MOBILE_ROUTES.onboardingOnFirstLogin}-screen`
+      }
+      screenOptions={{ headerShown: false }}
+    >
+      <DashboardStack.Screen
+        name={`${MOBILE_ROUTES.onboardingOnFirstLogin}-screen`}
+        component={OnboardingOnFirstLoginScreen}
+      />
       <DashboardStack.Screen
         name={`${MOBILE_ROUTES.dashboard}-screen`}
         component={DashboardScreen}
@@ -367,6 +381,14 @@ const DashboardStackScreen = () => {
         component={CollectibleScreen}
       />
     </DashboardStack.Navigator>
+  )
+}
+
+const DashboardStackScreen = () => {
+  return (
+    <OnboardingOnFirstLoginProvider>
+      <DashboardStackScreenNavigator />
+    </OnboardingOnFirstLoginProvider>
   )
 }
 
