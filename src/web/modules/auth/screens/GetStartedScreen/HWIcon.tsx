@@ -1,14 +1,6 @@
 const HWIcon: React.FC<any> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" {...props}>
     <g id="HW_icon" data-name="HW icon" transform="translate(-350.5 -242.5)">
-      {/* <rect
-        id="Rectangle_1210"
-        data-name="Rectangle 1210"
-        width="96"
-        height="96"
-        transform="translate(348 239)"
-        fill="none"
-      /> */}
       <g id="icon_HW" data-name="icon HW" transform="translate(-237.337 -111.756)">
         <path
           id="shadow"
