@@ -23,7 +23,7 @@ const styles = StyleSheet.create<Style>({
   },
   informationCircle: {
     alignSelf: 'center',
-    paddingBottom: 65
+    paddingBottom: 30
   },
   amebaAlpha: {
     position: 'absolute',

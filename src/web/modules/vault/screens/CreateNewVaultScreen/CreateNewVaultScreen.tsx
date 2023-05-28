@@ -3,6 +3,7 @@ import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
+import Checkbox from '@common/components/Checkbox'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
@@ -23,6 +24,7 @@ import {
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import styles from '@web/components/AuthLayoutWrapper/styles'
+import KeyStoreIcon from '@common/assets/svg/KeyStoreIcon'
 
 const CreateNewVaultScreen = () => {
   const { t } = useTranslation()
@@ -48,7 +50,11 @@ const CreateNewVaultScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <View style={styles.mainContentWrapper}>
+        <View style={[styles.mainContentWrapper]}>
+          <Text weight="medium" fontSize={20} style={{ ...spacings.mbLg, textAlign: 'center' }}>
+            {t('Ambire Key Store')}
+          </Text>
+          <KeyStoreIcon style={{ ...flexboxStyles.alignSelfCenter, marginBottom: '64px' }} />
           <Controller
             control={control}
             rules={{ validate: isValidPassword }}
@@ -91,6 +97,7 @@ const CreateNewVaultScreen = () => {
             )}
             name="confirmPassword"
           />
+          <Checkbox label={t('Key store recovery by email')} />
           {!isWeb &&
             hasBiometricsHardware &&
             deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC && (
@@ -113,25 +120,30 @@ const CreateNewVaultScreen = () => {
         </View>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
-        <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={13}>
-          {t('Welcome to the {{name}}. Let’s set up your Key Store passphrase.', {
-            name: isWeb ? t('Ambire Wallet extension') : t('Ambire Wallet')
-          })}
+        <Text weight="medium" style={spacings.mb} color={colors.titan} fontSize={20}>
+          {t('Setup Your Ambire Key Store')}
         </Text>
-        <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={13}>
+        <Text weight="regular" style={spacings.mbTy} color={colors.titan} fontSize={16}>
           {t(
-            '1.  Ambire Key Store will protect your Ambire wallet with email password or external signer on this device.'
+            'Ambire Keystore will protect your Ambire Wallet with a passphrase, encrypting all the keys that are stored locally with this passphrase through secure AES encryption.'
           )}
         </Text>
-        <Text weight="light" style={spacings.mbTy} color={colors.titan} fontSize={13}>
+        <Text weight="regular" style={spacings.mbTy} color={colors.titan} fontSize={16}>
           {t(
-            '2.  First, pick your Ambire Key Store passphrase. It is unique for this device and it should be different from your account password.'
+            '1.  First, pick your passphrase. It should be long and you shouldnt reuse other passphrases.'
           )}
         </Text>
-        <Text weight="light" color={colors.titan} fontSize={13}>
+        <Text weight="regular" style={spacings.mbTy} color={colors.titan} fontSize={16}>
           {t(
-            '3.  You will use your passphrase to unlock the {{name}} and sign transactions on this device.',
-            { name: isWeb ? t('Ambire extension') : t('Ambire Wallet') }
+            '2. You will use your passphrase to unlock the Ambire extension and sign transactions on this device.'
+          )}
+        </Text>
+        <Text weight="regular" style={spacings.mbTy} color={colors.titan} fontSize={16}>
+          {t('3. This passphrase can only be reset if you enable recovery via your email vault.')}
+        </Text>
+        <Text weight="regular" color={colors.radicalRed} fontSize={16}>
+          {t(
+            'If you disable email vault keystore recovery, and lose your passphrase, you will lose access to all keys and accounts on this device'
           )}
         </Text>
       </AuthLayoutWrapperSideContent>
