@@ -54,9 +54,11 @@ const routesConfig: {
   },
   [ROUTES.createVault]: {
     route: ROUTES.createVault,
-    title: Platform.select({
-      default: i18n.t('Setup Your Ambire Key Store')
-    })
+    title: ''
+  },
+  [ROUTES.createEmailVault]: {
+    route: ROUTES.createEmailVault,
+    title: ''
   },
   [ROUTES.auth]: {
     route: ROUTES.auth,

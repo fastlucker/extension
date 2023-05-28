@@ -32,6 +32,7 @@ const colors = {
   howl: '#1E2033',
   howl_65: 'rgba(30, 32, 51, 0.65)',
   clay: '#24263D',
+  clay_35: '#24263D59',
   valhalla: '#272A42',
   valhalla_95: 'rgba(39, 42, 66, 0.95)',
   valhalla_66: 'rgba(39, 42, 66, 0.66)',

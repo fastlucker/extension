@@ -1,10 +1,10 @@
-const DownArrow: React.FC<any> = (props) => (
+const DownArrow: React.FC<any> = ({ isActive }: { isActive: boolean }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="15.586"
     height="9.173"
     viewBox="0 0 15.586 9.173"
-    {...props}
+    transform={!isActive ? 'rotate(180)' : 'rotate(0)'}
   >
     <path
       id="down_arrow"

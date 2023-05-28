@@ -46,6 +46,7 @@ import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import CreateNewVaultScreen from '@web/modules/vault/screens/CreateNewVaultScreen'
+import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import { getUiType } from '@web/utils/uiType'
 
 const navigationEnabled = !getUiType().isNotification
@@ -100,6 +101,8 @@ const MainRoutes = () => {
         <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
         <Route element={<TabOnlyRoute />}>
           <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
+          <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
+
           <Route path={WEB_ROUTES.createVault} element={<CreateNewVaultScreen />} />
           <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
 

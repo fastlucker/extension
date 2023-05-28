@@ -3,6 +3,7 @@ const COMMON_ROUTES = {
   resetVault: 'reset-vault',
   getStarted: 'get-started',
   createVault: 'create-vault',
+  createEmailVault: 'create-email-vault',
   auth: 'auth',
   ambireAccountLogin: 'ambire-account-email-login',
   ambireAccountLoginPasswordConfirm: 'ambire-account-login-password-confirm',
