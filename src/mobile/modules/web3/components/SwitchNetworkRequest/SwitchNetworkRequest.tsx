@@ -30,6 +30,7 @@ type Props = {
   isInBottomSheet?: boolean
   closeBottomSheet?: (dest?: 'default' | 'alwaysOpen' | undefined) => void
   selectedDapp: DappManifestData | null
+  tabSessionData: any
 }
 
 const SwitchNetworkRequest = ({
@@ -38,7 +39,8 @@ const SwitchNetworkRequest = ({
   approval,
   rejectApproval,
   resolveApproval,
-  selectedDapp
+  selectedDapp,
+  tabSessionData
 }: Props) => {
   const { t } = useTranslation()
   const { network, setNetwork } = useNetwork()
@@ -80,6 +82,9 @@ const SwitchNetworkRequest = ({
 
   const GradientWrapper = isInBottomSheet ? React.Fragment : GradientBackgroundWrapper
 
+  console.log(selectedDapp)
+  console.log(tabSessionData)
+
   return (
     <GradientWrapper>
       <Wrapper
@@ -91,14 +96,20 @@ const SwitchNetworkRequest = ({
       >
         <Panel type="filled">
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <DappIcon iconUrl={selectedDapp?.iconUrl || ''} />
+            <DappIcon
+              iconUrl={
+                selectedDapp?.id.includes('search:')
+                  ? tabSessionData?.params?.icon
+                  : selectedDapp?.iconUrl || ''
+              }
+            />
           </View>
 
-          {(!!selectedDapp || !!approval?.data?.params?.session?.name) && (
-            <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-              {selectedDapp?.name || approval?.data?.params?.session?.name}
-            </Title>
-          )}
+          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+            {selectedDapp?.id.includes('search:')
+              ? tabSessionData?.params?.name
+              : selectedDapp?.name || approval?.data?.params?.session?.name}
+          </Title>
 
           {!!nextNetwork && (
             <>
@@ -109,9 +120,13 @@ const SwitchNetworkRequest = ({
                       {'Allow '}
                     </Text>
                     <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                      {selectedDapp
-                        ? getHostname(selectedDapp?.url)
-                        : approval?.data?.params?.session?.name || 'webpage'}
+                      {getHostname(
+                        selectedDapp?.id.includes('search:')
+                          ? tabSessionData?.params?.origin || ''
+                          : selectedDapp?.url || ''
+                      ) ||
+                        approval?.data?.params?.session?.name ||
+                        'webpage'}
                     </Text>
                     <Text fontSize={14} weight="regular">
                       {' to switch the network?'}
