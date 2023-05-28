@@ -3,7 +3,6 @@ const COMMON_ROUTES = {
   resetVault: 'reset-vault',
   getStarted: 'get-started',
   createVault: 'create-vault',
-  createEmailVault: 'create-email-vault',
   auth: 'auth',
   ambireAccountLogin: 'ambire-account-email-login',
   ambireAccountLoginPasswordConfirm: 'ambire-account-login-password-confirm',
@@ -40,6 +39,7 @@ const MOBILE_ROUTES = {
 
 const WEB_ROUTES = {
   ...COMMON_ROUTES,
+  createEmailVault: 'create-email-vault',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
   onboarding: 'onboarding',
   permissionRequest: 'permission-request',
