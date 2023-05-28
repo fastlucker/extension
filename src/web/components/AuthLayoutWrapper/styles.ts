@@ -3,6 +3,7 @@ import { StyleSheet, ViewStyle } from 'react-native'
 interface Style {
   mainContentWrapper: ViewStyle
   sideContentContainer: ViewStyle
+  informationCircle: ViewStyle
   amebaAlpha: ViewStyle
   amebaBeta: ViewStyle
 }
@@ -15,10 +16,14 @@ const styles = StyleSheet.create<Style>({
     flex: 1
   },
   sideContentContainer: {
-    width: '33%',
-    paddingTop: 80,
-    paddingHorizontal: 60,
+    width: '35%',
+    paddingTop: 30,
+    paddingHorizontal: 80,
     overflow: 'hidden'
+  },
+  informationCircle: {
+    alignSelf: 'center',
+    paddingBottom: 65
   },
   amebaAlpha: {
     position: 'absolute',
