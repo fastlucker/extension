@@ -1,3 +1,8 @@
+// The 'react-native-dotenv' package doesn't work in the NodeJS context (and
+// with commonjs imports), so alternatively, use 'dotend' package to load the
+// environment variables from the .env file.
+require('dotenv').config()
+
 const createExpoWebpackConfigAsync = require('@expo/webpack-config')
 const webpack = require('webpack')
 const path = require('path')
@@ -5,8 +10,6 @@ const CopyPlugin = require('copy-webpack-plugin')
 const expoEnv = require('@expo/webpack-config/env')
 
 const appJSON = require('./app.json')
-
-require('dotenv').config()
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
 module.exports = async function (env, argv) {
