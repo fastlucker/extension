@@ -203,8 +203,10 @@ module.exports = async function (env, argv) {
 
   // Disables chunking, minimization, and other optimizations that alter the default transpilation of the extension services files.
   config.optimization = { minimize: false }
-  // writeToDisk: output dev bundled files (in /webkit-dev or /gecko-dev) to import them as unpacked extension in the browser
-  config.devServer.devMiddleware.writeToDisk = true
+  if (config.mode === 'development') {
+    // writeToDisk: output dev bundled files (in /webkit-dev or /gecko-dev) to import them as unpacked extension in the browser
+    config.devServer.devMiddleware.writeToDisk = true
+  }
 
   config.ignoreWarnings = [
     {
