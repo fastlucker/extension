@@ -201,6 +201,9 @@ module.exports = async function (env, argv) {
     })
   ]
 
+  // Disables chunking, minimization, and other optimizations that alter the default transpilation of the extension services files.
+  config.optimization = { minimize: false }
+
   if (config.mode === 'development') {
     config.devServer = {
       ...config.devServer, // use the default webpack devServer config
