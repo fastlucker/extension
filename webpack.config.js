@@ -220,6 +220,8 @@ module.exports = async function (env, argv) {
   config.output = {
     // possible output paths: /webkit-dev, /gecko-dev, /webkit-prod, gecko-prod
     path: path.resolve(__dirname, `${process.env.WEBPACK_BUILD_OUTPUT_PATH}`),
+    // Defaults to using 'auto', but this is causing problems in some environments
+    // like in certain browsers, when building (and running) in extension context.
     publicPath: ''
   }
 
