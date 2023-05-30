@@ -108,7 +108,7 @@ module.exports = async function (env, argv) {
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
 
   config.entry = {
-    main: config.entry[0],
+    main: config.entry[0], // the app entry
     background: './src/web/extension-services/background/background.ts', // custom entry needed for the extension
     'content-script': './src/web/extension-services/content-script/content-script.ts', // custom entry needed for the extension
     inpage: './src/web/extension-services/inpage/inpage.ts' // custom entry needed for the extension
@@ -203,15 +203,8 @@ module.exports = async function (env, argv) {
 
   // Disables chunking, minimization, and other optimizations that alter the default transpilation of the extension services files.
   config.optimization = { minimize: false }
-
-  if (config.mode === 'development') {
-    config.devServer = {
-      ...config.devServer, // use the default webpack devServer config
-      hot: true
-    }
-    // writeToDisk: output dev bundled files (in /webkit-dev or /gecko-dev) to import them as unpacked extension in the browser
-    config.devServer.devMiddleware.writeToDisk = true
-  }
+  // writeToDisk: output dev bundled files (in /webkit-dev or /gecko-dev) to import them as unpacked extension in the browser
+  config.devServer.devMiddleware.writeToDisk = true
 
   config.resolve.fallback = {}
   config.resolve.fallback.stream = require.resolve('stream-browserify')
