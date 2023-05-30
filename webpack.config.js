@@ -206,6 +206,15 @@ module.exports = async function (env, argv) {
   // writeToDisk: output dev bundled files (in /webkit-dev or /gecko-dev) to import them as unpacked extension in the browser
   config.devServer.devMiddleware.writeToDisk = true
 
+  config.ignoreWarnings = [
+    {
+      // Ignore any warnings that include the text 'Failed to parse source map'.
+      // As far as we could debug, these are not critical and lib specific.
+      // Webpack can't find source maps for specific packages, which is fine.
+      message: /Failed to parse source map/
+    }
+  ]
+
   config.resolve.fallback = {}
   config.resolve.fallback.stream = require.resolve('stream-browserify')
   config.resolve.fallback.crypto = require.resolve('crypto-browserify')
