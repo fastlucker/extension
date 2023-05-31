@@ -19,12 +19,6 @@ import { Vault, VaultItem } from './types'
 
 const relayerURL = CONFIG.RELAYER_URL
 
-// class ObservableStore {
-//   constructor(parameters) {
-
-//   }
-// }
-
 function getMessageAsBytes(msg: string) {
   // Transforming human message / hex string to bytes
   if (!isHexString(msg)) {
