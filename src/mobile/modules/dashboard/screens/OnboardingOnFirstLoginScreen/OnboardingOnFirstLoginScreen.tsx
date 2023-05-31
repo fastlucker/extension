@@ -45,12 +45,11 @@ const OnboardingOnFirstLoginScreen = () => {
   }, [fetchSlides, hasCompletedOnboarding, navigate])
 
   const handleComplete = useCallback(() => {
-    if (hasCompletedOnboarding) {
-      // TODO: Figure out how to make different animation, like a fade in one.
-      return navigate(`${MOBILE_ROUTES.dashboard}-screen`)
+    if (!hasCompletedOnboarding) {
+      markOnboardingOnFirstLoginAsCompleted()
     }
 
-    markOnboardingOnFirstLoginAsCompleted()
+    navigate(`${MOBILE_ROUTES.dashboard}-screen`, {})
   }, [hasCompletedOnboarding, markOnboardingOnFirstLoginAsCompleted, navigate])
 
   const renderItem = useCallback(
