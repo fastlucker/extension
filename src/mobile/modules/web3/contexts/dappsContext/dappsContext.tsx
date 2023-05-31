@@ -18,7 +18,8 @@ const DappsContext = createContext<DappsContextData>({
   search: undefined,
   onSearchChange: () => {},
   categories: [],
-  loadCurrentDappData: () => {}
+  loadCurrentDappData: () => {},
+  searchDappItem: {} as any
 })
 
 const DappsProvider: React.FC<any> = ({ children }) => {
@@ -39,6 +40,20 @@ const DappsProvider: React.FC<any> = ({ children }) => {
     removeCustomDapp
   } = useDapps({ useStorage, fetch, applicationType: 'mobile' })
 
+  const searchDappItem = useMemo(
+    () => ({
+      id: `search:${search}`,
+      name: `Search "${search}"`,
+      description: '',
+      url: `https://www.google.com/search?q=${search}`,
+      iconUrl: '',
+      connectionType: '' as any,
+      networks: [],
+      applicationType: ['mobile']
+    }),
+    [search]
+  )
+
   return (
     <DappsContext.Provider
       value={useMemo(
@@ -56,7 +71,8 @@ const DappsProvider: React.FC<any> = ({ children }) => {
           onSearchChange,
           categories,
           loadCurrentDappData,
-          removeCustomDapp
+          removeCustomDapp,
+          searchDappItem
         }),
         [
           addCustomDapp,
@@ -72,7 +88,8 @@ const DappsProvider: React.FC<any> = ({ children }) => {
           onSearchChange,
           categories,
           loadCurrentDappData,
-          removeCustomDapp
+          removeCustomDapp,
+          searchDappItem
         ]
       )}
     >
