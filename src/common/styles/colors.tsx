@@ -54,6 +54,8 @@ const colors = {
   zircon: '#F7F8FF',
   mischka: '#D6D7E1',
 
+  melrose: '#B6B9FF',
+  melrose_35: '#B6B9FF59',
   melrose_15: '#B6B9FF26',
   scampi_20: '#6770B333',
 

@@ -15,7 +15,16 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
 
-const TabHeader: React.FC<any> = ({ showStepper, step, steps }) => {
+const flows = {
+  emailAuth: [
+    'Create Email\nVault',
+    'Email\nConfirmation',
+    'Setup Key\nStore',
+    'Personalize\nAccounts'
+  ],
+  hwAuth: ['Pick Hardware Device', 'Pick Accounts To Import', 'Personalize Accounts']
+}
+const TabHeader: React.FC<any> = () => {
   const { t } = useTranslation()
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
@@ -43,12 +52,12 @@ const TabHeader: React.FC<any> = ({ showStepper, step, steps }) => {
   }
 
   const nextRoute = path?.substring(1) as ROUTES
-  const { title } = routesConfig[nextRoute]
+  const { title, flow, flowStep } = routesConfig[nextRoute]
 
   return (
     <View style={[styles.container, spacings.pv, spacings.ph]}>
       <View>{renderHeaderLeft()}</View>
-      {showStepper && <Stepper step={step} steps={steps} />}
+      {flow && <Stepper step={flowStep} steps={flows[flow]} />}
       {title && (
         <Text
           fontSize={20}

@@ -54,11 +54,15 @@ const routesConfig: {
   },
   [ROUTES.createVault]: {
     route: ROUTES.createVault,
-    title: ''
+    title: '',
+    flow: 'emailAuth',
+    flowStep: 2
   },
   [ROUTES.createEmailVault]: {
     route: ROUTES.createEmailVault,
-    title: ''
+    title: '',
+    flow: 'emailAuth',
+    flowStep: 0
   },
   [ROUTES.auth]: {
     route: ROUTES.auth,
@@ -72,14 +76,18 @@ const routesConfig: {
     title: Platform.select({
       default: i18n.t('Login'),
       web: ''
-    })
+    }),
+    flow: 'emailAuth',
+    flowStep: 1
   },
   [ROUTES.ambireAccountLoginPasswordConfirm]: {
     route: ROUTES.ambireAccountLoginPasswordConfirm,
     title: Platform.select({
       web: i18n.t('Confirm Account Password'),
       default: i18n.t('Login')
-    })
+    }),
+    flow: 'emailAuth',
+    flowStep: 1
   },
   [ROUTES.ambireAccountJsonLogin]: {
     route: ROUTES.ambireAccountJsonLogin,

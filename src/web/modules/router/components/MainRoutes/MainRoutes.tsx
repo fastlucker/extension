@@ -101,13 +101,13 @@ const MainRoutes = () => {
         <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
         <Route element={<TabOnlyRoute />}>
           <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
-          <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
 
           <Route path={WEB_ROUTES.createVault} element={<CreateNewVaultScreen />} />
           <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
 
           <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
           <Route element={emailLoginProvider}>
+            <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
             {/* TODO: Temporarily wire-up */}
             {/* <Route path={WEB_ROUTES.ambireAccountLogin} element={<EmailLoginScreen />} /> */}
             <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />

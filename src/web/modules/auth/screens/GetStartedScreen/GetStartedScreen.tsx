@@ -44,7 +44,7 @@ const GetStartedScreen = () => {
           >
             <Button
               text={t('Create Email Account')}
-              onPress={() => handleAuthButtonPress(ROUTES.authEmailAccount)}
+              onPress={() => handleAuthButtonPress(ROUTES.createEmailVault)}
               hasBottomSpacing={false}
             />
           </Card>
