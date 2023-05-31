@@ -124,7 +124,7 @@ module.exports = async function (env, argv) {
   if (excludeCopyPlugin !== -1) {
     config.plugins.splice(excludeCopyPlugin, 1)
   }
-  // // Not needed because output directory cleanup is handled in the run script
+  // Not needed because output directory cleanup is handled in the run script
   const excludeCleanWebpackPlugin = config.plugins.findIndex(
     (plugin) => plugin.constructor.name === 'CleanWebpackPlugin'
   )
@@ -137,7 +137,7 @@ module.exports = async function (env, argv) {
   if (excludeHtmlWebpackPlugin !== -1) {
     config.plugins.splice(excludeHtmlWebpackPlugin, 1)
   }
-  // // Not needed because a custom manifest.json transpilation is implemented below
+  // Not needed because a custom manifest.json transpilation is implemented below
   const excludeExpoPwaManifestWebpackPlugin = config.plugins.findIndex(
     (plugin) => plugin.constructor.name === 'ExpoPwaManifestWebpackPlugin'
   )
