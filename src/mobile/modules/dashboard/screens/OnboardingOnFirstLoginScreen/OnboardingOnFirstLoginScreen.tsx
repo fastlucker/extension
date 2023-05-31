@@ -159,9 +159,11 @@ const OnboardingOnFirstLoginScreen = () => {
     )
   }
 
+  const statusBarBackgroundColor = slides?.length ? slides[0]?.backgroundColor : colors.wooed
+
   return (
     <Portal hostName="global">
-      <StatusBar style="dark" backgroundColor={colors.wooed} />
+      <StatusBar style="dark" translucent={false} backgroundColor={statusBarBackgroundColor} />
       <View style={StyleSheet.absoluteFill}>{renderContent()}</View>
     </Portal>
   )
