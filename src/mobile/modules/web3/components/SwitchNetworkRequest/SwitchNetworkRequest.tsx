@@ -82,9 +82,6 @@ const SwitchNetworkRequest = ({
 
   const GradientWrapper = isInBottomSheet ? React.Fragment : GradientBackgroundWrapper
 
-  console.log(selectedDapp)
-  console.log(tabSessionData)
-
   return (
     <GradientWrapper>
       <Wrapper
