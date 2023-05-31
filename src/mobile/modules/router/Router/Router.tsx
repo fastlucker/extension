@@ -8,6 +8,7 @@ import DashboardIcon from '@common/assets/svg/DashboardIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
 import TransferIcon from '@common/assets/svg/TransferIcon'
+import { isAndroid } from '@common/config/env'
 import { TAB_BAR_BLUR } from '@common/constants/router'
 import { ConnectionStates } from '@common/contexts/netInfoContext'
 import useNetInfo from '@common/hooks/useNetInfo'
@@ -437,17 +438,20 @@ const TabsScreens = () => {
         }}
         component={EarnScreen}
       />
-      <Tab.Screen
-        name={MOBILE_ROUTES.swap}
-        options={{
-          tabBarLabel: routesConfig[ROUTES.swap].title,
-          headerTitle: routesConfig[ROUTES.swap].title,
-          tabBarIcon: ({ color }) => (
-            <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-          )
-        }}
-        component={SwapScreen}
-      />
+      {/* TODO: Temporary disabled for iOS since v3.9.0 in an attempt to pass the App Store review */}
+      {isAndroid && (
+        <Tab.Screen
+          name={MOBILE_ROUTES.swap}
+          options={{
+            tabBarLabel: routesConfig[ROUTES.swap].title,
+            headerTitle: routesConfig[ROUTES.swap].title,
+            tabBarIcon: ({ color }) => (
+              <SwapIcon color={color} width={tabsIconSize} height={tabsIconSize} />
+            )
+          }}
+          component={SwapScreen}
+        />
+      )}
       <Tab.Screen
         name={MOBILE_ROUTES.transactions}
         options={{
