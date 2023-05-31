@@ -67,7 +67,12 @@ const DappCatalogListItem: React.FC<Props> = ({
         ]}
       >
         <View style={spacings.mrTy}>
-          <DappIcon iconUrl={iconUrl} size={46} isSearchIcon={id.includes('search:')} />
+          <DappIcon
+            iconUrl={iconUrl}
+            size={46}
+            isSearchIcon={id.includes('search:')}
+            isBrowserIcon={id.includes('search:url-or-hostname')}
+          />
         </View>
         <View style={flexbox.flex1}>
           <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>

@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useModalize } from 'react-native-modalize'
 
 import useStorage from '@common/hooks/useStorage'
+import isValidHostname from '@common/utils/isValidHostname'
 
 const STORAGE_KEY = 'dapps_permission'
 const usePermission = ({ selectedDappUrl }: { selectedDappUrl: string }) => {
@@ -18,7 +19,12 @@ const usePermission = ({ selectedDappUrl }: { selectedDappUrl: string }) => {
 
   const checkHasPermission = useCallback(
     (dappURL: string) => {
-      if (dappURL.includes('www.google.com')) return true
+      if (
+        dappURL.includes('www.google.com') ||
+        isValidHostname(dappURL) ||
+        /^(ftp|http|https):\/\/[^ "]+$/.test(dappURL)
+      )
+        return true
 
       return permission?.includes(dappURL) as boolean
     },

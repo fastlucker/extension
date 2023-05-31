@@ -32,6 +32,7 @@ const DappsCatalogScreen = () => {
     categoryFilter,
     filteredCatalog,
     searchDappItem,
+    searchDappUrlOrHostnameItem,
     onSearchChange,
     onCategorySelect
   } = useDapps()
@@ -63,7 +64,7 @@ const DappsCatalogScreen = () => {
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 2 }}
                       onPress={() => {
                         if (search) {
-                          setSelectedDapp(searchDappItem)
+                          setSelectedDapp(searchDappUrlOrHostnameItem || searchDappItem)
                           navigate(`${ROUTES.web3Browser}-screen`)
                         }
                       }}
@@ -84,7 +85,7 @@ const DappsCatalogScreen = () => {
                   returnKeyLabel="search"
                   onSubmitEditing={() => {
                     if (!filteredCatalog.length && !!search) {
-                      setSelectedDapp(searchDappItem)
+                      setSelectedDapp(searchDappUrlOrHostnameItem || searchDappItem)
                       navigate(`${ROUTES.web3Browser}-screen`)
                     }
                   }}
