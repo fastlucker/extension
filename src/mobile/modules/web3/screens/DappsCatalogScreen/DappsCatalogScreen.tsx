@@ -57,7 +57,7 @@ const DappsCatalogScreen = () => {
               <View style={[flexbox.flex1, spacings.prTy]}>
                 <Input
                   containerStyle={spacings.mb0}
-                  placeholder={t('Search filter')}
+                  placeholder={t('Search or type dApp url')}
                   onChangeText={onSearchChange}
                   leftIcon={() => (
                     <TouchableOpacity
