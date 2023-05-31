@@ -21,6 +21,21 @@ const commonScript = `
   ${eventEmitterScript}
   ${replaceMetamaskWithAmbireInDapps}
 
+  (function() {
+    function preventOpenNewTabOnLinkClick(event) {
+      var target = event.target;
+      var href = target.getAttribute('href');
+      target.removeAttribute('target');
+      if (href && href !== window.location.href) {
+        event.preventDefault();
+        window.location.href = href;
+      }
+    }
+
+    document.addEventListener('click', preventOpenNewTabOnLinkClick);
+    document.addEventListener('auxclick', preventOpenNewTabOnLinkClick);
+  })();
+
   const networks = ${JSON.stringify(networks)};
   const DAPP_PROVIDER_URLS = ${JSON.stringify(DAPP_PROVIDER_URLS)};
   const IS_METAMASK = ${IS_METAMASK};
