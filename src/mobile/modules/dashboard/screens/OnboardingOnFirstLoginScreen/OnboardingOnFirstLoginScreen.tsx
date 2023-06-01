@@ -37,11 +37,20 @@ const OnboardingOnFirstLoginScreen = () => {
   } = useOnboardingOnFirstLogin()
 
   useEffect(() => {
+    // Trigger fetching slides, because by default, when the onboarding is
+    //  completed the `useOnboardingOnFirstLogin` does not fetches the slides.
     if (hasCompletedOnboarding) {
-      // TODO: Figure out how to make different animation, like a fade in one.
-      navigate(`${MOBILE_ROUTES.dashboard}-screen`, {})
+      fetchSlides()
     }
-  }, [hasCompletedOnboarding, navigate])
+  }, [fetchSlides, hasCompletedOnboarding, navigate])
+
+  const handleComplete = useCallback(() => {
+    if (!hasCompletedOnboarding) {
+      markOnboardingOnFirstLoginAsCompleted()
+    }
+
+    navigate(`${MOBILE_ROUTES.dashboard}-screen`, {})
+  }, [hasCompletedOnboarding, markOnboardingOnFirstLoginAsCompleted, navigate])
 
   const renderItem = useCallback(
     ({ item }) => (
@@ -123,7 +132,7 @@ const OnboardingOnFirstLoginScreen = () => {
                 />
                 <TouchableOpacity
                   style={[flexbox.alignCenter, spacings.mb]}
-                  onPress={markOnboardingOnFirstLoginAsCompleted}
+                  onPress={handleComplete}
                 >
                   <Text fontSize={20} weight="regular" color={colors.waikawaGray}>
                     {t('Skip')}
@@ -143,18 +152,18 @@ const OnboardingOnFirstLoginScreen = () => {
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         data={slides}
-        onDone={markOnboardingOnFirstLoginAsCompleted}
+        onDone={handleComplete}
         renderNextButton={NextButton}
         renderDoneButton={DoneButton}
       />
     )
   }
 
-  if (hasCompletedOnboarding) return null
+  const statusBarBackgroundColor = slides?.length ? slides[0]?.backgroundColor : colors.wooed
 
   return (
     <Portal hostName="global">
-      <StatusBar style="dark" backgroundColor={colors.wooed} />
+      <StatusBar style="dark" translucent={false} backgroundColor={statusBarBackgroundColor} />
       <View style={StyleSheet.absoluteFill}>{renderContent()}</View>
     </Portal>
   )

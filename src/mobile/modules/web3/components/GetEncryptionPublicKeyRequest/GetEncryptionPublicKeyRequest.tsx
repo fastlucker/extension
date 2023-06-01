@@ -22,6 +22,7 @@ type Props = {
   rejectApproval: Web3ContextData['rejectApproval']
   isInBottomSheet?: boolean
   selectedDapp: DappManifestData | null
+  tabSessionData: any
   closeBottomSheet?: (dest?: 'default' | 'alwaysOpen' | undefined) => void
 }
 
@@ -30,6 +31,7 @@ const GetEncryptionPublicKeyRequest = ({
   closeBottomSheet,
   approval,
   selectedDapp,
+  tabSessionData,
   rejectApproval
 }: Props) => {
   const { t } = useTranslation()
@@ -54,14 +56,20 @@ const GetEncryptionPublicKeyRequest = ({
       >
         <Panel type="filled">
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <DappIcon iconUrl={selectedDapp?.iconUrl || ''} />
+            <DappIcon
+              iconUrl={
+                selectedDapp?.id.includes('search:')
+                  ? tabSessionData?.params?.icon
+                  : selectedDapp?.iconUrl || ''
+              }
+            />
           </View>
 
-          {(!!selectedDapp || !!approval?.data?.params?.session?.name) && (
-            <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-              {selectedDapp?.name || approval?.data?.params?.session?.name}
-            </Title>
-          )}
+          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+            {selectedDapp?.id.includes('search:')
+              ? tabSessionData?.params?.name
+              : selectedDapp?.name || approval?.data?.params?.session?.name}
+          </Title>
 
           <View>
             <Trans>
@@ -70,9 +78,13 @@ const GetEncryptionPublicKeyRequest = ({
                   {'The dApp '}
                 </Text>
                 <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                  {selectedDapp
-                    ? getHostname(selectedDapp?.url)
-                    : approval?.data?.params?.session?.name || 'webpage'}
+                  {getHostname(
+                    selectedDapp?.id.includes('search:')
+                      ? tabSessionData?.params?.origin || ''
+                      : selectedDapp?.url || ''
+                  ) ||
+                    approval?.data?.params?.session?.name ||
+                    'webpage'}
                 </Text>
                 <Text fontSize={14} weight="regular">
                   {

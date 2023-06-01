@@ -18,6 +18,8 @@ const usePermission = ({ selectedDappUrl }: { selectedDappUrl: string }) => {
 
   const checkHasPermission = useCallback(
     (dappURL: string) => {
+      if (dappURL.includes('www.google.com')) return true
+
       return permission?.includes(dappURL) as boolean
     },
     [permission]

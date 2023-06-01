@@ -1,33 +1,37 @@
 import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
-import React, { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
+import React, { useCallback, useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import Spinner from '@common/components/Spinner'
-import Text from '@common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import useNetwork from '@common/hooks/useNetwork'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import text from '@common/styles/utils/text'
 import DappCatalogItemItem from '@mobile/modules/web3/components/DappsCatalogList/DappsCatalogListItem'
 import useDapps from '@mobile/modules/web3/hooks/useDapps'
 import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
 
 const DappsCatalogList = () => {
-  const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { network } = useNetwork()
   const { setSelectedDapp } = useWeb3()
-  const { filteredCatalog, favorites, toggleFavorite, search } = useDapps()
+  const { filteredCatalog, favorites, toggleFavorite, search, searchDappItem } = useDapps()
+
+  const catalogListData = useMemo(() => {
+    const data = [...filteredCatalog]
+    if (search) {
+      data.unshift(searchDappItem)
+    }
+    return data
+  }, [filteredCatalog, search, searchDappItem])
 
   const findItemById = useCallback(
-    (itemId: DappManifestData['id']) => filteredCatalog.find(({ id }) => id === itemId),
+    (itemId: DappManifestData['id']) => catalogListData.find(({ id }) => id === itemId),
     // The sorting does not matter, so we can ignore it and watch for length only
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [filteredCatalog.length]
+    [catalogListData]
   )
 
   const handleOpenDapp = useCallback(
@@ -79,6 +83,7 @@ const DappsCatalogList = () => {
       onOpenDapp={handleOpenDapp}
       onToggleFavorite={handleToggleFavorite}
       isSupported={item.isSupported}
+      inSearchMode={!!search}
     />
   )
 
@@ -98,9 +103,10 @@ const DappsCatalogList = () => {
     )
   }
 
-  const noSearchResults = !isLoading && !filteredCatalog.length && search
-  if (noSearchResults) {
-    return <Text style={[text.center, spacings.mt]}>{t('No results found.')}</Text>
+  const googleProps = {
+    userAgent:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    sharedCookiesEnabled: true
   }
 
   return (
@@ -108,12 +114,13 @@ const DappsCatalogList = () => {
       hasBottomTabNav
       type={WRAPPER_TYPES.FLAT_LIST}
       style={spacings.mbTy}
-      data={sortFiltered(filteredCatalog)}
+      data={sortFiltered(catalogListData)}
       renderItem={renderItem}
       initialNumToRender={7}
       windowSize={4}
       keyExtractor={(item) => item.id}
       keyboardDismissMode="on-drag"
+      {...googleProps}
     />
   )
 }

@@ -1,6 +1,6 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable import/no-extraneous-dependencies */
-const RawSource = require('webpack-sources').RawSource
+/**
+ * replace string with other assets content at "afterProcessAssets"
+ */
 
 class AssetReplacePlugin {
   constructor(options) {
@@ -8,14 +8,20 @@ class AssetReplacePlugin {
   }
 
   apply(compiler) {
-    compiler.plugin('compilation', (compilation) => {
-      compilation.plugin('additional-assets', (callback) => {
+    const {
+      webpack: {
+        sources: { RawSource }
+      }
+    } = compiler
+    compiler.hooks.make.tapAsync('AssetReplacePlugin', (compilation, callback) => {
+      compilation.hooks.afterProcessAssets.tap('AssetReplacePlugin', () => {
         const replaceArr = Object.entries(this.options)
           .map(([k, v]) => {
             let assetName
-            for (const chunk of compilation.chunks) {
+            for (const chunk of compilation.chunks.values()) {
               if (chunk.name === v) {
-                assetName = Array.from(chunk.files)[0]
+                assetName = chunk.files.values().next().value
+
                 break
               }
             }
@@ -25,7 +31,8 @@ class AssetReplacePlugin {
 
         const replaceFn = replaceArr
           .map(([k, assetName]) => {
-            const content = compilation.assets[assetName].source()
+            // github.com/webpack/webpack-sources/blob/master/lib/ConcatSource.js
+            const content = compilation.assets[assetName]?.source()
 
             return (source) => {
               return source.split(new RegExp(`['"]?${k}['"]?`)).join(JSON.stringify(content))
@@ -33,17 +40,18 @@ class AssetReplacePlugin {
           })
           .reduce((m, n) => (content) => n(m(content)))
 
-        for (const chunk of compilation.chunks) {
-          const fileName = Array.from(chunk.files)[0]
-          if (!replaceArr.some(([, assetName]) => assetName === fileName)) {
-            compilation.assets[fileName] = new RawSource(
-              replaceFn(compilation.assets[fileName].source())
-            )
+        for (const chunk of compilation.chunks.values()) {
+          const fileName = chunk.files.values().next().value
+          if (!replaceArr.includes(([, assetName]) => assetName === fileName)) {
+            compilation.updateAsset(fileName, (content) => {
+              const result = replaceFn(content.source())
+
+              return new RawSource(result)
+            })
           }
         }
-
-        callback()
       })
+      callback()
     })
   }
 }

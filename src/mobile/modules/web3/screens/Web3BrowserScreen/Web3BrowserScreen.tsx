@@ -22,6 +22,7 @@ const Web3BrowserScreen = () => {
   const webViewRef = useRef<WebView | null>(null)
   const [canGoBack, setCanGoBack] = useState(false)
   const [canGoForward, setCanGoForward] = useState(false)
+  const [openedUrl, setOpenedUrl] = useState('')
 
   const { selectedDappUrl, setWeb3ViewRef, handleWeb3Request, setSelectedDapp } = useWeb3()
   const { script: providerToInject } = useGetProviderInjection()
@@ -48,6 +49,7 @@ const Web3BrowserScreen = () => {
   const onNavigationStateChange = useCallback((navState: WebViewNavigation) => {
     setCanGoBack(navState.canGoBack)
     setCanGoForward(navState.canGoForward)
+    setOpenedUrl(navState.url)
   }, [])
 
   if (!selectedDappUrl) {
@@ -105,7 +107,7 @@ const Web3BrowserScreen = () => {
               disabled
               inputStyle={styles.addressInputStyle}
               inputWrapperStyle={styles.addressInputWrapperStyle}
-              value={selectedDappUrl || ''}
+              value={openedUrl}
             />
             <TouchableHighlight
               hitSlop={HIT_SLOP}

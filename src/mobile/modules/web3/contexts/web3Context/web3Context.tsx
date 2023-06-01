@@ -339,6 +339,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         approval={approval}
         resolveApproval={resolveApproval}
         rejectApproval={rejectApproval}
+        tabSessionData={tabSessionData}
         selectedDapp={selectedDapp}
         checkHasPermission={checkHasPermission}
         grantPermission={handleGrantPermission}

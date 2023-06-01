@@ -16,6 +16,7 @@ import TransferIcon from '@common/assets/svg/TransferIcon'
 import TwitterIcon from '@common/assets/svg/TwitterIcon'
 import AppVersion from '@common/components/AppVersion'
 import Text from '@common/components/Text'
+import { isAndroid } from '@common/config/env'
 import { termsAndPrivacyURL } from '@common/modules/auth/constants/URLs'
 import GasIndicator from '@common/modules/nav-menu/components/GasIndicator'
 import ManageVaultLockButton from '@common/modules/nav-menu/components/ManageVaultLockButton'
@@ -36,7 +37,7 @@ const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/44049800915
 const REPORT_ISSUE_URL = 'https://help.ambire.com/hc/en-us/requests/new'
 const TELEGRAM_URL = 'https://t.me/AmbireWallet'
 const TWITTER_URL = 'https://twitter.com/AmbireWallet'
-const DISCORD_URL = 'https://discord.gg/nMBGJsb'
+const DISCORD_URL = 'https://discord.gg/QQb4xc4ksJ'
 
 const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
   const { t } = useTranslation()
@@ -69,7 +70,8 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
     { Icon: DashboardIcon, name: t('Dashboard'), route: ROUTES.dashboard },
     { Icon: EarnIcon, name: t('Earn'), route: ROUTES.earn },
     { Icon: SendIcon, name: t('Send'), route: ROUTES.send },
-    { Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap },
+    // TODO: Temporary disabled for iOS since v3.9.0 in an attempt to pass the App Store review
+    ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap }] : []),
     { Icon: TransferIcon, name: t('Transactions'), route: ROUTES.transactions },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
@@ -86,7 +88,8 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
 
   const additionalInfo = [
     { name: t('Data Deletion Policy'), route: ROUTES.dataDeletionPolicy },
-    { name: t('Backup account'), route: ROUTES.backup }
+    { name: t('Backup Account'), route: ROUTES.backup },
+    { name: t('Replay Onboarding'), route: ROUTES.onboardingOnFirstLogin }
   ]
 
   const settings = [
@@ -117,7 +120,8 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
         </Text>
         <View style={[spacings.mlTy, spacings.mbMd]}>
           {menu.map(({ Icon, name, route }) => {
-            const isActive = routeName === route
+            const isActive = routeName.includes(route)
+
             return (
               <TouchableOpacity
                 key={name}

@@ -1,4 +1,4 @@
-import { UseDappsReturnType } from 'ambire-common/src/hooks/useDapps'
+import { DappManifestData, UseDappsReturnType } from 'ambire-common/src/hooks/useDapps'
 
 export type DappsContextData = {
   addCustomDapp: UseDappsReturnType['addCustomDapp']
@@ -14,4 +14,5 @@ export type DappsContextData = {
   onSearchChange: UseDappsReturnType['onSearchChange']
   categories: UseDappsReturnType['categories']
   loadCurrentDappData: UseDappsReturnType['loadCurrentDappData']
+  searchDappItem: DappManifestData
 }
