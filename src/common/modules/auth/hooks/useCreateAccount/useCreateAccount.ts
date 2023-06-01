@@ -2,7 +2,7 @@ import accountPresets from 'ambire-common/src/constants/accountPresets'
 import { generateAddress2 } from 'ethereumjs-util'
 import { Wallet } from 'ethers'
 import { AbiCoder, getAddress, id, keccak256 } from 'ethers/lib/utils'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Keyboard, Platform } from 'react-native'
 import performance from 'react-native-performance'
 
@@ -11,19 +11,41 @@ import useAccounts from '@common/hooks/useAccounts'
 import useToast from '@common/hooks/useToast'
 import { getProxyDeployBytecode } from '@common/modules/auth/services/IdentityProxyDeploy'
 import useVault from '@common/modules/vault/hooks/useVault'
-import { fetchPost } from '@common/services/fetch'
+import { fetchGet, fetchPost } from '@common/services/fetch'
 import useReferral from '@mobile/modules/referral/hooks/useReferral'
+
+type Props = {
+  inProgress: string | boolean
+  addAccErr: string
+  err: string
+  resendTimeLeft: any
+  isEmailConfirmed: boolean
+  requiresEmailConfFor: boolean
+  handleAddNewAccount: (req: FormProps) => Promise<void>
+  wrapErr: (fn: () => any) => Promise<void>
+  wrapProgress: (fn: () => any, type?: boolean | string) => Promise<void>
+  sendConfirmationEmail: () => Promise<void>
+}
 
 type FormProps = {
   email: string
   password: string
   backup: boolean
 }
+const TIMER_REFRESH_TIME = 1000
+const EMAIL_REFRESH_TIME = 5000
+const RESEND_EMAIL_TIMER_INITIAL = 60000
 
-export default function useCreateAccount() {
+export default function useCreateAccount(): Props {
   const [err, setErr] = useState<string>('')
   const [addAccErr, setAddAccErr] = useState<string>('')
   const [inProgress, setInProgress] = useState<boolean | string>(false)
+
+  const [isCreateRespCompleted, setIsCreateRespCompleted] = useState<any>(null)
+  const [requiresEmailConfFor, setRequiresConfFor] = useState<boolean>(false)
+  const [resendTimeLeft, setResendTimeLeft] = useState<any>(null)
+  const [isEmailConfirmed, setEmailConfirmed] = useState<boolean>(false)
+
   const { getPendingReferral, removePendingReferral } = useReferral()
 
   const { onAddAccount } = useAccounts()
@@ -127,41 +149,121 @@ export default function useCreateAccount() {
 
     removePendingReferral()
 
-    const addr = await firstKeyWallet.getAddress()
-    addToVault({
-      addr,
-      item: {
-        signer: firstKeyWallet.privateKey,
-        password: req.password,
-        type: 'quickAcc'
-      }
-    })
-      .then(() => {
-        onAddAccount(
-          {
-            id: identityAddr,
-            email: req.email,
-            primaryKeyBackup,
-            salt,
-            identityFactoryAddr,
-            baseIdentityAddr,
-            bytecode,
-            signer,
-            // This makes the modal appear, and will be removed by the modal which will call onAddAccount to update it
-            emailConfRequired: true
-          },
-          { select: true, isNew: true }
-        )
-      })
-      .catch((e) => {
-        addToast(e.message || e, { error: true })
-      })
+    setIsCreateRespCompleted([
+      {
+        id: identityAddr,
+        email: req.email,
+        primaryKeyBackup,
+        salt,
+        identityFactoryAddr,
+        baseIdentityAddr,
+        bytecode,
+        signer,
+        emailConfRequired: true
+      },
+      { select: true, isNew: true },
+      firstKeyWallet,
+      req.password
+    ])
+
+    setRequiresConfFor(true)
+    setResendTimeLeft(RESEND_EMAIL_TIMER_INITIAL)
   }
+
+  const checkEmailConfirmation = useCallback(async () => {
+    console.log('in checkEmailConfirmation')
+    if (!isCreateRespCompleted) return
+    const relayerIdentityURL = `${CONFIG.RELAYER_URL}/identity/${isCreateRespCompleted[0].id}`
+    try {
+      const identity = await fetchGet(relayerIdentityURL)
+      if (identity) {
+        const { emailConfirmed } = identity.meta
+        const isConfirmed = !!emailConfirmed
+        setEmailConfirmed(isConfirmed)
+        if (isConfirmed) {
+          setRequiresConfFor(!isConfirmed)
+          const firstKey = isCreateRespCompleted[2]
+          const pass = isCreateRespCompleted[3]
+          const addr = await firstKey.getAddress()
+          addToVault({
+            addr,
+            item: {
+              signer: firstKey.privateKey,
+              password: pass,
+              type: 'quickAcc'
+            }
+          })
+            .then(() => {
+              onAddAccount(
+                {
+                  ...isCreateRespCompleted[0],
+                  emailConfRequired: false
+                },
+                isCreateRespCompleted[1]
+              )
+            })
+            .catch((e) => {
+              addToast(e.message || e, { error: true })
+            })
+        }
+      }
+    } catch (e) {
+      console.error(e)
+      addToast('Could not check email confirmation.', { error: true })
+    }
+  }, [isCreateRespCompleted, addToast, onAddAccount, addToVault])
+
+  useEffect(() => {
+    if (requiresEmailConfFor) {
+      const timer = setTimeout(async () => {
+        await checkEmailConfirmation()
+      }, EMAIL_REFRESH_TIME)
+      return () => clearTimeout(timer)
+    }
+  })
+
+  const sendConfirmationEmail = useCallback(async () => {
+    try {
+      const response = await fetchGet(
+        `${CONFIG.RELAYER_URL}/identity/${
+          isCreateRespCompleted.length > 0 && isCreateRespCompleted[0].id
+        }/resend-verification-email`
+      )
+      if (!response.success) throw new Error('Relayer did not return success.')
+
+      addToast('Verification email sent!')
+      setResendTimeLeft(RESEND_EMAIL_TIMER_INITIAL)
+    } catch (e) {
+      console.error(e)
+      addToast('Could not resend verification email.', { error: true })
+    }
+  }, [addToast, isCreateRespCompleted])
+
+  useEffect(() => {
+    if (resendTimeLeft) {
+      const resendInterval = setInterval(
+        () => setResendTimeLeft((prev: any) => (prev > 0 ? prev - TIMER_REFRESH_TIME : 0)),
+        TIMER_REFRESH_TIME
+      )
+      return () => clearTimeout(resendInterval)
+    }
+  })
 
   const handleAddNewAccount = async (req: FormProps) => {
     Keyboard.dismiss()
     await wrapProgress(() => createQuickAcc(req), 'email')
   }
 
-  return { handleAddNewAccount, wrapErr, wrapProgress, err, addAccErr, inProgress }
+  return {
+    inProgress,
+    addAccErr,
+    err,
+    isEmailConfirmed,
+    requiresEmailConfFor,
+    resendTimeLeft,
+    handleAddNewAccount,
+    wrapErr,
+    wrapProgress,
+    sendConfirmationEmail
+  }
 }
