@@ -21,6 +21,8 @@ const commonScript = `
   ${eventEmitterScript}
   ${replaceMetamaskWithAmbireInDapps}
 
+  // Prevents opening the Browser App when clicking on links in the webview
+  // on https://uniswap.org/ clicking the Launch App button
   (function() {
     function preventOpenNewTabOnLinkClick(event) {
       var target = event.target;
