@@ -56,7 +56,8 @@ const useOtp2Fa = ({ email, accountId }) => {
   return {
     sendEmail,
     isValidToken,
-    otpAuth
+    otpAuth,
+    secret
   }
 }
 
