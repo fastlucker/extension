@@ -43,68 +43,75 @@ const Otp2FaForm = ({ signerAddress, selectedAccountId, onSubmit }) => {
         {t('1) Request and confirm the code sent to your Email.')}
       </Text>
       <Button text={t('Send Email')} onPress={sendEmail} />
-      <Controller
-        control={control}
-        rules={{ required: t('Please fill in a code.') as string }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            onBlur={onBlur}
-            placeholder={t('Email confirmation code')}
-            onChangeText={onChange}
-            value={value}
-            keyboardType="email-address"
-            containerStyle={spacings.mbLg}
-          />
-        )}
-        name="emailConfirmationCode"
-      />
-
-      <Text fontSize={15} weight="regular" style={spacings.mbSm}>
-        {t('2) Scan the QR code with an authenticator app')}
-      </Text>
-      <View style={spacings.mbLg}>
-        <QRCode
-          value={otpAuth}
-          size={DEVICE_WIDTH / 1.5}
-          quietZone={10}
-          getRef={qrCodeRef}
-          onError={() => t('Failed to load QR code!')}
+      {!!secret && (
+        <Controller
+          control={control}
+          rules={{ required: t('Please fill in a code.') as string }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              onBlur={onBlur}
+              placeholder={t('Email confirmation code')}
+              onChangeText={onChange}
+              value={value}
+              keyboardType="email-address"
+              containerStyle={spacings.mbLg}
+            />
+          )}
+          name="emailConfirmationCode"
         />
-        <Text style={[spacings.mtTy, spacings.mbMi]} fontSize={15}>
-          ...or copy and enter manually this setup key in your authenticator app:
-        </Text>
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <Text selectable weight="semiBold">
-            {secret}
+      )}
+
+      {!!secret && (
+        <>
+          <Text fontSize={15} weight="regular" style={spacings.mbSm}>
+            {t('2) Scan the QR code with an authenticator app')}
           </Text>
-          <CopyText text={secret} style={spacings.mlMi} />
-        </View>
-      </View>
+          <View style={spacings.mbLg}>
+            <QRCode
+              value={otpAuth}
+              size={DEVICE_WIDTH / 1.5}
+              quietZone={10}
+              getRef={qrCodeRef}
+              onError={() => t('Failed to load QR code!')}
+            />
+            <Text style={[spacings.mtTy, spacings.mbMi]} fontSize={15}>
+              ...or copy and enter manually this setup key in your authenticator app:
+            </Text>
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <Text selectable weight="semiBold">
+                {secret}
+              </Text>
+              <CopyText text={secret} style={spacings.mlMi} />
+            </View>
+          </View>
 
-      <Text fontSize={15} weight="regular" style={spacings.mbSm}>
-        {t('3) Enter the code from your authenticator app')}
-      </Text>
-      <Controller
-        control={control}
-        rules={{ required: t('Please fill in a code.') as string }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            onBlur={onBlur}
-            placeholder={t('OTP code')}
-            onChangeText={onChange}
-            value={value}
-            keyboardType="email-address"
-            containerStyle={spacings.mb}
+          <Text fontSize={15} weight="regular" style={spacings.mbSm}>
+            {t('3) Enter the code from your authenticator app')}
+          </Text>
+          <Controller
+            control={control}
+            rules={{ required: t('Please fill in a code.') as string }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                onBlur={onBlur}
+                placeholder={t('OTP code')}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="email-address"
+                containerStyle={spacings.mb}
+              />
+            )}
+            name="otpCode"
           />
-        )}
-        name="otpCode"
-      />
 
-      <Button
-        disabled={isSubmitting || !isValid}
-        text={isSubmitting ? t('Enabling...') : t('Enable 2FA')}
-        onPress={handleSubmit(onSubmit)}
-      />
+          <Button
+            disabled={isSubmitting || !isValid}
+            text={isSubmitting ? t('Enabling...') : t('Enable 2FA')}
+            onPress={handleSubmit(onSubmit)}
+            style={spacings.mbLg}
+          />
+        </>
+      )}
     </>
   )
 }

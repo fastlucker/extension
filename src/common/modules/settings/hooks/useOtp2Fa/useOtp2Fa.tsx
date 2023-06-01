@@ -10,19 +10,18 @@ import { authenticator } from '@otplib/preset-default'
 const useOtp2Fa = ({ email, accountId }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
-  const secret = useMemo(() => authenticator.generateSecret(20), [])
 
   const [otpAuth, setOtpAuth] = useState('')
+  const [secret, setSecret] = useState('')
   const [hexSecret, setHexSecret] = useState('')
 
   const isValidToken = (token: string) => authenticator.verify({ token, secret })
 
   const sendEmail = async () => {
+    const nextSecret = authenticator.generateSecret(20)
     const nextHexSecret = ethers.utils.hexlify(
       ethers.utils.toUtf8Bytes(JSON.stringify({ otp: secret, timestamp: new Date().getTime() }))
     )
-    setHexSecret(nextHexSecret)
-    setOtpAuth(authenticator.keyuri(email, 'Ambire Wallet', secret))
 
     if (!CONFIG.RELAYER_URL) {
       addToast(t('Email/pass accounts not supported without a relayer connection'), { error: true })
@@ -49,8 +48,13 @@ const useOtp2Fa = ({ email, accountId }) => {
         ),
         { error: true }
       )
-    if (success && confCodeRequired === 'email')
+    if (success && confCodeRequired === 'email') {
       addToast(t('A confirmation code was sent to your email, please enter it along...'))
+
+      setSecret(nextSecret)
+      setHexSecret(nextHexSecret)
+      setOtpAuth(authenticator.keyuri(email, 'Ambire Wallet', secret))
+    }
   }
 
   return {
