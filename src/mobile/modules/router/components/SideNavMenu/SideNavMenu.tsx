@@ -35,7 +35,7 @@ import {
 
 const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/4404980091538-Ambire-Wallet'
 const REPORT_ISSUE_URL = 'https://help.ambire.com/hc/en-us/requests/new'
-const TELEGRAM_URL = 'https://t.me/AmbireWallet'
+const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
 const TWITTER_URL = 'https://twitter.com/AmbireWallet'
 const DISCORD_URL = 'https://discord.gg/QQb4xc4ksJ'
 

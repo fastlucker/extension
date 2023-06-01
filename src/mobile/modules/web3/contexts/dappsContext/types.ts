@@ -14,5 +14,6 @@ export type DappsContextData = {
   onSearchChange: UseDappsReturnType['onSearchChange']
   categories: UseDappsReturnType['categories']
   loadCurrentDappData: UseDappsReturnType['loadCurrentDappData']
+  searchDappUrlOrHostnameItem: DappManifestData | null
   searchDappItem: DappManifestData
 }

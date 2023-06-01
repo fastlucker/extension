@@ -3,6 +3,7 @@ import { View } from 'react-native'
 import ErrorBoundary from 'react-native-error-boundary'
 import { SvgUri } from 'react-native-svg'
 
+import BrowserIcon from '@common/assets/svg/BrowserIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import SearchIcon from '@common/assets/svg/SearchIcon'
 import FastImage from '@common/components/FastImage'
@@ -14,9 +15,26 @@ type Props = {
   iconUrl: string
   size?: number
   isSearchIcon?: boolean
+  isBrowserIcon?: boolean
 }
 
-const DappIcon = ({ iconUrl, size = 64, isSearchIcon }: Props) => {
+const DappIcon = ({ iconUrl, size = 64, isSearchIcon, isBrowserIcon }: Props) => {
+  if (isBrowserIcon)
+    return (
+      <View
+        style={
+          [
+            common.borderRadiusPrimary,
+            flexbox.justifyCenter,
+            flexbox.alignCenter,
+            { width: size, height: size, backgroundColor: colors.chetwode }
+          ] as any
+        }
+      >
+        <BrowserIcon width={18} height={18} />
+      </View>
+    )
+
   if (isSearchIcon)
     return (
       <View
@@ -29,7 +47,7 @@ const DappIcon = ({ iconUrl, size = 64, isSearchIcon }: Props) => {
           ] as any
         }
       >
-        <SearchIcon width={20} height={20} />
+        <SearchIcon width={18} height={18} />
       </View>
     )
 
