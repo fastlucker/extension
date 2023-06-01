@@ -16,21 +16,19 @@ import useOtp2Fa from '../hooks/useOtp2Fa'
 const Otp2FaScreen = () => {
   const { t } = useTranslation()
   const {
-    params: { signerAddress }
+    params: { signerAddress, selectedAccountId }
   } = useRoute()
   const { accounts } = useAccounts()
   const qrCodeRef: any = useRef(null)
 
-  // TODO: Get email from signers
-  const account = accounts.find(({ id }) => id === signerAddress)
-
-  const { otpAuth } = useOtp2Fa({ address: signerAddress, email: account?.email })
+  const account = accounts.find(({ id }) => id === selectedAccountId)
+  const { otpAuth, sendEmail } = useOtp2Fa({ accountId: account?.id, email: account?.email })
 
   return (
     <GradientBackgroundWrapper>
       <Wrapper style={spacings.mt}>
         <Text>{t('1) Request and confirm the code sent to your Email')}</Text>
-        <Button text={t('Send Email')} />
+        <Button text={t('Send Email')} onPress={sendEmail} />
         <Input />
 
         <Text>{t('2) Scan the QR code with an authenticator app')}</Text>

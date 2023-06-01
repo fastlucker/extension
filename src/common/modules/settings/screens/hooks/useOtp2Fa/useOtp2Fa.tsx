@@ -7,7 +7,7 @@ import useToast from '@common/hooks/useToast'
 import { fetchPost } from '@common/services/fetch'
 import { authenticator } from '@otplib/preset-default'
 
-const useOtp2Fa = ({ email, address }) => {
+const useOtp2Fa = ({ email, accountId }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const secret = useMemo(() => authenticator.generateSecret(20), [])
@@ -15,20 +15,15 @@ const useOtp2Fa = ({ email, address }) => {
   const [otpAuth, setOtpAuth] = useState('')
   const [hexSecret, setHexSecret] = useState('')
 
-  useEffect(() => {
-    if (!email) return
-
-    setOtpAuth(authenticator.keyuri(email, 'Ambire Wallet', secret))
-    setHexSecret(
-      ethers.utils.hexlify(
-        ethers.utils.toUtf8Bytes(JSON.stringify({ otp: secret, timestamp: new Date().getTime() }))
-      )
-    )
-  }, [email, secret])
-
   const isValidToken = (token: string) => authenticator.verify({ token, secret })
 
   const sendEmail = async () => {
+    const nextHexSecret = ethers.utils.hexlify(
+      ethers.utils.toUtf8Bytes(JSON.stringify({ otp: secret, timestamp: new Date().getTime() }))
+    )
+    setHexSecret(nextHexSecret)
+    setOtpAuth(authenticator.keyuri(email, 'Ambire Wallet', secret))
+
     if (!CONFIG.RELAYER_URL) {
       addToast(t('Email/pass accounts not supported without a relayer connection'), { error: true })
       return
@@ -36,11 +31,12 @@ const useOtp2Fa = ({ email, address }) => {
 
     const { success, confCodeRequired } = await fetchPost(
       // network doesn't matter when signing
-      `${CONFIG.RELAYER_URL}/second-key/${address}/ethereum/sign`,
+      `${CONFIG.RELAYER_URL}/second-key/${accountId}/ethereum/sign`,
       {
-        toSign: hexSecret
+        toSign: nextHexSecret
       }
     )
+
     if (!success)
       addToast(
         t('Unexpected error. This should never happen, please report this on help.ambire.com'),
