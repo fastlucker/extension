@@ -88,7 +88,8 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
 
   const additionalInfo = [
     { name: t('Data Deletion Policy'), route: ROUTES.dataDeletionPolicy },
-    { name: t('Backup account'), route: ROUTES.backup }
+    { name: t('Backup Account'), route: ROUTES.backup },
+    { name: t('Replay Onboarding'), route: ROUTES.onboardingOnFirstLogin }
   ]
 
   const settings = [

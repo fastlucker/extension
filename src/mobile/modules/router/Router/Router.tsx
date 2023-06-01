@@ -357,22 +357,9 @@ const VaultStack = () => {
   )
 }
 
-const DashboardStackScreenNavigator = () => {
-  const { hasCompletedOnboarding } = useOnboardingOnFirstLogin()
-
+const DashboardStackScreen = () => {
   return (
-    <DashboardStack.Navigator
-      initialRouteName={
-        hasCompletedOnboarding
-          ? `${MOBILE_ROUTES.dashboard}-screen`
-          : `${MOBILE_ROUTES.onboardingOnFirstLogin}-screen`
-      }
-      screenOptions={{ headerShown: false }}
-    >
-      <DashboardStack.Screen
-        name={`${MOBILE_ROUTES.onboardingOnFirstLogin}-screen`}
-        component={OnboardingOnFirstLoginScreen}
-      />
+    <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
       <DashboardStack.Screen
         name={`${MOBILE_ROUTES.dashboard}-screen`}
         component={DashboardScreen}
@@ -382,14 +369,6 @@ const DashboardStackScreenNavigator = () => {
         component={CollectibleScreen}
       />
     </DashboardStack.Navigator>
-  )
-}
-
-const DashboardStackScreen = () => {
-  return (
-    <OnboardingOnFirstLoginProvider>
-      <DashboardStackScreenNavigator />
-    </OnboardingOnFirstLoginProvider>
   )
 }
 
@@ -497,6 +476,7 @@ const AppDrawer = () => {
 
 const AppStack = () => {
   const { getItem } = useStorageController()
+  const { hasCompletedOnboarding } = useOnboardingOnFirstLogin()
 
   useEffect(() => {
     SplashScreen.hideAsync()
@@ -515,7 +495,11 @@ const AppStack = () => {
     if (shouldAttemptLogin) {
       navigate(MOBILE_ROUTES.auth)
     }
-  }, [getItem])
+
+    if (!hasCompletedOnboarding) {
+      navigate(MOBILE_ROUTES.onboardingOnFirstLogin)
+    }
+  }, [getItem, hasCompletedOnboarding])
 
   return (
     <MainStack.Navigator screenOptions={{ header: headerBeta }}>
@@ -586,6 +570,11 @@ const AppStack = () => {
         component={GasInformationStackScreen}
         options={{ headerShown: false }}
       />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.onboardingOnFirstLogin}
+        component={OnboardingOnFirstLoginScreen}
+        options={{ headerShown: false }}
+      />
     </MainStack.Navigator>
   )
 }
@@ -620,7 +609,11 @@ const Router = () => {
     }
 
     if (vaultStatus === VAULT_STATUS.UNLOCKED || vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
-      return <AppStack />
+      return (
+        <OnboardingOnFirstLoginProvider>
+          <AppStack />
+        </OnboardingOnFirstLoginProvider>
+      )
     }
   }
 
