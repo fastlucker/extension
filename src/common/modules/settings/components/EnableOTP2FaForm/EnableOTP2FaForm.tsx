@@ -72,7 +72,7 @@ const EnableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
           <Text fontSize={15} weight="regular" style={spacings.mbSm}>
             {t('2) Scan the QR code with an authenticator app')}
           </Text>
-          <View style={spacings.mbLg}>
+          <View style={[spacings.mbLg, flexbox.center]}>
             <QRCode
               value={otpAuth}
               size={DEVICE_WIDTH / 1.5}
