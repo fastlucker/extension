@@ -170,8 +170,7 @@ export default function useCreateAccount(): Props {
     setResendTimeLeft(RESEND_EMAIL_TIMER_INITIAL)
   }
 
-  const checkEmailConfirmation = useCallback(async () => {
-    console.log('in checkEmailConfirmation')
+  const checkEmailConfirmation = async () => {
     if (!isCreateRespCompleted) return
     const relayerIdentityURL = `${CONFIG.RELAYER_URL}/identity/${isCreateRespCompleted[0].id}`
     try {
@@ -211,16 +210,17 @@ export default function useCreateAccount(): Props {
       console.error(e)
       addToast('Could not check email confirmation.', { error: true })
     }
-  }, [isCreateRespCompleted, addToast, onAddAccount, addToVault])
+  }
 
   useEffect(() => {
     if (requiresEmailConfFor) {
-      const timer = setTimeout(async () => {
-        await checkEmailConfirmation()
+      const interval = setInterval(async () => {
+        checkEmailConfirmation()
       }, EMAIL_REFRESH_TIME)
-      return () => clearTimeout(timer)
+      return () => clearInterval(interval)
     }
-  })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requiresEmailConfFor])
 
   const sendConfirmationEmail = useCallback(async () => {
     try {
@@ -245,7 +245,7 @@ export default function useCreateAccount(): Props {
         () => setResendTimeLeft((prev: any) => (prev > 0 ? prev - TIMER_REFRESH_TIME : 0)),
         TIMER_REFRESH_TIME
       )
-      return () => clearTimeout(resendInterval)
+      return () => clearInterval(resendInterval)
     }
   })
 
