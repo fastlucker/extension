@@ -83,7 +83,7 @@ const SignersList = () => {
         onMakeDefaultBtnClicked(selectedAccount, addr, isQuickAcc)
 
       const handleOnEnable2Fa = () =>
-        navigate(MOBILE_ROUTES.otp2FA, {
+        navigate(MOBILE_ROUTES.enableOtp2FA, {
           state: { signerAddress: addr, selectedAccountId: selectedAccount?.id }
         })
 

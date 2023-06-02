@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
@@ -14,7 +14,7 @@ import useOtp2Fa from '@common/modules/settings/hooks/useOtp2Fa'
 import spacings, { DEVICE_WIDTH } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-const Otp2FaForm = ({ signerAddress, selectedAccountId, onSubmit }) => {
+const Otp2FaForm = ({ signerAddress, selectedAccountId }) => {
   const { t } = useTranslation()
   const { accounts } = useAccounts()
   const qrCodeRef: any = useRef(null)
@@ -26,16 +26,18 @@ const Otp2FaForm = ({ signerAddress, selectedAccountId, onSubmit }) => {
   } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
-      emailConfirmationCode: '',
+      emailConfirmCode: '',
       otpCode: ''
     }
   })
 
   const account = accounts.find(({ id }) => id === selectedAccountId)
-  const { otpAuth, sendEmail, secret, isSendingEmail } = useOtp2Fa({
+  const { otpAuth, sendEmail, secret, isSendingEmail, verifyOTP } = useOtp2Fa({
     accountId: account?.id,
     email: account?.email
   })
+
+  const onSubmit = useCallback((formValues) => verifyOTP(formValues), [verifyOTP])
 
   return (
     <>
@@ -61,7 +63,7 @@ const Otp2FaForm = ({ signerAddress, selectedAccountId, onSubmit }) => {
               containerStyle={spacings.mbLg}
             />
           )}
-          name="emailConfirmationCode"
+          name="emailConfirmCode"
         />
       )}
 

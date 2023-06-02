@@ -6,26 +6,20 @@ import useRoute from '@common/hooks/useRoute'
 import Otp2FaForm from '@common/modules/settings/components/OTP2FaForm'
 import spacings from '@common/styles/spacings'
 
-const Otp2FaScreen = () => {
+import useOtp2Fa from '../../hooks/useOtp2Fa'
+
+const EnableOtp2FaScreen = () => {
   const {
     params: { signerAddress, selectedAccountId }
   } = useRoute()
 
-  const handleSubmit = useCallback((formValues) => {
-    console.log(formValues)
-  }, [])
-
   return (
     <GradientBackgroundWrapper>
       <Wrapper style={spacings.mt}>
-        <Otp2FaForm
-          signerAddress={signerAddress}
-          selectedAccountId={selectedAccountId}
-          onSubmit={handleSubmit}
-        />
+        <Otp2FaForm signerAddress={signerAddress} selectedAccountId={selectedAccountId} />
       </Wrapper>
     </GradientBackgroundWrapper>
   )
 }
 
-export default Otp2FaScreen
+export default EnableOtp2FaScreen

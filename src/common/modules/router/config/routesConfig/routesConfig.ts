@@ -261,8 +261,8 @@ const routesConfig: {
     route: ROUTES.dappsCatalog,
     title: i18n.t('dApps')
   },
-  [ROUTES.otp2FA]: {
-    route: ROUTES.otp2FA,
+  [ROUTES.enableOtp2FA]: {
+    route: ROUTES.enableOtp2FA,
     title: i18n.t('2FA')
   }
 }
