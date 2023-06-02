@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
@@ -10,19 +10,23 @@ import CopyText from '@common/components/CopyText'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import useAccounts from '@common/hooks/useAccounts'
+import useNavigation from '@common/hooks/useNavigation'
 import useOtp2Fa from '@common/modules/settings/hooks/useOtp2Fa'
 import spacings, { DEVICE_WIDTH } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
+import CountdownTimer from '../CountdownTimer/CountdownTimer'
+
 const EnableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
   const { t } = useTranslation()
   const { accounts } = useAccounts()
+  const { goBack } = useNavigation()
   const qrCodeRef: any = useRef(null)
+  const [isTimeIsUp, setIsTimeIsUp] = useState(false)
   const {
     control,
     handleSubmit,
-    watch,
-    formState: { errors, isSubmitting, isValid }
+    formState: { isSubmitting, isValid }
   } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
@@ -39,6 +43,21 @@ const EnableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
 
   const onSubmit = useCallback((formValues) => verifyOTP(formValues), [verifyOTP])
 
+  const handleTimeIsUp = () => setIsTimeIsUp(true)
+
+  if (isTimeIsUp) {
+    return (
+      <>
+        <Text appearance="danger" fontSize={15} weight="regular" style={spacings.mb}>
+          {t(
+            'The time is up. There is a 5 minute security threshold within you need to complete your set up. Please trigger the 2FA enable process again to reset your session.'
+          )}
+        </Text>
+        <Button text={t('Cancel')} onPress={goBack} />
+      </>
+    )
+  }
+
   return (
     <>
       <Text fontSize={15} weight="regular" style={spacings.mbSm}>
@@ -49,6 +68,14 @@ const EnableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
         text={isSendingEmail ? t('Sending...') : secret ? t('Email Sent') : t('Send Email')}
         onPress={sendEmail}
       />
+      {!!secret && (
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}>
+          <Text fontSize={15} weight="regular" style={spacings.mrMi}>
+            You need to confirm it within:
+          </Text>
+          <CountdownTimer seconds={300} setTimeIsUp={handleTimeIsUp} />
+        </View>
+      )}
       {!!secret && (
         <Controller
           control={control}
