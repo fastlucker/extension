@@ -32,7 +32,7 @@ const Otp2FaForm = ({ signerAddress, selectedAccountId, onSubmit }) => {
   })
 
   const account = accounts.find(({ id }) => id === selectedAccountId)
-  const { otpAuth, sendEmail, secret } = useOtp2Fa({
+  const { otpAuth, sendEmail, secret, isSendingEmail } = useOtp2Fa({
     accountId: account?.id,
     email: account?.email
   })
@@ -42,7 +42,11 @@ const Otp2FaForm = ({ signerAddress, selectedAccountId, onSubmit }) => {
       <Text fontSize={15} weight="regular" style={spacings.mbSm}>
         {t('1) Request and confirm the code sent to your Email.')}
       </Text>
-      <Button text={t('Send Email')} onPress={sendEmail} />
+      <Button
+        disabled={isSendingEmail || !!secret}
+        text={isSendingEmail ? t('Sending...') : secret ? t('Email Sent') : t('Send Email')}
+        onPress={sendEmail}
+      />
       {!!secret && (
         <Controller
           control={control}

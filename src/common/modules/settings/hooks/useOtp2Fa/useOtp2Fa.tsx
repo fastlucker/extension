@@ -10,6 +10,7 @@ import { authenticator } from '@otplib/preset-default'
 const useOtp2Fa = ({ email, accountId }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
 
   const [otpAuth, setOtpAuth] = useState('')
   const [secret, setSecret] = useState('')
@@ -28,38 +29,48 @@ const useOtp2Fa = ({ email, accountId }) => {
       return
     }
 
-    const { success, confCodeRequired } = await fetchPost(
-      // network doesn't matter when signing
-      `${CONFIG.RELAYER_URL}/second-key/${accountId}/ethereum/sign`,
-      {
-        toSign: nextHexSecret
-      }
-    )
+    setIsSendingEmail(true)
+    try {
+      const { success, confCodeRequired } = await fetchPost(
+        // network doesn't matter when signing
+        `${CONFIG.RELAYER_URL}/second-key/${accountId}/ethereum/sign`,
+        {
+          toSign: nextHexSecret
+        }
+      )
 
-    if (!success)
-      addToast(
-        t('Unexpected error. This should never happen, please report this on help.ambire.com'),
-        { error: true }
-      )
-    if (confCodeRequired !== 'email')
-      addToast(
-        t(
-          'Expected email verification. This should never happen, please report this on help.ambire.com'
-        ),
-        { error: true }
-      )
-    if (success && confCodeRequired === 'email') {
+      if (!success || confCodeRequired !== 'email') {
+        addToast(
+          t('Unexpected error. This should never happen, please report this on help.ambire.com'),
+          { error: true }
+        )
+
+        setIsSendingEmail(false)
+        return false
+      }
+
       addToast(t('A confirmation code was sent to your email, please enter it along...'))
 
       setSecret(nextSecret)
       setHexSecret(nextHexSecret)
       setOtpAuth(authenticator.keyuri(email, 'Ambire Wallet', secret))
+
+      setIsSendingEmail(false)
+      return true
+    } catch {
+      addToast(t('The request for sending an email failed. Please try again later.'), {
+        error: true
+      })
+
+      setIsSendingEmail(false)
+      return false
     }
   }
 
   return {
     sendEmail,
     isValidToken,
+    isSendingEmail,
     otpAuth,
     secret
   }
