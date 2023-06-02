@@ -1,18 +1,13 @@
 import React, { useCallback, useRef } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity, View } from 'react-native'
-import QRCode from 'react-native-qrcode-svg'
 
-import CopyIcon from '@common/assets/svg/CopyIcon'
 import Button from '@common/components/Button'
-import CopyText from '@common/components/CopyText'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import useAccounts from '@common/hooks/useAccounts'
 import useOtp2Fa from '@common/modules/settings/hooks/useOtp2Fa'
-import spacings, { DEVICE_WIDTH } from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
+import spacings from '@common/styles/spacings'
 
 const DisableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
   const { t } = useTranslation()
