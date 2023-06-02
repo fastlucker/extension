@@ -5,5 +5,5 @@
   "importStringConfiguration.tabSize": 2,
   "importStringConfiguration.quoteMark": "single",
   "importSorter.importStringConfiguration.hasSemicolon": false,
-  "importSorter.sortConfiguration.removeUnusedImports": true
+  "importSorter.sortConfiguration.removeUnusedImports": false
 }
