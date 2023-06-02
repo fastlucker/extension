@@ -17,15 +17,23 @@ const DappsCatalogList = () => {
   const { navigate } = useNavigation()
   const { network } = useNetwork()
   const { setSelectedDapp } = useWeb3()
-  const { filteredCatalog, favorites, toggleFavorite, search, searchDappItem } = useDapps()
+  const {
+    filteredCatalog,
+    favorites,
+    toggleFavorite,
+    search,
+    searchDappItem,
+    searchDappUrlOrHostnameItem
+  } = useDapps()
 
   const catalogListData = useMemo(() => {
     const data = [...filteredCatalog]
     if (search) {
       data.unshift(searchDappItem)
+      !!searchDappUrlOrHostnameItem && data.unshift(searchDappUrlOrHostnameItem)
     }
     return data
-  }, [filteredCatalog, search, searchDappItem])
+  }, [filteredCatalog, search, searchDappItem, searchDappUrlOrHostnameItem])
 
   const findItemById = useCallback(
     (itemId: DappManifestData['id']) => catalogListData.find(({ id }) => id === itemId),

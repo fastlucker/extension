@@ -49,7 +49,9 @@ const Web3BrowserScreen = () => {
   const onNavigationStateChange = useCallback((navState: WebViewNavigation) => {
     setCanGoBack(navState.canGoBack)
     setCanGoForward(navState.canGoForward)
-    setOpenedUrl(navState.url)
+    if (navState.url !== 'about:blank') {
+      setOpenedUrl(navState.url)
+    }
   }, [])
 
   if (!selectedDappUrl) {
@@ -120,7 +122,7 @@ const Web3BrowserScreen = () => {
           </View>
           <WebView
             ref={webViewRef}
-            source={providerToInject ? { uri: selectedDappUrl } : { html: '' }}
+            source={providerToInject ? { uri: openedUrl || selectedDappUrl } : { html: '' }}
             onMessage={onMessage}
             injectedJavaScriptBeforeContentLoaded={providerToInject}
             onNavigationStateChange={onNavigationStateChange}

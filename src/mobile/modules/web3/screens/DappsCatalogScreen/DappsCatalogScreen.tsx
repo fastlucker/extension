@@ -32,6 +32,7 @@ const DappsCatalogScreen = () => {
     categoryFilter,
     filteredCatalog,
     searchDappItem,
+    searchDappUrlOrHostnameItem,
     onSearchChange,
     onCategorySelect
   } = useDapps()
@@ -56,14 +57,14 @@ const DappsCatalogScreen = () => {
               <View style={[flexbox.flex1, spacings.prTy]}>
                 <Input
                   containerStyle={spacings.mb0}
-                  placeholder={t('Search filter')}
+                  placeholder={t('Search or type dApp url')}
                   onChangeText={onSearchChange}
                   leftIcon={() => (
                     <TouchableOpacity
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 2 }}
                       onPress={() => {
                         if (search) {
-                          setSelectedDapp(searchDappItem)
+                          setSelectedDapp(searchDappUrlOrHostnameItem || searchDappItem)
                           navigate(`${ROUTES.web3Browser}-screen`)
                         }
                       }}
@@ -84,7 +85,7 @@ const DappsCatalogScreen = () => {
                   returnKeyLabel="search"
                   onSubmitEditing={() => {
                     if (!filteredCatalog.length && !!search) {
-                      setSelectedDapp(searchDappItem)
+                      setSelectedDapp(searchDappUrlOrHostnameItem || searchDappItem)
                       navigate(`${ROUTES.web3Browser}-screen`)
                     }
                   }}
