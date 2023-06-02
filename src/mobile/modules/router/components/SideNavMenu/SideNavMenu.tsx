@@ -16,7 +16,6 @@ import TransferIcon from '@common/assets/svg/TransferIcon'
 import TwitterIcon from '@common/assets/svg/TwitterIcon'
 import AppVersion from '@common/components/AppVersion'
 import Text from '@common/components/Text'
-import { isAndroid } from '@common/config/env'
 import { termsAndPrivacyURL } from '@common/modules/auth/constants/URLs'
 import GasIndicator from '@common/modules/nav-menu/components/GasIndicator'
 import ManageVaultLockButton from '@common/modules/nav-menu/components/ManageVaultLockButton'
@@ -70,8 +69,7 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
     { Icon: DashboardIcon, name: t('Dashboard'), route: ROUTES.dashboard },
     { Icon: EarnIcon, name: t('Earn'), route: ROUTES.earn },
     { Icon: SendIcon, name: t('Send'), route: ROUTES.send },
-    // TODO: Temporary disabled for iOS since v3.9.0 in an attempt to pass the App Store review
-    ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap }] : []),
+    { Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap },
     { Icon: TransferIcon, name: t('Transactions'), route: ROUTES.transactions },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },
