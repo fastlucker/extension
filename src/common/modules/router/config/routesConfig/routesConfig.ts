@@ -263,7 +263,11 @@ const routesConfig: {
   },
   [ROUTES.enableOtp2FA]: {
     route: ROUTES.enableOtp2FA,
-    title: i18n.t('2FA')
+    title: ''
+  },
+  [ROUTES.disableOtp2FA]: {
+    route: ROUTES.disableOtp2FA,
+    title: ''
   }
 }
 

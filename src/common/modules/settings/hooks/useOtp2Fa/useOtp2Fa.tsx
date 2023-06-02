@@ -1,18 +1,17 @@
 import { ethers } from 'ethers'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import CONFIG from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
-import { MOBILE_ROUTES } from '@common/modules/router/constants/common'
 import { fetchPost } from '@common/services/fetch'
 import { authenticator } from '@otplib/preset-default'
 
 const useOtp2Fa = ({ email, accountId }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
-  const { navigate } = useNavigation()
+  const { goBack } = useNavigation()
   const [isSendingEmail, setIsSendingEmail] = useState(false)
 
   const [otpAuth, setOtpAuth] = useState('')
@@ -108,17 +107,54 @@ const useOtp2Fa = ({ email, accountId }) => {
       }
 
       addToast('You have successfully enabled two-factor authentication.')
-      navigate(MOBILE_ROUTES.signers)
-      // setCacheBreak()
+      goBack()
     } catch (e) {
       console.error(e)
       addToast(e?.message || t('Something went wrong. Please try again later.'), { error: true })
     }
   }
 
+  const disableOTP = useCallback(
+    async ({ otpCode }) => {
+      const nextHexSecret = ethers.utils.hexlify(
+        ethers.utils.toUtf8Bytes(JSON.stringify({ otp: null, timestamp: new Date().getTime() }))
+      )
+
+      try {
+        const { success, signatureEthers, message } = await fetchPost(
+          // network doesn't matter when signing
+          `${CONFIG.RELAYER_URL}/second-key/${accountId}/ethereum/sign`,
+          {
+            toSign: nextHexSecret,
+            code: otpCode
+          }
+        )
+        if (!success) {
+          throw new Error(`Wrong email confirmation code. Details: ${message}`)
+        }
+
+        const resp = await fetchPost(`${CONFIG.RELAYER_URL}/identity/${accountId}/modify`, {
+          otp: nextHexSecret,
+          sig: signatureEthers
+        })
+
+        if (!resp.success) {
+          throw new Error(`Something went wrong. Please try again later. Details: ${resp.message}`)
+        }
+
+        addToast('You have successfully disabled two-factor authentication.')
+        goBack()
+      } catch (e) {
+        addToast(e?.message || t('Something went wrong. Please try again later.'), { error: true })
+      }
+    },
+    [accountId, addToast, goBack, t]
+  )
+
   return {
-    verifyOTP,
     sendEmail,
+    verifyOTP,
+    disableOTP,
     isSendingEmail,
     otpAuth,
     secret

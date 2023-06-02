@@ -39,7 +39,8 @@ const MOBILE_ROUTES = {
   hardwareWallet: 'hardware-wallet',
   dappsCatalog: 'dapps-catalog',
   web3Browser: 'web3-browser',
-  enableOtp2FA: 'enable-otp-2fa'
+  enableOtp2FA: 'enable-otp-2fa',
+  disableOtp2FA: 'disable-otp-2fa'
 }
 
 const WEB_ROUTES = {

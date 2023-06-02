@@ -42,6 +42,7 @@ import styles, {
 } from '@common/modules/router/styles'
 import SendScreen from '@common/modules/send/screens/SendScreen'
 import DataDeletionPolicyScreen from '@common/modules/settings/screens/DataDeletionPolicyScreen'
+import DisableOtp2FaScreen from '@common/modules/settings/screens/DisableOtp2FaScreen'
 import EnableOtp2FaScreen from '@common/modules/settings/screens/EnableOtp2FaScreen'
 import SignersScreen from '@common/modules/settings/screens/SignersScreen'
 import SignMessageScreen from '@common/modules/sign-message/screens/SignMessageScreen'
@@ -102,6 +103,13 @@ const SignersStackScreen = () => {
         component={EnableOtp2FaScreen}
         options={{
           title: routesConfig[ROUTES.enableOtp2FA].title
+        }}
+      />
+      <SignersStack.Screen
+        name={MOBILE_ROUTES.disableOtp2FA}
+        component={DisableOtp2FaScreen}
+        options={{
+          title: routesConfig[ROUTES.disableOtp2FA].title
         }}
       />
     </SignersStack.Navigator>

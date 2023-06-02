@@ -82,8 +82,8 @@ const SignersList = () => {
       const handleOnMakeDefaultBtnClicked = () =>
         onMakeDefaultBtnClicked(selectedAccount, addr, isQuickAcc)
 
-      const handleOnEnable2Fa = () =>
-        navigate(MOBILE_ROUTES.enableOtp2FA, {
+      const handleToggleOtp2Fa = () =>
+        navigate(otpEnabled ? MOBILE_ROUTES.disableOtp2FA : MOBILE_ROUTES.enableOtp2FA, {
           state: { signerAddress: addr, selectedAccountId: selectedAccount?.id }
         })
 
@@ -109,7 +109,7 @@ const SignersList = () => {
               type="small"
               weight="medium"
               style={{ color: colors.turquoise }}
-              onPress={handleOnEnable2Fa}
+              onPress={handleToggleOtp2Fa}
             >
               {' '}
               {otpEnabled ? t('Disable 2FA') : t('Enable 2FA')}

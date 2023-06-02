@@ -3,10 +3,10 @@ import React from 'react'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Wrapper from '@common/components/Wrapper'
 import useRoute from '@common/hooks/useRoute'
-import EnableOTP2FaForm from '@common/modules/settings/components/EnableOTP2FaForm'
+import DisableOTP2FaForm from '@common/modules/settings/components/DisableOTP2FaForm'
 import spacings from '@common/styles/spacings'
 
-const EnableOtp2FaScreen = () => {
+const DisableOtp2FaScreen = () => {
   const {
     params: { signerAddress, selectedAccountId }
   } = useRoute()
@@ -14,10 +14,10 @@ const EnableOtp2FaScreen = () => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper style={spacings.mt}>
-        <EnableOTP2FaForm signerAddress={signerAddress} selectedAccountId={selectedAccountId} />
+        <DisableOTP2FaForm signerAddress={signerAddress} selectedAccountId={selectedAccountId} />
       </Wrapper>
     </GradientBackgroundWrapper>
   )
 }
 
-export default EnableOtp2FaScreen
+export default DisableOtp2FaScreen
