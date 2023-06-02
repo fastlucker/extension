@@ -14,7 +14,7 @@ import useOtp2Fa from '@common/modules/settings/hooks/useOtp2Fa'
 import spacings, { DEVICE_WIDTH } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-const Otp2FaForm = ({ signerAddress, selectedAccountId }) => {
+const EnableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
   const { t } = useTranslation()
   const { accounts } = useAccounts()
   const qrCodeRef: any = useRef(null)
@@ -122,4 +122,4 @@ const Otp2FaForm = ({ signerAddress, selectedAccountId }) => {
   )
 }
 
-export default Otp2FaForm
+export default EnableOTP2FaForm
