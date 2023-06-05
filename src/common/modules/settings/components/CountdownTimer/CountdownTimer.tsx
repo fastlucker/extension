@@ -2,7 +2,13 @@ import React, { useEffect, useState } from 'react'
 
 import Text from '@common/components/Text'
 
-const CountdownTimer = ({ seconds: initialSeconds, setTimeIsUp }) => {
+interface Props {
+  seconds: number
+  setTimeIsUp: (isTimeIsUp: boolean) => void
+}
+
+// Copied over from the web app implementation, ideally should live in ambire-common
+const CountdownTimer: React.FC<Props> = ({ seconds: initialSeconds, setTimeIsUp }) => {
   const [counter, setCounter] = useState(initialSeconds)
   const [timerFormatted, setTimerFormatted] = useState('')
 
