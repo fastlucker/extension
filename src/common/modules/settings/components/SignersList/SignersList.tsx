@@ -19,7 +19,6 @@ import useRelayerData from '@common/hooks/useRelayerData'
 import useToast from '@common/hooks/useToast'
 import { MOBILE_ROUTES } from '@common/modules/router/constants/common'
 import { triggerLayoutAnimation } from '@common/services/layoutAnimation'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
@@ -91,7 +90,7 @@ const SignersList = () => {
 
       const handleToggleOtp2Fa = () =>
         navigate(otpEnabled ? MOBILE_ROUTES.disableOtp2FA : MOBILE_ROUTES.enableOtp2FA, {
-          state: { signerAddress: addr, selectedAccountId: selectedAccount?.id }
+          state: { selectedSignerAddress: addr }
         })
 
       const otpEnabled = data ? data.otpEnabled : null

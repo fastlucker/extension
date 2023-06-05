@@ -1,4 +1,3 @@
-import { Account } from 'ambire-common/src/hooks/useAccounts'
 import React, { useCallback, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -16,18 +15,16 @@ import useOtp2Fa from '@common/modules/settings/hooks/useOtp2Fa'
 import spacings, { DEVICE_WIDTH } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-interface Props {
-  selectedAccountId: Account['id']
-}
+interface Props {}
 
 export interface EnableOTP2FaFormValues {
   emailConfirmCode: string
   otpCode: string
 }
 
-const EnableOTP2FaForm: React.FC<Props> = ({ selectedAccountId }) => {
+const EnableOTP2FaForm: React.FC<Props> = () => {
   const { t } = useTranslation()
-  const { accounts } = useAccounts()
+  const { account } = useAccounts()
   const { goBack } = useNavigation()
   const qrCodeRef: any = useRef(null)
   const [shouldDisplayQR, setShouldDisplayQR] = useState(false)
@@ -44,7 +41,6 @@ const EnableOTP2FaForm: React.FC<Props> = ({ selectedAccountId }) => {
     }
   })
 
-  const account = accounts.find(({ id }) => id === selectedAccountId)
   const { otpAuth, sendEmail, secret, isSendingEmail, verifyOTP } = useOtp2Fa({
     accountId: account?.id,
     email: account?.email

@@ -1,4 +1,3 @@
-import { Account } from 'ambire-common/src/hooks/useAccounts'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -10,18 +9,16 @@ import useAccounts from '@common/hooks/useAccounts'
 import useOtp2Fa from '@common/modules/settings/hooks/useOtp2Fa'
 import spacings from '@common/styles/spacings'
 
-interface Props {
-  selectedAccountId: Account['id']
-}
+interface Props {}
 
 export interface DisableOTP2FaFormValues {
   emailConfirmCode: string
   otpCode: string
 }
 
-const DisableOTP2FaForm: React.FC<Props> = ({ selectedAccountId }) => {
+const DisableOTP2FaForm: React.FC<Props> = () => {
   const { t } = useTranslation()
-  const { accounts } = useAccounts()
+  const { account } = useAccounts()
   const {
     control,
     handleSubmit,
@@ -34,7 +31,6 @@ const DisableOTP2FaForm: React.FC<Props> = ({ selectedAccountId }) => {
     }
   })
 
-  const account = accounts.find(({ id }) => id === selectedAccountId)
   const { disableOTP } = useOtp2Fa({
     accountId: account?.id,
     email: account?.email
