@@ -22,6 +22,7 @@ const EnableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
   const { accounts } = useAccounts()
   const { goBack } = useNavigation()
   const qrCodeRef: any = useRef(null)
+  const [shouldDisplayQR, setShouldDisplayQR] = useState(false)
   const [isTimeIsUp, setIsTimeIsUp] = useState(false)
   const {
     control,
@@ -44,6 +45,7 @@ const EnableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
   const onSubmit = useCallback((formValues) => verifyOTP(formValues), [verifyOTP])
 
   const handleTimeIsUp = () => setIsTimeIsUp(true)
+  const handleDisplayQr = () => setShouldDisplayQR(true)
 
   if (isTimeIsUp) {
     return (
@@ -69,12 +71,14 @@ const EnableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
         onPress={sendEmail}
       />
       {!!secret && (
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}>
-          <Text fontSize={15} weight="regular" style={spacings.mrMi}>
-            You need to confirm it within:
+        <>
+          <Text fontSize={15} weight="regular" style={spacings.mbMi}>
+            Email sent! For security, you have a 5-minute timer to complete the process.
           </Text>
-          <CountdownTimer seconds={300} setTimeIsUp={handleTimeIsUp} />
-        </View>
+          <View style={[flexbox.center, spacings.mbLg]}>
+            <CountdownTimer seconds={300} setTimeIsUp={handleTimeIsUp} />
+          </View>
+        </>
       )}
       {!!secret && (
         <Controller
@@ -96,29 +100,41 @@ const EnableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
 
       {!!secret && (
         <>
-          <Text fontSize={15} weight="regular" style={spacings.mbSm}>
-            {t('2) Scan the QR code with an authenticator app')}
+          <Text fontSize={15} weight="regular" style={spacings.mbMi}>
+            {t(
+              '2) If you are on the same device, please copy and enter manually this setup key in your authenticator app:'
+            )}
           </Text>
-          <View style={[spacings.mbLg, flexbox.center]}>
-            <QRCode
-              value={otpAuth}
-              size={DEVICE_WIDTH / 1.5}
-              quietZone={10}
-              getRef={qrCodeRef}
-              onError={() => t('Failed to load QR code!')}
-            />
-            <Text style={[spacings.mtTy, spacings.mbMi]} fontSize={15}>
-              ...or copy and enter manually this setup key in your authenticator app:
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <Text selectable weight="semiBold">
+              {secret}
             </Text>
-            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <Text selectable weight="semiBold">
-                {secret}
-              </Text>
-              <CopyText text={secret} style={spacings.mlMi} />
-            </View>
+            <CopyText text={secret} style={spacings.mlMi} />
           </View>
 
-          <Text fontSize={15} weight="regular" style={spacings.mbSm}>
+          <Text style={[spacings.mtTy, spacings.mbMi]} fontSize={15}>
+            ... or if your authenticator app is on a different device, you can also{' '}
+            {shouldDisplayQR ? (
+              <Text>scan this QR code:</Text>
+            ) : (
+              <Text weight="semiBold" onPress={handleDisplayQr}>
+                generate a QRcode.
+              </Text>
+            )}
+          </Text>
+          {shouldDisplayQR && (
+            <View style={[flexbox.center, spacings.mtSm]}>
+              <QRCode
+                value={otpAuth}
+                size={DEVICE_WIDTH / 1.5}
+                quietZone={10}
+                getRef={qrCodeRef}
+                onError={() => t('Failed to load QR code!')}
+              />
+            </View>
+          )}
+
+          <Text fontSize={15} weight="regular" style={[spacings.mbSm, spacings.mt]}>
             {t('3) Enter the code from your authenticator app')}
           </Text>
           <Controller

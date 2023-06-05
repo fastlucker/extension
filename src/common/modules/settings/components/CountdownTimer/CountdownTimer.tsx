@@ -23,7 +23,7 @@ const CountdownTimer = ({ seconds: initialSeconds, setTimeIsUp }) => {
   }, [counter, isTimeIsUp, setTimeIsUp])
 
   return (
-    <Text fontSize={16} weight="semiBold">
+    <Text fontSize={25} weight="semiBold">
       {timerFormatted}
     </Text>
   )
