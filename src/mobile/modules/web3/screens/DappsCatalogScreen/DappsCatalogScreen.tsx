@@ -4,6 +4,7 @@ import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'reac
 import { useModalize } from 'react-native-modalize'
 
 import CheckIcon from '@common/assets/svg/CheckIcon'
+import CloseIconRound from '@common/assets/svg/CloseIconRound'
 import SearchIcon from '@common/assets/svg/SearchIcon'
 import SortIcon from '@common/assets/svg/SortIcon'
 import BottomSheet from '@common/components/BottomSheet'
@@ -12,20 +13,34 @@ import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import { isWeb } from '@common/config/env'
+import useNavigation from '@common/hooks/useNavigation'
+import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import DappsCatalogList from '@mobile/modules/web3/components/DappsCatalogList'
 import useDapps from '@mobile/modules/web3/hooks/useDapps'
+import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
 
 import styles from './styles'
 
 const DappsCatalogScreen = () => {
-  const { search, categories, categoryFilter, onSearchChange, onCategorySelect } = useDapps()
+  const {
+    search,
+    categories,
+    categoryFilter,
+    filteredCatalog,
+    searchDappItem,
+    searchDappUrlOrHostnameItem,
+    onSearchChange,
+    onCategorySelect
+  } = useDapps()
+  const { setSelectedDapp } = useWeb3()
+
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-
+  const { navigate } = useNavigation()
   return (
     <GradientBackgroundWrapper>
       <TouchableWithoutFeedback
@@ -42,9 +57,38 @@ const DappsCatalogScreen = () => {
               <View style={[flexbox.flex1, spacings.prTy]}>
                 <Input
                   containerStyle={spacings.mb0}
-                  placeholder={t('Search filter')}
+                  placeholder={t('Search or type dApp url')}
                   onChangeText={onSearchChange}
-                  leftIcon={() => <SearchIcon />}
+                  leftIcon={() => (
+                    <TouchableOpacity
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 2 }}
+                      onPress={() => {
+                        if (search) {
+                          setSelectedDapp(searchDappUrlOrHostnameItem || searchDappItem)
+                          navigate(`${ROUTES.web3Browser}-screen`)
+                        }
+                      }}
+                    >
+                      <SearchIcon />
+                    </TouchableOpacity>
+                  )}
+                  button={
+                    search ? (
+                      <CloseIconRound color={!search ? colors.titan_50 : colors.titan} />
+                    ) : null
+                  }
+                  buttonProps={{
+                    onPress: () => onSearchChange(''),
+                    disabled: !search
+                  }}
+                  returnKeyType="search"
+                  returnKeyLabel="search"
+                  onSubmitEditing={() => {
+                    if (!filteredCatalog.length && !!search) {
+                      setSelectedDapp(searchDappUrlOrHostnameItem || searchDappItem)
+                      navigate(`${ROUTES.web3Browser}-screen`)
+                    }
+                  }}
                   value={search}
                 />
               </View>

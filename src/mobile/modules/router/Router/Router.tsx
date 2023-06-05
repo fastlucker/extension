@@ -6,10 +6,8 @@ import { View } from 'react-native'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import DashboardIcon from '@common/assets/svg/DashboardIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
-import SendIcon from '@common/assets/svg/SendIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
 import TransferIcon from '@common/assets/svg/TransferIcon'
-import { isAndroid } from '@common/config/env'
 import { TAB_BAR_BLUR } from '@common/constants/router'
 import { ConnectionStates } from '@common/contexts/netInfoContext'
 import useNetInfo from '@common/hooks/useNetInfo'
@@ -58,6 +56,9 @@ import { navigate } from '@common/services/navigation'
 import colors from '@common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
 import JsonLoginScreen from '@mobile/modules/auth/screens/JsonLoginScreen'
+import { OnboardingOnFirstLoginProvider } from '@mobile/modules/dashboard/context/onboardingOnFirstLoginContext'
+import useOnboardingOnFirstLogin from '@mobile/modules/dashboard/hooks/useOnboardingOnFirstLogin'
+import OnboardingOnFirstLoginScreen from '@mobile/modules/dashboard/screens/OnboardingOnFirstLoginScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
 import AddReferralScreen from '@mobile/modules/referral/screens/AddReferralScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
@@ -243,7 +244,7 @@ const AuthStack = () => {
       : `${MOBILE_ROUTES.auth}-screen`
 
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName={initialRouteName}>
+    <Stack.Navigator screenOptions={{ header: headerBeta }}>
       {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
         <>
           <Stack.Screen
@@ -471,6 +472,7 @@ const AppDrawer = () => {
 
 const AppStack = () => {
   const { getItem } = useStorageController()
+  const { hasCompletedOnboarding } = useOnboardingOnFirstLogin()
 
   useEffect(() => {
     SplashScreen.hideAsync()
@@ -489,7 +491,11 @@ const AppStack = () => {
     if (shouldAttemptLogin) {
       navigate(MOBILE_ROUTES.auth)
     }
-  }, [getItem])
+
+    if (!hasCompletedOnboarding) {
+      navigate(MOBILE_ROUTES.onboardingOnFirstLogin)
+    }
+  }, [getItem, hasCompletedOnboarding])
 
   return (
     <MainStack.Navigator screenOptions={{ header: headerBeta }}>
@@ -560,6 +566,11 @@ const AppStack = () => {
         component={GasInformationStackScreen}
         options={{ headerShown: false }}
       />
+      <MainStack.Screen
+        name={MOBILE_ROUTES.onboardingOnFirstLogin}
+        component={OnboardingOnFirstLoginScreen}
+        options={{ headerShown: false }}
+      />
     </MainStack.Navigator>
   )
 }
@@ -594,7 +605,11 @@ const Router = () => {
     }
 
     if (vaultStatus === VAULT_STATUS.UNLOCKED || vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
-      return <AppStack />
+      return (
+        <OnboardingOnFirstLoginProvider>
+          <AppStack />
+        </OnboardingOnFirstLoginProvider>
+      )
     }
   }
 

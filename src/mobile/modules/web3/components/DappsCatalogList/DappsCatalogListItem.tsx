@@ -23,6 +23,7 @@ interface Props {
   onOpenDapp: (id: DappManifestData['id']) => void
   onToggleFavorite: (id: DappManifestData['id']) => void
   networks: DappManifestData['networks']
+  inSearchMode?: boolean
 }
 
 const DappCatalogListItem: React.FC<Props> = ({
@@ -32,12 +33,13 @@ const DappCatalogListItem: React.FC<Props> = ({
   iconUrl,
   isFilled,
   isSupported,
+  inSearchMode,
   onOpenDapp,
   onToggleFavorite,
   networks = []
 }) => {
   const handleOnOpenDapp = useCallback(() => {
-    if (!isSupported) return
+    if (!isSupported && !id.includes('search:')) return
 
     onOpenDapp(id)
     !isWeb && Keyboard.dismiss()
@@ -45,7 +47,11 @@ const DappCatalogListItem: React.FC<Props> = ({
 
   return (
     <TouchableOpacity
-      style={[styles.catalogItem, !isSupported && styles.disabledItem]}
+      style={[
+        styles.catalogItem,
+        !isSupported && styles.disabledItem,
+        !!inSearchMode && spacings.mbMi
+      ]}
       // Do not use disabled prop on TouchableOpacity, because of the built-in
       // behavior that prevents touch events from propagating to its parent
       // components when it is disabled that prevents scrolling on FlatList
@@ -53,59 +59,76 @@ const DappCatalogListItem: React.FC<Props> = ({
       activeOpacity={isSupported ? 0.8 : 0.2}
       onPress={handleOnOpenDapp}
     >
-      <View style={[flexbox.directionRow, spacings.mb]}>
+      <View
+        style={[
+          flexbox.directionRow,
+          !inSearchMode && spacings.mb,
+          !!inSearchMode && flexbox.alignCenter
+        ]}
+      >
         <View style={spacings.mrTy}>
-          <DappIcon iconUrl={iconUrl} size={46} />
+          <DappIcon
+            iconUrl={iconUrl}
+            size={46}
+            isSearchIcon={id.includes('search:')}
+            isBrowserIcon={id.includes('search:url-or-hostname')}
+          />
         </View>
         <View style={flexbox.flex1}>
           <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
             <Text
-              fontSize={16}
+              fontSize={inSearchMode ? 14 : 16}
               weight="medium"
               numberOfLines={1}
-              style={[spacings.mbMi, flexbox.flex1, spacings.prSm]}
+              style={[!!description && spacings.mbMi, flexbox.flex1, spacings.prSm]}
             >
               {name}
             </Text>
-            <TouchableOpacity
-              hitSlop={{ top: 10, bottom: 10, right: 10, left: 5 }}
-              onPress={() => {
-                onToggleFavorite(id)
-                !isWeb && Keyboard.dismiss()
-              }}
-            >
-              <StarIcon isFilled={isFilled} />
-            </TouchableOpacity>
+            {!inSearchMode && (
+              <TouchableOpacity
+                hitSlop={{ top: 10, bottom: 10, right: 10, left: 5 }}
+                onPress={() => {
+                  onToggleFavorite(id)
+                  !isWeb && Keyboard.dismiss()
+                }}
+              >
+                <StarIcon isFilled={isFilled} />
+              </TouchableOpacity>
+            )}
           </View>
-          <Text color={colors.baileyBells} fontSize={12} numberOfLines={8}>
-            {description}
-          </Text>
+          {!!description && (
+            <Text color={colors.baileyBells} fontSize={12} numberOfLines={inSearchMode ? 1 : 8}>
+              {description}
+            </Text>
+          )}
         </View>
       </View>
-      <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-        {networks.slice(0, 7).map((n: string, index: number, arr: string | any[]) => {
-          return (
-            <View
-              style={[
-                styles.networkIcon,
-                { marginLeft: index ? -5 : 0, zIndex: arr.length - index }
-              ]}
-              key={n}
+      {!inSearchMode && (
+        <View style={[flexbox.directionRow, flexbox.alignEnd]}>
+          {networks.slice(0, 7).map((n: string, index: number, arr: string | any[]) => {
+            return (
+              <View
+                style={[
+                  styles.networkIcon,
+                  { marginLeft: index ? -5 : 0, zIndex: arr.length - index }
+                ]}
+                key={n}
+              >
+                <NetworkIcon name={n as any} width={22} height={22} />
+              </View>
+            )
+          })}
+          {networks.length > 7 && (
+            <Text
+              style={[spacings.plMi, { height: 6, lineHeight: 14 }]}
+              fontSize={28}
+              color={colors.titan_50}
             >
-              <NetworkIcon name={n as any} width={22} height={22} />
-            </View>
-          )
-        })}
-        {networks.length > 7 && (
-          <Text
-            style={[spacings.plMi, { height: 6, lineHeight: 14 }]}
-            fontSize={28}
-            color={colors.titan_50}
-          >
-            ...
-          </Text>
-        )}
-      </View>
+              ...
+            </Text>
+          )}
+        </View>
+      )}
     </TouchableOpacity>
   )
 }

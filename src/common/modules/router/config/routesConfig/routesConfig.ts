@@ -40,6 +40,10 @@ const routesConfig: {
       web: ''
     })
   },
+  [ROUTES.onboardingOnFirstLogin]: {
+    route: ROUTES.onboardingOnFirstLogin,
+    title: ''
+  },
   [ROUTES.authEmailAccount]: {
     route: ROUTES.authEmailAccount,
     title: ''

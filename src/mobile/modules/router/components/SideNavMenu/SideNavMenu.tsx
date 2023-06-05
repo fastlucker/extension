@@ -34,7 +34,7 @@ import {
 
 const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/4404980091538-Ambire-Wallet'
 const REPORT_ISSUE_URL = 'https://help.ambire.com/hc/en-us/requests/new'
-const TELEGRAM_URL = 'https://t.me/AmbireWallet'
+const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
 const TWITTER_URL = 'https://twitter.com/AmbireWallet'
 const DISCORD_URL = 'https://discord.gg/QQb4xc4ksJ'
 
@@ -86,7 +86,8 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
 
   const additionalInfo = [
     { name: t('Data Deletion Policy'), route: ROUTES.dataDeletionPolicy },
-    { name: t('Backup account'), route: ROUTES.backup }
+    { name: t('Backup Account'), route: ROUTES.backup },
+    { name: t('Replay Onboarding'), route: ROUTES.onboardingOnFirstLogin }
   ]
 
   const settings = [
@@ -117,7 +118,8 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
         </Text>
         <View style={[spacings.mlTy, spacings.mbMd]}>
           {menu.map(({ Icon, name, route }) => {
-            const isActive = routeName === route
+            const isActive = routeName.includes(route)
+
             return (
               <TouchableOpacity
                 key={name}

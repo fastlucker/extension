@@ -25,7 +25,7 @@ export interface InputProps extends TextInputProps {
   label?: string
   isValid?: boolean
   validLabel?: string
-  button?: string | JSX.Element
+  button?: string | JSX.Element | null
   buttonProps?: TouchableOpacityProps
   onButtonPress?: () => void
   disabled?: boolean

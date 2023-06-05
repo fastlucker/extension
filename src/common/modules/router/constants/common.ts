@@ -34,6 +34,7 @@ const MOBILE_ROUTES = {
   connect: 'connect',
   dataDeletionPolicy: 'data-deletion-policy',
   manageVaultLock: 'manage-vault-lock',
+  onboardingOnFirstLogin: 'onboarding-on-first-login',
   noConnection: 'no-connection',
   hardwareWallet: 'hardware-wallet',
   dappsCatalog: 'dapps-catalog',

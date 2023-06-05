@@ -15,6 +15,7 @@ import { Web3ContextData } from '@mobile/modules/web3/contexts/web3Context/types
 
 type Props = {
   approval: Web3ContextData['approval']
+  tabSessionData: any
   selectedDapp: DappManifestData | null
   resolveApproval: Web3ContextData['resolveApproval']
   rejectApproval: Web3ContextData['rejectApproval']
@@ -26,6 +27,7 @@ type Props = {
 
 const ApprovalBottomSheets = ({
   approval,
+  tabSessionData,
   selectedDapp,
   resolveApproval,
   rejectApproval,
@@ -114,6 +116,7 @@ const ApprovalBottomSheets = ({
           isInBottomSheet
           approval={approval}
           selectedDapp={selectedDapp}
+          tabSessionData={tabSessionData}
           resolveApproval={resolveApproval}
           rejectApproval={rejectApproval}
           closeBottomSheet={closeBottomSheetSwitchNetwork}
@@ -129,6 +132,7 @@ const ApprovalBottomSheets = ({
           isInBottomSheet
           approval={approval}
           selectedDapp={selectedDapp}
+          tabSessionData={tabSessionData}
           resolveApproval={resolveApproval}
           rejectApproval={rejectApproval}
           closeBottomSheet={closeBottomSheetWatchToken}
@@ -145,6 +149,7 @@ const ApprovalBottomSheets = ({
           isInBottomSheet
           approval={approval}
           selectedDapp={selectedDapp}
+          tabSessionData={tabSessionData}
           rejectApproval={rejectApproval}
           closeBottomSheet={closeBottomSheetGetEncryptionPublicKey}
         />

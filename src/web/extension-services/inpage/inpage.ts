@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 // Script that is injected into dapp's context through content-script. it mounts ethereum to window
 
 import networks, { NetworkId } from 'ambire-common/src/constants/networks'
@@ -31,7 +32,69 @@ interface StateProvider {
   isPermanentlyDisconnected: boolean
 }
 
-const domReadyCall = (callback) => {
+// keep isMetaMask and remove isAmbire
+const impersonateMetamaskWhitelist = [
+  // layerzero
+  'bitcoinbridge.network',
+  'bridge.liquidswap.com',
+  'theaptosbridge.com',
+  'app.actafi.org',
+
+  // rainbow
+  'goal3.xyz',
+  'enso.finance',
+  'telx.network',
+  'link3.to',
+  'hypercerts.org',
+
+  'quickswap.exchange'
+]
+
+// keep isAmbire and remove isMetaMask
+const ambireHostList: string[] = []
+
+const isIncludesHost = (current: string, target: string) => {
+  return current === target || current.endsWith(`.${target}`)
+}
+
+const isInHostList = (list: string[], host: string) => {
+  return list.some((target) => isIncludesHost(host, target))
+}
+
+export const getProviderMode = (host: string) => {
+  if (isInHostList(impersonateMetamaskWhitelist, host)) {
+    return 'metamask'
+  }
+  if (isInHostList(ambireHostList, host)) {
+    return 'ambire'
+  }
+  return 'default'
+}
+
+export const patchProvider = (provider: any) => {
+  const mode = getProviderMode(window.location.hostname)
+  try {
+    if (mode === 'metamask') {
+      delete provider.isAmbire
+      provider.isMetaMask = true
+      return
+    }
+    if (mode === 'ambire') {
+      delete provider.isMetaMask
+      provider.isAmbire = true
+      return
+    }
+    if (mode === 'default') {
+      provider.isMetaMask = true
+      provider.isAmbire = true
+      return
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const domReadyCall = (callback: any) => {
   if (document.readyState === 'complete') {
     callback()
   } else {
@@ -63,6 +126,8 @@ export class EthereumProvider extends EventEmitter {
   isAmbire = true
 
   isMetaMask = true
+
+  _isAmbire = true
 
   _isReady = false
 
@@ -390,10 +455,11 @@ declare global {
 }
 
 const provider = new EthereumProvider()
+patchProvider(provider)
 let cacheOtherProvider: EthereumProvider | null = null
 const ambireProvider = new Proxy(provider, {
   deleteProperty: (target, prop) => {
-    if (prop === 'on' || prop === 'isAmbire') {
+    if (typeof prop === 'string' && ['on', 'isAmbire', 'isMetaMask', '_isAmbire'].includes(prop)) {
       // @ts-ignore
       delete target[prop]
     }
@@ -401,17 +467,30 @@ const ambireProvider = new Proxy(provider, {
   }
 })
 
-provider.requestInternalMethods({ method: 'isDefaultWallet' }).then((isDefaultWallet) => {
-  // TODO: Take (ans switch this setting from the Ambire settings)
-  isDefaultWallet = true
-  // ambireProvider.on('defaultWalletChanged', switchWalletNotice)
+// TODO: Take (ans switch this setting from the Ambire settings)
+const isDefaultWallet = true
+// ambireProvider.on('defaultWalletChanged', switchWalletNotice)
 
-  let finalProvider: EthereumProvider | null = null
-  if (isDefaultWallet || !cacheOtherProvider) {
-    finalProvider = ambireProvider
+let finalProvider: EthereumProvider | null = null
+
+if (window.ethereum && !window.ethereum._isAmbire) {
+  provider.requestInternalMethods({
+    method: 'hasOtherProvider',
+    params: []
+  })
+  cacheOtherProvider = window.ethereum
+}
+
+if (isDefaultWallet || !cacheOtherProvider) {
+  finalProvider = ambireProvider
+  try {
+    const customizeEthereum = {
+      ...window.ethereum
+    }
     Object.keys(finalProvider).forEach((key) => {
-      window.ethereum[key] = (finalProvider as EthereumProvider)[key]
+      customizeEthereum[key] = finalProvider[key]
     })
+    patchProvider(customizeEthereum)
     Object.defineProperty(window, 'ethereum', {
       set() {
         provider.requestInternalMethods({
@@ -424,38 +503,40 @@ provider.requestInternalMethods({ method: 'isDefaultWallet' }).then((isDefaultWa
         return finalProvider
       }
     })
+  } catch (e) {
+    // think that defineProperty failed means there is any other wallet
+    provider.requestInternalMethods({
+      method: 'hasOtherProvider',
+      params: []
+    })
+    console.error(e)
+    window.ethereum = finalProvider
+  }
+  if (!window.web3) {
     window.web3 = {
       currentProvider: ambireProvider
     }
-    finalProvider._isReady = true
-    // finalProvider.on('ambire:chainChanged', switchChainNotice)
-  } else {
-    finalProvider = cacheOtherProvider
-    // @ts-ignore
-    delete ambireProvider.on
-    // @ts-ignore
-    delete ambireProvider.isAmbire
-    Object.keys(finalProvider).forEach((key) => {
-      window.ethereum[key] = (finalProvider as EthereumProvider)[key]
-    })
-    const keys = ['selectedAddress', 'chainId', 'networkVersion']
-    keys.forEach((key) => {
-      Object.defineProperty(cacheOtherProvider, key, {
-        get() {
-          return window.ethereum[key]
-        },
-        set(val) {
-          window.ethereum[key] = val
-        }
-      })
-    })
   }
-  provider._cacheEventListenersBeforeReady.forEach(([event, handler]) => {
-    ;(finalProvider as EthereumProvider).on(event, handler)
+  finalProvider._isReady = true
+  // finalProvider.on('ambire:chainChanged', switchChainNotice)
+} else {
+  finalProvider = cacheOtherProvider
+  // @ts-ignore
+  delete ambireProvider.on
+  // @ts-ignore
+  delete ambireProvider.isAmbire
+  // @ts-ignore
+  delete ambireProvider._isAmbire
+  Object.keys(finalProvider).forEach((key) => {
+    // @ts-ignore
+    window.ethereum[key] = (finalProvider as EthereumProvider)[key]
   })
-  provider._cacheRequestsBeforeReady.forEach(({ resolve, reject, data }) => {
-    ;(finalProvider as EthereumProvider).request(data).then(resolve).catch(reject)
-  })
+}
+provider._cacheEventListenersBeforeReady.forEach(([event, handler]) => {
+  ;(finalProvider as EthereumProvider).on(event, handler)
+})
+provider._cacheRequestsBeforeReady.forEach(({ resolve, reject, data }) => {
+  ;(finalProvider as EthereumProvider).request(data).then(resolve).catch(reject)
 })
 
 if (window.ethereum) {
@@ -468,21 +549,32 @@ if (window.ethereum) {
 
 window.ethereum = ambireProvider
 
-Object.defineProperty(window, 'ethereum', {
-  set(val) {
-    provider.requestInternalMethods({
-      method: 'hasOtherProvider',
-      params: []
-    })
-    cacheOtherProvider = val
-  },
-  get() {
-    return ambireProvider
-  }
-})
+try {
+  Object.defineProperty(window, 'ethereum', {
+    set(val) {
+      if (val?._isAmbire) {
+        return
+      }
+      provider.requestInternalMethods({
+        method: 'hasOtherProvider',
+        params: []
+      })
+      cacheOtherProvider = val
+    },
+    get() {
+      return ambireProvider
+    }
+  })
+} catch (e) {
+  console.error(e)
+  // To prevent Object.defineProperty from other wallet, inject ethereum provider directly
+  window.ethereum = ambireProvider
+}
 
-window.web3 = {
-  currentProvider: window.ethereum
+if (!window.web3) {
+  window.web3 = {
+    currentProvider: window.ethereum
+  }
 }
 
 window.dispatchEvent(new Event('ethereum#initialized'))
