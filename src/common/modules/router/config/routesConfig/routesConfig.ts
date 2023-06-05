@@ -106,10 +106,22 @@ const routesConfig: {
       default: i18n.t('Login with Hardware Wallet')
     })
   },
+  [ROUTES.hardwareWalletSelect]: {
+    route: ROUTES.hardwareWalletSelect,
+    title: '',
+    flow: 'hwAuth',
+    flowStep: 0
+  },
   [ROUTES.hardwareWalletLedger]: {
     route: ROUTES.hardwareWalletLedger,
     title: Platform.select({
-      default: i18n.t('Connect a Ledger Device')
+      default: i18n.t('Login with Hardware Wallet')
+    })
+  },
+  [ROUTES.hardwareWalletImportAccount]: {
+    route: ROUTES.hardwareWalletImportAccount,
+    title: Platform.select({
+      default: i18n.t('Import Account From HW')
     })
   },
   [ROUTES.externalSigner]: {
