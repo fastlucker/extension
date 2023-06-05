@@ -19,12 +19,12 @@ const Card: React.FC<Props> = ({ style, text, title, icon, children }) => (
   <View style={[styles.container, style]}>
     {icon && icon}
     {title && (
-      <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={20}>
+      <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={16}>
         {title}
       </Text>
     )}
     {text && (
-      <Text style={[spacings.mb, flexbox.flex1]} fontSize={14}>
+      <Text style={[spacings.mb, flexbox.flex1]} fontSize={12}>
         {text}
       </Text>
     )}

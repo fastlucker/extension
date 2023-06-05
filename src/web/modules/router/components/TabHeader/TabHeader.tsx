@@ -15,16 +15,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
 
-const flows = {
-  emailAuth: [
-    'Create Email\nVault',
-    'Email\nConfirmation',
-    'Setup Key\nStore',
-    'Personalize\nAccounts'
-  ],
-  hwAuth: ['Pick Hardware Device', 'Pick Accounts To Import', 'Personalize Accounts']
-}
-const TabHeader: React.FC<any> = () => {
+const TabHeader: React.FC<any> = ({ hideStepper = false }) => {
   const { t } = useTranslation()
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
@@ -41,7 +32,7 @@ const TabHeader: React.FC<any> = () => {
           style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}
         >
           <LeftArrowIcon width={50} height={50} color={colors.violet} />
-          <Text fontSize={18} weight="regular" color={colors.martinique} style={spacings.ml}>
+          <Text fontSize={14} weight="regular" color={colors.martinique} style={spacings.ml}>
             {t('Back')}
           </Text>
         </NavIconWrapper>
@@ -54,11 +45,13 @@ const TabHeader: React.FC<any> = () => {
   const nextRoute = path?.substring(1) as ROUTES
   const { title, flow, flowStep } = routesConfig[nextRoute]
 
+  const shouldDisplayStepper = flow && !hideStepper
+
   return (
     <View style={[styles.container, spacings.pv, spacings.ph]}>
       <View>{renderHeaderLeft()}</View>
-      {flow && <Stepper step={flowStep} steps={flows[flow]} />}
-      {title && (
+      {shouldDisplayStepper && <Stepper step={flowStep} />}
+      {!shouldDisplayStepper && title && (
         <Text
           fontSize={20}
           weight="medium"

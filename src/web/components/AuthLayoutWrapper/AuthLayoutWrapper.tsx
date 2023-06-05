@@ -25,9 +25,7 @@ const AuthLayoutWrapper = (
 
 export const AuthLayoutWrapperMainContent: React.FC<any> = ({
   fullWidth = false,
-  showStepper = false,
-  step = 0,
-  steps = [],
+  hideStepper = false,
   children
 }) => {
   const context = useContext(AuthLayoutWrapperContext)
@@ -38,7 +36,7 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({
 
   return (
     <View style={[flexbox.flex1, { backgroundColor: colors.zircon }]}>
-      <TabHeader showStepper={showStepper} step={step} steps={steps} />
+      <TabHeader hideStepper={hideStepper} />
       <View style={[flexbox.flex1]}>
         <View
           style={[

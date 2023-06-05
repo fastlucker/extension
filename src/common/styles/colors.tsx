@@ -58,6 +58,8 @@ const colors = {
   melrose_35: '#B6B9FF59',
   melrose_15: '#B6B9FF26',
   scampi_20: '#6770B333',
+  quartz: '#d7daf0',
+  brownRum: '#B89C4B',
 
   white: '#FFFFFF',
   black: '#000000'

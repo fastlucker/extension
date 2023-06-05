@@ -10,15 +10,15 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   mainContentWrapper: {
-    width: 315,
+    width: 290,
     alignSelf: 'center',
-    justifyContent: 'center',
+    paddingTop: 70,
     flex: 1
   },
   sideContentContainer: {
     width: '35%',
-    paddingTop: 30,
-    paddingHorizontal: 80,
+    paddingTop: 25,
+    paddingHorizontal: 75,
     overflow: 'hidden'
   },
   informationCircle: {

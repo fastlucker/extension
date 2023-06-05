@@ -11,11 +11,9 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
   container: {
-    width: 298,
+    width: 290,
     backgroundColor: colors.melrose_15,
-    borderWidth: 1,
     ...flexbox.alignCenter,
-    borderColor: colors.scampi_20,
     borderRadius: 12,
     ...spacings.phSm,
     ...spacings.pvSm

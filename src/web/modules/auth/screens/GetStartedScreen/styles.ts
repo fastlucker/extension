@@ -12,7 +12,7 @@ const styles = StyleSheet.create<Styles>({
     marginVertical: 70,
     height: 1,
     width: 330,
-    backgroundColor: colors.mischka
+    backgroundColor: colors.scampi_20
   },
   logo: {
     position: 'absolute',
