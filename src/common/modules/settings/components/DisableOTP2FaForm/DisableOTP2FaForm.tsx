@@ -1,4 +1,5 @@
-import React, { useCallback, useRef } from 'react'
+import { Account } from 'ambire-common/src/hooks/useAccounts'
+import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
@@ -9,15 +10,22 @@ import useAccounts from '@common/hooks/useAccounts'
 import useOtp2Fa from '@common/modules/settings/hooks/useOtp2Fa'
 import spacings from '@common/styles/spacings'
 
-const DisableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
+interface Props {
+  selectedAccountId: Account['id']
+}
+
+export interface DisableOTP2FaFormValues {
+  emailConfirmCode: string
+  otpCode: string
+}
+
+const DisableOTP2FaForm: React.FC<Props> = ({ selectedAccountId }) => {
   const { t } = useTranslation()
   const { accounts } = useAccounts()
-  const qrCodeRef: any = useRef(null)
   const {
     control,
     handleSubmit,
-    watch,
-    formState: { errors, isSubmitting, isValid }
+    formState: { isSubmitting, isValid }
   } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
@@ -32,7 +40,10 @@ const DisableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
     email: account?.email
   })
 
-  const onSubmit = useCallback((formValues) => disableOTP(formValues), [disableOTP])
+  const onSubmit = useCallback(
+    (formValues: DisableOTP2FaFormValues) => disableOTP(formValues),
+    [disableOTP]
+  )
 
   return (
     <>
