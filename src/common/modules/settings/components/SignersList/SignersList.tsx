@@ -96,21 +96,12 @@ const SignersList = () => {
             {privText} {isSelected ? <Text type="small">{t('(default signer)')}</Text> : null}
           </Text>
           {!isSelected && (
-            <Button
-              size="small"
-              // weight="medium"
-              // style={{ color: colors.turquoise }}
-              onPress={handleOnMakeDefaultBtnClicked}
-              text={t('Make default')}
-            />
+            <Button size="small" onPress={handleOnMakeDefaultBtnClicked} text={t('Make default')} />
           )}
           {isQuickAcc && data.otpEnabled !== null && (
             <Button
-              // type="small"
-              // weight="medium"
               type={otpEnabled ? 'danger' : 'primary'}
               size="small"
-              // style={{ color: colors.turquoise }}
               onPress={handleToggleOtp2Fa}
               text={otpEnabled ? t('Disable 2FA') : t('Enable 2FA')}
             />
