@@ -12,6 +12,7 @@ import Title from '@common/components/Title'
 import CONFIG from '@common/config/env'
 import useAccounts from '@common/hooks/useAccounts'
 import useConstants from '@common/hooks/useConstants'
+import useIsScreenFocused from '@common/hooks/useIsScreenFocused'
 import useNavigation from '@common/hooks/useNavigation'
 import useNetwork from '@common/hooks/useNetwork'
 import useRelayerData from '@common/hooks/useRelayerData'
@@ -26,6 +27,7 @@ import textStyles from '@common/styles/utils/text'
 const SignersList = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
+  const isFocused = useIsScreenFocused()
   const { selectedAcc, account: selectedAccount, onAddAccount } = useAccounts()
   const { constants } = useConstants()
   const { network: selectedNetwork } = useNetwork()
@@ -36,7 +38,11 @@ const SignersList = () => {
   })
 
   const url = CONFIG.RELAYER_URL
-    ? `${CONFIG.RELAYER_URL}/identity/${selectedAcc}/${selectedNetwork?.id}/privileges?cacheBreak=${cacheBreak}`
+    ? `${CONFIG.RELAYER_URL}/identity/${selectedAcc}/${selectedNetwork?.id}/privileges?cacheBreak=${
+        cacheBreak +
+        // trick to always trigger a refresh when the screen gets focused
+        (isFocused ? 0 : 1)
+      }`
     : null
   const { data, errMsg, isLoading } = useRelayerData({ url })
 
