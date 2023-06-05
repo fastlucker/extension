@@ -1,0 +1,3 @@
+import HardwareWalletAccountImportScreen from './HardwareWalletAccountImportScreen'
+
+export default HardwareWalletAccountImportScreen

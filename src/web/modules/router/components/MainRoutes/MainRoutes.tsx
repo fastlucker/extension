@@ -40,6 +40,7 @@ import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
 import JsonLoginScreen from '@web/modules/auth/screens/JsonLoginScreen'
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
+import HardwareWalletAccountImportScreen from '@web/modules/hardware-wallet/screens/HardwareWalletAccountImportScreen'
 import RequestLedgerPermissionScreen from '@web/modules/hardware-wallet/screens/RequestLedgerPermissionScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import BottomNav from '@web/modules/router/components/BottomNav'
@@ -137,6 +138,10 @@ const MainRoutes = () => {
             <Route
               path={WEB_ROUTES.hardwareWalletSelect}
               element={<HardwareWalletSelectorScreen />}
+            />
+            <Route
+              path={WEB_ROUTES.hardwareWalletImportAccount}
+              element={<HardwareWalletAccountImportScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
             <Route
