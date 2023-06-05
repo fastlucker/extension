@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -106,10 +106,13 @@ const EnableOTP2FaForm = ({ signerAddress, selectedAccountId }) => {
             )}
           </Text>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <Text selectable weight="semiBold">
+            <Text selectable weight="semiBold" style={{ flexShrink: 1 }}>
               {secret}
             </Text>
-            <CopyText text={secret} style={spacings.mlMi} />
+            <CopyText
+              text={secret}
+              style={[spacings.mlMi, { alignItems: 'flex-start', justifyContent: 'flex-start' }]}
+            />
           </View>
 
           <Text style={[spacings.mtTy, spacings.mbMi]} fontSize={15}>
