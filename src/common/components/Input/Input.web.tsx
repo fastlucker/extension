@@ -102,7 +102,6 @@ const Input = ({
           )}
           <input
             type={type}
-            placeholderTextColor={theme.buttonPlaceholderText}
             style={inputStyles}
             autoCapitalize="none"
             autoCorrect="false"

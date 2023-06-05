@@ -22,17 +22,17 @@ const styles = StyleSheet.create<Style>({
   },
   inputWrapper: {
     flexDirection: 'column',
-    alignContent: 'stretch'
+    alignContent: 'stretch',
+    position: 'relative'
   },
   input: {
     borderWidth: 2,
-    height: 43,
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: FONT_FAMILIES.MEDIUM,
     flex: 1,
     borderRadius: 12,
-    ...spacings.ptTy,
-    ...spacings.pbTy,
+    paddingTop: 11,
+    paddingBottom: 11,
     ...spacings.prSm,
     ...spacings.plSm
   },
@@ -56,14 +56,14 @@ const styles = StyleSheet.create<Style>({
     ...spacings.mbMi
   },
   button: {
-    // Centers the content (used because of the borderBottomWidth)
-    paddingTop: 2,
+    position: 'absolute',
+    right: 0,
+    top: '8%',
     justifyContent: 'center',
+    ...spacings.ptTy,
     ...spacings.phTy
   },
   leftIcon: {
-    // Centers the content (used because of the borderBottomWidth)
-    paddingTop: 2,
     justifyContent: 'center',
     ...spacings.plTy
   },
