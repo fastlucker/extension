@@ -44,10 +44,7 @@ const DisableOTP2FaForm: React.FC<Props> = () => {
   return (
     <>
       <Text fontSize={15} weight="regular" style={spacings.mbSm}>
-        {t('Disable Two Factor Authentication')}
-      </Text>
-      <Text fontSize={15} weight="regular" style={spacings.mbSm}>
-        {t('Enter the code from your authenticator app')}
+        {t('To disable the two factor authentication, enter the code from your authenticator app:')}
       </Text>
       <Controller
         control={control}

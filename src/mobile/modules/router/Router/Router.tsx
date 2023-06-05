@@ -101,14 +101,16 @@ const SignersStackScreen = () => {
         name={MOBILE_ROUTES.enableOtp2FA}
         component={EnableOtp2FaScreen}
         options={{
-          title: routesConfig[ROUTES.enableOtp2FA].title
+          title: routesConfig[ROUTES.enableOtp2FA].title,
+          header: headerBeta
         }}
       />
       <SignersStack.Screen
         name={MOBILE_ROUTES.disableOtp2FA}
         component={DisableOtp2FaScreen}
         options={{
-          title: routesConfig[ROUTES.disableOtp2FA].title
+          title: routesConfig[ROUTES.disableOtp2FA].title,
+          header: headerBeta
         }}
       />
     </SignersStack.Navigator>
