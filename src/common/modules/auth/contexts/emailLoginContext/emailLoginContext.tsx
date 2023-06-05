@@ -8,6 +8,7 @@ import useAccounts from '@common/hooks/useAccounts'
 import useNavigation from '@common/hooks/useNavigation'
 import useStorageController from '@common/hooks/useStorageController'
 import useToast from '@common/hooks/useToast'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useVault from '@common/modules/vault/hooks/useVault'
 import { fetchCaught } from '@common/services/fetch'
@@ -43,6 +44,7 @@ const EmailLoginProvider: React.FC<any> = ({ children }: any) => {
   const { onAddAccount } = useAccounts()
   const { navigate } = useNavigation()
   const { addToVault } = useVault()
+  const { updateStepperState } = useStepper()
   const { t } = useTranslation()
 
   const pendingLoginEmail = getItem('pendingLoginEmail')
@@ -138,7 +140,8 @@ const EmailLoginProvider: React.FC<any> = ({ children }: any) => {
         setItem('pendingLoginAccount', JSON.stringify(body))
         // Delete the key so that it can't be used anymore on this browser
         removeItem('loginSessionKey')
-        navigate(ROUTES.ambireAccountLoginPasswordConfirm, { state: { loginType: 'email' } })
+        navigate(ROUTES.createVault)
+        updateStepperState(3, 'emailAuth')
       } else {
         addToast(
           body.message
@@ -149,7 +152,7 @@ const EmailLoginProvider: React.FC<any> = ({ children }: any) => {
       }
       setRequiresConfFor(null)
     },
-    [addToast, getItem, removeItem, setItem, navigate]
+    [addToast, getItem, removeItem, setItem, navigate, updateStepperState]
   )
 
   const handleLogin = useCallback(

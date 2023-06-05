@@ -54,13 +54,13 @@ const routesConfig: {
   },
   [ROUTES.createVault]: {
     route: ROUTES.createVault,
-    title: '',
+    title: i18n.t('Ambire Key Store'),
     flow: 'emailAuth',
     flowStep: 2
   },
   [ROUTES.createEmailVault]: {
     route: ROUTES.createEmailVault,
-    title: '',
+    title: i18n.t('Email Confirmation Required'),
     flow: 'emailAuth',
     flowStep: 0
   },
@@ -85,9 +85,7 @@ const routesConfig: {
     title: Platform.select({
       web: i18n.t('Confirm Account Password'),
       default: i18n.t('Login')
-    }),
-    flow: 'emailAuth',
-    flowStep: 1
+    })
   },
   [ROUTES.ambireAccountJsonLogin]: {
     route: ROUTES.ambireAccountJsonLogin,
