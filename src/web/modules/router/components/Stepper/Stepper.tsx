@@ -2,6 +2,7 @@ import React from 'react'
 import { View } from 'react-native'
 import StepIndicator from 'react-native-step-indicator'
 
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -9,7 +10,11 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
 
-const StepperComponent: React.FC<any> = ({ step, steps }) => {
+const StepperComponent: React.FC<any> = () => {
+  const { stepperState, getCurrentFlowSteps } = useStepper()
+  const flowSteps = getCurrentFlowSteps()
+  const { currentStep } = stepperState
+
   const renderStepIndicator = ({ stepStatus }: { stepStatus: string }) =>
     stepStatus === 'finished' ? <CheckIcon width={18} height={18} color={colors.greenHaze} /> : ''
 
@@ -49,10 +54,10 @@ const StepperComponent: React.FC<any> = ({ step, steps }) => {
     >
       <StepIndicator
         customStyles={customStyles}
-        currentPosition={step}
+        currentPosition={currentStep}
         renderStepIndicator={renderStepIndicator}
-        stepCount={steps.length}
-        labels={steps}
+        stepCount={flowSteps.length}
+        labels={flowSteps}
       />
     </View>
   )
