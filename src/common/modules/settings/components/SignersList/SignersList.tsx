@@ -5,6 +5,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
@@ -90,32 +91,31 @@ const SignersList = () => {
       const otpEnabled = data ? data.otpEnabled : null
 
       return (
-        <Text type="small" key={addr} style={spacings.mb}>
-          {privText}{' '}
-          {isSelected ? (
-            <Text type="small">{t('(default signer)')}</Text>
-          ) : (
-            <Text
-              type="small"
-              weight="medium"
-              style={{ color: colors.turquoise }}
+        <View style={spacings.mb}>
+          <Text type="small" key={addr} style={spacings.mbTy}>
+            {privText} {isSelected ? <Text type="small">{t('(default signer)')}</Text> : null}
+          </Text>
+          {!isSelected && (
+            <Button
+              size="small"
+              // weight="medium"
+              // style={{ color: colors.turquoise }}
               onPress={handleOnMakeDefaultBtnClicked}
-            >
-              {t('Make default')}
-            </Text>
+              text={t('Make default')}
+            />
           )}
           {isQuickAcc && data.otpEnabled !== null && (
-            <Text
-              type="small"
-              weight="medium"
-              style={{ color: colors.turquoise }}
+            <Button
+              // type="small"
+              // weight="medium"
+              type={otpEnabled ? 'danger' : 'primary'}
+              size="small"
+              // style={{ color: colors.turquoise }}
               onPress={handleToggleOtp2Fa}
-            >
-              {' '}
-              {otpEnabled ? t('Disable 2FA') : t('Enable 2FA')}
-            </Text>
+              text={otpEnabled ? t('Disable 2FA') : t('Enable 2FA')}
+            />
           )}
-        </Text>
+        </View>
       )
     })
     .filter((x) => x)
