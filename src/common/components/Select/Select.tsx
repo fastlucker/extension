@@ -62,9 +62,7 @@ const Select = ({ value, setValue, items, label, extraText, hasArrow = true }: P
       >
         {!!_item.icon && _item.icon()}
         <View style={[flexboxStyles.flex1, spacings.phTy]}>
-          <Text style={flexboxStyles.flex1} numberOfLines={1}>
-            {_item.label}
-          </Text>
+          <Text numberOfLines={1}>{_item.label}</Text>
         </View>
         {_item.value === value && <CheckIcon />}
       </TouchableOpacity>
