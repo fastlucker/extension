@@ -381,7 +381,7 @@ const DashboardStackScreen = () => {
         name={`${MOBILE_ROUTES.dashboard}-screen`}
         component={DashboardScreen}
       />
-      <DashboardStack.Screen name={MOBILE_ROUTES.collectibles} component={CollectibleScreen} />
+      <DashboardStack.Screen name={MOBILE_ROUTES.collectible} component={CollectibleScreen} />
     </DashboardStack.Navigator>
   )
 }
