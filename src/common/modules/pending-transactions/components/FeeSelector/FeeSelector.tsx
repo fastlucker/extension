@@ -232,7 +232,7 @@ const FeeSelector = ({
           (b.discount || 0) - (a.discount || 0) ||
           a?.symbol.toUpperCase().localeCompare(b?.symbol.toUpperCase())
       )
-      .map(({ address, label, symbol, discount, ...rest }: any) => ({
+      .map(({ address, label, symbol, discount, icon, ...rest }: any) => ({
         label: label || symbol,
         value: symbol,
         disabled: !isTokenEligible(
@@ -242,7 +242,7 @@ const FeeSelector = ({
           isGasTankEnabled,
           network
         ),
-        icon: () => <TokenIcon withContainer networkId={network?.id} address={address} />
+        icon: () => <TokenIcon uri={icon} withContainer networkId={network?.id} address={address} />
       }))
 
     const { discount = 0, symbol, nativeRate = null, decimals } = estimation.selectedFeeToken
