@@ -66,7 +66,7 @@ const SwapScreen = () => {
       <html>
         <head>
           <style type="text/css" media="screen">
-            body, html { width: 100%; height: 100%; }
+            body, html { width: 100%; height: 100%; box-sizing: border-box; padding: 0 5px }
             * { padding: 0; margin: 0; }
             /* Fixes the annoying little vertical height scroll */
             iframe { width: 100%; height: 99%; border: none; }
@@ -96,12 +96,7 @@ const SwapScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper
-        hasBottomTabNav
-        style={spacings.ph0}
-        contentContainerStyle={{ flexGrow: 1 }}
-        scrollEnabled={false}
-      >
+      <Wrapper hasBottomTabNav style={spacings.ph0} scrollEnabled={false}>
         {/* Note: might not work properly on Android emulator with this URL. */}
         <WebView
           key={hash}
