@@ -100,7 +100,6 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
               autoFocus={isWeb}
               isValid={isEmail(value)}
               validLabel={pendingLoginAccount ? t('Email address confirmed') : ''}
-              keyboardType="email-address"
               disabled={!!requiresEmailConfFor && !pendingLoginAccount}
               error={errors.email && (t('Please fill in a valid email.') as string)}
               containerStyle={requiresPassword ? spacings.mbTy : null}
