@@ -36,19 +36,15 @@ input {
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #24263d;
+  background: #DDDFF7;
   border-radius: 13px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #12131f;
+  background: #6770B354;
   border-radius: 13px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #272a42;
 }
