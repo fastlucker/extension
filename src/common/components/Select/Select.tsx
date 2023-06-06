@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { isWeb } from '@common/config/env'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import BottomSheet from '@common/components/BottomSheet'
@@ -24,7 +25,37 @@ interface Props {
   label?: string
   extraText?: string
 }
+const Dropdown = ({ options, selectedValue, onSelect }) => {
+  const [isOpen, setIsOpen] = useState(false)
 
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen)
+  }
+
+  const handleOptionSelect = (option) => {
+    onSelect(option)
+    setIsOpen(false)
+  }
+
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.selectedValue} onPress={toggleDropdown} />
+      {isOpen && (
+        <View style={styles.optionsContainer}>
+          {options.map((option) => (
+            <TouchableOpacity
+              key={option.value}
+              style={styles.option}
+              onPress={() => handleOptionSelect(option)}
+            >
+              <Text>{option.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+    </View>
+  )
+}
 const Select = ({ value, setValue, items, label, extraText }: Props) => {
   const [searchValue, setSearchValue] = useState('')
   const { t } = useTranslation()
@@ -76,11 +107,12 @@ const Select = ({ value, setValue, items, label, extraText }: Props) => {
       <TouchableOpacity
         onPress={() => {
           Keyboard.dismiss()
-          openBottomSheet()
+          !isWeb && openBottomSheet()
         }}
       >
         <View pointerEvents="none">
           <Input
+            placeholder={label}
             value={item?.label}
             leftIcon={item?.icon}
             containerStyle={spacings.mbSm}
@@ -101,35 +133,38 @@ const Select = ({ value, setValue, items, label, extraText }: Props) => {
           />
         </View>
       </TouchableOpacity>
-      <BottomSheet
-        id="select-bottom-sheet"
-        sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
-        displayCancel={false}
-        flatListProps={{
-          data: filteredItems || [],
-          renderItem,
-          keyExtractor: (i: any, idx: number) => `${i.value}-${idx}`,
-          ListEmptyComponent: (
-            <View style={[spacings.ptLg, flexboxStyles.alignCenter]}>
-              <Text style={textStyles.center}>{t('No tokens were found.')}</Text>
-            </View>
-          ),
-          ListHeaderComponent: (
-            <View style={[spacings.pbSm, { backgroundColor: colors.clay }]}>
-              <Input
-                value={searchValue}
-                containerStyle={spacings.mb0}
-                onChangeText={setSearchValue}
-                placeholder={t('Search...')}
-              />
-            </View>
-          ),
-          stickyHeaderIndices: [0]
-        }}
-        // Disable dynamic height, because it breaks when the flat list items change dynamically
-        adjustToContentHeight={false}
-      />
+      {isWeb && <Dropdown options={items} selectedValue={value} onSelect={setValue} />}
+      {!isWeb && (
+        <BottomSheet
+          id="select-bottom-sheet"
+          sheetRef={sheetRef}
+          closeBottomSheet={closeBottomSheet}
+          displayCancel={false}
+          flatListProps={{
+            data: filteredItems || [],
+            renderItem,
+            keyExtractor: (i: any, idx: number) => `${i.value}-${idx}`,
+            ListEmptyComponent: (
+              <View style={[spacings.ptLg, flexboxStyles.alignCenter]}>
+                <Text style={textStyles.center}>{t('No tokens were found.')}</Text>
+              </View>
+            ),
+            ListHeaderComponent: (
+              <View style={[spacings.pbSm, { backgroundColor: colors.clay }]}>
+                <Input
+                  value={searchValue}
+                  containerStyle={spacings.mb0}
+                  onChangeText={setSearchValue}
+                  placeholder={t('Search...')}
+                />
+              </View>
+            ),
+            stickyHeaderIndices: [0]
+          }}
+          // Disable dynamic height, because it breaks when the flat list items change dynamically
+          adjustToContentHeight={false}
+        />
+      )}
     </>
   )
 }

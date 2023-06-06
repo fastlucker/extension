@@ -5,7 +5,7 @@
 .toggle {
   align-items: center;
   margin-bottom: 30px;
-  --width: 33px;
+  --width: 25px;
   --height: calc(var(--width) / 2);
   --border-radius: calc(var(--height));
 
