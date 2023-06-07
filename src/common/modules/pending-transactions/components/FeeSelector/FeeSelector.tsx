@@ -250,7 +250,13 @@ const FeeSelector = ({
       <Select
         value={currency}
         setValue={setCurrency}
-        items={assetsItems.sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1))}
+        items={assetsItems
+          .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1))
+          .sort((a, b) => {
+            if (a.disabled === b.disabled) return 0 // skip sorting if the same
+
+            return a.disabled ? 1 : -1
+          })}
         label={t('Fee currency')}
         extraText={discount ? `-${discount * 100}%` : ''}
       />
