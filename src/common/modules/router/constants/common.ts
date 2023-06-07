@@ -11,7 +11,7 @@ const COMMON_ROUTES = {
   externalSigner: 'external-signer',
   accountsImporter: 'accounts-importer',
   dashboard: 'dashboard',
-  collectibles: 'collectibles',
+  collectible: 'collectible',
   earn: 'earn',
   send: 'send',
   transactions: 'transactions',
@@ -34,7 +34,13 @@ const MOBILE_ROUTES = {
   connect: 'connect',
   dataDeletionPolicy: 'data-deletion-policy',
   manageVaultLock: 'manage-vault-lock',
-  hardwareWallet: 'hardware-wallet'
+  onboardingOnFirstLogin: 'onboarding-on-first-login',
+  noConnection: 'no-connection',
+  hardwareWallet: 'hardware-wallet',
+  dappsCatalog: 'dapps-catalog',
+  web3Browser: 'web3-browser',
+  enableOtp2FA: 'enable-otp-2fa',
+  disableOtp2FA: 'disable-otp-2fa'
 }
 
 const WEB_ROUTES = {
