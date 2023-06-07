@@ -148,40 +148,50 @@ const MainRoutes = () => {
               path={WEB_ROUTES.hardwareWalletLedgerPermission}
               element={<RequestLedgerPermissionScreen />}
             />
-            <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
-            <Route path={WEB_ROUTES.accountsImporter} element={<AccountsImporterScreen />} />
-            <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
+          </Route>
+
+          <Route
+            path={WEB_ROUTES.hardwareWalletSelect}
+            element={<HardwareWalletSelectorScreen />}
+          />
+          <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
+          <Route
+            path={WEB_ROUTES.hardwareWalletLedgerPermission}
+            element={<RequestLedgerPermissionScreen />}
+          />
+          <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
+          <Route path={WEB_ROUTES.accountsImporter} element={<AccountsImporterScreen />} />
+          <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
+        </Route>
+      </Route>
+      <Route element={<PrivateRoute />}>
+        <Route element={headerAlpha}>
+          <Route element={footer}>
+            <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
+            <Route path={WEB_ROUTES.collectible} element={<CollectibleScreen />} />
+            <Route path={WEB_ROUTES.earn} element={<EarnScreen />} />
+            <Route path={WEB_ROUTES.send} element={<SendScreen />} />
+            <Route path={WEB_ROUTES.transactions} element={<TransactionsScreen />} />
+            <Route path={WEB_ROUTES.gasTank} element={<GasTankScreen />} />
           </Route>
         </Route>
-        <Route element={<PrivateRoute />}>
-          <Route element={headerAlpha}>
-            <Route element={footer}>
-              <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
-              <Route path={WEB_ROUTES.collectibles} element={<CollectibleScreen />} />
-              <Route path={WEB_ROUTES.earn} element={<EarnScreen />} />
-              <Route path={WEB_ROUTES.send} element={<SendScreen />} />
-              <Route path={WEB_ROUTES.transactions} element={<TransactionsScreen />} />
-              <Route path={WEB_ROUTES.gasTank} element={<GasTankScreen />} />
-            </Route>
-          </Route>
-          <Route element={headerBeta}>
-            <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
-            <Route path={WEB_ROUTES.pendingTransactions} element={<PendingTransactionsScreen />} />
-            <Route path={WEB_ROUTES.receive} element={<ReceiveScreen />} />
-            <Route path={WEB_ROUTES.provider} element={<ProviderScreen />} />
-            <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
-            <Route path={WEB_ROUTES.gasInformation} element={<GasInformationScreen />} />
-            <Route
-              path={WEB_ROUTES.getEncryptionPublicKeyRequest}
-              element={<GetEncryptionPublicKeyRequestScreen />}
-            />
-            <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
-            <Route path={WEB_ROUTES.switchNetwork} element={<SwitchNetworkRequestScreen />} />
-            <Route path={WEB_ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
-          </Route>
-          <Route element={headerGamma}>
-            <Route path={WEB_ROUTES.signers} element={<SignersScreen />} />
-          </Route>
+        <Route element={headerBeta}>
+          <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
+          <Route path={WEB_ROUTES.pendingTransactions} element={<PendingTransactionsScreen />} />
+          <Route path={WEB_ROUTES.receive} element={<ReceiveScreen />} />
+          <Route path={WEB_ROUTES.provider} element={<ProviderScreen />} />
+          <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
+          <Route path={WEB_ROUTES.gasInformation} element={<GasInformationScreen />} />
+          <Route
+            path={WEB_ROUTES.getEncryptionPublicKeyRequest}
+            element={<GetEncryptionPublicKeyRequestScreen />}
+          />
+          <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
+          <Route path={WEB_ROUTES.switchNetwork} element={<SwitchNetworkRequestScreen />} />
+          <Route path={WEB_ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
+        </Route>
+        <Route element={headerGamma}>
+          <Route path={WEB_ROUTES.signers} element={<SignersScreen />} />
         </Route>
       </Route>
     </Routes>

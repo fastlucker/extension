@@ -40,6 +40,10 @@ const routesConfig: {
       web: ''
     })
   },
+  [ROUTES.onboardingOnFirstLogin]: {
+    route: ROUTES.onboardingOnFirstLogin,
+    title: ''
+  },
   [ROUTES.authEmailAccount]: {
     route: ROUTES.authEmailAccount,
     title: ''
@@ -90,7 +94,8 @@ const routesConfig: {
   [ROUTES.ambireAccountJsonLogin]: {
     route: ROUTES.ambireAccountJsonLogin,
     title: Platform.select({
-      default: i18n.t('Import from JSON')
+      web: i18n.t('Import From JSON File'),
+      default: i18n.t('Import From File')
     })
   },
   [ROUTES.ambireAccountJsonLoginPasswordConfirm]: {
@@ -136,8 +141,8 @@ const routesConfig: {
       default: i18n.t('Dashboard')
     })
   },
-  [ROUTES.collectibles]: {
-    route: ROUTES.collectibles,
+  [ROUTES.collectible]: {
+    route: ROUTES.collectible,
     title: Platform.select({
       default: i18n.t('Collectibles')
     })
@@ -267,6 +272,22 @@ const routesConfig: {
   [ROUTES.backup]: {
     route: ROUTES.backup,
     title: ''
+  },
+  [ROUTES.web3Browser]: {
+    route: ROUTES.web3Browser,
+    title: ''
+  },
+  [ROUTES.dappsCatalog]: {
+    route: ROUTES.dappsCatalog,
+    title: i18n.t('dApps')
+  },
+  [ROUTES.enableOtp2FA]: {
+    route: ROUTES.enableOtp2FA,
+    title: i18n.t('Enable 2FA')
+  },
+  [ROUTES.disableOtp2FA]: {
+    route: ROUTES.disableOtp2FA,
+    title: i18n.t('Disable 2FA')
   }
 }
 

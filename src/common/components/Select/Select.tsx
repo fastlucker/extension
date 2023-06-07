@@ -24,6 +24,7 @@ interface Props {
   setValue?: (value: any) => void
   label?: string
   extraText?: string
+  hasArrow?: boolean
 }
 const Dropdown = ({ options, selectedValue, onSelect }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -56,7 +57,7 @@ const Dropdown = ({ options, selectedValue, onSelect }) => {
     </View>
   )
 }
-const Select = ({ value, setValue, items, label, extraText }: Props) => {
+const Select = ({ value, setValue, items, label, extraText, hasArrow = true }: Props) => {
   const [searchValue, setSearchValue] = useState('')
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -92,9 +93,7 @@ const Select = ({ value, setValue, items, label, extraText }: Props) => {
       >
         {!!_item.icon && _item.icon()}
         <View style={[flexboxStyles.flex1, spacings.phTy]}>
-          <Text style={flexboxStyles.flex1} numberOfLines={1}>
-            {_item.label}
-          </Text>
+          <Text numberOfLines={1}>{_item.label}</Text>
         </View>
         {_item.value === value && <CheckIcon />}
       </TouchableOpacity>
@@ -117,18 +116,22 @@ const Select = ({ value, setValue, items, label, extraText }: Props) => {
             leftIcon={item?.icon}
             containerStyle={spacings.mbSm}
             button={
-              <View pointerEvents="none">
-                {!!extraText && (
-                  <View style={styles.extra}>
-                    <Text fontSize={12} color={colors.heliotrope}>
-                      {extraText}
-                    </Text>
-                  </View>
-                )}
-                <NavIconWrapper onPress={() => null}>
-                  <DownArrowIcon width={34} height={34} />
-                </NavIconWrapper>
-              </View>
+              hasArrow ? (
+                <View pointerEvents="none">
+                  {!!extraText && (
+                    <View style={styles.extra}>
+                      <Text fontSize={12} color={colors.heliotrope}>
+                        {extraText}
+                      </Text>
+                    </View>
+                  )}
+                  <NavIconWrapper onPress={() => null}>
+                    <DownArrowIcon width={34} height={34} />
+                  </NavIconWrapper>
+                </View>
+              ) : (
+                <></>
+              )
             }
           />
         </View>

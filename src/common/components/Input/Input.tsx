@@ -14,7 +14,6 @@ import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import { THEME_TYPES } from '@common/styles/themeConfig'
 import commonStyles from '@common/styles/utils/common'
 
 import styles from './styles'
@@ -26,11 +25,13 @@ export interface InputProps extends TextInputProps {
   label?: string
   isValid?: boolean
   validLabel?: string
-  button?: string | JSX.Element
+  button?: string | JSX.Element | null
   buttonProps?: TouchableOpacityProps
   onButtonPress?: () => void
   disabled?: boolean
   containerStyle?: any
+  inputStyle?: any
+  inputWrapperStyle?: any
   infoTextStyle?: any
   leftIcon?: () => JSX.Element | JSX.Element
 }
@@ -48,6 +49,8 @@ const Input = ({
   onButtonPress = () => {},
   disabled,
   containerStyle,
+  inputStyle,
+  inputWrapperStyle,
   infoTextStyle,
   leftIcon,
   ...rest
@@ -75,7 +78,8 @@ const Input = ({
     !!error && { borderBottomColor: theme.inputBorderInvalid },
     isFocused && { borderBottomColor: theme.inputBorderFocused },
     isValid && { borderBottomColor: theme.inputBorderValid },
-    disabled && styles.disabled
+    disabled && styles.disabled,
+    inputWrapperStyle
   ]
 
   const inputStyles = [
@@ -83,7 +87,8 @@ const Input = ({
     !!hasButton && spacings.pr0,
     {
       color: theme.buttonText
-    }
+    },
+    inputStyle
   ]
 
   return (

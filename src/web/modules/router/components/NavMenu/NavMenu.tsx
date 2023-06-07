@@ -17,7 +17,7 @@ import AppVersion from '@common/components/AppVersion'
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
-import { isAndroid, isWeb } from '@common/config/env'
+import { isWeb } from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import { termsAndPrivacyURL } from '@common/modules/auth/constants/URLs'
@@ -34,9 +34,9 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 
 const HELP_CENTER_URL = 'https://help.ambire.com/hc/en-us/categories/4404980091538-Ambire-Wallet'
 const REPORT_ISSUE_URL = 'https://help.ambire.com/hc/en-us/requests/new'
-const TELEGRAM_URL = 'https://t.me/AmbireWallet'
+const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
 const TWITTER_URL = 'https://twitter.com/AmbireWallet'
-const DISCORD_URL = 'https://discord.gg/nMBGJsb'
+const DISCORD_URL = 'https://discord.gg/QQb4xc4ksJ'
 
 const NavMenu = () => {
   const { t } = useTranslation()
@@ -50,7 +50,6 @@ const NavMenu = () => {
     { Icon: DashboardIcon, name: t('Dashboard'), route: ROUTES.dashboard },
     { Icon: EarnIcon, name: t('Earn'), route: ROUTES.earn },
     { Icon: SendIcon, name: t('Send'), route: ROUTES.send },
-    ...(isAndroid ? [{ Icon: SwapIcon, name: t('Swap'), route: ROUTES.swap }] : []),
     { Icon: TransferIcon, name: t('Transactions'), route: ROUTES.transactions },
     // TODO: Not implemented yet.
     // { Icon: CrossChainIcon, name: t('Cross-chain'), route: '' },

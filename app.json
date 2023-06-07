@@ -2,9 +2,9 @@
   "name": "Ambire",
   "expo": {
     "slug": "ambire-mobile-wallet",
-    "version": "3.4.0",
+    "version": "3.10.1",
     "assetBundlePatterns": ["**/*"],
-    "runtimeVersion": "5",
+    "runtimeVersion": "11",
     "jsEngine": "hermes",
     "updates": {
       "enabled": true,

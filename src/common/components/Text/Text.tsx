@@ -4,7 +4,6 @@ import { StyleSheet, Text as RNText, TextProps, TextStyle } from 'react-native'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
-import { THEME_TYPES } from '@common/styles/themeConfig'
 
 import styles, { TEXT_SCALE } from './styles'
 
@@ -73,7 +72,7 @@ const Text: React.FC<Props> = ({
         },
         !!appearance && { color: textAppearances[appearance] },
         !!color && { color },
-        style,
+        style
       ])}
       {...rest}
     >
