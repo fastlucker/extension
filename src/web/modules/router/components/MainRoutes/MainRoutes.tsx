@@ -170,24 +170,23 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.gasTank} element={<GasTankScreen />} />
           </Route>
         </Route>
-          <Route element={headerBeta}>
-            <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
-            <Route path={WEB_ROUTES.pendingTransactions} element={<PendingTransactionsScreen />} />
-            <Route path={WEB_ROUTES.receive} element={<ReceiveScreen />} />
-            <Route path={WEB_ROUTES.provider} element={<ProviderScreen />} />
-            <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
-            <Route path={WEB_ROUTES.gasInformation} element={<GasInformationScreen />} />
-            <Route
-              path={WEB_ROUTES.getEncryptionPublicKeyRequest}
-              element={<GetEncryptionPublicKeyRequestScreen />}
-            />
-            <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
-            <Route path={WEB_ROUTES.switchNetwork} element={<SwitchNetworkRequestScreen />} />
-            <Route path={WEB_ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
-          </Route>
-          <Route element={headerGamma}>
-            <Route path={WEB_ROUTES.signers} element={<SignersScreen />} />
-          </Route>
+        <Route element={headerBeta}>
+          <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
+          <Route path={WEB_ROUTES.pendingTransactions} element={<PendingTransactionsScreen />} />
+          <Route path={WEB_ROUTES.receive} element={<ReceiveScreen />} />
+          <Route path={WEB_ROUTES.provider} element={<ProviderScreen />} />
+          <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
+          <Route path={WEB_ROUTES.gasInformation} element={<GasInformationScreen />} />
+          <Route
+            path={WEB_ROUTES.getEncryptionPublicKeyRequest}
+            element={<GetEncryptionPublicKeyRequestScreen />}
+          />
+          <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
+          <Route path={WEB_ROUTES.switchNetwork} element={<SwitchNetworkRequestScreen />} />
+          <Route path={WEB_ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
+        </Route>
+        <Route element={headerGamma}>
+          <Route path={WEB_ROUTES.signers} element={<SignersScreen />} />
         </Route>
       </Route>
     </Routes>
