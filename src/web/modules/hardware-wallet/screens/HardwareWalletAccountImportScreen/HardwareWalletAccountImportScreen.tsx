@@ -143,7 +143,11 @@ const HardwareWalletAccountImportScreen = () => {
             <LeftArrowIcon width={36} height={36} style={[spacings.mlSm]} color={colors.violet} />
           </View>
           <Toggle style={[spacings.mbTy]} label="Show empty legacy accounts" />
-          <Select label="Custom Derivation" />
+          <Select
+            hasArrow
+            items={[{ label: 'First item', value: '1' }]}
+            label="Custom Derivation"
+          />
           <Button style={{ width: 296 }} text="Import Accounts" />
         </View>
       </AuthLayoutWrapperMainContent>

@@ -103,7 +103,6 @@ const Select = ({ value, setValue, items, label, extraText, hasArrow = true }: P
       <TouchableOpacity
         onPress={() => {
           Keyboard.dismiss()
-          !isWeb && openBottomSheet()
         }}
       >
         <View pointerEvents="none">
@@ -142,37 +141,6 @@ const Select = ({ value, setValue, items, label, extraText, hasArrow = true }: P
           setIsDropdownOpen={setIsDropdownOpen}
           selectedValue={value}
           onSelect={setValue}
-        />
-      )}
-      {!isWeb && (
-        <BottomSheet
-          id="select-bottom-sheet"
-          sheetRef={sheetRef}
-          closeBottomSheet={closeBottomSheet}
-          displayCancel={false}
-          flatListProps={{
-            data: filteredItems || [],
-            renderItem,
-            keyExtractor: (i: any, idx: number) => `${i.value}-${idx}`,
-            ListEmptyComponent: (
-              <View style={[spacings.ptLg, flexboxStyles.alignCenter]}>
-                <Text style={textStyles.center}>{t('No tokens were found.')}</Text>
-              </View>
-            ),
-            ListHeaderComponent: (
-              <View style={[spacings.pbSm, { backgroundColor: colors.clay }]}>
-                <Input
-                  value={searchValue}
-                  containerStyle={spacings.mb0}
-                  onChangeText={setSearchValue}
-                  placeholder={t('Search...')}
-                />
-              </View>
-            ),
-            stickyHeaderIndices: [0]
-          }}
-          // Disable dynamic height, because it breaks when the flat list items change dynamically
-          adjustToContentHeight={false}
         />
       )}
     </>
