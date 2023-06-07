@@ -73,11 +73,8 @@ const Input = ({
     styles.inputWrapper,
     {
       backgroundColor: theme.inputBackground,
-      borderBottomColor: theme.inputBorder
+      borderColor: theme.inputBorder
     },
-    !!error && { borderBottomColor: theme.inputBorderInvalid },
-    isFocused && { borderBottomColor: theme.inputBorderFocused },
-    isValid && { borderBottomColor: theme.inputBorderValid },
     disabled && styles.disabled,
     inputWrapperStyle
   ]
@@ -86,14 +83,32 @@ const Input = ({
     styles.input,
     !!hasButton && spacings.pr0,
     {
-      color: theme.buttonText
+      color: theme.buttonText,
+      borderBottomColor: 'transparent'
     },
-    inputStyle
+    inputStyle,
+    !!error && { borderBottomColor: theme.inputBorderInvalid },
+    isFocused && { borderBottomColor: theme.inputBorderFocused },
+    isValid && { borderBottomColor: theme.inputBorderValid }
   ]
 
   return (
     <View style={[styles.inputContainer, containerStyle]}>
-      {!!label && <Text style={styles.label}>{label}</Text>}
+      {!!label && (
+        <Text fontSize={12} weight="regular" style={styles.label}>
+          {label}
+        </Text>
+      )}
+      {!!error && (
+        <Text
+          style={styles.errorText}
+          weight={isWeb ? 'regular' : undefined}
+          fontSize={10}
+          appearance="danger"
+        >
+          {error}
+        </Text>
+      )}
       <View style={[commonStyles.borderRadiusPrimary, commonStyles.hidden]}>
         <View style={inputWrapperStyles}>
           {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
@@ -129,17 +144,6 @@ const Input = ({
           )}
         </View>
       </View>
-
-      {!!error && (
-        <Text
-          style={styles.errorText}
-          weight={isWeb ? 'regular' : undefined}
-          fontSize={12}
-          appearance="danger"
-        >
-          {error}
-        </Text>
-      )}
 
       {!!isValid && !!validLabel && !error && (
         <Text style={[styles.validText]} fontSize={12} color={colors.turquoise}>

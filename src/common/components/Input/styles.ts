@@ -19,20 +19,22 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   inputContainer: {
-    ...spacings.mbLg
+    ...spacings.mbSm
   },
   inputWrapper: {
     flexDirection: 'row',
-    borderBottomWidth: 2,
-    height: 50
+    borderWidth: 2,
+    height: 50,
+    borderRadius: 12
   },
   input: {
     // Centers the content (used because of the borderBottomWidth)
     paddingTop: 2,
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: isWeb ? FONT_FAMILIES.MEDIUM : FONT_FAMILIES.LIGHT,
     flex: 1,
     height: 48,
+    borderBottomWidth: 2,
     ...spacings.phTy
   },
   infoText: {
@@ -43,8 +45,8 @@ const styles = StyleSheet.create<Style>({
   },
   errorText: {
     paddingHorizontal: 5,
-    ...spacings.ptMi,
-    ...spacings.ph
+    marginBottom: 4,
+    ...spacings.phTy
   },
   validText: {
     paddingHorizontal: 5,
@@ -52,7 +54,7 @@ const styles = StyleSheet.create<Style>({
     ...spacings.ph
   },
   label: {
-    ...spacings.mbTy
+    marginBottom: 7
   },
   button: {
     // Centers the content (used because of the borderBottomWidth)
@@ -67,7 +69,8 @@ const styles = StyleSheet.create<Style>({
     ...spacings.plTy
   },
   disabled: {
-    opacity: 0.5
+    opacity: 0.5,
+    backgroundColor: 'transparent'
   }
 })
 

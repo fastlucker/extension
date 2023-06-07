@@ -63,7 +63,7 @@ const ThemeColors = {
   },
   buttonPlaceholderText: {
     [THEME_TYPES.DARK]: colors.waikawaGray,
-    [THEME_TYPES.LIGHT]: colors.martinique_35
+    [THEME_TYPES.LIGHT]: colors.martinique_65
   }
 }
 

@@ -88,7 +88,6 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
           rules={{ validate: isEmail }}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              type="email"
               label={
                 !requiresEmailConfFor || !pendingLoginAccount ? t('Please insert your email') : ''
               }
