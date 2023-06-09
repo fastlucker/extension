@@ -18,6 +18,12 @@ const replaceMetamaskWithAmbireInDapps = `
           const text = childNode.nodeValue;
           const replacedText = text.replace(new RegExp(textToFind, 'gi'), replacementText);
 
+          if (/^walletconnect$/i.test(text.trim())) {
+            if(childNode.parentElement.tagName === 'BUTTON') {
+              childNode.parentElement.style.display = 'none';
+            }
+          }
+
           if (/^metamask$/i.test(text.trim())) {
             function lookForMMIcon() {
               let ancestorNode = childNode.parentNode;
