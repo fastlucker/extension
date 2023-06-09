@@ -55,10 +55,12 @@ const Select = ({ value, setValue, items, label, extraText, hasArrow = true }: P
           spacings.phTy,
           spacings.pvMi,
           commonStyles.borderRadiusPrimary,
-          { backgroundColor: _item.value === value ? colors.howl : 'transparent' }
+          { backgroundColor: _item.value === value ? colors.howl : 'transparent' },
+          { opacity: _item?.disabled ? 0.3 : 1 }
         ]}
         activeOpacity={0.6}
         onPress={onSelect}
+        disabled={_item?.disabled}
       >
         {!!_item.icon && _item.icon()}
         <View style={[flexboxStyles.flex1, spacings.phTy]}>
