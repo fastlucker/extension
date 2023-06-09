@@ -1,12 +1,12 @@
 import LottieView from 'lottie-react'
 import React from 'react'
 
-import EmailAnimation from './email-animation.json'
+import animation from './email-animation.json'
 
-const Spinner = () => {
+const EmailAnimation = () => {
   return (
     <LottieView
-      animationData={EmailAnimation}
+      animationData={animation}
       style={{ width: 139, height: 139, alignSelf: 'center' }}
       autoPlay
       loop
@@ -14,4 +14,4 @@ const Spinner = () => {
   )
 }
 
-export default Spinner
+export default EmailAnimation
