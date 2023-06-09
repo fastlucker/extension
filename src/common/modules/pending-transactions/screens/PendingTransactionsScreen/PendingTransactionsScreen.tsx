@@ -68,6 +68,7 @@ const PendingTransactionsScreen = ({
     setFeeSpeed,
     approveTxn,
     rejectTxnReplace,
+    setSigningStatus,
     setReplaceTx
   } = useSendTransaction({
     hardwareWalletOpenBottomSheet
@@ -195,6 +196,7 @@ const PendingTransactionsScreen = ({
               <SignActions
                 bundle={bundle}
                 mustReplaceNonce={mustReplaceNonce}
+                setSigningStatus={setSigningStatus}
                 replaceTx={replaceTx}
                 setReplaceTx={setReplaceTx}
                 estimation={estimation}

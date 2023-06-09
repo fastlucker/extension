@@ -33,7 +33,8 @@ const SignActions = ({
   network,
   mustReplaceNonce,
   replaceTx,
-  setReplaceTx
+  setReplaceTx,
+  setSigningStatus
 }: any) => {
   const {
     control,
@@ -151,7 +152,9 @@ const SignActions = ({
           />
         )}
         <View style={styles.buttonsContainer}>
-          <View style={styles.buttonWrapper}>{rejectButton}</View>
+          <View style={styles.buttonWrapper}>
+            <Button type="danger" text={t('Cancel')} onPress={() => setSigningStatus(null)} />
+          </View>
           <View style={styles.buttonWrapper}>
             <Button
               text={isSubmitting ? t('Confirming...') : t('Confirm')}

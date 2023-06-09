@@ -257,6 +257,7 @@ const FeeSelector = ({
         value={currency}
         setValue={setCurrency}
         items={assetsItems}
+        disabled={disabled}
         label={t('Fee currency')}
         extraText={discount ? `-${discount * 100}%` : ''}
       />
@@ -316,7 +317,8 @@ const FeeSelector = ({
             }}
             style={[
               styles.feeSelector,
-              !estimation.customFee && feeSpeed === speed && styles.selected
+              !estimation.customFee && feeSpeed === speed && styles.selected,
+              !!disabled && { opacity: 0.6 }
             ]}
             disabled={checkIsSelectorDisabled(speed)}
           >
@@ -435,6 +437,7 @@ const FeeSelector = ({
           setEnableEdit={() => setEditCustomFee(true)}
           setCustomFee={setCustomFee}
           value={estimation.customFee}
+          disabled={disabled}
           symbol={symbol}
           info={
             (isUnderpriced || isOverpriced) && (
