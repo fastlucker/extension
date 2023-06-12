@@ -1,22 +1,20 @@
-import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
-import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useEffect } from 'react'
 import { useModalize } from 'react-native-modalize'
 
 import BottomSheet from '@common/components/BottomSheet'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import usePrevious from '@common/hooks/usePrevious'
 import colors from '@common/styles/colors'
 import GetEncryptionPublicKeyRequest from '@mobile/modules/web3/components/GetEncryptionPublicKeyRequest'
 import PermissionRequest from '@mobile/modules/web3/components/PermissionRequest'
-import SwitchNetworkRequest from '@mobile/modules/web3/components/SwitchNetworkRequest'
 import WatchTokenRequest from '@mobile/modules/web3/components/WatchTokenRequest'
 import { Web3ContextData } from '@mobile/modules/web3/contexts/web3Context/types'
 
 type Props = {
   approval: Web3ContextData['approval']
   tabSessionData: any
-  selectedDapp: DappManifestData | null
+  selectedDapp: null
   resolveApproval: Web3ContextData['resolveApproval']
   rejectApproval: Web3ContextData['rejectApproval']
   checkHasPermission: Web3ContextData['checkHasPermission']
@@ -104,22 +102,6 @@ const ApprovalBottomSheets = ({
           selectedDapp={selectedDapp}
           closeBottomSheet={closeBottomSheetPermission}
           grantPermission={grantPermission}
-        />
-      </BottomSheet>
-      <BottomSheet
-        id="switch-network-approval"
-        sheetRef={sheetRefSwitchNetwork}
-        closeBottomSheet={closeBottomSheetSwitchNetwork}
-        style={{ backgroundColor: colors.martinique }}
-      >
-        <SwitchNetworkRequest
-          isInBottomSheet
-          approval={approval}
-          selectedDapp={selectedDapp}
-          tabSessionData={tabSessionData}
-          resolveApproval={resolveApproval}
-          rejectApproval={rejectApproval}
-          closeBottomSheet={closeBottomSheetSwitchNetwork}
         />
       </BottomSheet>
       <BottomSheet

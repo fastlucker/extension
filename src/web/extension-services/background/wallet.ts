@@ -1,7 +1,6 @@
-import { NetworkType } from 'ambire-common/src/constants/networks'
 import { intToHex } from 'ethereumjs-util'
 
-import VaultController from '@common/modules/vault/services/VaultController'
+import { NetworkType } from '@common/constants/networks'
 import { INTERNAL_REQUEST_ORIGIN } from '@web/constants/common'
 import permissionService, {
   ConnectedSite
@@ -12,12 +11,14 @@ import provider from './provider/provider'
 import notificationService from './services/notification'
 
 export class WalletController {
-  isUnlocked = () => VaultController.isVaultUnlocked()
+  // TODO:
+  isUnlocked = () => null
 
   getConnectedSite = permissionService.getConnectedSite
 
   requestVaultControllerMethod = (method, props) => {
-    return VaultController[method](props)
+    // TODO:
+    // return VaultController[method](props)
   }
 
   setStorage = (key: string, value: any) => sessionService.broadcastEvent(key, value)

@@ -22,12 +22,10 @@ import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import { termsAndPrivacyURL } from '@common/modules/auth/constants/URLs'
 import ConnectedDapps from '@common/modules/nav-menu/components/ConnectedDapps'
-import GasIndicator from '@common/modules/nav-menu/components/GasIndicator'
 import ManageVaultLockButton from '@common/modules/nav-menu/components/ManageVaultLockButton'
 // import Theme from '@common/modules/nav-menu/components/Theme'
 import styles from '@common/modules/nav-menu/styles'
 import { ROUTES } from '@common/modules/router/constants/common'
-import useVault from '@common/modules/vault/hooks/useVault'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -42,7 +40,6 @@ const NavMenu = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { pathname } = useRoute()
-  const { lockVault } = useVault()
 
   const handleNavigate = useCallback((route: ROUTES) => navigate(route), [navigate])
 
@@ -86,11 +83,9 @@ const NavMenu = () => {
             spacings.mbMd
           ]}
         >
-          <GasIndicator handleNavigate={handleNavigate} />
-
           <TouchableOpacity
             style={[styles.lockBtn, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
-            onPress={() => lockVault()}
+            onPress={() => null}
           >
             <LockIcon height={20} color={colors.chetwode} />
             <Text color={colors.chetwode} weight="regular">

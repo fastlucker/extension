@@ -1,6 +1,6 @@
 import { BlurView } from 'expo-blur'
 import * as SplashScreen from 'expo-splash-screen'
-import React, { useCallback, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { View } from 'react-native'
 
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
@@ -13,23 +13,13 @@ import { ConnectionStates } from '@common/contexts/netInfoContext'
 import useNetInfo from '@common/hooks/useNetInfo'
 import useStorageController from '@common/hooks/useStorageController'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
-import { EmailLoginProvider } from '@common/modules/auth/contexts/emailLoginContext'
-import { JsonLoginProvider } from '@common/modules/auth/contexts/jsonLoginContext'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import AddAccountPasswordToVaultScreen from '@common/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import AuthScreen from '@common/modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@common/modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@common/modules/auth/screens/ExternalSignerScreen'
-import CollectibleScreen from '@common/modules/dashboard/screens/CollectibleScreen'
-import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
-import EarnScreen from '@common/modules/earn/screens/EarnScreen'
-import GasInformationScreen from '@common/modules/gas-tank/screens/GasInformationScreen'
-import GasTankScreen from '@common/modules/gas-tank/screens/GasTankScreen'
 import { headerAlpha, headerBeta, headerGamma } from '@common/modules/header/config/headerConfig'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
-import PendingTransactionsScreen from '@common/modules/pending-transactions/screens/PendingTransactionsScreen'
-import ProviderScreen from '@common/modules/receive/screens/ProviderScreen'
-import ReceiveScreen from '@common/modules/receive/screens/ReceiveScreen'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import { MOBILE_ROUTES, ROUTES } from '@common/modules/router/constants/common'
 import styles, {
@@ -39,21 +29,7 @@ import styles, {
   tabBarLabelStyle,
   tabBarStyle
 } from '@common/modules/router/styles'
-import SendScreen from '@common/modules/send/screens/SendScreen'
-import DataDeletionPolicyScreen from '@common/modules/settings/screens/DataDeletionPolicyScreen'
-import DisableOtp2FaScreen from '@common/modules/settings/screens/DisableOtp2FaScreen'
-import EnableOtp2FaScreen from '@common/modules/settings/screens/EnableOtp2FaScreen'
-import SignersScreen from '@common/modules/settings/screens/SignersScreen'
-import SignMessageScreen from '@common/modules/sign-message/screens/SignMessageScreen'
 import SwapScreen from '@common/modules/swap/screens/SwapScreen'
-import TransactionsScreen from '@common/modules/transactions/screens/TransactionsScreen'
-import { VAULT_STATUS } from '@common/modules/vault/constants/vaultStatus'
-import useVault from '@common/modules/vault/hooks/useVault'
-import CreateNewVaultScreen from '@common/modules/vault/screens/CreateNewVaultScreen'
-import ManageVaultLockScreen from '@common/modules/vault/screens/ManageVaultLockScreen'
-import ResetVaultScreen from '@common/modules/vault/screens/ResetVaultScreen'
-import UnlockVaultScreen from '@common/modules/vault/screens/UnlockVaultScreen'
-import VaultSetupGetStartedScreen from '@common/modules/vault/screens/VaultSetupGetStartedScreen'
 import { navigate } from '@common/services/navigation'
 import colors from '@common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
@@ -62,7 +38,6 @@ import { OnboardingOnFirstLoginProvider } from '@mobile/modules/dashboard/contex
 import useOnboardingOnFirstLogin from '@mobile/modules/dashboard/hooks/useOnboardingOnFirstLogin'
 import OnboardingOnFirstLoginScreen from '@mobile/modules/dashboard/screens/OnboardingOnFirstLoginScreen'
 import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
-import AddReferralScreen from '@mobile/modules/referral/screens/AddReferralScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
 import BackupScreen from '@mobile/modules/settings/screens/BackupScreen'
 import { DappsProvider } from '@mobile/modules/web3/contexts/dappsContext'
@@ -77,59 +52,15 @@ const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
 const DashboardStack = createNativeStackNavigator()
-const SignersStack = createNativeStackNavigator()
+
 const ManageVaultLockStack = createNativeStackNavigator()
 const Web3Stack = createNativeStackNavigator()
 const EmailLoginStack = createNativeStackNavigator()
 const JsonLoginStack = createNativeStackNavigator()
 const GasTankStack = createNativeStackNavigator()
 const GasInformationStack = createNativeStackNavigator()
-const DataDeletionPolicyStack = createNativeStackNavigator()
+
 const BackupStack = createNativeStackNavigator()
-
-const SignersStackScreen = () => {
-  return (
-    <SignersStack.Navigator screenOptions={{ header: headerGamma }}>
-      <SignersStack.Screen
-        name={`${MOBILE_ROUTES.signers}-screen`}
-        component={SignersScreen}
-        options={{
-          title: routesConfig[ROUTES.signers].title
-        }}
-      />
-      <SignersStack.Screen
-        name={MOBILE_ROUTES.enableOtp2FA}
-        component={EnableOtp2FaScreen}
-        options={{
-          title: routesConfig[ROUTES.enableOtp2FA].title,
-          header: headerBeta
-        }}
-      />
-      <SignersStack.Screen
-        name={MOBILE_ROUTES.disableOtp2FA}
-        component={DisableOtp2FaScreen}
-        options={{
-          title: routesConfig[ROUTES.disableOtp2FA].title,
-          header: headerBeta
-        }}
-      />
-    </SignersStack.Navigator>
-  )
-}
-
-const DataDeletionPolicyStackScreen = () => {
-  return (
-    <DataDeletionPolicyStack.Navigator screenOptions={{ header: headerBeta }}>
-      <DataDeletionPolicyStack.Screen
-        name={`${MOBILE_ROUTES.dataDeletionPolicy}-screen`}
-        component={DataDeletionPolicyScreen}
-        options={{
-          title: routesConfig[ROUTES.dataDeletionPolicy].title
-        }}
-      />
-    </DataDeletionPolicyStack.Navigator>
-  )
-}
 
 const BackupStackScreen = () => {
   return (
@@ -205,83 +136,47 @@ const Web3StackScreen = () => {
 
 const EmailLoginStackScreen = () => {
   return (
-    <EmailLoginProvider>
-      <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
-        <EmailLoginStack.Screen
-          name={`${MOBILE_ROUTES.ambireAccountLogin}-screen`}
-          options={{ title: routesConfig[ROUTES.ambireAccountLogin].title }}
-          component={EmailLoginScreen}
-        />
-        <EmailLoginStack.Screen
-          name={MOBILE_ROUTES.ambireAccountLoginPasswordConfirm}
-          options={{ title: routesConfig[ROUTES.ambireAccountJsonLoginPasswordConfirm].title }}
-          component={AddAccountPasswordToVaultScreen}
-        />
-      </EmailLoginStack.Navigator>
-    </EmailLoginProvider>
+    <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+      <EmailLoginStack.Screen
+        name={`${MOBILE_ROUTES.ambireAccountLogin}-screen`}
+        options={{ title: routesConfig[ROUTES.ambireAccountLogin].title }}
+        component={EmailLoginScreen}
+      />
+      <EmailLoginStack.Screen
+        name={MOBILE_ROUTES.ambireAccountLoginPasswordConfirm}
+        options={{ title: routesConfig[ROUTES.ambireAccountJsonLoginPasswordConfirm].title }}
+        component={AddAccountPasswordToVaultScreen}
+      />
+    </EmailLoginStack.Navigator>
   )
 }
 
 const JsonLoginStackScreen = () => {
   return (
-    <JsonLoginProvider>
-      <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
-        <JsonLoginStack.Screen
-          name={`${MOBILE_ROUTES.ambireAccountJsonLogin}-screen`}
-          options={{ title: routesConfig[ROUTES.ambireAccountJsonLogin].title }}
-          component={JsonLoginScreen}
-        />
-        <JsonLoginStack.Screen
-          name={MOBILE_ROUTES.ambireAccountJsonLoginPasswordConfirm}
-          options={{
-            title: routesConfig[ROUTES.ambireAccountJsonLoginPasswordConfirm].title
-          }}
-          component={AddAccountPasswordToVaultScreen}
-        />
-      </JsonLoginStack.Navigator>
-    </JsonLoginProvider>
+    <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+      <JsonLoginStack.Screen
+        name={`${MOBILE_ROUTES.ambireAccountJsonLogin}-screen`}
+        options={{ title: routesConfig[ROUTES.ambireAccountJsonLogin].title }}
+        component={JsonLoginScreen}
+      />
+      <JsonLoginStack.Screen
+        name={MOBILE_ROUTES.ambireAccountJsonLoginPasswordConfirm}
+        options={{
+          title: routesConfig[ROUTES.ambireAccountJsonLoginPasswordConfirm].title
+        }}
+        component={AddAccountPasswordToVaultScreen}
+      />
+    </JsonLoginStack.Navigator>
   )
 }
 
 const AuthStack = () => {
-  const { vaultStatus } = useVault()
-  const { getItem } = useStorageController()
-
   useEffect(() => {
     SplashScreen.hideAsync()
   }, [])
 
-  const initialRouteName =
-    vaultStatus === VAULT_STATUS.NOT_INITIALIZED
-      ? MOBILE_ROUTES.addReferral
-      : // Checks whether there is a pending email login attempt. It happens when user
-      // request email login and closes the app. When the app is opened
-      // the second time - an immediate email login attempt will be triggered.
-      getItem('pendingLoginEmail')
-      ? MOBILE_ROUTES.ambireAccountLogin
-      : `${MOBILE_ROUTES.auth}-screen`
-
   return (
     <Stack.Navigator screenOptions={{ header: headerBeta }}>
-      {vaultStatus === VAULT_STATUS.NOT_INITIALIZED && (
-        <>
-          <Stack.Screen
-            name={MOBILE_ROUTES.addReferral}
-            options={{ title: routesConfig[ROUTES.addReferral].title }}
-            component={AddReferralScreen}
-          />
-          <Stack.Screen
-            name={MOBILE_ROUTES.getStarted}
-            options={{ title: routesConfig[ROUTES.getStarted].title }}
-            component={VaultSetupGetStartedScreen}
-          />
-          <Stack.Screen
-            name={MOBILE_ROUTES.createVault}
-            options={{ title: routesConfig[ROUTES.createVault].title }}
-            component={CreateNewVaultScreen}
-          />
-        </>
-      )}
       <Stack.Screen
         options={{ title: routesConfig[ROUTES.auth].title }}
         name={`${MOBILE_ROUTES.auth}-screen`}
@@ -325,50 +220,6 @@ const NoConnectionStack = () => {
         options={{ title: routesConfig[ROUTES.noConnection].title }}
         name={MOBILE_ROUTES.noConnection}
         component={NoConnectionScreen}
-      />
-    </Stack.Navigator>
-  )
-}
-
-const VaultStack = () => {
-  const { vaultStatus, unlockVault, biometricsEnabled, resetVault } = useVault()
-
-  useEffect(() => {
-    if (vaultStatus === VAULT_STATUS.LOADING) return
-
-    SplashScreen.hideAsync()
-  }, [vaultStatus])
-
-  if (vaultStatus === VAULT_STATUS.LOADING) return null
-
-  const renderResetVaultScreen = useCallback<(props: any) => JSX.Element>(
-    (props) => <ResetVaultScreen {...props} vaultStatus={vaultStatus} resetVault={resetVault} />,
-    [resetVault, vaultStatus]
-  )
-
-  const renderUnlockVaultScreen = useCallback<(props: any) => JSX.Element>(
-    (props) => (
-      <UnlockVaultScreen
-        {...props}
-        unlockVault={unlockVault}
-        vaultStatus={vaultStatus}
-        biometricsEnabled={biometricsEnabled}
-      />
-    ),
-    [biometricsEnabled, unlockVault, vaultStatus]
-  )
-
-  return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }} initialRouteName="unlockVault">
-      <Stack.Screen
-        name={MOBILE_ROUTES.unlockVault}
-        options={{ title: routesConfig[ROUTES.unlockVault].title }}
-        component={renderUnlockVaultScreen}
-      />
-      <Stack.Screen
-        name={MOBILE_ROUTES.resetVault}
-        options={{ title: routesConfig[ROUTES.resetVault].title }}
-        component={renderResetVaultScreen}
       />
     </Stack.Navigator>
   )
@@ -521,16 +372,7 @@ const AppStack = () => {
           headerShown: false
         }}
       />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name={MOBILE_ROUTES.signers}
-        component={SignersStackScreen}
-      />
-      <MainStack.Screen
-        name={MOBILE_ROUTES.dataDeletionPolicy}
-        component={DataDeletionPolicyStackScreen}
-        options={{ headerShown: false }}
-      />
+
       <MainStack.Screen
         name={MOBILE_ROUTES.backup}
         component={BackupStackScreen}
@@ -593,19 +435,9 @@ const AppStack = () => {
 const Router = () => {
   const { authStatus } = useAuth()
   const { connectionState } = useNetInfo()
-  const { vaultStatus } = useVault()
 
   if (connectionState === ConnectionStates.NOT_CONNECTED) {
     return <NoConnectionStack />
-  }
-
-  // Vault loads in async manner, so always wait until it's being loaded,
-  // otherwise - other routes flash beforehand.
-  if (vaultStatus === VAULT_STATUS.LOADING) return null
-
-  // When locked, always prompt the user to unlock it first.
-  if (VAULT_STATUS.LOCKED === vaultStatus) {
-    return <VaultStack />
   }
 
   // When not authenticated, take him to the Auth screens first,
@@ -615,17 +447,11 @@ const Router = () => {
   }
 
   if (authStatus === AUTH_STATUS.AUTHENTICATED) {
-    if (VAULT_STATUS.NOT_INITIALIZED === vaultStatus) {
-      return <VaultStack />
-    }
-
-    if (vaultStatus === VAULT_STATUS.UNLOCKED || vaultStatus === VAULT_STATUS.LOCKED_TEMPORARILY) {
-      return (
-        <OnboardingOnFirstLoginProvider>
-          <AppStack />
-        </OnboardingOnFirstLoginProvider>
-      )
-    }
+    return (
+      <OnboardingOnFirstLoginProvider>
+        <AppStack />
+      </OnboardingOnFirstLoginProvider>
+    )
   }
 
   // authStatus === AUTH_STATUS.LOADING or anything else:

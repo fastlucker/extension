@@ -1,4 +1,3 @@
-import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 import WebView from 'react-native-webview'
@@ -7,6 +6,7 @@ import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrap
 import Spinner from '@common/components/Spinner'
 import Wrapper from '@common/components/Wrapper'
 import useGnosis from '@common/hooks/useGnosis'
+import usePrevious from '@common/hooks/usePrevious'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 

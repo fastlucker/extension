@@ -1,4 +1,3 @@
-import { NETWORKS } from 'ambire-common/src/constants/networks'
 import React from 'react'
 
 import AndromedaLogo from '@common/assets/svg/AndromedaLogo'
@@ -25,6 +24,7 @@ import OptimismLogo from '@common/assets/svg/OptimismLogo'
 import OptimismMonochromeIcon from '@common/assets/svg/OptimismMonochromeIcon'
 import PolygonLogo from '@common/assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@common/assets/svg/PolygonMonochromeIcon'
+import { NETWORKS } from '@common/constants/networks'
 
 export type NetworkIconNameType = keyof typeof NETWORKS
 

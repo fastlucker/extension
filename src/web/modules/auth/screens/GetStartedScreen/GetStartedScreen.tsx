@@ -47,7 +47,6 @@ const GetStartedScreen = () => {
             <Button
               text={t('HW Login')}
               onPress={() => handleAuthButtonPress(ROUTES.hardwareWalletSelect)}
-              disabled // temporary disabled until we have this feature
               hasBottomSpacing={false}
             />
           </Card>

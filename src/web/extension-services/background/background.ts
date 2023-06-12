@@ -1,12 +1,10 @@
-import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
-
-import VaultController from '@common/modules/vault/services/VaultController'
+import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
 import providerController from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import WalletController from '@web/extension-services/background/wallet'
-import storage from '@web/extension-services/background/webapi/storage'
+// import storage from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
@@ -18,9 +16,10 @@ async function init() {
     initRpcProviders(rpcProviders)
   }
 
-  const vault = await storage.get('vault')
-  VaultController.loadStore(vault)
-  VaultController.store.subscribe((value) => storage.set('vault', value))
+  // const vault = await storage.get('vault')
+  // TODO:
+  // VaultController.loadStore(vault)
+  // VaultController.store.subscribe((value) => storage.set('vault', value))
   await permissionService.init()
 }
 

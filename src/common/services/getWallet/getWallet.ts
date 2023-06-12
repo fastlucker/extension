@@ -1,8 +1,8 @@
-import networks from 'ambire-common/src/constants/networks'
-import { getProvider } from 'ambire-common/src/services/provider'
 import { ethers } from 'ethers'
 import { _TypedDataEncoder } from 'ethers/lib/utils'
 
+import networks from '@common/constants/networks'
+import { getProvider } from '@common/services/provider'
 import {
   ledgerSignMessage,
   ledgerSignMessage712,

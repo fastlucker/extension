@@ -1,13 +1,13 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
-import networks, { NetworkType } from 'ambire-common/src/constants/networks'
 import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
-import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import { serializeError } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import networks, { NetworkType } from '@common/constants/networks'
 import useAccounts from '@common/hooks/useAccounts'
 import useNetwork from '@common/hooks/useNetwork'
+import usePrevious from '@common/hooks/usePrevious'
 import getHostname from '@common/utils/getHostname'
 import { delayPromise } from '@common/utils/promises'
 import ApprovalBottomSheets from '@mobile/modules/web3/components/ApprovalBottomSheets'

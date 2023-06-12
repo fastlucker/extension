@@ -1,4 +1,3 @@
-import networks from 'ambire-common/src/constants/networks'
 import { formatFloatTokenAmount } from 'ambire-common/src/services/formatter'
 import {
   getName,
@@ -20,6 +19,7 @@ import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { isWeb } from '@common/config/env'
+import networks from '@common/constants/networks'
 import useConstants from '@common/hooks/useConstants'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
