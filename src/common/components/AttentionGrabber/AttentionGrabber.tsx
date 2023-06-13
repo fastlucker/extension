@@ -1,3 +1,4 @@
+// TODO: v2
 import { useCallback, useEffect, useMemo } from 'react'
 
 import { useTranslation } from '@common/config/localization'

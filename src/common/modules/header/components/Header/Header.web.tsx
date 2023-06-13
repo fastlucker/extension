@@ -4,7 +4,6 @@ import { ColorValue, View } from 'react-native'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
-import useHeaderBottomSheet from '@common/hooks/useHeaderBottomSheet'
 import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
@@ -32,7 +31,6 @@ const Header: React.FC<Props> = ({
   const { path, params } = useRoute()
 
   const { navigate } = useNavigation()
-  const { openHeaderBottomSheet } = useHeaderBottomSheet()
 
   const [title, setTitle] = useState('')
 
@@ -103,7 +101,8 @@ const Header: React.FC<Props> = ({
     >
       <View style={navIconContainer}>
         {!withHamburger && renderHeaderLeft()}
-        {!!withHamburger && <NavIconWrapper onPress={openHeaderBottomSheet} />}
+        {/* TODO: v2 */}
+        {!!withHamburger && <NavIconWrapper onPress={() => null} />}
       </View>
 
       {mode === 'title' && (

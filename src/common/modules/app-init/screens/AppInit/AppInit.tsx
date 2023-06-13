@@ -3,12 +3,11 @@
 import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
-import AttentionGrabberProvider from '@common/components/AttentionGrabber'
-import { AddressBookProvider } from '@common/contexts/addressBookContext'
+// TODO: v2
+// import AttentionGrabberProvider from '@common/components/AttentionGrabber'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { GasTankProvider } from '@common/contexts/gasTankContext'
-import { HeaderBottomSheetProvider } from '@common/contexts/headerBottomSheetContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
 import { LinkingProvider } from '@common/contexts/linkingContext'
 import { LoaderProvider } from '@common/contexts/loaderContext'
@@ -69,18 +68,14 @@ const AppInit = () => {
                               <VaultProvider>
                                 <RequestsProvider>
                                   <BiometricsProvider>
-                                    <AddressBookProvider>
-                                      <AttentionGrabberProvider>
-                                        <PrivateModeProvider>
-                                          <HeaderBottomSheetProvider>
-                                            <LinkingProvider>
-                                              <AppRouter />
-                                            </LinkingProvider>
-                                          </HeaderBottomSheetProvider>
-                                        </PrivateModeProvider>
-                                      </AttentionGrabberProvider>
-                                      <PortalHost name="global" />
-                                    </AddressBookProvider>
+                                    {/* <AttentionGrabberProvider> */}
+                                    <PrivateModeProvider>
+                                      <LinkingProvider>
+                                        <AppRouter />
+                                      </LinkingProvider>
+                                    </PrivateModeProvider>
+                                    {/* </AttentionGrabberProvider> */}
+                                    <PortalHost name="global" />
                                   </BiometricsProvider>
                                 </RequestsProvider>
                               </VaultProvider>
