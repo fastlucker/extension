@@ -1,7 +1,7 @@
-import networks, { NetworkId, NETWORKS, NetworkType } from 'ambire-common/src/constants/networks'
-import { providers } from 'ethers'
+import { JsonRpcProvider, WebSocketProvider } from 'ethers'
 
 import CONFIG from '@common/config/env'
+import networks, { NetworkId, NETWORKS, NetworkType } from '@common/constants/networks'
 
 // @ts-ignore
 const rpcProviders: { [key in NetworkId]: any } = {}
@@ -14,13 +14,13 @@ const setProvider = (_id: NetworkId) => {
 
   const { id: name, chainId, ensName } = network as NetworkType
 
-  if (url.startsWith('wss:')) {
-    return new providers.WebSocketProvider(url, {
+  if (url?.startsWith('wss:')) {
+    return new WebSocketProvider(url, {
       name: ensName || name,
       chainId
     })
   }
-  return new providers.StaticJsonRpcProvider(url, {
+  return new JsonRpcProvider(url, {
     name: ensName || name,
     chainId
   })

@@ -1,4 +1,4 @@
-import { NETWORKS } from 'ambire-common/src/constants/networks'
+import { NETWORKS } from '@common/constants/networks'
 
 export const DAPP_PROVIDER_URLS: { [key: string]: { [key in NETWORKS]?: string } } = {
   'app.uniswap.org': {

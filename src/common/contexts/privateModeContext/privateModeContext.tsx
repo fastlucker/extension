@@ -1,7 +1,8 @@
-import usePrivateMode, { UsePrivateModeReturnType } from 'ambire-common/src/hooks/usePrivateMode'
-import React, { createContext, useMemo } from 'react'
+import React, { createContext, useCallback, useMemo } from 'react'
 
 import useStorage from '@common/hooks/useStorage'
+
+import { UsePrivateModeReturnType } from './types'
 
 const PrivateModeContext = createContext<UsePrivateModeReturnType>({
   hidePrivateValue: () => '',
@@ -10,9 +11,22 @@ const PrivateModeContext = createContext<UsePrivateModeReturnType>({
 })
 
 const PrivateModeProvider: React.FC = ({ children }) => {
-  const { isPrivateMode, hidePrivateValue, togglePrivateMode } = usePrivateMode({
-    useStorage
-  })
+  const [isPrivateMode, setIsPrivateMode] = useStorage({ key: 'isPrivateMode' })
+
+  const togglePrivateMode = useCallback(() => {
+    setIsPrivateMode(!isPrivateMode)
+  }, [isPrivateMode, setIsPrivateMode])
+
+  const hidePrivateValue = useCallback(
+    (value: string | number) => {
+      if (!isPrivateMode) {
+        return value
+      }
+
+      return typeof value === 'string' && value.startsWith('0x') ? value.replace(/./gi, '*') : '**'
+    },
+    [isPrivateMode]
+  )
 
   return (
     <PrivateModeContext.Provider

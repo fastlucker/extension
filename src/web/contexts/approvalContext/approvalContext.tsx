@@ -5,7 +5,6 @@ import useExtensionWallet from '@common/hooks/useExtensionWallet'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import useAuth from '@common/modules/auth/hooks/useAuth'
-import useVault from '@common/modules/vault/hooks/useVault'
 import { delayPromise } from '@common/utils/promises'
 import { Approval } from '@web/extension-services/background/services/notification'
 import { getUiType } from '@web/utils/uiType'
@@ -33,7 +32,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { authStatus } = useAuth()
-  const { vaultStatus } = useVault()
+
   const { navigate } = useNavigation()
   const { extensionWallet } = useExtensionWallet()
   const [approval, setApproval] = useState<Approval | null>(null)
@@ -125,7 +124,8 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
     // Re-get the approval since when the vault is locked and then unlocked -
     // the approval data changes. Use case: extension is locked, user is
     // authenticated, dApp requests something, user unlocks the extension.
-    vaultStatus,
+    // TODO: v2
+    // vaultStatus,
     // Re-get the approval since when there are no accounts and then - the user
     // adds an account (and therefore - authenticates) - the approval data changes
     authStatus

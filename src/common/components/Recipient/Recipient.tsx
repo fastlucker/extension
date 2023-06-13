@@ -1,4 +1,4 @@
-import { Address } from 'ambire-common/src/hooks/useAddressBook'
+import { Address } from 'ambire-common/v1/hooks/useAddressBook'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, TouchableOpacity, View } from 'react-native'

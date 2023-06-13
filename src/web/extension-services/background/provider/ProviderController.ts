@@ -2,13 +2,13 @@
 /* eslint-disable no-await-in-loop */
 import 'reflect-metadata'
 
-import networks from 'ambire-common/src/constants/networks'
-import { getProvider } from 'ambire-common/src/services/provider'
 import { ethErrors } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { APP_VERSION } from '@common/config/env'
+import networks from '@common/constants/networks'
+import { getProvider } from '@common/services/provider'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'

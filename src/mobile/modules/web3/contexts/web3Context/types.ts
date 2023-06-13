@@ -1,4 +1,4 @@
-import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
+import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
 
 import { Approval } from '@mobile/modules/web3/services/webview-background/services/notification'
 

@@ -1,4 +1,4 @@
-import useDapps from 'ambire-common/src/hooks/useDapps'
+import useDapps from 'ambire-common/v1/hooks/useDapps'
 import React, { createContext, useMemo } from 'react'
 
 import useStorage from '@common/hooks/useStorage'

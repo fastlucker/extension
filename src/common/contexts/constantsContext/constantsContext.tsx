@@ -1,4 +1,4 @@
-import useConstants, { UseConstantsReturnType } from 'ambire-common/src/hooks/useConstants'
+import useConstants, { UseConstantsReturnType } from 'ambire-common/v1/hooks/useConstants'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
