@@ -1,4 +1,4 @@
-import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
+import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
 import React, { useEffect } from 'react'
 import { View } from 'react-native'
 

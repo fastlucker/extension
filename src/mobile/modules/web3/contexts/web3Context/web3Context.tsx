@@ -1,4 +1,4 @@
-import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
+import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
 import { serializeError } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
