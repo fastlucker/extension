@@ -11,13 +11,13 @@ import provider from './provider/provider'
 import notificationService from './services/notification'
 
 export class WalletController {
-  // TODO:
+  // TODO: v2
   isUnlocked = () => null
 
   getConnectedSite = permissionService.getConnectedSite
 
   requestVaultControllerMethod = (method, props) => {
-    // TODO:
+    // TODO: v2
     // return VaultController[method](props)
   }
 

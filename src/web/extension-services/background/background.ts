@@ -17,7 +17,7 @@ async function init() {
   }
 
   // const vault = await storage.get('vault')
-  // TODO:
+  // TODO: v2
   // VaultController.loadStore(vault)
   // VaultController.store.subscribe((value) => storage.set('vault', value))
   await permissionService.init()

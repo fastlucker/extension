@@ -17,9 +17,9 @@ type Props = {
 const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) => {
   // const { selectedAcc: selectedAccount } = useAccounts()
   // const { network } = useNetwork()
-  // TODO:
+  // TODO: v2
   const network = {}
-  // TODO:
+  // TODO: v2
   const selectedAccount = ''
   const [requests, setRequests] = useStorage({
     key: APPROVAL_REQUESTS_STORAGE_KEY,

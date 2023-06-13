@@ -124,7 +124,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
     // Re-get the approval since when the vault is locked and then unlocked -
     // the approval data changes. Use case: extension is locked, user is
     // authenticated, dApp requests something, user unlocks the extension.
-    // TODO:
+    // TODO: v2
     // vaultStatus,
     // Re-get the approval since when there are no accounts and then - the user
     // adds an account (and therefore - authenticates) - the approval data changes
