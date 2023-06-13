@@ -8,7 +8,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
-import { LinkingProvider } from '@common/contexts/linkingContext'
 import { LoaderProvider } from '@common/contexts/loaderContext'
 import { NetInfoProvider } from '@common/contexts/netInfoContext'
 import { PrivateModeProvider } from '@common/contexts/privateModeContext'
@@ -67,9 +66,7 @@ const AppInit = () => {
                             {/* TODO: v2 */}
                             {/* <AttentionGrabberProvider> */}
                             <PrivateModeProvider>
-                              <LinkingProvider>
-                                <AppRouter />
-                              </LinkingProvider>
+                              <AppRouter />
                             </PrivateModeProvider>
                             {/* </AttentionGrabberProvider> */}
                             <PortalHost name="global" />
