@@ -50,8 +50,8 @@ const AddAccountPasswordToVaultScreen = () => {
   }, [handleSubmit])
 
   const handleCancelLoginAttempts = useCallback(() => {
-    navigation.goBack()
-  }, [navigation])
+    // TODO: v2
+  }, [])
 
   return (
     <>

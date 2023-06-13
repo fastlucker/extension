@@ -5,6 +5,7 @@ module.exports = function (api) {
     presets: ['babel-preset-expo'],
     plugins: [
       ['@babel/plugin-proposal-export-namespace-from'],
+      ['@babel/plugin-proposal-private-methods', { loose: true }],
       ['transform-inline-environment-variables'],
       [
         'module:react-native-dotenv',

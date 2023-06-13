@@ -4,10 +4,7 @@ import React, { useEffect } from 'react'
 import { View } from 'react-native'
 
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
-import DashboardIcon from '@common/assets/svg/DashboardIcon'
-import EarnIcon from '@common/assets/svg/EarnIcon'
-import SwapIcon from '@common/assets/svg/SwapIcon'
-import TransferIcon from '@common/assets/svg/TransferIcon'
+// import SwapIcon from '@common/assets/svg/SwapIcon'
 import { TAB_BAR_BLUR } from '@common/constants/router'
 import { ConnectionStates } from '@common/contexts/netInfoContext'
 import useNetInfo from '@common/hooks/useNetInfo'
@@ -29,17 +26,15 @@ import styles, {
   tabBarLabelStyle,
   tabBarStyle
 } from '@common/modules/router/styles'
-import SwapScreen from '@common/modules/swap/screens/SwapScreen'
+// import SwapScreen from '@common/modules/swap/screens/SwapScreen'
 import { navigate } from '@common/services/navigation'
 import colors from '@common/styles/colors'
 import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
 import JsonLoginScreen from '@mobile/modules/auth/screens/JsonLoginScreen'
-import { OnboardingOnFirstLoginProvider } from '@mobile/modules/dashboard/context/onboardingOnFirstLoginContext'
-import useOnboardingOnFirstLogin from '@mobile/modules/dashboard/hooks/useOnboardingOnFirstLogin'
-import OnboardingOnFirstLoginScreen from '@mobile/modules/dashboard/screens/OnboardingOnFirstLoginScreen'
-import HardwareWalletConnectScreen from '@mobile/modules/hardware-wallet/screens/HardwareWalletConnectScreen'
+import { OnboardingOnFirstLoginProvider } from '@mobile/modules/onboarding/contexts/onboardingOnFirstLoginContext'
+import useOnboardingOnFirstLogin from '@mobile/modules/onboarding/hooks/useOnboardingOnFirstLogin'
+import OnboardingOnFirstLoginScreen from '@mobile/modules/onboarding/screens/OnboardingOnFirstLoginScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
-import BackupScreen from '@mobile/modules/settings/screens/BackupScreen'
 import { DappsProvider } from '@mobile/modules/web3/contexts/dappsContext'
 import DappsCatalogScreen from '@mobile/modules/web3/screens/DappsCatalogScreen'
 import Web3BrowserScreen from '@mobile/modules/web3/screens/Web3BrowserScreen'
@@ -51,84 +46,32 @@ const Tab = createBottomTabNavigator()
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator()
 const MainStack = createNativeStackNavigator()
-const DashboardStack = createNativeStackNavigator()
 
-const ManageVaultLockStack = createNativeStackNavigator()
 const Web3Stack = createNativeStackNavigator()
 const EmailLoginStack = createNativeStackNavigator()
 const JsonLoginStack = createNativeStackNavigator()
-const GasTankStack = createNativeStackNavigator()
-const GasInformationStack = createNativeStackNavigator()
-
-const BackupStack = createNativeStackNavigator()
-
-const BackupStackScreen = () => {
-  return (
-    <BackupStack.Navigator screenOptions={{ header: headerGamma }}>
-      <BackupStack.Screen
-        name={`${MOBILE_ROUTES.backup}-screen`}
-        component={BackupScreen}
-        options={{
-          title: routesConfig[ROUTES.backup].title
-        }}
-      />
-    </BackupStack.Navigator>
-  )
-}
-
-const GasTankStackScreen = () => {
-  return (
-    <GasTankStack.Navigator screenOptions={{ header: headerGamma }}>
-      <GasTankStack.Screen name={`${MOBILE_ROUTES.gasTank}-screen`} component={GasTankScreen} />
-    </GasTankStack.Navigator>
-  )
-}
-
-const GasInformationStackScreen = () => {
-  return (
-    <GasInformationStack.Navigator screenOptions={{ header: headerGamma }}>
-      <GasInformationStack.Screen
-        name={`${MOBILE_ROUTES.gasInformation}-screen`}
-        component={GasInformationScreen}
-      />
-    </GasInformationStack.Navigator>
-  )
-}
-
-const ManageVaultLockStackScreen = () => {
-  return (
-    <ManageVaultLockStack.Navigator screenOptions={{ header: headerBeta }}>
-      <ManageVaultLockStack.Screen
-        name={`${MOBILE_ROUTES.manageVaultLock}-screen`}
-        component={ManageVaultLockScreen}
-        options={{
-          title: routesConfig[ROUTES.manageVaultLock].title
-        }}
-      />
-    </ManageVaultLockStack.Navigator>
-  )
-}
 
 const Web3StackScreen = () => {
   return (
     <DappsProvider>
       <Web3Stack.Navigator screenOptions={{ headerShown: true }}>
-        <Web3Stack.Screen
+        {/* TODO: v2 */}
+        {/* <Web3Stack.Screen
           name={`${MOBILE_ROUTES.dappsCatalog}-screen`}
           component={DappsCatalogScreen}
           options={{
             title: routesConfig[ROUTES.dappsCatalog].title,
             header: headerAlpha
           }}
-        />
-        <Web3Stack.Screen
+        /> */}
+        {/* <Web3Stack.Screen
           name={`${MOBILE_ROUTES.web3Browser}-screen`}
           component={Web3BrowserScreen}
           options={{
             title: routesConfig[ROUTES.web3Browser].title,
             header: headerGamma
           }}
-        />
+        /> */}
       </Web3Stack.Navigator>
     </DappsProvider>
   )
@@ -196,11 +139,6 @@ const AuthStack = () => {
         component={JsonLoginStackScreen}
       />
       <Stack.Screen
-        name={MOBILE_ROUTES.hardwareWallet}
-        options={{ title: routesConfig[ROUTES.hardwareWallet].title }}
-        component={HardwareWalletConnectScreen}
-      />
-      <Stack.Screen
         name={MOBILE_ROUTES.externalSigner}
         options={{ title: routesConfig[ROUTES.externalSigner].title }}
         component={ExternalSignerScreen}
@@ -222,18 +160,6 @@ const NoConnectionStack = () => {
         component={NoConnectionScreen}
       />
     </Stack.Navigator>
-  )
-}
-
-const DashboardStackScreen = () => {
-  return (
-    <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
-      <DashboardStack.Screen
-        name={`${MOBILE_ROUTES.dashboard}-screen`}
-        component={DashboardScreen}
-      />
-      <DashboardStack.Screen name={MOBILE_ROUTES.collectible} component={CollectibleScreen} />
-    </DashboardStack.Navigator>
   )
 }
 
@@ -260,29 +186,8 @@ const TabsScreens = () => {
         </View>
       )}
     >
-      <Tab.Screen
-        name={MOBILE_ROUTES.dashboard}
-        options={{
-          tabBarLabel: routesConfig[ROUTES.dashboard].title,
-          headerTitle: routesConfig[ROUTES.dashboard].title,
-          tabBarIcon: ({ color }) => (
-            <DashboardIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-          )
-        }}
-        component={DashboardStackScreen}
-      />
-      <Tab.Screen
-        name={MOBILE_ROUTES.earn}
-        options={{
-          tabBarLabel: routesConfig[ROUTES.earn].title,
-          headerTitle: routesConfig[ROUTES.earn].title,
-          tabBarIcon: ({ color }) => (
-            <EarnIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-          )
-        }}
-        component={EarnScreen}
-      />
-      <Tab.Screen
+      {/* TODO: v2 */}
+      {/* <Tab.Screen
         name={MOBILE_ROUTES.swap}
         options={{
           tabBarLabel: routesConfig[ROUTES.swap].title,
@@ -292,18 +197,7 @@ const TabsScreens = () => {
           )
         }}
         component={SwapScreen}
-      />
-      <Tab.Screen
-        name={MOBILE_ROUTES.transactions}
-        options={{
-          tabBarLabel: routesConfig[ROUTES.transactions].title,
-          headerTitle: routesConfig[ROUTES.transactions].title,
-          tabBarIcon: ({ color }) => (
-            <TransferIcon color={color} width={tabsIconSize} height={tabsIconSize} />
-          )
-        }}
-        component={TransactionsScreen}
-      />
+      /> */}
       <Tab.Screen
         name={MOBILE_ROUTES.dappsCatalog}
         options={{
@@ -372,55 +266,9 @@ const AppStack = () => {
           headerShown: false
         }}
       />
-
-      <MainStack.Screen
-        name={MOBILE_ROUTES.backup}
-        component={BackupStackScreen}
-        options={{ headerShown: false }}
-      />
-      <MainStack.Screen
-        options={{ headerShown: false }}
-        name={MOBILE_ROUTES.manageVaultLock}
-        component={ManageVaultLockStackScreen}
-      />
       <MainStack.Screen
         name={MOBILE_ROUTES.auth}
         component={AuthStack}
-        options={{ headerShown: false }}
-      />
-      <MainStack.Screen
-        name={MOBILE_ROUTES.receive}
-        options={{ header: headerGamma }}
-        component={ReceiveScreen}
-      />
-      <MainStack.Screen
-        name={MOBILE_ROUTES.send}
-        options={{ header: headerGamma }}
-        component={SendScreen}
-      />
-      <MainStack.Screen
-        name={MOBILE_ROUTES.provider}
-        options={{ title: routesConfig[ROUTES.receive].title }}
-        component={ProviderScreen}
-      />
-      <MainStack.Screen
-        name={MOBILE_ROUTES.pendingTransactions}
-        component={PendingTransactionsScreen}
-        options={{ title: routesConfig[ROUTES.pendingTransactions].title }}
-      />
-      <MainStack.Screen
-        name={MOBILE_ROUTES.signMessage}
-        component={SignMessageScreen}
-        options={{ title: routesConfig[ROUTES.signMessage].title }}
-      />
-      <MainStack.Screen
-        name={MOBILE_ROUTES.gasTank}
-        component={GasTankStackScreen}
-        options={{ headerShown: false }}
-      />
-      <MainStack.Screen
-        name={MOBILE_ROUTES.gasInformation}
-        component={GasInformationStackScreen}
         options={{ headerShown: false }}
       />
       <MainStack.Screen

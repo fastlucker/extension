@@ -623,7 +623,7 @@
     "@babel/helper-skip-transparent-expression-wrappers" "^7.20.0"
     "@babel/plugin-syntax-optional-chaining" "^7.8.3"
 
-"@babel/plugin-proposal-private-methods@^7.18.6":
+"@babel/plugin-proposal-private-methods@^7.18.6", "@babel/plugin-proposal-private-methods@~7.18.6":
   version "7.18.6"
   resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-private-methods/-/plugin-proposal-private-methods-7.18.6.tgz#5209de7d213457548a98436fa2882f52f4be6bea"
   integrity sha512-nutsvktDItsNn4rpGItSNV2sz1XwS+nfU0Rg8aCx3W3NOKVzdMjJRu0O5OkgDp3ZGICSTbgRpxZoWsxoKRvbeA==
@@ -5943,9 +5943,9 @@ ajv@^8.0.0, ajv@^8.1.0, ajv@^8.6.3, ajv@^8.9.0:
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-"ambire-common@git+https://git@github.com/AmbireTech/ambire-common.git#440c9f8fbfb1a439929e2afef92950c8fc368a57":
+"ambire-common@git+https://git@github.com/AmbireTech/ambire-common.git#9f610d1fe644e9141124dd1fa3a87ee494b3f24e":
   version "0.15.0"
-  resolved "git+https://git@github.com/AmbireTech/ambire-common.git#440c9f8fbfb1a439929e2afef92950c8fc368a57"
+  resolved "git+https://git@github.com/AmbireTech/ambire-common.git#9f610d1fe644e9141124dd1fa3a87ee494b3f24e"
 
 anser@^1.4.9:
   version "1.4.10"

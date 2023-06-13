@@ -17,7 +17,6 @@ import AppVersion from '@common/components/AppVersion'
 import Text from '@common/components/Text'
 import usePrevious from '@common/hooks/usePrevious'
 import { termsAndPrivacyURL } from '@common/modules/auth/constants/URLs'
-import GasIndicator from '@common/modules/nav-menu/components/GasIndicator'
 import ManageVaultLockButton from '@common/modules/nav-menu/components/ManageVaultLockButton'
 // import Theme from '@common/modules/nav-menu/components/Theme'
 import styles from '@common/modules/nav-menu/styles'
@@ -109,9 +108,6 @@ const SideNavMenu: React.FC<DrawerContentComponentProps> = (props) => {
       style={spacings.mt}
       ref={scrollRef}
     >
-      <View style={[spacings.mh, spacings.mbSm, spacings.mbTy]}>
-        <GasIndicator handleNavigate={handleNavigate} />
-      </View>
       <View style={spacings.mhLg}>
         <Text fontSize={16} weight="medium" underline style={spacings.mbTy}>
           {t('Menu')}
