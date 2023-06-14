@@ -87,6 +87,14 @@ const Select = ({ value, setValue, items, label, extraText, hasArrow = true }: P
             value={item?.label}
             leftIcon={item?.icon}
             containerStyle={{ width: 250, marginBottom: 0 }}
+            inputStyle={[
+              isDropdownOpen && {
+                borderBottom: 0,
+                borderBottomRadius: 0,
+                borderBottomRightRadius: 0,
+                borderBottomLeftRadius: 0
+              }
+            ]}
             button={
               hasArrow ? (
                 <View>
