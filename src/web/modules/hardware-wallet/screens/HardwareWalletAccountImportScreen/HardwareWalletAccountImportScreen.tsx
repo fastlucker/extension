@@ -17,6 +17,8 @@ import HardwareWalletAccount from '@web/modules/hardware-wallet/screens/Hardware
 import Button from '@common/components/Button'
 import Toggle from '@common/components/Toggle'
 import Select from '@common/components/Select'
+import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 
 const HardwareWalletAccountImportScreen = () => {
   const { t } = useTranslation()
@@ -24,7 +26,13 @@ const HardwareWalletAccountImportScreen = () => {
     <>
       <AuthLayoutWrapperMainContent>
         <View
-          style={{ ...flexbox.alignCenter, ...spacings.mbSm, height: 325, overflowY: 'scroll' }}
+          style={{
+            ...flexbox.alignCenter,
+            ...spacings.mbSm,
+            height: 325,
+            overflowY: 'scroll',
+            marginTop: '120px'
+          }}
         >
           <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
             <Text weight="semiBold" color={colors.martinique} style={{ width: 35 }} fontSize={20}>
@@ -140,12 +148,23 @@ const HardwareWalletAccountImportScreen = () => {
             <Text fontSize={12} color={colors.martinique} style={[spacings.mrSm]}>
               ...
             </Text>
-            <LeftArrowIcon width={36} height={36} style={[spacings.mlSm]} color={colors.violet} />
+            <RightArrowIcon width={36} height={36} style={[spacings.mlSm]} color={colors.violet} />
+            <RightDoubleArrowIcon
+              width={36}
+              height={36}
+              style={[spacings.mlSm]}
+              color={colors.violet}
+            />
           </View>
           <Toggle style={[spacings.mbTy]} label="Show empty legacy accounts" />
           <Select
             hasArrow
-            items={[{ label: 'First item', value: '1' }]}
+            items={[
+              { label: 'Swap', value: 'Swap' },
+              { label: 'Bridge', value: 'Bridge' },
+              { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
+              { label: 'Deposit', value: 'Deposit' }
+            ]}
             label="Custom Derivation"
           />
           <Button style={{ width: 296 }} text="Import Accounts" />

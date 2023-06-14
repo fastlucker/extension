@@ -34,11 +34,11 @@ const AccountsImporterScreen = () => {
   const isLedger = walletType === HARDWARE_WALLETS.LEDGER
   const isTrezor = walletType === HARDWARE_WALLETS.TREZOR
 
-  useEffect(() => {
-    if (!walletType) {
-      goBack()
-    }
-  }, [goBack, walletType])
+  // useEffect(() => {
+  //   if (!walletType) {
+  //     goBack()
+  //   }
+  // }, [goBack, walletType])
 
   if (isLedger || isTrezor) {
     return <HDManager walletType={walletType} />
