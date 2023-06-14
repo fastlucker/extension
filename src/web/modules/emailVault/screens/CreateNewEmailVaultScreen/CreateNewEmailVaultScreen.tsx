@@ -3,21 +3,21 @@ import { View } from 'react-native'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import EmailLoginForm from '@common/modules/auth/components/EmailLoginForm'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-
-import useEmailLogin from '@common/modules/auth/hooks/useEmailLogin'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import styles from '@web/components/AuthLayoutWrapper/styles'
-import EmailLoginForm from '@common/modules/auth/components/EmailLoginForm'
 
 const CreateNewEmailVaultScreen = () => {
   const { t } = useTranslation()
 
-  const { requiresEmailConfFor, pendingLoginAccount } = useEmailLogin()
+  // TODO: v2
+  const requiresEmailConfFor = false
+  const pendingLoginAccount = false
 
   return (
     <>

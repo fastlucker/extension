@@ -1,22 +1,22 @@
-import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
+import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
 import React, { useCallback, useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import Spinner from '@common/components/Spinner'
 import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
-import useNetwork from '@common/hooks/useNetwork'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import DappCatalogItemItem from '@mobile/modules/web3/components/DappsCatalogList/DappsCatalogListItem'
 import useDapps from '@mobile/modules/web3/hooks/useDapps'
-import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
+
+// import useWeb3 from '@mobile/modules/web3/hooks/useWeb3'
 
 const DappsCatalogList = () => {
   const { navigate } = useNavigation()
-  const { network } = useNetwork()
-  const { setSelectedDapp } = useWeb3()
+
+  // const { setSelectedDapp } = useWeb3()
   const {
     filteredCatalog,
     favorites,
@@ -47,10 +47,10 @@ const DappsCatalogList = () => {
       const item = findItemById(itemId)
       if (!item) return
 
-      setSelectedDapp(item)
+      // setSelectedDapp(item)
       navigate(`${ROUTES.web3Browser}-screen`)
     },
-    [findItemById, navigate, setSelectedDapp]
+    [findItemById, navigate]
   )
 
   const handleToggleFavorite = useCallback(
@@ -64,21 +64,20 @@ const DappsCatalogList = () => {
     [findItemById, toggleFavorite]
   )
 
-  const sortFiltered = useCallback(
-    (filteredItems: DappManifestData[]) => {
-      return filteredItems
-        .map((item) => {
-          return {
-            ...item,
-            isSupported:
-              !item.networks?.length ||
-              !!item.networks?.find((networkId) => networkId === network?.id)
-          }
-        })
-        .sort((a: any, b: any) => b.isSupported - a.isSupported)
-    },
-    [network]
-  )
+  const sortFiltered = useCallback((filteredItems: DappManifestData[]) => {
+    return filteredItems
+      .map((item) => {
+        return {
+          ...item,
+          isSupported: true
+          // TODO: v2
+          // isSupported:
+          //   !item.networks?.length ||
+          //   !!item.networks?.find((networkId) => networkId === network?.id)
+        }
+      })
+      .sort((a: any, b: any) => b.isSupported - a.isSupported)
+  }, [])
 
   const renderItem = ({ item }: { item: DappManifestData & { isSupported: boolean } }) => (
     <DappCatalogItemItem

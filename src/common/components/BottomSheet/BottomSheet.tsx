@@ -1,4 +1,3 @@
-import usePrevious from 'ambire-common/src/hooks/usePrevious'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BackHandler, View, ViewStyle } from 'react-native'
@@ -6,6 +5,7 @@ import { Modalize, ModalizeProps } from 'react-native-modalize'
 
 import Button from '@common/components/Button'
 import { isWeb } from '@common/config/env'
+import usePrevious from '@common/hooks/usePrevious'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
 import { DEVICE_HEIGHT } from '@common/styles/spacings'
 import { Portal } from '@gorhom/portal'

@@ -1,7 +1,8 @@
-import networks from 'ambire-common/src/constants/networks'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
+
+import networks from '@common/constants/networks'
 
 import storage from '../webapi/storage'
 

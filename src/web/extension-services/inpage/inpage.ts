@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
 // Script that is injected into dapp's context through content-script. it mounts ethereum to window
 
-import networks, { NetworkId } from 'ambire-common/src/constants/networks'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
-import { providers } from 'ethers'
+import { JsonRpcProvider, WebSocketProvider } from 'ethers'
 import { EventEmitter } from 'events'
 import { forIn, isUndefined } from 'lodash'
 
+import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
@@ -120,7 +120,7 @@ export class EthereumProvider extends EventEmitter {
   networkVersion: string | null = null
 
   dAppOwnProviders: {
-    [key in NetworkId]?: providers.JsonRpcProvider | providers.WebSocketProvider | null
+    [key in NetworkId]?: JsonRpcProvider | WebSocketProvider | null
   } = {}
 
   isAmbire = true
@@ -229,11 +229,11 @@ export class EthereumProvider extends EventEmitter {
 
           try {
             this.dAppOwnProviders[network.id] = providerUrl.startsWith('wss:')
-              ? new providers.WebSocketProvider(providerUrl, {
+              ? new WebSocketProvider(providerUrl, {
                   name: network.name,
                   chainId: network.chainId
                 })
-              : new providers.JsonRpcProvider(providerUrl, {
+              : new JsonRpcProvider(providerUrl, {
                   name: network.name,
                   chainId: network.chainId
                 })

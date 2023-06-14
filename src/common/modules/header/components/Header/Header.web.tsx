@@ -1,23 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { ColorValue, TouchableOpacity, View } from 'react-native'
+import { ColorValue, View } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
-import Blockies from '@common/components/Blockies'
-import CopyText from '@common/components/CopyText'
 import NavIconWrapper from '@common/components/NavIconWrapper'
-import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
-import useAccounts from '@common/hooks/useAccounts'
-import useHeaderBottomSheet from '@common/hooks/useHeaderBottomSheet'
 import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
-import useNetwork from '@common/hooks/useNetwork'
-import usePrivateMode from '@common/hooks/usePrivateMode'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import spacings, { SPACING_SM } from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import { SPACING_SM } from '@common/styles/spacings'
 import { isExtension } from '@web/constants/browserapi'
 import { getUiType } from '@web/utils/uiType'
 
@@ -36,12 +28,10 @@ const Header: React.FC<Props> = ({
   withHeaderRight = false,
   backgroundColor
 }) => {
-  const { network } = useNetwork()
   const { path, params } = useRoute()
-  const { selectedAcc } = useAccounts()
+
   const { navigate } = useNavigation()
-  const { openHeaderBottomSheet } = useHeaderBottomSheet()
-  const { hidePrivateValue } = usePrivateMode()
+
   const [title, setTitle] = useState('')
 
   const handleGoBack = useCallback(() => navigate(-1), [navigate])
@@ -72,36 +62,6 @@ const Header: React.FC<Props> = ({
     return () => subscription.unsubscribe()
   }, [])
 
-  const renderBottomSheetSwitcher = (
-    <TouchableOpacity
-      style={[flexboxStyles.flex1, flexboxStyles.alignCenter]}
-      onPress={openHeaderBottomSheet}
-    >
-      <Text weight="regular" fontSize={16}>
-        {network?.name}
-      </Text>
-      <View
-        style={[
-          flexboxStyles.flex1,
-          flexboxStyles.directionRow,
-          spacings.phLg,
-          flexboxStyles.alignCenter
-        ]}
-      >
-        <Text
-          color={colors.baileyBells}
-          fontSize={12}
-          numberOfLines={1}
-          ellipsizeMode="middle"
-          style={[spacings.prTy, { lineHeight: 12 }]}
-        >
-          {hidePrivateValue(selectedAcc)}
-        </Text>
-        <CopyText text={selectedAcc} />
-      </View>
-    </TouchableOpacity>
-  )
-
   const renderHeaderLeft = () => {
     if (canGoBack) {
       return (
@@ -114,11 +74,7 @@ const Header: React.FC<Props> = ({
     return null
   }
 
-  const renderHeaderRight = (
-    <NavIconWrapper onPress={handleGoMenu}>
-      <Blockies borderRadius={13} size={10} seed={selectedAcc} />
-    </NavIconWrapper>
-  )
+  const renderHeaderRight = <NavIconWrapper onPress={handleGoMenu} />
 
   // On the left and on the right side, there is always reserved space
   // for the nav bar buttons. And so that in case a title is present,
@@ -145,13 +101,10 @@ const Header: React.FC<Props> = ({
     >
       <View style={navIconContainer}>
         {!withHamburger && renderHeaderLeft()}
-        {!!withHamburger && (
-          <NavIconWrapper onPress={openHeaderBottomSheet}>
-            <NetworkIcon name={network?.id} style={styles.networkIcon} />
-          </NavIconWrapper>
-        )}
+        {/* TODO: v2 */}
+        {!!withHamburger && <NavIconWrapper onPress={() => null} />}
       </View>
-      {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
+
       {mode === 'title' && (
         <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={2}>
           {title || ''}

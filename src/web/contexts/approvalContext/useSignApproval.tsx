@@ -4,8 +4,6 @@
 // eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3, eth_signTypedData_v4
 import { useCallback, useEffect } from 'react'
 
-import useAccounts from '@common/hooks/useAccounts'
-import useNetwork from '@common/hooks/useNetwork'
 import useStorage from '@common/hooks/useStorage'
 
 import { APPROVAL_REQUESTS_STORAGE_KEY, UseExtensionApprovalReturnType } from './types'
@@ -17,8 +15,12 @@ type Props = {
 }
 
 const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) => {
-  const { selectedAcc: selectedAccount } = useAccounts()
-  const { network } = useNetwork()
+  // const { selectedAcc: selectedAccount } = useAccounts()
+  // const { network } = useNetwork()
+  // TODO: v2
+  const network = {}
+  // TODO: v2
+  const selectedAccount = ''
   const [requests, setRequests] = useStorage({
     key: APPROVAL_REQUESTS_STORAGE_KEY,
     defaultValue: [],

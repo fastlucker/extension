@@ -13,6 +13,8 @@ import HDManager from '@web/modules/accounts-importer/components/HDManager'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
 
+import { AccountsPaginationProvider } from '../../contexts/accountsPaginationContext'
+
 export interface Account {
   type: string
   address: string
@@ -41,7 +43,11 @@ const AccountsImporterScreen = () => {
   }, [goBack, walletType])
 
   if (isLedger || isTrezor) {
-    return <HDManager walletType={walletType} />
+    return (
+      <AccountsPaginationProvider walletType={walletType}>
+        <HDManager walletType={walletType} />
+      </AccountsPaginationProvider>
+    )
   }
 
   const [isLoading, setIsLoading] = useState(true)
@@ -128,14 +134,16 @@ const AccountsImporterScreen = () => {
   }, [hardwareWallets, walletType])
 
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper>
-        {isGrid && (
-          <Title>{t('Connected to a {{walletType}} hardware device', { walletType })}</Title>
-        )}
-        <AccountsList accounts={accounts} loading={isLoading} />
-      </Wrapper>
-    </GradientBackgroundWrapper>
+    <AccountsPaginationProvider walletType={walletType}>
+      <GradientBackgroundWrapper>
+        <Wrapper>
+          {isGrid && (
+            <Title>{t('Connected to a {{walletType}} hardware device', { walletType })}</Title>
+          )}
+          <AccountsList accounts={accounts} loading={isLoading} />
+        </Wrapper>
+      </GradientBackgroundWrapper>
+    </AccountsPaginationProvider>
   )
 }
 

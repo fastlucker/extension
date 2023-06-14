@@ -1,10 +1,10 @@
-import networks from 'ambire-common/src/constants/networks'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
 import { v4 as uuidv4 } from 'uuid'
 
 import { isDev } from '@common/config/env'
+import networks from '@common/constants/networks'
 import colors from '@common/styles/colors'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
 import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'

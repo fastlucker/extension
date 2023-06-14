@@ -1,3 +1,0 @@
-import HardwareWalletSelectConnection from './HardwareWalletSelectConnection'
-
-export default HardwareWalletSelectConnection

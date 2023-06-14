@@ -1,5 +1,5 @@
 import RNFS from 'react-native-fs'
-import networks from 'ambire-common/src/constants/networks'
+import networks from '@common/constants/networks'
 
 import { useEffect, useState } from 'react'
 // TODO: fix path

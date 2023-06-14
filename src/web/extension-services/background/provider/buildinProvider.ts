@@ -1,9 +1,9 @@
-// used for the eth_subscribe that is currently not implemented in the background.js file
-import networks from 'ambire-common/src/constants/networks'
 import { intToHex } from 'ethereumjs-util'
 // this script is injected into webpage's context
 import { EventEmitter } from 'events'
 
+// used for the eth_subscribe that is currently not implemented in the background.js file
+import networks from '@common/constants/networks'
 import { INTERNAL_REQUEST_SESSION } from '@web/constants/common'
 import providerController from '@web/extension-services/background/provider/ProviderController'
 import notificationService from '@web/extension-services/background/services/notification'
