@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
 
 import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Title from '@common/components/Title'
@@ -7,13 +8,14 @@ import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
+import spacings from '@common/styles/spacings'
 import useWalletControllerRequest from '@web/hooks/useWalletControllerRequest'
 import AccountsList from '@web/modules/accounts-importer/components/AccountsList'
-import HDManager from '@web/modules/accounts-importer/components/HDManager'
+import LedgerManager from '@web/modules/accounts-importer/components/LedgerManager'
+import TrezorManager from '@web/modules/accounts-importer/components/TrezorManager'
+import { AccountsPaginationProvider } from '@web/modules/accounts-importer/contexts/accountsPaginationContext'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
-
-import { AccountsPaginationProvider } from '../../contexts/accountsPaginationContext'
 
 export interface Account {
   type: string
@@ -25,10 +27,17 @@ export interface Account {
   balance?: number
 }
 
+const WALLET_MAP = {
+  [HARDWARE_WALLETS.LEDGER]: LedgerManager,
+  [HARDWARE_WALLETS.TREZOR]: TrezorManager
+}
+
 const AccountsImporterScreen = () => {
   const { params } = useRoute()
   const { addToast } = useToast()
   const { goBack } = useNavigation()
+  const { hardwareWallets } = useHardwareWallets()
+  const { t } = useTranslation()
 
   const { walletType, isMnemonics, isWebHID, ledgerLive, path, brand } = params
 
@@ -43,9 +52,33 @@ const AccountsImporterScreen = () => {
   }, [goBack, walletType])
 
   if (isLedger || isTrezor) {
+    const closeConnect = React.useCallback(() => {
+      try {
+        hardwareWallets[walletType].cleanUp()
+      } catch (e) {
+        console.log(e)
+      }
+    }, [hardwareWallets, walletType])
+
+    useEffect(() => {
+      window.addEventListener('beforeunload', () => {
+        closeConnect()
+      })
+
+      return () => {
+        closeConnect()
+      }
+    }, [closeConnect])
+
+    const WalletManager = WALLET_MAP[walletType]
+    const name = walletType
+
     return (
-      <AccountsPaginationProvider walletType={walletType}>
-        <HDManager walletType={walletType} />
+      <AccountsPaginationProvider>
+        <View style={[spacings.mh, spacings.pv]}>
+          <Title>{t('Connected to a {{name}} hardware device', { name })}</Title>
+          <WalletManager />
+        </View>
       </AccountsPaginationProvider>
     )
   }
@@ -56,10 +89,6 @@ const AccountsImporterScreen = () => {
 
   const [end, setEnd] = useState(1)
   const [currentPage, setCurrentPage] = useState(1)
-
-  const { t } = useTranslation()
-
-  const { hardwareWallets } = useHardwareWallets()
 
   const [getAccounts] = useWalletControllerRequest(
     async (firstFlag, start?, end?, cb?): Promise<Account[]> => {
