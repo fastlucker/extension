@@ -9,7 +9,7 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
   hr: {
-    marginVertical: 70,
+    marginVertical: 50,
     height: 1,
     width: 330,
     backgroundColor: colors.scampi_20
