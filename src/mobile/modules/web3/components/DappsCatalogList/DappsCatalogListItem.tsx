@@ -1,4 +1,4 @@
-import { DappManifestData } from 'ambire-common/src/hooks/useDapps'
+import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
 import React, { useCallback } from 'react'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
 

@@ -7,7 +7,6 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { Trans, useTranslation } from '@common/config/localization'
-import useJsonLogin from '@common/modules/auth/hooks/useJsonLogin'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import text from '@common/styles/utils/text'
@@ -21,7 +20,7 @@ import s from './styles'
 
 const JsonLoginScreen = () => {
   const { t } = useTranslation()
-  const { handleLogin, error, inProgress } = useJsonLogin()
+
   const [file, setFile] = useState<any>(null)
   const onDrop = useCallback(async (res: any) => {
     const fileReaderPromise = new Promise((resolve, reject) => {
@@ -90,18 +89,8 @@ const JsonLoginScreen = () => {
                     </Text>
                   </Text>
                 </View>
-                <Button
-                  disabled={inProgress}
-                  text={inProgress ? t('Importing...') : t('Import Account')}
-                  onPress={() => handleLogin({ file })}
-                  hasBottomSpacing={!error || isWeb}
-                />
+                <Button text={t('Import Account')} onPress={() => null} hasBottomSpacing={isWeb} />
               </>
-            )}
-            {!!error && (
-              <View style={spacings.mbLg}>
-                <Text appearance="danger">{error}</Text>
-              </View>
             )}
           </View>
         </div>

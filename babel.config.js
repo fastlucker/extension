@@ -51,6 +51,7 @@ module.exports = function (api) {
     ...config,
     plugins: [
       ...config.plugins,
+      ['@babel/plugin-proposal-private-methods', { loose: true }],
       [
         'module-resolver',
         {

@@ -45,7 +45,7 @@ const styles = StyleSheet.create<Style>({
   },
   errorText: {
     paddingHorizontal: 5,
-    marginBottom: 4,
+    ...spacings.mbMI,
     ...spacings.phTy
   },
   validText: {
@@ -54,11 +54,13 @@ const styles = StyleSheet.create<Style>({
     ...spacings.ph
   },
   label: {
-    marginBottom: 7
+    ...spacings.mbTy
   },
   button: {
     // Centers the content (used because of the borderBottomWidth)
     paddingTop: 2,
+    marginBottom: -2,
+    borderBottomWidth: 2,
     justifyContent: 'center',
     ...spacings.phTy
   },

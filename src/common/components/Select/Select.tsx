@@ -26,9 +26,10 @@ interface Props {
   label?: string
   extraText?: string
   hasArrow?: boolean
+  disabled?: boolean
 }
 
-const Select = ({ value, setValue, items, label, extraText, hasArrow = true }: Props) => {
+const Select = ({ value, disabled, setValue, items, label, extraText, hasArrow = true }: Props) => {
   const [searchValue, setSearchValue] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(true)
   const { t } = useTranslation()
@@ -58,10 +59,12 @@ const Select = ({ value, setValue, items, label, extraText, hasArrow = true }: P
           spacings.phTy,
           spacings.pvMi,
           commonStyles.borderRadiusPrimary,
-          { backgroundColor: _item.value === value ? colors.howl : 'transparent' }
+          { backgroundColor: _item.value === value ? colors.howl : 'transparent' },
+          { opacity: _item?.disabled ? 0.3 : 1 }
         ]}
         activeOpacity={0.6}
         onPress={onSelect}
+        disabled={_item?.disabled}
       >
         {!!_item.icon && _item.icon()}
         <View style={[flexboxStyles.flex1, spacings.phTy, { backgroundColor: colors.howl }]}>
@@ -80,6 +83,7 @@ const Select = ({ value, setValue, items, label, extraText, hasArrow = true }: P
           !isWeb && openBottomSheet()
           isWeb && setIsDropdownOpen(!isDropdownOpen)
         }}
+        disabled={disabled}
       >
         <View pointerEvents="none">
           <Input

@@ -1,4 +1,4 @@
-import useStorage, { UseStorageProps } from 'ambire-common/src/hooks/useStorage'
+import useStorage, { UseStorageProps } from 'ambire-common/v1/hooks/useStorage'
 
 import useStorageController from '../useStorageController'
 

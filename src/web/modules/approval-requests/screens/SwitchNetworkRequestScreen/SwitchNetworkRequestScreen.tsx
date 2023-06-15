@@ -1,4 +1,3 @@
-import networks from 'ambire-common/src/constants/networks'
 import React, { useCallback, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
@@ -12,6 +11,7 @@ import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
+import networks from '@common/constants/networks'
 import useNetwork from '@common/hooks/useNetwork'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'

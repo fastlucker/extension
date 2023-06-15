@@ -1,6 +1,6 @@
-import { NetworkType } from 'ambire-common/src/constants/networks'
 import { intToHex } from 'ethereumjs-util'
 
+import { NetworkType } from '@common/constants/networks'
 import VaultController from '@common/modules/vault/services/VaultController'
 import permissionService, {
   ConnectedSite

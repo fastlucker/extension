@@ -1,9 +1,9 @@
-import { NETWORKS } from 'ambire-common/src/constants/networks'
 import * as Application from 'expo-application'
 import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
 import { Platform } from 'react-native'
 
+import { NETWORKS } from '@common/constants/networks'
 import {
   APP_RELAYRLESS,
   CONSTANTS_ENDPOINT,

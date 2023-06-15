@@ -1,4 +1,3 @@
-import { isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Image, Keyboard, View } from 'react-native'
@@ -6,22 +5,18 @@ import { Image, Keyboard, View } from 'react-native'
 import logo from '@common/assets/images/Ambire-Wallet-logo-colored-white-vertical.png'
 import KeyStoreIcon from '@common/assets/svg/KeyStoreIcon'
 import Button from '@common/components/Button'
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useDisableNavigatingBack from '@common/hooks/useDisableNavigatingBack'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import AnimatedArrows from '@common/modules/auth/components/AnimatedArrows'
-import useEmailLogin from '@common/modules/auth/hooks/useEmailLogin'
-import useJsonLogin from '@common/modules/auth/hooks/useJsonLogin'
+import { isValidPassword } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
 import spacings, { IS_SCREEN_SIZE_S } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { delayPromise } from '@common/utils/promises'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
@@ -30,16 +25,6 @@ import {
 const AddAccountPasswordToVaultScreen = () => {
   const { t } = useTranslation()
   const route = useRoute()
-  const {
-    pendingLoginAccount: pendingEmailLoginAccount,
-    handleLogin: handleEmailLogin,
-    cancelLoginAttempts: cancelEmailLoginAttempts
-  } = useEmailLogin()
-  const {
-    handleLogin: handleJsonLogin,
-    pendingLoginWithQuickAccountData: pendingJsonLoginAccount,
-    cancelLoginAttempts: cancelJsonLoginAttempts
-  } = useJsonLogin()
   const navigation = useNavigation()
   const { loginType } = route.params
 
@@ -60,20 +45,13 @@ const AddAccountPasswordToVaultScreen = () => {
     !isWeb && Keyboard.dismiss()
 
     handleSubmit(async ({ password }) => {
-      // wait state update before Wallet calcs because
-      // when Wallet method is called on devices with slow CPU the UI freezes
-      await delayPromise(100)
-
-      loginType === 'email'
-        ? await handleEmailLogin({ password })
-        : await handleJsonLogin({ password })
+      // TODO: v2
     })()
-  }, [handleSubmit, handleEmailLogin, handleJsonLogin, loginType])
+  }, [handleSubmit])
 
   const handleCancelLoginAttempts = useCallback(() => {
-    loginType === 'email' ? cancelEmailLoginAttempts() : cancelJsonLoginAttempts()
-    navigation.goBack()
-  }, [cancelEmailLoginAttempts, cancelJsonLoginAttempts, navigation, loginType])
+    // TODO: v2
+  }, [])
 
   return (
     <>
@@ -124,17 +102,6 @@ const AddAccountPasswordToVaultScreen = () => {
                 autoFocus={isWeb}
                 disabled={isSubmitting}
                 value={value}
-                info={t('Enter the password for account {{accountAddr}}', {
-                  accountAddr: `${
-                    loginType === 'email'
-                      ? pendingEmailLoginAccount?._id?.slice(0, 4)
-                      : pendingJsonLoginAccount?.id?.slice(0, 4)
-                  }...${
-                    loginType === 'email'
-                      ? pendingEmailLoginAccount?._id?.slice(-4)
-                      : pendingJsonLoginAccount?.id?.slice(-4)
-                  }`
-                })}
                 error={
                   errors.password &&
                   (t('Please fill in at least 8 characters for password.') as string)

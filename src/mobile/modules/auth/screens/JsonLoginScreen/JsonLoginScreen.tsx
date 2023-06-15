@@ -8,18 +8,18 @@ import Wrapper from '@common/components/Wrapper'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import AmbireLogo from '@common/modules/auth/components/AmbireLogo'
-import useJsonLogin from '@common/modules/auth/hooks/useJsonLogin'
 import spacings from '@common/styles/spacings'
 
 const JsonLoginScreen = () => {
-  const { t } = useTranslation()
-  const { handleLogin, error, inProgress } = useJsonLogin()
+  // const { t } = useTranslation()
+  // const { handleLogin, error, inProgress } = useJsonLogin()
 
   return (
     <GradientBackgroundWrapper>
       <Wrapper contentContainerStyle={spacings.pbLg}>
         <AmbireLogo />
-        <Button
+        {/* TODO: v2 */}
+        {/* <Button
           disabled={inProgress}
           text={inProgress ? t('Importing...') : t('Select File')}
           onPress={() => handleLogin({})}
@@ -31,7 +31,7 @@ const JsonLoginScreen = () => {
               {error}
             </Text>
           </View>
-        )}
+        )} */}
       </Wrapper>
     </GradientBackgroundWrapper>
   )

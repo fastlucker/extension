@@ -2,8 +2,6 @@ import React from 'react'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import PrivateKeyForm from '@common/modules/auth/components/PrivateKeyForm'
-import RecoveryPhraseForm from '@common/modules/auth/components/RecoveryPhraseForm'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import text from '@common/styles/utils/text'
@@ -18,9 +16,7 @@ const ExternalSignerLoginScreen = () => {
   return (
     <>
       <AuthLayoutWrapperMainContent>
-        <PrivateKeyForm />
         <Text style={[spacings.mvLg, text.center]}>or</Text>
-        <RecoveryPhraseForm />
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
         <Text

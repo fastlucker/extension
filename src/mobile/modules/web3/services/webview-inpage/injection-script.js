@@ -1,5 +1,5 @@
 import RNFS from 'react-native-fs'
-import networks from 'ambire-common/src/constants/networks'
+import networks from '@common/constants/networks'
 
 import { useEffect, useState } from 'react'
 // TODO: fix path
@@ -20,23 +20,6 @@ const IS_METAMASK = true
 const commonScript = `
   ${eventEmitterScript}
   ${replaceMetamaskWithAmbireInDapps}
-
-  // Prevents opening the Browser App when clicking on links in the webview
-  // on https://uniswap.org/ clicking the Launch App button
-  (function() {
-    function preventOpenNewTabOnLinkClick(event) {
-      var target = event.target;
-      var href = target.getAttribute('href');
-      target.removeAttribute('target');
-      if (href && href !== window.location.href) {
-        event.preventDefault();
-        window.location.href = href;
-      }
-    }
-
-    document.addEventListener('click', preventOpenNewTabOnLinkClick);
-    document.addEventListener('auxclick', preventOpenNewTabOnLinkClick);
-  })();
 
   const networks = ${JSON.stringify(networks)};
   const DAPP_PROVIDER_URLS = ${JSON.stringify(DAPP_PROVIDER_URLS)};

@@ -1,9 +1,9 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
-import LatticeController from '@web/modules/hardware-wallet/services/LatticeController'
-import LedgerController from '@web/modules/hardware-wallet/services/LedgerController'
-import TrezorController from '@web/modules/hardware-wallet/services/TrezorController'
+import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
+import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
+import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 import {
   HARDWARE_WALLETS_KEYS,

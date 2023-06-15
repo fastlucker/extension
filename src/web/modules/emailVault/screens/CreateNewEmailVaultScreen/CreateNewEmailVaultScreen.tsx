@@ -3,27 +3,29 @@ import { View } from 'react-native'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import EmailLoginForm from '@common/modules/auth/components/EmailLoginForm'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-
-import useEmailLogin from '@common/modules/auth/hooks/useEmailLogin'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import styles from '@web/components/AuthLayoutWrapper/styles'
-import EmailLoginForm from '@common/modules/auth/components/EmailLoginForm'
 
 const CreateNewEmailVaultScreen = () => {
   const { t } = useTranslation()
+  const { stepperState } = useStepper()
 
-  const { requiresEmailConfFor, pendingLoginAccount } = useEmailLogin()
+  // TODO: v2
+  const requiresEmailConfFor = false
+  const pendingLoginAccount = false
 
   return (
     <>
-      <AuthLayoutWrapperMainContent hideStepper={requiresEmailConfFor || pendingLoginAccount}>
+      <AuthLayoutWrapperMainContent hideStepper={stepperState.currentStep === 1}>
         <View style={[styles.mainContentWrapper]}>
-          {!pendingLoginAccount && !requiresEmailConfFor && (
+          {!stepperState.currentStep && (
             <Text
               weight="medium"
               fontSize={16}
@@ -36,7 +38,7 @@ const CreateNewEmailVaultScreen = () => {
           <EmailLoginForm createEmailVault />
         </View>
       </AuthLayoutWrapperMainContent>
-      {!pendingLoginAccount && !requiresEmailConfFor && (
+      {stepperState.currentStep !== 1 && (
         <AuthLayoutWrapperSideContent backgroundType="beta">
           <Text weight="medium" style={spacings.mb} color={colors.zircon} fontSize={16}>
             {t('Email Vaults')}
