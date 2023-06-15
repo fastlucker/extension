@@ -59,6 +59,8 @@ const styles = StyleSheet.create<Style>({
   button: {
     // Centers the content (used because of the borderBottomWidth)
     paddingTop: 2,
+    marginBottom: -2,
+    borderBottomWidth: 2,
     justifyContent: 'center',
     ...spacings.phTy
   },

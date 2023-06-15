@@ -92,6 +92,13 @@ const Input = ({
     isValid && { borderBottomColor: theme.inputBorderValid }
   ]
 
+  const buttonStyles = [
+    styles.button,
+    { borderBottomColor: 'transparent' },
+    !!error && { borderBottomColor: theme.inputBorderInvalid },
+    isFocused && { borderBottomColor: theme.inputBorderFocused },
+    isValid && { borderBottomColor: theme.inputBorderValid }
+  ]
   return (
     <View style={[styles.inputContainer, containerStyle]}>
       {!!label && (
@@ -132,7 +139,7 @@ const Input = ({
               focusable={false}
               onPress={onButtonPress}
               disabled={disabled}
-              style={styles.button}
+              style={[buttonStyles]}
               {...buttonProps}
             >
               {typeof button === 'string' || button instanceof String ? (
