@@ -106,11 +106,7 @@ const CreateNewKeyStoreScreen = () => {
                 )}
                 name="confirmPassword"
               />
-              <Checkbox
-                uncheckedIconColor={colors.martinique}
-                checkedIconColor={colors.greenHaze}
-                label={t('Key store recovery by email')}
-              />
+              <Checkbox label={t('Key store recovery by email')} />
               {!isWeb &&
                 hasBiometricsHardware &&
                 deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC && (

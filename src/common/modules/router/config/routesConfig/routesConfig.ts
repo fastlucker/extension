@@ -40,6 +40,10 @@ const routesConfig: {
       web: ''
     })
   },
+  [ROUTES.terms]: {
+    route: ROUTES.terms,
+    title: ''
+  },
   [ROUTES.onboardingOnFirstLogin]: {
     route: ROUTES.onboardingOnFirstLogin,
     title: ''

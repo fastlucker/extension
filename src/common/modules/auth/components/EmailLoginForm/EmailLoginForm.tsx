@@ -60,7 +60,7 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
   }, [])
 
   useEffect(() => {
-    let timer1
+    let timer
     const delay = 4
     if (stepperState.currentStep === 1) {
       setTimeout(() => {
@@ -73,7 +73,7 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
     // when component unmount like in willComponentUnmount
     // and show will not change to true
     return () => {
-      clearTimeout(timer1)
+      clearTimeout(timer)
     }
   }, [stepperState.currentStep])
 
@@ -118,8 +118,6 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
       )}
       {createEmailVault && !requiresEmailConfFor && !pendingLoginAccount && (
         <Checkbox
-          uncheckedIconColor={colors.martinique}
-          checkedIconColor={colors.greenHaze}
           label={
             <Trans>
               Enable <strong>local</strong> key store recovery with email

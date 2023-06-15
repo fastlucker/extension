@@ -14,6 +14,7 @@ import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
 import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
 import ExternalSignerLoginScreen from '@web/modules/auth/screens/ExternalSignerLoginScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
+import Terms from '@web/modules/auth/screens/Terms'
 import JsonLoginScreen from '@web/modules/auth/screens/JsonLoginScreen'
 import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
@@ -47,7 +48,7 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
           <Route element={<TabOnlyRoute />}>
             <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
-
+            <Route path={WEB_ROUTES.terms} element={<Terms />} />
             {/* TODO: v2 */}
             <Route path={WEB_ROUTES.createKeyStore} element={<CreateNewKeyStoreScreen />} />
             <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
