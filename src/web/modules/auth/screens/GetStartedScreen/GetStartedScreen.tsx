@@ -13,11 +13,12 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import Card from '@web/modules/auth/components/Card'
-import DownArrow from '@web/modules/auth/screens/GetStartedScreen/DownArrow'
-import EmailIcon from '@web/modules/auth/screens/GetStartedScreen/EmailIcon'
-import HWIcon from '@web/modules/auth/screens/GetStartedScreen/HWIcon'
-import ImportAccountIcon from '@web/modules/auth/screens/GetStartedScreen/ImportAccountIcon'
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import EmailIcon from '@common/assets/svg/EmailIcon'
+import HWIcon from '@common/assets/svg/HWIcon'
+import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
 
+import Select from '@common/components/Select'
 import styles from './styles'
 
 const GetStartedScreen = () => {
@@ -134,7 +135,7 @@ const GetStartedScreen = () => {
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.ph]}
             onPress={() => setAdvancedModeEnabled(!advanceModeEnabled)}
           >
-            <DownArrow isActive={advanceModeEnabled} />
+            <DownArrowIcon isActive={!advanceModeEnabled} />
             <Text fontSize={14} style={[spacings.mlMi]} weight="medium">
               {t('Show more options')}
             </Text>
