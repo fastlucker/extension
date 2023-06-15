@@ -8,7 +8,7 @@ import colors from '@common/styles/colors'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import Ameba from '@web/components/AuthLayoutWrapper/Ameba'
-import InformationCircle from '@web/components/AuthLayoutWrapper/InformationCircle'
+import InformationCircle from '@common/assets/svg/InformationCircle'
 import TabHeader from '@web/modules/router/components/TabHeader'
 
 import styles from './styles'

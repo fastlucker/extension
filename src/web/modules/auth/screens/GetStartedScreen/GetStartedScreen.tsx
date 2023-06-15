@@ -18,7 +18,6 @@ import EmailIcon from '@common/assets/svg/EmailIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
 
-import Select from '@common/components/Select'
 import styles from './styles'
 
 const GetStartedScreen = () => {
