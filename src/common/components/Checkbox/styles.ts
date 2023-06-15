@@ -29,7 +29,7 @@ const styles = StyleSheet.create<Style>({
     overflow: 'hidden',
     borderRadius: 3,
     borderWidth: 2,
-    borderColor: colors.turquoise,
+    borderColor: colors.greenHaze,
     alignItems: 'center',
     justifyContent: 'center',
     width: 20,

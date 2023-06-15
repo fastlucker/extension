@@ -15,7 +15,7 @@ const CheckIcon: React.FC<Props> = ({ width = 18, height = 18, color }) => (
       height="18"
       rx="9"
       transform="translate(18 18) rotate(180)"
-      fill={color || colors.turquoise}
+      fill={color || colors.greenHaze}
     />
     <G transform="translate(2.954 4.189)">
       <Path

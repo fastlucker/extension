@@ -13,20 +13,10 @@ interface Props {
   onValueChange: (value: boolean) => void
   value: boolean
   children: any
-  checkedIconColor?: string
-  uncheckedIconColor?: string
   style?: ViewStyle
 }
 
-const Checkbox = ({
-  label,
-  children,
-  onValueChange,
-  value,
-  checkedIconColor,
-  uncheckedIconColor,
-  style
-}: Props) => {
+const Checkbox = ({ label, children, onValueChange, value, style }: Props) => {
   const onChange = () => {
     !!onValueChange && onValueChange(!value)
   }
@@ -37,15 +27,15 @@ const Checkbox = ({
         <TouchableOpacity
           style={[
             styles.webCheckbox,
-            !!uncheckedIconColor && {
-              borderColor: value ? checkedIconColor && checkedIconColor : uncheckedIconColor
+            {
+              borderColor: value ? colors.greenHaze : colors.martinique
             },
-            !!value && { backgroundColor: checkedIconColor || colors.turquoise }
+            !!value && { backgroundColor: colors.greenHaze }
           ]}
           onPress={onChange}
           activeOpacity={0.6}
         >
-          {!!value && <CheckIcon color={checkedIconColor} />}
+          {!!value && <CheckIcon />}
         </TouchableOpacity>
       </View>
       <View style={flexboxStyles.flex1}>
