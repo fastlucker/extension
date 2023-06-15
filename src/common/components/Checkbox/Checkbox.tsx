@@ -50,7 +50,7 @@ const Checkbox = ({
       </View>
       <View style={flexboxStyles.flex1}>
         {label ? (
-          <Text onPress={onChange} weight="regular" fontSize={12}>
+          <Text shouldScale={false} onPress={onChange} weight="regular" fontSize={12}>
             {label}
           </Text>
         ) : (

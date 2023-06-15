@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard } from 'react-native'
+import { Trans } from 'react-i18next'
 
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
@@ -8,9 +9,11 @@ import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import EmailAnimation from '@common/modules/auth/components/EmailAnimation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
+import { ROUTES } from '@common/modules/router/constants/common'
 import { isEmail } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
 // import spacings from '@common/styles/spacings'
@@ -20,6 +23,7 @@ import { delayPromise } from '@common/utils/promises'
 
 const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
   const { themeType } = useTheme()
   const {
     control,
@@ -34,9 +38,9 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
     }
   })
 
-  const { updateStepperState } = useStepper()
+  const { updateStepperState, stepperState } = useStepper()
   // TODO: v2
-  const requiresEmailConfFor = false
+  const requiresEmailConfFor = !!stepperState.currentStep
   const pendingLoginAccount = false
 
   const handleFormSubmit = useCallback(() => {
@@ -55,6 +59,24 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
     // TODO: v2
   }, [])
 
+  useEffect(() => {
+    let timer1
+    const delay = 4
+    if (stepperState.currentStep === 1) {
+      setTimeout(() => {
+        updateStepperState(2, 'emailAuth')
+        navigate(ROUTES.createKeyStore)
+      }, delay * 1000)
+    }
+
+    // this will clear Timeout
+    // when component unmount like in willComponentUnmount
+    // and show will not change to true
+    return () => {
+      clearTimeout(timer1)
+    }
+  }, [stepperState.currentStep])
+
   return (
     <>
       {requiresEmailConfFor && !pendingLoginAccount && (
@@ -63,7 +85,7 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
           <Text fontSize={14} weight="regular" style={{ textAlign: 'center', marginBottom: 47 }}>
             {t(
               'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
-              { email: requiresEmailConfFor?.email }
+              { email: 'email@gmail.com' }
             )}
           </Text>
         </>
@@ -98,7 +120,11 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
         <Checkbox
           uncheckedIconColor={colors.martinique}
           checkedIconColor={colors.greenHaze}
-          label={t('Enable local key store recovery with email')}
+          label={
+            <Trans>
+              Enable <strong>local</strong> key store recovery with email
+            </Trans>
+          }
         />
       )}
       {!requiresEmailConfFor && !pendingLoginAccount && (

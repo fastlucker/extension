@@ -24,7 +24,7 @@ import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 
-// import CreateNewVaultScreen from '@web/modules/vault/screens/CreateNewVaultScreen'
+import CreateNewKeyStoreScreen from '@web/modules/key-store/screens/CreateNewKeyStoreScreen'
 
 const headerBeta = (
   <>
@@ -49,7 +49,7 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
 
             {/* TODO: v2 */}
-            {/* <Route path={WEB_ROUTES.createVault} element={<CreateNewVaultScreen />} /> */}
+            <Route path={WEB_ROUTES.createKeyStore} element={<CreateNewKeyStoreScreen />} />
             <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
 
             <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />

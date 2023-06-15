@@ -71,7 +71,7 @@ export const lightOnlyRoutesOnMobile = []
 
 export const lightOnlyRoutesOnWeb = [
   WEB_ROUTES.createEmailVault,
-  WEB_ROUTES.createVault,
+  WEB_ROUTES.createKeyStore,
   WEB_ROUTES.getStarted,
   WEB_ROUTES.authEmailAccount,
   WEB_ROUTES.authEmailLogin,

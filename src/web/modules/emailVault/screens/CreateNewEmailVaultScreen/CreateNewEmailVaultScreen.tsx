@@ -6,6 +6,7 @@ import { useTranslation } from '@common/config/localization'
 import EmailLoginForm from '@common/modules/auth/components/EmailLoginForm'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
@@ -14,6 +15,7 @@ import styles from '@web/components/AuthLayoutWrapper/styles'
 
 const CreateNewEmailVaultScreen = () => {
   const { t } = useTranslation()
+  const { stepperState } = useStepper()
 
   // TODO: v2
   const requiresEmailConfFor = false
@@ -21,9 +23,9 @@ const CreateNewEmailVaultScreen = () => {
 
   return (
     <>
-      <AuthLayoutWrapperMainContent hideStepper={requiresEmailConfFor || pendingLoginAccount}>
+      <AuthLayoutWrapperMainContent hideStepper={stepperState.currentStep === 1}>
         <View style={[styles.mainContentWrapper]}>
-          {!pendingLoginAccount && !requiresEmailConfFor && (
+          {!stepperState.currentStep && (
             <Text
               weight="medium"
               fontSize={16}
@@ -36,7 +38,7 @@ const CreateNewEmailVaultScreen = () => {
           <EmailLoginForm createEmailVault />
         </View>
       </AuthLayoutWrapperMainContent>
-      {!pendingLoginAccount && !requiresEmailConfFor && (
+      {stepperState.currentStep !== 1 && (
         <AuthLayoutWrapperSideContent backgroundType="beta">
           <Text weight="medium" style={spacings.mb} color={colors.zircon} fontSize={16}>
             {t('Email Vaults')}
