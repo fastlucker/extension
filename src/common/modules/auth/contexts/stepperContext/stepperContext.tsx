@@ -19,7 +19,8 @@ const flows = {
     'Pick Accounts To Import',
     'Setup Key\nStore',
     'Personalize Accounts'
-  ]
+  ],
+  legacyAuth: ['Import Legacy Account', 'Setup Key\nStore', 'Personalize Accounts']
 }
 
 const StepperProvider = ({ children }: { children: React.ReactNode }) => {

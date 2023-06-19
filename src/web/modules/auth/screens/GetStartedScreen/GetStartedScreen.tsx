@@ -120,7 +120,10 @@ const GetStartedScreen = () => {
                   textStyle={{ fontSize: 14 }}
                   style={{ width: 260 }}
                   text={t('Import Legacy Account')}
-                  onPress={() => handleAuthButtonPress(ROUTES.externalSigner)}
+                  onPress={() => {
+                    updateStepperState(0, 'legacyAuth')
+                    handleAuthButtonPress(ROUTES.externalSigner)
+                  }}
                   hasBottomSpacing={false}
                 />
               </Card>

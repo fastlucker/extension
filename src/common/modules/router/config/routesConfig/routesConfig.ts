@@ -135,9 +135,9 @@ const routesConfig: {
   },
   [ROUTES.externalSigner]: {
     route: ROUTES.externalSigner,
-    title: Platform.select({
-      default: i18n.t('Login with External Signer')
-    })
+    title: '',
+    flow: 'legacyAuth',
+    flowStep: 0
   },
   [ROUTES.dashboard]: {
     route: ROUTES.dashboard,
