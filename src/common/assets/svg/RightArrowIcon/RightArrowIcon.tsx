@@ -8,14 +8,14 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const RightArrowIcon: React.FC<Props> = ({ width = 36, height = 36, color = colors.titan }) => (
+const RightArrowIcon: React.FC<Props> = ({ width = 36, height = 36, color = colors.violet }) => (
   <Svg width={width} height={height} viewBox="0 0 36 36">
     <Rect width={width} height={height} rx="12" fill="rgba(182,185,255,0.1)" />
     <Path
       d="M6.348,0,0,6.373l6.348,6.385"
       transform="translate(22.175 24.379) rotate(180)"
       fill="none"
-      stroke="#6000ff"
+      stroke={color}
       strokeLinecap="round"
       strokeWidth="2"
     />

@@ -31,7 +31,7 @@ const TabHeader: React.FC<any> = ({ hideStepper = false }) => {
           onPress={handleGoBack}
           style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}
         >
-          <LeftArrowIcon width={50} height={50} color={colors.violet} />
+          <LeftArrowIcon width={36} height={36} color={colors.violet} />
           <Text fontSize={14} weight="regular" color={colors.martinique} style={spacings.ml}>
             {t('Back')}
           </Text>
