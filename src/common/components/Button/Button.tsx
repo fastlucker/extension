@@ -21,7 +21,7 @@ const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
 
 type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
 
-type ButtonSizes = 'regular' | 'small'
+type ButtonSizes = 'regular' | 'small' | 'large'
 export interface Props extends TouchableOpacityProps {
   text?: string
   type?: ButtonTypes
@@ -41,6 +41,7 @@ const containerStyles: { [key in ButtonTypes]: ViewStyle } = {
 }
 
 const containerStylesSizes: { [key in ButtonSizes]: ViewStyle } = {
+  large: styles.buttonContainerStylesSizeLarge,
   regular: styles.buttonContainerStylesSizeRegular,
   small: styles.buttonContainerStylesSizeSmall
 }
@@ -100,6 +101,7 @@ const buttonTextStyles: { [key in ButtonTypes]: TextStyle } = {
 }
 
 const buttonTextStylesSizes: { [key in ButtonSizes]: TextStyle } = {
+  large: styles.buttonTextStylesSizeLarge,
   regular: styles.buttonTextStylesSizeRegular,
   small: styles.buttonTextStylesSizeSmall
 }

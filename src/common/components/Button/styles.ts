@@ -14,6 +14,7 @@ interface Style {
   buttonContainerOutline: ViewStyle
   buttonContainerGhost: ViewStyle
 
+  buttonContainerStylesSizeLarge: ViewStyle
   buttonContainerStylesSizeRegular: ViewStyle
   buttonContainerStylesSizeSmall: ViewStyle
 
@@ -25,6 +26,7 @@ interface Style {
   buttonTextOutline: TextStyle
   buttonTextGhost: TextStyle
 
+  buttonTextStylesSizeLarge: TextStyle
   buttonTextStylesSizeRegular: TextStyle
   buttonTextStylesSizeSmall: TextStyle
 
@@ -61,7 +63,13 @@ const styles = StyleSheet.create<Style>({
     ...spacings.pv0
   },
 
-  // Button sizes (regular/small)
+  // Button sizes (large/regular/small)
+  buttonContainerStylesSizeLarge: {
+    minHeight: 50,
+    ...spacings.pvMi,
+    ...spacings.phXl,
+    ...spacings.mb
+  },
   buttonContainerStylesSizeRegular: {
     minHeight: 50,
     ...spacings.pvMi,
@@ -100,6 +108,9 @@ const styles = StyleSheet.create<Style>({
 
   // Button text sizes (regular/small)
   buttonTextStylesSizeRegular: {
+    fontSize: 16
+  },
+  buttonTextStylesSizeLarge: {
     fontSize: 16
   },
   buttonTextStylesSizeSmall: {

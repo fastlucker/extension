@@ -13,6 +13,7 @@ export const SPACING_SM: number = 15
 export const SPACING: number = 20
 export const SPACING_MD: number = 25
 export const SPACING_LG: number = 30
+export const SPACING_XL: number = 35
 
 // In sync with the `min-width` in `web/style.css`
 const WEB_DEVICE_WIDTH = 560
@@ -32,6 +33,7 @@ const spacings: Style = {
   mb: { marginBottom: SPACING },
   mbMd: { marginBottom: SPACING_MD },
   mbLg: { marginBottom: SPACING_LG },
+  mbXl: { marginBottom: SPACING_XL },
 
   mt0: { marginTop: 0 },
   mtMi: { marginTop: SPACING_MI },
@@ -40,6 +42,7 @@ const spacings: Style = {
   mt: { marginTop: SPACING },
   mtMd: { marginTop: SPACING_MD },
   mtLg: { marginTop: SPACING_LG },
+  mtXl: { marginTop: SPACING_XL },
 
   ml0: { marginLeft: 0 },
   mlMi: { marginLeft: SPACING_MI },
@@ -48,6 +51,7 @@ const spacings: Style = {
   ml: { marginLeft: SPACING },
   mlMd: { marginLeft: SPACING_MD },
   mlLg: { marginLeft: SPACING_LG },
+  mlXl: { marginLeft: SPACING_XL },
 
   mr0: { marginRight: 0 },
   mrMi: { marginRight: SPACING_MI },
@@ -56,6 +60,7 @@ const spacings: Style = {
   mr: { marginRight: SPACING },
   mrMd: { marginRight: SPACING_MD },
   mrLg: { marginRight: SPACING_LG },
+  mrXl: { marginRight: SPACING_XL },
 
   mv0: { marginVertical: 0 },
   mvMi: { marginVertical: SPACING_MI },
@@ -64,6 +69,7 @@ const spacings: Style = {
   mv: { marginVertical: SPACING },
   mvMd: { marginVertical: SPACING_MD },
   mvLg: { marginVertical: SPACING_LG },
+  mvXl: { marginVertical: SPACING_XL },
 
   mh0: { marginHorizontal: 0 },
   mhMi: { marginHorizontal: SPACING_MI },
@@ -72,6 +78,7 @@ const spacings: Style = {
   mh: { marginHorizontal: SPACING },
   mhMd: { marginHorizontal: SPACING_MD },
   mhLg: { marginHorizontal: SPACING_LG },
+  mhXl: { marginHorizontal: SPACING_XL },
 
   pb0: { paddingBottom: 0 },
   pbMi: { paddingBottom: SPACING_MI },
@@ -80,6 +87,7 @@ const spacings: Style = {
   pb: { paddingBottom: SPACING },
   pbMd: { paddingBottom: SPACING_MD },
   pbLg: { paddingBottom: SPACING_LG },
+  pbXl: { paddingBottom: SPACING_XL },
 
   pt0: { paddingTop: 0 },
   ptMi: { paddingTop: SPACING_MI },
@@ -88,6 +96,7 @@ const spacings: Style = {
   pt: { paddingTop: SPACING },
   ptMd: { paddingTop: SPACING_MD },
   ptLg: { paddingTop: SPACING_LG },
+  ptXl: { paddingTop: SPACING_XL },
 
   pl0: { paddingLeft: 0 },
   plMi: { paddingLeft: SPACING_MI },
@@ -96,6 +105,7 @@ const spacings: Style = {
   pl: { paddingLeft: SPACING },
   plMd: { paddingLeft: SPACING_MD },
   plLg: { paddingLeft: SPACING_LG },
+  plXl: { paddingLeft: SPACING_XL },
 
   pr0: { paddingRight: 0 },
   prMi: { paddingRight: SPACING_MI },
@@ -104,6 +114,7 @@ const spacings: Style = {
   pr: { paddingRight: SPACING },
   prMd: { paddingRight: SPACING_MD },
   prLg: { paddingRight: SPACING_LG },
+  prXl: { paddingRight: SPACING_XL },
 
   pv0: { paddingVertical: 0 },
   pvMi: { paddingVertical: SPACING_MI },
@@ -112,6 +123,7 @@ const spacings: Style = {
   pv: { paddingVertical: SPACING },
   pvMd: { paddingVertical: SPACING_MD },
   pvLg: { paddingVertical: SPACING_LG },
+  pvXl: { paddingVertical: SPACING_XL },
 
   ph0: { paddingHorizontal: 0 },
   phMi: { paddingHorizontal: SPACING_MI },
@@ -119,7 +131,8 @@ const spacings: Style = {
   phSm: { paddingHorizontal: SPACING_SM },
   ph: { paddingHorizontal: SPACING },
   phMd: { paddingHorizontal: SPACING_MD },
-  phLg: { paddingHorizontal: SPACING_LG }
+  phLg: { paddingHorizontal: SPACING_LG },
+  phXl: { paddingHorizontal: SPACING_XL }
 }
 
 // Spreading `StyleSheet.create` styles into another `style` object is not
