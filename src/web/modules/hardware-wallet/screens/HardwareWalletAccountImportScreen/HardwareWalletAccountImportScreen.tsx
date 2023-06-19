@@ -14,14 +14,20 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 
 import HardwareWalletAccount from '@web/modules/hardware-wallet/screens/HardwareWalletAccountImportScreen/components/HardwareWalletAccount'
+import useNavigation from '@common/hooks/useNavigation'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import Button from '@common/components/Button'
 import Toggle from '@common/components/Toggle'
 import Select from '@common/components/Select'
 import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 const HardwareWalletAccountImportScreen = () => {
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
+  const { updateStepperState } = useStepper()
+
   return (
     <>
       <AuthLayoutWrapperMainContent>
@@ -31,7 +37,7 @@ const HardwareWalletAccountImportScreen = () => {
             ...spacings.mbSm,
             height: 325,
             overflowY: 'scroll',
-            marginTop: '120px'
+            marginTop: 80
           }}
         >
           <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
@@ -159,30 +165,56 @@ const HardwareWalletAccountImportScreen = () => {
           <Toggle style={[spacings.mbTy]} label="Show empty legacy accounts" />
           <Select
             hasArrow
-            items={[
+            options={[
               { label: 'Swap', value: 'Swap' },
               { label: 'Bridge', value: 'Bridge' },
               { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
               { label: 'Deposit', value: 'Deposit' }
             ]}
+            disabled={false}
             label="Custom Derivation"
           />
-          <Button style={{ width: 296 }} text="Import Accounts" />
+          <Button
+            style={{ ...spacings.mtTy, width: 296 }}
+            onPress={() => {
+              updateStepperState(2, 'hwAuth')
+              navigate(WEB_ROUTES.createKeyStore)
+            }}
+            text="Import Accounts"
+          />
         </View>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
-        <Text fontSize={16} style={[spacings.mb]} color={colors.zircon} weight="medium">
+        <Text
+          shouldScale={false}
+          fontSize={16}
+          style={[spacings.mb]}
+          color={colors.zircon}
+          weight="medium"
+        >
           {t('Importing accounts')}
         </Text>
-        <Text fontSize={14} style={[spacings.mbMd]} color={colors.zircon} weight="regular">
+        <Text
+          shouldScale={false}
+          fontSize={14}
+          style={[spacings.mbMd]}
+          color={colors.zircon}
+          weight="regular"
+        >
           {t(
             'Here you can choose which accounts to import. For every individual key, there exists both a legacy account and a smart account that you can individually choose to import.'
           )}
         </Text>
-        <Text fontSize={16} color={colors.turquoise} style={[spacings.mb]} weight="regular">
+        <Text
+          shouldScale={false}
+          fontSize={16}
+          color={colors.turquoise}
+          style={[spacings.mb]}
+          weight="regular"
+        >
           {t('Linked Smart Accounts')}
         </Text>
-        <Text fontSize={14} color={colors.turquoise} weight="regular">
+        <Text shouldScale={false} fontSize={14} color={colors.turquoise} weight="regular">
           {t(
             'Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network.'
           )}

@@ -47,10 +47,19 @@ const HardwareWalletAccount = ({
       <Checkbox
         style={{ marginBottom: 0 }}
         label={
-          <Text color={smartAccount ? colors.greenHaze : colors.brownRum}>
+          <Text
+            shouldScale={false}
+            fontSize={12}
+            color={smartAccount ? colors.greenHaze : colors.brownRum}
+          >
             {t(`${smartAccount ? 'Smart Account' : 'Legacy Account'}`)}
             <br />
-            <Text weight="semiBold" color={smartAccount ? colors.greenHaze : colors.brownRum}>
+            <Text
+              shouldScale={false}
+              fontSize={14}
+              weight="semiBold"
+              color={smartAccount ? colors.greenHaze : colors.brownRum}
+            >
               {address}
             </Text>
           </Text>
@@ -62,11 +71,16 @@ const HardwareWalletAccount = ({
       />
       <View>
         {linked && (
-          <Text color={colors.greenHaze} style={{ ...spacings.mbTy, textAlign: 'right' }}>
+          <Text
+            shouldScale={false}
+            fontSize={14}
+            color={colors.greenHaze}
+            style={{ textAlign: 'right' }}
+          >
             {t('Linked')}
           </Text>
         )}
-        <Text color={colors.martinique} weight="semiBold">
+        <Text shouldScale={false} fontSize={14} color={colors.martinique} weight="semiBold">
           {balance}
         </Text>
       </View>

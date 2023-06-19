@@ -14,7 +14,12 @@ const flows = {
     'Setup Key\nStore',
     'Personalize\nAccounts'
   ],
-  hwAuth: ['Pick Hardware Device', 'Pick Accounts To Import', 'Personalize Accounts']
+  hwAuth: [
+    'Pick Hardware Device',
+    'Pick Accounts To Import',
+    'Setup Key\nStore',
+    'Personalize Accounts'
+  ]
 }
 
 const StepperProvider = ({ children }: { children: React.ReactNode }) => {

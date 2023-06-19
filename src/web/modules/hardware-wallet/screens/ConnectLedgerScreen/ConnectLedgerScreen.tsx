@@ -28,21 +28,21 @@ const ConnectLedgerScreen = () => {
     const hasConnectedLedger = await hasConnectedLedgerDevice()
 
     if (!supportWebHID) {
-      navigate(WEB_ROUTES.accountsImporter, {
+      navigate(WEB_ROUTES.hardwareWalletImportAccount, {
         state: {
           walletType: HARDWARE_WALLETS.LEDGER,
           isWebHID: false
         }
       })
     } else if (hasConnectedLedger) {
-      navigate(WEB_ROUTES.accountsImporter, {
+      navigate(WEB_ROUTES.hardwareWalletImportAccount, {
         state: {
           walletType: HARDWARE_WALLETS.LEDGER,
           isWebHID: true
         }
       })
     } else {
-      navigate(WEB_ROUTES.hardwareWalletLedgerPermission)
+      navigate(WEB_ROUTES.hardwareWalletImportAccount)
     }
   }
 
@@ -57,11 +57,11 @@ const ConnectLedgerScreen = () => {
             paddingBottom: 50
           }}
         >
-          <Text weight="medium" style={{ marginBottom: 16 }} fontSize={20}>
+          <Text weight="medium" style={{ marginBottom: 14 }} fontSize={20}>
             {t('Connect your HW wallet')}
           </Text>
-          <Text fontSize={16}>{t('1. Plug your Ledger wallet into your computer')}</Text>
-          <Text fontSize={16} style={{ marginBottom: 40 }}>
+          <Text fontSize={14}>{t('1. Plug your Ledger wallet into your computer')}</Text>
+          <Text fontSize={14} style={{ marginBottom: 40 }}>
             {t('2. Unlock Ledger and open the Ethereum app')}
           </Text>
           <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>

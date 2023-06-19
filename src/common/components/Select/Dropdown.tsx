@@ -1,5 +1,5 @@
 import React from 'react'
-import { TouchableHighlight, StyleSheet, View } from 'react-native'
+import { TouchableHighlight, TouchableOpacity, Modal, StyleSheet, View } from 'react-native'
 
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
@@ -14,10 +14,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.melrose_15
   },
   optionsContainer: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
     borderRadius: 12,
     borderWidth: 2,
     borderTopRightRadius: 0,
@@ -42,12 +38,12 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, options, selectedValue, o
   }
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container}>
       {isDropdownOpen && (
-        <View style={styles.optionsContainer}>
+        <Modal visible transparent animationType="none">
           {options.map((option) => (
             <TouchableHighlight
-              activeOpacity={1}
+              activeOpacity={0.8}
               key={option.value}
               style={styles.option}
               disabled={false}
@@ -59,9 +55,9 @@ const Dropdown = ({ isDropdownOpen, setIsDropdownOpen, options, selectedValue, o
               </Text>
             </TouchableHighlight>
           ))}
-        </View>
+        </Modal>
       )}
-    </View>
+    </TouchableOpacity>
   )
 }
 
