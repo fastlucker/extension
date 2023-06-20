@@ -23,45 +23,45 @@ const ConnectLedgerScreen = () => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
 
-  // const onSubmit = async () => {
-  //   const supportWebHID = await TransportWebHID.isSupported()
-  //   const hasConnectedLedger = await hasConnectedLedgerDevice()
+  const onSubmit = async () => {
+    const supportWebHID = await TransportWebHID.isSupported()
+    const hasConnectedLedger = await hasConnectedLedgerDevice()
 
-  //   if (!supportWebHID) {
-  //     navigate(WEB_ROUTES.accountsImporter, {
-  //       state: {
-  //         walletType: HARDWARE_WALLETS.LEDGER,
-  //         isWebHID: false
-  //       }
-  //     })
-  //   } else if (hasConnectedLedger) {
+    if (!supportWebHID) {
+      navigate(WEB_ROUTES.accountsImporter, {
+        state: {
+          walletType: HARDWARE_WALLETS.LEDGER,
+          isWebHID: false
+        }
+      })
+    } else if (hasConnectedLedger) {
+      navigate(WEB_ROUTES.hardwareWalletImportAccount, {
+        state: {
+          walletType: HARDWARE_WALLETS.LEDGER,
+          isWebHID: true
+        }
+      })
+    } else {
+      navigate(WEB_ROUTES.hardwareWalletImportAccount)
+    }
+  }
+
+  // const { hardwareWallets } = useHardwareWallets()
+
+  // const onSubmit = async () => {
+  //   try {
+  //     const transport = await TransportWebHID.create()
+  //     await transport.close()
+  //     await hardwareWallets[HARDWARE_WALLETS.LEDGER].authorizeHIDPermission()
+
   //     navigate(WEB_ROUTES.accountsImporter, {
   //       state: {
   //         walletType: HARDWARE_WALLETS.LEDGER,
   //         isWebHID: true
   //       }
   //     })
-  //   } else {
-  //     navigate(WEB_ROUTES.hardwareWalletLedgerPermission)
-  //   }
+  //   } catch (e) {}
   // }
-
-  const { hardwareWallets } = useHardwareWallets()
-
-  const onSubmit = async () => {
-    try {
-      const transport = await TransportWebHID.create()
-      await transport.close()
-      await hardwareWallets[HARDWARE_WALLETS.LEDGER].authorizeHIDPermission()
-
-      navigate(WEB_ROUTES.accountsImporter, {
-        state: {
-          walletType: HARDWARE_WALLETS.LEDGER,
-          isWebHID: true
-        }
-      })
-    } catch (e) {}
-  }
 
   return (
     <AuthLayoutWrapperMainContent fullWidth>
