@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
 import { Pressable } from 'react-native-web-hover'
 
@@ -28,6 +28,7 @@ const HardwareWalletAccountImportScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
+  const [value, setValue] = useState('')
 
   return (
     <>
@@ -160,9 +161,11 @@ const HardwareWalletAccountImportScreen = () => {
                 <RightArrowIcon width={36} height={36} style={[spacings.mrTy]} hovered={hovered} />
               )}
             </Pressable>
-            <RightDoubleArrowIcon width={36} height={36} />
+            <Pressable>
+              {({ hovered }) => <RightDoubleArrowIcon width={36} height={36} hovered={hovered} />}
+            </Pressable>
           </View>
-          <Toggle style={[spacings.mbTy]} label="Show empty legacy accounts" />
+          <Toggle label="Show empty legacy accounts" />
           <Select
             hasArrow
             options={[
@@ -171,6 +174,8 @@ const HardwareWalletAccountImportScreen = () => {
               { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
               { label: 'Deposit', value: 'Deposit' }
             ]}
+            setValue={setValue}
+            value={value}
             label="Custom Derivation"
           />
           <Button

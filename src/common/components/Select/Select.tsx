@@ -194,7 +194,7 @@ const Select = ({ value, disabled, setValue, options, label, extraText, hasArrow
   }
 
   const handleOptionSelect = (option) => {
-    onChange(option)
+    setValue(option.value)
     setIsOpen(false)
   }
 
@@ -206,6 +206,7 @@ const Select = ({ value, disabled, setValue, options, label, extraText, hasArrow
         style={optionStyle}
         onPress={() => handleOptionSelect(option)}
         underlayColor="#ddd"
+        activeOpacity={0.6}
       >
         <Text style={styles.optionText}>{option.label}</Text>
       </TouchableHighlight>
@@ -221,7 +222,13 @@ const Select = ({ value, disabled, setValue, options, label, extraText, hasArrow
             value={item?.label}
             leftIcon={item?.icon}
             containerStyle={{ width: 250, marginBottom: 0 }}
-            inputWrapperStyle={[flexboxStyles.justifySpaceBetween]}
+            // inputWrapperStyle={[
+            //   isOpen && {
+            //     borderBottom: 0,
+            //     borderBottomRightRadius: 0,
+            //     borderBottomLeftRadius: 0
+            //   }
+            // ]}
             button={
               hasArrow ? (
                 <View>
@@ -240,11 +247,7 @@ const Select = ({ value, disabled, setValue, options, label, extraText, hasArrow
           />
         </View>
       </TouchableHighlight>
-      {isOpen && (
-        <Modal visible={isOpen} animationType="none">
-          <View style={styles.optionsContainer}>{options.map(renderOption)}</View>
-        </Modal>
-      )}
+      {isOpen && <View style={styles.optionsContainer}>{options.map(renderOption)}</View>}
     </View>
   )
 }
@@ -256,21 +259,23 @@ const styles = StyleSheet.create({
     zIndex: 9999
   },
   optionsContainer: {
-    // position: 'absolute',
-    // top: '100%',
-    // left: 0,
-    // right: 0,
-    // borderWidth: 1,
-    // borderColor: '#ccc',
-    // backgroundColor: '#fff',
-    // maxHeight: 200,
-    // zIndex: 999,
-    // overflow: 'auto'
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    borderWidth: 1,
+    borderColor: colors.scampi_20,
+    backgroundColor: colors.white,
+    maxHeight: 200,
+    zIndex: 999,
+    overflow: 'auto',
+    opacity: 1
   },
   option: {
     padding: 10,
+    color: colors.martinique_65,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc'
+    borderBottomColor: colors.scampi_20
   },
   selectedOption: {
     backgroundColor: '#ddd',
