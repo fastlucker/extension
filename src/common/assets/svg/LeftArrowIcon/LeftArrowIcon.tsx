@@ -7,9 +7,15 @@ interface Props extends SvgProps {
   width?: number
   height?: number
   color?: string
+  disabled?: boolean
 }
 
-const LeftArrowIcon: React.FC<Props> = ({ width = 40, height = 40, color = colors.violet }) => (
+const LeftArrowIcon: React.FC<Props> = ({
+  width = 40,
+  height = 40,
+  color = colors.violet,
+  disabled = false
+}) => (
   <Svg width={width} height={height} viewBox="0 0 36 36">
     <G transform="translate(36 36) rotate(180)">
       <Rect width={width} height={height} rx="12" fill="rgba(182,185,255,0.1)" />
@@ -20,6 +26,7 @@ const LeftArrowIcon: React.FC<Props> = ({ width = 40, height = 40, color = color
         stroke={color}
         strokeLinecap="round"
         strokeWidth="2"
+        opacity={disabled ? 0.3 : 1}
       />
     </G>
   </Svg>

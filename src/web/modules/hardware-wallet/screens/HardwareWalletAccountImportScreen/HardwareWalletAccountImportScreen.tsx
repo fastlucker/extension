@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
+import { Pressable } from 'react-native-web-hover'
 
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import Spinner from '@common/components/Spinner'
 import {
   AuthLayoutWrapperMainContent,
@@ -20,6 +20,7 @@ import Button from '@common/components/Button'
 import Toggle from '@common/components/Toggle'
 import Select from '@common/components/Select'
 import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
@@ -27,6 +28,7 @@ const HardwareWalletAccountImportScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
+  const [value, setValue] = useState('')
 
   return (
     <>
@@ -136,7 +138,7 @@ const HardwareWalletAccountImportScreen = () => {
             </Text>
           </View>
           <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
-            <LeftArrowIcon width={36} height={36} color={colors.violet} />
+            <LeftArrowIcon width={36} height={36} disabled />
             <Text
               weight="semiBold"
               color={colors.martinique}
@@ -154,15 +156,16 @@ const HardwareWalletAccountImportScreen = () => {
             <Text fontSize={12} color={colors.martinique} style={[spacings.mrSm]}>
               ...
             </Text>
-            <RightArrowIcon width={36} height={36} style={[spacings.mlSm]} color={colors.violet} />
-            <RightDoubleArrowIcon
-              width={36}
-              height={36}
-              style={[spacings.mlSm]}
-              color={colors.violet}
-            />
+            <Pressable>
+              {({ hovered }) => (
+                <RightArrowIcon width={36} height={36} style={[spacings.mrTy]} hovered={hovered} />
+              )}
+            </Pressable>
+            <Pressable>
+              {({ hovered }) => <RightDoubleArrowIcon width={36} height={36} hovered={hovered} />}
+            </Pressable>
           </View>
-          <Toggle style={[spacings.mbTy]} label="Show empty legacy accounts" />
+          <Toggle label="Show empty legacy accounts" />
           <Select
             hasArrow
             options={[
@@ -171,7 +174,8 @@ const HardwareWalletAccountImportScreen = () => {
               { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
               { label: 'Deposit', value: 'Deposit' }
             ]}
-            disabled={false}
+            setValue={setValue}
+            value={value}
             label="Custom Derivation"
           />
           <Button
