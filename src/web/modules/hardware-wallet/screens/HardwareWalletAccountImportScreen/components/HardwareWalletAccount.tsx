@@ -66,8 +66,6 @@ const HardwareWalletAccount = ({
         }
         value={isIncluded}
         onValueChange={() => setIsIncluded(!isIncluded)}
-        uncheckedIconColor={colors.martinique}
-        checkedIconColor={colors.greenHaze}
       />
       <View>
         {linked && (

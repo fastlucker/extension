@@ -9,9 +9,9 @@ import spacings from '@common/styles/spacings'
 import styles from './styles'
 import { ToggleProps } from './types'
 
-const Toggle = ({ isOn, onToggle, label }: ToggleProps) => {
+const Toggle = ({ isOn, onToggle, label, style }: ToggleProps) => {
   return (
-    <View style={styles.container}>
+    <View style={(styles.container, style)}>
       {!!label && (
         <Text style={spacings.mrTy} color={isOn ? colors.heliotrope : colors.chetwode}>
           {label}
