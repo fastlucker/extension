@@ -26,7 +26,10 @@ const GetStartedScreen = () => {
   const [advanceModeEnabled, setAdvancedModeEnabled] = useState(true)
   const { updateStepperState } = useStepper()
 
-  const handleAuthButtonPress = useCallback((nextRoute: any) => navigate(nextRoute), [navigate])
+  const handleAuthButtonPress = useCallback(
+    (nextRoute: any, state: any) => navigate(nextRoute, state),
+    [navigate]
+  )
 
   return (
     <AuthLayoutWrapperMainContent fullWidth>
@@ -41,7 +44,11 @@ const GetStartedScreen = () => {
           <Pressable
             onPress={() => {
               updateStepperState(0, 'emailAuth')
-              handleAuthButtonPress(ROUTES.createEmailVault)
+              handleAuthButtonPress(ROUTES.createEmailVault, {
+                state: {
+                  hideFormTitle: false
+                }
+              })
             }}
           >
             {({ hovered }) => (
@@ -95,14 +102,19 @@ const GetStartedScreen = () => {
                   text={t('Import From Hardware Wallet')}
                   onPress={() => {
                     updateStepperState(0, 'hwAuth')
-                    handleAuthButtonPress(ROUTES.hardwareWalletSelect)
+                    handleAuthButtonPress(ROUTES.hardwareWalletSelect, {})
                   }}
                   hasBottomSpacing={false}
                 />
               </Card>
             )}
           </Pressable>
-          <Pressable onPress={() => handleAuthButtonPress(ROUTES.externalSigner)}>
+          <Pressable
+            onPress={() => {
+              updateStepperState(0, 'legacyAuth')
+              handleAuthButtonPress(ROUTES.externalSigner, {})
+            }}
+          >
             {({ hovered }) => (
               <Card
                 title={t('Legacy Account')}

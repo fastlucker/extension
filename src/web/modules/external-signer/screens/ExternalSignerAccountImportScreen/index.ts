@@ -1,0 +1,3 @@
+import ExternalSignerAccountImportScreen from './ExternalSignerAccountImportScreen'
+
+export default ExternalSignerAccountImportScreen

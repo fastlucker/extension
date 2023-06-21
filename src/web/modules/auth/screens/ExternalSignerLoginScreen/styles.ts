@@ -18,7 +18,7 @@ const styles = StyleSheet.create<Styles>({
     color: colors.martinique,
     borderWidth: 1,
     borderRadius: 12,
-    ...spacings.mbLg
+    ...spacings.mbTy
   }
 })
 

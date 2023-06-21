@@ -15,7 +15,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
 
-const TabHeader: React.FC<any> = ({ hideStepper = false }) => {
+const TabHeader: React.FC<any> = ({ hideStepper = false, pageTitle = '' }) => {
   const { t } = useTranslation()
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
@@ -51,14 +51,14 @@ const TabHeader: React.FC<any> = ({ hideStepper = false }) => {
     <View style={[styles.container, spacings.pv, spacings.ph]}>
       <View>{renderHeaderLeft()}</View>
       {shouldDisplayStepper && <Stepper step={flowStep} />}
-      {!shouldDisplayStepper && title && (
+      {!shouldDisplayStepper && (title || pageTitle) && (
         <Text
           fontSize={20}
           weight="medium"
           style={[styles.title, spacings.pl, canGoBack ? { paddingRight: 140 } : spacings.pr]}
           numberOfLines={2}
         >
-          {title || ' '}
+          {pageTitle || title || ' '}
         </Text>
       )}
     </View>

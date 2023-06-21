@@ -3,18 +3,22 @@ import { View, TextInput } from 'react-native'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
+import useNavigation from '@common/hooks/useNavigation'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import Button from '@common/components/Button'
+
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import styles from './styles'
 
 const ExternalSignerLoginScreen = () => {
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
 
   return (
     <>
@@ -38,6 +42,12 @@ const ExternalSignerLoginScreen = () => {
             style={styles.textarea}
             placeholderTextColor={colors.martinique_65}
           />
+          <Text shouldScale={false} fontSize={12} style={[spacings.mbLg]} color={colors.brownRum}>
+            Legacy Account found {'  '}{' '}
+            <Text shouldScale={false} fontSize={14} color={colors.brownRum} weight="semiBold">
+              0x603f453E4...5a245fB3D34Df
+            </Text>
+          </Text>
           <Text
             style={[spacings.plTy, spacings.mbTy]}
             shouldScale={false}
@@ -53,7 +63,7 @@ const ExternalSignerLoginScreen = () => {
             maxLength={40}
             placeholder="Imported key on 21 Apr 2023"
             onChangeText={(text) => onChangeText(text)}
-            style={styles.textarea}
+            style={[styles.textarea, spacings.mbLg]}
             placeholderTextColor={colors.martinique_65}
           />
           <Button
@@ -61,6 +71,7 @@ const ExternalSignerLoginScreen = () => {
             size="large"
             text="Import Legacy Account"
             style={[flexbox.alignSelfCenter]}
+            onPress={() => navigate(WEB_ROUTES.externalSignerImportAccount)}
           />
         </View>
       </AuthLayoutWrapperMainContent>
