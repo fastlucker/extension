@@ -13,7 +13,7 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import Card from '@web/modules/auth/components/Card'
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import DownArrow from '@common/assets/svg/DownArrow'
 import EmailIcon from '@common/assets/svg/EmailIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
@@ -134,7 +134,7 @@ const GetStartedScreen = () => {
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.ph]}
             onPress={() => setAdvancedModeEnabled(!advanceModeEnabled)}
           >
-            <DownArrowIcon isActive={!advanceModeEnabled} />
+            <DownArrow isActive={!advanceModeEnabled} />
             <Text fontSize={14} style={[spacings.mlMi]} weight="medium">
               {t('Show more options')}
             </Text>
