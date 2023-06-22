@@ -2,6 +2,8 @@ import HDKey from 'hdkey'
 
 import trezorConnect from '@trezor/connect-web'
 
+import { HwKeyIterator } from '../../libs/hwKeyIterator/hwKeyIterator'
+
 const ethUtil = require('ethereumjs-util')
 
 const hdPathString = "m/44'/60'/0'/0"
@@ -131,6 +133,24 @@ class TrezorController {
             this.page = 0
           }
           resolve(this.accounts)
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+  }
+
+  async getKeys(from: number = 0, to: number = 4) {
+    return new Promise((resolve, reject) => {
+      this.unlock()
+        .then(async () => {
+          const iterator = new HwKeyIterator({
+            walletType: 'Trezor',
+            hdk: this.hdk
+          })
+          const keys = await iterator.retrieve(from, to, pathBase)
+
+          resolve(keys)
         })
         .catch((e) => {
           reject(e)

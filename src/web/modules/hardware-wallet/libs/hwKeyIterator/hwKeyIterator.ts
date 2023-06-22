@@ -1,7 +1,7 @@
-import { KeyIterator as KeyIteratorInterface } from 'ambire-common/v2/interfaces/keyIterator'
-/* eslint-disable new-cap */
-import { HDNodeWallet, Mnemonic, Wallet } from 'ethers'
+import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interfaces/keyIterator'
+import HDKey from 'hdkey'
 
+const ethUtil = require('ethereumjs-util')
 // DOCS
 // - Serves for retrieving a range of addresses/keys from a given private key or seed phrase
 
@@ -9,35 +9,29 @@ import { HDNodeWallet, Mnemonic, Wallet } from 'ethers'
 // const iterator = new KeyIterator('your-private-key-or-seed-phrase')
 // const keys = await iterator.retrieve(0, 9, "derivation-path")
 
-function isValidPrivateKey(value: string) {
-  try {
-    // eslint-disable-next-line no-new
-    new Wallet(value)
-  } catch (e) {
-    return false
-  }
-  return true
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention
+type WALLET_TYPE =
+  | {
+      walletType: 'Trezor'
+      hdk: HDKey
+    }
+  | {
+      walletType: 'Ledger'
+    }
 
 export class HwKeyIterator implements KeyIteratorInterface {
-  #privateKey: string | null = null
+  #walletType
 
-  #seedPhrase: string | null = null
+  hdk: HDKey | undefined
 
-  constructor(_privKeyOrSeed: string) {
-    if (!_privKeyOrSeed) throw new Error('keyIterator: no private key or seed phrase provided')
+  constructor(_wallet: WALLET_TYPE) {
+    if (!_wallet.walletType) throw new Error('keyIterator: wallet type not supported')
 
-    if (isValidPrivateKey(_privKeyOrSeed)) {
-      this.#privateKey = _privKeyOrSeed
-      return
+    this.#walletType = _wallet.walletType
+
+    if (_wallet.walletType === 'Trezor') {
+      this.hdk = _wallet.hdk
     }
-
-    if (Mnemonic.isValidMnemonic(_privKeyOrSeed)) {
-      this.#seedPhrase = _privKeyOrSeed
-      return
-    }
-
-    throw new Error('keyIterator: invalid argument provided to constructor')
   }
 
   async retrieve(from: number, to: number, derivation: string = "m/44'/60'/0'") {
@@ -46,16 +40,12 @@ export class HwKeyIterator implements KeyIteratorInterface {
 
     const keys: string[] = []
 
-    if (this.#privateKey) {
-      keys.push(new Wallet(this.#privateKey).address)
-    }
-
-    if (this.#seedPhrase) {
-      const mnemonic = Mnemonic.fromPhrase(this.#seedPhrase)
-      const wallet = HDNodeWallet.fromMnemonic(mnemonic)
-
+    if (this.#walletType === 'Trezor') {
       for (let i = from; i <= to; i++) {
-        keys.push(wallet.derivePath(`${derivation}/${i}`).address)
+        const dkey = this.hdk?.derive(`${derivation}/${i}`)
+        const key = ethUtil.publicToAddress(dkey?.publicKey, true).toString('hex')
+
+        !!key && keys.push(key)
       }
     }
 

@@ -7,21 +7,10 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { AntDesign } from '@expo/vector-icons'
+import { LARGE_PAGE_STEP } from '@web/modules/accounts-importer/constants/pagination'
+import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
 
-import { LARGE_PAGE_STEP } from '../../constants/pagination'
-import useAccountsPagination from '../../hooks/useAccountsPagination'
-
-export interface Account {
-  type: string
-  address: string
-  brandName: string
-  alianName?: string
-  displayBrandName?: string
-  index?: number
-  balance?: number
-}
-
-const AccountsList = ({ accounts, loading }: { accounts: Account[]; loading?: boolean }) => {
+const AccountsList = ({ accounts, loading }: { accounts: any[]; loading?: boolean }) => {
   const {
     page,
     handleSmallPageStepDecrement,
