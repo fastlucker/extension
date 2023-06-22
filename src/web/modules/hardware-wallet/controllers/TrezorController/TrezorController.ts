@@ -112,25 +112,6 @@ class TrezorController {
     })
   }
 
-  // TODO:
-  signTransaction(address, tx) {
-    return this._signTransaction(address, Number(tx.common.chainId()), tx, (payload) => {})
-  }
-
-  // TODO:
-  _signTransaction(address, chainId, tx, handleSigning) {}
-
-  // TODO:
-  signMessage(withAccount, data) {
-    return this.signPersonalMessage(withAccount, data)
-  }
-
-  // TODO:
-  // For personal_sign, we need to prefix the message:
-  signPersonalMessage(withAccount, message) {}
-
-  signTypedData(address, data, { version }) {}
-
   exportAccount() {
     return Promise.reject(new Error('Not supported on this device'))
   }
