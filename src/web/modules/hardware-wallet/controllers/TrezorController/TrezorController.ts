@@ -1,20 +1,12 @@
 import HDKey from 'hdkey'
 
 import trezorConnect from '@trezor/connect-web'
-
-import { HwKeyIterator } from '../../libs/hwKeyIterator/hwKeyIterator'
-
-const ethUtil = require('ethereumjs-util')
+import { HwKeyIterator } from '@web/modules/hardware-wallet/libs/hwKeyIterator'
 
 const hdPathString = "m/44'/60'/0'/0"
-const SLIP0044TestnetPath = "m/44'/1'/0'/0"
-const ALLOWED_HD_PATHS: any = {
-  [hdPathString]: true,
-  [SLIP0044TestnetPath]: true
-}
+
 const keyringType = 'Trezor'
 const pathBase = 'm'
-const MAX_INDEX = 1000
 
 const TREZOR_CONNECT_MANIFEST = {
   email: 'support@debank.com/',
@@ -26,19 +18,9 @@ class TrezorController {
 
   hdk: any
 
-  page: number
-
-  perPage: number
-
-  unlockedAccount: number
-
-  paths: any
-
   hdPath: string
 
   model: string
-
-  accounts: any[]
 
   trezorConnectInitiated: boolean
 
@@ -46,17 +28,14 @@ class TrezorController {
 
   constructor() {
     this.type = keyringType
-    this.accounts = []
     this.hdk = new HDKey()
-    this.page = 0
-    this.perPage = 5
-    this.unlockedAccount = 0
-    this.paths = {}
+
     this.hdPath = hdPathString
     this.model = ''
 
     this.trezorConnectInitiated = false
     this.accountDetails = {}
+
     trezorConnect.on('DEVICE_EVENT', (event: any) => {
       if (event && event.payload && event.payload.features) {
         this.model = event.payload.features.model
@@ -115,31 +94,6 @@ class TrezorController {
     })
   }
 
-  setAccountToUnlock(index) {
-    this.unlockedAccount = parseInt(index, 10)
-  }
-
-  addAccounts(n = 1) {
-    return new Promise((resolve, reject) => {
-      this.unlock()
-        .then((_) => {
-          const from = this.unlockedAccount
-          const to = from + n
-          for (let i = from; i < to; i++) {
-            const address = this._addressFromIndex(pathBase, i)
-            if (!this.accounts.includes(address)) {
-              this.accounts.push(address)
-            }
-            this.page = 0
-          }
-          resolve(this.accounts)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-  }
-
   async getKeys(from: number = 0, to: number = 4) {
     return new Promise((resolve, reject) => {
       this.unlock()
@@ -158,99 +112,22 @@ class TrezorController {
     })
   }
 
-  getFirstPage() {
-    this.page = 0
-    return this.__getPage(1)
-  }
-
-  getNextPage() {
-    return this.__getPage(1)
-  }
-
-  getPreviousPage() {
-    return this.__getPage(-1)
-  }
-
-  getAddresses(start, end) {
-    return new Promise((resolve, reject) => {
-      this.unlock()
-        .then((_) => {
-          const from = start
-          const to = end
-          const accounts = []
-          for (let i = from; i < to; i++) {
-            const address = this._addressFromIndex(pathBase, i)
-            accounts.push({
-              address,
-              balance: null,
-              index: i + 1
-            })
-            this.paths[ethUtil.toChecksumAddress(address)] = i
-          }
-          resolve(accounts)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-  }
-
-  __getPage(increment) {
-    this.page += increment
-    if (this.page <= 0) {
-      this.page = 1
-    }
-    return new Promise((resolve, reject) => {
-      this.unlock()
-        .then((_) => {
-          const from = (this.page - 1) * this.perPage
-          const to = from + this.perPage
-          const accounts = []
-          for (let i = from; i < to; i++) {
-            const address = this._addressFromIndex(pathBase, i)
-            accounts.push({
-              address,
-              balance: null,
-              index: i + 1
-            })
-            this.paths[ethUtil.toChecksumAddress(address)] = i
-          }
-          resolve(accounts)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-  }
-
-  getAccounts() {
-    return Promise.resolve(this.accounts.slice())
-  }
-
-  removeAccount(address) {
-    if (!this.accounts.map((a) => a.toLowerCase()).includes(address.toLowerCase())) {
-      throw new Error(`Address ${address} not found in this keyring`)
-    }
-    this.accounts = this.accounts.filter((a) => a.toLowerCase() !== address.toLowerCase())
-    const checksummedAddress = ethUtil.toChecksumAddress(address)
-    delete this.accountDetails[checksummedAddress]
-    delete this.paths[checksummedAddress]
-  }
-
+  // TODO:
   signTransaction(address, tx) {
     return this._signTransaction(address, Number(tx.common.chainId()), tx, (payload) => {})
   }
 
+  // TODO:
   _signTransaction(address, chainId, tx, handleSigning) {}
 
+  // TODO:
   signMessage(withAccount, data) {
     return this.signPersonalMessage(withAccount, data)
   }
 
+  // TODO:
   // For personal_sign, we need to prefix the message:
-  signPersonalMessage(withAccount, message) {
-    // TODO:
-  }
+  signPersonalMessage(withAccount, message) {}
 
   signTypedData(address, data, { version }) {}
 
@@ -259,64 +136,7 @@ class TrezorController {
   }
 
   forgetDevice() {
-    this.accounts = []
     this.hdk = new HDKey()
-    this.page = 0
-    this.unlockedAccount = 0
-    this.paths = {}
-  }
-
-  setHdPath(hdPath) {
-    if (!ALLOWED_HD_PATHS[hdPath]) {
-      throw new Error(`The setHdPath method does not support setting HD Path to ${hdPath}`)
-    }
-    // Reset HDKey if the path changes
-    if (this.hdPath !== hdPath) {
-      this.hdk = new HDKey()
-      this.accounts = []
-      this.page = 0
-      this.perPage = 5
-      this.unlockedAccount = 0
-      this.paths = {}
-    }
-    this.hdPath = hdPath
-  }
-
-  /* PRIVATE METHODS */
-  _normalize(buf) {
-    return ethUtil.bufferToHex(buf).toString()
-  }
-
-  // eslint-disable-next-line no-shadow
-  _addressFromIndex(pathBase, i) {
-    const dkey = this.hdk.derive(`${pathBase}/${i}`)
-    const address = ethUtil.publicToAddress(dkey.publicKey, true).toString('hex')
-    return ethUtil.toChecksumAddress(`0x${address}`)
-  }
-
-  _pathFromAddress(address) {
-    return `${this.hdPath}/${this.indexFromAddress(address)}`
-  }
-
-  indexFromAddress(address) {
-    const checksummedAddress = ethUtil.toChecksumAddress(address)
-    let index = this.paths[checksummedAddress]
-    if (typeof index === 'undefined') {
-      for (let i = 0; i < MAX_INDEX; i++) {
-        if (checksummedAddress === this._addressFromIndex(pathBase, i)) {
-          index = i
-          break
-        }
-      }
-    }
-    if (typeof index === 'undefined') {
-      throw new Error('Unknown address')
-    }
-    return index
-  }
-
-  getPathBasePublicKey() {
-    return this.hdk.publicKey.toString('hex')
   }
 }
 
