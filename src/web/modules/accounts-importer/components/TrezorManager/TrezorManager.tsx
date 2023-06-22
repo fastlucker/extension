@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 
 import AccountsList from '@web/modules/accounts-importer/components/AccountsList'
-import { NUMBER_OF_VISIBLE_ADDRESSES } from '@web/modules/accounts-importer/constants/pagination'
 import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
@@ -56,4 +55,4 @@ const TrezorManager: React.FC<Props> = (props) => {
   )
 }
 
-export default TrezorManager
+export default React.memo(TrezorManager)
