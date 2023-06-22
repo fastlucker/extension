@@ -11,6 +11,7 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import useWalletControllerRequest from '@web/hooks/useWalletControllerRequest'
 import AccountsList from '@web/modules/accounts-importer/components/AccountsList'
+import LatticeManager from '@web/modules/accounts-importer/components/LatticeManager'
 import LedgerManager from '@web/modules/accounts-importer/components/LedgerManager'
 import TrezorManager from '@web/modules/accounts-importer/components/TrezorManager'
 import { AccountsPaginationProvider } from '@web/modules/accounts-importer/contexts/accountsPaginationContext'
@@ -29,7 +30,8 @@ export interface Account {
 
 const WALLET_MAP = {
   [HARDWARE_WALLETS.LEDGER]: LedgerManager,
-  [HARDWARE_WALLETS.TREZOR]: TrezorManager
+  [HARDWARE_WALLETS.TREZOR]: TrezorManager,
+  [HARDWARE_WALLETS.GRIDPLUS]: LatticeManager
 }
 
 const AccountsImporterScreen = () => {
@@ -51,7 +53,7 @@ const AccountsImporterScreen = () => {
     }
   }, [goBack, walletType])
 
-  if (isLedger || isTrezor) {
+  if (isLedger || isTrezor || isGrid) {
     const closeConnect = React.useCallback(() => {
       try {
         hardwareWallets[walletType].cleanUp()
@@ -82,6 +84,8 @@ const AccountsImporterScreen = () => {
       </AccountsPaginationProvider>
     )
   }
+
+  return null
 
   const [isLoading, setIsLoading] = useState(true)
   const [accounts, setAccounts] = useState<any[]>([])

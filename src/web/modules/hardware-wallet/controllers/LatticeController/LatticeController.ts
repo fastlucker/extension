@@ -2,10 +2,11 @@ import crypto from 'crypto'
 import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
+import { HwKeyIterator } from '@web/modules/hardware-wallet/libs/hwKeyIterator'
+
 const keyringType = 'GridPlus'
 const HARDENED_OFFSET = 0x80000000
-const PER_PAGE = 10
-const CLOSE_CODE = -1000
+
 const STANDARD_HD_PATH = "m/44'/60'/0'/0/x"
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
@@ -17,11 +18,7 @@ class LatticeKeyring extends EventEmitter {
 
   hdPath: string
 
-  sdkSession: any
-
-  accountOpts: any
-
-  accounts: any
+  sdkSession?: SDK.Client | null
 
   creds: any
 
@@ -63,18 +60,6 @@ class LatticeKeyring extends EventEmitter {
   // possible edge cases related to this new functionality (it's probably fine - just
   // being cautious). In the future we may remove `bypassOnStateData` entirely.
   async unlock(bypassOnStateData = false) {
-    // Force compatability. `this.accountOpts` were added after other
-    // state params and must be synced in order for this keyring to function.
-    if (
-      !this.accountOpts ||
-      (this.accounts.length > 0 && this.accountOpts.length != this.accounts.length)
-    ) {
-      this.forgetDevice()
-      throw new Error(
-        'You can now add multiple Lattice and SafeCard accounts at the same time! ' +
-          'Your accounts have been cleared. Please press Continue to add them back in.'
-      )
-    }
     if (this.isUnlocked()) {
       return 'Unlocked'
     }
@@ -92,56 +77,6 @@ class LatticeKeyring extends EventEmitter {
     }
     await this._connect()
     return 'Unlocked'
-  }
-
-  // Add addresses to the local store and return the full result
-  async addAccounts(n = 1) {
-    if (n === CLOSE_CODE) {
-      // Special case: use a code to forget the device.
-      // (This function is overloaded due to constraints upstream)
-      this.forgetDevice()
-      return []
-    }
-    if (n <= 0) {
-      // Avoid non-positive numbers.
-      throw new Error('Number of accounts to add must be a positive number.')
-    }
-    // Normal behavior: establish the connection and fetch addresses.
-    await this.unlock()
-    const addrs = await this._fetchAddresses(n, this.unlockedAccount)
-    const walletUID = this._getCurrentWalletUID()
-    if (!walletUID) {
-      // We should not add accounts that do not have wallet UIDs.
-      // Something went wrong and needs to be retried.
-      await this._connect()
-      throw new Error('No active wallet found in Lattice. Please retry.')
-    }
-    // Add these indices
-    addrs.forEach((addr, i) => {
-      let alreadySaved = false
-      for (let j = 0; j < this.accounts.length; j++) {
-        if (
-          this.accounts[j] === addr &&
-          this.accountOpts[j].walletUID === walletUID &&
-          this.accountOpts[j].hdPath === this.hdPath
-        )
-          alreadySaved = true
-      }
-      if (!alreadySaved) {
-        this.accounts.push(addr)
-        this.accountIndices.push(this.unlockedAccount + i)
-        this.accountOpts.push({
-          walletUID,
-          hdPath: this.hdPath
-        })
-      }
-    })
-    return this.accounts
-  }
-
-  // Return the local store of addresses. This gets called when the extension unlocks.
-  async getAccounts() {
-    return this.accounts ? [...this.accounts] : []
   }
 
   async signTransaction(address, tx) {}
@@ -165,70 +100,31 @@ class LatticeKeyring extends EventEmitter {
     throw new Error('exportAccount not supported by this device')
   }
 
-  removeAccount(address) {
-    this.accounts.forEach((account, i) => {
-      if (account.toLowerCase() === address.toLowerCase()) {
-        this.accounts.splice(i, 1)
-        this.accountIndices.splice(i, 1)
-        this.accountOpts.splice(i, 1)
-      }
+  async getKeys(from: number = 0, to: number = 4) {
+    await this.unlock()
+    const shouldRecurse = this._hdPathHasInternalVarIdx()
+
+    if (!this.isUnlocked()) {
+      throw new Error('No connection to Lattice. Cannot fetch addresses.')
+    }
+
+    return new Promise((resolve) => {
+      ;(async () => {
+        const iterator = new HwKeyIterator({
+          walletType: 'GridPlus',
+          shouldRecurse,
+          sdkSession: this.sdkSession
+        })
+
+        const keys = await iterator.retrieve(from, to, STANDARD_HD_PATH)
+
+        resolve(keys)
+      })()
     })
-  }
-
-  async getFirstPage() {
-    this.page = 0
-    return this._getPage(0)
-  }
-
-  async getNextPage() {
-    return this._getPage(1)
-  }
-
-  async getPreviousPage() {
-    return this._getPage(-1)
-  }
-
-  setAccountToUnlock(index) {
-    this.unlockedAccount = parseInt(index, 10)
   }
 
   forgetDevice() {
     this._resetDefaults()
-  }
-
-  //-------------------------------------------------------------------
-  // Internal methods and interface to SDK
-  //-------------------------------------------------------------------
-
-  async _accountIdxInCurrentWallet(address) {
-    // Get the wallet UID associated with the signer and make sure
-    // the Lattice has that as its active wallet before continuing.
-    const accountIdx = await this._findAccountByAddress(address)
-    const { walletUID } = this.accountOpts[accountIdx]
-    // Get the last updated SDK wallet UID
-    const activeWallet = this.sdkSession.getActiveWallet()
-    if (!activeWallet) {
-      this._connect()
-      throw new Error('No active wallet in Lattice.')
-    }
-    const activeUID = activeWallet.uid.toString('hex')
-    // If this is already the active wallet we don't need to make a request
-    if (walletUID.toString('hex') === activeUID) {
-      return accountIdx
-    }
-    return null
-  }
-
-  async _findAccountByAddress(address) {
-    const addrs = await this.getAccounts()
-    let accountIdx = -1
-    addrs.forEach((addr, i) => {
-      if (address.toLowerCase() === addr.toLowerCase()) accountIdx = i
-    })
-    if (accountIdx < 0) {
-      throw new Error('Signer not present')
-    }
-    return accountIdx
   }
 
   _getHDPathIndices(hdPath, insertIdx = 0) {
@@ -263,9 +159,7 @@ class LatticeKeyring extends EventEmitter {
   }
 
   _resetDefaults() {
-    this.accounts = []
     this.accountIndices = []
-    this.accountOpts = []
     this.isLocked = true
     this.creds = {
       deviceID: null,
@@ -433,76 +327,6 @@ class LatticeKeyring extends EventEmitter {
     // Return a boolean indicating whether we provided state data.
     // If we have, we can skip `connect`.
     return !!setupData.stateData
-  }
-
-  async _fetchAddresses(n = 1, i = 0, recursedAddrs = []) {
-    if (!this.isUnlocked()) {
-      throw new Error('No connection to Lattice. Cannot fetch addresses.')
-    }
-    return this.__fetchAddresses(n, i)
-  }
-
-  async __fetchAddresses(n = 1, i = 0, recursedAddrs = []) {
-    // Determine if we need to do a recursive call here. We prefer not to
-    // because they will be much slower, but Ledger paths require it since
-    // they are non-standard.
-    if (n === 0) {
-      return recursedAddrs
-    }
-    const shouldRecurse = this._hdPathHasInternalVarIdx()
-
-    // Make the request to get the requested address
-    const addrData = {
-      currency: 'ETH',
-      startPath: this._getHDPathIndices(this.hdPath, i),
-      n: shouldRecurse ? 1 : n
-    }
-    const addrs = await this.sdkSession.getAddresses(addrData)
-    // Sanity check -- if this returned 0 addresses, handle the error
-    if (addrs.length < 1) {
-      throw new Error('No addresses returned')
-    }
-    // Return the addresses we fetched *without* updating state
-    if (shouldRecurse) {
-      return await this.__fetchAddresses(n - 1, i + 1, recursedAddrs.concat(addrs))
-    }
-    return addrs
-  }
-
-  async _getPage(increment = 0) {
-    try {
-      this.page += increment
-      if (this.page < 0) this.page = 0
-      const start = PER_PAGE * this.page
-      // Otherwise unlock the device and fetch more addresses
-      await this.unlock()
-      const addrs = await this._fetchAddresses(PER_PAGE, start)
-      const accounts = addrs.map((address, i) => {
-        return {
-          address,
-          balance: null,
-          index: start + i + 1
-        }
-      })
-      return accounts
-    } catch (err) {
-      // This will get hit for a few reasons. Here are two possibilities:
-      // 1. The user has a SafeCard inserted, but not unlocked
-      // 2. The user fetched a page for a different wallet, then switched
-      //    interface on the device
-      // In either event we should try to resync the wallet and if that
-      // fails throw an error
-      try {
-        await this._connect()
-        const accounts = await this._getPage(0)
-        return accounts
-      } catch (err) {
-        throw new Error(
-          'Failed to get accounts. Please forget the device and try again. ' +
-            'Make sure you do not have a locked SafeCard inserted.'
-        )
-      }
-    }
   }
 
   _hasCreds() {
