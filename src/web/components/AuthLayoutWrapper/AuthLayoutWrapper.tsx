@@ -37,7 +37,7 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({
   return (
     <View style={[flexbox.flex1, { backgroundColor: colors.zircon }]}>
       <TabHeader hideStepper={hideStepper} />
-      <View style={[flexbox.flex1]}>
+      <Wrapper style={[flexbox.flex1]} showsVerticalScrollIndicator={false}>
         <View
           style={[
             spacings.pbLg,
@@ -48,7 +48,7 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({
         >
           {children}
         </View>
-      </View>
+      </Wrapper>
     </View>
   )
 }

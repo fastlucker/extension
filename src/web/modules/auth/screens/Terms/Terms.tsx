@@ -1,15 +1,14 @@
 import React from 'react'
 import { View } from 'react-native'
-import { useTranslation } from '@common/config/localization'
-
-import Checkbox from '@common/components/Checkbox'
-import Text from '@common/components/Text'
-import Button from '@common/components/Button'
-import flexboxStyles from '@common/styles/utils/flexbox'
-import spacings from '@common/styles/spacings'
-import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
+import Button from '@common/components/Button'
+import Checkbox from '@common/components/Checkbox'
+import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
+import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 
 const Terms = () => {
   const { t } = useTranslation()
