@@ -23,7 +23,7 @@ import styles from './styles'
 const GetStartedScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const [advanceModeEnabled, setAdvancedModeEnabled] = useState(true)
+  const [advanceModeEnabled, setAdvancedModeEnabled] = useState(false)
   const { updateStepperState } = useStepper()
 
   const handleAuthButtonPress = useCallback((nextRoute: any) => navigate(nextRoute), [navigate])
@@ -134,9 +134,9 @@ const GetStartedScreen = () => {
           <View style={styles.hr} />
           <TouchableOpacity
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.ph]}
-            onPress={() => setAdvancedModeEnabled(!advanceModeEnabled)}
+            onPress={() => setAdvancedModeEnabled((prev) => !prev)}
           >
-            <DownArrowIcon isActive={!advanceModeEnabled} />
+            <DownArrowIcon isActive={advanceModeEnabled} />
             <Text fontSize={14} style={[spacings.mlMi]} weight="medium">
               {t('Show more options')}
             </Text>
