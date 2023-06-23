@@ -11,7 +11,7 @@ const STANDARD_HD_PATH = "m/44'/60'/0'/0/x"
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
 
-class LatticeKeyring extends EventEmitter {
+class LatticeController extends EventEmitter {
   appName: string
 
   type: string
@@ -25,8 +25,6 @@ class LatticeKeyring extends EventEmitter {
   unlockedAccount: any
 
   accountIndices: any
-
-  page: number = 0
 
   isLocked: boolean = true
 
@@ -79,30 +77,12 @@ class LatticeKeyring extends EventEmitter {
     return 'Unlocked'
   }
 
-  async signTransaction(address, tx) {}
-
-  async signPersonalMessage(address, msg) {
-    return this.signMessage(address, { payload: msg, protocol: 'signPersonal' })
-  }
-
-  async signTypedData(address, msg, opts) {
-    if (opts.version && opts.version !== 'V4' && opts.version !== 'V3') {
-      throw new Error(
-        `Only signTypedData V3 and V4 messages (EIP712) are supported. Got version ${opts.version}`
-      )
-    }
-    return this.signMessage(address, { payload: msg, protocol: 'eip712' })
-  }
-
-  async signMessage(address, msg) {}
-
   async exportAccount(address) {
     throw new Error('exportAccount not supported by this device')
   }
 
   async getKeys(from: number = 0, to: number = 4) {
     await this.unlock()
-    const shouldRecurse = this._hdPathHasInternalVarIdx()
 
     if (!this.isUnlocked()) {
       throw new Error('No connection to Lattice. Cannot fetch addresses.')
@@ -112,7 +92,6 @@ class LatticeKeyring extends EventEmitter {
       ;(async () => {
         const iterator = new HwKeyIterator({
           walletType: 'GridPlus',
-          shouldRecurse,
           sdkSession: this.sdkSession
         })
 
@@ -168,7 +147,6 @@ class LatticeKeyring extends EventEmitter {
     }
     this.walletUID = null
     this.sdkSession = null
-    this.page = 0
     this.unlockedAccount = 0
     this.network = null
     this.hdPath = STANDARD_HD_PATH
@@ -347,18 +325,6 @@ class LatticeKeyring extends EventEmitter {
     return crypto.createHash('sha256').update(buf).digest()
   }
 
-  // Determine if an HD path has a variable index internal to it.
-  // e.g. m/44'/60'/x'/0/0 -> true, while m/44'/60'/0'/0/x -> false
-  // This is just a hacky helper to avoid having to recursively call for non-ledger
-  // derivation paths. Ledger is SO ANNOYING TO SUPPORT.
-  _hdPathHasInternalVarIdx() {
-    const path = this.hdPath.split('/').slice(1)
-    for (let i = 0; i < path.length - 1; i++) {
-      if (path[i].indexOf('x') > -1) return true
-    }
-    return false
-  }
-
   _getCurrentWalletUID() {
     if (!this.sdkSession) {
       return null
@@ -371,4 +337,4 @@ class LatticeKeyring extends EventEmitter {
   }
 }
 
-export default LatticeKeyring
+export default LatticeController

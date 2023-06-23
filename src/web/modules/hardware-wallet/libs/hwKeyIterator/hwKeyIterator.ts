@@ -26,7 +26,6 @@ type WALLET_TYPE =
     }
   | {
       walletType: 'GridPlus'
-      shouldRecurse: boolean
       sdkSession?: Client | null
     }
 
@@ -36,8 +35,6 @@ export class HwKeyIterator implements KeyIteratorInterface {
   hdk?: HDKey
 
   app?: LedgerEth | null
-
-  shouldRecurse?: boolean
 
   sdkSession?: Client | null
 
@@ -56,7 +53,6 @@ export class HwKeyIterator implements KeyIteratorInterface {
     }
 
     if (_wallet.walletType === 'GridPlus') {
-      this.shouldRecurse = _wallet.shouldRecurse
       this.sdkSession = _wallet.sdkSession
     }
   }
