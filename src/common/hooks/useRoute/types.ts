@@ -9,9 +9,7 @@ export interface UseRouteReturnTypeMobile extends RouteProp<ParamListBase> {
 }
 
 export interface UseRouteReturnTypeWeb extends Location {
-  params: {
-    [key: string]: any
-  }
+  params: object
 }
 
 export type UseRouteReturnType = Partial<UseRouteReturnTypeMobile> & Partial<UseRouteReturnTypeWeb>
