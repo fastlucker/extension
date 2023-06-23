@@ -10,6 +10,9 @@ import { AntDesign } from '@expo/vector-icons'
 import { LARGE_PAGE_STEP } from '@web/modules/accounts-importer/constants/pagination'
 import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
 
+// TODO: each legacy account in the list should be grouped with an Ambire Smart Account
+// TODO: each list item must be selectable (checkbox)
+
 const AccountsList = ({ accounts, loading }: { accounts: any[]; loading?: boolean }) => {
   const {
     page,

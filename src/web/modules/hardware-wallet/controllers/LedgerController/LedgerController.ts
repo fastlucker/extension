@@ -22,7 +22,6 @@ class LedgerController {
 
   constructor() {
     this.hdk = new HDKey()
-    this.accounts = []
     this.hasHIDPermission = null
     // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
@@ -83,10 +82,6 @@ class LedgerController {
 
   authorizeHIDPermission() {
     this.hasHIDPermission = true
-  }
-
-  getAccounts() {
-    return Promise.resolve(this.accounts.slice())
   }
 
   async getKeys(from: number = 0, to: number = 4) {
