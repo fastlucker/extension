@@ -2,6 +2,10 @@ import React, { useCallback, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 import { Pressable } from 'react-native-web-hover'
 
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import EmailIcon from '@common/assets/svg/EmailIcon'
+import HWIcon from '@common/assets/svg/HWIcon'
+import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -13,10 +17,6 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import Card from '@web/modules/auth/components/Card'
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import EmailIcon from '@common/assets/svg/EmailIcon'
-import HWIcon from '@common/assets/svg/HWIcon'
-import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
 
 import styles from './styles'
 
@@ -82,12 +82,14 @@ const GetStartedScreen = () => {
                 text={t(
                   'Import multiple accounts from a hardware wallet device: we support Trezor, Ledger and Grid+ Lattice.\n\nYou can import your existing legacy accounts and smart accounts.'
                 )}
-                style={{
-                  marginHorizontal: 16,
-                  borderWidth: 1,
-                  borderColor: hovered ? colors.violet : colors.melrose_15,
-                  ...flexboxStyles.flex1
-                }}
+                style={[
+                  spacings.mhSm,
+                  {
+                    borderWidth: 1,
+                    borderColor: hovered ? colors.violet : colors.melrose_15,
+                    ...flexboxStyles.flex1
+                  }
+                ]}
                 icon={<HWIcon color={hovered ? colors.violet : colors.melrose} />}
               >
                 <Button

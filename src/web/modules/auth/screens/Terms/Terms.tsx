@@ -29,7 +29,7 @@ const Terms = () => {
           <Text fontSize={14} style={[spacings.mbTy]}>
             {t('Ambire Wallet is an open-source non-custodial cryptocurrency wallet:')}
           </Text>
-          <ul style={{ paddingLeft: 16, margin: 0 }}>
+          <ul style={[spacings.plSm, spacings.mh0, spacings.mv0]}>
             <li>
               open-source: the software is provided "as is", without warranty of any kind, express
               or implied, including but not limited to the warranties of merchantability, fitness
