@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useMemo, useState } from 'react'
 
 import {
   LARGE_PAGE_STEP,
+  NUMBER_OF_VISIBLE_ADDRESSES,
   SMALL_PAGE_STEP
 } from '@web/modules/accounts-importer/constants/pagination'
 
@@ -9,13 +10,15 @@ import { AccountsPaginationContextData } from './types'
 
 const AccountsPaginationContext = createContext<AccountsPaginationContextData>({
   page: 1,
+  pageStartIndex: 0,
+  pageEndIndex: 4,
   handleLargePageStepDecrement: () => {},
   handleSmallPageStepDecrement: () => {},
   handleSmallPageStepIncrement: () => {},
   handleLargePageStepIncrement: () => {}
 })
 
-const AccountsPaginationProvider: React.FC<any> = ({ children, walletType }) => {
+const AccountsPaginationProvider: React.FC<any> = ({ children }) => {
   const [page, setPage] = useState<number>(1)
 
   const handleLargePageStepDecrement = useCallback(() => {
@@ -40,11 +43,21 @@ const AccountsPaginationProvider: React.FC<any> = ({ children, walletType }) => 
     setPage((p) => p + LARGE_PAGE_STEP)
   }, [])
 
+  const pageStartIndex = useMemo(() => {
+    return (page - 1) * NUMBER_OF_VISIBLE_ADDRESSES
+  }, [page])
+
+  const pageEndIndex = useMemo(() => {
+    return (page - 1) * NUMBER_OF_VISIBLE_ADDRESSES + 4
+  }, [page])
+
   return (
     <AccountsPaginationContext.Provider
       value={useMemo(
         () => ({
           page,
+          pageStartIndex,
+          pageEndIndex,
           handleLargePageStepDecrement,
           handleSmallPageStepDecrement,
           handleSmallPageStepIncrement,
@@ -52,6 +65,8 @@ const AccountsPaginationProvider: React.FC<any> = ({ children, walletType }) => 
         }),
         [
           page,
+          pageStartIndex,
+          pageEndIndex,
           handleLargePageStepDecrement,
           handleSmallPageStepDecrement,
           handleSmallPageStepIncrement,
