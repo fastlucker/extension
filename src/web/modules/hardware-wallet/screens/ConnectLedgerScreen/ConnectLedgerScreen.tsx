@@ -22,6 +22,7 @@ import spacings from '@common/styles/spacings'
 const ConnectLedgerScreen = () => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
+  const { hardwareWallets } = useHardwareWallets()
 
   const onSubmit = async () => {
     const supportWebHID = await TransportWebHID.isSupported()
@@ -35,33 +36,28 @@ const ConnectLedgerScreen = () => {
         }
       })
     } else if (hasConnectedLedger) {
-      navigate(WEB_ROUTES.hardwareWalletImportAccount, {
+      navigate(WEB_ROUTES.accountsImporter, {
         state: {
           walletType: HARDWARE_WALLETS.LEDGER,
           isWebHID: true
         }
       })
     } else {
-      navigate(WEB_ROUTES.hardwareWalletImportAccount)
+      navigate(WEB_ROUTES.hardwareWalletLedgerPermission)
+      // try {
+      //   const transport = await TransportWebHID.create()
+      //   await transport.close()
+      //   await hardwareWallets[HARDWARE_WALLETS.LEDGER].authorizeHIDPermission()
+
+      //   navigate(WEB_ROUTES.accountsImporter, {
+      //     state: {
+      //       walletType: HARDWARE_WALLETS.LEDGER,
+      //       isWebHID: true
+      //     }
+      //   })
+      // } catch (e) {}
     }
   }
-
-  // const { hardwareWallets } = useHardwareWallets()
-
-  // const onSubmit = async () => {
-  //   try {
-  //     const transport = await TransportWebHID.create()
-  //     await transport.close()
-  //     await hardwareWallets[HARDWARE_WALLETS.LEDGER].authorizeHIDPermission()
-
-  //     navigate(WEB_ROUTES.accountsImporter, {
-  //       state: {
-  //         walletType: HARDWARE_WALLETS.LEDGER,
-  //         isWebHID: true
-  //       }
-  //     })
-  //   } catch (e) {}
-  // }
 
   return (
     <AuthLayoutWrapperMainContent fullWidth>

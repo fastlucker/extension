@@ -133,6 +133,10 @@ const routesConfig: {
       default: i18n.t('Import Account From HW')
     })
   },
+  [ROUTES.accountsImporter]: {
+    route: ROUTES.accountsImporter,
+    title: ''
+  },
   [ROUTES.externalSigner]: {
     route: ROUTES.externalSigner,
     title: Platform.select({

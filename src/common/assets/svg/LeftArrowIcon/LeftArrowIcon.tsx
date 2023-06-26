@@ -8,15 +8,17 @@ interface Props extends SvgProps {
   height?: number
   color?: string
   disabled?: boolean
+  props?: any
 }
 
 const LeftArrowIcon: React.FC<Props> = ({
   width = 40,
   height = 40,
   color = colors.violet,
-  disabled = false
+  disabled = false,
+  ...props
 }) => (
-  <Svg width={width} height={height} viewBox="0 0 36 36">
+  <Svg width={width} height={height} viewBox="0 0 36 36" {...props}>
     <G transform="translate(36 36) rotate(180)">
       <Rect width={width} height={height} rx="12" fill="rgba(182,185,255,0.1)" />
       <Path
