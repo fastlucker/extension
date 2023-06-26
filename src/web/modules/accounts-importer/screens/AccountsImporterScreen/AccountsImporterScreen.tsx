@@ -80,9 +80,8 @@ const AccountsImporterScreen = () => {
 
     return (
       <AccountsPaginationProvider>
-        <AuthLayoutWrapperMainContent>
+        <AuthLayoutWrapperMainContent pageTitle={t('Import Account From {{name}}', { name })}>
           <View style={[spacings.mh, spacings.pv, flexbox.justifyCenter]}>
-            <Title>{t('Connected to a {{name}} hardware device', { name })}</Title>
             <WalletManager />
           </View>
         </AuthLayoutWrapperMainContent>
