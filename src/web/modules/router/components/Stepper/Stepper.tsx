@@ -47,7 +47,7 @@ const StepperComponent: React.FC<any> = () => {
       style={[
         styles.container,
         spacings.phLg,
-        spacings.ptLg,
+        spacings.mtTy,
         flexboxStyles.flex1,
         flexboxStyles.justifyCenter
       ]}

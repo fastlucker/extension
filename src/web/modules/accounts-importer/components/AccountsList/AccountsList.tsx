@@ -10,7 +10,7 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { LARGE_PAGE_STEP } from '@web/modules/accounts-importer/constants/pagination'
-import Account from '@web/modules/accounts-importer/components/AccountsList/Account'
+import Account from '@web/modules/accounts-importer/components/Account'
 
 import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
 import Wrapper from '@common/components/Wrapper'
