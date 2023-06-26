@@ -52,6 +52,7 @@ const LatticeManager: React.FC<Props> = (props) => {
         address: key,
         index: pageStartIndex + i + 1
       }))}
+      loading={loading}
       {...props}
     />
   )

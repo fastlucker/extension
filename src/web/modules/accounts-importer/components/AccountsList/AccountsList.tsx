@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
+import Button from '@common/components/Button'
+import Toggle from '@common/components/Toggle'
+import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
@@ -20,8 +23,17 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 // TODO: each legacy account in the list should be grouped with an Ambire Smart Account
 // TODO: each list item must be selectable (checkbox)
 
-const AccountsList = ({ accounts, loading }: { accounts: any[]; loading?: boolean }) => {
+const AccountsList = ({
+  accounts,
+  loading,
+  onImportReady
+}: {
+  accounts: any[]
+  loading?: boolean
+  onImportReady: () => void
+}) => {
   const { t } = useTranslation()
+  const [value, setValue] = useState('')
 
   const {
     page,
@@ -33,66 +45,90 @@ const AccountsList = ({ accounts, loading }: { accounts: any[]; loading?: boolea
 
   return (
     <View>
-      {(!accounts.length || !!loading) && (
-        <View style={[flexbox.alignCenter]}>
-          <View style={[spacings.mb, flexbox.alignCenter, flexbox.directionRow]}>
-            <Spinner style={{ width: 16, height: 16 }} />
-            <Text color={colors.violet} style={[spacings.mlSm]} fontSize={12}>
-              {t('Looking for linked smart accounts')}
-            </Text>
-          </View>
-        </View>
-      )}
-      {!!accounts.length && !loading && (
-        <View>
-          <Wrapper contentContainerStyle={{ height: 330 }}>
-            {accounts.map((acc, idx) => (
-              <Account key={acc.address} acc={acc} idx={idx} />
-            ))}
-          </Wrapper>
-          <View
-            style={[flexbox.directionRow, flexbox.justifyCenter, flexbox.alignCenter, spacings.pv]}
+      <View style={[flexbox.alignCenter]}>
+        <Wrapper contentContainerStyle={{ height: 330 }}>
+          {!!accounts.length && !loading ? (
+            accounts.map((acc, idx) => <Account key={acc.address} acc={acc} idx={idx} />)
+          ) : (
+            <View style={[flexbox.alignCenter]}>
+              <View style={[spacings.mb, flexbox.alignCenter, flexbox.directionRow]}>
+                <Spinner style={{ width: 16, height: 16 }} />
+                <Text color={colors.violet} style={[spacings.mlSm]} fontSize={12}>
+                  {t('Looking for linked smart accounts')}
+                </Text>
+              </View>
+            </View>
+          )}
+        </Wrapper>
+        <View
+          style={[flexbox.directionRow, flexbox.justifyCenter, flexbox.alignCenter, spacings.pv]}
+        >
+          <TouchableOpacity
+            onPress={handleLargePageStepDecrement}
+            disabled={page <= LARGE_PAGE_STEP}
+            style={page <= LARGE_PAGE_STEP && { opacity: 0.6 }}
           >
-            <TouchableOpacity
-              onPress={handleLargePageStepDecrement}
-              disabled={page <= LARGE_PAGE_STEP}
-              style={page <= LARGE_PAGE_STEP && { opacity: 0.6 }}
-            >
-              <LeftDoubleArrowIcon />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleSmallPageStepDecrement}
-              disabled={page === 1}
-              style={page === 1 && { opacity: 0.6 }}
-            >
-              <LeftArrowIcon width={36} height={36} style={[spacings.mlTy]} />
-            </TouchableOpacity>
-            <Text style={spacings.ph}>
-              {page > 2 && <Text>{'...  '}</Text>}
-              {page === 1 && (
-                <Text>
-                  <Text weight="semiBold">{page}</Text>
-                  <Text>{`  ${page + 1}  ${page + 2}`}</Text>
-                </Text>
-              )}
-              {page !== 1 && (
-                <Text>
-                  <Text>{`  ${page - 1}  `}</Text>
-                  <Text weight="semiBold">{page}</Text>
-                  <Text>{`  ${page + 1}`}</Text>
-                </Text>
-              )}
-              <Text>{'  ...'}</Text>
-            </Text>
-            <TouchableOpacity onPress={handleSmallPageStepIncrement}>
-              <RightArrowIcon style={[spacings.mrTy]} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleLargePageStepIncrement}>
-              <RightDoubleArrowIcon />
-            </TouchableOpacity>
-          </View>
+            <LeftDoubleArrowIcon />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSmallPageStepDecrement}
+            disabled={page === 1}
+            style={page === 1 && { opacity: 0.6 }}
+          >
+            <LeftArrowIcon width={36} height={36} style={[spacings.mlTy]} />
+          </TouchableOpacity>
+          <Text style={spacings.ph}>
+            {page > 2 && <Text>{'...  '}</Text>}
+            {page === 1 && (
+              <Text>
+                <Text weight="semiBold">{page}</Text>
+                <Text>{`  ${page + 1}  ${page + 2}`}</Text>
+              </Text>
+            )}
+            {page !== 1 && (
+              <Text>
+                <Text>{`  ${page - 1}  `}</Text>
+                <Text weight="semiBold">{page}</Text>
+                <Text>{`  ${page + 1}`}</Text>
+              </Text>
+            )}
+            <Text>{'  ...'}</Text>
+          </Text>
+          <TouchableOpacity
+            style={loading && { opacity: 0.6 }}
+            disabled={loading}
+            onPress={handleSmallPageStepIncrement}
+          >
+            <RightArrowIcon style={[spacings.mrTy]} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={loading && { opacity: 0.6 }}
+            disabled={loading}
+            onPress={handleLargePageStepIncrement}
+          >
+            <RightDoubleArrowIcon />
+          </TouchableOpacity>
         </View>
-      )}
+        <Toggle label="Show empty legacy accounts" />
+        <Select
+          hasArrow
+          theme
+          options={[
+            { label: 'Swap', value: 'Swap' },
+            { label: 'Bridge', value: 'Bridge' },
+            { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
+            { label: 'Deposit', value: 'Deposit' }
+          ]}
+          setValue={setValue}
+          value={value}
+          label="Custom Derivation"
+        />
+        <Button
+          style={{ ...spacings.mtTy, width: 296, ...flexbox.alignSelfCenter }}
+          onPress={onImportReady}
+          text="Import Accounts"
+        />
+      </View>
     </View>
   )
 }

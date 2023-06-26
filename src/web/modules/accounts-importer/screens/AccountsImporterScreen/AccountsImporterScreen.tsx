@@ -19,6 +19,7 @@ import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
 
 import colors from '@common/styles/colors'
+import flexbox from '@common/styles/utils/flexbox'
 
 export interface Account {
   type: string
@@ -80,7 +81,7 @@ const AccountsImporterScreen = () => {
     return (
       <AccountsPaginationProvider>
         <AuthLayoutWrapperMainContent>
-          <View style={[spacings.mh, spacings.pv]}>
+          <View style={[spacings.mh, spacings.pv, flexbox.justifyCenter]}>
             <Title>{t('Connected to a {{name}} hardware device', { name })}</Title>
             <WalletManager />
           </View>
