@@ -1,18 +1,30 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import { useTranslation } from '@common/config/localization'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 
 const Terms = () => {
   const { t } = useTranslation()
+  const { params } = useRoute()
+  const { navigate } = useNavigation()
+  const { updateStepperState } = useStepper()
+  const { nextPage, nextState }: any = params
 
+  const onPress = () => {
+    if (!nextPage || !nextState) return
+    updateStepperState(0, nextState)
+    navigate(nextPage)
+  }
   return (
     <AuthLayoutWrapperMainContent fullWidth>
       <View style={{ maxWidth: 620, ...flexboxStyles.alignSelfCenter }}>
@@ -29,11 +41,11 @@ const Terms = () => {
           <Text fontSize={14} style={[spacings.mbTy]}>
             {t('Ambire Wallet is an open-source non-custodial cryptocurrency wallet:')}
           </Text>
-          <ul style={[spacings.plSm, spacings.mh0, spacings.mv0]}>
+          <ul style={{ paddingLeft: SPACING_SM, margin: 0 }}>
             <li>
-              open-source: the software is provided "as is", without warranty of any kind, express
-              or implied, including but not limited to the warranties of merchantability, fitness
-              for a particular purpose and noninfringement
+              open-source: the software is provided &quot;as is&quot;, without warranty of any kind,
+              express or implied, including but not limited to the warranties of merchantability,
+              fitness for a particular purpose and noninfringement
             </li>
             <li>
               non-custodial: it is designed such that each user account is solely controlled by
@@ -77,6 +89,7 @@ const Terms = () => {
           style={{ width: 296, ...flexboxStyles.alignSelfCenter }}
           text={t('Continue')}
           hasBottomSpacing={false}
+          onPress={onPress}
         />
       </View>
     </AuthLayoutWrapperMainContent>
