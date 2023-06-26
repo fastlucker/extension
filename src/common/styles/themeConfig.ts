@@ -63,15 +63,17 @@ const ThemeColors = {
   },
   buttonPlaceholderText: {
     [THEME_TYPES.DARK]: colors.waikawaGray,
-    [THEME_TYPES.LIGHT]: colors.martinique_35
+    [THEME_TYPES.LIGHT]: colors.martinique_65
   }
 }
 
 export const lightOnlyRoutesOnMobile = []
 
 export const lightOnlyRoutesOnWeb = [
-  WEB_ROUTES.createVault,
+  WEB_ROUTES.createEmailVault,
+  WEB_ROUTES.createKeyStore,
   WEB_ROUTES.getStarted,
+  WEB_ROUTES.terms,
   WEB_ROUTES.authEmailAccount,
   WEB_ROUTES.authEmailLogin,
   WEB_ROUTES.authEmailRegister,

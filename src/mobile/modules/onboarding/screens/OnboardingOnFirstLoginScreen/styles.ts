@@ -1,7 +1,7 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_LG, SPACING_SM } from '@common/styles/spacings'
 
 interface Style {
   titleText: TextStyle
@@ -15,14 +15,14 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   titleText: {
     textAlign: 'center',
-    marginHorizontal: 40,
+    marginHorizontal: SPACING * 2,
     ...spacings.mb,
     ...spacings.mt
   },
   descriptionText: {
     textAlign: 'center',
-    marginBottom: 70,
-    marginHorizontal: 40,
+    marginBottom: SPACING_LG * 2,
+    marginHorizontal: SPACING * 2,
     ...spacings.mt
   },
   dotStyle: {
@@ -34,8 +34,8 @@ const styles = StyleSheet.create<Style>({
     borderColor: colors.clay
   },
   callToActionButton: {
-    marginRight: 36,
-    marginTop: 10
+    marginRight: SPACING_SM * 2,
+    ...spacings.mtTy
   },
   fallbackBackground: {
     backgroundColor: colors.titan

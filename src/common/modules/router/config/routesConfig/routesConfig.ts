@@ -40,6 +40,10 @@ const routesConfig: {
       web: ''
     })
   },
+  [ROUTES.terms]: {
+    route: ROUTES.terms,
+    title: ''
+  },
   [ROUTES.onboardingOnFirstLogin]: {
     route: ROUTES.onboardingOnFirstLogin,
     title: ''
@@ -56,11 +60,17 @@ const routesConfig: {
     route: ROUTES.authEmailRegister,
     title: ''
   },
-  [ROUTES.createVault]: {
-    route: ROUTES.createVault,
-    title: Platform.select({
-      default: i18n.t('Setup Your Ambire Key Store')
-    })
+  [ROUTES.createKeyStore]: {
+    route: ROUTES.createKeyStore,
+    title: i18n.t('Ambire Key Store'),
+    flow: 'emailAuth',
+    flowStep: 2
+  },
+  [ROUTES.createEmailVault]: {
+    route: ROUTES.createEmailVault,
+    title: i18n.t('Email Confirmation Required'),
+    flow: 'emailAuth',
+    flowStep: 0
   },
   [ROUTES.auth]: {
     route: ROUTES.auth,
@@ -74,7 +84,9 @@ const routesConfig: {
     title: Platform.select({
       default: i18n.t('Login'),
       web: ''
-    })
+    }),
+    flow: 'emailAuth',
+    flowStep: 1
   },
   [ROUTES.ambireAccountLoginPasswordConfirm]: {
     route: ROUTES.ambireAccountLoginPasswordConfirm,

@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
-import spacings, { SPACING_SM } from '@common/styles/spacings'
+import spacings, { SPACING_MI, SPACING_SM } from '@common/styles/spacings'
 import commonStyles from '@common/styles/utils/common'
 
 interface Style {
@@ -31,11 +31,11 @@ const styles = StyleSheet.create<Style>({
   },
   buttonsContainer: {
     flexDirection: 'row',
-    marginHorizontal: -5,
+    marginHorizontal: -SPACING_MI,
     ...spacings.mbTy
   },
   buttonWrapper: {
-    marginHorizontal: 5,
+    marginHorizontal: SPACING_MI,
     flex: 1
   }
 })

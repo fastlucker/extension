@@ -1,6 +1,7 @@
 import React from 'react'
 import { Outlet, Route, Routes } from 'react-router-dom'
 
+import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import AuthScreen from '@common/modules/auth/screens/AuthScreen'
 import { headerBeta as defaultHeaderBeta } from '@common/modules/header/config/headerConfig'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
@@ -13,7 +14,9 @@ import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
 import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
 import ExternalSignerLoginScreen from '@web/modules/auth/screens/ExternalSignerLoginScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
+import Terms from '@web/modules/auth/screens/Terms'
 import JsonLoginScreen from '@web/modules/auth/screens/JsonLoginScreen'
+import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import RequestLedgerPermissionScreen from '@web/modules/hardware-wallet/screens/RequestLedgerPermissionScreen'
@@ -22,6 +25,8 @@ import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 
+import CreateNewKeyStoreScreen from '@web/modules/key-store/screens/CreateNewKeyStoreScreen'
+
 const headerBeta = (
   <>
     {defaultHeaderBeta({})}
@@ -29,31 +34,53 @@ const headerBeta = (
   </>
 )
 
+const stepperProvider = (
+  <StepperProvider>
+    <Outlet />
+  </StepperProvider>
+)
+
 const MainRoutes = () => {
   return (
     <Routes>
-      <Route element={AuthLayoutWrapper}>
-        <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
-        <Route element={<TabOnlyRoute />}>
-          <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
-          <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
+      <Route element={stepperProvider}>
+        <Route element={AuthLayoutWrapper}>
+          <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
+          <Route element={<TabOnlyRoute />}>
+            <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
+            <Route path={WEB_ROUTES.terms} element={<Terms />} />
+            {/* TODO: v2 */}
+            <Route path={WEB_ROUTES.createKeyStore} element={<CreateNewKeyStoreScreen />} />
+            <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
 
-          <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
+            <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
 
-          {/* TODO: Temporarily wire-up */}
-          {/* <Route path={WEB_ROUTES.ambireAccountLogin} element={<EmailLoginScreen />} /> */}
-          <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
-          <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
-          <Route
-            path={WEB_ROUTES.ambireAccountLoginPasswordConfirm}
-            element={<AddAccountPasswordToVaultScreen />}
-          />
+            <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
+            {/* TODO: Temporarily wire-up */}
+            {/* <Route path={WEB_ROUTES.ambireAccountLogin} element={<EmailLoginScreen />} /> */}
+            <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
+            <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
+            <Route
+              path={WEB_ROUTES.ambireAccountLoginPasswordConfirm}
+              element={<AddAccountPasswordToVaultScreen />}
+            />
 
-          <Route path={WEB_ROUTES.ambireAccountJsonLogin} element={<JsonLoginScreen />} />
-          <Route
-            path={WEB_ROUTES.ambireAccountJsonLoginPasswordConfirm}
-            element={<AddAccountPasswordToVaultScreen />}
-          />
+            <Route path={WEB_ROUTES.ambireAccountJsonLogin} element={<JsonLoginScreen />} />
+            <Route
+              path={WEB_ROUTES.ambireAccountJsonLoginPasswordConfirm}
+              element={<AddAccountPasswordToVaultScreen />}
+            />
+
+            <Route
+              path={WEB_ROUTES.hardwareWalletSelect}
+              element={<HardwareWalletSelectorScreen />}
+            />
+            <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
+            <Route
+              path={WEB_ROUTES.hardwareWalletLedgerPermission}
+              element={<RequestLedgerPermissionScreen />}
+            />
+          </Route>
 
           <Route
             path={WEB_ROUTES.hardwareWalletSelect}

@@ -3,6 +3,7 @@ import React, { createContext, useContext } from 'react'
 import { View, ViewProps } from 'react-native'
 import { Outlet } from 'react-router-dom'
 
+import InformationCircleIcon from '@common/assets/svg/InformationCircleIcon'
 import Wrapper from '@common/components/Wrapper'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
@@ -15,14 +16,18 @@ import styles from './styles'
 const AuthLayoutWrapperContext = createContext(true)
 
 const AuthLayoutWrapper = (
-  <AuthLayoutWrapperContext.Provider value={true}>
+  <AuthLayoutWrapperContext.Provider value>
     <View style={[flexbox.directionRow, flexbox.flex1]}>
       <Outlet />
     </View>
   </AuthLayoutWrapperContext.Provider>
 )
 
-export const AuthLayoutWrapperMainContent: React.FC<any> = ({ children }) => {
+export const AuthLayoutWrapperMainContent: React.FC<any> = ({
+  fullWidth = false,
+  hideStepper = false,
+  children
+}) => {
   const context = useContext(AuthLayoutWrapperContext)
 
   if (!context) {
@@ -31,19 +36,19 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({ children }) => {
 
   return (
     <View style={[flexbox.flex1, { backgroundColor: colors.zircon }]}>
-      <TabHeader />
-      <View style={[flexbox.flex1, flexbox.justifyCenter]}>
+      <TabHeader hideStepper={hideStepper} />
+      <Wrapper style={[flexbox.flex1]} showsVerticalScrollIndicator={false}>
         <View
           style={[
             spacings.pbLg,
             spacings.phLg,
             flexbox.alignSelfCenter,
-            { width: 770 + SPACING_LG * 2, minHeight: 600 }
+            { width: fullWidth ? 980 : 770 + SPACING_LG * 2, minHeight: 600 }
           ]}
         >
           {children}
         </View>
-      </View>
+      </Wrapper>
     </View>
   )
 }
@@ -66,13 +71,18 @@ export const AuthLayoutWrapperSideContent: React.FC<AuthLayoutWrapperSideContent
 
   return (
     <LinearGradient
-      colors={['#ae60ff', '#28e7a7']}
+      colors={['#2CC6A7', '#420C9F', '#292150']}
       start={{ x: 1, y: 0 }}
       end={{ x: 0, y: 1 }}
+      locations={[0, 0.53, 1]}
       style={[styles.sideContentContainer, style]}
       {...rest}
     >
-      <Wrapper contentContainerStyle={[spacings.ph0, { flexGrow: 1 }]} showsVerticalScrollIndicator={false}>
+      <Wrapper
+        contentContainerStyle={[spacings.ph0, { flexGrow: 1 }]}
+        showsVerticalScrollIndicator={false}
+      >
+        <InformationCircleIcon style={styles.informationCircle} />
         {children}
       </Wrapper>
       <Ameba style={backgroundType === 'alpha' ? styles.amebaAlpha : styles.amebaBeta} />

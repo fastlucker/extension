@@ -2,7 +2,7 @@ import { StyleSheet, TextProps, ViewProps } from 'react-native'
 
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_TY } from '@common/styles/spacings'
 import commonStyles from '@common/styles/utils/common'
 
 interface Style {
@@ -55,14 +55,14 @@ const styles = StyleSheet.create<Style>({
     borderBottomWidth: 0
   },
   searchTextInputStyle: {
-    marginTop: 10,
+    marginTop: SPACING_TY,
     width: '100%',
     height: 50,
     borderRadius: 13,
     backgroundColor: colors.howl,
     borderWidth: 0,
     fontSize: 16,
-    paddingHorizontal: 10,
+    ...spacings.phTy,
     color: colors.titan
   },
   modalContentContainerStyle: {

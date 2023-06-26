@@ -5,17 +5,17 @@ import { View } from 'react-native'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
+import Stepper from '@web/modules/router/components/Stepper'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
-import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
 
-const TabHeader: React.FC<any> = () => {
+const TabHeader: React.FC<any> = ({ hideStepper = false }) => {
   const { t } = useTranslation()
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
@@ -31,8 +31,8 @@ const TabHeader: React.FC<any> = () => {
           onPress={handleGoBack}
           style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}
         >
-          <LeftArrowIcon width={50} height={50} color={colors.martinique} />
-          <Text fontSize={18} weight="regular" color={colors.martinique} style={spacings.ml}>
+          <LeftArrowIcon width={50} height={50} color={colors.violet} />
+          <Text fontSize={14} weight="regular" color={colors.martinique} style={spacings.ml}>
             {t('Back')}
           </Text>
         </NavIconWrapper>
@@ -43,19 +43,24 @@ const TabHeader: React.FC<any> = () => {
   }
 
   const nextRoute = path?.substring(1) as ROUTES
-  const { title } = routesConfig[nextRoute]
+  const { title, flow, flowStep } = routesConfig[nextRoute]
+
+  const shouldDisplayStepper = flow && !hideStepper
 
   return (
     <View style={[styles.container, spacings.pv, spacings.ph]}>
       <View>{renderHeaderLeft()}</View>
-      <Text
-        fontSize={18}
-        weight="regular"
-        style={[styles.title, spacings.pl, canGoBack ? { paddingRight: 140 } : spacings.pr]}
-        numberOfLines={2}
-      >
-        {title || ' '}
-      </Text>
+      {shouldDisplayStepper && <Stepper step={flowStep} />}
+      {!shouldDisplayStepper && title && (
+        <Text
+          fontSize={20}
+          weight="medium"
+          style={[styles.title, spacings.pl, canGoBack ? { paddingRight: 140 } : spacings.pr]}
+          numberOfLines={2}
+        >
+          {title || ' '}
+        </Text>
+      )}
     </View>
   )
 }

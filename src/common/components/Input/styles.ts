@@ -2,7 +2,7 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_MI } from '@common/styles/spacings'
 
 interface Style {
   inputContainer: ViewStyle
@@ -19,35 +19,37 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   inputContainer: {
-    ...spacings.mbLg
+    ...spacings.mbSm
   },
   inputWrapper: {
     flexDirection: 'row',
-    borderBottomWidth: 2,
-    height: 50
+    borderWidth: 2,
+    height: 50,
+    borderRadius: 12
   },
   input: {
     // Centers the content (used because of the borderBottomWidth)
     paddingTop: 2,
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: isWeb ? FONT_FAMILIES.MEDIUM : FONT_FAMILIES.LIGHT,
     flex: 1,
     height: 48,
+    borderBottomWidth: 2,
     ...spacings.phTy
   },
   infoText: {
     opacity: 0.5,
-    paddingHorizontal: 5,
+    ...spacings.phMi,
     ...spacings.ptTy,
     ...spacings.ph
   },
   errorText: {
-    paddingHorizontal: 5,
-    ...spacings.ptMi,
-    ...spacings.ph
+    ...spacings.phMi,
+    ...spacings.mbMI,
+    ...spacings.phTy
   },
   validText: {
-    paddingHorizontal: 5,
+    ...spacings.phMi,
     ...spacings.ptMi,
     ...spacings.ph
   },
@@ -57,6 +59,8 @@ const styles = StyleSheet.create<Style>({
   button: {
     // Centers the content (used because of the borderBottomWidth)
     paddingTop: 2,
+    marginBottom: -2,
+    borderBottomWidth: 2,
     justifyContent: 'center',
     ...spacings.phTy
   },
@@ -67,7 +71,8 @@ const styles = StyleSheet.create<Style>({
     ...spacings.plTy
   },
   disabled: {
-    opacity: 0.5
+    opacity: 0.5,
+    backgroundColor: 'transparent'
   }
 })
 

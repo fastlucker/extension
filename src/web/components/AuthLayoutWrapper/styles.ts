@@ -1,24 +1,31 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import spacings, { SPACING_MD } from '@common/styles/spacings'
+
 interface Style {
   mainContentWrapper: ViewStyle
   sideContentContainer: ViewStyle
+  informationCircle: ViewStyle
   amebaAlpha: ViewStyle
   amebaBeta: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
   mainContentWrapper: {
-    width: 315,
+    width: 290,
     alignSelf: 'center',
-    justifyContent: 'center',
+    paddingTop: 70,
     flex: 1
   },
   sideContentContainer: {
-    width: '33%',
-    paddingTop: 80,
-    paddingHorizontal: 60,
+    width: '35%',
+    ...spacings.ptMd,
+    paddingHorizontal: SPACING_MD * 3,
     overflow: 'hidden'
+  },
+  informationCircle: {
+    alignSelf: 'center',
+    ...spacings.pbLg
   },
   amebaAlpha: {
     position: 'absolute',

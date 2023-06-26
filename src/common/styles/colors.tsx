@@ -33,11 +33,13 @@ const colors = {
   howl: '#1E2033',
   howl_65: 'rgba(30, 32, 51, 0.65)',
   clay: '#24263D',
+  clay_35: '#24263D59',
   valhalla: '#272A42',
   valhalla_95: 'rgba(39, 42, 66, 0.95)',
   valhalla_66: 'rgba(39, 42, 66, 0.66)',
   martinique: '#2D314D',
   martinique_35: '#2D314D59',
+  martinique_65: '#2D314DA6',
   hauntedDreams: '#313555',
   patriotBlue: '#333757',
   patriotBlue_75: 'rgba(51, 55, 87, 0.75)',
@@ -54,8 +56,12 @@ const colors = {
   zircon: '#F7F8FF',
   mischka: '#D6D7E1',
 
+  melrose: '#B6B9FF',
+  melrose_35: '#B6B9FF59',
   melrose_15: '#B6B9FF26',
   scampi_20: '#6770B333',
+  quartz: '#d7daf0',
+  brownRum: '#B89C4B',
 
   white: '#FFFFFF',
   black: '#000000'

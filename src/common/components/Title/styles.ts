@@ -1,6 +1,7 @@
 import { StyleSheet, TextStyle } from 'react-native'
 
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
+import spacings from '@common/styles/spacings'
 
 interface Style {
   titleRegular: TextStyle
@@ -22,7 +23,7 @@ const styles = StyleSheet.create<Style>({
     lineHeight: 25
   },
   bottomSpacing: {
-    paddingBottom: 20
+    ...spacings.pb
   }
 })
 

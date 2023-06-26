@@ -35,12 +35,15 @@ const AccountsList = ({ accounts, loading }: { accounts: any[]; loading?: boolea
                     {acc?.index || idx + 1}
                   </Text>
                   <View
-                    style={{
-                      padding: 10,
-                      marginBottom: 10,
-                      backgroundColor: colors.chetwode_50,
-                      borderRadius: 10
-                    }}
+                    style={[
+                      spacings.mbTy,
+                      {
+                        padding: 10,
+                        marginBottom: 10,
+                        backgroundColor: colors.chetwode_50,
+                        borderRadius: 10
+                      }
+                    ]}
                   >
                     <Text fontSize={12} weight="medium">
                       Legacy Account

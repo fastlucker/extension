@@ -2,6 +2,7 @@ import { Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
 import commonStyles from '@common/styles/utils/common'
 
 export const HEADER_HEIGHT = Platform.select({
@@ -20,11 +21,11 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
   container: {
-    paddingBottom: 15,
+    ...spacings.pbSm,
     flexDirection: 'row',
     backgroundColor: colors.wooed,
     alignItems: 'center',
-    paddingHorizontal: 20,
+    ...spacings.ph,
     ...(isWeb ? { height: 80 } : {})
   },
   navIconContainerRegular: {
@@ -41,15 +42,15 @@ const styles = StyleSheet.create<Styles>({
     // So it is vertically aligned well with the nav buttons,
     // even when there are none.
     paddingVertical: 7,
-    paddingHorizontal: 10
+    ...spacings.phTy
   },
   switcherContainer: {
     backgroundColor: colors.valhalla,
     height: 50,
     borderRadius: 13,
-    paddingLeft: 10,
-    paddingRight: 15,
-    marginLeft: 10,
+    ...spacings.plTy,
+    ...spacings.prSm,
+    ...spacings.mlTy,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
