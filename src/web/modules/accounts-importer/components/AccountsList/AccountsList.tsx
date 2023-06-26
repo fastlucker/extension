@@ -112,7 +112,6 @@ const AccountsList = ({
         <Toggle label="Show empty legacy accounts" />
         <Select
           hasArrow
-          theme
           options={[
             { label: 'Swap', value: 'Swap' },
             { label: 'Bridge', value: 'Bridge' },

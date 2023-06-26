@@ -55,6 +55,15 @@ const SelectComponent = ({ value, disabled, setValue, options, label }: Props) =
             color: colors.martinique
           })
         }}
+        theme={(theme) => ({
+          ...theme,
+          borderRadius: 0,
+          colors: {
+            ...theme.colors,
+            primary25: colors.melrose_15,
+            primary: colors.melrose
+          }
+        })}
         placeholder={label}
         menuPlacement="auto"
       />
