@@ -45,7 +45,7 @@ const AccountsList = ({ accounts, loading }: { accounts: any[]; loading?: boolea
       )}
       {!!accounts.length && !loading && (
         <View>
-          <Wrapper style={{ height: 300, overflowY: 'auto' }}>
+          <Wrapper contentContainerStyle={{ height: 330 }}>
             {accounts.map((acc, idx) => (
               <Account key={acc.address} acc={acc} idx={idx} />
             ))}
