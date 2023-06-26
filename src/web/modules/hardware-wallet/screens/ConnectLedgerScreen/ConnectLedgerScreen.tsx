@@ -43,19 +43,19 @@ const ConnectLedgerScreen = () => {
         }
       })
     } else {
-      navigate(WEB_ROUTES.hardwareWalletLedgerPermission)
-      // try {
-      //   const transport = await TransportWebHID.create()
-      //   await transport.close()
-      //   await hardwareWallets[HARDWARE_WALLETS.LEDGER].authorizeHIDPermission()
+      // navigate(WEB_ROUTES.hardwareWalletLedgerPermission)
+      try {
+        const transport = await TransportWebHID.create()
+        await transport.close()
+        await hardwareWallets[HARDWARE_WALLETS.LEDGER].authorizeHIDPermission()
 
-      //   navigate(WEB_ROUTES.accountsImporter, {
-      //     state: {
-      //       walletType: HARDWARE_WALLETS.LEDGER,
-      //       isWebHID: true
-      //     }
-      //   })
-      // } catch (e) {}
+        navigate(WEB_ROUTES.accountsImporter, {
+          state: {
+            walletType: HARDWARE_WALLETS.LEDGER,
+            isWebHID: true
+          }
+        })
+      } catch (e) {}
     }
   }
 
@@ -84,7 +84,14 @@ const ConnectLedgerScreen = () => {
               {t('2. Unlock Trezor / Ledger and open the Ambire extension')}
             </Text>
           </View>
-          <View style={[flexbox.directionRow, flexbox.alignSelfCenter, spacings.mbLg]}>
+          <View
+            style={[
+              flexbox.directionRow,
+              flexbox.alignSelfCenter,
+              flexbox.alignCenter,
+              spacings.mbLg
+            ]}
+          >
             <Drive style={{ ...spacings.mrLg }} />
             <ArrowIcon style={{ ...spacings.mrLg }} />
             <AmbireScreen />
