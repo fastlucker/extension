@@ -49,9 +49,7 @@ const GetEncryptionPublicKeyRequest = ({
     <GradientWrapper>
       <Wrapper
         hasBottomTabNav={false}
-        contentContainerStyle={{
-          paddingTop: 0
-        }}
+        contentContainerStyle={spacings.pt0}
         style={isInBottomSheet && spacings.ph0}
       >
         <Panel type="filled">

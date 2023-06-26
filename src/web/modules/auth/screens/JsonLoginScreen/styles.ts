@@ -33,8 +33,8 @@ const styles = StyleSheet.create<Styles>({
     borderColor: colors.violet,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 30,
-    paddingBottom: 20
+    ...spacings.ptLg,
+    ...spacings.pb
   }
 })
 

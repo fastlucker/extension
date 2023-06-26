@@ -13,7 +13,7 @@ import useRoute from '@common/hooks/useRoute'
 import { ROUTES } from '@common/modules/router/constants/common'
 import styles from '@common/modules/router/styles'
 import colors from '@common/styles/colors'
-import { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
+import spacings, { IS_SCREEN_SIZE_L } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 const tabsIconSize = IS_SCREEN_SIZE_L ? 44 : 34
@@ -33,11 +33,11 @@ let Item: React.FC<ItemProps> = ({ Icon, title, name, isActive }) => {
   return (
     <TouchableOpacity
       style={[
+        spacings.pvSm,
         {
           height: TAB_BAR_HEIGHT,
           flex: 1,
-          alignItems: 'center',
-          paddingVertical: 15
+          alignItems: 'center'
         },
         isActive && { backgroundColor: colors.howl_65 }
       ]}

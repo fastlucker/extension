@@ -2,32 +2,32 @@ import React, { useCallback, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 import { Pressable } from 'react-native-web-hover'
 
+import DownArrow from '@common/assets/svg/DownArrow'
+import EmailIcon from '@common/assets/svg/EmailIcon'
+import HWIcon from '@common/assets/svg/HWIcon'
+import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useStepper from '@common/modules/auth/hooks/useStepper'
-import { ROUTES } from '@common/modules/router/constants/common'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import Card from '@web/modules/auth/components/Card'
-import DownArrow from '@common/assets/svg/DownArrow'
-import EmailIcon from '@common/assets/svg/EmailIcon'
-import HWIcon from '@common/assets/svg/HWIcon'
-import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
 
 import styles from './styles'
 
 const GetStartedScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const [advanceModeEnabled, setAdvancedModeEnabled] = useState(true)
-  const { updateStepperState } = useStepper()
+  const [advanceModeEnabled, setAdvancedModeEnabled] = useState(false)
 
-  const handleAuthButtonPress = useCallback((nextRoute: any) => navigate(nextRoute), [navigate])
-
+  const handleAuthButtonPress = useCallback(
+    (nextRoute: any, state?: any) => navigate(nextRoute, state),
+    [navigate]
+  )
   return (
     <AuthLayoutWrapperMainContent fullWidth>
       <View style={[flexboxStyles.center]}>
@@ -38,12 +38,7 @@ const GetStartedScreen = () => {
           {t('Choose Account Type')}
         </Text>
         <View style={[flexboxStyles.directionRow]}>
-          <Pressable
-            onPress={() => {
-              updateStepperState(0, 'emailAuth')
-              handleAuthButtonPress(ROUTES.createEmailVault)
-            }}
-          >
+          <Pressable>
             {({ hovered }) => (
               <Card
                 title={t('Email account')}
@@ -62,47 +57,52 @@ const GetStartedScreen = () => {
                   style={{ width: 260 }}
                   text={t('Create Email Account')}
                   onPress={() => {
-                    updateStepperState(0, 'emailAuth')
-                    handleAuthButtonPress(ROUTES.createEmailVault)
+                    handleAuthButtonPress(WEB_ROUTES.terms, {
+                      state: {
+                        nextState: 'emailAuth',
+                        nextPage: WEB_ROUTES.createEmailVault
+                      }
+                    })
                   }}
                   hasBottomSpacing={false}
                 />
               </Card>
             )}
           </Pressable>
-          <Pressable
-            onPress={() => {
-              updateStepperState(0, 'hwAuth')
-              handleAuthButtonPress(ROUTES.hardwareWalletSelect)
-            }}
-          >
+          <Pressable>
             {({ hovered }) => (
               <Card
                 title={t('Hardware wallet')}
                 text={t(
                   'Import multiple accounts from a hardware wallet device: we support Trezor, Ledger and Grid+ Lattice.\n\nYou can import your existing legacy accounts and smart accounts.'
                 )}
-                style={{
-                  marginHorizontal: 16,
-                  borderWidth: 1,
-                  borderColor: hovered ? colors.violet : colors.melrose_15,
-                  ...flexboxStyles.flex1
-                }}
+                style={[
+                  spacings.mhSm,
+                  {
+                    borderWidth: 1,
+                    borderColor: hovered ? colors.violet : colors.melrose_15,
+                    ...flexboxStyles.flex1
+                  }
+                ]}
                 icon={<HWIcon color={hovered ? colors.violet : colors.melrose} />}
               >
                 <Button
                   textStyle={{ fontSize: 14 }}
                   text={t('Import From Hardware Wallet')}
                   onPress={() => {
-                    updateStepperState(0, 'hwAuth')
-                    handleAuthButtonPress(ROUTES.hardwareWalletSelect)
+                    handleAuthButtonPress(WEB_ROUTES.terms, {
+                      state: {
+                        nextState: 'hwAuth',
+                        nextPage: WEB_ROUTES.hardwareWalletSelect
+                      }
+                    })
                   }}
                   hasBottomSpacing={false}
                 />
               </Card>
             )}
           </Pressable>
-          <Pressable onPress={() => handleAuthButtonPress(ROUTES.externalSigner)}>
+          <Pressable>
             {({ hovered }) => (
               <Card
                 title={t('Legacy Account')}
@@ -120,7 +120,14 @@ const GetStartedScreen = () => {
                   textStyle={{ fontSize: 14 }}
                   style={{ width: 260 }}
                   text={t('Import Legacy Account')}
-                  onPress={() => handleAuthButtonPress(ROUTES.externalSigner)}
+                  onPress={() => {
+                    handleAuthButtonPress(WEB_ROUTES.terms, {
+                      state: {
+                        nextState: 'emailAuth',
+                        nextPage: WEB_ROUTES.externalSigner
+                      }
+                    })
+                  }}
                   hasBottomSpacing={false}
                 />
               </Card>
@@ -132,9 +139,9 @@ const GetStartedScreen = () => {
           <View style={styles.hr} />
           <TouchableOpacity
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.ph]}
-            onPress={() => setAdvancedModeEnabled(!advanceModeEnabled)}
+            onPress={() => setAdvancedModeEnabled((prev) => !prev)}
           >
-            <DownArrow isActive={!advanceModeEnabled} />
+            <DownArrow isActive={advanceModeEnabled} />
             <Text fontSize={14} style={[spacings.mlMi]} weight="medium">
               {t('Show more options')}
             </Text>
@@ -153,7 +160,7 @@ const GetStartedScreen = () => {
                   style={[{ minWidth: 190 }, spacings.mrMd]}
                   textStyle={{ fontSize: 14 }}
                   accentColor={colors.violet}
-                  onPress={() => handleAuthButtonPress(ROUTES.ambireAccountJsonLogin)}
+                  onPress={() => handleAuthButtonPress(WEB_ROUTES.ambireAccountJsonLogin)}
                 />
                 <Text shouldScale={false} fontSize={12} weight="regular">
                   {t(

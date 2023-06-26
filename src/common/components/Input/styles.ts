@@ -2,7 +2,7 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_MI } from '@common/styles/spacings'
 
 interface Style {
   inputContainer: ViewStyle
@@ -39,17 +39,17 @@ const styles = StyleSheet.create<Style>({
   },
   infoText: {
     opacity: 0.5,
-    paddingHorizontal: 5,
+    ...spacings.phMi,
     ...spacings.ptTy,
     ...spacings.ph
   },
   errorText: {
-    paddingHorizontal: 5,
+    ...spacings.phMi,
     ...spacings.mbMI,
     ...spacings.phTy
   },
   validText: {
-    paddingHorizontal: 5,
+    ...spacings.phMi,
     ...spacings.ptMi,
     ...spacings.ph
   },
