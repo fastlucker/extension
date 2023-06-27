@@ -1,19 +1,40 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
+import Button from '@common/components/Button'
+import Toggle from '@common/components/Toggle'
+import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { AntDesign } from '@expo/vector-icons'
 import { LARGE_PAGE_STEP } from '@web/modules/accounts-importer/constants/pagination'
+import Account from '@web/modules/accounts-importer/components/Account'
+
 import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
+import Wrapper from '@common/components/Wrapper'
+import { useTranslation } from '@common/config/localization'
+import LeftDoubleArrowIcon from '@common/assets/svg/LeftDoubleArrowIcon.tsx'
+import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 
 // TODO: each legacy account in the list should be grouped with an Ambire Smart Account
 // TODO: each list item must be selectable (checkbox)
 
-const AccountsList = ({ accounts, loading }: { accounts: any[]; loading?: boolean }) => {
+const AccountsList = ({
+  accounts,
+  loading,
+  onImportReady
+}: {
+  accounts: any[]
+  loading?: boolean
+  onImportReady: () => void
+}) => {
+  const { t } = useTranslation()
+  const [value, setValue] = useState('')
+
   const {
     page,
     handleSmallPageStepDecrement,
@@ -24,80 +45,89 @@ const AccountsList = ({ accounts, loading }: { accounts: any[]; loading?: boolea
 
   return (
     <View>
-      {(!accounts.length || !!loading) && <Spinner />}
-      {!!accounts.length && !loading && (
-        <View>
-          {accounts.map((acc, idx) => {
-            if (acc.address) {
-              return (
-                <View key={acc.address} style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <Text weight="semiBold" style={spacings.mhSm}>
-                    {acc?.index || idx + 1}
-                  </Text>
-                  <View
-                    style={[
-                      spacings.mbTy,
-                      {
-                        padding: 10,
-                        marginBottom: 10,
-                        backgroundColor: colors.chetwode_50,
-                        borderRadius: 10
-                      }
-                    ]}
-                  >
-                    <Text fontSize={12} weight="medium">
-                      Legacy Account
-                    </Text>
-                    <Text>{acc.address}</Text>
-                  </View>
-                </View>
-              )
-            }
-            return null
-          })}
-          <View
-            style={[flexbox.directionRow, flexbox.justifyCenter, flexbox.alignCenter, spacings.pv]}
+      <View style={[flexbox.alignCenter]}>
+        <Wrapper contentContainerStyle={{ height: 330 }}>
+          {!!accounts.length && !loading ? (
+            accounts.map((acc, idx) => <Account key={acc.address} acc={acc} idx={idx} />)
+          ) : (
+            <View style={[flexbox.alignCenter]}>
+              <View style={[spacings.mb, flexbox.alignCenter, flexbox.directionRow]}>
+                <Spinner style={{ width: 16, height: 16 }} />
+                <Text color={colors.violet} style={[spacings.mlSm]} fontSize={12}>
+                  {t('Looking for linked smart accounts')}
+                </Text>
+              </View>
+            </View>
+          )}
+        </Wrapper>
+        <View
+          style={[flexbox.directionRow, flexbox.justifyCenter, flexbox.alignCenter, spacings.pv]}
+        >
+          <TouchableOpacity
+            onPress={handleLargePageStepDecrement}
+            disabled={page <= LARGE_PAGE_STEP}
+            style={page <= LARGE_PAGE_STEP && { opacity: 0.6 }}
           >
-            <TouchableOpacity
-              onPress={handleLargePageStepDecrement}
-              disabled={page <= LARGE_PAGE_STEP}
-              style={page <= LARGE_PAGE_STEP && { opacity: 0.6 }}
-            >
-              <AntDesign color={colors.white} name="doubleleft" size={24} spot />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleSmallPageStepDecrement}
-              disabled={page === 1}
-              style={page === 1 && { opacity: 0.6 }}
-            >
-              <AntDesign color={colors.white} name="left" size={24} spot />
-            </TouchableOpacity>
-            <Text style={spacings.ph}>
-              {page > 2 && <Text>{'...  '}</Text>}
-              {page === 1 && (
-                <Text>
-                  <Text weight="semiBold">{page}</Text>
-                  <Text>{`  ${page + 1}  ${page + 2}`}</Text>
-                </Text>
-              )}
-              {page !== 1 && (
-                <Text>
-                  <Text>{`  ${page - 1}  `}</Text>
-                  <Text weight="semiBold">{page}</Text>
-                  <Text>{`  ${page + 1}`}</Text>
-                </Text>
-              )}
-              <Text>{'  ...'}</Text>
-            </Text>
-            <TouchableOpacity onPress={handleSmallPageStepIncrement}>
-              <AntDesign color={colors.white} name="right" size={24} spot />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleLargePageStepIncrement}>
-              <AntDesign color={colors.white} name="doubleright" size={24} spot />
-            </TouchableOpacity>
-          </View>
+            <LeftDoubleArrowIcon />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSmallPageStepDecrement}
+            disabled={page === 1}
+            style={page === 1 && { opacity: 0.6 }}
+          >
+            <LeftArrowIcon width={36} height={36} style={[spacings.mlTy]} />
+          </TouchableOpacity>
+          <Text style={spacings.ph}>
+            {page > 2 && <Text>{'...  '}</Text>}
+            {page === 1 && (
+              <Text>
+                <Text weight="semiBold">{page}</Text>
+                <Text>{`  ${page + 1}  ${page + 2}`}</Text>
+              </Text>
+            )}
+            {page !== 1 && (
+              <Text>
+                <Text>{`  ${page - 1}  `}</Text>
+                <Text weight="semiBold">{page}</Text>
+                <Text>{`  ${page + 1}`}</Text>
+              </Text>
+            )}
+            <Text>{'  ...'}</Text>
+          </Text>
+          <TouchableOpacity
+            style={loading && { opacity: 0.6 }}
+            disabled={loading}
+            onPress={handleSmallPageStepIncrement}
+          >
+            <RightArrowIcon style={[spacings.mrTy]} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={loading && { opacity: 0.6 }}
+            disabled={loading}
+            onPress={handleLargePageStepIncrement}
+          >
+            <RightDoubleArrowIcon />
+          </TouchableOpacity>
         </View>
-      )}
+        <Toggle label="Show empty legacy accounts" />
+        <Select
+          hasArrow
+          options={[
+            { label: 'Swap', value: 'Swap' },
+            { label: 'Bridge', value: 'Bridge' },
+            { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
+            { label: 'Deposit', value: 'Deposit' }
+          ]}
+          setValue={setValue}
+          value={value}
+          label="Custom Derivation"
+        />
+        <Button
+          style={{ ...spacings.mtTy, width: 296, ...flexbox.alignSelfCenter }}
+          onPress={onImportReady}
+          text="Import Accounts"
+        />
+      </View>
     </View>
   )
 }

@@ -19,7 +19,6 @@ import JsonLoginScreen from '@web/modules/auth/screens/JsonLoginScreen'
 import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
-import HardwareWalletAccountImportScreen from '@web/modules/hardware-wallet/screens/HardwareWalletAccountImportScreen'
 import RequestLedgerPermissionScreen from '@web/modules/hardware-wallet/screens/RequestLedgerPermissionScreen'
 import ExternalSignerAccountImportScreen from '@web/modules/external-signer/screens/ExternalSignerAccountImportScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
@@ -76,10 +75,6 @@ const MainRoutes = () => {
             <Route
               path={WEB_ROUTES.hardwareWalletSelect}
               element={<HardwareWalletSelectorScreen />}
-            />
-            <Route
-              path={WEB_ROUTES.hardwareWalletImportAccount}
-              element={<HardwareWalletAccountImportScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
             <Route
