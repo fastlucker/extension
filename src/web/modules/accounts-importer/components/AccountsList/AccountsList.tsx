@@ -26,14 +26,19 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 const AccountsList = ({
   accounts,
   loading,
-  onImportReady
+  onImportReady,
+  enableCreateEmailVault,
+  onCreateEmailVaultStep
 }: {
   accounts: any[]
   loading?: boolean
   onImportReady: () => void
+  enableCreateEmailVault?: boolean
+  onCreateEmailVaultStep?: () => void
 }) => {
   const { t } = useTranslation()
   const [value, setValue] = useState('')
+  const [emailVaultStep, setEmailVaultStep] = useState(false)
 
   const {
     page,
@@ -46,6 +51,16 @@ const AccountsList = ({
   return (
     <View>
       <View style={[flexbox.alignCenter]}>
+        {enableCreateEmailVault && (
+          <Toggle
+            isOn={emailVaultStep}
+            onToggle={() => {
+              setEmailVaultStep(true)
+              onCreateEmailVaultStep()
+            }}
+            label="Enable email recovery for new Smart Accounts"
+          />
+        )}
         <Wrapper contentContainerStyle={{ height: 330 }}>
           {!!accounts.length && !loading ? (
             accounts.map((acc, idx) => <Account key={acc.address} acc={acc} idx={idx} />)
