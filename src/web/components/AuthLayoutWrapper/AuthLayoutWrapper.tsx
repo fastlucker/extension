@@ -3,12 +3,12 @@ import React, { createContext, useContext } from 'react'
 import { View, ViewProps } from 'react-native'
 import { Outlet } from 'react-router-dom'
 
+import InformationCircleIcon from '@common/assets/svg/InformationCircleIcon'
 import Wrapper from '@common/components/Wrapper'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import Ameba from '@web/components/AuthLayoutWrapper/Ameba'
-import InformationCircle from '@common/assets/svg/InformationCircle'
 import TabHeader from '@web/modules/router/components/TabHeader'
 
 import styles from './styles'
@@ -38,7 +38,7 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({
   return (
     <View style={[flexbox.flex1, { backgroundColor: colors.zircon }]}>
       <TabHeader pageTitle={pageTitle} hideStepper={hideStepper} />
-      <View style={[flexbox.flex1]}>
+      <Wrapper style={[flexbox.flex1]} showsVerticalScrollIndicator={false}>
         <View
           style={[
             spacings.pbLg,
@@ -49,7 +49,7 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({
         >
           {children}
         </View>
-      </View>
+      </Wrapper>
     </View>
   )
 }
@@ -83,7 +83,7 @@ export const AuthLayoutWrapperSideContent: React.FC<AuthLayoutWrapperSideContent
         contentContainerStyle={[spacings.ph0, { flexGrow: 1 }]}
         showsVerticalScrollIndicator={false}
       >
-        <InformationCircle style={styles.informationCircle} />
+        <InformationCircleIcon style={styles.informationCircle} />
         {children}
       </Wrapper>
       <Ameba style={backgroundType === 'alpha' ? styles.amebaAlpha : styles.amebaBeta} />

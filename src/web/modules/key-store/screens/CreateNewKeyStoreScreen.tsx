@@ -1,10 +1,10 @@
-import { isValidPassword } from '@common/services/validations/validate'
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
-import Checkbox from '@common/components/Checkbox'
+import KeyStoreIcon from '@common/assets/svg/KeyStoreIcon'
 import Button from '@common/components/Button'
+import Checkbox from '@common/components/Checkbox'
 import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
@@ -13,15 +13,15 @@ import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import { DEVICE_SECURITY_LEVEL } from '@common/contexts/biometricsContext/constants'
 import useBiometrics from '@common/hooks/useBiometrics'
+import { isValidPassword } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_LG } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import styles from '@web/components/AuthLayoutWrapper/styles'
-import KeyStoreIcon from '@common/assets/svg/KeyStoreIcon'
 
 const CreateNewKeyStoreScreen = () => {
   const { t } = useTranslation()
@@ -53,7 +53,9 @@ const CreateNewKeyStoreScreen = () => {
               {t('Ambire Key Store')}
             </Text>
           )}
-          <KeyStoreIcon style={{ ...flexboxStyles.alignSelfCenter, marginBottom: '64px' }} />
+          <KeyStoreIcon
+            style={{ ...flexboxStyles.alignSelfCenter, marginBottom: SPACING_LG * 2 }}
+          />
           {isSubmitSuccessful && (
             <Text
               color={colors.martinique}
@@ -142,7 +144,9 @@ const CreateNewKeyStoreScreen = () => {
             'Ambire Keystore will protect your Ambire Wallet with a passphrase, encrypting all the keys that are stored locally with this passphrase through secure AES encryption.'
           )}
         </Text>
-        <ol style={{ fontSize: 14, color: colors.white, paddingLeft: 16, margin: 0 }}>
+        <ol
+          style={[spacings.plSm, spacings.mh0, spacings.pv0, { fontSize: 14, color: colors.white }]}
+        >
           <li style={spacings.mb}>
             <Text weight="regular" color={colors.titan} fontSize={14}>
               {t(

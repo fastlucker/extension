@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Keyboard } from 'react-native'
 import { Trans } from 'react-i18next'
+import { Keyboard } from 'react-native'
 
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
@@ -16,9 +16,11 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import { ROUTES } from '@common/modules/router/constants/common'
 import { isEmail } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
+import { SPACING_LG, SPACING_MD } from '@common/styles/spacings'
 // import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import { delayPromise } from '@common/utils/promises'
 
 const EmailLoginForm: React.FC<any> = ({
@@ -88,7 +90,11 @@ const EmailLoginForm: React.FC<any> = ({
       {isPasswordConfirmStep ? (
         <>
           <EmailAnimation />
-          <Text fontSize={14} weight="regular" style={{ textAlign: 'center', marginBottom: 47 }}>
+          <Text
+            fontSize={14}
+            weight="regular"
+            style={[text.center, { marginBottom: SPACING_MD * 2 }]}
+          >
             {t(
               'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
               { email: 'email@gmail.com' }

@@ -1,7 +1,7 @@
 import React from 'react'
-import Svg, { G, Path, Line } from 'react-native-svg'
+import Svg, { G, Line, Path } from 'react-native-svg'
 
-const InformationIcon: React.FC<any> = ({ ...props }) => (
+const InformationCircleIcon: React.FC<any> = ({ ...props }) => (
   <Svg width="119.6" height="119.6" {...props}>
     <G transform="translate(-60 -60)" opacity="0.15">
       <Path
@@ -36,4 +36,4 @@ const InformationIcon: React.FC<any> = ({ ...props }) => (
   </Svg>
 )
 
-export default InformationIcon
+export default InformationCircleIcon

@@ -7,21 +7,13 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { AntDesign } from '@expo/vector-icons'
+import { LARGE_PAGE_STEP } from '@web/modules/accounts-importer/constants/pagination'
+import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
 
-import { LARGE_PAGE_STEP } from '../../constants/pagination'
-import useAccountsPagination from '../../hooks/useAccountsPagination'
+// TODO: each legacy account in the list should be grouped with an Ambire Smart Account
+// TODO: each list item must be selectable (checkbox)
 
-export interface Account {
-  type: string
-  address: string
-  brandName: string
-  alianName?: string
-  displayBrandName?: string
-  index?: number
-  balance?: number
-}
-
-const AccountsList = ({ accounts, loading }: { accounts: Account[]; loading?: boolean }) => {
+const AccountsList = ({ accounts, loading }: { accounts: any[]; loading?: boolean }) => {
   const {
     page,
     handleSmallPageStepDecrement,
@@ -43,12 +35,15 @@ const AccountsList = ({ accounts, loading }: { accounts: Account[]; loading?: bo
                     {acc?.index || idx + 1}
                   </Text>
                   <View
-                    style={{
-                      padding: 10,
-                      marginBottom: 10,
-                      backgroundColor: colors.chetwode_50,
-                      borderRadius: 10
-                    }}
+                    style={[
+                      spacings.mbTy,
+                      {
+                        padding: 10,
+                        marginBottom: 10,
+                        backgroundColor: colors.chetwode_50,
+                        borderRadius: 10
+                      }
+                    ]}
                   >
                     <Text fontSize={12} weight="medium">
                       Legacy Account

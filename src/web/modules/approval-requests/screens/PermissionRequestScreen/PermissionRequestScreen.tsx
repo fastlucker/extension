@@ -39,12 +39,7 @@ const PermissionRequestScreen = () => {
 
   return (
     <GradientBackgroundWrapper>
-      <Wrapper
-        hasBottomTabNav={false}
-        contentContainerStyle={{
-          paddingTop: 0
-        }}
-      >
+      <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
         <Panel type="filled">
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
             <ManifestImage

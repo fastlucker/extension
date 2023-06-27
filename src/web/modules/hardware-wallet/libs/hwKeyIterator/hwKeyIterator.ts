@@ -1,43 +1,60 @@
-import { KeyIterator as KeyIteratorInterface } from 'ambire-common/v2/interfaces/keyIterator'
-/* eslint-disable new-cap */
-import { HDNodeWallet, Mnemonic, Wallet } from 'ethers'
+import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interfaces/keyIterator'
+import { Client } from 'gridplus-sdk'
+import HDKey from 'hdkey'
 
+import LedgerEth from '@ledgerhq/hw-app-eth'
+
+const ethUtil = require('ethereumjs-util')
 // DOCS
-// - Serves for retrieving a range of addresses/keys from a given private key or seed phrase
+// - Serves for retrieving a range of addresses/keys from a given hardware wallet
+// Currently supported hw are: Ledger | Trezor | Lattice
 
 // USAGE
-// const iterator = new KeyIterator('your-private-key-or-seed-phrase')
+// const iterator = new KeyIterator({ hardware wallet props })
 // const keys = await iterator.retrieve(0, 9, "derivation-path")
 
-function isValidPrivateKey(value: string) {
-  try {
-    // eslint-disable-next-line no-new
-    new Wallet(value)
-  } catch (e) {
-    return false
-  }
-  return true
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention
+type WALLET_TYPE =
+  | {
+      walletType: 'Trezor'
+      hdk: HDKey
+    }
+  | {
+      walletType: 'Ledger'
+      hdk: HDKey
+      app: LedgerEth | null
+    }
+  | {
+      walletType: 'GridPlus'
+      sdkSession?: Client | null
+    }
 
 export class HwKeyIterator implements KeyIteratorInterface {
-  #privateKey: string | null = null
+  #walletType
 
-  #seedPhrase: string | null = null
+  hdk?: HDKey
 
-  constructor(_privKeyOrSeed: string) {
-    if (!_privKeyOrSeed) throw new Error('keyIterator: no private key or seed phrase provided')
+  app?: LedgerEth | null
 
-    if (isValidPrivateKey(_privKeyOrSeed)) {
-      this.#privateKey = _privKeyOrSeed
-      return
+  sdkSession?: Client | null
+
+  constructor(_wallet: WALLET_TYPE) {
+    if (!_wallet.walletType) throw new Error('keyIterator: wallet type not supported')
+
+    this.#walletType = _wallet.walletType
+
+    if (_wallet.walletType === 'Trezor') {
+      this.hdk = _wallet.hdk
     }
 
-    if (Mnemonic.isValidMnemonic(_privKeyOrSeed)) {
-      this.#seedPhrase = _privKeyOrSeed
-      return
+    if (_wallet.walletType === 'Ledger') {
+      this.hdk = _wallet.hdk
+      this.app = _wallet.app
     }
 
-    throw new Error('keyIterator: invalid argument provided to constructor')
+    if (_wallet.walletType === 'GridPlus') {
+      this.sdkSession = _wallet.sdkSession
+    }
   }
 
   async retrieve(from: number, to: number, derivation: string = "m/44'/60'/0'") {
@@ -46,19 +63,66 @@ export class HwKeyIterator implements KeyIteratorInterface {
 
     const keys: string[] = []
 
-    if (this.#privateKey) {
-      keys.push(new Wallet(this.#privateKey).address)
-    }
-
-    if (this.#seedPhrase) {
-      const mnemonic = Mnemonic.fromPhrase(this.#seedPhrase)
-      const wallet = HDNodeWallet.fromMnemonic(mnemonic)
-
+    if (this.#walletType === 'Trezor') {
       for (let i = from; i <= to; i++) {
-        keys.push(wallet.derivePath(`${derivation}/${i}`).address)
+        const dkey = this.hdk?.derive(`${derivation}/${i}`)
+        const key = ethUtil.publicToAddress(dkey?.publicKey, true).toString('hex')
+
+        !!key && keys.push(key)
       }
     }
 
+    if (this.#walletType === 'Ledger') {
+      for (let i = from; i <= to; i++) {
+        // eslint-disable-next-line no-await-in-loop
+        const key = await this.app!.getAddress(`44'/60'/${i}'/0/0`, false, true)
+
+        !!key && keys.push(key.publicKey)
+      }
+    }
+
+    if (this.#walletType === 'GridPlus') {
+      const keyData = {
+        startPath: this._getHDPathIndices(derivation, from),
+        n: to - from + 1
+      }
+
+      const res: any = await this.sdkSession?.getAddresses(keyData as any)
+      keys.push(...res)
+    }
+
     return keys
+  }
+
+  _getHDPathIndices(hdPath, insertIdx = 0) {
+    const HARDENED_OFFSET = 0x80000000
+    const path = hdPath.split('/').slice(1)
+    const indices = []
+    let usedX = false
+    path.forEach((_idx) => {
+      const isHardened = _idx[_idx.length - 1] === "'"
+      let idx = isHardened ? HARDENED_OFFSET : 0
+      // If there is an `x` in the path string, we will use it to insert our
+      // index. This is useful for e.g. Ledger Live path. Most paths have the
+      // changing index as the last one, so having an `x` in the path isn't
+      // usually necessary.
+      if (_idx.indexOf('x') > -1) {
+        idx += insertIdx
+        usedX = true
+      } else if (isHardened) {
+        idx += Number(_idx.slice(0, _idx.length - 1))
+      } else {
+        idx += Number(_idx)
+      }
+      indices.push(idx)
+    })
+    // If this path string does not include an `x`, we just append the index
+    // to the end of the extracted set
+    if (usedX === false) {
+      indices.push(insertIdx)
+    }
+    // Sanity check -- Lattice firmware will throw an error for large paths
+    if (indices.length > 5) throw new Error('Only HD paths with up to 5 indices are allowed.')
+    return indices
   }
 }

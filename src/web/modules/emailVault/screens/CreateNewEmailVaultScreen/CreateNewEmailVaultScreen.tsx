@@ -4,10 +4,11 @@ import { View } from 'react-native'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import EmailLoginForm from '@common/modules/auth/components/EmailLoginForm'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import useRoute from '@common/hooks/useRoute'
-import useStepper from '@common/modules/auth/hooks/useStepper'
+import text from '@common/styles/utils/text'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
@@ -42,7 +43,7 @@ const CreateNewEmailVaultScreen = () => {
               weight="medium"
               fontSize={16}
               color={colors.martinique}
-              style={{ ...spacings.mbLg, textAlign: 'center' }}
+              style={[spacings.mbLg, text.center]}
             >
               {t('Create Or Enter Email Vault')}
             </Text>
