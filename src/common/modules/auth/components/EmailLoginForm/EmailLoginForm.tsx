@@ -61,7 +61,7 @@ const EmailLoginForm: React.FC<any> = ({
       currentFlow === 'emailAuth' && setNextStepperState()
       setIsPasswordConfirmStep(true)
     })()
-  }, [handleSubmit, updateStepperState])
+  }, [handleSubmit, currentFlow, setIsPasswordConfirmStep, setNextStepperState])
 
   const handleCancelLoginAttempts = useCallback(() => {
     // TODO: v2
@@ -72,7 +72,7 @@ const EmailLoginForm: React.FC<any> = ({
     const delay = 4
     if (isPasswordConfirmStep) {
       setTimeout(() => {
-        setNextStepperState()
+        currentFlow !== 'legacyAuth' && setNextStepperState()
         navigate(ROUTES.createKeyStore)
       }, delay * 1000)
     }
@@ -83,7 +83,7 @@ const EmailLoginForm: React.FC<any> = ({
     return () => {
       clearTimeout(timer)
     }
-  }, [isPasswordConfirmStep])
+  }, [isPasswordConfirmStep, setNextStepperState, navigate, currentFlow])
 
   return (
     <>
