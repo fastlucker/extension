@@ -136,12 +136,6 @@ const routesConfig: {
     flow: 'legacyAuth',
     flowStep: 0
   },
-  [ROUTES.externalSignerImportAccount]: {
-    route: ROUTES.externalSignerImportAccount,
-    title: Platform.select({
-      default: i18n.t('Import Legacy Accounts')
-    })
-  },
   [ROUTES.dashboard]: {
     route: ROUTES.dashboard,
     title: Platform.select({

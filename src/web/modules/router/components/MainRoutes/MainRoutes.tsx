@@ -20,7 +20,6 @@ import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNew
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import RequestLedgerPermissionScreen from '@web/modules/hardware-wallet/screens/RequestLedgerPermissionScreen'
-import ExternalSignerAccountImportScreen from '@web/modules/external-signer/screens/ExternalSignerAccountImportScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
@@ -93,10 +92,6 @@ const MainRoutes = () => {
             element={<RequestLedgerPermissionScreen />}
           />
           <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
-          <Route
-            path={WEB_ROUTES.externalSignerImportAccount}
-            element={<ExternalSignerAccountImportScreen />}
-          />
 
           <Route path={WEB_ROUTES.accountsImporter} element={<AccountsImporterScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />

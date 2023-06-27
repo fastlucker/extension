@@ -56,7 +56,6 @@ const WEB_ROUTES = {
   hardwareWalletSelect: 'hardware-wallet/select',
   hardwareWalletLedger: 'hardware-wallet/ledger',
   hardwareWalletLedgerPermission: 'hardware-wallet/ledger-permission',
-  externalSignerImportAccount: 'external-signer/import',
   authEmailAccount: 'auth-email-account',
   authEmailLogin: 'auth-email-login',
   authEmailRegister: 'auth-email-register'
