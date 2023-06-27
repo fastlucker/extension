@@ -7,6 +7,7 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { useTranslation } from '@common/config/localization'
+import common from '@common/styles/utils/common'
 
 // TODO: each legacy account in the list should be grouped with an Ambire Smart Account
 // TODO: each list item must be selectable (checkbox)
@@ -42,7 +43,7 @@ const Account = ({ acc, idx }: { acc: any; idx: number }) => {
           ...spacings.pvSm,
           backgroundColor: colors.melrose_15,
           borderColor: colors.scampi_20,
-          borderRadius: 12,
+          borderRadius: common.borderRadiusPrimary,
           width: 504
         }}
       >

@@ -3,6 +3,7 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 import { isWeb } from '@common/config/env'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import spacings, { SPACING_MI } from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 
 interface Style {
   inputContainer: ViewStyle
@@ -25,7 +26,7 @@ const styles = StyleSheet.create<Style>({
     flexDirection: 'row',
     borderWidth: 2,
     height: 50,
-    borderRadius: 12
+    borderRadius: common.borderRadiusPrimary
   },
   input: {
     // Centers the content (used because of the borderBottomWidth)

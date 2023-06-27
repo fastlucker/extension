@@ -5,6 +5,7 @@ import Select, { components, DropdownIndicatorProps } from 'react-select'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import colors from '@common/styles/colors'
+import common from '@common/styles/utils/common'
 
 interface Props {
   value: string | null
@@ -36,7 +37,7 @@ const SelectComponent = ({ value, disabled, setValue, options, label }: Props) =
         styles={{
           placeholder: (baseStyles) => ({
             ...baseStyles,
-            borderRadius: 12,
+            borderRadius: common.borderRadiusPrimary,
             fontSize: 14,
             color: colors.martinique
           }),
@@ -44,7 +45,7 @@ const SelectComponent = ({ value, disabled, setValue, options, label }: Props) =
             ...baseStyles,
             width: 260,
             background: colors.melrose_15,
-            borderRadius: 12,
+            borderRadius: common.borderRadiusPrimary,
             fontSize: 14,
             color: colors.martinique
           }),

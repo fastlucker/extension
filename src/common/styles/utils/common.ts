@@ -5,13 +5,13 @@ import { isWeb } from '@common/config/env'
 interface Styles {
   shadowPrimary: ViewStyle
   shadowSecondary: ViewStyle
-  borderRadiusPrimary: ViewStyle
+  borderRadiusPrimary: number
   borderRadiusSecondary: ViewStyle
   hidden: ViewStyle
   visibilityHidden: ViewStyle
 }
 
-export const BORDER_RADIUS_PRIMARY = 13
+export const BORDER_RADIUS_PRIMARY = 12
 export const BORDER_RADIUS_SECONDARY = 2
 
 const commonStyles: Styles = {
