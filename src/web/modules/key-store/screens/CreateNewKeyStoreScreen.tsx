@@ -15,7 +15,7 @@ import { DEVICE_SECURITY_LEVEL } from '@common/contexts/biometricsContext/consta
 import useBiometrics from '@common/hooks/useBiometrics'
 import { isValidPassword } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
-import spacings, { SPACING_LG } from '@common/styles/spacings'
+import spacings, { SPACING_LG, SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import {
   AuthLayoutWrapperMainContent,
@@ -144,9 +144,7 @@ const CreateNewKeyStoreScreen = () => {
             'Ambire Keystore will protect your Ambire Wallet with a passphrase, encrypting all the keys that are stored locally with this passphrase through secure AES encryption.'
           )}
         </Text>
-        <ol
-          style={[spacings.plSm, spacings.mh0, spacings.pv0, { fontSize: 14, color: colors.white }]}
-        >
+        <ol style={{ fontSize: 14, color: colors.white, margin: 0, paddingLeft: SPACING_SM }}>
           <li style={spacings.mb}>
             <Text weight="regular" color={colors.titan} fontSize={14}>
               {t(
