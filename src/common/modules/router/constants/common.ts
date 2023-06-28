@@ -55,7 +55,6 @@ const WEB_ROUTES = {
   watchAsset: 'watch-asset',
   hardwareWalletSelect: 'hardware-wallet/select',
   hardwareWalletLedger: 'hardware-wallet/ledger',
-  hardwareWalletLedgerPermission: 'hardware-wallet/ledger-permission',
   authEmailAccount: 'auth-email-account',
   authEmailLogin: 'auth-email-login',
   authEmailRegister: 'auth-email-register'

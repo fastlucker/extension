@@ -43,7 +43,6 @@ const ConnectLedgerScreen = () => {
         }
       })
     } else {
-      // navigate(WEB_ROUTES.hardwareWalletLedgerPermission)
       try {
         const transport = await TransportWebHID.create()
         await transport.close()
