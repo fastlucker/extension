@@ -26,7 +26,7 @@ const styles = StyleSheet.create<Style>({
     flexDirection: 'row',
     borderWidth: 2,
     height: 50,
-    borderRadius: common.borderRadiusPrimary
+    ...common.borderRadiusPrimary
   },
   input: {
     // Centers the content (used because of the borderBottomWidth)

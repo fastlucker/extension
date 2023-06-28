@@ -5,7 +5,7 @@ import { isWeb } from '@common/config/env'
 interface Styles {
   shadowPrimary: ViewStyle
   shadowSecondary: ViewStyle
-  borderRadiusPrimary: number
+  borderRadiusPrimary: ViewStyle
   borderRadiusSecondary: ViewStyle
   hidden: ViewStyle
   visibilityHidden: ViewStyle

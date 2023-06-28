@@ -55,9 +55,9 @@ const Account = ({ acc, idx }: { acc: any; idx: number }) => {
           ...flexbox.alignEnd,
           ...spacings.phSm,
           ...spacings.pvSm,
+          ...common.borderRadiusPrimary,
           backgroundColor: colors.melrose_15,
           borderColor: colors.scampi_20,
-          borderRadius: common.borderRadiusPrimary,
           width: 504
         }}
       >

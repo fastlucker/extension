@@ -37,7 +37,7 @@ const SelectComponent = ({ value, disabled, setValue, options, label }: Props) =
         styles={{
           placeholder: (baseStyles) => ({
             ...baseStyles,
-            borderRadius: common.borderRadiusPrimary,
+            ...common.borderRadiusPrimary,
             fontSize: 14,
             color: colors.martinique
           }),
@@ -45,7 +45,7 @@ const SelectComponent = ({ value, disabled, setValue, options, label }: Props) =
             ...baseStyles,
             width: 260,
             background: colors.melrose_15,
-            borderRadius: common.borderRadiusPrimary,
+            ...common.borderRadiusPrimary,
             fontSize: 14,
             color: colors.martinique
           }),

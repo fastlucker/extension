@@ -24,7 +24,7 @@ const DownArrowIcon: React.FC<Props> = ({
     <Path
       d="M6.348,0,0,6.373l6.348,6.385"
       transform={`${
-        isActive ? 'translate(11.175 22.379) rotate(270)' : 'translate(24 15) rotate(90)'
+        isActive ? 'translate(24 15) rotate(90)' : 'translate(11.175 22.379) rotate(270)'
       }`}
       fill="none"
       stroke={color}
