@@ -20,6 +20,20 @@ const Account = ({ acc, idx }: { acc: any; idx: number }) => {
   const linked = true
   if (!acc.address) return
 
+  const trimAddress = (address: string, maxLength: number) => {
+    if (address.length <= maxLength) {
+      return address
+    }
+
+    const prefixLength = Math.floor((maxLength - 3) / 2)
+    const suffixLength = Math.ceil((maxLength - 3) / 2)
+
+    const prefix = address.slice(0, prefixLength)
+    const suffix = address.slice(-suffixLength)
+
+    return `${prefix}...${suffix}`
+  }
+
   return (
     <View key={acc.address} style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
       <Text weight="semiBold" color={colors.martinique} style={{ width: 35 }}>
@@ -50,11 +64,7 @@ const Account = ({ acc, idx }: { acc: any; idx: number }) => {
         <Checkbox
           style={{ marginBottom: 0 }}
           label={
-            <View
-              style={{
-                width: 250
-              }}
-            >
+            <View>
               <Text
                 shouldScale={false}
                 fontSize={12}
@@ -67,11 +77,8 @@ const Account = ({ acc, idx }: { acc: any; idx: number }) => {
                 fontSize={14}
                 weight="semiBold"
                 color={smartAccount ? colors.greenHaze : colors.brownRum}
-                ellipsizeMode="tail"
-                numberOfLines={1}
-                style={{ width: 250 }}
               >
-                {acc.address}
+                {trimAddress(acc.address, 32)}
               </Text>
             </View>
           }
