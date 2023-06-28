@@ -11,9 +11,9 @@ import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import { hasConnectedLedgerDevice } from '@web/modules/hardware-wallet/utils/ledger'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
-import AmbireScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen/Ambire'
-import Drive from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen/Drive'
-import ArrowIcon from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen/ArrowIcon'
+import DriveIcon from '@common/assets/svg/DriveIcon'
+import AmbireDevice from '@common/assets/svg/AmbireDevice'
+import LeftPointerArrowIcon from '@common/assets/svg/LeftPointerArrowIcon'
 
 import flexbox from '@common/styles/utils/flexbox'
 import colors from '@common/styles/colors'
@@ -87,9 +87,9 @@ const ConnectLedgerScreen = () => {
               spacings.mbLg
             ]}
           >
-            <Drive style={spacings.mrLg} />
-            <ArrowIcon style={spacings.mrLg} />
-            <AmbireScreen />
+            <DriveIcon style={spacings.mrLg} />
+            <LeftPointerArrowIcon style={spacings.mrLg} />
+            <AmbireDevice />
           </View>
           <Button
             text="Next"
