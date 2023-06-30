@@ -1,25 +1,53 @@
 import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Image, ViewStyle } from 'react-native'
+import { Pressable } from 'react-native-web-hover'
 
+import Card from '@web/modules/auth/components/Card'
 import Button from '@common/components/Button'
-import Text from '@common/components/Text'
 
+import colors from '@common/styles/colors'
 import styles from './styles'
 
 type Props = {
   name: string
+  text: string
+  icon: JSX.Element
   onSelect: () => void
+  style?: ViewStyle
 }
 
-const HardwareWalletSelectorItem = ({ name, onSelect }: Props) => {
-  const { t } = useTranslation()
-
+const HardwareWalletSelectorItem = ({ name, text, icon, style, onSelect }: Props) => {
   return (
-    <View style={styles.itemContainer}>
-      <Text>{t('Login with {{name}}', { name })}</Text>
-      <Button text={name} onPress={onSelect} />
-    </View>
+    <Pressable
+      onPress={() => {
+        onSelect()
+      }}
+    >
+      {({ hovered }) => (
+        <Card
+          text={text}
+          style={[
+            styles.itemContainer,
+            style,
+            { borderWidth: 1, borderColor: hovered ? colors.violet : colors.melrose_15 }
+          ]}
+          icon={
+            <Image
+              source={icon}
+              style={{
+                height: 136,
+                width: 120,
+                marginBottom: 27,
+                alignSelf: 'center'
+              }}
+              resizeMode="contain"
+            />
+          }
+        >
+          <Button text={name} onPress={onSelect} />
+        </Card>
+      )}
+    </Pressable>
   )
 }
 

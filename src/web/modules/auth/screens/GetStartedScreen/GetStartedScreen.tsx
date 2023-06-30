@@ -141,7 +141,11 @@ const GetStartedScreen = () => {
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.ph]}
             onPress={() => setAdvancedModeEnabled((prev) => !prev)}
           >
-            <DownArrowIcon isActive={advanceModeEnabled} />
+            <DownArrowIcon
+              isActive={advanceModeEnabled}
+              color={colors.martinique}
+              withRect={false}
+            />
             <Text fontSize={14} style={[spacings.mlMi]} weight="medium">
               {t('Show more options')}
             </Text>
@@ -160,7 +164,7 @@ const GetStartedScreen = () => {
                   style={[{ minWidth: 190 }, spacings.mrMd]}
                   textStyle={{ fontSize: 14 }}
                   accentColor={colors.violet}
-                  onPress={() => handleAuthButtonPress(ROUTES.ambireAccountJsonLogin)}
+                  onPress={() => handleAuthButtonPress(WEB_ROUTES.ambireAccountJsonLogin)}
                 />
                 <Text shouldScale={false} fontSize={12} weight="regular">
                   {t(

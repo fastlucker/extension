@@ -81,7 +81,10 @@ export const lightOnlyRoutesOnWeb = [
   WEB_ROUTES.ambireAccountJsonLoginPasswordConfirm,
   WEB_ROUTES.ambireAccountLoginPasswordConfirm,
   WEB_ROUTES.externalSigner,
-  WEB_ROUTES.onboarding
+  WEB_ROUTES.onboarding,
+  WEB_ROUTES.hardwareWalletSelect,
+  WEB_ROUTES.hardwareWalletLedger,
+  WEB_ROUTES.accountsImporter
 ]
 
 export default ThemeColors

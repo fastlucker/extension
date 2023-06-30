@@ -11,11 +11,10 @@ const styles = StyleSheet.create<Style>({
   itemContainer: {
     ...spacings.ph,
     ...spacings.pv,
-    ...spacings.mhMd,
     ...common.borderRadiusPrimary,
-    width: 200,
-    height: 300,
-    alignItems: 'center'
+    height: 368,
+    textAlign: 'center',
+    alignItems: 'stretch'
   }
 })
 

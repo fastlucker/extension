@@ -5,6 +5,9 @@ import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccou
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
+import useNavigation from '@common/hooks/useNavigation'
+import useStepper from '@common/modules/auth/hooks/useStepper'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 interface Props {}
 
@@ -16,6 +19,13 @@ const LatticeManager: React.FC<Props> = (props) => {
   const { createTask } = useTaskQueue()
   const { hardwareWallets } = useHardwareWallets()
   const { page, pageStartIndex, pageEndIndex } = useAccountsPagination()
+  const { navigate } = useNavigation()
+  const { updateStepperState } = useStepper()
+
+  const onImportReady = () => {
+    updateStepperState(2, 'hwAuth')
+    navigate(WEB_ROUTES.createKeyStore)
+  }
 
   const asyncGetKeys: any = React.useCallback(async () => {
     stoppedRef.current = false
@@ -52,6 +62,8 @@ const LatticeManager: React.FC<Props> = (props) => {
         address: key,
         index: pageStartIndex + i + 1
       }))}
+      loading={loading}
+      onImportReady={onImportReady}
       {...props}
     />
   )

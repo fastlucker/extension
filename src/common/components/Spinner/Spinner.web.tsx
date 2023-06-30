@@ -3,9 +3,14 @@ import React from 'react'
 
 import SpinnerAnimation from './spinner-animation.json'
 
-const Spinner = () => {
+const Spinner = ({ style }: { style: any }) => {
   return (
-    <LottieView animationData={SpinnerAnimation} style={{ width: 40, height: 40 }} autoPlay loop />
+    <LottieView
+      animationData={SpinnerAnimation}
+      style={{ width: 40, height: 40, ...style }}
+      autoPlay
+      loop
+    />
   )
 }
 

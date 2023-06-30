@@ -20,20 +20,21 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   dropdown: {
-    backgroundColor: colors.howl,
+    backgroundColor: colors.melrose_15,
     ...commonStyles.borderRadiusPrimary,
-    borderWidth: 0,
+    borderWidth: 1,
+    borderColor: colors.scampi_20,
     height: 50,
     ...spacings.mbSm
   },
   labelStyle: {
-    color: colors.titan,
-    fontSize: 16,
+    color: colors.martinique,
+    fontSize: 14,
     fontFamily: FONT_FAMILIES.LIGHT
   },
   listItemLabelStyle: {
-    color: colors.titan,
-    fontSize: 16
+    color: colors.martinique,
+    fontSize: 14
   },
   listItemContainerStyle: {
     ...spacings.mh,

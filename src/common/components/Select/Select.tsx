@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { isWeb } from '@common/config/env'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import BottomSheet from '@common/components/BottomSheet'
@@ -11,41 +12,49 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import commonStyles from '@common/styles/utils/common'
+import common from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
-import styles from './styles'
-
 interface Props {
   value: string | null
-  items: any[]
+  options: any[]
   setValue?: (value: any) => void
   label?: string
   extraText?: string
   hasArrow?: boolean
   disabled?: boolean
+  menuPlacement?: string
 }
 
-const Select = ({ value, disabled, setValue, items, label, extraText, hasArrow = true }: Props) => {
+const Select = ({
+  value,
+  disabled,
+  setValue,
+  options,
+  label,
+  extraText,
+  hasArrow = true,
+  menuPlacement = 'auto'
+}: Props) => {
   const [searchValue, setSearchValue] = useState('')
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
-  const item = useMemo(() => items?.find((i) => i.value === value), [value, items])
+  const item = useMemo(() => options?.find((i) => i.value === value), [value, options])
 
   const filteredItems = useMemo(
     () =>
       searchValue
-        ? items.filter((i: any) => i?.label?.toLowerCase().includes(searchValue.toLowerCase()))
-        : items,
-    [items, searchValue]
+        ? options.filter((i: any) => i?.label?.toLowerCase().includes(searchValue.toLowerCase()))
+        : options,
+    [options, searchValue]
   )
 
   const renderItem = ({ item: _item }: any) => {
     const onSelect = () => {
       !!setValue && setValue(_item.value)
-      closeBottomSheet()
+      !isWeb && closeBottomSheet()
     }
 
     return (
@@ -55,7 +64,7 @@ const Select = ({ value, disabled, setValue, items, label, extraText, hasArrow =
           flexboxStyles.alignCenter,
           spacings.phTy,
           spacings.pvMi,
-          commonStyles.borderRadiusPrimary,
+          common.borderRadiusPrimary,
           { backgroundColor: _item.value === value ? colors.howl : 'transparent' },
           { opacity: _item?.disabled ? 0.3 : 1 }
         ]}
@@ -64,7 +73,7 @@ const Select = ({ value, disabled, setValue, items, label, extraText, hasArrow =
         disabled={_item?.disabled}
       >
         {!!_item.icon && _item.icon()}
-        <View style={[flexboxStyles.flex1, spacings.phTy]}>
+        <View style={[flexboxStyles.flex1, spacings.phTy, { backgroundColor: colors.howl }]}>
           <Text numberOfLines={1}>{_item.label}</Text>
         </View>
         {_item.value === value && <CheckIcon />}
@@ -74,7 +83,6 @@ const Select = ({ value, disabled, setValue, items, label, extraText, hasArrow =
 
   return (
     <>
-      {!!label && <Text style={spacings.mbMi}>{label}</Text>}
       <TouchableOpacity
         onPress={() => {
           Keyboard.dismiss()
@@ -84,12 +92,13 @@ const Select = ({ value, disabled, setValue, items, label, extraText, hasArrow =
       >
         <View pointerEvents="none">
           <Input
+            placeholder={label}
             value={item?.label}
             leftIcon={item?.icon}
-            containerStyle={[spacings.mbSm, disabled && { opacity: 0.6 }]}
+            containerStyle={{ width: 250, marginBottom: 0 }}
             button={
               hasArrow ? (
-                <View pointerEvents="none">
+                <View>
                   {!!extraText && (
                     <View style={styles.extra}>
                       <Text fontSize={12} color={colors.heliotrope}>

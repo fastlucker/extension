@@ -12,7 +12,7 @@ interface Props {
   label?: ReactNode
   onValueChange: (value: boolean) => void
   value: boolean
-  children: any
+  children?: any
   style?: ViewStyle
 }
 
