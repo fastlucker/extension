@@ -13,9 +13,17 @@ interface Props {
   setValue?: (value: any) => void
   label?: string
   disabled?: boolean
+  menuPlacement?: string
 }
 
-const SelectComponent = ({ value, disabled, setValue, options, label }: Props) => {
+const SelectComponent = ({
+  value,
+  disabled,
+  setValue,
+  options,
+  label,
+  menuPlacement = 'auto'
+}: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const DropdownIndicator = (props: DropdownIndicatorProps<any>) => {
@@ -66,7 +74,7 @@ const SelectComponent = ({ value, disabled, setValue, options, label }: Props) =
           }
         })}
         placeholder={label}
-        menuPlacement="auto"
+        menuPlacement={menuPlacement}
       />
     </TouchableOpacity>
   )

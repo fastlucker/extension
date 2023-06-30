@@ -15,7 +15,6 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-// import styles from './styles'
 
 interface Props {
   value: string | null
@@ -25,6 +24,7 @@ interface Props {
   extraText?: string
   hasArrow?: boolean
   disabled?: boolean
+  menuPlacement?: string
 }
 
 const Select = ({
@@ -34,7 +34,8 @@ const Select = ({
   options,
   label,
   extraText,
-  hasArrow = true
+  hasArrow = true,
+  menuPlacement = 'auto'
 }: Props) => {
   const [searchValue, setSearchValue] = useState('')
   const { t } = useTranslation()

@@ -122,6 +122,7 @@ const AccountsList = ({
           ]}
           setValue={setValue}
           value={value}
+          menuPlacement="top"
           label="Custom Derivation"
         />
         <Button
