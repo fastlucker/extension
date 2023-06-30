@@ -10,7 +10,7 @@ interface Props {}
 
 const LegacyImportManager: React.FC<Props> = (props) => {
   const [keysList, setKeysList] = React.useState<any[]>([])
-
+  const [shouldCreateEmailVault, setShouldCreateEmailVault] = React.useState(false)
   const [loading, setLoading] = React.useState(true)
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
@@ -18,17 +18,18 @@ const LegacyImportManager: React.FC<Props> = (props) => {
 
   const onImportReady = () => {
     updateStepperState(1, 'legacyAuth')
-    navigate(WEB_ROUTES.createKeyStore)
+    shouldCreateEmailVault
+      ? navigate(WEB_ROUTES.createEmailVault, {
+          state: {
+            hideStepper: true,
+            hideFormTitle: true
+          }
+        })
+      : navigate(WEB_ROUTES.createKeyStore)
   }
 
   const onCreateEmailVaultStep = () => {
-    updateStepperState(1, 'legacyAuth')
-    navigate(WEB_ROUTES.createEmailVault, {
-      state: {
-        hideStepper: true,
-        hideFormTitle: true
-      }
-    })
+    setShouldCreateEmailVault((prev) => !prev)
   }
 
   useEffect(() => {
