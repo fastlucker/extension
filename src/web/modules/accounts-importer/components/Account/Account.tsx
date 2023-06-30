@@ -3,11 +3,11 @@ import { View } from 'react-native'
 
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
-import { useTranslation } from '@common/config/localization'
 import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 // TODO: each legacy account in the list should be grouped with an Ambire Smart Account
 // TODO: each list item must be selectable (checkbox)

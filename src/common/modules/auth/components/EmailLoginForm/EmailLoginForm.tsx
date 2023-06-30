@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
 import { Keyboard } from 'react-native'
@@ -16,15 +16,21 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import { ROUTES } from '@common/modules/router/constants/common'
 import { isEmail } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
-import { SPACING_LG, SPACING_MD } from '@common/styles/spacings'
+import { SPACING_MD } from '@common/styles/spacings'
 // import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { delayPromise } from '@common/utils/promises'
 
-const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
+const EmailLoginForm: React.FC<any> = ({
+  isPasswordConfirmStep,
+  setIsPasswordConfirmStep,
+  setNextStepperState,
+  currentFlow
+}) => {
   const { t } = useTranslation()
+  const [enableKeyRecovery, onEnableKeyRecoveryChange] = useState(false)
   const { navigate } = useNavigation()
   const { themeType } = useTheme()
   const {
@@ -40,7 +46,7 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
     }
   })
 
-  const { updateStepperState, stepperState } = useStepper()
+  const { stepperState } = useStepper()
   // TODO: v2
   const requiresEmailConfFor = !!stepperState.currentStep
   const pendingLoginAccount = false
@@ -53,9 +59,10 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
       await delayPromise(100)
 
       // TODO: v2
-      await updateStepperState(1, 'emailAuth')
+      currentFlow === 'emailAuth' && setNextStepperState()
+      setIsPasswordConfirmStep(true)
     })()
-  }, [handleSubmit, updateStepperState])
+  }, [handleSubmit, currentFlow, setIsPasswordConfirmStep, setNextStepperState])
 
   const handleCancelLoginAttempts = useCallback(() => {
     // TODO: v2
@@ -64,9 +71,9 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
   useEffect(() => {
     let timer
     const delay = 4
-    if (stepperState.currentStep === 1) {
+    if (isPasswordConfirmStep) {
       setTimeout(() => {
-        updateStepperState(2, 'emailAuth')
+        currentFlow !== 'legacyAuth' && setNextStepperState()
         navigate(ROUTES.createKeyStore)
       }, delay * 1000)
     }
@@ -77,11 +84,11 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
     return () => {
       clearTimeout(timer)
     }
-  }, [stepperState.currentStep])
+  }, [isPasswordConfirmStep, setNextStepperState, navigate, currentFlow])
 
   return (
     <>
-      {requiresEmailConfFor && !pendingLoginAccount && (
+      {isPasswordConfirmStep ? (
         <>
           <EmailAnimation />
           <Text
@@ -95,75 +102,77 @@ const EmailLoginForm: React.FC<any> = ({ createEmailVault }) => {
             )}
           </Text>
         </>
+      ) : (
+        ''
       )}
-      {!(requiresEmailConfFor && !pendingLoginAccount) && (
-        <Controller
-          control={control}
-          rules={{ validate: isEmail }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              label={
-                !requiresEmailConfFor || !pendingLoginAccount ? t('Please insert your email') : ''
-              }
-              onBlur={onBlur}
-              placeholder={t('Email Address')}
-              onChangeText={onChange}
-              // TODO: v2
-              // onSubmitEditing={handleSubmit(handleLogin)}
-              value={value}
-              autoFocus={isWeb}
-              isValid={isEmail(value)}
-              validLabel={pendingLoginAccount ? t('Email address confirmed') : ''}
-              disabled={!!requiresEmailConfFor && !pendingLoginAccount}
-              error={errors.email && (t('Please fill in a valid email.') as string)}
-              // containerStyle={requiresPassword ? spacings.mbTy : null}
-            />
-          )}
-          name="email"
-        />
-      )}
-      {createEmailVault && !requiresEmailConfFor && !pendingLoginAccount && (
-        <Checkbox
-          label={
-            <Trans>
-              Enable <strong>local</strong> key store recovery with email
-            </Trans>
-          }
-        />
-      )}
-      {!requiresEmailConfFor && !pendingLoginAccount && (
-        <Button
-          textStyle={{ fontSize: 14 }}
-          disabled={
-            (!!requiresEmailConfFor && !pendingLoginAccount) || isSubmitting || !watch('email', '')
-          }
-          type="primary"
-          text={
-            // eslint-disable-next-line no-nested-ternary
-            isSubmitting ? t('Loading...') : !pendingLoginAccount ? t('Continue') : t('Log In')
-          }
-          onPress={handleFormSubmit}
-        />
-      )}
-      {requiresEmailConfFor && !pendingLoginAccount && (
-        <Text
-          fontSize={14}
-          style={{ ...flexbox.alignSelfCenter, marginBottom: SPACING_LG * 2 }}
-          color={colors.violet}
-        >
-          {t('Waiting Email Confirmation')}
-        </Text>
-      )}
-      {!!requiresEmailConfFor && (
-        <Text
-          underline
-          fontSize={14}
-          style={[flexbox.alignSelfCenter]}
-          color={themeType === THEME_TYPES.LIGHT ? colors.howl : undefined}
-          onPress={handleCancelLoginAttempts}
-        >
-          {t('Cancel Login Attempt')}
-        </Text>
+      {!isPasswordConfirmStep ? (
+        <>
+          <Controller
+            control={control}
+            rules={{ validate: isEmail }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                label={t('Please insert your email')}
+                onBlur={onBlur}
+                placeholder={t('Email Address')}
+                onChangeText={onChange}
+                // TODO: v2
+                // onSubmitEditing={handleSubmit(handleLogin)}
+                value={value}
+                autoFocus={isWeb}
+                isValid={isEmail(value)}
+                validLabel={pendingLoginAccount ? t('Email address confirmed') : ''}
+                error={errors.email && (t('Please fill in a valid email.') as string)}
+                // containerStyle={requiresPassword ? spacings.mbTy : null}
+              />
+            )}
+            name="email"
+          />
+          <Checkbox
+            value={enableKeyRecovery}
+            onValueChange={() => onEnableKeyRecoveryChange((prev) => !prev)}
+            label={
+              <Trans>
+                Enable <strong>local</strong> key store recovery with email
+              </Trans>
+            }
+          />
+
+          <Button
+            textStyle={{ fontSize: 14 }}
+            // disabled={
+            //   (!!requiresEmailConfFor && !pendingLoginAccount) ||
+            //   isSubmitting ||
+            //   !watch('email', '')
+            // }
+            type="primary"
+            text={
+              // eslint-disable-next-line no-nested-ternary
+              isSubmitting ? t('Loading...') : !pendingLoginAccount ? t('Continue') : t('Log In')
+            }
+            onPress={handleFormSubmit}
+          />
+        </>
+      ) : (
+        <>
+          <Text
+            fontSize={14}
+            style={{ ...flexbox.alignSelfCenter, marginBottom: 60 }}
+            color={colors.violet}
+          >
+            {t('Waiting Email Confirmation')}
+          </Text>
+
+          <Text
+            underline
+            fontSize={14}
+            style={[flexbox.alignSelfCenter]}
+            color={themeType === THEME_TYPES.LIGHT ? colors.howl : undefined}
+            onPress={handleCancelLoginAttempts}
+          >
+            {t('Cancel Login Attempt')}
+          </Text>
+        </>
       )}
     </>
   )

@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
+import LeftDoubleArrowIcon from '@common/assets/svg/LeftDoubleArrowIcon.tsx'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
 import Button from '@common/components/Button'
-import Toggle from '@common/components/Toggle'
 import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import Toggle from '@common/components/Toggle'
+import Wrapper from '@common/components/Wrapper'
+import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { LARGE_PAGE_STEP } from '@web/modules/accounts-importer/constants/pagination'
 import Account from '@web/modules/accounts-importer/components/Account'
-
+import { LARGE_PAGE_STEP } from '@web/modules/accounts-importer/constants/pagination'
 import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
-import Wrapper from '@common/components/Wrapper'
-import { useTranslation } from '@common/config/localization'
-import LeftDoubleArrowIcon from '@common/assets/svg/LeftDoubleArrowIcon.tsx'
-import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 
 // TODO: each legacy account in the list should be grouped with an Ambire Smart Account
 // TODO: each list item must be selectable (checkbox)
@@ -26,14 +25,19 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 const AccountsList = ({
   accounts,
   loading,
-  onImportReady
+  onImportReady,
+  enableCreateEmailVault,
+  onCreateEmailVaultStep
 }: {
   accounts: any[]
   loading?: boolean
   onImportReady: () => void
+  enableCreateEmailVault?: boolean
+  onCreateEmailVaultStep?: () => void
 }) => {
   const { t } = useTranslation()
   const [value, setValue] = useState('')
+  const [emailVaultStep, setEmailVaultStep] = useState(false)
   const [elementHeights, setElementHeights] = useState({})
   const [totalHeight, setTotalHeight] = useState(300)
 
@@ -62,6 +66,16 @@ const AccountsList = ({
   return (
     <View>
       <View style={[flexbox.alignCenter]}>
+        {enableCreateEmailVault && (
+          <Toggle
+            isOn={emailVaultStep}
+            onToggle={() => {
+              setEmailVaultStep(true)
+              onCreateEmailVaultStep && onCreateEmailVaultStep()
+            }}
+            label="Enable email recovery for new Smart Accounts"
+          />
+        )}
         <Wrapper contentContainerStyle={{ height: totalHeight, ...spacings.pt0 }}>
           {!!accounts.length && !loading ? (
             accounts.map((acc, idx) => (
@@ -132,20 +146,24 @@ const AccountsList = ({
             <RightDoubleArrowIcon />
           </TouchableOpacity>
         </View>
-        <Toggle label="Show empty legacy accounts" />
-        <Select
-          hasArrow
-          options={[
-            { label: 'Swap', value: 'Swap' },
-            { label: 'Bridge', value: 'Bridge' },
-            { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
-            { label: 'Deposit', value: 'Deposit' }
-          ]}
-          setValue={setValue}
-          value={value}
-          menuPlacement="top"
-          label="Custom Derivation"
-        />
+        {!enableCreateEmailVault && (
+          <>
+            <Toggle label="Show empty legacy accounts" />
+            <Select
+              hasArrow
+              options={[
+                { label: 'Swap', value: 'Swap' },
+                { label: 'Bridge', value: 'Bridge' },
+                { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
+                { label: 'Deposit', value: 'Deposit' }
+              ]}
+              setValue={setValue}
+              value={value}
+              menuPlacement="top"
+              label="Custom Derivation"
+            />
+          </>
+        )}
         <Button
           style={{ ...spacings.mtTy, width: 296, ...flexbox.alignSelfCenter }}
           onPress={onImportReady}

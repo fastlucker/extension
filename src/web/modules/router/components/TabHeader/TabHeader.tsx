@@ -58,7 +58,7 @@ const TabHeader: React.FC<any> = ({ hideStepper = false, pageTitle = '' }) => {
           style={[styles.title, spacings.pl, canGoBack ? { paddingRight: 140 } : spacings.pr]}
           numberOfLines={2}
         >
-          {title || pageTitle || ' '}
+          {pageTitle || title || ' '}
         </Text>
       )}
     </View>

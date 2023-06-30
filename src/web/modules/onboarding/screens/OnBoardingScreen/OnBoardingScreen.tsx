@@ -26,12 +26,7 @@ const OnBoardingScreen = () => {
     <>
       <AuthLayoutWrapperMainContent>
         <ConfettiLogo />
-        <Text
-          shouldScale={false}
-          fontSize={20}
-          weight="medium"
-          style={styles.title}
-        >
+        <Text shouldScale={false} fontSize={20} weight="medium" style={styles.title}>
           {t('You are ready!')}
         </Text>
         <PinExtension style={styles.pinExtension} />

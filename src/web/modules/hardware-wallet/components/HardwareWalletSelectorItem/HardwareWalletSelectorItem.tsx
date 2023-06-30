@@ -2,10 +2,10 @@ import React from 'react'
 import { Image, ViewStyle } from 'react-native'
 import { Pressable } from 'react-native-web-hover'
 
-import Card from '@web/modules/auth/components/Card'
 import Button from '@common/components/Button'
-
 import colors from '@common/styles/colors'
+import Card from '@web/modules/auth/components/Card'
+
 import styles from './styles'
 
 type Props = {

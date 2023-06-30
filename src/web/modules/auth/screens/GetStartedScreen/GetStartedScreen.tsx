@@ -123,7 +123,7 @@ const GetStartedScreen = () => {
                   onPress={() => {
                     handleAuthButtonPress(WEB_ROUTES.terms, {
                       state: {
-                        nextState: 'emailAuth',
+                        nextState: 'legacyAuth',
                         nextPage: WEB_ROUTES.externalSigner
                       }
                     })

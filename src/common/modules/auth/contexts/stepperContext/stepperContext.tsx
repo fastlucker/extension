@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback, useMemo, createContext } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+
 import useStorageController from '@common/hooks/useStorageController'
 
 const StepperContext = createContext<any>({
@@ -18,8 +19,9 @@ const flows = {
     'Pick Hardware Device',
     'Pick Accounts To Import',
     'Setup Key\nStore',
-    'Personalize Accounts'
-  ]
+    'Personalize\nAccounts'
+  ],
+  legacyAuth: ['Import Legacy Account', 'Setup Key\nStore', 'Personalize\nAccounts']
 }
 
 const StepperProvider = ({ children }: { children: React.ReactNode }) => {
