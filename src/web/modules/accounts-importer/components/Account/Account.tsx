@@ -25,7 +25,7 @@ const Account = ({
 
   const [isIncluded, setIsIncluded] = useState(false)
   const smartAccount = false
-  const linked = true
+  const linked = false
   if (!acc.address) return
 
   const trimAddress = (address: string, maxLength: number) => {
