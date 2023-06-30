@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
+import LeftDoubleArrowIcon from '@common/assets/svg/LeftDoubleArrowIcon.tsx'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
 import Button from '@common/components/Button'
-import Toggle from '@common/components/Toggle'
 import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import Toggle from '@common/components/Toggle'
+import Wrapper from '@common/components/Wrapper'
+import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { LARGE_PAGE_STEP } from '@web/modules/accounts-importer/constants/pagination'
 import Account from '@web/modules/accounts-importer/components/Account'
-
+import { LARGE_PAGE_STEP } from '@web/modules/accounts-importer/constants/pagination'
 import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
-import Wrapper from '@common/components/Wrapper'
-import { useTranslation } from '@common/config/localization'
-import LeftDoubleArrowIcon from '@common/assets/svg/LeftDoubleArrowIcon.tsx'
-import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 
 // TODO: each legacy account in the list should be grouped with an Ambire Smart Account
 // TODO: each list item must be selectable (checkbox)

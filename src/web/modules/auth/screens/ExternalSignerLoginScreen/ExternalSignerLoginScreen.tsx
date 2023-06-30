@@ -1,19 +1,19 @@
 import React from 'react'
-import { View, TextInput } from 'react-native'
+import { TextInput, View } from 'react-native'
 
+import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import Button from '@common/components/Button'
 
-import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import styles from './styles'
 
 const ExternalSignerLoginScreen = () => {

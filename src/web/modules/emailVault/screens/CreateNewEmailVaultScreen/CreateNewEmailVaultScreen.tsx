@@ -3,11 +3,11 @@ import { View } from 'react-native'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useRoute from '@common/hooks/useRoute'
 import EmailLoginForm from '@common/modules/auth/components/EmailLoginForm'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import useRoute from '@common/hooks/useRoute'
 import text from '@common/styles/utils/text'
 import {
   AuthLayoutWrapperMainContent,

@@ -5,21 +5,20 @@ import { View } from 'react-native'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import LatticeManager from '@web/modules/accounts-importer/components/LatticeManager'
-import LedgerManager from '@web/modules/accounts-importer/components/LedgerManager'
-import LegacyImportManager from '@web/modules/accounts-importer/components/LegacyImportManager'
-import TrezorManager from '@web/modules/accounts-importer/components/TrezorManager'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import LatticeManager from '@web/modules/accounts-importer/components/LatticeManager'
+import LedgerManager from '@web/modules/accounts-importer/components/LedgerManager'
+import LegacyImportManager from '@web/modules/accounts-importer/components/LegacyImportManager'
+import TrezorManager from '@web/modules/accounts-importer/components/TrezorManager'
 import { AccountsPaginationProvider } from '@web/modules/accounts-importer/contexts/accountsPaginationContext'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
-
-import colors from '@common/styles/colors'
-import flexbox from '@common/styles/utils/flexbox'
 
 export interface Account {
   type: string
