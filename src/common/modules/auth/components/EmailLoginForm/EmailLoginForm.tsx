@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
 import { Keyboard } from 'react-native'
@@ -16,7 +16,7 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import { ROUTES } from '@common/modules/router/constants/common'
 import { isEmail } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
-import { SPACING_LG, SPACING_MD } from '@common/styles/spacings'
+import { SPACING_MD } from '@common/styles/spacings'
 // import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
@@ -30,6 +30,7 @@ const EmailLoginForm: React.FC<any> = ({
   currentFlow
 }) => {
   const { t } = useTranslation()
+  const [enableKeyRecovery, onEnableKeyRecoveryChange] = useState(false)
   const { navigate } = useNavigation()
   const { themeType } = useTheme()
   const {
@@ -45,7 +46,7 @@ const EmailLoginForm: React.FC<any> = ({
     }
   })
 
-  const { updateStepperState, stepperState } = useStepper()
+  const { stepperState } = useStepper()
   // TODO: v2
   const requiresEmailConfFor = !!stepperState.currentStep
   const pendingLoginAccount = false
@@ -128,6 +129,8 @@ const EmailLoginForm: React.FC<any> = ({
             name="email"
           />
           <Checkbox
+            value={enableKeyRecovery}
+            onValueChange={() => onEnableKeyRecoveryChange((prev) => !prev)}
             label={
               <Trans>
                 Enable <strong>local</strong> key store recovery with email

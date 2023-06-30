@@ -26,6 +26,8 @@ import styles from '@web/components/AuthLayoutWrapper/styles'
 const CreateNewKeyStoreScreen = () => {
   const { t } = useTranslation()
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false)
+  const [enableEmailRecovery, onEnableEmailRecoveryChange] = useState(false)
+
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const {
     control,
@@ -108,7 +110,11 @@ const CreateNewKeyStoreScreen = () => {
                 )}
                 name="confirmPassword"
               />
-              <Checkbox label={t('Key store recovery by email')} />
+              <Checkbox
+                value={enableEmailRecovery}
+                onValueChange={() => onEnableEmailRecoveryChange((prev) => !prev)}
+                label={t('Key store recovery by email')}
+              />
               {!isWeb &&
                 hasBiometricsHardware &&
                 deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC && (
