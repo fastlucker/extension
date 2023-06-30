@@ -11,9 +11,9 @@ import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import { hasConnectedLedgerDevice } from '@web/modules/hardware-wallet/utils/ledger'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
-import AmbireScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen/Ambire'
-import Drive from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen/Drive'
-import ArrowIcon from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen/ArrowIcon'
+import DriveIcon from '@common/assets/svg/DriveIcon'
+import AmbireDevice from '@common/assets/svg/AmbireDevice'
+import LeftPointerArrowIcon from '@common/assets/svg/LeftPointerArrowIcon'
 
 import flexbox from '@common/styles/utils/flexbox'
 import colors from '@common/styles/colors'
@@ -43,7 +43,6 @@ const ConnectLedgerScreen = () => {
         }
       })
     } else {
-      // navigate(WEB_ROUTES.hardwareWalletLedgerPermission)
       try {
         const transport = await TransportWebHID.create()
         await transport.close()
@@ -69,15 +68,11 @@ const ConnectLedgerScreen = () => {
             paddingBottom: 50
           }}
         >
-          <Text
-            weight="medium"
-            style={{ marginBottom: 14, ...flexbox.alignSelfCenter }}
-            fontSize={20}
-          >
+          <Text weight="medium" style={[spacings.mbSm, flexbox.alignSelfCenter]} fontSize={20}>
             {t('Connect your HW wallet')}
           </Text>
           <View style={{ minWidth: 420, ...flexbox.alignSelfCenter }}>
-            <Text weight="regular" style={[spacings.mbTy]} fontSize={14}>
+            <Text weight="regular" style={spacings.mbTy} fontSize={14}>
               {t('1. Plug your Trezor / Ledger wallet into your computer')}
             </Text>
             <Text weight="regular" fontSize={14} style={{ marginBottom: 40 }}>
@@ -92,9 +87,9 @@ const ConnectLedgerScreen = () => {
               spacings.mbLg
             ]}
           >
-            <Drive style={{ ...spacings.mrLg }} />
-            <ArrowIcon style={{ ...spacings.mrLg }} />
-            <AmbireScreen />
+            <DriveIcon style={spacings.mrLg} />
+            <LeftPointerArrowIcon style={spacings.mrLg} />
+            <AmbireDevice />
           </View>
           <Button
             text="Next"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import Button from '@common/components/Button'
@@ -56,14 +56,16 @@ const AccountsList = ({
             isOn={emailVaultStep}
             onToggle={() => {
               setEmailVaultStep(true)
-              onCreateEmailVaultStep()
+              onCreateEmailVaultStep && onCreateEmailVaultStep()
             }}
             label="Enable email recovery for new Smart Accounts"
           />
         )}
-        <Wrapper contentContainerStyle={{ height: 330 }}>
+        <Wrapper contentContainerStyle={{ height: totalHeight, ...spacings.pt0 }}>
           {!!accounts.length && !loading ? (
-            accounts.map((acc, idx) => <Account key={acc.address} acc={acc} idx={idx} />)
+            accounts.map((acc, idx) => (
+              <Account key={acc.address} handleLayout={handleLayout} acc={acc} idx={idx} />
+            ))
           ) : (
             <View style={[flexbox.alignCenter]}>
               <View style={[spacings.mb, flexbox.alignCenter, flexbox.directionRow]}>
@@ -135,6 +137,7 @@ const AccountsList = ({
           ]}
           setValue={setValue}
           value={value}
+          menuPlacement="top"
           label="Custom Derivation"
         />
         <Button

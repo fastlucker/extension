@@ -19,7 +19,6 @@ import JsonLoginScreen from '@web/modules/auth/screens/JsonLoginScreen'
 import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
-import RequestLedgerPermissionScreen from '@web/modules/hardware-wallet/screens/RequestLedgerPermissionScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
@@ -76,10 +75,6 @@ const MainRoutes = () => {
               element={<HardwareWalletSelectorScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
-            <Route
-              path={WEB_ROUTES.hardwareWalletLedgerPermission}
-              element={<RequestLedgerPermissionScreen />}
-            />
           </Route>
 
           <Route
@@ -87,10 +82,7 @@ const MainRoutes = () => {
             element={<HardwareWalletSelectorScreen />}
           />
           <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
-          <Route
-            path={WEB_ROUTES.hardwareWalletLedgerPermission}
-            element={<RequestLedgerPermissionScreen />}
-          />
+
           <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
 
           <Route path={WEB_ROUTES.accountsImporter} element={<AccountsImporterScreen />} />

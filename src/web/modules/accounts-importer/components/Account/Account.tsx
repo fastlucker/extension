@@ -7,11 +7,20 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { useTranslation } from '@common/config/localization'
+import common from '@common/styles/utils/common'
 
 // TODO: each legacy account in the list should be grouped with an Ambire Smart Account
 // TODO: each list item must be selectable (checkbox)
 
-const Account = ({ acc, idx }: { acc: any; idx: number }) => {
+const Account = ({
+  acc,
+  idx,
+  handleLayout
+}: {
+  acc: any
+  idx: number
+  handleLayout: (i: string, e: any) => void
+}) => {
   const { t } = useTranslation()
 
   const [isIncluded, setIsIncluded] = useState(false)
@@ -34,7 +43,11 @@ const Account = ({ acc, idx }: { acc: any; idx: number }) => {
   }
 
   return (
-    <View key={acc.address} style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
+    <View
+      key={acc.address}
+      style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}
+      onLayout={(e) => handleLayout(acc.index, e)}
+    >
       <Text weight="semiBold" color={colors.martinique} style={{ width: 35 }}>
         {acc?.index || idx + 1}
       </Text>
@@ -54,9 +67,9 @@ const Account = ({ acc, idx }: { acc: any; idx: number }) => {
           ...flexbox.alignEnd,
           ...spacings.phSm,
           ...spacings.pvSm,
+          ...common.borderRadiusPrimary,
           backgroundColor: colors.melrose_15,
           borderColor: colors.scampi_20,
-          borderRadius: 12,
           width: 504
         }}
       >

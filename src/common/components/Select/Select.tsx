@@ -12,10 +12,9 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import commonStyles from '@common/styles/utils/common'
+import common from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
-// import styles from './styles'
 
 interface Props {
   value: string | null
@@ -25,6 +24,7 @@ interface Props {
   extraText?: string
   hasArrow?: boolean
   disabled?: boolean
+  menuPlacement?: string
 }
 
 const Select = ({
@@ -34,7 +34,8 @@ const Select = ({
   options,
   label,
   extraText,
-  hasArrow = true
+  hasArrow = true,
+  menuPlacement = 'auto'
 }: Props) => {
   const [searchValue, setSearchValue] = useState('')
   const { t } = useTranslation()
@@ -63,7 +64,7 @@ const Select = ({
           flexboxStyles.alignCenter,
           spacings.phTy,
           spacings.pvMi,
-          commonStyles.borderRadiusPrimary,
+          common.borderRadiusPrimary,
           { backgroundColor: _item.value === value ? colors.howl : 'transparent' },
           { opacity: _item?.disabled ? 0.3 : 1 }
         ]}

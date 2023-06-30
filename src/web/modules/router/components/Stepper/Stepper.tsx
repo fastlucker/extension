@@ -16,7 +16,11 @@ const StepperComponent: React.FC<any> = () => {
   const { currentStep } = stepperState
 
   const renderStepIndicator = ({ stepStatus }: { stepStatus: string }) =>
-    stepStatus === 'finished' ? <CheckIcon width={18} height={18} color={colors.greenHaze} /> : ''
+    stepStatus === 'finished' ? (
+      <CheckIcon width={18} height={18} color={colors.greenHaze} />
+    ) : (
+      <></>
+    )
 
   const customStyles = {
     stepIndicatorSize: 18,

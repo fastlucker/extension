@@ -5,6 +5,7 @@ import Select, { components, DropdownIndicatorProps } from 'react-select'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import colors from '@common/styles/colors'
+import common from '@common/styles/utils/common'
 
 interface Props {
   value: string | null
@@ -12,9 +13,17 @@ interface Props {
   setValue?: (value: any) => void
   label?: string
   disabled?: boolean
+  menuPlacement?: string
 }
 
-const SelectComponent = ({ value, disabled, setValue, options, label }: Props) => {
+const SelectComponent = ({
+  value,
+  disabled,
+  setValue,
+  options,
+  label,
+  menuPlacement = 'auto'
+}: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const DropdownIndicator = (props: DropdownIndicatorProps<any>) => {
@@ -36,7 +45,7 @@ const SelectComponent = ({ value, disabled, setValue, options, label }: Props) =
         styles={{
           placeholder: (baseStyles) => ({
             ...baseStyles,
-            borderRadius: 12,
+            ...common.borderRadiusPrimary,
             fontSize: 14,
             color: colors.martinique
           }),
@@ -44,7 +53,7 @@ const SelectComponent = ({ value, disabled, setValue, options, label }: Props) =
             ...baseStyles,
             width: 260,
             background: colors.melrose_15,
-            borderRadius: 12,
+            ...common.borderRadiusPrimary,
             fontSize: 14,
             color: colors.martinique
           }),
@@ -65,7 +74,7 @@ const SelectComponent = ({ value, disabled, setValue, options, label }: Props) =
           }
         })}
         placeholder={label}
-        menuPlacement="auto"
+        menuPlacement={menuPlacement}
       />
     </TouchableOpacity>
   )

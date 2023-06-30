@@ -144,7 +144,7 @@ const CreateNewKeyStoreScreen = () => {
             'Ambire Keystore will protect your Ambire Wallet with a passphrase, encrypting all the keys that are stored locally with this passphrase through secure AES encryption.'
           )}
         </Text>
-        <ol style={{ fontSize: 14, color: colors.white, paddingLeft: SPACING_SM, margin: 0 }}>
+        <ol style={{ fontSize: 14, color: colors.white, margin: 0, paddingLeft: SPACING_SM }}>
           <li style={spacings.mb}>
             <Text weight="regular" color={colors.titan} fontSize={14}>
               {t(

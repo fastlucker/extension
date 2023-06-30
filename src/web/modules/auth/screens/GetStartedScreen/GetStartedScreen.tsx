@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 import { Pressable } from 'react-native-web-hover'
 
-import DownArrow from '@common/assets/svg/DownArrow'
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import EmailIcon from '@common/assets/svg/EmailIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
@@ -141,7 +141,11 @@ const GetStartedScreen = () => {
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.ph]}
             onPress={() => setAdvancedModeEnabled((prev) => !prev)}
           >
-            <DownArrow isActive={advanceModeEnabled} />
+            <DownArrowIcon
+              isActive={advanceModeEnabled}
+              color={colors.martinique}
+              withRect={false}
+            />
             <Text fontSize={14} style={[spacings.mlMi]} weight="medium">
               {t('Show more options')}
             </Text>
