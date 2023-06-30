@@ -61,7 +61,13 @@ const CreateNewEmailVaultScreen = () => {
           <Text weight="medium" style={spacings.mb} color={colors.zircon} fontSize={16}>
             {t('Email Vaults')}
           </Text>
-          <Text weight="regular" style={spacings.mbTy} color={colors.zircon} fontSize={14}>
+          <Text
+            shouldScale={false}
+            weight="regular"
+            style={spacings.mbTy}
+            color={colors.zircon}
+            fontSize={14}
+          >
             {t(
               "Email vaults are stored in the cloud, on Ambire's infrastructure and they are used for recovery of smart accounts, recovery of your extension passphrase, as well as optionally backing up your keys."
             )}

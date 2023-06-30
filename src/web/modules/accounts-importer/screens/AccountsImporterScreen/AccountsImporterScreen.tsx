@@ -94,13 +94,7 @@ const AccountsImporterScreen = () => {
           </View>
         </AuthLayoutWrapperMainContent>
         <AuthLayoutWrapperSideContent backgroundType="beta">
-          <Text
-            shouldScale={false}
-            fontSize={16}
-            style={[spacings.mb]}
-            color={colors.zircon}
-            weight="medium"
-          >
+          <Text fontSize={16} style={[spacings.mb]} color={colors.zircon} weight="medium">
             {t('Importing accounts')}
           </Text>
           <Text
@@ -114,20 +108,33 @@ const AccountsImporterScreen = () => {
               'Here you can choose which accounts to import. For every individual key, there exists both a legacy account and a smart account that you can individually choose to import.'
             )}
           </Text>
-          <Text
-            shouldScale={false}
-            fontSize={16}
-            color={colors.turquoise}
-            style={[spacings.mb]}
-            weight="regular"
-          >
+          <Text fontSize={16} color={colors.turquoise} style={[spacings.mb]} weight="regular">
             {t('Linked Smart Accounts')}
           </Text>
-          <Text shouldScale={false} fontSize={14} color={colors.turquoise} weight="regular">
+          <Text
+            shouldScale={false}
+            fontSize={14}
+            color={colors.turquoise}
+            weight="regular"
+            style={[spacings.mbMd]}
+          >
             {t(
               'Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network.'
             )}
           </Text>
+
+          {isLegacyImport && (
+            <>
+              <Text fontSize={16} style={[spacings.mb]} weight="regular" color={colors.zircon}>
+                {t('Email Recovery')}
+              </Text>
+              <Text shouldScale={false} fontSize={14} weight="regular" color={colors.zircon}>
+                {t(
+                  "Email recovery can be enabled for Smart Accounts, and it allows you to use your email vault to trigger a timelocked recovery procedure that enables you to regain access to an account if you've lost it's keys."
+                )}
+              </Text>
+            </>
+          )}
         </AuthLayoutWrapperSideContent>
       </AccountsPaginationProvider>
     )

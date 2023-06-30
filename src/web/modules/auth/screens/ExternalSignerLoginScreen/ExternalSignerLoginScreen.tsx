@@ -83,13 +83,7 @@ const ExternalSignerLoginScreen = () => {
         </View>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
-        <Text
-          shouldScale={false}
-          weight="medium"
-          fontSize={16}
-          style={spacings.mb}
-          color={colors.zircon}
-        >
+        <Text weight="medium" fontSize={16} style={spacings.mb} color={colors.zircon}>
           {t('Importing legacy accounts')}
         </Text>
         <Text shouldScale={false} fontSize={14} color={colors.zircon} style={spacings.mb}>
@@ -98,13 +92,7 @@ const ExternalSignerLoginScreen = () => {
           )}
         </Text>
 
-        <Text
-          shouldScale={false}
-          weight="medium"
-          fontSize={16}
-          style={spacings.mb}
-          color={colors.zircon}
-        >
+        <Text weight="medium" fontSize={16} style={spacings.mb} color={colors.zircon}>
           {t('Key Label')}
         </Text>
         <Text fontSize={14} shouldScale={false} color={colors.zircon}>

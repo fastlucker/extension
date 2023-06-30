@@ -145,33 +145,45 @@ const CreateNewKeyStoreScreen = () => {
         <Text weight="medium" style={spacings.mb} color={colors.titan} fontSize={16}>
           {t('Setup Your Ambire Key Store')}
         </Text>
-        <Text weight="regular" style={spacings.mb} color={colors.titan} fontSize={14}>
+        <Text
+          shouldScale={false}
+          weight="regular"
+          style={spacings.mb}
+          color={colors.titan}
+          fontSize={14}
+        >
           {t(
             'Ambire Keystore will protect your Ambire Wallet with a passphrase, encrypting all the keys that are stored locally with this passphrase through secure AES encryption.'
           )}
         </Text>
         <ol style={{ fontSize: 14, color: colors.white, margin: 0, paddingLeft: SPACING_SM }}>
           <li style={spacings.mb}>
-            <Text weight="regular" color={colors.titan} fontSize={14}>
+            <Text shouldScale={false} weight="regular" color={colors.titan} fontSize={14}>
               {t(
                 'First, pick your passphrase. It should be long and you shouldnt reuse other passphrases.'
               )}
             </Text>
           </li>
           <li style={spacings.mb}>
-            <Text weight="regular" color={colors.titan} fontSize={14}>
+            <Text shouldScale={false} weight="regular" color={colors.titan} fontSize={14}>
               {t(
                 'You will use your passphrase to unlock the Ambire extension and sign transactions on this device.'
               )}
             </Text>
           </li>
           <li style={spacings.mb}>
-            <Text weight="regular" style={spacings.mb} color={colors.titan} fontSize={14}>
+            <Text
+              shouldScale={false}
+              weight="regular"
+              style={spacings.mb}
+              color={colors.titan}
+              fontSize={14}
+            >
               {t('This passphrase can only be reset if you enable recovery via your email vault.')}
             </Text>
           </li>
         </ol>
-        <Text weight="regular" color={colors.radicalRed} fontSize={14}>
+        <Text shouldScale={false} weight="regular" color={colors.radicalRed} fontSize={14}>
           {t(
             'If you disable email vault keystore recovery, and lose your passphrase, you will lose access to all keys and accounts on this device'
           )}

@@ -147,20 +147,24 @@ const AccountsList = ({
             <RightDoubleArrowIcon />
           </TouchableOpacity>
         </View>
-        <Toggle label="Show empty legacy accounts" />
-        <Select
-          hasArrow
-          options={[
-            { label: 'Swap', value: 'Swap' },
-            { label: 'Bridge', value: 'Bridge' },
-            { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
-            { label: 'Deposit', value: 'Deposit' }
-          ]}
-          setValue={setValue}
-          value={value}
-          menuPlacement="top"
-          label="Custom Derivation"
-        />
+        {!enableCreateEmailVault && (
+          <>
+            <Toggle label="Show empty legacy accounts" />
+            <Select
+              hasArrow
+              options={[
+                { label: 'Swap', value: 'Swap' },
+                { label: 'Bridge', value: 'Bridge' },
+                { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
+                { label: 'Deposit', value: 'Deposit' }
+              ]}
+              setValue={setValue}
+              value={value}
+              menuPlacement="top"
+              label="Custom Derivation"
+            />
+          </>
+        )}
         <Button
           style={{ ...spacings.mtTy, width: 296, ...flexbox.alignSelfCenter }}
           onPress={onImportReady}
