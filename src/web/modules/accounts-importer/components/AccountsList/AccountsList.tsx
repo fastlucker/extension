@@ -34,6 +34,22 @@ const AccountsList = ({
 }) => {
   const { t } = useTranslation()
   const [value, setValue] = useState('')
+  const [elementHeights, setElementHeights] = useState({})
+  const [totalHeight, setTotalHeight] = useState(0)
+
+  const handleLayout = (index: string, event: any) => {
+    const { height } = event.nativeEvent.layout
+    setElementHeights((prevState) => ({ ...prevState, [index]: height + 10 }))
+  }
+
+  useEffect(() => {
+    // Calculate the sum of heights
+    const totalHeightCalculated = Object.values(elementHeights)
+      .slice(0, 4)
+      .reduce((acc, height) => acc + height, 0)
+
+    setTotalHeight(totalHeightCalculated)
+  }, [elementHeights])
 
   const {
     page,
