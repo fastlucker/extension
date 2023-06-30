@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import Text from '@common/components/Text'
-import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -40,7 +39,6 @@ const WALLET_MAP = {
 const AccountsImporterScreen = () => {
   const { params } = useRoute()
 
-  const { goBack } = useNavigation()
   const { hardwareWallets } = useHardwareWallets()
   const { t } = useTranslation()
 
@@ -50,12 +48,6 @@ const AccountsImporterScreen = () => {
   const isTrezor = walletType === HARDWARE_WALLETS.TREZOR
 
   const isLegacyImport = walletType === 'LEGACY_IMPORTER'
-
-  // useEffect(() => {
-  //   if (!walletType) {
-  //     goBack()
-  //   }
-  // }, [goBack, walletType])
 
   if (isLedger || isTrezor || isGrid || isLegacyImport) {
     const closeConnect = React.useCallback(() => {
