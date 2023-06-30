@@ -35,7 +35,7 @@ const AccountsList = ({
   const { t } = useTranslation()
   const [value, setValue] = useState('')
   const [elementHeights, setElementHeights] = useState({})
-  const [totalHeight, setTotalHeight] = useState(0)
+  const [totalHeight, setTotalHeight] = useState(300)
 
   const handleLayout = (index: string, event: any) => {
     const { height } = event.nativeEvent.layout
@@ -48,7 +48,7 @@ const AccountsList = ({
       .slice(0, 4)
       .reduce((acc, height) => acc + height, 0)
 
-    setTotalHeight(totalHeightCalculated)
+    accounts.length && setTotalHeight(totalHeightCalculated)
   }, [elementHeights])
 
   const {
@@ -71,13 +71,18 @@ const AccountsList = ({
             <View style={[flexbox.alignCenter]}>
               <View style={[spacings.mb, flexbox.alignCenter, flexbox.directionRow]}>
                 <Spinner style={{ width: 16, height: 16 }} />
-                <Text color={colors.violet} style={[spacings.mlSm]} fontSize={12}>
-                  {t('Looking for linked smart accounts')}
-                </Text>
               </View>
             </View>
           )}
         </Wrapper>
+        <View style={[flexbox.alignCenter, spacings.pt]}>
+          <View style={[spacings.mb, flexbox.alignCenter, flexbox.directionRow]}>
+            <Spinner style={{ width: 16, height: 16 }} />
+            <Text color={colors.violet} style={[spacings.mlSm]} fontSize={12}>
+              {t('Looking for linked smart accounts')}
+            </Text>
+          </View>
+        </View>
         <View
           style={[flexbox.directionRow, flexbox.justifyCenter, flexbox.alignCenter, spacings.pv]}
         >
