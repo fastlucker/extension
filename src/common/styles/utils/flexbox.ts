@@ -7,6 +7,7 @@ interface Styles {
   directionRow: ViewStyle
   center: ViewStyle
   alignSelfCenter: ViewStyle
+  alignSelfEnd: ViewStyle
   alignCenter: ViewStyle
   alignEnd: ViewStyle
   justifyCenter: ViewStyle
@@ -37,6 +38,9 @@ const styles: Styles = {
   },
   alignSelfCenter: {
     alignSelf: 'center'
+  },
+  alignSelfEnd: {
+    alignSelf: 'flex-end'
   },
   wrap: {
     flexWrap: 'wrap'
