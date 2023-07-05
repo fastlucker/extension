@@ -1,3 +1,3 @@
-import TrezorSigner from './TrezorSigner'
+import TrezorSigner from './trezorSigner'
 
 export default TrezorSigner

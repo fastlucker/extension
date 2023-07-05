@@ -48,14 +48,6 @@ class LedgerController {
     }
   }
 
-  setHdPath(hdPath: any) {
-    // Reset HDKey if the path changes
-    if (this.hdPath !== hdPath) {
-      this.hdk = new HDKey()
-    }
-    this.hdPath = hdPath
-  }
-
   async unlock(hdPath?: string) {
     if (this.isUnlocked() && !hdPath) {
       return 'already unlocked'
@@ -88,20 +80,22 @@ class LedgerController {
     await this.makeApp()
 
     return new Promise((resolve, reject) => {
-      this.unlock()
-        .then(async () => {
-          const iterator = new HwKeyIterator({
-            walletType: 'Ledger',
-            hdk: this.hdk,
-            app: this.app
-          })
-          const keys = await iterator.retrieve(from, to)
+      for (let i = from; i <= to; i++) {
+        this.unlock(`44'/60'/${i}'/0/0`)
+          .then(async () => {
+            const iterator = new HwKeyIterator({
+              walletType: 'Ledger',
+              hdk: this.hdk,
+              app: this.app
+            })
+            const keys = await iterator.retrieve(i, i)
 
-          resolve(keys)
-        })
-        .catch((e) => {
-          reject(e)
-        })
+            resolve(keys)
+          })
+          .catch((e) => {
+            reject(e)
+          })
+      }
     })
   }
 

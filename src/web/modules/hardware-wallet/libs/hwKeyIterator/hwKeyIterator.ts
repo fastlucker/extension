@@ -77,7 +77,7 @@ export class HwKeyIterator implements KeyIteratorInterface {
         // eslint-disable-next-line no-await-in-loop
         const key = await this.app!.getAddress(`44'/60'/${i}'/0/0`, false, true)
 
-        !!key && keys.push(key.publicKey)
+        !!key && keys.push(key.address)
       }
     }
 
