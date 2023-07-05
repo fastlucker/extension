@@ -48,14 +48,7 @@ const TabHeader: React.FC<any> = ({ hideStepper = false, pageTitle = '' }) => {
   const shouldDisplayStepper = flow && !hideStepper
 
   return (
-    <View
-      style={[
-        styles.container,
-        spacings.pv,
-        spacings.ph,
-        shouldDisplayStepper ? spacings.pv : spacings.pvXl
-      ]}
-    >
+    <View style={[styles.container, spacings.pv, spacings.ph]}>
       <View>{renderHeaderLeft()}</View>
       {!!shouldDisplayStepper && <Stepper step={flowStep} />}
       {!shouldDisplayStepper && (!!title || !!pageTitle) && (
