@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
@@ -13,6 +13,9 @@ import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import { DEVICE_SECURITY_LEVEL } from '@common/contexts/biometricsContext/constants'
 import useBiometrics from '@common/hooks/useBiometrics'
+import useNavigation from '@common/hooks/useNavigation'
+import useStepper from '@common/modules/auth/hooks/useStepper'
+import { ROUTES } from '@common/modules/router/constants/common'
 import { isValidPassword } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG, SPACING_SM } from '@common/styles/spacings'
@@ -25,8 +28,14 @@ import styles from '@web/components/AuthLayoutWrapper/styles'
 
 const CreateNewKeyStoreScreen = () => {
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false)
   const [enableEmailRecovery, onEnableEmailRecoveryChange] = useState(false)
+  const { stepperState, updateStepperState } = useStepper()
+
+  const setNextStepperState = () => {
+    updateStepperState(stepperState.currentStep + 1, stepperState.currentFlow)
+  }
 
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const {
@@ -43,6 +52,24 @@ const CreateNewKeyStoreScreen = () => {
         !isWeb && hasBiometricsHardware && deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC
     }
   })
+
+  useEffect(() => {
+    let timer
+    const delay = 4
+    if (isSubmitSuccessful) {
+      setTimeout(() => {
+        setNextStepperState()
+        navigate(ROUTES.accountsPersonalize)
+      }, delay * 1000)
+    }
+
+    // this will clear Timeout
+    // when component unmount like in willComponentUnmount
+    // and show will not change to true
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [isSubmitSuccessful])
 
   return (
     <>
