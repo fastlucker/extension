@@ -3,7 +3,7 @@ import HDKey from 'hdkey'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import { HwKeyIterator } from '@web/modules/hardware-wallet/libs/hwKeyIterator'
+import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 
 class LedgerController {
   hdk: any
@@ -83,8 +83,7 @@ class LedgerController {
       for (let i = from; i <= to; i++) {
         this.unlock(`44'/60'/${i}'/0/0`)
           .then(async () => {
-            const iterator = new HwKeyIterator({
-              walletType: 'Ledger',
+            const iterator = new LedgerKeyIterator({
               hdk: this.hdk,
               app: this.app
             })

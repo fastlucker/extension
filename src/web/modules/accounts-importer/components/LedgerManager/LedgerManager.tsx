@@ -1,13 +1,16 @@
+import { hexlify, toUtf8Bytes } from 'ethers'
 import React, { useEffect } from 'react'
 
+import Button from '@common/components/Button'
+import useNavigation from '@common/hooks/useNavigation'
+import useStepper from '@common/modules/auth/hooks/useStepper'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import AccountsList from '@web/modules/accounts-importer/components/AccountsList'
 import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
-import useNavigation from '@common/hooks/useNavigation'
-import useStepper from '@common/modules/auth/hooks/useStepper'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import LedgerSigner from '@web/modules/hardware-wallet/libs/ledgerSigner'
 
 interface Props {}
 
@@ -59,15 +62,50 @@ const LedgerManager: React.FC<Props> = (props) => {
   }, [page, runGetKeys])
 
   return (
-    <AccountsList
-      accounts={keysList.map((key, i) => ({
-        address: key,
-        index: pageStartIndex + i + 1
-      }))}
-      loading={loading}
-      onImportReady={onImportReady}
-      {...props}
-    />
+    <>
+      <AccountsList
+        accounts={keysList.map((key, i) => ({
+          address: key,
+          index: pageStartIndex + i + 1
+        }))}
+        loading={loading}
+        onImportReady={onImportReady}
+        {...props}
+      />
+      <Button
+        text="sign transaction with ledger"
+        onPress={
+          // Only for testing
+          () => {
+            const key_idx = 2
+
+            const key = {
+              id: '0xF0cD725D2195b1D3f4BD038c3786005B793237DB',
+              type: 'internal',
+              label: 'test-key',
+              isExternallyStored: false,
+              meta: {
+                derivationPath: `m/44'/60'/${key_idx}'/0/0`
+              }
+            }
+
+            const txn = {
+              from: '0xF0cD725D2195b1D3f4BD038c3786005B793237DB',
+              to: '0x15a45946F2561704203057165507404d9C37F762',
+              data: '0xabcdef',
+              gas: hexlify(toUtf8Bytes('200000')),
+              gasPrice: hexlify(toUtf8Bytes('1000000000')),
+              nonce: hexlify(toUtf8Bytes('0')),
+              chainId: 137
+            }
+
+            const signer = new LedgerSigner(key)
+            signer.init(hardwareWallets[HARDWARE_WALLETS.LEDGER])
+            signer.signRawTransaction(txn)
+          }
+        }
+      />
+    </>
   )
 }
 

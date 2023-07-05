@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
-import { HwKeyIterator } from '@web/modules/hardware-wallet/libs/hwKeyIterator'
+import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
 const keyringType = 'GridPlus'
 const HARDENED_OFFSET = 0x80000000
@@ -90,8 +90,7 @@ class LatticeController extends EventEmitter {
 
     return new Promise((resolve) => {
       ;(async () => {
-        const iterator = new HwKeyIterator({
-          walletType: 'GridPlus',
+        const iterator = new LatticeKeyIterator({
           sdkSession: this.sdkSession
         })
 
@@ -189,7 +188,7 @@ class LatticeController extends EventEmitter {
       const name = this.appName ? this.appName : 'Unknown'
       const base = 'https://lattice.gridplus.io'
       const url = `${base}?keyring=${name}&forceLogin=true`
-      let listenInterval
+      let listenInterval: any
 
       // PostMessage handler
       function receiveMessage(event) {
