@@ -8,6 +8,7 @@ import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnecti
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
 import AccountsImporterScreen from '@web/modules/accounts-importer/screens/AccountsImporterScreen'
+import AccountsPersonalizeScreen from '@web/modules/accounts-personalize/screens/AccountsPersonalizeScreen'
 import AddAccountPasswordToVaultScreen from '@web/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
@@ -85,6 +86,7 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
 
           <Route path={WEB_ROUTES.accountsImporter} element={<AccountsImporterScreen />} />
+          <Route path={WEB_ROUTES.accountsPersonalize} element={<AccountsPersonalizeScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
         </Route>
       </Route>

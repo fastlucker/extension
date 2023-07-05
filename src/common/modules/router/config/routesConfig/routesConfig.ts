@@ -130,6 +130,12 @@ const routesConfig: {
     route: ROUTES.accountsImporter,
     title: ''
   },
+  [ROUTES.accountsPersonalize]: {
+    route: ROUTES.accountsPersonalize,
+    title: Platform.select({
+      default: i18n.t('Personalize Your Accounts')
+    })
+  },
   [ROUTES.externalSigner]: {
     route: ROUTES.externalSigner,
     title: '',
