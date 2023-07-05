@@ -81,7 +81,7 @@ class LedgerController {
 
     return new Promise((resolve, reject) => {
       for (let i = from; i <= to; i++) {
-        this.unlock(`44'/60'/${i}'/0/0`)
+        this.unlock(this._getPathForIndex(i))
           .then(async () => {
             const iterator = new LedgerKeyIterator({
               hdk: this.hdk,
@@ -103,6 +103,10 @@ class LedgerController {
     if (this.transport) this.transport.close()
     this.transport = null
     this.hdk = new HDKey()
+  }
+
+  _getPathForIndex(index: number) {
+    return `m/44'/60'/${index}'/0/0`
   }
 
   _toLedgerPath(path: string) {

@@ -26,7 +26,7 @@ class LedgerSigner implements KeystoreSigner {
       throw new Error('ledgerSigner: ledgerController not initialized')
     }
 
-    await this.controller.unlock(`44'/60'/${this.key?.meta?.index}'/0/0`)
+    await this.controller.unlock(this.controller._getPathForIndex(this.key.meta?.index as number))
 
     try {
       const unsignedTxObj = {
@@ -40,7 +40,7 @@ class LedgerSigner implements KeystoreSigner {
       const serializedUnsigned = serialize(unsignedTxObj)
 
       const sig = await this.controller.app?.signTransaction(
-        `m/44'/60'/${this.key?.meta?.index}'/0/0`,
+        this.controller._getPathForIndex(this.key.meta?.index as number),
         serializedUnsigned.substr(2)
       )
 
@@ -59,7 +59,7 @@ class LedgerSigner implements KeystoreSigner {
       })
 
       return serializedSigned
-    } catch (error) {
+    } catch (error: any) {
       throw new Error('Could not sign transaction', error)
     }
   }
