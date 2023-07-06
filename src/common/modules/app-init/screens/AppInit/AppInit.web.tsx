@@ -4,8 +4,6 @@ import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
-// TODO: v2
-// import AttentionGrabberProvider from '@common/components/AttentionGrabber'
 import { AmbireExtensionProvider } from '@common/contexts/ambireExtensionContext'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
@@ -55,11 +53,9 @@ const AppInit = () => {
                             <ApprovalProvider>
                               <AmbireExtensionProvider>
                                 <BiometricsProvider>
-                                  {/* <AttentionGrabberProvider> */}
                                   <PrivateModeProvider>
                                     <AppRouter />
                                   </PrivateModeProvider>
-                                  {/* </AttentionGrabberProvider> */}
                                   <PortalHost name="global" />
                                 </BiometricsProvider>
                               </AmbireExtensionProvider>

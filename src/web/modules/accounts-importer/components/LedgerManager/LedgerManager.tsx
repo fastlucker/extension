@@ -1,4 +1,4 @@
-import { hexlify, toUtf8Bytes } from 'ethers'
+import { hashMessage, hexlify, toUtf8Bytes } from 'ethers'
 import React, { useEffect } from 'react'
 
 import Button from '@common/components/Button'
@@ -81,11 +81,12 @@ const LedgerManager: React.FC<Props> = (props) => {
 
             const key = {
               id: '0xF0cD725D2195b1D3f4BD038c3786005B793237DB',
-              type: 'internal',
-              label: 'test-key',
+              type: 'ledger',
+              label: 'ledger-test-key',
               isExternallyStored: false,
               meta: {
-                derivationPath: `m/44'/60'/${key_idx}'/0/0`
+                derivationPath: `m/44'/60'/${key_idx}'/0/0`,
+                index: key_idx
               }
             }
 
@@ -102,6 +103,30 @@ const LedgerManager: React.FC<Props> = (props) => {
             const signer = new LedgerSigner(key)
             signer.init(hardwareWallets[HARDWARE_WALLETS.LEDGER])
             signer.signRawTransaction(txn)
+          }
+        }
+      />
+      <Button
+        text="sign personal message with ledger"
+        onPress={
+          // Only for testing
+          () => {
+            const key_idx = 1
+
+            const key = {
+              id: '0xF0cD725D2195b1D3f4BD038c3786005B793237DB',
+              type: 'ledger',
+              label: 'ledger-test-key',
+              isExternallyStored: false,
+              meta: {
+                derivationPath: `m/44'/60'/${key_idx}'/0/0`,
+                index: key_idx
+              }
+            }
+
+            const signer = new LedgerSigner(key)
+            signer.init(hardwareWallets[HARDWARE_WALLETS.LEDGER])
+            signer.signMessage(hashMessage('some message'))
           }
         }
       />
