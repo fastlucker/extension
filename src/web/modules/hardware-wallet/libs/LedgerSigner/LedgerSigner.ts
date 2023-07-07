@@ -3,6 +3,7 @@ import { Key } from 'ambire-common/src/libs/keystore/keystore'
 import { stripHexPrefix } from 'ethereumjs-util'
 
 import { serialize } from '@ethersproject/transactions'
+import { LEDGER_LIVE_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
@@ -28,7 +29,7 @@ class LedgerSigner implements KeystoreSigner {
         throw new Error('ledgerSigner: ledgerController not initialized')
       }
 
-      await this.controller.unlock(this.controller._getPathForIndex(this.key.meta?.index as number))
+      await this.controller.unlock(this._getDerivationPath())
       const unsignedTxObj = {
         ...params,
         gasLimit: params.gasLimit || params.gas
@@ -40,8 +41,8 @@ class LedgerSigner implements KeystoreSigner {
       const serializedUnsigned = serialize(unsignedTxObj)
 
       // @ts-ignore
-      const rsvRes = await this.controller.app.signTransaction(
-        this.controller._getPathForIndex(this.key.meta?.index as number),
+      const rsvRes = await this.controller!.app!.signTransaction(
+        this._getDerivationPath(),
         serializedUnsigned.substr(2)
       )
 
@@ -49,7 +50,7 @@ class LedgerSigner implements KeystoreSigner {
       const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
 
       if (signedChainId !== params.chainId) {
-        throw new Error(`Invalid returned V 0x${rsvRes.v}`)
+        throw new Error(`ledgerSigner: invalid returned V 0x${rsvRes.v}`)
       }
 
       delete unsignedTxObj.v
@@ -61,7 +62,7 @@ class LedgerSigner implements KeystoreSigner {
 
       return signature
     } catch (error: any) {
-      throw new Error('Could not sign transaction', error.message)
+      throw new Error('ledgerSigner: could not sign transaction: ', error.message)
     }
   }
 
@@ -78,10 +79,11 @@ class LedgerSigner implements KeystoreSigner {
       if (!this.controller) {
         throw new Error('ledgerSigner: ledgerController not initialized')
       }
-      await this.controller.unlock(this.controller._getPathForIndex(this.key.meta?.index as number))
 
-      const rsvRes = await this.controller.app?.signPersonalMessage(
-        this.controller._getPathForIndex(this.key.meta?.index as number),
+      await this.controller.unlock(this._getDerivationPath())
+
+      const rsvRes = await this.controller!.app!.signPersonalMessage(
+        this._getDerivationPath(),
         stripHexPrefix(hash)
       )
 
@@ -89,8 +91,17 @@ class LedgerSigner implements KeystoreSigner {
 
       return signature
     } catch (error: any) {
-      throw new Error('Could not sign message', error.message)
+      throw new Error('ledgerSigner: could not sign message: ', error.message)
     }
+  }
+
+  _getDerivationPath(keyIndex?: number) {
+    if (!this.controller) return LEDGER_LIVE_HD_PATH
+
+    if (keyIndex) {
+      return this.controller!._getPathForIndex(keyIndex)
+    }
+    return this.controller!.hdPath
   }
 }
 

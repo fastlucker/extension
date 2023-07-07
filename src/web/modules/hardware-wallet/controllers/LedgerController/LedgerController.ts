@@ -3,6 +3,7 @@ import HDKey from 'hdkey'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
+import { LEDGER_LIVE_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
 import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 
 class LedgerController {
@@ -12,7 +13,7 @@ class LedgerController {
 
   accounts: any
 
-  hdPath: any
+  hdPath: string = LEDGER_LIVE_HD_PATH
 
   isWebHID: boolean
 
@@ -25,8 +26,6 @@ class LedgerController {
     this.hasHIDPermission = null
     // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
-    // TODO: it is temporarily hardcoded
-    this.hdPath = "m/44'/60'/0'/0/0"
     this.transport = null
     this.app = null
   }
@@ -35,22 +34,29 @@ class LedgerController {
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
+  setHdPath(hdPath: string) {
+    // Reset HDKey if the path changes
+    if (this.hdPath !== hdPath) {
+      this.hdk = new HDKey()
+    }
+    this.hdPath = hdPath
+  }
+
   async makeApp() {
     if (!this.app) {
       try {
+        // @ts-ignore
         this.transport = await TransportWebHID.create()
         this.app = new LedgerEth(this.transport as Transport)
-
-        return null
       } catch (e: any) {
-        return Promise.reject(new Error('Permission Rejected'))
+        Promise.reject(new Error('ledgerController: permission rejected'))
       }
     }
   }
 
   async unlock(hdPath?: string) {
     if (this.isUnlocked() && !hdPath) {
-      return 'already unlocked'
+      return 'ledgerController: already unlocked'
     }
 
     const path = hdPath ? this._toLedgerPath(hdPath) : this.hdPath
@@ -63,13 +69,13 @@ class LedgerController {
         this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
 
         return address
-      } catch (e) {
+      } catch (e: any) {
         throw new Error(e)
       }
     }
 
     return null
-    // TODO: impl when not isWebHID
+    // TODO: impl when isWebHID is false
   }
 
   authorizeHIDPermission() {
@@ -106,11 +112,15 @@ class LedgerController {
   }
 
   _getPathForIndex(index: number) {
-    return `m/44'/60'/${index}'/0/0`
+    return this._isLedgerLiveHdPath() ? `m/44'/60'/${index}'/0/0` : `${this.hdPath}/${index}`
   }
 
   _toLedgerPath(path: string) {
     return path.toString().replace('m/', '')
+  }
+
+  _isLedgerLiveHdPath() {
+    return this.hdPath === LEDGER_LIVE_HD_PATH
   }
 }
 
