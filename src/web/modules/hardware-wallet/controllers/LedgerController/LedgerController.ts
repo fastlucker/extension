@@ -65,12 +65,13 @@ class LedgerController {
         await this.makeApp()
         const res = await this.app!.getAddress(path, false, true)
         const { address, publicKey, chainCode } = res
+
         this.hdk.publicKey = Buffer.from(publicKey, 'hex')
         this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
 
         return address
       } catch (e: any) {
-        throw new Error(e)
+        throw new Error('ledgerController: ledger device not available ', e.message)
       }
     }
 
@@ -83,24 +84,27 @@ class LedgerController {
   }
 
   async getKeys(from: number = 0, to: number = 4) {
-    await this.makeApp()
-
     return new Promise((resolve, reject) => {
-      for (let i = from; i <= to; i++) {
-        this.unlock(this._getPathForIndex(i))
-          .then(async () => {
-            const iterator = new LedgerKeyIterator({
-              hdk: this.hdk,
-              app: this.app
-            })
-            const keys = await iterator.retrieve(i, i)
+      const unlockPromises = []
 
-            resolve(keys)
-          })
-          .catch((e) => {
-            reject(e)
-          })
+      for (let i = from; i <= to; i++) {
+        const path = this._getPathForIndex(i)
+        unlockPromises.push(this.unlock(path))
       }
+
+      Promise.all(unlockPromises)
+        .then(async () => {
+          const iterator = new LedgerKeyIterator({
+            hdk: this.hdk,
+            app: this.app
+          })
+          const keys = await iterator.retrieve(from, to)
+
+          resolve(keys)
+        })
+        .catch((error) => {
+          reject(error)
+        })
     })
   }
 

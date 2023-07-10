@@ -111,7 +111,7 @@ const LedgerManager: React.FC<Props> = (props) => {
         onPress={
           // Only for testing
           () => {
-            const key_idx = 1
+            const key_idx = 0
 
             const key = {
               id: '0xF0cD725D2195b1D3f4BD038c3786005B793237DB',
@@ -127,6 +127,79 @@ const LedgerManager: React.FC<Props> = (props) => {
             const signer = new LedgerSigner(key)
             signer.init(hardwareWallets[HARDWARE_WALLETS.LEDGER])
             signer.signMessage(hashMessage('some message'))
+          }
+        }
+      />
+      <Button
+        text="sign typed data with ledger"
+        onPress={
+          // Only for testing
+          () => {
+            const key_idx = 0
+
+            const key = {
+              id: '0xF0cD725D2195b1D3f4BD038c3786005B793237DB',
+              type: 'ledger',
+              label: 'ledger-test-key',
+              isExternallyStored: false,
+              meta: {
+                derivationPath: `m/44'/60'/${key_idx}'/0/0`,
+                index: key_idx
+              }
+            }
+
+            const signer = new LedgerSigner(key)
+            signer.init(hardwareWallets[HARDWARE_WALLETS.LEDGER])
+
+            const typedData = {
+              types: {
+                EIP712Domain: [
+                  { name: 'name', type: 'string' },
+                  { name: 'version', type: 'string' },
+                  { name: 'chainId', type: 'uint256' },
+                  { name: 'verifyingContract', type: 'address' },
+                  { name: 'salt', type: 'bytes32' }
+                ],
+                Person: [
+                  { name: 'name', type: 'string' },
+                  { name: 'age', type: 'uint256' },
+                  { name: 'address', type: 'string' }
+                ],
+                Message: [
+                  { name: 'sender', type: 'Person' },
+                  { name: 'recipient', type: 'Person' },
+                  { name: 'content', type: 'string' }
+                ]
+              },
+              primaryType: 'Message',
+              domain: {
+                name: 'MyDapp',
+                version: '1.0',
+                chainId: 1,
+                verifyingContract: '0x1234567890123456789012345678901234567890',
+                salt: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'
+              },
+              message: {
+                sender: {
+                  name: 'Alice',
+                  age: 30,
+                  address: '0x1234567890123456789012345678901234567890'
+                },
+                recipient: {
+                  name: 'Bob',
+                  age: 25,
+                  address: '0x0987654321098765432109876543210987654321'
+                },
+                content: 'Hello, Bob!'
+              }
+            }
+
+            signer.signTypedData(
+              typedData.domain,
+              typedData.types,
+              typedData.message,
+              typedData.primaryType
+            )
           }
         }
       />

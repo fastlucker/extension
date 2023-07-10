@@ -1,6 +1,16 @@
 import { KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
 import { Key } from 'ambire-common/src/libs/keystore/keystore'
-import { stripHexPrefix } from 'ethereumjs-util'
+import * as sigUtil from 'eth-sig-util'
+import {
+  bufferToHex,
+  ecrecover,
+  fromRpcSig,
+  hashPersonalMessage,
+  publicToAddress,
+  stripHexPrefix,
+  toBuffer,
+  toChecksumAddress
+} from 'ethereumjs-util'
 
 import { serialize } from '@ethersproject/transactions'
 import { LEDGER_LIVE_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
@@ -24,12 +34,13 @@ class LedgerSigner implements KeystoreSigner {
   }
 
   async signRawTransaction(params: any) {
-    try {
-      if (!this.controller) {
-        throw new Error('ledgerSigner: ledgerController not initialized')
-      }
+    if (!this.controller) {
+      throw new Error('ledgerSigner: ledgerController not initialized')
+    }
 
-      await this.controller.unlock(this._getDerivationPath())
+    await this.controller.unlock(this._getDerivationPath(this.key.meta.index))
+
+    try {
       const unsignedTxObj = {
         ...params,
         gasLimit: params.gasLimit || params.gas
@@ -42,7 +53,7 @@ class LedgerSigner implements KeystoreSigner {
 
       // @ts-ignore
       const rsvRes = await this.controller!.app!.signTransaction(
-        this._getDerivationPath(),
+        this._getDerivationPath(this.key.meta.index),
         serializedUnsigned.substr(2)
       )
 
@@ -69,29 +80,99 @@ class LedgerSigner implements KeystoreSigner {
   async signTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
-    message: Record<string, any>
+    message: Record<string, any>,
+    primaryType?: string
   ) {
-    return Promise.resolve('')
+    if (!this.controller) {
+      throw new Error('ledgerSigner: ledgerController not initialized')
+    }
+
+    await this.controller.unlock(this._getDerivationPath(this.key.meta.index))
+
+    if (!types.EIP712Domain) {
+      throw new Error('ledgerSigner: invalid eth_signTypedData_v4 data format')
+    }
+
+    if (!primaryType) {
+      throw new Error(
+        'ledgerSigner: primaryType is missing but required for signing typed data with a ledger device'
+      )
+    }
+
+    try {
+      const domainSeparator = sigUtil.TypedDataUtils.hashStruct(
+        'EIP712Domain',
+        domain,
+        types,
+        true
+      ).toString('hex')
+      const hashStructMessage = sigUtil.TypedDataUtils.hashStruct(
+        Object.keys(types)[2],
+        message,
+        types,
+        true
+      ).toString('hex')
+
+      const rsvRes = await this.controller!.app!.signEIP712HashedMessage(
+        this._getDerivationPath(this.key.meta.index),
+        domainSeparator,
+        hashStructMessage
+      )
+      let v: any = rsvRes.v - 27
+      v = v.toString(16)
+      if (v.length < 2) {
+        v = `0${v}`
+      }
+
+      const signature = `0x${rsvRes.r}${rsvRes.s}${v}`
+      const signedWithKey = sigUtil.recoverTypedSignature_v4({
+        data: {
+          types,
+          domain,
+          message,
+          primaryType
+        },
+        sig: signature
+      })
+
+      if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.id)) {
+        throw new Error("ledgerSigner: the signature doesn't match the right key")
+      }
+
+      return signature
+    } catch (e: any) {
+      throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
+    }
   }
 
   async signMessage(hash: string) {
+    if (!this.controller) {
+      throw new Error('ledgerSigner: ledgerController not initialized')
+    }
+
+    await this.controller.unlock(this._getDerivationPath(this.key.meta.index))
+
     try {
-      if (!this.controller) {
-        throw new Error('ledgerSigner: ledgerController not initialized')
-      }
-
-      await this.controller.unlock(this._getDerivationPath())
-
       const rsvRes = await this.controller!.app!.signPersonalMessage(
-        this._getDerivationPath(),
+        this._getDerivationPath(this.key.meta.index),
         stripHexPrefix(hash)
       )
 
       const signature = `0x${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`
+      const sigParams = fromRpcSig(toBuffer(signature) as any)
+      const message = toBuffer(hash)
+      const msgHash = hashPersonalMessage(message)
+      const publicKey = ecrecover(msgHash as any, sigParams.v, sigParams.r, sigParams.s)
+      const sender = publicToAddress(publicKey)
+      const addressSignedWith = bufferToHex(sender)
+
+      if (toChecksumAddress(addressSignedWith) !== toChecksumAddress(this.key.id)) {
+        throw new Error("ledgerSigner: the signature doesn't match the right address")
+      }
 
       return signature
-    } catch (error: any) {
-      throw new Error('ledgerSigner: could not sign message: ', error.message)
+    } catch (e: any) {
+      throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
     }
   }
 
