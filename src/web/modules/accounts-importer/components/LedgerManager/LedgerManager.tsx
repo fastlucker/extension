@@ -77,7 +77,7 @@ const LedgerManager: React.FC<Props> = (props) => {
         onPress={
           // Only for testing
           () => {
-            const key_idx = 2
+            const key_idx = 0
 
             const key = {
               id: '0xF0cD725D2195b1D3f4BD038c3786005B793237DB',

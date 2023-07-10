@@ -38,6 +38,8 @@ class LedgerSigner implements KeystoreSigner {
       throw new Error('ledgerSigner: ledgerController not initialized')
     }
 
+    await this.controller._reconnect()
+
     await this.controller.unlock(this._getDerivationPath(this.key.meta.index))
 
     try {
@@ -72,8 +74,8 @@ class LedgerSigner implements KeystoreSigner {
       })
 
       return signature
-    } catch (error: any) {
-      throw new Error('ledgerSigner: could not sign transaction: ', error.message)
+    } catch (e: any) {
+      throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
     }
   }
 
@@ -126,12 +128,7 @@ class LedgerSigner implements KeystoreSigner {
 
       const signature = `0x${rsvRes.r}${rsvRes.s}${v}`
       const signedWithKey = sigUtil.recoverTypedSignature_v4({
-        data: {
-          types,
-          domain,
-          message,
-          primaryType
-        },
+        data: { types, domain, message, primaryType },
         sig: signature
       })
 
@@ -164,9 +161,9 @@ class LedgerSigner implements KeystoreSigner {
       const msgHash = hashPersonalMessage(message)
       const publicKey = ecrecover(msgHash as any, sigParams.v, sigParams.r, sigParams.s)
       const sender = publicToAddress(publicKey)
-      const addressSignedWith = bufferToHex(sender)
+      const signedWithKey = bufferToHex(sender)
 
-      if (toChecksumAddress(addressSignedWith) !== toChecksumAddress(this.key.id)) {
+      if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.id)) {
         throw new Error("ledgerSigner: the signature doesn't match the right address")
       }
 

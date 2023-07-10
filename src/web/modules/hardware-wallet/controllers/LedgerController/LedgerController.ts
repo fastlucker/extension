@@ -6,6 +6,15 @@ import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 import { LEDGER_LIVE_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
 import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 
+export const wait = (fn: () => void, ms = 1000) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      fn()
+      resolve(true)
+    }, ms)
+  })
+}
+
 class LedgerController {
   hdk: any
 
@@ -125,6 +134,25 @@ class LedgerController {
 
   _isLedgerLiveHdPath() {
     return this.hdPath === LEDGER_LIVE_HD_PATH
+  }
+
+  async _reconnect() {
+    if (this.isWebHID) {
+      await this.cleanUp()
+
+      let count = 0
+      // wait connect the WebHID
+      while (!this.app) {
+        // eslint-disable-next-line no-await-in-loop
+        await this.makeApp()
+        // eslint-disable-next-line no-await-in-loop, @typescript-eslint/no-loop-func
+        await wait(() => {
+          if (count++ > 50) {
+            throw new Error('Ledger: Failed to connect to Ledger')
+          }
+        }, 100)
+      }
+    }
   }
 }
 
