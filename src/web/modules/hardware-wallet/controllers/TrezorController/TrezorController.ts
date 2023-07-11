@@ -1,12 +1,10 @@
 import HDKey from 'hdkey'
 
 import trezorConnect from '@trezor/connect-web'
+import { TREZOR_HD_PATH, TREZOR_PATH_BASE } from '@web/modules/hardware-wallet/constants/hdPaths'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 
-const hdPathString = "m/44'/60'/0'/0"
-
 const keyringType = 'Trezor'
-const pathBase = 'm'
 
 const TREZOR_CONNECT_MANIFEST = {
   email: 'support@debank.com/',
@@ -30,7 +28,7 @@ class TrezorController {
     this.type = keyringType
     this.hdk = new HDKey()
 
-    this.hdPath = hdPathString
+    this.hdPath = TREZOR_HD_PATH
     this.model = ''
 
     this.trezorConnectInitiated = false
@@ -101,7 +99,7 @@ class TrezorController {
           const iterator = new TrezorKeyIterator({
             hdk: this.hdk
           })
-          const keys = await iterator.retrieve(from, to, pathBase)
+          const keys = await iterator.retrieve(from, to, TREZOR_PATH_BASE)
 
           resolve(keys)
         })

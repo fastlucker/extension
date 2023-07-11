@@ -1,7 +1,9 @@
 import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interfaces/keyIterator'
+import { publicToAddress, toChecksumAddress } from 'ethereumjs-util'
 import HDKey from 'hdkey'
 
-const ethUtil = require('ethereumjs-util')
+import { TREZOR_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
+
 // DOCS
 // - Serves for retrieving a range of addresses/keys from a Trezor hardware wallet
 
@@ -23,7 +25,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
     this.hdk = _wallet.hdk
   }
 
-  async retrieve(from: number, to: number, derivation: string = "m/44'/60'/0'") {
+  async retrieve(from: number, to: number, derivation: string = TREZOR_HD_PATH) {
     if ((!from && from !== 0) || (!to && to !== 0) || !derivation)
       throw new Error('trezorKeyIterator: invalid or missing arguments')
 
@@ -31,9 +33,9 @@ class TrezorKeyIterator implements KeyIteratorInterface {
 
     for (let i = from; i <= to; i++) {
       const dkey = this.hdk?.derive(`${derivation}/${i}`)
-      const key = ethUtil.publicToAddress(dkey?.publicKey, true).toString('hex')
+      const key = publicToAddress(dkey?.publicKey, true).toString('hex')
 
-      !!key && keys.push(key)
+      !!key && keys.push(toChecksumAddress(`0x${key}`))
     }
 
     return keys
