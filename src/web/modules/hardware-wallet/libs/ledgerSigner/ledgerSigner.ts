@@ -92,7 +92,7 @@ class LedgerSigner implements KeystoreSigner {
     await this.controller.unlock(this._getDerivationPath(this.key.meta.index))
 
     if (!types.EIP712Domain) {
-      throw new Error('ledgerSigner: invalid eth_signTypedData_v4 data format')
+      throw new Error('ledgerSigner: only eth_signTypedData_v4 is supported')
     }
 
     if (!primaryType) {

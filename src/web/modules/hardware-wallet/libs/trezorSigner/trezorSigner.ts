@@ -39,6 +39,10 @@ class TrezorSigner implements KeystoreSigner {
       throw new Error('trezorSigner: trezorController not initialized')
     }
 
+    if (!types.EIP712Domain) {
+      throw new Error('trezorSigner: only eth_signTypedData_v4 is supported')
+    }
+
     const dataWithHashes: any = transformTypedData({ domain, types, message, primaryType }, true)
 
     // eslint-disable-next-line @typescript-eslint/naming-convention
