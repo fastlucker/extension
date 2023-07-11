@@ -3,6 +3,7 @@ import { Key } from 'ambire-common/src/libs/keystore/keystore'
 import { stripHexPrefix, toChecksumAddress } from 'ethereumjs-util'
 
 import { delayPromise } from '@common/utils/promises'
+import { serialize } from '@ethersproject/transactions'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
 import trezorConnect from '@trezor/connect-web'
 import { TREZOR_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
@@ -11,6 +12,7 @@ import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorCon
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
 
 const DELAY_BETWEEN_POPUPS = 1000
+const EIP_155_CONSTANT = 35
 
 class TrezorSigner implements KeystoreSigner {
   key: Key
@@ -26,7 +28,44 @@ class TrezorSigner implements KeystoreSigner {
   }
 
   async signRawTransaction(params: any) {
-    return Promise.resolve('')
+    if (!this.controller) {
+      throw new Error('trezorSigner: trezorController not initialized')
+    }
+
+    const status = await this.controller.unlock()
+    await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
+
+    const unsignedTxObj = {
+      ...params,
+      gasLimit: params.gasLimit || params.gas
+    }
+
+    delete unsignedTxObj.from
+    delete unsignedTxObj.gas
+
+    const res: any = await trezorConnect.ethereumSignTransaction({
+      path: this._getDerivationPath(),
+      transaction: unsignedTxObj
+    })
+
+    if (res.success) {
+      const intV = parseInt(res.payload.v, 16)
+      const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
+
+      if (signedChainId !== params.chainId) {
+        throw new Error(`ledgerSigner: invalid returned V 0x${res.payload.v}`)
+      }
+      delete unsignedTxObj.v
+
+      const signature = serialize(unsignedTxObj, {
+        r: res.payload.r,
+        s: res.payload.s,
+        v: intV
+      })
+      return signature
+    }
+
+    throw new Error((res.payload && res.payload.error) || 'trezorSigner: unknown error')
   }
 
   async signTypedData(
@@ -54,7 +93,7 @@ class TrezorSigner implements KeystoreSigner {
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
     const res: any = await trezorConnect.ethereumSignTypedData({
-      path: this.key?.meta?.derivationPath || `${TREZOR_HD_PATH}/${this.key?.meta?.index}`,
+      path: this._getDerivationPath(),
       data: {
         types,
         message,
@@ -87,7 +126,7 @@ class TrezorSigner implements KeystoreSigner {
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
     const res: any = await trezorConnect.ethereumSignMessage({
-      path: this.key?.meta?.derivationPath || `${TREZOR_HD_PATH}/${this.key?.meta?.index}`,
+      path: this._getDerivationPath(),
       message: stripHexPrefix(hash),
       hex: true
     })
@@ -100,6 +139,11 @@ class TrezorSigner implements KeystoreSigner {
     }
 
     throw new Error((res.payload && res.payload.error) || 'trezorSigner: unknown error')
+  }
+
+  _getDerivationPath() {
+    // @ts-ignore
+    return this.key?.meta?.derivationPath || `${TREZOR_HD_PATH}/${this.key?.meta?.index}`
   }
 }
 

@@ -91,6 +91,7 @@ const TrezorManager: React.FC<Props> = (props) => {
               from: '0x10D4102562373113d1dCd82C2EEE5626D9daEcD8',
               to: '0x15a45946F2561704203057165507404d9C37F762',
               data: '0xabcdef',
+              value: '0x1234',
               gas: hexlify(toUtf8Bytes('200000')),
               gasPrice: hexlify(toUtf8Bytes('1000000000')),
               nonce: hexlify(toUtf8Bytes('0')),
