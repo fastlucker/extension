@@ -26,12 +26,25 @@ class LatticeSigner implements KeystoreSigner {
   async signTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
-    message: Record<string, any>
+    message: Record<string, any>,
+    primaryType?: string
   ) {
-    return Promise.resolve('')
+    if (!types.EIP712Domain) {
+      throw new Error('latticeSigner: only EIP712 messages are supported')
+    }
+
+    await this._onBeforeLatticeRequest()
+
+    return this._signMsgRequest({ domain, types, primaryType, message }, 'eip712')
   }
 
   async signMessage(hash: string) {
+    await this._onBeforeLatticeRequest()
+
+    return this._signMsgRequest(hash, 'signPersonal')
+  }
+
+  async _signMsgRequest(payload: any, protocol: 'signPersonal' | 'eip712') {
     if (!this.controller) {
       throw new Error('latticeSigner: trezorController not initialized')
     }
@@ -40,13 +53,11 @@ class LatticeSigner implements KeystoreSigner {
       throw new Error('latticeSigner: key not found')
     }
 
-    await this._onBeforeLatticeRequest()
-
     const req = {
       currency: 'ETH_MSG',
       data: {
-        protocol: 'signPersonal',
-        payload: hash,
+        protocol,
+        payload,
         signerPath: this.controller._getHDPathIndices(
           LATTICE_STANDARD_HD_PATH,
           this.key.meta!.index
@@ -76,7 +87,6 @@ class LatticeSigner implements KeystoreSigner {
       throw new Error('latticeSigner: key not found in the current Lattice wallet')
     }
 
-    console.log('signed successfully: ', `0x${res.sig.r}${res.sig.s}${v}`)
     return `0x${res.sig.r}${res.sig.s}${v}`
   }
 

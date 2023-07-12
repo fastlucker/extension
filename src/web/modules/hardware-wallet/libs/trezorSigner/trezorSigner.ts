@@ -79,7 +79,7 @@ class TrezorSigner implements KeystoreSigner {
     }
 
     if (!types.EIP712Domain) {
-      throw new Error('trezorSigner: only eth_signTypedData_v4 is supported')
+      throw new Error('trezorSigner: only EIP712 messages are supported')
     }
 
     const dataWithHashes: any = transformTypedData({ domain, types, message, primaryType }, true)

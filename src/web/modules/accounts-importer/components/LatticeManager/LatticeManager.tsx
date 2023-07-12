@@ -114,7 +114,7 @@ const LatticeManager: React.FC<Props> = (props) => {
         text="sign personal message with lattice"
         onPress={
           // Only for testing
-          () => {
+          async () => {
             const key_idx = 0
 
             const key = {
@@ -134,7 +134,9 @@ const LatticeManager: React.FC<Props> = (props) => {
 
             const signer = new LatticeSigner(key)
             signer.init(hardwareWallets[HARDWARE_WALLETS.GRIDPLUS])
-            signer.signMessage(hashMessage('some message'))
+            const res = await signer.signMessage(hashMessage('some message'))
+
+            console.log('signMessage res:', res)
           }
         }
       />
@@ -142,7 +144,7 @@ const LatticeManager: React.FC<Props> = (props) => {
         text="sign typed data with lattice"
         onPress={
           // Only for testing
-          () => {
+          async () => {
             const key_idx = 0
 
             const key = {
@@ -206,12 +208,14 @@ const LatticeManager: React.FC<Props> = (props) => {
               }
             }
 
-            signer.signTypedData(
+            const res = await signer.signTypedData(
               typedData.domain,
               typedData.types,
               typedData.message,
               typedData.primaryType
             )
+
+            console.log('signTypedData res:', res)
           }
         }
       />
