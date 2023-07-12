@@ -1,6 +1,8 @@
 import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interfaces/keyIterator'
 import { Client } from 'gridplus-sdk'
 
+import { LATTICE_STANDARD_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
+
 // DOCS
 // - Serves for retrieving a range of addresses/keys from a Lattice hardware wallet
 
@@ -11,26 +13,30 @@ import { Client } from 'gridplus-sdk'
 // eslint-disable-next-line @typescript-eslint/naming-convention
 type WALLET_TYPE = {
   sdkSession?: Client | null
+  getHDPathIndices: (hdPath: any, insertIdx?: number) => number[]
 }
 
 class LatticeKeyIterator implements KeyIteratorInterface {
   sdkSession?: Client | null
 
+  getHDPathIndices: (hdPath: any, insertIdx?: number) => number[]
+
   constructor(_wallet: WALLET_TYPE) {
-    if (!_wallet.sdkSession)
+    if (!_wallet.sdkSession || !_wallet.getHDPathIndices)
       throw new Error('latticeKeyIterator: invalid props passed to the constructor')
 
     this.sdkSession = _wallet.sdkSession
+    this.getHDPathIndices = _wallet.getHDPathIndices
   }
 
-  async retrieve(from: number, to: number, derivation: string = "m/44'/60'/0'") {
+  async retrieve(from: number, to: number, derivation: string = LATTICE_STANDARD_HD_PATH) {
     if ((!from && from !== 0) || (!to && to !== 0) || !derivation)
       throw new Error('latticeKeyIterator: invalid or missing arguments')
 
     const keys: string[] = []
 
     const keyData = {
-      startPath: this._getHDPathIndices(derivation, from),
+      startPath: this.getHDPathIndices(derivation, from),
       n: to - from + 1
     }
 
@@ -38,38 +44,6 @@ class LatticeKeyIterator implements KeyIteratorInterface {
     keys.push(...res)
 
     return keys
-  }
-
-  _getHDPathIndices(hdPath, insertIdx = 0) {
-    const HARDENED_OFFSET = 0x80000000
-    const path = hdPath.split('/').slice(1)
-    const indices = []
-    let usedX = false
-    path.forEach((_idx) => {
-      const isHardened = _idx[_idx.length - 1] === "'"
-      let idx = isHardened ? HARDENED_OFFSET : 0
-      // If there is an `x` in the path string, we will use it to insert our
-      // index. This is useful for e.g. Ledger Live path. Most paths have the
-      // changing index as the last one, so having an `x` in the path isn't
-      // usually necessary.
-      if (_idx.indexOf('x') > -1) {
-        idx += insertIdx
-        usedX = true
-      } else if (isHardened) {
-        idx += Number(_idx.slice(0, _idx.length - 1))
-      } else {
-        idx += Number(_idx)
-      }
-      indices.push(idx)
-    })
-    // If this path string does not include an `x`, we just append the index
-    // to the end of the extracted set
-    if (usedX === false) {
-      indices.push(insertIdx)
-    }
-    // Sanity check -- Lattice firmware will throw an error for large paths
-    if (indices.length > 5) throw new Error('Only HD paths with up to 5 indices are allowed.')
-    return indices
   }
 }
 

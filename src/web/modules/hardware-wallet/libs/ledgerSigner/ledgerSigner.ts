@@ -40,7 +40,7 @@ class LedgerSigner implements KeystoreSigner {
 
     await this.controller._reconnect()
 
-    await this.controller.unlock(this._getDerivationPath(this.key.meta.index))
+    await this.controller.unlock(this._getDerivationPath(this.key.meta!.index))
 
     try {
       const unsignedTxObj = {
@@ -55,7 +55,7 @@ class LedgerSigner implements KeystoreSigner {
 
       // @ts-ignore
       const rsvRes = await this.controller!.app!.signTransaction(
-        this._getDerivationPath(this.key.meta.index),
+        this._getDerivationPath(this.key.meta!.index),
         serializedUnsigned.substr(2)
       )
 
@@ -89,7 +89,7 @@ class LedgerSigner implements KeystoreSigner {
       throw new Error('ledgerSigner: ledgerController not initialized')
     }
 
-    await this.controller.unlock(this._getDerivationPath(this.key.meta.index))
+    await this.controller.unlock(this._getDerivationPath(this.key.meta!.index))
 
     if (!types.EIP712Domain) {
       throw new Error('ledgerSigner: only eth_signTypedData_v4 is supported')
@@ -116,7 +116,7 @@ class LedgerSigner implements KeystoreSigner {
       ).toString('hex')
 
       const rsvRes = await this.controller!.app!.signEIP712HashedMessage(
-        this._getDerivationPath(this.key.meta.index),
+        this._getDerivationPath(this.key.meta!.index),
         domainSeparator,
         hashStructMessage
       )
@@ -147,11 +147,11 @@ class LedgerSigner implements KeystoreSigner {
       throw new Error('ledgerSigner: ledgerController not initialized')
     }
 
-    await this.controller.unlock(this._getDerivationPath(this.key.meta.index))
+    await this.controller.unlock(this._getDerivationPath(this.key.meta!.index))
 
     try {
       const rsvRes = await this.controller!.app!.signPersonalMessage(
-        this._getDerivationPath(this.key.meta.index),
+        this._getDerivationPath(this.key.meta!.index),
         stripHexPrefix(hash)
       )
 

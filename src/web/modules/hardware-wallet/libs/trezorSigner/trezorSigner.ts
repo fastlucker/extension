@@ -143,7 +143,7 @@ class TrezorSigner implements KeystoreSigner {
 
   _getDerivationPath() {
     // @ts-ignore
-    return this.key?.meta?.derivationPath || `${TREZOR_HD_PATH}/${this.key?.meta?.index}`
+    return this.key?.meta!.derivationPath || `${TREZOR_HD_PATH}/${this.key.meta!.index}`
   }
 }
 
