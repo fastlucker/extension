@@ -62,6 +62,7 @@ class TrezorSigner implements KeystoreSigner {
         s: res.payload.s,
         v: intV
       })
+
       return signature
     }
 

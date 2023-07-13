@@ -101,7 +101,7 @@ const LatticeManager: React.FC<Props> = (props) => {
               gas: hexlify(toUtf8Bytes('200000')),
               gasPrice: hexlify(toUtf8Bytes('1000000000')),
               nonce: hexlify(toUtf8Bytes('0')),
-              chainId: 137
+              chainId: 1
             }
 
             const signer = new LatticeSigner(key)
