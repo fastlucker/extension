@@ -73,7 +73,7 @@ const TrezorManager: React.FC<Props> = (props) => {
         text="sign transaction with trezor"
         onPress={
           // Only for testing
-          () => {
+          async () => {
             const key_idx = 0
 
             const key = {
@@ -100,7 +100,9 @@ const TrezorManager: React.FC<Props> = (props) => {
 
             const signer = new TrezorSigner(key)
             signer.init(hardwareWallets[HARDWARE_WALLETS.TREZOR])
-            signer.signRawTransaction(txn)
+            const res = await signer.signRawTransaction(txn)
+
+            console.log('signRawTransaction res: ', res)
           }
         }
       />
@@ -108,7 +110,7 @@ const TrezorManager: React.FC<Props> = (props) => {
         text="sign personal message with trezor"
         onPress={
           // Only for testing
-          () => {
+          async () => {
             const key_idx = 0
 
             const key = {
@@ -124,7 +126,9 @@ const TrezorManager: React.FC<Props> = (props) => {
 
             const signer = new TrezorSigner(key)
             signer.init(hardwareWallets[HARDWARE_WALLETS.TREZOR])
-            signer.signMessage(hashMessage('some message'))
+            const res = await signer.signMessage(hashMessage('some message'))
+
+            console.log('signMessage res: ', res)
           }
         }
       />
@@ -132,7 +136,7 @@ const TrezorManager: React.FC<Props> = (props) => {
         text="sign typed data with trezor"
         onPress={
           // Only for testing
-          () => {
+          async () => {
             const key_idx = 0
 
             const key = {
@@ -192,12 +196,14 @@ const TrezorManager: React.FC<Props> = (props) => {
               }
             }
 
-            signer.signTypedData(
+            const res = await signer.signTypedData(
               typedData.domain,
               typedData.types,
               typedData.message,
               typedData.primaryType
             )
+
+            console.log('signTypedData res: ', res)
           }
         }
       />

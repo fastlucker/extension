@@ -75,7 +75,7 @@ const LatticeManager: React.FC<Props> = (props) => {
         text="sign transaction with lattice"
         onPress={
           // Only for testing
-          () => {
+          async () => {
             const key_idx = 0
 
             const key = {
@@ -106,7 +106,9 @@ const LatticeManager: React.FC<Props> = (props) => {
 
             const signer = new LatticeSigner(key)
             signer.init(hardwareWallets[HARDWARE_WALLETS.GRIDPLUS])
-            signer.signRawTransaction(txn)
+            const res = await signer.signRawTransaction(txn)
+
+            console.log('signRawTransaction res: ', res)
           }
         }
       />
