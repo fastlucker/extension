@@ -8,7 +8,8 @@ const fileContent = fs.readFileSync(filePath, 'utf-8')
 // This hack is needed for version 1.3.4 of gridplus-sdk to work with our proj and might break if another version of gridplus-sdk is installed
 
 // version lower than v1.3.4 won't work for the current implementation of signRawTransaction with Lattice wallet
-// because the sig response after sign doesn't contain the (v) component of the (r,s,v) components and sig hash can't be constructed
+// because the sig response after sign doesn't contain the (v) component of the (r,s,v) components and sig hash can't be constructed only with (r and s).
+// Here is the issue that addresses this problem: https://github.com/GridPlus/gridplus-sdk/pull/385
 
 // gridplus-sdk uses async import for the dotenv config and because
 // this is the only package for now that gives us an error because of the async imports
