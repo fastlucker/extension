@@ -8,6 +8,10 @@ gecko-prod
 coverage
 .expo
 .eslintrc.js
+.yarnclean
+.tmp
+.vscode
+.babel_cache
 babel.config.js
 metro.config.js
 jest.config.js

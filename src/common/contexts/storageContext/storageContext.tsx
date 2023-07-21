@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import useExtensionWallet from '@common/hooks/useExtensionWallet'
 import { isExtension } from '@web/constants/browserapi'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import { StorageController } from './storageController'
 
@@ -17,7 +17,7 @@ const StorageContext = createContext<{
 })
 
 const StorageProvider: React.FC = ({ children }) => {
-  const { extensionWallet } = useExtensionWallet()
+  const { wallet } = useBackgroundService()
   const storageControllerInstance = useMemo(() => new StorageController(), [])
   const [isInitialized, setIsInitialized] = useState(storageControllerInstance.isInitialized)
 
@@ -39,12 +39,12 @@ const StorageProvider: React.FC = ({ children }) => {
   const setItem = useCallback(
     (key: string, value: any) => {
       if (isExtension) {
-        extensionWallet!.setStorage(key, value)
+        wallet!.setStorage(key, value)
       }
 
       return storageControllerInstance.setItem(key, value)
     },
-    [storageControllerInstance, extensionWallet]
+    [storageControllerInstance, wallet]
   )
 
   const removeItem = useCallback(

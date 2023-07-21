@@ -1,15 +1,15 @@
 import React, { createContext, useMemo } from 'react'
 
-import {
-  extensionWalletContextDefaults,
-  ExtensionWalletContextReturnType,
-  ExtensionWalletControllerType
-} from '@common/contexts/extensionWalletContext/types'
 import { isExtension } from '@web/constants/browserapi'
+import {
+  backgroundServiceContextDefaults,
+  BackgroundServiceContextReturnType
+} from '@web/contexts/backgroundServiceContext/types'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 
-let extensionWallet: ExtensionWalletControllerType
+let mainCtrl: BackgroundServiceContextReturnType['mainCtrl']
+let wallet: BackgroundServiceContextReturnType['wallet']
 
 // Facilitate communication between the different parts of the browser extension.
 // Utilizes the PortMessage class to establish a connection between the popup
@@ -18,12 +18,13 @@ let extensionWallet: ExtensionWalletControllerType
 // from the background process (needed for updating the browser extension UI
 // based on the state of the background process and for sending dApps-initiated
 // actions to the background for further processing.
+
 if (isExtension) {
   const portMessageChannel = new PortMessage()
 
   portMessageChannel.connect('popup')
 
-  portMessageChannel.listen((data) => {
+  portMessageChannel.listen((data: any) => {
     if (data.type === 'broadcast') {
       eventBus.emit(data.method, data.params)
     }
@@ -37,37 +38,55 @@ if (isExtension) {
     })
   })
 
-  extensionWallet = new Proxy(
+  // eslint-disable-next-line prefer-const
+  mainCtrl = new Proxy(
     {},
     {
       get(obj, key) {
         return function (...params: any) {
           return portMessageChannel.request({
-            type: 'controller',
+            type: 'mainController',
             method: key,
             params
           })
         }
       }
     }
-  ) as ExtensionWalletControllerType
+  ) as BackgroundServiceContextReturnType['mainCtrl']
+
+  // eslint-disable-next-line prefer-const
+  wallet = new Proxy(
+    {},
+    {
+      get(obj, key) {
+        return function (...params: any) {
+          return portMessageChannel.request({
+            type: 'walletController',
+            method: key,
+            params
+          })
+        }
+      }
+    }
+  ) as BackgroundServiceContextReturnType['wallet']
 }
 
-const ExtensionWalletContext = createContext<ExtensionWalletContextReturnType>(
-  extensionWalletContextDefaults
+const BackgroundServiceContext = createContext<BackgroundServiceContextReturnType>(
+  backgroundServiceContextDefaults
 )
 
-const ExtensionWalletProvider: React.FC<any> = ({ children }) => (
-  <ExtensionWalletContext.Provider
+const BackgroundServiceProvider: React.FC<any> = ({ children }) => (
+  <BackgroundServiceContext.Provider
     value={useMemo(
       () => ({
-        extensionWallet
+        mainCtrl,
+        wallet
       }),
       []
     )}
   >
     {children}
-  </ExtensionWalletContext.Provider>
+  </BackgroundServiceContext.Provider>
 )
 
-export { ExtensionWalletProvider, ExtensionWalletContext }
+export { BackgroundServiceProvider, BackgroundServiceContext }

@@ -1,45 +1,43 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import useExtensionWallet from '@common/hooks/useExtensionWallet'
 import alert from '@common/services/alert'
 import { isExtension } from '@web/constants/browserapi'
 import { getCurrentTab } from '@web/extension-services/background/webapi/tab'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
-import { ambireExtensionContextDefaults, AmbireExtensionContextReturnType } from './types'
+import { extensionContextDefaults, ExtensionContextReturnType } from './types'
 
-const AmbireExtensionContext = createContext<AmbireExtensionContextReturnType>(
-  ambireExtensionContextDefaults
-)
+const ExtensionContext = createContext<ExtensionContextReturnType>(extensionContextDefaults)
 
-const ExtensionProvider: React.FC<any> = ({ children }) => {
+const Provider: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
-  const { extensionWallet } = useExtensionWallet()
-  const [site, setSite] = useState<AmbireExtensionContextReturnType['site']>(null)
+  const { wallet } = useBackgroundService()
+  const [site, setSite] = useState<ExtensionContextReturnType['site']>(null)
   const [connectedDapps, setConnectedDapps] = useState<
-    AmbireExtensionContextReturnType['connectedDapps']
+    ExtensionContextReturnType['connectedDapps']
   >([])
 
   const getCurrentSite = useCallback(async () => {
     const tab = await getCurrentTab()
     if (!tab.id || !tab.url) return
     const domain = getOriginFromUrl(tab.url)
-    const current = await extensionWallet!.getCurrentSite(tab.id, domain)
+    const current = await wallet!.getCurrentSite(tab.id, domain)
     setSite(current)
-  }, [extensionWallet])
+  }, [wallet])
 
   const getConnectedSites = useCallback(async () => {
-    const connectedSites = await extensionWallet!.getConnectedSites()
+    const connectedSites = await wallet!.getConnectedSites()
     setConnectedDapps(connectedSites)
-  }, [extensionWallet])
+  }, [wallet])
 
   useEffect(() => {
     getCurrentSite()
     getConnectedSites()
   }, [getCurrentSite, getConnectedSites])
 
-  const disconnectDapp = useCallback<AmbireExtensionContextReturnType['disconnectDapp']>(
+  const disconnectDapp = useCallback<ExtensionContextReturnType['disconnectDapp']>(
     (origin) => {
       const siteToDisconnect = connectedDapps.find((x) => x.origin === origin)
 
@@ -48,7 +46,7 @@ const ExtensionProvider: React.FC<any> = ({ children }) => {
       }
 
       const disconnect = async () => {
-        await extensionWallet!.removeConnectedSite(origin)
+        await wallet!.removeConnectedSite(origin)
         getCurrentSite()
         getConnectedSites()
       }
@@ -65,11 +63,11 @@ const ExtensionProvider: React.FC<any> = ({ children }) => {
         ]
       )
     },
-    [connectedDapps, extensionWallet, getConnectedSites, getCurrentSite, t]
+    [connectedDapps, wallet, getConnectedSites, getCurrentSite, t]
   )
 
   return (
-    <AmbireExtensionContext.Provider
+    <ExtensionContext.Provider
       value={useMemo(
         () => ({
           connectedDapps,
@@ -80,11 +78,11 @@ const ExtensionProvider: React.FC<any> = ({ children }) => {
       )}
     >
       {children}
-    </AmbireExtensionContext.Provider>
+    </ExtensionContext.Provider>
   )
 }
 
 // To avoid conflicts in web only environment
-const AmbireExtensionProvider = isExtension ? ExtensionProvider : ({ children }: any) => children
+const ExtensionProvider = isExtension ? Provider : ({ children }: any) => children
 
-export { AmbireExtensionContext, AmbireExtensionProvider }
+export { ExtensionContext, ExtensionProvider }

@@ -19,10 +19,6 @@ async function init() {
     initRpcProviders(rpcProviders)
   }
 
-  // const vault = await storage.get('vault')
-  // TODO: v2
-  // VaultController.loadStore(vault)
-  // VaultController.store.subscribe((value) => storage.set('vault', value))
   await permissionService.init()
 }
 
@@ -40,10 +36,15 @@ browser.runtime.onConnect.addListener(async (port) => {
           case 'broadcast':
             eventBus.emit(data.method, data.params)
             break
-          case 'controller':
-          default:
+          case 'mainController':
             if (data.method) {
               return (mainCtrl as any)[data.method].apply(null, data.params)
+            }
+            break
+          case 'walletController':
+          default:
+            if (data.method) {
+              return (WalletController as any)[data.method].apply(null, data.params)
             }
         }
       }
