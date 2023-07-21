@@ -1,26 +1,22 @@
-const get = async (prop?) => {
+import { Storage } from 'ambire-common/src/interfaces/storage'
+
+const get = async (prop?: string) => {
   const result = await browser.storage.local.get(null)
   return prop ? result?.[prop] : result
 }
 
-const set = async (prop, value): Promise<void> => {
-  await browser.storage.local.set({ [prop]: value })
+const set = async (key: string, value: any): Promise<null> => {
+  await browser.storage.local.set({ [key]: value })
+  return null
 }
 
-const byteInUse = async (): Promise<number> => {
-  return new Promise((resolve, reject) => {
-    if (chrome) {
-      chrome.storage.local.getBytesInUse((value) => {
-        resolve(value)
-      })
-    } else {
-      reject('ByteInUse only works in Chrome')
-    }
-  })
+const storage: Storage = {
+  get,
+  set
 }
 
 export default {
   get,
   set,
-  byteInUse
+  storage
 }

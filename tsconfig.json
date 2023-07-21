@@ -3,8 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react-native",
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
+    "module": "ES2022",
+    "lib": ["ES2022", "ESNext", "DOM"],
     "types": ["chrome", "firefox-webext-browser", "reflect-metadata", "jest"],
     "paths": {
       "@common/*": ["src/common/*"],

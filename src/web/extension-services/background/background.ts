@@ -1,10 +1,13 @@
+import { MainController } from 'ambire-common/src/controllers/main/main'
+
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
+import { RELAYER_URL } from '@env'
 import providerController from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import WalletController from '@web/extension-services/background/wallet'
-// import storage from '@web/extension-services/background/webapi/storage'
+import storage from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
@@ -25,6 +28,8 @@ async function init() {
 
 init()
 
+const mainCtrl: MainController = new MainController(storage, fetch, RELAYER_URL)
+
 // listen for messages from UI
 browser.runtime.onConnect.addListener(async (port) => {
   if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
@@ -38,7 +43,7 @@ browser.runtime.onConnect.addListener(async (port) => {
           case 'controller':
           default:
             if (data.method) {
-              return WalletController[data.method].apply(null, data.params)
+              return (mainCtrl as any)[data.method].apply(null, data.params)
             }
         }
       }
