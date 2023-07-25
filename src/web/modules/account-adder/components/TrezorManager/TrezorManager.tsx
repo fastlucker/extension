@@ -1,22 +1,22 @@
 import React, { useEffect } from 'react'
 
-import AccountsList from '@web/modules/accounts-importer/components/AccountsList'
-import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
-import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
-import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
-import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import AccountsList from '@web/modules/account-adder/components/AccountsList'
+import useAccountsPagination from '@web/modules/account-adder/hooks/useAccountsPagination'
+import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
+import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
+import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 interface Props {}
 
-const LedgerManager: React.FC<Props> = (props) => {
+const TrezorManager: React.FC<Props> = (props) => {
   const [keysList, setKeysList] = React.useState<any[]>([])
 
+  const [loading, setLoading] = React.useState(true)
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
-  const [loading, setLoading] = React.useState(true)
   const stoppedRef = React.useRef(true)
   const { createTask } = useTaskQueue()
   const { hardwareWallets } = useHardwareWallets()
@@ -30,18 +30,14 @@ const LedgerManager: React.FC<Props> = (props) => {
   const asyncGetKeys: any = React.useCallback(async () => {
     stoppedRef.current = false
     setLoading(true)
-    let i = pageStartIndex
     try {
-      await createTask(() => hardwareWallets[HARDWARE_WALLETS.LEDGER].unlock())
-      for (i = pageStartIndex; i <= pageEndIndex; ) {
-        // eslint-disable-next-line no-await-in-loop
-        const keys = (await createTask(() =>
-          hardwareWallets[HARDWARE_WALLETS.LEDGER].getKeys(i, i)
-        )) as any[]
-        setKeysList((prev) => [...prev, ...keys])
-        setLoading(false)
-        i++
-      }
+      await createTask(() => hardwareWallets[HARDWARE_WALLETS.TREZOR].unlock())
+
+      const keys = (await createTask(() =>
+        hardwareWallets[HARDWARE_WALLETS.TREZOR].getKeys(pageStartIndex, pageEndIndex)
+      )) as any[]
+      setKeysList(keys)
+      setLoading(false)
     } catch (e) {
       console.error(e.message)
       return
@@ -71,4 +67,4 @@ const LedgerManager: React.FC<Props> = (props) => {
   )
 }
 
-export default React.memo(LedgerManager)
+export default React.memo(TrezorManager)

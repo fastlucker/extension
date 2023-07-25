@@ -11,11 +11,11 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import LatticeManager from '@web/modules/accounts-importer/components/LatticeManager'
-import LedgerManager from '@web/modules/accounts-importer/components/LedgerManager'
-import LegacyImportManager from '@web/modules/accounts-importer/components/LegacyImportManager'
-import TrezorManager from '@web/modules/accounts-importer/components/TrezorManager'
-import { AccountsPaginationProvider } from '@web/modules/accounts-importer/contexts/accountsPaginationContext'
+import LatticeManager from '@web/modules/account-adder/components/LatticeManager'
+import LedgerManager from '@web/modules/account-adder/components/LedgerManager'
+import LegacyImportManager from '@web/modules/account-adder/components/LegacyImportManager'
+import TrezorManager from '@web/modules/account-adder/components/TrezorManager'
+import { AccountsPaginationProvider } from '@web/modules/account-adder/contexts/accountsPaginationContext'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
 
@@ -36,7 +36,7 @@ const WALLET_MAP = {
   LEGACY_IMPORTER: LegacyImportManager
 }
 
-const AccountsImporterScreen = () => {
+const AccountAdderScreen = () => {
   const { params } = useRoute()
 
   const { hardwareWallets } = useHardwareWallets()
@@ -131,7 +131,8 @@ const AccountsImporterScreen = () => {
     )
   }
 
+  return null
   // TODO: implement a logic for displaying a list of Ambire Smart Accounts and EOA
 }
 
-export default AccountsImporterScreen
+export default AccountAdderScreen

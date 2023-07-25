@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 
-import { AccountsPaginationContext } from '@web/modules/accounts-importer/contexts/accountsPaginationContext'
+import { AccountsPaginationContext } from '@web/modules/account-adder/contexts/accountsPaginationContext'
 
 export default function useAccountsPagination() {
   const context = useContext(AccountsPaginationContext)

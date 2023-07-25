@@ -28,14 +28,14 @@ const ConnectLedgerScreen = () => {
     const hasConnectedLedger = await hasConnectedLedgerDevice()
 
     if (!supportWebHID) {
-      navigate(WEB_ROUTES.accountsImporter, {
+      navigate(WEB_ROUTES.accountAdder, {
         state: {
           walletType: HARDWARE_WALLETS.LEDGER,
           isWebHID: false
         }
       })
     } else if (hasConnectedLedger) {
-      navigate(WEB_ROUTES.accountsImporter, {
+      navigate(WEB_ROUTES.accountAdder, {
         state: {
           walletType: HARDWARE_WALLETS.LEDGER,
           isWebHID: true
@@ -47,7 +47,7 @@ const ConnectLedgerScreen = () => {
         await transport.close()
         await hardwareWallets[HARDWARE_WALLETS.LEDGER].authorizeHIDPermission()
 
-        navigate(WEB_ROUTES.accountsImporter, {
+        navigate(WEB_ROUTES.accountAdder, {
           state: {
             walletType: HARDWARE_WALLETS.LEDGER,
             isWebHID: true

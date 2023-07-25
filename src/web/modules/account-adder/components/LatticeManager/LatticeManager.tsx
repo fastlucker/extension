@@ -3,24 +3,24 @@ import React, { useEffect } from 'react'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import AccountsList from '@web/modules/accounts-importer/components/AccountsList'
-import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
+import AccountsList from '@web/modules/account-adder/components/AccountsList'
+import useAccountsPagination from '@web/modules/account-adder/hooks/useAccountsPagination'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 interface Props {}
 
-const TrezorManager: React.FC<Props> = (props) => {
+const LatticeManager: React.FC<Props> = (props) => {
   const [keysList, setKeysList] = React.useState<any[]>([])
 
   const [loading, setLoading] = React.useState(true)
-  const { navigate } = useNavigation()
-  const { updateStepperState } = useStepper()
   const stoppedRef = React.useRef(true)
   const { createTask } = useTaskQueue()
   const { hardwareWallets } = useHardwareWallets()
   const { page, pageStartIndex, pageEndIndex } = useAccountsPagination()
+  const { navigate } = useNavigation()
+  const { updateStepperState } = useStepper()
 
   const onImportReady = () => {
     updateStepperState(2, 'hwAuth')
@@ -30,15 +30,17 @@ const TrezorManager: React.FC<Props> = (props) => {
   const asyncGetKeys: any = React.useCallback(async () => {
     stoppedRef.current = false
     setLoading(true)
-    try {
-      await createTask(() => hardwareWallets[HARDWARE_WALLETS.TREZOR].unlock())
 
+    try {
+      await createTask(() => hardwareWallets[HARDWARE_WALLETS.GRIDPLUS].unlock())
+
+      // eslint-disable-next-line no-await-in-loop, @typescript-eslint/no-loop-func
       const keys = (await createTask(() =>
-        hardwareWallets[HARDWARE_WALLETS.TREZOR].getKeys(pageStartIndex, pageEndIndex)
+        hardwareWallets[HARDWARE_WALLETS.GRIDPLUS].getKeys(pageStartIndex, pageEndIndex)
       )) as any[]
-      setKeysList(keys)
+      setKeysList((prev) => [...prev, ...keys])
       setLoading(false)
-    } catch (e) {
+    } catch (e: any) {
       console.error(e.message)
       return
     }
@@ -67,4 +69,4 @@ const TrezorManager: React.FC<Props> = (props) => {
   )
 }
 
-export default React.memo(TrezorManager)
+export default React.memo(LatticeManager)

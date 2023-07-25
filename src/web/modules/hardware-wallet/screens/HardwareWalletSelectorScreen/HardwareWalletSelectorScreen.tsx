@@ -44,7 +44,7 @@ const HardwareWalletSelectorScreen = () => {
               try {
                 await updateStepperState(1, 'hwAuth')
                 await hardwareWallets[HARDWARE_WALLETS.TREZOR].unlock()
-                navigate(WEB_ROUTES.accountsImporter, {
+                navigate(WEB_ROUTES.accountAdder, {
                   state: { walletType: HARDWARE_WALLETS.TREZOR }
                 })
               } catch (error: any) {
@@ -80,7 +80,7 @@ const HardwareWalletSelectorScreen = () => {
                 await updateStepperState(1, 'hwAuth')
 
                 await hardwareWallets[HARDWARE_WALLETS.GRIDPLUS].unlock()
-                navigate(WEB_ROUTES.accountsImporter, {
+                navigate(WEB_ROUTES.accountAdder, {
                   state: { walletType: HARDWARE_WALLETS.GRIDPLUS }
                 })
               } catch (error: any) {

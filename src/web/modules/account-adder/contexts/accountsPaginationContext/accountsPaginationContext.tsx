@@ -4,7 +4,7 @@ import {
   LARGE_PAGE_STEP,
   NUMBER_OF_VISIBLE_ADDRESSES,
   SMALL_PAGE_STEP
-} from '@web/modules/accounts-importer/constants/pagination'
+} from '@web/modules/account-adder/constants/pagination'
 
 import { AccountsPaginationContextData } from './types'
 

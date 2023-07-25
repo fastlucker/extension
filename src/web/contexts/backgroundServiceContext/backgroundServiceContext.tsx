@@ -8,7 +8,7 @@ import {
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 
-let mainCtrl: BackgroundServiceContextReturnType['mainCtrl']
+let mainCtrl: any
 let wallet: BackgroundServiceContextReturnType['wallet']
 
 // Facilitate communication between the different parts of the browser extension.
@@ -38,23 +38,6 @@ if (isExtension) {
     })
   })
 
-  // eslint-disable-next-line prefer-const
-  mainCtrl = new Proxy(
-    {},
-    {
-      get(obj, key) {
-        return function (...params: any) {
-          return portMessageChannel.request({
-            type: 'mainController',
-            method: key,
-            params
-          })
-        }
-      }
-    }
-  ) as BackgroundServiceContextReturnType['mainCtrl']
-
-  // eslint-disable-next-line prefer-const
   wallet = new Proxy(
     {},
     {
@@ -69,6 +52,21 @@ if (isExtension) {
       }
     }
   ) as BackgroundServiceContextReturnType['wallet']
+
+  mainCtrl = new Proxy(
+    {},
+    {
+      get(obj, key) {
+        return function (...params: any) {
+          return portMessageChannel.request({
+            type: 'mainController',
+            method: key,
+            params
+          })
+        }
+      }
+    }
+  ) as BackgroundServiceContextReturnType['mainCtrl']
 }
 
 const BackgroundServiceContext = createContext<BackgroundServiceContextReturnType>(

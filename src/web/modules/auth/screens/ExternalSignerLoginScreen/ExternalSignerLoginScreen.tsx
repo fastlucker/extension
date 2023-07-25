@@ -72,7 +72,7 @@ const ExternalSignerLoginScreen = () => {
             text="Import Legacy Account"
             style={[flexbox.alignSelfCenter]}
             onPress={() =>
-              navigate(WEB_ROUTES.accountsImporter, {
+              navigate(WEB_ROUTES.accountAdder, {
                 state: {
                   walletType: 'LEGACY_IMPORTER',
                   isWebHID: true

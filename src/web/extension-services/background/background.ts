@@ -31,6 +31,7 @@ browser.runtime.onConnect.addListener(async (port) => {
   if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
     const pm = new PortMessage(port)
     pm.listen((data) => {
+      console.log('pm listen', data)
       if (data?.type) {
         switch (data.type) {
           case 'broadcast':
@@ -38,6 +39,7 @@ browser.runtime.onConnect.addListener(async (port) => {
             break
           case 'mainController':
             if (data.method) {
+              return JSON.stringify(mainCtrl)
               return (mainCtrl as any)[data.method].apply(null, data.params)
             }
             break

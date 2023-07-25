@@ -9,7 +9,7 @@ const COMMON_ROUTES = {
   ambireAccountJsonLogin: 'ambire-account-json-login',
   ambireAccountJsonLoginPasswordConfirm: 'ambire-account-json-login-password-confirm',
   externalSigner: 'external-signer',
-  accountsImporter: 'accounts-importer',
+  accountAdder: 'account-adder',
   dashboard: 'dashboard',
   collectible: 'collectible',
   earn: 'earn',
