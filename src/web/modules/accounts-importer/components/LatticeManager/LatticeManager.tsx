@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
 
+import useNavigation from '@common/hooks/useNavigation'
+import useStepper from '@common/modules/auth/hooks/useStepper'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import AccountsList from '@web/modules/accounts-importer/components/AccountsList'
 import useAccountsPagination from '@web/modules/accounts-importer/hooks/useAccountsPagination'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
-import useNavigation from '@common/hooks/useNavigation'
-import useStepper from '@common/modules/auth/hooks/useStepper'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 interface Props {}
 
