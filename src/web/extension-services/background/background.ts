@@ -1,8 +1,11 @@
+import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
+import { JsonRpcProvider } from 'ethers'
 
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
+import { MainControllerMethods } from '@web/extension-services/background/main'
 import providerController from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
@@ -24,25 +27,30 @@ async function init() {
 
 init()
 
+const providers = Object.fromEntries(
+  networks.map((network) => [network.id, new JsonRpcProvider(network.rpcUrl)])
+)
+
 const mainCtrl: MainController = new MainController(storage, fetch, RELAYER_URL)
 
 // listen for messages from UI
 browser.runtime.onConnect.addListener(async (port) => {
   if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
     const pm = new PortMessage(port)
-    pm.listen((data) => {
-      console.log('pm listen', data)
+    pm.listen((data: any) => {
       if (data?.type) {
         switch (data.type) {
           case 'broadcast':
             eventBus.emit(data.method, data.params)
             break
-          case 'mainController':
+          case 'mainControllerMethods': {
+            console.log('mainControllerMethods', data)
             if (data.method) {
-              return JSON.stringify(mainCtrl)
-              return (mainCtrl as any)[data.method].apply(null, data.params)
+              const mainControllerMethods = new MainControllerMethods(mainCtrl, providers)
+              return (mainControllerMethods as any)[data.method](data.params)
             }
             break
+          }
           case 'walletController':
           default:
             if (data.method) {

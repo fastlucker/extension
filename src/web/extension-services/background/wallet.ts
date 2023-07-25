@@ -10,7 +10,7 @@ import sessionService from '@web/extension-services/background/services/session'
 import provider from './provider/provider'
 import notificationService from './services/notification'
 
-class WalletController {
+export class WalletController {
   // TODO: v2
   isUnlocked = () => null
 

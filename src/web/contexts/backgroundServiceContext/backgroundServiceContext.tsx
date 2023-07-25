@@ -5,10 +5,11 @@ import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
+import { MainControllerMethods } from '@web/extension-services/background/main'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 
-let mainCtrl: any
+let mainCtrl: MainControllerMethods
 let wallet: BackgroundServiceContextReturnType['wallet']
 
 // Facilitate communication between the different parts of the browser extension.
@@ -58,15 +59,16 @@ if (isExtension) {
     {
       get(obj, key) {
         return function (...params: any) {
+          console.log(key, params)
           return portMessageChannel.request({
-            type: 'mainController',
+            type: 'mainControllerMethods',
             method: key,
             params
           })
         }
       }
     }
-  ) as BackgroundServiceContextReturnType['mainCtrl']
+  ) as MainControllerMethods
 }
 
 const BackgroundServiceContext = createContext<BackgroundServiceContextReturnType>(

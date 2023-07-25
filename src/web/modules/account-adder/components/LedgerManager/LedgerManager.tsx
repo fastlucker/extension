@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountsList from '@web/modules/account-adder/components/AccountsList'
 import useAccountsPagination from '@web/modules/account-adder/hooks/useAccountsPagination'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
@@ -21,6 +22,7 @@ const LedgerManager: React.FC<Props> = (props) => {
   const { createTask } = useTaskQueue()
   const { hardwareWallets } = useHardwareWallets()
   const { page, pageStartIndex, pageEndIndex } = useAccountsPagination()
+  const { mainCtrl } = useBackgroundService()
 
   const onImportReady = () => {
     updateStepperState(2, 'hwAuth')
@@ -34,11 +36,12 @@ const LedgerManager: React.FC<Props> = (props) => {
     try {
       await createTask(() => hardwareWallets[HARDWARE_WALLETS.LEDGER].unlock())
       for (i = pageStartIndex; i <= pageEndIndex; ) {
-        // eslint-disable-next-line no-await-in-loop
-        const keys = (await createTask(() =>
-          hardwareWallets[HARDWARE_WALLETS.LEDGER].getKeys(i, i)
-        )) as any[]
-        setKeysList((prev) => [...prev, ...keys])
+        // eslint-disable-next-line no-await-in-loop, @typescript-eslint/no-loop-func
+        await createTask(() =>
+          mainCtrl.accountAdderGetPage({
+            page: i + 1
+          })
+        )
         setLoading(false)
         i++
       }
@@ -46,17 +49,27 @@ const LedgerManager: React.FC<Props> = (props) => {
       console.error(e.message)
       return
     }
-    stoppedRef.current = true
-  }, [createTask, hardwareWallets, pageStartIndex, pageEndIndex])
 
-  const runGetKeys = React.useCallback(async () => {
+    const keys = await mainCtrl.accountAdderGetSelectedAccounts()
+    // TODO: get keys and store them in keysList
+    console.log(keys)
+    stoppedRef.current = true
+  }, [createTask, hardwareWallets, pageStartIndex, pageEndIndex, mainCtrl])
+
+  const getPage = React.useCallback(async () => {
     setKeysList([])
     asyncGetKeys()
   }, [asyncGetKeys])
 
   useEffect(() => {
-    runGetKeys()
-  }, [page, runGetKeys])
+    ;(async () => {
+      await mainCtrl.accountAdderInit({
+        _preselectedAccounts: [],
+        _pageSize: 1
+      })
+      getPage()
+    })()
+  }, [page, getPage, hardwareWallets, mainCtrl])
 
   return (
     <AccountsList

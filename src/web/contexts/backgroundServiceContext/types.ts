@@ -1,9 +1,8 @@
-import { MainController } from 'ambire-common/src/controllers/main/main'
-
+import { MainControllerMethods } from '@web/extension-services/background/main'
 import { WalletController } from '@web/extension-services/background/wallet'
 
 export type BackgroundServiceContextReturnType = {
-  mainCtrl: MainController
+  mainCtrl: MainControllerMethods
   wallet: WalletController
 }
 
