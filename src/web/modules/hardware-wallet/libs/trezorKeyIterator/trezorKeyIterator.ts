@@ -20,7 +20,8 @@ class TrezorKeyIterator implements KeyIteratorInterface {
   hdk: HDKey
 
   constructor(_wallet: WALLET_TYPE) {
-    if (!_wallet.hdk) throw new Error('trezorKeyIterator: invalid props passed to the constructor')
+    if (!Object.prototype.hasOwnProperty.call(_wallet, 'hdk'))
+      throw new Error('trezorKeyIterator: invalid props passed to the constructor')
 
     this.hdk = _wallet.hdk
   }

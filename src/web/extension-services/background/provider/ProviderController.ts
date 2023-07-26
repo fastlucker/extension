@@ -10,9 +10,9 @@ import { APP_VERSION } from '@common/config/env'
 import networks from '@common/constants/networks'
 import { getProvider } from '@common/services/provider'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
+import Wallet from '@web/extension-services/background/controller-methods/walletControllerMethods'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'
-import Wallet from '@web/extension-services/background/wallet'
 import storage from '@web/extension-services/background/webapi/storage'
 
 interface ApprovalRes {

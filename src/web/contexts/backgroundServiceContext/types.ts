@@ -1,12 +1,15 @@
-import { MainControllerMethods } from '@web/extension-services/background/main'
-import { WalletController } from '@web/extension-services/background/wallet'
+import { LedgerControllerMethods } from '@web/extension-services/background/controller-methods/ledgerControllerMethods'
+import { MainControllerMethods } from '@web/extension-services/background/controller-methods/mainControllerMethods'
+import { WalletControllerMethods } from '@web/extension-services/background/controller-methods/walletControllerMethods'
 
 export type BackgroundServiceContextReturnType = {
   mainCtrl: MainControllerMethods
-  wallet: WalletController
+  wallet: WalletControllerMethods
+  ledgerCtrl: LedgerControllerMethods
 }
 
 export const backgroundServiceContextDefaults: BackgroundServiceContextReturnType = {
   mainCtrl: null,
-  wallet: null
-}
+  wallet: null,
+  ledgerCtrl: null
+} as any

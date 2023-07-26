@@ -5,14 +5,18 @@ import { JsonRpcProvider } from 'ethers'
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
-import { MainControllerMethods } from '@web/extension-services/background/main'
+import { LedgerControllerMethods } from '@web/extension-services/background/controller-methods/ledgerControllerMethods'
+import { MainControllerMethods } from '@web/extension-services/background/controller-methods/mainControllerMethods'
+import { WalletControllerMethods } from '@web/extension-services/background/controller-methods/walletControllerMethods'
 import providerController from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
-import WalletController from '@web/extension-services/background/wallet'
 import storage from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
+import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
+import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
+import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 async function init() {
@@ -32,6 +36,9 @@ const providers = Object.fromEntries(
 )
 
 const mainCtrl: MainController = new MainController(storage, fetch, RELAYER_URL)
+const ledgerCtrl = new LedgerController()
+const trezorCtrl = new TrezorController()
+const latticeCtrl = new LatticeController()
 
 // listen for messages from UI
 browser.runtime.onConnect.addListener(async (port) => {
@@ -44,17 +51,29 @@ browser.runtime.onConnect.addListener(async (port) => {
             eventBus.emit(data.method, data.params)
             break
           case 'mainControllerMethods': {
-            console.log('mainControllerMethods', data)
             if (data.method) {
-              const mainControllerMethods = new MainControllerMethods(mainCtrl, providers)
-              return (mainControllerMethods as any)[data.method](data.params)
+              return (
+                new MainControllerMethods({
+                  mainCtrl,
+                  ledgerCtrl,
+                  trezorCtrl,
+                  latticeCtrl,
+                  providers
+                }) as any
+              )[data.method](...data.params)
             }
             break
           }
-          case 'walletController':
+          case 'ledgerControllerMethods': {
+            if (data.method) {
+              return (new LedgerControllerMethods(ledgerCtrl) as any)[data.method](...data.params)
+            }
+            break
+          }
+          case 'walletControllerMethods':
           default:
             if (data.method) {
-              return (WalletController as any)[data.method].apply(null, data.params)
+              return (new WalletControllerMethods() as any)[data.method](...data.params)
             }
         }
       }

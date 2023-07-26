@@ -5,11 +5,13 @@ import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
-import { MainControllerMethods } from '@web/extension-services/background/main'
+import { LedgerControllerMethods } from '@web/extension-services/background/controller-methods/ledgerControllerMethods'
+import { MainControllerMethods } from '@web/extension-services/background/controller-methods/mainControllerMethods'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 
 let mainCtrl: MainControllerMethods
+let ledgerCtrl: LedgerControllerMethods
 let wallet: BackgroundServiceContextReturnType['wallet']
 
 // Facilitate communication between the different parts of the browser extension.
@@ -39,27 +41,11 @@ if (isExtension) {
     })
   })
 
-  wallet = new Proxy(
-    {},
-    {
-      get(obj, key) {
-        return function (...params: any) {
-          return portMessageChannel.request({
-            type: 'walletController',
-            method: key,
-            params
-          })
-        }
-      }
-    }
-  ) as BackgroundServiceContextReturnType['wallet']
-
   mainCtrl = new Proxy(
     {},
     {
       get(obj, key) {
         return function (...params: any) {
-          console.log(key, params)
           return portMessageChannel.request({
             type: 'mainControllerMethods',
             method: key,
@@ -69,6 +55,36 @@ if (isExtension) {
       }
     }
   ) as MainControllerMethods
+
+  ledgerCtrl = new Proxy(
+    {},
+    {
+      get(obj, key) {
+        return function (...params: any) {
+          return portMessageChannel.request({
+            type: 'ledgerControllerMethods',
+            method: key,
+            params
+          })
+        }
+      }
+    }
+  ) as LedgerControllerMethods
+
+  wallet = new Proxy(
+    {},
+    {
+      get(obj, key) {
+        return function (...params: any) {
+          return portMessageChannel.request({
+            type: 'walletControllerMethods',
+            method: key,
+            params
+          })
+        }
+      }
+    }
+  ) as BackgroundServiceContextReturnType['wallet']
 }
 
 const BackgroundServiceContext = createContext<BackgroundServiceContextReturnType>(
@@ -80,7 +96,8 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => (
     value={useMemo(
       () => ({
         mainCtrl,
-        wallet
+        wallet,
+        ledgerCtrl
       }),
       []
     )}

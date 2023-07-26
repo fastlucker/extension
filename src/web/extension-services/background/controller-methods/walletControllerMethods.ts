@@ -7,10 +7,10 @@ import permissionService, {
 } from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 
-import provider from './provider/provider'
-import notificationService from './services/notification'
+import provider from '../provider/provider'
+import notificationService from '../services/notification'
 
-export class WalletController {
+export class WalletControllerMethods {
   // TODO: v2
   isUnlocked = () => null
 
@@ -85,4 +85,4 @@ export class WalletController {
   }
 }
 
-export default new WalletController()
+export default new WalletControllerMethods()
