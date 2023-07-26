@@ -3,7 +3,17 @@ import HDKey from 'hdkey'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import { HwKeyIterator } from '@web/modules/hardware-wallet/libs/hwKeyIterator'
+import { LEDGER_LIVE_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
+import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
+
+export const wait = (fn: () => void, ms = 1000) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      fn()
+      resolve(true)
+    }, ms)
+  })
+}
 
 class LedgerController {
   hdk: any
@@ -12,7 +22,7 @@ class LedgerController {
 
   accounts: any
 
-  hdPath: any
+  hdPath: string = LEDGER_LIVE_HD_PATH
 
   isWebHID: boolean
 
@@ -25,8 +35,6 @@ class LedgerController {
     this.hasHIDPermission = null
     // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
-    // TODO: it is temporarily hardcoded
-    this.hdPath = "m/44'/60'/0'/0/0"
     this.transport = null
     this.app = null
   }
@@ -35,20 +43,7 @@ class LedgerController {
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
-  async makeApp() {
-    if (!this.app) {
-      try {
-        this.transport = await TransportWebHID.create()
-        this.app = new LedgerEth(this.transport as Transport)
-
-        return null
-      } catch (e: any) {
-        return Promise.reject(new Error('Permission Rejected'))
-      }
-    }
-  }
-
-  setHdPath(hdPath: any) {
+  setHdPath(hdPath: string) {
     // Reset HDKey if the path changes
     if (this.hdPath !== hdPath) {
       this.hdk = new HDKey()
@@ -56,9 +51,21 @@ class LedgerController {
     this.hdPath = hdPath
   }
 
+  async makeApp() {
+    if (!this.app) {
+      try {
+        // @ts-ignore
+        this.transport = await TransportWebHID.create()
+        this.app = new LedgerEth(this.transport as Transport)
+      } catch (e: any) {
+        Promise.reject(new Error('ledgerController: permission rejected'))
+      }
+    }
+  }
+
   async unlock(hdPath?: string) {
     if (this.isUnlocked() && !hdPath) {
-      return 'already unlocked'
+      return 'ledgerController: already unlocked'
     }
 
     const path = hdPath ? this._toLedgerPath(hdPath) : this.hdPath
@@ -67,17 +74,18 @@ class LedgerController {
         await this.makeApp()
         const res = await this.app!.getAddress(path, false, true)
         const { address, publicKey, chainCode } = res
+
         this.hdk.publicKey = Buffer.from(publicKey, 'hex')
         this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
 
         return address
-      } catch (e) {
-        throw new Error(e)
+      } catch (e: any) {
+        throw new Error('ledgerController: ledger device not available ', e.message)
       }
     }
 
     return null
-    // TODO: impl when not isWebHID
+    // TODO: impl when isWebHID is false
   }
 
   authorizeHIDPermission() {
@@ -85,13 +93,17 @@ class LedgerController {
   }
 
   async getKeys(from: number = 0, to: number = 4) {
-    await this.makeApp()
-
     return new Promise((resolve, reject) => {
-      this.unlock()
+      const unlockPromises = []
+
+      for (let i = from; i <= to; i++) {
+        const path = this._getPathForIndex(i)
+        unlockPromises.push(this.unlock(path))
+      }
+
+      Promise.all(unlockPromises)
         .then(async () => {
-          const iterator = new HwKeyIterator({
-            walletType: 'Ledger',
+          const iterator = new LedgerKeyIterator({
             hdk: this.hdk,
             app: this.app
           })
@@ -99,8 +111,8 @@ class LedgerController {
 
           resolve(keys)
         })
-        .catch((e) => {
-          reject(e)
+        .catch((error) => {
+          reject(error)
         })
     })
   }
@@ -112,8 +124,35 @@ class LedgerController {
     this.hdk = new HDKey()
   }
 
+  _getPathForIndex(index: number) {
+    return this._isLedgerLiveHdPath() ? `m/44'/60'/${index}'/0/0` : `${this.hdPath}/${index}`
+  }
+
   _toLedgerPath(path: string) {
     return path.toString().replace('m/', '')
+  }
+
+  _isLedgerLiveHdPath() {
+    return this.hdPath === LEDGER_LIVE_HD_PATH
+  }
+
+  async _reconnect() {
+    if (this.isWebHID) {
+      await this.cleanUp()
+
+      let count = 0
+      // wait connect the WebHID
+      while (!this.app) {
+        // eslint-disable-next-line no-await-in-loop
+        await this.makeApp()
+        // eslint-disable-next-line no-await-in-loop, @typescript-eslint/no-loop-func
+        await wait(() => {
+          if (count++ > 50) {
+            throw new Error('Ledger: Failed to connect to Ledger')
+          }
+        }, 100)
+      }
+    }
   }
 }
 
