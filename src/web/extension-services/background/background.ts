@@ -50,6 +50,23 @@ browser.runtime.onConnect.addListener(async (port) => {
           case 'broadcast':
             eventBus.emit(data.method, data.params)
             break
+
+          // Case: with a standard controller
+          case 'LedgerController':
+            return ledgerCtrl[data.method](data.params)
+
+          // TODO: Case - nested
+          case 'MainController':
+            return (
+              new MainControllerMethods({
+                mainCtrl,
+                ledgerCtrl,
+                trezorCtrl,
+                latticeCtrl,
+                providers
+              }) as any
+            )[data.method](...data.params)
+
           case 'mainControllerMethods': {
             if (data.method) {
               return (
@@ -70,6 +87,7 @@ browser.runtime.onConnect.addListener(async (port) => {
             }
             break
           }
+
           case 'walletControllerMethods':
           default:
             if (data.method) {

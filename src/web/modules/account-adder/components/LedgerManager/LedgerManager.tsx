@@ -20,7 +20,7 @@ const LedgerManager: React.FC<Props> = (props) => {
   const [state, setState] = useState<AccountAdderController>({} as AccountAdderController)
   const { createTask } = useTaskQueue()
 
-  const { mainCtrl, ledgerCtrl } = useBackgroundService()
+  const { mainCtrl, ledgerCtrl, dispatch } = useBackgroundService()
   console.log('state', state)
   const onImportReady = () => {
     updateStepperState(2, 'hwAuth')
@@ -35,7 +35,10 @@ const LedgerManager: React.FC<Props> = (props) => {
         i <= (state.page - 1) * state.pageSize + state.pageSize - 1;
 
       ) {
-        const path = await createTask(() => ledgerCtrl.getPathForIndex(i))
+        // const path = await createTask(() => ledgerCtrl.getPathForIndex(i))
+        const path = await createTask(() =>
+          dispatch({ type: 'LedgerController', method: 'getPathForIndex', params: i })
+        )
         await createTask(() => ledgerCtrl.unlock(path))
         i++
       }
