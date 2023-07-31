@@ -8,10 +8,14 @@ export class LedgerControllerMethods {
   }
 
   async unlock(path?: string) {
-    this.ledgerCtrl.unlock(path)
+    return this.ledgerCtrl.unlock(path)
   }
 
   async getPathForIndex(index: number) {
-    this.ledgerCtrl._getPathForIndex(index)
+    return this.ledgerCtrl._getPathForIndex(index)
+  }
+
+  async getApp() {
+    return this.ledgerCtrl.app
   }
 }

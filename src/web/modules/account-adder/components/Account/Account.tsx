@@ -1,3 +1,5 @@
+import { Account as AccountInterface } from 'ambire-common/src/interfaces/account'
+import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
 import React, { useState } from 'react'
 import { View } from 'react-native'
 
@@ -13,20 +15,18 @@ import flexbox from '@common/styles/utils/flexbox'
 // TODO: each list item must be selectable (checkbox)
 
 const Account = ({
-  acc,
-  idx,
-  handleLayout
+  account,
+  type,
+  isLastInSlot
 }: {
-  acc: any
-  idx: number
-  handleLayout: (i: string, e: any) => void
+  account: AccountInterface & { usedOnNetworks: NetworkDescriptor[] }
+  type: 'legacy' | 'smart' | 'linked'
+  isLastInSlot: boolean
 }) => {
   const { t } = useTranslation()
 
   const [isIncluded, setIsIncluded] = useState(false)
-  const smartAccount = false
-  const linked = false
-  if (!acc.address) return
+  if (!account.addr) return
 
   const trimAddress = (address: string, maxLength: number) => {
     if (address.length <= maxLength) {
@@ -42,24 +42,17 @@ const Account = ({
     return `${prefix}...${suffix}`
   }
 
+  const getAccountTypeLabel = (accType: 'legacy' | 'smart' | 'linked', creation: any) => {
+    if (accType === 'legacy' || !creation) return t('Legacy Account')
+    if (accType === 'smart' || creation) return t('Smart Account')
+    return ''
+  }
+
   return (
     <View
-      key={acc.address}
-      style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}
-      onLayout={(e) => handleLayout(acc.index, e)}
+      key={account.addr}
+      style={[flexbox.directionRow, flexbox.alignCenter, !isLastInSlot && spacings.mbTy]}
     >
-      <Text weight="semiBold" color={colors.martinique} style={{ width: 35 }}>
-        {acc?.index || idx + 1}
-      </Text>
-      <View
-        style={{
-          backgroundColor: isIncluded ? colors.violet : '#BBBDE4',
-          width: 3,
-          height: '100%',
-          ...spacings.mlTy,
-          ...spacings.mrTy
-        }}
-      />
       <View
         style={{
           ...flexbox.directionRow,
@@ -80,17 +73,17 @@ const Account = ({
               <Text
                 shouldScale={false}
                 fontSize={12}
-                color={smartAccount ? colors.greenHaze : colors.brownRum}
+                color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.brownRum}
               >
-                {t(`${smartAccount ? 'Smart Account' : 'Legacy Account'}`)}
+                {getAccountTypeLabel(type, account.creation)}
               </Text>
               <Text
                 shouldScale={false}
                 fontSize={14}
                 weight="semiBold"
-                color={smartAccount ? colors.greenHaze : colors.brownRum}
+                color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.brownRum}
               >
-                {trimAddress(acc.address, 32)}
+                {trimAddress(account.addr, 32)}
               </Text>
             </View>
           }
@@ -98,7 +91,7 @@ const Account = ({
           onValueChange={() => setIsIncluded(!isIncluded)}
         />
         <View>
-          {linked && (
+          {type === 'linked' && (
             <Text
               shouldScale={false}
               fontSize={14}
@@ -108,9 +101,9 @@ const Account = ({
               {t('Linked')}
             </Text>
           )}
-          <Text shouldScale={false} fontSize={14} color={colors.martinique} weight="semiBold">
+          {/* <Text shouldScale={false} fontSize={14} color={colors.martinique} weight="semiBold">
             $98.98
-          </Text>
+          </Text> */}
         </View>
       </View>
     </View>

@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import AccountsList from '@web/modules/account-adder/components/AccountsList'
+import AccountsList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useAccountsPagination from '@web/modules/account-adder/hooks/useAccountsPagination'
 
 interface Props {}
