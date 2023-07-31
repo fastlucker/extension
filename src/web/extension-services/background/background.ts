@@ -11,7 +11,7 @@ import { WalletControllerMethods } from '@web/extension-services/background/cont
 import providerController from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
-import storage from '@web/extension-services/background/webapi/storage'
+import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
@@ -99,6 +99,25 @@ browser.runtime.onConnect.addListener(async (port) => {
     eventBus.addEventListener('broadcastToUI', boardcastCallback)
     port.onDisconnect.addListener(() => {
       eventBus.removeEventListener('broadcastToUI', boardcastCallback)
+    })
+    ;['accountAdder'].forEach((ctrl) => {
+      // Broadcast onUpdate for nested controllers
+      mainCtrl[ctrl]?.onUpdate(() => {
+        pm.request({
+          type: 'broadcast',
+          method: ctrl,
+          params: []
+        })
+      })
+    })
+
+    // Broadcast onUpdate for the main controllers
+    mainCtrl.onUpdate(() => {
+      pm.request({
+        type: 'broadcast',
+        method: 'main',
+        params: []
+      })
     })
 
     return

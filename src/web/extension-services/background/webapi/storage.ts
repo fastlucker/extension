@@ -1,6 +1,6 @@
 import { Storage } from 'ambire-common/src/interfaces/storage'
 
-const get = async (key?: string, defaultValue?: any) => {
+export const get = async (key?: string, defaultValue?: any) => {
   const res = await browser.storage.local.get(null as any)
 
   if (!res[key]) {
@@ -14,14 +14,14 @@ const get = async (key?: string, defaultValue?: any) => {
   }
 }
 
-const set = async (key: string, value: any): Promise<null> => {
+export const set = async (key: string, value: any): Promise<null> => {
   await browser.storage.local.set({
     [key]: typeof value === 'string' ? value : JSON.stringify(value)
   })
   return null
 }
 
-const storage: Storage = {
+export const storage: Storage = {
   get,
   set
 }

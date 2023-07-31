@@ -46,12 +46,12 @@ export class MainControllerMethods {
     this.providers = providers
   }
 
-  accountAdderInit(
+  async accountAdderInit(
     props: {
-      _preselectedAccounts: Account[]
-      _page?: number | undefined
-      _pageSize?: number | undefined
-      _derivationPath?: string | undefined
+      preselectedAccounts: Account[]
+      page?: number | undefined
+      pageSize?: number | undefined
+      derivationPath?: string | undefined
     },
     hardwareWallet: HARDWARE_WALLETS_TYPES
   ) {
@@ -69,18 +69,15 @@ export class MainControllerMethods {
       // TODO:
       // keyIterator = new KeyIterator()
     }
-    return this.mainCtrl.accountAdder.init({ ...props, _keyIterator: keyIterator })
+    // TODO: preselectedAccounts
+    return this.mainCtrl.accountAdder.init({ ...props, keyIterator })
   }
 
-  async accountAdderGetSelectedAccounts() {
-    return this.mainCtrl.accountAdder.selectedAccounts
+  async accountAdderGetState() {
+    return this.mainCtrl.accountAdder
   }
 
-  async accountAdderGetPageAddresses() {
-    return this.mainCtrl.accountAdder.pageAddresses
-  }
-
-  async accountAdderGetPage(props: { page: number }) {
-    return this.mainCtrl.accountAdder.getPage({ ...props, networks, providers: this.providers })
+  async accountAdderSetPage(props: { page: number }) {
+    return this.mainCtrl.accountAdder.setPage({ ...props, networks, providers: this.providers })
   }
 }

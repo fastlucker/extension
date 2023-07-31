@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-loop-func */
+import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
 /* eslint-disable no-await-in-loop */
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountsList from '@web/modules/account-adder/components/AccountsList'
 import useAccountsPagination from '@web/modules/account-adder/hooks/useAccountsPagination'
@@ -13,28 +15,29 @@ import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 interface Props {}
 
 const LedgerManager: React.FC<Props> = (props) => {
-  const [keysList, setKeysList] = React.useState<any[]>([])
-
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const [loading, setLoading] = React.useState(true)
-  const stoppedRef = React.useRef(true)
+  const [state, setState] = useState<AccountAdderController>({} as AccountAdderController)
   const { createTask } = useTaskQueue()
   const { page, pageStartIndex, pageEndIndex } = useAccountsPagination()
   const { mainCtrl, ledgerCtrl } = useBackgroundService()
-
+  console.log('state', state)
   const onImportReady = () => {
     updateStepperState(2, 'hwAuth')
     navigate(WEB_ROUTES.createKeyStore)
   }
 
-  const asyncGetKeys: any = React.useCallback(async () => {
-    stoppedRef.current = false
+  const setPage: any = React.useCallback(async () => {
     setLoading(true)
 
     async function unlockAddresses() {
-      let i = pageStartIndex
-      for (i = pageStartIndex; i <= pageEndIndex; ) {
+      let i = (state.page - 1) * state.pageSize
+      for (
+        i = (state.page - 1) * state.pageSize;
+        i <= (state.page - 1) * state.pageSize + state.pageSize - 1;
+
+      ) {
         const path = await createTask(() => ledgerCtrl.getPathForIndex(i))
         await createTask(() => ledgerCtrl.unlock(path))
         // console.log('key', key)
@@ -44,43 +47,52 @@ const LedgerManager: React.FC<Props> = (props) => {
 
     try {
       await unlockAddresses()
-      await mainCtrl.accountAdderInit(
-        {
-          _preselectedAccounts: []
-        },
-        'Ledger'
-      )
+      if (!state.isInitialized) {
+        mainCtrl.accountAdderInit(
+          {
+            preselectedAccounts: []
+          },
+          'Ledger'
+        )
+      }
 
-      await createTask(() =>
-        mainCtrl.accountAdderGetPage({
-          page: 1
-        })
-      )
-      const keys = await mainCtrl.accountAdderGetPageAddresses()
-      // TODO: get keys and store them in keysList
-      console.log(keys)
-      setLoading(false)
+      if (state.isInitialized) {
+        createTask(() =>
+          mainCtrl.accountAdderSetPage({
+            page: state?.page
+          })
+        )
+      }
     } catch (e: any) {
       console.error(e.message)
-      return
     }
-    stoppedRef.current = true
-  }, [createTask, ledgerCtrl, pageStartIndex, pageEndIndex, mainCtrl])
-
-  const getPage = React.useCallback(async () => {
-    setKeysList([])
-    asyncGetKeys()
-  }, [asyncGetKeys])
+  }, [ledgerCtrl, mainCtrl, createTask, state])
 
   useEffect(() => {
-    ;(async () => {
-      getPage()
-    })()
-  }, [page, getPage, mainCtrl])
+    const getState = async () => {
+      const accountAdderInitialState = await mainCtrl.accountAdderGetState()
+      setState(accountAdderInitialState)
+    }
+
+    getState()
+    const onUpdate = async () => {
+      getState()
+    }
+
+    eventBus.addEventListener('accountAdder', onUpdate)
+
+    return () => {
+      eventBus.removeEventListener('accountAdder', onUpdate)
+    }
+  }, [mainCtrl])
+
+  useEffect(() => {
+    setPage()
+  }, [])
 
   return (
     <AccountsList
-      accounts={keysList.map((key, i) => ({
+      accounts={[].map((key, i) => ({
         address: key,
         index: pageStartIndex + i + 1
       }))}
