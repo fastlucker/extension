@@ -9,7 +9,6 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountsList from '@web/modules/account-adder/components/AccountsList'
-import useAccountsPagination from '@web/modules/account-adder/hooks/useAccountsPagination'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 interface Props {}
@@ -17,10 +16,10 @@ interface Props {}
 const LedgerManager: React.FC<Props> = (props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
-  const [loading, setLoading] = React.useState(true)
+
   const [state, setState] = useState<AccountAdderController>({} as AccountAdderController)
   const { createTask } = useTaskQueue()
-  const { page, pageStartIndex, pageEndIndex } = useAccountsPagination()
+
   const { mainCtrl, ledgerCtrl } = useBackgroundService()
   console.log('state', state)
   const onImportReady = () => {
@@ -29,8 +28,6 @@ const LedgerManager: React.FC<Props> = (props) => {
   }
 
   const setPage: any = React.useCallback(async () => {
-    setLoading(true)
-
     async function unlockAddresses() {
       let i = (state.page - 1) * state.pageSize
       for (
@@ -40,43 +37,40 @@ const LedgerManager: React.FC<Props> = (props) => {
       ) {
         const path = await createTask(() => ledgerCtrl.getPathForIndex(i))
         await createTask(() => ledgerCtrl.unlock(path))
-        // console.log('key', key)
         i++
       }
     }
 
     try {
       await unlockAddresses()
-      if (!state.isInitialized) {
-        mainCtrl.accountAdderInit(
-          {
-            preselectedAccounts: []
-          },
-          'Ledger'
-        )
-      }
 
-      if (state.isInitialized) {
-        createTask(() =>
-          mainCtrl.accountAdderSetPage({
-            page: state?.page
-          })
-        )
-      }
+      createTask(() =>
+        mainCtrl.accountAdderSetPage({
+          page: state?.page
+        })
+      )
     } catch (e: any) {
       console.error(e.message)
     }
-  }, [ledgerCtrl, mainCtrl, createTask, state])
+  }, [ledgerCtrl, mainCtrl, createTask, state.page, state.pageSize])
 
   useEffect(() => {
-    const getState = async () => {
+    mainCtrl.accountAdderInit(
+      {
+        preselectedAccounts: []
+      },
+      'Ledger'
+    )
+  }, [mainCtrl])
+
+  useEffect(() => {
+    const setAccountAdderState = async () => {
       const accountAdderInitialState = await mainCtrl.accountAdderGetState()
       setState(accountAdderInitialState)
     }
 
-    getState()
     const onUpdate = async () => {
-      getState()
+      setAccountAdderState()
     }
 
     eventBus.addEventListener('accountAdder', onUpdate)
@@ -87,16 +81,20 @@ const LedgerManager: React.FC<Props> = (props) => {
   }, [mainCtrl])
 
   useEffect(() => {
-    setPage()
-  }, [])
+    ;(async () => {
+      if (!state.isInitialized) return
+
+      setPage()
+    })()
+  }, [state.isInitialized, state.page, setPage])
 
   return (
     <AccountsList
       accounts={[].map((key, i) => ({
         address: key,
-        index: pageStartIndex + i + 1
+        index: state.page + i + 1
       }))}
-      loading={loading}
+      loading={state.accountsLoading}
       onImportReady={onImportReady}
       {...props}
     />
