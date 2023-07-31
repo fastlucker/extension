@@ -2,10 +2,16 @@ import { LedgerControllerMethods } from '@web/extension-services/background/cont
 import { MainControllerMethods } from '@web/extension-services/background/controller-methods/mainControllerMethods'
 import { WalletControllerMethods } from '@web/extension-services/background/controller-methods/walletControllerMethods'
 
+type Action = {
+  type: string // TODO: large compound (discriminating union) type with all the actions
+  params: any
+}
+
 export type BackgroundServiceContextReturnType = {
   mainCtrl: MainControllerMethods
   wallet: WalletControllerMethods
   ledgerCtrl: LedgerControllerMethods
+  dispatch: (action: Action) => Promise<unknown>
 }
 
 export const backgroundServiceContextDefaults: BackgroundServiceContextReturnType = {

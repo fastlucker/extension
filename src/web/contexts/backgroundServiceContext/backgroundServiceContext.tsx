@@ -13,6 +13,7 @@ import PortMessage from '@web/extension-services/message/portMessage'
 let mainCtrl: MainControllerMethods
 let ledgerCtrl: LedgerControllerMethods
 let wallet: BackgroundServiceContextReturnType['wallet']
+let dispatch: BackgroundServiceContextReturnType['dispatch']
 
 // Facilitate communication between the different parts of the browser extension.
 // Utilizes the PortMessage class to establish a connection between the popup
@@ -85,6 +86,13 @@ if (isExtension) {
       }
     }
   ) as BackgroundServiceContextReturnType['wallet']
+
+  dispatch = (action) => {
+    return portMessageChannel.request({
+      type: action.type,
+      params: action.params
+    })
+  }
 }
 
 const BackgroundServiceContext = createContext<BackgroundServiceContextReturnType>(
@@ -97,7 +105,8 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => (
       () => ({
         mainCtrl,
         wallet,
-        ledgerCtrl
+        ledgerCtrl,
+        dispatch
       }),
       []
     )}
