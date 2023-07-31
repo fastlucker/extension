@@ -90,6 +90,7 @@ if (isExtension) {
   dispatch = (action) => {
     return portMessageChannel.request({
       type: action.type,
+      method: action.method,
       params: action.params
     })
   }
