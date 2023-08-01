@@ -5,11 +5,9 @@ import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
-import { MainControllerMethods } from '@web/extension-services/background/controller-methods/mainControllerMethods'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 
-let mainCtrl: MainControllerMethods
 let wallet: BackgroundServiceContextReturnType['wallet']
 let dispatch: BackgroundServiceContextReturnType['dispatch']
 
@@ -39,21 +37,6 @@ if (isExtension) {
       params: data.data
     })
   })
-
-  mainCtrl = new Proxy(
-    {},
-    {
-      get(obj, key) {
-        return function (...params: any) {
-          return portMessageChannel.request({
-            type: 'mainControllerMethods',
-            method: key,
-            params
-          })
-        }
-      }
-    }
-  ) as MainControllerMethods
 
   wallet = new Proxy(
     {},
@@ -86,7 +69,6 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => (
   <BackgroundServiceContext.Provider
     value={useMemo(
       () => ({
-        mainCtrl,
         wallet,
         dispatch
       }),

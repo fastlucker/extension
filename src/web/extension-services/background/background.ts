@@ -5,7 +5,6 @@ import { JsonRpcProvider } from 'ethers'
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
-import { MainControllerMethods } from '@web/extension-services/background/controller-methods/mainControllerMethods'
 import { WalletControllerMethods } from '@web/extension-services/background/controller-methods/walletControllerMethods'
 import providerController from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -16,7 +15,12 @@ import PortMessage from '@web/extension-services/message/portMessage'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
+import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
+import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
+import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
+
+import { Action } from './actions'
 
 async function init() {
   // Initialize rpc providers for all networks
@@ -34,7 +38,7 @@ const providers = Object.fromEntries(
   networks.map((network) => [network.id, new JsonRpcProvider(network.rpcUrl)])
 )
 
-const mainCtrl: MainController = new MainController(storage, fetch, RELAYER_URL)
+const mainCtrl = new MainController(storage, fetch, RELAYER_URL)
 const ledgerCtrl = new LedgerController()
 const trezorCtrl = new TrezorController()
 const latticeCtrl = new LatticeController()
@@ -43,39 +47,32 @@ const latticeCtrl = new LatticeController()
 browser.runtime.onConnect.addListener(async (port) => {
   if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
     const pm = new PortMessage(port)
-    pm.listen((data: any) => {
+    pm.listen((data: Action) => {
       if (data?.type) {
         switch (data.type) {
           case 'broadcast':
             eventBus.emit(data.method, data.params)
             break
 
-          // TODO: Case - nested
-          case 'MainController':
-            return (
-              new MainControllerMethods({
-                mainCtrl,
-                ledgerCtrl,
-                trezorCtrl,
-                latticeCtrl,
-                providers
-              }) as any
-            )[data.method](...data.params)
-
-          case 'mainControllerMethods': {
-            if (data.method) {
-              return (
-                new MainControllerMethods({
-                  mainCtrl,
-                  ledgerCtrl,
-                  trezorCtrl,
-                  latticeCtrl,
-                  providers
-                }) as any
-              )[data.method](...data.params)
-            }
-            break
+          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
+            const keyIterator = new LedgerKeyIterator({ hdk: ledgerCtrl.hdk, app: ledgerCtrl.app })
+            return mainCtrl.accountAdder.init({ ...data.params, keyIterator })
           }
+          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
+            const keyIterator = new TrezorKeyIterator({ hdk: trezorCtrl.hdk })
+            return mainCtrl.accountAdder.init({ ...data.params, keyIterator })
+          }
+          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
+            const keyIterator = new LatticeKeyIterator({
+              sdkSession: latticeCtrl.sdkSession,
+              getHDPathIndices: latticeCtrl._getHDPathIndices
+            })
+            return mainCtrl.accountAdder.init({ ...data.params, keyIterator })
+          }
+          case 'MAIN_CONTROLLER_ACCOUNT_ADDER':
+            return mainCtrl.accountAdder
+          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
+            return mainCtrl.accountAdder.setPage({ ...data.params, networks, providers })
 
           case 'LEDGER_CONTROLLER_UNLOCK':
             return ledgerCtrl.unlock(data.params)
