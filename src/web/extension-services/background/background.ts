@@ -75,7 +75,7 @@ browser.runtime.onConnect.addListener(async (port) => {
             return mainCtrl.accountAdder.setPage({ ...data.params, networks, providers })
 
           case 'LEDGER_CONTROLLER_UNLOCK':
-            return ledgerCtrl.unlock(data.params)
+            return ledgerCtrl.unlock(data?.params?.hdPath)
           case 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX':
             return ledgerCtrl._getPathForIndex(data.params)
           case 'LEDGER_CONTROLLER_APP':
