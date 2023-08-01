@@ -78,7 +78,8 @@ const AccountsList = ({
         <Wrapper
           contentContainerStyle={{
             height: LIST_ITEM_HEIGHT * 5 + LIST_ITEM_GUTTER * 4,
-            ...spacings.pt0
+            ...spacings.pt0,
+            ...spacings.phSm
           }}
         >
           {state.accountsLoading ? (
@@ -89,7 +90,7 @@ const AccountsList = ({
             </View>
           ) : (
             Object.keys(slots).map((key) => (
-              <Slot key={key} slot={+key}>
+              <Slot key={key} slot={+key + (state.page - 1) * state.pageSize}>
                 {slots[key].map((acc, i) => (
                   <Account
                     key={acc.account.addr}
