@@ -5,13 +5,11 @@ import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
-import { LedgerControllerMethods } from '@web/extension-services/background/controller-methods/ledgerControllerMethods'
 import { MainControllerMethods } from '@web/extension-services/background/controller-methods/mainControllerMethods'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 
 let mainCtrl: MainControllerMethods
-let ledgerCtrl: LedgerControllerMethods
 let wallet: BackgroundServiceContextReturnType['wallet']
 let dispatch: BackgroundServiceContextReturnType['dispatch']
 
@@ -57,21 +55,6 @@ if (isExtension) {
     }
   ) as MainControllerMethods
 
-  ledgerCtrl = new Proxy(
-    {},
-    {
-      get(obj, key) {
-        return function (...params: any) {
-          return portMessageChannel.request({
-            type: 'ledgerControllerMethods',
-            method: key,
-            params
-          })
-        }
-      }
-    }
-  ) as LedgerControllerMethods
-
   wallet = new Proxy(
     {},
     {
@@ -90,7 +73,6 @@ if (isExtension) {
   dispatch = (action) => {
     return portMessageChannel.request({
       type: action.type,
-      method: action.method,
       params: action.params
     })
   }
@@ -106,7 +88,6 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => (
       () => ({
         mainCtrl,
         wallet,
-        ledgerCtrl,
         dispatch
       }),
       []

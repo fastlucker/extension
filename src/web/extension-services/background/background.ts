@@ -50,10 +50,6 @@ browser.runtime.onConnect.addListener(async (port) => {
             eventBus.emit(data.method, data.params)
             break
 
-          // Case: with a standard controller
-          case 'LedgerController':
-            return ledgerCtrl[data.method](data.params)
-
           // TODO: Case - nested
           case 'MainController':
             return (
@@ -83,9 +79,10 @@ browser.runtime.onConnect.addListener(async (port) => {
 
           case 'LEDGER_CONTROLLER_UNLOCK':
             return ledgerCtrl.unlock(data.params)
-
           case 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX':
             return ledgerCtrl._getPathForIndex(data.params)
+          case 'LEDGER_CONTROLLER_APP':
+            return ledgerCtrl.app
 
           case 'walletControllerMethods':
           default:

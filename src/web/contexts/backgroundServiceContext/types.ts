@@ -1,4 +1,3 @@
-import { LedgerControllerMethods } from '@web/extension-services/background/controller-methods/ledgerControllerMethods'
 import { MainControllerMethods } from '@web/extension-services/background/controller-methods/mainControllerMethods'
 import { WalletControllerMethods } from '@web/extension-services/background/controller-methods/walletControllerMethods'
 
@@ -10,13 +9,11 @@ type Action = {
 export type BackgroundServiceContextReturnType = {
   mainCtrl: MainControllerMethods
   wallet: WalletControllerMethods
-  ledgerCtrl: LedgerControllerMethods
   /** Dispatches an action to the background service. */
   dispatch: (action: Action) => Promise<unknown>
 }
 
 export const backgroundServiceContextDefaults: BackgroundServiceContextReturnType = {
   mainCtrl: null,
-  wallet: null,
-  ledgerCtrl: null
+  wallet: null
 } as any
