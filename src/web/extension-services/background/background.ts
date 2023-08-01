@@ -69,7 +69,7 @@ browser.runtime.onConnect.addListener(async (port) => {
             })
             return mainCtrl.accountAdder.init({ ...data.params, keyIterator })
           }
-          case 'MAIN_CONTROLLER_ACCOUNT_ADDER':
+          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE':
             return mainCtrl.accountAdder
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
             return mainCtrl.accountAdder.setPage({ ...data.params, networks, providers })
