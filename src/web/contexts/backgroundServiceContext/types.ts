@@ -4,7 +4,7 @@ import { WalletControllerMethods } from '@web/extension-services/background/cont
 export type BackgroundServiceContextReturnType = {
   wallet: WalletControllerMethods
   /** Dispatches an action to the extension background service. */
-  dispatch: (action: Action) => Promise<any>
+  dispatch: (action: Action) => Promise<any> // TODO: return types for each action
 }
 
 export const backgroundServiceContextDefaults: BackgroundServiceContextReturnType = {
