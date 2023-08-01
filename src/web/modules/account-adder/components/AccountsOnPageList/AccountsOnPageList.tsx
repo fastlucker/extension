@@ -83,10 +83,15 @@ const AccountsList = ({
           }}
         >
           {state.accountsLoading ? (
-            <View style={[flexbox.alignCenter]}>
-              <View style={[spacings.mb, flexbox.alignCenter, flexbox.directionRow]}>
-                <Spinner style={{ width: 16, height: 16 }} />
-              </View>
+            <View
+              style={[
+                flexbox.alignCenter,
+                flexbox.flex1,
+                flexbox.alignCenter,
+                flexbox.justifyCenter
+              ]}
+            >
+              <Spinner style={{ width: 28, height: 28 }} />
             </View>
           ) : (
             Object.keys(slots).map((key) => (
@@ -103,16 +108,22 @@ const AccountsList = ({
             ))
           )}
         </Wrapper>
-        {state.linkedAccountsLoading && (
-          <View style={[flexbox.alignCenter, spacings.pt]}>
-            <View style={[spacings.mb, flexbox.alignCenter, flexbox.directionRow]}>
-              <Spinner style={{ width: 16, height: 16 }} />
-              <Text color={colors.violet} style={[spacings.mlSm]} fontSize={12}>
-                {t('Looking for linked smart accounts')}
-              </Text>
-            </View>
+
+        <View
+          style={[
+            flexbox.alignCenter,
+            spacings.ptSm,
+            { opacity: state.linkedAccountsLoading ? 1 : 0 }
+          ]}
+        >
+          <View style={[spacings.mbTy, flexbox.alignCenter, flexbox.directionRow]}>
+            <Spinner style={{ width: 16, height: 16 }} />
+            <Text color={colors.violet} style={[spacings.mlSm]} fontSize={12}>
+              {t('Looking for linked smart accounts')}
+            </Text>
           </View>
-        )}
+        </View>
+
         <View
           style={[flexbox.directionRow, flexbox.justifyCenter, flexbox.alignCenter, spacings.pv]}
         >

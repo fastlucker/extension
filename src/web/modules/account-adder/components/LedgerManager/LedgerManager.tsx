@@ -27,7 +27,7 @@ const LedgerManager: React.FC<Props> = (props) => {
   }
 
   const setPage: any = React.useCallback(
-    async (page = state.page) => {
+    async (page = 1) => {
       try {
         createTask(() =>
           mainCtrl.accountAdderSetPage({
@@ -38,7 +38,7 @@ const LedgerManager: React.FC<Props> = (props) => {
         console.error(e.message)
       }
     },
-    [mainCtrl, createTask, state.page]
+    [mainCtrl, createTask]
   )
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const LedgerManager: React.FC<Props> = (props) => {
       if (!state.isInitialized) return
       setPage()
     })()
-  }, [state.isInitialized, state.page, setPage])
+  }, [state.isInitialized, setPage])
 
   if (!Object.keys(state).length) {
     return
