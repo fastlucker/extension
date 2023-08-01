@@ -10,7 +10,6 @@ import { APP_VERSION } from '@common/config/env'
 import networks from '@common/constants/networks'
 import { getProvider } from '@common/services/provider'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
-import Wallet from '@web/extension-services/background/controller-methods/walletControllerMethods'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'
 import storage from '@web/extension-services/background/webapi/storage'
@@ -115,7 +114,9 @@ class ProviderController {
 
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }) => {
-    if (!permissionService.hasPermission(origin) || !Wallet.isUnlocked()) {
+    // TODO: Implement WalletController.isUnlocked() in v2
+    // if (!permissionService.hasPermission(origin) || !WalletController.isUnlocked()) {
+    if (!permissionService.hasPermission(origin)) {
       return []
     }
 
@@ -304,7 +305,9 @@ class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }) => {
     const result: Web3WalletPermission[] = []
-    if (Wallet.isUnlocked() && Wallet.getConnectedSite(origin)) {
+    // TODO: Implement WalletController.isUnlocked() in v2
+    // if (WalletController.isUnlocked() && permissionService.getConnectedSite(origin)) {
+    if (permissionService.getConnectedSite(origin)) {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result

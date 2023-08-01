@@ -5,8 +5,9 @@ import { JsonRpcProvider } from 'ethers'
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
-import { WalletControllerMethods } from '@web/extension-services/background/controller-methods/walletControllerMethods'
+import { INTERNAL_REQUEST_ORIGIN } from '@web/constants/common'
 import providerController from '@web/extension-services/background/provider/provider'
+import notificationService from '@web/extension-services/background/services/notification.ts'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
@@ -81,11 +82,73 @@ browser.runtime.onConnect.addListener(async (port) => {
           case 'LEDGER_CONTROLLER_APP':
             return ledgerCtrl.app
 
-          case 'walletControllerMethods':
-          default:
-            if (data.method) {
-              return (new WalletControllerMethods() as any)[data.method](...data.params)
+          case 'WALLET_CONTROLLER_IS_UNLOCKED':
+            return null // TODO: implement in v2
+          case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
+            return permissionService.getConnectedSite(data.params.origin)
+          case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
+            return permissionService.getConnectedSites()
+          case 'WALLET_CONTROLLER_REQUEST_VAULT_CONTROLLER_METHOD':
+            return null // TODO: Implement in v2
+          case 'WALLET_CONTROLLER_SET_STORAGE':
+            return sessionService.broadcastEvent(data.params.key, data.params.value)
+          case 'WALLET_CONTROLLER_GET_CURRENT_SITE': {
+            const { tabId, domain } = data.params
+            const { origin, name, icon } = sessionService.getSession(`${tabId}-${domain}`) || {}
+            if (!origin) return null
+
+            const site = permissionService.getSite(origin)
+            if (site) return site
+
+            return {
+              origin,
+              name: name!,
+              icon: icon!,
+              isConnected: false,
+              isSigned: false,
+              isTop: false
             }
+          }
+          case 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE': {
+            sessionService.broadcastEvent('accountsChanged', [], data.params.origin)
+            permissionService.removeConnectedSite(data.params.origin)
+            return null
+          }
+          case 'WALLET_CONTROLLER_ACTIVE_FIRST_APPROVAL':
+            return notificationService.activeFirstApproval()
+          case 'WALLET_CONTROLLER_GET_APPROVAL':
+            return notificationService.getApproval()
+          case 'WALLET_CONTROLLER_RESOLVE_APPROVAL':
+            return notificationService.resolveApproval(data.params)
+          case 'WALLET_CONTROLLER_REJECT_APPROVAL':
+            return notificationService.rejectApproval(
+              data.params.err,
+              data.params.stay,
+              data.params.isInternal
+            )
+          case 'WALLET_CONTROLLER_NETWORK_CHANGE':
+            return sessionService.broadcastEvent('chainChanged', {
+              chain: intToHex(data.params.network.chainId),
+              networkVersion: `${data.params.network.chainId}`
+            })
+          case 'WALLET_CONTROLLER_ACCOUNT_CHANGE': {
+            const account = data.params.selectedAcc ? [data.params.selectedAcc] : []
+            return sessionService.broadcastEvent('accountsChanged', account)
+          }
+          case 'WALLET_CONTROLLER_SEND_REQUEST':
+            return providerController({
+              data: data.params.data,
+              session: {
+                name: 'Ambire',
+                origin: INTERNAL_REQUEST_ORIGIN || '',
+                icon: '../assets/images/xicon@128.png'
+              }
+            })
+
+          default:
+            return console.error(
+              `Dispatched ${data?.type} action, but handler in the extension background process not found!`
+            )
         }
       }
     })
