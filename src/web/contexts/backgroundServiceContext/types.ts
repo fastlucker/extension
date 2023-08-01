@@ -4,8 +4,7 @@ import { WalletControllerMethods } from '@web/extension-services/background/cont
 
 type Action = {
   type: string // TODO: large compound (discriminating union) type with all the actions
-  method: string
-  params: any
+  params?: any
 }
 
 export type BackgroundServiceContextReturnType = {

@@ -57,6 +57,8 @@ export class MainControllerMethods {
   ) {
     let keyIterator
     if (hardwareWallet === HARDWARE_WALLETS.LEDGER) {
+      // console.log('hardwareWallet', this.ledgerCtrl.app)
+      // await this.ledgerCtrl.unlock()
       keyIterator = new LedgerKeyIterator({ hdk: this.ledgerCtrl.hdk, app: this.ledgerCtrl.app })
     } else if (hardwareWallet === HARDWARE_WALLETS.TREZOR) {
       keyIterator = new TrezorKeyIterator({ hdk: this.trezorCtrl.hdk })
