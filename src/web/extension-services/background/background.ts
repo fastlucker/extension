@@ -5,7 +5,6 @@ import { JsonRpcProvider } from 'ethers'
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
-import { LedgerControllerMethods } from '@web/extension-services/background/controller-methods/ledgerControllerMethods'
 import { MainControllerMethods } from '@web/extension-services/background/controller-methods/mainControllerMethods'
 import { WalletControllerMethods } from '@web/extension-services/background/controller-methods/walletControllerMethods'
 import providerController from '@web/extension-services/background/provider/provider'
@@ -81,12 +80,12 @@ browser.runtime.onConnect.addListener(async (port) => {
             }
             break
           }
-          case 'ledgerControllerMethods': {
-            if (data.method) {
-              return (new LedgerControllerMethods(ledgerCtrl) as any)[data.method](...data.params)
-            }
-            break
-          }
+
+          case 'LEDGER_CONTROLLER_UNLOCK':
+            return ledgerCtrl.unlock(data.params)
+
+          case 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX':
+            return ledgerCtrl._getPathForIndex(data.params)
 
           case 'walletControllerMethods':
           default:
