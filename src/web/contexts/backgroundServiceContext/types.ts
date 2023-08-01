@@ -1,15 +1,12 @@
-import { LedgerControllerMethods } from '@web/extension-services/background/controller-methods/ledgerControllerMethods'
-import { MainControllerMethods } from '@web/extension-services/background/controller-methods/mainControllerMethods'
+import { Action } from '@web/extension-services/background/actions'
 import { WalletControllerMethods } from '@web/extension-services/background/controller-methods/walletControllerMethods'
 
 export type BackgroundServiceContextReturnType = {
-  mainCtrl: MainControllerMethods
   wallet: WalletControllerMethods
-  ledgerCtrl: LedgerControllerMethods
+  /** Dispatches an action to the extension background service. */
+  dispatch: (action: Action) => Promise<any> // TODO: return types for each action
 }
 
 export const backgroundServiceContextDefaults: BackgroundServiceContextReturnType = {
-  mainCtrl: null,
-  wallet: null,
-  ledgerCtrl: null
+  wallet: null
 } as any

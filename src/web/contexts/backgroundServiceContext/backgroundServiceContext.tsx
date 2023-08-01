@@ -5,14 +5,11 @@ import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
-import { LedgerControllerMethods } from '@web/extension-services/background/controller-methods/ledgerControllerMethods'
-import { MainControllerMethods } from '@web/extension-services/background/controller-methods/mainControllerMethods'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 
-let mainCtrl: MainControllerMethods
-let ledgerCtrl: LedgerControllerMethods
 let wallet: BackgroundServiceContextReturnType['wallet']
+let dispatch: BackgroundServiceContextReturnType['dispatch']
 
 // Facilitate communication between the different parts of the browser extension.
 // Utilizes the PortMessage class to establish a connection between the popup
@@ -41,36 +38,7 @@ if (isExtension) {
     })
   })
 
-  mainCtrl = new Proxy(
-    {},
-    {
-      get(obj, key) {
-        return function (...params: any) {
-          return portMessageChannel.request({
-            type: 'mainControllerMethods',
-            method: key,
-            params
-          })
-        }
-      }
-    }
-  ) as MainControllerMethods
-
-  ledgerCtrl = new Proxy(
-    {},
-    {
-      get(obj, key) {
-        return function (...params: any) {
-          return portMessageChannel.request({
-            type: 'ledgerControllerMethods',
-            method: key,
-            params
-          })
-        }
-      }
-    }
-  ) as LedgerControllerMethods
-
+  // TODO: Switch to using dispatch + wallet actions instead
   wallet = new Proxy(
     {},
     {
@@ -85,6 +53,13 @@ if (isExtension) {
       }
     }
   ) as BackgroundServiceContextReturnType['wallet']
+
+  dispatch = (action) => {
+    return portMessageChannel.request({
+      type: action.type,
+      params: action.params
+    })
+  }
 }
 
 const BackgroundServiceContext = createContext<BackgroundServiceContextReturnType>(
@@ -95,9 +70,8 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => (
   <BackgroundServiceContext.Provider
     value={useMemo(
       () => ({
-        mainCtrl,
         wallet,
-        ledgerCtrl
+        dispatch
       }),
       []
     )}
