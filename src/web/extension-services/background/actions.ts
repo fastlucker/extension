@@ -27,8 +27,8 @@ type MainControllerAccountAdderInitLatticeAction = {
     derivationPath?: string | undefined
   }
 }
-type MainControllerAccountAdderAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER'
+type MainControllerAccountAdderStateAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE'
 }
 type MainControllerAccountAdderSetPageAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE'
@@ -55,7 +55,7 @@ export type Action =
   | MainControllerAccountAdderInitLatticeAction
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
-  | MainControllerAccountAdderAction
+  | MainControllerAccountAdderStateAction
   | MainControllerAccountAdderSetPageAction
   | LedgerControllerUnlockAction
   | LedgerControllerGetPathForIndexAction

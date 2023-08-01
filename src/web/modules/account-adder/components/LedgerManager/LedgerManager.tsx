@@ -55,7 +55,9 @@ const LedgerManager: React.FC<Props> = (props) => {
 
   useEffect(() => {
     const setAccountAdderState = async () => {
-      const accountAdderInitialState = await dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER' })
+      const accountAdderInitialState = await dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE'
+      })
       setState(accountAdderInitialState)
     }
 
