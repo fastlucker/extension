@@ -13,7 +13,7 @@ const ExtensionContext = createContext<ExtensionContextReturnType>(extensionCont
 
 const Provider: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
-  const { wallet } = useBackgroundService()
+  const { dispatch } = useBackgroundService()
   const [site, setSite] = useState<ExtensionContextReturnType['site']>(null)
   const [connectedDapps, setConnectedDapps] = useState<
     ExtensionContextReturnType['connectedDapps']
@@ -23,14 +23,17 @@ const Provider: React.FC<any> = ({ children }) => {
     const tab = await getCurrentTab()
     if (!tab.id || !tab.url) return
     const domain = getOriginFromUrl(tab.url)
-    const current = await wallet!.getCurrentSite(tab.id, domain)
+    const current = await dispatch({
+      type: 'WALLET_CONTROLLER_GET_CURRENT_SITE',
+      params: { tabId: tab.id, domain }
+    })
     setSite(current)
-  }, [wallet])
+  }, [dispatch])
 
   const getConnectedSites = useCallback(async () => {
-    const connectedSites = await wallet!.getConnectedSites()
+    const connectedSites = await dispatch({ type: 'WALLET_CONTROLLER_GET_CONNECTED_SITES' })
     setConnectedDapps(connectedSites)
-  }, [wallet])
+  }, [dispatch])
 
   useEffect(() => {
     getCurrentSite()
@@ -46,7 +49,7 @@ const Provider: React.FC<any> = ({ children }) => {
       }
 
       const disconnect = async () => {
-        await wallet!.removeConnectedSite(origin)
+        await dispatch({ type: 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE', params: { origin } })
         getCurrentSite()
         getConnectedSites()
       }
@@ -63,7 +66,7 @@ const Provider: React.FC<any> = ({ children }) => {
         ]
       )
     },
-    [connectedDapps, wallet, getConnectedSites, getCurrentSite, t]
+    [connectedDapps, dispatch, getConnectedSites, getCurrentSite, t]
   )
 
   return (

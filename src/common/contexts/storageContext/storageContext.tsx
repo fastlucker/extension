@@ -17,7 +17,7 @@ const StorageContext = createContext<{
 })
 
 const StorageProvider: React.FC = ({ children }) => {
-  const { wallet } = useBackgroundService()
+  const { dispatch } = useBackgroundService()
   const storageControllerInstance = useMemo(() => new StorageController(), [])
   const [isInitialized, setIsInitialized] = useState(storageControllerInstance.isInitialized)
 
@@ -39,12 +39,12 @@ const StorageProvider: React.FC = ({ children }) => {
   const setItem = useCallback(
     (key: string, value: any) => {
       if (isExtension) {
-        wallet!.setStorage(key, value)
+        dispatch({ type: 'WALLET_CONTROLLER_SET_STORAGE', params: { key, value } })
       }
 
       return storageControllerInstance.setItem(key, value)
     },
-    [storageControllerInstance, wallet]
+    [storageControllerInstance, dispatch]
   )
 
   const removeItem = useCallback(

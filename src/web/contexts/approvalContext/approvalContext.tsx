@@ -34,13 +34,13 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   const { authStatus } = useAuth()
 
   const { navigate } = useNavigation()
-  const { wallet } = useBackgroundService()
+  const { dispatch } = useBackgroundService()
   const [approval, setApproval] = useState<Approval | null>(null)
   const [hasCheckedForApprovalInitially, setHasCheckedForApprovalInitially] = useState(false)
 
   const getApproval: UseExtensionApprovalReturnType['getApproval'] = useCallback(
-    () => wallet!.getApproval(),
-    [wallet]
+    () => dispatch({ type: 'WALLET_CONTROLLER_GET_APPROVAL' }),
+    [dispatch]
   )
 
   const resolveApproval = useCallback<UseExtensionApprovalReturnType['resolveApproval']>(
@@ -54,7 +54,10 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
         )
       }
 
-      await wallet!.resolveApproval(data, forceReject, approvalId)
+      await dispatch({
+        type: 'WALLET_CONTROLLER_RESOLVE_APPROVAL',
+        params: { data, forceReject, approvalId }
+      })
 
       await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
 
@@ -69,7 +72,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
       // triggers the logic that determines where user should go next.
       setTimeout(() => navigate('/'))
     },
-    [addToast, approval, wallet, getApproval, t, navigate]
+    [addToast, approval, dispatch, getApproval, t, navigate]
   )
 
   const rejectApproval = useCallback<UseExtensionApprovalReturnType['rejectApproval']>(
@@ -83,7 +86,10 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
         )
       }
 
-      await wallet!.rejectApproval(err, stay, isInternal)
+      await dispatch({
+        type: 'WALLET_CONTROLLER_REJECT_APPROVAL',
+        params: { err, stay, isInternal }
+      })
 
       await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
 
@@ -94,7 +100,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
       // triggers the logic that determines where user should go next.
       if (!stay) navigate('/')
     },
-    [approval, wallet, getApproval, addToast, t, navigate]
+    [approval, dispatch, getApproval, addToast, t, navigate]
   )
 
   const { requests, resolveMany } = useSignApproval({ approval, resolveApproval, rejectApproval })

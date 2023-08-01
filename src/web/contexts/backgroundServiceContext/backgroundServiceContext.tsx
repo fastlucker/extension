@@ -8,7 +8,6 @@ import {
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 
-let wallet: BackgroundServiceContextReturnType['wallet']
 let dispatch: BackgroundServiceContextReturnType['dispatch']
 
 // Facilitate communication between the different parts of the browser extension.
@@ -18,7 +17,6 @@ let dispatch: BackgroundServiceContextReturnType['dispatch']
 // from the background process (needed for updating the browser extension UI
 // based on the state of the background process and for sending dApps-initiated
 // actions to the background for further processing.
-
 if (isExtension) {
   const portMessageChannel = new PortMessage()
 
@@ -38,25 +36,12 @@ if (isExtension) {
     })
   })
 
-  // TODO: Switch to using dispatch + wallet actions instead
-  wallet = new Proxy(
-    {},
-    {
-      get(obj, key) {
-        return function (...params: any) {
-          return portMessageChannel.request({
-            type: 'walletControllerMethods',
-            method: key,
-            params
-          })
-        }
-      }
-    }
-  ) as BackgroundServiceContextReturnType['wallet']
-
   dispatch = (action) => {
     return portMessageChannel.request({
       type: action.type,
+      // TypeScript being unable to guarantee that every member of the Action
+      // union has the `params` property (some indeed don't), but this is fine.
+      // @ts-ignore
       params: action.params
     })
   }
@@ -67,15 +52,7 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 )
 
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => (
-  <BackgroundServiceContext.Provider
-    value={useMemo(
-      () => ({
-        wallet,
-        dispatch
-      }),
-      []
-    )}
-  >
+  <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch }), [])}>
     {children}
   </BackgroundServiceContext.Provider>
 )
