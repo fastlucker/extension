@@ -38,6 +38,7 @@ if (isExtension) {
     })
   })
 
+  // TODO: Switch to using dispatch + wallet actions instead
   wallet = new Proxy(
     {},
     {
