@@ -1,5 +1,6 @@
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
+import { stringify } from 'ambire-common/src/libs/bigintJson/bigintJson'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { JsonRpcProvider } from 'ethers'
 
@@ -23,6 +24,7 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
+import { MainCtrlNestedCtrlThatBroadcastUpdates } from './types'
 
 async function init() {
   // Initialize rpc providers for all networks
@@ -44,6 +46,10 @@ const mainCtrl = new MainController(storage, fetch, RELAYER_URL)
 const ledgerCtrl = new LedgerController()
 const trezorCtrl = new TrezorController()
 const latticeCtrl = new LatticeController()
+
+const mainCtrlNestedCtrlThatBroadcastUpdates: MainCtrlNestedCtrlThatBroadcastUpdates = [
+  'accountAdder'
+]
 
 // listen for messages from UI
 browser.runtime.onConnect.addListener(async (port) => {
@@ -93,8 +99,6 @@ browser.runtime.onConnect.addListener(async (port) => {
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
             return mainCtrl.accountAdder.deselectAccount(data.params.account)
           }
-          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE':
-            return mainCtrl.accountAdder
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
             return mainCtrl.accountAdder.setPage({ ...data.params, networks, providers })
 
@@ -197,13 +201,14 @@ browser.runtime.onConnect.addListener(async (port) => {
     port.onDisconnect.addListener(() => {
       eventBus.removeEventListener('broadcastToUI', boardcastCallback)
     })
-    ;['accountAdder'].forEach((ctrl) => {
+
+    mainCtrlNestedCtrlThatBroadcastUpdates.forEach((ctrl) => {
       // Broadcast onUpdate for nested controllers
       mainCtrl[ctrl]?.onUpdate(() => {
         pm.request({
           type: 'broadcast',
           method: ctrl,
-          params: []
+          params: stringify(mainCtrl[ctrl])
         })
       })
     })
@@ -213,7 +218,7 @@ browser.runtime.onConnect.addListener(async (port) => {
       pm.request({
         type: 'broadcast',
         method: 'main',
-        params: []
+        params: stringify(mainCtrl)
       })
     })
 

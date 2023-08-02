@@ -1,4 +1,3 @@
-import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
 import { Account } from 'ambire-common/src/interfaces/account'
 
 import { NetworkType } from '@common/constants/networks'
@@ -49,9 +48,6 @@ type MainControllerAccountAdderDeselectAccountAction = {
   params: {
     account: Account
   }
-}
-type MainControllerAccountAdderStateAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE'
 }
 type MainControllerAccountAdderSetPageAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE'
@@ -133,7 +129,6 @@ export type Action =
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
-  | MainControllerAccountAdderStateAction
   | MainControllerAccountAdderSetPageAction
   | LedgerControllerUnlockAction
   | LedgerControllerGetPathForIndexAction
@@ -162,5 +157,4 @@ export type AsyncActionTypes = {
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
-  MAIN_CONTROLLER_ACCOUNT_ADDER_STATE: AccountAdderController
 }

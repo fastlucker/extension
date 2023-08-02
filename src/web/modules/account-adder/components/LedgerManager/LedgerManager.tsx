@@ -54,22 +54,9 @@ const LedgerManager = (props: Props) => {
   }, [dispatch, dispatchAsync, createTask])
 
   useEffect(() => {
-    const setAccountAdderState = async () => {
-      const accountAdderInitialState = await dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE'
-      })
-      setState(accountAdderInitialState)
-    }
+    eventBus.addEventListener('accountAdder', setState)
 
-    const onUpdate = async () => {
-      setAccountAdderState()
-    }
-
-    eventBus.addEventListener('accountAdder', onUpdate)
-
-    return () => {
-      eventBus.removeEventListener('accountAdder', onUpdate)
-    }
+    return () => eventBus.removeEventListener('accountAdder', setState)
   }, [dispatch])
 
   useEffect(() => {

@@ -1,3 +1,4 @@
+import { parse } from 'ambire-common/src/libs/bigintJson/bigintJson'
 import React, { createContext, useMemo } from 'react'
 
 import { isExtension } from '@web/constants/browserapi'
@@ -5,6 +6,7 @@ import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
+import { ControllersThatBroadcastUpdates } from '@web/extension-services/background/types'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 
@@ -23,11 +25,17 @@ if (isExtension) {
 
   portMessageChannel.connect('popup')
 
-  portMessageChannel.listen((data: any) => {
-    if (data.type === 'broadcast') {
-      eventBus.emit(data.method, data.params)
+  portMessageChannel.listen(
+    (data: {
+      type: 'broadcast'
+      method: ControllersThatBroadcastUpdates
+      params: string // stringified controller
+    }) => {
+      if (data.type === 'broadcast') {
+        eventBus.emit(data.method, parse(data.params))
+      }
     }
-  })
+  )
 
   eventBus.addEventListener('broadcastToBackground', (data) => {
     portMessageChannel.request({

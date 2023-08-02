@@ -62,22 +62,9 @@ const LegacyImportManager = (props: Props) => {
   }, [dispatch, createTask, props.privKeyOrSeed])
 
   useEffect(() => {
-    const setAccountAdderState = async () => {
-      const accountAdderInitialState = await dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE'
-      })
-      setState(accountAdderInitialState)
-    }
+    eventBus.addEventListener('accountAdder', setState)
 
-    const onUpdate = async () => {
-      setAccountAdderState()
-    }
-
-    eventBus.addEventListener('accountAdder', onUpdate)
-
-    return () => {
-      eventBus.removeEventListener('accountAdder', onUpdate)
-    }
+    return () => eventBus.removeEventListener('accountAdder', setState)
   }, [dispatch])
 
   useEffect(() => {
@@ -91,7 +78,6 @@ const LegacyImportManager = (props: Props) => {
     return
   }
 
-  console.log(state)
   return (
     <AccountsOnPageList state={state} onImportReady={onImportReady} setPage={setPage} {...props} />
   )
