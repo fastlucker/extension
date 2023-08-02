@@ -25,17 +25,11 @@ if (isExtension) {
 
   portMessageChannel.connect('popup')
 
-  portMessageChannel.listen(
-    (data: {
-      type: 'broadcast'
-      method: ControllersThatBroadcastUpdates
-      params: string // stringified controller state
-    }) => {
-      if (data.type === 'broadcast') {
-        eventBus.emit(data.method, parse(data.params))
-      }
+  portMessageChannel.listen((data: { type: string; method: string; params: any }) => {
+    if (data.type === 'broadcast') {
+      eventBus.emit(data.method, data.params)
     }
-  )
+  })
 
   eventBus.addEventListener('broadcastToBackground', (data) => {
     portMessageChannel.request({

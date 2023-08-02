@@ -208,7 +208,7 @@ browser.runtime.onConnect.addListener(async (port) => {
         pm.request({
           type: 'broadcast',
           method: ctrl,
-          params: stringify(mainCtrl[ctrl])
+          params: mainCtrl[ctrl]
         })
       })
     })
@@ -218,7 +218,7 @@ browser.runtime.onConnect.addListener(async (port) => {
       pm.request({
         type: 'broadcast',
         method: 'main',
-        params: stringify(mainCtrl)
+        params: mainCtrl
       })
     })
 
