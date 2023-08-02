@@ -180,7 +180,7 @@ browser.runtime.onConnect.addListener(async (port) => {
       }
     })
 
-    const boardcastCallback = (data: any) => {
+    const broadcastCallback = (data: any) => {
       pm.request({
         type: 'broadcast',
         method: data.method,
@@ -197,9 +197,9 @@ browser.runtime.onConnect.addListener(async (port) => {
         // preferenceService.setPopupOpen(false)
       })
     }
-    eventBus.addEventListener('broadcastToUI', boardcastCallback)
+    eventBus.addEventListener('broadcastToUI', broadcastCallback)
     port.onDisconnect.addListener(() => {
-      eventBus.removeEventListener('broadcastToUI', boardcastCallback)
+      eventBus.removeEventListener('broadcastToUI', broadcastCallback)
     })
 
     mainCtrlNestedCtrlThatBroadcastUpdates.forEach((ctrl) => {
