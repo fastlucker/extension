@@ -1,6 +1,5 @@
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
-import { stringify } from 'ambire-common/src/libs/bigintJson/bigintJson'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { JsonRpcProvider } from 'ethers'
 
