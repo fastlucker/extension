@@ -46,18 +46,16 @@ const ledgerCtrl = new LedgerController()
 const trezorCtrl = new TrezorController()
 const latticeCtrl = new LatticeController()
 
-export type ControllersMapping = {
-  main: MainController
+const controllersMapping = {
   accountAdder: AccountAdderController
   // Add other controllers here:
   // - key is the name of the controller
   // - value is the type of the controller
 }
 
-// Generate the object from the StateMapping type
-const controllersMappingObject: {
-  [K in keyof ControllersMapping]: ControllersMapping[K]
-} = {} as { [K in keyof ControllersMapping]: ControllersMapping[K] }
+export type ControllersMappingType = {
+  [K in keyof typeof controllersMapping]: InstanceType<typeof controllersMapping[K]>
+}
 
 // listen for messages from UI
 browser.runtime.onConnect.addListener(async (port) => {
@@ -210,7 +208,7 @@ browser.runtime.onConnect.addListener(async (port) => {
       eventBus.removeEventListener('broadcastToUI', broadcastCallback)
     })
 
-    Object.keys(controllersMappingObject).forEach((ctrl: any) => {
+    Object.keys(controllersMapping).forEach((ctrl: any) => {
       // Broadcast onUpdate for nested controllers
       ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
         pm.request({
