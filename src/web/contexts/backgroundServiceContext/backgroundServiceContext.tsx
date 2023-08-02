@@ -29,7 +29,7 @@ if (isExtension) {
     (data: {
       type: 'broadcast'
       method: ControllersThatBroadcastUpdates
-      params: string // stringified controller
+      params: string // stringified controller state
     }) => {
       if (data.type === 'broadcast') {
         eventBus.emit(data.method, parse(data.params))
