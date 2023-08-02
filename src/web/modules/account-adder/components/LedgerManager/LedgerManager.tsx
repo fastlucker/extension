@@ -13,7 +13,7 @@ import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 interface Props {}
 
-const LedgerManager: React.FC<Props> = (props) => {
+const LedgerManager = (props: Props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
 
@@ -48,7 +48,7 @@ const LedgerManager: React.FC<Props> = (props) => {
       await createTask(() => dispatchAsync({ type: 'LEDGER_CONTROLLER_UNLOCK' }))
       dispatch({
         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER',
-        params: { preselectedAccounts: [] }
+        params: {}
       })
     })()
   }, [dispatch, dispatchAsync, createTask])

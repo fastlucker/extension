@@ -41,6 +41,7 @@ const AccountsList = ({
   const { t } = useTranslation()
   const [value, setValue] = useState('')
   const [emailVaultStep, setEmailVaultStep] = useState(false)
+  const [showUnused, setShowUnused] = useState(false)
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -60,6 +61,23 @@ const AccountsList = ({
 
   const handleLargePageStepIncrement = () => {
     setPage(state.page + LARGE_PAGE_STEP)
+  }
+
+  const disablePagination = Object.keys(slots).length === 1
+
+  const getFilteredAccounts = (accounts: any) => {
+    const filteredAccounts = accounts.filter((a: any) => {
+      if (!showUnused && a.type === 'legacy' && !a.account.usedOnNetworks.length) return false
+      return true
+    })
+    return filteredAccounts.map((acc: any, i: any) => (
+      <Account
+        key={acc.account.addr}
+        account={acc.account}
+        type={acc.type}
+        isLastInSlot={i === filteredAccounts.length - 1}
+      />
+    ))
   }
 
   return (
@@ -96,14 +114,7 @@ const AccountsList = ({
           ) : (
             Object.keys(slots).map((key) => (
               <Slot key={key} slot={+key + (state.page - 1) * state.pageSize}>
-                {slots[key].map((acc, i) => (
-                  <Account
-                    key={acc.account.addr}
-                    account={acc.account}
-                    type={acc.type}
-                    isLastInSlot={i === slots[key].length - 1}
-                  />
-                ))}
+                {getFilteredAccounts(slots[key])}
               </Slot>
             ))
           )}
@@ -129,15 +140,15 @@ const AccountsList = ({
         >
           <TouchableOpacity
             onPress={handleLargePageStepDecrement}
-            disabled={state.page <= LARGE_PAGE_STEP}
-            style={state.page <= LARGE_PAGE_STEP && { opacity: 0.6 }}
+            disabled={state.page <= LARGE_PAGE_STEP || disablePagination}
+            style={state.page <= (LARGE_PAGE_STEP || disablePagination) && { opacity: 0.6 }}
           >
             <LeftDoubleArrowIcon />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSmallPageStepDecrement}
-            disabled={state.page === 1}
-            style={state.page === 1 && { opacity: 0.6 }}
+            disabled={state.page === 1 || disablePagination}
+            style={(state.page === 1 || disablePagination) && { opacity: 0.6 }}
           >
             <LeftArrowIcon width={36} height={36} style={[spacings.mlTy]} />
           </TouchableOpacity>
@@ -159,15 +170,15 @@ const AccountsList = ({
             <Text>{'  ...'}</Text>
           </Text>
           <TouchableOpacity
-            style={state.accountsLoading && { opacity: 0.6 }}
-            disabled={state.accountsLoading}
+            style={(state.accountsLoading || disablePagination) && { opacity: 0.6 }}
+            disabled={state.accountsLoading || disablePagination}
             onPress={handleSmallPageStepIncrement}
           >
             <RightArrowIcon style={[spacings.mrTy]} />
           </TouchableOpacity>
           <TouchableOpacity
-            style={state.accountsLoading && { opacity: 0.6 }}
-            disabled={state.accountsLoading}
+            style={(state.accountsLoading || disablePagination) && { opacity: 0.6 }}
+            disabled={state.accountsLoading || disablePagination}
             onPress={handleLargePageStepIncrement}
           >
             <RightDoubleArrowIcon />
@@ -175,7 +186,7 @@ const AccountsList = ({
         </View>
         {!enableCreateEmailVault && (
           <>
-            <Toggle label="Show empty legacy accounts" />
+            <Toggle label="Show unused legacy accounts" onToggle={() => setShowUnused((p) => !p)} />
             <Select
               hasArrow
               options={[

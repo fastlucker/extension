@@ -1,20 +1,28 @@
-import React, { useEffect } from 'react'
+/* eslint-disable react/destructuring-assignment */
+import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
+import React, { useEffect, useState } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import AccountsList from '@web/modules/account-adder/components/AccountsOnPageList'
-import useAccountsPagination from '@web/modules/account-adder/hooks/useAccountsPagination'
+import eventBus from '@web/extension-services/event/eventBus'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
+import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
-interface Props {}
+interface Props {
+  privKeyOrSeed: string
+}
 
-const LegacyImportManager: React.FC<Props> = (props) => {
-  const [keysList, setKeysList] = React.useState<any[]>([])
-  const [shouldCreateEmailVault, setShouldCreateEmailVault] = React.useState(false)
-  const [loading, setLoading] = React.useState(true)
+const LegacyImportManager = (props: Props) => {
+  const [shouldCreateEmailVault] = React.useState(false)
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
-  const { pageStartIndex } = useAccountsPagination()
+
+  const [state, setState] = useState<AccountAdderController>({} as AccountAdderController)
+  const { createTask } = useTaskQueue()
+
+  const { dispatch } = useBackgroundService()
 
   const onImportReady = () => {
     updateStepperState(1, 'legacyAuth')
@@ -28,33 +36,63 @@ const LegacyImportManager: React.FC<Props> = (props) => {
       : navigate(WEB_ROUTES.createKeyStore)
   }
 
-  const onCreateEmailVaultStep = () => {
-    setShouldCreateEmailVault((prev) => !prev)
-  }
+  const setPage: any = React.useCallback(
+    async (page = 1) => {
+      try {
+        createTask(() =>
+          dispatch({
+            type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE',
+            params: { page }
+          })
+        )
+      } catch (e: any) {
+        console.error(e.message)
+      }
+    },
+    [dispatch, createTask]
+  )
 
   useEffect(() => {
-    setKeysList([
-      '0496026e6b11fc156fb468efde8072d5ffc4cf3b288b8948fe72cecf2571f09e097be4a21c2a925e482141004b69881a94256acd0cf1186257ab7b7998e9022d65',
-      '0496026e6b11fc156fb468efde8072d5ffc4cf3b288b8948fe72cecf2571f09e097be4a21c2a925e482141004b69881a94256acd0cf1186257ab7b7998e9022d62',
-      '0496026e6b11fc156fb468efde8072d5ffc4cf3b288b8948fe72cecf2571f09e097be4a21c2a925e482141004b69881a94256acd0cf1186257ab7b7998e9022d61',
-      '0496026e6b11fc156fb468efde8072d5ffc4cf3b288b8948fe72cecf2571f09e097be4a21c2a925e482141004b69881a94256acd0cf1186257ab7b7998e9022d60',
-      '0496026e6b11fc156fb468efde8072d5ffc4cf3b288b8948fe72cecf2571f09e097be4a21c2a925e482141004b69881a94256acd0cf1186257ab7b7998e9022d69'
-    ])
-    setLoading(false)
-  }, [])
+    ;(async () => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        params: { privKeyOrSeed: props.privKeyOrSeed }
+      })
+    })()
+  }, [dispatch, createTask, props.privKeyOrSeed])
+
+  useEffect(() => {
+    const setAccountAdderState = async () => {
+      const accountAdderInitialState = await dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE'
+      })
+      setState(accountAdderInitialState)
+    }
+
+    const onUpdate = async () => {
+      setAccountAdderState()
+    }
+
+    eventBus.addEventListener('accountAdder', onUpdate)
+
+    return () => {
+      eventBus.removeEventListener('accountAdder', onUpdate)
+    }
+  }, [dispatch])
+
+  useEffect(() => {
+    ;(async () => {
+      if (!state.isInitialized) return
+      setPage()
+    })()
+  }, [state.isInitialized, setPage])
+
+  if (!Object.keys(state).length) {
+    return
+  }
 
   return (
-    <AccountsList
-      accounts={keysList.map((key, i) => ({
-        address: key,
-        index: pageStartIndex + i + 1
-      }))}
-      loading={loading}
-      onImportReady={onImportReady}
-      enableCreateEmailVault
-      onCreateEmailVaultStep={onCreateEmailVaultStep}
-      {...props}
-    />
+    <AccountsOnPageList state={state} onImportReady={onImportReady} setPage={setPage} {...props} />
   )
 }
 

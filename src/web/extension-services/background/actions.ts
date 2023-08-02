@@ -8,7 +8,6 @@ import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerCon
 type MainControllerAccountAdderInitLedgerAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER'
   params: {
-    preselectedAccounts: Account[]
     page?: number | undefined
     pageSize?: number | undefined
     derivationPath?: string | undefined
@@ -17,7 +16,6 @@ type MainControllerAccountAdderInitLedgerAction = {
 type MainControllerAccountAdderInitTrezorAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR'
   params: {
-    preselectedAccounts: Account[]
     page?: number | undefined
     pageSize?: number | undefined
     derivationPath?: string | undefined
@@ -26,7 +24,15 @@ type MainControllerAccountAdderInitTrezorAction = {
 type MainControllerAccountAdderInitLatticeAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE'
   params: {
-    preselectedAccounts: Account[]
+    page?: number | undefined
+    pageSize?: number | undefined
+    derivationPath?: string | undefined
+  }
+}
+type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
+  params: {
+    privKeyOrSeed: string
     page?: number | undefined
     pageSize?: number | undefined
     derivationPath?: string | undefined
@@ -112,6 +118,7 @@ export type Action =
   | MainControllerAccountAdderInitLatticeAction
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
+  | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
   | MainControllerAccountAdderStateAction
   | MainControllerAccountAdderSetPageAction
   | LedgerControllerUnlockAction

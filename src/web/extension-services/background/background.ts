@@ -1,5 +1,6 @@
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
+import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { JsonRpcProvider } from 'ethers'
 
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
@@ -57,18 +58,34 @@ browser.runtime.onConnect.addListener(async (port) => {
 
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
             const keyIterator = new LedgerKeyIterator({ hdk: ledgerCtrl.hdk, app: ledgerCtrl.app })
-            return mainCtrl.accountAdder.init({ ...data.params, keyIterator })
+            return mainCtrl.accountAdder.init({
+              ...data.params,
+              keyIterator,
+              preselectedAccounts: []
+            })
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
             const keyIterator = new TrezorKeyIterator({ hdk: trezorCtrl.hdk })
-            return mainCtrl.accountAdder.init({ ...data.params, keyIterator })
+            return mainCtrl.accountAdder.init({
+              ...data.params,
+              keyIterator,
+              preselectedAccounts: []
+            })
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
             const keyIterator = new LatticeKeyIterator({
               sdkSession: latticeCtrl.sdkSession,
               getHDPathIndices: latticeCtrl._getHDPathIndices
             })
-            return mainCtrl.accountAdder.init({ ...data.params, keyIterator })
+            return mainCtrl.accountAdder.init({
+              ...data.params,
+              keyIterator,
+              preselectedAccounts: []
+            })
+          }
+          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
+            const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
+            return mainCtrl.accountAdder.init({ keyIterator, preselectedAccounts: [] })
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE':
             return mainCtrl.accountAdder
