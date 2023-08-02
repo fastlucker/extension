@@ -8,7 +8,11 @@ export default function useBackgroundService<T extends keyof ControllersMapping>
   controllerName?: T
 ) {
   const context = useContext(BackgroundServiceContext)
-  const [state, setState] = useState<ControllersMapping[T] | {}>({})
+  // Tge workaround with "{} as ControllersMapping[T]"" is a type assertion,
+  // because usually for every controller there should be onUpdate event in the
+  // beginning after the initialization process completes that will set the
+  // initial state. TS doesn't know that and thinks that state can always be {}.
+  const [state, setState] = useState<ControllersMapping[T]>({} as ControllersMapping[T])
 
   if (!context) {
     throw new Error('useBackgroundService must be used within an BackgroundServiceProvider')
