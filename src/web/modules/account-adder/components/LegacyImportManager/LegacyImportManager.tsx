@@ -91,6 +91,7 @@ const LegacyImportManager = (props: Props) => {
     return
   }
 
+  console.log(state)
   return (
     <AccountsOnPageList state={state} onImportReady={onImportReady} setPage={setPage} {...props} />
   )

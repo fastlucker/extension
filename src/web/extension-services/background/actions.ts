@@ -1,10 +1,7 @@
-<<<<<<< Updated upstream
 import { Account } from 'ambire-common/src/interfaces/account'
 
 import { NetworkType } from '@common/constants/networks'
 
-=======
->>>>>>> Stashed changes
 type MainControllerAccountAdderInitLedgerAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER'
   params: {
@@ -36,6 +33,18 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
     page?: number | undefined
     pageSize?: number | undefined
     derivationPath?: string | undefined
+  }
+}
+type MainControllerAccountAdderSelectAccountAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT'
+  params: {
+    account: Account
+  }
+}
+type MainControllerAccountAdderDeselectAccountAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT'
+  params: {
+    account: Account
   }
 }
 type MainControllerAccountAdderStateAction = {
@@ -119,6 +128,8 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
+  | MainControllerAccountAdderSelectAccountAction
+  | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderStateAction
   | MainControllerAccountAdderSetPageAction
   | LedgerControllerUnlockAction

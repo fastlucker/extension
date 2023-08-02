@@ -8,7 +8,7 @@ import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
 import { INTERNAL_REQUEST_ORIGIN } from '@web/constants/common'
 import providerController from '@web/extension-services/background/provider/provider'
-import notificationService from '@web/extension-services/background/services/notification.ts'
+import notificationService from '@web/extension-services/background/services/notification'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
@@ -86,6 +86,12 @@ browser.runtime.onConnect.addListener(async (port) => {
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
             const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
             return mainCtrl.accountAdder.init({ keyIterator, preselectedAccounts: [] })
+          }
+          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
+            return mainCtrl.accountAdder.selectAccount(data.params.account)
+          }
+          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
+            return mainCtrl.accountAdder.deselectAccount(data.params.account)
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE':
             return mainCtrl.accountAdder

@@ -1,6 +1,7 @@
 import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
+import { Account as AccountInterface } from 'ambire-common/src/interfaces/account'
 import groupBy from 'lodash/groupBy'
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
@@ -17,6 +18,7 @@ import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import Account from '@web/modules/account-adder/components/Account'
 import Slot from '@web/modules/account-adder/components/Slot'
 
@@ -42,6 +44,7 @@ const AccountsList = ({
   const [value, setValue] = useState('')
   const [emailVaultStep, setEmailVaultStep] = useState(false)
   const [showUnused, setShowUnused] = useState(false)
+  const { dispatch } = useBackgroundService()
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -63,6 +66,26 @@ const AccountsList = ({
     setPage(state.page + LARGE_PAGE_STEP)
   }
 
+  const handleSelectAccount = useCallback(
+    (account: AccountInterface) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT',
+        params: { account }
+      })
+    },
+    [dispatch]
+  )
+
+  const handleDeselectAccount = useCallback(
+    (account: AccountInterface) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT',
+        params: { account }
+      })
+    },
+    [dispatch]
+  )
+
   const disablePagination = Object.keys(slots).length === 1
 
   const getFilteredAccounts = (accounts: any) => {
@@ -76,6 +99,11 @@ const AccountsList = ({
         account={acc.account}
         type={acc.type}
         isLastInSlot={i === filteredAccounts.length - 1}
+        isSelected={state.selectedAccounts.some(
+          (selectedAcc) => selectedAcc.addr === acc.account.addr
+        )}
+        onSelect={handleSelectAccount}
+        onDeselect={handleDeselectAccount}
       />
     ))
   }
@@ -113,7 +141,13 @@ const AccountsList = ({
             </View>
           ) : (
             Object.keys(slots).map((key) => (
-              <Slot key={key} slot={+key + (state.page - 1) * state.pageSize}>
+              <Slot
+                key={key}
+                slot={+key + (state.page - 1) * state.pageSize}
+                isActive={slots[key].every((acc) =>
+                  state.selectedAccounts.some((a) => a.addr === acc.account.addr)
+                )}
+              >
                 {getFilteredAccounts(slots[key])}
               </Slot>
             ))
