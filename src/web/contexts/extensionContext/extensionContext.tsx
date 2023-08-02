@@ -13,7 +13,7 @@ const ExtensionContext = createContext<ExtensionContextReturnType>(extensionCont
 
 const Provider: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
-  const { dispatch } = useBackgroundService()
+  const { dispatch, dispatchAsync } = useBackgroundService()
   const [site, setSite] = useState<ExtensionContextReturnType['site']>(null)
   const [connectedDapps, setConnectedDapps] = useState<
     ExtensionContextReturnType['connectedDapps']
@@ -23,17 +23,17 @@ const Provider: React.FC<any> = ({ children }) => {
     const tab = await getCurrentTab()
     if (!tab.id || !tab.url) return
     const domain = getOriginFromUrl(tab.url)
-    const current = await dispatch({
+    const current = await dispatchAsync({
       type: 'WALLET_CONTROLLER_GET_CURRENT_SITE',
       params: { tabId: tab.id, domain }
     })
     setSite(current)
-  }, [dispatch])
+  }, [dispatchAsync])
 
   const getConnectedSites = useCallback(async () => {
-    const connectedSites = await dispatch({ type: 'WALLET_CONTROLLER_GET_CONNECTED_SITES' })
+    const connectedSites = await dispatchAsync({ type: 'WALLET_CONTROLLER_GET_CONNECTED_SITES' })
     setConnectedDapps(connectedSites)
-  }, [dispatch])
+  }, [dispatchAsync])
 
   useEffect(() => {
     getCurrentSite()

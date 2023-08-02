@@ -135,7 +135,7 @@ browser.runtime.onConnect.addListener(async (port) => {
           case 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE': {
             sessionService.broadcastEvent('accountsChanged', [], data.params.origin)
             permissionService.removeConnectedSite(data.params.origin)
-            return null
+            break
           }
           case 'WALLET_CONTROLLER_ACTIVE_FIRST_APPROVAL':
             return notificationService.activeFirstApproval()
