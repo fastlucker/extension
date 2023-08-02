@@ -23,7 +23,7 @@ if (isExtension) {
 
   portMessageChannel.connect('popup')
 
-  portMessageChannel.listen((data: any) => {
+  portMessageChannel.listen((data: { type: string; method: string; params: any }) => {
     if (data.type === 'broadcast') {
       eventBus.emit(data.method, data.params)
     }

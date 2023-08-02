@@ -1,4 +1,5 @@
 import { networks } from 'ambire-common/src/consts/networks'
+import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { JsonRpcProvider } from 'ethers'
@@ -44,6 +45,17 @@ const mainCtrl = new MainController(storage, fetch, RELAYER_URL)
 const ledgerCtrl = new LedgerController()
 const trezorCtrl = new TrezorController()
 const latticeCtrl = new LatticeController()
+
+const controllersMapping = {
+  accountAdder: AccountAdderController
+  // Add other controllers here:
+  // - key is the name of the controller
+  // - value is the type of the controller
+}
+
+export type ControllersMappingType = {
+  [K in keyof typeof controllersMapping]: InstanceType<typeof controllersMapping[K]>
+}
 
 // listen for messages from UI
 browser.runtime.onConnect.addListener(async (port) => {
@@ -93,8 +105,6 @@ browser.runtime.onConnect.addListener(async (port) => {
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
             return mainCtrl.accountAdder.deselectAccount(data.params.account)
           }
-          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE':
-            return mainCtrl.accountAdder
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
             return mainCtrl.accountAdder.setPage({ ...data.params, networks, providers })
 
@@ -176,7 +186,7 @@ browser.runtime.onConnect.addListener(async (port) => {
       }
     })
 
-    const boardcastCallback = (data: any) => {
+    const broadcastCallback = (data: any) => {
       pm.request({
         type: 'broadcast',
         method: data.method,
@@ -193,17 +203,18 @@ browser.runtime.onConnect.addListener(async (port) => {
         // preferenceService.setPopupOpen(false)
       })
     }
-    eventBus.addEventListener('broadcastToUI', boardcastCallback)
+    eventBus.addEventListener('broadcastToUI', broadcastCallback)
     port.onDisconnect.addListener(() => {
-      eventBus.removeEventListener('broadcastToUI', boardcastCallback)
+      eventBus.removeEventListener('broadcastToUI', broadcastCallback)
     })
-    ;['accountAdder'].forEach((ctrl) => {
+
+    Object.keys(controllersMapping).forEach((ctrl: any) => {
       // Broadcast onUpdate for nested controllers
-      mainCtrl[ctrl]?.onUpdate(() => {
+      ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
         pm.request({
           type: 'broadcast',
           method: ctrl,
-          params: []
+          params: (mainCtrl as any)[ctrl]
         })
       })
     })
@@ -213,7 +224,7 @@ browser.runtime.onConnect.addListener(async (port) => {
       pm.request({
         type: 'broadcast',
         method: 'main',
-        params: []
+        params: mainCtrl
       })
     })
 

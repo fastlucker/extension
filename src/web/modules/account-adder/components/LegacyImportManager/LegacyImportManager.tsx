@@ -1,11 +1,10 @@
 /* eslint-disable react/destructuring-assignment */
-import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
-import React, { useEffect, useState } from 'react'
+
+import React, { useEffect } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
@@ -18,11 +17,8 @@ const LegacyImportManager = (props: Props) => {
   const [shouldCreateEmailVault] = React.useState(false)
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
-
-  const [state, setState] = useState<AccountAdderController>({} as AccountAdderController)
   const { createTask } = useTaskQueue()
-
-  const { dispatch } = useBackgroundService()
+  const { state, dispatch } = useBackgroundService('accountAdder')
 
   const onImportReady = () => {
     updateStepperState(1, 'legacyAuth')
@@ -62,25 +58,6 @@ const LegacyImportManager = (props: Props) => {
   }, [dispatch, createTask, props.privKeyOrSeed])
 
   useEffect(() => {
-    const setAccountAdderState = async () => {
-      const accountAdderInitialState = await dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE'
-      })
-      setState(accountAdderInitialState)
-    }
-
-    const onUpdate = async () => {
-      setAccountAdderState()
-    }
-
-    eventBus.addEventListener('accountAdder', onUpdate)
-
-    return () => {
-      eventBus.removeEventListener('accountAdder', onUpdate)
-    }
-  }, [dispatch])
-
-  useEffect(() => {
     ;(async () => {
       if (!state.isInitialized) return
       setPage()
@@ -91,7 +68,6 @@ const LegacyImportManager = (props: Props) => {
     return
   }
 
-  console.log(state)
   return (
     <AccountsOnPageList state={state} onImportReady={onImportReady} setPage={setPage} {...props} />
   )

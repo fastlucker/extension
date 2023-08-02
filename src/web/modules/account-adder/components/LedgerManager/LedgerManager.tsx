@@ -16,11 +16,9 @@ interface Props {}
 const LedgerManager = (props: Props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
-
-  const [state, setState] = useState<AccountAdderController>({} as AccountAdderController)
   const { createTask } = useTaskQueue()
+  const { state, dispatch, dispatchAsync } = useBackgroundService('accountAdder')
 
-  const { dispatch, dispatchAsync } = useBackgroundService()
   const onImportReady = () => {
     updateStepperState(2, 'hwAuth')
     navigate(WEB_ROUTES.createKeyStore)
@@ -52,25 +50,6 @@ const LedgerManager = (props: Props) => {
       })
     })()
   }, [dispatch, dispatchAsync, createTask])
-
-  useEffect(() => {
-    const setAccountAdderState = async () => {
-      const accountAdderInitialState = await dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE'
-      })
-      setState(accountAdderInitialState)
-    }
-
-    const onUpdate = async () => {
-      setAccountAdderState()
-    }
-
-    eventBus.addEventListener('accountAdder', onUpdate)
-
-    return () => {
-      eventBus.removeEventListener('accountAdder', onUpdate)
-    }
-  }, [dispatch])
 
   useEffect(() => {
     ;(async () => {
