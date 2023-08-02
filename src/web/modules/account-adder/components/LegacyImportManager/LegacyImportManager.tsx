@@ -18,11 +18,8 @@ const LegacyImportManager = (props: Props) => {
   const [shouldCreateEmailVault] = React.useState(false)
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
-
-  const [state, setState] = useState<AccountAdderController>({} as AccountAdderController)
   const { createTask } = useTaskQueue()
-
-  const { dispatch } = useBackgroundService()
+  const { state, dispatch } = useBackgroundService('accountAdder')
 
   const onImportReady = () => {
     updateStepperState(1, 'legacyAuth')
@@ -60,12 +57,6 @@ const LegacyImportManager = (props: Props) => {
       })
     })()
   }, [dispatch, createTask, props.privKeyOrSeed])
-
-  useEffect(() => {
-    eventBus.addEventListener('accountAdder', setState)
-
-    return () => eventBus.removeEventListener('accountAdder', setState)
-  }, [dispatch])
 
   useEffect(() => {
     ;(async () => {
