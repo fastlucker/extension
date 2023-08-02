@@ -1,7 +1,9 @@
+import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
 import { Account } from 'ambire-common/src/interfaces/account'
 
 import { NetworkType } from '@common/constants/networks'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
+import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 type MainControllerAccountAdderInitLedgerAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER'
@@ -130,7 +132,14 @@ export type Action =
   | WalletControllerAccountChangeAction
   | WalletControllerSendRequestAction
 
+/**
+ * These actions types are the one called by `dispatchAsync`. They are meant
+ * to return results, in contrast to `dispatch` which does not return.
+ */
 export type AsyncActionTypes = {
   WALLET_CONTROLLER_GET_APPROVAL: ReturnType<WalletController['getApproval']>
-  // TODO: add other methods
+  WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
+  WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
+  LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
+  MAIN_CONTROLLER_ACCOUNT_ADDER_STATE: AccountAdderController
 }

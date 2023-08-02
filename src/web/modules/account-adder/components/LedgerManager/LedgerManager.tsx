@@ -20,7 +20,7 @@ const LedgerManager: React.FC<Props> = (props) => {
   const [state, setState] = useState<AccountAdderController>({} as AccountAdderController)
   const { createTask } = useTaskQueue()
 
-  const { dispatch } = useBackgroundService()
+  const { dispatch, dispatchAsync } = useBackgroundService()
   const onImportReady = () => {
     updateStepperState(2, 'hwAuth')
     navigate(WEB_ROUTES.createKeyStore)
@@ -45,13 +45,13 @@ const LedgerManager: React.FC<Props> = (props) => {
   useEffect(() => {
     ;(async () => {
       // Ensures account adder is initialized with unlocked key iterator
-      await createTask(() => dispatch({ type: 'LEDGER_CONTROLLER_UNLOCK' }))
+      await createTask(() => dispatchAsync({ type: 'LEDGER_CONTROLLER_UNLOCK' }))
       dispatch({
         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER',
         params: { preselectedAccounts: [] }
       })
     })()
-  }, [dispatch, createTask])
+  }, [dispatch, dispatchAsync, createTask])
 
   useEffect(() => {
     const setAccountAdderState = async () => {
