@@ -1,4 +1,5 @@
 import { networks } from 'ambire-common/src/consts/networks'
+import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { JsonRpcProvider } from 'ethers'
@@ -23,7 +24,6 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
-import { MainCtrlNestedCtrlThatBroadcastUpdates } from './types'
 
 async function init() {
   // Initialize rpc providers for all networks
@@ -46,9 +46,18 @@ const ledgerCtrl = new LedgerController()
 const trezorCtrl = new TrezorController()
 const latticeCtrl = new LatticeController()
 
-const mainCtrlNestedCtrlThatBroadcastUpdates: MainCtrlNestedCtrlThatBroadcastUpdates = [
-  'accountAdder'
-]
+export type ControllersMapping = {
+  main: MainController
+  accountAdder: AccountAdderController
+  // Add other controllers here:
+  // - key is the name of the controller
+  // - value is the type of the controller
+}
+
+// Generate the object from the StateMapping type
+const controllersMappingObject: {
+  [K in keyof ControllersMapping]: ControllersMapping[K]
+} = {} as { [K in keyof ControllersMapping]: ControllersMapping[K] }
 
 // listen for messages from UI
 browser.runtime.onConnect.addListener(async (port) => {
@@ -201,13 +210,13 @@ browser.runtime.onConnect.addListener(async (port) => {
       eventBus.removeEventListener('broadcastToUI', broadcastCallback)
     })
 
-    mainCtrlNestedCtrlThatBroadcastUpdates.forEach((ctrl) => {
+    Object.keys(controllersMappingObject).forEach((ctrl: any) => {
       // Broadcast onUpdate for nested controllers
-      mainCtrl[ctrl]?.onUpdate(() => {
+      ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
         pm.request({
           type: 'broadcast',
           method: ctrl,
-          params: mainCtrl[ctrl]
+          params: (mainCtrl as any)[ctrl]
         })
       })
     })

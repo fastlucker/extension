@@ -1,12 +1,14 @@
 import { useContext, useEffect, useState } from 'react'
 
 import { BackgroundServiceContext } from '@web/contexts/backgroundServiceContext'
-import { ControllersThatBroadcastUpdates } from '@web/extension-services/background/types'
+import { ControllersMapping } from '@web/extension-services/background/background'
 import eventBus from '@web/extension-services/event/eventBus'
 
-export default function useBackgroundService(controllerName?: string) {
+export default function useBackgroundService<T extends keyof ControllersMapping>(
+  controllerName?: T
+) {
   const context = useContext(BackgroundServiceContext)
-  const [state, setState] = useState({})
+  const [state, setState] = useState<ControllersMapping[T] | {}>({})
 
   if (!context) {
     throw new Error('useBackgroundService must be used within an BackgroundServiceProvider')
@@ -14,7 +16,7 @@ export default function useBackgroundService(controllerName?: string) {
 
   useEffect(() => {
     if (controllerName) {
-      const onUpdate = async (newState: any) => {
+      const onUpdate = async (newState: ControllersMapping[T]) => {
         setState(newState)
       }
 

@@ -1,4 +1,3 @@
-import { parse } from 'ambire-common/src/libs/bigintJson/bigintJson'
 import React, { createContext, useMemo } from 'react'
 
 import { isExtension } from '@web/constants/browserapi'
@@ -6,7 +5,6 @@ import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
-import { ControllersThatBroadcastUpdates } from '@web/extension-services/background/types'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 
