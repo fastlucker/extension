@@ -34,13 +34,13 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   const { authStatus } = useAuth()
 
   const { navigate } = useNavigation()
-  const { dispatch } = useBackgroundService()
+  const { dispatch, dispatchAsync } = useBackgroundService()
   const [approval, setApproval] = useState<Approval | null>(null)
   const [hasCheckedForApprovalInitially, setHasCheckedForApprovalInitially] = useState(false)
 
   const getApproval: UseExtensionApprovalReturnType['getApproval'] = useCallback(
-    () => dispatch({ type: 'WALLET_CONTROLLER_GET_APPROVAL' }),
-    [dispatch]
+    () => dispatchAsync({ type: 'WALLET_CONTROLLER_GET_APPROVAL' }),
+    [dispatchAsync]
   )
 
   const resolveApproval = useCallback<UseExtensionApprovalReturnType['resolveApproval']>(

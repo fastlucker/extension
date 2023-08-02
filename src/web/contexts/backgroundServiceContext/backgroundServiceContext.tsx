@@ -9,6 +9,7 @@ import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 
 let dispatch: BackgroundServiceContextReturnType['dispatch']
+let dispatchAsync: BackgroundServiceContextReturnType['dispatchAsync']
 
 // Facilitate communication between the different parts of the browser extension.
 // Utilizes the PortMessage class to establish a connection between the popup
@@ -45,6 +46,8 @@ if (isExtension) {
       params: action.params
     })
   }
+
+  dispatchAsync = dispatch
 }
 
 const BackgroundServiceContext = createContext<BackgroundServiceContextReturnType>(
@@ -52,7 +55,7 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 )
 
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => (
-  <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch }), [])}>
+  <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch, dispatchAsync }), [])}>
     {children}
   </BackgroundServiceContext.Provider>
 )
