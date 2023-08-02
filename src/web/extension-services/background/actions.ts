@@ -1,6 +1,7 @@
 import { Account } from 'ambire-common/src/interfaces/account'
 
 import { NetworkType } from '@common/constants/networks'
+import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 
 type MainControllerAccountAdderInitLedgerAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER'
@@ -128,3 +129,8 @@ export type Action =
   | WalletControllerNetworkChangeAction
   | WalletControllerAccountChangeAction
   | WalletControllerSendRequestAction
+
+export type AsyncActionTypes = {
+  WALLET_CONTROLLER_GET_APPROVAL: ReturnType<WalletController['getApproval']>
+  // TODO: add other methods
+}
