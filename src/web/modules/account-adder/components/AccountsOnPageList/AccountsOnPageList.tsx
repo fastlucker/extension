@@ -140,17 +140,16 @@ const AccountsList = ({
               <Spinner style={{ width: 28, height: 28 }} />
             </View>
           ) : (
-            Object.keys(slots).map((key) => (
-              <Slot
-                key={key}
-                slot={+key + (state.page - 1) * state.pageSize}
-                isActive={slots[key].every((acc) =>
-                  state.selectedAccounts.some((a) => a.addr === acc.account.addr)
-                )}
-              >
-                {getFilteredAccounts(slots[key])}
-              </Slot>
-            ))
+            Object.keys(slots).map((key) => {
+              const slotsSet = new Set(slots[key].map((acc) => acc.account.addr))
+              const selectedAccountsSet = new Set(state.selectedAccounts.map((a) => a.addr))
+              const isActive = Array.from(slotsSet).every((addr) => selectedAccountsSet.has(addr))
+              return (
+                <Slot key={key} slot={+key + (state.page - 1) * state.pageSize} isActive={isActive}>
+                  {getFilteredAccounts(slots[key])}
+                </Slot>
+              )
+            })
           )}
         </Wrapper>
 
