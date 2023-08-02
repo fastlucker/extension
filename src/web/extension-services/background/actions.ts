@@ -38,6 +38,18 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
     derivationPath?: string | undefined
   }
 }
+type MainControllerAccountAdderSelectAccountAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT'
+  params: {
+    account: Account
+  }
+}
+type MainControllerAccountAdderDeselectAccountAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT'
+  params: {
+    account: Account
+  }
+}
 type MainControllerAccountAdderStateAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_STATE'
 }
@@ -119,6 +131,8 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
+  | MainControllerAccountAdderSelectAccountAction
+  | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderStateAction
   | MainControllerAccountAdderSetPageAction
   | LedgerControllerUnlockAction

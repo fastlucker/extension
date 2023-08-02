@@ -1,6 +1,6 @@
 import { Account as AccountInterface } from 'ambire-common/src/interfaces/account'
 import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
-import React, { useState } from 'react'
+import React from 'react'
 import { View } from 'react-native'
 
 import Checkbox from '@common/components/Checkbox'
@@ -11,21 +11,23 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
-// TODO: each legacy account in the list should be grouped with an Ambire Smart Account
-// TODO: each list item must be selectable (checkbox)
-
 const Account = ({
   account,
   type,
-  isLastInSlot
+  isLastInSlot,
+  isSelected,
+  onSelect,
+  onDeselect
 }: {
   account: AccountInterface & { usedOnNetworks: NetworkDescriptor[] }
   type: 'legacy' | 'smart' | 'linked'
   isLastInSlot: boolean
+  isSelected: boolean
+  onSelect: (account: AccountInterface) => void
+  onDeselect: (account: AccountInterface) => void
 }) => {
   const { t } = useTranslation()
 
-  const [isIncluded, setIsIncluded] = useState(false)
   if (!account.addr) return
 
   const trimAddress = (address: string, maxLength: number) => {
@@ -87,8 +89,14 @@ const Account = ({
               </Text>
             </View>
           }
-          value={isIncluded}
-          onValueChange={() => setIsIncluded(!isIncluded)}
+          value={isSelected}
+          onValueChange={() => {
+            if (isSelected) {
+              !!onDeselect && onDeselect(account)
+            } else {
+              !!onSelect && onSelect(account)
+            }
+          }}
         />
         <View>
           {type === 'linked' && (
@@ -101,9 +109,6 @@ const Account = ({
               {t('Linked')}
             </Text>
           )}
-          {/* <Text shouldScale={false} fontSize={14} color={colors.martinique} weight="semiBold">
-            $98.98
-          </Text> */}
         </View>
       </View>
     </View>
