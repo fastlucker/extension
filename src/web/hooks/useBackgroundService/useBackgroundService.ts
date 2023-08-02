@@ -19,18 +19,16 @@ export default function useBackgroundService<T extends keyof ControllersMappingT
   }
 
   useEffect(() => {
-    if (controllerName) {
-      const onUpdate = async (newState: ControllersMappingType[T]) => {
-        setState(newState)
-      }
-
-      eventBus.addEventListener(controllerName, onUpdate)
-
-      return () => {
-        eventBus.removeEventListener(controllerName, onUpdate)
-      }
+    if (!controllerName) {
+      return () => {}
     }
-    return () => {}
+    const onUpdate = async (newState: ControllersMappingType[T]) => {
+      setState(newState)
+    }
+
+    eventBus.addEventListener(controllerName, onUpdate)
+
+    return () => eventBus.removeEventListener(controllerName, onUpdate)
   }, [controllerName])
 
   return {
