@@ -38,6 +38,9 @@ const SortHat = () => {
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
       // TODO: return navigate(ROUTES.auth)
+      if (onboardingStatus === ONBOARDING_VALUES.ON_BOARDED) {
+        return navigate(ROUTES.dashboard)
+      }
       return navigate(ROUTES.getStarted)
     }
 

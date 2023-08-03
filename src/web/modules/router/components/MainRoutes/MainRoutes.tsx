@@ -3,9 +3,14 @@ import { Outlet, Route, Routes } from 'react-router-dom'
 
 import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import AuthScreen from '@common/modules/auth/screens/AuthScreen'
-import { headerBeta as defaultHeaderBeta } from '@common/modules/header/config/headerConfig'
+import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
+import {
+  headerAlpha as defaultHeaderAlpha,
+  headerBeta as defaultHeaderBeta
+} from '@common/modules/header/config/headerConfig'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import colors from '@common/styles/colors'
 import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
 import AccountsImporterScreen from '@web/modules/accounts-importer/screens/AccountsImporterScreen'
 import AccountsPersonalizeScreen from '@web/modules/accounts-personalize/screens/AccountsPersonalizeScreen'
@@ -25,6 +30,13 @@ import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
+
+const headerAlpha = (
+  <>
+    {defaultHeaderAlpha({ backgroundColor: colors.zircon })}
+    <Outlet />
+  </>
+)
 
 const headerBeta = (
   <>
@@ -84,10 +96,12 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
 
           <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
-
           <Route path={WEB_ROUTES.accountsImporter} element={<AccountsImporterScreen />} />
           <Route path={WEB_ROUTES.accountsPersonalize} element={<AccountsPersonalizeScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
+        </Route>
+        <Route element={headerAlpha}>
+          <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
         </Route>
       </Route>
       <Route element={<PrivateRoute />}>
