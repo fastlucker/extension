@@ -43,7 +43,7 @@ class TrezorController {
 
   init() {
     if (!this.trezorConnectInitiated) {
-      trezorConnect.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true })
+      trezorConnect.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
       this.trezorConnectInitiated = true
     }
   }

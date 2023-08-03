@@ -126,8 +126,8 @@ const routesConfig: {
       default: i18n.t('Login with Hardware Wallet')
     })
   },
-  [ROUTES.accountsImporter]: {
-    route: ROUTES.accountsImporter,
+  [ROUTES.accountAdder]: {
+    route: ROUTES.accountAdder,
     title: ''
   },
   [ROUTES.externalSigner]: {

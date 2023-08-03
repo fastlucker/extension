@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@ambire/signature-validator": "^1.0.3",
+    "@babel/plugin-proposal-decorators": "~7.22.7",
     "@babel/plugin-proposal-private-methods": "~7.18.6",
     "@babel/plugin-transform-typescript": "^7.21.3",
     "@ensdomains/eth-ens-namehash": "^2.0.15",
@@ -83,7 +84,7 @@
     "@unstoppabledomains/resolution": "^7.1.4",
     "@yfi/sdk": "1.1.1",
     "adex-protocol-eth": "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#e507e75ac4ddbec2aa4a444c675b38ee9d26190c",
-    "ambire-common": "git+ssh://git@github.com/AmbireTech/ambire-common.git#825421fce4dea8882b44f466045d53573fa1dbc5",
+    "ambire-common": "git+ssh://git@github.com/AmbireTech/ambire-common.git#bb2ba52f83ed979d0f1a891d7d541eeee6ddf8e1",
     "babel-plugin-module-resolver": "4.1.0",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "bip44-constants": "^128.0.0",

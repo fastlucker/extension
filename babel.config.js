@@ -6,6 +6,8 @@ module.exports = function (api) {
     plugins: [
       ['@babel/plugin-proposal-export-namespace-from'],
       ['transform-inline-environment-variables'],
+      ['@babel/plugin-proposal-decorators', { legacy: true }],
+      ['@babel/plugin-proposal-private-methods', { loose: true }],
       [
         'module:react-native-dotenv',
         {
@@ -51,7 +53,6 @@ module.exports = function (api) {
     ...config,
     plugins: [
       ...config.plugins,
-      ['@babel/plugin-proposal-private-methods', { loose: true }],
       [
         'module-resolver',
         {

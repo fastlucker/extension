@@ -1,5 +1,7 @@
 // @ts-nocheck
 
+import { parse, stringify } from 'ambire-common/src/libs/bigintJson/bigintJson'
+
 import Message from './baseMessage'
 
 class PortMessage extends Message {
@@ -17,14 +19,29 @@ class PortMessage extends Message {
 
   connect = (name?: string) => {
     this.port = browser.runtime.connect(undefined, name ? { name } : undefined)
-    this.port.onMessage.addListener(({ _type_, data }) => {
-      if (_type_ === `${this._EVENT_PRE}message`) {
-        this.emit('message', data)
-        return
-      }
+    this.port.onMessage.addListener((message) => {
+      // message should be a stringified json but in some cases it comes as an object
+      // and in that case if parsing fails it defaults to destructing the message object
+      try {
+        const { _type_, data } = parse(message)
+        if (_type_ === `${this._EVENT_PRE}message`) {
+          this.emit('message', data)
+          return
+        }
 
-      if (_type_ === `${this._EVENT_PRE}response`) {
-        this.onResponse(data)
+        if (_type_ === `${this._EVENT_PRE}response`) {
+          this.onResponse(data)
+        }
+      } catch (error) {
+        const { _type_, data } = message
+        if (_type_ === `${this._EVENT_PRE}message`) {
+          this.emit('message', data)
+          return
+        }
+
+        if (_type_ === `${this._EVENT_PRE}response`) {
+          this.onResponse(data)
+        }
       }
     })
 
@@ -34,9 +51,19 @@ class PortMessage extends Message {
   listen = (listenCallback: any) => {
     if (!this.port) return
     this.listenCallback = listenCallback
-    this.port.onMessage.addListener(({ _type_, data }) => {
-      if (_type_ === `${this._EVENT_PRE}request`) {
-        this.onRequest(data)
+    this.port.onMessage.addListener((message) => {
+      // message should be a stringified json but in some cases it comes as an object
+      // and in that case if parsing fails it defaults to destructing the message object
+      try {
+        const { _type_, data } = parse(message)
+        if (_type_ === `${this._EVENT_PRE}request`) {
+          this.onRequest(data)
+        }
+      } catch (error) {
+        const { _type_, data } = message
+        if (_type_ === `${this._EVENT_PRE}request`) {
+          this.onRequest(data)
+        }
       }
     })
 
@@ -46,7 +73,8 @@ class PortMessage extends Message {
   send = (type, data) => {
     if (!this.port) return
     try {
-      this.port.postMessage({ _type_: `${this._EVENT_PRE}${type}`, data })
+      const message = stringify({ _type_: `${this._EVENT_PRE}${type}`, data })
+      this.port.postMessage(message)
     } catch (e) {
       // DO NOTHING BUT CATCH THIS ERROR
     }

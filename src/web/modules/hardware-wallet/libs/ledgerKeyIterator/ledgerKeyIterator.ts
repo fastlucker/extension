@@ -1,5 +1,4 @@
 import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interfaces/keyIterator'
-import { Client } from 'gridplus-sdk'
 import HDKey from 'hdkey'
 
 import LedgerEth from '@ledgerhq/hw-app-eth'
@@ -22,10 +21,11 @@ class LedgerKeyIterator implements KeyIteratorInterface {
 
   app?: LedgerEth | null
 
-  sdkSession?: Client | null
-
   constructor(_wallet: WALLET_TYPE) {
-    if (!_wallet.hdk || !_wallet.app)
+    if (
+      !Object.prototype.hasOwnProperty.call(_wallet, 'hdk') ||
+      !Object.prototype.hasOwnProperty.call(_wallet, 'app')
+    )
       throw new Error('ledgerKeyIterator: invalid props passed to the constructor')
 
     this.hdk = _wallet.hdk

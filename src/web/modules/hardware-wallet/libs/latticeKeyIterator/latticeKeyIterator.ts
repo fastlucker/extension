@@ -22,7 +22,10 @@ class LatticeKeyIterator implements KeyIteratorInterface {
   getHDPathIndices: (hdPath: any, insertIdx?: number) => number[]
 
   constructor(_wallet: WALLET_TYPE) {
-    if (!_wallet.sdkSession || !_wallet.getHDPathIndices)
+    if (
+      !Object.prototype.hasOwnProperty.call(_wallet, 'sdkSession') ||
+      !Object.prototype.hasOwnProperty.call(_wallet, 'getHDPathIndices')
+    )
       throw new Error('latticeKeyIterator: invalid props passed to the constructor')
 
     this.sdkSession = _wallet.sdkSession

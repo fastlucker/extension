@@ -2,7 +2,7 @@ import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interface
 import { publicToAddress, toChecksumAddress } from 'ethereumjs-util'
 import HDKey from 'hdkey'
 
-import { TREZOR_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
+import { TREZOR_PATH_BASE } from '@web/modules/hardware-wallet/constants/hdPaths'
 
 // DOCS
 // - Serves for retrieving a range of addresses/keys from a Trezor hardware wallet
@@ -20,12 +20,13 @@ class TrezorKeyIterator implements KeyIteratorInterface {
   hdk: HDKey
 
   constructor(_wallet: WALLET_TYPE) {
-    if (!_wallet.hdk) throw new Error('trezorKeyIterator: invalid props passed to the constructor')
+    if (!Object.prototype.hasOwnProperty.call(_wallet, 'hdk'))
+      throw new Error('trezorKeyIterator: invalid props passed to the constructor')
 
     this.hdk = _wallet.hdk
   }
 
-  async retrieve(from: number, to: number, derivation: string = TREZOR_HD_PATH) {
+  async retrieve(from: number, to: number, derivation: string = TREZOR_PATH_BASE) {
     if ((!from && from !== 0) || (!to && to !== 0) || !derivation)
       throw new Error('trezorKeyIterator: invalid or missing arguments')
 
