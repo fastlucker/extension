@@ -20,6 +20,8 @@ class PortMessage extends Message {
   connect = (name?: string) => {
     this.port = browser.runtime.connect(undefined, name ? { name } : undefined)
     this.port.onMessage.addListener((message) => {
+      // message should be a stringified json but in some cases it comes as an object
+      // and in that case if parsing fails it defaults to destructing the message object
       try {
         const { _type_, data } = parse(message)
         if (_type_ === `${this._EVENT_PRE}message`) {
@@ -50,6 +52,8 @@ class PortMessage extends Message {
     if (!this.port) return
     this.listenCallback = listenCallback
     this.port.onMessage.addListener((message) => {
+      // message should be a stringified json but in some cases it comes as an object
+      // and in that case if parsing fails it defaults to destructing the message object
       try {
         const { _type_, data } = parse(message)
         if (_type_ === `${this._EVENT_PRE}request`) {

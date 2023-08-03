@@ -10,7 +10,6 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import flexbox from '@common/styles/utils/flexbox'
 import useApproval from '@web/hooks/useApproval'
-import { HardwareWalletsProvider } from '@web/modules/hardware-wallet/contexts/hardwareWalletsContext'
 import SortHat from '@web/modules/router/components/SortHat'
 
 const AsyncMainRoute = lazy(() => import('@web/modules/router/components/MainRoutes'))
@@ -42,14 +41,14 @@ const Router = () => {
   }
 
   return (
-    <HardwareWalletsProvider>
+    <>
       <Routes>
         <Route path="/" element={<SortHat />} />
       </Routes>
       <Suspense fallback={null}>
         <AsyncMainRoute />
       </Suspense>
-    </HardwareWalletsProvider>
+    </>
   )
 }
 

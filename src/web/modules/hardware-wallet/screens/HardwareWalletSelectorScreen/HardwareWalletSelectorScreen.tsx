@@ -17,12 +17,10 @@ import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import HardwareWalletSelectorItem from '@web/modules/hardware-wallet/components/HardwareWalletSelectorItem'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
-import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
 
 const HardwareWalletSelectorScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { hardwareWallets } = useHardwareWallets()
   const { addToast } = useToast()
   const { updateStepperState } = useStepper()
   const { dispatchAsync } = useBackgroundService()
@@ -81,9 +79,9 @@ const HardwareWalletSelectorScreen = () => {
               try {
                 await updateStepperState(1, 'hwAuth')
 
-                await hardwareWallets[HARDWARE_WALLETS.GRIDPLUS].unlock()
+                await dispatchAsync({ type: 'LATTICE_CONTROLLER_UNLOCK' })
                 navigate(WEB_ROUTES.accountAdder, {
-                  state: { walletType: HARDWARE_WALLETS.GRIDPLUS }
+                  state: { walletType: HARDWARE_WALLETS.LATTICE }
                 })
               } catch (error: any) {
                 addToast(error.message, { error: true })

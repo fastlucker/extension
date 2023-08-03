@@ -115,13 +115,14 @@ browser.runtime.onConnect.addListener(async (port) => {
             return ledgerCtrl._getPathForIndex(data.params)
           case 'LEDGER_CONTROLLER_APP':
             return ledgerCtrl.app
-          case 'LEDGER_CONTROLLER_CLEANUP':
-            return ledgerCtrl.cleanUp()
+          case 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION':
+            return ledgerCtrl.authorizeHIDPermission()
 
           case 'TREZOR_CONTROLLER_UNLOCK':
             return trezorCtrl.unlock()
-          case 'TREZOR_CONTROLLER_CLEANUP':
-            return trezorCtrl.cleanUp()
+
+          case 'LATTICE_CONTROLLER_UNLOCK':
+            return latticeCtrl.unlock()
 
           case 'WALLET_CONTROLLER_IS_UNLOCKED':
             return null // TODO: implement in v2
@@ -202,13 +203,10 @@ browser.runtime.onConnect.addListener(async (port) => {
       })
     }
 
-    if (port.name === 'popup') {
-      // TODO:
-      // preferenceService.setPopupOpen(true)
-
+    if (port.name === 'tab' || port.name === 'notification') {
       port.onDisconnect.addListener(() => {
-        // TODO:
-        // preferenceService.setPopupOpen(false)
+        ledgerCtrl.cleanUp()
+        trezorCtrl.cleanUp()
       })
     }
     eventBus.addEventListener('broadcastToUI', broadcastCallback)

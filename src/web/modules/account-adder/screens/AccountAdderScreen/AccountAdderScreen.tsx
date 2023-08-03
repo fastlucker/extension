@@ -12,12 +12,10 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import LatticeManager from '@web/modules/account-adder/components/LatticeManager'
 import LedgerManager from '@web/modules/account-adder/components/LedgerManager'
 import LegacyImportManager from '@web/modules/account-adder/components/LegacyImportManager'
 import TrezorManager from '@web/modules/account-adder/components/TrezorManager'
-import { AccountsPaginationProvider } from '@web/modules/account-adder/contexts/accountsPaginationContext'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 
 export interface Account {
@@ -33,45 +31,22 @@ export interface Account {
 const WALLET_MAP = {
   [HARDWARE_WALLETS.LEDGER]: LedgerManager,
   [HARDWARE_WALLETS.TREZOR]: TrezorManager,
-  [HARDWARE_WALLETS.GRIDPLUS]: LatticeManager,
+  [HARDWARE_WALLETS.LATTICE]: LatticeManager,
   legacyImport: LegacyImportManager
 }
 
 const AccountAdderScreen = () => {
   const { params } = useRoute()
   const { goBack } = useNavigation()
-  const { dispatch } = useBackgroundService()
 
   const { t } = useTranslation()
 
   const { walletType, privKeyOrSeed }: any = params
-  const isGrid = walletType === HARDWARE_WALLETS.GRIDPLUS
+  const isLattice = walletType === HARDWARE_WALLETS.LATTICE
   const isLedger = walletType === HARDWARE_WALLETS.LEDGER
   const isTrezor = walletType === HARDWARE_WALLETS.TREZOR
 
   const isLegacyImport = walletType === 'legacyImport'
-
-  const closeConnect = React.useCallback(() => {
-    try {
-      dispatch({ type: `${walletType}_CONTROLLER_CLEANUP` as any })
-    } catch (e) {
-      console.log(e)
-    }
-  }, [walletType, dispatch])
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', () => {
-      if (!isLegacyImport) {
-        closeConnect()
-      }
-    })
-
-    return () => {
-      if (!isLegacyImport) {
-        closeConnect()
-      }
-    }
-  }, [closeConnect, isLegacyImport])
 
   useEffect(() => {
     if (!walletType) goBack()
@@ -81,7 +56,7 @@ const AccountAdderScreen = () => {
   let walletManagerProps = {}
   const name = walletType
   let title = ''
-  if (isLedger || isTrezor || isGrid) {
+  if (isLedger || isTrezor || isLattice) {
     title = 'Import Account From {{name}}'
     walletManagerProps = {}
   }
@@ -91,7 +66,7 @@ const AccountAdderScreen = () => {
   }
 
   return (
-    <AccountsPaginationProvider>
+    <>
       <AuthLayoutWrapperMainContent pageTitle={t(title, { name })}>
         <View style={[spacings.mh, spacings.pv, flexbox.justifyCenter]}>
           <WalletManager {...walletManagerProps} />
@@ -140,7 +115,7 @@ const AccountAdderScreen = () => {
           </>
         )}
       </AuthLayoutWrapperSideContent>
-    </AccountsPaginationProvider>
+    </>
   )
 }
 
