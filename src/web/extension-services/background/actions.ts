@@ -2,6 +2,7 @@ import { Account } from 'ambire-common/src/interfaces/account'
 
 import { NetworkType } from '@common/constants/networks'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
+import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
@@ -70,14 +71,20 @@ type LedgerControllerGetPathForIndexAction = {
   type: 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX'
   params: any // TODO
 }
+type LedgerControllerAppAction = {
+  type: 'LEDGER_CONTROLLER_APP'
+}
+type LedgerControllerAuthorizeHIDPermissionAction = {
+  type: 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION'
+}
 type TrezorControllerUnlockAction = {
   type: 'TREZOR_CONTROLLER_UNLOCK'
 }
 type TrezorControllerCleanUpAction = {
   type: 'TREZOR_CONTROLLER_CLEANUP'
 }
-type LedgerControllerAppAction = {
-  type: 'LEDGER_CONTROLLER_APP'
+type LatticeControllerUnlockAction = {
+  type: 'LATTICE_CONTROLLER_UNLOCK'
 }
 type WalletControllerIsUnlockedAction = {
   type: 'WALLET_CONTROLLER_IS_UNLOCKED'
@@ -144,8 +151,10 @@ export type Action =
   | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction
   | LedgerControllerCleanUpAction
+  | LedgerControllerAuthorizeHIDPermissionAction
   | TrezorControllerUnlockAction
   | TrezorControllerCleanUpAction
+  | LatticeControllerUnlockAction
   | WalletControllerIsUnlockedAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
@@ -173,4 +182,6 @@ export type AsyncActionTypes = {
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
   TREZOR_CONTROLLER_UNLOCK: ReturnType<TrezorController['unlock']>
+  LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
+  LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION: ReturnType<LedgerController['authorizeHIDPermission']>
 }
