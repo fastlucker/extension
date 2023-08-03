@@ -12,13 +12,13 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import LatticeManager from '@web/modules/account-adder/components/LatticeManager'
 import LedgerManager from '@web/modules/account-adder/components/LedgerManager'
 import LegacyImportManager from '@web/modules/account-adder/components/LegacyImportManager'
 import TrezorManager from '@web/modules/account-adder/components/TrezorManager'
 import { AccountsPaginationProvider } from '@web/modules/account-adder/contexts/accountsPaginationContext'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
-import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
 
 export interface Account {
   type: string
@@ -40,8 +40,8 @@ const WALLET_MAP = {
 const AccountAdderScreen = () => {
   const { params } = useRoute()
   const { goBack } = useNavigation()
+  const { dispatch } = useBackgroundService()
 
-  const { hardwareWallets } = useHardwareWallets()
   const { t } = useTranslation()
 
   const { walletType, privKeyOrSeed }: any = params
@@ -53,11 +53,11 @@ const AccountAdderScreen = () => {
 
   const closeConnect = React.useCallback(() => {
     try {
-      hardwareWallets[walletType].cleanUp()
+      dispatch({ type: `${walletType}_CONTROLLER_CLEANUP` as any })
     } catch (e) {
       console.log(e)
     }
-  }, [hardwareWallets, walletType])
+  }, [walletType, dispatch])
 
   useEffect(() => {
     window.addEventListener('beforeunload', () => {

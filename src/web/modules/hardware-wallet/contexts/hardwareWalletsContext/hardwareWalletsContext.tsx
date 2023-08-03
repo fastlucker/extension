@@ -18,13 +18,8 @@ const HardwareWalletsContext = createContext<HardwareWalletsContextReturnType>(
 const HardwareWalletsProvider: React.FC<any> = ({ children }: any) => {
   const [hardwareWallets] = useState<HardwareWalletsContextReturnType['hardwareWallets']>({
     [HARDWARE_WALLETS.LEDGER]: new LedgerController(),
-    [HARDWARE_WALLETS.TREZOR]: new TrezorController(),
     [HARDWARE_WALLETS.GRIDPLUS]: new LatticeController()
   })
-
-  useEffect(() => {
-    hardwareWallets[HARDWARE_WALLETS.TREZOR].init()
-  }, [])
 
   const shouldRequestPermission = useCallback(
     (type: typeof HARDWARE_WALLETS[HARDWARE_WALLETS_KEYS]) => {

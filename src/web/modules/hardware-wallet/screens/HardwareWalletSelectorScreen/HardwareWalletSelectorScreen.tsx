@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Trans } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -14,6 +14,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import HardwareWalletSelectorItem from '@web/modules/hardware-wallet/components/HardwareWalletSelectorItem'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
@@ -24,6 +25,7 @@ const HardwareWalletSelectorScreen = () => {
   const { hardwareWallets } = useHardwareWallets()
   const { addToast } = useToast()
   const { updateStepperState } = useStepper()
+  const { dispatchAsync } = useBackgroundService()
 
   return (
     <AuthLayoutWrapperMainContent fullWidth>
@@ -43,7 +45,7 @@ const HardwareWalletSelectorScreen = () => {
             onSelect={async () => {
               try {
                 await updateStepperState(1, 'hwAuth')
-                await hardwareWallets[HARDWARE_WALLETS.TREZOR].unlock()
+                await dispatchAsync({ type: 'TREZOR_CONTROLLER_UNLOCK' })
                 navigate(WEB_ROUTES.accountAdder, {
                   state: { walletType: HARDWARE_WALLETS.TREZOR }
                 })
