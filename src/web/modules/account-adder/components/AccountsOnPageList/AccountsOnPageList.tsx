@@ -232,6 +232,7 @@ const AccountsList = ({
               value={value}
               menuPlacement="top"
               label="Custom Derivation"
+              disabled
             />
           </>
         )}

@@ -3,6 +3,7 @@ import { Account } from 'ambire-common/src/interfaces/account'
 import { NetworkType } from '@common/constants/networks'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
+import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 type MainControllerAccountAdderInitLedgerAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER'
@@ -62,9 +63,18 @@ type LedgerControllerUnlockAction = {
     hdPath?: string
   }
 }
+type LedgerControllerCleanUpAction = {
+  type: 'LEDGER_CONTROLLER_CLEANUP'
+}
 type LedgerControllerGetPathForIndexAction = {
   type: 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX'
   params: any // TODO
+}
+type TrezorControllerUnlockAction = {
+  type: 'TREZOR_CONTROLLER_UNLOCK'
+}
+type TrezorControllerCleanUpAction = {
+  type: 'TREZOR_CONTROLLER_CLEANUP'
 }
 type LedgerControllerAppAction = {
   type: 'LEDGER_CONTROLLER_APP'
@@ -133,6 +143,9 @@ export type Action =
   | LedgerControllerUnlockAction
   | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction
+  | LedgerControllerCleanUpAction
+  | TrezorControllerUnlockAction
+  | TrezorControllerCleanUpAction
   | WalletControllerIsUnlockedAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
@@ -159,4 +172,5 @@ export type AsyncActionTypes = {
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
+  TREZOR_CONTROLLER_UNLOCK: ReturnType<TrezorController['unlock']>
 }

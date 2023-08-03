@@ -44,6 +44,7 @@ const providers = Object.fromEntries(
 const mainCtrl = new MainController(storage, fetch, RELAYER_URL)
 const ledgerCtrl = new LedgerController()
 const trezorCtrl = new TrezorController()
+trezorCtrl.init()
 const latticeCtrl = new LatticeController()
 
 const controllersMapping = {
@@ -61,7 +62,7 @@ export type ControllersMappingType = {
 browser.runtime.onConnect.addListener(async (port) => {
   if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
     const pm = new PortMessage(port)
-    pm.listen((data: Action) => {
+    pm.listen(async (data: Action) => {
       if (data?.type) {
         switch (data.type) {
           case 'broadcast':
@@ -114,6 +115,13 @@ browser.runtime.onConnect.addListener(async (port) => {
             return ledgerCtrl._getPathForIndex(data.params)
           case 'LEDGER_CONTROLLER_APP':
             return ledgerCtrl.app
+          case 'LEDGER_CONTROLLER_CLEANUP':
+            return ledgerCtrl.cleanUp()
+
+          case 'TREZOR_CONTROLLER_UNLOCK':
+            return trezorCtrl.unlock()
+          case 'TREZOR_CONTROLLER_CLEANUP':
+            return trezorCtrl.cleanUp()
 
           case 'WALLET_CONTROLLER_IS_UNLOCKED':
             return null // TODO: implement in v2
