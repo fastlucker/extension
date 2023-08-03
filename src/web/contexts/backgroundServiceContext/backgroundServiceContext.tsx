@@ -63,10 +63,12 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
   backgroundServiceContextDefaults
 )
 
-const BackgroundServiceProvider: React.FC<any> = ({ children }) => (
-  <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch, dispatchAsync }), [])}>
-    {children}
-  </BackgroundServiceContext.Provider>
-)
+const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
+  return (
+    <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch, dispatchAsync }), [])}>
+      {children}
+    </BackgroundServiceContext.Provider>
+  )
+}
 
 export { BackgroundServiceProvider, BackgroundServiceContext }

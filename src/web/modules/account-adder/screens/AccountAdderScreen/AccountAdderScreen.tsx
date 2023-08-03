@@ -12,7 +12,6 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import LatticeManager from '@web/modules/account-adder/components/LatticeManager'
 import LedgerManager from '@web/modules/account-adder/components/LedgerManager'
 import LegacyImportManager from '@web/modules/account-adder/components/LegacyImportManager'
@@ -39,7 +38,6 @@ const WALLET_MAP = {
 const AccountAdderScreen = () => {
   const { params } = useRoute()
   const { goBack } = useNavigation()
-  const { dispatch } = useBackgroundService()
 
   const { t } = useTranslation()
 
@@ -49,28 +47,6 @@ const AccountAdderScreen = () => {
   const isTrezor = walletType === HARDWARE_WALLETS.TREZOR
 
   const isLegacyImport = walletType === 'legacyImport'
-
-  const closeConnect = React.useCallback(() => {
-    try {
-      dispatch({ type: `${walletType}_CONTROLLER_CLEANUP` as any })
-    } catch (e) {
-      console.log(e)
-    }
-  }, [walletType, dispatch])
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', () => {
-      if (!isLegacyImport) {
-        closeConnect()
-      }
-    })
-
-    return () => {
-      if (!isLegacyImport || !isLattice) {
-        closeConnect()
-      }
-    }
-  }, [closeConnect, isLegacyImport, isLattice])
 
   useEffect(() => {
     if (!walletType) goBack()

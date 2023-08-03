@@ -57,15 +57,11 @@ type MainControllerAccountAdderSetPageAction = {
     page: number
   }
 }
-
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
   params?: {
     hdPath?: string
   }
-}
-type LedgerControllerCleanUpAction = {
-  type: 'LEDGER_CONTROLLER_CLEANUP'
 }
 type LedgerControllerGetPathForIndexAction = {
   type: 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX'
@@ -79,9 +75,6 @@ type LedgerControllerAuthorizeHIDPermissionAction = {
 }
 type TrezorControllerUnlockAction = {
   type: 'TREZOR_CONTROLLER_UNLOCK'
-}
-type TrezorControllerCleanUpAction = {
-  type: 'TREZOR_CONTROLLER_CLEANUP'
 }
 type LatticeControllerUnlockAction = {
   type: 'LATTICE_CONTROLLER_UNLOCK'
@@ -150,10 +143,8 @@ export type Action =
   | LedgerControllerUnlockAction
   | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction
-  | LedgerControllerCleanUpAction
   | LedgerControllerAuthorizeHIDPermissionAction
   | TrezorControllerUnlockAction
-  | TrezorControllerCleanUpAction
   | LatticeControllerUnlockAction
   | WalletControllerIsUnlockedAction
   | WalletControllerGetConnectedSiteAction
