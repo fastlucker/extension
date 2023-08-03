@@ -7,6 +7,7 @@ import {
 } from '@web/contexts/backgroundServiceContext/types'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
+import { getUiType } from '@web/utils/uiType'
 
 let dispatch: BackgroundServiceContextReturnType['dispatch']
 let dispatchAsync: BackgroundServiceContextReturnType['dispatchAsync']
@@ -21,7 +22,15 @@ let dispatchAsync: BackgroundServiceContextReturnType['dispatchAsync']
 if (isExtension) {
   const portMessageChannel = new PortMessage()
 
-  portMessageChannel.connect('popup')
+  const isTab = getUiType().isTab
+  const isNotification = getUiType().isNotification
+
+  let portName = 'popup'
+
+  if (isTab) portName = 'tab'
+  if (isNotification) portName = 'notification'
+
+  portMessageChannel.connect(portName)
 
   portMessageChannel.listen((data: { type: string; method: string; params: any }) => {
     if (data.type === 'broadcast') {
