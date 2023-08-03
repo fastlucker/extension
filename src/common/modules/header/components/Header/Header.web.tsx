@@ -1,15 +1,23 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { ColorValue, View } from 'react-native'
+import { ColorValue, Image, View } from 'react-native'
 
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
+import avatarFire from '@common/assets/images/avatars/avatar-fire.png'
+import avatarSpaceDog from '@common/assets/images/avatars/avatar-space-dog.png'
+import avatarSpaceRaccoon from '@common/assets/images/avatars/avatar-space-raccoon.png'
+import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
+import BurgerIcon from '@common/assets/svg/BurgerIcon'
+import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
+import Button from '@common/components/Button'
 import NavIconWrapper from '@common/components/NavIconWrapper'
+import Select from '@common/components/Select'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
-import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import { SPACING_SM } from '@common/styles/spacings'
+import spacings, { SPACING_SM } from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
 import { getUiType } from '@web/utils/uiType'
 
@@ -17,25 +25,121 @@ import styles from './styles'
 
 interface Props {
   mode?: 'title' | 'bottom-sheet'
-  withHamburger?: boolean
   backgroundColor?: ColorValue
-  withHeaderRight?: boolean
 }
 
-const Header: React.FC<Props> = ({
-  mode = 'bottom-sheet',
-  withHamburger = false,
-  withHeaderRight = false,
-  backgroundColor
-}) => {
+const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => {
+  const options = [
+    {
+      label: (
+        <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
+          <Image
+            style={{ width: 34, height: 34, borderRadius: 12, ...spacings.mrTy }}
+            source={avatarSpace}
+            resizeMode="contain"
+          />
+          <Text weight="medium" shouldScale={false} fontSize={16}>
+            Account name
+          </Text>
+        </View>
+      ),
+      value: 'Account name'
+    },
+    {
+      label: (
+        <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
+          <Image
+            style={{ width: 34, height: 34, borderRadius: 12, ...spacings.mrTy }}
+            source={avatarSpaceDog}
+            resizeMode="contain"
+          />
+          <Text weight="medium" shouldScale={false} fontSize={16}>
+            Account name 2
+          </Text>
+        </View>
+      ),
+      value: 'Account name2'
+    },
+    {
+      label: (
+        <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
+          <Image
+            style={{ width: 34, height: 34, borderRadius: 12, ...spacings.mrTy }}
+            source={avatarSpaceRaccoon}
+            resizeMode="contain"
+          />
+          <Text weight="medium" shouldScale={false} fontSize={16}>
+            Account name 3
+          </Text>
+        </View>
+      ),
+      value: 'Account name3'
+    },
+    {
+      label: (
+        <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
+          <Image
+            style={{ width: 34, height: 34, borderRadius: 12, ...spacings.mrTy }}
+            source={avatarFire}
+            resizeMode="contain"
+          />
+          <Text weight="medium" shouldScale={false} fontSize={16}>
+            Account name 4
+          </Text>
+        </View>
+      ),
+      value: 'Account name4'
+    }
+  ]
   const { path, params } = useRoute()
+  const { t } = useTranslation()
+  const [value, setValue] = useState(options[0])
 
   const { navigate } = useNavigation()
 
   const [title, setTitle] = useState('')
 
   const handleGoBack = useCallback(() => navigate(-1), [navigate])
-  const handleGoMenu = useCallback(() => navigate(ROUTES.menu), [navigate])
+
+  const renderBottomSheetSwitcher = (
+    <View
+      style={[
+        flexboxStyles.directionRow,
+        flexboxStyles.flex1,
+        flexboxStyles.justifySpaceBetween,
+        { zIndex: 15 }
+      ]}
+    >
+      <Select
+        hasArrow
+        value={value}
+        style={[spacings.mrTy]}
+        setValue={(_value) => setValue(_value)}
+        options={options}
+        menuPlacement="bottom"
+        label="Select Account"
+      />
+      <View style={[flexboxStyles.directionRow]}>
+        <Button
+          type="primary"
+          textStyle={{ fontSize: 14 }}
+          size="large"
+          text={t('dApps')}
+          hasBottomSpacing={false}
+          style={[spacings.mrTy]}
+        />
+        <NavIconWrapper
+          style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
+          onPress={handleGoBack}
+        >
+          <MaximizeIcon />
+        </NavIconWrapper>
+        <NavIconWrapper style={{ borderColor: colors.scampi_20 }} onPress={handleGoBack}>
+          <BurgerIcon />
+        </NavIconWrapper>
+      </View>
+    </View>
+  )
 
   const navigationEnabled = !getUiType().isNotification
   let canGoBack =
@@ -62,20 +166,6 @@ const Header: React.FC<Props> = ({
     return () => subscription.unsubscribe()
   }, [])
 
-  const renderHeaderLeft = () => {
-    if (canGoBack) {
-      return (
-        <NavIconWrapper onPress={handleGoBack}>
-          <LeftArrowIcon />
-        </NavIconWrapper>
-      )
-    }
-
-    return null
-  }
-
-  const renderHeaderRight = <NavIconWrapper onPress={handleGoMenu} />
-
   // On the left and on the right side, there is always reserved space
   // for the nav bar buttons. And so that in case a title is present,
   // it is centered always in the logical horizontal middle.
@@ -99,20 +189,18 @@ const Header: React.FC<Props> = ({
         }
       ]}
     >
-      <View style={navIconContainer}>
-        {!withHamburger && renderHeaderLeft()}
-        {/* TODO: v2 */}
-        {!!withHamburger && <NavIconWrapper onPress={() => null} />}
-      </View>
+      {/* <View style={navIconContainer}> */}
+      {/* {!withHamburger && renderHeaderLeft()} */}
+      {/* TODO: v2 */}
+      {/* {!!withHamburger && <NavIconWrapper onPress={() => null} />} */}
+      {/* </View> */}
+      {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
 
       {mode === 'title' && (
         <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={2}>
           {title || ''}
         </Text>
       )}
-      <View style={navIconContainer}>
-        {(!!withHamburger || !!withHeaderRight) && renderHeaderRight}
-      </View>
     </View>
   )
 }

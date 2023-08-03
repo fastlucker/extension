@@ -1,19 +1,19 @@
 import React, { useState } from 'react'
-import { TouchableOpacity } from 'react-native'
+import { TouchableOpacity, ViewStyle } from 'react-native'
 import Select, { components, DropdownIndicatorProps } from 'react-select'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import colors from '@common/styles/colors'
 import common from '@common/styles/utils/common'
 
 interface Props {
-  value: string | null
+  value: object | null
   options: any[]
   setValue?: (value: any) => void
   label?: string
   disabled?: boolean
   menuPlacement?: string
+  style?: ViewStyle
 }
 
 const SelectComponent = ({
@@ -22,7 +22,8 @@ const SelectComponent = ({
   setValue,
   options,
   label,
-  menuPlacement = 'auto'
+  menuPlacement = 'auto',
+  style
 }: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
@@ -30,7 +31,7 @@ const SelectComponent = ({
     return (
       <components.DropdownIndicator {...props}>
         {isDropdownOpen ? (
-          <UpArrowIcon width={34} height={34} />
+          <DownArrowIcon width={34} height={34} isActive />
         ) : (
           <DownArrowIcon width={34} height={34} />
         )}
@@ -38,7 +39,11 @@ const SelectComponent = ({
     )
   }
   return (
-    <TouchableOpacity onPress={() => setIsDropdownOpen(!isDropdownOpen)} disabled={disabled}>
+    <TouchableOpacity
+      style={style}
+      onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+      disabled={disabled}
+    >
       <Select
         options={options}
         components={{ DropdownIndicator }}
@@ -73,6 +78,8 @@ const SelectComponent = ({
             primary: colors.melrose
           }
         })}
+        value={value}
+        onChange={setValue}
         placeholder={label}
         menuPlacement={menuPlacement}
       />
