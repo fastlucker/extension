@@ -45,6 +45,7 @@ const CardImage = ({ selectedAvatar, avatar, setSelectedAvatar }: any) => (
 const Card = ({ handleLayout, account, index }: any) => {
   const { t } = useTranslation()
   const [selectedAvatar, setSelectedAvatar] = useState(avatarAstronautMan)
+  const [label, setLabel] = useState('')
   const avatars = [
     avatarAstronautMan,
     avatarAstronautWoman,
@@ -107,7 +108,7 @@ const Card = ({ handleLayout, account, index }: any) => {
           numberOfLines={1}
           maxLength={25}
           placeholder="Miro"
-          onChangeText={(text) => onChangeText(text)}
+          onChangeText={(text) => setLabel(text)}
           style={[styles.textarea]}
           placeholderTextColor={colors.martinique_65}
         />

@@ -12,9 +12,9 @@ import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import Card from '@web/modules/accounts-personalize/components/Card'
+import Card from '@web/modules/account-personalize/components/Card'
 
-const AccountsPersonalizeScreen = () => {
+const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
   const [elementHeights, setElementHeights] = useState({})
   const [totalHeight, setTotalHeight] = useState(300)
@@ -81,4 +81,4 @@ const AccountsPersonalizeScreen = () => {
   )
 }
 
-export default AccountsPersonalizeScreen
+export default AccountPersonalizeScreen

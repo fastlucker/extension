@@ -59,7 +59,7 @@ const CreateNewKeyStoreScreen = () => {
     if (isSubmitSuccessful) {
       setTimeout(() => {
         setNextStepperState()
-        navigate(ROUTES.accountsPersonalize)
+        navigate(ROUTES.accountPersonalize)
       }, delay * 1000)
     }
 
