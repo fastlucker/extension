@@ -14,28 +14,29 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
-import useHardwareWallets from '@web/modules/hardware-wallet/hooks/useHardwareWallets'
 import { hasConnectedLedgerDevice } from '@web/modules/hardware-wallet/utils/ledger'
 
 const ConnectLedgerScreen = () => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { hardwareWallets } = useHardwareWallets()
+
+  const { dispatchAsync } = useBackgroundService()
 
   const onSubmit = async () => {
     const supportWebHID = await TransportWebHID.isSupported()
     const hasConnectedLedger = await hasConnectedLedgerDevice()
 
     if (!supportWebHID) {
-      navigate(WEB_ROUTES.accountsImporter, {
+      navigate(WEB_ROUTES.accountAdder, {
         state: {
           walletType: HARDWARE_WALLETS.LEDGER,
           isWebHID: false
         }
       })
     } else if (hasConnectedLedger) {
-      navigate(WEB_ROUTES.accountsImporter, {
+      navigate(WEB_ROUTES.accountAdder, {
         state: {
           walletType: HARDWARE_WALLETS.LEDGER,
           isWebHID: true
@@ -45,9 +46,9 @@ const ConnectLedgerScreen = () => {
       try {
         const transport = await TransportWebHID.create()
         await transport.close()
-        await hardwareWallets[HARDWARE_WALLETS.LEDGER].authorizeHIDPermission()
+        await dispatchAsync({ type: 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION' })
 
-        navigate(WEB_ROUTES.accountsImporter, {
+        navigate(WEB_ROUTES.accountAdder, {
           state: {
             walletType: HARDWARE_WALLETS.LEDGER,
             isWebHID: true

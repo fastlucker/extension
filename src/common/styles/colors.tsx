@@ -49,6 +49,7 @@ const colors = {
   chetwode_50: '#6770b37f',
   baileyBells: '#898DCB',
   titan: '#EBECFF',
+  prettyPosie: '#BBBDE4',
   titan_05: 'rgba(235, 236, 255, 0.05)',
   titan_25: 'rgba(235, 236, 255, 0.25)',
   titan_50: 'rgba(235, 236, 255, 0.5)',

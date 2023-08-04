@@ -7,7 +7,7 @@ import { headerBeta as defaultHeaderBeta } from '@common/modules/header/config/h
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
-import AccountsImporterScreen from '@web/modules/accounts-importer/screens/AccountsImporterScreen'
+import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountsPersonalizeScreen from '@web/modules/accounts-personalize/screens/AccountsPersonalizeScreen'
 import AddAccountPasswordToVaultScreen from '@web/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
@@ -85,7 +85,7 @@ const MainRoutes = () => {
 
           <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
 
-          <Route path={WEB_ROUTES.accountsImporter} element={<AccountsImporterScreen />} />
+          <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
           <Route path={WEB_ROUTES.accountsPersonalize} element={<AccountsPersonalizeScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
         </Route>

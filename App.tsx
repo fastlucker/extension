@@ -6,7 +6,6 @@ import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
-import { ExtensionWalletProvider } from '@common/contexts/extensionWalletContext'
 import AppInit from '@common/modules/app-init/screens/AppInit'
 import colors from '@common/styles/colors'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -20,9 +19,7 @@ const App = () => {
     >
       <StatusBar style="light" backgroundColor={colors.wooed} />
 
-      <ExtensionWalletProvider>
-        <AppInit />
-      </ExtensionWalletProvider>
+      <AppInit />
     </GestureHandlerRootView>
   )
 }

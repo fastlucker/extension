@@ -3,8 +3,6 @@
 import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
-// TODO: v2
-// import AttentionGrabberProvider from '@common/components/AttentionGrabber'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
@@ -63,12 +61,9 @@ const AppInit = () => {
                           {/* TODO: v2 */}
                           {/* <Web3Provider> */}
                           <BiometricsProvider>
-                            {/* TODO: v2 */}
-                            {/* <AttentionGrabberProvider> */}
                             <PrivateModeProvider>
                               <AppRouter />
                             </PrivateModeProvider>
-                            {/* </AttentionGrabberProvider> */}
                             <PortalHost name="global" />
                           </BiometricsProvider>
                           {/* </Web3Provider> */}

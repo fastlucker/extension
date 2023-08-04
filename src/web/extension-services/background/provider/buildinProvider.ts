@@ -5,9 +5,9 @@ import { EventEmitter } from 'events'
 // used for the eth_subscribe that is currently not implemented in the background.js file
 import networks from '@common/constants/networks'
 import { INTERNAL_REQUEST_SESSION } from '@web/constants/common'
+import wallet from '@web/extension-services/background/controller'
 import providerController from '@web/extension-services/background/provider/ProviderController'
 import notificationService from '@web/extension-services/background/services/notification'
-import wallet from '@web/extension-services/background/wallet'
 import storage from '@web/extension-services/background/webapi/storage'
 import underline2Camelcase from '@web/utils/underline2Camelcase'
 

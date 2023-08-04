@@ -1,0 +1,65 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
+/* eslint-disable no-await-in-loop */
+import React, { useEffect } from 'react'
+
+import useNavigation from '@common/hooks/useNavigation'
+import useStepper from '@common/modules/auth/hooks/useStepper'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
+import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
+
+interface Props {}
+
+const TrezorManager = (props: Props) => {
+  const { navigate } = useNavigation()
+  const { updateStepperState } = useStepper()
+  const { createTask } = useTaskQueue()
+  const { state, dispatch, dispatchAsync } = useBackgroundService('accountAdder')
+
+  const onImportReady = () => {
+    updateStepperState(2, 'hwAuth')
+    navigate(WEB_ROUTES.createKeyStore)
+  }
+
+  const setPage: any = React.useCallback(
+    async (page = 1) => {
+      try {
+        createTask(() =>
+          dispatch({
+            type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE',
+            params: { page }
+          })
+        )
+      } catch (e: any) {
+        console.error(e.message)
+      }
+    },
+    [dispatch, createTask]
+  )
+
+  useEffect(() => {
+    ;(async () => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR',
+        params: {}
+      })
+    })()
+  }, [dispatch, dispatchAsync])
+
+  useEffect(() => {
+    ;(async () => {
+      if (!state.isInitialized) return
+      setPage()
+    })()
+  }, [state.isInitialized, setPage])
+
+  if (!Object.keys(state).length) {
+    return
+  }
+  return (
+    <AccountsOnPageList state={state} onImportReady={onImportReady} setPage={setPage} {...props} />
+  )
+}
+
+export default React.memo(TrezorManager)

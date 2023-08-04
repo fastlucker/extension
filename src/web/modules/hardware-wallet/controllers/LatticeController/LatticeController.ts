@@ -1,13 +1,14 @@
+import { Key } from 'ambire-common/src/libs/keystore/keystore'
 import crypto from 'crypto'
 import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
-import { HwKeyIterator } from '@web/modules/hardware-wallet/libs/hwKeyIterator'
+import { LATTICE_STANDARD_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
+import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
 const keyringType = 'GridPlus'
 const HARDENED_OFFSET = 0x80000000
 
-const STANDARD_HD_PATH = "m/44'/60'/0'/0/x"
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
 
@@ -36,12 +37,12 @@ class LatticeController extends EventEmitter {
     super()
     this.appName = 'Ambire Wallet Extension'
     this.type = keyringType
-    this.hdPath = STANDARD_HD_PATH
+    this.hdPath = LATTICE_STANDARD_HD_PATH
     this._resetDefaults()
   }
 
   setHdPath() {
-    this.hdPath = STANDARD_HD_PATH
+    this.hdPath = LATTICE_STANDARD_HD_PATH
   }
 
   // Deterimine if we have a connection to the Lattice and an existing wallet UID
@@ -90,12 +91,12 @@ class LatticeController extends EventEmitter {
 
     return new Promise((resolve) => {
       ;(async () => {
-        const iterator = new HwKeyIterator({
-          walletType: 'GridPlus',
-          sdkSession: this.sdkSession
+        const iterator = new LatticeKeyIterator({
+          sdkSession: this.sdkSession,
+          getHDPathIndices: this._getHDPathIndices
         })
 
-        const keys = await iterator.retrieve(from, to, STANDARD_HD_PATH)
+        const keys = await iterator.retrieve(from, to)
 
         resolve(keys)
       })()
@@ -149,7 +150,7 @@ class LatticeController extends EventEmitter {
     this.sdkSession = null
     this.unlockedAccount = 0
     this.network = null
-    this.hdPath = STANDARD_HD_PATH
+    this.hdPath = LATTICE_STANDARD_HD_PATH
   }
 
   async _openConnectorTab(url) {
@@ -189,7 +190,7 @@ class LatticeController extends EventEmitter {
       const name = this.appName ? this.appName : 'Unknown'
       const base = 'https://lattice.gridplus.io'
       const url = `${base}?keyring=${name}&forceLogin=true`
-      let listenInterval
+      let listenInterval: any
 
       // PostMessage handler
       function receiveMessage(event) {
@@ -334,6 +335,22 @@ class LatticeController extends EventEmitter {
       return null
     }
     return activeWallet.uid.toString('hex')
+  }
+
+  async _keyIdxInCurrentWallet(key: Key) {
+    const walletUID = key.meta!.walletUID
+    // Get the last updated SDK wallet UID
+    const activeWallet = this.sdkSession!.getActiveWallet()
+    if (!activeWallet) {
+      this._connect()
+      throw new Error('No active wallet in Lattice.')
+    }
+    const activeUID = activeWallet.uid.toString('hex')
+    // If this is already the active wallet we don't need to make a request
+    if (walletUID.toString('hex') === activeUID) {
+      return key.meta!.index
+    }
+    return null
   }
 }
 

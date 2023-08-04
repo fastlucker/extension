@@ -1,12 +1,12 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import useExtensionWallet from '@common/hooks/useExtensionWallet'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { delayPromise } from '@common/utils/promises'
 import { Approval } from '@web/extension-services/background/services/notification'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
 import { UseExtensionApprovalReturnType } from './types'
@@ -34,13 +34,13 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   const { authStatus } = useAuth()
 
   const { navigate } = useNavigation()
-  const { extensionWallet } = useExtensionWallet()
+  const { dispatch, dispatchAsync } = useBackgroundService()
   const [approval, setApproval] = useState<Approval | null>(null)
   const [hasCheckedForApprovalInitially, setHasCheckedForApprovalInitially] = useState(false)
 
   const getApproval: UseExtensionApprovalReturnType['getApproval'] = useCallback(
-    () => extensionWallet!.getApproval(),
-    [extensionWallet]
+    () => dispatchAsync({ type: 'WALLET_CONTROLLER_GET_APPROVAL' }),
+    [dispatchAsync]
   )
 
   const resolveApproval = useCallback<UseExtensionApprovalReturnType['resolveApproval']>(
@@ -54,7 +54,10 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
         )
       }
 
-      await extensionWallet!.resolveApproval(data, forceReject, approvalId)
+      await dispatch({
+        type: 'WALLET_CONTROLLER_RESOLVE_APPROVAL',
+        params: { data, forceReject, approvalId }
+      })
 
       await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
 
@@ -69,7 +72,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
       // triggers the logic that determines where user should go next.
       setTimeout(() => navigate('/'))
     },
-    [addToast, approval, extensionWallet, getApproval, t, navigate]
+    [addToast, approval, dispatch, getApproval, t, navigate]
   )
 
   const rejectApproval = useCallback<UseExtensionApprovalReturnType['rejectApproval']>(
@@ -83,7 +86,10 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
         )
       }
 
-      await extensionWallet!.rejectApproval(err, stay, isInternal)
+      await dispatch({
+        type: 'WALLET_CONTROLLER_REJECT_APPROVAL',
+        params: { err, stay, isInternal }
+      })
 
       await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
 
@@ -94,7 +100,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
       // triggers the logic that determines where user should go next.
       if (!stay) navigate('/')
     },
-    [approval, extensionWallet, getApproval, addToast, t, navigate]
+    [approval, dispatch, getApproval, addToast, t, navigate]
   )
 
   const { requests, resolveMany } = useSignApproval({ approval, resolveApproval, rejectApproval })
