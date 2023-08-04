@@ -107,7 +107,7 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
         flexboxStyles.directionRow,
         flexboxStyles.flex1,
         flexboxStyles.justifySpaceBetween,
-        { zIndex: 15 }
+        { zIndex: 'initial' }
       ]}
     >
       <Select
