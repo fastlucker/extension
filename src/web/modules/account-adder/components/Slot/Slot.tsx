@@ -6,7 +6,7 @@ import colors from '@common/styles/colors'
 
 import styles from './styles'
 
-const Slot = ({ slot, isActive, children }: { slot: number; isActive: boolean; children: any }) => {
+const Slot = ({ slot, children }: { slot: number; children: any }) => {
   const setSlotIndexLabelWidth = () => {
     if (slot <= 99) return 28
     if (slot > 99 && slot <= 999) return 36
@@ -22,14 +22,7 @@ const Slot = ({ slot, isActive, children }: { slot: number; isActive: boolean; c
       >
         {slot}
       </Text>
-      <View
-        style={[
-          styles.indicator,
-          {
-            backgroundColor: isActive ? colors.violet : colors.prettyPosie
-          }
-        ]}
-      />
+      <View style={[styles.indicator]} />
       <View>{children}</View>
     </View>
   )
