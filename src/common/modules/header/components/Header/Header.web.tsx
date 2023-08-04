@@ -103,12 +103,7 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
 
   const renderBottomSheetSwitcher = (
     <View
-      style={[
-        flexboxStyles.directionRow,
-        flexboxStyles.flex1,
-        flexboxStyles.justifySpaceBetween,
-        { zIndex: 'initial' }
-      ]}
+      style={[flexboxStyles.directionRow, flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]}
     >
       <Select
         hasArrow
