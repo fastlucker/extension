@@ -53,9 +53,15 @@ const controllersMapping = {
   // - key is the name of the controller
   // - value is the type of the controller
 }
+const controllersMappingIncludingMainController = {
+  main: MainController,
+  ...controllersMapping
+}
 
 export type ControllersMappingType = {
-  [K in keyof typeof controllersMapping]: InstanceType<typeof controllersMapping[K]>
+  [K in keyof typeof controllersMappingIncludingMainController]: InstanceType<
+    typeof controllersMappingIncludingMainController[K]
+  >
 }
 
 // listen for messages from UI
