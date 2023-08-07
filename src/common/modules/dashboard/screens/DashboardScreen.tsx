@@ -1,14 +1,7 @@
 import React, { useState } from 'react'
 import { Pressable, View } from 'react-native'
-import { TextInput } from 'react-native-gesture-handler'
 
-import BridgeIcon from '@common/assets/svg/BridgeIcon'
-import EarnIcon from '@common/assets/svg/EarnIcon'
-import SearchIcon from '@common/assets/svg/SearchIcon'
-import SendIcon from '@common/assets/svg/SendIcon'
-import SwapIcon from '@common/assets/svg/SwapIcon'
-import TopUpIcon from '@common/assets/svg/TopUpIcon'
-import NavIconWrapper from '@common/components/NavIconWrapper'
+import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
@@ -17,6 +10,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import Assets from '../components/Assets'
+import Routes from '../components/Routes'
 import styles from './styles'
 
 const DashboardScreen = () => {
@@ -86,21 +80,11 @@ const DashboardScreen = () => {
       balanceUpdate: 1691153940047
     }
   ]
-  const IconWrapper = ({ children }) => (
-    <NavIconWrapper
-      hoveredBackground={colors.violet}
-      style={{ backgroundColor: colors.melrose_35, borderColor: colors.violet, ...spacings.mbMi }}
-    >
-      {children}
-    </NavIconWrapper>
-  )
+
   const { t } = useTranslation()
   const totalBalance = 20500.9
   return (
-    <Wrapper
-      contentContainerStyle={[spacings.pv0, spacings.ph0]}
-      style={{ backgroundColor: 'white', flex: 1 }}
-    >
+    <Wrapper contentContainerStyle={[spacings.pv0, spacings.ph0]} style={styles.container}>
       <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.ph, spacings.pv]}>
         <View>
           <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={20}>
@@ -115,48 +99,7 @@ const DashboardScreen = () => {
             </Text>
           </View>
         </View>
-        <View style={[flexbox.directionRow]}>
-          <View style={[flexbox.alignCenter, spacings.mrTy]}>
-            <IconWrapper>
-              <SwapIcon />
-            </IconWrapper>
-            <Text weight="regular" shouldScale={false} fontSize={14}>
-              {t('Swap')}
-            </Text>
-          </View>
-          <View style={[flexbox.alignCenter, spacings.mrTy]}>
-            <IconWrapper>
-              <BridgeIcon />
-            </IconWrapper>
-            <Text weight="regular" shouldScale={false} fontSize={14}>
-              {t('Bridge')}
-            </Text>
-          </View>
-          <View style={[flexbox.alignCenter, spacings.mrTy]}>
-            <IconWrapper>
-              <SendIcon />
-            </IconWrapper>
-            <Text weight="regular" shouldScale={false} fontSize={14}>
-              {t('Send')}
-            </Text>
-          </View>
-          <View style={[flexbox.alignCenter, spacings.mrTy]}>
-            <IconWrapper>
-              <TopUpIcon />
-            </IconWrapper>
-            <Text weight="regular" shouldScale={false} fontSize={14}>
-              {t('Top up')}
-            </Text>
-          </View>
-          <View style={[flexbox.alignCenter]}>
-            <IconWrapper>
-              <EarnIcon />
-            </IconWrapper>
-            <Text weight="regular" shouldScale={false} fontSize={14}>
-              {t('Earn')}
-            </Text>
-          </View>
-        </View>
+        <Routes />
       </View>
       <View style={[flexbox.flex1]}>
         <View style={[flexbox.directionRow, spacings.ph, flexbox.justifySpaceBetween]}>
@@ -203,17 +146,7 @@ const DashboardScreen = () => {
               </View>
             </Pressable>
           </View>
-          <View style={styles.searchSection}>
-            <SearchIcon color={colors.martinique_65} />
-            <TextInput
-              editable
-              numberOfLines={1}
-              maxLength={25}
-              placeholder="Search"
-              style={[styles.textarea]}
-              placeholderTextColor={colors.martinique_65}
-            />
-          </View>
+          <Search />
         </View>
 
         <Assets tokens={tokens} />

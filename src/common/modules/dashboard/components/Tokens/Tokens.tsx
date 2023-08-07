@@ -6,7 +6,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrivateMode from '@common/hooks/usePrivateMode'
-import AddOrHideToken from '@common/modules/dashboard/components/AddOrHideToken'
+// import AddOrHideToken from '@common/modules/dashboard/components/AddOrHideToken'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -18,21 +18,7 @@ import TokenItem from './TokenItem'
 
 interface Props {}
 
-const Tokens = ({
-  tokens,
-  extraTokens,
-  hiddenTokens,
-  protocols,
-  networkId,
-  networkName,
-  selectedAcc,
-  isCurrNetworkBalanceLoading,
-  isCurrNetworkProtocolsLoading,
-  onAddExtraToken,
-  onAddHiddenToken,
-  onRemoveExtraToken,
-  onRemoveHiddenToken
-}: Props) => {
+const Tokens = ({ tokens, isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { hidePrivateValue } = usePrivateMode()
