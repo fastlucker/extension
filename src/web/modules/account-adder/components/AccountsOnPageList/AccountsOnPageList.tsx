@@ -22,7 +22,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import Account from '@web/modules/account-adder/components/Account'
 import Slot from '@web/modules/account-adder/components/Slot'
 
-const LIST_ITEM_HEIGHT = 70
+const LIST_ITEM_HEIGHT = 76
 const LIST_ITEM_GUTTER = 10
 export const SMALL_PAGE_STEP = 1
 export const LARGE_PAGE_STEP = 10
@@ -88,17 +88,14 @@ const AccountsList = ({
 
   const disablePagination = Object.keys(slots).length === 1
 
-  const getFilteredAccounts = (accounts: any) => {
-    const filteredAccounts = accounts.filter((a: any) => {
-      if (!showUnused && a.type === 'legacy' && !a.account.usedOnNetworks.length) return false
-      return true
-    })
-    return filteredAccounts.map((acc: any, i: any) => (
+  const getAccounts = (accounts: any) => {
+    return accounts.map((acc: any, i: any) => (
       <Account
         key={acc.account.addr}
         account={acc.account}
         type={acc.type}
-        isLastInSlot={i === filteredAccounts.length - 1}
+        isLastInSlot={i === accounts.length - 1}
+        unused={acc.type === 'legacy' && !acc.account.usedOnNetworks.length}
         isSelected={state.selectedAccounts.some(
           (selectedAcc) => selectedAcc.addr === acc.account.addr
         )}
@@ -141,12 +138,9 @@ const AccountsList = ({
             </View>
           ) : (
             Object.keys(slots).map((key) => {
-              const slotsSet = new Set(slots[key].map((acc) => acc.account.addr))
-              const selectedAccountsSet = new Set(state.selectedAccounts.map((a) => a.addr))
-              const isActive = Array.from(slotsSet).every((addr) => selectedAccountsSet.has(addr))
               return (
-                <Slot key={key} slot={+key + (state.page - 1) * state.pageSize} isActive={isActive}>
-                  {getFilteredAccounts(slots[key])}
+                <Slot key={key} slot={+key + (state.page - 1) * state.pageSize}>
+                  {getAccounts(slots[key])}
                 </Slot>
               )
             })
@@ -217,25 +211,22 @@ const AccountsList = ({
             <RightDoubleArrowIcon />
           </TouchableOpacity>
         </View>
-        {!enableCreateEmailVault && (
-          <>
-            <Toggle label="Show unused legacy accounts" onToggle={() => setShowUnused((p) => !p)} />
-            <Select
-              hasArrow
-              options={[
-                { label: 'Swap', value: 'Swap' },
-                { label: 'Bridge', value: 'Bridge' },
-                { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
-                { label: 'Deposit', value: 'Deposit' }
-              ]}
-              setValue={setValue}
-              value={value}
-              menuPlacement="top"
-              label="Custom Derivation"
-              disabled
-            />
-          </>
-        )}
+        {/* TODO: impl custom derivation selector */}
+        {/* {!enableCreateEmailVault && (
+          <Select
+            hasArrow
+            options={[
+              { label: 'Swap', value: 'Swap' },
+              { label: 'Bridge', value: 'Bridge' },
+              { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
+              { label: 'Deposit', value: 'Deposit' }
+            ]}
+            setValue={setValue}
+            value={value}
+            menuPlacement="top"
+            label="Custom Derivation"
+          />
+        )} */}
         <Button
           style={{ ...spacings.mtTy, width: 296, ...flexbox.alignSelfCenter }}
           onPress={onImportReady}

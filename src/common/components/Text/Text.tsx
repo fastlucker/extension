@@ -50,7 +50,7 @@ const Text: React.FC<Props> = ({
   fontSize: _fontSize,
   color,
   style = {},
-  shouldScale = true,
+  shouldScale = false,
   ...rest
 }) => {
   const fontSize = _fontSize ? (shouldScale ? _fontSize + TEXT_SCALE : _fontSize) : _fontSize
