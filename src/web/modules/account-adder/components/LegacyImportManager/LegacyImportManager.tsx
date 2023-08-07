@@ -21,31 +21,30 @@ const LegacyImportManager = (props: Props) => {
   const { state: mainControllerState } = useBackgroundService('main')
 
   useEffect(() => {
-    if (state.selectedAccounts) {
-      console.log('main controller state changed')
+    if (mainControllerState?.addAccountsStatus?.type === 'ERROR') {
+      // Handle errors
     }
-  }, [mainControllerState])
+
+    if (mainControllerState?.addAccountsStatus?.type === 'SUCCESS') {
+      // TODO: reset selected accounts
+      // TODO:
+      // updateStepperState(1, 'legacyAuth')
+      // shouldCreateEmailVault
+      //   ? navigate(WEB_ROUTES.createEmailVault, {
+      //       state: {
+      //         hideStepper: true,
+      //         hideFormTitle: true
+      //       }
+      //     })
+      //   : navigate(WEB_ROUTES.createKeyStore)
+    }
+  }, [mainControllerState?.addAccountsStatus?.type])
 
   const onImportReady = () => {
     dispatch({
-      type: 'MAIN_CONTROLLER_CREATE_ACCOUNTS',
-      params: {
-        accounts: state.selectedAccounts
-      }
+      type: 'MAIN_CONTROLLER_ADD_ACCOUNTS',
+      params: { accounts: state.selectedAccounts }
     })
-
-    // TODO: reset selected accounts
-
-    // TODO:
-    // updateStepperState(1, 'legacyAuth')
-    // shouldCreateEmailVault
-    //   ? navigate(WEB_ROUTES.createEmailVault, {
-    //       state: {
-    //         hideStepper: true,
-    //         hideFormTitle: true
-    //       }
-    //     })
-    //   : navigate(WEB_ROUTES.createKeyStore)
   }
 
   const setPage: any = React.useCallback(

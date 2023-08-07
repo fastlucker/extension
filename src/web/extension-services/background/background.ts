@@ -114,8 +114,8 @@ browser.runtime.onConnect.addListener(async (port) => {
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
             return mainCtrl.accountAdder.setPage({ ...data.params, networks, providers })
-          case 'MAIN_CONTROLLER_CREATE_ACCOUNTS':
-            return mainCtrl.createAccounts(data.params.accounts)
+          case 'MAIN_CONTROLLER_ADD_ACCOUNTS':
+            return mainCtrl.addAccounts(data.params.accounts)
 
           case 'LEDGER_CONTROLLER_UNLOCK':
             return ledgerCtrl.unlock(data?.params?.hdPath)

@@ -57,8 +57,8 @@ type MainControllerAccountAdderSetPageAction = {
     page: number
   }
 }
-type MainControllerCreateAccounts = {
-  type: 'MAIN_CONTROLLER_CREATE_ACCOUNTS'
+type MainControllerAddAccounts = {
+  type: 'MAIN_CONTROLLER_ADD_ACCOUNTS'
   params: {
     accounts: Account[]
   }
@@ -147,7 +147,7 @@ export type Action =
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderSetPageAction
-  | MainControllerCreateAccounts
+  | MainControllerAddAccounts
   | LedgerControllerUnlockAction
   | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction
