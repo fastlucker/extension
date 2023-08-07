@@ -22,7 +22,8 @@ const LegacyImportManager = (props: Props) => {
 
   useEffect(() => {
     if (mainControllerState?.addAccountsStatus?.type === 'ERROR') {
-      // Handle errors
+      // TODO: display error toast instead
+      alert(mainControllerState?.addAccountsStatus?.message)
     }
 
     if (mainControllerState?.addAccountsStatus?.type === 'SUCCESS') {
@@ -38,7 +39,10 @@ const LegacyImportManager = (props: Props) => {
       //     })
       //   : navigate(WEB_ROUTES.createKeyStore)
     }
-  }, [mainControllerState?.addAccountsStatus?.type])
+  }, [
+    mainControllerState?.addAccountsStatus?.type,
+    mainControllerState?.addAccountsStatus?.message
+  ])
 
   const onImportReady = () => {
     dispatch({
