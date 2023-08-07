@@ -69,6 +69,16 @@ browser.runtime.onConnect.addListener(async (port) => {
             eventBus.emit(data.method, data.params)
             break
 
+          case 'GET_CONTROLLERS_STATE': {
+            const state: any = {}
+            state.mainCtrl = mainCtrl
+            Object.keys(controllersMapping).forEach((ctrl: any) => {
+              state[ctrl] = mainCtrl[ctrl]
+            })
+
+            return state
+            break
+          }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
             const keyIterator = new LedgerKeyIterator({ hdk: ledgerCtrl.hdk, app: ledgerCtrl.app })
             return mainCtrl.accountAdder.init({

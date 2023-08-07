@@ -23,6 +23,7 @@ import { isExtension } from '@web/constants/browserapi'
 import { ApprovalProvider } from '@web/contexts/approvalContext'
 import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
 import { ExtensionProvider } from '@web/contexts/extensionContext'
+import { StateProvider } from '@web/contexts/stateContext'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
 
 // Initialize rpc providers for all networks
@@ -40,40 +41,42 @@ const AppInit = () => {
 
   return (
     <BackgroundServiceProvider>
-      <Router>
-        <PortalProvider>
-          <LoaderProvider>
-            <StorageProvider>
-              <OnboardingProvider>
-                <ThemeProvider>
-                  <SafeAreaProvider>
-                    <KeyboardProvider>
-                      <NetInfoProvider>
-                        <ToastProvider>
-                          <ConstantsProvider>
-                            <AuthProvider>
-                              <ApprovalProvider>
-                                <ExtensionProvider>
-                                  <BiometricsProvider>
-                                    <PrivateModeProvider>
-                                      <AppRouter />
-                                    </PrivateModeProvider>
-                                    <PortalHost name="global" />
-                                  </BiometricsProvider>
-                                </ExtensionProvider>
-                              </ApprovalProvider>
-                            </AuthProvider>
-                          </ConstantsProvider>
-                        </ToastProvider>
-                      </NetInfoProvider>
-                    </KeyboardProvider>
-                  </SafeAreaProvider>
-                </ThemeProvider>
-              </OnboardingProvider>
-            </StorageProvider>
-          </LoaderProvider>
-        </PortalProvider>
-      </Router>
+      <StateProvider>
+        <Router>
+          <PortalProvider>
+            <LoaderProvider>
+              <StorageProvider>
+                <OnboardingProvider>
+                  <ThemeProvider>
+                    <SafeAreaProvider>
+                      <KeyboardProvider>
+                        <NetInfoProvider>
+                          <ToastProvider>
+                            <ConstantsProvider>
+                              <AuthProvider>
+                                <ApprovalProvider>
+                                  <ExtensionProvider>
+                                    <BiometricsProvider>
+                                      <PrivateModeProvider>
+                                        <AppRouter />
+                                      </PrivateModeProvider>
+                                      <PortalHost name="global" />
+                                    </BiometricsProvider>
+                                  </ExtensionProvider>
+                                </ApprovalProvider>
+                              </AuthProvider>
+                            </ConstantsProvider>
+                          </ToastProvider>
+                        </NetInfoProvider>
+                      </KeyboardProvider>
+                    </SafeAreaProvider>
+                  </ThemeProvider>
+                </OnboardingProvider>
+              </StorageProvider>
+            </LoaderProvider>
+          </PortalProvider>
+        </Router>
+      </StateProvider>
     </BackgroundServiceProvider>
   )
 }
