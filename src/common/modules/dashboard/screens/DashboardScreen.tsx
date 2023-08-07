@@ -1,10 +1,14 @@
-import React, { useState } from 'react'
-import { Pressable, View } from 'react-native'
+import React, { useContext } from 'react'
+import { View } from 'react-native'
 
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
+import {
+  AssetsToggleContext,
+  AssetsToggleProvider
+} from '@common/modules/dashboard/contexts/assetsToggleContext'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -14,7 +18,7 @@ import Routes from '../components/Routes'
 import styles from './styles'
 
 const DashboardScreen = () => {
-  const [type, setType] = useState('tokens')
+  const { type } = useContext(AssetsToggleContext)
   const tokens = [
     {
       type: 'token',
@@ -103,53 +107,11 @@ const DashboardScreen = () => {
       </View>
       <View style={[flexbox.flex1]}>
         <View style={[flexbox.directionRow, spacings.ph, flexbox.justifySpaceBetween]}>
-          <View style={[flexbox.directionRow]}>
-            <Pressable onPress={() => setType('tokens')}>
-              {/* todo: add the border radius here */}
-              <View
-                style={{
-                  borderBottomColor: type === 'tokens' ? colors.violet : 'transparent',
-                  borderBottomWidth: 2,
-                  width: 150,
-                  ...flexbox.alignCenter
-                }}
-              >
-                <Text
-                  shouldScale={false}
-                  weight="regular"
-                  color={type === 'tokens' ? colors.violet : colors.martinique_65}
-                  fontSize={20}
-                  style={[spacings.mbTy]}
-                >
-                  {t('Tokens')}
-                </Text>
-              </View>
-            </Pressable>
-            <Pressable onPress={() => setType('collectibles')}>
-              <View
-                style={{
-                  borderBottomColor: type === 'collectibles' ? colors.violet : 'transparent',
-                  borderBottomWidth: 2,
-                  width: 150,
-                  ...flexbox.alignCenter
-                }}
-              >
-                <Text
-                  shouldScale={false}
-                  weight="regular"
-                  color={type === 'collectibles' ? colors.violet : colors.martinique_65}
-                  fontSize={20}
-                  style={[spacings.mbTy]}
-                >
-                  {t('Collectibles')}
-                </Text>
-              </View>
-            </Pressable>
-          </View>
+          <AssetsToggleProvider />
           <Search />
         </View>
 
-        <Assets tokens={tokens} />
+        <Assets tokens={tokens} type={type} />
       </View>
     </Wrapper>
   )

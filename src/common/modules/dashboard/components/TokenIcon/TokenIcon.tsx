@@ -4,6 +4,7 @@ import { Image, ImageProps, View } from 'react-native'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import Spinner from '@common/components/Spinner'
 import { getTokenIcon } from '@common/services/icons'
+import colors from '@common/styles/colors'
 import { checkIfImageExists } from '@common/utils/checkIfImageExists'
 
 interface Props extends Partial<ImageProps> {
@@ -60,14 +61,18 @@ const TokenIcon: React.FC<Props> = ({
   if (isLoading) {
     return (
       <View style={containerStyle}>
-        <Spinner />
+        <Spinner style={{ width: 30, height: 30 }} />
       </View>
     )
   }
 
   return validUri ? (
     <View style={containerStyle}>
-      <Image source={{ uri: validUri }} style={{ width, height, borderRadius: 10 }} {...props} />
+      <Image
+        source={{ uri: validUri }}
+        style={{ backgroundColor: colors.white, width, height, borderRadius: 10 }}
+        {...props}
+      />
     </View>
   ) : (
     <MissingTokenIcon

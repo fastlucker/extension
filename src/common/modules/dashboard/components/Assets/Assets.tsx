@@ -2,7 +2,6 @@ import React from 'react'
 import { View } from 'react-native'
 
 import AfterInteractions from '@common/components/AfterInteractions'
-import Panel from '@common/components/Panel'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -13,6 +12,7 @@ import Tokens from '../Tokens'
 interface Props {}
 
 const Assets = ({
+  type,
   tokens,
   extraTokens,
   hiddenTokens,
@@ -24,8 +24,6 @@ const Assets = ({
   onRemoveExtraToken,
   onRemoveHiddenToken
 }: any) => {
-  const type = 'tokens'
-  //   const { type } = useContext(AssetsToggleContext)
   return (
     <View
       style={{

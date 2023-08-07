@@ -3,9 +3,9 @@ import { View } from 'react-native'
 
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
+import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import usePrivateMode from '@common/hooks/usePrivateMode'
 // import AddOrHideToken from '@common/modules/dashboard/components/AddOrHideToken'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -21,7 +21,6 @@ interface Props {}
 const Tokens = ({ tokens, isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { hidePrivateValue } = usePrivateMode()
   const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
 
   const handleGoToDeposit = useCallback(() => navigate(ROUTES.receive), [navigate])
@@ -56,13 +55,13 @@ const Tokens = ({ tokens, isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoa
       />
     </View>
   )
-
+  // TODO: Calculate each token height and apply scroll
   return (
-    <>
+    <Wrapper contentContainerStyle={[spacings.ph0, spacings.pv0]}>
       {/* {!!isCurrNetworkBalanceLoading && <TokensListLoader />} */}
 
       {!!shouldShowEmptyState && emptyState}
-
+      {/* // TODO: Implement rewards token */}
       {/* {!isCurrNetworkBalanceLoading && <Rewards />} */}
 
       {!isCurrNetworkBalanceLoading &&
@@ -83,11 +82,10 @@ const Tokens = ({ tokens, isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoa
               address={address}
               network={network}
               onPress={handleGoToSend}
-              hidePrivateValue={hidePrivateValue}
             />
           )
         )}
-    </>
+    </Wrapper>
   )
 }
 

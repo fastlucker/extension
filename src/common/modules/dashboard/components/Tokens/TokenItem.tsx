@@ -64,7 +64,7 @@ const TokenItem = ({
           ]}
         >
           <View style={[flexboxStyles.directionRow]}>
-            <View style={[spacings.prSm, flexboxStyles.justifyCenter]}>
+            <View style={[spacings.mrSm, flexboxStyles.justifyCenter]}>
               <TokenIcon withContainer uri={img} address={address} />
             </View>
             <View>
@@ -90,7 +90,7 @@ const TokenItem = ({
                   <InformationIcon color={hovered ? colors.melrose : colors.martinique_65} />
                 </View>
               </View>
-              <Text fontSize={12} style={textStyles.highlightPrimary}>
+              <Text fontSize={16} shouldScale={false} style={textStyles.highlightPrimary}>
                 ${balanceUSD?.toFixed(2)}
               </Text>
             </View>
