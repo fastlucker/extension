@@ -28,12 +28,14 @@ export const SMALL_PAGE_STEP = 1
 export const LARGE_PAGE_STEP = 10
 
 const AccountsList = ({
+  isSubmitting = false,
   state,
   onImportReady,
   enableCreateEmailVault,
   onCreateEmailVaultStep,
   setPage
 }: {
+  isSubmitting?: boolean
   state: AccountAdderController
   onImportReady: () => void
   enableCreateEmailVault?: boolean
@@ -230,7 +232,8 @@ const AccountsList = ({
         <Button
           style={{ ...spacings.mtTy, width: 296, ...flexbox.alignSelfCenter }}
           onPress={onImportReady}
-          text="Import Accounts"
+          disabled={isSubmitting || !state.selectedAccounts.length}
+          text={isSubmitting ? 'Importing...' : 'Import Accounts'}
         />
       </View>
     </View>

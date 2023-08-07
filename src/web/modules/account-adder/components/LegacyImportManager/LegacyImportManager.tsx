@@ -84,7 +84,13 @@ const LegacyImportManager = (props: Props) => {
   }
 
   return (
-    <AccountsOnPageList state={state} onImportReady={onImportReady} setPage={setPage} {...props} />
+    <AccountsOnPageList
+      isSubmitting={mainControllerState?.addAccountsStatus?.type === 'PENDING'}
+      state={state}
+      onImportReady={onImportReady}
+      setPage={setPage}
+      {...props}
+    />
   )
 }
 
