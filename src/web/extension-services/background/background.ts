@@ -112,6 +112,9 @@ browser.runtime.onConnect.addListener(async (port) => {
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
             return mainCtrl.accountAdder.deselectAccount(data.params.account)
           }
+          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_SELECTED_ACCOUNTS': {
+            return mainCtrl.accountAdder.resetSelectedAccounts()
+          }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
             return mainCtrl.accountAdder.setPage({ ...data.params, networks, providers })
           case 'MAIN_CONTROLLER_ADD_ACCOUNTS':

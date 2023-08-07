@@ -4,6 +4,7 @@ import React, { useEffect } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
@@ -27,21 +28,27 @@ const LegacyImportManager = (props: Props) => {
     }
 
     if (mainControllerState?.addAccountsStatus?.type === 'SUCCESS') {
-      // TODO: reset selected accounts
-      // TODO:
-      // updateStepperState(1, 'legacyAuth')
-      // shouldCreateEmailVault
-      //   ? navigate(WEB_ROUTES.createEmailVault, {
-      //       state: {
-      //         hideStepper: true,
-      //         hideFormTitle: true
-      //       }
-      //     })
-      //   : navigate(WEB_ROUTES.createKeyStore)
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_SELECTED_ACCOUNTS'
+      })
+
+      updateStepperState(1, 'legacyAuth')
+      shouldCreateEmailVault
+        ? navigate(WEB_ROUTES.createEmailVault, {
+            state: {
+              hideStepper: true,
+              hideFormTitle: true
+            }
+          })
+        : navigate(WEB_ROUTES.createKeyStore)
     }
   }, [
     mainControllerState?.addAccountsStatus?.type,
-    mainControllerState?.addAccountsStatus?.message
+    mainControllerState?.addAccountsStatus?.message,
+    updateStepperState,
+    shouldCreateEmailVault,
+    navigate,
+    dispatch
   ])
 
   const onImportReady = () => {

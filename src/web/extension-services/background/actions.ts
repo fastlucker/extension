@@ -51,6 +51,10 @@ type MainControllerAccountAdderDeselectAccountAction = {
     account: Account
   }
 }
+type MainControllerAccountAdderResetSelectedAccountsAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_SELECTED_ACCOUNTS'
+}
+
 type MainControllerAccountAdderSetPageAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE'
   params: {
@@ -146,6 +150,7 @@ export type Action =
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
+  | MainControllerAccountAdderResetSelectedAccountsAction
   | MainControllerAccountAdderSetPageAction
   | MainControllerAddAccounts
   | LedgerControllerUnlockAction
