@@ -8,6 +8,7 @@ import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnecti
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
+import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
 import AddAccountPasswordToVaultScreen from '@web/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
@@ -87,6 +88,7 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
         </Route>
+        <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
       </Route>
       <Route element={<PrivateRoute />}>
         <Route element={headerBeta}>
