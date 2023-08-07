@@ -24,6 +24,7 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
+import { ControllerName, controllersMapping } from './types'
 
 async function init() {
   // Initialize rpc providers for all networks
@@ -47,17 +48,6 @@ const trezorCtrl = new TrezorController()
 trezorCtrl.init()
 const latticeCtrl = new LatticeController()
 
-const controllersMapping = {
-  accountAdder: AccountAdderController
-  // Add other controllers here:
-  // - key is the name of the controller
-  // - value is the type of the controller
-}
-
-export type ControllersMappingType = {
-  [K in keyof typeof controllersMapping]: InstanceType<typeof controllersMapping[K]>
-}
-
 // listen for messages from UI
 browser.runtime.onConnect.addListener(async (port) => {
   if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
@@ -69,15 +59,11 @@ browser.runtime.onConnect.addListener(async (port) => {
             eventBus.emit(data.method, data.params)
             break
 
-          case 'GET_CONTROLLERS_STATE': {
-            const state: any = {}
-            state.mainCtrl = mainCtrl
-            Object.keys(controllersMapping).forEach((ctrl: any) => {
-              state[ctrl] = mainCtrl[ctrl]
-            })
-
-            return state
-            break
+          case 'GET_CONTROLLER_STATE': {
+            if (data.params.controller === 'main') {
+              return mainCtrl
+            }
+            return mainCtrl[data.params.controller as ControllerName]
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
             const keyIterator = new LedgerKeyIterator({ hdk: ledgerCtrl.hdk, app: ledgerCtrl.app })
