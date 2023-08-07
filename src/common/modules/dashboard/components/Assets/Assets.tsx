@@ -1,18 +1,15 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { View } from 'react-native'
 
 import AfterInteractions from '@common/components/AfterInteractions'
 import Panel from '@common/components/Panel'
 import colors from '@common/styles/colors'
-// import { AssetsToggleContext } from '@common/modules/dashboard/contexts/assetsToggleContext'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-// import Collectibles from '../Collectibles'
-// import CollectiblesListLoader from '../Loaders/CollectiblesListLoader'
-// import TokensListLoader from '../Loaders/TokensListLoader'
 import Tokens from '../Tokens'
 
+// TODO props
 interface Props {}
 
 const Assets = ({

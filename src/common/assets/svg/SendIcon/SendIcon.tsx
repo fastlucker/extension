@@ -15,7 +15,6 @@ const SendIcon: React.FC<Props> = ({
   ...rest
 }) => (
   <Svg width={width} height={height} {...rest}>
-    <Path fill="none" d="M0 30V0h30v30z" />
     <G fill="none" stroke={color} strokeLinecap="round" strokeWidth="2">
       <Path d="M13.298 19.685 23.41 9.573l-.003 8.877" />
       <Path d="M6.436 19.546 16.547 9.434l-8.875.004" />

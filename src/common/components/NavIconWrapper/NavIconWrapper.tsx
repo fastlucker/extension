@@ -32,6 +32,7 @@ const NavIconWrapper = ({ children, onPress, style, hoveredBackground, ...rest }
             backgroundColor: hovered && hoveredBackground ? hoveredBackground : colors.melrose_15
           }}
         >
+          {/* TODO: This way may not be the best to fix this. Will need to think about this */}
           {childrenArray.map((child) => {
             if (React.isValidElement(child)) {
               // Clone the SVG element and store its ref for updating styles directly.
