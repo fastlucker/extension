@@ -67,11 +67,7 @@ const TokenIcon: React.FC<Props> = ({
 
   return validUri ? (
     <View style={containerStyle}>
-      <Image
-        source={{ uri: validUri }}
-        style={{ width, height, borderRadius: width / 2 }}
-        {...props}
-      />
+      <Image source={{ uri: validUri }} style={{ width, height, borderRadius: 10 }} {...props} />
     </View>
   ) : (
     <MissingTokenIcon

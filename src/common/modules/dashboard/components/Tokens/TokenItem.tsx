@@ -6,6 +6,7 @@ import { Pressable } from 'react-native-web-hover'
 
 import EthereumIcon from '@common/assets/svg/EthereumIcon'
 import InformationIcon from '@common/assets/svg/InformationIcon/InformationIcon'
+import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -30,6 +31,7 @@ type Props = {
   //   hidePrivateValue: UsePrivateModeReturnType['hidePrivateValue']
 }
 
+// TODO: customize token for gas token, wallet rewards row token.
 const TokenItem = ({
   img,
   symbol,
@@ -88,27 +90,30 @@ const TokenItem = ({
                   <InformationIcon color={hovered ? colors.melrose : colors.martinique_65} />
                 </View>
               </View>
-              {/* <Text fontSize={14} numberOfLines={2}>
-          {symbol}
-        </Text> */}
               <Text fontSize={12} style={textStyles.highlightPrimary}>
                 ${balanceUSD?.toFixed(2)}
               </Text>
             </View>
           </View>
 
-          {hovered && (
-            <Button
-              type="outline"
-              size="small"
-              accentColor={colors.violet}
-              style={[flexboxStyles.directionRow]}
-              text={t('Send')}
-              hasBottomSpacing={false}
-            >
-              <SendIcon color={colors.violet} />
-            </Button>
-          )}
+          <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+            {hovered && (
+              <Button
+                type="outline"
+                size="small"
+                accentColor={colors.violet}
+                style={[flexboxStyles.directionRow]}
+                text={t('Send')}
+                hasBottomSpacing={false}
+              >
+                <SendIcon width={25} height={25} color={colors.violet} />
+              </Button>
+            )}
+            <View style={[spacings.ph, spacings.pvTy]}>
+              {/* TODO: add the menu */}
+              <KebabMenuIcon />
+            </View>
+          </View>
         </View>
       )}
     </Pressable>

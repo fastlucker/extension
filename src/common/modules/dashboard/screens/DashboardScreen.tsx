@@ -4,6 +4,7 @@ import { TextInput } from 'react-native-gesture-handler'
 
 import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
+import SearchIcon from '@common/assets/svg/SearchIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
@@ -16,6 +17,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import Assets from '../components/Assets'
+import styles from './styles'
 
 const DashboardScreen = () => {
   const [type, setType] = useState('tokens')
@@ -157,55 +159,61 @@ const DashboardScreen = () => {
         </View>
       </View>
       <View style={[flexbox.flex1]}>
-        <View style={[flexbox.directionRow, spacings.ph]}>
-          <Pressable onPress={() => setType('tokens')}>
-            <View
-              style={{
-                borderBottomColor: type === 'tokens' ? colors.violet : 'transparent',
-                borderBottomWidth: 2,
-                width: 150,
-                ...flexbox.alignCenter
-              }}
-            >
-              <Text
-                shouldScale={false}
-                weight="regular"
-                color={type === 'tokens' ? colors.violet : colors.martinique_65}
-                fontSize={20}
+        <View style={[flexbox.directionRow, spacings.ph, flexbox.justifySpaceBetween]}>
+          <View style={[flexbox.directionRow]}>
+            <Pressable onPress={() => setType('tokens')}>
+              {/* todo: add the border radius here */}
+              <View
+                style={{
+                  borderBottomColor: type === 'tokens' ? colors.violet : 'transparent',
+                  borderBottomWidth: 2,
+                  width: 150,
+                  ...flexbox.alignCenter
+                }}
               >
-                Tokens
-              </Text>
-            </View>
-          </Pressable>
-          <Pressable onPress={() => setType('collectibles')}>
-            <View
-              style={{
-                borderBottomColor: type === 'collectibles' ? colors.violet : 'transparent',
-                borderBottomWidth: 2,
-                width: 150,
-                ...flexbox.alignCenter
-              }}
-            >
-              <Text
-                shouldScale={false}
-                weight="regular"
-                color={type === 'collectibles' ? colors.violet : colors.martinique_65}
-                fontSize={20}
+                <Text
+                  shouldScale={false}
+                  weight="regular"
+                  color={type === 'tokens' ? colors.violet : colors.martinique_65}
+                  fontSize={20}
+                  style={[spacings.mbTy]}
+                >
+                  {t('Tokens')}
+                </Text>
+              </View>
+            </Pressable>
+            <Pressable onPress={() => setType('collectibles')}>
+              <View
+                style={{
+                  borderBottomColor: type === 'collectibles' ? colors.violet : 'transparent',
+                  borderBottomWidth: 2,
+                  width: 150,
+                  ...flexbox.alignCenter
+                }}
               >
-                Collectibles
-              </Text>
-            </View>
-          </Pressable>
-          <TextInput
-            editable
-            multiline
-            numberOfLines={1}
-            maxLength={25}
-            placeholder="Miro"
-            // onChangeText={(text) => onChangeText(text)}
-            // style={[styles.textarea]}
-            placeholderTextColor={colors.martinique_65}
-          />
+                <Text
+                  shouldScale={false}
+                  weight="regular"
+                  color={type === 'collectibles' ? colors.violet : colors.martinique_65}
+                  fontSize={20}
+                  style={[spacings.mbTy]}
+                >
+                  {t('Collectibles')}
+                </Text>
+              </View>
+            </Pressable>
+          </View>
+          <View style={styles.searchSection}>
+            <SearchIcon color={colors.martinique_65} />
+            <TextInput
+              editable
+              numberOfLines={1}
+              maxLength={25}
+              placeholder="Search"
+              style={[styles.textarea]}
+              placeholderTextColor={colors.martinique_65}
+            />
+          </View>
         </View>
 
         <Assets tokens={tokens} />
