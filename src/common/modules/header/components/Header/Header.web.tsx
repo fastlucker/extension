@@ -161,12 +161,6 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
     return () => subscription.unsubscribe()
   }, [])
 
-  // On the left and on the right side, there is always reserved space
-  // for the nav bar buttons. And so that in case a title is present,
-  // it is centered always in the logical horizontal middle.
-  const navIconContainer =
-    mode === 'bottom-sheet' ? styles.navIconContainerSmall : styles.navIconContainerRegular
-
   // Using the `<Header />` from the '@react-navigation/elements' created
   // many complications in terms of styling the UI, calculating the header
   // height and the spacings between the `headerLeftContainerStyle` and the
@@ -184,11 +178,6 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
         }
       ]}
     >
-      {/* <View style={navIconContainer}> */}
-      {/* {!withHamburger && renderHeaderLeft()} */}
-      {/* TODO: v2 */}
-      {/* {!!withHamburger && <NavIconWrapper onPress={() => null} />} */}
-      {/* </View> */}
       {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
 
       {mode === 'title' && (

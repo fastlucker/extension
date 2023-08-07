@@ -8,7 +8,7 @@ const colors = {
   darkAquamarine: '#478C8A',
 
   lightHeliotrope: '#C790FF',
-  heliotrope: '#AE60FF',
+  // heliotrope: '#AE60FF',
   darkHeliotrope: '#60358C',
   heliotrope_40: '#AE60FF61',
 
@@ -52,6 +52,8 @@ const colors = {
   titan_05: 'rgba(235, 236, 255, 0.05)',
   titan_25: 'rgba(235, 236, 255, 0.25)',
   titan_50: 'rgba(235, 236, 255, 0.5)',
+
+  heliotrope: '#A36AF8',
 
   zircon: '#F7F8FF',
   mischka: '#D6D7E1',

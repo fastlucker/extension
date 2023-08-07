@@ -13,18 +13,11 @@ interface Props {
   style?: ViewStyle
 }
 
-// const HIT_SLOP = { bottom: 10, left: 10, right: 10, top: 10 }
-
 const NavIconWrapper = ({ children, onPress, style, hoveredBackground, ...rest }: Props) => {
-  console.log(hoveredBackground)
   const childrenArray = React.Children.toArray(children)
 
   return (
-    <Pressable
-      // hitSlop={HIT_SLOP}
-      onPress={onPress}
-      {...rest}
-    >
+    <Pressable onPress={onPress} {...rest}>
       {({ hovered }) => (
         <View
           style={{
@@ -39,8 +32,7 @@ const NavIconWrapper = ({ children, onPress, style, hoveredBackground, ...rest }
             backgroundColor: hovered && hoveredBackground ? hoveredBackground : colors.melrose_15
           }}
         >
-          {/* <React.Children /> */}
-          {childrenArray.map((child, index) => {
+          {childrenArray.map((child) => {
             if (React.isValidElement(child)) {
               // Clone the SVG element and store its ref for updating styles directly.
               return React.cloneElement(child, {
