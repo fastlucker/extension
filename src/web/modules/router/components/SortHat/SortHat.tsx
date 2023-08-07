@@ -68,7 +68,7 @@ const SortHat = () => {
         onboardingStatus === ONBOARDING_VALUES.ON_BOARDED ? ROUTES.dashboard : ROUTES.onboarding
       )
     }
-  }, [isInNotification, approval, navigate, authStatus, onboardingStatus])
+  }, [isInNotification, approval, navigate, onboardingStatus])
 
   useEffect(() => {
     loadView()

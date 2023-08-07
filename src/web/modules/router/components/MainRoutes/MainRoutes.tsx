@@ -25,6 +25,7 @@ import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
+import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 
 const headerBeta = (
   <>
@@ -89,6 +90,7 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
         </Route>
         <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
+        <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
       </Route>
       <Route element={<PrivateRoute />}>
         <Route element={headerBeta}>

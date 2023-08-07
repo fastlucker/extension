@@ -47,24 +47,13 @@ export type ControllersMappingType = {
 
     // TODO: remove this it is only for testing the injection
     storage.set('accounts', [
+      // Legacy account
       {
         addr: '0x9188fdd757Df66B4F693D624Ed6A13a15Cf717D7',
         label: '',
         pfp: '',
         associatedKeys: ['0x9188fdd757Df66B4F693D624Ed6A13a15Cf717D7'],
         creation: null
-      },
-      {
-        addr: '0x55E37DE60F709fAb364076b0a21f88a8FFE2C9d0',
-        label: '',
-        pfp: '',
-        associatedKeys: ['0x9188fdd757Df66B4F693D624Ed6A13a15Cf717D7'],
-        creation: {
-          factoryAddr: '0xF9c2504741f0116f7aff6015b6E210058A8Ac1e4',
-          bytecode:
-            '0x60017f0349fb5d52df4c24fe33931412aa0bc9dc384b9db02f82da53fa84682c299254553d602d80602e3d3981f3363d3d373d3d3d363d7359ce8fd321090dbf5fd91256b0a11d65d5b689ae5af43d82803e903d91602b57fd5bf3',
-          salt: '0x0000000000000000000000000000000000000000000000000000000000000000'
-        }
       }
     ])
     await permissionService.init()
@@ -74,7 +63,8 @@ export type ControllersMappingType = {
 
   const mainCtrl = new MainController(storage, fetch, RELAYER_URL)
   // TODO: remove this it is only for testing the injection
-  mainCtrl.selectAccount('0x9188fdd757Df66B4F693D624Ed6A13a15Cf717D7')
+  await mainCtrl.selectAccount('0x9188fdd757Df66B4F693D624Ed6A13a15Cf717D7')
+  console.log(mainCtrl.selectedAccount)
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()
