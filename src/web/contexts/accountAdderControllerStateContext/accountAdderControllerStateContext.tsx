@@ -14,7 +14,7 @@ const AccountAdderControllerStateProvider: React.FC<any> = ({ children }) => {
   const { dispatchAsync } = useBackgroundService()
 
   useEffect(() => {
-    const getControllersState = async () => {
+    const getControllerInitialState = async () => {
       const accountAdderState = await dispatchAsync({
         type: 'GET_CONTROLLER_STATE',
         params: { controller: 'accountAdder' }
@@ -23,7 +23,7 @@ const AccountAdderControllerStateProvider: React.FC<any> = ({ children }) => {
     }
 
     ;(async () => {
-      await getControllersState()
+      await getControllerInitialState()
     })()
   }, [dispatchAsync])
 

@@ -12,7 +12,7 @@ const MainControllerStateProvider: React.FC<any> = ({ children }) => {
   const { dispatchAsync } = useBackgroundService()
 
   useEffect(() => {
-    const getControllersState = async () => {
+    const getControllerInitialState = async () => {
       const mainControllerState = await dispatchAsync({
         type: 'GET_CONTROLLER_STATE',
         params: { controller: 'main' }
@@ -21,7 +21,7 @@ const MainControllerStateProvider: React.FC<any> = ({ children }) => {
     }
 
     ;(async () => {
-      await getControllersState()
+      await getControllerInitialState()
     })()
   }, [dispatchAsync])
 
