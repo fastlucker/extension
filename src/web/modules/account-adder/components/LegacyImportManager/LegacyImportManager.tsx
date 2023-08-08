@@ -37,6 +37,14 @@ const LegacyImportManager = (props: Props) => {
   }, [dispatch, createTask, props.privKeyOrSeed, mainControllerState.accounts])
 
   useEffect(() => {
+    const isInTheMiddleOfImport = false
+    // TODO:const isInTheMiddleOfImport =
+    // const isInTheMiddleOfImport =
+    //   accountAdderState.addAccountsStatus.type !== 'INITIAL' &&
+    //   accountAdderState.selectedAccounts.length === 0
+
+    if (isInTheMiddleOfImport) return
+
     if (accountAdderState.addAccountsStatus.type === 'ERROR') {
       // TODO: display error toast instead
       // eslint-disable-next-line no-alert
@@ -44,6 +52,8 @@ const LegacyImportManager = (props: Props) => {
     }
 
     if (accountAdderState.addAccountsStatus.type === 'SUCCESS') {
+      // TODO: Select account!
+
       updateStepperState(1, 'legacyAuth')
       shouldCreateEmailVault
         ? navigate(WEB_ROUTES.createEmailVault, {
@@ -56,22 +66,16 @@ const LegacyImportManager = (props: Props) => {
     }
   }, [
     accountAdderState.addAccountsStatus.type,
-    accountAdderState.addAccountsStatus?.message,
+    accountAdderState.addAccountsStatus.message,
     updateStepperState,
     shouldCreateEmailVault,
     navigate,
     dispatch,
-    accountAdderState.addAccountsStatus
+    accountAdderState.addAccountsStatus,
+    accountAdderState.selectedAccounts.length
   ])
 
-  const onImportReady = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
-      params: { accounts: accountAdderState.selectedAccounts }
-    })
-  }, [dispatch, accountAdderState.selectedAccounts])
-
-  const setPage: any = React.useCallback(
+  const setPage = useCallback(
     async (page = 1) => {
       try {
         createTask(() =>
@@ -94,9 +98,12 @@ const LegacyImportManager = (props: Props) => {
     })()
   }, [accountAdderState.isInitialized, setPage])
 
-  if (!Object.keys(accountAdderState).length) {
-    return
-  }
+  const onImportReady = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
+      params: { accounts: accountAdderState.selectedAccounts }
+    })
+  }, [dispatch, accountAdderState.selectedAccounts])
 
   return (
     <AccountsOnPageList
