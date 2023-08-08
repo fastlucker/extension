@@ -54,6 +54,7 @@ const SelectComponent = ({
             fontSize: 14,
             color: colors.martinique
           }),
+          indicatorSeparator: (styles) => ({ display: 'none' }),
           control: (baseStyles) => ({
             ...baseStyles,
             width: 260,
