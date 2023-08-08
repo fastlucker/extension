@@ -19,6 +19,8 @@ export const WINDOW_SIZE = {
   height: NOTIFICATION_WINDOW_HEIGHT
 }
 
+// creates a browser new window that is 15% smaller
+// of the current page and is centered in the browser app
 const createFullScreenWindow = ({ url, ...rest }: any) => {
   return new Promise((resolve) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
