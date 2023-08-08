@@ -240,7 +240,12 @@ const AccountsList = ({
         <Button
           style={{ ...spacings.mtTy, width: 296, ...flexbox.alignSelfCenter }}
           onPress={onImportReady}
-          disabled={isSubmitting || !state.selectedAccounts.length}
+          disabled={
+            state.accountsLoading ||
+            state.linkedAccountsLoading ||
+            isSubmitting ||
+            (!state.selectedAccounts.length && !state.preselectedAccounts.length)
+          }
           text={isSubmitting ? 'Importing...' : 'Import Accounts'}
         />
       </View>
