@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import { View } from 'react-native'
+import { Pressable } from 'react-native-web-hover'
 
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -8,10 +9,12 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 // import AddOrHideToken from '@common/modules/dashboard/components/AddOrHideToken'
 import { ROUTES } from '@common/modules/router/constants/common'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
+import styles from './styles'
 // import TokensListLoader from '../Loaders/TokensListLoader'
 // import Rewards from '../Rewards'
 import TokenItem from './TokenItem'
@@ -85,6 +88,25 @@ const Tokens = ({ tokens, isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoa
             />
           )
         )}
+      <Pressable>
+        {({ hovered }) => (
+          <View
+            style={[
+              styles.container,
+              styles.addTokenContainer,
+              hovered && {
+                backgroundColor: colors.lightViolet,
+                borderStyle: 'solid',
+                borderColor: colors.violet
+              }
+            ]}
+          >
+            <Text shouldScale={false} color={colors.violet} weight="medium" fontSize={16}>
+              {t('+ Add Custom')}
+            </Text>
+          </View>
+        )}
+      </Pressable>
     </Wrapper>
   )
 }

@@ -7,12 +7,12 @@ const colors = {
   aquamarine: '#80FFFB',
   darkAquamarine: '#478C8A',
 
+  heliotrope: '#A36AF8',
   lightHeliotrope: '#C790FF',
-  // heliotrope: '#AE60FF',
   darkHeliotrope: '#60358C',
   heliotrope_40: '#AE60FF61',
 
-  lightViolet: '#904DFF',
+  lightViolet: '#6000FF1A',
   violet: '#6000FF',
   darkViolet: '#35008C',
   electricViolet: '#923DFF',
@@ -52,8 +52,6 @@ const colors = {
   titan_05: 'rgba(235, 236, 255, 0.05)',
   titan_25: 'rgba(235, 236, 255, 0.25)',
   titan_50: 'rgba(235, 236, 255, 0.5)',
-
-  heliotrope: '#A36AF8',
 
   zircon: '#F7F8FF',
   mischka: '#D6D7E1',
