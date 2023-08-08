@@ -26,9 +26,6 @@ import { controllersMapping } from './types'
 
 // eslint-disable-next-line prettier/prettier
 // eslint-disable-next-line import/newline-after-import
-export type ControllersMappingType = {
-  [K in keyof typeof controllersMapping]: InstanceType<typeof controllersMapping[K]>
-}
 ;(async () => {
   async function init() {
     // Initialize rpc providers for all networks
