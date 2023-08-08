@@ -1,6 +1,6 @@
 /* eslint-disable react/destructuring-assignment */
 
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
@@ -25,8 +25,21 @@ const LegacyImportManager = (props: Props) => {
   const mainControllerState = useMainControllerState()
 
   useEffect(() => {
+    ;(async () => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        params: {
+          preselectedAccounts: mainControllerState.accounts,
+          privKeyOrSeed: props.privKeyOrSeed
+        }
+      })
+    })()
+  }, [dispatch, createTask, props.privKeyOrSeed, mainControllerState.accounts])
+
+  useEffect(() => {
     if (accountAdderState.addAccountsStatus.type === 'ERROR') {
       // TODO: display error toast instead
+      // eslint-disable-next-line no-alert
       alert(accountAdderState.addAccountsStatus.message)
     }
 
@@ -51,12 +64,12 @@ const LegacyImportManager = (props: Props) => {
     accountAdderState.addAccountsStatus
   ])
 
-  const onImportReady = () => {
+  const onImportReady = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
       params: { accounts: accountAdderState.selectedAccounts }
     })
-  }
+  }, [dispatch, accountAdderState.selectedAccounts])
 
   const setPage: any = React.useCallback(
     async (page = 1) => {
@@ -73,18 +86,6 @@ const LegacyImportManager = (props: Props) => {
     },
     [dispatch, createTask]
   )
-
-  useEffect(() => {
-    ;(async () => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-        params: {
-          preselectedAccounts: mainControllerState.accounts,
-          privKeyOrSeed: props.privKeyOrSeed
-        }
-      })
-    })()
-  }, [dispatch, createTask, props.privKeyOrSeed, mainControllerState.accounts])
 
   useEffect(() => {
     ;(async () => {
