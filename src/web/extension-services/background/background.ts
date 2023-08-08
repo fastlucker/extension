@@ -186,6 +186,9 @@ export type ControllersMappingType = {
                 networkVersion: `${data.params.network.chainId}`
               })
             case 'WALLET_CONTROLLER_ACCOUNT_CHANGE': {
+              // TODO: changing the selected account will happen in the background
+              // service therefore this should be changed to use the mainCtrl.selectedAccount
+              // and moved to a better place
               const account = data.params.selectedAcc ? [data.params.selectedAcc] : []
               return sessionService.broadcastEvent('accountsChanged', account)
             }
