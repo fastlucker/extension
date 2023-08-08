@@ -9,7 +9,7 @@ import LeftDoubleArrowIcon from '@common/assets/svg/LeftDoubleArrowIcon.tsx'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
 import Button from '@common/components/Button'
-import Select from '@common/components/Select'
+// import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
@@ -43,9 +43,9 @@ const AccountsList = ({
   setPage: (page: number) => void
 }) => {
   const { t } = useTranslation()
-  const [value, setValue] = useState('')
+  // const [value, setValue] = useState('')
   const [emailVaultStep, setEmailVaultStep] = useState(false)
-  const [showUnused, setShowUnused] = useState(false)
+  // const [showUnused, setShowUnused] = useState(false)
   const { dispatch } = useBackgroundService()
 
   const slots = useMemo(() => {

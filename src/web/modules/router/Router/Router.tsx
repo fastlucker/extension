@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect } from 'react'
+import React, { lazy, Suspense, useContext, useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Route, Routes } from 'react-router-dom'
 
@@ -9,6 +9,7 @@ import useRoute from '@common/hooks/useRoute'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import flexbox from '@common/styles/utils/flexbox'
+import { ControllersStateLoadedContext } from '@web/contexts/controllersStateLoadedContext'
 import useApproval from '@web/hooks/useApproval'
 import SortHat from '@web/modules/router/components/SortHat'
 
@@ -20,6 +21,7 @@ const Router = () => {
   const { navigate } = useNavigation()
   const { authStatus } = useAuth()
   const prevAuthStatus = usePrevious(authStatus)
+  const isControllersStateLoaded = useContext(ControllersStateLoadedContext)
 
   useEffect(() => {
     if (
@@ -32,7 +34,7 @@ const Router = () => {
     }
   }, [authStatus, navigate, path, prevAuthStatus])
 
-  if (!hasCheckedForApprovalInitially) {
+  if (!hasCheckedForApprovalInitially || !isControllersStateLoaded) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Spinner />
