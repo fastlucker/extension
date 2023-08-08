@@ -79,6 +79,7 @@ browser.runtime.onConnect.addListener(async (port) => {
             return mainCtrl.accountAdder.init({
               ...data.params,
               keyIterator,
+              // TODO:
               preselectedAccounts: []
             })
           }
@@ -87,6 +88,7 @@ browser.runtime.onConnect.addListener(async (port) => {
             return mainCtrl.accountAdder.init({
               ...data.params,
               keyIterator,
+              // TODO:
               preselectedAccounts: []
             })
           }
@@ -98,12 +100,17 @@ browser.runtime.onConnect.addListener(async (port) => {
             return mainCtrl.accountAdder.init({
               ...data.params,
               keyIterator,
+              // TODO:
               preselectedAccounts: []
             })
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
             const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
-            return mainCtrl.accountAdder.init({ keyIterator, preselectedAccounts: [] })
+            return mainCtrl.accountAdder.init({
+              keyIterator,
+              // TODO:
+              preselectedAccounts: []
+            })
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
             return mainCtrl.accountAdder.selectAccount(data.params.account)
@@ -116,8 +123,8 @@ browser.runtime.onConnect.addListener(async (port) => {
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
             return mainCtrl.accountAdder.setPage({ ...data.params, networks, providers })
-          case 'MAIN_CONTROLLER_ADD_ACCOUNTS':
-            return mainCtrl.addAccounts(data.params.accounts)
+          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS':
+            return mainCtrl.accountAdder.addAccounts(data.params.accounts)
 
           case 'LEDGER_CONTROLLER_UNLOCK':
             return ledgerCtrl.unlock(data?.params?.hdPath)
