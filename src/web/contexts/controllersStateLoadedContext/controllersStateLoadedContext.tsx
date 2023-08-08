@@ -11,6 +11,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
 
   useEffect(() => {
+    // Initially we set all controller states to empty object
+    // if the states of all controllers are not an empty object
+    // state data has been returned from the background service
+    // so we update the isStateLoaded to true
     if (!Object.keys(mainState).length && !Object.keys(accountAdderState).length) {
       setIsStateLoaded(true)
     }
