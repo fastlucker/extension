@@ -23,6 +23,7 @@ import { isExtension } from '@web/constants/browserapi'
 import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderControllerStateContext'
 import { ApprovalProvider } from '@web/contexts/approvalContext'
 import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
+import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
 import { ExtensionProvider } from '@web/contexts/extensionContext'
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
@@ -44,40 +45,42 @@ const AppInit = () => {
     <BackgroundServiceProvider>
       <MainControllerStateProvider>
         <AccountAdderControllerStateProvider>
-          <Router>
-            <PortalProvider>
-              <LoaderProvider>
-                <StorageProvider>
-                  <OnboardingProvider>
-                    <ThemeProvider>
-                      <SafeAreaProvider>
-                        <KeyboardProvider>
-                          <NetInfoProvider>
-                            <ToastProvider>
-                              <ConstantsProvider>
-                                <AuthProvider>
-                                  <ApprovalProvider>
-                                    <ExtensionProvider>
-                                      <BiometricsProvider>
-                                        <PrivateModeProvider>
-                                          <AppRouter />
-                                        </PrivateModeProvider>
-                                        <PortalHost name="global" />
-                                      </BiometricsProvider>
-                                    </ExtensionProvider>
-                                  </ApprovalProvider>
-                                </AuthProvider>
-                              </ConstantsProvider>
-                            </ToastProvider>
-                          </NetInfoProvider>
-                        </KeyboardProvider>
-                      </SafeAreaProvider>
-                    </ThemeProvider>
-                  </OnboardingProvider>
-                </StorageProvider>
-              </LoaderProvider>
-            </PortalProvider>
-          </Router>
+          <ControllersStateLoadedProvider>
+            <Router>
+              <PortalProvider>
+                <LoaderProvider>
+                  <StorageProvider>
+                    <OnboardingProvider>
+                      <ThemeProvider>
+                        <SafeAreaProvider>
+                          <KeyboardProvider>
+                            <NetInfoProvider>
+                              <ToastProvider>
+                                <ConstantsProvider>
+                                  <AuthProvider>
+                                    <ApprovalProvider>
+                                      <ExtensionProvider>
+                                        <BiometricsProvider>
+                                          <PrivateModeProvider>
+                                            <AppRouter />
+                                          </PrivateModeProvider>
+                                          <PortalHost name="global" />
+                                        </BiometricsProvider>
+                                      </ExtensionProvider>
+                                    </ApprovalProvider>
+                                  </AuthProvider>
+                                </ConstantsProvider>
+                              </ToastProvider>
+                            </NetInfoProvider>
+                          </KeyboardProvider>
+                        </SafeAreaProvider>
+                      </ThemeProvider>
+                    </OnboardingProvider>
+                  </StorageProvider>
+                </LoaderProvider>
+              </PortalProvider>
+            </Router>
+          </ControllersStateLoadedProvider>
         </AccountAdderControllerStateProvider>
       </MainControllerStateProvider>
     </BackgroundServiceProvider>

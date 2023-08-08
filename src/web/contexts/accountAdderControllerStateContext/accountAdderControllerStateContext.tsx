@@ -11,21 +11,14 @@ const AccountAdderControllerStateContext = createContext<AccountAdderController>
 
 const AccountAdderControllerStateProvider: React.FC<any> = ({ children }) => {
   const [state, setState] = useState({} as AccountAdderController)
-  const { dispatchAsync } = useBackgroundService()
+  const { dispatch } = useBackgroundService()
 
   useEffect(() => {
-    const getControllerInitialState = async () => {
-      const accountAdderState = await dispatchAsync({
-        type: 'GET_CONTROLLER_STATE',
-        params: { controller: 'accountAdder' }
-      })
-      return setState(accountAdderState)
-    }
-
-    ;(async () => {
-      await getControllerInitialState()
-    })()
-  }, [dispatchAsync])
+    dispatch({
+      type: 'INIT_CONTROLLER_STATE',
+      params: { controller: 'accountAdder' }
+    })
+  }, [dispatch])
 
   useEffect(() => {
     const onUpdate = (newState: AccountAdderController) => {

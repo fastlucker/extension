@@ -8,8 +8,8 @@ import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorCon
 
 import { ControllerName } from './types'
 
-type GetControllerStateAction = {
-  type: 'GET_CONTROLLER_STATE'
+type InitControllerStateAction = {
+  type: 'INIT_CONTROLLER_STATE'
   params: {
     controller: ControllerName
   }
@@ -142,7 +142,7 @@ type WalletControllerSendRequestAction = {
 }
 
 export type Action =
-  | GetControllerStateAction
+  | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
@@ -178,7 +178,6 @@ export type Action =
 export type AsyncActionTypes = {
   // TODO: These all should be migrated to use onUpdate emitted events
   // instead of relying on the return value of the action.
-  GET_CONTROLLER_STATE: ReturnType<any>
   WALLET_CONTROLLER_GET_APPROVAL: ReturnType<WalletController['getApproval']>
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>

@@ -7,7 +7,7 @@ export const controllersMapping = {
   // - value is the type of the controller
 }
 
-export type ControllerName = keyof typeof controllersMapping
+export type ControllerName = 'main' | keyof typeof controllersMapping
 
 export type ControllersMappingType = {
   [K in keyof typeof controllersMapping]: InstanceType<typeof controllersMapping[K]>

@@ -1,5 +1,4 @@
 import { networks } from 'ambire-common/src/consts/networks'
-import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { JsonRpcProvider } from 'ethers'
@@ -59,11 +58,21 @@ browser.runtime.onConnect.addListener(async (port) => {
             eventBus.emit(data.method, data.params)
             break
 
-          case 'GET_CONTROLLER_STATE': {
-            if (data.params.controller === 'main') {
-              return mainCtrl
+          case 'INIT_CONTROLLER_STATE': {
+            if (data.params.controller === ('main' as any)) {
+              pm.request({
+                type: 'broadcast',
+                method: 'main',
+                params: mainCtrl
+              })
+            } else {
+              pm.request({
+                type: 'broadcast',
+                method: data.params.controller,
+                params: (mainCtrl as any)[data.params.controller]
+              })
             }
-            return mainCtrl[data.params.controller as ControllerName]
+            break
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
             const keyIterator = new LedgerKeyIterator({ hdk: ledgerCtrl.hdk, app: ledgerCtrl.app })

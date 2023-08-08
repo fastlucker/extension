@@ -9,21 +9,14 @@ const MainControllerStateContext = createContext<MainController>({} as MainContr
 
 const MainControllerStateProvider: React.FC<any> = ({ children }) => {
   const [state, setState] = useState({} as MainController)
-  const { dispatchAsync } = useBackgroundService()
+  const { dispatch } = useBackgroundService()
 
   useEffect(() => {
-    const getControllerInitialState = async () => {
-      const mainControllerState = await dispatchAsync({
-        type: 'GET_CONTROLLER_STATE',
-        params: { controller: 'main' }
-      })
-      return setState(mainControllerState)
-    }
-
-    ;(async () => {
-      await getControllerInitialState()
-    })()
-  }, [dispatchAsync])
+    dispatch({
+      type: 'INIT_CONTROLLER_STATE',
+      params: { controller: 'main' }
+    })
+  }, [dispatch])
 
   useEffect(() => {
     const onUpdate = (newState: MainController) => {
