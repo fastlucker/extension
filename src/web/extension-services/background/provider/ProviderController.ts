@@ -13,7 +13,7 @@ import { getProvider } from '@common/services/provider'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'
-import storage from '@web/extension-services/background/webapi/storage'
+import { storage } from '@web/extension-services/background/webapi/storage'
 
 interface ApprovalRes {
   type?: string

@@ -37,26 +37,12 @@ export type ControllersMappingType = {
       initRpcProviders(rpcProviders)
     }
 
-    // TODO: remove this it is only for testing the injection
-    storage.set('accounts', [
-      // Legacy account
-      {
-        addr: '0x9188fdd757Df66B4F693D624Ed6A13a15Cf717D7',
-        label: '',
-        pfp: '',
-        associatedKeys: ['0x9188fdd757Df66B4F693D624Ed6A13a15Cf717D7'],
-        creation: null
-      }
-    ])
     await permissionService.init()
   }
 
   await init()
 
   const mainCtrl = new MainController(storage, fetch, RELAYER_URL)
-  // TODO: remove this it is only for testing the injection
-  await mainCtrl.selectAccount('0x9188fdd757Df66B4F693D624Ed6A13a15Cf717D7')
-  console.log(mainCtrl.selectedAccount)
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()

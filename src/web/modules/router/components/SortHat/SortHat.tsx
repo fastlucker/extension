@@ -36,10 +36,9 @@ const SortHat = () => {
     //   return navigate(ROUTES.unlockVault)
     // }
 
-    // if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-    //   // TODO: return navigate(ROUTES.auth)
-    //   return navigate(ROUTES.getStarted)
-    // }
+    if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
+      return navigate(ROUTES.getStarted)
+    }
 
     if (approval && isInNotification) {
       if (approval?.data?.approvalComponent === 'PermissionRequest') {

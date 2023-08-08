@@ -4,6 +4,7 @@ import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrap
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import spacings from '@common/styles/spacings'
+import text from '@common/styles/utils/text'
 import useApproval from '@web/hooks/useApproval'
 
 const SignMessageScreen = () => {
@@ -13,7 +14,9 @@ const SignMessageScreen = () => {
   return (
     <GradientBackgroundWrapper>
       <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
-        <Text>Sign Message Screen</Text>
+        <Text style={text.center} fontSize={100}>
+          Sign Message Screen
+        </Text>
       </Wrapper>
     </GradientBackgroundWrapper>
   )
