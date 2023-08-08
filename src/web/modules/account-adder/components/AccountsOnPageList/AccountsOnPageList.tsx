@@ -91,20 +91,28 @@ const AccountsList = ({
   const disablePagination = Object.keys(slots).length === 1
 
   const getAccounts = (accounts: any) => {
-    return accounts.map((acc: any, i: any) => (
-      <Account
-        key={acc.account.addr}
-        account={acc.account}
-        type={acc.type}
-        isLastInSlot={i === accounts.length - 1}
-        unused={acc.type === 'legacy' && !acc.account.usedOnNetworks.length}
-        isSelected={state.selectedAccounts.some(
-          (selectedAcc) => selectedAcc.addr === acc.account.addr
-        )}
-        onSelect={handleSelectAccount}
-        onDeselect={handleDeselectAccount}
-      />
-    ))
+    return accounts.map((acc: any, i: any) => {
+      const isSelected = state.selectedAccounts.some(
+        (selectedAcc) => selectedAcc.addr === acc.account.addr
+      )
+      const isPreselected = state.preselectedAccounts.some(
+        (selectedAcc) => selectedAcc.addr === acc.account.addr
+      )
+
+      return (
+        <Account
+          key={acc.account.addr}
+          account={acc.account}
+          type={acc.type}
+          isLastInSlot={i === accounts.length - 1}
+          unused={acc.type === 'legacy' && !acc.account.usedOnNetworks.length}
+          isSelected={isSelected || isPreselected}
+          isDisabled={isPreselected}
+          onSelect={handleSelectAccount}
+          onDeselect={handleDeselectAccount}
+        />
+      )
+    })
   }
 
   return (

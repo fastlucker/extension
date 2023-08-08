@@ -9,7 +9,6 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 import styles from './styles'
@@ -21,7 +20,8 @@ const Account = ({
   isLastInSlot,
   isSelected,
   onSelect,
-  onDeselect
+  onDeselect,
+  isDisabled
 }: {
   account: AccountInterface & { usedOnNetworks: NetworkDescriptor[] }
   type: 'legacy' | 'smart' | 'linked'
@@ -30,6 +30,7 @@ const Account = ({
   isSelected: boolean
   onSelect: (account: AccountInterface) => void
   onDeselect: (account: AccountInterface) => void
+  isDisabled?: boolean
 }) => {
   const { t } = useTranslation()
 
@@ -88,10 +89,11 @@ const Account = ({
     >
       <View style={styles.container}>
         <Checkbox
-          style={{ marginBottom: 0 }}
+          style={[{ marginBottom: 0 }, isDisabled && { opacity: 0.6 }]}
           // label={<View />}
           value={isSelected}
           onValueChange={toggleSelectedState}
+          isDisabled={isDisabled}
         />
 
         <View style={[flexbox.flex1]}>

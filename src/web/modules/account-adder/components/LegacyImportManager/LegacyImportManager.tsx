@@ -21,20 +21,16 @@ const LegacyImportManager = (props: Props) => {
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
   const { dispatch } = useBackgroundService()
-  const state = useAccountAdderControllerState()
+  const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
 
   useEffect(() => {
-    if (mainControllerState?.addAccountsStatus?.type === 'ERROR') {
+    if (accountAdderState.addAccountsStatus.type === 'ERROR') {
       // TODO: display error toast instead
-      alert(mainControllerState?.addAccountsStatus?.message)
+      alert(accountAdderState.addAccountsStatus.message)
     }
 
-    if (mainControllerState?.addAccountsStatus?.type === 'SUCCESS') {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_SELECTED_ACCOUNTS'
-      })
-
+    if (accountAdderState.addAccountsStatus.type === 'SUCCESS') {
       updateStepperState(1, 'legacyAuth')
       shouldCreateEmailVault
         ? navigate(WEB_ROUTES.createEmailVault, {
@@ -46,18 +42,19 @@ const LegacyImportManager = (props: Props) => {
         : navigate(WEB_ROUTES.createKeyStore)
     }
   }, [
-    mainControllerState?.addAccountsStatus?.type,
-    mainControllerState?.addAccountsStatus?.message,
+    accountAdderState.addAccountsStatus.type,
+    accountAdderState.addAccountsStatus?.message,
     updateStepperState,
     shouldCreateEmailVault,
     navigate,
-    dispatch
+    dispatch,
+    accountAdderState.addAccountsStatus
   ])
 
   const onImportReady = () => {
     dispatch({
-      type: 'MAIN_CONTROLLER_ADD_ACCOUNTS',
-      params: { accounts: state.selectedAccounts }
+      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
+      params: { accounts: accountAdderState.selectedAccounts }
     })
   }
 
@@ -81,26 +78,29 @@ const LegacyImportManager = (props: Props) => {
     ;(async () => {
       dispatch({
         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-        params: { privKeyOrSeed: props.privKeyOrSeed }
+        params: {
+          preselectedAccounts: mainControllerState.accounts,
+          privKeyOrSeed: props.privKeyOrSeed
+        }
       })
     })()
-  }, [dispatch, createTask, props.privKeyOrSeed])
+  }, [dispatch, createTask, props.privKeyOrSeed, mainControllerState.accounts])
 
   useEffect(() => {
     ;(async () => {
-      if (!state.isInitialized) return
+      if (!accountAdderState.isInitialized) return
       setPage()
     })()
-  }, [state.isInitialized, setPage])
+  }, [accountAdderState.isInitialized, setPage])
 
-  if (!Object.keys(state).length) {
+  if (!Object.keys(accountAdderState).length) {
     return
   }
 
   return (
     <AccountsOnPageList
-      isSubmitting={mainControllerState?.addAccountsStatus?.type === 'PENDING'}
-      state={state}
+      isSubmitting={accountAdderState.addAccountsStatus.type === 'PENDING'}
+      state={accountAdderState}
       onImportReady={onImportReady}
       setPage={setPage}
       {...props}

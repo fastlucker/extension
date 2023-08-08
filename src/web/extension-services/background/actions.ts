@@ -18,6 +18,7 @@ type InitControllerStateAction = {
 type MainControllerAccountAdderInitLedgerAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER'
   params: {
+    preselectedAccounts: Account[]
     page?: number | undefined
     pageSize?: number | undefined
     derivationPath?: string | undefined
@@ -26,6 +27,7 @@ type MainControllerAccountAdderInitLedgerAction = {
 type MainControllerAccountAdderInitTrezorAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR'
   params: {
+    preselectedAccounts: Account[]
     page?: number | undefined
     pageSize?: number | undefined
     derivationPath?: string | undefined
@@ -34,6 +36,7 @@ type MainControllerAccountAdderInitTrezorAction = {
 type MainControllerAccountAdderInitLatticeAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE'
   params: {
+    preselectedAccounts: Account[]
     page?: number | undefined
     pageSize?: number | undefined
     derivationPath?: string | undefined
@@ -42,6 +45,7 @@ type MainControllerAccountAdderInitLatticeAction = {
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
   params: {
+    preselectedAccounts: Account[]
     privKeyOrSeed: string
     page?: number | undefined
     pageSize?: number | undefined
@@ -59,9 +63,6 @@ type MainControllerAccountAdderDeselectAccountAction = {
   params: {
     account: Account
   }
-}
-type MainControllerAccountAdderResetSelectedAccountsAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_SELECTED_ACCOUNTS'
 }
 
 type MainControllerAccountAdderSetPageAction = {

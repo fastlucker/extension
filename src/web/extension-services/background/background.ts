@@ -79,8 +79,7 @@ browser.runtime.onConnect.addListener(async (port) => {
             return mainCtrl.accountAdder.init({
               ...data.params,
               keyIterator,
-              // TODO:
-              preselectedAccounts: []
+              preselectedAccounts: data.params.preselectedAccounts
             })
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
@@ -88,8 +87,7 @@ browser.runtime.onConnect.addListener(async (port) => {
             return mainCtrl.accountAdder.init({
               ...data.params,
               keyIterator,
-              // TODO:
-              preselectedAccounts: []
+              preselectedAccounts: data.params.preselectedAccounts
             })
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
@@ -100,16 +98,14 @@ browser.runtime.onConnect.addListener(async (port) => {
             return mainCtrl.accountAdder.init({
               ...data.params,
               keyIterator,
-              // TODO:
-              preselectedAccounts: []
+              preselectedAccounts: data.params.preselectedAccounts
             })
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
             const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
             return mainCtrl.accountAdder.init({
               keyIterator,
-              // TODO:
-              preselectedAccounts: []
+              preselectedAccounts: data.params.preselectedAccounts
             })
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
@@ -117,9 +113,6 @@ browser.runtime.onConnect.addListener(async (port) => {
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
             return mainCtrl.accountAdder.deselectAccount(data.params.account)
-          }
-          case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_SELECTED_ACCOUNTS': {
-            return mainCtrl.accountAdder.resetSelectedAccounts()
           }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
             return mainCtrl.accountAdder.setPage({ ...data.params, networks, providers })
