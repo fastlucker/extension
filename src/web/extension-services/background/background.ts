@@ -109,6 +109,9 @@ browser.runtime.onConnect.addListener(async (port) => {
               preselectedAccounts: data.params.preselectedAccounts
             })
           }
+          case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
+            return mainCtrl.selectAccount(data.params.accountAddr)
+          }
           case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
             return mainCtrl.accountAdder.selectAccount(data.params.account)
           }

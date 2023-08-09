@@ -52,6 +52,12 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
     derivationPath?: string | undefined
   }
 }
+type MainControllerSelectAccountAction = {
+  type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
+  params: {
+    accountAddr: Account['addr']
+  }
+}
 type MainControllerAccountAdderSelectAccountAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT'
   params: {
@@ -162,6 +168,7 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
+  | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderReset

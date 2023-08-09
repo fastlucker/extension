@@ -11,6 +11,8 @@ import useMainControllerState from '@web/hooks/useMainControllerState/useMainCon
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
+import { getDefaultSelectedAccount } from '../../helpers/account'
+
 interface Props {
   privKeyOrSeed: string
 }
@@ -36,6 +38,19 @@ const LegacyImportManager = (props: Props) => {
     })()
   }, [dispatch, createTask, props.privKeyOrSeed, mainControllerState.accounts])
 
+  const goToNextStep = useCallback(() => {
+    updateStepperState(1, 'legacyAuth')
+
+    shouldCreateEmailVault
+      ? navigate(WEB_ROUTES.createEmailVault, {
+          state: {
+            hideStepper: true,
+            hideFormTitle: true
+          }
+        })
+      : navigate(WEB_ROUTES.createKeyStore)
+  }, [updateStepperState, shouldCreateEmailVault, navigate])
+
   useEffect(() => {
     if (accountAdderState.addAccountsStatus.type === 'ERROR') {
       // TODO: display error toast instead
@@ -44,17 +59,21 @@ const LegacyImportManager = (props: Props) => {
     }
 
     if (accountAdderState.addAccountsStatus.type === 'SUCCESS') {
-      // TODO: Select account!
+      const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
+      if (!defaultSelectedAccount) {
+        // TODO: display error toast instead
+        // eslint-disable-next-line no-alert
+        alert(
+          'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
+        )
+        return
+      }
 
-      updateStepperState(1, 'legacyAuth')
-      shouldCreateEmailVault
-        ? navigate(WEB_ROUTES.createEmailVault, {
-            state: {
-              hideStepper: true,
-              hideFormTitle: true
-            }
-          })
-        : navigate(WEB_ROUTES.createKeyStore)
+      dispatch({
+        type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
+        params: { accountAddr: defaultSelectedAccount.addr }
+      })
+      goToNextStep()
     }
   }, [
     accountAdderState.isInitialized,
@@ -63,7 +82,9 @@ const LegacyImportManager = (props: Props) => {
     updateStepperState,
     shouldCreateEmailVault,
     navigate,
-    dispatch
+    dispatch,
+    accountAdderState.readyToAddAccounts,
+    goToNextStep
   ])
 
   const setPage = useCallback(
@@ -102,22 +123,8 @@ const LegacyImportManager = (props: Props) => {
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
     })
 
-    updateStepperState(1, 'legacyAuth')
-    shouldCreateEmailVault
-      ? navigate(WEB_ROUTES.createEmailVault, {
-          state: {
-            hideStepper: true,
-            hideFormTitle: true
-          }
-        })
-      : navigate(WEB_ROUTES.createKeyStore)
-  }, [
-    accountAdderState.selectedAccounts,
-    dispatch,
-    updateStepperState,
-    shouldCreateEmailVault,
-    navigate
-  ])
+    goToNextStep()
+  }, [accountAdderState.selectedAccounts, dispatch, goToNextStep])
 
   return (
     <AccountsOnPageList
