@@ -1,14 +1,13 @@
-// import { UsePrivateModeReturnType } from 'ambire-common/src/hooks/usePrivateMode'
 import { networks } from 'ambire-common/src/consts/networks'
 import React from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 import { Pressable } from 'react-native-web-hover'
 
-import EthereumIcon from '@common/assets/svg/EthereumIcon'
 import InformationIcon from '@common/assets/svg/InformationIcon/InformationIcon'
-import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import Button from '@common/components/Button'
+import Dropdown from '@common/components/Dropdown'
+import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
@@ -17,7 +16,7 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
-// import styles from './styles'
+import styles from './styles'
 
 type Props = {
   img: any
@@ -43,6 +42,15 @@ const TokenItem = ({
   onPress
 }: Props) => {
   const { t } = useTranslation()
+  const data = [
+    { label: 'Swap', value: '1' },
+    { label: 'Bridge', value: '2' },
+    { label: 'Top Up Gas Tank', value: '3' },
+    { label: 'Deposit', value: '4' },
+    { label: 'Hide', value: '5' },
+    { label: 'Earn', value: '6' },
+    { label: 'Withdraw', value: '7' }
+  ]
 
   const networkData = networks.find(({ id }) => network === id)
 
@@ -51,46 +59,40 @@ const TokenItem = ({
       {({ hovered }) => (
         <View
           style={[
-            flexboxStyles.directionRow,
-            flexboxStyles.justifySpaceBetween,
-            spacings.pvTy,
-            spacings.phTy,
-            { borderWidth: 1, borderColor: colors.zircon },
+            styles.container,
             hovered && {
               backgroundColor: colors.melrose_15,
-              borderColor: colors.scampi_20,
-              borderRadius: 12
+              borderColor: colors.scampi_20
             }
           ]}
         >
           <View style={[flexboxStyles.directionRow]}>
-            <View style={[spacings.mrSm, flexboxStyles.justifyCenter]}>
+            <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
               <TokenIcon withContainer uri={img} address={address} />
             </View>
             <View>
               <View style={[flexboxStyles.directionRow, flexboxStyles.alignEnd]}>
                 <Text
                   style={[spacings.mrTy]}
-                  fontSize={16}
+                  fontSize={14}
                   shouldScale={false}
                   weight="semiBold"
                   numberOfLines={1}
                 >
                   {Number(balance).toFixed(balance < 1 ? 8 : 4)} {symbol}
-                  {/* {formatFloatTokenAmount(Number(balance).toFixed(balance < 1 ? 8 : 4), true, decimals)} */}
                 </Text>
                 <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-                  <Text style={[spacings.mrMi]} shouldScale={false} fontSize={14}>
+                  <Text shouldScale={false} fontSize={12}>
                     on
                   </Text>
-                  <EthereumIcon style={[spacings.mrMi]} />
-                  <Text style={[spacings.mrMi]} shouldScale={false} fontSize={14}>
+                  <NetworkIcon name="ethereum" style={{ width: 20, height: 20 }} />
+                  <Text style={[spacings.mrMi]} shouldScale={false} fontSize={12}>
                     {networkData?.name}
                   </Text>
                   <InformationIcon color={hovered ? colors.melrose : colors.martinique_65} />
                 </View>
               </View>
-              <Text fontSize={16} shouldScale={false} style={textStyles.highlightPrimary}>
+              <Text fontSize={14} shouldScale={false} style={textStyles.highlightPrimary}>
                 ${balanceUSD?.toFixed(2)}
               </Text>
             </View>
@@ -109,9 +111,10 @@ const TokenItem = ({
                 <SendIcon width={25} height={25} color={colors.violet} />
               </Button>
             )}
-            <View style={[spacings.ph, spacings.pvTy]}>
+            <View>
               {/* TODO: add the menu */}
-              <KebabMenuIcon />
+              {/* <KebabMenuIcon /> */}
+              <Dropdown data={data} />
             </View>
           </View>
         </View>
