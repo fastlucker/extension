@@ -1,3 +1,3 @@
-import useMainControllerState from './useMainControllerStateControllerState'
+import useMainControllerState from './useMainControllerState'
 
 export default useMainControllerState
