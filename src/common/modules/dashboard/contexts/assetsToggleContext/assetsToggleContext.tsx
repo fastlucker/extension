@@ -45,7 +45,7 @@ const AssetsToggleProvider: React.FC = ({ children }) => {
               shouldScale={false}
               weight="regular"
               color={type === 'tokens' ? colors.violet : colors.martinique_65}
-              fontSize={20}
+              fontSize={16}
               style={[spacings.mbTy]}
             >
               {t('Tokens')}
@@ -63,7 +63,7 @@ const AssetsToggleProvider: React.FC = ({ children }) => {
               shouldScale={false}
               weight="regular"
               color={type === 'collectibles' ? colors.violet : colors.martinique_65}
-              fontSize={20}
+              fontSize={16}
               style={[spacings.mbTy]}
             >
               {t('Collectibles')}

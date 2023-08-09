@@ -13,8 +13,8 @@ const styles = StyleSheet.create<Style>({
   container: {
     ...flexbox.directionRow,
     ...flexbox.justifySpaceBetween,
-    ...spacings.pvTy,
-    ...spacings.phTy,
+    ...spacings.pvMi,
+    ...spacings.phMi,
     borderWidth: 1,
     borderRadius: 12,
     borderColor: colors.zircon

@@ -34,11 +34,11 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
       label: (
         <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
           <Image
-            style={{ width: 34, height: 34, borderRadius: 12, ...spacings.mrTy }}
+            style={{ width: 30, height: 30, borderRadius: 10, ...spacings.mrTy }}
             source={avatarSpace}
             resizeMode="contain"
           />
-          <Text weight="medium" shouldScale={false} fontSize={16}>
+          <Text weight="medium" shouldScale={false} fontSize={14}>
             Account name
           </Text>
         </View>
@@ -49,11 +49,11 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
       label: (
         <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
           <Image
-            style={{ width: 34, height: 34, borderRadius: 12, ...spacings.mrTy }}
+            style={{ width: 30, height: 30, borderRadius: 10, ...spacings.mrTy }}
             source={avatarSpaceDog}
             resizeMode="contain"
           />
-          <Text weight="medium" shouldScale={false} fontSize={16}>
+          <Text weight="medium" shouldScale={false} fontSize={14}>
             Account name 2
           </Text>
         </View>
@@ -64,11 +64,11 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
       label: (
         <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
           <Image
-            style={{ width: 34, height: 34, borderRadius: 12, ...spacings.mrTy }}
+            style={{ width: 30, height: 30, borderRadius: 10, ...spacings.mrTy }}
             source={avatarSpaceRaccoon}
             resizeMode="contain"
           />
-          <Text weight="medium" shouldScale={false} fontSize={16}>
+          <Text weight="medium" shouldScale={false} fontSize={14}>
             Account name 3
           </Text>
         </View>
@@ -79,11 +79,11 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
       label: (
         <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
           <Image
-            style={{ width: 34, height: 34, borderRadius: 12, ...spacings.mrTy }}
+            style={{ width: 30, height: 30, borderRadius: 10, ...spacings.mrTy }}
             source={avatarFire}
             resizeMode="contain"
           />
-          <Text weight="medium" shouldScale={false} fontSize={16}>
+          <Text weight="medium" shouldScale={false} fontSize={14}>
             Account name 4
           </Text>
         </View>
@@ -116,20 +116,16 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
       />
       <View style={[flexboxStyles.directionRow]}>
         <Button
-          type="primary"
           textStyle={{ fontSize: 14 }}
-          size="large"
+          size="regular"
           text={t('dApps')}
           hasBottomSpacing={false}
           style={[spacings.mrTy]}
         />
-        <NavIconWrapper
-          style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
-          onPress={handleGoBack}
-        >
+        <NavIconWrapper style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}>
           <MaximizeIcon />
         </NavIconWrapper>
-        <NavIconWrapper style={{ borderColor: colors.scampi_20 }} onPress={handleGoBack}>
+        <NavIconWrapper style={{ borderColor: colors.scampi_20 }}>
           <BurgerIcon />
         </NavIconWrapper>
       </View>

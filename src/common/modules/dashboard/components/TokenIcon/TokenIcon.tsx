@@ -23,10 +23,10 @@ const TokenIcon: React.FC<Props> = ({
   networkId = '',
   address = '',
   withContainer = false,
-  containerWidth = 40,
-  containerHeight = 40,
-  width = 40,
-  height = 40,
+  containerWidth = 30,
+  containerHeight = 30,
+  width = 30,
+  height = 30,
   ...props
 }) => {
   const [isLoading, setIsLoading] = useState(true)

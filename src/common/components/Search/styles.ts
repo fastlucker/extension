@@ -17,7 +17,7 @@ const styles = StyleSheet.create<Style>({
   },
   searchSection: {
     borderWidth: 1,
-    padding: 8,
+    padding: 5,
     borderRadius: 12,
     backgroundColor: colors.melrose_15,
     borderColor: colors.scampi_20,

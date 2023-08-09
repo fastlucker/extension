@@ -30,7 +30,7 @@ const Routes = () => {
         <IconWrapper>
           <SwapIcon />
         </IconWrapper>
-        <Text weight="regular" shouldScale={false} fontSize={14}>
+        <Text weight="regular" shouldScale={false} fontSize={12}>
           {t('Swap')}
         </Text>
       </View>
@@ -38,7 +38,7 @@ const Routes = () => {
         <IconWrapper>
           <BridgeIcon />
         </IconWrapper>
-        <Text weight="regular" shouldScale={false} fontSize={14}>
+        <Text weight="regular" shouldScale={false} fontSize={12}>
           {t('Bridge')}
         </Text>
       </View>
@@ -46,7 +46,7 @@ const Routes = () => {
         <IconWrapper>
           <SendIcon />
         </IconWrapper>
-        <Text weight="regular" shouldScale={false} fontSize={14}>
+        <Text weight="regular" shouldScale={false} fontSize={12}>
           {t('Send')}
         </Text>
       </View>
@@ -54,7 +54,7 @@ const Routes = () => {
         <IconWrapper>
           <TopUpIcon />
         </IconWrapper>
-        <Text weight="regular" shouldScale={false} fontSize={14}>
+        <Text weight="regular" shouldScale={false} fontSize={12}>
           {t('Top up')}
         </Text>
       </View>
@@ -62,7 +62,7 @@ const Routes = () => {
         <IconWrapper>
           <EarnIcon />
         </IconWrapper>
-        <Text weight="regular" shouldScale={false} fontSize={14}>
+        <Text weight="regular" shouldScale={false} fontSize={12}>
           {t('Earn')}
         </Text>
       </View>

@@ -9,7 +9,7 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   toggleItem: {
     borderBottomWidth: 2,
-    width: 150,
+    width: 130,
     ...flexbox.alignCenter
   }
 })

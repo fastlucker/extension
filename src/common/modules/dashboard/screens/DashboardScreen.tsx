@@ -89,16 +89,18 @@ const DashboardScreen = () => {
   const totalBalance = 20500.9
   return (
     <Wrapper contentContainerStyle={[spacings.pv0, spacings.ph0]} style={styles.container}>
-      <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.ph, spacings.pv]}>
+      <View
+        style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.phSm, spacings.pvSm]}
+      >
         <View>
-          <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={20}>
+          <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={16}>
             {t('Balance')}
           </Text>
           <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-            <Text fontSize={36} shouldScale={false} style={{ lineHeight: 44 }} weight="regular">
+            <Text fontSize={30} shouldScale={false} style={{ lineHeight: 34 }} weight="regular">
               $ {Number(totalBalance.toFixed(2).split('.')[0]).toLocaleString('en-US')}
             </Text>
-            <Text fontSize={23} shouldScale={false} weight="regular">
+            <Text fontSize={20} shouldScale={false} weight="regular">
               .{Number(totalBalance.toFixed(2).split('.')[1])}
             </Text>
           </View>

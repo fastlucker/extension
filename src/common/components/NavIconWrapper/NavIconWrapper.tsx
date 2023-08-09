@@ -21,8 +21,8 @@ const NavIconWrapper = ({ children, onPress, style, hoveredBackground, ...rest }
       {({ hovered }) => (
         <View
           style={{
-            width: 48,
-            height: 48,
+            width: 50,
+            height: 50,
             borderWidth: 1,
             borderColor: colors.melrose_15,
             ...commonStyles.borderRadiusPrimary,
