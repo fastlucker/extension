@@ -1,6 +1,6 @@
 import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { Pressable, ViewProps } from 'react-native'
+import { Trans, useTranslation } from 'react-i18next'
+import { Image, ImageProps, ImageStyle, Pressable, ViewProps } from 'react-native'
 
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -13,10 +13,13 @@ import styles from './styles'
 
 interface Props {
   style?: ViewProps['style']
-  text?: string
+  text?: string | React.ReactNode
   title?: string
   icon?: any
-  image?: React.ReactNode
+  image?: {
+    source: ImageProps['source']
+    style: ImageStyle
+  }
   onPress?: () => void
   buttonText?: string
 }
@@ -36,15 +39,15 @@ const Card: React.FC<Props> = ({ style, text, title, icon: Icon, image, onPress,
       {({ hovered }: any) => (
         <>
           {Icon && <Icon color={hovered ? colors.violet : colors.melrose} />}
-          {image && image}
+          {image && <Image source={image.source} style={image.style} resizeMode="contain" />}
           {title && (
             <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={16}>
-              {title}
+              {t(title)}
             </Text>
           )}
           {text && (
             <Text style={[spacings.mb, flexbox.flex1]} fontSize={12}>
-              {text}
+              <Trans>{text}</Trans>
             </Text>
           )}
           {buttonText && (

@@ -38,10 +38,8 @@ const GetStartedScreen = () => {
         </Text>
         <View style={[flexboxStyles.directionRow]}>
           <Card
-            title={t('Email account')}
-            text={t(
-              'Create a smart account with email and password. This account will be recoverable via your email address.'
-            )}
+            title="Email account"
+            text="Create a smart account with email and password. This account will be recoverable via your email address."
             icon={EmailIcon}
             style={{
               ...flexboxStyles.flex1
@@ -57,10 +55,8 @@ const GetStartedScreen = () => {
             buttonText="Create Email Account"
           />
           <Card
-            title={t('Hardware wallet')}
-            text={t(
-              'Import multiple accounts from a hardware wallet device: we support Trezor, Ledger and Grid+ Lattice.\n\nYou can import your existing legacy accounts and smart accounts.'
-            )}
+            title="Hardware wallet"
+            text="Import multiple accounts from a hardware wallet device: we support Trezor, Ledger and Grid+ Lattice.\n\nYou can import your existing legacy accounts and smart accounts."
             style={[
               spacings.mhSm,
               {
@@ -79,13 +75,11 @@ const GetStartedScreen = () => {
             }}
           />
           <Card
-            title={t('Legacy Account')}
+            title="Legacy Account"
             style={{
               ...flexboxStyles.flex1
             }}
-            text={t(
-              'Import a private key or seed phrase from a traditional wallet like Metamask.\n\nYou can import a legacy account but also create a fresh smart account from the same keys.'
-            )}
+            text="Import a private key or seed phrase from a traditional wallet like Metamask.\n\nYou can import a legacy account but also create a fresh smart account from the same keys."
             icon={ImportAccountIcon}
             buttonText="Import Legacy Account"
             onPress={() => {

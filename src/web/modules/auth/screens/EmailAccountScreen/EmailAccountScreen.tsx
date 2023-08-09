@@ -23,17 +23,13 @@ const EmailAccountScreen = () => {
       <AuthLayoutWrapperMainContent>
         <View style={[flexbox.directionRow, flexbox.justifyCenter]}>
           <Card
-            text={t(
-              'Sign in to your Ambire wallet using your email for a simple and secure access to your crypto.'
-            )}
+            text="Sign in to your Ambire wallet using your email for a simple and secure access to your crypto."
             style={spacings.mr}
             onPress={() => navigate(ROUTES.authEmailLogin)}
             buttonText="Log In"
           />
           <Card
-            text={t(
-              'Create a new Ambire wallet with just your email and start managing your crypto.'
-            )}
+            text="Create a new Ambire wallet with just your email and start managing your crypto."
             style={spacings.ml}
             onPress={() => navigate(ROUTES.authEmailRegister)}
             buttonText="Create New"
