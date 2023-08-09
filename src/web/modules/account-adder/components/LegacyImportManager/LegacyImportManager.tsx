@@ -37,14 +37,6 @@ const LegacyImportManager = (props: Props) => {
   }, [dispatch, createTask, props.privKeyOrSeed, mainControllerState.accounts])
 
   useEffect(() => {
-    const isInTheMiddleOfImport = false
-    // TODO:const isInTheMiddleOfImport =
-    // const isInTheMiddleOfImport =
-    //   accountAdderState.addAccountsStatus.type !== 'INITIAL' &&
-    //   accountAdderState.selectedAccounts.length === 0
-
-    if (isInTheMiddleOfImport) return
-
     if (accountAdderState.addAccountsStatus.type === 'ERROR') {
       // TODO: display error toast instead
       // eslint-disable-next-line no-alert
@@ -65,14 +57,13 @@ const LegacyImportManager = (props: Props) => {
         : navigate(WEB_ROUTES.createKeyStore)
     }
   }, [
+    accountAdderState.isInitialized,
     accountAdderState.addAccountsStatus.type,
     accountAdderState.addAccountsStatus.message,
     updateStepperState,
     shouldCreateEmailVault,
     navigate,
-    dispatch,
-    accountAdderState.addAccountsStatus,
-    accountAdderState.selectedAccounts.length
+    dispatch
   ])
 
   const setPage = useCallback(
@@ -99,11 +90,34 @@ const LegacyImportManager = (props: Props) => {
   }, [accountAdderState.isInitialized, setPage])
 
   const onImportReady = useCallback(() => {
+    if (accountAdderState.selectedAccounts.length) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
+        params: { accounts: accountAdderState.selectedAccounts }
+      })
+      return
+    }
+
     dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
-      params: { accounts: accountAdderState.selectedAccounts }
+      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
     })
-  }, [dispatch, accountAdderState.selectedAccounts])
+
+    updateStepperState(1, 'legacyAuth')
+    shouldCreateEmailVault
+      ? navigate(WEB_ROUTES.createEmailVault, {
+          state: {
+            hideStepper: true,
+            hideFormTitle: true
+          }
+        })
+      : navigate(WEB_ROUTES.createKeyStore)
+  }, [
+    accountAdderState.selectedAccounts,
+    dispatch,
+    updateStepperState,
+    shouldCreateEmailVault,
+    navigate
+  ])
 
   return (
     <AccountsOnPageList

@@ -77,6 +77,9 @@ type MainControllerAccountAdderAddAccounts = {
     accounts: Account[]
   }
 }
+type MainControllerAccountAdderReset = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
+}
 
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
@@ -161,7 +164,7 @@ export type Action =
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
-  | MainControllerAccountAdderResetSelectedAccountsAction
+  | MainControllerAccountAdderReset
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | LedgerControllerUnlockAction

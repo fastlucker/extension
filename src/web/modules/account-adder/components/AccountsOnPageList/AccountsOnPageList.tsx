@@ -246,7 +246,13 @@ const AccountsList = ({
             isSubmitting ||
             (!state.selectedAccounts.length && !state.preselectedAccounts.length)
           }
-          text={isSubmitting ? 'Importing...' : 'Import Accounts'}
+          text={
+            isSubmitting
+              ? 'Importing...'
+              : state.preselectedAccounts.length && !state.selectedAccounts.length
+              ? 'Continue'
+              : 'Import Accounts'
+          }
         />
       </View>
     </View>
