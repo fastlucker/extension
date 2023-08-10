@@ -17,6 +17,8 @@ interface Props {
   menuPlacement?: string
   style?: ViewStyle
   controlStyles?: ViewStyle
+  iconWidth?: number
+  iconHeight?: number
 }
 
 const SelectComponent = ({
@@ -27,7 +29,9 @@ const SelectComponent = ({
   label,
   menuPlacement = 'auto',
   style,
-  controlStyles
+  controlStyles,
+  iconWidth = 36,
+  iconHeight = 36
 }: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
@@ -37,20 +41,20 @@ const SelectComponent = ({
         {isDropdownOpen ? (
           <NavIconWrapper
             onPress={() => setIsDropdownOpen(!isDropdownOpen)}
-            width={25}
-            height={25}
+            width={iconWidth}
+            height={iconHeight}
             style={{ borderColor: 'transparent', borderRadius: 10 }}
           >
-            <DownArrowIcon width={24} height={24} isActive withRect={false} />
+            <DownArrowIcon width={26} height={26} isActive withRect={false} />
           </NavIconWrapper>
         ) : (
           <NavIconWrapper
             onPress={() => setIsDropdownOpen(!isDropdownOpen)}
-            width={25}
-            height={25}
+            width={iconWidth}
+            height={iconHeight}
             style={{ borderColor: 'transparent', borderRadius: 10 }}
           >
-            <DownArrowIcon width={24} height={24} withRect={false} />
+            <DownArrowIcon width={26} height={26} withRect={false} />
           </NavIconWrapper>
         )}
       </components.DropdownIndicator>

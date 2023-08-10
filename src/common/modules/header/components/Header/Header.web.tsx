@@ -109,6 +109,8 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
         options={options}
         menuPlacement="bottom"
         label="Select Account"
+        iconWidth={25}
+        iconHeight={25}
         controlStyles={{ width: 217 }}
       />
       <View style={[flexboxStyles.directionRow]}>
