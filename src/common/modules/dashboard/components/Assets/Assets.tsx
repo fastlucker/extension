@@ -24,6 +24,10 @@ const Assets = ({
   onRemoveExtraToken,
   onRemoveHiddenToken
 }: any) => {
+  // eslint-disable-next-line no-lone-blocks
+  {
+    /* // TODO: Implementation on AfterInteractions when listloader is created */
+  }
   return (
     <View
       style={{
@@ -37,7 +41,6 @@ const Assets = ({
     >
       {type === 'tokens' && (
         <AfterInteractions
-        {/* // TODO: Implementation here when listloader is created */}
         //   placeholder={<TokensListLoader />}
         // Enabled only when the list contains multiple items that slow down the rendering/animations
         //   enabled={tokens.length > 20}

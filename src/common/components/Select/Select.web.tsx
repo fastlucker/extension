@@ -39,7 +39,7 @@ const SelectComponent = ({
             onPress={() => setIsDropdownOpen(!isDropdownOpen)}
             width={25}
             height={25}
-            style={{ borderColor: 'transparent' }}
+            style={{ borderColor: 'transparent', borderRadius: 10 }}
           >
             <DownArrowIcon width={24} height={24} isActive withRect={false} />
           </NavIconWrapper>
@@ -48,7 +48,7 @@ const SelectComponent = ({
             onPress={() => setIsDropdownOpen(!isDropdownOpen)}
             width={25}
             height={25}
-            style={{ borderColor: 'transparent' }}
+            style={{ borderColor: 'transparent', borderRadius: 10 }}
           >
             <DownArrowIcon width={24} height={24} withRect={false} />
           </NavIconWrapper>
