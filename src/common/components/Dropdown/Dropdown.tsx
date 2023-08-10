@@ -9,12 +9,11 @@ import colors from '@common/styles/colors'
 import styles from './styles'
 
 interface Props {
-  label: string
   data: Array<{ label: string; value: string }>
   onSelect: (item: { label: string; value: string }) => void
 }
 
-const Dropdown: FC<Props> = ({ label, data, onSelect }) => {
+const Dropdown: FC<Props> = ({ data, onSelect }) => {
   const DropdownButton = useRef()
   const [visible, setVisible] = useState(false)
   const [selected, setSelected] = useState(undefined)
@@ -33,7 +32,7 @@ const Dropdown: FC<Props> = ({ label, data, onSelect }) => {
 
   const onItemPress = (item: any): void => {
     setSelected(item)
-    // onSelect(item)
+    onSelect(item)
     setVisible(false)
   }
 
