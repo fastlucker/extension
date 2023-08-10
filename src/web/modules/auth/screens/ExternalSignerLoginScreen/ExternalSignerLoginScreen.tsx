@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useCallback } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { TextInput, View } from 'react-native'
 
 import Button from '@common/components/Button'
@@ -16,11 +17,36 @@ import {
 
 import styles from './styles'
 
+const PRIVATE_KEY_REGEX = /^(0x)?[0-9a-fA-F]{64}$/i
+
+const DEFAULT_IMPORT_LABEL = `Imported key on ${new Date().toLocaleDateString()}`
+
 const ExternalSignerLoginScreen = () => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = useForm({
+    mode: 'all',
+    defaultValues: {
+      privateKey: '',
+      label: ''
+    }
+  })
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const [privKeyOrSeed, setPrivKeyOrSeed] = useState('')
-  const [label, setLabel] = useState('')
+
+  const handleFormSubmit = useCallback(() => {
+    handleSubmit(({ privateKey, label }) => {
+      navigate(WEB_ROUTES.accountAdder, {
+        state: {
+          walletType: 'legacyImport',
+          privateKey,
+          label: label || DEFAULT_IMPORT_LABEL
+        }
+      })
+    })()
+  }, [handleSubmit, navigate])
 
   return (
     <>
@@ -34,54 +60,88 @@ const ExternalSignerLoginScreen = () => {
             {t('Import Legacy Account')}
           </Text>
 
-          <TextInput
-            value={privKeyOrSeed}
-            editable
-            multiline
-            numberOfLines={8}
-            placeholder="Enter a seed phrase or private key"
-            onChangeText={setPrivKeyOrSeed}
-            style={styles.textarea}
-            placeholderTextColor={colors.martinique_65}
-          />
+          <View>
+            <Text
+              style={[styles.error, { opacity: errors.privateKey ? 1 : 0 }]}
+              color={colors.radicalRed}
+              fontSize={12}
+            >
+              Please enter a valid private key.
+            </Text>
+            <Controller
+              control={control}
+              rules={{ pattern: PRIVATE_KEY_REGEX, required: true }}
+              name="privateKey"
+              render={({ field: { onChange, onBlur, value } }) => {
+                return (
+                  <TextInput
+                    value={value}
+                    editable
+                    autoFocus
+                    multiline
+                    numberOfLines={8}
+                    placeholder="Enter a seed phrase or private key"
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    style={styles.textarea}
+                    placeholderTextColor={colors.martinique_65}
+                  />
+                )
+              }}
+            />
+          </View>
+
           <Text shouldScale={false} fontSize={12} style={[spacings.mbLg]} color={colors.brownRum}>
             Legacy Account found {'  '}{' '}
             <Text shouldScale={false} fontSize={14} color={colors.brownRum} weight="semiBold">
               0x603f453E4...5a245fB3D34Df
             </Text>
           </Text>
-          <Text
-            style={[spacings.plTy, spacings.mbTy]}
-            shouldScale={false}
-            fontSize={16}
-            weight="medium"
-          >
-            {t('Key label')}
-          </Text>
-          <TextInput
-            value={label}
-            editable
-            multiline
-            numberOfLines={1}
-            maxLength={40}
-            placeholder="Imported key on 21 Apr 2023"
-            onChangeText={setLabel}
-            style={[styles.textarea, spacings.mbLg]}
-            placeholderTextColor={colors.martinique_65}
+          <View style={styles.errorAndLabel}>
+            <Text
+              style={[spacings.plTy, spacings.mbTy]}
+              shouldScale={false}
+              fontSize={16}
+              weight="medium"
+            >
+              {t('Key label')}
+            </Text>
+            <Text
+              style={[styles.error, { opacity: errors.label ? 1 : 0, marginLeft: 10 }]}
+              color={colors.radicalRed}
+              fontSize={12}
+            >
+              {t('A label must be 6-24 characters long.')}
+            </Text>
+          </View>
+          <Controller
+            control={control}
+            rules={{ maxLength: 24, minLength: 6 }}
+            name="label"
+            render={({ field: { onChange, onBlur, value } }) => {
+              return (
+                <TextInput
+                  value={value}
+                  editable
+                  multiline
+                  numberOfLines={1}
+                  maxLength={40}
+                  placeholder={DEFAULT_IMPORT_LABEL}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  style={[styles.textarea, spacings.mbLg]}
+                  placeholderTextColor={colors.martinique_65}
+                />
+              )
+            }}
           />
+
           <Button
             type="primary"
             size="large"
             text="Import Legacy Account"
             style={[flexbox.alignSelfCenter]}
-            onPress={() =>
-              navigate(WEB_ROUTES.accountAdder, {
-                state: {
-                  walletType: 'legacyImport',
-                  privKeyOrSeed
-                }
-              })
-            }
+            onPress={handleFormSubmit}
           />
         </View>
       </AuthLayoutWrapperMainContent>
