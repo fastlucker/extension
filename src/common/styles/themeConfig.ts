@@ -85,7 +85,8 @@ export const lightOnlyRoutesOnWeb = [
   WEB_ROUTES.hardwareWalletSelect,
   WEB_ROUTES.hardwareWalletLedger,
   WEB_ROUTES.accountAdder,
-  WEB_ROUTES.accountPersonalize
+  WEB_ROUTES.accountPersonalize,
+  WEB_ROUTES.signMessage
 ]
 
 export default ThemeColors

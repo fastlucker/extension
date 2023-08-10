@@ -1,4 +1,5 @@
 import { Storage } from 'ambire-common/src/interfaces/storage'
+import { parse, stringify } from 'ambire-common/src/libs/bigintJson/bigintJson'
 
 export const get = async (key?: string, defaultValue?: any) => {
   const res = await browser.storage.local.get(null as any)
@@ -8,7 +9,7 @@ export const get = async (key?: string, defaultValue?: any) => {
   }
 
   try {
-    return key ? (typeof res[key] === 'string' ? JSON.parse(res[key]) : res[key]) : res
+    return key ? (typeof res[key] === 'string' ? parse(res[key]) : res[key]) : res
   } catch (error) {
     return defaultValue
   }
@@ -16,7 +17,7 @@ export const get = async (key?: string, defaultValue?: any) => {
 
 export const set = async (key: string, value: any): Promise<null> => {
   await browser.storage.local.set({
-    [key]: typeof value === 'string' ? value : JSON.stringify(value)
+    [key]: typeof value === 'string' ? value : stringify(value)
   })
   return null
 }

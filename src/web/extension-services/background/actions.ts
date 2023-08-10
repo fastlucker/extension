@@ -6,6 +6,15 @@ import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeC
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
+import { ControllerName } from './types'
+
+type InitControllerStateAction = {
+  type: 'INIT_CONTROLLER_STATE'
+  params: {
+    controller: ControllerName
+  }
+}
+
 type MainControllerAccountAdderInitLedgerAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER'
   params: {
@@ -133,6 +142,7 @@ type WalletControllerSendRequestAction = {
 }
 
 export type Action =
+  | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
@@ -169,6 +179,7 @@ export type AsyncActionTypes = {
   // TODO: These all should be migrated to use onUpdate emitted events
   // instead of relying on the return value of the action.
   WALLET_CONTROLLER_GET_APPROVAL: ReturnType<WalletController['getApproval']>
+  WALLET_CONTROLLER_REJECT_APPROVAL: ReturnType<WalletController['rejectApproval']>
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>

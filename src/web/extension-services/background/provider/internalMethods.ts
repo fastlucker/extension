@@ -13,7 +13,7 @@ const tabCheckin = ({
 }
 
 const getProviderState = async (req) => {
-  const isUnlocked = null // TODO: implement in v2
+  const isUnlocked = true // TODO: implement in v2
   const chainId = await providerController.ethChainId()
   const networkVersion = await providerController.netVersion()
 

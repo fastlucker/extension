@@ -1,3 +1,4 @@
+import { networks } from 'ambire-common/src/consts/networks'
 import React, { useCallback, useState } from 'react'
 import { View } from 'react-native'
 
@@ -9,7 +10,6 @@ import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
-import useNetwork from '@common/hooks/useNetwork'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -21,7 +21,6 @@ import styles from './styles'
 
 const PermissionRequestScreen = () => {
   const { t } = useTranslation()
-  const { network } = useNetwork()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
   const { approval, rejectApproval, resolveApproval } = useApproval()
 
@@ -33,9 +32,9 @@ const PermissionRequestScreen = () => {
   const handleAuthorizeButtonPress = useCallback(() => {
     setIsAuthorizing(true)
     resolveApproval({
-      defaultChain: network?.nativeAssetSymbol
+      defaultChain: networks[0].nativeAssetSymbol
     })
-  }, [network?.nativeAssetSymbol, resolveApproval])
+  }, [resolveApproval])
 
   return (
     <GradientBackgroundWrapper>
