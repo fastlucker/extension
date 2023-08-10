@@ -10,6 +10,8 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useStorage from '@common/hooks/useStorage'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -21,12 +23,27 @@ import styles from './styles'
 
 const GetStartedScreen = () => {
   const { t } = useTranslation()
+  const { updateStepperState } = useStepper()
+  const [areTermsAccepted] = useStorage({ key: 'areTermsAccepted' })
   const { navigate } = useNavigation()
   const [advanceModeEnabled, setAdvancedModeEnabled] = useState(false)
 
   const handleAuthButtonPress = useCallback(
-    (nextRoute: any, state?: any) => navigate(nextRoute, state),
-    [navigate]
+    (nextRoute: any, state?: any) => {
+      if (
+        nextRoute === WEB_ROUTES.terms &&
+        areTermsAccepted &&
+        state?.state?.nextPage &&
+        state?.state?.nextState
+      ) {
+        updateStepperState(0, state.state.nextState)
+        navigate(state.state.nextPage)
+
+        return
+      }
+      navigate(nextRoute)
+    },
+    [navigate, areTermsAccepted, updateStepperState]
   )
   return (
     <AuthLayoutWrapperMainContent fullWidth>

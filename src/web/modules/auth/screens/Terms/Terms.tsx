@@ -1,14 +1,15 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
-import useStepper from '@common/modules/auth/hooks/useStepper'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
+import useStorage from '@common/hooks/useStorage'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
@@ -16,12 +17,14 @@ import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/
 const Terms = () => {
   const { t } = useTranslation()
   const { params } = useRoute()
+  const [, setAreTermsAccepted] = useStorage({ key: 'areTermsAccepted' })
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { nextPage, nextState }: any = params
 
   const onPress = () => {
     if (!nextPage || !nextState) return
+    setAreTermsAccepted(true)
     updateStepperState(0, nextState)
     navigate(nextPage)
   }
