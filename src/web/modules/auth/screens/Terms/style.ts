@@ -22,7 +22,7 @@ const styles = StyleSheet.create<Styles>({
     fontFamily: FONT_FAMILIES.SEMI_BOLD
   },
   logo: {
-    ...spacings.mbMd,
+    ...spacings.mbLg,
     ...flexbox.alignCenter
   }
 })
