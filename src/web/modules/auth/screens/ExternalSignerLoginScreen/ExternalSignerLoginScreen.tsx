@@ -64,7 +64,7 @@ const ExternalSignerLoginScreen = () => {
             <Text
               style={[styles.error, { opacity: errors.privateKey ? 1 : 0 }]}
               color={colors.radicalRed}
-              fontSize={12}
+              fontSize={14}
             >
               Please enter a valid private key.
             </Text>
@@ -109,9 +109,9 @@ const ExternalSignerLoginScreen = () => {
             <Text
               style={[styles.error, { opacity: errors.label ? 1 : 0, marginLeft: 10 }]}
               color={colors.radicalRed}
-              fontSize={12}
+              fontSize={14}
             >
-              {t('A label must be 6-24 characters long.')}
+              {t('Key labels must be 6-24 characters long.')}
             </Text>
           </View>
           <Controller
