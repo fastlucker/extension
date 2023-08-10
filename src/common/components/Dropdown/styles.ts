@@ -15,7 +15,7 @@ const styles = StyleSheet.create<Style>({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 50,
+    height: 35,
     position: 'relative',
     zIndex: 1,
     ...spacings.ph,
