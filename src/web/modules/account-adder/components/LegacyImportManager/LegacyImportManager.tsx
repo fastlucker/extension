@@ -1,6 +1,6 @@
 /* eslint-disable react/destructuring-assignment */
 
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
@@ -25,18 +25,23 @@ const LegacyImportManager = (props: Props) => {
   const { dispatch } = useBackgroundService()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
+  const [sessionStarted, setSessionStarted] = useState(false)
 
-  useEffect(() => {
-    ;(async () => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-        params: {
-          preselectedAccounts: mainControllerState.accounts,
-          privKeyOrSeed: props.privKeyOrSeed
-        }
-      })
-    })()
-  }, [dispatch, createTask, props.privKeyOrSeed, mainControllerState.accounts])
+  const setPage = useCallback(
+    async (page = 1) => {
+      try {
+        createTask(() =>
+          dispatch({
+            type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE',
+            params: { page }
+          })
+        )
+      } catch (e: any) {
+        console.error(e.message)
+      }
+    },
+    [dispatch, createTask]
+  )
 
   const goToNextStep = useCallback(() => {
     updateStepperState(1, 'legacyAuth')
@@ -87,21 +92,25 @@ const LegacyImportManager = (props: Props) => {
     goToNextStep
   ])
 
-  const setPage = useCallback(
-    async (page = 1) => {
-      try {
-        createTask(() =>
-          dispatch({
-            type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE',
-            params: { page }
-          })
-        )
-      } catch (e: any) {
-        console.error(e.message)
+  useEffect(() => {
+    if (sessionStarted) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+      params: {
+        preselectedAccounts: mainControllerState.accounts,
+        privKeyOrSeed: props.privKeyOrSeed
       }
-    },
-    [dispatch, createTask]
-  )
+    })
+    setSessionStarted(true)
+  }, [
+    dispatch,
+    props.privKeyOrSeed,
+    mainControllerState.accounts,
+    accountAdderState.isInitialized,
+    setPage,
+    sessionStarted
+  ])
 
   useEffect(() => {
     ;(async () => {
