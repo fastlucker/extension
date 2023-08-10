@@ -203,6 +203,7 @@ export type AsyncActionTypes = {
   // TODO: These all should be migrated to use onUpdate emitted events
   // instead of relying on the return value of the action.
   WALLET_CONTROLLER_GET_APPROVAL: ReturnType<WalletController['getApproval']>
+  WALLET_CONTROLLER_REJECT_APPROVAL: ReturnType<WalletController['rejectApproval']>
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>

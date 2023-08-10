@@ -3,7 +3,7 @@ import 'reflect-metadata'
 import { ethErrors } from 'eth-rpc-errors'
 
 import { EVENTS } from '@web/constants/common'
-import providerController from '@web/extension-services/background/provider/ProviderController'
+import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import { ProviderRequest } from '@web/extension-services/background/provider/types'
 import notificationService from '@web/extension-services/background/services/notification'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -30,12 +30,14 @@ const flowContext = flow
   .use(async (ctx, next) => {
     // check method
     const {
-      data: { method }
+      data: { method },
+      mainCtrl
     } = ctx.request
     ctx.mapMethod = underline2Camelcase(method)
-    if (!providerController[ctx.mapMethod]) {
+    const providerCtrl = new ProviderController(mainCtrl)
+    if (!(providerCtrl as any)[ctx.mapMethod]) {
       if (method.startsWith('eth_') || method === 'net_version') {
-        return providerController.ethRpc(ctx.request)
+        return providerCtrl.ethRpc(ctx.request)
       }
 
       throw ethErrors.rpc.methodNotFound({
@@ -50,10 +52,12 @@ const flowContext = flow
     const {
       mapMethod,
       request: {
-        session: { origin }
+        session: { origin },
+        mainCtrl
       }
     } = ctx
-    if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
+    const providerCtrl = new ProviderController(mainCtrl)
+    if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       // const isUnlock = VaultController.isVaultUnlocked()
       const isUnlock = true
       if (!isUnlock) {
@@ -78,11 +82,13 @@ const flowContext = flow
     // check connect
     const {
       request: {
-        session: { origin, name, icon }
+        session: { origin, name, icon },
+        mainCtrl
       },
       mapMethod
     } = ctx
-    if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
+    const providerCtrl = new ProviderController(mainCtrl)
+    if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       if (!permissionService.hasPermission(origin)) {
         if (connectOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing connect. Please wait.')
@@ -110,12 +116,13 @@ const flowContext = flow
     const {
       request: {
         data: { method },
-        session: { origin, name, icon }
+        session: { origin, name, icon },
+        mainCtrl
       },
       mapMethod
     } = ctx
-    const [approvalType, condition] =
-      Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
+    const providerCtrl = new ProviderController(mainCtrl)
+    const [approvalType, condition] = Reflect.getMetadata('APPROVAL', providerCtrl, mapMethod) || []
     if (approvalType && (!condition || !condition(ctx.request))) {
       ctx.request.requestedApproval = true
       ctx.approvalRes = await notificationService.requestApproval({
@@ -138,16 +145,17 @@ const flowContext = flow
     return next()
   })
   .use(async (ctx) => {
+    const providerCtrl = new ProviderController(ctx.request.mainCtrl)
     const { approvalRes, mapMethod, request } = ctx
 
     // process request
-    const [approvalType] = Reflect.getMetadata('APPROVAL', providerController, mapMethod) || []
+    const [approvalType] = Reflect.getMetadata('APPROVAL', providerCtrl, mapMethod) || []
     const { uiRequestComponent, ...rest } = approvalRes || {}
     const {
       session: { origin }
     } = request
     const requestDefer = Promise.resolve(
-      providerController[mapMethod]({
+      (providerCtrl as any)[mapMethod]({
         ...request,
         approvalRes
       })

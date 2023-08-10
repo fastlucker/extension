@@ -5,6 +5,7 @@
 import { useCallback, useEffect } from 'react'
 
 import useStorage from '@common/hooks/useStorage'
+import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 
 import { APPROVAL_REQUESTS_STORAGE_KEY, UseExtensionApprovalReturnType } from './types'
 
@@ -15,12 +16,11 @@ type Props = {
 }
 
 const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) => {
-  // const { selectedAcc: selectedAccount } = useAccounts()
   // const { network } = useNetwork()
+  const mainCtrlState = useMainControllerState()
   // TODO: v2
   const network = {}
-  // TODO: v2
-  const selectedAccount = ''
+  const selectedAccount = mainCtrlState.selectedAccount || ''
   const [requests, setRequests] = useStorage({
     key: APPROVAL_REQUESTS_STORAGE_KEY,
     defaultValue: [],
