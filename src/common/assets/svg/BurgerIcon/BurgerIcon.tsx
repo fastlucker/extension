@@ -8,30 +8,18 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const BurgerIcon: React.FC<Props> = ({ width = 50, height = 50 }) => (
-  <Svg width={width} height={height} viewBox="0 0 50 50">
-    <G transform="translate(-805.75 -1501.5)">
-      <Rect
-        width="22.5"
-        height="2.5"
-        rx="1.25"
-        transform="translate(819.75 1531)"
-        fill={colors.martinique}
-      />
+const BurgerIcon: React.FC<Props> = ({ width = 50, height = 50, color = colors.martinique }) => (
+  <Svg width={width} height={height} viewBox="0 0 22.5 15">
+    <G transform="translate(-819.75 -1518.5)">
+      <Rect width="22.5" height="2.5" rx="1.25" transform="translate(819.75 1531)" fill={color} />
       <Rect
         width="17.5"
         height="2.5"
         rx="1.25"
         transform="translate(822.25 1524.75)"
-        fill={colors.martinique}
+        fill={color}
       />
-      <Rect
-        width="22.5"
-        height="2.5"
-        rx="1.25"
-        transform="translate(819.75 1518.5)"
-        fill={colors.martinique}
-      />
+      <Rect width="22.5" height="2.5" rx="1.25" transform="translate(819.75 1518.5)" fill={color} />
     </G>
   </Svg>
 )

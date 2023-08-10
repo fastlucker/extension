@@ -5,6 +5,7 @@ import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import Spinner from '@common/components/Spinner'
 import { getTokenIcon } from '@common/services/icons'
 import colors from '@common/styles/colors'
+import flexbox from '@common/styles/utils/flexbox'
 import { checkIfImageExists } from '@common/utils/checkIfImageExists'
 
 interface Props extends Partial<ImageProps> {
@@ -23,10 +24,10 @@ const TokenIcon: React.FC<Props> = ({
   networkId = '',
   address = '',
   withContainer = false,
-  containerWidth = 30,
-  containerHeight = 30,
-  width = 30,
-  height = 30,
+  containerWidth = 35,
+  containerHeight = 35,
+  width = 20,
+  height = 20,
   ...props
 }) => {
   const [isLoading, setIsLoading] = useState(true)
@@ -54,25 +55,31 @@ const TokenIcon: React.FC<Props> = ({
   }, [address, networkId, uri])
 
   const containerStyle = useMemo(
-    () => withContainer && [{ width: containerWidth, height: containerHeight }],
+    () =>
+      withContainer && [
+        {
+          width: containerWidth,
+          height: containerHeight,
+          backgroundColor: colors.white,
+          borderRadius: 10,
+          ...flexbox.alignCenter,
+          ...flexbox.justifyCenter
+        }
+      ],
     [containerHeight, containerWidth, withContainer]
   )
 
   if (isLoading) {
     return (
       <View style={containerStyle}>
-        <Spinner style={{ width: 30, height: 30 }} />
+        <Spinner style={{ width: 24, height: 24 }} />
       </View>
     )
   }
 
   return validUri ? (
     <View style={containerStyle}>
-      <Image
-        source={{ uri: validUri }}
-        style={{ backgroundColor: colors.white, width, height, borderRadius: 10 }}
-        {...props}
-      />
+      <Image source={{ uri: validUri }} style={{ width, height, borderRadius: 10 }} {...props} />
     </View>
   ) : (
     <MissingTokenIcon

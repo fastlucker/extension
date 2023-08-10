@@ -6,6 +6,8 @@ import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import colors from '@common/styles/colors'
 import common from '@common/styles/utils/common'
 
+import NavIconWrapper from '../NavIconWrapper'
+
 interface Props {
   value: object | null
   options: any[]
@@ -14,6 +16,7 @@ interface Props {
   disabled?: boolean
   menuPlacement?: string
   style?: ViewStyle
+  controlStyles?: ViewStyle
 }
 
 const SelectComponent = ({
@@ -23,7 +26,8 @@ const SelectComponent = ({
   options,
   label,
   menuPlacement = 'auto',
-  style
+  style,
+  controlStyles
 }: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
@@ -31,9 +35,23 @@ const SelectComponent = ({
     return (
       <components.DropdownIndicator {...props}>
         {isDropdownOpen ? (
-          <DownArrowIcon width={34} height={34} isActive />
+          <NavIconWrapper
+            onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+            width={25}
+            height={25}
+            style={{ borderColor: 'transparent' }}
+          >
+            <DownArrowIcon width={24} height={24} isActive withRect={false} />
+          </NavIconWrapper>
         ) : (
-          <DownArrowIcon width={34} height={34} />
+          <NavIconWrapper
+            onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+            width={25}
+            height={25}
+            style={{ borderColor: 'transparent' }}
+          >
+            <DownArrowIcon width={24} height={24} withRect={false} />
+          </NavIconWrapper>
         )}
       </components.DropdownIndicator>
     )
@@ -57,11 +75,11 @@ const SelectComponent = ({
           indicatorSeparator: (styles) => ({ display: 'none' }),
           control: (baseStyles) => ({
             ...baseStyles,
-            width: 260,
             background: colors.melrose_15,
             ...common.borderRadiusPrimary,
             fontSize: 14,
-            color: colors.martinique
+            color: colors.martinique,
+            ...controlStyles
           }),
           option: (baseStyles) => ({
             ...baseStyles,

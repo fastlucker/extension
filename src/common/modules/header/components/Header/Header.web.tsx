@@ -34,7 +34,7 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
       label: (
         <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
           <Image
-            style={{ width: 30, height: 30, borderRadius: 10, ...spacings.mrTy }}
+            style={{ width: 24, height: 24, borderRadius: 10, ...spacings.mrTy }}
             source={avatarSpace}
             resizeMode="contain"
           />
@@ -49,7 +49,7 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
       label: (
         <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
           <Image
-            style={{ width: 30, height: 30, borderRadius: 10, ...spacings.mrTy }}
+            style={{ width: 24, height: 24, borderRadius: 10, ...spacings.mrTy }}
             source={avatarSpaceDog}
             resizeMode="contain"
           />
@@ -64,7 +64,7 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
       label: (
         <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
           <Image
-            style={{ width: 30, height: 30, borderRadius: 10, ...spacings.mrTy }}
+            style={{ width: 24, height: 24, borderRadius: 10, ...spacings.mrTy }}
             source={avatarSpaceRaccoon}
             resizeMode="contain"
           />
@@ -79,7 +79,7 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
       label: (
         <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
           <Image
-            style={{ width: 30, height: 30, borderRadius: 10, ...spacings.mrTy }}
+            style={{ width: 24, height: 24, borderRadius: 10, ...spacings.mrTy }}
             source={avatarFire}
             resizeMode="contain"
           />
@@ -95,11 +95,7 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
   const { t } = useTranslation()
   const [value, setValue] = useState(options[0])
 
-  const { navigate } = useNavigation()
-
   const [title, setTitle] = useState('')
-
-  const handleGoBack = useCallback(() => navigate(-1), [navigate])
 
   const renderBottomSheetSwitcher = (
     <View
@@ -113,20 +109,24 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
         options={options}
         menuPlacement="bottom"
         label="Select Account"
+        controlStyles={{ width: 217 }}
       />
       <View style={[flexboxStyles.directionRow]}>
         <Button
           textStyle={{ fontSize: 14 }}
-          size="regular"
+          size="small"
           text={t('dApps')}
           hasBottomSpacing={false}
-          style={[spacings.mrTy]}
+          style={[spacings.mrTy, { width: 85 }]}
         />
-        <NavIconWrapper style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}>
-          <MaximizeIcon />
+        <NavIconWrapper
+          onPress={() => null}
+          style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
+        >
+          <MaximizeIcon width={20} height={20} />
         </NavIconWrapper>
-        <NavIconWrapper style={{ borderColor: colors.scampi_20 }}>
-          <BurgerIcon />
+        <NavIconWrapper onPress={() => null} style={{ borderColor: colors.scampi_20 }}>
+          <BurgerIcon width={20} height={20} />
         </NavIconWrapper>
       </View>
     </View>

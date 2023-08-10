@@ -14,7 +14,7 @@ const SendIcon: React.FC<Props> = ({
   color = colors.martinique,
   ...rest
 }) => (
-  <Svg width={width} height={height} {...rest}>
+  <Svg width={width} height={height} {...rest} viewBox="0 0 30.554 30">
     <G fill="none" stroke={color} strokeLinecap="round" strokeWidth="2">
       <Path d="M13.298 19.685 23.41 9.573l-.003 8.877" />
       <Path d="M6.436 19.546 16.547 9.434l-8.875.004" />

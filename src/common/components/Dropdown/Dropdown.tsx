@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useRef, useState } from 'react'
-import { FlatList, Modal, TouchableOpacity, View } from 'react-native'
-import { Pressable } from 'react-native-web-hover'
+import { FlatList, Modal, Pressable, TouchableOpacity, View } from 'react-native'
 
+// import { Pressable } from 'react-native-web-hover'
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
@@ -31,15 +31,15 @@ const Dropdown: FC<Props> = ({ label, data, onSelect }) => {
     setVisible(true)
   }
 
-  const onItemPress = (item): void => {
+  const onItemPress = (item: any): void => {
     setSelected(item)
-    onSelect(item)
+    // onSelect(item)
     setVisible(false)
   }
 
-  const renderItem = ({ item }): ReactElement<any, any> => (
+  const renderItem = ({ item }: any): ReactElement<any, any> => (
     <Pressable onPress={() => onItemPress(item)}>
-      {({ hovered }) => (
+      {({ hovered }: any) => (
         <View
           style={[
             styles.item,
@@ -59,7 +59,7 @@ const Dropdown: FC<Props> = ({ label, data, onSelect }) => {
 
   const renderDropdown = (): ReactElement<any, any> => {
     return (
-      <Modal visible={visible} transparent animationType="none">
+      <Modal visible={visible && !!dropdownTop} transparent animationType="none">
         <TouchableOpacity style={styles.overlay} onPress={() => setVisible(false)}>
           <View style={[styles.dropdown, { top: dropdownTop, right: 30 }]}>
             <FlatList
@@ -74,8 +74,8 @@ const Dropdown: FC<Props> = ({ label, data, onSelect }) => {
   }
 
   return (
-    <Pressable onHoverIn={toggleDropdown}>
-      <View style={styles.button} ref={DropdownButton}>
+    <Pressable onPress={toggleDropdown} ref={DropdownButton}>
+      <View style={styles.button}>
         <KebabMenuIcon />
         {renderDropdown()}
       </View>

@@ -108,7 +108,7 @@ const TokenItem = ({
                 text={t('Send')}
                 hasBottomSpacing={false}
               >
-                <SendIcon width={25} height={25} color={colors.violet} />
+                <SendIcon width={20} height={20} color={colors.violet} />
               </Button>
             )}
             <View>

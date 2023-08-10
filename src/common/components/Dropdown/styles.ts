@@ -23,13 +23,15 @@ const styles = StyleSheet.create<Style>({
   },
   dropdown: {
     position: 'absolute',
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     width: 155,
     shadowColor: '#000000',
     shadowRadius: 4,
     shadowOffset: { height: 4, width: 0 },
     shadowOpacity: 0.5,
-    borderRadius: 12
+    borderRadius: 12,
+    ...spacings.ptTy,
+    ...spacings.pbTy
   },
   overlay: {
     width: '100%',

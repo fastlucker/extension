@@ -9,7 +9,7 @@ interface Props extends SvgProps {
 }
 
 const TopUpIcon: React.FC<Props> = ({ width = 27, height = 27, color = colors.martinique }) => (
-  <Svg width={width} height={height}>
+  <Svg width={width} height={height} viewBox="0 0 26.414 26.414">
     <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
       <Path d="M9.362 15.962a2.489 2.489 0 0 0 2.43 2.546h2.735a2.166 2.166 0 0 0 2.11-2.226 1.922 1.922 0 0 0-1.44-2.11l-4.379-1.528a1.912 1.912 0 0 1-1.44-2.11 2.176 2.176 0 0 1 2.11-2.226h2.735a2.489 2.489 0 0 1 2.43 2.546" />
       <Path d="M12.999 6.867v13.095" />

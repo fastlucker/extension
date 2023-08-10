@@ -9,7 +9,7 @@ interface Props extends SvgProps {
 }
 
 const SwapIcon: React.FC<Props> = ({ width = 30, height = 30, color = colors.martinique }) => (
-  <Svg width={width} height={height}>
+  <Svg width={width} height={height} viewBox="0 0 30 30">
     <G fill="none">
       <Path d="M30 0v30H0V0z" />
       <G stroke={color} strokeLinecap="round" strokeWidth="2">

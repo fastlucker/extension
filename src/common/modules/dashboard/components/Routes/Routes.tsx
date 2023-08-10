@@ -28,7 +28,7 @@ const Routes = () => {
     <View style={[flexbox.directionRow]}>
       <View style={[flexbox.alignCenter, spacings.mrTy]}>
         <IconWrapper>
-          <SwapIcon />
+          <SwapIcon width={20} height={20} />
         </IconWrapper>
         <Text weight="regular" shouldScale={false} fontSize={12}>
           {t('Swap')}
@@ -36,7 +36,7 @@ const Routes = () => {
       </View>
       <View style={[flexbox.alignCenter, spacings.mrTy]}>
         <IconWrapper>
-          <BridgeIcon />
+          <BridgeIcon width={20} height={20} />
         </IconWrapper>
         <Text weight="regular" shouldScale={false} fontSize={12}>
           {t('Bridge')}
@@ -44,7 +44,7 @@ const Routes = () => {
       </View>
       <View style={[flexbox.alignCenter, spacings.mrTy]}>
         <IconWrapper>
-          <SendIcon />
+          <SendIcon width={20} height={20} />
         </IconWrapper>
         <Text weight="regular" shouldScale={false} fontSize={12}>
           {t('Send')}
@@ -52,7 +52,7 @@ const Routes = () => {
       </View>
       <View style={[flexbox.alignCenter, spacings.mrTy]}>
         <IconWrapper>
-          <TopUpIcon />
+          <TopUpIcon width={20} height={20} />
         </IconWrapper>
         <Text weight="regular" shouldScale={false} fontSize={12}>
           {t('Top up')}
@@ -60,7 +60,7 @@ const Routes = () => {
       </View>
       <View style={[flexbox.alignCenter]}>
         <IconWrapper>
-          <EarnIcon />
+          <EarnIcon width={20} height={20} />
         </IconWrapper>
         <Text weight="regular" shouldScale={false} fontSize={12}>
           {t('Earn')}
