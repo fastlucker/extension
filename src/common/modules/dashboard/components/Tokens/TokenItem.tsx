@@ -30,7 +30,8 @@ type Props = {
   //   hidePrivateValue: UsePrivateModeReturnType['hidePrivateValue']
 }
 
-// TODO: customize token for gas token, wallet rewards row token.
+// TODO: customize token component for gas token, wallet rewards row token.
+// TODO: correct props once connected with portfolio controller
 const TokenItem = ({
   img,
   symbol,
@@ -112,7 +113,6 @@ const TokenItem = ({
               </Button>
             )}
             <View>
-              {/* <KebabMenuIcon /> */}
               <Dropdown data={data} onSelect={() => null} />
             </View>
           </View>

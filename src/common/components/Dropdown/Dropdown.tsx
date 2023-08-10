@@ -71,7 +71,12 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
       </Modal>
     )
   }
-
+  // eslint-disable-next-line no-lone-blocks
+  {
+    /* TODO:Currently this is on click, but originally the design was for on hover.
+    
+    The problem was when we use onHoverOut for closing the Dropdown, the menu closes too quickly and flickers. Also it closes when you try to go to the menu and hover on some option  */
+  }
   return (
     <Pressable onPress={toggleDropdown} ref={DropdownButton}>
       <View style={styles.button}>

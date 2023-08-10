@@ -19,6 +19,7 @@ import styles from './styles'
 // import Rewards from '../Rewards'
 import TokenItem from './TokenItem'
 
+// TODO: correct props once connected with portfolio controller
 interface Props {}
 
 const Tokens = ({ tokens, isCurrNetworkBalanceLoading, isCurrNetworkProtocolsLoading }: Props) => {

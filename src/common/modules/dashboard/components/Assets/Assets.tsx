@@ -37,6 +37,7 @@ const Assets = ({
     >
       {type === 'tokens' && (
         <AfterInteractions
+        {/* // TODO: Implementation here when listloader is created */}
         //   placeholder={<TokensListLoader />}
         // Enabled only when the list contains multiple items that slow down the rendering/animations
         //   enabled={tokens.length > 20}
