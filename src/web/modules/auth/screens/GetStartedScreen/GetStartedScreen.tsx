@@ -41,7 +41,7 @@ const GetStartedScreen = () => {
 
         return
       }
-      navigate(nextRoute)
+      navigate(nextRoute, state)
     },
     [navigate, areTermsAccepted, updateStepperState]
   )
