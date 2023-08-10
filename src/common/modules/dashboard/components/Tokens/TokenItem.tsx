@@ -68,7 +68,7 @@ const TokenItem = ({
         >
           <View style={[flexboxStyles.directionRow]}>
             <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
-              <TokenIcon withContainer uri={img} address={address} />
+              <TokenIcon withContainer uri={img} address={address} networkId={network} />
             </View>
             <View>
               <View style={[flexboxStyles.directionRow, flexboxStyles.alignEnd]}>
@@ -112,9 +112,8 @@ const TokenItem = ({
               </Button>
             )}
             <View>
-              {/* TODO: add the menu */}
               {/* <KebabMenuIcon /> */}
-              <Dropdown data={data} />
+              <Dropdown data={data} onSelect={() => null} />
             </View>
           </View>
         </View>
