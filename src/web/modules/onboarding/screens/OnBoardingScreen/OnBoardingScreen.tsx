@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import PlayButton from '@common/assets/svg/PlayButton'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
@@ -26,7 +27,9 @@ const OnBoardingScreen = () => {
         <Text shouldScale={false} fontSize={20} weight="medium" style={styles.title}>
           {t('How To Use Ambire Wallet')}
         </Text>
-        <View style={styles.videoBackground} />
+        <View style={styles.videoBackground}>
+          <PlayButton />
+        </View>
         <Text style={styles.link} underline>
           <RightArrowIcon
             withRect={false}
