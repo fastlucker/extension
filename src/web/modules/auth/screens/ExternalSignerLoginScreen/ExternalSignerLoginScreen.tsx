@@ -39,8 +39,7 @@ const ExternalSignerLoginScreen = () => {
   const {
     control,
     handleSubmit,
-    watch,
-    formState: { errors }
+    formState: { errors, isValid }
   } = useForm({
     mode: 'all',
     defaultValues: {
@@ -70,7 +69,33 @@ const ExternalSignerLoginScreen = () => {
     })()
   }, [handleSubmit, navigate])
 
-  const handleValidation = (value: string) => testPrivateKey(value) || testMnemonic(value)
+  const handleValidation = (value: string) => {
+    const trimmedValue = value.trim()
+    const separators = /[\s,;\n]+/
+    const words = trimmedValue.split(separators)
+
+    const isValidMnemonic = testMnemonic(trimmedValue)
+
+    const allowedSeedPhraseLengths = [12, 15, 18, 21, 24]
+
+    if (allowedSeedPhraseLengths.includes(words.length) && !isValidMnemonic) {
+      return 'Your seed phrase length is valid, but a word is misspelled.'
+    }
+
+    if (words.length > 1 && !isValidMnemonic) {
+      return 'A seed phrase must be 12-24 words long.'
+    }
+
+    if (
+      words.length === 1 &&
+      /^(0x)?[0-9a-fA-F]/.test(trimmedValue) &&
+      !testPrivateKey(trimmedValue)
+    ) {
+      return 'Invalid private key.'
+    }
+
+    return testPrivateKey(trimmedValue) || testMnemonic(trimmedValue)
+  }
 
   return (
     <>
@@ -90,7 +115,8 @@ const ExternalSignerLoginScreen = () => {
               color={colors.radicalRed}
               fontSize={14}
             >
-              {t('Please enter a valid seed phrase or private key.')}
+              {errors?.privKeyOrSeed?.message ||
+                t('Please enter a valid seed phrase or private key.')}
             </Text>
             <Controller
               control={control}
@@ -166,7 +192,7 @@ const ExternalSignerLoginScreen = () => {
             text="Import Legacy Account"
             style={[flexbox.alignSelfCenter]}
             onPress={handleFormSubmit}
-            disabled={!handleValidation(watch('privKeyOrSeed'))}
+            disabled={!isValid}
           />
         </View>
       </AuthLayoutWrapperMainContent>
