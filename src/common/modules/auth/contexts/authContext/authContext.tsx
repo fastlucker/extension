@@ -18,12 +18,12 @@ const AuthProvider: React.FC = ({ children }: any) => {
   const mainCtrlState = useMainControllerState()
 
   useEffect(() => {
-    if (mainCtrlState.selectedAccount) {
-      setAuthStatus(AUTH_STATUS.AUTHENTICATED)
-    } else {
-      setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
-    }
-  }, [mainCtrlState.selectedAccount])
+    if (!mainCtrlState.isReady) return
+
+    setAuthStatus(
+      mainCtrlState.selectedAccount ? AUTH_STATUS.AUTHENTICATED : AUTH_STATUS.NOT_AUTHENTICATED
+    )
+  }, [mainCtrlState.isReady, mainCtrlState.selectedAccount])
 
   return (
     <AuthContext.Provider
