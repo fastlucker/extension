@@ -1,7 +1,6 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -24,29 +23,17 @@ const EmailAccountScreen = () => {
       <AuthLayoutWrapperMainContent>
         <View style={[flexbox.directionRow, flexbox.justifyCenter]}>
           <Card
-            text={t(
-              'Sign in to your Ambire wallet using your email for a simple and secure access to your crypto.'
-            )}
+            text="Sign in to your Ambire wallet using your email for a simple and secure access to your crypto."
             style={spacings.mr}
-          >
-            <Button
-              hasBottomSpacing={false}
-              text={t('Log In')}
-              onPress={() => navigate(ROUTES.authEmailLogin)}
-            />
-          </Card>
+            onPress={() => navigate(ROUTES.authEmailLogin)}
+            buttonText="Log In"
+          />
           <Card
-            text={t(
-              'Create a new Ambire wallet with just your email and start managing your crypto.'
-            )}
+            text="Create a new Ambire wallet with just your email and start managing your crypto."
             style={spacings.ml}
-          >
-            <Button
-              hasBottomSpacing={false}
-              text={t('Create New')}
-              onPress={() => navigate(ROUTES.authEmailRegister)}
-            />
-          </Card>
+            onPress={() => navigate(ROUTES.authEmailRegister)}
+            buttonText="Create New"
+          />
         </View>
       </AuthLayoutWrapperMainContent>
       <AuthLayoutWrapperSideContent backgroundType="beta">
