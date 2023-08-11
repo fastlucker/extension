@@ -10,23 +10,45 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useStorage from '@common/hooks/useStorage'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import Card from '@web/modules/auth/components/Card'
+import { TERMS_VERSION } from '@web/modules/auth/screens/Terms/Terms'
 
 import styles from './styles'
 
 const GetStartedScreen = () => {
   const { t } = useTranslation()
+  const { updateStepperState } = useStepper()
+  const [termsState] = useStorage({
+    key: 'termsState',
+    defaultValue: { version: null, acceptedAt: null }
+  })
   const { navigate } = useNavigation()
   const [advanceModeEnabled, setAdvancedModeEnabled] = useState(false)
 
   const handleAuthButtonPress = useCallback(
-    (nextRoute: any, state?: any) => navigate(nextRoute, state),
-    [navigate]
+    (nextRoute: any, state?: any) => {
+      if (
+        nextRoute === WEB_ROUTES.terms &&
+        termsState?.version &&
+        termsState.version === TERMS_VERSION &&
+        state?.state?.nextPage &&
+        state?.state?.nextState
+      ) {
+        updateStepperState(0, state.state.nextState)
+        navigate(state.state.nextPage)
+
+        return
+      }
+      navigate(nextRoute, state)
+    },
+    [navigate, termsState?.version, updateStepperState]
   )
   return (
     <AuthLayoutWrapperMainContent fullWidth>
