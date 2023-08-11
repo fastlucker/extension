@@ -56,7 +56,9 @@ const GetStartedScreen = () => {
           />
           <Card
             title="Hardware wallet"
-            text="Import multiple accounts from a hardware wallet device: we support Trezor, Ledger and Grid+ Lattice.\n\nYou can import your existing legacy accounts and smart accounts."
+            text={
+              'Import multiple accounts from a hardware wallet device: we support Trezor, Ledger and Grid+ Lattice.\n\nYou can import your existing legacy accounts and smart accounts.'
+            }
             style={[
               spacings.mhSm,
               {
@@ -79,7 +81,9 @@ const GetStartedScreen = () => {
             style={{
               ...flexboxStyles.flex1
             }}
-            text="Import a private key or seed phrase from a traditional wallet like Metamask.\n\nYou can import a legacy account but also create a fresh smart account from the same keys."
+            text={
+              'Import a private key or seed phrase from a traditional wallet like Metamask.\n\nYou can import a legacy account but also create a fresh smart account from the same keys.'
+            }
             icon={ImportAccountIcon}
             buttonText="Import Legacy Account"
             onPress={() => {
