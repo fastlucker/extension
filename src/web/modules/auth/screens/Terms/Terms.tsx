@@ -1,44 +1,54 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
 
-import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
-import useStepper from '@common/modules/auth/hooks/useStepper'
 import { useTranslation } from '@common/config/localization'
-import spacings, { SPACING_SM } from '@common/styles/spacings'
+import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
+import useStorage from '@common/hooks/useStorage'
+import useStepper from '@common/modules/auth/hooks/useStepper'
+import spacings, { SPACING, SPACING_LG, SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+
+import styles from './style'
+
+export const TERMS_VERSION = '1.0.0'
 
 const Terms = () => {
   const { t } = useTranslation()
   const { params } = useRoute()
+  const [isChecked, setIsChecked] = useState(false)
+  const [, setTermsState] = useStorage({ key: 'termsState' })
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { nextPage, nextState }: any = params
 
   const onPress = () => {
     if (!nextPage || !nextState) return
+    setTermsState({
+      version: TERMS_VERSION,
+      acceptedAt: Date.now()
+    })
     updateStepperState(0, nextState)
     navigate(nextPage)
   }
+
   return (
     <AuthLayoutWrapperMainContent fullWidth>
       <View style={{ maxWidth: 620, ...flexboxStyles.alignSelfCenter }}>
         <View style={[flexboxStyles.alignCenter]}>
-          <AmbireLogo style={[spacings.mb, flexboxStyles.alignCenter]} />
-          <Text fontSize={22} weight="regular" style={[{ textAlign: 'center' }, spacings.mb]}>
+          <AmbireLogo style={styles.logo} />
+          <Text fontSize={32} weight="regular" style={[{ textAlign: 'center' }, spacings.mbXl]}>
             {t('Terms Of Service')}
           </Text>
         </View>
-        <Text fontSize={14} weight="semiBold" style={[spacings.mbSm]}>
-          {t('Effective starting 26 November 2021')}
-        </Text>
-        <Text style={[spacings.mbTy]}>
-          <Text fontSize={14} style={[spacings.mbTy]}>
+        <Text style={[styles.text, styles.bold]}>{t('Effective starting 26 November 2021')}</Text>
+        <Text style={styles.text}>
+          <Text style={styles.text}>
             {t('Ambire Wallet is an open-source non-custodial cryptocurrency wallet:')}
           </Text>
           <ul style={{ paddingLeft: SPACING_SM, margin: 0 }}>
@@ -57,33 +67,35 @@ const Terms = () => {
             </li>
           </ul>
         </Text>
-        <Text style={[spacings.mbTy]}>
+        <Text style={styles.text}>
           {t(
             'Those characteristics, combined with the decentralized nature of blockchain technologies such as Ethereum, mean that no single party is able to freeze, repossess or in any other way control the funds and actions of end users.'
           )}
         </Text>
-        <Text style={[spacings.mbTy]}>
+        <Text style={styles.text}>
           {t(
             'By using Ambire Wallet, you agree not to hold it&apos;s contributors and authors financially accountable for any loss of funds resulting from user error, software error, unauthorized access (hacks), or otherwise.'
           )}
         </Text>
-        <Text style={[spacings.mbTy]}>
+        <Text style={styles.text}>
           {t(
             'Ambire Wallet contributors, authors and operators do not offer any business or investment advice. The content of the Ambire Wallet is not intended to be used as a guide for crypto-asset investments or signing of other legal agreements in connection to crypto-assets.'
           )}
         </Text>
-        <Text style={[spacings.mb]}>
+        <Text style={[styles.text, { marginBottom: SPACING * 2 }]}>
           {t(
             'Ambire Wallet contributors, authors and operators shall not be held accountable for any actions performed by end users.\nAs open-source software, the Ambire Wallet source code can be copied locally and/or ran by any party, and as such it does not depend on any operators or service providers. Any party may copy and develop the source code resulting in the formation of a distinct and separate software. The creation of forks cannot be avoided and end users are solely responsible for any losses and/or damages resulting from the use of forks. The end users are solely responsible and liable for any and all of your actions and inactions on the application and all gains and losses sustained from their use of the Ambire Wallet. The end user hereby indemnifies Ambire Wallet contributors, authors and operators in full for any and all negative consequences that might arise from the use of the application due to the lack of control over the peer-to-peer activities. Due to the permissionless and decentralized nature, the access to the Ambire Wallet is granted worldwide. The use of the Wallet, however, may be legally prohibited or technically restricted in certain territories and countries. End users are solely responsible to inform themselves of such legal restrictions and to comply with the legal norms applicable for them. Technically speaking, due to the open-source nature of Ambire Wallet, access to your funds will always be possible as long as you retain access to any of the private keys controlling the account. The activities conducted by the end users on the Wallet may result in the creation of a taxable event and end users may be objects of tax and fee payments to public authorities in different countries depending on the legal regulations. End users are obliged to inform themselves about such requirements and are solely responsible for their payments.'
           )}
         </Text>
         <Checkbox
-          style={[spacings.mb]}
-          value
+          style={{ marginBottom: SPACING_LG * 2 }}
+          value={isChecked}
+          onValueChange={setIsChecked}
           label={t('I agree to the Terms of Service and Privacy Policy.')}
         />
 
         <Button
+          disabled={!isChecked}
           type="primary"
           textStyle={{ fontSize: 14 }}
           style={{ width: 296, ...flexboxStyles.alignSelfCenter }}

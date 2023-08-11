@@ -8,8 +8,8 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const CheckIcon: React.FC<Props> = ({ width = 18, height = 18, color }) => (
-  <Svg width={width} height={height} viewBox="0 0 18 18">
+const CheckIcon: React.FC<Props> = ({ width = 18, height = 18, color, ...props }) => (
+  <Svg width={width} height={height} viewBox="0 0 18 18" {...props}>
     <Rect
       width="18"
       height="18"
