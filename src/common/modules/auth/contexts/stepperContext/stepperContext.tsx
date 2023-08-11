@@ -30,7 +30,6 @@ const StepperProvider = ({ children }: { children: React.ReactNode }) => {
   const { path } = useRoute()
   const [paths, setPaths] = useState<string[]>(() => {
     const storedState = getItem('navigationPaths')
-    // return storedState ? JSON.parse(storedState) : []
     if (!storedState) return []
 
     const parsedState = JSON.parse(storedState)
