@@ -6,7 +6,7 @@ import InformationIcon from '@common/assets/svg/InformationIcon/InformationIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import Button from '@common/components/Button'
 import Dropdown from '@common/components/Dropdown'
-import NetworkIcon from '@common/components/NetworkIcon'
+import NetworkIcon, { NetworkIconNameType } from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
@@ -22,7 +22,7 @@ type Props = {
   balance: number
   balanceUSD: number
   address: string
-  network: string
+  network: NetworkIconNameType
 }
 
 // TODO: customize token component for gas token, wallet rewards token. Each of them has different button and styling
