@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
 
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
@@ -21,6 +21,7 @@ export const TERMS_VERSION = '1.0.0'
 const Terms = () => {
   const { t } = useTranslation()
   const { params } = useRoute()
+  const [isChecked, setIsChecked] = useState(false)
   const [, setTermsState] = useStorage({ key: 'termsState' })
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
@@ -35,6 +36,7 @@ const Terms = () => {
     updateStepperState(0, nextState)
     navigate(nextPage)
   }
+
   return (
     <AuthLayoutWrapperMainContent fullWidth>
       <View style={{ maxWidth: 620, ...flexboxStyles.alignSelfCenter }}>
@@ -87,11 +89,13 @@ const Terms = () => {
         </Text>
         <Checkbox
           style={{ marginBottom: 60 }}
-          value
+          value={isChecked}
+          onValueChange={setIsChecked}
           label={t('I agree to the Terms of Service and Privacy Policy.')}
         />
 
         <Button
+          disabled={!isChecked}
           type="primary"
           textStyle={{ fontSize: 14 }}
           style={{ width: 296, ...flexboxStyles.alignSelfCenter }}
