@@ -14,36 +14,32 @@ interface Props {
   tokens: []
 }
 
-const Assets = ({ type, tokens }: Props) => {
-  // eslint-disable-next-line no-lone-blocks
-  {
-    /* // TODO: Implementation on AfterInteractions when TokensListLoader is created */
-  }
-  return (
-    <View
-      style={{
-        ...flexbox.flex1,
-        ...spacings.ph,
-        ...spacings.pv,
-        backgroundColor: colors.zircon,
-        borderTopRightRadius: 12,
-        borderTopLeftRadius: 12
-      }}
-    >
-      {type === 'tokens' && (
-        <AfterInteractions
-        //   placeholder={<TokensListLoader />}
-        // Enabled only when the list contains multiple items that slow down the rendering/animations
-        //   enabled={tokens.length > 20}
-        >
-          <Tokens tokens={tokens} />
-        </AfterInteractions>
-      )}
-      {/* {type === 'collectibles' && (
+const Assets = ({ type, tokens }: Props) => (
+  <View
+    style={{
+      ...flexbox.flex1,
+      ...spacings.ph,
+      ...spacings.pv,
+      backgroundColor: colors.zircon,
+      borderTopRightRadius: 12,
+      borderTopLeftRadius: 12
+    }}
+  >
+    {type === 'tokens' && (
+      <AfterInteractions
+      /**
+       * TODO: Implementation on AfterInteractions
+       * when TokensListLoader is created
+       */
+      //   placeholder={<TokensListLoader />}
+      >
+        <Tokens tokens={tokens} />
+      </AfterInteractions>
+    )}
+    {/* {type === 'collectibles' && (
        TODO: Collectibles
       )} */}
-    </View>
-  )
-}
+  </View>
+)
 
 export default React.memo(Assets)

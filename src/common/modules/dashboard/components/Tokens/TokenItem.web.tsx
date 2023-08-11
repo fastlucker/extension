@@ -43,6 +43,13 @@ const TokenItem = ({ symbol, balance, balanceUSD, address, network }: Props) => 
   ]
   const networkData = networks.find(({ id }) => network === id)
 
+  /**
+   * Explanation why we converted to html element
+   *
+   * Unfortunatly in the case we have Pressable (our Button component)
+   * inside Pressable, like we need here in order to have hover effect on the token,
+   * once we are on the Button component (aka the child Pressable) the hover on the parent disappears
+   * */
   return (
     <div className="token-container" style={styles.container}>
       <View style={[flexboxStyles.directionRow]}>
