@@ -24,6 +24,7 @@ import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
+import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 
 const headerBeta = (
   <>
@@ -86,6 +87,8 @@ const MainRoutes = () => {
 
           <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
+
+          <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
         </Route>
       </Route>
       <Route element={<PrivateRoute />}>

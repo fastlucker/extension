@@ -16,6 +16,7 @@ interface Style {
   listItemLabelStyle: TextProps
   iconContainerStyle: ViewProps
   extra: ViewProps
+  optionIcon: ViewProps
 }
 
 const styles = StyleSheet.create<Style>({
@@ -75,6 +76,11 @@ const styles = StyleSheet.create<Style>({
     height: '100%',
     right: 45,
     justifyContent: 'center'
+  },
+  optionIcon: {
+    width: '30px',
+    height: '30px',
+    marginRight: '10px'
   }
 })
 

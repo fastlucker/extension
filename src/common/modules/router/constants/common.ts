@@ -13,7 +13,7 @@ const COMMON_ROUTES = {
   dashboard: 'dashboard',
   collectible: 'collectible',
   earn: 'earn',
-  send: 'send',
+  transfer: 'transfer',
   transactions: 'transactions',
   gasTank: 'gas-tank',
   pendingTransactions: 'pending-transactions',

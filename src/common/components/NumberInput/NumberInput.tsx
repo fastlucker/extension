@@ -2,8 +2,6 @@ import React from 'react'
 
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
-
 import Input from '../Input'
 import { InputProps } from '../Input/Input'
 
@@ -40,7 +38,7 @@ const NumberInput = ({
   }
   return (
     <>
-      {!!label && <Text style={[spacings.mbMi, flexboxStyles.flex1]}>{label}</Text>}
+      {!!label && <Text style={[spacings.mbMi]}>{label}</Text>}
       {!!labelComponent && labelComponent}
       <Input
         keyboardType="numeric"
