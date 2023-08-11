@@ -1,6 +1,5 @@
 import React, { createContext, useMemo, useState } from 'react'
-import { View } from 'react-native'
-import { Pressable } from 'react-native-web-hover'
+import { Pressable, View } from 'react-native'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -18,7 +17,7 @@ const AssetsToggleContext = createContext<AssetsToggleContextReturnType>({
   type: 'tokens'
 })
 
-const AssetsToggleProvider: React.FC = ({ children }) => {
+const AssetsToggleProvider: React.FC = () => {
   const [type, setType] = useState<'tokens' | 'collectibles'>('tokens')
 
   const { t } = useTranslation()
@@ -70,7 +69,6 @@ const AssetsToggleProvider: React.FC = ({ children }) => {
             </Text>
           </View>
         </Pressable>
-        {children}
       </View>
     </AssetsToggleContext.Provider>
   )

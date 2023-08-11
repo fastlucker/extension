@@ -14,9 +14,18 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 const Routes = () => {
-  const IconWrapper = ({ children }) => (
+  const IconWrapper = ({
+    onPress,
+    children
+  }: {
+    onPress: () => void
+    children: React.ReactNode
+  }) => (
     <NavIconWrapper
-      hoveredBackground={colors.violet}
+      // TODO: handle on press and routing to different pages
+      onPress={onPress}
+      hoverBackground={colors.violet}
+      hoverColor={colors.white}
       style={{ backgroundColor: colors.melrose_35, borderColor: colors.violet, ...spacings.mbMi }}
     >
       {children}
@@ -27,7 +36,7 @@ const Routes = () => {
   return (
     <View style={[flexbox.directionRow]}>
       <View style={[flexbox.alignCenter, spacings.mrTy]}>
-        <IconWrapper>
+        <IconWrapper onPress={() => null}>
           <SwapIcon width={20} height={20} />
         </IconWrapper>
         <Text weight="regular" shouldScale={false} fontSize={12}>
@@ -35,7 +44,7 @@ const Routes = () => {
         </Text>
       </View>
       <View style={[flexbox.alignCenter, spacings.mrTy]}>
-        <IconWrapper>
+        <IconWrapper onPress={() => null}>
           <BridgeIcon width={20} height={20} />
         </IconWrapper>
         <Text weight="regular" shouldScale={false} fontSize={12}>
@@ -43,7 +52,7 @@ const Routes = () => {
         </Text>
       </View>
       <View style={[flexbox.alignCenter, spacings.mrTy]}>
-        <IconWrapper>
+        <IconWrapper onPress={() => null}>
           <SendIcon width={20} height={20} />
         </IconWrapper>
         <Text weight="regular" shouldScale={false} fontSize={12}>
@@ -51,7 +60,7 @@ const Routes = () => {
         </Text>
       </View>
       <View style={[flexbox.alignCenter, spacings.mrTy]}>
-        <IconWrapper>
+        <IconWrapper onPress={() => null}>
           <TopUpIcon width={20} height={20} />
         </IconWrapper>
         <Text weight="regular" shouldScale={false} fontSize={12}>
@@ -59,7 +68,7 @@ const Routes = () => {
         </Text>
       </View>
       <View style={[flexbox.alignCenter]}>
-        <IconWrapper>
+        <IconWrapper onPress={() => null}>
           <EarnIcon width={20} height={20} />
         </IconWrapper>
         <Text weight="regular" shouldScale={false} fontSize={12}>

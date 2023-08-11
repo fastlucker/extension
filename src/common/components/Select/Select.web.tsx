@@ -43,6 +43,7 @@ const SelectComponent = ({
             onPress={() => setIsDropdownOpen(!isDropdownOpen)}
             width={iconWidth}
             height={iconHeight}
+            hoverBackground={colors.lightViolet}
             style={{ borderColor: 'transparent', borderRadius: 10 }}
           >
             <DownArrowIcon width={26} height={26} isActive withRect={false} />
@@ -52,6 +53,7 @@ const SelectComponent = ({
             onPress={() => setIsDropdownOpen(!isDropdownOpen)}
             width={iconWidth}
             height={iconHeight}
+            hoverBackground={colors.lightViolet}
             style={{ borderColor: 'transparent', borderRadius: 10 }}
           >
             <DownArrowIcon width={26} height={26} withRect={false} />

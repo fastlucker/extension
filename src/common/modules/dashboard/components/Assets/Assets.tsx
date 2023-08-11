@@ -9,24 +9,15 @@ import flexbox from '@common/styles/utils/flexbox'
 import Tokens from '../Tokens'
 
 // TODO props
-interface Props {}
+interface Props {
+  type: 'tokens' | 'collectibles'
+  tokens: []
+}
 
-const Assets = ({
-  type,
-  tokens,
-  extraTokens,
-  hiddenTokens,
-  selectedAcc,
-  isCurrNetworkBalanceLoading,
-  isCurrNetworkProtocolsLoading,
-  onAddExtraToken,
-  onAddHiddenToken,
-  onRemoveExtraToken,
-  onRemoveHiddenToken
-}: any) => {
+const Assets = ({ type, tokens }: Props) => {
   // eslint-disable-next-line no-lone-blocks
   {
-    /* // TODO: Implementation on AfterInteractions when listloader is created */
+    /* // TODO: Implementation on AfterInteractions when TokensListLoader is created */
   }
   return (
     <View
@@ -45,31 +36,11 @@ const Assets = ({
         // Enabled only when the list contains multiple items that slow down the rendering/animations
         //   enabled={tokens.length > 20}
         >
-          <Tokens
-            tokens={tokens}
-            extraTokens={extraTokens}
-            hiddenTokens={hiddenTokens}
-            selectedAcc={selectedAcc}
-            isCurrNetworkBalanceLoading={!!isCurrNetworkBalanceLoading}
-            isCurrNetworkProtocolsLoading={!!isCurrNetworkProtocolsLoading}
-            onAddExtraToken={onAddExtraToken}
-            onAddHiddenToken={onAddHiddenToken}
-            onRemoveExtraToken={onRemoveExtraToken}
-            onRemoveHiddenToken={onRemoveHiddenToken}
-          />
+          <Tokens tokens={tokens} />
         </AfterInteractions>
       )}
       {/* {type === 'collectibles' && (
-        <AfterInteractions
-        //   placeholder={<CollectiblesListLoader />}
-          // Enabled only when the list contains multiple items that slow down the rendering/animations
-          enabled={collectibles.length > 5}
-        >
-          <Collectibles
-            collectibles={collectibles}
-            isCurrNetworkProtocolsLoading={isCurrNetworkProtocolsLoading}
-          />
-        </AfterInteractions>
+       TODO: Collectibles
       )} */}
     </View>
   )

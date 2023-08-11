@@ -1,7 +1,6 @@
 import { networks } from 'ambire-common/src/consts/networks'
 import React from 'react'
-import { View } from 'react-native'
-import { Pressable } from 'react-native-web-hover'
+import { Pressable, View } from 'react-native'
 
 import InformationIcon from '@common/assets/svg/InformationIcon/InformationIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
@@ -19,30 +18,18 @@ import textStyles from '@common/styles/utils/text'
 import styles from './styles'
 
 type Props = {
-  img: any
   symbol: string
   balance: number
   balanceUSD: number
-  decimals: number
   address: string
-  network: string | undefined
-  onPress: (symbol: string) => any
-  //   hidePrivateValue: UsePrivateModeReturnType['hidePrivateValue']
+  network: string
 }
 
-// TODO: customize token component for gas token, wallet rewards row token.
+// TODO: customize token component for gas token, wallet rewards token. Each of them has different button and styling
 // TODO: correct props once connected with portfolio controller
-const TokenItem = ({
-  img,
-  symbol,
-  balance,
-  balanceUSD,
-  decimals,
-  address,
-  network,
-  onPress
-}: Props) => {
+const TokenItem = ({ symbol, balance, balanceUSD, address, network }: Props) => {
   const { t } = useTranslation()
+  // TODO: navigate to the routes onPress once they are ready or hide the ones we wont need for epic 1
   const data = [
     { label: 'Swap', value: '1' },
     { label: 'Bridge', value: '2' },
@@ -57,7 +44,7 @@ const TokenItem = ({
 
   return (
     <Pressable>
-      {({ hovered }) => (
+      {({ hovered }: any) => (
         <View
           style={[
             styles.container,
@@ -69,7 +56,7 @@ const TokenItem = ({
         >
           <View style={[flexboxStyles.directionRow]}>
             <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
-              <TokenIcon withContainer uri={img} address={address} networkId={network} />
+              <TokenIcon withContainer address={address} networkId={network} />
             </View>
             <View>
               <View style={[flexboxStyles.directionRow, flexboxStyles.alignEnd]}>
@@ -86,7 +73,7 @@ const TokenItem = ({
                   <Text shouldScale={false} fontSize={12}>
                     on
                   </Text>
-                  <NetworkIcon name="ethereum" style={{ width: 20, height: 20 }} />
+                  <NetworkIcon name={network} style={{ width: 25, height: 25 }} />
                   <Text style={[spacings.mrMi]} shouldScale={false} fontSize={12}>
                     {networkData?.name}
                   </Text>

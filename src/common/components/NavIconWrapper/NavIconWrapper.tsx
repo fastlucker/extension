@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react'
-import { ColorValue, View, ViewStyle } from 'react-native'
-import { Pressable } from 'react-native-web-hover'
+import { ColorValue, Pressable, View, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
 import commonStyles from '@common/styles/utils/common'
@@ -9,7 +8,8 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Props {
   children: ReactNode
   onPress: () => any
-  hoveredBackground?: ColorValue
+  hoverBackground?: ColorValue
+  hoverColor?: ColorValue
   style?: ViewStyle
   width?: number
   height?: number
@@ -19,7 +19,8 @@ const NavIconWrapper = ({
   children,
   onPress,
   style,
-  hoveredBackground,
+  hoverBackground,
+  hoverColor,
   width = 40,
   height = 40,
   ...rest
@@ -28,7 +29,7 @@ const NavIconWrapper = ({
 
   return (
     <Pressable onPress={onPress} {...rest}>
-      {({ hovered }) => (
+      {({ hovered }: any) => (
         <View
           style={{
             width,
@@ -39,7 +40,7 @@ const NavIconWrapper = ({
             ...flexbox.alignCenter,
             ...flexbox.justifyCenter,
             ...style,
-            backgroundColor: hovered && hoveredBackground ? hoveredBackground : colors.melrose_15
+            backgroundColor: hovered && hoverBackground ? hoverBackground : colors.melrose_15
           }}
         >
           {/* TODO: This way may not be the best to fix this. Will need to think about this */}
@@ -48,7 +49,7 @@ const NavIconWrapper = ({
               // Clone the SVG element and store its ref for updating styles directly.
               return React.cloneElement(child, {
                 ...child.props,
-                color: hovered ? colors.white : colors.martinique
+                color: hovered && hoverColor ? hoverColor : child.props.color
               })
             }
             return child

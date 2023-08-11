@@ -1,7 +1,6 @@
 import React, { FC, ReactElement, useRef, useState } from 'react'
 import { FlatList, Modal, Pressable, TouchableOpacity, View } from 'react-native'
 
-// import { Pressable } from 'react-native-web-hover'
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
@@ -14,14 +13,9 @@ interface Props {
 }
 
 const Dropdown: FC<Props> = ({ data, onSelect }) => {
-  const DropdownButton = useRef()
+  const DropdownButton: any = useRef()
   const [visible, setVisible] = useState(false)
-  const [selected, setSelected] = useState(undefined)
   const [dropdownTop, setDropdownTop] = useState(0)
-
-  const toggleDropdown = (): void => {
-    visible ? setVisible(false) : openDropdown()
-  }
 
   const openDropdown = (): void => {
     DropdownButton.current.measure((_fx, _fy, _w, h, _px, py) => {
@@ -30,8 +24,11 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
     setVisible(true)
   }
 
+  const toggleDropdown = (): void => {
+    visible ? setVisible(false) : openDropdown()
+  }
+
   const onItemPress = (item: any): void => {
-    setSelected(item)
     onSelect(item)
     setVisible(false)
   }

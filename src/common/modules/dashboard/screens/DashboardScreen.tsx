@@ -19,69 +19,37 @@ import styles from './styles'
 
 const DashboardScreen = () => {
   const { type } = useContext(AssetsToggleContext)
+  // TODO: Remove this as is hardcoded, for displaying purposes.
   const tokens = [
     {
-      type: 'token',
       address: '0x88800092ff476844f74dc2fc427974bbee2794ae',
       decimals: 18,
       symbol: 'WALLET',
       name: 'Ambire Wallet',
-      coingeckoId: 'ambire-wallet',
       network: 'ethereum',
-      tokenImageUrl:
-        'https://raw.githubusercontent.com/AmbireTech/ambire-brand/main/logos/Ambire_logo_250x250.png',
-      tokenImageUrls: {
-        large:
-          'https://raw.githubusercontent.com/AmbireTech/ambire-brand/main/logos/Ambire_logo_250x250.png'
-      },
       balance: 132366,
       balanceRaw: '132366000000000000000000',
-      price: 0.00773565,
-      balanceUSD: 1023.9370479,
-      priceUpdate: 1691152425637,
-      balanceUpdate: 1691153940047
+      balanceUSD: 1023.9370479
     },
     {
-      type: 'token',
       address: '0x0000000000000000000000000000000000000000',
       decimals: 18,
       symbol: 'ETH',
       name: 'Ethereum',
-      coingeckoId: 'ethereum',
       network: 'ethereum',
-      tokenImageUrl: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880',
-      tokenImageUrls: {
-        thumb: 'https://assets.coingecko.com/coins/images/279/thumb/ethereum.png?1595348880',
-        small: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880',
-        large: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png?1595348880'
-      },
       balance: 0.002232367622731011,
       balanceRaw: '2232367622731011',
-      price: 1833.65,
-      balanceUSD: 4.093380891420718,
-      priceUpdate: 1691152186113,
-      balanceUpdate: 1691153940047
+      balanceUSD: 4.093380891420718
     },
     {
-      type: 'token',
       address: '0x47cd7e91c3cbaaf266369fe8518345fc4fc12935',
       decimals: 18,
       symbol: 'XWALLET',
       network: 'ethereum',
       name: 'Ambire Wallet Staking Token',
-      coingeckoId: 'ambire-xwallet',
-      tokenImageUrl:
-        'https://raw.githubusercontent.com/AmbireTech/ambire-brand/main/logos/xwallet_250x250.png',
-      tokenImageUrls: {
-        large:
-          'https://raw.githubusercontent.com/AmbireTech/ambire-brand/main/logos/xwallet_250x250.png'
-      },
       balance: 9585.375931938657,
       balanceRaw: '9585375931938656910241',
-      price: 0.13062027923827124,
-      balanceUSD: 1252.044480833632,
-      priceUpdate: 1691153895319,
-      balanceUpdate: 1691153940047
+      balanceUSD: 1252.044480833632
     }
   ]
 

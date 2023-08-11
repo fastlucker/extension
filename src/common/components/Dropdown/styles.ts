@@ -2,7 +2,6 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   button: ViewStyle
