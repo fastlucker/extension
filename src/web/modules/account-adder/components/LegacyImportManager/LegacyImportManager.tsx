@@ -20,27 +20,46 @@ interface Props {
 const LegacyImportManager = (props: Props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
-  const { createTask } = useTaskQueue()
   const { dispatch } = useBackgroundService()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
   const [sessionStarted, setSessionStarted] = useState(false)
 
   const setPage = useCallback(
-    async (page = 1) => {
-      try {
-        createTask(() =>
-          dispatch({
-            type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE',
-            params: { page }
-          })
-        )
-      } catch (e: any) {
-        console.error(e.message)
-      }
+    (page = 1) => {
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE', params: { page } })
     },
-    [dispatch, createTask]
+    [dispatch]
   )
+
+  useEffect(() => {
+    if (!mainControllerState.isReady) return
+    if (sessionStarted) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+      params: {
+        preselectedAccounts: mainControllerState.accounts,
+        privKeyOrSeed: props.privKeyOrSeed
+      }
+    })
+
+    setSessionStarted(true)
+  }, [
+    accountAdderState.isInitialized,
+    dispatch,
+    mainControllerState.accounts,
+    mainControllerState.isReady,
+    props.privKeyOrSeed,
+    sessionStarted
+  ])
+
+  useEffect(() => {
+    if (!accountAdderState.isInitialized) return
+    if (!sessionStarted) return
+
+    setPage()
+  }, [accountAdderState.isInitialized, sessionStarted, setPage])
 
   const completeStep = useCallback(() => {
     updateStepperState(1, 'legacyAuth')
@@ -53,6 +72,7 @@ const LegacyImportManager = (props: Props) => {
       // TODO: display error toast instead
       // eslint-disable-next-line no-alert
       alert(accountAdderState.addAccountsStatus.message)
+      return
     }
 
     if (accountAdderState.addAccountsStatus.type === 'SUCCESS') {
@@ -83,33 +103,6 @@ const LegacyImportManager = (props: Props) => {
     completeStep
   ])
 
-  useEffect(() => {
-    if (sessionStarted) return
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-      params: {
-        preselectedAccounts: mainControllerState.accounts,
-        privKeyOrSeed: props.privKeyOrSeed
-      }
-    })
-    setSessionStarted(true)
-  }, [
-    dispatch,
-    props.privKeyOrSeed,
-    mainControllerState.accounts,
-    accountAdderState.isInitialized,
-    setPage,
-    sessionStarted
-  ])
-
-  useEffect(() => {
-    ;(async () => {
-      if (!accountAdderState.isInitialized) return
-      setPage()
-    })()
-  }, [accountAdderState.isInitialized, setPage])
-
   const onImportReady = useCallback(() => {
     if (accountAdderState.selectedAccounts.length) {
       dispatch({
@@ -119,10 +112,7 @@ const LegacyImportManager = (props: Props) => {
       return
     }
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
-    })
-
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
     completeStep()
   }, [accountAdderState.selectedAccounts, dispatch, completeStep])
 
