@@ -13,6 +13,6 @@
 }
 
 
-.token-container:hover .information-icon g .information-icon-path {
+.token-container:hover #information-icon-path {
     fill: #B6B9FF
 }
