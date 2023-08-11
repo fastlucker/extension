@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TouchableOpacity, ViewStyle } from 'react-native'
+import { Pressable, ViewStyle } from 'react-native'
 import Select, { components, DropdownIndicatorProps } from 'react-select'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -63,11 +63,7 @@ const SelectComponent = ({
     )
   }
   return (
-    <TouchableOpacity
-      style={style}
-      onPress={() => setIsDropdownOpen(!isDropdownOpen)}
-      disabled={disabled}
-    >
+    <Pressable style={style} onPress={() => setIsDropdownOpen(!isDropdownOpen)} disabled={disabled}>
       <Select
         options={options}
         components={{ DropdownIndicator }}
@@ -108,7 +104,7 @@ const SelectComponent = ({
         placeholder={label}
         menuPlacement={menuPlacement}
       />
-    </TouchableOpacity>
+    </Pressable>
   )
 }
 
