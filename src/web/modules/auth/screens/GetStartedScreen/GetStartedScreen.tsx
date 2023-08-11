@@ -18,13 +18,17 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import Card from '@web/modules/auth/components/Card'
+import { TERMS_VERSION } from '@web/modules/auth/screens/Terms/Terms'
 
 import styles from './styles'
 
 const GetStartedScreen = () => {
   const { t } = useTranslation()
   const { updateStepperState } = useStepper()
-  const [areTermsAccepted] = useStorage({ key: 'areTermsAccepted' })
+  const [termsState] = useStorage({
+    key: 'termsState',
+    defaultValue: { version: null, acceptedAt: null }
+  })
   const { navigate } = useNavigation()
   const [advanceModeEnabled, setAdvancedModeEnabled] = useState(false)
 
@@ -32,7 +36,8 @@ const GetStartedScreen = () => {
     (nextRoute: any, state?: any) => {
       if (
         nextRoute === WEB_ROUTES.terms &&
-        areTermsAccepted &&
+        termsState?.version &&
+        termsState.version === TERMS_VERSION &&
         state?.state?.nextPage &&
         state?.state?.nextState
       ) {
@@ -43,7 +48,7 @@ const GetStartedScreen = () => {
       }
       navigate(nextRoute, state)
     },
-    [navigate, areTermsAccepted, updateStepperState]
+    [navigate, termsState?.version, updateStepperState]
   )
   return (
     <AuthLayoutWrapperMainContent fullWidth>

@@ -14,17 +14,22 @@ import spacings, { SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 
+export const TERMS_VERSION = '1.0.0'
+
 const Terms = () => {
   const { t } = useTranslation()
   const { params } = useRoute()
-  const [, setAreTermsAccepted] = useStorage({ key: 'areTermsAccepted' })
+  const [, setTermsState] = useStorage({ key: 'termsState' })
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { nextPage, nextState }: any = params
 
   const onPress = () => {
     if (!nextPage || !nextState) return
-    setAreTermsAccepted(true)
+    setTermsState({
+      version: TERMS_VERSION,
+      acceptedAt: Date.now()
+    })
     updateStepperState(0, nextState)
     navigate(nextPage)
   }
