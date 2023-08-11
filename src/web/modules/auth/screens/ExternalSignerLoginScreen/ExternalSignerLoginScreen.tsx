@@ -1,3 +1,4 @@
+import { Mnemonic, Wallet } from 'ethers'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput, View } from 'react-native'
@@ -17,19 +18,33 @@ import {
 
 import styles from './styles'
 
-const PRIVATE_KEY_REGEX = /^(0x)?[0-9a-fA-F]{64}$/i
-
 const DEFAULT_IMPORT_LABEL = `Imported key on ${new Date().toLocaleDateString()}`
+
+function testPrivateKey(input: string) {
+  try {
+    return !!new Wallet(input)
+  } catch {
+    return false
+  }
+}
+
+function testMnemonic(input: string) {
+  const separators = /[\s,;\n]+/
+  const words = input.trim().split(separators)
+
+  return Mnemonic.isValidMnemonic(words.join(' '))
+}
 
 const ExternalSignerLoginScreen = () => {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors }
   } = useForm({
     mode: 'all',
     defaultValues: {
-      privateKey: '',
+      privKeyOrSeed: '',
       label: ''
     }
   })
@@ -37,16 +52,27 @@ const ExternalSignerLoginScreen = () => {
   const { navigate } = useNavigation()
 
   const handleFormSubmit = useCallback(() => {
-    handleSubmit(({ privateKey, label }) => {
+    handleSubmit(({ privKeyOrSeed, label }) => {
+      let formattedPrivKeyOrSeed = privKeyOrSeed
+
+      if (testPrivateKey(privKeyOrSeed)) {
+        formattedPrivKeyOrSeed =
+          privKeyOrSeed.slice(0, 2) === '0x' ? privKeyOrSeed.slice(2) : privKeyOrSeed
+      }
+
       navigate(WEB_ROUTES.accountAdder, {
         state: {
           walletType: 'legacyImport',
-          privateKey,
+          privKeyOrSeed: formattedPrivKeyOrSeed,
           label: label || DEFAULT_IMPORT_LABEL
         }
       })
     })()
   }, [handleSubmit, navigate])
+
+  const handleValidation = (value: string) => {
+    return testPrivateKey(value) || testMnemonic(value)
+  }
 
   return (
     <>
@@ -62,16 +88,16 @@ const ExternalSignerLoginScreen = () => {
 
           <View>
             <Text
-              style={[styles.error, { opacity: errors.privateKey ? 1 : 0 }]}
+              style={[styles.error, { opacity: errors.privKeyOrSeed ? 1 : 0 }]}
               color={colors.radicalRed}
               fontSize={14}
             >
-              Please enter a valid private key.
+              {t('Please enter a valid seed phrase or private key.')}
             </Text>
             <Controller
               control={control}
-              rules={{ pattern: PRIVATE_KEY_REGEX, required: true }}
-              name="privateKey"
+              rules={{ validate: (value) => handleValidation(value), required: true }}
+              name="privKeyOrSeed"
               render={({ field: { onChange, onBlur, value } }) => {
                 return (
                   <TextInput
@@ -142,6 +168,7 @@ const ExternalSignerLoginScreen = () => {
             text="Import Legacy Account"
             style={[flexbox.alignSelfCenter]}
             onPress={handleFormSubmit}
+            disabled={!handleValidation(watch('privKeyOrSeed'))}
           />
         </View>
       </AuthLayoutWrapperMainContent>
