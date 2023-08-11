@@ -1,27 +1,35 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
-import useStepper from '@common/modules/auth/hooks/useStepper'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
+import useStorage from '@common/hooks/useStorage'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 
+export const TERMS_VERSION = '1.0.0'
+
 const Terms = () => {
   const { t } = useTranslation()
   const { params } = useRoute()
+  const [, setTermsState] = useStorage({ key: 'termsState' })
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { nextPage, nextState }: any = params
 
   const onPress = () => {
     if (!nextPage || !nextState) return
+    setTermsState({
+      version: TERMS_VERSION,
+      acceptedAt: Date.now()
+    })
     updateStepperState(0, nextState)
     navigate(nextPage)
   }

@@ -32,6 +32,7 @@ const HardwareWalletSelectorScreen = () => {
       })
     } catch (error: any) {
       addToast(error.message, { error: true })
+      await updateStepperState(0, 'hwAuth')
     }
   }, [addToast, dispatchAsync, navigate, updateStepperState])
 
@@ -50,6 +51,7 @@ const HardwareWalletSelectorScreen = () => {
       })
     } catch (error: any) {
       addToast(error.message, { error: true })
+      await updateStepperState(0, 'hwAuth')
     }
   }, [addToast, dispatchAsync, navigate, updateStepperState])
 
@@ -60,13 +62,14 @@ const HardwareWalletSelectorScreen = () => {
 
   return (
     <AuthLayoutWrapperMainContent fullWidth>
-      <View>
+      <View style={[flexbox.center]}>
         <Text fontSize={20} style={[spacings.mvLg, flexbox.alignSelfCenter]} weight="medium">
           {t('Choose Hardware Wallet')}
         </Text>
-        <View style={[flexbox.directionRow, { gap: 16 }]}>
-          {options.map((option) => (
+        <View style={[flexbox.directionRow]}>
+          {options.map((option, index) => (
             <HardwareWalletSelectorItem
+              style={index === 1 ? spacings.mhSm : {}}
               key={option.title}
               title={option.title}
               text={option.text}
