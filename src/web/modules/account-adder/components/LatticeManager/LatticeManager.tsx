@@ -5,6 +5,7 @@ import React, { useEffect } from 'react'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
@@ -15,7 +16,8 @@ const LatticeManager = (props: Props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
-  const { state, dispatch, dispatchAsync } = useBackgroundService('accountAdder')
+  const { dispatch, dispatchAsync } = useBackgroundService()
+  const state = useAccountAdderControllerState()
 
   const onImportReady = () => {
     updateStepperState(2, 'hwAuth')

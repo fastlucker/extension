@@ -57,7 +57,8 @@ const WEB_ROUTES = {
   hardwareWalletLedger: 'hardware-wallet/ledger',
   authEmailAccount: 'auth-email-account',
   authEmailLogin: 'auth-email-login',
-  authEmailRegister: 'auth-email-register'
+  authEmailRegister: 'auth-email-register',
+  accountPersonalize: 'account-personalize'
 }
 
 const ROUTES = {

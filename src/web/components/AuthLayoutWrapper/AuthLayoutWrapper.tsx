@@ -26,6 +26,7 @@ const AuthLayoutWrapper = (
 export const AuthLayoutWrapperMainContent: React.FC<any> = ({
   fullWidth = false,
   hideStepper = false,
+  hideHeader = false,
   pageTitle = '',
   children,
   forceCanGoBack,
@@ -39,12 +40,12 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({
 
   return (
     <View style={[flexbox.flex1, { backgroundColor: colors.zircon }]}>
-      <TabHeader
+      {!hideHeader && <TabHeader
         pageTitle={pageTitle}
         hideStepper={hideStepper}
         forceCanGoBack={forceCanGoBack}
         onBack={onBack}
-      />
+      />}
       <Wrapper style={[flexbox.flex1]} showsVerticalScrollIndicator={false}>
         <View
           style={[

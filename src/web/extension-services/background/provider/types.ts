@@ -1,3 +1,5 @@
+import { MainController } from 'ambire-common/src/controllers/main/main'
+
 export type ProviderRequest<TMethod = string> = {
   data: {
     method: TMethod
@@ -11,4 +13,5 @@ export type ProviderRequest<TMethod = string> = {
   } | null
   origin?: string
   requestedApproval?: boolean
+  mainCtrl: MainController
 }

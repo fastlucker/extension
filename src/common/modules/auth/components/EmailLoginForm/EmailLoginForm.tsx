@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
 import { Keyboard } from 'react-native'
@@ -68,21 +68,14 @@ const EmailLoginForm: React.FC<any> = ({
     // TODO: v2
   }, [])
 
+  // FIXME: Refactor when later on this gets wired-up
   useEffect(() => {
-    let timer
     const delay = 4
     if (isPasswordConfirmStep) {
       setTimeout(() => {
         currentFlow !== 'legacyAuth' && setNextStepperState()
         navigate(ROUTES.createKeyStore)
       }, delay * 1000)
-    }
-
-    // this will clear Timeout
-    // when component unmount like in willComponentUnmount
-    // and show will not change to true
-    return () => {
-      clearTimeout(timer)
     }
   }, [isPasswordConfirmStep, setNextStepperState, navigate, currentFlow])
 

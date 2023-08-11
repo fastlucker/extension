@@ -86,7 +86,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
         )
       }
 
-      await dispatch({
+      await dispatchAsync({
         type: 'WALLET_CONTROLLER_REJECT_APPROVAL',
         params: { err, stay, isInternal }
       })
@@ -100,7 +100,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
       // triggers the logic that determines where user should go next.
       if (!stay) navigate('/')
     },
-    [approval, dispatch, getApproval, addToast, t, navigate]
+    [approval, dispatchAsync, getApproval, addToast, t, navigate]
   )
 
   const { requests, resolveMany } = useSignApproval({ approval, resolveApproval, rejectApproval })

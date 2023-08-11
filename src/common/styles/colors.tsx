@@ -2,6 +2,7 @@ const colors = {
   turquoise: '#27E8A7',
   onahau: '#C8FFFE',
   greenHaze: '#009e69',
+  turquoise_20: '#27e8a733',
 
   lightAquamarine: '#B3FFFD',
   aquamarine: '#80FFFB',
@@ -38,8 +39,10 @@ const colors = {
   valhalla_95: 'rgba(39, 42, 66, 0.95)',
   valhalla_66: 'rgba(39, 42, 66, 0.66)',
   martinique: '#2D314D',
+  martinique_20: '#2d314d33',
   martinique_35: '#2D314D59',
   martinique_65: '#2D314DA6',
+  martinique_80: '#2d314dcc',
   hauntedDreams: '#313555',
   patriotBlue: '#333757',
   patriotBlue_75: 'rgba(51, 55, 87, 0.75)',
