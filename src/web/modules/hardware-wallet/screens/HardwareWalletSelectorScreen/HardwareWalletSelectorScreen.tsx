@@ -48,6 +48,7 @@ const HardwareWalletSelectorScreen = () => {
                   state: { walletType: HARDWARE_WALLETS.TREZOR }
                 })
               } catch (error: any) {
+                await updateStepperState(0, 'hwAuth')
                 addToast(error.message, { error: true })
               }
             }}
@@ -85,6 +86,7 @@ const HardwareWalletSelectorScreen = () => {
                 })
               } catch (error: any) {
                 addToast(error.message, { error: true })
+                await updateStepperState(0, 'hwAuth')
               }
             }}
           />
