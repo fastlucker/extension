@@ -70,9 +70,7 @@ const ExternalSignerLoginScreen = () => {
     })()
   }, [handleSubmit, navigate])
 
-  const handleValidation = (value: string) => {
-    return testPrivateKey(value) || testMnemonic(value)
-  }
+  const handleValidation = (value: string) => testPrivateKey(value) || testMnemonic(value)
 
   return (
     <>
