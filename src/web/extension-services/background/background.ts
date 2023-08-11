@@ -45,10 +45,42 @@ import { controllersMapping } from './types'
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
 
+  /**
+   * Init all controllers `onUpdate` listeners only once (in here), instead of
+   * doing it in the `browser.runtime.onConnect.addListener` listener, because
+   * the `onUpdate` listeners are not supposed to be re-initialized every time
+   * the `browser.runtime.onConnect.addListener` listener is called.
+   * Moreover, this re-initialization happens multiple times per session,
+   * `browser.runtime.onConnect.addListener` gets called multiple times,
+   * and the `onUpdate` listeners skip emits from controllers (race condition).
+   * Initializing the listeners only once proofs to be more reliable.
+   */
+  let pmRef: PortMessage
+  Object.keys(controllersMapping).forEach((ctrl: any) => {
+    // Broadcast onUpdate for nested controllers
+    ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
+      pmRef.request({
+        type: 'broadcast',
+        method: ctrl,
+        params: (mainCtrl as any)[ctrl]
+      })
+    })
+  })
+  // Broadcast onUpdate for the main controllers
+  mainCtrl.onUpdate(() => {
+    pmRef?.request({
+      type: 'broadcast',
+      method: 'main',
+      params: mainCtrl
+    })
+  })
+
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
       const pm = new PortMessage(port)
+      pmRef = pm
+
       pm.listen(async (data: Action) => {
         if (data?.type) {
           switch (data.type) {
@@ -236,26 +268,6 @@ import { controllersMapping } from './types'
       eventBus.addEventListener('broadcastToUI', broadcastCallback)
       port.onDisconnect.addListener(() => {
         eventBus.removeEventListener('broadcastToUI', broadcastCallback)
-      })
-
-      Object.keys(controllersMapping).forEach((ctrl: any) => {
-        // Broadcast onUpdate for nested controllers
-        ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-          pm.request({
-            type: 'broadcast',
-            method: ctrl,
-            params: (mainCtrl as any)[ctrl]
-          })
-        })
-      })
-
-      // Broadcast onUpdate for the main controllers
-      mainCtrl.onUpdate(() => {
-        pm.request({
-          type: 'broadcast',
-          method: 'main',
-          params: mainCtrl
-        })
       })
 
       return
