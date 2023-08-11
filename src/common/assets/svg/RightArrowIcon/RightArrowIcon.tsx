@@ -1,5 +1,5 @@
 import React from 'react'
-import Svg, { Rect, Path, SvgProps } from 'react-native-svg'
+import Svg, { Path, Rect, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
@@ -9,6 +9,7 @@ interface Props extends SvgProps {
   color?: string
   hovered?: boolean
   props?: SvgProps
+  withRect?: boolean
 }
 
 const RightArrowIcon: React.FC<Props> = ({
@@ -16,15 +17,18 @@ const RightArrowIcon: React.FC<Props> = ({
   height = 36,
   color = colors.violet,
   hovered = false,
+  withRect = true,
   ...props
 }) => (
   <Svg width={width} height={height} viewBox="0 0 36 36" {...props}>
-    <Rect
-      width={width}
-      height={height}
-      rx="12"
-      fill={hovered ? 'rgba(96, 0, 255, 0.08)' : 'rgba(182,185,255,0.1)'}
-    />
+    {withRect && (
+      <Rect
+        width={width}
+        height={height}
+        rx="12"
+        fill={hovered ? 'rgba(96, 0, 255, 0.08)' : 'rgba(182,185,255,0.1)'}
+      />
+    )}
     <Path
       d="M6.348,0,0,6.373l6.348,6.385"
       transform="translate(22.175 24.379) rotate(180)"
