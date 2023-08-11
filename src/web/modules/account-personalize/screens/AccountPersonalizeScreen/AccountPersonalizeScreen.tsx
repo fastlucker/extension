@@ -5,6 +5,8 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -16,6 +18,7 @@ import Card from '@web/modules/account-personalize/components/Card'
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
   const [elementHeights, setElementHeights] = useState({})
   const [totalHeight, setTotalHeight] = useState(300)
 
@@ -33,6 +36,7 @@ const AccountPersonalizeScreen = () => {
     setTotalHeight(totalHeightCalculated)
   }, [elementHeights])
 
+  // TODO: those accounts are dummy data that will be removed when this screen is wired
   const accounts = [
     { address: '0x3242354345346456445645674r564567459', smartAccount: true },
     { address: '0x3242354345346456445645674r564567459', smartAccount: false },
@@ -55,6 +59,7 @@ const AccountPersonalizeScreen = () => {
               ))}
             </Wrapper>
             <Button
+              onPress={() => navigate(WEB_ROUTES.onboarding)}
               text={t('Save and Continue')}
               style={[spacings.mtLg, flexboxStyles.alignSelfEnd]}
             />
