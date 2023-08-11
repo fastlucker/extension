@@ -18,7 +18,6 @@ interface Props {
 }
 
 const LegacyImportManager = (props: Props) => {
-  const [shouldCreateEmailVault] = React.useState(false)
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
@@ -43,18 +42,11 @@ const LegacyImportManager = (props: Props) => {
     [dispatch, createTask]
   )
 
-  const goToNextStep = useCallback(() => {
+  const completeStep = useCallback(() => {
     updateStepperState(1, 'legacyAuth')
 
-    shouldCreateEmailVault
-      ? navigate(WEB_ROUTES.createEmailVault, {
-          state: {
-            hideStepper: true,
-            hideFormTitle: true
-          }
-        })
-      : navigate(WEB_ROUTES.createKeyStore)
-  }, [updateStepperState, shouldCreateEmailVault, navigate])
+    navigate(WEB_ROUTES.createKeyStore)
+  }, [navigate, updateStepperState])
 
   useEffect(() => {
     if (accountAdderState.addAccountsStatus.type === 'ERROR') {
@@ -78,18 +70,17 @@ const LegacyImportManager = (props: Props) => {
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
         params: { accountAddr: defaultSelectedAccount.addr }
       })
-      goToNextStep()
+      completeStep()
     }
   }, [
     accountAdderState.isInitialized,
     accountAdderState.addAccountsStatus.type,
     accountAdderState.addAccountsStatus.message,
     updateStepperState,
-    shouldCreateEmailVault,
     navigate,
     dispatch,
     accountAdderState.readyToAddAccounts,
-    goToNextStep
+    completeStep
   ])
 
   useEffect(() => {
@@ -132,8 +123,8 @@ const LegacyImportManager = (props: Props) => {
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
     })
 
-    goToNextStep()
-  }, [accountAdderState.selectedAccounts, dispatch, goToNextStep])
+    completeStep()
+  }, [accountAdderState.selectedAccounts, dispatch, completeStep])
 
   return (
     <AccountsOnPageList
