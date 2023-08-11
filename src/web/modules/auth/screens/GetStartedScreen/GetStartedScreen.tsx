@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
-import { Pressable } from 'react-native-web-hover'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import EmailIcon from '@common/assets/svg/EmailIcon'
@@ -10,23 +9,45 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useStorage from '@common/hooks/useStorage'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import Card from '@web/modules/auth/components/Card'
+import { TERMS_VERSION } from '@web/modules/auth/screens/Terms/Terms'
 
 import styles from './styles'
 
 const GetStartedScreen = () => {
   const { t } = useTranslation()
+  const { updateStepperState } = useStepper()
+  const [termsState] = useStorage({
+    key: 'termsState',
+    defaultValue: { version: null, acceptedAt: null }
+  })
   const { navigate } = useNavigation()
   const [advanceModeEnabled, setAdvancedModeEnabled] = useState(false)
 
   const handleAuthButtonPress = useCallback(
-    (nextRoute: any, state?: any) => navigate(nextRoute, state),
-    [navigate]
+    (nextRoute: any, state?: any) => {
+      if (
+        nextRoute === WEB_ROUTES.terms &&
+        termsState?.version &&
+        termsState.version === TERMS_VERSION &&
+        state?.state?.nextPage &&
+        state?.state?.nextState
+      ) {
+        updateStepperState(0, state.state.nextState)
+        navigate(state.state.nextPage)
+
+        return
+      }
+      navigate(nextRoute, state)
+    },
+    [navigate, termsState?.version, updateStepperState]
   )
   return (
     <AuthLayoutWrapperMainContent fullWidth>
@@ -38,101 +59,64 @@ const GetStartedScreen = () => {
           {t('Choose Account Type')}
         </Text>
         <View style={[flexboxStyles.directionRow]}>
-          <Pressable>
-            {({ hovered }) => (
-              <Card
-                title={t('Email account')}
-                text={t(
-                  'Create a smart account with email and password. This account will be recoverable via your email address.'
-                )}
-                icon={<EmailIcon color={hovered ? colors.violet : colors.melrose} />}
-                style={{
-                  borderWidth: 1,
-                  borderColor: hovered ? colors.violet : colors.melrose_15,
-                  ...flexboxStyles.flex1
-                }}
-              >
-                <Button
-                  textStyle={{ fontSize: 14 }}
-                  style={{ width: 260 }}
-                  text={t('Create Email Account')}
-                  onPress={() => {
-                    handleAuthButtonPress(WEB_ROUTES.terms, {
-                      state: {
-                        nextState: 'emailAuth',
-                        nextPage: WEB_ROUTES.createEmailVault
-                      }
-                    })
-                  }}
-                  hasBottomSpacing={false}
-                />
-              </Card>
-            )}
-          </Pressable>
-          <Pressable>
-            {({ hovered }) => (
-              <Card
-                title={t('Hardware wallet')}
-                text={t(
-                  'Import multiple accounts from a hardware wallet device: we support Trezor, Ledger and Grid+ Lattice.\n\nYou can import your existing legacy accounts and smart accounts.'
-                )}
-                style={[
-                  spacings.mhSm,
-                  {
-                    borderWidth: 1,
-                    borderColor: hovered ? colors.violet : colors.melrose_15,
-                    ...flexboxStyles.flex1
-                  }
-                ]}
-                icon={<HWIcon color={hovered ? colors.violet : colors.melrose} />}
-              >
-                <Button
-                  textStyle={{ fontSize: 14 }}
-                  text={t('Import From Hardware Wallet')}
-                  onPress={() => {
-                    handleAuthButtonPress(WEB_ROUTES.terms, {
-                      state: {
-                        nextState: 'hwAuth',
-                        nextPage: WEB_ROUTES.hardwareWalletSelect
-                      }
-                    })
-                  }}
-                  hasBottomSpacing={false}
-                />
-              </Card>
-            )}
-          </Pressable>
-          <Pressable>
-            {({ hovered }) => (
-              <Card
-                title={t('Legacy Account')}
-                style={{
-                  borderWidth: 1,
-                  borderColor: hovered ? colors.violet : colors.melrose_15,
-                  ...flexboxStyles.flex1
-                }}
-                text={t(
-                  'Import a private key or seed phrase from a traditional wallet like Metamask.\n\nYou can import a legacy account but also create a fresh smart account from the same keys.'
-                )}
-                icon={<ImportAccountIcon color={hovered ? colors.violet : colors.melrose} />}
-              >
-                <Button
-                  textStyle={{ fontSize: 14 }}
-                  style={{ width: 260 }}
-                  text={t('Import Legacy Account')}
-                  onPress={() => {
-                    handleAuthButtonPress(WEB_ROUTES.terms, {
-                      state: {
-                        nextState: 'legacyAuth',
-                        nextPage: WEB_ROUTES.externalSigner
-                      }
-                    })
-                  }}
-                  hasBottomSpacing={false}
-                />
-              </Card>
-            )}
-          </Pressable>
+          <Card
+            title="Email account"
+            text="Create a smart account with email and password. This account will be recoverable via your email address."
+            icon={EmailIcon}
+            style={{
+              ...flexboxStyles.flex1
+            }}
+            onPress={() => {
+              handleAuthButtonPress(WEB_ROUTES.terms, {
+                state: {
+                  nextState: 'emailAuth',
+                  nextPage: WEB_ROUTES.createEmailVault
+                }
+              })
+            }}
+            buttonText="Create Email Account"
+          />
+          <Card
+            title="Hardware wallet"
+            text={
+              'Import multiple accounts from a hardware wallet device: we support Trezor, Ledger and Grid+ Lattice.\n\nYou can import your existing legacy accounts and smart accounts.'
+            }
+            style={[
+              spacings.mhSm,
+              {
+                ...flexboxStyles.flex1
+              }
+            ]}
+            icon={HWIcon}
+            buttonText="Import From Hardware Wallet"
+            onPress={() => {
+              handleAuthButtonPress(WEB_ROUTES.terms, {
+                state: {
+                  nextState: 'hwAuth',
+                  nextPage: WEB_ROUTES.hardwareWalletSelect
+                }
+              })
+            }}
+          />
+          <Card
+            title="Legacy Account"
+            style={{
+              ...flexboxStyles.flex1
+            }}
+            text={
+              'Import a private key or seed phrase from a traditional wallet like Metamask.\n\nYou can import a legacy account but also create a fresh smart account from the same keys.'
+            }
+            icon={ImportAccountIcon}
+            buttonText="Import Legacy Account"
+            onPress={() => {
+              handleAuthButtonPress(WEB_ROUTES.terms, {
+                state: {
+                  nextState: 'legacyAuth',
+                  nextPage: WEB_ROUTES.externalSigner
+                }
+              })
+            }}
+          />
         </View>
 
         <View style={[flexboxStyles.directionRow, flexboxStyles.justifySpaceBetween]}>
