@@ -1,0 +1,18 @@
+.button-pressable {
+    display: none;
+}
+
+.token-container:hover {
+    background-color: #B6B9FF26;
+    border-color: #6770B333;
+
+}
+
+.token-container:hover .button-pressable {
+    display: flex;
+}
+
+
+.token-container:hover .information-icon g .information-icon-path {
+    fill: #B6B9FF
+}

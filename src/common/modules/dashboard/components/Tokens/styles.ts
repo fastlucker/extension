@@ -11,10 +11,13 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   container: {
+    display: 'flex',
     ...flexbox.directionRow,
     ...flexbox.justifySpaceBetween,
-    ...spacings.pvMi,
-    ...spacings.phMi,
+    ...spacings.ptMi,
+    ...spacings.pbMi,
+    ...spacings.plMi,
+    ...spacings.prMi,
     borderWidth: 1,
     borderRadius: 12,
     borderColor: colors.zircon
