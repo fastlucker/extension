@@ -7,18 +7,18 @@ import TransferIcon from '@common/assets/svg/TransferIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
-import useAmbireExtension from '@common/hooks/useAmbireExtension'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
+import useExtension from '@web/hooks/useExtension'
 
 import ConnectedWeb3DAppItem from './ConnectedWeb3DAppItem'
 
 const ConnectedDapps = ({ isIcon = false }: { isIcon?: boolean }) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const { connectedDapps, disconnectDapp } = useAmbireExtension()
+  const { connectedDapps, disconnectDapp } = useExtension()
 
   return (
     <>

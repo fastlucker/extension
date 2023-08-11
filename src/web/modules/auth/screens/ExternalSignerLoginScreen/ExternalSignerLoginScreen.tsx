@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { TextInput, View } from 'react-native'
 
 import Button from '@common/components/Button'
@@ -19,6 +19,8 @@ import styles from './styles'
 const ExternalSignerLoginScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const [privKeyOrSeed, setPrivKeyOrSeed] = useState('')
+  const [label, setLabel] = useState('')
 
   return (
     <>
@@ -33,12 +35,12 @@ const ExternalSignerLoginScreen = () => {
           </Text>
 
           <TextInput
+            value={privKeyOrSeed}
             editable
             multiline
             numberOfLines={8}
-            maxLength={40}
             placeholder="Enter a seed phrase or private key"
-            onChangeText={(text) => onChangeText(text)}
+            onChangeText={setPrivKeyOrSeed}
             style={styles.textarea}
             placeholderTextColor={colors.martinique_65}
           />
@@ -57,12 +59,13 @@ const ExternalSignerLoginScreen = () => {
             {t('Key label')}
           </Text>
           <TextInput
+            value={label}
             editable
             multiline
             numberOfLines={1}
             maxLength={40}
             placeholder="Imported key on 21 Apr 2023"
-            onChangeText={(text) => onChangeText(text)}
+            onChangeText={setLabel}
             style={[styles.textarea, spacings.mbLg]}
             placeholderTextColor={colors.martinique_65}
           />
@@ -72,10 +75,10 @@ const ExternalSignerLoginScreen = () => {
             text="Import Legacy Account"
             style={[flexbox.alignSelfCenter]}
             onPress={() =>
-              navigate(WEB_ROUTES.accountsImporter, {
+              navigate(WEB_ROUTES.accountAdder, {
                 state: {
-                  walletType: 'LEGACY_IMPORTER',
-                  isWebHID: true
+                  walletType: 'legacyImport',
+                  privKeyOrSeed
                 }
               })
             }

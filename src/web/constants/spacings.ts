@@ -11,3 +11,8 @@ const BROWSER_WINDOW_TOP_BAR_HEIGHT = engine === 'gecko' ? 20 : 30
 export const POPUP_HEIGHT = Math.round(
   BROWSER_WINDOW_TOP_BAR_HEIGHT + (engine === 'gecko' ? 600 : 730)
 )
+
+// This are the dimensions for a collapsed notification window
+// by default the notification window will be full screen and won't be with these dimensions
+export const NOTIFICATION_WINDOW_WIDTH = 1100
+export const NOTIFICATION_WINDOW_HEIGHT = 800

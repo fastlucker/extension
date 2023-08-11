@@ -126,12 +126,12 @@ const routesConfig: {
       default: i18n.t('Login with Hardware Wallet')
     })
   },
-  [ROUTES.accountsImporter]: {
-    route: ROUTES.accountsImporter,
+  [ROUTES.accountAdder]: {
+    route: ROUTES.accountAdder,
     title: ''
   },
-  [ROUTES.accountsPersonalize]: {
-    route: ROUTES.accountsPersonalize,
+  [ROUTES.accountPersonalize]: {
+    route: ROUTES.accountPersonalize,
     title: Platform.select({
       default: i18n.t('Personalize Your Accounts')
     })

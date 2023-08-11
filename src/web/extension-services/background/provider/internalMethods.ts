@@ -1,5 +1,4 @@
 import providerController from '@web/extension-services/background/provider/ProviderController'
-import WalletController from '@web/extension-services/background/wallet'
 
 const tabCheckin = ({
   data: {
@@ -14,7 +13,7 @@ const tabCheckin = ({
 }
 
 const getProviderState = async (req) => {
-  const isUnlocked = await WalletController.isUnlocked()
+  const isUnlocked = true // TODO: implement in v2
   const chainId = await providerController.ethChainId()
   const networkVersion = await providerController.netVersion()
 

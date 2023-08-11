@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
@@ -33,9 +33,9 @@ const CreateNewKeyStoreScreen = () => {
   const [enableEmailRecovery, onEnableEmailRecoveryChange] = useState(false)
   const { stepperState, updateStepperState } = useStepper()
 
-  const setNextStepperState = () => {
+  const setNextStepperState = useCallback(() => {
     updateStepperState(stepperState.currentStep + 1, stepperState.currentFlow)
-  }
+  }, [stepperState.currentFlow, stepperState.currentStep, updateStepperState])
 
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const {
@@ -54,22 +54,15 @@ const CreateNewKeyStoreScreen = () => {
   })
 
   useEffect(() => {
-    let timer
+    // FIXME: Refactor when later on this gets wired-up
     const delay = 4
     if (isSubmitSuccessful) {
       setTimeout(() => {
         setNextStepperState()
-        navigate(ROUTES.accountsPersonalize)
+        navigate(ROUTES.accountPersonalize)
       }, delay * 1000)
     }
-
-    // this will clear Timeout
-    // when component unmount like in willComponentUnmount
-    // and show will not change to true
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [isSubmitSuccessful])
+  }, [isSubmitSuccessful, navigate, setNextStepperState])
 
   return (
     <>

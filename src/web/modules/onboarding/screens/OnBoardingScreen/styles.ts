@@ -3,6 +3,7 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG, SPACING_MD, SPACING_XL } from '@common/styles/spacings'
 import commonStyles from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   title: TextStyle
@@ -36,6 +37,8 @@ const styles = StyleSheet.create<Style>({
     width: 440,
     height: 300,
     marginBottom: SPACING_MD * 2,
+    ...flexbox.alignCenter,
+    ...flexbox.justifyCenter,
     ...commonStyles.borderRadiusPrimary
   },
   link: {

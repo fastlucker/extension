@@ -4,9 +4,6 @@ import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
-// TODO: v2
-// import AttentionGrabberProvider from '@common/components/AttentionGrabber'
-import { AmbireExtensionProvider } from '@common/contexts/ambireExtensionContext'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
@@ -23,7 +20,12 @@ import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/p
 import { rpcProviders } from '@common/services/providers'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
+import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderControllerStateContext'
 import { ApprovalProvider } from '@web/contexts/approvalContext'
+import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
+import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
+import { ExtensionProvider } from '@web/contexts/extensionContext'
+import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
 
 // Initialize rpc providers for all networks
@@ -40,42 +42,48 @@ const AppInit = () => {
   if (!fontsLoaded) return null
 
   return (
-    <Router>
-      <PortalProvider>
-        <LoaderProvider>
-          <StorageProvider>
-            <OnboardingProvider>
-              <ThemeProvider>
-                <SafeAreaProvider>
-                  <KeyboardProvider>
-                    <NetInfoProvider>
-                      <ToastProvider>
-                        <ConstantsProvider>
-                          <AuthProvider>
-                            <ApprovalProvider>
-                              <AmbireExtensionProvider>
-                                <BiometricsProvider>
-                                  {/* <AttentionGrabberProvider> */}
-                                  <PrivateModeProvider>
-                                    <AppRouter />
-                                  </PrivateModeProvider>
-                                  {/* </AttentionGrabberProvider> */}
-                                  <PortalHost name="global" />
-                                </BiometricsProvider>
-                              </AmbireExtensionProvider>
-                            </ApprovalProvider>
-                          </AuthProvider>
-                        </ConstantsProvider>
-                      </ToastProvider>
-                    </NetInfoProvider>
-                  </KeyboardProvider>
-                </SafeAreaProvider>
-              </ThemeProvider>
-            </OnboardingProvider>
-          </StorageProvider>
-        </LoaderProvider>
-      </PortalProvider>
-    </Router>
+    <BackgroundServiceProvider>
+      <MainControllerStateProvider>
+        <AccountAdderControllerStateProvider>
+          <ControllersStateLoadedProvider>
+            <Router>
+              <PortalProvider>
+                <LoaderProvider>
+                  <StorageProvider>
+                    <OnboardingProvider>
+                      <ThemeProvider>
+                        <SafeAreaProvider>
+                          <KeyboardProvider>
+                            <NetInfoProvider>
+                              <ToastProvider>
+                                <ConstantsProvider>
+                                  <AuthProvider>
+                                    <ApprovalProvider>
+                                      <ExtensionProvider>
+                                        <BiometricsProvider>
+                                          <PrivateModeProvider>
+                                            <AppRouter />
+                                          </PrivateModeProvider>
+                                          <PortalHost name="global" />
+                                        </BiometricsProvider>
+                                      </ExtensionProvider>
+                                    </ApprovalProvider>
+                                  </AuthProvider>
+                                </ConstantsProvider>
+                              </ToastProvider>
+                            </NetInfoProvider>
+                          </KeyboardProvider>
+                        </SafeAreaProvider>
+                      </ThemeProvider>
+                    </OnboardingProvider>
+                  </StorageProvider>
+                </LoaderProvider>
+              </PortalProvider>
+            </Router>
+          </ControllersStateLoadedProvider>
+        </AccountAdderControllerStateProvider>
+      </MainControllerStateProvider>
+    </BackgroundServiceProvider>
   )
 }
 

@@ -2,6 +2,7 @@
 /* eslint-disable no-await-in-loop */
 import 'reflect-metadata'
 
+import { MainController } from 'ambire-common/src/controllers/main/main'
 import { ethErrors } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
 import cloneDeep from 'lodash/cloneDeep'
@@ -12,8 +13,7 @@ import { getProvider } from '@common/services/provider'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'
-import Wallet from '@web/extension-services/background/wallet'
-import storage from '@web/extension-services/background/webapi/storage'
+import { storage } from '@web/extension-services/background/webapi/storage'
 
 interface ApprovalRes {
   type?: string
@@ -55,7 +55,13 @@ const handleSignMessage = (approvalRes: ApprovalRes) => {
   throw new Error('Internal error: approval result not found', approvalRes)
 }
 
-class ProviderController {
+export class ProviderController {
+  mainCtrl: MainController
+
+  constructor(mainCtrl: MainController) {
+    this.mainCtrl = mainCtrl
+  }
+
   ethRpc = async (req) => {
     const {
       data: { method, params },
@@ -105,9 +111,8 @@ class ProviderController {
     if (!permissionService.hasPermission(origin)) {
       throw ethErrors.provider.unauthorized()
     }
-    const selectedAcc = await storage.get('selectedAcc')
 
-    const account = selectedAcc ? [selectedAcc] : []
+    const account = this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
     sessionService.broadcastEvent('accountsChanged', account)
 
     return account
@@ -115,13 +120,13 @@ class ProviderController {
 
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }) => {
-    if (!permissionService.hasPermission(origin) || !Wallet.isUnlocked()) {
+    // TODO: Implement WalletController.isUnlocked() in v2
+    // if (!permissionService.hasPermission(origin) || !WalletController.isUnlocked()) {
+    if (!permissionService.hasPermission(origin)) {
       return []
     }
 
-    const selectedAcc = await storage.get('selectedAcc')
-
-    return selectedAcc ? [selectedAcc] : []
+    return this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
   }
 
   ethCoinbase = async ({ session: { origin } }) => {
@@ -129,9 +134,7 @@ class ProviderController {
       return null
     }
 
-    const selectedAcc = await storage.get('selectedAcc')
-
-    return selectedAcc || null
+    return this.mainCtrl.selectedAccount || null
   }
 
   @Reflect.metadata('SAFE', true)
@@ -304,7 +307,9 @@ class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }) => {
     const result: Web3WalletPermission[] = []
-    if (Wallet.isUnlocked() && Wallet.getConnectedSite(origin)) {
+    // TODO: Implement WalletController.isUnlocked() in v2
+    // if (WalletController.isUnlocked() && permissionService.getConnectedSite(origin)) {
+    if (permissionService.getConnectedSite(origin)) {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result

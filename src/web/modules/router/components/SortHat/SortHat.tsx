@@ -37,7 +37,7 @@ const SortHat = () => {
     // }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      // TODO: return navigate(ROUTES.auth)
+      // TODO: Discuss here when we need to go to dashboard and if this is correct for our first epic
       if (onboardingStatus === ONBOARDING_VALUES.ON_BOARDED) {
         return navigate(ROUTES.dashboard)
       }
@@ -71,7 +71,7 @@ const SortHat = () => {
         onboardingStatus === ONBOARDING_VALUES.ON_BOARDED ? ROUTES.dashboard : ROUTES.onboarding
       )
     }
-  }, [isInNotification, approval, navigate, authStatus, onboardingStatus])
+  }, [isInNotification, approval, navigate, onboardingStatus])
 
   useEffect(() => {
     loadView()
