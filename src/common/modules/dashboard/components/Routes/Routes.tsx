@@ -14,67 +14,43 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 const Routes = () => {
-  const IconWrapper = ({
-    onPress,
-    children
-  }: {
-    onPress: () => void
-    children: React.ReactNode
-  }) => (
-    <NavIconWrapper
-      // TODO: handle on press and routing to different pages
-      onPress={onPress}
-      hoverBackground={colors.violet}
-      hoverColor={colors.white}
-      style={{ backgroundColor: colors.melrose_35, borderColor: colors.violet, ...spacings.mbMi }}
-    >
-      {children}
-    </NavIconWrapper>
-  )
-
   const { t } = useTranslation()
+
+  const routeItems = [
+    { icon: SwapIcon, label: t('Swap'), route: 'swapRoute' },
+    { icon: BridgeIcon, label: t('Bridge'), route: 'bridgeRoute' },
+    { icon: SendIcon, label: t('Send'), route: 'sendRoute' },
+    { icon: TopUpIcon, label: t('Top up'), route: 'topUpRoute' },
+    { icon: EarnIcon, label: t('Earn'), route: 'earnRoute' }
+  ]
+
   return (
     <View style={[flexbox.directionRow]}>
-      <View style={[flexbox.alignCenter, spacings.mrTy]}>
-        <IconWrapper onPress={() => null}>
-          <SwapIcon width={20} height={20} />
-        </IconWrapper>
-        <Text weight="regular" shouldScale={false} fontSize={12}>
-          {t('Swap')}
-        </Text>
-      </View>
-      <View style={[flexbox.alignCenter, spacings.mrTy]}>
-        <IconWrapper onPress={() => null}>
-          <BridgeIcon width={20} height={20} />
-        </IconWrapper>
-        <Text weight="regular" shouldScale={false} fontSize={12}>
-          {t('Bridge')}
-        </Text>
-      </View>
-      <View style={[flexbox.alignCenter, spacings.mrTy]}>
-        <IconWrapper onPress={() => null}>
-          <SendIcon width={20} height={20} />
-        </IconWrapper>
-        <Text weight="regular" shouldScale={false} fontSize={12}>
-          {t('Send')}
-        </Text>
-      </View>
-      <View style={[flexbox.alignCenter, spacings.mrTy]}>
-        <IconWrapper onPress={() => null}>
-          <TopUpIcon width={20} height={20} />
-        </IconWrapper>
-        <Text weight="regular" shouldScale={false} fontSize={12}>
-          {t('Top up')}
-        </Text>
-      </View>
-      <View style={[flexbox.alignCenter]}>
-        <IconWrapper onPress={() => null}>
-          <EarnIcon width={20} height={20} />
-        </IconWrapper>
-        <Text weight="regular" shouldScale={false} fontSize={12}>
-          {t('Earn')}
-        </Text>
-      </View>
+      {routeItems.map((routeItem, index) => (
+        <View
+          key={routeItem.label}
+          style={[flexbox.alignCenter, index !== routeItems.length - 1 && spacings.mrTy]}
+        >
+          <NavIconWrapper
+            onPress={() => {
+              // TODO: navigate to routeItem.route or perform another action
+              console.log(`Navigating to: ${routeItem.route}`)
+            }}
+            hoverBackground={colors.violet}
+            hoverColor={colors.white}
+            style={{
+              backgroundColor: colors.melrose_35,
+              borderColor: colors.violet,
+              ...spacings.mbMi
+            }}
+          >
+            <routeItem.icon width={20} height={20} />
+          </NavIconWrapper>
+          <Text weight="regular" shouldScale={false} fontSize={12}>
+            {routeItem.label}
+          </Text>
+        </View>
+      ))}
     </View>
   )
 }
