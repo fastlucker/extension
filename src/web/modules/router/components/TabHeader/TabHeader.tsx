@@ -7,7 +7,6 @@ import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
-import useStepper from '@common/modules/auth/hooks/useStepper'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -17,17 +16,11 @@ import Stepper from '@web/modules/router/components/Stepper'
 import styles from './styles'
 
 const TabHeader: React.FC<any> = ({ hideStepper = false, pageTitle = '' }) => {
-  const { stepperState, updateStepperState } = useStepper()
   const { t } = useTranslation()
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
 
-  const handleGoBack = useCallback(() => {
-    if (stepperState?.currentStep > 0) {
-      updateStepperState(stepperState.currentStep - 1, stepperState.currentFlow)
-    }
-    navigate(-1)
-  }, [navigate, stepperState.currentFlow, stepperState.currentStep, updateStepperState])
+  const handleGoBack = useCallback(() => navigate(-1), [navigate])
 
   const canGoBack = !!params?.prevRoute
 
