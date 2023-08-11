@@ -125,7 +125,7 @@ const AccountsList = ({
               setEmailVaultStep(true)
               onCreateEmailVaultStep && onCreateEmailVaultStep()
             }}
-            label="Enable email recovery for new Smart Accounts"
+            label={t('Enable email recovery for new Smart Accounts')}
           />
         )}
         <Wrapper
@@ -248,10 +248,10 @@ const AccountsList = ({
           }
           text={
             isSubmitting
-              ? 'Importing...'
+              ? t('Importing...')
               : state.preselectedAccounts.length && !state.selectedAccounts.length
-              ? 'Continue'
-              : 'Import Accounts'
+              ? t('Continue')
+              : t('Import Accounts')
           }
         />
       </View>

@@ -103,7 +103,7 @@ const Account = ({
               fontSize={12}
               color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.brownRum}
               style={[spacings.mbMi, flexbox.flex1]}
-              onPress={toggleSelectedState}
+              onPress={isDisabled ? undefined : toggleSelectedState}
             >
               {getAccountTypeLabel(type, account.creation)}
             </Text>
@@ -123,7 +123,7 @@ const Account = ({
               weight="semiBold"
               color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.brownRum}
               style={[flexbox.flex1]}
-              onPress={toggleSelectedState}
+              onPress={isDisabled ? undefined : toggleSelectedState}
             >
               {trimAddress(account.addr, 30)}
             </Text>
