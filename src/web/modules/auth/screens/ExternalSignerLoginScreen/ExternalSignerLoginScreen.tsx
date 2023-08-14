@@ -1,4 +1,5 @@
-import { Mnemonic, Wallet } from 'ethers'
+import { isValidPrivateKey } from 'ambire-common/src/libs/keyIterator/keyIterator'
+import { Mnemonic } from 'ethers'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput, View } from 'react-native'
@@ -19,14 +20,6 @@ import {
 import styles from './styles'
 
 const DEFAULT_IMPORT_LABEL = `Imported key on ${new Date().toLocaleDateString()}`
-
-function isValidPrivateKey(input: string) {
-  try {
-    return !!new Wallet(input)
-  } catch {
-    return false
-  }
-}
 
 function isValidMnemonic(input: string) {
   const separators = /[\s,;\n]+/
