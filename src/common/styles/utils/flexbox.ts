@@ -6,6 +6,7 @@ interface Styles {
   flex1: ViewStyle
   directionRow: ViewStyle
   center: ViewStyle
+  alignSelfStart: ViewStyle
   alignSelfCenter: ViewStyle
   alignSelfEnd: ViewStyle
   alignCenter: ViewStyle
@@ -35,6 +36,9 @@ const styles: Styles = {
   center: {
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  alignSelfStart: {
+    alignSelf: 'flex-start'
   },
   alignSelfCenter: {
     alignSelf: 'center'

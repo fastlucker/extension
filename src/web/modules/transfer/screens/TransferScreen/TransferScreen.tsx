@@ -3,7 +3,7 @@ import { View } from 'react-native'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_LG } from '@common/styles/spacings'
 import Select from '@common/components/Select/'
 import flexbox from '@common/styles/utils/flexbox'
 import NumberInput from '@common/components/NumberInput'
@@ -125,7 +125,10 @@ const TransferScreen = () => {
             type="primary"
             size="large"
             text="Send"
-            style={{ alignSelf: 'flex-start', paddingLeft: '130px', paddingRight: '130px' }}
+            style={[
+              flexbox.alignSelfStart,
+              { paddingLeft: SPACING_LG * 4, paddingRight: SPACING_LG * 4 }
+            ]}
             onPress={handleFormSubmit}
             disabled={!confirmedNotExchangeAddr}
           />

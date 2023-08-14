@@ -78,9 +78,10 @@ const styles = StyleSheet.create<Style>({
     justifyContent: 'center'
   },
   optionIcon: {
-    width: '30px',
-    height: '30px',
-    marginRight: '10px'
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    ...spacings.mrTy
   }
 })
 
