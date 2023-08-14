@@ -71,7 +71,7 @@ const ExternalSignerLoginScreen = () => {
 
     const allowedSeedPhraseLengths = [12, 15, 18, 21, 24]
 
-    if (allowedSeedPhraseLengths.includes(words.length) && !isValidMnemonic) {
+    if (allowedSeedPhraseLengths.includes(words.length) && !isValidMnemonicValue) {
       return 'Your seed phrase length is valid, but a word is misspelled.'
     }
 
