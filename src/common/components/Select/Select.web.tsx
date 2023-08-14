@@ -1,12 +1,16 @@
 import React, { useState } from 'react'
-import { Pressable, ViewStyle } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
 import Select, { components, DropdownIndicatorProps } from 'react-select'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 import NavIconWrapper from '../NavIconWrapper'
+import styles from './styles'
 
 interface Props {
   value: object | null
@@ -16,7 +20,7 @@ interface Props {
   disabled?: boolean
   menuPlacement?: string
   style?: ViewStyle
-  controlStyles?: ViewStyle
+  controlStyle?: ViewStyle
   iconWidth?: number
   iconHeight?: number
 }
@@ -29,7 +33,7 @@ const SelectComponent = ({
   label,
   menuPlacement = 'auto',
   style,
-  controlStyles,
+  controlStyle,
   iconWidth = 36,
   iconHeight = 36
 }: Props) => {
@@ -38,35 +42,60 @@ const SelectComponent = ({
   const DropdownIndicator = (props: DropdownIndicatorProps<any>) => {
     return (
       <components.DropdownIndicator {...props}>
-        {isDropdownOpen ? (
-          <NavIconWrapper
-            onPress={() => setIsDropdownOpen(!isDropdownOpen)}
-            width={iconWidth}
-            height={iconHeight}
-            hoverBackground={colors.lightViolet}
-            style={{ borderColor: 'transparent', borderRadius: 10 }}
-          >
-            <DownArrowIcon width={26} height={26} isActive withRect={false} />
-          </NavIconWrapper>
-        ) : (
-          <NavIconWrapper
-            onPress={() => setIsDropdownOpen(!isDropdownOpen)}
-            width={iconWidth}
-            height={iconHeight}
-            hoverBackground={colors.lightViolet}
-            style={{ borderColor: 'transparent', borderRadius: 10 }}
-          >
-            <DownArrowIcon width={26} height={26} withRect={false} />
-          </NavIconWrapper>
-        )}
+        <NavIconWrapper
+          onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+          width={iconWidth}
+          height={iconHeight}
+          hoverBackground={colors.lightViolet}
+          style={{ borderColor: 'transparent', borderRadius: 10 }}
+        >
+          <DownArrowIcon width={26} height={26} isActive={isDropdownOpen} withRect={false} />
+        </NavIconWrapper>
       </components.DropdownIndicator>
     )
   }
+
+  // @TODO - Typescript support for `data` property
+  const IconOption = (props: OptionProps) => (
+    <components.Option {...props}>
+      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        {props.data.icon && (
+          <View style={styles.optionIcon}>
+            {React.isValidElement(props.data.icon) ? (
+              props.data.icon
+            ) : (
+              <img src={props.data.icon} />
+            )}
+          </View>
+        )}
+        <Text>{props.data.label}</Text>
+      </View>
+    </components.Option>
+  )
+
+  // @TODO - Typescript support for `data` property
+  const SingleValueIconOption = (props: SingleValueProps) => (
+    <components.SingleValue {...props}>
+      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.plTy]}>
+        {props.data.icon && (
+          <View style={styles.optionIcon}>
+            {React.isValidElement(props.data.icon) ? (
+              props.data.icon
+            ) : (
+              <img src={props.data.icon} />
+            )}
+          </View>
+        )}
+        <Text>{props.data.label}</Text>
+      </View>
+    </components.SingleValue>
+  )
+
   return (
     <Pressable style={style} onPress={() => setIsDropdownOpen(!isDropdownOpen)} disabled={disabled}>
       <Select
         options={options}
-        components={{ DropdownIndicator }}
+        components={{ DropdownIndicator, Option: IconOption, SingleValue: SingleValueIconOption }}
         styles={{
           placeholder: (baseStyles) => ({
             ...baseStyles,
@@ -81,7 +110,7 @@ const SelectComponent = ({
             ...common.borderRadiusPrimary,
             fontSize: 14,
             color: colors.martinique,
-            ...controlStyles
+            ...controlStyle
           }),
           option: (baseStyles) => ({
             ...baseStyles,

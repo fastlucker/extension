@@ -12,7 +12,7 @@ import NavIconWrapper from '@common/components/NavIconWrapper'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
+import { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import colors from '@common/styles/colors'
@@ -29,64 +29,52 @@ interface Props {
 }
 
 const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => {
+  /**
+   * TODo: here we need to fix this once Transfer PR is merged
+   * and changes are applied there.
+   */
   const options = [
     {
-      label: (
-        <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
-          <Image
-            style={{ width: 24, height: 24, borderRadius: 10, ...spacings.mrTy }}
-            source={avatarSpace}
-            resizeMode="contain"
-          />
-          <Text weight="medium" shouldScale={false} fontSize={14}>
-            Account name
-          </Text>
-        </View>
+      label: 'Account name',
+      icon: (
+        <Image
+          style={{ width: 30, height: 30, borderRadius: 10 }}
+          source={avatarSpaceDog}
+          resizeMode="contain"
+        />
       ),
       value: 'Account name'
     },
     {
-      label: (
-        <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
-          <Image
-            style={{ width: 24, height: 24, borderRadius: 10, ...spacings.mrTy }}
-            source={avatarSpaceDog}
-            resizeMode="contain"
-          />
-          <Text weight="medium" shouldScale={false} fontSize={14}>
-            Account name 2
-          </Text>
-        </View>
+      label: 'Account name2',
+      icon: (
+        <Image
+          style={{ width: 30, height: 30, borderRadius: 10 }}
+          source={avatarSpaceDog}
+          resizeMode="contain"
+        />
       ),
       value: 'Account name2'
     },
     {
-      label: (
-        <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
-          <Image
-            style={{ width: 24, height: 24, borderRadius: 10, ...spacings.mrTy }}
-            source={avatarSpaceRaccoon}
-            resizeMode="contain"
-          />
-          <Text weight="medium" shouldScale={false} fontSize={14}>
-            Account name 3
-          </Text>
-        </View>
+      label: 'Account name3',
+      icon: (
+        <Image
+          style={{ width: 30, height: 30, borderRadius: 10 }}
+          source={avatarSpaceRaccoon}
+          resizeMode="contain"
+        />
       ),
       value: 'Account name3'
     },
     {
-      label: (
-        <View style={[flexboxStyles.alignCenter, flexboxStyles.directionRow]}>
-          <Image
-            style={{ width: 24, height: 24, borderRadius: 10, ...spacings.mrTy }}
-            source={avatarFire}
-            resizeMode="contain"
-          />
-          <Text weight="medium" shouldScale={false} fontSize={14}>
-            Account name 4
-          </Text>
-        </View>
+      label: 'Account name4',
+      icon: (
+        <Image
+          style={{ width: 30, height: 30, borderRadius: 10 }}
+          source={avatarFire}
+          resizeMode="contain"
+        />
       ),
       value: 'Account name4'
     }
@@ -111,7 +99,7 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
         label="Select Account"
         iconWidth={25}
         iconHeight={25}
-        controlStyles={{ width: 217 }}
+        controlStyle={{ width: 220 }}
       />
       <View style={[flexboxStyles.directionRow]}>
         <Button
