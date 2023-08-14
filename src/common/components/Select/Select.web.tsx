@@ -104,11 +104,11 @@ const SelectComponent = ({
             }),
             control: (baseStyles) => ({
               ...baseStyles,
-              ...controlStyle,
               background: colors.melrose_15,
               ...common.borderRadiusPrimary,
               fontSize: 14,
-              color: colors.martinique
+              color: colors.martinique,
+              ...controlStyle
             }),
             option: (baseStyles) => ({
               ...baseStyles,
