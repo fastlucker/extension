@@ -1,15 +1,23 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { ColorValue, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { ColorValue, Image, View } from 'react-native'
 
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
+import avatarFire from '@common/assets/images/avatars/avatar-fire.png'
+import avatarSpaceDog from '@common/assets/images/avatars/avatar-space-dog.png'
+import avatarSpaceRaccoon from '@common/assets/images/avatars/avatar-space-raccoon.png'
+import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
+import BurgerIcon from '@common/assets/svg/BurgerIcon'
+import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
+import Button from '@common/components/Button'
 import NavIconWrapper from '@common/components/NavIconWrapper'
+import Select from '@common/components/Select'
 import Text from '@common/components/Text'
-import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
+import { useTranslation } from '@common/config/localization'
+import { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
-import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import { SPACING_SM } from '@common/styles/spacings'
+import spacings, { SPACING_SM } from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
 import { getUiType } from '@web/utils/uiType'
 
@@ -17,25 +25,97 @@ import styles from './styles'
 
 interface Props {
   mode?: 'title' | 'bottom-sheet'
-  withHamburger?: boolean
   backgroundColor?: ColorValue
-  withHeaderRight?: boolean
 }
 
-const Header: React.FC<Props> = ({
-  mode = 'bottom-sheet',
-  withHamburger = false,
-  withHeaderRight = false,
-  backgroundColor
-}) => {
+const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => {
+  const options = [
+    {
+      label: 'Account name',
+      icon: (
+        <Image
+          style={{ width: 30, height: 30, borderRadius: 10 }}
+          source={avatarSpace}
+          resizeMode="contain"
+        />
+      ),
+      value: 'Account name'
+    },
+    {
+      label: 'Account name2',
+      icon: (
+        <Image
+          style={{ width: 30, height: 30, borderRadius: 10 }}
+          source={avatarSpaceDog}
+          resizeMode="contain"
+        />
+      ),
+      value: 'Account name2'
+    },
+    {
+      label: 'Account name3',
+      icon: (
+        <Image
+          style={{ width: 30, height: 30, borderRadius: 10 }}
+          source={avatarSpaceRaccoon}
+          resizeMode="contain"
+        />
+      ),
+      value: 'Account name3'
+    },
+    {
+      label: 'Account name4',
+      icon: (
+        <Image
+          style={{ width: 30, height: 30, borderRadius: 10 }}
+          source={avatarFire}
+          resizeMode="contain"
+        />
+      ),
+      value: 'Account name4'
+    }
+  ]
   const { path, params } = useRoute()
-
-  const { navigate } = useNavigation()
+  const { t } = useTranslation()
+  const [value, setValue] = useState(options[0])
 
   const [title, setTitle] = useState('')
 
-  const handleGoBack = useCallback(() => navigate(-1), [navigate])
-  const handleGoMenu = useCallback(() => navigate(ROUTES.menu), [navigate])
+  const renderBottomSheetSwitcher = (
+    <View
+      style={[flexboxStyles.directionRow, flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]}
+    >
+      <Select
+        hasArrow
+        value={value}
+        style={{ ...spacings.mrTy }}
+        setValue={(_value) => setValue(_value)}
+        options={options}
+        menuPlacement="bottom"
+        iconWidth={25}
+        iconHeight={25}
+        controlStyle={{ width: 220 }}
+      />
+      <View style={[flexboxStyles.directionRow]}>
+        <Button
+          textStyle={{ fontSize: 14 }}
+          size="small"
+          text={t('dApps')}
+          hasBottomSpacing={false}
+          style={[spacings.mrTy, { width: 85 }]}
+        />
+        <NavIconWrapper
+          onPress={() => null}
+          style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
+        >
+          <MaximizeIcon width={20} height={20} />
+        </NavIconWrapper>
+        <NavIconWrapper onPress={() => null} style={{ borderColor: colors.scampi_20 }}>
+          <BurgerIcon width={20} height={20} />
+        </NavIconWrapper>
+      </View>
+    </View>
+  )
 
   const navigationEnabled = !getUiType().isNotification
   let canGoBack =
@@ -62,26 +142,6 @@ const Header: React.FC<Props> = ({
     return () => subscription.unsubscribe()
   }, [])
 
-  const renderHeaderLeft = () => {
-    if (canGoBack) {
-      return (
-        <NavIconWrapper onPress={handleGoBack}>
-          <LeftArrowIcon />
-        </NavIconWrapper>
-      )
-    }
-
-    return null
-  }
-
-  const renderHeaderRight = <NavIconWrapper onPress={handleGoMenu} />
-
-  // On the left and on the right side, there is always reserved space
-  // for the nav bar buttons. And so that in case a title is present,
-  // it is centered always in the logical horizontal middle.
-  const navIconContainer =
-    mode === 'bottom-sheet' ? styles.navIconContainerSmall : styles.navIconContainerRegular
-
   // Using the `<Header />` from the '@react-navigation/elements' created
   // many complications in terms of styling the UI, calculating the header
   // height and the spacings between the `headerLeftContainerStyle` and the
@@ -99,20 +159,13 @@ const Header: React.FC<Props> = ({
         }
       ]}
     >
-      <View style={navIconContainer}>
-        {!withHamburger && renderHeaderLeft()}
-        {/* TODO: v2 */}
-        {!!withHamburger && <NavIconWrapper onPress={() => null} />}
-      </View>
+      {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
 
       {mode === 'title' && (
         <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={2}>
           {title || ''}
         </Text>
       )}
-      <View style={navIconContainer}>
-        {(!!withHamburger || !!withHeaderRight) && renderHeaderRight}
-      </View>
     </View>
   )
 }

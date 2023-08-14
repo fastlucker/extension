@@ -86,6 +86,7 @@ export const lightOnlyRoutesOnWeb = [
   WEB_ROUTES.hardwareWalletLedger,
   WEB_ROUTES.accountAdder,
   WEB_ROUTES.accountPersonalize,
+  WEB_ROUTES.dashboard,
   WEB_ROUTES.signMessage,
   WEB_ROUTES.transfer
 ]

@@ -1,5 +1,5 @@
 import React from 'react'
-import Svg, { Path, Rect, SvgProps } from 'react-native-svg'
+import Svg, { G, Rect, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
@@ -8,12 +8,19 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const BurgerIcon: React.FC<Props> = ({ width = 24, height = 24 }) => (
-  <Svg width={width} height={height} viewBox="0 0 24 24">
-    <Path fill="none" d="M0 0h24v24H0z" />
-    <Rect width="18" height="2" rx="1" transform="translate(3 16)" fill={colors.titan} />
-    <Rect width="14" height="2" rx="1" transform="translate(5 11)" fill={colors.titan} />
-    <Rect width="18" height="2" rx="1" transform="translate(3 6)" fill={colors.titan} />
+const BurgerIcon: React.FC<Props> = ({ width = 50, height = 50, color = colors.martinique }) => (
+  <Svg width={width} height={height} viewBox="0 0 22.5 15">
+    <G transform="translate(-819.75 -1518.5)">
+      <Rect width="22.5" height="2.5" rx="1.25" transform="translate(819.75 1531)" fill={color} />
+      <Rect
+        width="17.5"
+        height="2.5"
+        rx="1.25"
+        transform="translate(822.25 1524.75)"
+        fill={color}
+      />
+      <Rect width="22.5" height="2.5" rx="1.25" transform="translate(819.75 1518.5)" fill={color} />
+    </G>
   </Svg>
 )
 

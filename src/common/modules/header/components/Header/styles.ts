@@ -21,6 +21,7 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
   container: {
+    zIndex: 9,
     ...spacings.pbSm,
     flexDirection: 'row',
     backgroundColor: colors.wooed,

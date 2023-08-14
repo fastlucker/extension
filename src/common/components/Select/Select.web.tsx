@@ -1,19 +1,15 @@
 import React, { useState } from 'react'
-import { TouchableOpacity, View, ViewStyle } from 'react-native'
-import Select, {
-  components,
-  DropdownIndicatorProps,
-  OptionProps,
-  SingleValueProps
-} from 'react-select'
+import { Pressable, TouchableOpacity, View, ViewStyle } from 'react-native'
+import Select, { components, DropdownIndicatorProps } from 'react-select'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
-import colors from '@common/styles/colors'
-import common from '@common/styles/utils/common'
 import Text from '@common/components/Text'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+
+import NavIconWrapper from '../NavIconWrapper'
 import styles from './styles'
 
 interface Props {
@@ -25,8 +21,10 @@ interface Props {
   label?: string
   disabled?: boolean
   menuPlacement?: string
-  controlStyle?: ViewStyle
   style?: ViewStyle
+  controlStyle?: ViewStyle
+  iconWidth?: number
+  iconHeight?: number
 }
 
 const SelectComponent = ({
@@ -38,19 +36,25 @@ const SelectComponent = ({
   placeholder,
   label,
   menuPlacement = 'auto',
+  style,
   controlStyle,
-  style
+  iconWidth = 36,
+  iconHeight = 36
 }: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const DropdownIndicator = (props: DropdownIndicatorProps<any>) => {
     return (
       <components.DropdownIndicator {...props}>
-        {isDropdownOpen ? (
-          <UpArrowIcon width={34} height={34} />
-        ) : (
-          <DownArrowIcon width={34} height={34} />
-        )}
+        <NavIconWrapper
+          onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+          width={iconWidth}
+          height={iconHeight}
+          hoverBackground={colors.lightViolet}
+          style={{ borderColor: 'transparent', borderRadius: 10 }}
+        >
+          <DownArrowIcon width={26} height={26} isActive={isDropdownOpen} withRect={false} />
+        </NavIconWrapper>
       </components.DropdownIndicator>
     )
   }
@@ -60,16 +64,16 @@ const SelectComponent = ({
     <components.Option {...props}>
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         {props.data.icon && <View style={styles.optionIcon}>{props.data.icon}</View>}
-        <Text>{props.data.label}</Text>
+        <Text fontSize={14}>{props.data.label}</Text>
       </View>
     </components.Option>
   )
   // @TODO - Typescript support for `data` property
   const SingleValueIconOption = (props: SingleValueProps) => (
     <components.SingleValue {...props}>
-      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.plTy]}>
+      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         {props.data.icon && <View style={styles.optionIcon}>{props.data.icon}</View>}
-        <Text>{props.data.label}</Text>
+        <Text fontSize={14}>{props.data.label}</Text>
       </View>
     </components.SingleValue>
   )
@@ -77,7 +81,7 @@ const SelectComponent = ({
   return (
     <>
       {label && <Text style={[spacings.mbMi]}>{label}</Text>}
-      <TouchableOpacity
+      <Pressable
         onPress={() => setIsDropdownOpen(!isDropdownOpen)}
         disabled={disabled}
         // The element should have a zIndex assigned, otherwise the dropdown menu will overlap with the close element.
@@ -88,6 +92,7 @@ const SelectComponent = ({
           defaultValue={defaultValue}
           components={{ DropdownIndicator, Option: IconOption, SingleValue: SingleValueIconOption }}
           styles={{
+            indicatorSeparator: (styles) => ({ display: 'none' }),
             placeholder: (baseStyles) => ({
               ...baseStyles,
               ...common.borderRadiusPrimary,
@@ -118,10 +123,12 @@ const SelectComponent = ({
               primary: colors.melrose
             }
           })}
+          value={value}
+          onChange={setValue}
           placeholder={placeholder}
           menuPlacement={menuPlacement}
         />
-      </TouchableOpacity>
+      </Pressable>
     </>
   )
 }

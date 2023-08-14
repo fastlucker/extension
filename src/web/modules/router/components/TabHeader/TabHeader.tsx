@@ -37,7 +37,7 @@ const TabHeader: React.FC<any> = ({
       return (
         <NavIconWrapper
           onPress={handleGoBack}
-          style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}
+          style={{ ...flexboxStyles.directionRow, ...flexboxStyles.alignCenter }}
         >
           <LeftArrowIcon width={36} height={36} color={colors.violet} />
           <Text fontSize={14} weight="regular" color={colors.martinique} style={spacings.ml}>

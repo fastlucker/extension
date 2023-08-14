@@ -1,7 +1,6 @@
 import { Dimensions, ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
-import { engine } from '@web/constants/browserapi'
 
 interface Style {
   [key: string]: TextStyle | ViewStyle | ImageStyle
@@ -16,10 +15,10 @@ export const SPACING_LG: number = 30
 export const SPACING_XL: number = 35
 
 // In sync with the `min-width` in `web/style.css`
-const WEB_DEVICE_WIDTH = 560
+const WEB_DEVICE_WIDTH = 600
 export const DEVICE_WIDTH = isWeb ? WEB_DEVICE_WIDTH : Dimensions.get('window').width
 // In sync with the `min-height` in `web/style.css`
-const WEB_DEVICE_HEIGHT = engine === 'gecko' ? 600 : 730
+const WEB_DEVICE_HEIGHT = 600
 export const DEVICE_HEIGHT = isWeb ? WEB_DEVICE_HEIGHT : Dimensions.get('window').height
 
 export const IS_SCREEN_SIZE_L = !isWeb && DEVICE_WIDTH >= 768
