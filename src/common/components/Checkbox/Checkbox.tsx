@@ -23,7 +23,7 @@ const Checkbox = ({ label, children, onValueChange, value, style, isDisabled }: 
   }
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, style, isDisabled && { opacity: 0.6 }]}>
       <View style={styles.checkboxWrapper}>
         <TouchableOpacity
           style={[

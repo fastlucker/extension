@@ -89,7 +89,7 @@ const Account = ({
     >
       <View style={styles.container}>
         <Checkbox
-          style={[{ marginBottom: 0 }, isDisabled && { opacity: 0.6 }]}
+          style={{ marginBottom: 0 }}
           // label={<View />}
           value={isSelected}
           onValueChange={toggleSelectedState}
