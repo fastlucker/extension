@@ -90,6 +90,13 @@ const AccountsList = ({
 
   const disablePagination = Object.keys(slots).length === 1
 
+  const setType = (acc: any) => {
+    if (!acc.account.creation) return 'legacy'
+    if (acc.isLinked) return 'linked'
+
+    return 'smart'
+  }
+
   const getAccounts = (accounts: any) => {
     return accounts.map((acc: any, i: any) => {
       const isSelected = state.selectedAccounts.some(
@@ -103,9 +110,9 @@ const AccountsList = ({
         <Account
           key={acc.account.addr}
           account={acc.account}
-          type={acc.type}
+          type={setType(acc)}
           isLastInSlot={i === accounts.length - 1}
-          unused={acc.type === 'legacy' && !acc.account.usedOnNetworks.length}
+          unused={!acc.account.creation && !acc.account.usedOnNetworks.length}
           isSelected={isSelected || isPreselected}
           isDisabled={isPreselected}
           onSelect={handleSelectAccount}
