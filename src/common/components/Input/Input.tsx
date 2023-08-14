@@ -121,7 +121,7 @@ const Input = ({
           {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
           <TextInput
             placeholderTextColor={theme.buttonPlaceholderText}
-            style={inputStyles}
+            style={[inputStyles, hasButton ? { width: '100%' } : {}]}
             autoCapitalize="none"
             autoCorrect={false}
             editable={!disabled}
