@@ -37,10 +37,6 @@ const SortHat = () => {
     // }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      // TODO: Discuss here when we need to go to dashboard and if this is correct for our first epic
-      if (onboardingStatus === ONBOARDING_VALUES.ON_BOARDED) {
-        return navigate(ROUTES.dashboard)
-      }
       return navigate(ROUTES.getStarted)
     }
 
