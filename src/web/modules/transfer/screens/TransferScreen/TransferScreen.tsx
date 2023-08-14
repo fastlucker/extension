@@ -110,7 +110,7 @@ const TransferScreen = () => {
             )}
           />
 
-          <Text style={[spacings.mb]}>
+          <Text style={[spacings.mb]} fontSize={14}>
             {t(
               'Please double-check the recipient address, blockchain transactions are not reversible.'
             )}
