@@ -15,13 +15,15 @@ import textStyles from '@common/styles/utils/text'
 
 import BottomSheet from '../BottomSheet'
 import QRCodeScanner from '../QRCodeScanner'
+import Text from "@common/components/Text";
 
 interface Props extends InputProps {
   isValidUDomain?: boolean
-  isValidEns?: boolean
+  isValidEns?: boolean,
+  label?: string
 }
 
-const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValidEns, ...rest }) => {
+const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValidEns, label, ...rest }) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
@@ -51,6 +53,7 @@ const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValid
 
   return (
     <>
+      {label && <Text style={[spacings.mbMi]}>{label}</Text>}
       <Input
         button={
           <View style={flexboxStyles.directionRow}>

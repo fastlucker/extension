@@ -80,8 +80,8 @@ const styles = StyleSheet.create<Style>({
   optionIcon: {
     width: 30,
     height: 30,
-    marginRight: 10,
-    borderRadius: 10
+    borderRadius: 10,
+    ...spacings.mrTy
   }
 })
 

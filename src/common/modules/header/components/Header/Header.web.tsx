@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ColorValue, Image, View } from 'react-native'
 
 import avatarFire from '@common/assets/images/avatars/avatar-fire.png'
@@ -29,17 +29,13 @@ interface Props {
 }
 
 const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => {
-  /**
-   * TODo: here we need to fix this once Transfer PR is merged
-   * and changes are applied there.
-   */
   const options = [
     {
       label: 'Account name',
       icon: (
         <Image
           style={{ width: 30, height: 30, borderRadius: 10 }}
-          source={avatarSpaceDog}
+          source={avatarSpace}
           resizeMode="contain"
         />
       ),
@@ -92,11 +88,10 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
       <Select
         hasArrow
         value={value}
-        style={[spacings.mrTy]}
+        style={{ ...spacings.mrTy }}
         setValue={(_value) => setValue(_value)}
         options={options}
         menuPlacement="bottom"
-        label="Select Account"
         iconWidth={25}
         iconHeight={25}
         controlStyle={{ width: 220 }}

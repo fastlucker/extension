@@ -7,6 +7,8 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Styles {
   container: ViewStyle
   textarea: ViewStyle
+  error: ViewStyle
+  errorAndLabel: ViewStyle
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -19,6 +21,13 @@ const styles = StyleSheet.create<Styles>({
     borderWidth: 1,
     borderRadius: 12,
     ...spacings.mbTy
+  },
+  error: {
+    ...spacings.mbTy
+  },
+  errorAndLabel: {
+    flexDirection: 'row',
+    alignItems: 'center'
   }
 })
 

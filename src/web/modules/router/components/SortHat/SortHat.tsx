@@ -16,7 +16,7 @@ const SortHat = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
   const { approval } = useApproval()
-  const isInNotification = getUiType().isNotification
+  const { isInNotification, isTab } = getUiType()
   const { onboardingStatus } = useOnboarding()
 
   const loadView = useCallback(async () => {
@@ -43,6 +43,10 @@ const SortHat = () => {
       }
       return navigate(ROUTES.getStarted)
     }
+
+    // When in tab mode, user should be able to go forward and backward,
+    // therefore - navigate should happen individually, on every screen.
+    if (isTab) return
 
     if (approval && isInNotification) {
       if (approval?.data?.approvalComponent === 'PermissionRequest') {
@@ -71,7 +75,7 @@ const SortHat = () => {
         onboardingStatus === ONBOARDING_VALUES.ON_BOARDED ? ROUTES.dashboard : ROUTES.onboarding
       )
     }
-  }, [isInNotification, approval, navigate, onboardingStatus])
+  }, [isInNotification, approval, authStatus, isTab, navigate, onboardingStatus])
 
   useEffect(() => {
     loadView()

@@ -9,7 +9,6 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 import styles from './styles'
@@ -21,7 +20,8 @@ const Account = ({
   isLastInSlot,
   isSelected,
   onSelect,
-  onDeselect
+  onDeselect,
+  isDisabled
 }: {
   account: AccountInterface & { usedOnNetworks: NetworkDescriptor[] }
   type: 'legacy' | 'smart' | 'linked'
@@ -30,6 +30,7 @@ const Account = ({
   isSelected: boolean
   onSelect: (account: AccountInterface) => void
   onDeselect: (account: AccountInterface) => void
+  isDisabled?: boolean
 }) => {
   const { t } = useTranslation()
 
@@ -92,6 +93,7 @@ const Account = ({
           // label={<View />}
           value={isSelected}
           onValueChange={toggleSelectedState}
+          isDisabled={isDisabled}
         />
 
         <View style={[flexbox.flex1]}>
@@ -101,7 +103,7 @@ const Account = ({
               fontSize={12}
               color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.brownRum}
               style={[spacings.mbMi, flexbox.flex1]}
-              onPress={toggleSelectedState}
+              onPress={isDisabled ? undefined : toggleSelectedState}
             >
               {getAccountTypeLabel(type, account.creation)}
             </Text>
@@ -121,7 +123,7 @@ const Account = ({
               weight="semiBold"
               color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.brownRum}
               style={[flexbox.flex1]}
-              onPress={toggleSelectedState}
+              onPress={isDisabled ? undefined : toggleSelectedState}
             >
               {trimAddress(account.addr, 30)}
             </Text>

@@ -1,4 +1,7 @@
-import React, { useState } from 'react'
+import { isValidPrivateKey } from 'ambire-common/src/libs/keyIterator/keyIterator'
+import { Mnemonic } from 'ethers'
+import React, { useCallback } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { TextInput, View } from 'react-native'
 
 import Button from '@common/components/Button'
@@ -16,11 +19,76 @@ import {
 
 import styles from './styles'
 
+const DEFAULT_IMPORT_LABEL = `Imported key on ${new Date().toLocaleDateString()}`
+
+function isValidMnemonic(input: string) {
+  const separators = /[\s,;\n]+/
+  const words = input.trim().split(separators)
+
+  return Mnemonic.isValidMnemonic(words.join(' '))
+}
+
 const ExternalSignerLoginScreen = () => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isValid }
+  } = useForm({
+    mode: 'all',
+    defaultValues: {
+      privKeyOrSeed: '',
+      label: ''
+    }
+  })
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const [privKeyOrSeed, setPrivKeyOrSeed] = useState('')
-  const [label, setLabel] = useState('')
+
+  const handleFormSubmit = useCallback(() => {
+    handleSubmit(({ privKeyOrSeed, label }) => {
+      let formattedPrivKeyOrSeed = privKeyOrSeed
+
+      if (isValidPrivateKey(privKeyOrSeed)) {
+        formattedPrivKeyOrSeed =
+          privKeyOrSeed.slice(0, 2) === '0x' ? privKeyOrSeed.slice(2) : privKeyOrSeed
+      }
+
+      navigate(WEB_ROUTES.accountAdder, {
+        state: {
+          walletType: 'legacyImport',
+          privKeyOrSeed: formattedPrivKeyOrSeed,
+          label: label || DEFAULT_IMPORT_LABEL
+        }
+      })
+    })()
+  }, [handleSubmit, navigate])
+
+  const handleValidation = (value: string) => {
+    const trimmedValue = value.trim()
+    const separators = /[\s,;\n]+/
+    const words = trimmedValue.split(separators)
+
+    const isValidMnemonicValue = isValidMnemonic(trimmedValue)
+
+    const allowedSeedPhraseLengths = [12, 15, 18, 21, 24]
+
+    if (allowedSeedPhraseLengths.includes(words.length) && !isValidMnemonicValue) {
+      return 'Your seed phrase length is valid, but a word is misspelled.'
+    }
+
+    if (words.length > 1 && !isValidMnemonicValue) {
+      return 'A seed phrase must be 12-24 words long.'
+    }
+
+    if (
+      words.length === 1 &&
+      /^(0x)?[0-9a-fA-F]/.test(trimmedValue) &&
+      !isValidPrivateKey(trimmedValue)
+    ) {
+      return 'Invalid private key.'
+    }
+
+    return isValidPrivateKey(trimmedValue) || isValidMnemonic(trimmedValue)
+  }
 
   return (
     <>
@@ -34,54 +102,90 @@ const ExternalSignerLoginScreen = () => {
             {t('Import Legacy Account')}
           </Text>
 
-          <TextInput
-            value={privKeyOrSeed}
-            editable
-            multiline
-            numberOfLines={8}
-            placeholder="Enter a seed phrase or private key"
-            onChangeText={setPrivKeyOrSeed}
-            style={styles.textarea}
-            placeholderTextColor={colors.martinique_65}
-          />
+          <View>
+            <Text
+              style={[styles.error, { opacity: errors.privKeyOrSeed ? 1 : 0 }]}
+              color={colors.radicalRed}
+              fontSize={14}
+            >
+              {errors?.privKeyOrSeed?.message ||
+                t('Please enter a valid seed phrase or private key.')}
+            </Text>
+            <Controller
+              control={control}
+              rules={{ validate: (value) => handleValidation(value), required: true }}
+              name="privKeyOrSeed"
+              render={({ field: { onChange, onBlur, value } }) => {
+                return (
+                  <TextInput
+                    value={value}
+                    editable
+                    autoFocus
+                    multiline
+                    numberOfLines={8}
+                    placeholder="Enter a seed phrase or private key"
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    style={styles.textarea}
+                    placeholderTextColor={colors.martinique_65}
+                  />
+                )
+              }}
+            />
+          </View>
+
           <Text shouldScale={false} fontSize={12} style={[spacings.mbLg]} color={colors.brownRum}>
             Legacy Account found {'  '}{' '}
             <Text shouldScale={false} fontSize={14} color={colors.brownRum} weight="semiBold">
               0x603f453E4...5a245fB3D34Df
             </Text>
           </Text>
-          <Text
-            style={[spacings.plTy, spacings.mbTy]}
-            shouldScale={false}
-            fontSize={16}
-            weight="medium"
-          >
-            {t('Key label')}
-          </Text>
-          <TextInput
-            value={label}
-            editable
-            multiline
-            numberOfLines={1}
-            maxLength={40}
-            placeholder="Imported key on 21 Apr 2023"
-            onChangeText={setLabel}
-            style={[styles.textarea, spacings.mbLg]}
-            placeholderTextColor={colors.martinique_65}
+          <View style={styles.errorAndLabel}>
+            <Text
+              style={[spacings.plTy, spacings.mbTy]}
+              shouldScale={false}
+              fontSize={16}
+              weight="medium"
+            >
+              {t('Key label')}
+            </Text>
+            <Text
+              style={[styles.error, { opacity: errors.label ? 1 : 0, marginLeft: 10 }]}
+              color={colors.radicalRed}
+              fontSize={14}
+            >
+              {t('Key labels must be 6-24 characters long.')}
+            </Text>
+          </View>
+          <Controller
+            control={control}
+            rules={{ maxLength: 24, minLength: 6 }}
+            name="label"
+            render={({ field: { onChange, onBlur, value } }) => {
+              return (
+                <TextInput
+                  value={value}
+                  editable
+                  multiline
+                  numberOfLines={1}
+                  maxLength={40}
+                  placeholder={DEFAULT_IMPORT_LABEL}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  style={[styles.textarea, spacings.mbLg]}
+                  placeholderTextColor={colors.martinique_65}
+                />
+              )
+            }}
           />
+
           <Button
             type="primary"
             size="large"
             text="Import Legacy Account"
             style={[flexbox.alignSelfCenter]}
-            onPress={() =>
-              navigate(WEB_ROUTES.accountAdder, {
-                state: {
-                  walletType: 'legacyImport',
-                  privKeyOrSeed
-                }
-              })
-            }
+            onPress={handleFormSubmit}
+            disabled={!isValid}
           />
         </View>
       </AuthLayoutWrapperMainContent>
