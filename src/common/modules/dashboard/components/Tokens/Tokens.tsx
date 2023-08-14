@@ -46,6 +46,7 @@ const Tokens = ({ tokens }: Props) => {
             style={[
               styles.container,
               styles.addTokenContainer,
+              spacings.pvTy,
               hovered && {
                 backgroundColor: colors.lightViolet,
                 borderStyle: 'solid',

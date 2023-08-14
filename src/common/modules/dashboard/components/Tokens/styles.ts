@@ -28,7 +28,6 @@ const styles = StyleSheet.create<Style>({
     borderColor: colors.violet,
     backgroundColor: colors.melrose_15,
     ...flexbox.justifyCenter,
-    ...spacings.pvTy,
     ...spacings.mt
   }
 })
