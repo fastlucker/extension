@@ -27,6 +27,7 @@ import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
+import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 
 const headerBeta = (
   <>
@@ -90,6 +91,8 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
           <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
+
+          <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
         </Route>
         <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
         <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />

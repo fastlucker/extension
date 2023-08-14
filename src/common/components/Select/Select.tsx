@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Keyboard, TouchableOpacity, View } from 'react-native'
+import { Keyboard, TouchableOpacity, View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import CheckIcon from '@common/assets/svg/CheckIcon'
@@ -17,14 +17,18 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
 interface Props {
-  value: string | null
+  value: {} // @TODO: react-native works with object here, we need to find its type
+  defaultValue?: {} // @TODO: react-native works with object here, we need to find its type
   options: any[]
   setValue?: (value: any) => void
+  placeholder?: string
   label?: string
   extraText?: string
   hasArrow?: boolean
   disabled?: boolean
   menuPlacement?: string
+  controlStyle?: ViewStyle
+  style?: ViewStyle
 }
 
 const Select = ({
@@ -32,10 +36,13 @@ const Select = ({
   disabled,
   setValue,
   options,
+  placeholder,
   label,
   extraText,
   hasArrow = true,
-  menuPlacement = 'auto'
+  menuPlacement = 'auto',
+  controlStyle,
+  style
 }: Props) => {
   const [searchValue, setSearchValue] = useState('')
   const { t } = useTranslation()
@@ -92,7 +99,7 @@ const Select = ({
       >
         <View pointerEvents="none">
           <Input
-            placeholder={label}
+            placeholder={placeholder}
             value={item?.label}
             leftIcon={item?.icon}
             containerStyle={{ width: 250, marginBottom: 0 }}

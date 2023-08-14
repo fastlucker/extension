@@ -224,7 +224,8 @@ const AccountsList = ({
             setValue={setValue}
             value={value}
             menuPlacement="top"
-            label="Custom Derivation"
+            placeholder="Custom Derivation"
+            controlStyle={{ width: 260 }}
           />
         )} */}
         <Button
