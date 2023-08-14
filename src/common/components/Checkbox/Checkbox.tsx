@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import { TouchableOpacity, View, ViewStyle } from 'react-native'
+import { TouchableOpacity, View, ViewProps } from 'react-native'
 
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import Text from '@common/components/Text'
@@ -13,16 +13,17 @@ interface Props {
   onValueChange: (value: boolean) => void
   value: boolean
   children?: any
-  style?: ViewStyle
+  style?: ViewProps['style']
+  isDisabled?: boolean
 }
 
-const Checkbox = ({ label, children, onValueChange, value, style }: Props) => {
+const Checkbox = ({ label, children, onValueChange, value, style, isDisabled }: Props) => {
   const onChange = () => {
     !!onValueChange && onValueChange(!value)
   }
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, style, isDisabled && { opacity: 0.6 }]}>
       <View style={styles.checkboxWrapper}>
         <TouchableOpacity
           style={[
@@ -34,6 +35,7 @@ const Checkbox = ({ label, children, onValueChange, value, style }: Props) => {
           ]}
           onPress={onChange}
           activeOpacity={0.6}
+          disabled={isDisabled}
         >
           {!!value && <CheckIcon />}
         </TouchableOpacity>

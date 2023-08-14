@@ -28,12 +28,14 @@ export const SMALL_PAGE_STEP = 1
 export const LARGE_PAGE_STEP = 10
 
 const AccountsList = ({
+  isSubmitting = false,
   state,
   onImportReady,
   enableCreateEmailVault,
   onCreateEmailVaultStep,
   setPage
 }: {
+  isSubmitting?: boolean
   state: AccountAdderController
   onImportReady: () => void
   enableCreateEmailVault?: boolean
@@ -88,21 +90,36 @@ const AccountsList = ({
 
   const disablePagination = Object.keys(slots).length === 1
 
+  const setType = (acc: any) => {
+    if (!acc.account.creation) return 'legacy'
+    if (acc.isLinked) return 'linked'
+
+    return 'smart'
+  }
+
   const getAccounts = (accounts: any) => {
-    return accounts.map((acc: any, i: any) => (
-      <Account
-        key={acc.account.addr}
-        account={acc.account}
-        type={acc.type}
-        isLastInSlot={i === accounts.length - 1}
-        unused={acc.type === 'legacy' && !acc.account.usedOnNetworks.length}
-        isSelected={state.selectedAccounts.some(
-          (selectedAcc) => selectedAcc.addr === acc.account.addr
-        )}
-        onSelect={handleSelectAccount}
-        onDeselect={handleDeselectAccount}
-      />
-    ))
+    return accounts.map((acc: any, i: any) => {
+      const isSelected = state.selectedAccounts.some(
+        (selectedAcc) => selectedAcc.addr === acc.account.addr
+      )
+      const isPreselected = state.preselectedAccounts.some(
+        (selectedAcc) => selectedAcc.addr === acc.account.addr
+      )
+
+      return (
+        <Account
+          key={acc.account.addr}
+          account={acc.account}
+          type={setType(acc)}
+          isLastInSlot={i === accounts.length - 1}
+          unused={!acc.account.creation && !acc.account.usedOnNetworks.length}
+          isSelected={isSelected || isPreselected}
+          isDisabled={isPreselected}
+          onSelect={handleSelectAccount}
+          onDeselect={handleDeselectAccount}
+        />
+      )
+    })
   }
 
   return (
@@ -115,7 +132,7 @@ const AccountsList = ({
               setEmailVaultStep(true)
               onCreateEmailVaultStep && onCreateEmailVaultStep()
             }}
-            label="Enable email recovery for new Smart Accounts"
+            label={t('Enable email recovery for new Smart Accounts')}
           />
         )}
         <Wrapper
@@ -231,7 +248,19 @@ const AccountsList = ({
         <Button
           style={{ ...spacings.mtTy, width: 296, ...flexbox.alignSelfCenter }}
           onPress={onImportReady}
-          text="Import Accounts"
+          disabled={
+            state.accountsLoading ||
+            state.linkedAccountsLoading ||
+            isSubmitting ||
+            (!state.selectedAccounts.length && !state.preselectedAccounts.length)
+          }
+          text={
+            isSubmitting
+              ? t('Importing...')
+              : state.preselectedAccounts.length && !state.selectedAccounts.length
+              ? t('Continue')
+              : t('Import Accounts')
+          }
         />
       </View>
     </View>
