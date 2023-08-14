@@ -1,7 +1,9 @@
 import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
+import { PortfolioController } from 'ambire-common/src/controllers/portfolio/portfolio'
 
 export const controllersMapping = {
-  accountAdder: AccountAdderController
+  accountAdder: AccountAdderController,
+  portfolio: PortfolioController
   // Add other controllers here:
   // - key is the name of the controller
   // - value is the type of the controller

@@ -1,4 +1,5 @@
-import { Account } from 'ambire-common/src/interfaces/account'
+import { Account, AccountId } from 'ambire-common/src/interfaces/account'
+import { AccountOp } from 'ambire-common/src/libs/accountOp/accountOp'
 
 import { NetworkType } from '@common/constants/networks'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
@@ -88,6 +89,15 @@ type TrezorControllerUnlockAction = {
 type LatticeControllerUnlockAction = {
   type: 'LATTICE_CONTROLLER_UNLOCK'
 }
+type PortfolioControllerUpdateSelectedAccount = {
+  type: 'PORTFOLIO_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
+  params?: {
+    accountOps: { [key: string]: AccountOp[] }
+    opts: {
+      forceUpdate: boolean
+    }
+  }
+}
 type WalletControllerIsUnlockedAction = {
   type: 'WALLET_CONTROLLER_IS_UNLOCKED'
 }
@@ -156,6 +166,7 @@ export type Action =
   | LedgerControllerAuthorizeHIDPermissionAction
   | TrezorControllerUnlockAction
   | LatticeControllerUnlockAction
+  | PortfolioControllerUpdateSelectedAccount
   | WalletControllerIsUnlockedAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
