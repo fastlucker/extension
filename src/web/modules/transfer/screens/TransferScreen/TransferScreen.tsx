@@ -79,28 +79,28 @@ const TransferScreen = () => {
             )}
           />
 
-          <View style={[spacings.marginBottom]}>
-            <Controller
-              name="amount"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <NumberInput
-                  style={[spacings.phTy, { width: '100%' }]}
-                  label="Select Amount"
-                  button="MAX"
-                  onButtonPress={onChange}
-                  defaultValue={value}
-                />
-              )}
-            />
-          </View>
+          <Controller
+            name="amount"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <NumberInput
+                style={[spacings.phTy, { width: '100%' }]}
+                containerStyle={[spacings.mb]}
+                label="Select Amount"
+                button="MAX"
+                onButtonPress={onChange}
+                defaultValue={value}
+              />
+            )}
+          />
 
           <Controller
             name="recipientAddr"
             control={control}
             render={({ field: { onChange, value } }) => (
               <RecipientInput
-                style={[spacings.marginBottom, spacings.phTy, { width: '100%' }]}
+                style={[spacings.phTy, { width: '100%' }]}
+                containerStyle={[spacings.mb]}
                 label="Add Recipient"
                 onChange={onChange}
                 value={value}
@@ -108,7 +108,7 @@ const TransferScreen = () => {
             )}
           />
 
-          <Text style={{ marginBottom: '20px' }}>
+          <Text style={[spacings.mb]}>
             {t(
               'Please double-check the recipient address, blockchain transactions are not reversible.'
             )}
