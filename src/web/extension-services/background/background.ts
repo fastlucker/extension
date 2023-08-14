@@ -111,7 +111,7 @@ import { controllersMapping } from './types'
               return mainCtrl.accountAdder.init({
                 ...data.params,
                 keyIterator,
-                preselectedAccounts: data.params.preselectedAccounts
+                preselectedAccounts: mainCtrl.accounts
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
@@ -119,7 +119,7 @@ import { controllersMapping } from './types'
               return mainCtrl.accountAdder.init({
                 ...data.params,
                 keyIterator,
-                preselectedAccounts: data.params.preselectedAccounts
+                preselectedAccounts: mainCtrl.accounts
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
@@ -130,14 +130,14 @@ import { controllersMapping } from './types'
               return mainCtrl.accountAdder.init({
                 ...data.params,
                 keyIterator,
-                preselectedAccounts: data.params.preselectedAccounts
+                preselectedAccounts: mainCtrl.accounts
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                preselectedAccounts: data.params.preselectedAccounts
+                preselectedAccounts: mainCtrl.accounts
               })
             }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {

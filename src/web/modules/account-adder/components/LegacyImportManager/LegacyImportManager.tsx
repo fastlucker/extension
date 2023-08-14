@@ -39,7 +39,6 @@ const LegacyImportManager = (props: Props) => {
     dispatch({
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
       params: {
-        preselectedAccounts: mainControllerState.accounts,
         privKeyOrSeed: props.privKeyOrSeed
       }
     })
@@ -48,7 +47,6 @@ const LegacyImportManager = (props: Props) => {
   }, [
     accountAdderState.isInitialized,
     dispatch,
-    mainControllerState.accounts,
     mainControllerState.isReady,
     props.privKeyOrSeed,
     sessionStarted
