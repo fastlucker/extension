@@ -18,6 +18,8 @@ import { ROUTES } from '@common/modules/router/constants/common'
 // @TODO: - get tokens from portfolio based on currently selected account
 const TOKENS = [
   {
+    // @TODO: - we need to show network icon in front of network name,
+    //   https://github.com/AmbireTech/ambire-app/pull/1170#discussion_r1293243396
     label: 'USDC on Ethereum',
     value: 'usdc',
     icon: 'https://storage.googleapis.com/zapper-fi-assets/tokens/ethereum/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png'
