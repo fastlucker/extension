@@ -22,12 +22,22 @@ const TOKENS = [
     //   https://github.com/AmbireTech/ambire-app/pull/1170#discussion_r1293243396
     label: 'USDC on Ethereum',
     value: 'usdc',
-    icon: 'https://storage.googleapis.com/zapper-fi-assets/tokens/ethereum/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png'
+    icon: (
+      <img
+        alt="USDC on Ethereum"
+        src="https://storage.googleapis.com/zapper-fi-assets/tokens/ethereum/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png"
+      />
+    )
   },
   {
     label: 'Matic on Polygon',
     value: 'matic',
-    icon: 'https://storage.googleapis.com/zapper-fi-assets/tokens/polygon/0x0000000000000000000000000000000000001010.png'
+    icon: (
+      <img
+        alt="Matic on Polygon"
+        src="https://storage.googleapis.com/zapper-fi-assets/tokens/polygon/0x0000000000000000000000000000000000001010.png"
+      />
+    )
   }
 ]
 
@@ -127,10 +137,7 @@ const TransferScreen = () => {
             type="primary"
             size="large"
             text="Send"
-            style={[
-              flexbox.alignSelfStart,
-              { paddingLeft: SPACING_LG * 4, paddingRight: SPACING_LG * 4 }
-            ]}
+            style={[flexbox.alignSelfStart, { paddingHorizontal: SPACING_LG * 4 }]}
             onPress={handleFormSubmit}
             disabled={!confirmedNotExchangeAddr}
           />

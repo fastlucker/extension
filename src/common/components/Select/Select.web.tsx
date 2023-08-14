@@ -59,11 +59,7 @@ const SelectComponent = ({
   const IconOption = (props: OptionProps) => (
     <components.Option {...props}>
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {props.data.icon && (
-          <View style={styles.optionIcon}>
-            <img src={props.data.icon} />
-          </View>
-        )}
+        {props.data.icon && <View style={styles.optionIcon}>{props.data.icon}</View>}
         <Text>{props.data.label}</Text>
       </View>
     </components.Option>
@@ -72,11 +68,7 @@ const SelectComponent = ({
   const SingleValueIconOption = (props: SingleValueProps) => (
     <components.SingleValue {...props}>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.plTy]}>
-        {props.data.icon && (
-          <View style={styles.optionIcon}>
-            <img src={props.data.icon} />
-          </View>
-        )}
+        {props.data.icon && <View style={styles.optionIcon}>{props.data.icon}</View>}
         <Text>{props.data.label}</Text>
       </View>
     </components.SingleValue>
