@@ -20,7 +20,7 @@ import styles from './styles'
 
 const DEFAULT_IMPORT_LABEL = `Imported key on ${new Date().toLocaleDateString()}`
 
-function testPrivateKey(input: string) {
+function isValidPrivateKey(input: string) {
   try {
     return !!new Wallet(input)
   } catch {
@@ -28,7 +28,7 @@ function testPrivateKey(input: string) {
   }
 }
 
-function testMnemonic(input: string) {
+function isValidMnemonic(input: string) {
   const separators = /[\s,;\n]+/
   const words = input.trim().split(separators)
 
@@ -54,7 +54,7 @@ const ExternalSignerLoginScreen = () => {
     handleSubmit(({ privKeyOrSeed, label }) => {
       let formattedPrivKeyOrSeed = privKeyOrSeed
 
-      if (testPrivateKey(privKeyOrSeed)) {
+      if (isValidPrivateKey(privKeyOrSeed)) {
         formattedPrivKeyOrSeed =
           privKeyOrSeed.slice(0, 2) === '0x' ? privKeyOrSeed.slice(2) : privKeyOrSeed
       }
@@ -74,7 +74,7 @@ const ExternalSignerLoginScreen = () => {
     const separators = /[\s,;\n]+/
     const words = trimmedValue.split(separators)
 
-    const isValidMnemonic = testMnemonic(trimmedValue)
+    const isValidMnemonicValue = isValidMnemonic(trimmedValue)
 
     const allowedSeedPhraseLengths = [12, 15, 18, 21, 24]
 
@@ -82,19 +82,19 @@ const ExternalSignerLoginScreen = () => {
       return 'Your seed phrase length is valid, but a word is misspelled.'
     }
 
-    if (words.length > 1 && !isValidMnemonic) {
+    if (words.length > 1 && !isValidMnemonicValue) {
       return 'A seed phrase must be 12-24 words long.'
     }
 
     if (
       words.length === 1 &&
       /^(0x)?[0-9a-fA-F]/.test(trimmedValue) &&
-      !testPrivateKey(trimmedValue)
+      !isValidPrivateKey(trimmedValue)
     ) {
       return 'Invalid private key.'
     }
 
-    return testPrivateKey(trimmedValue) || testMnemonic(trimmedValue)
+    return isValidPrivateKey(trimmedValue) || isValidMnemonic(trimmedValue)
   }
 
   return (
