@@ -1,6 +1,6 @@
 /* eslint-disable react/destructuring-assignment */
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
@@ -9,7 +9,6 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
-import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 import { getDefaultSelectedAccount } from '../../helpers/account'
 
@@ -23,7 +22,6 @@ const LegacyImportManager = (props: Props) => {
   const { dispatch } = useBackgroundService()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
-  const [sessionStarted, setSessionStarted] = useState(false)
 
   const setPage = useCallback(
     (page = 1) => {
@@ -33,8 +31,8 @@ const LegacyImportManager = (props: Props) => {
   )
 
   useEffect(() => {
-    if (!mainControllerState.isReady) return
-    if (sessionStarted) return
+    if (!mainControllerState.isReady) return () => {}
+    if (accountAdderState.isInitialized) return () => {}
 
     dispatch({
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
@@ -42,22 +40,13 @@ const LegacyImportManager = (props: Props) => {
         privKeyOrSeed: props.privKeyOrSeed
       }
     })
-
-    setSessionStarted(true)
-  }, [
-    accountAdderState.isInitialized,
-    dispatch,
-    mainControllerState.isReady,
-    props.privKeyOrSeed,
-    sessionStarted
-  ])
+  }, [accountAdderState.isInitialized, dispatch, mainControllerState.isReady, props.privKeyOrSeed])
 
   useEffect(() => {
     if (!accountAdderState.isInitialized) return
-    if (!sessionStarted) return
 
     setPage()
-  }, [accountAdderState.isInitialized, sessionStarted, setPage])
+  }, [accountAdderState.isInitialized, setPage])
 
   const completeStep = useCallback(() => {
     updateStepperState(1, 'legacyAuth')
