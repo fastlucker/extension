@@ -27,7 +27,7 @@ const ThemeColors = {
   },
   secondaryText: {
     [THEME_TYPES.LIGHT]: colors.white,
-    [THEME_TYPES.DARK]: colors.black
+    [THEME_TYPES.DARK]: colors.martinique
   },
   panelBackground: {
     [THEME_TYPES.LIGHT]: colors.white,

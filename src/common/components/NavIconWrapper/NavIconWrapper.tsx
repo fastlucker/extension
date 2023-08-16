@@ -40,7 +40,8 @@ const NavIconWrapper = ({
             ...flexbox.alignCenter,
             ...flexbox.justifyCenter,
             ...style,
-            backgroundColor: hovered && hoverBackground ? hoverBackground : colors.melrose_15
+            backgroundColor: hovered && hoverBackground ? hoverBackground : colors.melrose_15,
+            overflow: 'hidden'
           }}
         >
           {/* TODO: This way may not be the best to fix this. Will need to think about this */}

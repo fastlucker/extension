@@ -25,7 +25,8 @@ const COMMON_ROUTES = {
   menu: 'menu',
   swap: 'swap',
   noConnection: 'no-connection',
-  backup: 'backup'
+  backup: 'backup',
+  accounts: 'accounts'
 }
 
 const MOBILE_ROUTES = {
