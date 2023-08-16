@@ -106,11 +106,11 @@ const MainRoutes = () => {
 
           <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
         </Route>
+        <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
+        <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
         <Route element={headerAlpha}>
           <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
         </Route>
-        <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
-        <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
       </Route>
       <Route element={<PrivateRoute />}>
         <Route element={headerBeta}>

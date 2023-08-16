@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useContext } from 'react'
+import React, { lazy, Suspense, useContext, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Route, Routes } from 'react-router-dom'
 
@@ -6,6 +6,7 @@ import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
+import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import flexbox from '@common/styles/utils/flexbox'
 import { ControllersStateLoadedContext } from '@web/contexts/controllersStateLoadedContext'
