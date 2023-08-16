@@ -26,7 +26,6 @@ export const getUiType = (): UiTypeCheck => {
   return Object.entries(UI_TYPE).reduce((m, [key, value]) => {
     m[`is${key}`] = pathname === `/${value}.html`
 
-    console.log('m', m)
     return m
   }, {} as UiTypeCheck)
 }

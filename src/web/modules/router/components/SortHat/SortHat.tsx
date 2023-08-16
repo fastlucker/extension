@@ -49,7 +49,7 @@ const SortHat = () => {
         return navigate(ROUTES.permissionRequest)
       }
       if (approval?.data?.approvalComponent === 'SendTransaction') {
-        return navigate(ROUTES.pendingTransactions)
+        return console.log(approval)
       }
       if (approval?.data?.approvalComponent === 'SignText') {
         return navigate(ROUTES.signMessage)
