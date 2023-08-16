@@ -42,7 +42,7 @@ const SortHat = () => {
 
     // When in tab mode, user should be able to go forward and backward,
     // therefore - navigate should happen individually, on every screen.
-    // if (isTab) return
+    if (isTab) return
 
     if (approval && isNotification) {
       if (approval?.data?.approvalComponent === 'PermissionRequest') {

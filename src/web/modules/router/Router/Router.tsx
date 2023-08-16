@@ -26,16 +26,16 @@ const Router = () => {
   // TODO: Figure out if this is still relevant. It breaks the flow of adding an
   // account (when there is no selected account yet), as soon as an account
   // gets selected - this clicks and redirects, which is not wanted.
-  useEffect(() => {
-    if (
-      path !== '/' &&
-      authStatus !== prevAuthStatus &&
-      authStatus !== AUTH_STATUS.LOADING &&
-      prevAuthStatus !== AUTH_STATUS.LOADING
-    ) {
-      navigate('/', { replace: true })
-    }
-  }, [authStatus, navigate, path, prevAuthStatus])
+  // useEffect(() => {
+  //   if (
+  //     path !== '/' &&
+  //     authStatus !== prevAuthStatus &&
+  //     authStatus !== AUTH_STATUS.LOADING &&
+  //     prevAuthStatus !== AUTH_STATUS.LOADING
+  //   ) {
+  //     navigate('/', { replace: true })
+  //   }
+  // }, [authStatus, navigate, path, prevAuthStatus])
 
   if (!hasCheckedForApprovalInitially || !isControllersStateLoaded) {
     return (
