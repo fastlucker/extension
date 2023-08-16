@@ -28,7 +28,6 @@ const getProviderState = async (req) => {
     networkVersion = '1'
   }
 
-  console.log('getProviderState', chainId, networkVersion)
   return {
     chainId,
     isUnlocked,
