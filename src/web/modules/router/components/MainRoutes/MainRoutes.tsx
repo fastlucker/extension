@@ -5,8 +5,8 @@ import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import AuthScreen from '@common/modules/auth/screens/AuthScreen'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
 import {
-  headerAlpha as defaultHeaderAlpha,
-  headerBeta as defaultHeaderBeta
+  headerControls as defaultHeaderControls,
+  headerTitle as defaultHeaderTitle
 } from '@common/modules/header/config/headerConfig'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -14,6 +14,7 @@ import colors from '@common/styles/colors'
 import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
+import AccountsScreen from '@web/modules/accounts/screens/AccountsScreen'
 import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
 import AddAccountPasswordToVaultScreen from '@web/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
@@ -34,16 +35,16 @@ import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 
-const headerAlpha = (
+const headerControls = (
   <>
-    {defaultHeaderAlpha({ backgroundColor: colors.zircon })}
+    {defaultHeaderControls({ backgroundColor: colors.zircon })}
     <Outlet />
   </>
 )
 
-const headerBeta = (
+const headerTitle = (
   <>
-    {defaultHeaderBeta({})}
+    {defaultHeaderTitle({})}
     <Outlet />
   </>
 )
@@ -90,6 +91,7 @@ const MainRoutes = () => {
               element={<HardwareWalletSelectorScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
+            <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
           </Route>
 
           <Route
@@ -108,12 +110,12 @@ const MainRoutes = () => {
         </Route>
         <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
         <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
-        <Route element={headerAlpha}>
+        <Route element={headerControls}>
           <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
         </Route>
       </Route>
       <Route element={<PrivateRoute />}>
-        <Route element={headerBeta}>
+        <Route element={headerTitle}>
           <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
         </Route>
       </Route>

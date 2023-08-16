@@ -8,7 +8,6 @@ import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import Stepper from '@web/modules/router/components/Stepper'
@@ -32,18 +31,17 @@ const TabHeader: React.FC<any> = ({
   // To accommodate such cases and ensure button visibility, we introduce the `forceCanGoBack` flag.
   const canGoBack = forceCanGoBack || !!params?.prevRoute
 
-  const renderHeaderLeft = () => {
+  const renderBackButton = () => {
     if (canGoBack) {
       return (
-        <NavIconWrapper
-          onPress={handleGoBack}
-          style={{ ...flexboxStyles.directionRow, ...flexboxStyles.alignCenter }}
-        >
-          <LeftArrowIcon width={36} height={36} color={colors.violet} />
-          <Text fontSize={14} weight="regular" color={colors.martinique} style={spacings.ml}>
+        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+          <NavIconWrapper onPress={handleGoBack} style={styles.navIconContainerRegular}>
+            <LeftArrowIcon width={36} height={36} />
+          </NavIconWrapper>
+          <Text style={spacings.plTy} fontSize={16} weight="medium">
             {t('Back')}
           </Text>
-        </NavIconWrapper>
+        </View>
       )
     }
 
@@ -57,7 +55,7 @@ const TabHeader: React.FC<any> = ({
 
   return (
     <View style={[styles.container, spacings.pv, spacings.ph]}>
-      <View>{renderHeaderLeft()}</View>
+      <View style={styles.sideContainer}>{renderBackButton()}</View>
       {!!shouldDisplayStepper && <Stepper step={flowStep} />}
       {!shouldDisplayStepper && (!!title || !!pageTitle) && (
         <Text
@@ -69,6 +67,7 @@ const TabHeader: React.FC<any> = ({
           {pageTitle || title || ' '}
         </Text>
       )}
+      <View style={styles.sideContainer} />
     </View>
   )
 }
