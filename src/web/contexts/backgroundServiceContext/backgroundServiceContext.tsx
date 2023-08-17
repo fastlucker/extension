@@ -75,7 +75,10 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
       if (lastError) {
         // TODO: display error toast instead
         // eslint-disable-next-line no-alert
-        alert(newState.errors[newState.errors.length - 1].message)
+        alert(lastError.message)
+        console.error(
+          `Error in ${newState.controller} controller. Inspect background page to see the full stack trace.`
+        )
       }
     }
 

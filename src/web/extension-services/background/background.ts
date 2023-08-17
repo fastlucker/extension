@@ -66,10 +66,14 @@ import { controllersMapping } from './types'
       })
     })
     ;(mainCtrl as any)[ctrl]?.onError(() => {
+      const errors = (mainCtrl as any)[ctrl].getErrors()
+      const lastError = errors[errors.length - 1]
+      if (lastError) console.error(lastError.error)
+
       pmRef.request({
         type: 'broadcast-error',
         method: ctrl,
-        params: { errors: (mainCtrl as any)[ctrl].getErrors(), controller: ctrl }
+        params: { errors, controller: ctrl }
       })
     })
   })
@@ -82,10 +86,14 @@ import { controllersMapping } from './types'
     })
   })
   mainCtrl.onError(() => {
+    const errors = mainCtrl.getErrors()
+    const lastError = errors[errors.length - 1]
+    if (lastError) console.error(lastError.error)
+
     pmRef?.request({
       type: 'broadcast-error',
       method: 'main',
-      params: { errors: mainCtrl.getErrors(), controller: 'main' }
+      params: { errors, controller: 'main' }
     })
   })
 
