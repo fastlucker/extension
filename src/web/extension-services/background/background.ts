@@ -81,14 +81,13 @@ import { controllersMapping } from './types'
       params: mainCtrl
     })
   })
-  // TODO: Main controller error handling
-  // mainCtrl.onError(() => {
-  //   pmRef?.request({
-  //     type: 'broadcast-error',
-  //     method: 'main',
-  //     params: { errors: mainCtrl.getErrors(), controller: 'main' }
-  //   })
-  // })
+  mainCtrl.onError(() => {
+    pmRef?.request({
+      type: 'broadcast-error',
+      method: 'main',
+      params: { errors: mainCtrl.getErrors(), controller: 'main' }
+    })
+  })
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port) => {
