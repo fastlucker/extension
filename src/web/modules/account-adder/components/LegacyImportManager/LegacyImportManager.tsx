@@ -55,13 +55,6 @@ const LegacyImportManager = (props: Props) => {
   }, [navigate, updateStepperState])
 
   useEffect(() => {
-    if (accountAdderState.addAccountsStatus.type === 'ERROR') {
-      // TODO: display error toast instead
-      // eslint-disable-next-line no-alert
-      alert(accountAdderState.addAccountsStatus.message)
-      return
-    }
-
     if (accountAdderState.addAccountsStatus.type === 'SUCCESS') {
       const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
       if (!defaultSelectedAccount) {
