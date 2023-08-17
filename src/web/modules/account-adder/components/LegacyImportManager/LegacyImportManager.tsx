@@ -51,7 +51,7 @@ const LegacyImportManager = (props: Props) => {
   const completeStep = useCallback(() => {
     updateStepperState(1, 'legacyAuth')
 
-    navigate(WEB_ROUTES.createKeyStore)
+    navigate(WEB_ROUTES.keyStoreSetup)
   }, [navigate, updateStepperState])
 
   useEffect(() => {

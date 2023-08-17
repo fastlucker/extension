@@ -1,3 +1,3 @@
-import CreateNewKeyStoreScreen from './CreateNewKeyStoreScreen'
+import KeyStoreSetupScreen from './KeyStoreSetupScreen'
 
-export default CreateNewKeyStoreScreen
+export default KeyStoreSetupScreen

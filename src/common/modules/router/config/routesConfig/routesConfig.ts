@@ -60,8 +60,8 @@ const routesConfig: {
     route: ROUTES.authEmailRegister,
     title: ''
   },
-  [ROUTES.createKeyStore]: {
-    route: ROUTES.createKeyStore,
+  [ROUTES.keyStoreSetup]: {
+    route: ROUTES.keyStoreSetup,
     title: i18n.t('Ambire Key Store'),
     flow: 'emailAuth',
     flowStep: 2

@@ -23,16 +23,16 @@ const Router = () => {
   const prevAuthStatus = usePrevious(authStatus)
   const isControllersStateLoaded = useContext(ControllersStateLoadedContext)
 
-  useEffect(() => {
-    if (
-      path !== '/' &&
-      authStatus !== prevAuthStatus &&
-      authStatus !== AUTH_STATUS.LOADING &&
-      prevAuthStatus !== AUTH_STATUS.LOADING
-    ) {
-      navigate('/', { replace: true })
-    }
-  }, [authStatus, navigate, path, prevAuthStatus])
+  // useEffect(() => {
+  //   if (
+  //     path !== '/' &&
+  //     authStatus !== prevAuthStatus &&
+  //     authStatus !== AUTH_STATUS.LOADING &&
+  //     prevAuthStatus !== AUTH_STATUS.LOADING
+  //   ) {
+  //     navigate('/', { replace: true })
+  //   }
+  // }, [authStatus, navigate, path, prevAuthStatus])
 
   if (!hasCheckedForApprovalInitially || !isControllersStateLoaded) {
     return (

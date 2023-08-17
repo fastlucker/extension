@@ -27,7 +27,7 @@ import Terms from '@web/modules/auth/screens/Terms'
 import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
-import CreateNewKeyStoreScreen from '@web/modules/key-store/screens/CreateNewKeyStoreScreen'
+import KeyStoreSetupScreen from '@web/modules/key-store/screens/KeyStoreSetupScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
@@ -65,7 +65,7 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
             <Route path={WEB_ROUTES.terms} element={<Terms />} />
             {/* TODO: v2 */}
-            <Route path={WEB_ROUTES.createKeyStore} element={<CreateNewKeyStoreScreen />} />
+            <Route path={WEB_ROUTES.keyStoreSetup} element={<KeyStoreSetupScreen />} />
             <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
 
             <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />

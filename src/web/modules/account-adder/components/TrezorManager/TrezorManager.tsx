@@ -20,7 +20,7 @@ const TrezorManager = (props: Props) => {
   const state = useAccountAdderControllerState()
   const onImportReady = () => {
     updateStepperState(2, 'hwAuth')
-    navigate(WEB_ROUTES.createKeyStore)
+    navigate(WEB_ROUTES.keyStoreSetup)
   }
 
   const setPage: any = React.useCallback(

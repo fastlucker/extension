@@ -8,6 +8,7 @@ import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useApproval from '@web/hooks/useApproval'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
 import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
 import { getUiType } from '@web/utils/uiType'
@@ -18,23 +19,17 @@ const SortHat = () => {
   const { approval } = useApproval()
   const { isNotification } = getUiType()
   const { onboardingStatus } = useOnboarding()
+  const keystoreState = useKeystoreControllerState()
 
   const loadView = useCallback(async () => {
-    // if (vaultStatus === VAULT_STATUS.LOADING) return
-
     if (isNotification && !approval) {
       window.close()
       return
     }
 
-    // if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED) {
-    //   // TODO: return navigate(ROUTES.getStarted)
-    //   return navigate(ROUTES.createVault)
-    // }
-
-    // if (vaultStatus === VAULT_STATUS.LOCKED) {
-    //   return navigate(ROUTES.unlockVault)
-    // }
+    if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
+      return navigate(ROUTES.unlockVault)
+    }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
       return navigate(ROUTES.getStarted)
@@ -67,7 +62,7 @@ const SortHat = () => {
         onboardingStatus === ONBOARDING_VALUES.ON_BOARDED ? ROUTES.dashboard : ROUTES.onboarding
       )
     }
-  }, [isNotification, approval, authStatus, navigate, onboardingStatus])
+  }, [isNotification, approval, authStatus, navigate, onboardingStatus, keystoreState])
 
   useEffect(() => {
     loadView()

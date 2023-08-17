@@ -74,7 +74,7 @@ const EmailLoginForm: React.FC<any> = ({
     if (isPasswordConfirmStep) {
       setTimeout(() => {
         currentFlow !== 'legacyAuth' && setNextStepperState()
-        navigate(ROUTES.createKeyStore)
+        navigate(ROUTES.keyStoreSetup)
       }, delay * 1000)
     }
   }, [isPasswordConfirmStep, setNextStepperState, navigate, currentFlow])

@@ -176,6 +176,13 @@ import { controllersMapping } from './types'
             case 'LATTICE_CONTROLLER_UNLOCK':
               return latticeCtrl.unlock()
 
+            case 'KEYSTORE_CONTROLLER_ADD_SECRET':
+              return mainCtrl.keystore.addSecret(data.params.secretId, data.params.secret)
+            case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
+              return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
+            case 'KEYSTORE_CONTROLLER_LOCK':
+              return mainCtrl.keystore.lock()
+
             case 'WALLET_CONTROLLER_IS_UNLOCKED':
               return null // TODO: implement in v2
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':

@@ -14,6 +14,7 @@ import { useTranslation } from '@common/config/localization'
 import { DEVICE_SECURITY_LEVEL } from '@common/contexts/biometricsContext/constants'
 import useBiometrics from '@common/hooks/useBiometrics'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { ROUTES } from '@common/modules/router/constants/common'
 import { isValidPassword } from '@common/services/validations/validate'
@@ -25,13 +26,18 @@ import {
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import styles from '@web/components/AuthLayoutWrapper/styles'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
-const CreateNewKeyStoreScreen = () => {
+const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { params } = useRoute()
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false)
   const [enableEmailRecovery, onEnableEmailRecoveryChange] = useState(false)
   const { stepperState, updateStepperState } = useStepper()
+  const state = useKeystoreControllerState()
+  const { dispatch } = useBackgroundService()
 
   const setNextStepperState = useCallback(() => {
     updateStepperState(stepperState.currentStep + 1, stepperState.currentFlow)
@@ -54,15 +60,30 @@ const CreateNewKeyStoreScreen = () => {
   })
 
   useEffect(() => {
-    // FIXME: Refactor when later on this gets wired-up
-    const delay = 4
-    if (isSubmitSuccessful) {
+    if (state.latestMethodCall === 'addSecret' && state.status === 'DONE') {
+      dispatch({
+        type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET',
+        params: { secretId: 'password', secret: watch('password', '') }
+      })
+    }
+    if (state.isUnlocked) {
+      setIsSubmitSuccessful(true)
+
       setTimeout(() => {
         setNextStepperState()
         navigate(ROUTES.accountPersonalize)
-      }, delay * 1000)
+      }, 3000)
     }
-  }, [isSubmitSuccessful, navigate, setNextStepperState])
+  }, [state, navigate, setNextStepperState, dispatch, watch])
+
+  const handleKeystoreSetup = () => {
+    handleSubmit(({ password }) => {
+      dispatch({
+        type: 'KEYSTORE_CONTROLLER_ADD_SECRET',
+        params: { secretId: 'password', secret: password }
+      })
+    })()
+  }
 
   return (
     <>
@@ -130,11 +151,13 @@ const CreateNewKeyStoreScreen = () => {
                 )}
                 name="confirmPassword"
               />
-              <Checkbox
-                value={enableEmailRecovery}
-                onValueChange={() => onEnableEmailRecoveryChange((prev) => !prev)}
-                label={t('Key store recovery by email')}
-              />
+              {!!params.emailFlow && (
+                <Checkbox
+                  value={enableEmailRecovery}
+                  onValueChange={() => onEnableEmailRecoveryChange((prev) => !prev)}
+                  label={t('Key store recovery by email')}
+                />
+              )}
               {!isWeb &&
                 hasBiometricsHardware &&
                 deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC && (
@@ -153,9 +176,7 @@ const CreateNewKeyStoreScreen = () => {
                 textStyle={{ fontSize: 14 }}
                 disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
                 text={isSubmitting ? t('Setting up...') : t('Setup Ambire Key Store')}
-                onPress={() => {
-                  setIsSubmitSuccessful(true)
-                }}
+                onPress={handleKeystoreSetup}
               />
             </>
           )}
@@ -213,4 +234,4 @@ const CreateNewKeyStoreScreen = () => {
   )
 }
 
-export default CreateNewKeyStoreScreen
+export default KeyStoreSetupScreen
