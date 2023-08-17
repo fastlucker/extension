@@ -6,7 +6,6 @@ import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
-import { ControllersMappingType } from '@web/extension-services/background/types'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getUiType } from '@web/utils/uiType'
@@ -70,7 +69,7 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
-    const onUpdate = (newState: { errors: ErrorRef[]; controller: ControllersMappingType }) => {
+    const onUpdate = (newState: { errors: ErrorRef[]; controller: string }) => {
       const lastError = newState.errors[newState.errors.length - 1]
 
       if (lastError) {
