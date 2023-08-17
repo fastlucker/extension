@@ -65,6 +65,13 @@ import { controllersMapping } from './types'
         params: (mainCtrl as any)[ctrl]
       })
     })
+    ;(mainCtrl as any)[ctrl]?.onError(() => {
+      pmRef.request({
+        type: 'broadcast-error',
+        method: ctrl,
+        params: { errors: (mainCtrl as any)[ctrl].getErrors(), controller: ctrl }
+      })
+    })
   })
   // Broadcast onUpdate for the main controllers
   mainCtrl.onUpdate(() => {
@@ -74,6 +81,14 @@ import { controllersMapping } from './types'
       params: mainCtrl
     })
   })
+  // TODO: Main controller error handling
+  // mainCtrl.onError(() => {
+  //   pmRef?.request({
+  //     type: 'broadcast-error',
+  //     method: 'main',
+  //     params: { errors: mainCtrl.getErrors(), controller: 'main' }
+  //   })
+  // })
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port) => {

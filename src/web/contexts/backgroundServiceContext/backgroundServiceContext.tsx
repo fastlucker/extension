@@ -1,10 +1,12 @@
-import React, { createContext, useMemo } from 'react'
+import { ErrorRef } from 'ambire-common/src/controllers/eventEmitter'
+import React, { createContext, useEffect, useMemo } from 'react'
 
 import { isExtension } from '@web/constants/browserapi'
 import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
+import { ControllersMappingType } from '@web/extension-services/background/types'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getUiType } from '@web/utils/uiType'
@@ -36,6 +38,9 @@ if (isExtension) {
     if (data.type === 'broadcast') {
       eventBus.emit(data.method, data.params)
     }
+    if (data.type === 'broadcast-error') {
+      eventBus.emit('error', data.params)
+    }
   })
 
   eventBus.addEventListener('broadcastToBackground', (data) => {
@@ -64,6 +69,22 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 )
 
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
+  useEffect(() => {
+    const onUpdate = (newState: { errors: ErrorRef[]; controller: ControllersMappingType }) => {
+      const lastError = newState.errors[newState.errors.length - 1]
+
+      if (lastError) {
+        // TODO: display error toast instead
+        // eslint-disable-next-line no-alert
+        alert(newState.errors[newState.errors.length - 1].message)
+      }
+    }
+
+    eventBus.addEventListener('error', onUpdate)
+
+    return () => eventBus.removeEventListener('error', onUpdate)
+  }, [])
+
   return (
     <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch, dispatchAsync }), [])}>
       {children}
