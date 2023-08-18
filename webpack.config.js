@@ -52,7 +52,7 @@ module.exports = async function (env, argv) {
     if (manifestVersion === 2) {
       manifest.manifest_version = 2
       manifest.background = {
-        scripts: ['browser-polyfill.js', 'background.js'],
+        scripts: ['browser-polyfill.js', 'setimmediate.js', 'background.js'],
         persistent: true
       }
       // Chrome extensions do not respect `browser_specific_settings`
@@ -184,6 +184,10 @@ module.exports = async function (env, argv) {
         {
           from: './node_modules/webextension-polyfill/dist/browser-polyfill.js',
           to: 'browser-polyfill.js'
+        },
+        {
+          from: './node_modules/setimmediate/setimmediate.js',
+          to: 'setimmediate.js'
         },
         {
           from: './src/web/public/index.html',

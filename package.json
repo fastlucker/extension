@@ -187,6 +187,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
     "sentry-expo": "~6.0.0",
+    "setimmediate": "^1.0.5",
     "stream-browserify": "^3.0.0",
     "string_decoder": "~0.10.25",
     "timers-browserify": "^1.0.1",
