@@ -16,10 +16,12 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
   const DropdownButton: any = useRef()
   const [visible, setVisible] = useState(false)
   const [dropdownTop, setDropdownTop] = useState(0)
+  const [dropdownLeft, setDropdownLeft] = useState(0)
 
   const openDropdown = (): void => {
     DropdownButton.current.measure((_fx, _fy, _w, h, _px, py) => {
       setDropdownTop(py + h)
+      setDropdownLeft(_px - _w * 2)
     })
     setVisible(true)
   }
@@ -57,7 +59,7 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
     return (
       <Modal visible={visible && !!dropdownTop} transparent animationType="none">
         <TouchableOpacity style={styles.overlay} onPress={() => setVisible(false)}>
-          <View style={[styles.dropdown, { top: dropdownTop, right: 30 }]}>
+          <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
             <FlatList
               data={data}
               renderItem={renderItem}
