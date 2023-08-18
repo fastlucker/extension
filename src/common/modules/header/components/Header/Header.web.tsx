@@ -159,13 +159,15 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
         }
       ]}
     >
-      {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
+      <View style={styles.containerInner}>
+        {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
 
-      {mode === 'title' && (
-        <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={2}>
-          {title || ''}
-        </Text>
-      )}
+        {mode === 'title' && (
+          <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={2}>
+            {title || ''}
+          </Text>
+        )}
+      </View>
     </View>
   )
 }

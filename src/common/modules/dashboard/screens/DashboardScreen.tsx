@@ -1,14 +1,12 @@
-import React, { useContext } from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
 
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
-import {
-  AssetsToggleContext,
-  AssetsToggleProvider
-} from '@common/modules/dashboard/contexts/assetsToggleContext'
+import useRoute from '@common/hooks/useRoute'
+import Tabs from '@common/modules/dashboard/components/Tabs'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -18,7 +16,14 @@ import Routes from '../components/Routes'
 import styles from './styles'
 
 const DashboardScreen = () => {
-  const { type } = useContext(AssetsToggleContext)
+  const route = useRoute()
+
+  const [openTab, setOpenTab] = useState(() => {
+    const params = new URLSearchParams(route?.search)
+
+    return (params.get('tab') as 'tokens' | 'collectibles') || 'tokens'
+  })
+
   // TODO: Remove this as is hardcoded, for displaying purposes.
   const tokens = [
     {
@@ -55,8 +60,9 @@ const DashboardScreen = () => {
 
   const { t } = useTranslation()
   const totalBalance = 20500.9
+
   return (
-    <Wrapper contentContainerStyle={[spacings.pv0, spacings.ph0]} style={styles.container}>
+    <Wrapper contentContainerStyle={styles.contentContainer} style={styles.container}>
       <View
         style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.phSm, spacings.pvSm]}
       >
@@ -77,11 +83,11 @@ const DashboardScreen = () => {
       </View>
       <View style={[flexbox.flex1]}>
         <View style={[flexbox.directionRow, spacings.ph, flexbox.justifySpaceBetween]}>
-          <AssetsToggleProvider />
+          <Tabs setOpenTab={setOpenTab} openTab={openTab} />
           <Search />
         </View>
 
-        <Assets tokens={tokens} type={type} />
+        <Assets tokens={tokens} openTab={openTab} />
       </View>
     </Wrapper>
   )

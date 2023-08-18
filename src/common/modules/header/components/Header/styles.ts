@@ -4,6 +4,7 @@ import { isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import commonStyles from '@common/styles/utils/common'
+import commonWebStyles from '@web/styles/utils/common'
 
 export const HEADER_HEIGHT = Platform.select({
   web: 70,
@@ -12,6 +13,7 @@ export const HEADER_HEIGHT = Platform.select({
 
 interface Styles {
   container: ViewStyle
+  containerInner: ViewStyle
   navIconContainerRegular: ViewStyle
   navIconContainerSmall: ViewStyle
   title: TextStyle
@@ -28,6 +30,11 @@ const styles = StyleSheet.create<Styles>({
     alignItems: 'center',
     ...spacings.ph,
     ...(isWeb ? { height: 80 } : {})
+  },
+  containerInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    ...commonWebStyles.contentContainer
   },
   navIconContainerRegular: {
     width: 40,

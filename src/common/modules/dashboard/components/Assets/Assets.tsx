@@ -1,45 +1,58 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import AfterInteractions from '@common/components/AfterInteractions'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
+import Collectibles from '../Collectibles'
 import Tokens from '../Tokens'
 
 // TODO props
 interface Props {
-  type: 'tokens' | 'collectibles'
+  openTab: 'tokens' | 'collectibles'
   tokens: []
 }
 
-const Assets = ({ type, tokens }: Props) => (
-  <View
-    style={{
-      ...flexbox.flex1,
-      ...spacings.ph,
-      ...spacings.pv,
-      backgroundColor: colors.zircon,
-      borderTopRightRadius: 12,
-      borderTopLeftRadius: 12
-    }}
-  >
-    {type === 'tokens' && (
-      <AfterInteractions
-      /**
-       * TODO: Implementation on AfterInteractions
-       * when TokensListLoader is created
-       */
-      //   placeholder={<TokensListLoader />}
+// We do this instead of unmounting the component to prevent
+// component rerendering when switching tabs.
+const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0 }
+
+const Assets = ({ openTab, tokens }: Props) => {
+  return (
+    <View
+      style={{
+        ...flexbox.flex1,
+        ...spacings.ph,
+        ...spacings.pv,
+        backgroundColor: colors.zircon,
+        borderTopRightRadius: 12,
+        borderTopLeftRadius: 12
+      }}
+    >
+      <View
+        pointerEvents={openTab !== 'tokens' ? 'none' : 'auto'}
+        style={openTab !== 'tokens' ? HIDDEN_STYLE : {}}
       >
-        <Tokens tokens={tokens} />
-      </AfterInteractions>
-    )}
-    {/* {type === 'collectibles' && (
-       TODO: Collectibles
-      )} */}
-  </View>
-)
+        <AfterInteractions
+        /**
+         * TODO: Implementation on AfterInteractions
+         * when TokensListLoader is created
+         */
+        //   placeholder={<TokensListLoader />}
+        >
+          <Tokens tokens={tokens} />
+        </AfterInteractions>
+      </View>
+      <View
+        pointerEvents={openTab !== 'collectibles' ? 'none' : 'auto'}
+        style={openTab !== 'collectibles' ? HIDDEN_STYLE : {}}
+      >
+        <Collectibles />
+      </View>
+    </View>
+  )
+}
 
 export default React.memo(Assets)
