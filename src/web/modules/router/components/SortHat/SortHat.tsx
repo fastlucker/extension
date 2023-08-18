@@ -21,7 +21,6 @@ const SortHat = () => {
   const { onboardingStatus } = useOnboarding()
   const keystoreState = useKeystoreControllerState()
 
-  console.log('authStatus', authStatus)
   const loadView = useCallback(async () => {
     if (isNotification && !approval) {
       window.close()
@@ -29,7 +28,7 @@ const SortHat = () => {
     }
 
     if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
-      return navigate(ROUTES.unlockVault)
+      return navigate(ROUTES.keyStoreUnlock)
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {

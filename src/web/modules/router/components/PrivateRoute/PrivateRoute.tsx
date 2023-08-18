@@ -25,7 +25,7 @@ const PrivateRoute = () => {
   let to = null
 
   if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
-    to = ROUTES.unlockVault
+    to = ROUTES.keyStoreUnlock
   }
   if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
     to = ROUTES.auth

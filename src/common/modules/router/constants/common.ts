@@ -1,5 +1,5 @@
 const COMMON_ROUTES = {
-  unlockVault: 'unlock-vault',
+  keyStoreUnlock: 'keystore-unlock',
   resetVault: 'reset-vault',
   getStarted: 'get-started',
   createVault: 'create-vault',

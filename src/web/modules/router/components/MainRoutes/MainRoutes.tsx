@@ -27,7 +27,8 @@ import Terms from '@web/modules/auth/screens/Terms'
 import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
-import KeyStoreSetupScreen from '@web/modules/key-store/screens/KeyStoreSetupScreen'
+import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
+import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
@@ -64,7 +65,6 @@ const MainRoutes = () => {
           <Route element={<TabOnlyRoute />}>
             <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
             <Route path={WEB_ROUTES.terms} element={<Terms />} />
-            {/* TODO: v2 */}
             <Route path={WEB_ROUTES.keyStoreSetup} element={<KeyStoreSetupScreen />} />
             <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
 
@@ -108,15 +108,19 @@ const MainRoutes = () => {
 
           <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
         </Route>
-        <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
-        <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
-        <Route element={headerControls}>
-          <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
+
+        <Route element={headerTitle}>
+          <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
+          <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
+          <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
         </Route>
       </Route>
       <Route element={<PrivateRoute />}>
         <Route element={headerTitle}>
           <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
+        </Route>
+        <Route element={headerControls}>
+          <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
         </Route>
       </Route>
     </Routes>

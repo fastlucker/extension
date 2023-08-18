@@ -9,8 +9,8 @@ const routesConfig: {
     title: string
   }
 } = {
-  [ROUTES.unlockVault]: {
-    route: ROUTES.unlockVault,
+  [ROUTES.keyStoreUnlock]: {
+    route: ROUTES.keyStoreUnlock,
     title: Platform.select({
       default: i18n.t('Welcome Back')
     })
