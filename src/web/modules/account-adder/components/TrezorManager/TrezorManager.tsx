@@ -19,8 +19,8 @@ const TrezorManager = (props: Props) => {
   const { dispatch, dispatchAsync } = useBackgroundService()
   const state = useAccountAdderControllerState()
   const onImportReady = () => {
-    updateStepperState(2, 'hwAuth')
-    navigate(WEB_ROUTES.keyStoreSetup)
+    updateStepperState(2, 'hw')
+    navigate(WEB_ROUTES.accountPersonalize)
   }
 
   const setPage: any = React.useCallback(

@@ -313,12 +313,12 @@ import { controllersMapping } from './types'
       return provider({ ...req, mainCtrl })
     })
   })
-
-  // On first install, open Ambire Extension in new tab to start the login process
-  browser.runtime.onInstalled.addListener(({ reason }) => {
-    if (reason === 'install') {
-      const extensionURL = browser.runtime.getURL('tab.html')
-      browser.tabs.create({ url: extensionURL })
-    }
-  })
 })()
+
+// On first install, open Ambire Extension in a new tab to start the login process
+browser.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === 'install') {
+    const extensionURL = browser.runtime.getURL('tab.html')
+    browser.tabs.create({ url: extensionURL })
+  }
+})

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
@@ -8,11 +8,13 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
-import useStorage from '@common/hooks/useStorage'
 import useStepper from '@common/modules/auth/hooks/useStepper'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING, SPACING_LG, SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import { storage } from '@web/extension-services/background/webapi/storage'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 import styles from './style'
 
@@ -22,19 +24,54 @@ const Terms = () => {
   const { t } = useTranslation()
   const { params } = useRoute()
   const [isChecked, setIsChecked] = useState(false)
-  const [, setTermsState] = useStorage({ key: 'termsState' })
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
-  const { nextPage, nextState }: any = params
+  const keystoreState = useKeystoreControllerState()
+  const { flow }: any = params
 
-  const onPress = () => {
-    if (!nextPage || !nextState) return
-    setTermsState({
+  useEffect(() => {
+    ;(async () => {
+      const hasTerms = await storage.get('termsState', false)
+      if (hasTerms) {
+        navigate(WEB_ROUTES.getStarted)
+      }
+    })()
+  }, [])
+
+  useEffect(() => {
+    if (!flow) {
+      navigate(WEB_ROUTES.getStarted)
+    }
+  }, [flow, navigate])
+
+  const handleAcceptTerms = async () => {
+    await storage.set('termsState', {
       version: TERMS_VERSION,
       acceptedAt: Date.now()
     })
-    updateStepperState(0, nextState)
-    navigate(nextPage)
+    console.log('terms keystore state', keystoreState.isReadyToStoreKeys)
+    if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
+      navigate(WEB_ROUTES.keyStoreSetup, { state: { backTo: WEB_ROUTES.getStarted, flow } })
+      return
+    }
+    if (flow === 'email') {
+      updateStepperState(0, 'email')
+      navigate(WEB_ROUTES.createEmailVault, {
+        state: { backTo: WEB_ROUTES.getStarted, flow: 'email' }
+      })
+      return
+    }
+    if (flow === 'hw') {
+      updateStepperState(0, 'hw')
+      navigate(WEB_ROUTES.hardwareWalletSelect, { state: { backTo: WEB_ROUTES.getStarted } })
+      return
+    }
+    if (flow === 'legacy') {
+      updateStepperState(0, 'legacy')
+      navigate(WEB_ROUTES.externalSigner, {
+        state: { backTo: WEB_ROUTES.getStarted, flow: 'legacy' }
+      })
+    }
   }
 
   return (
@@ -101,7 +138,7 @@ const Terms = () => {
           style={{ width: 296, ...flexboxStyles.alignSelfCenter }}
           text={t('Continue')}
           hasBottomSpacing={false}
-          onPress={onPress}
+          onPress={handleAcceptTerms}
         />
       </View>
     </AuthLayoutWrapperMainContent>

@@ -16,7 +16,7 @@ import useBiometrics from '@common/hooks/useBiometrics'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useStepper from '@common/modules/auth/hooks/useStepper'
-import { ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import { isValidPassword } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG, SPACING_SM } from '@common/styles/spacings'
@@ -60,6 +60,14 @@ const KeyStoreSetupScreen = () => {
   })
 
   useEffect(() => {
+    if (!params?.flow) {
+      navigate(WEB_ROUTES.getStarted)
+    }
+  }, [params?.flow, navigate])
+
+  useEffect(() => {
+    console.log('state.latestMethodCall', state.latestMethodCall)
+    console.log('state.status', state.status)
     if (state.latestMethodCall === 'addSecret' && state.status === 'DONE') {
       dispatch({
         type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET',
@@ -71,10 +79,24 @@ const KeyStoreSetupScreen = () => {
 
       setTimeout(() => {
         setNextStepperState()
-        navigate(ROUTES.accountPersonalize)
+        if (params?.flow === 'email') {
+          navigate(WEB_ROUTES.createEmailVault, {
+            state: { backTo: WEB_ROUTES.getStarted }
+          })
+          return
+        }
+        if (params?.flow === 'hw') {
+          navigate(WEB_ROUTES.hardwareWalletSelect, { state: { backTo: WEB_ROUTES.getStarted } })
+          return
+        }
+        if (params?.flow === 'legacy') {
+          navigate(WEB_ROUTES.externalSigner, {
+            state: { backTo: WEB_ROUTES.getStarted }
+          })
+        }
       }, 3000)
     }
-  }, [state, navigate, setNextStepperState, dispatch, watch])
+  }, [state, navigate, setNextStepperState, dispatch, watch, params?.flow])
 
   const handleKeystoreSetup = () => {
     handleSubmit(({ password }) => {
@@ -84,6 +106,10 @@ const KeyStoreSetupScreen = () => {
       })
     })()
   }
+
+  const isKeystoreSetupLoading =
+    (state.status !== 'INITIAL' && state.latestMethodCall === 'addSecret') ||
+    (state.status === 'LOADING' && state.latestMethodCall === 'unlockWithSecret')
 
   return (
     <>
@@ -174,8 +200,17 @@ const KeyStoreSetupScreen = () => {
 
               <Button
                 textStyle={{ fontSize: 14 }}
-                disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
-                text={isSubmitting ? t('Setting up...') : t('Setup Ambire Key Store')}
+                disabled={
+                  isSubmitting ||
+                  isKeystoreSetupLoading ||
+                  !watch('password', '') ||
+                  !watch('confirmPassword', '')
+                }
+                text={
+                  isSubmitting || isKeystoreSetupLoading
+                    ? t('Setting Up Your Key Store...')
+                    : t('Setup Ambire Key Store')
+                }
                 onPress={handleKeystoreSetup}
               />
             </>

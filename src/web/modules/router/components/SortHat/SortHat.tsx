@@ -21,6 +21,7 @@ const SortHat = () => {
   const { onboardingStatus } = useOnboarding()
   const keystoreState = useKeystoreControllerState()
 
+  console.log('authStatus', authStatus)
   const loadView = useCallback(async () => {
     if (isNotification && !approval) {
       window.close()

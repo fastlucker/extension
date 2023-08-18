@@ -83,7 +83,7 @@ const Header: React.FC<Props> = ({ mode = 'controls', backgroundColor, withBackB
   const [value, setValue] = useState(options[0])
 
   const [title, setTitle] = useState('')
-  const handleGoBack = useCallback(() => navigate(-1), [navigate])
+  const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
 
   const renderHeaderControls = (
     <View

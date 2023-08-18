@@ -24,7 +24,10 @@ const TabHeader: React.FC<any> = ({
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
 
-  const handleGoBack = useCallback(() => (onBack ? onBack() : navigate(-1)), [navigate, onBack])
+  const handleGoBack = useCallback(
+    () => (onBack ? onBack() : navigate(params?.backTo || -1)),
+    [navigate, onBack, params]
+  )
 
   // Primarily, we depend on the existence of the prevRoute to display the Back button.
   // However, there are instances when we lack a previous route (e.g., transitioning from a Popup context to a Tab).

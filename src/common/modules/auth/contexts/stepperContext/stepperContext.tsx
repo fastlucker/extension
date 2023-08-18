@@ -5,24 +5,19 @@ import useStorageController from '@common/hooks/useStorageController'
 
 const StepperContext = createContext<any>({
   updateStepperState: () => Promise.resolve(),
-  stepperState: { currentStep: 0, currentFlow: 'emailAuth' },
+  stepperState: { currentStep: 0, currentFlow: 'email' },
   getCurrentFlowSteps: () => {}
 })
 
 const flows = {
-  emailAuth: [
+  email: [
+    'Setup Key\nStore',
     'Create Email\nVault',
     'Email\nConfirmation',
-    'Setup Key\nStore',
     'Personalize\nAccounts'
   ],
-  hwAuth: [
-    'Pick Hardware Device',
-    'Pick Accounts To Import',
-    'Setup Key\nStore',
-    'Personalize\nAccounts'
-  ],
-  legacyAuth: ['Import Legacy Account', 'Setup Key\nStore', 'Personalize\nAccounts']
+  hw: ['Pick Hardware Device', 'Pick Accounts To Import', 'Personalize\nAccounts'],
+  legacy: ['Setup Key\nStore', 'Import Legacy Account', 'Personalize\nAccounts']
 }
 
 const StepperProvider = ({ children }: { children: React.ReactNode }) => {
@@ -46,7 +41,7 @@ const StepperProvider = ({ children }: { children: React.ReactNode }) => {
       ? JSON.parse(storedState)
       : {
           currentStep: 0,
-          currentFlow: 'emailAuth'
+          currentFlow: 'email'
         }
   })
 

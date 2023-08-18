@@ -63,12 +63,12 @@ const routesConfig: {
   [ROUTES.keyStoreSetup]: {
     route: ROUTES.keyStoreSetup,
     title: i18n.t('Ambire Key Store'),
-    flow: 'emailAuth',
+    flow: 'email',
     flowStep: 2
   },
   [ROUTES.createEmailVault]: {
     route: ROUTES.createEmailVault,
-    flow: 'emailAuth',
+    flow: 'email',
     flowStep: 0
   },
   [ROUTES.auth]: {
@@ -84,7 +84,7 @@ const routesConfig: {
       default: i18n.t('Login'),
       web: ''
     }),
-    flow: 'emailAuth',
+    flow: 'email',
     flowStep: 1
   },
   [ROUTES.ambireAccountLoginPasswordConfirm]: {
@@ -117,7 +117,7 @@ const routesConfig: {
   [ROUTES.hardwareWalletSelect]: {
     route: ROUTES.hardwareWalletSelect,
     title: '',
-    flow: 'hwAuth',
+    flow: 'hw',
     flowStep: 0
   },
   [ROUTES.hardwareWalletLedger]: {
@@ -139,7 +139,7 @@ const routesConfig: {
   [ROUTES.externalSigner]: {
     route: ROUTES.externalSigner,
     title: '',
-    flow: 'legacyAuth',
+    flow: 'legacy',
     flowStep: 0
   },
   [ROUTES.dashboard]: {
