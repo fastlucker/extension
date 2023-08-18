@@ -107,7 +107,7 @@ type LatticeControllerUnlockAction = {
 }
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
-  params: { secretId: string; secret: string }
+  params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
 }
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'

@@ -16,7 +16,7 @@ import useBiometrics from '@common/hooks/useBiometrics'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useStepper from '@common/modules/auth/hooks/useStepper'
-import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { isValidPassword } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG, SPACING_SM } from '@common/styles/spacings'
@@ -66,15 +66,7 @@ const KeyStoreSetupScreen = () => {
   }, [params?.flow, navigate])
 
   useEffect(() => {
-    console.log('state.latestMethodCall', state.latestMethodCall)
-    console.log('state.status', state.status)
     if (state.latestMethodCall === 'addSecret' && state.status === 'DONE') {
-      dispatch({
-        type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET',
-        params: { secretId: 'password', secret: watch('password', '') }
-      })
-    }
-    if (state.isUnlocked) {
       setIsSubmitSuccessful(true)
 
       setTimeout(() => {
@@ -94,7 +86,7 @@ const KeyStoreSetupScreen = () => {
             state: { backTo: WEB_ROUTES.getStarted }
           })
         }
-      }, 3000)
+      }, 2800)
     }
   }, [state, navigate, setNextStepperState, dispatch, watch, params?.flow])
 
@@ -102,14 +94,13 @@ const KeyStoreSetupScreen = () => {
     handleSubmit(({ password }) => {
       dispatch({
         type: 'KEYSTORE_CONTROLLER_ADD_SECRET',
-        params: { secretId: 'password', secret: password }
+        params: { secretId: 'password', secret: password, extraEntropy: '', leaveUnlocked: true }
       })
     })()
   }
 
   const isKeystoreSetupLoading =
-    (state.status !== 'INITIAL' && state.latestMethodCall === 'addSecret') ||
-    (state.status === 'LOADING' && state.latestMethodCall === 'unlockWithSecret')
+    state.status !== 'INITIAL' && state.latestMethodCall === 'addSecret'
 
   return (
     <>

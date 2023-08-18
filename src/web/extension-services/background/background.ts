@@ -177,7 +177,12 @@ import { controllersMapping } from './types'
               return latticeCtrl.unlock()
 
             case 'KEYSTORE_CONTROLLER_ADD_SECRET':
-              return mainCtrl.keystore.addSecret(data.params.secretId, data.params.secret)
+              return mainCtrl.keystore.addSecret(
+                data.params.secretId,
+                data.params.secret,
+                data.params.extraEntropy,
+                data.params.leaveUnlocked
+              )
             case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
               return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
             case 'KEYSTORE_CONTROLLER_LOCK':
