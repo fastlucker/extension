@@ -49,6 +49,12 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
     derivationPath?: string | undefined
   }
 }
+type MainControllerSelectAccountAction = {
+  type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
+  params: {
+    accountAddr: Account['addr']
+  }
+}
 type MainControllerAccountAdderSelectAccountAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT'
   params: {
@@ -61,12 +67,23 @@ type MainControllerAccountAdderDeselectAccountAction = {
     account: Account
   }
 }
+
 type MainControllerAccountAdderSetPageAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE'
   params: {
     page: number
   }
 }
+type MainControllerAccountAdderAddAccounts = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
+  params: {
+    accounts: Account[]
+  }
+}
+type MainControllerAccountAdderReset = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
+}
+
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
   params?: {
@@ -157,9 +174,12 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
+  | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
+  | MainControllerAccountAdderReset
   | MainControllerAccountAdderSetPageAction
+  | MainControllerAccountAdderAddAccounts
   | LedgerControllerUnlockAction
   | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction

@@ -80,9 +80,10 @@ module.exports = async function (env, argv) {
 
   // style.css output file for WEB_ENGINE: GECKO
   function processStyleGecko(content) {
-    let style = content.toString()
+    const style = content.toString()
     // Firefox extensions max window height is 600px
-    style = style.replace('min-height: 730px;', 'min-height: 600px;')
+    // so IF min-height is changed above 600, this needs to be put back
+    // style = style.replace('min-height: 730px;', 'min-height: 600px;')
 
     return style
   }

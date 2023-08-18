@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useContext, useEffect, useState } from 'react'
+import React, { lazy, Suspense, useContext, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Route, Routes } from 'react-router-dom'
 

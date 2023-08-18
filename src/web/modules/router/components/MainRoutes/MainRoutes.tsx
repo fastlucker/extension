@@ -3,12 +3,18 @@ import { Outlet, Route, Routes } from 'react-router-dom'
 
 import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import AuthScreen from '@common/modules/auth/screens/AuthScreen'
-import { headerBeta as defaultHeaderBeta } from '@common/modules/header/config/headerConfig'
+import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
+import {
+  headerControls as defaultHeaderControls,
+  headerTitle as defaultHeaderTitle
+} from '@common/modules/header/config/headerConfig'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import colors from '@common/styles/colors'
 import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
+import AccountsScreen from '@web/modules/accounts/screens/AccountsScreen'
 import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
 import AddAccountPasswordToVaultScreen from '@web/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
@@ -27,10 +33,18 @@ import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
+import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 
-const headerBeta = (
+const headerControls = (
   <>
-    {defaultHeaderBeta({})}
+    {defaultHeaderControls({ backgroundColor: colors.zircon })}
+    <Outlet />
+  </>
+)
+
+const headerTitle = (
+  <>
+    {defaultHeaderTitle({})}
     <Outlet />
   </>
 )
@@ -77,6 +91,7 @@ const MainRoutes = () => {
               element={<HardwareWalletSelectorScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
+            <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
           </Route>
 
           <Route
@@ -90,12 +105,17 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
           <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
+
+          <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
         </Route>
         <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
         <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
+        <Route element={headerControls}>
+          <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
+        </Route>
       </Route>
       <Route element={<PrivateRoute />}>
-        <Route element={headerBeta}>
+        <Route element={headerTitle}>
           <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
         </Route>
       </Route>

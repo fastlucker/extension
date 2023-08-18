@@ -11,7 +11,7 @@ export const get = async (key?: string, defaultValue?: any) => {
   try {
     return key ? (typeof res[key] === 'string' ? parse(res[key]) : res[key]) : res
   } catch (error) {
-    return defaultValue
+    return typeof res[key] === 'string' ? res[key] : defaultValue
   }
 }
 

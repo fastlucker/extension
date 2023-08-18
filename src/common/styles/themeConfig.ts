@@ -27,7 +27,7 @@ const ThemeColors = {
   },
   secondaryText: {
     [THEME_TYPES.LIGHT]: colors.white,
-    [THEME_TYPES.DARK]: colors.black
+    [THEME_TYPES.DARK]: colors.martinique
   },
   panelBackground: {
     [THEME_TYPES.LIGHT]: colors.white,
@@ -86,7 +86,9 @@ export const lightOnlyRoutesOnWeb = [
   WEB_ROUTES.hardwareWalletLedger,
   WEB_ROUTES.accountAdder,
   WEB_ROUTES.accountPersonalize,
-  WEB_ROUTES.signMessage
+  WEB_ROUTES.dashboard,
+  WEB_ROUTES.signMessage,
+  WEB_ROUTES.transfer
 ]
 
 export default ThemeColors

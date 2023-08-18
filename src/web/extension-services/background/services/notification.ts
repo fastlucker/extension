@@ -1,10 +1,10 @@
+import { networks } from 'ambire-common/src/consts/networks'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
 import { v4 as uuidv4 } from 'uuid'
 
 import { isDev } from '@common/config/env'
-import networks from '@common/constants/networks'
 import colors from '@common/styles/colors'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
 import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'
@@ -245,8 +245,7 @@ class NotificationService extends Events {
           chainId = Number(chainId)
         }
 
-        const network = networks.find((n) => n.chainId === chainId)
-
+        const network = networks.find((n) => Number(n.chainId) === chainId)
         if (network?.id === networkId) {
           this.resolveApproval(null)
           return

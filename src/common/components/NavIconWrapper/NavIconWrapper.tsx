@@ -1,18 +1,63 @@
 import React, { ReactNode } from 'react'
-import { TouchableOpacity, TouchableOpacityProps } from 'react-native'
+import { ColorValue, Pressable, View, ViewStyle } from 'react-native'
 
-interface Props extends TouchableOpacityProps {
+import colors from '@common/styles/colors'
+import commonStyles from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
+
+interface Props {
   children: ReactNode
   onPress: () => any
+  hoverBackground?: ColorValue
+  hoverColor?: ColorValue
+  style?: ViewStyle
+  width?: number
+  height?: number
 }
 
-const HIT_SLOP = { bottom: 10, left: 10, right: 10, top: 10 }
+const NavIconWrapper = ({
+  children,
+  onPress,
+  style,
+  hoverBackground,
+  hoverColor,
+  width = 40,
+  height = 40,
+  ...rest
+}: Props) => {
+  const childrenArray = React.Children.toArray(children)
 
-const NavIconWrapper = ({ children, onPress, ...rest }: Props) => {
   return (
-    <TouchableOpacity onPress={onPress} hitSlop={HIT_SLOP} {...rest}>
-      {children}
-    </TouchableOpacity>
+    <Pressable onPress={onPress} {...rest}>
+      {({ hovered }: any) => (
+        <View
+          style={{
+            width,
+            height,
+            borderWidth: 1,
+            borderColor: colors.melrose_15,
+            ...commonStyles.borderRadiusPrimary,
+            ...flexbox.alignCenter,
+            ...flexbox.justifyCenter,
+            ...style,
+            backgroundColor: hovered && hoverBackground ? hoverBackground : colors.melrose_15,
+            overflow: 'hidden'
+          }}
+        >
+          {/* TODO: This way may not be the best to fix this. Will need to think about this */}
+          {childrenArray.map((child) => {
+            if (React.isValidElement(child)) {
+              // Clone the SVG element and store its ref for updating styles directly.
+              return React.cloneElement(child, {
+                ...child.props,
+                color: hovered && hoverColor ? hoverColor : child.props.color
+              })
+            }
+            return child
+          })}
+        </View>
+      )}
+    </Pressable>
   )
 }
 

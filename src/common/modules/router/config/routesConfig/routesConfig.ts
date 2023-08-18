@@ -166,6 +166,12 @@ const routesConfig: {
       default: i18n.t('Send')
     })
   },
+  [ROUTES.transfer]: {
+    route: ROUTES.transfer,
+    title: Platform.select({
+      default: i18n.t('Send Crypto')
+    })
+  },
   [ROUTES.transactions]: {
     route: ROUTES.transactions,
     title: Platform.select({

@@ -16,13 +16,13 @@ const SortHat = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
   const { approval } = useApproval()
-  const isInNotification = getUiType().isNotification
+  const { isNotification } = getUiType()
   const { onboardingStatus } = useOnboarding()
 
   const loadView = useCallback(async () => {
     // if (vaultStatus === VAULT_STATUS.LOADING) return
 
-    if (isInNotification && !approval) {
+    if (isNotification && !approval) {
       window.close()
       return
     }
@@ -40,12 +40,12 @@ const SortHat = () => {
       return navigate(ROUTES.getStarted)
     }
 
-    if (approval && isInNotification) {
+    if (approval && isNotification) {
       if (approval?.data?.approvalComponent === 'PermissionRequest') {
         return navigate(ROUTES.permissionRequest)
       }
       if (approval?.data?.approvalComponent === 'SendTransaction') {
-        return navigate(ROUTES.pendingTransactions)
+        return console.log(approval)
       }
       if (approval?.data?.approvalComponent === 'SignText') {
         return navigate(ROUTES.signMessage)
@@ -67,7 +67,7 @@ const SortHat = () => {
         onboardingStatus === ONBOARDING_VALUES.ON_BOARDED ? ROUTES.dashboard : ROUTES.onboarding
       )
     }
-  }, [isInNotification, approval, navigate, onboardingStatus])
+  }, [isNotification, approval, authStatus, navigate, onboardingStatus])
 
   useEffect(() => {
     loadView()

@@ -8,34 +8,40 @@ import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import Stepper from '@web/modules/router/components/Stepper'
 
 import styles from './styles'
 
-const TabHeader: React.FC<any> = ({ hideStepper = false, pageTitle = '' }) => {
+const TabHeader: React.FC<any> = ({
+  hideStepper = false,
+  pageTitle = '',
+  forceCanGoBack,
+  onBack
+}) => {
   const { t } = useTranslation()
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
 
-  const handleGoBack = useCallback(() => navigate(-1), [navigate])
+  const handleGoBack = useCallback(() => (onBack ? onBack() : navigate(-1)), [navigate, onBack])
 
-  const canGoBack = !!params?.prevRoute
+  // Primarily, we depend on the existence of the prevRoute to display the Back button.
+  // However, there are instances when we lack a previous route (e.g., transitioning from a Popup context to a Tab).
+  // To accommodate such cases and ensure button visibility, we introduce the `forceCanGoBack` flag.
+  const canGoBack = forceCanGoBack || !!params?.prevRoute
 
-  const renderHeaderLeft = () => {
+  const renderBackButton = () => {
     if (canGoBack) {
       return (
-        <NavIconWrapper
-          onPress={handleGoBack}
-          style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}
-        >
-          <LeftArrowIcon width={36} height={36} color={colors.violet} />
-          <Text fontSize={14} weight="regular" color={colors.martinique} style={spacings.ml}>
+        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+          <NavIconWrapper onPress={handleGoBack} style={styles.navIconContainerRegular}>
+            <LeftArrowIcon width={36} height={36} />
+          </NavIconWrapper>
+          <Text style={spacings.plTy} fontSize={16} weight="medium">
             {t('Back')}
           </Text>
-        </NavIconWrapper>
+        </View>
       )
     }
 
@@ -49,7 +55,7 @@ const TabHeader: React.FC<any> = ({ hideStepper = false, pageTitle = '' }) => {
 
   return (
     <View style={[styles.container, spacings.pv, spacings.ph]}>
-      <View>{renderHeaderLeft()}</View>
+      <View style={styles.sideContainer}>{renderBackButton()}</View>
       {!!shouldDisplayStepper && <Stepper step={flowStep} />}
       {!shouldDisplayStepper && (!!title || !!pageTitle) && (
         <Text
@@ -61,6 +67,7 @@ const TabHeader: React.FC<any> = ({ hideStepper = false, pageTitle = '' }) => {
           {pageTitle || title || ' '}
         </Text>
       )}
+      <View style={styles.sideContainer} />
     </View>
   )
 }

@@ -9,6 +9,7 @@ export interface ConnectedSite {
   origin: string
   icon: string
   name: string
+  chainId: number
   e?: number
   isSigned: boolean
   isTop: boolean
@@ -63,13 +64,20 @@ class PermissionService {
     this.sync()
   }
 
-  addConnectedSite = (origin: string, name: string, icon: string, isSigned = false) => {
+  addConnectedSite = (
+    origin: string,
+    name: string,
+    icon: string,
+    defaultChain: number,
+    isSigned = false
+  ) => {
     if (!this.lruCache) return
 
     this.lruCache.set(origin, {
       origin,
       name,
       icon,
+      chainId: defaultChain,
       isSigned,
       isTop: false,
       isConnected: true
@@ -178,6 +186,11 @@ class PermissionService {
       isConnected: false
     })
     this.sync()
+  }
+
+  getSitesByDefaultChain = (chainId: number) => {
+    if (!this.lruCache) return []
+    return this.lruCache.values().filter((item) => item.chainId === chainId)
   }
 
   isInternalOrigin = (origin: string) => {

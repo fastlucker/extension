@@ -20,7 +20,6 @@ const LeftArrowIcon: React.FC<Props> = ({
 }) => (
   <Svg width={width} height={height} viewBox="0 0 36 36" {...props}>
     <G transform="translate(36 36) rotate(180)">
-      <Rect width={width} height={height} rx="12" fill="rgba(182,185,255,0.1)" />
       <Path
         d="M6.348,0,0,6.373l6.348,6.385"
         transform="translate(22.175 24.379) rotate(180)"
