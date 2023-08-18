@@ -30,6 +30,7 @@ export interface Props extends TouchableOpacityProps {
   accentColor?: ColorValue
   hasBottomSpacing?: boolean
   containerStyle?: PressableProps['style']
+  disabledStyle?: ViewStyle
 }
 
 const containerStyles: { [key in ButtonTypes]: ViewStyle } = {
@@ -117,6 +118,7 @@ const Button = ({
   disabled = false,
   hasBottomSpacing = true,
   children,
+  disabledStyle = {},
   ...rest
 }: Props) => {
   const animated = new Animated.Value(1)
@@ -160,7 +162,8 @@ const Button = ({
               !!accentColor && { borderColor: accentColor },
               !hasBottomSpacing && spacings.mb0,
               { opacity: animated },
-              disabled && styles.disabled
+              disabled && disabledStyle ? disabledStyle : {},
+              disabled && !disabledStyle ? styles.disabled : {}
             ]}
           >
             {!!text && (
