@@ -48,11 +48,14 @@ const LegacyImportManager = (props: Props) => {
     setPage()
   }, [accountAdderState.isInitialized, setPage])
 
-  const completeStep = useCallback(() => {
-    updateStepperState(1, 'legacy')
+  const completeStep = useCallback(
+    (hasAccountsToImport: boolean = true) => {
+      updateStepperState(1, 'legacy')
 
-    navigate(WEB_ROUTES.accountPersonalize)
-  }, [navigate, updateStepperState])
+      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
+    },
+    [navigate, updateStepperState]
+  )
 
   useEffect(() => {
     if (accountAdderState.addAccountsStatus.type === 'ERROR') {
@@ -100,7 +103,7 @@ const LegacyImportManager = (props: Props) => {
     }
 
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
-    completeStep()
+    completeStep(false)
   }, [accountAdderState.selectedAccounts, dispatch, completeStep])
 
   return (
