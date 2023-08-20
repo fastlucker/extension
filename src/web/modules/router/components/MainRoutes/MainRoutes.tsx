@@ -92,21 +92,20 @@ const MainRoutes = () => {
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
             <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
+            <Route
+              path={WEB_ROUTES.hardwareWalletSelect}
+              element={<HardwareWalletSelectorScreen />}
+            />
+            <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
+
+            <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
+
+            <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
+            <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
+            <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
+
+            <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
           </Route>
-
-          <Route
-            path={WEB_ROUTES.hardwareWalletSelect}
-            element={<HardwareWalletSelectorScreen />}
-          />
-          <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
-
-          <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
-
-          <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
-          <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
-          <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
-
-          <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
         </Route>
 
         <Route element={headerTitle}>

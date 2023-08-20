@@ -128,6 +128,7 @@ const ExternalSignerLoginScreen = () => {
                     onBlur={onBlur}
                     style={styles.textarea}
                     placeholderTextColor={colors.martinique_65}
+                    onSubmitEditing={handleFormSubmit}
                   />
                 )
               }}
@@ -174,6 +175,7 @@ const ExternalSignerLoginScreen = () => {
                   onBlur={onBlur}
                   style={[styles.textarea, spacings.mbLg]}
                   placeholderTextColor={colors.martinique_65}
+                  onSubmitEditing={handleFormSubmit}
                 />
               )
             }}

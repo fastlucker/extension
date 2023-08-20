@@ -144,6 +144,7 @@ const KeyStoreSetupScreen = () => {
                       (t('Please fill in at least 8 characters for passphrase.') as string)
                     }
                     containerStyle={spacings.mbTy}
+                    onSubmitEditing={handleKeystoreSetup}
                   />
                 )}
                 name="password"
@@ -164,6 +165,7 @@ const KeyStoreSetupScreen = () => {
                     error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
                     autoCorrect={false}
                     containerStyle={spacings.mbSm}
+                    onSubmitEditing={handleKeystoreSetup}
                   />
                 )}
                 name="confirmPassword"

@@ -84,7 +84,7 @@ const KeyStoreUnlockScreen = () => {
                 onChangeText={onChange}
                 isValid={isValidPassword(value)}
                 value={value}
-                onSubmitEditing={handleSubmit((data) => unlockVault(data, setError))}
+                onSubmitEditing={handleSubmit((data) => handleUnlock(data))}
                 error={
                   errors.password &&
                   (errors.password.message ||

@@ -1,5 +1,6 @@
 /* eslint-disable react/destructuring-assignment */
 
+import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
@@ -7,13 +8,15 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
-
-import { getDefaultSelectedAccount } from '../../helpers/account'
+import { getDefaultSelectedAccount } from '@web/modules/account-adder/helpers/account'
+import getPrivateKeyFromSeed from '@web/modules/account-adder/services/getPrivateKeyFromSeed'
 
 interface Props {
   privKeyOrSeed: string
+  label: string
 }
 
 const LegacyImportManager = (props: Props) => {
@@ -22,7 +25,7 @@ const LegacyImportManager = (props: Props) => {
   const { dispatch } = useBackgroundService()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
-
+  const keystoreState = useKeystoreControllerState()
   const setPage = useCallback(
     (page = 1) => {
       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE', params: { page } })
@@ -80,18 +83,53 @@ const LegacyImportManager = (props: Props) => {
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
         params: { accountAddr: defaultSelectedAccount.addr }
       })
-      completeStep()
+
+      try {
+        const keysToAddToKeystore = accountAdderState.selectedAccounts.map((acc) => {
+          let privateKey = props.privKeyOrSeed
+
+          // in case props.privKeyOrSeed is a seed the private keys have to be extracted
+          if (Mnemonic.isValidMnemonic(props.privKeyOrSeed)) {
+            // The slot is the key index from the derivation path
+            const slotIdx = accountAdderState.accountsOnPage.find(
+              (accOnPage) => accOnPage.account.addr === acc.addr
+            )?.slot
+
+            privateKey = getPrivateKeyFromSeed(props.privKeyOrSeed, (slotIdx || 0) - 1)
+          }
+
+          return {
+            privateKey,
+            label: props.label
+          }
+        })
+
+        dispatch({
+          type: 'KEYSTORE_CONTROLLER_ADD_KEYS',
+          params: { keys: keysToAddToKeystore }
+        })
+      } catch (error) {
+        // TODO: display error toast
+        // if the add keys fails we should probably remove the stored accounts
+        // or dont add them at all before successfully adding the keys to the keystore
+      }
     }
   }, [
-    accountAdderState.isInitialized,
-    accountAdderState.addAccountsStatus.type,
-    accountAdderState.addAccountsStatus.message,
+    props.privKeyOrSeed,
+    props.label,
+    accountAdderState,
     updateStepperState,
     navigate,
     dispatch,
     accountAdderState.readyToAddAccounts,
     completeStep
   ])
+
+  useEffect(() => {
+    if (keystoreState.status === 'DONE' && keystoreState.latestMethodCall === 'addKeys') {
+      completeStep()
+    }
+  }, [completeStep, keystoreState])
 
   const onImportReady = useCallback(() => {
     if (accountAdderState.selectedAccounts.length) {

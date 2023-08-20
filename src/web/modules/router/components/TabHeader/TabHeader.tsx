@@ -61,12 +61,7 @@ const TabHeader: React.FC<any> = ({
       <View style={styles.sideContainer}>{renderBackButton()}</View>
       {!!shouldDisplayStepper && <Stepper step={flowStep} />}
       {!shouldDisplayStepper && (!!title || !!pageTitle) && (
-        <Text
-          fontSize={20}
-          weight="medium"
-          style={[styles.title, spacings.pl, canGoBack ? { paddingRight: 140 } : spacings.pr]}
-          numberOfLines={2}
-        >
+        <Text fontSize={20} weight="medium" style={[styles.title, spacings.pl]} numberOfLines={2}>
           {pageTitle || title || ' '}
         </Text>
       )}

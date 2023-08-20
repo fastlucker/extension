@@ -187,6 +187,8 @@ import { controllersMapping } from './types'
               return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
             case 'KEYSTORE_CONTROLLER_LOCK':
               return mainCtrl.keystore.lock()
+            case 'KEYSTORE_CONTROLLER_ADD_KEYS':
+              return mainCtrl.keystore.addKeys(data.params.keys)
 
             case 'WALLET_CONTROLLER_IS_UNLOCKED':
               return null // TODO: implement in v2
