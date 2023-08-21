@@ -21,6 +21,7 @@ import { isValidPassword } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG, SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
@@ -28,6 +29,8 @@ import {
 import styles from '@web/components/AuthLayoutWrapper/styles'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+
+import KeyStoreLogo from '../../components/KeyStoreLogo'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
@@ -109,20 +112,20 @@ const KeyStoreSetupScreen = () => {
           style={[styles.mainContentWrapper, isSubmitSuccessful && flexboxStyles.justifyCenter]}
         >
           {!isSubmitSuccessful && (
-            <Text weight="medium" fontSize={16} style={{ ...spacings.mbLg, textAlign: 'center' }}>
+            <Text weight="medium" fontSize={16} style={text.center}>
               {t('Ambire Key Store')}
             </Text>
           )}
-          <KeyStoreIcon
-            style={{ ...flexboxStyles.alignSelfCenter, marginBottom: SPACING_LG * 2 }}
+          <KeyStoreLogo
+            style={[
+              spacings.ptLg,
+              spacings.pbLg,
+              !isSubmitSuccessful ? spacings.mbLg : spacings.mb0,
+              spacings.mt0
+            ]}
           />
           {isSubmitSuccessful && (
-            <Text
-              color={colors.martinique}
-              style={{ textAlign: 'center' }}
-              weight="medium"
-              fontSize={16}
-            >
+            <Text color={colors.martinique} style={text.center} weight="medium" fontSize={20}>
               {t('Your Ambire Key Store\nis ready!')}
             </Text>
           )}
@@ -164,32 +167,19 @@ const KeyStoreSetupScreen = () => {
                     secureTextEntry
                     error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
                     autoCorrect={false}
-                    containerStyle={spacings.mbSm}
+                    containerStyle={spacings.mb}
                     onSubmitEditing={handleKeystoreSetup}
                   />
                 )}
                 name="confirmPassword"
               />
-              {!!params.emailFlow && (
+              {params?.flow === 'email' && (
                 <Checkbox
                   value={enableEmailRecovery}
                   onValueChange={() => onEnableEmailRecoveryChange((prev) => !prev)}
                   label={t('Key store recovery by email')}
                 />
               )}
-              {!isWeb &&
-                hasBiometricsHardware &&
-                deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC && (
-                  <View style={[spacings.mbLg, flexboxStyles.alignEnd]}>
-                    <Controller
-                      control={control}
-                      render={({ field: { onChange, value } }) => (
-                        <Toggle isOn={value} label={t('Biometrics unlock?')} onToggle={onChange} />
-                      )}
-                      name="optInForBiometricsUnlock"
-                    />
-                  </View>
-                )}
 
               <Button
                 textStyle={{ fontSize: 14 }}

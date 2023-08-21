@@ -1,16 +1,23 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import LockSvg from './LockSvg'
 
-const KeyStoreLogo = ({ hasSpacings = true }: { hasSpacings?: boolean }) => (
-  <View style={[hasSpacings && spacings.ptTy, hasSpacings && spacings.pbLg]}>
-    <View style={[flexbox.alignCenter, flexbox.justifyCenter, hasSpacings && spacings.pvLg]}>
-      <LockSvg />
-    </View>
+const KeyStoreLogo = ({ style }: { style?: ViewStyle | ViewStyle[] }) => (
+  <View
+    style={[
+      flexbox.alignCenter,
+      flexbox.justifyCenter,
+      spacings.pvLg,
+      spacings.mtTy,
+      spacings.mbLg,
+      style
+    ]}
+  >
+    <LockSvg />
   </View>
 )
 
