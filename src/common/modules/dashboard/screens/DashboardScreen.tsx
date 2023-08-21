@@ -1,10 +1,11 @@
-import React, { useContext } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
+import useRelayerData from '@common/hooks/useRelayerData'
 import {
   AssetsToggleContext,
   AssetsToggleProvider
@@ -12,12 +13,28 @@ import {
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import Assets from '../components/Assets'
 import Routes from '../components/Routes'
 import styles from './styles'
 
 const DashboardScreen = () => {
+  const mainCtrl = useMainControllerState()
+  const [gasTankAndRewardsState, setGasTankAndRewardsState] = useState({})
+
+  const fetchGasTankAndRewardsData = useCallback(async () => {
+    // TODO: sync with to display the tokens in another PR
+    const res = await useRelayerData(`/v2/identity/${mainCtrl.selectedAccount}/info`)
+    if (res.data) {
+      setGasTankAndRewardsState(res.data)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchGasTankAndRewardsData()
+  }, [fetchGasTankAndRewardsData])
+
   const { type } = useContext(AssetsToggleContext)
   // TODO: Remove this as is hardcoded, for displaying purposes.
   const tokens = [
