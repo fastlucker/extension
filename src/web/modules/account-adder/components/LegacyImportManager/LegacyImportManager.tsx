@@ -32,7 +32,6 @@ const LegacyImportManager = (props: Props) => {
     },
     [dispatch]
   )
-
   useEffect(() => {
     if (!mainControllerState.isReady) return
     if (accountAdderState.isInitialized) return
@@ -59,6 +58,12 @@ const LegacyImportManager = (props: Props) => {
     },
     [navigate, updateStepperState]
   )
+
+  useEffect(() => {
+    return () => {
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
+    }
+  }, [dispatch])
 
   useEffect(() => {
     if (accountAdderState.addAccountsStatus.type === 'ERROR') {
@@ -140,7 +145,6 @@ const LegacyImportManager = (props: Props) => {
       return
     }
 
-    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
     completeStep(false)
   }, [accountAdderState.selectedAccounts, dispatch, completeStep])
 

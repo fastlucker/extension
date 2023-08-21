@@ -45,7 +45,7 @@ const ExternalSignerLoginScreen = () => {
 
   const handleFormSubmit = useCallback(() => {
     handleSubmit(({ privKeyOrSeed, label }) => {
-      let formattedPrivKeyOrSeed = privKeyOrSeed
+      let formattedPrivKeyOrSeed = privKeyOrSeed.trim()
 
       if (isValidPrivateKey(privKeyOrSeed)) {
         formattedPrivKeyOrSeed =
