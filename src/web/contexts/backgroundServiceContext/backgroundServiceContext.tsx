@@ -69,7 +69,7 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
-    const onUpdate = (newState: { errors: ErrorRef[]; controller: string }) => {
+    const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
       const lastError = newState.errors[newState.errors.length - 1]
 
       if (lastError) {
@@ -82,9 +82,9 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
       }
     }
 
-    eventBus.addEventListener('error', onUpdate)
+    eventBus.addEventListener('error', onError)
 
-    return () => eventBus.removeEventListener('error', onUpdate)
+    return () => eventBus.removeEventListener('error', onError)
   }, [])
 
   return (
