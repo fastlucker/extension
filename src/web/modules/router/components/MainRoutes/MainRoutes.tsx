@@ -6,7 +6,8 @@ import AuthScreen from '@common/modules/auth/screens/AuthScreen'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
 import {
   headerControls as defaultHeaderControls,
-  headerTitle as defaultHeaderTitle
+  headerTitle as defaultHeaderTitle,
+  headerTitleWithAmbireLogo as defaultHeaderTitleWithAmbireLogo
 } from '@common/modules/header/config/headerConfig'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -50,6 +51,13 @@ const headerTitle = (
   </>
 )
 
+const headerTitleWithAmbireLogo = (
+  <>
+    {defaultHeaderTitleWithAmbireLogo({})}
+    <Outlet />
+  </>
+)
+
 const stepperProvider = (
   <StepperProvider>
     <Outlet />
@@ -71,8 +79,6 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
 
             <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
-            {/* TODO: Temporarily wire-up */}
-            {/* <Route path={WEB_ROUTES.ambireAccountLogin} element={<EmailLoginScreen />} /> */}
             <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
             <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
             <Route
@@ -108,8 +114,11 @@ const MainRoutes = () => {
           </Route>
         </Route>
 
-        <Route element={headerTitle}>
+        <Route element={headerTitleWithAmbireLogo}>
           <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
+        </Route>
+
+        <Route element={headerTitle}>
           <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
           <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
         </Route>

@@ -1,18 +1,17 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import { isWeb } from '@common/config/env'
-import { DEVICE_WIDTH } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-import LockSvg from './LogoSvg'
+import LockSvg from './LockSvg'
 
-const size = isWeb ? 250 : DEVICE_WIDTH * 0.7
-
-const KeyStoreLogo = () => (
-  <View style={flexbox.alignCenter}>
-    <LockSvg width={size} height={size} />
+const KeyStoreLogo = ({ hasSpacings = true }: { hasSpacings?: boolean }) => (
+  <View style={[hasSpacings && spacings.ptTy, hasSpacings && spacings.pbLg]}>
+    <View style={[flexbox.alignCenter, flexbox.justifyCenter, hasSpacings && spacings.pvLg]}>
+      <LockSvg />
+    </View>
   </View>
 )
 
-export default KeyStoreLogo
+export default React.memo(KeyStoreLogo)

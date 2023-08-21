@@ -13,6 +13,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import { isValidPassword } from '@common/services/validations/validate'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
@@ -63,56 +64,60 @@ const KeyStoreUnlockScreen = () => {
       }}
     >
       <Wrapper
-        contentContainerStyle={[spacings.pbLg]}
+        contentContainerStyle={[spacings.pbLg, flexboxStyles.alignCenter]}
         type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
         extraHeight={220}
       >
-        <KeyStoreLogo />
+        <View style={{ maxWidth: 300 }}>
+          <KeyStoreLogo />
 
-        <View style={[isWeb && spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
-          <Text weight="regular" style={[spacings.mbTy, spacings.phTy]} fontSize={13}>
-            {t('Enter your Ambire Key Store passphrase to unlock your wallet')}
-          </Text>
+          <View style={[isWeb && spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
+            <Text weight="regular" style={[spacings.mbTy, spacings.phTy]} fontSize={12}>
+              {t('Enter your Ambire Key Store passphrase to unlock your wallet')}
+            </Text>
 
-          <Controller
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <InputPassword
-                onBlur={onBlur}
-                placeholder={t('Passphrase')}
-                autoFocus={isWeb}
-                onChangeText={onChange}
-                isValid={isValidPassword(value)}
-                value={value}
-                onSubmitEditing={handleSubmit((data) => handleUnlock(data))}
-                error={
-                  errors.password &&
-                  (errors.password.message ||
-                    t('Please fill in at least 8 characters for passphrase.'))
-                }
-                containerStyle={spacings.mbTy}
-              />
-            )}
-            name="password"
-          />
-
-          <View style={spacings.ptSm}>
-            <Button
-              disabled={
-                isSubmitting || keystoreState.status === 'LOADING' || !watch('password', '')
-              }
-              text={
-                isSubmitting || keystoreState.status === 'LOADING' ? t('Unlocking...') : t('Unlock')
-              }
-              onPress={handleSubmit((data) => handleUnlock(data))}
+            <Controller
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <InputPassword
+                  onBlur={onBlur}
+                  placeholder={t('Passphrase')}
+                  autoFocus={isWeb}
+                  onChangeText={onChange}
+                  isValid={isValidPassword(value)}
+                  value={value}
+                  onSubmitEditing={handleSubmit((data) => handleUnlock(data))}
+                  error={
+                    errors.password &&
+                    (errors.password.message ||
+                      t('Please fill in at least 8 characters for passphrase.'))
+                  }
+                  containerStyle={spacings.mbTy}
+                />
+              )}
+              name="password"
             />
-          </View>
-          <View style={[flexboxStyles.justifyCenter, flexboxStyles.directionRow, spacings.pvTy]}>
-            <TouchableOpacity onPress={() => null} hitSlop={FOOTER_BUTTON_HIT_SLOP}>
-              <Text weight="medium" fontSize={12}>
-                {t('Forgot Key Store passphrase?')}
-              </Text>
-            </TouchableOpacity>
+
+            <View style={spacings.ptMd}>
+              <Button
+                disabled={
+                  isSubmitting || keystoreState.status === 'LOADING' || !watch('password', '')
+                }
+                text={
+                  isSubmitting || keystoreState.status === 'LOADING'
+                    ? t('Unlocking...')
+                    : t('Unlock')
+                }
+                onPress={handleSubmit((data) => handleUnlock(data))}
+              />
+            </View>
+            <View style={[flexboxStyles.justifyCenter, flexboxStyles.directionRow]}>
+              <TouchableOpacity onPress={() => null} hitSlop={FOOTER_BUTTON_HIT_SLOP}>
+                <Text weight="medium" fontSize={12} underline>
+                  {t('Forgot Key Store passphrase?')}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Wrapper>
