@@ -55,7 +55,7 @@ const LegacyImportManager = (props: Props) => {
   }, [navigate, updateStepperState])
 
   useEffect(() => {
-    if (accountAdderState.addAccountsStatus.type === 'SUCCESS') {
+    if (accountAdderState.addAccountsStatus === 'SUCCESS') {
       const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
       if (!defaultSelectedAccount) {
         // TODO: display error toast instead
@@ -74,8 +74,7 @@ const LegacyImportManager = (props: Props) => {
     }
   }, [
     accountAdderState.isInitialized,
-    accountAdderState.addAccountsStatus.type,
-    accountAdderState.addAccountsStatus.message,
+    accountAdderState.addAccountsStatus,
     updateStepperState,
     navigate,
     dispatch,
@@ -98,7 +97,7 @@ const LegacyImportManager = (props: Props) => {
 
   return (
     <AccountsOnPageList
-      isSubmitting={accountAdderState.addAccountsStatus.type === 'PENDING'}
+      isSubmitting={accountAdderState.addAccountsStatus === 'LOADING'}
       state={accountAdderState}
       onImportReady={onImportReady}
       setPage={setPage}
