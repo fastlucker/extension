@@ -25,25 +25,25 @@ const HardwareWalletSelectorScreen = () => {
 
   const onTrezorPress = useCallback(async () => {
     try {
-      await updateStepperState(1, 'hwAuth')
+      await updateStepperState(1, 'hw')
       await dispatchAsync({ type: 'TREZOR_CONTROLLER_UNLOCK' })
       navigate(WEB_ROUTES.accountAdder, {
         state: { walletType: HARDWARE_WALLETS.TREZOR }
       })
     } catch (error: any) {
       addToast(error.message, { error: true })
-      await updateStepperState(0, 'hwAuth')
+      await updateStepperState(0, 'hw')
     }
   }, [addToast, dispatchAsync, navigate, updateStepperState])
 
   const onLedgerPress = useCallback(async () => {
-    await updateStepperState(1, 'hwAuth')
+    await updateStepperState(1, 'hw')
     navigate(WEB_ROUTES.hardwareWalletLedger)
   }, [navigate, updateStepperState])
 
   const onGridPlusPress = useCallback(async () => {
     try {
-      await updateStepperState(1, 'hwAuth')
+      await updateStepperState(1, 'hw')
 
       await dispatchAsync({ type: 'LATTICE_CONTROLLER_UNLOCK' })
       navigate(WEB_ROUTES.accountAdder, {
@@ -51,7 +51,7 @@ const HardwareWalletSelectorScreen = () => {
       })
     } catch (error: any) {
       addToast(error.message, { error: true })
-      await updateStepperState(0, 'hwAuth')
+      await updateStepperState(0, 'hw')
     }
   }, [addToast, dispatchAsync, navigate, updateStepperState])
 

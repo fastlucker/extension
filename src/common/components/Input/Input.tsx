@@ -106,16 +106,6 @@ const Input = ({
           {label}
         </Text>
       )}
-      {!!error && (
-        <Text
-          style={styles.errorText}
-          weight={isWeb ? 'regular' : undefined}
-          fontSize={10}
-          appearance="danger"
-        >
-          {error}
-        </Text>
-      )}
       <View style={[commonStyles.borderRadiusPrimary, commonStyles.hidden]}>
         <View style={inputWrapperStyles}>
           {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
@@ -151,6 +141,16 @@ const Input = ({
           )}
         </View>
       </View>
+      {!!error && (
+        <Text
+          style={styles.errorText}
+          weight={isWeb ? 'regular' : undefined}
+          fontSize={10}
+          appearance="danger"
+        >
+          {error}
+        </Text>
+      )}
 
       {!!isValid && !!validLabel && !error && (
         <Text style={[styles.validText]} fontSize={12} color={colors.turquoise}>

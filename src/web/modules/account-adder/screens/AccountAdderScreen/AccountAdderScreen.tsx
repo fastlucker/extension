@@ -41,7 +41,7 @@ const AccountAdderScreen = () => {
 
   const { t } = useTranslation()
 
-  const { walletType, privKeyOrSeed }: any = params
+  const { walletType, privKeyOrSeed, label }: any = params
   const isLattice = walletType === HARDWARE_WALLETS.LATTICE
   const isLedger = walletType === HARDWARE_WALLETS.LEDGER
   const isTrezor = walletType === HARDWARE_WALLETS.TREZOR
@@ -62,7 +62,7 @@ const AccountAdderScreen = () => {
   }
   if (isLegacyImport) {
     title = 'Import Legacy Account'
-    walletManagerProps = { privKeyOrSeed }
+    walletManagerProps = { privKeyOrSeed, label }
   }
 
   return (

@@ -20,8 +20,8 @@ const LatticeManager = (props: Props) => {
   const state = useAccountAdderControllerState()
 
   const onImportReady = () => {
-    updateStepperState(2, 'hwAuth')
-    navigate(WEB_ROUTES.createKeyStore)
+    updateStepperState(2, 'hw')
+    navigate(WEB_ROUTES.accountPersonalize)
   }
 
   const setPage: any = React.useCallback(

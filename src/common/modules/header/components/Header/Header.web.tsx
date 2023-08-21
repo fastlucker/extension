@@ -8,6 +8,7 @@ import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
+import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import Button from '@common/components/Button'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Select from '@common/components/Select'
@@ -17,7 +18,7 @@ import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigati
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import colors from '@common/styles/colors'
-import spacings, { SPACING_SM } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
 import { getUiType } from '@web/utils/uiType'
@@ -27,10 +28,10 @@ import styles from './styles'
 interface Props {
   mode?: 'title' | 'controls'
   withBackButton?: boolean
-  backgroundColor?: ColorValue
+  withAmbireLogo?: boolean
 }
 
-const Header: React.FC<Props> = ({ mode = 'controls', backgroundColor, withBackButton = true }) => {
+const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, withAmbireLogo }) => {
   const options = [
     {
       label: 'Account name',
@@ -83,7 +84,7 @@ const Header: React.FC<Props> = ({ mode = 'controls', backgroundColor, withBackB
   const [value, setValue] = useState(options[0])
 
   const [title, setTitle] = useState('')
-  const handleGoBack = useCallback(() => navigate(-1), [navigate])
+  const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
 
   const renderHeaderControls = (
     <View
@@ -177,8 +178,9 @@ const Header: React.FC<Props> = ({ mode = 'controls', backgroundColor, withBackB
         <>
           <View style={styles.sideContainer}>
             {!!withBackButton && !!canGoBack && renderBackButton()}
+            {!!withAmbireLogo && <AmbireLogoHorizontal />}
           </View>
-          <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={2}>
+          <Text fontSize={18} weight="medium" style={styles.title} numberOfLines={2}>
             {title || ''}
           </Text>
           <View style={styles.sideContainer} />
