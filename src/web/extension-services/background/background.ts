@@ -65,6 +65,17 @@ import { controllersMapping } from './types'
         params: (mainCtrl as any)[ctrl]
       })
     })
+    ;(mainCtrl as any)[ctrl]?.onError(() => {
+      const errors = (mainCtrl as any)[ctrl].getErrors()
+      const lastError = errors[errors.length - 1]
+      if (lastError) console.error(lastError.error)
+
+      pmRef.request({
+        type: 'broadcast-error',
+        method: ctrl,
+        params: { errors, controller: ctrl }
+      })
+    })
   })
   // Broadcast onUpdate for the main controllers
   mainCtrl.onUpdate(() => {
@@ -72,6 +83,17 @@ import { controllersMapping } from './types'
       type: 'broadcast',
       method: 'main',
       params: mainCtrl
+    })
+  })
+  mainCtrl.onError(() => {
+    const errors = mainCtrl.getErrors()
+    const lastError = errors[errors.length - 1]
+    if (lastError) console.error(lastError.error)
+
+    pmRef?.request({
+      type: 'broadcast-error',
+      method: 'main',
+      params: { errors, controller: 'main' }
     })
   })
 

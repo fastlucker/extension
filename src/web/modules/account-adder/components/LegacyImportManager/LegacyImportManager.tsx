@@ -66,14 +66,7 @@ const LegacyImportManager = (props: Props) => {
   }, [dispatch])
 
   useEffect(() => {
-    if (accountAdderState.addAccountsStatus.type === 'ERROR') {
-      // TODO: display error toast instead
-      // eslint-disable-next-line no-alert
-      alert(accountAdderState.addAccountsStatus.message)
-      return
-    }
-
-    if (accountAdderState.addAccountsStatus.type === 'SUCCESS') {
+    if (accountAdderState.addAccountsStatus === 'SUCCESS') {
       const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
       if (!defaultSelectedAccount) {
         // TODO: display error toast instead
@@ -150,7 +143,7 @@ const LegacyImportManager = (props: Props) => {
 
   return (
     <AccountsOnPageList
-      isSubmitting={accountAdderState.addAccountsStatus.type === 'PENDING'}
+      isSubmitting={accountAdderState.addAccountsStatus === 'LOADING'}
       state={accountAdderState}
       onImportReady={onImportReady}
       setPage={setPage}
