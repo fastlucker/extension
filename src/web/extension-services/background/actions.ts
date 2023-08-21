@@ -120,6 +120,9 @@ type KeystoreControllerAddKeysAction = {
 type KeystoreControllerLockAction = {
   type: 'KEYSTORE_CONTROLLER_LOCK'
 }
+type KeystoreControllerResetErrorStateAction = {
+  type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
+}
 type WalletControllerIsUnlockedAction = {
   type: 'WALLET_CONTROLLER_IS_UNLOCKED'
 }
@@ -195,6 +198,7 @@ export type Action =
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction
   | KeystoreControllerAddKeysAction
+  | KeystoreControllerResetErrorStateAction
   | WalletControllerIsUnlockedAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction

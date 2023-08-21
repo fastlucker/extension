@@ -189,6 +189,8 @@ import { controllersMapping } from './types'
               return mainCtrl.keystore.lock()
             case 'KEYSTORE_CONTROLLER_ADD_KEYS':
               return mainCtrl.keystore.addKeys(data.params.keys)
+            case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
+              return mainCtrl.keystore.resetErrorState()
 
             case 'WALLET_CONTROLLER_IS_UNLOCKED':
               return null // TODO: implement in v2

@@ -11,6 +11,7 @@ import { useTranslation } from '@common/config/localization'
 import useDisableNavigatingBack from '@common/hooks/useDisableNavigatingBack'
 import useNavigation from '@common/hooks/useNavigation'
 import { isValidPassword } from '@common/services/validations/validate'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
@@ -40,6 +41,20 @@ const KeyStoreUnlockScreen = () => {
   })
 
   useDisableNavigatingBack()
+
+  useEffect(() => {
+    if (keystoreState.errorMessage) {
+      setError('password', {
+        message: keystoreState.errorMessage
+      })
+    }
+  }, [keystoreState.errorMessage, setError])
+
+  useEffect(() => {
+    if (keystoreState.errorMessage && !watch('password', '').length) {
+      dispatch({ type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE' })
+    }
+  }, [keystoreState.errorMessage, watch, dispatch])
 
   useEffect(() => {
     if (keystoreState.isUnlocked) {
