@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Spinner from '@common/components/Spinner'
 import Wrapper from '@common/components/Wrapper'
 import useGnosis from '@common/hooks/useGnosis'
@@ -95,36 +94,34 @@ const SwapScreen = () => {
   }, [loading])
 
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav style={spacings.ph0} scrollEnabled={false}>
-        {/* Note: might not work properly on Android emulator with this URL. */}
-        <WebView
-          key={hash}
-          ref={sushiSwapIframeRef}
-          source={{ html: loading ? '' : webviewHtml }}
-          javaScriptEnabled
-          injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
-          injectedJavaScript={INJECTED_JAVASCRIPT}
-          containerStyle={styles.container}
-          style={styles.webview}
-          bounces={false}
-          setBuiltInZoomControls={false}
-          startInLoadingState
-          scrollEnabled
-          nestedScrollEnabled
-          cacheEnabled={false}
-          renderLoading={() => (
-            <View style={styles.loadingWrapper}>
-              <Spinner />
-            </View>
-          )}
-          onMessage={(event) => {
-            const msg = JSON.parse(event.nativeEvent.data)
-            handleIncomingMessage(msg)
-          }}
-        />
-      </Wrapper>
-    </GradientBackgroundWrapper>
+    <Wrapper hasBottomTabNav style={spacings.ph0} scrollEnabled={false}>
+      {/* Note: might not work properly on Android emulator with this URL. */}
+      <WebView
+        key={hash}
+        ref={sushiSwapIframeRef}
+        source={{ html: loading ? '' : webviewHtml }}
+        javaScriptEnabled
+        injectedJavaScriptBeforeContentLoaded={INJECTED_JAVASCRIPT_BEFORE_CONTENT_LOADED}
+        injectedJavaScript={INJECTED_JAVASCRIPT}
+        containerStyle={styles.container}
+        style={styles.webview}
+        bounces={false}
+        setBuiltInZoomControls={false}
+        startInLoadingState
+        scrollEnabled
+        nestedScrollEnabled
+        cacheEnabled={false}
+        renderLoading={() => (
+          <View style={styles.loadingWrapper}>
+            <Spinner />
+          </View>
+        )}
+        onMessage={(event) => {
+          const msg = JSON.parse(event.nativeEvent.data)
+          handleIncomingMessage(msg)
+        }}
+      />
+    </Wrapper>
   )
 }
 

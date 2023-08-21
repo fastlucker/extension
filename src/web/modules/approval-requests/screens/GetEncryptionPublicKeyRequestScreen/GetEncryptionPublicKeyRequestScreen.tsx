@@ -3,7 +3,6 @@ import { View } from 'react-native'
 
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Button from '@common/components/Button'
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
@@ -28,47 +27,45 @@ const GetEncryptionPublicKeyRequestScreen = () => {
   )
 
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
-        <Panel type="filled">
-          <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <ManifestImage
-              uri={approval?.data?.params?.session?.icon}
-              size={64}
-              fallback={() => <ManifestFallbackIcon />}
-            />
-          </View>
+    <Wrapper hasBottomTabNav={false}>
+      <Panel>
+        <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
+          <ManifestImage
+            uri={approval?.data?.params?.session?.icon}
+            size={64}
+            fallback={() => <ManifestFallbackIcon />}
+          />
+        </View>
 
-          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {approval?.data?.origin ? new URL(approval?.data?.origin)?.hostname : ''}
-          </Title>
+        <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+          {approval?.data?.origin ? new URL(approval?.data?.origin)?.hostname : ''}
+        </Title>
 
-          <View>
-            <Trans>
-              <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-                <Text fontSize={14} weight="regular">
-                  {'The dApp '}
-                </Text>
-                <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                  {approval?.data?.params?.session?.name || ''}
-                </Text>
-                <Text fontSize={14} weight="regular">
-                  {
-                    ' wants to get your public encryption key. This method is deprecated and Ambire does not support it.'
-                  }
-                </Text>
+        <View>
+          <Trans>
+            <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+              <Text fontSize={14} weight="regular">
+                {'The dApp '}
               </Text>
-            </Trans>
-          </View>
+              <Text fontSize={14} weight="regular" color={colors.heliotrope}>
+                {approval?.data?.params?.session?.name || ''}
+              </Text>
+              <Text fontSize={14} weight="regular">
+                {
+                  ' wants to get your public encryption key. This method is deprecated and Ambire does not support it.'
+                }
+              </Text>
+            </Text>
+          </Trans>
+        </View>
 
-          <View style={styles.buttonsContainer}>
-            <View style={styles.buttonWrapper}>
-              <Button type="outline" onPress={handleDeny} text={t('Okay')} />
-            </View>
+        <View style={styles.buttonsContainer}>
+          <View style={styles.buttonWrapper}>
+            <Button type="outline" onPress={handleDeny} text={t('Okay')} />
           </View>
-        </Panel>
-      </Wrapper>
-    </GradientBackgroundWrapper>
+        </View>
+      </Panel>
+    </Wrapper>
   )
 }
 

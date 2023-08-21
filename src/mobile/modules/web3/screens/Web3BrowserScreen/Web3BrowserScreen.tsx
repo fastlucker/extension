@@ -3,7 +3,6 @@ import { StyleSheet, TouchableHighlight, View } from 'react-native'
 import ErrorBoundary from 'react-native-error-boundary'
 import { WebView, WebViewNavigation } from 'react-native-webview'
 
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Input from '@common/components/Input'
 import Spinner from '@common/components/Spinner'
 import Wrapper from '@common/components/Wrapper'
@@ -56,92 +55,88 @@ const Web3BrowserScreen = () => {
 
   if (!selectedDappUrl) {
     return (
-      <GradientBackgroundWrapper>
-        <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
-          <Spinner />
-        </View>
-      </GradientBackgroundWrapper>
+      <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+        <Spinner />
+      </View>
     )
   }
 
   return (
     <ErrorBoundary>
-      <GradientBackgroundWrapper>
-        <Wrapper style={spacings.ph0} hasBottomTabNav>
-          <View
-            style={[
-              flexbox.directionRow,
-              flexbox.alignCenter,
-              spacings.pbTy,
-              spacings.prSm,
-              spacings.plSm
-            ]}
+      <Wrapper style={spacings.ph0} hasBottomTabNav>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            spacings.pbTy,
+            spacings.prSm,
+            spacings.plSm
+          ]}
+        >
+          <TouchableHighlight
+            hitSlop={HIT_SLOP}
+            onPress={webViewRef.current?.goBack}
+            style={[styles.webviewButtonCommon, styles.left]}
+            disabled={!canGoBack}
+            underlayColor={colors.heliotrope}
           >
-            <TouchableHighlight
-              hitSlop={HIT_SLOP}
-              onPress={webViewRef.current?.goBack}
-              style={[styles.webviewButtonCommon, styles.left]}
-              disabled={!canGoBack}
-              underlayColor={colors.heliotrope}
-            >
-              <AntDesign
-                color={canGoBack ? colors.white : colors.titan_50}
-                name="left"
-                size={24}
-                spot
-              />
-            </TouchableHighlight>
-            <TouchableHighlight
-              hitSlop={HIT_SLOP}
-              onPress={webViewRef.current?.goForward}
-              style={[styles.webviewButtonCommon, styles.right]}
-              disabled={!canGoForward}
-              underlayColor={colors.heliotrope}
-            >
-              <AntDesign
-                color={canGoForward ? colors.white : colors.titan_50}
-                name="right"
-                size={24}
-              />
-            </TouchableHighlight>
-            <Input
-              containerStyle={[flexbox.flex1, spacings.mb0]}
-              disabled
-              inputStyle={styles.addressInputStyle}
-              inputWrapperStyle={styles.addressInputWrapperStyle}
-              value={openedUrl}
+            <AntDesign
+              color={canGoBack ? colors.white : colors.titan_50}
+              name="left"
+              size={24}
+              spot
             />
-            <TouchableHighlight
-              hitSlop={HIT_SLOP}
-              onPress={webViewRef.current?.reload}
-              style={[styles.webviewButtonCommon, styles.reload]}
-              underlayColor={colors.heliotrope}
-            >
-              <AntDesign name="reload1" size={22} color={colors.white} />
-            </TouchableHighlight>
-          </View>
-          <WebView
-            ref={webViewRef}
-            source={providerToInject ? { uri: openedUrl || selectedDappUrl } : { html: '' }}
-            onMessage={onMessage}
-            injectedJavaScriptBeforeContentLoaded={providerToInject}
-            onNavigationStateChange={onNavigationStateChange}
-            // Prevents opening the Browser App when clicking on links in the webview,
-            // example: https://uniswap.org/ clicking the Launch App button
-            setSupportMultipleWindows={false}
-            javaScriptEnabled
-            startInLoadingState
-            bounces={false}
-            renderLoading={() => (
-              <View style={styles.loadingWrapper}>
-                <Spinner />
-              </View>
-            )}
-            containerStyle={styles.container}
-            style={styles.webview}
+          </TouchableHighlight>
+          <TouchableHighlight
+            hitSlop={HIT_SLOP}
+            onPress={webViewRef.current?.goForward}
+            style={[styles.webviewButtonCommon, styles.right]}
+            disabled={!canGoForward}
+            underlayColor={colors.heliotrope}
+          >
+            <AntDesign
+              color={canGoForward ? colors.white : colors.titan_50}
+              name="right"
+              size={24}
+            />
+          </TouchableHighlight>
+          <Input
+            containerStyle={[flexbox.flex1, spacings.mb0]}
+            disabled
+            inputStyle={styles.addressInputStyle}
+            inputWrapperStyle={styles.addressInputWrapperStyle}
+            value={openedUrl}
           />
-        </Wrapper>
-      </GradientBackgroundWrapper>
+          <TouchableHighlight
+            hitSlop={HIT_SLOP}
+            onPress={webViewRef.current?.reload}
+            style={[styles.webviewButtonCommon, styles.reload]}
+            underlayColor={colors.heliotrope}
+          >
+            <AntDesign name="reload1" size={22} color={colors.white} />
+          </TouchableHighlight>
+        </View>
+        <WebView
+          ref={webViewRef}
+          source={providerToInject ? { uri: openedUrl || selectedDappUrl } : { html: '' }}
+          onMessage={onMessage}
+          injectedJavaScriptBeforeContentLoaded={providerToInject}
+          onNavigationStateChange={onNavigationStateChange}
+          // Prevents opening the Browser App when clicking on links in the webview,
+          // example: https://uniswap.org/ clicking the Launch App button
+          setSupportMultipleWindows={false}
+          javaScriptEnabled
+          startInLoadingState
+          bounces={false}
+          renderLoading={() => (
+            <View style={styles.loadingWrapper}>
+              <Spinner />
+            </View>
+          )}
+          containerStyle={styles.container}
+          style={styles.webview}
+        />
+      </Wrapper>
     </ErrorBoundary>
   )
 }

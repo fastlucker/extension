@@ -36,8 +36,8 @@ const PermissionRequestScreen = () => {
   }, [resolveApproval])
 
   return (
-    <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
-      <Panel type="filled">
+    <Wrapper hasBottomTabNav={false}>
+      <Panel>
         <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
           <ManifestImage
             uri={approval?.data?.params?.icon}

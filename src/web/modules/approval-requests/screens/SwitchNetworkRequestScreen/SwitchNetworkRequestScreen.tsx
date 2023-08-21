@@ -4,7 +4,6 @@ import { View } from 'react-native'
 import CrossChainArrowIcon from '@common/assets/svg/CrossChainArrowIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Button from '@common/components/Button'
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
@@ -56,129 +55,126 @@ const SwitchNetworkRequestScreen = () => {
   }, [nextNetwork, resolveApproval, setNetwork])
 
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
-        <Panel type="filled">
-          <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <ManifestImage
-              uri={approval?.data?.params?.session?.icon}
-              size={64}
-              fallback={() => <ManifestFallbackIcon />}
-            />
-          </View>
+    <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
+      <Panel>
+        <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
+          <ManifestImage
+            uri={approval?.data?.params?.session?.icon}
+            size={64}
+            fallback={() => <ManifestFallbackIcon />}
+          />
+        </View>
 
-          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {approval?.data?.params?.session?.origin
-              ? new URL(approval?.data?.params?.session?.origin).hostname
-              : ''}
-          </Title>
+        <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+          {approval?.data?.params?.session?.origin
+            ? new URL(approval?.data?.params?.session?.origin).hostname
+            : ''}
+        </Title>
 
-          {!!nextNetwork && (
-            <>
-              <View>
-                <Trans>
-                  <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-                    <Text fontSize={14} weight="regular">
-                      {'Allow '}
-                    </Text>
-                    <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                      {approval?.data?.params?.session?.name || 'webpage'}
-                    </Text>
-                    <Text fontSize={14} weight="regular">
-                      {' to switch the network?'}
-                    </Text>
-                  </Text>
-                </Trans>
-                {!!currentNetwork && !!nextNetwork && (
-                  <View
-                    style={[spacings.mbLg, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
-                  >
-                    <View
-                      style={[
-                        flexboxStyles.alignCenter,
-                        flexboxStyles.justifyCenter,
-                        spacings.phLg,
-                        flexboxStyles.flex1
-                      ]}
-                    >
-                      <View style={styles.networkIconWrapper}>
-                        <NetworkIcon name={currentNetwork?.id} width={64} height={64} />
-                      </View>
-                      <Text>{currentNetwork?.name}</Text>
-                    </View>
-                    <View style={spacings.pbMd}>
-                      <CrossChainArrowIcon />
-                    </View>
-                    <View
-                      style={[
-                        flexboxStyles.alignCenter,
-                        flexboxStyles.justifyCenter,
-                        spacings.phLg,
-                        flexboxStyles.flex1
-                      ]}
-                    >
-                      <View style={styles.networkIconWrapper}>
-                        <NetworkIcon name={nextNetwork?.id} width={64} height={64} />
-                      </View>
-                      <Text>{nextNetwork?.name}</Text>
-                    </View>
-                  </View>
-                )}
-              </View>
-
-              <View style={styles.buttonsContainer}>
-                <View style={styles.buttonWrapper}>
-                  <Button
-                    disabled={isSwitching}
-                    type="danger"
-                    onPress={handleDenyButtonPress}
-                    text={t('Deny')}
-                  />
-                </View>
-                <View style={styles.buttonWrapper}>
-                  <Button
-                    disabled={isSwitching}
-                    type="outline"
-                    onPress={handleSwitchNetworkButtonPress}
-                    text={isSwitching ? t('Switching...') : t('Switch Network')}
-                  />
-                </View>
-              </View>
-            </>
-          )}
-          {!nextNetwork && (
+        {!!nextNetwork && (
+          <>
             <View>
-              <Trans
-                values={{
-                  unsupportedNetworkName:
-                    approval?.data?.params?.data?.[0]?.chainName || t('an unsupported network')
-                }}
-              >
+              <Trans>
                 <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+                  <Text fontSize={14} weight="regular">
+                    {'Allow '}
+                  </Text>
                   <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                    {approval?.data?.params?.session?.name || 'Webpage'}
+                    {approval?.data?.params?.session?.name || 'webpage'}
                   </Text>
                   <Text fontSize={14} weight="regular">
-                    {' wants to switch the network to {{unsupportedNetworkName}}.'}
+                    {' to switch the network?'}
                   </Text>
                 </Text>
               </Trans>
-
-              <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-                {t(
-                  'Ambire Wallet does not support {{unsupportedNetworkName}} network, so this switch is not possible.',
-                  {
-                    unsupportedNetworkName:
-                      approval?.data?.params?.data?.[0]?.chainName || t('this')
-                  }
-                )}
-              </Text>
-              <Button type="danger" onPress={handleDenyButtonPress} text={t('Decline')} />
+              {!!currentNetwork && !!nextNetwork && (
+                <View
+                  style={[spacings.mbLg, flexboxStyles.directionRow, flexboxStyles.alignCenter]}
+                >
+                  <View
+                    style={[
+                      flexboxStyles.alignCenter,
+                      flexboxStyles.justifyCenter,
+                      spacings.phLg,
+                      flexboxStyles.flex1
+                    ]}
+                  >
+                    <View style={styles.networkIconWrapper}>
+                      <NetworkIcon name={currentNetwork?.id} width={64} height={64} />
+                    </View>
+                    <Text>{currentNetwork?.name}</Text>
+                  </View>
+                  <View style={spacings.pbMd}>
+                    <CrossChainArrowIcon />
+                  </View>
+                  <View
+                    style={[
+                      flexboxStyles.alignCenter,
+                      flexboxStyles.justifyCenter,
+                      spacings.phLg,
+                      flexboxStyles.flex1
+                    ]}
+                  >
+                    <View style={styles.networkIconWrapper}>
+                      <NetworkIcon name={nextNetwork?.id} width={64} height={64} />
+                    </View>
+                    <Text>{nextNetwork?.name}</Text>
+                  </View>
+                </View>
+              )}
             </View>
-          )}
-        </Panel>
-      </Wrapper>
-    </GradientBackgroundWrapper>
+
+            <View style={styles.buttonsContainer}>
+              <View style={styles.buttonWrapper}>
+                <Button
+                  disabled={isSwitching}
+                  type="danger"
+                  onPress={handleDenyButtonPress}
+                  text={t('Deny')}
+                />
+              </View>
+              <View style={styles.buttonWrapper}>
+                <Button
+                  disabled={isSwitching}
+                  type="outline"
+                  onPress={handleSwitchNetworkButtonPress}
+                  text={isSwitching ? t('Switching...') : t('Switch Network')}
+                />
+              </View>
+            </View>
+          </>
+        )}
+        {!nextNetwork && (
+          <View>
+            <Trans
+              values={{
+                unsupportedNetworkName:
+                  approval?.data?.params?.data?.[0]?.chainName || t('an unsupported network')
+              }}
+            >
+              <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+                <Text fontSize={14} weight="regular" color={colors.heliotrope}>
+                  {approval?.data?.params?.session?.name || 'Webpage'}
+                </Text>
+                <Text fontSize={14} weight="regular">
+                  {' wants to switch the network to {{unsupportedNetworkName}}.'}
+                </Text>
+              </Text>
+            </Trans>
+
+            <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+              {t(
+                'Ambire Wallet does not support {{unsupportedNetworkName}} network, so this switch is not possible.',
+                {
+                  unsupportedNetworkName: approval?.data?.params?.data?.[0]?.chainName || t('this')
+                }
+              )}
+            </Text>
+            <Button type="danger" onPress={handleDenyButtonPress} text={t('Decline')} />
+          </View>
+        )}
+      </Panel>
+    </Wrapper>
   )
 }
 
