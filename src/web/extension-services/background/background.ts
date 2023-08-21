@@ -177,11 +177,14 @@ import { controllersMapping } from './types'
               return latticeCtrl.unlock()
 
             case 'PORTFOLIO_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
+              // TODO: Maybe return an error here?
+              if (!mainCtrl.selectedAccount) return
               return mainCtrl.portfolio.updateSelectedAccount(
                 mainCtrl.accounts,
                 networks,
                 mainCtrl.selectedAccount,
-                ...data.params
+                data.params && data.params.accountOps,
+                data.params && data.params.opts
               )
             }
 
