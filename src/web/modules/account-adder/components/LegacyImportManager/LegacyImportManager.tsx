@@ -6,6 +6,7 @@ import React, { useCallback, useEffect } from 'react'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import alert from '@common/services/alert'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -106,10 +107,11 @@ const LegacyImportManager = (props: Props) => {
           type: 'KEYSTORE_CONTROLLER_ADD_KEYS',
           params: { keys: keysToAddToKeystore }
         })
-      } catch (error) {
+      } catch (error: any) {
         // TODO: display error toast
         // if the add keys fails we should probably remove the stored accounts
         // or dont add them at all before successfully adding the keys to the keystore
+        alert(error?.message || 'keystore add keys failed')
       }
     }
   }, [

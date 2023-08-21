@@ -113,6 +113,7 @@ const ExternalSignerLoginScreen = () => {
               color={colors.radicalRed}
               fontSize={14}
             >
+              {/* empty space to prevent jump */}
               {errors?.privKeyOrSeed?.message || ' '}
             </Text>
             <Controller

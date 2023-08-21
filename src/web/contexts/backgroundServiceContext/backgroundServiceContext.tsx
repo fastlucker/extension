@@ -1,6 +1,7 @@
 import { ErrorRef } from 'ambire-common/src/controllers/eventEmitter'
 import React, { createContext, useEffect, useMemo } from 'react'
 
+import alert from '@common/services/alert'
 import { isExtension } from '@web/constants/browserapi'
 import {
   backgroundServiceContextDefaults,
@@ -74,7 +75,6 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
 
       if (lastError) {
         // TODO: display error toast instead
-        // eslint-disable-next-line no-alert
         alert(lastError.message)
         console.error(
           `Error in ${newState.controller} controller. Inspect background page to see the full stack trace.`

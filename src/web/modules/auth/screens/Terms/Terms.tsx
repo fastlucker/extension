@@ -49,7 +49,7 @@ const Terms = () => {
       version: TERMS_VERSION,
       acceptedAt: Date.now()
     })
-    console.log('terms keystore state', keystoreState.isReadyToStoreKeys)
+
     if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
       navigate(WEB_ROUTES.keyStoreSetup, { state: { backTo: WEB_ROUTES.getStarted, flow } })
       return
