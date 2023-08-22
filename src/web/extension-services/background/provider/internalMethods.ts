@@ -1,5 +1,3 @@
-import { networks } from 'ambire-common/src/consts/networks'
-
 import providerController from '@web/extension-services/background/provider/ProviderController'
 
 import permission from '../services/permission'
