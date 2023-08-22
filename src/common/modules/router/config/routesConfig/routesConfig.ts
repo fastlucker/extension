@@ -227,13 +227,6 @@ const routesConfig: {
       default: i18n.t('dApp Wants to Connect')
     })
   },
-  [ROUTES.switchNetwork]: {
-    route: ROUTES.switchNetwork,
-    title: Platform.select({
-      web: i18n.t('Webpage Wants to Switch Network'),
-      default: i18n.t('dApp Wants to Switch Network')
-    })
-  },
   [ROUTES.watchAsset]: {
     route: ROUTES.watchAsset,
     title: Platform.select({
