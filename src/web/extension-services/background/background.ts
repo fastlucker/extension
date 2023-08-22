@@ -6,8 +6,8 @@ import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/p
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
 import { INTERNAL_REQUEST_ORIGIN } from '@web/constants/common'
+import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
-import { NotificationController } from '@web/extension-services/background/services/notification'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
@@ -24,19 +24,17 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { Action } from './actions'
 import { controllersMapping } from './types'
 
-// eslint-disable-next-line prettier/prettier
-// eslint-disable-next-line import/newline-after-import
-;(async () => {
-  async function init() {
-    // Initialize rpc providers for all networks
-    const shouldInitProviders = !areRpcProvidersInitialized()
-    if (shouldInitProviders) {
-      initRpcProviders(rpcProviders)
-    }
-
-    await permissionService.init()
+async function init() {
+  // Initialize rpc providers for all networks
+  const shouldInitProviders = !areRpcProvidersInitialized()
+  if (shouldInitProviders) {
+    initRpcProviders(rpcProviders)
   }
 
+  await permissionService.init()
+}
+
+;(async () => {
   await init()
 
   const mainCtrl = new MainController(storage, fetch, RELAYER_URL)

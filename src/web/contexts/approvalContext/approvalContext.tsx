@@ -5,7 +5,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { delayPromise } from '@common/utils/promises'
-import { Approval } from '@web/extension-services/background/services/notification'
+import { Approval } from '@web/extension-services/background/controllers/notification'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
