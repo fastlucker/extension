@@ -1,4 +1,5 @@
 import { networks } from 'ambire-common/src/consts/networks'
+import { MainController } from 'ambire-common/src/controllers/main/main'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
@@ -36,7 +37,9 @@ const QUEUE_APPROVAL_COMPONENTS_WHITELIST = [
 
 // something need user approval in window
 // should only open one window, unfocus will close the current notification
-class NotificationService extends Events {
+export class NotificationController extends Events {
+  mainCtrl: MainController
+
   currentApproval: Approval | null = null
 
   _approvals: Approval[] = []
@@ -65,9 +68,9 @@ class NotificationService extends Events {
     }
   }
 
-  constructor() {
+  constructor(mainCtrl: MainController) {
     super()
-
+    this.mainCtrl = mainCtrl
     winMgr.event.on('windowRemoved', (winId: number) => {
       if (winId === this.notifiWindowId) {
         this.notifiWindowId = null
@@ -311,5 +314,3 @@ class NotificationService extends Events {
     })
   }
 }
-
-export default new NotificationService()

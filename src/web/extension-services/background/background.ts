@@ -7,7 +7,7 @@ import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
 import { INTERNAL_REQUEST_ORIGIN } from '@web/constants/common'
 import provider from '@web/extension-services/background/provider/provider'
-import notificationService from '@web/extension-services/background/services/notification'
+import { NotificationController } from '@web/extension-services/background/services/notification'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
@@ -44,6 +44,7 @@ import { controllersMapping } from './types'
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
+  const notificationCtrl = new NotificationController(mainCtrl)
 
   /**
    * Init all controllers `onUpdate` listeners only once (in here), instead of
@@ -247,13 +248,13 @@ import { controllersMapping } from './types'
               break
             }
             case 'WALLET_CONTROLLER_ACTIVE_FIRST_APPROVAL':
-              return notificationService.activeFirstApproval()
+              return notificationCtrl.activeFirstApproval()
             case 'WALLET_CONTROLLER_GET_APPROVAL':
-              return notificationService.getApproval()
+              return notificationCtrl.getApproval()
             case 'WALLET_CONTROLLER_RESOLVE_APPROVAL':
-              return notificationService.resolveApproval(data.params)
+              return notificationCtrl.resolveApproval(data.params)
             case 'WALLET_CONTROLLER_REJECT_APPROVAL':
-              return notificationService.rejectApproval(
+              return notificationCtrl.rejectApproval(
                 data.params.err,
                 data.params.stay,
                 data.params.isInternal
@@ -278,7 +279,8 @@ import { controllersMapping } from './types'
                   origin: INTERNAL_REQUEST_ORIGIN || '',
                   icon: '../assets/images/xicon@128.png'
                 },
-                mainCtrl
+                mainCtrl,
+                notificationCtrl
               })
 
             default:
@@ -341,7 +343,7 @@ import { controllersMapping } from './types'
         return true
       }
 
-      return provider({ ...req, mainCtrl })
+      return provider({ ...req, mainCtrl, notificationCtrl })
     })
   })
 })()

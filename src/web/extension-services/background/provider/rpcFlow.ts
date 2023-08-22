@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/return-await */
+/* eslint-disable @typescript-eslint/no-shadow */
 import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
@@ -5,7 +7,6 @@ import { ethErrors } from 'eth-rpc-errors'
 import { EVENTS } from '@web/constants/common'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import { ProviderRequest } from '@web/extension-services/background/provider/types'
-import notificationService from '@web/extension-services/background/services/notification'
 import permissionService from '@web/extension-services/background/services/permission'
 import eventBus from '@web/extension-services/event/eventBus'
 import PromiseFlow from '@web/utils/promiseFlow'
@@ -53,7 +54,8 @@ const flowContext = flow
       mapMethod,
       request: {
         session: { origin },
-        mainCtrl
+        mainCtrl,
+        notificationCtrl
       }
     } = ctx
     const providerCtrl = new ProviderController(mainCtrl)
@@ -67,7 +69,7 @@ const flowContext = flow
         ctx.request.requestedApproval = true
         lockedOrigins.add(origin)
         try {
-          await notificationService.requestApproval({ lock: true })
+          await notificationCtrl.requestApproval({ lock: true })
           lockedOrigins.delete(origin)
         } catch (e) {
           lockedOrigins.delete(origin)
@@ -83,7 +85,8 @@ const flowContext = flow
     const {
       request: {
         session: { origin, name, icon },
-        mainCtrl
+        mainCtrl,
+        notificationCtrl
       },
       mapMethod
     } = ctx
@@ -96,7 +99,7 @@ const flowContext = flow
         ctx.request.requestedApproval = true
         connectOrigins.add(origin)
         try {
-          const { defaultChain } = await notificationService.requestApproval({
+          const { defaultChain } = await notificationCtrl.requestApproval({
             params: { origin, name, icon },
             approvalComponent: 'PermissionRequest'
           })
@@ -117,7 +120,8 @@ const flowContext = flow
       request: {
         data: { method },
         session: { origin, name, icon },
-        mainCtrl
+        mainCtrl,
+        notificationCtrl
       },
       mapMethod
     } = ctx
@@ -125,7 +129,7 @@ const flowContext = flow
     const [approvalType, condition] = Reflect.getMetadata('APPROVAL', providerCtrl, mapMethod) || []
     if (approvalType && (!condition || !condition(ctx.request))) {
       ctx.request.requestedApproval = true
-      ctx.approvalRes = await notificationService.requestApproval({
+      ctx.approvalRes = await notificationCtrl.requestApproval({
         approvalComponent: approvalType,
         params: {
           $ctx: ctx?.request?.data?.$ctx,
@@ -185,9 +189,9 @@ const flowContext = flow
           })
         }
       })
-    async function requestApprovalLoop({ uiRequestComponent, ...rest }) {
+    async function requestApprovalLoop({ uiRequestComponent, ...rest }: any): any {
       ctx.request.requestedApproval = true
-      const res = await notificationService.requestApproval({
+      const res = await ctx.request.notificationCtrl.requestApproval({
         approvalComponent: uiRequestComponent,
         params: rest,
         origin,
@@ -214,7 +218,7 @@ export default (request: ProviderRequest) => {
     if (ctx.request.requestedApproval) {
       flow.requestedApproval = false
       // only unlock notification if current flow is an approval flow
-      notificationService.unLock()
+      request.notificationCtrl.unLock()
     }
   })
 }

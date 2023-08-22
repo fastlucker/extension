@@ -1,5 +1,7 @@
 import { MainController } from 'ambire-common/src/controllers/main/main'
 
+import { NotificationController } from '@web/extension-services/background/services/notification'
+
 export type ProviderRequest<TMethod = string> = {
   data: {
     method: TMethod
@@ -14,4 +16,5 @@ export type ProviderRequest<TMethod = string> = {
   origin?: string
   requestedApproval?: boolean
   mainCtrl: MainController
+  notificationCtrl: NotificationController
 }
