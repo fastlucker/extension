@@ -19,7 +19,9 @@ const tabCheckin = ({
 const getProviderState = async (req) => {
   const isUnlocked = req.mainCtrl.keystore.isUnlocked
   const defaultChainId = permission.getWithoutUpdate(origin)?.chainId
-  const chainId = defaultChainId ? intToHex(defaultChainId) : await providerController.ethChainId()
+  const chainId = defaultChainId
+    ? intToHex(defaultChainId)
+    : await providerController.ethChainId(req)
   let networkVersion = '1'
 
   try {
