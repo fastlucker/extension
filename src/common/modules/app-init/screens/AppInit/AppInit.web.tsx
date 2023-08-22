@@ -27,6 +27,7 @@ import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLo
 import { ExtensionProvider } from '@web/contexts/extensionContext'
 import { KeystoreControllerStateProvider } from '@web/contexts/keystoreControllerStateContext'
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
+import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
 
 // Initialize rpc providers for all networks
 const shouldInitProviders = !areRpcProvidersInitialized()
@@ -51,30 +52,32 @@ const AppInit = () => {
                 <PortalProvider>
                   <LoaderProvider>
                     <StorageProvider>
-                      <ThemeProvider>
-                        <SafeAreaProvider>
-                          <KeyboardProvider>
-                            <NetInfoProvider>
-                              <ToastProvider>
-                                <ConstantsProvider>
-                                  <AuthProvider>
-                                    <ApprovalProvider>
-                                      <ExtensionProvider>
-                                        <BiometricsProvider>
-                                          <PrivateModeProvider>
-                                            <AppRouter />
-                                          </PrivateModeProvider>
-                                          <PortalHost name="global" />
-                                        </BiometricsProvider>
-                                      </ExtensionProvider>
-                                    </ApprovalProvider>
-                                  </AuthProvider>
-                                </ConstantsProvider>
-                              </ToastProvider>
-                            </NetInfoProvider>
-                          </KeyboardProvider>
-                        </SafeAreaProvider>
-                      </ThemeProvider>
+                      <OnboardingProvider>
+                        <ThemeProvider>
+                          <SafeAreaProvider>
+                            <KeyboardProvider>
+                              <NetInfoProvider>
+                                <ToastProvider>
+                                  <ConstantsProvider>
+                                    <AuthProvider>
+                                      <ApprovalProvider>
+                                        <ExtensionProvider>
+                                          <BiometricsProvider>
+                                            <PrivateModeProvider>
+                                              <AppRouter />
+                                            </PrivateModeProvider>
+                                            <PortalHost name="global" />
+                                          </BiometricsProvider>
+                                        </ExtensionProvider>
+                                      </ApprovalProvider>
+                                    </AuthProvider>
+                                  </ConstantsProvider>
+                                </ToastProvider>
+                              </NetInfoProvider>
+                            </KeyboardProvider>
+                          </SafeAreaProvider>
+                        </ThemeProvider>
+                      </OnboardingProvider>
                     </StorageProvider>
                   </LoaderProvider>
                 </PortalProvider>

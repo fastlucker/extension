@@ -7,18 +7,19 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import { storage } from '@web/extension-services/background/webapi/storage'
 import PinExtension from '@web/modules/onboarding/components/PinExtension/PinExtension'
-import { ONBOARDING_VALUES } from '@web/modules/onboarding/types'
+import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
+import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
 
 import styles from './styles'
 
 const OnBoardingScreen = () => {
   const { t } = useTranslation()
 
+  const { setOnboardingStatus } = useOnboarding()
   useEffect(() => {
-    storage.set('onboardingStatus', ONBOARDING_VALUES.ON_BOARDED)
-  }, [])
+    setOnboardingStatus(ONBOARDING_VALUES.ON_BOARDED)
+  }, [setOnboardingStatus])
 
   return (
     <AuthLayoutWrapperMainContent fullWidth hideHeader>
