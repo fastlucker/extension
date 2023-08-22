@@ -9,14 +9,13 @@ const StorageContext = createContext<{
   getItem: (key: string) => any
   setItem: (key: string, value: any) => void
   removeItem: (key: string) => void
-  storageControllerInstance?: StorageController
 }>({
   getItem: () => null,
   setItem: () => {},
   removeItem: () => {}
 })
 
-const StorageProvider: React.FC = ({ children }) => {
+const StorageProvider: React.FC = ({ children }: any) => {
   const { dispatch } = useBackgroundService()
   const storageControllerInstance = useMemo(() => new StorageController(), [])
   const [isInitialized, setIsInitialized] = useState(storageControllerInstance.isInitialized)
@@ -58,10 +57,9 @@ const StorageProvider: React.FC = ({ children }) => {
         () => ({
           getItem,
           setItem,
-          removeItem,
-          storageControllerInstance
+          removeItem
         }),
-        [getItem, setItem, removeItem, storageControllerInstance]
+        [getItem, setItem, removeItem]
       )}
     >
       {isInitialized ? children : null}
