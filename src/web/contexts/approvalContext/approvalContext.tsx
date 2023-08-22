@@ -16,7 +16,7 @@ import useSignApproval from './useSignApproval'
 // response from the prev one to request the next one. For example
 // this happens with https://polygonscan.com/ and https://bscscan.com/
 // when you try to "Add Token to Web3 Wallet".
-const MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS = 850
+const DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY = 850
 
 const ApprovalContext = createContext<UseExtensionApprovalReturnType>({
   approval: null,
@@ -59,7 +59,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
         params: { data, forceReject, approvalId }
       })
 
-      await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
+      await delayPromise(DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY)
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)
@@ -91,7 +91,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
         params: { err, stay, isInternal }
       })
 
-      await delayPromise(MAGIC_DELAY_THAT_FIXES_CONCURRENT_DAPP_APPROVAL_REQUESTS)
+      await delayPromise(DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY)
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)

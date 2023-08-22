@@ -57,7 +57,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         account: selectedAccount
       }
 
-      // @ts-ignore
+      //  TODO: here dispatch action to add the request to the sign message ctrl in main
       setRequests((prevRequests) =>
         prevRequests.find((x: any) => x.id === request.id)
           ? prevRequests
@@ -97,7 +97,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         account: selectedAccount
       }
 
-      // @ts-ignore
+      //  TODO: here dispatch action to add the request to the sign message ctrl in main
       setRequests((prevRequests) =>
         prevRequests.find((x: any) => x.id === request.id)
           ? prevRequests
@@ -132,7 +132,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
           account: selectedAccount
         }
 
-        // @ts-ignore
+        //  TODO: here dispatch action to add the request to the sign account op ctrl in main
         setRequests((prevRequests) =>
           prevRequests.find((x: any) => x.id === request.id)
             ? prevRequests
