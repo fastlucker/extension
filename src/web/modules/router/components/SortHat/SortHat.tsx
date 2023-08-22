@@ -48,9 +48,6 @@ const SortHat = () => {
       if (approval?.data?.approvalComponent === 'SignTypedData') {
         return navigate(ROUTES.signMessage)
       }
-      // if (approval?.data?.approvalComponent === 'SwitchNetwork') {
-      //   return navigate(ROUTES.switchNetwork)
-      // }
       if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
         return navigate(ROUTES.watchAsset)
       }

@@ -52,7 +52,6 @@ const WEB_ROUTES = {
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
   onboarding: 'onboarding',
   permissionRequest: 'permission-request',
-  switchNetwork: 'switch-network',
   watchAsset: 'watch-asset',
   hardwareWalletSelect: 'hardware-wallet/select',
   hardwareWalletLedger: 'hardware-wallet/ledger',
