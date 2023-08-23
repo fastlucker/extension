@@ -2,12 +2,16 @@
 // eth_sendTransaction, gs_multi_send, ambire_sendBatchTransaction
 // personal_sign, eth_sign
 // eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3, eth_signTypedData_v4
-import { useCallback, useEffect } from 'react'
+import { networks } from 'ambire-common/src/consts/networks'
+import { UserRequest } from 'ambire-common/src/interfaces/userRequest'
+import { parse } from 'ambire-common/src/libs/bigintJson/bigintJson'
+import { useCallback, useEffect, useMemo } from 'react'
 
-import useStorage from '@common/hooks/useStorage'
+import permission from '@web/extension-services/background/services/permission'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 
-import { APPROVAL_REQUESTS_STORAGE_KEY, UseExtensionApprovalReturnType } from './types'
+import { UseExtensionApprovalReturnType } from './types'
 
 type Props = {
   approval: UseExtensionApprovalReturnType['approval']
@@ -16,20 +20,23 @@ type Props = {
 }
 
 const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) => {
-  // const { network } = useNetwork()
   const mainCtrlState = useMainControllerState()
-  // TODO: v2
-  const network = {}
+  const { dispatch } = useBackgroundService()
   const selectedAccount = mainCtrlState.selectedAccount || ''
-  const [requests, setRequests] = useStorage({
-    key: APPROVAL_REQUESTS_STORAGE_KEY,
-    defaultValue: [],
-    setInit: (initialRequests) => (!Array.isArray(initialRequests) ? [] : initialRequests)
-  })
+
+  const approvalReqNetworkId = useMemo(
+    () =>
+      networks.find(
+        (n) =>
+          Number(n.chainId) ===
+          Number(permission.getConnectedSite(approval?.data?.origin as string)?.chainId || 1)
+      )?.id || networks[0].id,
+    [approval?.data?.origin]
+  )
 
   // handles eth_sign and personal_sign
   const handleSignText = useCallback(
-    async (msg: any, method: string, id: string) => {
+    async (msg: any, method: string, id: bigint) => {
       if (!msg) {
         rejectApproval('No msg request to sign', msg)
         return
@@ -48,28 +55,26 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         return
       }
 
-      const request = {
+      const request: UserRequest = {
         id,
-        type: method,
-        reqSrc: APPROVAL_REQUESTS_STORAGE_KEY,
-        txn: messageToSign,
-        chainId: network?.chainId,
-        account: selectedAccount
+        added: BigInt(Date.now()),
+        action: {
+          kind: 'message',
+          message: messageToSign
+        },
+        networkId: approvalReqNetworkId,
+        accountAddr: selectedAccount,
+        forceNonce: null
       }
 
-      //  TODO: here dispatch action to add the request to the sign message ctrl in main
-      setRequests((prevRequests) =>
-        prevRequests.find((x: any) => x.id === request.id)
-          ? prevRequests
-          : [...prevRequests, request]
-      )
+      dispatch({ type: 'MAIN_CONTROLLER_ADD_USER_REQUEST', params: request })
     },
-    [network?.chainId, selectedAccount, setRequests, rejectApproval, resolveApproval]
+    [selectedAccount, approvalReqNetworkId, dispatch, rejectApproval, resolveApproval]
   )
 
   // handles eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3 and eth_signTypedData_v4
   const handleSignTypedData = useCallback(
-    async (msg: any, method: string, id: string) => {
+    async (msg: any, method: string, id: bigint) => {
       if (!msg) {
         rejectApproval('No msg request to sign')
         return
@@ -87,87 +92,95 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
         rejectApproval('No msg request in received params')
         return
       }
-
-      const request = {
-        id,
-        type: method,
-        reqSrc: APPROVAL_REQUESTS_STORAGE_KEY,
-        txn: messageToSign,
-        chainId: network?.chainId,
-        account: selectedAccount
+      let typedData: any = {}
+      try {
+        typedData = parse(messageToSign)
+      } catch (error) {
+        rejectApproval('Invalid typedData format')
       }
 
-      //  TODO: here dispatch action to add the request to the sign message ctrl in main
-      setRequests((prevRequests) =>
-        prevRequests.find((x: any) => x.id === request.id)
-          ? prevRequests
-          : [...prevRequests, request]
-      )
+      if (!typedData?.types || !typedData.domain || !typedData?.message) {
+        rejectApproval('Invalid typedData v4 format')
+      }
+
+      const request: UserRequest = {
+        id,
+        added: BigInt(Date.now()),
+        action: {
+          kind: 'typedMessage',
+          types: typedData.types,
+          domain: typedData.domain,
+          value: typedData.message
+        },
+        networkId: approvalReqNetworkId,
+        accountAddr: selectedAccount,
+        forceNonce: null
+      }
+
+      dispatch({ type: 'MAIN_CONTROLLER_ADD_USER_REQUEST', params: request })
     },
-    [network?.chainId, selectedAccount, setRequests, rejectApproval, resolveApproval]
+    [selectedAccount, approvalReqNetworkId, dispatch, rejectApproval, resolveApproval]
   )
 
   // handles eth_sendTransaction, gs_multi_send, ambire_sendBatchTransaction
   const handleSendTransactions = useCallback(
-    async (txs: any, method: string, id: string) => {
+    async (txs: any, method: string, id: bigint) => {
       if (txs?.length) {
         // eslint-disable-next-line no-restricted-syntax
         for (const i in txs) {
           if (!txs[i].from) txs[i].from = selectedAccount
         }
       } else {
-        rejectApproval('No txs request in received params', txs)
-        setRequests([])
+        rejectApproval(`No txs request in received params for account: ${selectedAccount}`, txs)
+        // TODO: setRequests([])
         return
       }
       // eslint-disable-next-line no-restricted-syntax, guard-for-in
       for (const ix in txs) {
-        const request = {
+        const request: UserRequest = {
           id,
-          type: 'eth_sendTransaction',
-          reqSrc: APPROVAL_REQUESTS_STORAGE_KEY,
-          isBatch: txs.length > 1,
-          txn: txs[ix],
-          chainId: network?.chainId,
-          account: selectedAccount
+          added: BigInt(Date.now()),
+          action: {
+            kind: 'call',
+            ...(txs[ix] as any)
+          },
+          networkId: approvalReqNetworkId,
+          accountAddr: selectedAccount,
+          // TODO: ?
+          forceNonce: null
         }
 
-        //  TODO: here dispatch action to add the request to the sign account op ctrl in main
-        setRequests((prevRequests) =>
-          prevRequests.find((x: any) => x.id === request.id)
-            ? prevRequests
-            : [...prevRequests, request]
-        )
+        dispatch({ type: 'MAIN_CONTROLLER_ADD_USER_REQUEST', params: request })
       }
     },
-    [network?.chainId, selectedAccount, setRequests, rejectApproval]
+    [selectedAccount, approvalReqNetworkId, dispatch, rejectApproval]
   )
 
   // resolves the requests and returns a response to the background service
   const resolveMany = useCallback(
     (ids, resolution) => {
       // eslint-disable-next-line no-restricted-syntax
-      for (const req of requests.filter((r: any) => ids.includes(r.id))) {
-        // only process non batch or first batch req
-        if (req.id === approval?.id) {
-          if (!req.isBatch) {
-            if (!resolution) {
-              rejectApproval('Nothing to resolve')
-            } else if (!resolution.success) {
-              rejectApproval(resolution.message)
-            } else {
-              // onSuccess
-              resolveApproval({
-                hash: resolution.result
-              })
-            }
-          }
-        }
-      }
-      // @ts-ignore
-      setRequests((prevRequests) => prevRequests.filter((x) => !ids.includes(x.id)))
+      // for (const req of requests.filter((r: any) => ids.includes(r.id))) {
+      //   // only process non batch or first batch req
+      //   if (req.id === approval?.id) {
+      //     if (!req.isBatch) {
+      //       if (!resolution) {
+      //         rejectApproval('Nothing to resolve')
+      //       } else if (!resolution.success) {
+      //         rejectApproval(resolution.message)
+      //       } else {
+      //         // onSuccess
+      //         resolveApproval({
+      //           hash: resolution.result
+      //         })
+      //       }
+      //     }
+      //   }
+      // }
+      // // @ts-ignore
+      // setRequests((prevRequests) => prevRequests.filter((x) => !ids.includes(x.id)))
     },
-    [requests, approval?.id, setRequests, rejectApproval, resolveApproval]
+    [approval?.id, rejectApproval, resolveApproval]
   )
 
   useEffect(() => {
@@ -175,6 +188,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
       const method = approval?.data?.params?.method
       const params = approval?.data?.params?.data
       const approvalId = approval?.id
+      const origin = approval.data.origin
 
       if (
         ['eth_sendTransaction', 'gs_multi_send', 'ambire_sendBatchTransaction'].includes(method)
@@ -198,9 +212,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
   }, [approval, handleSendTransactions, handleSignText, handleSignTypedData])
 
   return {
-    requests,
-    resolveMany,
-    setRequests
+    resolveMany
   }
 }
 

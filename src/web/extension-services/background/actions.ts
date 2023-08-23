@@ -1,4 +1,5 @@
 import { Account } from 'ambire-common/src/interfaces/account'
+import { UserRequest } from 'ambire-common/src/interfaces/userRequest'
 
 import { NetworkType } from '@common/constants/networks'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
@@ -81,6 +82,15 @@ type MainControllerAccountAdderAddAccounts = {
 }
 type MainControllerAccountAdderReset = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
+}
+
+type MainControllerAddUserRequestAction = {
+  type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
+  params: UserRequest
+}
+type MainControllerRemoveUserRequestAction = {
+  type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
+  params: { id: UserRequest['id'] }
 }
 
 type LedgerControllerUnlockAction = {
@@ -188,6 +198,8 @@ export type Action =
   | MainControllerAccountAdderReset
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
+  | MainControllerAddUserRequestAction
+  | MainControllerRemoveUserRequestAction
   | LedgerControllerUnlockAction
   | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction

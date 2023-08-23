@@ -16,16 +16,14 @@ import useSignApproval from './useSignApproval'
 // response from the prev one to request the next one. For example
 // this happens with https://polygonscan.com/ and https://bscscan.com/
 // when you try to "Add Token to Web3 Wallet".
-const DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY = 850
+const DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY = 900
 
 const ApprovalContext = createContext<UseExtensionApprovalReturnType>({
   approval: null,
-  requests: [],
   hasCheckedForApprovalInitially: false,
   getApproval: () => Promise.resolve(null),
   resolveApproval: () => Promise.resolve(),
-  rejectApproval: () => Promise.resolve(),
-  resolveMany: () => {}
+  rejectApproval: () => Promise.resolve()
 })
 
 const ApprovalProvider: React.FC<any> = ({ children }) => {
@@ -142,7 +140,6 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
       value={useMemo(
         () => ({
           approval,
-          requests,
           hasCheckedForApprovalInitially,
           getApproval,
           resolveApproval,
@@ -151,7 +148,6 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
         }),
         [
           approval,
-          requests,
           hasCheckedForApprovalInitially,
           getApproval,
           resolveApproval,

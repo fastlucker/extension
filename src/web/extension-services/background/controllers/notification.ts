@@ -1,19 +1,19 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
-import { v4 as uuidv4 } from 'uuid'
 
 import { isDev } from '@common/config/env'
 import colors from '@common/styles/colors'
+import generateBigIntId from '@common/utils/generateBigIntId'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
 import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'
-import { storage } from '@web/extension-services/background/webapi/storage'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
 export interface Approval {
-  id: string
+  id: bigint
   signingTxId?: string
   data: {
     params?: import('react').ComponentProps<any>['params']
@@ -194,15 +194,12 @@ export class NotificationController extends Events {
     this.emit('reject', err)
   }
 
-  requestApproval = async (data, winProps?): Promise<any> => {
-    const networkId = await storage.get('networkId')
-
+  requestApproval = async (data: any, winProps?: any): Promise<any> => {
     return new Promise((resolve, reject) => {
-      const uuid = uuidv4()
       let signingTxId
 
       const approval: Approval = {
-        id: uuid,
+        id: generateBigIntId(),
         signingTxId,
         data,
         winProps,
@@ -238,7 +235,6 @@ export class NotificationController extends Events {
           this.currentApproval = approval
         }
       }
-      // TODO: might be needed for the Multichain UX feature
       if (
         ['wallet_switchEthereumChain', 'wallet_addEthereumChain'].includes(data?.params?.method)
       ) {
@@ -248,7 +244,7 @@ export class NotificationController extends Events {
         }
 
         const network = networks.find((n) => Number(n.chainId) === chainId)
-        if (network?.id === networkId) {
+        if (network) {
           this.resolveApproval(null)
           return
         }

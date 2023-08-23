@@ -181,6 +181,10 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS':
               return mainCtrl.accountAdder.addAccounts(data.params.accounts)
+            case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
+              return mainCtrl.addUserRequest(data.params)
+            case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
+              return mainCtrl.removeUserRequest(data.params.id)
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock(data?.params?.hdPath)
