@@ -176,16 +176,9 @@ import { controllersMapping } from './types'
             case 'LATTICE_CONTROLLER_UNLOCK':
               return latticeCtrl.unlock()
 
-            case 'PORTFOLIO_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
-              // TODO: Maybe return an error here?
+            case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
               if (!mainCtrl.selectedAccount) return
-              return mainCtrl.portfolio.updateSelectedAccount(
-                mainCtrl.accounts,
-                networks,
-                mainCtrl.selectedAccount,
-                data.params && data.params.accountOps,
-                data.params && data.params.opts
-              )
+              return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
             }
 
             case 'WALLET_CONTROLLER_IS_UNLOCKED':

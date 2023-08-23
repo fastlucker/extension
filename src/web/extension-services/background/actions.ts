@@ -106,14 +106,8 @@ type TrezorControllerUnlockAction = {
 type LatticeControllerUnlockAction = {
   type: 'LATTICE_CONTROLLER_UNLOCK'
 }
-type PortfolioControllerUpdateSelectedAccount = {
-  type: 'PORTFOLIO_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
-  params?: {
-    accountOps: { [key: string]: AccountOp[] }
-    opts: {
-      forceUpdate: boolean
-    }
-  }
+type MainControllerUpdateSelectedAccount = {
+  type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
 }
 type WalletControllerIsUnlockedAction = {
   type: 'WALLET_CONTROLLER_IS_UNLOCKED'
@@ -186,7 +180,7 @@ export type Action =
   | LedgerControllerAuthorizeHIDPermissionAction
   | TrezorControllerUnlockAction
   | LatticeControllerUnlockAction
-  | PortfolioControllerUpdateSelectedAccount
+  | MainControllerUpdateSelectedAccount
   | WalletControllerIsUnlockedAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
