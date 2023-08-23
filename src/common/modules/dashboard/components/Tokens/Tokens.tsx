@@ -21,8 +21,9 @@ const Tokens = ({ tokens }: Props) => {
   const sortedTokens = tokens
 
   // TODO: Calculate each token height and apply scroll
+  const TOKEN_HEIGHT = 52
   return (
-    <Wrapper contentContainerStyle={[spacings.ph0, spacings.pv0]}>
+    <Wrapper contentContainerStyle={[{ height: TOKEN_HEIGHT * 5 }, spacings.ph0, spacings.pv0]}>
       {/* {!!isCurrNetworkBalanceLoading && <TokensListLoader />} */}
 
       {/* // TODO: Implement rewards token */}
