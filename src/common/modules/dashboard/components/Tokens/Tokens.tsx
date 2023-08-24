@@ -20,7 +20,6 @@ const Tokens = ({ tokens }: Props) => {
   // TODO: we will have different sorting here on v2. We will have pinned tokens with 0 balance, gas tokens and etc so this will be decided over time once all of them are wired up
   const sortedTokens = tokens
 
-  // TODO: Calculate each token height and apply scroll
   const TOKEN_HEIGHT = 52
   return (
     <Wrapper

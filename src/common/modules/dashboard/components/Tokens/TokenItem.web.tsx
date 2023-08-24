@@ -21,20 +21,16 @@ import textStyles from '@common/styles/utils/text'
 
 import styles from './styles'
 
+interface Token extends TokenResult {
+  gasToken: boolean
+}
 // TODO: customize token component for gas token, wallet rewards token. Each of them has different button and styling
 // TODO: correct props once connected with portfolio controller
-const TokenItem = ({
-  symbol,
-  amount,
-  priceIn,
-  decimals,
-  address,
-  networkId,
-  gasToken
-}: TokenResult) => {
+const TokenItem = ({ symbol, amount, priceIn, decimals, address, networkId, gasToken }: Token) => {
   const { t } = useTranslation()
   // TODO: navigate to the routes onPress once they are ready or hide the ones we wont need for epic 1
-  // Logic for this ones
+  // Logic for this ones and which token would be able to
+  // Top Up Gas Tank will be available from availableGasTankAssets
   const data = [
     { label: 'Swap', value: '1' },
     { label: 'Bridge', value: '2' },
@@ -46,7 +42,7 @@ const TokenItem = ({
   ]
   const networkData = networks.find(({ id }) => networkId === id)
 
-  const balance = gasToken ? amount : formatUnits(amount, decimals)
+  const balance = formatUnits(amount, decimals)
   const price = priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')
   const balanceUSD = parseFloat(balance) * price.price
 
@@ -61,7 +57,7 @@ const TokenItem = ({
     <div className="token-container" style={styles.container}>
       <View style={[flexboxStyles.directionRow]}>
         <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
-          <TokenIcon withContainer address={address} networkId={networkId || 'ethereum'} />
+          <TokenIcon withContainer address={address} networkId={networkId} />
         </View>
         <View>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignEnd]}>
