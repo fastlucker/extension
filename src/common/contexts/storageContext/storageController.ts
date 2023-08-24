@@ -2,19 +2,10 @@ import { MMKV } from 'react-native-mmkv'
 
 import { isExtension } from '@web/constants/browserapi'
 
-const defaultExtensionSyncStorage = {
-  // which tabs are injected tabId => true
-  TAB_INJECTIONS: {},
-  // permissions host => true/false
-  PERMISSIONS: {},
-  // pending notifications asking for user attention (sign / send tx)
-  USER_ACTION_NOTIFICATIONS: {}
-}
-
 export class StorageController {
   isInitialized = false
 
-  extensionSyncStorage: { [key: string]: any } = { ...defaultExtensionSyncStorage }
+  extensionSyncStorage: { [key: string]: any } = {}
 
   onExtensionStorageChange?: (changes: {
     [key: string]: { newValue: any; oldValue: any }
@@ -37,7 +28,6 @@ export class StorageController {
   ) => {
     if (namespace === 'local') {
       const allKeysChanged = Object.keys(changes)
-
       const nextStorage = { ...this.extensionSyncStorage }
       allKeysChanged.forEach((key: string) => {
         nextStorage[key] = changes[key].newValue
@@ -53,11 +43,11 @@ export class StorageController {
     if (isExtension) {
       const result = await browser.storage.local.get()
 
-      this.extensionSyncStorage = { ...defaultExtensionSyncStorage, ...result }
+      this.extensionSyncStorage = { ...result }
 
       // Subscribe to changes in order to always keep in sync the
       // local `extensionSyncStorage` with the browser.storage.local
-      browser.storage.onChanged.addListener(this.handleOnExtensionStorageChange)
+      browser.storage.onChanged.addListener(this.handleOnExtensionStorageChange as any)
     } else {
       this.mmkv = new MMKV()
     }
@@ -66,7 +56,7 @@ export class StorageController {
 
     return () =>
       isExtension
-        ? browser.storage.onChanged.removeListener(this.handleOnExtensionStorageChange)
+        ? browser.storage.onChanged.removeListener(this.handleOnExtensionStorageChange as any)
         : null
   }
 
@@ -78,14 +68,6 @@ export class StorageController {
     return this.mmkv?.getString(key)
   }
 
-  /**
-   * WARNING: Use await setItemAsync (async method) in the service_worker instead of setItem (sync method)
-   * There are two instances of the storageController in the extension (one in the service_worker and the other in the UI)
-   * The storage state of the two instances is sometimes out of sync because of storage listener working asynchronously
-   * and awaiting the storage changes in one of the storage instances fixes the issue
-   * We choose the the async usage of the storage to be in the service_worker because in the UI the storage usage should
-   * be synchronous due to code reusability with the web wallet code
-   */
   setItem(key: string, value: string) {
     if (isExtension) {
       this.extensionSyncStorage[key] = value
@@ -96,28 +78,6 @@ export class StorageController {
     }
   }
 
-  setItemAsync(key: string, value: string) {
-    if (isExtension) {
-      return new Promise((resolve) => {
-        this.extensionSyncStorage[key] = value
-
-        browser.storage.local.set({ [key]: value }).then(() => {
-          resolve(true)
-        })
-      })
-    }
-    this.mmkv?.set(key, value)
-    return Promise.resolve(true)
-  }
-
-  /**
-   * WARNING: Use await removeItemAsync (async method) in the service_worker instead of removeItem (sync method)
-   * There are two instances of the storageController in the extension (one in the service_worker and the other in the UI)
-   * The storage state of the two instances is sometimes out of sync because of storage listener working asynchronously
-   * and awaiting the storage changes in one of the storage instances fixes the issue
-   * We choose the the async usage of the storage to be in the service_worker because in the UI the storage usage should
-   * be synchronous due to code reusability with the web wallet code
-   */
   removeItem(key: string) {
     if (isExtension) {
       delete this.extensionSyncStorage[key]
@@ -126,23 +86,5 @@ export class StorageController {
     } else {
       this.mmkv?.delete(key)
     }
-  }
-
-  removeItemAsync(key: string) {
-    if (isExtension) {
-      const { local } = browser.storage
-
-      return new Promise((resolve) => {
-        delete this.extensionSyncStorage[key]
-
-        browser.storage.local.remove([key])
-
-        local.remove([key]).then(() => {
-          resolve(true)
-        })
-      })
-    }
-    this.mmkv?.delete(key)
-    return Promise.resolve(true)
   }
 }

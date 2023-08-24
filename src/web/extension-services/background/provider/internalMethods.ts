@@ -1,5 +1,3 @@
-import { networks } from 'ambire-common/src/consts/networks'
-
 import providerController from '@web/extension-services/background/provider/ProviderController'
 
 import permission from '../services/permission'
@@ -17,9 +15,11 @@ const tabCheckin = ({
 }
 
 const getProviderState = async (req) => {
-  const isUnlocked = true // TODO: implement in v2
+  const isUnlocked = req.mainCtrl.keystore.isUnlocked
   const defaultChainId = permission.getWithoutUpdate(origin)?.chainId
-  const chainId = defaultChainId ? intToHex(defaultChainId) : await providerController.ethChainId()
+  const chainId = defaultChainId
+    ? intToHex(defaultChainId)
+    : await providerController.ethChainId(req)
   let networkVersion = '1'
 
   try {

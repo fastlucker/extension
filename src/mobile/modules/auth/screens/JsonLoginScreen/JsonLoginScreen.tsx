@@ -2,7 +2,6 @@ import React from 'react'
 import { View } from 'react-native'
 
 import Button from '@common/components/Button'
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { isWeb } from '@common/config/env'
@@ -15,11 +14,10 @@ const JsonLoginScreen = () => {
   // const { handleLogin, error, inProgress } = useJsonLogin()
 
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper contentContainerStyle={spacings.pbLg}>
-        <AmbireLogo />
-        {/* TODO: v2 */}
-        {/* <Button
+    <Wrapper contentContainerStyle={spacings.pbLg}>
+      <AmbireLogo />
+      {/* TODO: v2 */}
+      {/* <Button
           disabled={inProgress}
           text={inProgress ? t('Importing...') : t('Select File')}
           onPress={() => handleLogin({})}
@@ -32,8 +30,7 @@ const JsonLoginScreen = () => {
             </Text>
           </View>
         )} */}
-      </Wrapper>
-    </GradientBackgroundWrapper>
+    </Wrapper>
   )
 }
 

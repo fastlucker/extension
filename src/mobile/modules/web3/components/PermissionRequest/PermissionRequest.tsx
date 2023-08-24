@@ -3,7 +3,6 @@ import React, { useCallback, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import Button from '@common/components/Button'
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -37,61 +36,51 @@ const PermissionRequest = ({
     !!closeBottomSheet && closeBottomSheet()
   }, [grantPermission, closeBottomSheet])
 
-  const GradientWrapper = isInBottomSheet ? React.Fragment : GradientBackgroundWrapper
-
   if (!selectedDapp) {
     return (
-      <GradientWrapper>
-        <View
-          style={[StyleSheet.absoluteFill, flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}
-        >
-          <Spinner />
-        </View>
-      </GradientWrapper>
+      <View
+        style={[StyleSheet.absoluteFill, flexboxStyles.alignCenter, flexboxStyles.justifyCenter]}
+      >
+        <Spinner />
+      </View>
     )
   }
 
   return (
-    <GradientWrapper>
-      <Wrapper
-        hasBottomTabNav={false}
-        contentContainerStyle={spacings.pt0}
-        style={isInBottomSheet && spacings.ph0}
-      >
-        <Panel type="filled">
-          <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <DappIcon iconUrl={selectedDapp.iconUrl} />
-          </View>
+    <Wrapper hasBottomTabNav={false} style={isInBottomSheet && spacings.ph0}>
+      <Panel>
+        <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
+          <DappIcon iconUrl={selectedDapp.iconUrl} />
+        </View>
 
-          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {selectedDapp.name || 'webpage'}
-          </Title>
+        <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+          {selectedDapp.name || 'webpage'}
+        </Title>
 
-          <View>
-            <Trans>
-              <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-                <Text fontSize={14} weight="regular">
-                  {'The dApp '}
-                </Text>
-                <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                  {getHostname(selectedDapp.url) || ''}
-                </Text>
-                <Text fontSize={14} weight="regular">
-                  {' is requesting an authorization to communicate with Ambire Wallet'}
-                </Text>
+        <View>
+          <Trans>
+            <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+              <Text fontSize={14} weight="regular">
+                {'The dApp '}
               </Text>
-            </Trans>
-          </View>
+              <Text fontSize={14} weight="regular" color={colors.heliotrope}>
+                {getHostname(selectedDapp.url) || ''}
+              </Text>
+              <Text fontSize={14} weight="regular">
+                {' is requesting an authorization to communicate with Ambire Wallet'}
+              </Text>
+            </Text>
+          </Trans>
+        </View>
 
-          <Button
-            type="outline"
-            onPress={handleAuthorizeButtonPress}
-            disabled={isAuthorizing}
-            text={isAuthorizing ? t('Authorizing...') : t('Authorize')}
-          />
-        </Panel>
-      </Wrapper>
-    </GradientWrapper>
+        <Button
+          type="outline"
+          onPress={handleAuthorizeButtonPress}
+          disabled={isAuthorizing}
+          text={isAuthorizing ? t('Authorizing...') : t('Authorize')}
+        />
+      </Panel>
+    </Wrapper>
   )
 }
 

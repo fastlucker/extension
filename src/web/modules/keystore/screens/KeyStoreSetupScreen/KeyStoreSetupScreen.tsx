@@ -14,24 +14,33 @@ import { useTranslation } from '@common/config/localization'
 import { DEVICE_SECURITY_LEVEL } from '@common/contexts/biometricsContext/constants'
 import useBiometrics from '@common/hooks/useBiometrics'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import useStepper from '@common/modules/auth/hooks/useStepper'
-import { ROUTES } from '@common/modules/router/constants/common'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { isValidPassword } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG, SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import {
   AuthLayoutWrapperMainContent,
   AuthLayoutWrapperSideContent
 } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import styles from '@web/components/AuthLayoutWrapper/styles'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
-const CreateNewKeyStoreScreen = () => {
+import KeyStoreLogo from '../../components/KeyStoreLogo'
+
+const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { params } = useRoute()
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false)
   const [enableEmailRecovery, onEnableEmailRecoveryChange] = useState(false)
   const { stepperState, updateStepperState } = useStepper()
+  const state = useKeystoreControllerState()
+  const { dispatch } = useBackgroundService()
 
   const setNextStepperState = useCallback(() => {
     updateStepperState(stepperState.currentStep + 1, stepperState.currentFlow)
@@ -54,15 +63,47 @@ const CreateNewKeyStoreScreen = () => {
   })
 
   useEffect(() => {
-    // FIXME: Refactor when later on this gets wired-up
-    const delay = 4
-    if (isSubmitSuccessful) {
+    if (!params?.flow) {
+      navigate(WEB_ROUTES.getStarted)
+    }
+  }, [params?.flow, navigate])
+
+  useEffect(() => {
+    if (state.latestMethodCall === 'addSecret' && state.status === 'DONE') {
+      setIsSubmitSuccessful(true)
+
       setTimeout(() => {
         setNextStepperState()
-        navigate(ROUTES.accountPersonalize)
-      }, delay * 1000)
+        if (params?.flow === 'email') {
+          navigate(WEB_ROUTES.createEmailVault, {
+            state: { backTo: WEB_ROUTES.getStarted }
+          })
+          return
+        }
+        if (params?.flow === 'hw') {
+          navigate(WEB_ROUTES.hardwareWalletSelect, { state: { backTo: WEB_ROUTES.getStarted } })
+          return
+        }
+        if (params?.flow === 'legacy') {
+          navigate(WEB_ROUTES.externalSigner, {
+            state: { backTo: WEB_ROUTES.getStarted }
+          })
+        }
+      }, 2800)
     }
-  }, [isSubmitSuccessful, navigate, setNextStepperState])
+  }, [state, navigate, setNextStepperState, dispatch, watch, params?.flow])
+
+  const handleKeystoreSetup = () => {
+    handleSubmit(({ password }) => {
+      dispatch({
+        type: 'KEYSTORE_CONTROLLER_ADD_SECRET',
+        params: { secretId: 'password', secret: password, extraEntropy: '', leaveUnlocked: true }
+      })
+    })()
+  }
+
+  const isKeystoreSetupLoading =
+    state.status !== 'INITIAL' && state.latestMethodCall === 'addSecret'
 
   return (
     <>
@@ -71,20 +112,20 @@ const CreateNewKeyStoreScreen = () => {
           style={[styles.mainContentWrapper, isSubmitSuccessful && flexboxStyles.justifyCenter]}
         >
           {!isSubmitSuccessful && (
-            <Text weight="medium" fontSize={16} style={{ ...spacings.mbLg, textAlign: 'center' }}>
+            <Text weight="medium" fontSize={16} style={text.center}>
               {t('Ambire Key Store')}
             </Text>
           )}
-          <KeyStoreIcon
-            style={{ ...flexboxStyles.alignSelfCenter, marginBottom: SPACING_LG * 2 }}
+          <KeyStoreLogo
+            style={[
+              spacings.ptLg,
+              spacings.pbLg,
+              !isSubmitSuccessful ? spacings.mbLg : spacings.mb0,
+              spacings.mt0
+            ]}
           />
           {isSubmitSuccessful && (
-            <Text
-              color={colors.martinique}
-              style={{ textAlign: 'center' }}
-              weight="medium"
-              fontSize={16}
-            >
+            <Text color={colors.martinique} style={text.center} weight="medium" fontSize={20}>
               {t('Your Ambire Key Store\nis ready!')}
             </Text>
           )}
@@ -106,6 +147,7 @@ const CreateNewKeyStoreScreen = () => {
                       (t('Please fill in at least 8 characters for passphrase.') as string)
                     }
                     containerStyle={spacings.mbTy}
+                    onSubmitEditing={handleKeystoreSetup}
                   />
                 )}
                 name="password"
@@ -125,37 +167,34 @@ const CreateNewKeyStoreScreen = () => {
                     secureTextEntry
                     error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
                     autoCorrect={false}
-                    containerStyle={spacings.mbSm}
+                    containerStyle={spacings.mb}
+                    onSubmitEditing={handleKeystoreSetup}
                   />
                 )}
                 name="confirmPassword"
               />
-              <Checkbox
-                value={enableEmailRecovery}
-                onValueChange={() => onEnableEmailRecoveryChange((prev) => !prev)}
-                label={t('Key store recovery by email')}
-              />
-              {!isWeb &&
-                hasBiometricsHardware &&
-                deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC && (
-                  <View style={[spacings.mbLg, flexboxStyles.alignEnd]}>
-                    <Controller
-                      control={control}
-                      render={({ field: { onChange, value } }) => (
-                        <Toggle isOn={value} label={t('Biometrics unlock?')} onToggle={onChange} />
-                      )}
-                      name="optInForBiometricsUnlock"
-                    />
-                  </View>
-                )}
+              {params?.flow === 'email' && (
+                <Checkbox
+                  value={enableEmailRecovery}
+                  onValueChange={() => onEnableEmailRecoveryChange((prev) => !prev)}
+                  label={t('Key store recovery by email')}
+                />
+              )}
 
               <Button
                 textStyle={{ fontSize: 14 }}
-                disabled={isSubmitting || !watch('password', '') || !watch('confirmPassword', '')}
-                text={isSubmitting ? t('Setting up...') : t('Setup Ambire Key Store')}
-                onPress={() => {
-                  setIsSubmitSuccessful(true)
-                }}
+                disabled={
+                  isSubmitting ||
+                  isKeystoreSetupLoading ||
+                  !watch('password', '') ||
+                  !watch('confirmPassword', '')
+                }
+                text={
+                  isSubmitting || isKeystoreSetupLoading
+                    ? t('Setting Up Your Key Store...')
+                    : t('Setup Ambire Key Store')
+                }
+                onPress={handleKeystoreSetup}
               />
             </>
           )}
@@ -213,4 +252,4 @@ const CreateNewKeyStoreScreen = () => {
   )
 }
 
-export default CreateNewKeyStoreScreen
+export default KeyStoreSetupScreen

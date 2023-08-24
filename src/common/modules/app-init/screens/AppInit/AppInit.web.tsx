@@ -26,6 +26,7 @@ import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContex
 import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
 import { ExtensionProvider } from '@web/contexts/extensionContext'
 import { IdentityInfoProvider } from '@web/contexts/identityInfoContext'
+import { KeystoreControllerStateProvider } from '@web/contexts/keystoreControllerStateContext'
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
 import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControllerStateContext'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
@@ -47,6 +48,7 @@ const AppInit = () => {
     <BackgroundServiceProvider>
       <MainControllerStateProvider>
         <AccountAdderControllerStateProvider>
+        <KeystoreControllerStateProvider>
           <ControllersStateLoadedProvider>
             <IdentityInfoProvider>
               <PortfolioControllerStateProvider>
@@ -87,6 +89,7 @@ const AppInit = () => {
               </PortfolioControllerStateProvider>
             </IdentityInfoProvider>
           </ControllersStateLoadedProvider>
+          </KeystoreControllerStateProvider>
         </AccountAdderControllerStateProvider>
       </MainControllerStateProvider>
     </BackgroundServiceProvider>

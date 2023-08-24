@@ -24,7 +24,10 @@ const TabHeader: React.FC<any> = ({
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
 
-  const handleGoBack = useCallback(() => (onBack ? onBack() : navigate(-1)), [navigate, onBack])
+  const handleGoBack = useCallback(
+    () => (onBack ? onBack() : navigate(params?.backTo || -1)),
+    [navigate, onBack, params]
+  )
 
   // Primarily, we depend on the existence of the prevRoute to display the Back button.
   // However, there are instances when we lack a previous route (e.g., transitioning from a Popup context to a Tab).
@@ -58,12 +61,7 @@ const TabHeader: React.FC<any> = ({
       <View style={styles.sideContainer}>{renderBackButton()}</View>
       {!!shouldDisplayStepper && <Stepper step={flowStep} />}
       {!shouldDisplayStepper && (!!title || !!pageTitle) && (
-        <Text
-          fontSize={20}
-          weight="medium"
-          style={[styles.title, spacings.pl, canGoBack ? { paddingRight: 140 } : spacings.pr]}
-          numberOfLines={2}
-        >
+        <Text fontSize={20} weight="medium" style={[styles.title, spacings.pl]} numberOfLines={2}>
           {pageTitle || title || ' '}
         </Text>
       )}
