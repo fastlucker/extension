@@ -36,11 +36,13 @@ const Tokens = ({ tokens }: Props) => {
       {/* // TODO: Implement rewards token */}
       {/* {!isCurrNetworkBalanceLoading && <Rewards />} */}
 
+      {!sortedTokens.length && <Text>{t('No tokens yet')}</Text>}
+
       {!!sortedTokens.length &&
         sortedTokens.map(
-          ({ address, amount, decimals, networkId, priceIn, symbol, gasToken }: any, i: number) => (
+          ({ address, amount, decimals, networkId, priceIn, symbol, gasToken }: any) => (
             <TokenItem
-              key={`token-${address}-${i}`}
+              key={`token-${address}-${networkId}-${gasToken}`}
               address={address}
               amount={amount}
               decimals={decimals}
