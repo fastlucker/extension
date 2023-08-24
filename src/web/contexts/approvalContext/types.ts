@@ -9,7 +9,7 @@ export type UseExtensionApprovalReturnType = {
   approval: Approval | null
   hasCheckedForApprovalInitially: boolean
   getApproval: () => Promise<Approval | null>
-  resolveApproval: (data: any, stay?: boolean, forceReject?: boolean, approvalId?: string) => void
-  rejectApproval: (err: any, stay?: boolean, isInternal?: boolean) => void
+  resolveApproval: (data: any) => void
+  rejectApproval: (err: any) => void
   rejectAllApprovals?: () => void
 }

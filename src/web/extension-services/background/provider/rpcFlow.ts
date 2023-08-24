@@ -60,7 +60,7 @@ const flowContext = flow
     } = ctx
     const providerCtrl = new ProviderController(mainCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
-      // const isUnlock = VaultController.isVaultUnlocked()
+      // const isUnlock = mainCtrl.keystore.isUnlocked
       const isUnlock = true
       if (!isUnlock) {
         if (lockedOrigins.has(origin)) {
@@ -99,12 +99,12 @@ const flowContext = flow
         ctx.request.requestedApproval = true
         connectOrigins.add(origin)
         try {
-          const { defaultChain } = await notificationCtrl.requestApproval({
+          await notificationCtrl.requestApproval({
             params: { origin, name, icon },
             approvalComponent: 'PermissionRequest'
           })
           connectOrigins.delete(origin)
-          permissionService.addConnectedSite(origin, name, icon, defaultChain)
+          permissionService.addConnectedSite(origin, name, icon, 1)
         } catch (e) {
           connectOrigins.delete(origin)
           throw e

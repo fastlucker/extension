@@ -4,14 +4,12 @@ import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import spacings from '@common/styles/spacings'
 import text from '@common/styles/utils/text'
-import useApproval from '@web/hooks/useApproval'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 
 const SignMessageScreen = () => {
-  const { approval } = useApproval()
-  const mainState = useMainControllerState()
-  console.log(mainState)
-  console.log('sign message approval: ', approval)
+  const signMessageState = useSignMessageControllerState()
+  console.log('signMessageState: ', signMessageState)
+
   return (
     <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
       <Text style={text.center} fontSize={100}>

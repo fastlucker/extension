@@ -1,5 +1,5 @@
 import { Account } from 'ambire-common/src/interfaces/account'
-import { UserRequest } from 'ambire-common/src/interfaces/userRequest'
+import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
 
 import { NetworkType } from '@common/constants/networks'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
@@ -92,7 +92,10 @@ type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
 }
-
+type MainControllerSignMessageInitAction = {
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
+  params: { messageToSign: Message }
+}
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
   params?: {
@@ -133,6 +136,23 @@ type KeystoreControllerLockAction = {
 type KeystoreControllerResetErrorStateAction = {
   type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
 }
+type ResolveApprovalAction = {
+  type: 'RESOLVE_APPROVAL'
+  params: {
+    data: {
+      hash?: string
+      error?: string
+    }
+    id: bigint
+  }
+}
+type RejectApprovalAction = {
+  type: 'REJECT_APPROVAL'
+  params: {
+    error: string
+    id: bigint
+  }
+}
 type WalletControllerIsUnlockedAction = {
   type: 'WALLET_CONTROLLER_IS_UNLOCKED'
 }
@@ -165,14 +185,7 @@ type WalletControllerActiveFirstApprovalAction = {
 type WalletControllerGetApprovalAction = {
   type: 'WALLET_CONTROLLER_GET_APPROVAL'
 }
-type WalletControllerResolveApprovalAction = {
-  type: 'WALLET_CONTROLLER_RESOLVE_APPROVAL'
-  params: any
-}
-type WalletControllerRejectApprovalAction = {
-  type: 'WALLET_CONTROLLER_REJECT_APPROVAL'
-  params: { err?: string; stay?: boolean; isInternal?: boolean }
-}
+
 type WalletControllerNetworkChangeAction = {
   type: 'WALLET_CONTROLLER_NETWORK_CHANGE'
   params: { network: NetworkType }
@@ -200,6 +213,7 @@ export type Action =
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
+  | MainControllerSignMessageInitAction
   | LedgerControllerUnlockAction
   | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction
@@ -211,6 +225,8 @@ export type Action =
   | KeystoreControllerLockAction
   | KeystoreControllerAddKeysAction
   | KeystoreControllerResetErrorStateAction
+  | ResolveApprovalAction
+  | RejectApprovalAction
   | WalletControllerIsUnlockedAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
@@ -220,8 +236,6 @@ export type Action =
   | WalletControllerGetConnectedSitesAction
   | WalletControllerActiveFirstApprovalAction
   | WalletControllerGetApprovalAction
-  | WalletControllerResolveApprovalAction
-  | WalletControllerRejectApprovalAction
   | WalletControllerNetworkChangeAction
   | WalletControllerAccountChangeAction
   | WalletControllerSendRequestAction
@@ -234,7 +248,6 @@ export type AsyncActionTypes = {
   // TODO: These all should be migrated to use onUpdate emitted events
   // instead of relying on the return value of the action.
   WALLET_CONTROLLER_GET_APPROVAL: ReturnType<WalletController['getApproval']>
-  WALLET_CONTROLLER_REJECT_APPROVAL: ReturnType<WalletController['rejectApproval']>
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>

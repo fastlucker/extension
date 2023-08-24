@@ -1,4 +1,3 @@
-import { networks } from 'ambire-common/src/consts/networks'
 import React, { useCallback, useState } from 'react'
 import { View } from 'react-native'
 
@@ -30,9 +29,7 @@ const PermissionRequestScreen = () => {
 
   const handleAuthorizeButtonPress = useCallback(() => {
     setIsAuthorizing(true)
-    resolveApproval({
-      defaultChain: networks[0].nativeAssetSymbol
-    })
+    resolveApproval(null)
   }, [resolveApproval])
 
   return (

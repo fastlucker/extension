@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import permission from '@web/extension-services/background/services/permission'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
+import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 
 import { UseExtensionApprovalReturnType } from './types'
 
@@ -19,8 +20,9 @@ type Props = {
   rejectApproval: UseExtensionApprovalReturnType['rejectApproval']
 }
 
-const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) => {
+const useSetUserRequest = ({ approval, resolveApproval, rejectApproval }: Props) => {
   const mainCtrlState = useMainControllerState()
+  const signMessageState = useSignMessageControllerState()
   const { dispatch } = useBackgroundService()
   const selectedAccount = mainCtrlState.selectedAccount || ''
 
@@ -36,9 +38,9 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
 
   // handles eth_sign and personal_sign
   const handleSignText = useCallback(
-    async (msg: any, method: string, id: bigint) => {
+    async (msg: any, id: bigint) => {
       if (!msg) {
-        rejectApproval('No msg request to sign', msg)
+        rejectApproval('No msg request to sign')
         return
       }
       if (msg?.[1]?.toLowerCase() !== selectedAccount.toLowerCase()) {
@@ -51,7 +53,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
 
       const messageToSign = msg?.[0]
       if (!messageToSign) {
-        rejectApproval('No msg request in received params', msg)
+        rejectApproval('No msg request in received params')
         return
       }
 
@@ -74,7 +76,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
 
   // handles eth_signTypedData, eth_signTypedData_v1, eth_signTypedData_v3 and eth_signTypedData_v4
   const handleSignTypedData = useCallback(
-    async (msg: any, method: string, id: bigint) => {
+    async (msg: any, id: bigint) => {
       if (!msg) {
         rejectApproval('No msg request to sign')
         return
@@ -110,7 +112,7 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
           kind: 'typedMessage',
           types: typedData.types,
           domain: typedData.domain,
-          value: typedData.message
+          message: typedData.message
         },
         networkId: approvalReqNetworkId,
         accountAddr: selectedAccount,
@@ -124,15 +126,15 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
 
   // handles eth_sendTransaction, gs_multi_send, ambire_sendBatchTransaction
   const handleSendTransactions = useCallback(
-    async (txs: any, method: string, id: bigint) => {
+    async (txs: any, id: bigint) => {
       if (txs?.length) {
         // eslint-disable-next-line no-restricted-syntax
         for (const i in txs) {
+          // eslint-disable-next-line no-param-reassign
           if (!txs[i].from) txs[i].from = selectedAccount
         }
       } else {
-        rejectApproval(`No txs request in received params for account: ${selectedAccount}`, txs)
-        // TODO: setRequests([])
+        rejectApproval(`No txs request in received params for account: ${selectedAccount}`)
         return
       }
       // eslint-disable-next-line no-restricted-syntax, guard-for-in
@@ -156,47 +158,19 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
     [selectedAccount, approvalReqNetworkId, dispatch, rejectApproval]
   )
 
-  // resolves the requests and returns a response to the background service
-  const resolveMany = useCallback(
-    (ids, resolution) => {
-      // eslint-disable-next-line no-restricted-syntax
-      // for (const req of requests.filter((r: any) => ids.includes(r.id))) {
-      //   // only process non batch or first batch req
-      //   if (req.id === approval?.id) {
-      //     if (!req.isBatch) {
-      //       if (!resolution) {
-      //         rejectApproval('Nothing to resolve')
-      //       } else if (!resolution.success) {
-      //         rejectApproval(resolution.message)
-      //       } else {
-      //         // onSuccess
-      //         resolveApproval({
-      //           hash: resolution.result
-      //         })
-      //       }
-      //     }
-      //   }
-      // }
-      // // @ts-ignore
-      // setRequests((prevRequests) => prevRequests.filter((x) => !ids.includes(x.id)))
-    },
-    [approval?.id, rejectApproval, resolveApproval]
-  )
-
   useEffect(() => {
     if (approval) {
       const method = approval?.data?.params?.method
       const params = approval?.data?.params?.data
       const approvalId = approval?.id
-      const origin = approval.data.origin
 
       if (
         ['eth_sendTransaction', 'gs_multi_send', 'ambire_sendBatchTransaction'].includes(method)
       ) {
-        handleSendTransactions(params, method, approvalId)
+        handleSendTransactions(params, approvalId)
       }
       if (['personal_sign', 'eth_sign'].includes(method)) {
-        handleSignText(params, method, approvalId)
+        handleSignText(params, approvalId)
       }
       if (
         [
@@ -206,14 +180,33 @@ const useSignApproval = ({ approval, resolveApproval, rejectApproval }: Props) =
           'eth_signTypedData_v4'
         ].includes(method)
       ) {
-        handleSignTypedData(params, method, approvalId)
+        handleSignTypedData(params, approvalId)
       }
     }
   }, [approval, handleSendTransactions, handleSignText, handleSignTypedData])
 
-  return {
-    resolveMany
-  }
+  useEffect(() => {
+    const msgsForSelectedAcc = mainCtrlState.messagesToBeSigned[selectedAccount]
+
+    if (
+      approval &&
+      msgsForSelectedAcc &&
+      msgsForSelectedAcc?.length &&
+      !signMessageState.messageToSign
+    ) {
+      const latestMessageToSign = msgsForSelectedAcc[msgsForSelectedAcc.length - 1]
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
+        params: { messageToSign: latestMessageToSign }
+      })
+    }
+  }, [
+    approval,
+    selectedAccount,
+    mainCtrlState.messagesToBeSigned,
+    signMessageState.messageToSign,
+    dispatch
+  ])
 }
 
-export default useSignApproval
+export default useSetUserRequest

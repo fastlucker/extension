@@ -145,17 +145,10 @@ export class NotificationController extends Events {
 
   getApproval = () => this.currentApproval
 
-  resolveApproval = async (data?: any, forceReject = false, approvalId?: string) => {
+  resolveApproval = async (data: any, approvalId: bigint) => {
     if (approvalId && approvalId !== this.currentApproval?.id) return
-    if (forceReject) {
-      this.currentApproval?.reject &&
-        this.currentApproval?.reject(new EthereumProviderError(4001, 'User Cancel'))
-    } else {
-      this.currentApproval?.resolve && this.currentApproval?.resolve(data)
-    }
-
+    this.currentApproval?.resolve && this.currentApproval?.resolve(data)
     const approval = this.currentApproval
-
     this.deleteApproval(approval)
 
     if (this.approvals.length > 0) {
@@ -167,18 +160,16 @@ export class NotificationController extends Events {
     this.emit('resolve', data)
   }
 
-  rejectApproval = async (err?: string, stay = false, isInternal = false) => {
+  // eslint-disable-next-line default-param-last
+  rejectApproval = async (err: string = 'Request rejected') => {
     const approval = this.currentApproval
 
     if (this.approvals.length <= 1) {
-      await this.clear(stay) // TODO: FIXME
+      await this.clear() // TODO: FIXME
     }
 
-    if (isInternal) {
-      approval?.reject && approval?.reject(ethErrors.rpc.internal(err))
-    } else {
-      approval?.reject && approval?.reject(ethErrors.provider.userRejectedRequest<any>(err))
-    }
+    approval?.reject && approval?.reject(ethErrors.provider.userRejectedRequest<any>(err))
+
     if (approval?.data?.approvalComponent === 'SendTransaction') {
       // Removes all cached signing requests (otherwise they will be shown again
       // in the browser extension UI, when it gets opened by the user)
@@ -189,7 +180,7 @@ export class NotificationController extends Events {
       this.deleteApproval(approval)
       this.currentApproval = this.approvals[0]
     } else {
-      await this.clear(stay)
+      await this.clear()
     }
     this.emit('reject', err)
   }
@@ -245,7 +236,7 @@ export class NotificationController extends Events {
 
         const network = networks.find((n) => Number(n.chainId) === chainId)
         if (network) {
-          this.resolveApproval(null)
+          this.resolveApproval(null, approval.id)
           return
         }
       }
@@ -294,7 +285,7 @@ export class NotificationController extends Events {
     this.isLocked = true
   }
 
-  openNotification = (winProps, ignoreLock = false) => {
+  openNotification = (winProps: any, ignoreLock = false) => {
     // Only use ignoreLock flag when approval exist but no notification window exist
     if (!ignoreLock) {
       if (this.isLocked) return

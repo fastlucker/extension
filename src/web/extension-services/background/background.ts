@@ -185,6 +185,8 @@ async function init() {
               return mainCtrl.addUserRequest(data.params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
               return mainCtrl.removeUserRequest(data.params.id)
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
+              return mainCtrl.signMessage.init(data.params.messageToSign)
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock(data?.params?.hdPath)
@@ -216,6 +218,14 @@ async function init() {
               return mainCtrl.keystore.addKeys(data.params.keys)
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
+
+            case 'RESOLVE_APPROVAL': {
+              return notificationCtrl.resolveApproval(data.params.data, data.params.id)
+            }
+            case 'REJECT_APPROVAL': {
+              mainCtrl.removeUserRequest(data.params.id)
+              return notificationCtrl.rejectApproval(data.params.error)
+            }
 
             case 'WALLET_CONTROLLER_IS_UNLOCKED':
               return null // TODO: implement in v2
@@ -253,14 +263,6 @@ async function init() {
               return notificationCtrl.activeFirstApproval()
             case 'WALLET_CONTROLLER_GET_APPROVAL':
               return notificationCtrl.getApproval()
-            case 'WALLET_CONTROLLER_RESOLVE_APPROVAL':
-              return notificationCtrl.resolveApproval(data.params)
-            case 'WALLET_CONTROLLER_REJECT_APPROVAL':
-              return notificationCtrl.rejectApproval(
-                data.params.err,
-                data.params.stay,
-                data.params.isInternal
-              )
             case 'WALLET_CONTROLLER_NETWORK_CHANGE':
               return sessionService.broadcastEvent('chainChanged', {
                 chain: intToHex(data.params.network.chainId),

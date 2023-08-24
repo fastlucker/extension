@@ -7,16 +7,17 @@ import useAuth from '@common/modules/auth/hooks/useAuth'
 import { delayPromise } from '@common/utils/promises'
 import { Approval } from '@web/extension-services/background/controllers/notification'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import { UseExtensionApprovalReturnType } from './types'
-import useSignApproval from './useSignApproval'
+import useSetUserRequest from './useSetUserRequest'
 
 // In the cases when the dApp requests multiple approvals, but waits the
 // response from the prev one to request the next one. For example
 // this happens with https://polygonscan.com/ and https://bscscan.com/
 // when you try to "Add Token to Web3 Wallet".
-const DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY = 900
+const DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY = 850
 
 const ApprovalContext = createContext<UseExtensionApprovalReturnType>({
   approval: null,
@@ -30,7 +31,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { authStatus } = useAuth()
-
+  const keystoreState = useKeystoreControllerState()
   const { navigate } = useNavigation()
   const { dispatch, dispatchAsync } = useBackgroundService()
   const [approval, setApproval] = useState<Approval | null>(null)
@@ -42,7 +43,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   )
 
   const resolveApproval = useCallback<UseExtensionApprovalReturnType['resolveApproval']>(
-    async (data = undefined, stay = false, forceReject = false, approvalId = undefined) => {
+    async (data) => {
       if (!approval) {
         return addToast(
           t(
@@ -53,18 +54,14 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
       }
 
       await dispatch({
-        type: 'WALLET_CONTROLLER_RESOLVE_APPROVAL',
-        params: { data, forceReject, approvalId }
+        type: 'RESOLVE_APPROVAL',
+        params: { data, id: approval.id }
       })
 
       await delayPromise(DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY)
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)
-
-      if (stay) {
-        return
-      }
 
       // Navigate to the main route after the approval is resolved, which
       // triggers the logic that determines where user should go next.
@@ -74,7 +71,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   )
 
   const rejectApproval = useCallback<UseExtensionApprovalReturnType['rejectApproval']>(
-    async (err = undefined, stay = false, isInternal = false) => {
+    async (error) => {
       if (!approval) {
         return addToast(
           t(
@@ -84,9 +81,9 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
         )
       }
 
-      await dispatchAsync({
-        type: 'WALLET_CONTROLLER_REJECT_APPROVAL',
-        params: { err, stay, isInternal }
+      await dispatch({
+        type: 'REJECT_APPROVAL',
+        params: { error, id: approval.id }
       })
 
       await delayPromise(DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY)
@@ -94,25 +91,13 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
       const nextApproval = await getApproval()
       setApproval(nextApproval)
 
-      // Navigate to the main route after the approval is resolved, which
-      // triggers the logic that determines where user should go next.
-      if (!stay) navigate('/')
+      navigate('/')
     },
-    [approval, dispatchAsync, getApproval, addToast, t, navigate]
+    [approval, dispatch, getApproval, addToast, t, navigate]
   )
 
-  const { requests, resolveMany } = useSignApproval({ approval, resolveApproval, rejectApproval })
-
-  useEffect(() => {
-    if (!getUiType().isNotification) return
-
-    // Be aware, that this window listener might not get trigger on all
-    // browsers. The `rejectApproval` gets triggered on Chrome, even  without
-    // this listener. But it might be needed for other browsers or use-cases.
-    window.addEventListener('beforeunload', rejectApproval)
-
-    return () => window.removeEventListener('beforeunload', rejectApproval)
-  }, [rejectApproval])
+  // If the approval is from type UserRequest add a new request to the userRequests in mainCtrl
+  useSetUserRequest({ approval, resolveApproval, rejectApproval })
 
   useEffect(() => {
     ;(async () => {
@@ -128,12 +113,22 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
     // Re-get the approval since when the vault is locked and then unlocked -
     // the approval data changes. Use case: extension is locked, user is
     // authenticated, dApp requests something, user unlocks the extension.
-    // TODO: v2
-    // vaultStatus,
+    keystoreState.isUnlocked,
     // Re-get the approval since when there are no accounts and then - the user
     // adds an account (and therefore - authenticates) - the approval data changes
     authStatus
   ])
+
+  useEffect(() => {
+    if (!getUiType().isNotification) return
+
+    // Be aware, that this window listener might not get trigger on all
+    // browsers. The `rejectApproval` gets triggered on Chrome, even  without
+    // this listener. But it might be needed for other browsers or use-cases.
+    window.addEventListener('beforeunload', rejectApproval)
+
+    return () => window.removeEventListener('beforeunload', rejectApproval)
+  }, [rejectApproval])
 
   return (
     <ApprovalContext.Provider
@@ -143,17 +138,9 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
           hasCheckedForApprovalInitially,
           getApproval,
           resolveApproval,
-          rejectApproval,
-          resolveMany
+          rejectApproval
         }),
-        [
-          approval,
-          hasCheckedForApprovalInitially,
-          getApproval,
-          resolveApproval,
-          rejectApproval,
-          resolveMany
-        ]
+        [approval, hasCheckedForApprovalInitially, getApproval, resolveApproval, rejectApproval]
       )}
     >
       {children}

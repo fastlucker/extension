@@ -9,6 +9,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useApproval from '@web/hooks/useApproval'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
 import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
 import { getUiType } from '@web/utils/uiType'
@@ -20,6 +21,7 @@ const SortHat = () => {
   const { isNotification } = getUiType()
   const { onboardingStatus } = useOnboarding()
   const keystoreState = useKeystoreControllerState()
+  const signMessageState = useSignMessageControllerState()
 
   const loadView = useCallback(async () => {
     if (isNotification && !approval) {
@@ -42,10 +44,10 @@ const SortHat = () => {
       if (approval?.data?.approvalComponent === 'SendTransaction') {
         return console.log(approval)
       }
-      if (approval?.data?.approvalComponent === 'SignText') {
+      if (approval?.data?.approvalComponent === 'SignText' && signMessageState.messageToSign) {
         return navigate(ROUTES.signMessage)
       }
-      if (approval?.data?.approvalComponent === 'SignTypedData') {
+      if (approval?.data?.approvalComponent === 'SignTypedData' && signMessageState.messageToSign) {
         return navigate(ROUTES.signMessage)
       }
       if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
@@ -59,7 +61,15 @@ const SortHat = () => {
         onboardingStatus === ONBOARDING_VALUES.ON_BOARDED ? ROUTES.dashboard : ROUTES.onboarding
       )
     }
-  }, [isNotification, approval, authStatus, navigate, onboardingStatus, keystoreState])
+  }, [
+    isNotification,
+    approval,
+    authStatus,
+    navigate,
+    onboardingStatus,
+    keystoreState,
+    signMessageState.messageToSign
+  ])
 
   useEffect(() => {
     loadView()
