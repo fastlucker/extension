@@ -74,7 +74,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       // Calculate Gas Tank Balance Sum
       const updatedTokens: any = []
       const updatedTotalAmount = accountPortfolio.totalAmount
-      let newTotalAmount = gasTankBalance + rewardsBalance
+      let newTotalAmount = gasTankBalance
       let allReady = true
 
       if (!mainCtrl.selectedAccount || !state.latest || !state.latest[mainCtrl.selectedAccount]) {
