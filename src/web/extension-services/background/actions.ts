@@ -6,12 +6,12 @@ import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeC
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
-import { ControllerName } from './types'
+import { controllersMappingIncludingMainController } from './types'
 
 type InitControllerStateAction = {
   type: 'INIT_CONTROLLER_STATE'
   params: {
-    controller: ControllerName
+    controller: keyof typeof controllersMappingIncludingMainController
   }
 }
 
@@ -105,6 +105,24 @@ type TrezorControllerUnlockAction = {
 type LatticeControllerUnlockAction = {
   type: 'LATTICE_CONTROLLER_UNLOCK'
 }
+type KeystoreControllerAddSecretAction = {
+  type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
+  params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
+}
+type KeystoreControllerUnlockWithSecretAction = {
+  type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
+  params: { secretId: string; secret: string }
+}
+type KeystoreControllerAddKeysAction = {
+  type: 'KEYSTORE_CONTROLLER_ADD_KEYS'
+  params: { keys: { privateKey: string; label: string }[] }
+}
+type KeystoreControllerLockAction = {
+  type: 'KEYSTORE_CONTROLLER_LOCK'
+}
+type KeystoreControllerResetErrorStateAction = {
+  type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
+}
 type WalletControllerIsUnlockedAction = {
   type: 'WALLET_CONTROLLER_IS_UNLOCKED'
 }
@@ -176,6 +194,11 @@ export type Action =
   | LedgerControllerAuthorizeHIDPermissionAction
   | TrezorControllerUnlockAction
   | LatticeControllerUnlockAction
+  | KeystoreControllerAddSecretAction
+  | KeystoreControllerUnlockWithSecretAction
+  | KeystoreControllerLockAction
+  | KeystoreControllerAddKeysAction
+  | KeystoreControllerResetErrorStateAction
   | WalletControllerIsUnlockedAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction

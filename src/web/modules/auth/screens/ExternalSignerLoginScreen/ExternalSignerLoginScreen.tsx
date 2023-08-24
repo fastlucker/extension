@@ -45,7 +45,7 @@ const ExternalSignerLoginScreen = () => {
 
   const handleFormSubmit = useCallback(() => {
     handleSubmit(({ privKeyOrSeed, label }) => {
-      let formattedPrivKeyOrSeed = privKeyOrSeed
+      let formattedPrivKeyOrSeed = privKeyOrSeed.trim()
 
       if (isValidPrivateKey(privKeyOrSeed)) {
         formattedPrivKeyOrSeed =
@@ -64,6 +64,9 @@ const ExternalSignerLoginScreen = () => {
 
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()
+
+    if (!trimmedValue.length) return ''
+
     const separators = /[\s,;\n]+/
     const words = trimmedValue.split(separators)
 
@@ -87,7 +90,9 @@ const ExternalSignerLoginScreen = () => {
       return 'Invalid private key.'
     }
 
-    return isValidPrivateKey(trimmedValue) || isValidMnemonic(trimmedValue)
+    if (!(isValidPrivateKey(trimmedValue) || isValidMnemonic(trimmedValue))) {
+      return 'Please enter a valid seed phrase or private key.'
+    }
   }
 
   return (
@@ -97,7 +102,7 @@ const ExternalSignerLoginScreen = () => {
           <Text
             weight="medium"
             fontSize={16}
-            style={{ marginBottom: 50, ...spacings.mtXl, ...flexbox.alignSelfCenter }}
+            style={[spacings.mtLg, spacings.mbLg, spacings.pbTy, flexbox.alignSelfCenter]}
           >
             {t('Import Legacy Account')}
           </Text>
@@ -108,8 +113,8 @@ const ExternalSignerLoginScreen = () => {
               color={colors.radicalRed}
               fontSize={14}
             >
-              {errors?.privKeyOrSeed?.message ||
-                t('Please enter a valid seed phrase or private key.')}
+              {/* empty space to prevent jump */}
+              {errors?.privKeyOrSeed?.message || ' '}
             </Text>
             <Controller
               control={control}
@@ -128,6 +133,7 @@ const ExternalSignerLoginScreen = () => {
                     onBlur={onBlur}
                     style={styles.textarea}
                     placeholderTextColor={colors.martinique_65}
+                    onSubmitEditing={handleFormSubmit}
                   />
                 )
               }}
@@ -174,6 +180,7 @@ const ExternalSignerLoginScreen = () => {
                   onBlur={onBlur}
                   style={[styles.textarea, spacings.mbLg]}
                   placeholderTextColor={colors.martinique_65}
+                  onSubmitEditing={handleFormSubmit}
                 />
               )
             }}

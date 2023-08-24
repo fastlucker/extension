@@ -4,7 +4,6 @@ import { View } from 'react-native'
 
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Button from '@common/components/Button'
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -105,124 +104,122 @@ const WatchTokenRequestScreen = () => {
   )
 
   return (
-    <GradientBackgroundWrapper>
-      <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
-        <Panel type="filled">
-          <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <ManifestImage
-              uri={approval?.data?.params?.session?.icon}
-              size={64}
-              fallback={() => <ManifestFallbackIcon />}
-            />
+    <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
+      <Panel>
+        <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
+          <ManifestImage
+            uri={approval?.data?.params?.session?.icon}
+            size={64}
+            fallback={() => <ManifestFallbackIcon />}
+          />
+        </View>
+
+        <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+          {approval?.data?.origin ? new URL(approval?.data?.origin)?.hostname : ''}
+        </Title>
+
+        {!loadingTokenDetails && error && (
+          <>
+            <View>
+              <Text
+                fontSize={14}
+                weight="regular"
+                style={[textStyles.center, spacings.phSm, spacings.mbLg]}
+                appearance="danger"
+              >
+                {error}
+              </Text>
+            </View>
+
+            <View style={styles.buttonWrapper}>
+              <Button
+                type="outline"
+                accentColor={colors.titan}
+                onPress={handleDenyButtonPress}
+                text={t('Dismiss')}
+              />
+            </View>
+          </>
+        )}
+
+        {loadingTokenDetails && !error && (
+          <View style={flexboxStyles.center}>
+            <Spinner />
           </View>
+        )}
 
-          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {approval?.data?.origin ? new URL(approval?.data?.origin)?.hostname : ''}
-          </Title>
+        {!loadingTokenDetails && !error && (
+          <>
+            <View>
+              <Trans values={{ tokenSymbol, tokenAddress }}>
+                <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+                  <Text fontSize={14} weight="regular">
+                    {'The dApp '}
+                  </Text>
+                  <Text fontSize={14} weight="regular" color={colors.heliotrope}>
+                    {approval?.data?.params?.name || ''}
+                  </Text>
+                  <Text fontSize={14} weight="regular">
+                    {
+                      ' is requesting to add the {{tokenSymbol}} token {{tokenAddress}} to the Ambire Wallet tokens list.'
+                    }
+                  </Text>
+                </Text>
+              </Trans>
 
-          {!loadingTokenDetails && error && (
-            <>
-              <View>
+              {!tokenEligibleStatus.isEligible && !!tokenEligibleStatus.reason && (
                 <Text
                   fontSize={14}
                   weight="regular"
                   style={[textStyles.center, spacings.phSm, spacings.mbLg]}
-                  appearance="danger"
                 >
-                  {error}
+                  {tokenEligibleStatus.reason}
                 </Text>
-              </View>
+              )}
 
-              <View style={styles.buttonWrapper}>
-                <Button
-                  type="outline"
-                  accentColor={colors.titan}
-                  onPress={handleDenyButtonPress}
-                  text={t('Dismiss')}
-                />
-              </View>
-            </>
-          )}
-
-          {loadingTokenDetails && !error && (
-            <View style={flexboxStyles.center}>
-              <Spinner />
+              {extraToken && <TokenItem {...extraToken} />}
             </View>
-          )}
 
-          {!loadingTokenDetails && !error && (
-            <>
-              <View>
-                <Trans values={{ tokenSymbol, tokenAddress }}>
-                  <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-                    <Text fontSize={14} weight="regular">
-                      {'The dApp '}
-                    </Text>
-                    <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                      {approval?.data?.params?.name || ''}
-                    </Text>
-                    <Text fontSize={14} weight="regular">
-                      {
-                        ' is requesting to add the {{tokenSymbol}} token {{tokenAddress}} to the Ambire Wallet tokens list.'
-                      }
-                    </Text>
-                  </Text>
-                </Trans>
-
-                {!tokenEligibleStatus.isEligible && !!tokenEligibleStatus.reason && (
-                  <Text
-                    fontSize={14}
-                    weight="regular"
-                    style={[textStyles.center, spacings.phSm, spacings.mbLg]}
-                  >
-                    {tokenEligibleStatus.reason}
-                  </Text>
-                )}
-
-                {extraToken && <TokenItem {...extraToken} />}
-              </View>
-
-              <View style={styles.buttonsContainer}>
-                {tokenEligibleStatus.isEligible && (
-                  <>
-                    <View style={styles.buttonWrapper}>
-                      <Button
-                        disabled={isAdding}
-                        type="danger"
-                        onPress={handleDenyButtonPress}
-                        text={t('Deny')}
-                      />
-                    </View>
-                    <View style={styles.buttonWrapper}>
-                      <Button
-                        disabled={isAdding || !extraToken}
-                        type="outline"
-                        onPress={handleAddToken}
-                        text={isAdding ? t('Adding...') : t('Add token')}
-                      />
-                    </View>
-                  </>
-                )}
-                {!tokenEligibleStatus.isEligible && (
+            <View style={styles.buttonsContainer}>
+              {tokenEligibleStatus.isEligible && (
+                <>
                   <View style={styles.buttonWrapper}>
                     <Button
                       disabled={isAdding}
-                      type="outline"
-                      onPress={handleSkipButtonPress}
-                      text={isAdding ? t('Confirming...') : t('Okay')}
+                      type="danger"
+                      onPress={handleDenyButtonPress}
+                      text={t('Deny')}
                     />
                   </View>
-                )}
-              </View>
+                  <View style={styles.buttonWrapper}>
+                    <Button
+                      disabled={isAdding || !extraToken}
+                      type="outline"
+                      onPress={handleAddToken}
+                      text={isAdding ? t('Adding...') : t('Add token')}
+                    />
+                  </View>
+                </>
+              )}
+              {!tokenEligibleStatus.isEligible && (
+                <View style={styles.buttonWrapper}>
+                  <Button
+                    disabled={isAdding}
+                    type="outline"
+                    onPress={handleSkipButtonPress}
+                    text={isAdding ? t('Confirming...') : t('Okay')}
+                  />
+                </View>
+              )}
+            </View>
 
-              <Text fontSize={14} style={textStyles.center}>
-                {t('Token can be hidden any time from the Ambire extension settings.')}
-              </Text>
-            </>
-          )}
-        </Panel>
-      </Wrapper>
-    </GradientBackgroundWrapper>
+            <Text fontSize={14} style={textStyles.center}>
+              {t('Token can be hidden any time from the Ambire extension settings.')}
+            </Text>
+          </>
+        )}
+      </Panel>
+    </Wrapper>
   )
 }
 

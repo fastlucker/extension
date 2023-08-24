@@ -47,7 +47,8 @@ const styles = StyleSheet.create<Style>({
   errorText: {
     ...spacings.phMi,
     ...spacings.mbMI,
-    ...spacings.phTy
+    ...spacings.phTy,
+    paddingTop: 2
   },
   validText: {
     ...spacings.phMi,

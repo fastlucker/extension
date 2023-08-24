@@ -8,6 +8,7 @@ import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useApproval from '@web/hooks/useApproval'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
 import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
 import { getUiType } from '@web/utils/uiType'
@@ -16,33 +17,23 @@ const SortHat = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
   const { approval } = useApproval()
-  const { isNotification, isTab } = getUiType()
+  const { isNotification } = getUiType()
   const { onboardingStatus } = useOnboarding()
+  const keystoreState = useKeystoreControllerState()
 
   const loadView = useCallback(async () => {
-    // if (vaultStatus === VAULT_STATUS.LOADING) return
-
     if (isNotification && !approval) {
       window.close()
       return
     }
 
-    // if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED) {
-    //   // TODO: return navigate(ROUTES.getStarted)
-    //   return navigate(ROUTES.createVault)
-    // }
-
-    // if (vaultStatus === VAULT_STATUS.LOCKED) {
-    //   return navigate(ROUTES.unlockVault)
-    // }
+    if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
+      return navigate(ROUTES.keyStoreUnlock)
+    }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
       return navigate(ROUTES.getStarted)
     }
-
-    // When in tab mode, user should be able to go forward and backward,
-    // therefore - navigate should happen individually, on every screen.
-    if (isTab) return
 
     if (approval && isNotification) {
       if (approval?.data?.approvalComponent === 'PermissionRequest') {
@@ -57,9 +48,6 @@ const SortHat = () => {
       if (approval?.data?.approvalComponent === 'SignTypedData') {
         return navigate(ROUTES.signMessage)
       }
-      // if (approval?.data?.approvalComponent === 'SwitchNetwork') {
-      //   return navigate(ROUTES.switchNetwork)
-      // }
       if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
         return navigate(ROUTES.watchAsset)
       }
@@ -71,7 +59,7 @@ const SortHat = () => {
         onboardingStatus === ONBOARDING_VALUES.ON_BOARDED ? ROUTES.dashboard : ROUTES.onboarding
       )
     }
-  }, [isNotification, approval, authStatus, navigate, onboardingStatus])
+  }, [isNotification, approval, authStatus, navigate, onboardingStatus, keystoreState])
 
   useEffect(() => {
     loadView()

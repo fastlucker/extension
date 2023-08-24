@@ -1,5 +1,7 @@
-import React, { createContext, useMemo } from 'react'
+import { ErrorRef } from 'ambire-common/src/controllers/eventEmitter'
+import React, { createContext, useEffect, useMemo } from 'react'
 
+import alert from '@common/services/alert'
 import { isExtension } from '@web/constants/browserapi'
 import {
   backgroundServiceContextDefaults,
@@ -36,6 +38,9 @@ if (isExtension) {
     if (data.type === 'broadcast') {
       eventBus.emit(data.method, data.params)
     }
+    if (data.type === 'broadcast-error') {
+      eventBus.emit('error', data.params)
+    }
   })
 
   eventBus.addEventListener('broadcastToBackground', (data) => {
@@ -64,6 +69,24 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 )
 
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
+  useEffect(() => {
+    const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
+      const lastError = newState.errors[newState.errors.length - 1]
+
+      if (lastError) {
+        // TODO: display error toast instead
+        alert(lastError.message)
+        console.error(
+          `Error in ${newState.controller} controller. Inspect background page to see the full stack trace.`
+        )
+      }
+    }
+
+    eventBus.addEventListener('error', onError)
+
+    return () => eventBus.removeEventListener('error', onError)
+  }, [])
+
   return (
     <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch, dispatchAsync }), [])}>
       {children}

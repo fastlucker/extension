@@ -107,7 +107,7 @@ export class ProviderController {
     return provider.send(method, params)
   }
 
-  ethRequestAccounts = async ({ session: { origin } }) => {
+  ethRequestAccounts = async ({ session: { origin } }: any) => {
     if (!permissionService.hasPermission(origin)) {
       throw ethErrors.provider.unauthorized()
     }
@@ -119,9 +119,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethAccounts = async ({ session: { origin } }) => {
-    // TODO: Implement WalletController.isUnlocked() in v2
-    // if (!permissionService.hasPermission(origin) || !WalletController.isUnlocked()) {
+  ethAccounts = async ({ session: { origin } }: any) => {
     if (!permissionService.hasPermission(origin)) {
       return []
     }
@@ -129,7 +127,7 @@ export class ProviderController {
     return this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
   }
 
-  ethCoinbase = async ({ session: { origin } }) => {
+  ethCoinbase = async ({ session: { origin } }: any) => {
     if (!permissionService.hasPermission(origin)) {
       return null
     }
@@ -344,9 +342,7 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }) => {
     const result: Web3WalletPermission[] = []
-    // TODO: Implement WalletController.isUnlocked() in v2
-    // if (WalletController.isUnlocked() && permissionService.getConnectedSite(origin)) {
-    if (permissionService.getConnectedSite(origin)) {
+    if (permissionService.getConnectedSite(origin) && this.mainCtrl.keystore.isUnlocked) {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result
