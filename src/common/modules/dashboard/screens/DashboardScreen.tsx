@@ -1,3 +1,4 @@
+import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
 import React, { useEffect } from 'react'
 import { View } from 'react-native'
 
@@ -38,7 +39,10 @@ const DashboardScreen = () => {
   const { t } = useTranslation()
   const tokens = [
     ...(gasTankAndRewardsData?.gasTank?.balance
-      ? gasTankAndRewardsData.gasTank.balance.map((t) => ({ ...t, gasToken: true }))
+      ? gasTankAndRewardsData.gasTank.balance.map((token: TokenResultInterface) => ({
+          ...token,
+          gasToken: true
+        }))
       : []),
     ...(accountPortfolio?.tokens ? accountPortfolio.tokens : [])
   ]

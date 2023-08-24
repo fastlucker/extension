@@ -37,28 +37,30 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   })
 
   // Calculate Gas Tank Balance Sum
-  const gasTankBalance = useMemo(
-    () =>
-      (!isIdentityInfoFetching &&
-        identityInfo &&
-        identityInfo?.gasTank?.balance.reduce((total, token) => {
-          const priceInUSD = token.priceIn.find(({ baseCurrency }: any) => baseCurrency === 'usd')
-          if (priceInUSD) {
-            const balance: any = formatUnits(BigInt(token.amount), token.decimals)
-            const balanceUSD = priceInUSD.price * balance
-            return total + balanceUSD
-          }
-          return total
-        }, 0)) ||
-      0,
-    [isIdentityInfoFetching, identityInfo]
-  )
+  const gasTankBalance = useMemo(() => {
+    if (!isIdentityInfoFetching && identityInfo && identityInfo.gasTank?.balance?.length) {
+      return identityInfo.gasTank.balance.reduce((total, token) => {
+        const priceInUSD = token.priceIn.find(({ baseCurrency }: any) => baseCurrency === 'usd')
+        if (priceInUSD) {
+          const balanceUSD =
+            parseFloat(formatUnits(BigInt(token.amount), token.decimals)) * priceInUSD.price
+          return total + balanceUSD
+        }
+        return total
+      }, 0)
+    }
+
+    return 0
+  }, [isIdentityInfoFetching, identityInfo])
 
   // Calculate Rewards Balance Sum with the TotalBalance
   const rewardsBalance = useMemo(() => {
     if (!isIdentityInfoFetching && identityInfo && identityInfo.rewards) {
       let walletClaimableBalance = 0
-      if (identityInfo.rewards.walletClaimableBalance) {
+      if (
+        identityInfo.rewards.walletClaimableBalance &&
+        Object.keys(identityInfo.rewards.walletClaimableBalance).length
+      ) {
         const { amount, decimals, priceIn }: TokenResultInterface =
           identityInfo.rewards.walletClaimableBalance
         const usdPrice = priceIn.find(({ baseCurrency }: any) => baseCurrency === 'usd')?.price || 0
@@ -67,7 +69,10 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       }
 
       let xWalletClaimableBalance = 0
-      if (identityInfo.rewards.xWalletClaimableBalance) {
+      if (
+        identityInfo.rewards.xWalletClaimableBalance &&
+        Object.keys(identityInfo.rewards.xWalletClaimableBalance).length
+      ) {
         const { amount, decimals, priceIn }: TokenResultInterface =
           identityInfo.rewards.xWalletClaimableBalance
         const usdPrice = priceIn.find(({ baseCurrency }: any) => baseCurrency === 'usd')?.price || 0

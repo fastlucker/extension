@@ -18,7 +18,7 @@ const AssetsToggleContext = createContext<AssetsToggleContextReturnType>({
   type: 'tokens'
 })
 
-const AssetsToggleProvider: React.FC = ({ children }) => {
+const AssetsToggleProvider: React.FC = ({ children }: any) => {
   const [type, setType] = useState<'tokens' | 'collectibles'>('tokens')
 
   const { t } = useTranslation()

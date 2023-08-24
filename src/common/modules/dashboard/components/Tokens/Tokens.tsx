@@ -1,3 +1,4 @@
+import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
 import React from 'react'
 import { Pressable, View } from 'react-native'
 
@@ -12,7 +13,7 @@ import TokenItem from './TokenItem'
 
 // TODO: correct props once connected with portfolio controller
 interface Props {
-  tokens: []
+  tokens: any[] | TokenResultInterface[]
 }
 
 const Tokens = ({ tokens }: Props) => {

@@ -1,7 +1,7 @@
 import './styles.css'
 
-import { TokenResult } from 'ambire-common/libs/portfolio/interfaces'
 import { networks } from 'ambire-common/src/consts/networks'
+import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
 import { formatUnits } from 'ethers'
 import React from 'react'
 import { View } from 'react-native'
@@ -21,7 +21,7 @@ import textStyles from '@common/styles/utils/text'
 
 import styles from './styles'
 
-interface Token extends TokenResult {
+interface Token extends TokenResultInterface {
   gasToken: boolean
 }
 // TODO: customize token component for gas token, wallet rewards token. Each of them has different button and styling
@@ -42,9 +42,10 @@ const TokenItem = ({ symbol, amount, priceIn, decimals, address, networkId, gasT
   ]
   const networkData = networks.find(({ id }) => networkId === id)
 
-  const balance = formatUnits(amount, decimals)
-  const price = priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')
-  const balanceUSD = parseFloat(balance) * price.price
+  const balance = parseFloat(formatUnits(amount, decimals))
+  const price =
+    priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')?.price || 0
+  const balanceUSD = balance * price
 
   /**
    * Explanation why we converted to html element
@@ -68,7 +69,7 @@ const TokenItem = ({ symbol, amount, priceIn, decimals, address, networkId, gasT
               weight="semiBold"
               numberOfLines={1}
             >
-              {parseFloat(balance).toFixed(balance < 1 ? 8 : 4)} {symbol}
+              {balance.toFixed(balance < 1 ? 8 : 4)} {symbol}
             </Text>
             <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
               <Text shouldScale={false} fontSize={12}>

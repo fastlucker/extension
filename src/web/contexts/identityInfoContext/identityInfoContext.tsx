@@ -58,11 +58,16 @@ const IdentityInfoProvider: React.FC = ({ children }: any) => {
 
   const fetchIdentityInfo = useCallback(async () => {
     setIsIdentityInfoFetching(true)
-    const res = await useRelayerData(`/v2/identity/${mainCtrl.selectedAccount}/info`)
-    // TODO: Handle error
-    if (res.data) {
-      setIdentityInfo(res.data)
+    try {
+      const res = await useRelayerData(`/v2/identity/${mainCtrl.selectedAccount}/info`)
+      if (res.data) {
+        setIdentityInfo(res.data)
+        setIsIdentityInfoFetching(false)
+      }
+    } catch (err) {
       setIsIdentityInfoFetching(false)
+      //  TODO: handle errors
+      console.log(err)
     }
   }, [mainCtrl.selectedAccount])
 
@@ -72,8 +77,7 @@ const IdentityInfoProvider: React.FC = ({ children }: any) => {
     fetchIdentityInfo()
 
     // Set up interval to refetch data every minute
-    const interval = setInterval(fetchIdentityInfo, 60000) // 60000 milliseconds = 1 minute
-
+    const interval = setInterval(fetchIdentityInfo, 60000)
     // Clean up interval on component unmount
     return () => clearInterval(interval)
   }, [fetchIdentityInfo, mainCtrl.selectedAccount])

@@ -1,3 +1,4 @@
+import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
 import React, { useContext } from 'react'
 import { View } from 'react-native'
 
@@ -11,7 +12,7 @@ import Tokens from '../Tokens'
 
 // TODO props
 interface Props {
-  tokens: []
+  tokens: any[] | TokenResultInterface[]
 }
 
 const Assets = ({ tokens }: Props) => {
