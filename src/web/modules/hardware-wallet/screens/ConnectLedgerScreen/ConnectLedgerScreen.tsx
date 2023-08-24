@@ -59,7 +59,7 @@ const ConnectLedgerScreen = () => {
   }
 
   return (
-    <AuthLayoutWrapperMainContent fullWidth>
+    <AuthLayoutWrapperMainContent width="mid">
       <View style={[flexbox.flex1, flexbox.justifyCenter]}>
         <View
           style={{

@@ -22,7 +22,7 @@ const OnBoardingScreen = () => {
   }, [setOnboardingStatus])
 
   return (
-    <AuthLayoutWrapperMainContent fullWidth hideHeader>
+    <AuthLayoutWrapperMainContent width="mid" hideHeader>
       <View style={styles.wrapper}>
         <Text shouldScale={false} fontSize={20} weight="medium" style={styles.title}>
           {t('How To Use Ambire Wallet')}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Pressable, TouchableOpacity, View, ViewStyle } from 'react-native'
+import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
 import Select, { components, DropdownIndicatorProps } from 'react-select'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -19,6 +19,7 @@ interface Props {
   setValue?: (value: any) => void
   placeholder?: string
   label?: string
+  labelStyle?: TextStyle
   disabled?: boolean
   menuPlacement?: string
   style?: ViewStyle
@@ -35,6 +36,7 @@ const SelectComponent = ({
   options,
   placeholder,
   label,
+  labelStyle,
   menuPlacement = 'auto',
   style,
   controlStyle,
@@ -80,16 +82,19 @@ const SelectComponent = ({
 
   return (
     <>
-      {label && <Text style={[spacings.mbMi]}>{label}</Text>}
+      {label && <Text style={[spacings.mbMi, labelStyle]}>{label}</Text>}
       <Pressable
         onPress={() => setIsDropdownOpen(!isDropdownOpen)}
         disabled={disabled}
-        // The element should have a zIndex assigned, otherwise the dropdown menu will overlap with the close element.
-        style={{ zIndex: 1, ...style }}
+        style={style}
       >
         <Select
           options={options}
           defaultValue={defaultValue}
+          menuPortalTarget={document.body}
+          // It fixes z-index/overlapping issue with the next closest element.
+          // If we don't set it, the Select dropdown menu overlaps the next element once we show the menu.
+          menuPosition="fixed"
           components={{ DropdownIndicator, Option: IconOption, SingleValue: SingleValueIconOption }}
           styles={{
             indicatorSeparator: (styles) => ({ display: 'none' }),

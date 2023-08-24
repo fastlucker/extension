@@ -73,7 +73,7 @@ const TransferScreen = () => {
   }, [handleSubmit])
 
   return (
-    <AuthLayoutWrapperMainContent fullWidth forceCanGoBack onBack={onBack}>
+    <AuthLayoutWrapperMainContent width="mid" forceCanGoBack onBack={onBack}>
       <View style={[flexbox.alignCenter, spacings.pv]}>
         <View style={[flexbox.flex1, { maxWidth: 500 }]}>
           <Controller

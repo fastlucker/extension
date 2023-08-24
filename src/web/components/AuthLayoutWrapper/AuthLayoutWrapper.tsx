@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import React, { createContext, useContext } from 'react'
-import { View, ViewProps } from 'react-native'
+import { TextStyle, View, ViewProps } from 'react-native'
 import { Outlet } from 'react-router-dom'
 
 import InformationCircleIcon from '@common/assets/svg/InformationCircleIcon'
@@ -23,41 +23,78 @@ const AuthLayoutWrapper = (
   </AuthLayoutWrapperContext.Provider>
 )
 
+enum Width {
+  Normal = 'normal',
+  Mid = 'mid',
+  Full = 'full'
+}
+
+interface Props {
+  width: Width
+  hideStepper: boolean
+  hideHeader: boolean
+  pageTitle: string
+  children: React.ReactNode
+  forceCanGoBack: boolean
+  onBack?: () => void
+  footer?: React.ReactNode
+}
+
 export const AuthLayoutWrapperMainContent: React.FC<any> = ({
-  fullWidth = false,
+  width = Width.Normal,
   hideStepper = false,
   hideHeader = false,
   pageTitle = '',
   children,
   forceCanGoBack,
-  onBack
-}) => {
+  onBack,
+  footer
+}: Props) => {
   const context = useContext(AuthLayoutWrapperContext)
 
   if (!context) {
     throw new Error('Should be used in AuthLayoutWrapper component!')
   }
 
+  const widthConf = {
+    [Width.Normal]: 770 + SPACING_LG * 2,
+    [Width.Mid]: 980,
+    [Width.Full]: '100%'
+  }
+
   return (
-    <View style={[flexbox.flex1, { backgroundColor: colors.zircon }]}>
-      {!hideHeader && <TabHeader
-        pageTitle={pageTitle}
-        hideStepper={hideStepper}
-        forceCanGoBack={forceCanGoBack}
-        onBack={onBack}
-      />}
-      <Wrapper style={[flexbox.flex1]} showsVerticalScrollIndicator={false}>
+    <View style={[flexbox.flex1, { backgroundColor: colors.white }]}>
+      {!hideHeader && (
+        <TabHeader
+          pageTitle={pageTitle}
+          hideStepper={hideStepper}
+          forceCanGoBack={forceCanGoBack}
+          onBack={onBack}
+        />
+      )}
+      <Wrapper
+        style={[flexbox.flex1]}
+        // Here, we set height: '100%' to enable the inner ScrollView within the Wrapper to have a scrollable content.
+        // You can observe how the SignScreen utilizes an inner ScrollView component to display the transaction.
+        // This should not have any impact on the other screens.
+        contentContainerStyle={{ height: '100%' }}
+        showsVerticalScrollIndicator={false}
+      >
         <View
           style={[
             spacings.pbLg,
             spacings.phLg,
             flexbox.alignSelfCenter,
-            { width: fullWidth ? 980 : 770 + SPACING_LG * 2, minHeight: 600 }
+            // Here, we set height: '100%' to enable the inner ScrollView within the Wrapper to have a scrollable content.
+            // You can observe how the SignScreen utilizes an inner ScrollView component to display the transaction.
+            // This should not have any impact on the other screens.
+            { width: widthConf[width], height: '100%' }
           ]}
         >
           {children}
         </View>
       </Wrapper>
+      {footer}
     </View>
   )
 }

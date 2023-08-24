@@ -50,7 +50,7 @@ const GetStartedScreen = () => {
     [navigate, termsState?.version, updateStepperState]
   )
   return (
-    <AuthLayoutWrapperMainContent fullWidth>
+    <AuthLayoutWrapperMainContent width="mid">
       <View style={[flexboxStyles.center]}>
         <Text fontSize={22} weight="medium">
           {t('Welcome to Ambire')}

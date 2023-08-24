@@ -61,7 +61,7 @@ const HardwareWalletSelectorScreen = () => {
   )
 
   return (
-    <AuthLayoutWrapperMainContent fullWidth>
+    <AuthLayoutWrapperMainContent width="mid">
       <View style={[flexbox.center]}>
         <Text fontSize={20} style={[spacings.mvLg, flexbox.alignSelfCenter]} weight="medium">
           {t('Choose Hardware Wallet')}

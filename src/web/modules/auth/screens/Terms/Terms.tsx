@@ -38,7 +38,7 @@ const Terms = () => {
   }
 
   return (
-    <AuthLayoutWrapperMainContent fullWidth>
+    <AuthLayoutWrapperMainContent width="mid">
       <View style={{ maxWidth: 620, ...flexboxStyles.alignSelfCenter }}>
         <View style={[flexboxStyles.alignCenter]}>
           <AmbireLogo style={styles.logo} />
