@@ -17,8 +17,7 @@ import Routes from '../components/Routes'
 import styles from './styles'
 
 const DashboardScreen = () => {
-  const { accountPortfolio, gasTankAndRewardsState } = usePortfolioControllerState()
-
+  const { accountPortfolio, gasTankAndRewardsData } = usePortfolioControllerState()
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
@@ -38,8 +37,8 @@ const DashboardScreen = () => {
 
   const { t } = useTranslation()
   const tokens = [
-    ...(gasTankAndRewardsState?.gasTank?.balance
-      ? gasTankAndRewardsState.gasTank.balance.map((t) => ({ ...t, gasToken: true }))
+    ...(gasTankAndRewardsData?.gasTank?.balance
+      ? gasTankAndRewardsData.gasTank.balance.map((t) => ({ ...t, gasToken: true }))
       : []),
     ...(accountPortfolio?.tokens ? accountPortfolio.tokens : [])
   ]

@@ -76,7 +76,7 @@ const TokenItem = ({ symbol, amount, priceIn, decimals, address, networkId, gasT
               </Text>
               <NetworkIcon name={networkId} style={{ width: 25, height: 25 }} />
               <Text style={[spacings.mrMi]} shouldScale={false} fontSize={12}>
-                {gasToken ? ' Gas Tank' : networkData?.name}
+                {gasToken ? 'Gas Tank' : networkData?.name}
               </Text>
               {!gasToken && <InformationIcon color={colors.martinique_65} />}
             </View>
