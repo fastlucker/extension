@@ -46,7 +46,7 @@ const SelectComponent = ({
   onDropdownOpen
 }: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  console.log(onDropdownOpen)
+
   const DropdownIndicator = (props: DropdownIndicatorProps<any>) => {
     return (
       <components.DropdownIndicator {...props}>
