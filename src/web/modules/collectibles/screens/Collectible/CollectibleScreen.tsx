@@ -11,6 +11,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
+import CollectibleTransfer from '../../components/CollectibleTransfer'
 import TabHeader from '../../components/TabHeader'
 import styles from './styles'
 
@@ -96,12 +97,25 @@ const CollectibleScreenInner = ({ collectionData, name, image, description, owne
               </View>
             )}
           </View>
+          <CollectibleTransfer />
           {/* <View style={[styles.section, styles.transfer]}>
-            <Text color={colors.martinique} style={styles.sectionTitle}>
+            <Text color={colors.martinique} style={[styles.sectionTitle, styles.transferTitle]}>
               Transfer
             </Text>
-            <Text color={colors.martinique}>Recipient</Text>
-            <Button text="Send" />
+            <Controller
+              name="recipientAddr"
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <RecipientInput
+                  style={styles.recipientInput}
+                  containerStyle={styles.recipientInputContainer}
+                  label="Add Recipient"
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+            />
+            <Button style={styles.transferButton} text="Send" />
           </View> */}
         </View>
       </Wrapper>

@@ -20,8 +20,6 @@ interface Style {
   infoItem: ViewStyle
   itemValue: TextStyle
   copyIcon: ViewStyle
-  // Transfer
-  transfer: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -72,7 +70,6 @@ const styles = StyleSheet.create<Style>({
   copyIcon: {
     ...spacings.mlMi
   },
-  transfer: {},
   info: {}
 })
 
