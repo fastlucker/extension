@@ -107,7 +107,7 @@ export class ProviderController {
     return provider.send(method, params)
   }
 
-  ethRequestAccounts = async ({ session: { origin } }) => {
+  ethRequestAccounts = async ({ session: { origin } }: any) => {
     if (!permissionService.hasPermission(origin)) {
       throw ethErrors.provider.unauthorized()
     }
@@ -119,9 +119,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethAccounts = async ({ session: { origin } }) => {
-    // TODO: Implement WalletController.isUnlocked() in v2
-    // if (!permissionService.hasPermission(origin) || !WalletController.isUnlocked()) {
+  ethAccounts = async ({ session: { origin } }: any) => {
     if (!permissionService.hasPermission(origin)) {
       return []
     }
@@ -129,7 +127,7 @@ export class ProviderController {
     return this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
   }
 
-  ethCoinbase = async ({ session: { origin } }) => {
+  ethCoinbase = async ({ session: { origin } }: any) => {
     if (!permissionService.hasPermission(origin)) {
       return null
     }
@@ -138,10 +136,11 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethChainId = async () => {
-    const networkId = await storage.get('networkId')
-    const network = networks.find((n) => n.id === networkId)
-    return intToHex(network?.chainId || networks[0].chainId)
+  ethChainId = async ({ session: { origin } }: any) => {
+    if (permissionService.hasPermission(origin)) {
+      return intToHex(permissionService.getConnectedSite(origin)?.chainId || 1)
+    }
+    return intToHex(1)
   }
 
   @Reflect.metadata('APPROVAL', ['SendTransaction', false])
@@ -217,7 +216,25 @@ export class ProviderController {
     return handleSignMessage(approvalRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SwitchNetwork', false])
+  @Reflect.metadata('APPROVAL', [
+    'AddChain',
+    ({ data, session }: any) => {
+      if (!data.params[0]) {
+        throw ethErrors.rpc.invalidParams('params is required but got []')
+      }
+      if (!data.params[0]?.chainId) {
+        throw ethErrors.rpc.invalidParams('chainId is required')
+      }
+      const connected = permissionService.getConnectedSite(session.origin)
+      if (connected) {
+        const { chainId } = data.params[0]
+        const network = networks.find((n) => Number(n.chainId) === Number(chainId))
+        if (network) {
+          return true
+        }
+      }
+    }
+  ])
   walletAddEthereumChain = ({
     data: {
       params: [chainParams]
@@ -258,24 +275,42 @@ export class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['SwitchNetwork', false])
+  @Reflect.metadata('APPROVAL', [
+    'AddChain',
+    ({ data, session }: any) => {
+      if (!data.params[0]) {
+        throw ethErrors.rpc.invalidParams('params is required but got []')
+      }
+      if (!data.params[0]?.chainId) {
+        throw ethErrors.rpc.invalidParams('chainId is required')
+      }
+      const connected = permissionService.getConnectedSite(session.origin)
+      if (connected) {
+        const { chainId } = data.params[0]
+        const network = networks.find((n) => Number(n.chainId) === Number(chainId))
+        if (network) {
+          return true
+        }
+      }
+    }
+  ])
   walletSwitchEthereumChain = ({
     data: {
       params: [chainParams]
     },
     session: { origin }
-  }) => {
+  }: any) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
     }
-
-    const network = networks.find((n) => n.chainId === chainId)
+    const network = networks.find((n) => Number(n.chainId) === chainId)
 
     if (!network) {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
+    permissionService.updateConnectSite(origin, { chainId }, true)
     sessionService.broadcastEvent(
       'chainChanged',
       {
@@ -307,9 +342,7 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }) => {
     const result: Web3WalletPermission[] = []
-    // TODO: Implement WalletController.isUnlocked() in v2
-    // if (WalletController.isUnlocked() && permissionService.getConnectedSite(origin)) {
-    if (permissionService.getConnectedSite(origin)) {
+    if (permissionService.getConnectedSite(origin) && this.mainCtrl.keystore.isUnlocked) {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result

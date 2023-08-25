@@ -6,7 +6,6 @@ import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -59,7 +58,7 @@ const AccountPersonalizeScreen = () => {
               ))}
             </Wrapper>
             <Button
-              onPress={() => navigate(WEB_ROUTES.onboarding)}
+              onPress={() => navigate('/')}
               text={t('Save and Continue')}
               style={[spacings.mtLg, flexboxStyles.alignSelfEnd]}
             />

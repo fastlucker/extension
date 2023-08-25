@@ -9,8 +9,8 @@ const routesConfig: {
     title: string
   }
 } = {
-  [ROUTES.unlockVault]: {
-    route: ROUTES.unlockVault,
+  [ROUTES.keyStoreUnlock]: {
+    route: ROUTES.keyStoreUnlock,
     title: Platform.select({
       default: i18n.t('Welcome Back')
     })
@@ -60,15 +60,15 @@ const routesConfig: {
     route: ROUTES.authEmailRegister,
     title: ''
   },
-  [ROUTES.createKeyStore]: {
-    route: ROUTES.createKeyStore,
+  [ROUTES.keyStoreSetup]: {
+    route: ROUTES.keyStoreSetup,
     title: i18n.t('Ambire Key Store'),
-    flow: 'emailAuth',
+    flow: 'email',
     flowStep: 2
   },
   [ROUTES.createEmailVault]: {
     route: ROUTES.createEmailVault,
-    flow: 'emailAuth',
+    flow: 'email',
     flowStep: 0
   },
   [ROUTES.auth]: {
@@ -84,7 +84,7 @@ const routesConfig: {
       default: i18n.t('Login'),
       web: ''
     }),
-    flow: 'emailAuth',
+    flow: 'email',
     flowStep: 1
   },
   [ROUTES.ambireAccountLoginPasswordConfirm]: {
@@ -117,7 +117,7 @@ const routesConfig: {
   [ROUTES.hardwareWalletSelect]: {
     route: ROUTES.hardwareWalletSelect,
     title: '',
-    flow: 'hwAuth',
+    flow: 'hw',
     flowStep: 0
   },
   [ROUTES.hardwareWalletLedger]: {
@@ -139,7 +139,7 @@ const routesConfig: {
   [ROUTES.externalSigner]: {
     route: ROUTES.externalSigner,
     title: '',
-    flow: 'legacyAuth',
+    flow: 'legacy',
     flowStep: 0
   },
   [ROUTES.dashboard]: {
@@ -231,13 +231,6 @@ const routesConfig: {
     title: Platform.select({
       web: i18n.t('Webpage Wants to Connect'),
       default: i18n.t('dApp Wants to Connect')
-    })
-  },
-  [ROUTES.switchNetwork]: {
-    route: ROUTES.switchNetwork,
-    title: Platform.select({
-      web: i18n.t('Webpage Wants to Switch Network'),
-      default: i18n.t('dApp Wants to Switch Network')
     })
   },
   [ROUTES.watchAsset]: {

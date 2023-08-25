@@ -86,7 +86,6 @@ class PermissionService {
 
   updateConnectSite = (origin: string, value: Partial<ConnectedSite>, partialUpdate?: boolean) => {
     if (!this.lruCache || !this.lruCache.has(origin)) return
-
     if (partialUpdate) {
       const _value = this.lruCache.get(origin)
       this.lruCache.set(origin, { ..._value, ...value } as ConnectedSite)

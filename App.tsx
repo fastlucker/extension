@@ -14,10 +14,8 @@ SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry er
 
 const App = () => {
   return (
-    <GestureHandlerRootView
-      style={[flexboxStyles.flex1, { backgroundColor: colors.hauntedDreams }]}
-    >
-      <StatusBar style="light" backgroundColor={colors.wooed} />
+    <GestureHandlerRootView style={[flexboxStyles.flex1, { backgroundColor: colors.white }]}>
+      <StatusBar style="light" backgroundColor={colors.zircon} />
 
       <AppInit />
     </GestureHandlerRootView>

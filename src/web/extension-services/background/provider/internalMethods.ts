@@ -1,5 +1,7 @@
 import providerController from '@web/extension-services/background/provider/ProviderController'
 
+import permission from '../services/permission'
+
 const tabCheckin = ({
   data: {
     params: { name, icon }
@@ -13,9 +15,18 @@ const tabCheckin = ({
 }
 
 const getProviderState = async (req) => {
-  const isUnlocked = true // TODO: implement in v2
-  const chainId = await providerController.ethChainId()
-  const networkVersion = await providerController.netVersion()
+  const isUnlocked = req.mainCtrl.keystore.isUnlocked
+  const defaultChainId = permission.getWithoutUpdate(origin)?.chainId
+  const chainId = defaultChainId
+    ? intToHex(defaultChainId)
+    : await providerController.ethChainId(req)
+  let networkVersion = '1'
+
+  try {
+    networkVersion = parseInt(chainId, 16).toString()
+  } catch (error) {
+    networkVersion = '1'
+  }
 
   return {
     chainId,

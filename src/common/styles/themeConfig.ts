@@ -27,7 +27,7 @@ const ThemeColors = {
   },
   secondaryText: {
     [THEME_TYPES.LIGHT]: colors.white,
-    [THEME_TYPES.DARK]: colors.black
+    [THEME_TYPES.DARK]: colors.martinique
   },
   panelBackground: {
     [THEME_TYPES.LIGHT]: colors.white,
@@ -71,7 +71,7 @@ export const lightOnlyRoutesOnMobile = []
 
 export const lightOnlyRoutesOnWeb = [
   WEB_ROUTES.createEmailVault,
-  WEB_ROUTES.createKeyStore,
+  WEB_ROUTES.keyStoreSetup,
   WEB_ROUTES.getStarted,
   WEB_ROUTES.terms,
   WEB_ROUTES.authEmailAccount,

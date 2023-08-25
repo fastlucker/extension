@@ -65,6 +65,17 @@ import { controllersMapping } from './types'
         params: (mainCtrl as any)[ctrl]
       })
     })
+    ;(mainCtrl as any)[ctrl]?.onError(() => {
+      const errors = (mainCtrl as any)[ctrl].getErrors()
+      const lastError = errors[errors.length - 1]
+      if (lastError) console.error(lastError.error)
+
+      pmRef.request({
+        type: 'broadcast-error',
+        method: ctrl,
+        params: { errors, controller: ctrl }
+      })
+    })
   })
   // Broadcast onUpdate for the main controllers
   mainCtrl.onUpdate(() => {
@@ -72,6 +83,17 @@ import { controllersMapping } from './types'
       type: 'broadcast',
       method: 'main',
       params: mainCtrl
+    })
+  })
+  mainCtrl.onError(() => {
+    const errors = mainCtrl.getErrors()
+    const lastError = errors[errors.length - 1]
+    if (lastError) console.error(lastError.error)
+
+    pmRef?.request({
+      type: 'broadcast-error',
+      method: 'main',
+      params: { errors, controller: 'main' }
     })
   })
 
@@ -175,6 +197,22 @@ import { controllersMapping } from './types'
 
             case 'LATTICE_CONTROLLER_UNLOCK':
               return latticeCtrl.unlock()
+
+            case 'KEYSTORE_CONTROLLER_ADD_SECRET':
+              return mainCtrl.keystore.addSecret(
+                data.params.secretId,
+                data.params.secret,
+                data.params.extraEntropy,
+                data.params.leaveUnlocked
+              )
+            case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
+              return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
+            case 'KEYSTORE_CONTROLLER_LOCK':
+              return mainCtrl.keystore.lock()
+            case 'KEYSTORE_CONTROLLER_ADD_KEYS':
+              return mainCtrl.keystore.addKeys(data.params.keys)
+            case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
+              return mainCtrl.keystore.resetErrorState()
 
             case 'WALLET_CONTROLLER_IS_UNLOCKED':
               return null // TODO: implement in v2
@@ -306,12 +344,12 @@ import { controllersMapping } from './types'
       return provider({ ...req, mainCtrl })
     })
   })
-
-  // On first install, open Ambire Extension in new tab to start the login process
-  browser.runtime.onInstalled.addListener(({ reason }) => {
-    if (reason === 'install') {
-      const extensionURL = browser.runtime.getURL('tab.html')
-      browser.tabs.create({ url: extensionURL })
-    }
-  })
 })()
+
+// On first install, open Ambire Extension in a new tab to start the login process
+browser.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === 'install') {
+    const extensionURL = browser.runtime.getURL('tab.html')
+    browser.tabs.create({ url: extensionURL })
+  }
+})
