@@ -13,7 +13,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
   const portfolioState = usePortfolioControllerState()
-  console.log(portfolioState)
+
   useEffect(() => {
     // Initially we set all controller states to empty object
     // if the states of all controllers are not an empty object
