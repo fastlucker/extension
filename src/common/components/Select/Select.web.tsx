@@ -26,6 +26,7 @@ interface Props {
   iconWidth?: number
   iconHeight?: number
   openMenuOnClick?: boolean
+  onDropdownOpen?: () => void
 }
 
 const SelectComponent = ({
@@ -41,15 +42,16 @@ const SelectComponent = ({
   controlStyle,
   iconWidth = 36,
   iconHeight = 36,
-  openMenuOnClick = true
+  openMenuOnClick = true,
+  onDropdownOpen
 }: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-
+  console.log(onDropdownOpen)
   const DropdownIndicator = (props: DropdownIndicatorProps<any>) => {
     return (
       <components.DropdownIndicator {...props}>
         <NavIconWrapper
-          onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+          onPress={() => (onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen))}
           width={iconWidth}
           height={iconHeight}
           hoverBackground={colors.lightViolet}
@@ -84,7 +86,9 @@ const SelectComponent = ({
     <>
       {label && <Text style={[spacings.mbMi]}>{label}</Text>}
       <Pressable
-        onPress={() => openMenuOnClick && setIsDropdownOpen(!isDropdownOpen)}
+        onPress={() =>
+          openMenuOnClick && onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen)
+        }
         disabled={disabled}
         // The element should have a zIndex assigned, otherwise the dropdown menu will overlap with the close element.
         style={{ zIndex: 1, ...style }}

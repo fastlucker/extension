@@ -16,6 +16,7 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -100,6 +101,7 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
         iconHeight={25}
         controlStyle={{ width: 235 }}
         openMenuOnClick={false}
+        onDropdownOpen={() => navigate(WEB_ROUTES.accountSelect)}
       />
       <View style={[flexboxStyles.directionRow]}>
         <Button

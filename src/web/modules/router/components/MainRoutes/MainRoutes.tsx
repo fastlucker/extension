@@ -15,6 +15,7 @@ import colors from '@common/styles/colors'
 import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
+import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
 import AccountsScreen from '@web/modules/accounts/screens/AccountsScreen'
 import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
 import AddAccountPasswordToVaultScreen from '@web/modules/auth/screens/AddAccountPasswordToVaultScreen'
@@ -97,6 +98,7 @@ const MainRoutes = () => {
               element={<HardwareWalletSelectorScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
+            <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
             <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
             <Route
               path={WEB_ROUTES.hardwareWalletSelect}
