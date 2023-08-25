@@ -26,7 +26,6 @@ const NavIconWrapper = ({
   ...rest
 }: Props) => {
   const childrenArray = React.Children.toArray(children)
-
   return (
     <Pressable onPress={onPress} {...rest}>
       {({ hovered }: any) => (
@@ -40,7 +39,10 @@ const NavIconWrapper = ({
             ...flexbox.alignCenter,
             ...flexbox.justifyCenter,
             ...style,
-            backgroundColor: hovered && hoverBackground ? hoverBackground : colors.melrose_15,
+            backgroundColor:
+              hovered && hoverBackground
+                ? hoverBackground
+                : style?.backgroundColor || colors.melrose_15,
             overflow: 'hidden'
           }}
         >

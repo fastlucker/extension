@@ -25,6 +25,7 @@ interface Props {
   controlStyle?: ViewStyle
   iconWidth?: number
   iconHeight?: number
+  openMenuOnClick?: boolean
 }
 
 const SelectComponent = ({
@@ -39,7 +40,8 @@ const SelectComponent = ({
   style,
   controlStyle,
   iconWidth = 36,
-  iconHeight = 36
+  iconHeight = 36,
+  openMenuOnClick = true
 }: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
@@ -82,7 +84,7 @@ const SelectComponent = ({
     <>
       {label && <Text style={[spacings.mbMi]}>{label}</Text>}
       <Pressable
-        onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+        onPress={() => openMenuOnClick && setIsDropdownOpen(!isDropdownOpen)}
         disabled={disabled}
         // The element should have a zIndex assigned, otherwise the dropdown menu will overlap with the close element.
         style={{ zIndex: 1, ...style }}
@@ -126,6 +128,7 @@ const SelectComponent = ({
           value={value}
           onChange={setValue}
           placeholder={placeholder}
+          openMenuOnClick={openMenuOnClick}
           menuPlacement={menuPlacement}
         />
       </Pressable>

@@ -8,7 +8,7 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const MaximizeIcon: React.FC<Props> = ({
+const MinimizeIcon: React.FC<Props> = ({
   width = 24,
   height = 24,
   color = colors.martinique,
@@ -33,4 +33,4 @@ const MaximizeIcon: React.FC<Props> = ({
   </Svg>
 )
 
-export default MaximizeIcon
+export default MinimizeIcon
