@@ -3,6 +3,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 const ControllersStateLoadedContext = createContext<boolean>(false)
 
@@ -11,7 +12,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const accountAdderState = useAccountAdderControllerState()
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
-
+  const portfolioState = usePortfolioControllerState()
+  console.log(portfolioState)
   useEffect(() => {
     // Initially we set all controller states to empty object
     // if the states of all controllers are not an empty object
@@ -20,11 +22,12 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     if (
       !Object.keys(mainState).length &&
       !Object.keys(accountAdderState).length &&
-      !Object.keys(keystoreState).length
+      !Object.keys(keystoreState).length &&
+      !Object.keys(portfolioState.state).length
     ) {
       setIsStateLoaded(true)
     }
-  }, [mainState, accountAdderState, keystoreState])
+  }, [mainState, accountAdderState, keystoreState, portfolioState])
 
   return (
     <ControllersStateLoadedContext.Provider value={useMemo(() => isStateLoaded, [isStateLoaded])}>
