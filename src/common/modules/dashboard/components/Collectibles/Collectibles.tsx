@@ -4,7 +4,7 @@ import { View } from 'react-native'
 
 import Collection from './Collection'
 
-const COLLECTIBLES: CollectionResult[] = [
+export const COLLECTIBLES: CollectionResult[] = [
   {
     name: 'FIESTA',
     symbol: 'NFT Fiesta',
@@ -12,7 +12,8 @@ const COLLECTIBLES: CollectionResult[] = [
     decimals: 1,
     collectibles: [{ id: 137n, url: 'https://storage.googleapis.com/nftfiesta/137' }],
     address: '0x18Ce9CF7156584CDffad05003410C3633EFD1ad0',
-    priceIn: []
+    priceIn: [],
+    networkId: 'polygon'
   },
   {
     name: 'IlluminatiGoblins',
@@ -26,7 +27,8 @@ const COLLECTIBLES: CollectionResult[] = [
       }
     ],
     address: '0x026224A2940bFE258D0dbE947919B62fE321F042',
-    priceIn: [{ baseCurrency: 'usd', price: 1621.25 }]
+    priceIn: [{ baseCurrency: 'usd', price: 1621.25 }],
+    networkId: 'polygon'
   },
   {
     name: 'Zerion DNA 1.0',
@@ -52,7 +54,8 @@ const COLLECTIBLES: CollectionResult[] = [
       }
     ],
     address: '0xcF30DEf37DcB65d244F14E075Dc0ce875ccFa065',
-    priceIn: []
+    priceIn: [],
+    networkId: 'avalanche'
   },
   {
     name: 'Anti-NFT NFT Club',
@@ -66,7 +69,8 @@ const COLLECTIBLES: CollectionResult[] = [
       }
     ],
     address: '0x932261f9Fc8DA46C4a22e31B45c4De60623848bF',
-    priceIn: [{ baseCurrency: 'usd', price: 0.163975 }]
+    priceIn: [{ baseCurrency: 'usd', price: 0.163975 }],
+    networkId: 'ethereum'
   },
   {
     name: 'Sin City Elite',
@@ -80,7 +84,8 @@ const COLLECTIBLES: CollectionResult[] = [
       }
     ],
     address: '0x2B8e0A6933E1b0bfE652D8a45C8Bd32D279ce489',
-    priceIn: []
+    priceIn: [],
+    networkId: 'ethereum'
   },
   {
     name: 'Awardable Open Edition',
@@ -94,17 +99,18 @@ const COLLECTIBLES: CollectionResult[] = [
       }
     ],
     address: '0x7c41e89e299B1AF7C549D42e1483b25Bf84B1A11',
-    priceIn: []
+    priceIn: [],
+    networkId: 'polygon'
   }
 ]
 
 const Collectibles = () => {
   return (
     <View>
-      {COLLECTIBLES.map(({ address, name, network, collectibles }) => (
+      {COLLECTIBLES.map(({ address, name, networkId, collectibles }) => (
         <Collection
           address={address}
-          network={network || 'ethereum'}
+          networkId={networkId}
           key={address}
           name={name}
           collectibles={collectibles}

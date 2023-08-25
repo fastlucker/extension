@@ -14,7 +14,7 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Props {
   address: string
   name: string
-  network: NetworkIconNameType
+  networkId: NetworkIconNameType
   collectibles: Collectible[]
 }
 
@@ -41,7 +41,7 @@ export const handleCollectibleUri = (uri: string) => {
   return imageUri
 }
 
-const Collection: FC<Props> = ({ address, name, network, collectibles }) => {
+const Collection: FC<Props> = ({ address, name, networkId, collectibles }) => {
   const [image, setImage] = useState('')
   const { navigate } = useNavigation()
 
@@ -87,9 +87,9 @@ const Collection: FC<Props> = ({ address, name, network, collectibles }) => {
         <Text shouldScale={false} fontSize={12}>
           on
         </Text>
-        <NetworkIcon name={network} style={{ width: 25, height: 25 }} />
+        <NetworkIcon name={networkId} style={{ width: 25, height: 25 }} />
         <Text style={[spacings.mrMi]} shouldScale={false} fontSize={12}>
-          {network}
+          {networkId}
         </Text>
       </View>
     </Pressable>
