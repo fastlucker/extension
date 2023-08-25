@@ -1,3 +1,4 @@
+import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
 import React from 'react'
 import { Pressable, View } from 'react-native'
 
@@ -12,33 +13,46 @@ import TokenItem from './TokenItem'
 
 // TODO: correct props once connected with portfolio controller
 interface Props {
-  tokens: []
+  tokens: any[] | TokenResultInterface[]
 }
 
 const Tokens = ({ tokens }: Props) => {
   const { t } = useTranslation()
   // TODO: we will have different sorting here on v2. We will have pinned tokens with 0 balance, gas tokens and etc so this will be decided over time once all of them are wired up
-  const sortedTokens = tokens.sort((a, b) => b.balanceUSD - a.balanceUSD)
+  const sortedTokens = tokens
 
-  // TODO: Calculate each token height and apply scroll
+  const TOKEN_HEIGHT = 52
   return (
-    <Wrapper contentContainerStyle={[spacings.ph0, spacings.pv0]}>
+    <Wrapper
+      contentContainerStyle={[
+        { height: TOKEN_HEIGHT * 5 },
+        spacings.mrTy,
+        spacings.ph0,
+        spacings.pv0
+      ]}
+    >
       {/* {!!isCurrNetworkBalanceLoading && <TokensListLoader />} */}
 
       {/* // TODO: Implement rewards token */}
       {/* {!isCurrNetworkBalanceLoading && <Rewards />} */}
 
+      {!sortedTokens.length && <Text>{t('No tokens yet')}</Text>}
+
       {!!sortedTokens.length &&
-        sortedTokens.map(({ address, symbol, network, balance, balanceUSD }: any, i: number) => (
-          <TokenItem
-            key={`token-${address}-${i}`}
-            symbol={symbol}
-            balance={balance}
-            balanceUSD={balanceUSD}
-            address={address}
-            network={network}
-          />
-        ))}
+        sortedTokens.map(
+          ({ address, amount, decimals, networkId, priceIn, symbol, gasToken }: any) => (
+            <TokenItem
+              key={`token-${address}-${networkId}-${gasToken}`}
+              address={address}
+              amount={amount}
+              decimals={decimals}
+              networkId={networkId}
+              priceIn={priceIn}
+              symbol={symbol}
+              gasToken={gasToken}
+            />
+          )
+        )}
       {/* TODO: implementation of add custom token will be in sprint 4 */}
       <Pressable>
         {({ hovered }: any) => (

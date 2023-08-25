@@ -1,6 +1,9 @@
-import commonUseRelayerData, { UseRelayerDataProps } from 'ambire-common/v1/hooks/useRelayerData'
+import { relayerCall } from 'ambire-common/src/libs/relayerCall/relayerCall'
 
-const useRelayerData = (props: Omit<UseRelayerDataProps, 'fetch'>) =>
-  commonUseRelayerData({ fetch, ...props })
+import { RELAYER_URL } from '@env'
+
+const callRelayer = relayerCall.bind({ url: RELAYER_URL, fetch })
+
+const useRelayerData = (props: any) => callRelayer(props)
 
 export default useRelayerData

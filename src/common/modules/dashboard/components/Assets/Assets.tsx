@@ -19,7 +19,7 @@ interface Props {
 // component rerendering when switching tabs.
 const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0 }
 
-const Assets = ({ openTab, tokens }: Props) => {
+const Assets = ({ tokens, openTab }: Props) => {
   return (
     <View
       style={{
