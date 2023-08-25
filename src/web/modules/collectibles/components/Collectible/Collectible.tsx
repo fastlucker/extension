@@ -12,9 +12,10 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import { fetchCaught } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import { getUiType } from '@web/utils/uiType'
+
+import styles from './styles'
 
 const fetchCollectible = async (url: string): Promise<CollectibleData | null> =>
   fetchCaught(url).then((resp) => {
@@ -84,29 +85,12 @@ const Collectible: FC<Props> = ({ url, collectionData }) => {
     >
       {({ hovered }: any) => (
         <>
-          <Image
-            source={{ uri: handleCollectibleUri(data.image) }}
-            style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
-          />
+          <Image source={{ uri: handleCollectibleUri(data.image) }} style={styles.image} />
           {hovered ? (
-            <View
-              style={[
-                {
-                  position: 'absolute',
-                  width: '100%',
-                  height: '100%',
-                  ...spacings.pv,
-                  ...spacings.pvTy,
-                  ...spacings.phTy,
-                  ...flexbox.justifySpaceBetween,
-                  zIndex: 3
-                },
-                isTab ? spacings.ptMd : spacings.ptTy
-              ]}
-            >
+            <View style={[styles.hoveredContent, isTab ? spacings.ptMd : spacings.ptTy]}>
               <View>
                 <Text
-                  style={[{ textAlign: 'center' }, isTab ? spacings.mbTy : {}]}
+                  style={[styles.text, isTab ? spacings.mbTy : {}]}
                   color={colors.martinique}
                   fontSize={isTab ? 24 : 20}
                   weight="medium"
@@ -116,7 +100,7 @@ const Collectible: FC<Props> = ({ url, collectionData }) => {
                 {/* 
                 We won't show the description for now
                 <Text
-                  style={{ textAlign: 'center' }}
+                  style={styles.text}
                   color={colors.martinique}
                   weight="regular"
                   fontSize={isTab ? 16 : 12}
@@ -129,7 +113,7 @@ const Collectible: FC<Props> = ({ url, collectionData }) => {
                 <Text
                   fontSize={isTab ? 20 : 16}
                   weight="regular"
-                  style={[{ textAlign: 'center' }, isTab ? spacings.mbSm : spacings.mbTy]}
+                  style={[styles.text, isTab ? spacings.mbSm : spacings.mbTy]}
                   color={colors.violet}
                 >
                   $0.00
@@ -140,7 +124,7 @@ const Collectible: FC<Props> = ({ url, collectionData }) => {
                   type="outline"
                   size="small"
                   accentColor={colors.violet}
-                  style={[flexbox.directionRow]}
+                  style={styles.button}
                   text={t('Send')}
                   hasBottomSpacing={false}
                 >
@@ -149,20 +133,7 @@ const Collectible: FC<Props> = ({ url, collectionData }) => {
               </View>
             </View>
           ) : null}
-          {hovered ? (
-            <View
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                backgroundColor: colors.white,
-                opacity: 0.78,
-                zIndex: 1
-              }}
-            />
-          ) : null}
+          {hovered ? <View style={styles.hoveredBackground} /> : null}
         </>
       )}
     </Pressable>

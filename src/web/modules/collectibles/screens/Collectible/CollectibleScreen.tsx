@@ -42,7 +42,7 @@ const CollectibleScreenInner = ({ collectionData, name, image, description, owne
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.view}>
       <TabHeader
         // @TODO: add a case where <CollectionScreen /> doesn't receive collectibles from useRoute
         // and has to fetch them, so the back button here leads to that screen.(since we can't pass

@@ -11,7 +11,6 @@ import routesConfig from '@common/modules/router/config/routesConfig'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
 import Stepper from '@web/modules/router/components/Stepper'
 
 import styles from './styles'
@@ -20,14 +19,11 @@ export const HeaderLeft = ({ handleGoBack }: { handleGoBack: () => void }) => {
   const { t } = useTranslation()
 
   return (
-    <Pressable
-      onPress={handleGoBack}
-      style={{ ...flexboxStyles.directionRow, ...flexboxStyles.alignCenter }}
-    >
+    <Pressable onPress={handleGoBack} style={styles.headerLeft}>
       <NavIconWrapper width={40} height={40} onPress={handleGoBack}>
         <LeftArrowIcon width={40} height={40} color={colors.violet} />
       </NavIconWrapper>
-      <Text fontSize={14} weight="regular" color={colors.martinique} style={spacings.mlTy}>
+      <Text fontSize={14} weight="regular" color={colors.martinique} style={styles.headerLeftText}>
         {t('Back')}
       </Text>
     </Pressable>
@@ -55,14 +51,14 @@ const TabHeader: React.FC<any> = ({
   const shouldDisplayStepper = flow && !hideStepper
 
   return (
-    <View style={[styles.container, spacings.pv, spacings.ph]}>
+    <View style={styles.container}>
       {canGoBack ? <HeaderLeft handleGoBack={handleGoBack} /> : null}
       {!!shouldDisplayStepper && <Stepper step={flowStep} />}
       {!shouldDisplayStepper && (!!title || !!pageTitle) && (
         <Text
           fontSize={20}
           weight="medium"
-          style={[styles.title, spacings.pl, canGoBack ? { paddingRight: 140 } : spacings.pr]}
+          style={[styles.title, canGoBack ? { paddingRight: 140 } : spacings.pr]}
           numberOfLines={2}
         >
           {pageTitle || title || ' '}

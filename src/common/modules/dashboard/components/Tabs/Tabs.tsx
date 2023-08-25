@@ -4,8 +4,6 @@ import { Pressable, View } from 'react-native'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 
 import styles from './styles'
 
@@ -28,7 +26,7 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab }) => {
   const { t } = useTranslation()
 
   return (
-    <View style={[flexbox.directionRow]}>
+    <View style={styles.container}>
       <Pressable
         onPress={() => {
           handleChangeQuery('tokens')
@@ -47,7 +45,7 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab }) => {
             weight="regular"
             color={openTab === 'tokens' ? colors.violet : colors.martinique_65}
             fontSize={16}
-            style={[spacings.mbTy]}
+            style={styles.tabItemText}
           >
             {t('Tokens')}
           </Text>
@@ -70,7 +68,7 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab }) => {
             weight="regular"
             color={openTab === 'collectibles' ? colors.violet : colors.martinique_65}
             fontSize={16}
-            style={[spacings.mbTy]}
+            style={styles.tabItemText}
           >
             {t('Collectibles')}
           </Text>

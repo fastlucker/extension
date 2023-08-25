@@ -13,7 +13,10 @@ import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
 import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
-  const { authStatus } = useAuth()
+  // const { authStatus } = useAuth()
+  const { authStatus } = {
+    authStatus: AUTH_STATUS.AUTHENTICATED
+  }
   const { navigate } = useNavigation()
   const { approval } = useApproval()
   const { isInNotification, isTab } = getUiType()

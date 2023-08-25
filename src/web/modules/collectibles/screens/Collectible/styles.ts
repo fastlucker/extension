@@ -7,6 +7,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import commonWebStyles from '@web/styles/utils/common'
 
 interface Style {
+  view: ViewStyle
   container: ViewStyle
   contentContainer: ViewStyle
   section: ViewStyle
@@ -24,6 +25,7 @@ interface Style {
 }
 
 const styles = StyleSheet.create<Style>({
+  view: flexbox.flex1,
   container: {
     backgroundColor: colors.white,
     ...flexbox.flex1,
