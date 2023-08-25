@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { View } from 'react-native'
 
+import Banner from '@common/components/Banner'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
@@ -62,26 +63,46 @@ const DashboardScreen = () => {
   const totalBalance = 20500.9
 
   return (
-    <Wrapper contentContainerStyle={styles.contentContainer} style={styles.container}>
-      <View
-        style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.phSm, spacings.pvSm]}
-      >
-        <View>
-          <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={16}>
-            {t('Balance')}
-          </Text>
-          <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-            <Text fontSize={30} shouldScale={false} style={{ lineHeight: 34 }} weight="regular">
-              $ {Number(totalBalance.toFixed(2).split('.')[0]).toLocaleString('en-US')}
-            </Text>
-            <Text fontSize={20} shouldScale={false} weight="regular">
-              .{Number(totalBalance.toFixed(2).split('.')[1])}
-            </Text>
+    <Wrapper style={styles.container}>
+      <View style={[spacings.phSm]}>
+        <View style={[styles.contentContainer]}>
+          <View style={styles.overview}>
+            <View>
+              <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={16}>
+                {t('Balance')}
+              </Text>
+              <View style={[flexbox.directionRow, flexbox.alignEnd]}>
+                <Text fontSize={30} shouldScale={false} style={{ lineHeight: 34 }} weight="regular">
+                  $ {Number(totalBalance.toFixed(2).split('.')[0]).toLocaleString('en-US')}
+                </Text>
+                <Text fontSize={20} shouldScale={false} weight="regular">
+                  .{Number(totalBalance.toFixed(2).split('.')[1])}
+                </Text>
+              </View>
+            </View>
+            <Routes />
+          </View>
+          <View style={styles.banners}>
+            <Banner title="An example banner" text="Image if this banner was real." />
+            <Banner
+              title="Waiting to be signed on Ethereum"
+              text="Triggering account recovery for the current account"
+              isHideBtnShown={false}
+              actions={[
+                {
+                  label: 'Sign',
+                  onPress: () => console.log('Signed')
+                },
+                {
+                  label: 'Reject',
+                  onPress: () => console.log('Rejected')
+                }
+              ]}
+            />
           </View>
         </View>
-        <Routes />
       </View>
-      <View style={[flexbox.flex1]}>
+      <View style={[styles.contentContainer, flexbox.flex1]}>
         <View style={[flexbox.directionRow, spacings.ph, flexbox.justifySpaceBetween]}>
           <Tabs setOpenTab={setOpenTab} openTab={openTab} />
           <Search />

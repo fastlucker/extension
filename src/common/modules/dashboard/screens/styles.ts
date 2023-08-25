@@ -8,6 +8,8 @@ import commonWebStyles from '@web/styles/utils/common'
 interface Style {
   container: ViewStyle
   contentContainer: ViewStyle
+  overview: ViewStyle
+  banners: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -19,7 +21,13 @@ const styles = StyleSheet.create<Style>({
   },
   container: {
     backgroundColor: colors.white
-  }
+  },
+  overview: {
+    ...flexbox.directionRow,
+    ...flexbox.justifySpaceBetween,
+    ...spacings.mb
+  },
+  banners: spacings.mb
 })
 
 export default styles

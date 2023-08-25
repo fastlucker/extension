@@ -12,6 +12,7 @@ interface Style {
   contentInner: ViewStyle
   icon: ViewStyle
   title: TextStyle
+  actions: ViewStyle
   action: ViewStyle
 }
 
@@ -41,10 +42,12 @@ const styles = StyleSheet.create<Style>({
     ...spacings.plMi,
     borderLeftColor: colors.violet,
     borderLeftWidth: 9,
-    minHeight: 65
+    ...spacings.pvTy
   },
   contentInner: {
-    ...spacings.mlTy
+    ...spacings.mlTy,
+    ...flexbox.wrap,
+    ...flexbox.flex1
   },
   icon: {
     ...flexbox.center,
@@ -54,6 +57,10 @@ const styles = StyleSheet.create<Style>({
     backgroundColor: colors.violet
   },
   title: { lineHeight: isTab ? 25 : 20 },
+  actions: {
+    ...flexbox.directionRow,
+    ...flexbox.alignCenter
+  },
   action: {
     ...spacings.mlLg
   }

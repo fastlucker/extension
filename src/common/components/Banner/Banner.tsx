@@ -37,19 +37,21 @@ const Banner: FC<Props> = ({ title, text, isHideBtnShown = true, actions = [] })
           </Text>
         </View>
       </View>
-      {actions.length > 0 &&
-        actions.map(({ label, onPress }) => (
-          <Pressable style={styles.action} onPress={onPress}>
-            <Text color={colors.violet} fontSize={14} weight="regular">
-              {label}
-            </Text>
-          </Pressable>
-        ))}
-      {isHideBtnShown && (
-        <Text color={colors.violet} fontSize={14} weight="regular">
-          Hide
-        </Text>
-      )}
+      <View style={styles.actions}>
+        {actions.length > 0 &&
+          actions.map(({ label, onPress }) => (
+            <Pressable style={styles.action} onPress={onPress}>
+              <Text color={colors.violet} fontSize={14} weight="regular">
+                {label}
+              </Text>
+            </Pressable>
+          ))}
+        {isHideBtnShown && (
+          <Text color={colors.violet} fontSize={14} weight="regular">
+            Hide
+          </Text>
+        )}
+      </View>
     </View>
   )
 }
