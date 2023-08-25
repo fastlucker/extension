@@ -8,7 +8,7 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 
 import styles from './styles'
-import TokenItem from './TokenItem.web'
+import TokenItem from './TokenItem'
 
 // TODO: correct props once connected with portfolio controller
 interface Props {
