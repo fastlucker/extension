@@ -26,67 +26,58 @@ interface State {
   }
 }
 
-const CollectibleScreen = () => {
+const CollectibleScreenInner = ({ collectionData, name, image, description, owner }: State) => {
   const { t } = useTranslation()
-  const [state, setState] = useState<State | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const { addToast } = useToast()
 
-  useEffect(() => {
-    storage.get('collectible', null).then((data) => {
-      setState(data)
-      setIsLoading(false)
-    })
-  }, [])
-
   const handleCopyAddress = () => {
-    if (!state) return
+    if (!collectionData) return
 
-    if (!state.collectionData?.address) {
+    if (!collectionData?.address) {
       addToast(t('Failed to copy address') as string, { timeout: 2500, type: 'error' })
       return
     }
-    Clipboard.setStringAsync(state.collectionData?.address || '')
+    Clipboard.setStringAsync(collectionData.address)
     addToast(t('Copied to clipboard!') as string, { timeout: 2500 })
   }
 
-  return !isLoading && state ? (
+  return (
     <View style={{ flex: 1 }}>
       <TabHeader
         // @TODO: add a case where <CollectionScreen /> doesn't receive collectibles from useRoute
         // and has to fetch them, so the back button here leads to that screen.(since we can't pass
         // collectibles to <CollectionScreen /> from <CollectibleScreen />)
         fallbackPrevRoute={`${ROUTES.dashboard}?tab=collectibles`}
-        text={state.collectionData?.name || 'Unknown collection'}
-        image={state.collectionData?.image}
+        text={name || 'Unknown collection'}
+        image={image}
       />
       <Wrapper style={styles.container}>
         <View style={styles.contentContainer}>
           <View style={[styles.section, styles.info]}>
             <View style={styles.infoImageWrapper}>
-              <Image source={{ uri: state.image }} style={styles.infoImage} />
+              <Image source={{ uri: image }} style={styles.infoImage} />
             </View>
             <Text color={colors.martinique} style={styles.sectionTitle}>
-              {state.name}
+              {name}
             </Text>
-            {state.description && (
+            {description && (
               <View style={styles.infoItem}>
                 <Text color={colors.martinique} style={styles.sectionSubtitle}>
-                  Description
+                  {t('Description')}
                 </Text>
                 <Text color={colors.martinique} style={styles.itemValue}>
-                  {state.description}
+                  {description}
                 </Text>
               </View>
             )}
-            {state.collectionData?.address && (
+            {collectionData?.address && (
               <View style={styles.infoItem}>
                 <Text color={colors.martinique} style={styles.sectionSubtitle}>
-                  Contract address
+                  {t('Contract address')}
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Text color={colors.martinique} style={styles.itemValue}>
-                    {state.collectionData?.address}
+                    {collectionData?.address}
                   </Text>
                   <Pressable style={styles.copyIcon} onPress={handleCopyAddress}>
                     <CopyIcon width={20} height={20} />
@@ -94,13 +85,13 @@ const CollectibleScreen = () => {
                 </View>
               </View>
             )}
-            {state.owner && (
+            {owner && (
               <View style={styles.infoItem}>
                 <Text color={colors.martinique} style={styles.sectionSubtitle}>
-                  Owner
+                  {t('Owner')}
                 </Text>
                 <Text color={colors.martinique} style={styles.itemValue}>
-                  {state.owner}
+                  {owner}
                 </Text>
               </View>
             )}
@@ -115,7 +106,41 @@ const CollectibleScreen = () => {
         </View>
       </Wrapper>
     </View>
-  ) : null
+  )
+}
+
+const CollectibleScreen = () => {
+  const [state, setState] = useState<State | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    storage.get('collectible', null).then((data) => {
+      setState(data)
+      setIsLoading(false)
+    })
+  }, [])
+
+  return !isLoading && state ? (
+    <CollectibleScreenInner
+      collectionData={state?.collectionData}
+      name={state?.name}
+      image={state?.image}
+      description={state?.description}
+      owner={state?.owner}
+    />
+  ) : (
+    <CollectibleScreenInner
+      collectionData={{
+        name: 'Loading...',
+        image: '',
+        address: ''
+      }}
+      name="Loading..."
+      image=""
+      description=""
+      owner=""
+    />
+  )
 }
 
 export default CollectibleScreen
