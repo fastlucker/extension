@@ -59,7 +59,7 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
             { width: '100%' }
           ]}
         >
-          <Text fontSize={14}>{trimAddress(mainCtrl.selectedAccount, 15)}</Text>
+          <Text fontSize={14}>{trimAddress(mainCtrl.selectedAccount, 14)}</Text>
           <CopyText
             text={mainCtrl.selectedAccount}
             style={{ backgroundColor: 'transparent', borderColor: 'transparent' }}
