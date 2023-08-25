@@ -6,6 +6,7 @@ import { formatUnits } from 'ethers'
 import React from 'react'
 import { View } from 'react-native'
 
+import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import InformationIcon from '@common/assets/svg/InformationIcon/InformationIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import Button from '@common/components/Button'
@@ -75,7 +76,11 @@ const TokenItem = ({ symbol, amount, priceIn, decimals, address, networkId, gasT
               <Text shouldScale={false} fontSize={12}>
                 on
               </Text>
-              <NetworkIcon name={networkId} style={{ width: 25, height: 25 }} />
+              {gasToken ? (
+                <GasTankIcon width={18} height={18} color={colors.violet} />
+              ) : (
+                <NetworkIcon name={networkId} style={{ width: 25, height: 25 }} />
+              )}
               <Text style={[spacings.mrMi]} shouldScale={false} fontSize={12}>
                 {gasToken ? 'Gas Tank' : networkData?.name}
               </Text>
