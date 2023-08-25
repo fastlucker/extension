@@ -7,6 +7,7 @@ import CopyIcon from '@common/assets/svg/CopyIcon'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import useToast from '@common/hooks/useToast'
+import { handleCollectibleUri } from '@common/modules/dashboard/components/Collectibles/Collection/Collection'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import { storage } from '@web/extension-services/background/webapi/storage'
@@ -56,7 +57,7 @@ const CollectibleScreenInner = ({ collectionData, name, image, description, owne
         <View style={styles.contentContainer}>
           <View style={[styles.section, styles.info]}>
             <View style={styles.infoImageWrapper}>
-              <Image source={{ uri: image }} style={styles.infoImage} />
+              <Image source={{ uri: handleCollectibleUri(image) }} style={styles.infoImage} />
             </View>
             <Text color={colors.martinique} style={styles.sectionTitle}>
               {name}
