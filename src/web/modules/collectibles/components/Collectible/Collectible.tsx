@@ -1,5 +1,5 @@
 import { Collectible as CollectibleType } from 'ambire-common/src/libs/portfolio/interfaces'
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Pressable, View, ViewStyle } from 'react-native'
 
@@ -11,6 +11,7 @@ import useNft from '@common/hooks/useNft'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import ImageIcon from '@web/assets/svg/ImageIcon'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
@@ -41,6 +42,7 @@ const containerStyle: ViewStyle[] = [
 ]
 
 const Collectible: FC<Props> = ({ id, collectionData }) => {
+  const [imageFailed, setImageFailed] = useState(false)
   const { t } = useTranslation()
   const { data, error, isLoading } = useNft({
     id,
@@ -68,7 +70,14 @@ const Collectible: FC<Props> = ({ id, collectionData }) => {
     >
       {({ hovered }: any) => (
         <>
-          {!error && data?.image && <Image source={{ uri: data.image }} style={styles.image} />}
+          {!error && data?.image && !imageFailed && (
+            <Image
+              onError={() => setImageFailed(true)}
+              source={{ uri: data.image }}
+              style={styles.image}
+            />
+          )}
+          {(error || imageFailed || !data?.image) && <ImageIcon width={SIZE} height={SIZE} />}
           {hovered ? (
             <View style={[styles.hoveredContent, isTab ? spacings.ptMd : spacings.ptTy]}>
               <View>
@@ -78,7 +87,7 @@ const Collectible: FC<Props> = ({ id, collectionData }) => {
                   fontSize={isTab ? 24 : 20}
                   weight="medium"
                 >
-                  {data?.name.slice(0, 10)}
+                  {data?.name ? data.name.slice(0, 10) : 'Unknown name'}
                 </Text>
                 {/* 
                 We won't show the description for now

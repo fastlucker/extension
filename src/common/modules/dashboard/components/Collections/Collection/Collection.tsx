@@ -1,5 +1,5 @@
 import { Collectible } from 'ambire-common/src/libs/portfolio/interfaces'
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { Image, Pressable, View } from 'react-native'
 
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -8,6 +8,7 @@ import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useNft from '@common/hooks/useNft'
 import { ROUTES } from '@common/modules/router/constants/common'
+import ImageIcon from '@web/assets/svg/ImageIcon'
 
 import styles from './styles'
 
@@ -19,6 +20,7 @@ interface Props {
 }
 
 const Collection: FC<Props> = ({ address, name, networkId, collectibles }) => {
+  const [imageFailed, setImageFailed] = useState(false)
   const { data } = useNft({
     address,
     networkId,
@@ -45,7 +47,14 @@ const Collection: FC<Props> = ({ address, name, networkId, collectibles }) => {
       }}
     >
       <View style={styles.imageAndName}>
-        <Image style={styles.image} source={{ uri: data?.image || '' }} />
+        {!imageFailed && data?.image && (
+          <Image
+            onError={() => setImageFailed(true)}
+            style={styles.image}
+            source={{ uri: data.image }}
+          />
+        )}
+        {(imageFailed || !data?.image) && <ImageIcon width={30} height={30} style={styles.image} />}
         <Text weight="regular" style={styles.name} fontSize={14}>
           {name} ({collectibles.length})
         </Text>
