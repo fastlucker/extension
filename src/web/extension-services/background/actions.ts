@@ -136,8 +136,8 @@ type KeystoreControllerLockAction = {
 type KeystoreControllerResetErrorStateAction = {
   type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
 }
-type ResolveApprovalAction = {
-  type: 'RESOLVE_APPROVAL'
+type ResolveNotificationRequestAction = {
+  type: 'RESOLVE_NOTIFICATION_REQUEST'
   params: {
     data: {
       hash?: string
@@ -146,8 +146,8 @@ type ResolveApprovalAction = {
     id: bigint
   }
 }
-type RejectApprovalAction = {
-  type: 'REJECT_APPROVAL'
+type RejectNotificationRequestAction = {
+  type: 'REJECT_NOTIFICATION_REQUEST'
   params: {
     error: string
     id: bigint
@@ -194,10 +194,6 @@ type WalletControllerAccountChangeAction = {
   type: 'WALLET_CONTROLLER_ACCOUNT_CHANGE'
   params: { selectedAcc: Account['addr'] }
 }
-type WalletControllerSendRequestAction = {
-  type: 'WALLET_CONTROLLER_SEND_REQUEST'
-  params: { data: any }
-}
 
 export type Action =
   | InitControllerStateAction
@@ -225,8 +221,8 @@ export type Action =
   | KeystoreControllerLockAction
   | KeystoreControllerAddKeysAction
   | KeystoreControllerResetErrorStateAction
-  | ResolveApprovalAction
-  | RejectApprovalAction
+  | ResolveNotificationRequestAction
+  | RejectNotificationRequestAction
   | WalletControllerIsUnlockedAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction

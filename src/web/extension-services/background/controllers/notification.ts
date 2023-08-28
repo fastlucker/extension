@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
+import { DappNotificationRequest } from 'ambire-common/src/interfaces/userRequest'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
@@ -12,20 +13,7 @@ import { IS_CHROME, IS_LINUX } from '@web/constants/common'
 import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
-export interface Approval {
-  id: bigint
-  signingTxId?: string
-  data: {
-    params?: import('react').ComponentProps<any>['params']
-    origin?: string
-    approvalComponent: any
-    requestDefer?: Promise<any>
-    approvalType?: string
-  }
-  winProps: any
-  resolve?(params?: any): void
-  reject?(err: EthereumProviderError<any>): void
-}
+import userNotification from './user-notification'
 
 const QUEUE_APPROVAL_COMPONENTS_WHITELIST = [
   'SendTransaction',
@@ -34,14 +22,12 @@ const QUEUE_APPROVAL_COMPONENTS_WHITELIST = [
   'LedgerHardwareWaiting'
 ]
 
-// something need user approval in window
-// should only open one window, unfocus will close the current notification
 export class NotificationController extends Events {
   mainCtrl: MainController
 
-  currentApproval: Approval | null = null
+  currentDappNotificationRequest: DappNotificationRequest | null = null
 
-  _approvals: Approval[] = []
+  _approvals: DappNotificationRequest[] = []
 
   notifiWindowId: null | number = null
 
@@ -51,7 +37,7 @@ export class NotificationController extends Events {
     return this._approvals
   }
 
-  set approvals(val: Approval[]) {
+  set approvals(val: DappNotificationRequest[]) {
     this._approvals = val
     if (val.length <= 0) {
       browser.browserAction.setBadgeText({
@@ -90,8 +76,8 @@ export class NotificationController extends Events {
 
       if (this.notifiWindowId !== null && winId !== this.notifiWindowId) {
         if (
-          this.currentApproval &&
-          !QUEUE_APPROVAL_COMPONENTS_WHITELIST.includes(this.currentApproval.data.approvalComponent)
+          this.currentDappNotificationRequest &&
+          !QUEUE_APPROVAL_COMPONENTS_WHITELIST.includes(this.currentDappNotificationRequest.screen)
         ) {
           this.rejectApproval()
         }
@@ -122,11 +108,11 @@ export class NotificationController extends Events {
         return
       }
 
-      if (this.approvals.length < 0) return
+      if (this.mainCtrl.dappsNotificationRequests.length < 0) return
 
-      const approval = this.approvals[0]
-      this.currentApproval = approval
-      this.openNotification(approval.winProps, true)
+      const notificationRequest = this.mainCtrl.dappsNotificationRequests[0]
+      this.currentDappNotificationRequest = notificationRequest
+      this.openNotification(notificationRequest.winProps, true)
     } catch (e) {
       // TODO:
       // Sentry.captureException(`activeFirstApproval failed: ${JSON.stringify(e)}`)
@@ -134,27 +120,30 @@ export class NotificationController extends Events {
     }
   }
 
-  deleteApproval = (approval) => {
-    if (approval && this.approvals.length > 1) {
-      this.approvals = this.approvals.filter((item) => approval.id !== item.id)
+  deleteApproval = (notificationRequest: DappNotificationRequest | null) => {
+    if (notificationRequest && this.mainCtrl.dappsNotificationRequests.length > 1) {
+      this.mainCtrl.dappsNotificationRequests = this.mainCtrl.dappsNotificationRequests.filter(
+        (item) => notificationRequest.id !== item.id
+      )
     } else {
-      this.currentApproval = null
-      this.approvals = []
+      this.currentDappNotificationRequest = null
+      this.mainCtrl.dappsNotificationRequests = []
     }
   }
 
-  getApproval = () => this.currentApproval
+  getApproval = () => this.currentDappNotificationRequest
 
   resolveApproval = async (data: any, approvalId: bigint) => {
-    if (approvalId && approvalId !== this.currentApproval?.id) return
-    this.currentApproval?.resolve && this.currentApproval?.resolve(data)
-    const approval = this.currentApproval
-    this.deleteApproval(approval)
+    if (approvalId && approvalId !== this.currentDappNotificationRequest?.id) return
+    this.currentDappNotificationRequest?.resolve &&
+      this.currentDappNotificationRequest?.resolve(data)
+    const notificationRequest = this.currentDappNotificationRequest
+    this.deleteApproval(notificationRequest)
 
-    if (this.approvals.length > 0) {
-      this.currentApproval = this.approvals[0]
+    if (this.mainCtrl.dappsNotificationRequests.length > 0) {
+      this.currentDappNotificationRequest = this.mainCtrl.dappsNotificationRequests[0]
     } else {
-      this.currentApproval = null
+      this.currentDappNotificationRequest = null
     }
 
     this.emit('resolve', data)
@@ -162,23 +151,18 @@ export class NotificationController extends Events {
 
   // eslint-disable-next-line default-param-last
   rejectApproval = async (err: string = 'Request rejected') => {
-    const approval = this.currentApproval
+    const notificationRequest = this.currentDappNotificationRequest
 
-    if (this.approvals.length <= 1) {
+    if (this.mainCtrl.dappsNotificationRequests.length <= 1) {
       await this.clear() // TODO: FIXME
     }
 
-    approval?.reject && approval?.reject(ethErrors.provider.userRejectedRequest<any>(err))
+    notificationRequest?.reject &&
+      notificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>(err))
 
-    if (approval?.data?.approvalComponent === 'SendTransaction') {
-      // Removes all cached signing requests (otherwise they will be shown again
-      // in the browser extension UI, when it gets opened by the user)
-      browser.storage.local.set({ [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
-    }
-
-    if (approval && this.approvals.length > 1) {
-      this.deleteApproval(approval)
-      this.currentApproval = this.approvals[0]
+    if (notificationRequest && this.mainCtrl.dappsNotificationRequests.length > 1) {
+      this.deleteApproval(notificationRequest)
+      this.currentDappNotificationRequest = this.mainCtrl.dappsNotificationRequests[0]
     } else {
       await this.clear()
     }
@@ -187,43 +171,50 @@ export class NotificationController extends Events {
 
   requestApproval = async (data: any, winProps?: any): Promise<any> => {
     return new Promise((resolve, reject) => {
-      let signingTxId
-
-      const approval: Approval = {
-        id: generateBigIntId(),
-        signingTxId,
-        data,
+      const id = generateBigIntId()
+      const notificationRequest: DappNotificationRequest = {
+        id,
         winProps,
-        resolve(data) {
+        session: data.params?.session,
+        screen: data.approvalComponent,
+        resolve: (data) => {
           resolve(data)
+          const userReq = this.mainCtrl.userRequests.find((req) => req.id === id)
+          this.mainCtrl.removeUserRequest(userReq?.id || id)
         },
-        reject(data) {
+        reject: (data) => {
           reject(data)
+          const userReq = this.mainCtrl.userRequests.find((req) => req.id === id)
+          this.mainCtrl.removeUserRequest(userReq?.id || id)
         }
       }
 
       if (!QUEUE_APPROVAL_COMPONENTS_WHITELIST.includes(data.approvalComponent)) {
-        if (this.currentApproval) {
+        if (this.currentDappNotificationRequest) {
           throw ethErrors.provider.userRejectedRequest(
-            'please request after current approval resolve'
+            'please request after current request resolve'
           )
         }
       } else if (
-        this.currentApproval &&
-        !QUEUE_APPROVAL_COMPONENTS_WHITELIST.includes(this.currentApproval.data.approvalComponent)
+        this.currentDappNotificationRequest &&
+        !QUEUE_APPROVAL_COMPONENTS_WHITELIST.includes(this.currentDappNotificationRequest.screen)
       ) {
-        throw ethErrors.provider.userRejectedRequest(
-          'please request after current approval resolve'
-        )
+        throw ethErrors.provider.userRejectedRequest('please request after current request resolve')
       }
 
       if (data.isUnshift) {
-        this.approvals = [approval, ...this.approvals]
-        this.currentApproval = approval
+        this.mainCtrl.dappsNotificationRequests = [
+          notificationRequest,
+          ...this.mainCtrl.dappsNotificationRequests
+        ]
+        this.currentDappNotificationRequest = notificationRequest
       } else {
-        this.approvals = [...this.approvals, approval]
-        if (!this.currentApproval) {
-          this.currentApproval = approval
+        this.mainCtrl.dappsNotificationRequests = [
+          ...this.mainCtrl.dappsNotificationRequests,
+          notificationRequest
+        ]
+        if (!this.currentDappNotificationRequest) {
+          this.currentDappNotificationRequest = notificationRequest
         }
       }
       if (
@@ -236,9 +227,71 @@ export class NotificationController extends Events {
 
         const network = networks.find((n) => Number(n.chainId) === chainId)
         if (network) {
-          this.resolveApproval(null, approval.id)
+          this.resolveApproval(null, notificationRequest.id)
           return
         }
+      }
+      if (['personal_sign', 'eth_sign'].includes(data?.params?.method)) {
+        const request = userNotification.createSignMessageUserRequest({
+          id,
+          data: data?.params?.data,
+          origin: data.params?.session?.origin,
+          selectedAccount: this.mainCtrl.selectedAccount || '',
+          onError: (err) => this.rejectApproval(err),
+          onSuccess: (data, id) => this.resolveApproval(data, id)
+        })
+        if (request) this.mainCtrl.addUserRequest(request)
+        else {
+          this.rejectApproval('Invalid request data')
+          return
+        }
+      }
+
+      if (
+        [
+          'eth_signTypedData',
+          'eth_signTypedData_v1',
+          'eth_signTypedData_v3',
+          'eth_signTypedData_v4'
+        ].includes(data?.params?.method)
+      ) {
+        const request = userNotification.createSignTypedDataUserRequest({
+          id,
+          data: data?.params?.data,
+          origin: data.params?.session?.origin,
+          selectedAccount: this.mainCtrl.selectedAccount || '',
+          onError: (err) => this.rejectApproval(err),
+          onSuccess: (data, id) => this.resolveApproval(data, id)
+        })
+        if (request) this.mainCtrl.addUserRequest(request)
+        else {
+          this.rejectApproval('Invalid request data')
+          return
+        }
+      }
+
+      if (
+        ['eth_sendTransaction', 'gs_multi_send', 'ambire_sendBatchTransaction'].includes(
+          data?.params?.data
+        )
+      ) {
+        const txs = data?.params?.data
+
+        Object.keys(txs).forEach((key) => {
+          const request = userNotification.createAccountOpUserRequest({
+            id,
+            txn: txs[key],
+            txs,
+            origin: data.params?.session?.origin,
+            selectedAccount: this.mainCtrl.selectedAccount || '',
+            onError: (err) => this.rejectApproval(err),
+            onSuccess: (data, id) => this.resolveApproval(data, id)
+          })
+          if (request) this.mainCtrl.addUserRequest(request)
+          else {
+            this.rejectApproval('Invalid request data')
+          }
+        })
       }
 
       if (this.notifiWindowId !== null) {
@@ -246,14 +299,14 @@ export class NotificationController extends Events {
           focused: true
         })
       } else {
-        this.openNotification(approval.winProps)
+        this.openNotification(notificationRequest.winProps)
       }
     })
   }
 
   clear = async (stay = false) => {
-    this.approvals = []
-    this.currentApproval = null
+    this.mainCtrl.dappsNotificationRequests = []
+    this.currentDappNotificationRequest = null
     if (this.notifiWindowId !== null && !stay) {
       try {
         await winMgr.remove(this.notifiWindowId)
@@ -265,12 +318,12 @@ export class NotificationController extends Events {
   }
 
   rejectAllApprovals = () => {
-    this.approvals.forEach((approval) => {
-      approval.reject &&
-        approval.reject(new EthereumProviderError(4001, 'User rejected the request.'))
+    this.mainCtrl.dappsNotificationRequests.forEach((notificationReq) => {
+      notificationReq.reject &&
+        notificationReq.reject(new EthereumProviderError(4001, 'User rejected the request.'))
     })
-    this.approvals = []
-    this.currentApproval = null
+    this.mainCtrl.dappsNotificationRequests = []
+    this.currentDappNotificationRequest = null
 
     // Removes all cached signing requests (otherwise they will be shown again
     // in the browser extension UI, when it gets opened by the user)
@@ -286,7 +339,7 @@ export class NotificationController extends Events {
   }
 
   openNotification = (winProps: any, ignoreLock = false) => {
-    // Only use ignoreLock flag when approval exist but no notification window exist
+    // Only use ignoreLock flag when notificationRequest exist but no notification window exist
     if (!ignoreLock) {
       if (this.isLocked) return
       this.lock()

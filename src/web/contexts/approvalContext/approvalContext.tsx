@@ -1,3 +1,4 @@
+import { DappNotificationRequest } from 'ambire-common/src/interfaces/userRequest'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -5,13 +6,11 @@ import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { delayPromise } from '@common/utils/promises'
-import { Approval } from '@web/extension-services/background/controllers/notification'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import { UseExtensionApprovalReturnType } from './types'
-import useSetUserRequest from './useSetUserRequest'
 
 // In the cases when the dApp requests multiple approvals, but waits the
 // response from the prev one to request the next one. For example
@@ -34,7 +33,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   const keystoreState = useKeystoreControllerState()
   const { navigate } = useNavigation()
   const { dispatch, dispatchAsync } = useBackgroundService()
-  const [approval, setApproval] = useState<Approval | null>(null)
+  const [approval, setApproval] = useState<DappNotificationRequest | null>(null)
   const [hasCheckedForApprovalInitially, setHasCheckedForApprovalInitially] = useState(false)
 
   const getApproval: UseExtensionApprovalReturnType['getApproval'] = useCallback(
@@ -54,7 +53,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
       }
 
       await dispatch({
-        type: 'RESOLVE_APPROVAL',
+        type: 'RESOLVE_NOTIFICATION_REQUEST',
         params: { data, id: approval.id }
       })
 
@@ -82,7 +81,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
       }
 
       await dispatch({
-        type: 'REJECT_APPROVAL',
+        type: 'REJECT_NOTIFICATION_REQUEST',
         params: { error, id: approval.id }
       })
 
@@ -97,7 +96,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   )
 
   // If the approval is from type UserRequest add a new request to the userRequests in mainCtrl
-  useSetUserRequest({ approval, resolveApproval, rejectApproval })
+  // useSetUserRequest({ approval, resolveApproval, rejectApproval })
 
   useEffect(() => {
     ;(async () => {

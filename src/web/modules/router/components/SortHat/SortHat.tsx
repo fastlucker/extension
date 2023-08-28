@@ -38,22 +38,22 @@ const SortHat = () => {
     }
 
     if (approval && isNotification) {
-      if (approval?.data?.approvalComponent === 'PermissionRequest') {
+      if (approval.screen === 'PermissionRequest') {
         return navigate(ROUTES.permissionRequest)
       }
-      if (approval?.data?.approvalComponent === 'SendTransaction') {
+      if (approval.screen === 'SendTransaction') {
         return console.log(approval)
       }
-      if (approval?.data?.approvalComponent === 'SignText' && signMessageState.messageToSign) {
+      if (approval.screen === 'SignText') {
         return navigate(ROUTES.signMessage)
       }
-      if (approval?.data?.approvalComponent === 'SignTypedData' && signMessageState.messageToSign) {
+      if (approval.screen === 'SignTypedData') {
         return navigate(ROUTES.signMessage)
       }
-      if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
+      if (approval.screen === 'WalletWatchAsset') {
         return navigate(ROUTES.watchAsset)
       }
-      if (approval?.data?.approvalComponent === 'GetEncryptionPublicKey') {
+      if (approval.screen === 'GetEncryptionPublicKey') {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
     } else {

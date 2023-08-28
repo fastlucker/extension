@@ -4,8 +4,8 @@ import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
+import colors from '@common/styles/colors'
 import { RELAYER_URL } from '@env'
-import { INTERNAL_REQUEST_ORIGIN } from '@web/constants/common'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -36,8 +36,27 @@ async function init() {
 
 ;(async () => {
   await init()
+  let pmRef: PortMessage
 
-  const mainCtrl = new MainController(storage, fetch, RELAYER_URL)
+  const mainCtrl = new MainController({
+    storage,
+    fetch,
+    relayerUrl: RELAYER_URL,
+    onSetDappsNotificationRequests(newValue) {
+      if (newValue.length <= 0) {
+        browser.browserAction.setBadgeText({
+          text: null
+        })
+      } else {
+        browser.browserAction.setBadgeText({
+          text: `${newValue.length}`
+        })
+        browser.browserAction.setBadgeBackgroundColor({
+          color: colors.turquoise
+        })
+      }
+    }
+  })
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()
@@ -54,7 +73,7 @@ async function init() {
    * and the `onUpdate` listeners skip emits from controllers (race condition).
    * Initializing the listeners only once proofs to be more reliable.
    */
-  let pmRef: PortMessage
+
   Object.keys(controllersMapping).forEach((ctrl: any) => {
     // Broadcast onUpdate for nested controllers
     ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
@@ -219,11 +238,10 @@ async function init() {
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
 
-            case 'RESOLVE_APPROVAL': {
+            case 'RESOLVE_NOTIFICATION_REQUEST': {
               return notificationCtrl.resolveApproval(data.params.data, data.params.id)
             }
-            case 'REJECT_APPROVAL': {
-              mainCtrl.removeUserRequest(data.params.id)
+            case 'REJECT_NOTIFICATION_REQUEST': {
               return notificationCtrl.rejectApproval(data.params.error)
             }
 
@@ -275,17 +293,6 @@ async function init() {
               const account = data.params.selectedAcc ? [data.params.selectedAcc] : []
               return sessionService.broadcastEvent('accountsChanged', account)
             }
-            case 'WALLET_CONTROLLER_SEND_REQUEST':
-              return provider({
-                data: data.params.data,
-                session: {
-                  name: 'Ambire',
-                  origin: INTERNAL_REQUEST_ORIGIN || '',
-                  icon: '../assets/images/xicon@128.png'
-                },
-                mainCtrl,
-                notificationCtrl
-              })
 
             default:
               return console.error(
@@ -323,12 +330,7 @@ async function init() {
 
     const pm = new PortMessage(port)
 
-    pm.listen(async (data) => {
-      // TODO:
-      // if (!appStoreLoaded) {
-      //   throw ethErrors.provider.disconnected()
-      // }
-
+    pm.listen(async (data: any) => {
       const sessionId = port.sender?.tab?.id
       if (sessionId === undefined || !port.sender?.url) {
         return
@@ -350,6 +352,10 @@ async function init() {
       return provider({ ...req, mainCtrl, notificationCtrl })
     })
   })
+
+  setInterval(() => {
+    console.log(mainCtrl)
+  }, 6000)
 })()
 
 // On first install, open Ambire Extension in a new tab to start the login process
