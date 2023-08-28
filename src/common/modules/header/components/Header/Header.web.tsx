@@ -101,7 +101,7 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
         iconHeight={25}
         controlStyle={{ width: 235 }}
         openMenuOnClick={false}
-        onDropdownOpen={() => navigate(WEB_ROUTES.accountSelect)}
+        onDropdownOpen={() => navigate('account-select')}
       />
       <View style={[flexboxStyles.directionRow]}>
         <Button
@@ -111,16 +111,15 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
           hasBottomSpacing={false}
           style={[spacings.mrTy, { width: 85 }]}
         />
-        <NavIconWrapper
-          onPress={() => (uiType.isPopup ? openInTab('tab.html#/dashboard') : null)}
-          style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
-        >
-          {uiType.isPopup ? (
+
+        {uiType.isPopup && (
+          <NavIconWrapper
+            onPress={() => openInTab('tab.html#/dashboard')}
+            style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
+          >
             <MaximizeIcon width={20} height={20} />
-          ) : (
-            <MinimizeIcon width={20} height={20} />
-          )}
-        </NavIconWrapper>
+          </NavIconWrapper>
+        )}
         <NavIconWrapper onPress={() => navigate('menu')} style={{ borderColor: colors.scampi_20 }}>
           <BurgerIcon width={20} height={20} />
         </NavIconWrapper>

@@ -98,7 +98,7 @@ const MainRoutes = () => {
               element={<HardwareWalletSelectorScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
-            <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
+
             <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
             <Route
               path={WEB_ROUTES.hardwareWalletSelect}
@@ -128,6 +128,7 @@ const MainRoutes = () => {
       <Route element={<PrivateRoute />}>
         <Route element={headerTitle}>
           <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
+          <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
         </Route>
         <Route element={headerControls}>
           <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
