@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import { networks } from 'ambire-common/src/consts/networks'
+import EventEmitter from 'ambire-common/src/controllers/eventEmitter'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { DappNotificationRequest } from 'ambire-common/src/interfaces/userRequest'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
-import Events from 'events'
 
 import { isDev } from '@common/config/env'
 import generateBigIntId from '@common/utils/generateBigIntId'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
-import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'
 import userNotification from '@web/extension-services/background/libs/user-notification'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
@@ -20,7 +19,7 @@ const QUEUE_APPROVAL_COMPONENTS_WHITELIST = [
   'LedgerHardwareWaiting'
 ]
 
-export class NotificationController extends Events {
+export class NotificationController extends EventEmitter {
   mainCtrl: MainController
 
   notificationWindowId: null | number = null
@@ -59,7 +58,7 @@ export class NotificationController extends Events {
     })
   }
 
-  activeFirstApproval = async () => {
+  openFirstApproval = async () => {
     try {
       const windows = await browser.windows.getAll()
       const existWindow = windows.find((window) => window.id === this.notificationWindowId)
@@ -86,7 +85,8 @@ export class NotificationController extends Events {
 
       const notificationRequest = this.mainCtrl.dappsNotificationRequests[0]
       this.currentDappNotificationRequest = notificationRequest
-      this.openNotification(notificationRequest.winProps, true)
+      this.emitUpdate()
+      this.openNotification(notificationRequest.winProps)
     } catch (e) {
       this.clear()
     }
@@ -108,7 +108,7 @@ export class NotificationController extends Events {
       this.currentDappNotificationRequest = null
     }
 
-    this.emit('resolve', data)
+    // this.emit('resolve', data)
   }
 
   // eslint-disable-next-line default-param-last
@@ -125,7 +125,7 @@ export class NotificationController extends Events {
     } else {
       await this.clear()
     }
-    this.emit('reject', err)
+    this.emitUpdate()
   }
 
   requestApproval = async (data: any, winProps?: any): Promise<any> => {
@@ -256,6 +256,7 @@ export class NotificationController extends Events {
       } else {
         this.openNotification(notificationRequest.winProps)
       }
+      this.emitUpdate()
     })
   }
 
@@ -270,6 +271,7 @@ export class NotificationController extends Events {
       }
       this.notificationWindowId = null
     }
+    this.emitUpdate()
   }
 
   rejectAllApprovals = () => {
@@ -279,10 +281,7 @@ export class NotificationController extends Events {
     })
     this.mainCtrl.dappsNotificationRequests = []
     this.currentDappNotificationRequest = null
-
-    // Removes all cached signing requests (otherwise they will be shown again
-    // in the browser extension UI, when it gets opened by the user)
-    browser.storage.local.set({ [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
+    this.emitUpdate()
   }
 
   openNotification = (winProps: any) => {
@@ -293,5 +292,6 @@ export class NotificationController extends Events {
     winMgr.openNotification(winProps).then((winId) => {
       this.notificationWindowId = winId!
     })
+    this.emitUpdate()
   }
 }

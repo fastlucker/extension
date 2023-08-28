@@ -1,18 +1,17 @@
 import { Account } from 'ambire-common/src/interfaces/account'
 import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
 
-import { NetworkType } from '@common/constants/networks'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
-import { controllersMappingIncludingMainController } from './types'
+import { controllersMapping } from './types'
 
 type InitControllerStateAction = {
   type: 'INIT_CONTROLLER_STATE'
   params: {
-    controller: keyof typeof controllersMappingIncludingMainController
+    controller: keyof typeof controllersMapping
   }
 }
 
@@ -153,9 +152,7 @@ type RejectNotificationRequestAction = {
     id: bigint
   }
 }
-type WalletControllerIsUnlockedAction = {
-  type: 'WALLET_CONTROLLER_IS_UNLOCKED'
-}
+
 type WalletControllerGetConnectedSiteAction = {
   type: 'WALLET_CONTROLLER_GET_CONNECTED_SITE'
   params: { origin: string }
@@ -180,18 +177,14 @@ type WalletControllerRemoveConnectedSiteAction = {
   params: { origin: string }
 }
 type WalletControllerActiveFirstApprovalAction = {
-  type: 'WALLET_CONTROLLER_ACTIVE_FIRST_APPROVAL'
+  type: 'NOTIFICATION_CONTROLLER_ACTIVE_FIRST_APPROVAL'
 }
 type WalletControllerGetApprovalAction = {
-  type: 'WALLET_CONTROLLER_GET_APPROVAL'
+  type: 'NOTIFICATION_CONTROLLER_GET_APPROVAL'
 }
 
-type WalletControllerNetworkChangeAction = {
-  type: 'WALLET_CONTROLLER_NETWORK_CHANGE'
-  params: { network: NetworkType }
-}
 type WalletControllerAccountChangeAction = {
-  type: 'WALLET_CONTROLLER_ACCOUNT_CHANGE'
+  type: 'BROADCAST_ACCOUNT_CHANGE'
   params: { selectedAcc: Account['addr'] }
 }
 
@@ -232,9 +225,7 @@ export type Action =
   | WalletControllerGetConnectedSitesAction
   | WalletControllerActiveFirstApprovalAction
   | WalletControllerGetApprovalAction
-  | WalletControllerNetworkChangeAction
   | WalletControllerAccountChangeAction
-  | WalletControllerSendRequestAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant
@@ -243,7 +234,7 @@ export type Action =
 export type AsyncActionTypes = {
   // TODO: These all should be migrated to use onUpdate emitted events
   // instead of relying on the return value of the action.
-  WALLET_CONTROLLER_GET_APPROVAL: ReturnType<WalletController['getApproval']>
+  NOTIFICATION_CONTROLLER_GET_APPROVAL: ReturnType<WalletController['getApproval']>
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>

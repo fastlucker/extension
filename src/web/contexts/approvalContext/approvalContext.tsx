@@ -16,9 +16,9 @@ import { UseExtensionApprovalReturnType } from './types'
 // response from the prev one to request the next one. For example
 // this happens with https://polygonscan.com/ and https://bscscan.com/
 // when you try to "Add Token to Web3 Wallet".
-const DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY = 850
+const DELAY_BEFORE_REQUESTING_NEXT_REQUEST_IF_ANY = 850
 
-const ApprovalContext = createContext<UseExtensionApprovalReturnType>({
+const DappNotificationRequestContext = createContext<UseExtensionApprovalReturnType>({
   approval: null,
   hasCheckedForApprovalInitially: false,
   getApproval: () => Promise.resolve(null),
@@ -26,7 +26,7 @@ const ApprovalContext = createContext<UseExtensionApprovalReturnType>({
   rejectApproval: () => Promise.resolve()
 })
 
-const ApprovalProvider: React.FC<any> = ({ children }) => {
+const DappNotificationRequestProvider: React.FC<any> = ({ children }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { authStatus } = useAuth()
@@ -37,7 +37,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   const [hasCheckedForApprovalInitially, setHasCheckedForApprovalInitially] = useState(false)
 
   const getApproval: UseExtensionApprovalReturnType['getApproval'] = useCallback(
-    () => dispatchAsync({ type: 'WALLET_CONTROLLER_GET_APPROVAL' }),
+    () => dispatchAsync({ type: 'NOTIFICATION_CONTROLLER_GET_APPROVAL' }),
     [dispatchAsync]
   )
 
@@ -57,7 +57,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
         params: { data, id: approval.id }
       })
 
-      await delayPromise(DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY)
+      await delayPromise(DELAY_BEFORE_REQUESTING_NEXT_REQUEST_IF_ANY)
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)
@@ -85,7 +85,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
         params: { error, id: approval.id }
       })
 
-      await delayPromise(DELAY_BEFORE_REQUESTING_NEXT_APPROVAL_IF_ANY)
+      await delayPromise(DELAY_BEFORE_REQUESTING_NEXT_REQUEST_IF_ANY)
 
       const nextApproval = await getApproval()
       setApproval(nextApproval)
@@ -130,7 +130,7 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
   }, [rejectApproval])
 
   return (
-    <ApprovalContext.Provider
+    <DappNotificationRequestContext.Provider
       value={useMemo(
         () => ({
           approval,
@@ -143,8 +143,8 @@ const ApprovalProvider: React.FC<any> = ({ children }) => {
       )}
     >
       {children}
-    </ApprovalContext.Provider>
+    </DappNotificationRequestContext.Provider>
   )
 }
 
-export { ApprovalProvider, ApprovalContext }
+export { DappNotificationRequestProvider, DappNotificationRequestContext }

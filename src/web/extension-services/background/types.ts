@@ -3,7 +3,9 @@ import { KeystoreController } from 'ambire-common/src/controllers/keystore/keyst
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { SignMessageController } from 'ambire-common/src/controllers/signMessage/signMessage'
 
-export const controllersMapping = {
+import { NotificationController } from '@web/extension-services/background/controllers/notification'
+
+export const controllersNestedInMainMapping = {
   accountAdder: AccountAdderController,
   keystore: KeystoreController,
   signMessage: SignMessageController
@@ -11,13 +13,12 @@ export const controllersMapping = {
   // - key is the name of the controller
   // - value is the type of the controller
 }
-export const controllersMappingIncludingMainController = {
+export const controllersMapping = {
   main: MainController,
-  ...controllersMapping
+  notification: NotificationController,
+  ...controllersNestedInMainMapping
 }
 
 export type ControllersMappingType = {
-  [K in keyof typeof controllersMappingIncludingMainController]: InstanceType<
-    typeof controllersMappingIncludingMainController[K]
-  >
+  [K in keyof typeof controllersMapping]: InstanceType<typeof controllersMapping[K]>
 }

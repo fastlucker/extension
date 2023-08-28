@@ -22,7 +22,7 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
-import { controllersMapping } from './types'
+import { controllersNestedInMainMapping } from './types'
 
 async function init() {
   // Initialize rpc providers for all networks
@@ -74,7 +74,7 @@ async function init() {
    * Initializing the listeners only once proofs to be more reliable.
    */
 
-  Object.keys(controllersMapping).forEach((ctrl: any) => {
+  Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
     // Broadcast onUpdate for nested controllers
     ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
       pmRef.request({
@@ -133,6 +133,12 @@ async function init() {
                   type: 'broadcast',
                   method: 'main',
                   params: mainCtrl
+                })
+              } else if (data.params.controller === ('notification' as any)) {
+                pm.request({
+                  type: 'broadcast',
+                  method: 'notification',
+                  params: notificationCtrl
                 })
               } else {
                 pm.request({
@@ -206,6 +212,28 @@ async function init() {
               return mainCtrl.removeUserRequest(data.params.id)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
               return mainCtrl.signMessage.init(data.params.messageToSign)
+            case 'MAIN_CONTROLLER_RESOLVE_CURRENT_DAPP_NOTIFICATION_REQUEST': {
+              if (notificationCtrl.currentDappNotificationRequest) {
+                mainCtrl.resolveDappNotificationRequest(
+                  data.params.data,
+                  notificationCtrl.currentDappNotificationRequest.id
+                )
+              }
+              break
+            }
+            case 'MAIN_CONTROLLER_REJECT_CURRENT_DAPP_NOTIFICATION_REQUEST': {
+              if (notificationCtrl.currentDappNotificationRequest) {
+                mainCtrl.rejectDappNotificationRequest(
+                  data.params.err,
+                  notificationCtrl.currentDappNotificationRequest.id
+                )
+              }
+              break
+            }
+            case 'NOTIFICATION_CONTROLLER_OPEN_FIRST_APPROVAL':
+              return notificationCtrl.openFirstApproval()
+            case 'NOTIFICATION_CONTROLLER_SET_APPROVAL':
+              return notificationCtrl.getApproval()
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock(data?.params?.hdPath)
@@ -245,8 +273,6 @@ async function init() {
               return notificationCtrl.rejectApproval(data.params.error)
             }
 
-            case 'WALLET_CONTROLLER_IS_UNLOCKED':
-              return null // TODO: implement in v2
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
@@ -277,16 +303,8 @@ async function init() {
               permissionService.removeConnectedSite(data.params.origin)
               break
             }
-            case 'WALLET_CONTROLLER_ACTIVE_FIRST_APPROVAL':
-              return notificationCtrl.activeFirstApproval()
-            case 'WALLET_CONTROLLER_GET_APPROVAL':
-              return notificationCtrl.getApproval()
-            case 'WALLET_CONTROLLER_NETWORK_CHANGE':
-              return sessionService.broadcastEvent('chainChanged', {
-                chain: intToHex(data.params.network.chainId),
-                networkVersion: `${data.params.network.chainId}`
-              })
-            case 'WALLET_CONTROLLER_ACCOUNT_CHANGE': {
+
+            case 'BROADCAST_ACCOUNT_CHANGE': {
               // TODO: changing the selected account will happen in the background
               // service therefore this should be changed to use the mainCtrl.selectedAccount
               // and moved to a better place
