@@ -11,6 +11,7 @@ interface Styles {
   headerLeftText: TextStyle
   title: TextStyle
   navIconContainerRegular: ViewStyle
+  content: ViewStyle
   sideContainer: ViewStyle
 }
 
@@ -23,10 +24,15 @@ const styles = StyleSheet.create<Styles>({
   },
   headerLeft: { ...flexbox.directionRow, ...flexbox.alignCenter },
   headerLeftText: spacings.mlTy,
+  content: {
+    ...flexbox.directionRow,
+    ...flexbox.flex1,
+    ...flexbox.justifyCenter,
+    ...flexbox.alignCenter
+  },
   title: {
     color: colors.martinique,
-    textAlign: 'center',
-    flex: 1
+    textAlign: 'center'
   },
   navIconContainerRegular: {
     width: 50,

@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Image, Pressable, View } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
@@ -33,6 +33,7 @@ const TabHeader: React.FC<any> = ({
   hideStepper = false,
   pageTitle = '',
   forceCanGoBack,
+  image,
   onBack
 }) => {
   const { path, params } = useRoute()
@@ -62,9 +63,19 @@ const TabHeader: React.FC<any> = ({
       ) : null}
       {!!shouldDisplayStepper && <Stepper step={flowStep} />}
       {!shouldDisplayStepper && (!!title || !!pageTitle) && (
-        <Text fontSize={20} weight="medium" style={[styles.title, spacings.pl]} numberOfLines={2}>
-          {pageTitle || title || ' '}
-        </Text>
+        <View style={styles.content}>
+          {image && (
+            <Image style={{ width: 40, height: 40, borderRadius: 12 }} source={{ uri: image }} />
+          )}
+          <Text
+            fontSize={20}
+            weight="medium"
+            style={[styles.title, image ? spacings.mlSm : {}]}
+            numberOfLines={2}
+          >
+            {pageTitle || title || ' '}
+          </Text>
+        </View>
       )}
       <View style={styles.sideContainer} />
     </View>
