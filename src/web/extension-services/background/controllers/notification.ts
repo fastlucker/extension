@@ -10,9 +10,8 @@ import { isDev } from '@common/config/env'
 import generateBigIntId from '@common/utils/generateBigIntId'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
 import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'
+import userNotification from '@web/extension-services/background/libs/user-notification'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
-
-import userNotification from './user-notification'
 
 const QUEUE_APPROVAL_COMPONENTS_WHITELIST = [
   'SendTransaction',
