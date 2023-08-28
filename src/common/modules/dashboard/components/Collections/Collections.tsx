@@ -4,7 +4,7 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 
 import Collection from './Collection'
 
-const Collectibles = () => {
+const Collections = () => {
   const { accountPortfolio } = usePortfolioControllerState()
 
   return (
@@ -22,4 +22,4 @@ const Collectibles = () => {
   )
 }
 
-export default Collectibles
+export default Collections

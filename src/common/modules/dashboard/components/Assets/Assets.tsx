@@ -7,7 +7,7 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-import Collectibles from '../Collectibles'
+import Collections from '../Collections'
 import Tokens from '../Tokens'
 
 interface Props {
@@ -49,7 +49,7 @@ const Assets = ({ tokens, openTab }: Props) => {
         pointerEvents={openTab !== 'collectibles' ? 'none' : 'auto'}
         style={openTab !== 'collectibles' ? HIDDEN_STYLE : {}}
       >
-        <Collectibles />
+        <Collections />
       </View>
     </View>
   )
