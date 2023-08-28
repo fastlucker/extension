@@ -12,9 +12,9 @@ import eventBus from '@web/extension-services/event/eventBus'
 import PromiseFlow from '@web/utils/promiseFlow'
 import underline2Camelcase from '@web/utils/underline2Camelcase'
 
-const isSignApproval = (type: string) => {
-  const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SendTransaction']
-  return SIGN_APPROVALS.includes(type)
+const isSignRequest = (type: string) => {
+  const SIGN_REQUESTS = ['SignText', 'SignTypedData', 'SendTransaction']
+  return SIGN_REQUESTS.includes(type)
 }
 
 const lockedOrigins = new Set<string>()
@@ -25,7 +25,7 @@ const flow = new PromiseFlow<{
     session: Exclude<ProviderRequest, void>
   }
   mapMethod: string
-  approvalRes: any
+  requestRes: any
 }>()
 const flowContext = flow
   .use(async (ctx, next) => {
@@ -66,10 +66,10 @@ const flowContext = flow
         if (lockedOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')
         }
-        ctx.request.requestedApproval = true
+        ctx.request.requestedNotificationRequest = true
         lockedOrigins.add(origin)
         try {
-          await notificationCtrl.requestApproval({ lock: true })
+          await notificationCtrl.requestNotificationRequest({ lock: true })
           lockedOrigins.delete(origin)
         } catch (e) {
           lockedOrigins.delete(origin)
@@ -96,12 +96,12 @@ const flowContext = flow
         if (connectOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing connect. Please wait.')
         }
-        ctx.request.requestedApproval = true
+        ctx.request.requestedNotificationRequest = true
         connectOrigins.add(origin)
         try {
-          await notificationCtrl.requestApproval({
+          await notificationCtrl.requestNotificationRequest({
             params: { origin, name, icon },
-            approvalComponent: 'PermissionRequest'
+            screen: 'PermissionRequest'
           })
           connectOrigins.delete(origin)
           permissionService.addConnectedSite(origin, name, icon, 1)
@@ -115,7 +115,7 @@ const flowContext = flow
     return next()
   })
   .use(async (ctx, next) => {
-    // check need approval
+    // check need notification request
     const {
       request: {
         data: { method },
@@ -126,11 +126,12 @@ const flowContext = flow
       mapMethod
     } = ctx
     const providerCtrl = new ProviderController(mainCtrl)
-    const [approvalType, condition] = Reflect.getMetadata('APPROVAL', providerCtrl, mapMethod) || []
-    if (approvalType && (!condition || !condition(ctx.request))) {
-      ctx.request.requestedApproval = true
-      ctx.approvalRes = await notificationCtrl.requestApproval({
-        approvalComponent: approvalType,
+    const [requestType, condition] =
+      Reflect.getMetadata('NOTIFICATION_REQUEST', providerCtrl, mapMethod) || []
+    if (requestType && (!condition || !condition(ctx.request))) {
+      ctx.request.requestedNotificationRequest = true
+      ctx.requestRes = await notificationCtrl.requestNotificationRequest({
+        screen: requestType,
         params: {
           $ctx: ctx?.request?.data?.$ctx,
           method,
@@ -139,7 +140,7 @@ const flowContext = flow
         },
         origin
       })
-      if (isSignApproval(approvalType)) {
+      if (isSignRequest(requestType)) {
         permissionService.updateConnectSite(origin, { isSigned: true }, true)
       } else {
         permissionService.touchConnectedSite(origin)
@@ -150,24 +151,24 @@ const flowContext = flow
   })
   .use(async (ctx) => {
     const providerCtrl = new ProviderController(ctx.request.mainCtrl)
-    const { approvalRes, mapMethod, request } = ctx
+    const { requestRes, mapMethod, request } = ctx
 
     // process request
-    const [approvalType] = Reflect.getMetadata('APPROVAL', providerCtrl, mapMethod) || []
-    const { uiRequestComponent, ...rest } = approvalRes || {}
+    const [requestType] = Reflect.getMetadata('NOTIFICATION_REQUEST', providerCtrl, mapMethod) || []
+    const { uiRequestComponent, ...rest } = requestRes || {}
     const {
       session: { origin }
     } = request
     const requestDefer = Promise.resolve(
       (providerCtrl as any)[mapMethod]({
         ...request,
-        approvalRes
+        requestRes
       })
     )
 
     requestDefer
       .then((result) => {
-        if (isSignApproval(approvalType)) {
+        if (isSignRequest(requestType)) {
           eventBus.emit(EVENTS.broadcastToUI, {
             method: EVENTS.SIGN_FINISHED,
             params: {
@@ -179,7 +180,7 @@ const flowContext = flow
         return result
       })
       .catch((e: any) => {
-        if (isSignApproval(approvalType)) {
+        if (isSignRequest(requestType)) {
           eventBus.emit(EVENTS.broadcastToUI, {
             method: EVENTS.SIGN_FINISHED,
             params: {
@@ -189,23 +190,26 @@ const flowContext = flow
           })
         }
       })
-    async function requestApprovalLoop({ uiRequestComponent, ...rest }: any): Promise<any> {
-      ctx.request.requestedApproval = true
-      const res = await ctx.request.notificationCtrl.requestApproval({
-        approvalComponent: uiRequestComponent,
+    async function requestNotificationRequestLoop({
+      uiRequestComponent,
+      ...rest
+    }: any): Promise<any> {
+      ctx.request.requestedNotificationRequest = true
+      const res = await ctx.request.notificationCtrl.requestNotificationRequest({
+        screen: uiRequestComponent,
         params: rest,
         origin,
-        approvalType,
+        requestType,
         isUnshift: true
       })
       if (res.uiRequestComponent) {
-        return await requestApprovalLoop(res)
+        return await requestNotificationRequestLoop(res)
       }
       return res
     }
     if (uiRequestComponent) {
-      ctx.request.requestedApproval = true
-      return await requestApprovalLoop({ uiRequestComponent, ...rest })
+      ctx.request.requestedNotificationRequest = true
+      return await requestNotificationRequestLoop({ uiRequestComponent, ...rest })
     }
 
     return requestDefer
@@ -213,10 +217,10 @@ const flowContext = flow
   .callback()
 
 export default (request: ProviderRequest) => {
-  const ctx: any = { request: { ...request, requestedApproval: false } }
+  const ctx: any = { request: { ...request, requestedNotificationRequest: false } }
   return flowContext(ctx).finally(() => {
-    if (ctx.request.requestedApproval) {
-      flow.requestedApproval = false
+    if (ctx.request.requestedNotificationRequest) {
+      flow.requestedNotificationRequest = false
     }
   })
 }

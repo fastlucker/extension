@@ -14,7 +14,7 @@ const NotificationControllerStateContext = createContext<NotificationController>
 const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
   const [state, setState] = useState({} as NotificationController)
   const { dispatch } = useBackgroundService()
-  const prevState: any = usePrevious(state)
+  const prevState = usePrevious(state) || ({} as NotificationController)
   const { navigate } = useNavigation()
 
   useEffect(() => {
@@ -38,7 +38,7 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     const id = state.currentDappNotificationRequest?.id
     const prevId = prevState?.currentDappNotificationRequest?.id
-    if (id && prevId && prevId !== id) {
+    if (prevId !== id) {
       setTimeout(() => navigate('/'))
     }
   }, [

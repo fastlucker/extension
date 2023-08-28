@@ -7,21 +7,15 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import flexbox from '@common/styles/utils/flexbox'
 import { ControllersStateLoadedContext } from '@web/contexts/controllersStateLoadedContext'
-import useApproval from '@web/hooks/useApproval'
 import SortHat from '@web/modules/router/components/SortHat'
 
 const AsyncMainRoute = lazy(() => import('@web/modules/router/components/MainRoutes'))
 
 const Router = () => {
-  const { hasCheckedForApprovalInitially } = useApproval()
   const { authStatus } = useAuth()
   const isControllersStateLoaded = useContext(ControllersStateLoadedContext)
 
-  if (
-    authStatus === AUTH_STATUS.LOADING ||
-    !hasCheckedForApprovalInitially ||
-    !isControllersStateLoaded
-  ) {
+  if (authStatus === AUTH_STATUS.LOADING || !isControllersStateLoaded) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Spinner />

@@ -14,7 +14,7 @@ export type ProviderRequest<TMethod = string> = {
     icon: string
   } | null
   origin?: string
-  requestedApproval?: boolean
+  requestedNotificationRequest?: boolean
   mainCtrl: MainController
   notificationCtrl: NotificationController
 }

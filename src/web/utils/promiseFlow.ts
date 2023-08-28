@@ -11,7 +11,7 @@ export default class PromiseFlow<T extends ContextType = ContextType> {
 
   _context: ContextType = {}
 
-  requestedApproval = false
+  requestedNotificationRequest = false
 
   use(fn: FlowTask<T>): PromiseFlow<T> {
     if (typeof fn !== 'function') {

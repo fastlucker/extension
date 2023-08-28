@@ -13,38 +13,48 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 import ManifestImage from '@web/components/ManifestImage'
-import useApproval from '@web/hooks/useApproval'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 
 import styles from './styles'
 
 const PermissionRequestScreen = () => {
   const { t } = useTranslation()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
-  const { approval, rejectApproval, resolveApproval } = useApproval()
 
-  const handleDenyButtonPress = useCallback(
-    () => rejectApproval(t('User rejected the request.')),
-    [t, rejectApproval]
-  )
+  const { dispatch } = useBackgroundService()
+  const state = useNotificationControllerState()
+
+  const handleDenyButtonPress = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_REJECT_CURRENT_DAPP_NOTIFICATION_REQUEST',
+      params: { err: t('User rejected the request.') }
+    })
+  }, [t, dispatch])
 
   const handleAuthorizeButtonPress = useCallback(() => {
     setIsAuthorizing(true)
-    resolveApproval(null)
-  }, [resolveApproval])
+    dispatch({
+      type: 'MAIN_CONTROLLER_RESOLVE_CURRENT_DAPP_NOTIFICATION_REQUEST',
+      params: { data: null }
+    })
+  }, [dispatch])
 
   return (
     <Wrapper hasBottomTabNav={false}>
       <Panel>
         <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
           <ManifestImage
-            uri={approval?.data?.params?.icon}
+            uri={state.currentDappNotificationRequest?.params?.icon}
             size={64}
             fallback={() => <ManifestFallbackIcon />}
           />
         </View>
 
         <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-          {approval?.data?.params?.origin ? new URL(approval?.data?.params?.origin).hostname : ''}
+          {state.currentDappNotificationRequest?.params?.origin
+            ? new URL(state.currentDappNotificationRequest?.params?.origin).hostname
+            : ''}
         </Title>
 
         <View>
@@ -54,7 +64,7 @@ const PermissionRequestScreen = () => {
                 {'The dApp '}
               </Text>
               <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                {approval?.data?.params?.name || ''}
+                {state.currentDappNotificationRequest?.params?.name || ''}
               </Text>
               <Text fontSize={14} weight="regular">
                 {' is requesting an authorization to communicate with Ambire Wallet'}

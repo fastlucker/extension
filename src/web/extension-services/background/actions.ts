@@ -95,6 +95,14 @@ type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
   params: { messageToSign: Message }
 }
+type MainControllerResolveCurrentNotificationRequestAction = {
+  type: 'MAIN_CONTROLLER_RESOLVE_CURRENT_DAPP_NOTIFICATION_REQUEST'
+  params: { data: any }
+}
+type MainControllerRejectCurrentNotificationRequestAction = {
+  type: 'MAIN_CONTROLLER_REJECT_CURRENT_DAPP_NOTIFICATION_REQUEST'
+  params: { err: string }
+}
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
   params?: {
@@ -176,11 +184,8 @@ type WalletControllerRemoveConnectedSiteAction = {
   type: 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE'
   params: { origin: string }
 }
-type WalletControllerActiveFirstApprovalAction = {
-  type: 'NOTIFICATION_CONTROLLER_ACTIVE_FIRST_APPROVAL'
-}
-type WalletControllerGetApprovalAction = {
-  type: 'NOTIFICATION_CONTROLLER_GET_APPROVAL'
+type NotificationControllerOpenFirstNotificationRequestAction = {
+  type: 'NOTIFICATION_CONTROLLER_OPEN_FIRST_NOTIFICATION_REQUEST'
 }
 
 type WalletControllerAccountChangeAction = {
@@ -203,6 +208,8 @@ export type Action =
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
   | MainControllerSignMessageInitAction
+  | MainControllerResolveCurrentNotificationRequestAction
+  | MainControllerRejectCurrentNotificationRequestAction
   | LedgerControllerUnlockAction
   | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction
@@ -216,15 +223,13 @@ export type Action =
   | KeystoreControllerResetErrorStateAction
   | ResolveNotificationRequestAction
   | RejectNotificationRequestAction
-  | WalletControllerIsUnlockedAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
   | WalletControllerSetStorageAction
   | WalletControllerGetCurrentSiteAction
   | WalletControllerRemoveConnectedSiteAction
   | WalletControllerGetConnectedSitesAction
-  | WalletControllerActiveFirstApprovalAction
-  | WalletControllerGetApprovalAction
+  | NotificationControllerOpenFirstNotificationRequestAction
   | WalletControllerAccountChangeAction
 
 /**
@@ -234,7 +239,6 @@ export type Action =
 export type AsyncActionTypes = {
   // TODO: These all should be migrated to use onUpdate emitted events
   // instead of relying on the return value of the action.
-  NOTIFICATION_CONTROLLER_GET_APPROVAL: ReturnType<WalletController['getApproval']>
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>

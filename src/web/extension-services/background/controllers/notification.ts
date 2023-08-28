@@ -12,7 +12,7 @@ import { IS_CHROME, IS_LINUX } from '@web/constants/common'
 import userNotification from '@web/extension-services/background/libs/user-notification'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
-const QUEUE_APPROVAL_COMPONENTS_WHITELIST = [
+const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
   'SendTransaction',
   'SignText',
   'SignTypedData',
@@ -32,13 +32,13 @@ export class NotificationController extends EventEmitter {
     winMgr.event.on('windowRemoved', (winId: number) => {
       if (winId === this.notificationWindowId) {
         this.notificationWindowId = null
-        this.rejectAllApprovals()
+        this.rejectAllNotificationRequests()
       }
     })
 
     winMgr.event.on('windowFocusChange', (winId: number) => {
       // Otherwise, inspecting the notification popup (opening console) is
-      // triggering the logic and firing `this.rejectApproval()` call,
+      // triggering the logic and firing `this.rejectNotificationRequest()` call,
       // which is closing the notification popup, and one can't inspect it.
       if (isDev) return
 
@@ -50,15 +50,29 @@ export class NotificationController extends EventEmitter {
       if (this.notificationWindowId !== null && winId !== this.notificationWindowId) {
         if (
           this.currentDappNotificationRequest &&
-          !QUEUE_APPROVAL_COMPONENTS_WHITELIST.includes(this.currentDappNotificationRequest.screen)
+          !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(this.currentDappNotificationRequest.screen)
         ) {
-          this.rejectApproval()
+          this.rejectNotificationRequest()
         }
       }
     })
+    const updateCurrentRequest = () => {
+      if (
+        this.currentDappNotificationRequest &&
+        this.currentDappNotificationRequest.id !== this.mainCtrl.dappsNotificationRequests[0].id
+      ) {
+        this.currentDappNotificationRequest = this.mainCtrl.dappsNotificationRequests[0]
+      }
+
+      if (this.currentDappNotificationRequest && !this.mainCtrl.dappsNotificationRequests.length) {
+        this.currentDappNotificationRequest = null
+      }
+      this.emitUpdate()
+    }
+    this.mainCtrl.onUpdate(updateCurrentRequest)
   }
 
-  openFirstApproval = async () => {
+  openFirstNotificationRequest = async () => {
     try {
       const windows = await browser.windows.getAll()
       const existWindow = windows.find((window) => window.id === this.notificationWindowId)
@@ -92,15 +106,23 @@ export class NotificationController extends EventEmitter {
     }
   }
 
-  getApproval = () => this.currentDappNotificationRequest
+  deleteApproval = (request: DappNotificationRequest) => {
+    if (request && this.mainCtrl.dappsNotificationRequests.length > 1) {
+      this.mainCtrl.dappsNotificationRequests = this.mainCtrl.dappsNotificationRequests.filter(
+        (item) => request.id !== item.id
+      )
+    } else {
+      this.currentDappNotificationRequest = null
+      this.mainCtrl.dappsNotificationRequests = []
+    }
+  }
 
-  resolveApproval = async (data: any, approvalId: bigint) => {
-    if (approvalId && approvalId !== this.currentDappNotificationRequest?.id) return
+  resolveNotificationRequest = async (data: any, requestId?: bigint) => {
+    if (requestId && requestId !== this.currentDappNotificationRequest?.id) return
     const notificationRequest = this.currentDappNotificationRequest
-    this.mainCtrl.resolveDappNotificationRequest(
-      data,
-      approvalId || (notificationRequest?.id as bigint)
-    )
+    notificationRequest?.resolve(data)
+
+    this.deleteApproval(notificationRequest as DappNotificationRequest)
 
     if (this.mainCtrl.dappsNotificationRequests.length > 0) {
       this.currentDappNotificationRequest = this.mainCtrl.dappsNotificationRequests[0]
@@ -108,19 +130,17 @@ export class NotificationController extends EventEmitter {
       this.currentDappNotificationRequest = null
     }
 
-    // this.emit('resolve', data)
+    this.emitUpdate()
   }
 
   // eslint-disable-next-line default-param-last
-  rejectApproval = async (err: string = 'Request rejected') => {
+  rejectNotificationRequest = async (err: string = 'Request rejected') => {
     const notificationRequest = this.currentDappNotificationRequest
 
-    this.mainCtrl.rejectDappNotificationRequest(
-      ethErrors.provider.userRejectedRequest<any>(err),
-      notificationRequest?.id as bigint
-    )
+    notificationRequest?.resolve(err)
 
-    if (notificationRequest && this.mainCtrl.dappsNotificationRequests.length) {
+    if (notificationRequest && this.mainCtrl.dappsNotificationRequests.length > 1) {
+      this.deleteApproval(notificationRequest)
       this.currentDappNotificationRequest = this.mainCtrl.dappsNotificationRequests[0]
     } else {
       await this.clear()
@@ -128,14 +148,14 @@ export class NotificationController extends EventEmitter {
     this.emitUpdate()
   }
 
-  requestApproval = async (data: any, winProps?: any): Promise<any> => {
+  requestNotificationRequest = async (data: any, winProps?: any): Promise<any> => {
     return new Promise((resolve, reject) => {
       const id = generateBigIntId()
       const notificationRequest: DappNotificationRequest = {
         id,
         winProps,
-        session: data.params?.session,
-        screen: data.approvalComponent,
+        params: data?.params,
+        screen: data.screen,
         resolve: (data) => {
           resolve(data)
         },
@@ -144,7 +164,7 @@ export class NotificationController extends EventEmitter {
         }
       }
 
-      if (!QUEUE_APPROVAL_COMPONENTS_WHITELIST.includes(data.approvalComponent)) {
+      if (!QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(data.screen)) {
         if (this.currentDappNotificationRequest) {
           throw ethErrors.provider.userRejectedRequest(
             'please request after current request resolve'
@@ -152,7 +172,7 @@ export class NotificationController extends EventEmitter {
         }
       } else if (
         this.currentDappNotificationRequest &&
-        !QUEUE_APPROVAL_COMPONENTS_WHITELIST.includes(this.currentDappNotificationRequest.screen)
+        !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(this.currentDappNotificationRequest.screen)
       ) {
         throw ethErrors.provider.userRejectedRequest('please request after current request resolve')
       }
@@ -182,7 +202,7 @@ export class NotificationController extends EventEmitter {
 
         const network = networks.find((n) => Number(n.chainId) === chainId)
         if (network) {
-          this.resolveApproval(null, notificationRequest.id)
+          this.resolveNotificationRequest(null, notificationRequest.id)
           return
         }
       }
@@ -192,12 +212,12 @@ export class NotificationController extends EventEmitter {
           data: data?.params?.data,
           origin: data.params?.session?.origin,
           selectedAccount: this.mainCtrl.selectedAccount || '',
-          onError: (err) => this.rejectApproval(err),
-          onSuccess: (data, id) => this.resolveApproval(data, id)
+          onError: (err) => this.rejectNotificationRequest(err),
+          onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
         })
         if (request) this.mainCtrl.addUserRequest(request)
         else {
-          this.rejectApproval('Invalid request data')
+          this.rejectNotificationRequest('Invalid request data')
           return
         }
       }
@@ -215,12 +235,12 @@ export class NotificationController extends EventEmitter {
           data: data?.params?.data,
           origin: data.params?.session?.origin,
           selectedAccount: this.mainCtrl.selectedAccount || '',
-          onError: (err) => this.rejectApproval(err),
-          onSuccess: (data, id) => this.resolveApproval(data, id)
+          onError: (err) => this.rejectNotificationRequest(err),
+          onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
         })
         if (request) this.mainCtrl.addUserRequest(request)
         else {
-          this.rejectApproval('Invalid request data')
+          this.rejectNotificationRequest('Invalid request data')
           return
         }
       }
@@ -239,12 +259,12 @@ export class NotificationController extends EventEmitter {
             txs,
             origin: data.params?.session?.origin,
             selectedAccount: this.mainCtrl.selectedAccount || '',
-            onError: (err) => this.rejectApproval(err),
-            onSuccess: (data, id) => this.resolveApproval(data, id)
+            onError: (err) => this.rejectNotificationRequest(err),
+            onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
           })
           if (request) this.mainCtrl.addUserRequest(request)
           else {
-            this.rejectApproval('Invalid request data')
+            this.rejectNotificationRequest('Invalid request data')
           }
         })
       }
@@ -274,7 +294,7 @@ export class NotificationController extends EventEmitter {
     this.emitUpdate()
   }
 
-  rejectAllApprovals = () => {
+  rejectAllNotificationRequests = () => {
     this.mainCtrl.dappsNotificationRequests.forEach((notificationReq) => {
       notificationReq.reject &&
         notificationReq.reject(new EthereumProviderError(4001, 'User rejected the request.'))

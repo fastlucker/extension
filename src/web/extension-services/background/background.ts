@@ -103,6 +103,14 @@ async function init() {
       params: mainCtrl
     })
   })
+  // Broadcast onUpdate for the notification controllers
+  notificationCtrl.onUpdate(() => {
+    pmRef?.request({
+      type: 'broadcast',
+      method: 'notification',
+      params: notificationCtrl
+    })
+  })
   mainCtrl.onError(() => {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
@@ -213,27 +221,21 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
               return mainCtrl.signMessage.init(data.params.messageToSign)
             case 'MAIN_CONTROLLER_RESOLVE_CURRENT_DAPP_NOTIFICATION_REQUEST': {
-              if (notificationCtrl.currentDappNotificationRequest) {
-                mainCtrl.resolveDappNotificationRequest(
-                  data.params.data,
-                  notificationCtrl.currentDappNotificationRequest.id
-                )
-              }
+              notificationCtrl.resolveNotificationRequest(data.params.data)
               break
             }
             case 'MAIN_CONTROLLER_REJECT_CURRENT_DAPP_NOTIFICATION_REQUEST': {
-              if (notificationCtrl.currentDappNotificationRequest) {
-                mainCtrl.rejectDappNotificationRequest(
-                  data.params.err,
-                  notificationCtrl.currentDappNotificationRequest.id
-                )
-              }
+              notificationCtrl.rejectNotificationRequest(data.params.err)
               break
             }
-            case 'NOTIFICATION_CONTROLLER_OPEN_FIRST_APPROVAL':
-              return notificationCtrl.openFirstApproval()
-            case 'NOTIFICATION_CONTROLLER_SET_APPROVAL':
-              return notificationCtrl.getApproval()
+            case 'RESOLVE_NOTIFICATION_REQUEST': {
+              return notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
+            }
+            case 'REJECT_NOTIFICATION_REQUEST': {
+              return notificationCtrl.rejectNotificationRequest(data.params.error)
+            }
+            case 'NOTIFICATION_CONTROLLER_OPEN_FIRST_NOTIFICATION_REQUEST':
+              return notificationCtrl.openFirstNotificationRequest()
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock(data?.params?.hdPath)
@@ -265,13 +267,6 @@ async function init() {
               return mainCtrl.keystore.addKeys(data.params.keys)
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
-
-            case 'RESOLVE_NOTIFICATION_REQUEST': {
-              return notificationCtrl.resolveApproval(data.params.data, data.params.id)
-            }
-            case 'REJECT_NOTIFICATION_REQUEST': {
-              return notificationCtrl.rejectApproval(data.params.error)
-            }
 
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)

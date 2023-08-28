@@ -21,7 +21,6 @@ import { rpcProviders } from '@common/services/providers'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
 import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderControllerStateContext'
-import { DappNotificationRequestProvider } from '@web/contexts/approvalContext'
 import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
 import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
 import { ExtensionProvider } from '@web/contexts/extensionContext'
@@ -46,13 +45,13 @@ const AppInit = () => {
 
   return (
     <BackgroundServiceProvider>
-      <MainControllerStateProvider>
-        <AccountAdderControllerStateProvider>
-          <KeystoreControllerStateProvider>
-            <SignMessageControllerStateProvider>
-              <NotificationControllerStateProvider>
-                <ControllersStateLoadedProvider>
-                  <Router>
+      <Router>
+        <MainControllerStateProvider>
+          <AccountAdderControllerStateProvider>
+            <KeystoreControllerStateProvider>
+              <SignMessageControllerStateProvider>
+                <NotificationControllerStateProvider>
+                  <ControllersStateLoadedProvider>
                     <PortalProvider>
                       <LoaderProvider>
                         <StorageProvider>
@@ -64,16 +63,14 @@ const AppInit = () => {
                                     <ToastProvider>
                                       <ConstantsProvider>
                                         <AuthProvider>
-                                          <DappNotificationRequestProvider>
-                                            <ExtensionProvider>
-                                              <BiometricsProvider>
-                                                <PrivateModeProvider>
-                                                  <AppRouter />
-                                                </PrivateModeProvider>
-                                                <PortalHost name="global" />
-                                              </BiometricsProvider>
-                                            </ExtensionProvider>
-                                          </DappNotificationRequestProvider>
+                                          <ExtensionProvider>
+                                            <BiometricsProvider>
+                                              <PrivateModeProvider>
+                                                <AppRouter />
+                                              </PrivateModeProvider>
+                                              <PortalHost name="global" />
+                                            </BiometricsProvider>
+                                          </ExtensionProvider>
                                         </AuthProvider>
                                       </ConstantsProvider>
                                     </ToastProvider>
@@ -85,13 +82,13 @@ const AppInit = () => {
                         </StorageProvider>
                       </LoaderProvider>
                     </PortalProvider>
-                  </Router>
-                </ControllersStateLoadedProvider>
-              </NotificationControllerStateProvider>
-            </SignMessageControllerStateProvider>
-          </KeystoreControllerStateProvider>
-        </AccountAdderControllerStateProvider>
-      </MainControllerStateProvider>
+                  </ControllersStateLoadedProvider>
+                </NotificationControllerStateProvider>
+              </SignMessageControllerStateProvider>
+            </KeystoreControllerStateProvider>
+          </AccountAdderControllerStateProvider>
+        </MainControllerStateProvider>
+      </Router>
     </BackgroundServiceProvider>
   )
 }
