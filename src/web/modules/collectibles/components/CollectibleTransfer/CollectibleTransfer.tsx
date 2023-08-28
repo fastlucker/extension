@@ -22,13 +22,17 @@ const CollectibleTransfer = () => {
         name="recipientAddr"
         control={control}
         render={({ field: { onChange, value } }) => (
-          <RecipientInput
-            style={styles.input}
-            containerStyle={styles.inputContainer}
-            label="Recipient"
-            onChange={onChange}
-            value={value}
-          />
+          <View>
+            <Text style={styles.inputLabel} fontSize={16} weight="medium">
+              Recipient
+            </Text>
+            <RecipientInput
+              style={styles.input}
+              containerStyle={styles.inputContainer}
+              onChange={onChange}
+              value={value}
+            />
+          </View>
         )}
       />
       <Button style={styles.button} text="Send" />

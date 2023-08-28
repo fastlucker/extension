@@ -1,5 +1,5 @@
 import { Collectible as CollectibleType } from 'ambire-common/src/libs/portfolio/interfaces'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Pressable, View, ViewStyle } from 'react-native'
 
@@ -7,36 +7,20 @@ import SendIcon from '@common/assets/svg/SendIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
-import { handleCollectibleUri } from '@common/modules/dashboard/components/Collectibles/Collection/Collection'
+import useNft from '@common/hooks/useNft'
 import { ROUTES } from '@common/modules/router/constants/common'
-import { fetchCaught } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import { storage } from '@web/extension-services/background/webapi/storage'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
-
-const fetchCollectible = async (url: string): Promise<CollectibleData | null> =>
-  fetchCaught(url).then((resp) => {
-    const body = resp.body
-
-    if (typeof body !== 'object' || body === null || !('image' in body)) return null
-
-    return resp.body as CollectibleData
-  })
-
-interface CollectibleData {
-  image: string
-  name: string
-  description: string
-}
 
 type Props = CollectibleType & {
   collectionData: {
     name: string
     image: string
     address: string
+    networkId: string
   }
 }
 
@@ -56,36 +40,35 @@ const containerStyle: ViewStyle[] = [
   isTab ? spacings.mrXl : {}
 ]
 
-const Collectible: FC<Props> = ({ url, collectionData }) => {
+const Collectible: FC<Props> = ({ id, collectionData }) => {
   const { t } = useTranslation()
-  const [data, setData] = useState<CollectibleData | null>(null)
+  const { data, error, isLoading } = useNft({
+    id,
+    address: collectionData.address,
+    networkId: collectionData.networkId
+  })
   const { navigate } = useNavigation()
 
-  useEffect(() => {
-    fetchCollectible(handleCollectibleUri(url)).then((collectibleData: CollectibleData | null) => {
-      if (!collectibleData) return
-
-      setData(collectibleData)
-    })
-  }, [url])
-
   // Works like a skeleton loader while the collectible is being fetched.
-  if (!data) return <View style={[...containerStyle, { backgroundColor: colors.martinique_35 }]} />
+  if (isLoading)
+    return <View style={[...containerStyle, { backgroundColor: colors.martinique_35 }]} />
+
+  if (!data && !error) return null
 
   return (
     <Pressable
       style={containerStyle}
       onPress={() => {
-        storage.set('collectible', {
-          ...data,
-          collectionData
-        })
-        navigate(ROUTES.collectible)
+        navigate(
+          `${ROUTES.collectible}?id=${String(id)}&address=${collectionData.address}&networkId=${
+            collectionData.networkId
+          }`
+        )
       }}
     >
       {({ hovered }: any) => (
         <>
-          <Image source={{ uri: handleCollectibleUri(data.image) }} style={styles.image} />
+          {!error && data?.image && <Image source={{ uri: data.image }} style={styles.image} />}
           {hovered ? (
             <View style={[styles.hoveredContent, isTab ? spacings.ptMd : spacings.ptTy]}>
               <View>
@@ -95,7 +78,7 @@ const Collectible: FC<Props> = ({ url, collectionData }) => {
                   fontSize={isTab ? 24 : 20}
                   weight="medium"
                 >
-                  {data.name.slice(0, 10)}
+                  {data?.name.slice(0, 10)}
                 </Text>
                 {/* 
                 We won't show the description for now

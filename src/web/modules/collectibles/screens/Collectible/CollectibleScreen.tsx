@@ -1,45 +1,44 @@
 import * as Clipboard from 'expo-clipboard'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Pressable, View } from 'react-native'
 
-import CopyIcon from '@common/assets/svg/CopyIcon'
+import Blockies from '@common/components/Blockies'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
+import useNft from '@common/hooks/useNft'
+import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
-import { handleCollectibleUri } from '@common/modules/dashboard/components/Collectibles/Collection/Collection'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import { storage } from '@web/extension-services/background/webapi/storage'
+import CopyIcon from '@web/assets/svg/CopyIcon'
+import useMainControllerState from '@web/hooks/useMainControllerState'
+import TabHeader from '@web/modules/router/components/TabHeader'
 
 import CollectibleTransfer from '../../components/CollectibleTransfer'
-import TabHeader from '../../components/TabHeader'
 import styles from './styles'
 
 interface State {
   image: string
   name: string
   description?: string
-  owner?: string
-  collectionData: {
-    name: string
-    image: string
-    address: string
-  }
+  owner: string
+  address: string
 }
 
-const CollectibleScreenInner = ({ collectionData, name, image, description, owner }: State) => {
+const CollectibleScreenInner = ({ name, image, description, owner, address }: State) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
+  const { selectedAccount: selectedAcc } = useMainControllerState()
 
   const handleCopyAddress = () => {
-    if (!collectionData) return
+    if (!address) return
 
-    if (!collectionData?.address) {
+    if (!address) {
       addToast(t('Failed to copy address') as string, { timeout: 2500, type: 'error' })
       return
     }
-    Clipboard.setStringAsync(collectionData.address)
+    Clipboard.setStringAsync(address)
     addToast(t('Copied to clipboard!') as string, { timeout: 2500 })
   }
 
@@ -50,14 +49,14 @@ const CollectibleScreenInner = ({ collectionData, name, image, description, owne
         // and has to fetch them, so the back button here leads to that screen.(since we can't pass
         // collectibles to <CollectionScreen /> from <CollectibleScreen />)
         fallbackPrevRoute={`${ROUTES.dashboard}?tab=collectibles`}
-        text={name || 'Unknown collection'}
+        pageTitle={name || 'Unknown collection'}
         image={image}
       />
       <Wrapper style={styles.container}>
         <View style={styles.contentContainer}>
           <View style={[styles.section, styles.info]}>
             <View style={styles.infoImageWrapper}>
-              <Image source={{ uri: handleCollectibleUri(image) }} style={styles.infoImage} />
+              <Image source={{ uri: image }} style={styles.infoImage} />
             </View>
             <Text color={colors.martinique} style={styles.sectionTitle}>
               {name}
@@ -72,17 +71,17 @@ const CollectibleScreenInner = ({ collectionData, name, image, description, owne
                 </Text>
               </View>
             )}
-            {collectionData?.address && (
+            {address && (
               <View style={styles.infoItem}>
                 <Text color={colors.martinique} style={styles.sectionSubtitle}>
                   {t('Contract address')}
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Text color={colors.martinique} style={styles.itemValue}>
-                    {collectionData?.address}
+                    {address}
                   </Text>
                   <Pressable style={styles.copyIcon} onPress={handleCopyAddress}>
-                    <CopyIcon width={20} height={20} />
+                    <CopyIcon width={10} height={10} />
                   </Pressable>
                 </View>
               </View>
@@ -92,9 +91,19 @@ const CollectibleScreenInner = ({ collectionData, name, image, description, owne
                 <Text color={colors.martinique} style={styles.sectionSubtitle}>
                   {t('Owner')}
                 </Text>
-                <Text color={colors.martinique} style={styles.itemValue}>
-                  {owner}
-                </Text>
+                <View style={styles.ownerContainer}>
+                  <Blockies borderRadius={10} size={8} scale={4} seed={owner} />
+                  <View style={styles.owner}>
+                    {owner === selectedAcc ? (
+                      <Text weight="semiBold" fontSize={16}>
+                        {'You '}
+                      </Text>
+                    ) : null}
+                    <Text weight="semiBold" fontSize={16} numberOfLines={1}>
+                      {owner === selectedAcc ? `(${owner})` : owner}
+                    </Text>
+                  </View>
+                </View>
               </View>
             )}
           </View>
@@ -105,37 +114,34 @@ const CollectibleScreenInner = ({ collectionData, name, image, description, owne
   )
 }
 
-const CollectibleScreen = () => {
-  const [state, setState] = useState<State | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+interface SearchParams {
+  address: string
+  id: bigint
+  networkId: string
+}
 
-  useEffect(() => {
-    storage.get('collectible', null).then((data) => {
-      setState(data)
-      setIsLoading(false)
-    })
-  }, [])
+const CollectibleScreen = () => {
+  const { search } = useRoute()
+
+  const searchParams = Object.fromEntries(new URLSearchParams(search))
+
+  if (!searchParams.address || !searchParams.id || !searchParams.networkId) return null
+
+  const { data: state, isLoading } = useNft({
+    ...searchParams,
+    id: BigInt(searchParams.id)
+  } as SearchParams)
 
   return !isLoading && state ? (
     <CollectibleScreenInner
-      collectionData={state?.collectionData}
       name={state?.name}
       image={state?.image}
       description={state?.description}
-      owner={state?.owner}
+      address={searchParams.address || ''}
+      owner={state?.owner || ''}
     />
   ) : (
-    <CollectibleScreenInner
-      collectionData={{
-        name: 'Loading...',
-        image: '',
-        address: ''
-      }}
-      name="Loading..."
-      image=""
-      description=""
-      owner=""
-    />
+    <CollectibleScreenInner name="Loading..." image="" address="" description="" owner="" />
   )
 }
 

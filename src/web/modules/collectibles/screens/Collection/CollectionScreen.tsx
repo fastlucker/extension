@@ -6,8 +6,8 @@ import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import useRoute from '@common/hooks/useRoute'
 import Collectible from '@web/modules/collectibles/components/Collectible/Collectible'
+import TabHeader from '@web/modules/router/components/TabHeader'
 
-import TabHeader from '../../components/TabHeader'
 import styles from './styles'
 
 const CollectionScreen = () => {
@@ -19,7 +19,7 @@ const CollectionScreen = () => {
 
   return (
     <>
-      <TabHeader text={route.state.name} image={state.image} />
+      <TabHeader pageTitle={route.state.name} image={state.image} />
       <Wrapper style={styles.container}>
         <View style={styles.contentContainer}>
           {state?.collectibles?.length ? (
@@ -31,7 +31,8 @@ const CollectionScreen = () => {
                 collectionData={{
                   name: state.name,
                   image: state.image,
-                  address: state.address
+                  address: state.address,
+                  networkId: state.networkId
                 }}
               />
             ))

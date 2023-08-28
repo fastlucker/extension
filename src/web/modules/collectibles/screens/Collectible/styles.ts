@@ -2,7 +2,7 @@ import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import colors from '@common/styles/colors'
-import spacings, { SPACING_LG } from '@common/styles/spacings'
+import spacings, { SPACING_LG, SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import commonWebStyles from '@web/styles/utils/common'
 
@@ -20,6 +20,10 @@ interface Style {
   infoItem: ViewStyle
   itemValue: TextStyle
   copyIcon: ViewStyle
+  // Owner
+  ownerContainer: ViewStyle
+  owner: ViewStyle
+  blocky: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -68,9 +72,20 @@ const styles = StyleSheet.create<Style>({
     fontFamily: FONT_FAMILIES.REGULAR
   },
   copyIcon: {
-    ...spacings.mlMi
+    ...spacings.mlMi,
+    marginBottom: SPACING_MI / 2
   },
-  info: {}
+  info: {},
+  ownerContainer: {
+    ...flexbox.directionRow,
+    ...flexbox.alignCenter
+  },
+  owner: {
+    ...flexbox.directionRow,
+    ...flexbox.alignCenter,
+    ...spacings.mlTy
+  },
+  blocky: { borderRadius: 12, overflow: 'hidden', width: 34, height: 34 }
 })
 
 export default styles

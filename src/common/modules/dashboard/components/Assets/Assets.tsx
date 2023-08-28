@@ -1,3 +1,4 @@
+import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
 import React from 'react'
 import { View, ViewStyle } from 'react-native'
 
@@ -9,10 +10,9 @@ import flexbox from '@common/styles/utils/flexbox'
 import Collectibles from '../Collectibles'
 import Tokens from '../Tokens'
 
-// TODO props
 interface Props {
   openTab: 'tokens' | 'collectibles'
-  tokens: []
+  tokens: TokenResult[]
 }
 
 // We do this instead of unmounting the component to prevent

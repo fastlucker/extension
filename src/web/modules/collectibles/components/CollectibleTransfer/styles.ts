@@ -1,6 +1,6 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import spacings, { SPACING_LG } from '@common/styles/spacings'
+import spacings, { SPACING_LG, SPACING_MD } from '@common/styles/spacings'
 import viewStyle from '@web/modules/collectibles/screens/Collectible/styles'
 
 interface Style {
@@ -10,12 +10,15 @@ interface Style {
   input: ViewStyle
   inputContainer: ViewStyle
   button: ViewStyle
+  inputLabel: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
   container: {
-    ...spacings.mlXl,
-    ...viewStyle.section
+    ...viewStyle.section,
+    maxWidth: 400,
+    paddingTop: SPACING_MD * 4, // 100
+    marginLeft: SPACING_LG * 3 // 90
   },
   title: {
     ...viewStyle.sectionTitle,
@@ -23,6 +26,9 @@ const styles = StyleSheet.create<Style>({
   },
   button: {
     width: 300
+  },
+  inputLabel: {
+    ...spacings.mb
   },
   input: { ...spacings.phTy, width: '100%' },
   inputContainer: {
