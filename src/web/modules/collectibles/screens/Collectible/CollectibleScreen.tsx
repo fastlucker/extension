@@ -6,6 +6,7 @@ import { Image, Pressable, View } from 'react-native'
 import Blockies from '@common/components/Blockies'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
+import useNavigation from '@common/hooks/useNavigation'
 import useNft from '@common/hooks/useNft'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
@@ -29,6 +30,7 @@ interface State {
 const CollectibleScreenInner = ({ name, image, description, owner, address }: State) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
+  const { navigate } = useNavigation()
   const { selectedAccount: selectedAcc } = useMainControllerState()
 
   const handleCopyAddress = () => {
@@ -48,7 +50,8 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
         // @TODO: add a case where <CollectionScreen /> doesn't receive collectibles from useRoute
         // and has to fetch them, so the back button here leads to that screen.(since we can't pass
         // collectibles to <CollectionScreen /> from <CollectibleScreen />)
-        fallbackPrevRoute={`${ROUTES.dashboard}?tab=collectibles`}
+        onBack={() => navigate(`${ROUTES.dashboard}?tab=collectibles`)}
+        forceCanGoBack
         pageTitle={name || 'Unknown collection'}
         image={image}
       />
