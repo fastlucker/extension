@@ -4,6 +4,6 @@ import { RELAYER_URL } from '@env'
 
 const callRelayer = relayerCall.bind({ url: RELAYER_URL, fetch })
 
-const useRelayerData = (props: any) => callRelayer(props)
+const useRelayerData = (props: Parameters<typeof callRelayer>[0]) => callRelayer(props)
 
 export default useRelayerData
