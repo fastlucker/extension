@@ -114,20 +114,7 @@ export class NotificationController extends Events {
       this.currentDappNotificationRequest = notificationRequest
       this.openNotification(notificationRequest.winProps, true)
     } catch (e) {
-      // TODO:
-      // Sentry.captureException(`activeFirstApproval failed: ${JSON.stringify(e)}`)
       this.clear()
-    }
-  }
-
-  deleteApproval = (notificationRequest: DappNotificationRequest | null) => {
-    if (notificationRequest && this.mainCtrl.dappsNotificationRequests.length > 1) {
-      this.mainCtrl.dappsNotificationRequests = this.mainCtrl.dappsNotificationRequests.filter(
-        (item) => notificationRequest.id !== item.id
-      )
-    } else {
-      this.currentDappNotificationRequest = null
-      this.mainCtrl.dappsNotificationRequests = []
     }
   }
 
@@ -135,10 +122,11 @@ export class NotificationController extends Events {
 
   resolveApproval = async (data: any, approvalId: bigint) => {
     if (approvalId && approvalId !== this.currentDappNotificationRequest?.id) return
-    this.currentDappNotificationRequest?.resolve &&
-      this.currentDappNotificationRequest?.resolve(data)
     const notificationRequest = this.currentDappNotificationRequest
-    this.deleteApproval(notificationRequest)
+    this.mainCtrl.resolveDappNotificationRequest(
+      data,
+      approvalId || (notificationRequest?.id as bigint)
+    )
 
     if (this.mainCtrl.dappsNotificationRequests.length > 0) {
       this.currentDappNotificationRequest = this.mainCtrl.dappsNotificationRequests[0]
@@ -153,15 +141,12 @@ export class NotificationController extends Events {
   rejectApproval = async (err: string = 'Request rejected') => {
     const notificationRequest = this.currentDappNotificationRequest
 
-    if (this.mainCtrl.dappsNotificationRequests.length <= 1) {
-      await this.clear() // TODO: FIXME
-    }
+    this.mainCtrl.rejectDappNotificationRequest(
+      ethErrors.provider.userRejectedRequest<any>(err),
+      notificationRequest?.id as bigint
+    )
 
-    notificationRequest?.reject &&
-      notificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>(err))
-
-    if (notificationRequest && this.mainCtrl.dappsNotificationRequests.length > 1) {
-      this.deleteApproval(notificationRequest)
+    if (notificationRequest && this.mainCtrl.dappsNotificationRequests.length) {
       this.currentDappNotificationRequest = this.mainCtrl.dappsNotificationRequests[0]
     } else {
       await this.clear()
@@ -179,13 +164,9 @@ export class NotificationController extends Events {
         screen: data.approvalComponent,
         resolve: (data) => {
           resolve(data)
-          const userReq = this.mainCtrl.userRequests.find((req) => req.id === id)
-          this.mainCtrl.removeUserRequest(userReq?.id || id)
         },
         reject: (data) => {
           reject(data)
-          const userReq = this.mainCtrl.userRequests.find((req) => req.id === id)
-          this.mainCtrl.removeUserRequest(userReq?.id || id)
         }
       }
 
@@ -304,10 +285,10 @@ export class NotificationController extends Events {
     })
   }
 
-  clear = async (stay = false) => {
+  clear = async () => {
     this.mainCtrl.dappsNotificationRequests = []
     this.currentDappNotificationRequest = null
-    if (this.notifiWindowId !== null && !stay) {
+    if (this.notifiWindowId !== null) {
       try {
         await winMgr.remove(this.notifiWindowId)
       } catch (e) {
