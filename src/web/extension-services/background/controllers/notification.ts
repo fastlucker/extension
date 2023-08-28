@@ -7,7 +7,6 @@ import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
 
 import { isDev } from '@common/config/env'
-import colors from '@common/styles/colors'
 import generateBigIntId from '@common/utils/generateBigIntId'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
 import { APPROVAL_REQUESTS_STORAGE_KEY } from '@web/contexts/approvalContext/types'
@@ -25,40 +24,16 @@ const QUEUE_APPROVAL_COMPONENTS_WHITELIST = [
 export class NotificationController extends Events {
   mainCtrl: MainController
 
+  notificationWindowId: null | number = null
+
   currentDappNotificationRequest: DappNotificationRequest | null = null
-
-  _approvals: DappNotificationRequest[] = []
-
-  notifiWindowId: null | number = null
-
-  isLocked = false
-
-  get approvals() {
-    return this._approvals
-  }
-
-  set approvals(val: DappNotificationRequest[]) {
-    this._approvals = val
-    if (val.length <= 0) {
-      browser.browserAction.setBadgeText({
-        text: null
-      })
-    } else {
-      browser.browserAction.setBadgeText({
-        text: `${val.length}`
-      })
-      browser.browserAction.setBadgeBackgroundColor({
-        color: colors.turquoise
-      })
-    }
-  }
 
   constructor(mainCtrl: MainController) {
     super()
     this.mainCtrl = mainCtrl
     winMgr.event.on('windowRemoved', (winId: number) => {
-      if (winId === this.notifiWindowId) {
-        this.notifiWindowId = null
+      if (winId === this.notificationWindowId) {
+        this.notificationWindowId = null
         this.rejectAllApprovals()
       }
     })
@@ -74,7 +49,7 @@ export class NotificationController extends Events {
         return
       }
 
-      if (this.notifiWindowId !== null && winId !== this.notifiWindowId) {
+      if (this.notificationWindowId !== null && winId !== this.notificationWindowId) {
         if (
           this.currentDappNotificationRequest &&
           !QUEUE_APPROVAL_COMPONENTS_WHITELIST.includes(this.currentDappNotificationRequest.screen)
@@ -88,8 +63,8 @@ export class NotificationController extends Events {
   activeFirstApproval = async () => {
     try {
       const windows = await browser.windows.getAll()
-      const existWindow = windows.find((window) => window.id === this.notifiWindowId)
-      if (this.notifiWindowId !== null && !!existWindow) {
+      const existWindow = windows.find((window) => window.id === this.notificationWindowId)
+      if (this.notificationWindowId !== null && !!existWindow) {
         const {
           top: cTop,
           left: cLeft,
@@ -100,7 +75,7 @@ export class NotificationController extends Events {
 
         const top = cTop
         const left = cLeft! + width! - WINDOW_SIZE.width
-        browser.windows.update(this.notifiWindowId, {
+        browser.windows.update(this.notificationWindowId, {
           focused: true,
           top,
           left
@@ -275,8 +250,8 @@ export class NotificationController extends Events {
         })
       }
 
-      if (this.notifiWindowId !== null) {
-        browser.windows.update(this.notifiWindowId, {
+      if (this.notificationWindowId !== null) {
+        browser.windows.update(this.notificationWindowId, {
           focused: true
         })
       } else {
@@ -288,13 +263,13 @@ export class NotificationController extends Events {
   clear = async () => {
     this.mainCtrl.dappsNotificationRequests = []
     this.currentDappNotificationRequest = null
-    if (this.notifiWindowId !== null) {
+    if (this.notificationWindowId !== null) {
       try {
-        await winMgr.remove(this.notifiWindowId)
+        await winMgr.remove(this.notificationWindowId)
       } catch (e) {
         // ignore error
       }
-      this.notifiWindowId = null
+      this.notificationWindowId = null
     }
   }
 
@@ -311,26 +286,13 @@ export class NotificationController extends Events {
     browser.storage.local.set({ [APPROVAL_REQUESTS_STORAGE_KEY]: JSON.stringify([]) })
   }
 
-  unLock = () => {
-    this.isLocked = false
-  }
-
-  lock = () => {
-    this.isLocked = true
-  }
-
-  openNotification = (winProps: any, ignoreLock = false) => {
-    // Only use ignoreLock flag when notificationRequest exist but no notification window exist
-    if (!ignoreLock) {
-      if (this.isLocked) return
-      this.lock()
-    }
-    if (this.notifiWindowId !== null) {
-      winMgr.remove(this.notifiWindowId)
-      this.notifiWindowId = null
+  openNotification = (winProps: any) => {
+    if (this.notificationWindowId !== null) {
+      winMgr.remove(this.notificationWindowId)
+      this.notificationWindowId = null
     }
     winMgr.openNotification(winProps).then((winId) => {
-      this.notifiWindowId = winId!
+      this.notificationWindowId = winId!
     })
   }
 }

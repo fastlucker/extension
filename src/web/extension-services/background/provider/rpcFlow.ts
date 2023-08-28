@@ -189,7 +189,7 @@ const flowContext = flow
           })
         }
       })
-    async function requestApprovalLoop({ uiRequestComponent, ...rest }: any): any {
+    async function requestApprovalLoop({ uiRequestComponent, ...rest }: any): Promise<any> {
       ctx.request.requestedApproval = true
       const res = await ctx.request.notificationCtrl.requestApproval({
         approvalComponent: uiRequestComponent,
@@ -217,8 +217,6 @@ export default (request: ProviderRequest) => {
   return flowContext(ctx).finally(() => {
     if (ctx.request.requestedApproval) {
       flow.requestedApproval = false
-      // only unlock notification if current flow is an approval flow
-      request.notificationCtrl.unLock()
     }
   })
 }
