@@ -10,7 +10,7 @@ import { getUiType } from '@web/utils/uiType'
 const TabOnlyRoute = () => {
   const isTab = getUiType().isTab
   const isNotification = getUiType().isNotification
-  const { path } = useRoute()
+  const { path, search } = useRoute()
   const { approval } = useApproval()
 
   // if the current window is notification and there is an approval don't open
@@ -21,7 +21,7 @@ const TabOnlyRoute = () => {
   }
 
   if (!isTab && isExtension) {
-    openInternalPageInTab(path?.substring(1))
+    openInternalPageInTab(`${path?.substring(1)}${search}`)
     return <></>
   }
 
