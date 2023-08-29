@@ -2,12 +2,13 @@ import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/port
 import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 
-import Banner from '@common/components/Banner'
+import Banners from '@common/components/Banners'
 import Search from '@common/components/Search'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
+import { BANNER_TOPICS } from '@common/contexts/bannerContext/bannerContext'
 import useRoute from '@common/hooks/useRoute'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -93,20 +94,11 @@ const DashboardScreen = () => {
           </View>
 
           <View style={styles.banners}>
-            <Banner title="An example banner" text="Image if this banner was real." />
-            <Banner
-              title="Waiting to be signed on Ethereum"
-              text="Triggering account recovery for the current account"
-              isHideBtnShown={false}
-              actions={[
-                {
-                  label: 'Sign',
-                  onPress: () => console.log('Signed')
-                },
-                {
-                  label: 'Reject',
-                  onPress: () => console.log('Rejected')
-                }
+            <Banners
+              topics={[
+                BANNER_TOPICS.TRANSACTION,
+                BANNER_TOPICS.ANNOUNCEMENT,
+                BANNER_TOPICS.WARNING
               ]}
             />
           </View>
