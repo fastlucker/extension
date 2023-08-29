@@ -12,7 +12,7 @@ interface Props {
 const FeeWrapper = ({ children, onPress, style }: Props) => (
   <Pressable style={[flexbox.flex1, style]} onPress={onPress}>
     {({ hovered }: any) => (
-      <View style={[styles.container, hovered && styles.containerHover]}>{children}</View>
+      <View style={[styles.container, !!hovered && styles.containerHover]}>{children}</View>
     )}
   </Pressable>
 )

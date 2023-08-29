@@ -40,7 +40,7 @@ const TransactionSummary = ({ style }: Props) => {
           </View>
         </View>
       </Pressable>
-      {isExpanded && (
+      {!!isExpanded && (
         <View style={styles.body}>
           <Text style={styles.bodyText}>
             {t('Interacting with (to):')} 0x2791bca1f2de4661ed88a30c99a7a9449aa84174 (USDC token)
