@@ -27,8 +27,7 @@ const styles = StyleSheet.create<Style>({
   },
   rejectButton: {
     ...button,
-    // @TODO - variable
-    backgroundColor: '#FD1A641A'
+    backgroundColor: colors.zircon
   },
   addMoreTxnButton: {
     ...button,
