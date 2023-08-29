@@ -13,9 +13,9 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 
 import styles from './styles'
 
@@ -97,7 +97,7 @@ const ExternalSignerLoginScreen = () => {
 
   return (
     <>
-      <AuthLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent>
         <View style={styles.container}>
           <Text
             weight="medium"
@@ -195,8 +195,8 @@ const ExternalSignerLoginScreen = () => {
             disabled={!isValid}
           />
         </View>
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent backgroundType="beta">
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent backgroundType="beta">
         <Text weight="medium" fontSize={16} style={spacings.mb} color={colors.zircon}>
           {t('Importing legacy accounts')}
         </Text>
@@ -212,7 +212,7 @@ const ExternalSignerLoginScreen = () => {
         <Text fontSize={14} shouldScale={false} color={colors.zircon}>
           {t('The key label is any arbitrary name you choose for this key, entirely up to you.')}
         </Text>
-      </AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent>
     </>
   )
 }

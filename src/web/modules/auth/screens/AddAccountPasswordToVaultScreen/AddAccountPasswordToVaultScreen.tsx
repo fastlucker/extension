@@ -18,9 +18,9 @@ import colors from '@common/styles/colors'
 import spacings, { IS_SCREEN_SIZE_S } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 
 const AddAccountPasswordToVaultScreen = () => {
   const { t } = useTranslation()
@@ -55,7 +55,7 @@ const AddAccountPasswordToVaultScreen = () => {
 
   return (
     <>
-      <AuthLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent>
         <View
           style={[
             flexboxStyles.directionRow,
@@ -125,14 +125,14 @@ const AddAccountPasswordToVaultScreen = () => {
             onPress={handleCancelLoginAttempts}
           />
         </View>
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent backgroundType="beta">
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent backgroundType="beta">
         <Text weight="regular" color={colors.titan}>
           {t(
             'When you add your account password to the Key Store, you will be able to sign transactions on this device using your passphrase only.'
           )}
         </Text>
-      </AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent>
     </>
   )
 }

@@ -9,9 +9,9 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import LatticeManager from '@web/modules/account-adder/components/LatticeManager'
 import LedgerManager from '@web/modules/account-adder/components/LedgerManager'
 import LegacyImportManager from '@web/modules/account-adder/components/LegacyImportManager'
@@ -67,12 +67,12 @@ const AccountAdderScreen = () => {
 
   return (
     <>
-      <AuthLayoutWrapperMainContent pageTitle={t(title, { name })}>
+      <TabLayoutWrapperMainContent pageTitle={t(title, { name })}>
         <View style={[spacings.mh, spacings.pv, flexbox.justifyCenter]}>
           <WalletManager {...walletManagerProps} />
         </View>
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent backgroundType="beta">
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent backgroundType="beta">
         <Text fontSize={16} style={[spacings.mb]} color={colors.zircon} weight="medium">
           {t('Importing accounts')}
         </Text>
@@ -114,7 +114,7 @@ const AccountAdderScreen = () => {
             </Text>
           </>
         )}
-      </AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent>
     </>
   )
 }

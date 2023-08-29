@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import React, { createContext, useContext } from 'react'
-import { TextStyle, View, ViewProps } from 'react-native'
+import { View, ViewProps } from 'react-native'
 import { Outlet } from 'react-router-dom'
 
 import InformationCircleIcon from '@common/assets/svg/InformationCircleIcon'
@@ -8,19 +8,19 @@ import Wrapper from '@common/components/Wrapper'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import Ameba from '@web/components/AuthLayoutWrapper/Ameba'
+import Ameba from '@web/components/TabLayoutWrapper/Ameba'
 import TabHeader from '@web/modules/router/components/TabHeader'
 
 import styles from './styles'
 
-const AuthLayoutWrapperContext = createContext(true)
+const TabLayoutWrapperContext = createContext(true)
 
-const AuthLayoutWrapper = (
-  <AuthLayoutWrapperContext.Provider value>
+const TabLayoutWrapper = (
+  <TabLayoutWrapperContext.Provider value>
     <View style={[flexbox.directionRow, flexbox.flex1]}>
       <Outlet />
     </View>
-  </AuthLayoutWrapperContext.Provider>
+  </TabLayoutWrapperContext.Provider>
 )
 
 enum Width {
@@ -40,7 +40,7 @@ interface Props {
   footer?: React.ReactNode
 }
 
-export const AuthLayoutWrapperMainContent: React.FC<any> = ({
+export const TabLayoutWrapperMainContent: React.FC<any> = ({
   width = Width.Normal,
   hideStepper = false,
   hideHeader = false,
@@ -50,7 +50,7 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({
   onBack,
   footer
 }: Props) => {
-  const context = useContext(AuthLayoutWrapperContext)
+  const context = useContext(TabLayoutWrapperContext)
 
   if (!context) {
     throw new Error('Should be used in AuthLayoutWrapper component!')
@@ -99,17 +99,17 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({
   )
 }
 
-interface AuthLayoutWrapperSideContentProps extends ViewProps {
+interface TabLayoutWrapperSideContentProps extends ViewProps {
   backgroundType?: 'alpha' | 'beta'
 }
 
-export const AuthLayoutWrapperSideContent: React.FC<AuthLayoutWrapperSideContentProps> = ({
+export const TabLayoutWrapperSideContent: React.FC<TabLayoutWrapperSideContentProps> = ({
   backgroundType = 'alpha',
   children,
   style,
   ...rest
 }) => {
-  const context = useContext(AuthLayoutWrapperContext)
+  const context = useContext(TabLayoutWrapperContext)
 
   if (!context) {
     throw new Error('Should be used in AuthLayoutWrapper component!')
@@ -136,4 +136,4 @@ export const AuthLayoutWrapperSideContent: React.FC<AuthLayoutWrapperSideContent
   )
 }
 
-export default AuthLayoutWrapper
+export default TabLayoutWrapper

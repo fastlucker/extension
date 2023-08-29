@@ -11,7 +11,7 @@ import RecipientInput from '@common/components/RecipientInput'
 import Checkbox from '@common/components/Checkbox'
 import Button from '@common/components/Button'
 import { Controller, useForm } from 'react-hook-form'
-import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
 
@@ -73,7 +73,7 @@ const TransferScreen = () => {
   }, [handleSubmit])
 
   return (
-    <AuthLayoutWrapperMainContent width="mid" forceCanGoBack onBack={onBack}>
+    <TabLayoutWrapperMainContent width="mid" forceCanGoBack onBack={onBack}>
       <View style={[flexbox.alignCenter, spacings.pv]}>
         <View style={[flexbox.flex1, { maxWidth: 500 }]}>
           <Controller
@@ -143,7 +143,7 @@ const TransferScreen = () => {
           />
         </View>
       </View>
-    </AuthLayoutWrapperMainContent>
+    </TabLayoutWrapperMainContent>
   )
 }
 

@@ -6,7 +6,7 @@ import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import Select from '@common/components/Select/'
 import { Controller, useForm } from 'react-hook-form'
-import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
@@ -83,7 +83,7 @@ const SignAccountOpScreen = () => {
   }, [])
 
   return (
-    <AuthLayoutWrapperMainContent
+    <TabLayoutWrapperMainContent
       width="full"
       forceCanGoBack
       onBack={onBack}
@@ -174,7 +174,7 @@ const SignAccountOpScreen = () => {
           </View>
         </View>
       </View>
-    </AuthLayoutWrapperMainContent>
+    </TabLayoutWrapperMainContent>
   )
 }
 

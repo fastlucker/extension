@@ -13,7 +13,7 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import { hasConnectedLedgerDevice } from '@web/modules/hardware-wallet/utils/ledger'
@@ -59,7 +59,7 @@ const ConnectLedgerScreen = () => {
   }
 
   return (
-    <AuthLayoutWrapperMainContent width="mid">
+    <TabLayoutWrapperMainContent width="mid">
       <View style={[flexbox.flex1, flexbox.justifyCenter]}>
         <View
           style={{
@@ -98,7 +98,7 @@ const ConnectLedgerScreen = () => {
           />
         </View>
       </View>
-    </AuthLayoutWrapperMainContent>
+    </TabLayoutWrapperMainContent>
   )
 }
 

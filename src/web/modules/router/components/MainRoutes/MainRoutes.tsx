@@ -12,7 +12,7 @@ import {
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
+import TabLayoutWrapper from '@web/components/TabLayoutWrapper'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountsScreen from '@web/modules/accounts/screens/AccountsScreen'
@@ -69,7 +69,7 @@ const MainRoutes = () => {
   return (
     <Routes>
       <Route element={stepperProvider}>
-        <Route element={AuthLayoutWrapper}>
+        <Route element={TabLayoutWrapper}>
           <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
           <Route element={<TabOnlyRoute />}>
             <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
