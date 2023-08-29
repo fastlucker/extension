@@ -34,6 +34,7 @@ const CollectionScreen = () => {
                   address: state.address,
                   networkId: state.networkId
                 }}
+                priceIn={state.priceIn}
               />
             ))
           ) : (

@@ -9,13 +9,14 @@ const Collections = () => {
 
   return (
     <View>
-      {accountPortfolio.collections.map(({ address, name, networkId, collectibles }) => (
+      {accountPortfolio.collections.map(({ address, name, networkId, collectibles, priceIn }) => (
         <Collection
           address={address}
           networkId={networkId}
           key={address}
           name={name}
           collectibles={collectibles}
+          priceIn={priceIn}
         />
       ))}
     </View>

@@ -17,9 +17,13 @@ interface Props {
   name: string
   networkId: NetworkIconNameType
   collectibles: Collectible[]
+  priceIn: {
+    baseCurrency: string
+    price: number
+  }[]
 }
 
-const Collection: FC<Props> = ({ address, name, networkId, collectibles }) => {
+const Collection: FC<Props> = ({ address, name, networkId, collectibles, priceIn }) => {
   const [imageFailed, setImageFailed] = useState(false)
   const { data } = useNft({
     address,
@@ -41,7 +45,8 @@ const Collection: FC<Props> = ({ address, name, networkId, collectibles }) => {
             name,
             collectibles,
             image: data?.image || '',
-            networkId
+            networkId,
+            priceIn
           }
         })
       }}

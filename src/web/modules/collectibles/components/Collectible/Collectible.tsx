@@ -23,6 +23,10 @@ type Props = CollectibleType & {
     address: string
     networkId: string
   }
+  priceIn: {
+    baseCurrency: string
+    price: number
+  }[]
 }
 
 const isTab = getUiType().isTab
@@ -41,7 +45,7 @@ const containerStyle: ViewStyle[] = [
   isTab ? spacings.mrXl : {}
 ]
 
-const Collectible: FC<Props> = ({ id, collectionData }) => {
+const Collectible: FC<Props> = ({ id, collectionData, priceIn }) => {
   const [imageFailed, setImageFailed] = useState(false)
   const { t } = useTranslation()
   const { data, error, isLoading } = useNft({
@@ -108,7 +112,7 @@ const Collectible: FC<Props> = ({ id, collectionData }) => {
                   style={[styles.text, isTab ? spacings.mbSm : spacings.mbTy]}
                   color={colors.violet}
                 >
-                  $0.00
+                  {priceIn?.length ? `$${Math.round(priceIn[0].price * 100) / 100}` : '$-'}
                 </Text>
                 <Button
                   disabled
