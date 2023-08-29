@@ -37,24 +37,17 @@ async function init() {
 ;(async () => {
   await init()
   let pmRef: PortMessage
-
+  let onResoleDappNotificationRequest: (data: any, id?: bigint) => void
+  let onRejectDappNotificationRequest: (data: any, id?: bigint) => void
   const mainCtrl = new MainController({
     storage,
     fetch,
     relayerUrl: RELAYER_URL,
-    onSetDappsNotificationRequests(newValue) {
-      if (newValue.length <= 0) {
-        browser.browserAction.setBadgeText({
-          text: null
-        })
-      } else {
-        browser.browserAction.setBadgeText({
-          text: `${newValue.length}`
-        })
-        browser.browserAction.setBadgeBackgroundColor({
-          color: colors.turquoise
-        })
-      }
+    onResolveDappRequest: (data, id) => {
+      !!onResoleDappNotificationRequest && onResoleDappNotificationRequest(data, id)
+    },
+    onRejectDappRequest: (err, id) => {
+      !!onRejectDappNotificationRequest && onRejectDappNotificationRequest(err, id)
     }
   })
   const ledgerCtrl = new LedgerController()
@@ -62,6 +55,9 @@ async function init() {
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
+
+  onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
+  onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
 
   /**
    * Init all controllers `onUpdate` listeners only once (in here), instead of

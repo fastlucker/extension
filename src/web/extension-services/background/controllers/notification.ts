@@ -7,6 +7,7 @@ import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 
 import { isDev } from '@common/config/env'
+import colors from '@common/styles/colors'
 import generateBigIntId from '@common/utils/generateBigIntId'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
 import userNotification from '@web/extension-services/background/libs/user-notification'
@@ -22,9 +23,32 @@ const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
 export class NotificationController extends EventEmitter {
   mainCtrl: MainController
 
+  _dappsNotificationRequests: DappNotificationRequest[] = []
+
   notificationWindowId: null | number = null
 
   currentDappNotificationRequest: DappNotificationRequest | null = null
+
+  get dappsNotificationRequests() {
+    return this._dappsNotificationRequests
+  }
+
+  set dappsNotificationRequests(newValue: DappNotificationRequest[]) {
+    this._dappsNotificationRequests = newValue
+
+    if (newValue.length <= 0) {
+      browser.browserAction.setBadgeText({
+        text: null
+      })
+    } else {
+      browser.browserAction.setBadgeText({
+        text: `${newValue.length}`
+      })
+      browser.browserAction.setBadgeBackgroundColor({
+        color: colors.turquoise
+      })
+    }
+  }
 
   constructor(mainCtrl: MainController) {
     super()
@@ -56,20 +80,6 @@ export class NotificationController extends EventEmitter {
         }
       }
     })
-    const handleMainCtrlUpdate = () => {
-      if (
-        this.currentDappNotificationRequest &&
-        this.currentDappNotificationRequest.id !== this.mainCtrl.dappsNotificationRequests[0].id
-      ) {
-        this.currentDappNotificationRequest = this.mainCtrl.dappsNotificationRequests[0]
-      }
-
-      if (this.currentDappNotificationRequest && !this.mainCtrl.dappsNotificationRequests.length) {
-        this.currentDappNotificationRequest = null
-      }
-      this.emitUpdate()
-    }
-    this.mainCtrl.onUpdate(handleMainCtrlUpdate)
   }
 
   openFirstNotificationRequest = async () => {
@@ -95,9 +105,9 @@ export class NotificationController extends EventEmitter {
         return
       }
 
-      if (this.mainCtrl.dappsNotificationRequests.length < 0) return
+      if (this.dappsNotificationRequests.length < 0) return
 
-      const notificationRequest = this.mainCtrl.dappsNotificationRequests[0]
+      const notificationRequest = this.dappsNotificationRequests[0]
       this.currentDappNotificationRequest = notificationRequest
       this.emitUpdate()
       this.openNotification(notificationRequest.winProps)
@@ -107,13 +117,13 @@ export class NotificationController extends EventEmitter {
   }
 
   deleteApproval = (request: DappNotificationRequest) => {
-    if (request && this.mainCtrl.dappsNotificationRequests.length > 1) {
-      this.mainCtrl.dappsNotificationRequests = this.mainCtrl.dappsNotificationRequests.filter(
+    if (request && this.dappsNotificationRequests.length > 1) {
+      this.dappsNotificationRequests = this.dappsNotificationRequests.filter(
         (item) => request.id !== item.id
       )
     } else {
       this.currentDappNotificationRequest = null
-      this.mainCtrl.dappsNotificationRequests = []
+      this.dappsNotificationRequests = []
     }
   }
 
@@ -124,8 +134,8 @@ export class NotificationController extends EventEmitter {
 
     this.deleteApproval(notificationRequest as DappNotificationRequest)
 
-    if (this.mainCtrl.dappsNotificationRequests.length > 0) {
-      this.currentDappNotificationRequest = this.mainCtrl.dappsNotificationRequests[0]
+    if (this.dappsNotificationRequests.length > 0) {
+      this.currentDappNotificationRequest = this.dappsNotificationRequests[0]
     } else {
       this.currentDappNotificationRequest = null
     }
@@ -137,16 +147,16 @@ export class NotificationController extends EventEmitter {
   rejectNotificationRequest = async (err: string = 'Request rejected') => {
     const notificationRequest = this.currentDappNotificationRequest
 
-    if (this.mainCtrl.dappsNotificationRequests.length <= 1) {
+    if (this.dappsNotificationRequests.length <= 1) {
       this.clear() // TODO: FIXME
     }
 
     notificationRequest?.reject &&
       notificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>(err))
 
-    if (notificationRequest && this.mainCtrl.dappsNotificationRequests.length > 1) {
+    if (notificationRequest && this.dappsNotificationRequests.length > 1) {
       this.deleteApproval(notificationRequest)
-      this.currentDappNotificationRequest = this.mainCtrl.dappsNotificationRequests[0]
+      this.currentDappNotificationRequest = this.dappsNotificationRequests[0]
     } else {
       await this.clear()
     }
@@ -184,16 +194,10 @@ export class NotificationController extends EventEmitter {
       }
 
       if (data.isUnshift) {
-        this.mainCtrl.dappsNotificationRequests = [
-          notificationRequest,
-          ...this.mainCtrl.dappsNotificationRequests
-        ]
+        this.dappsNotificationRequests = [notificationRequest, ...this.dappsNotificationRequests]
         this.currentDappNotificationRequest = notificationRequest
       } else {
-        this.mainCtrl.dappsNotificationRequests = [
-          ...this.mainCtrl.dappsNotificationRequests,
-          notificationRequest
-        ]
+        this.dappsNotificationRequests = [...this.dappsNotificationRequests, notificationRequest]
         if (!this.currentDappNotificationRequest) {
           this.currentDappNotificationRequest = notificationRequest
         }
@@ -287,7 +291,7 @@ export class NotificationController extends EventEmitter {
   }
 
   clear = async () => {
-    this.mainCtrl.dappsNotificationRequests = []
+    this.dappsNotificationRequests = []
     this.currentDappNotificationRequest = null
     if (this.notificationWindowId !== null) {
       try {
@@ -301,11 +305,11 @@ export class NotificationController extends EventEmitter {
   }
 
   rejectAllNotificationRequests = () => {
-    this.mainCtrl.dappsNotificationRequests.forEach((notificationReq) => {
+    this.dappsNotificationRequests.forEach((notificationReq) => {
       notificationReq.reject &&
         notificationReq.reject(new EthereumProviderError(4001, 'User rejected the request.'))
     })
-    this.mainCtrl.dappsNotificationRequests = []
+    this.dappsNotificationRequests = []
     this.currentDappNotificationRequest = null
     this.emitUpdate()
   }
