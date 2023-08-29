@@ -30,6 +30,7 @@ interface State {
 
 const CollectibleScreenInner = ({ name, image, description, owner, address }: State) => {
   const { t } = useTranslation()
+  const { state } = useRoute()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const [failedImage, setFailedImage] = useState(false)
@@ -52,7 +53,10 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
         // @TODO: add a case where <CollectionScreen /> doesn't receive collectibles from useRoute
         // and has to fetch them, so the back button here leads to that screen.(since we can't pass
         // collectibles to <CollectionScreen /> from <CollectibleScreen />)
-        onBack={() => navigate(`${ROUTES.dashboard}?tab=collectibles`)}
+        onBack={() => {
+          if (state?.prevRoute) navigate(-1)
+          navigate(`${ROUTES.dashboard}?tab=collectibles`)
+        }}
         forceCanGoBack
         pageTitle={name || 'Unknown collection'}
         image={image}
