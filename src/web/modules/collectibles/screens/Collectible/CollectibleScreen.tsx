@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard'
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Pressable, View } from 'react-native'
 
@@ -13,6 +13,7 @@ import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import CopyIcon from '@web/assets/svg/CopyIcon'
+import ImageIcon from '@web/assets/svg/ImageIcon'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import TabHeader from '@web/modules/router/components/TabHeader'
 
@@ -31,6 +32,7 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
+  const [failedImage, setFailedImage] = useState(false)
   const { selectedAccount: selectedAcc } = useMainControllerState()
 
   const handleCopyAddress = () => {
@@ -59,7 +61,14 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
         <View style={styles.contentContainer}>
           <View style={[styles.section, styles.info]}>
             <View style={styles.infoImageWrapper}>
-              <Image source={{ uri: image }} style={styles.infoImage} />
+              {image && !failedImage && (
+                <Image
+                  onError={() => setFailedImage(true)}
+                  source={{ uri: image }}
+                  style={styles.infoImage}
+                />
+              )}
+              {(!image || failedImage) && <ImageIcon width={148} height={148} />}
             </View>
             <Text color={colors.martinique} style={styles.sectionTitle}>
               {name}
@@ -135,10 +144,10 @@ const CollectibleScreen = () => {
     id: BigInt(searchParams.id)
   } as SearchParams)
 
-  return !isLoading && state ? (
+  return !isLoading ? (
     <CollectibleScreenInner
-      name={state?.name}
-      image={state?.image}
+      name={state?.name || 'Unknown collectible'}
+      image={state?.image || ''}
       description={state?.description}
       address={searchParams.address || ''}
       owner={state?.owner || ''}
