@@ -69,7 +69,12 @@ const useNft = ({ address, networkId, id }: Props): ReturnInterface => {
               setData({ ...fetchedData, image: handleCollectibleUri(fetchedData.image), owner })
             })
             .catch(() => {
-              setData(null)
+              setData({
+                owner,
+                name: '',
+                description: '',
+                image: ''
+              })
               setError(true)
             })
         })

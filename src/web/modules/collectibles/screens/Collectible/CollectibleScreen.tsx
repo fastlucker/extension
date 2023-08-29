@@ -153,7 +153,13 @@ const CollectibleScreen = () => {
       owner={state?.owner || ''}
     />
   ) : (
-    <CollectibleScreenInner name="Loading..." image="" address="" description="" owner="" />
+    <CollectibleScreenInner
+      name="Loading..."
+      image=""
+      address="Loading..."
+      description=""
+      owner=""
+    />
   )
 }
 
