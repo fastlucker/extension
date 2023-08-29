@@ -36,7 +36,7 @@ import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
-import SignScreen from '@web/modules/sign/screens/SignScreen'
+import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 
 const headerControls = (
   <>
@@ -112,7 +112,7 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
 
             <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
-            <Route path={WEB_ROUTES.sign} element={<SignScreen />} />
+            <Route path={WEB_ROUTES.sign} element={<SignAccountOpScreen />} />
           </Route>
         </Route>
 

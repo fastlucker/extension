@@ -9,12 +9,12 @@ import { Controller, useForm } from 'react-hook-form'
 import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
-import TransactionSummary from '@web/modules/sign/components/TransactionSummary'
-import Header from '@web/modules/sign/components/Header'
-import Footer from '@web/modules/sign/components/Footer'
-import Heading from '@web/modules/sign/components/Heading'
-import Fee from '@web/modules/sign/components/Fee'
-import CustomFee from '@web/modules/sign/components/CustomFee'
+import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
+import Header from '@web/modules/sign-account-op/components/Header'
+import Footer from '@web/modules/sign-account-op/components/Footer'
+import Heading from '@web/modules/sign-account-op/components/Heading'
+import Fee from '@web/modules/sign-account-op/components/Fee'
+import CustomFee from '@web/modules/sign-account-op/components/CustomFee'
 import styles from './styles'
 
 // @TODO: - get accounts from controller
@@ -67,7 +67,7 @@ const TOKENS = [
   }
 ]
 
-const SignScreen = () => {
+const SignAccountOpScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
 
@@ -178,4 +178,4 @@ const SignScreen = () => {
   )
 }
 
-export default SignScreen
+export default SignAccountOpScreen

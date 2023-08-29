@@ -3,7 +3,7 @@ import { View, ViewStyle } from 'react-native'
 
 import Text from '@common/components/Text'
 import EditIcon from '@common/assets/svg/EditIcon'
-import FeeWrapper from '@web/modules/sign/components/FeeWrapper'
+import FeeWrapper from '@web/modules/sign-account-op/components/FeeWrapper'
 import { useTranslation } from '@common/config/localization'
 import styles from './styles'
 
