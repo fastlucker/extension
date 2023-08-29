@@ -4,7 +4,6 @@ import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
-import colors from '@common/styles/colors'
 import { RELAYER_URL } from '@env'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
@@ -216,20 +215,15 @@ async function init() {
               return mainCtrl.removeUserRequest(data.params.id)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
               return mainCtrl.signMessage.init(data.params.messageToSign)
-            case 'MAIN_CONTROLLER_RESOLVE_CURRENT_DAPP_NOTIFICATION_REQUEST': {
-              notificationCtrl.resolveNotificationRequest(data.params.data)
+            case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
+              notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break
             }
-            case 'MAIN_CONTROLLER_REJECT_CURRENT_DAPP_NOTIFICATION_REQUEST': {
+            case 'NOTIFICATION_CONTROLLER_REJECT_REQUEST': {
               notificationCtrl.rejectNotificationRequest(data.params.err)
               break
             }
-            case 'RESOLVE_NOTIFICATION_REQUEST': {
-              return notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
-            }
-            case 'REJECT_NOTIFICATION_REQUEST': {
-              return notificationCtrl.rejectNotificationRequest(data.params.error)
-            }
+
             case 'NOTIFICATION_CONTROLLER_OPEN_FIRST_NOTIFICATION_REQUEST':
               return notificationCtrl.openFirstNotificationRequest()
 

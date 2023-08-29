@@ -95,12 +95,12 @@ type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
   params: { messageToSign: Message }
 }
-type MainControllerResolveCurrentNotificationRequestAction = {
-  type: 'MAIN_CONTROLLER_RESOLVE_CURRENT_DAPP_NOTIFICATION_REQUEST'
-  params: { data: any }
+type NotificationControllerResolveRequestAction = {
+  type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
+  params: { data: any; id?: bigint }
 }
-type MainControllerRejectCurrentNotificationRequestAction = {
-  type: 'MAIN_CONTROLLER_REJECT_CURRENT_DAPP_NOTIFICATION_REQUEST'
+type NotificationControllerRejectRequestAction = {
+  type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST'
   params: { err: string }
 }
 type LedgerControllerUnlockAction = {
@@ -142,23 +142,6 @@ type KeystoreControllerLockAction = {
 }
 type KeystoreControllerResetErrorStateAction = {
   type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
-}
-type ResolveNotificationRequestAction = {
-  type: 'RESOLVE_NOTIFICATION_REQUEST'
-  params: {
-    data: {
-      hash?: string
-      error?: string
-    }
-    id: bigint
-  }
-}
-type RejectNotificationRequestAction = {
-  type: 'REJECT_NOTIFICATION_REQUEST'
-  params: {
-    error: string
-    id: bigint
-  }
 }
 
 type WalletControllerGetConnectedSiteAction = {
@@ -208,8 +191,8 @@ export type Action =
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
   | MainControllerSignMessageInitAction
-  | MainControllerResolveCurrentNotificationRequestAction
-  | MainControllerRejectCurrentNotificationRequestAction
+  | NotificationControllerResolveRequestAction
+  | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
   | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction
@@ -221,8 +204,6 @@ export type Action =
   | KeystoreControllerLockAction
   | KeystoreControllerAddKeysAction
   | KeystoreControllerResetErrorStateAction
-  | ResolveNotificationRequestAction
-  | RejectNotificationRequestAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
   | WalletControllerSetStorageAction

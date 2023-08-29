@@ -27,7 +27,7 @@ const PermissionRequestScreen = () => {
 
   const handleDenyButtonPress = useCallback(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_REJECT_CURRENT_DAPP_NOTIFICATION_REQUEST',
+      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
       params: { err: t('User rejected the request.') }
     })
   }, [t, dispatch])
@@ -35,7 +35,7 @@ const PermissionRequestScreen = () => {
   const handleAuthorizeButtonPress = useCallback(() => {
     setIsAuthorizing(true)
     dispatch({
-      type: 'MAIN_CONTROLLER_RESOLVE_CURRENT_DAPP_NOTIFICATION_REQUEST',
+      type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
       params: { data: null }
     })
   }, [dispatch])
