@@ -11,7 +11,8 @@ interface Style {
   addressContainer: ViewStyle
   address: TextStyle
   addressLabel: TextStyle
-  network: TextStyle
+  network: ViewStyle
+  networkText: TextStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -42,7 +43,8 @@ const styles = StyleSheet.create<Style>({
   network: {
     ...flexbox.directionRow,
     ...flexbox.alignCenter,
-    display: 'flex',
+  },
+  networkText: {
     color: colors.martinique_65,
     fontSize: 14
   }

@@ -24,9 +24,11 @@ const Header = () => {
         </Text>
         <Text style={styles.addressLabel}>Account.Label.eth</Text>
       </View>
-      <Text style={styles.network}>
-        {t('on')} <EthereumLogo /> Ethereum
-      </Text>
+      <View style={styles.network}>
+        <Text style={styles.networkText}>{t('on')}</Text>
+        <EthereumLogo />
+        <Text style={styles.networkText}>Ethereum</Text>
+      </View>
     </View>
   )
 }
