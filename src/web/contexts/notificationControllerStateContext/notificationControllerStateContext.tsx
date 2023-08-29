@@ -26,7 +26,6 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     const onUpdate = (newState: NotificationController) => {
-      console.log('newState', newState)
       setState(newState)
     }
 

@@ -56,7 +56,7 @@ export class NotificationController extends EventEmitter {
         }
       }
     })
-    const updateCurrentRequest = () => {
+    const handleMainCtrlUpdate = () => {
       if (
         this.currentDappNotificationRequest &&
         this.currentDappNotificationRequest.id !== this.mainCtrl.dappsNotificationRequests[0].id
@@ -69,7 +69,7 @@ export class NotificationController extends EventEmitter {
       }
       this.emitUpdate()
     }
-    this.mainCtrl.onUpdate(updateCurrentRequest)
+    this.mainCtrl.onUpdate(handleMainCtrlUpdate)
   }
 
   openFirstNotificationRequest = async () => {
@@ -137,7 +137,7 @@ export class NotificationController extends EventEmitter {
   rejectNotificationRequest = async (err: string = 'Request rejected') => {
     const notificationRequest = this.currentDappNotificationRequest
 
-    notificationRequest?.resolve(err)
+    notificationRequest?.reject(err)
 
     if (notificationRequest && this.mainCtrl.dappsNotificationRequests.length > 1) {
       this.deleteApproval(notificationRequest)
@@ -145,6 +145,7 @@ export class NotificationController extends EventEmitter {
     } else {
       await this.clear()
     }
+
     this.emitUpdate()
   }
 

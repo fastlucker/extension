@@ -365,10 +365,6 @@ async function init() {
       return provider({ ...req, mainCtrl, notificationCtrl })
     })
   })
-
-  setInterval(() => {
-    console.log(mainCtrl)
-  }, 6000)
 })()
 
 // On first install, open Ambire Extension in a new tab to start the login process
