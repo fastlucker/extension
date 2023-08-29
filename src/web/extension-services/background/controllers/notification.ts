@@ -2,7 +2,6 @@
 import { networks } from 'ambire-common/src/consts/networks'
 import EventEmitter from 'ambire-common/src/controllers/eventEmitter'
 import { MainController } from 'ambire-common/src/controllers/main/main'
-import { DappNotificationRequest } from 'ambire-common/src/interfaces/userRequest'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 
@@ -19,6 +18,15 @@ const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
   'SignTypedData',
   'LedgerHardwareWaiting'
 ]
+
+export interface DappNotificationRequest {
+  id: bigint
+  screen: string
+  winProps?: any
+  params?: any
+  resolve: (data: any) => void
+  reject: (data: any) => void
+}
 
 export class NotificationController extends EventEmitter {
   mainCtrl: MainController
