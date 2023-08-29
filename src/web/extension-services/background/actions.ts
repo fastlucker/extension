@@ -95,6 +95,10 @@ type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
   params: { messageToSign: Message }
 }
+type MainControllerSignMessageResetAction = {
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET'
+}
+
 type NotificationControllerResolveRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
   params: { data: any; id?: bigint }
@@ -191,6 +195,7 @@ export type Action =
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
   | MainControllerSignMessageInitAction
+  | MainControllerSignMessageResetAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction

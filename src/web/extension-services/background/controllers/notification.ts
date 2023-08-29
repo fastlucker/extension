@@ -19,6 +19,18 @@ const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
   'LedgerHardwareWaiting'
 ]
 
+const SIGN_METHODS = [
+  'eth_signTypedData',
+  'eth_signTypedData_v1',
+  'eth_signTypedData_v3',
+  'eth_signTypedData_v4',
+  'personal_sign',
+  'eth_sign',
+  'eth_sendTransaction',
+  'gs_multi_send',
+  'ambire_sendBatchTransaction'
+]
+
 export interface DappNotificationRequest {
   id: bigint
   screen: string
@@ -140,6 +152,10 @@ export class NotificationController extends EventEmitter {
     const notificationRequest = this.currentDappNotificationRequest
     notificationRequest?.resolve(data)
 
+    if (notificationRequest && SIGN_METHODS.includes(notificationRequest?.params.method)) {
+      this.mainCtrl.removeUserRequest(notificationRequest?.id)
+    }
+
     this.deleteApproval(notificationRequest as DappNotificationRequest)
 
     if (this.dappsNotificationRequests.length > 0) {
@@ -163,6 +179,9 @@ export class NotificationController extends EventEmitter {
       notificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>(err))
 
     if (notificationRequest && this.dappsNotificationRequests.length > 1) {
+      if (SIGN_METHODS.includes(notificationRequest?.params.method)) {
+        this.mainCtrl.removeUserRequest(notificationRequest?.id)
+      }
       this.deleteApproval(notificationRequest)
       this.currentDappNotificationRequest = this.dappsNotificationRequests[0]
     } else {
@@ -314,6 +333,9 @@ export class NotificationController extends EventEmitter {
 
   rejectAllNotificationRequests = () => {
     this.dappsNotificationRequests.forEach((notificationReq) => {
+      if (SIGN_METHODS.includes(notificationReq?.params.method)) {
+        this.mainCtrl.removeUserRequest(notificationReq?.id)
+      }
       notificationReq.reject &&
         notificationReq.reject(new EthereumProviderError(4001, 'User rejected the request.'))
     })

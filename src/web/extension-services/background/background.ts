@@ -215,6 +215,8 @@ async function init() {
               return mainCtrl.removeUserRequest(data.params.id)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
               return mainCtrl.signMessage.init(data.params.messageToSign)
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
+              return mainCtrl.signMessage.reset()
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break
