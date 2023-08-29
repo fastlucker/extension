@@ -57,7 +57,9 @@ const Banner: FC<Props> = ({ title, text, isHideBtnShown = false, actions = [], 
             <Pressable
               style={styles.action}
               onPress={() => {
-                onPress()
+                if (onPress) {
+                  onPress()
+                }
                 if (hidesBanner) handleHide()
               }}
             >
