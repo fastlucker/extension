@@ -137,7 +137,12 @@ export class NotificationController extends EventEmitter {
   rejectNotificationRequest = async (err: string = 'Request rejected') => {
     const notificationRequest = this.currentDappNotificationRequest
 
-    notificationRequest?.reject(err)
+    if (this.mainCtrl.dappsNotificationRequests.length <= 1) {
+      this.clear() // TODO: FIXME
+    }
+
+    notificationRequest?.reject &&
+      notificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>(err))
 
     if (notificationRequest && this.mainCtrl.dappsNotificationRequests.length > 1) {
       this.deleteApproval(notificationRequest)
