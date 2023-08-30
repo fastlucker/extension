@@ -244,6 +244,10 @@ async function init() {
             case 'LATTICE_CONTROLLER_UNLOCK':
               return latticeCtrl.unlock()
 
+            case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
+              if (!mainCtrl.selectedAccount) return
+              return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
+            }
             case 'KEYSTORE_CONTROLLER_ADD_SECRET':
               return mainCtrl.keystore.addSecret(
                 data.params.secretId,

@@ -4,6 +4,7 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 
 const ControllersStateLoadedContext = createContext<boolean>(false)
@@ -15,6 +16,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
   const signMessageState = useSignMessageControllerState()
   const notificationState = useNotificationControllerState()
+  const portfolioState = usePortfolioControllerState()
 
   useEffect(() => {
     // Initially we set all controller states to empty object
@@ -26,11 +28,19 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       !Object.keys(accountAdderState).length &&
       !Object.keys(keystoreState).length &&
       !Object.keys(signMessageState).length &&
-      !Object.keys(notificationState).length
+      !Object.keys(notificationState).length &&
+      !Object.keys(portfolioState).length
     ) {
       setIsStateLoaded(true)
     }
-  }, [mainState, accountAdderState, keystoreState, signMessageState, notificationState])
+  }, [
+    mainState,
+    accountAdderState,
+    keystoreState,
+    signMessageState,
+    notificationState,
+    portfolioState
+  ])
 
   return (
     <ControllersStateLoadedContext.Provider value={useMemo(() => isStateLoaded, [isStateLoaded])}>

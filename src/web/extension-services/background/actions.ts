@@ -129,6 +129,10 @@ type TrezorControllerUnlockAction = {
 type LatticeControllerUnlockAction = {
   type: 'LATTICE_CONTROLLER_UNLOCK'
 }
+type MainControllerUpdateSelectedAccount = {
+  type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
+}
+
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
@@ -204,6 +208,7 @@ export type Action =
   | LedgerControllerAuthorizeHIDPermissionAction
   | TrezorControllerUnlockAction
   | LatticeControllerUnlockAction
+  | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction
