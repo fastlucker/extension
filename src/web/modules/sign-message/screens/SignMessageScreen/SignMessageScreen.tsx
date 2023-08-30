@@ -38,9 +38,6 @@ const SignMessageScreen = () => {
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
 
-  console.log('signMessageState: ', signMessageState)
-  console.log('mainState', mainState)
-
   useEffect(() => {
     if (prevSignMessageState.status === 'LOADING' && signMessageState.status === 'DONE') {
       if (signMessageState.signedMessage) {
