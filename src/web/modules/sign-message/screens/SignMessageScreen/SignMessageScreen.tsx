@@ -1,7 +1,7 @@
 import { SignMessageController } from 'ambire-common/src/controllers/signMessage/signMessage'
 import { toUtf8String } from 'ethers'
 import React, { useEffect, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
 
 import Button from '@common/components/Button'
@@ -14,6 +14,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -30,6 +31,7 @@ const SignMessageScreen = () => {
   const signMessageState = useSignMessageControllerState()
   const mainState = useMainControllerState()
   const { dispatch } = useBackgroundService()
+  const { currentDappNotificationRequest } = useNotificationControllerState()
 
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
@@ -141,7 +143,14 @@ const SignMessageScreen = () => {
   }
 
   return (
-    <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
+    <Wrapper hasBottomTabNav={false}>
+      <Trans values={{ name: currentDappNotificationRequest?.params?.session?.name || 'The dApp' }}>
+        <Text>
+          <Text weight="semiBold">{'{{name}} '}</Text>
+          <Text>is requesting your signature.</Text>
+        </Text>
+      </Trans>
+
       {signMessageState.messageToSign?.content.kind === 'typedMessage' && (
         <View style={spacings.pv}>
           <Text fontSize={12}>
