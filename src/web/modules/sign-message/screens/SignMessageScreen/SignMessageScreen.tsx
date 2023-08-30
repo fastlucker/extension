@@ -2,7 +2,7 @@ import { SignMessageController } from 'ambire-common/src/controllers/signMessage
 import { toUtf8String } from 'ethers'
 import React, { useEffect, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, TextInput, View } from 'react-native'
 
 import Button from '@common/components/Button'
 import Select from '@common/components/Select'
@@ -17,6 +17,8 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import { getUiType } from '@web/utils/uiType'
+
+import styles from './styles'
 
 function getMessageAsText(msg: any) {
   try {
@@ -153,18 +155,24 @@ const SignMessageScreen = () => {
 
       {signMessageState.messageToSign?.content.kind === 'typedMessage' && (
         <>
-          <Text>{t('A typed data signature (EIP-712) has been requested. Message:')}</Text>
-          <View style={spacings.pv}>
-            <Text fontSize={12}>
-              Types: {JSON.stringify(signMessageState.messageToSign?.content.types)}
-            </Text>
-            <Text fontSize={12}>
-              Domain: {JSON.stringify(signMessageState.messageToSign?.content.domain)}
-            </Text>
-            <Text fontSize={12}>
-              Message: {JSON.stringify(signMessageState.messageToSign?.content.message)}
-            </Text>
-          </View>
+          <Text style={spacings.mbMi}>
+            {t('A typed data signature (EIP-712) has been requested. Message:')}
+          </Text>
+          <TextInput
+            value={JSON.stringify(
+              {
+                domain: signMessageState.messageToSign?.content.domain,
+                types: signMessageState.messageToSign?.content.types,
+                message: signMessageState.messageToSign?.content.message
+              },
+              null,
+              4
+            )}
+            multiline
+            numberOfLines={16}
+            editable={false}
+            style={[styles.textarea, spacings.mb]}
+          />
         </>
       )}
       {signMessageState.messageToSign?.content.kind === 'message' && (
