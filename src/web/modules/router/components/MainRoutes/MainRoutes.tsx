@@ -12,12 +12,11 @@ import {
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
+import TabLayoutWrapper from '@web/components/TabLayoutWrapper'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
 import AccountsScreen from '@web/modules/accounts/screens/AccountsScreen'
-import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
 import AddAccountPasswordToVaultScreen from '@web/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
@@ -31,12 +30,15 @@ import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLed
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
+import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
+import PermissionRequestScreen from '@web/modules/notification-requests/screens/PermissionRequestScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
+import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 
 const headerControls = (
   <>
@@ -69,7 +71,7 @@ const MainRoutes = () => {
   return (
     <Routes>
       <Route element={stepperProvider}>
-        <Route element={AuthLayoutWrapper}>
+        <Route element={TabLayoutWrapper}>
           <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
           <Route element={<TabOnlyRoute />}>
             <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
@@ -113,6 +115,7 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
 
             <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
+            <Route path={WEB_ROUTES.sign} element={<SignAccountOpScreen />} />
           </Route>
         </Route>
 
@@ -123,6 +126,10 @@ const MainRoutes = () => {
         <Route element={headerTitle}>
           <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
           <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
+          <Route
+            path={WEB_ROUTES.getEncryptionPublicKeyRequest}
+            element={<GetEncryptionPublicKeyRequestScreen />}
+          />
         </Route>
       </Route>
       <Route element={<PrivateRoute />}>

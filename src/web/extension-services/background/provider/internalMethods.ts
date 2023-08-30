@@ -1,6 +1,5 @@
 import providerController from '@web/extension-services/background/provider/ProviderController'
-
-import permission from '../services/permission'
+import permission from '@web/extension-services/background/services/permission'
 
 const tabCheckin = ({
   data: {

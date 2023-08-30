@@ -5,7 +5,7 @@ import { NOTIFICATION_WINDOW_HEIGHT, NOTIFICATION_WINDOW_WIDTH } from '@web/cons
 
 const event = new EventEmitter()
 
-// if focus other windows, then reject the approval
+// if focus other windows, then reject the notification request
 browser.windows.onFocusChanged.addListener((winId) => {
   event.emit('windowFocusChange', winId)
 })

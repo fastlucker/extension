@@ -21,14 +21,15 @@ import { rpcProviders } from '@common/services/providers'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
 import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderControllerStateContext'
-import { ApprovalProvider } from '@web/contexts/approvalContext'
 import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
 import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
 import { ExtensionProvider } from '@web/contexts/extensionContext'
 import { IdentityInfoProvider } from '@web/contexts/identityInfoContext'
 import { KeystoreControllerStateProvider } from '@web/contexts/keystoreControllerStateContext'
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
+import { NotificationControllerStateProvider } from '@web/contexts/notificationControllerStateContext'
 import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControllerStateContext'
+import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
 
 // Initialize rpc providers for all networks
@@ -46,52 +47,54 @@ const AppInit = () => {
 
   return (
     <BackgroundServiceProvider>
-      <MainControllerStateProvider>
-        <AccountAdderControllerStateProvider>
-          <KeystoreControllerStateProvider>
-            <IdentityInfoProvider>
-              <PortfolioControllerStateProvider>
-                <ControllersStateLoadedProvider>
-                  <Router>
-                    <PortalProvider>
-                      <LoaderProvider>
-                        <StorageProvider>
-                          <OnboardingProvider>
-                            <ThemeProvider>
-                              <SafeAreaProvider>
-                                <KeyboardProvider>
-                                  <NetInfoProvider>
-                                    <ToastProvider>
-                                      <ConstantsProvider>
-                                        <AuthProvider>
-                                          <ApprovalProvider>
-                                            <ExtensionProvider>
-                                              <BiometricsProvider>
-                                                <PrivateModeProvider>
-                                                  <AppRouter />
-                                                </PrivateModeProvider>
-                                                <PortalHost name="global" />
-                                              </BiometricsProvider>
-                                            </ExtensionProvider>
-                                          </ApprovalProvider>
-                                        </AuthProvider>
-                                      </ConstantsProvider>
-                                    </ToastProvider>
-                                  </NetInfoProvider>
-                                </KeyboardProvider>
-                              </SafeAreaProvider>
-                            </ThemeProvider>
-                          </OnboardingProvider>
-                        </StorageProvider>
-                      </LoaderProvider>
-                    </PortalProvider>
-                  </Router>
-                </ControllersStateLoadedProvider>
-              </PortfolioControllerStateProvider>
-            </IdentityInfoProvider>
-          </KeystoreControllerStateProvider>
-        </AccountAdderControllerStateProvider>
-      </MainControllerStateProvider>
+      <Router>
+        <MainControllerStateProvider>
+          <AccountAdderControllerStateProvider>
+            <KeystoreControllerStateProvider>
+              <SignMessageControllerStateProvider>
+                <NotificationControllerStateProvider>
+                  <IdentityInfoProvider>
+                    <PortfolioControllerStateProvider>
+                      <ControllersStateLoadedProvider>
+                        <PortalProvider>
+                          <LoaderProvider>
+                            <StorageProvider>
+                              <OnboardingProvider>
+                                <ThemeProvider>
+                                  <SafeAreaProvider>
+                                    <KeyboardProvider>
+                                      <NetInfoProvider>
+                                        <ToastProvider>
+                                          <ConstantsProvider>
+                                            <AuthProvider>
+                                              <ExtensionProvider>
+                                                <BiometricsProvider>
+                                                  <PrivateModeProvider>
+                                                    <AppRouter />
+                                                  </PrivateModeProvider>
+                                                  <PortalHost name="global" />
+                                                </BiometricsProvider>
+                                              </ExtensionProvider>
+                                            </AuthProvider>
+                                          </ConstantsProvider>
+                                        </ToastProvider>
+                                      </NetInfoProvider>
+                                    </KeyboardProvider>
+                                  </SafeAreaProvider>
+                                </ThemeProvider>
+                              </OnboardingProvider>
+                            </StorageProvider>
+                          </LoaderProvider>
+                        </PortalProvider>
+                      </ControllersStateLoadedProvider>
+                    </PortfolioControllerStateProvider>
+                  </IdentityInfoProvider>
+                </NotificationControllerStateProvider>
+              </SignMessageControllerStateProvider>
+            </KeystoreControllerStateProvider>
+          </AccountAdderControllerStateProvider>
+        </MainControllerStateProvider>
+      </Router>
     </BackgroundServiceProvider>
   )
 }

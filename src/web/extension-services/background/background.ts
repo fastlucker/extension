@@ -5,9 +5,8 @@ import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
-import { INTERNAL_REQUEST_ORIGIN } from '@web/constants/common'
+import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
-import notificationService from '@web/extension-services/background/services/notification'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
@@ -22,28 +21,42 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
-import { controllersMapping } from './types'
+import { controllersNestedInMainMapping } from './types'
 
-// eslint-disable-next-line prettier/prettier
-// eslint-disable-next-line import/newline-after-import
-;(async () => {
-  async function init() {
-    // Initialize rpc providers for all networks
-    const shouldInitProviders = !areRpcProvidersInitialized()
-    if (shouldInitProviders) {
-      initRpcProviders(rpcProviders)
-    }
-
-    await permissionService.init()
+async function init() {
+  // Initialize rpc providers for all networks
+  const shouldInitProviders = !areRpcProvidersInitialized()
+  if (shouldInitProviders) {
+    initRpcProviders(rpcProviders)
   }
 
-  await init()
+  await permissionService.init()
+}
 
-  const mainCtrl = new MainController(storage, fetch, RELAYER_URL)
+;(async () => {
+  await init()
+  let pmRef: PortMessage
+  let onResoleDappNotificationRequest: (data: any, id?: bigint) => void
+  let onRejectDappNotificationRequest: (data: any, id?: bigint) => void
+  const mainCtrl = new MainController({
+    storage,
+    fetch,
+    relayerUrl: RELAYER_URL,
+    onResolveDappRequest: (data, id) => {
+      !!onResoleDappNotificationRequest && onResoleDappNotificationRequest(data, id)
+    },
+    onRejectDappRequest: (err, id) => {
+      !!onRejectDappNotificationRequest && onRejectDappNotificationRequest(err, id)
+    }
+  })
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
+  const notificationCtrl = new NotificationController(mainCtrl)
+
+  onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
+  onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
 
   /**
    * Init all controllers `onUpdate` listeners only once (in here), instead of
@@ -55,8 +68,8 @@ import { controllersMapping } from './types'
    * and the `onUpdate` listeners skip emits from controllers (race condition).
    * Initializing the listeners only once proofs to be more reliable.
    */
-  let pmRef: PortMessage
-  Object.keys(controllersMapping).forEach((ctrl: any) => {
+
+  Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
     // Broadcast onUpdate for nested controllers
     ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
       pmRef.request({
@@ -83,6 +96,14 @@ import { controllersMapping } from './types'
       type: 'broadcast',
       method: 'main',
       params: mainCtrl
+    })
+  })
+  // Broadcast onUpdate for the notification controllers
+  notificationCtrl.onUpdate(() => {
+    pmRef?.request({
+      type: 'broadcast',
+      method: 'notification',
+      params: notificationCtrl
     })
   })
   mainCtrl.onError(() => {
@@ -115,6 +136,12 @@ import { controllersMapping } from './types'
                   type: 'broadcast',
                   method: 'main',
                   params: mainCtrl
+                })
+              } else if (data.params.controller === ('notification' as any)) {
+                pm.request({
+                  type: 'broadcast',
+                  method: 'notification',
+                  params: notificationCtrl
                 })
               } else {
                 pm.request({
@@ -182,6 +209,25 @@ import { controllersMapping } from './types'
               })
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS':
               return mainCtrl.accountAdder.addAccounts(data.params.accounts)
+            case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
+              return mainCtrl.addUserRequest(data.params)
+            case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
+              return mainCtrl.removeUserRequest(data.params.id)
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
+              return mainCtrl.signMessage.init(data.params.messageToSign)
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
+              return mainCtrl.signMessage.reset()
+            case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
+              notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
+              break
+            }
+            case 'NOTIFICATION_CONTROLLER_REJECT_REQUEST': {
+              notificationCtrl.rejectNotificationRequest(data.params.err)
+              break
+            }
+
+            case 'NOTIFICATION_CONTROLLER_OPEN_FIRST_NOTIFICATION_REQUEST':
+              return notificationCtrl.openFirstNotificationRequest()
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock(data?.params?.hdPath)
@@ -218,8 +264,6 @@ import { controllersMapping } from './types'
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
 
-            case 'WALLET_CONTROLLER_IS_UNLOCKED':
-              return null // TODO: implement in v2
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
@@ -250,40 +294,14 @@ import { controllersMapping } from './types'
               permissionService.removeConnectedSite(data.params.origin)
               break
             }
-            case 'WALLET_CONTROLLER_ACTIVE_FIRST_APPROVAL':
-              return notificationService.activeFirstApproval()
-            case 'WALLET_CONTROLLER_GET_APPROVAL':
-              return notificationService.getApproval()
-            case 'WALLET_CONTROLLER_RESOLVE_APPROVAL':
-              return notificationService.resolveApproval(data.params)
-            case 'WALLET_CONTROLLER_REJECT_APPROVAL':
-              return notificationService.rejectApproval(
-                data.params.err,
-                data.params.stay,
-                data.params.isInternal
-              )
-            case 'WALLET_CONTROLLER_NETWORK_CHANGE':
-              return sessionService.broadcastEvent('chainChanged', {
-                chain: intToHex(data.params.network.chainId),
-                networkVersion: `${data.params.network.chainId}`
-              })
-            case 'WALLET_CONTROLLER_ACCOUNT_CHANGE': {
+
+            case 'BROADCAST_ACCOUNT_CHANGE': {
               // TODO: changing the selected account will happen in the background
               // service therefore this should be changed to use the mainCtrl.selectedAccount
               // and moved to a better place
               const account = data.params.selectedAcc ? [data.params.selectedAcc] : []
               return sessionService.broadcastEvent('accountsChanged', account)
             }
-            case 'WALLET_CONTROLLER_SEND_REQUEST':
-              return provider({
-                data: data.params.data,
-                session: {
-                  name: 'Ambire',
-                  origin: INTERNAL_REQUEST_ORIGIN || '',
-                  icon: '../assets/images/xicon@128.png'
-                },
-                mainCtrl
-              })
 
             default:
               return console.error(
@@ -321,12 +339,7 @@ import { controllersMapping } from './types'
 
     const pm = new PortMessage(port)
 
-    pm.listen(async (data) => {
-      // TODO:
-      // if (!appStoreLoaded) {
-      //   throw ethErrors.provider.disconnected()
-      // }
-
+    pm.listen(async (data: any) => {
       const sessionId = port.sender?.tab?.id
       if (sessionId === undefined || !port.sender?.url) {
         return
@@ -345,7 +358,7 @@ import { controllersMapping } from './types'
         return true
       }
 
-      return provider({ ...req, mainCtrl })
+      return provider({ ...req, mainCtrl, notificationCtrl })
     })
   })
 })()
