@@ -80,51 +80,52 @@ const TokenItem = ({
       className={rewards || vesting ? 'rewards-token-container' : 'token-container'}
       style={containerStyles}
     >
-      <View style={[flexboxStyles.directionRow]}>
-        <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
-          {rewards || vesting ? (
-            <View style={styles.tokenButtonIconWrapper}>
-              <RewardsIcon width={20} height={20} />
-            </View>
-          ) : (
-            <TokenIcon withContainer address={address} networkId={networkId} />
-          )}
-        </View>
-        <View>
-          <View style={[flexboxStyles.directionRow, flexboxStyles.alignEnd]}>
-            <Text
-              style={[spacings.mrTy]}
-              fontSize={14}
-              shouldScale={false}
-              weight="semiBold"
-              numberOfLines={1}
-            >
-              {balance.toFixed(balance < 1 ? 8 : 4)} {symbol}
-            </Text>
-            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-              <Text shouldScale={false} fontSize={12}>
-                {rewards && 'rewards for claim'}
-                {vesting && 'claimable early supporters vesting'}
-                {!rewards && !vesting && 'on'}
-              </Text>
-              {gasToken && <GasTankIcon width={18} height={18} color={colors.violet} />}
-              {!gasToken && !rewards && !vesting && (
-                <NetworkIcon name={networkId} style={{ width: 25, height: 25 }} />
-              )}
-              <Text style={[spacings.mrMi]} shouldScale={false} fontSize={12}>
-                {gasToken && 'Gas Tank'}
-                {!gasToken && !rewards && !vesting && networkData?.name}
-              </Text>
-              <InformationIcon color={colors.martinique_65} />
-            </View>
+      <View
+        style={[flexboxStyles.directionRow, flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]}
+      >
+        <View style={[flexboxStyles.directionRow]}>
+          <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
+            {rewards || vesting ? (
+              <View style={styles.tokenButtonIconWrapper}>
+                <RewardsIcon width={20} height={20} />
+              </View>
+            ) : (
+              <TokenIcon withContainer address={address} networkId={networkId} />
+            )}
           </View>
-          <Text fontSize={14} shouldScale={false} style={textStyles.highlightPrimary}>
-            ${balanceUSD?.toFixed(2)}
-          </Text>
+          <View>
+            <View style={[flexboxStyles.directionRow, flexboxStyles.alignSelfStart]}>
+              <Text
+                style={[spacings.mrTy]}
+                fontSize={14}
+                shouldScale={false}
+                weight="semiBold"
+                numberOfLines={1}
+              >
+                {balance.toFixed(balance < 1 ? 8 : 4)} {symbol}
+              </Text>
+              <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+                <Text shouldScale={false} fontSize={12}>
+                  {rewards && 'rewards for claim'}
+                  {vesting && 'claimable early supporters vesting'}
+                  {!rewards && !vesting && 'on'}
+                </Text>
+                {gasToken && <GasTankIcon width={18} height={18} color={colors.violet} />}
+                {!gasToken && !rewards && !vesting && (
+                  <NetworkIcon name={networkId} style={{ width: 25, height: 25 }} />
+                )}
+                <Text style={[spacings.mrMi]} shouldScale={false} fontSize={12}>
+                  {gasToken && 'Gas Tank'}
+                  {!gasToken && !rewards && !vesting && networkData?.name}
+                </Text>
+                <InformationIcon color={colors.martinique_65} />
+              </View>
+            </View>
+            <Text fontSize={14} shouldScale={false} style={textStyles.highlightPrimary}>
+              ${balanceUSD?.toFixed(2)}
+            </Text>
+          </View>
         </View>
-      </View>
-
-      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
         {(rewards || vesting) && (
           <LottieView
             animationData={animationWallets}
@@ -134,6 +135,9 @@ const TokenItem = ({
             }}
           />
         )}
+      </View>
+
+      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
         <div className="button-pressable">
           {gasToken && (
             <Button

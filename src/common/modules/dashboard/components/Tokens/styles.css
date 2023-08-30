@@ -17,7 +17,7 @@
 }
 
 .token-container:hover .button-pressable,
-.rewards-token-container .button-pressable {
+.rewards-token-container:hover .button-pressable {
     display: flex;
 }
 

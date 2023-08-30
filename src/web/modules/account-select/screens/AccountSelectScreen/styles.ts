@@ -6,12 +6,19 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
+  accountContainer: ViewStyle
   greenLabel: ViewStyle
+  searchBar: ViewStyle
   greyLabel: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
   container: {
+    ...flexbox.flex1,
+    ...spacings.ph,
+    ...spacings.pv
+  },
+  accountContainer: {
     ...flexbox.directionRow,
     ...flexbox.justifySpaceBetween,
     ...spacings.phMi,
@@ -20,6 +27,11 @@ const styles = StyleSheet.create<Style>({
     ...spacings.pr,
     borderWidth: 1,
     borderRadius: 12
+  },
+  searchBar: {
+    ...spacings.pvSm,
+    ...spacings.mbSm,
+    width: '100%'
   },
   greenLabel: {
     height: 18,
