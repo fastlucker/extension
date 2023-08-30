@@ -9,7 +9,7 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 
@@ -61,7 +61,7 @@ const HardwareWalletSelectorScreen = () => {
   )
 
   return (
-    <AuthLayoutWrapperMainContent fullWidth>
+    <TabLayoutWrapperMainContent width="mid">
       <View style={[flexbox.center]}>
         <Text fontSize={20} style={[spacings.mvLg, flexbox.alignSelfCenter]} weight="medium">
           {t('Choose Hardware Wallet')}
@@ -79,7 +79,7 @@ const HardwareWalletSelectorScreen = () => {
           ))}
         </View>
       </View>
-    </AuthLayoutWrapperMainContent>
+    </TabLayoutWrapperMainContent>
   )
 }
 

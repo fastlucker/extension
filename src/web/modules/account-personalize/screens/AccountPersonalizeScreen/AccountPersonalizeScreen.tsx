@@ -10,9 +10,9 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import Card from '@web/modules/account-personalize/components/Card'
 
 const AccountPersonalizeScreen = () => {
@@ -43,7 +43,7 @@ const AccountPersonalizeScreen = () => {
   ]
   return (
     <>
-      <AuthLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent>
         <View style={[flexboxStyles.alignCenter, spacings.mtXl]}>
           <View>
             <Wrapper
@@ -64,8 +64,8 @@ const AccountPersonalizeScreen = () => {
             />
           </View>
         </View>
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent>
         <Text weight="medium" style={spacings.mb} color={colors.titan} fontSize={16}>
           {t('Account personalization')}
         </Text>
@@ -80,7 +80,7 @@ const AccountPersonalizeScreen = () => {
             'The account label is any arbitrary label that you choose. Both the label and the avatar are only local and for own organizational purposes - none of this will be uploaded on the blockchain or anywhere else.'
           )}
         </Text>
-      </AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent>
     </>
   )
 }

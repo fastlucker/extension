@@ -12,7 +12,7 @@ import {
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
+import TabLayoutWrapper from '@web/components/TabLayoutWrapper'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountsScreen from '@web/modules/accounts/screens/AccountsScreen'
@@ -37,6 +37,7 @@ import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
+import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 
 const headerControls = (
   <>
@@ -69,7 +70,7 @@ const MainRoutes = () => {
   return (
     <Routes>
       <Route element={stepperProvider}>
-        <Route element={AuthLayoutWrapper}>
+        <Route element={TabLayoutWrapper}>
           <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
           <Route element={<TabOnlyRoute />}>
             <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
@@ -112,6 +113,7 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
 
             <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
+            <Route path={WEB_ROUTES.sign} element={<SignAccountOpScreen />} />
           </Route>
         </Route>
 

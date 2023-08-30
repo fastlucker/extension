@@ -8,38 +8,62 @@ import Wrapper from '@common/components/Wrapper'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import Ameba from '@web/components/AuthLayoutWrapper/Ameba'
+import Ameba from '@web/components/TabLayoutWrapper/Ameba'
 import TabHeader from '@web/modules/router/components/TabHeader'
 
 import styles from './styles'
 
-const AuthLayoutWrapperContext = createContext(true)
+const TabLayoutWrapperContext = createContext(true)
 
-const AuthLayoutWrapper = (
-  <AuthLayoutWrapperContext.Provider value>
+const TabLayoutWrapper = (
+  <TabLayoutWrapperContext.Provider value>
     <View style={[flexbox.directionRow, flexbox.flex1]}>
       <Outlet />
     </View>
-  </AuthLayoutWrapperContext.Provider>
+  </TabLayoutWrapperContext.Provider>
 )
 
-export const AuthLayoutWrapperMainContent: React.FC<any> = ({
-  fullWidth = false,
+enum Width {
+  Normal = 'normal',
+  Mid = 'mid',
+  Full = 'full'
+}
+
+interface Props {
+  width: Width
+  hideStepper: boolean
+  hideHeader: boolean
+  pageTitle: string
+  children: React.ReactNode
+  forceCanGoBack: boolean
+  onBack?: () => void
+  footer?: React.ReactNode
+}
+
+export const TabLayoutWrapperMainContent: React.FC<any> = ({
+  width = Width.Normal,
   hideStepper = false,
   hideHeader = false,
   pageTitle = '',
   children,
   forceCanGoBack,
-  onBack
-}) => {
-  const context = useContext(AuthLayoutWrapperContext)
+  onBack,
+  footer
+}: Props) => {
+  const context = useContext(TabLayoutWrapperContext)
 
   if (!context) {
     throw new Error('Should be used in AuthLayoutWrapper component!')
   }
 
+  const widthConf = {
+    [Width.Normal]: 770 + SPACING_LG * 2,
+    [Width.Mid]: 980,
+    [Width.Full]: '100%'
+  }
+
   return (
-    <View style={[flexbox.flex1, { backgroundColor: colors.zircon }]}>
+    <View style={[flexbox.flex1, { backgroundColor: colors.white }]}>
       {!hideHeader && (
         <TabHeader
           pageTitle={pageTitle}
@@ -48,33 +72,44 @@ export const AuthLayoutWrapperMainContent: React.FC<any> = ({
           onBack={onBack}
         />
       )}
-      <Wrapper style={[flexbox.flex1]} showsVerticalScrollIndicator={false}>
+      <Wrapper
+        style={[flexbox.flex1]}
+        // Here, we set height: '100%' to enable the inner ScrollView within the Wrapper to have a scrollable content.
+        // You can observe how the SignScreen utilizes an inner ScrollView component to display the transaction.
+        // This should not have any impact on the other screens.
+        contentContainerStyle={{ height: '100%' }}
+        showsVerticalScrollIndicator={false}
+      >
         <View
           style={[
             spacings.pbLg,
             spacings.phLg,
             flexbox.alignSelfCenter,
-            { width: fullWidth ? 980 : 770 + SPACING_LG * 2, minHeight: 600 }
+            // Here, we set height: '100%' to enable the inner ScrollView within the Wrapper to have a scrollable content.
+            // You can observe how the SignScreen utilizes an inner ScrollView component to display the transaction.
+            // This should not have any impact on the other screens.
+            { width: widthConf[width], height: '100%' }
           ]}
         >
           {children}
         </View>
       </Wrapper>
+      {footer}
     </View>
   )
 }
 
-interface AuthLayoutWrapperSideContentProps extends ViewProps {
+interface TabLayoutWrapperSideContentProps extends ViewProps {
   backgroundType?: 'alpha' | 'beta'
 }
 
-export const AuthLayoutWrapperSideContent: React.FC<AuthLayoutWrapperSideContentProps> = ({
+export const TabLayoutWrapperSideContent: React.FC<TabLayoutWrapperSideContentProps> = ({
   backgroundType = 'alpha',
   children,
   style,
   ...rest
 }) => {
-  const context = useContext(AuthLayoutWrapperContext)
+  const context = useContext(TabLayoutWrapperContext)
 
   if (!context) {
     throw new Error('Should be used in AuthLayoutWrapper component!')
@@ -101,4 +136,4 @@ export const AuthLayoutWrapperSideContent: React.FC<AuthLayoutWrapperSideContent
   )
 }
 
-export default AuthLayoutWrapper
+export default TabLayoutWrapper

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Keyboard, TouchableOpacity, View, ViewStyle } from 'react-native'
+import { Keyboard, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import CheckIcon from '@common/assets/svg/CheckIcon'
@@ -23,6 +23,7 @@ interface Props {
   setValue?: (value: any) => void
   placeholder?: string
   label?: string
+  labelStyle?: TextStyle
   extraText?: string
   hasArrow?: boolean
   disabled?: boolean
@@ -38,6 +39,7 @@ const Select = ({
   options,
   placeholder,
   label,
+  labelStyle,
   extraText,
   hasArrow = true,
   menuPlacement = 'auto',
