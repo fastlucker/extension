@@ -11,10 +11,10 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import text from '@common/styles/utils/text'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import styles from '@web/components/AuthLayoutWrapper/styles'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import styles from '@web/components/TabLayoutWrapper/styles'
 
 import s from './styles'
 
@@ -46,7 +46,7 @@ const JsonLoginScreen = () => {
 
   return (
     <>
-      <AuthLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent>
         <div
           {...getRootProps()}
           style={{
@@ -94,15 +94,15 @@ const JsonLoginScreen = () => {
             )}
           </View>
         </div>
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent backgroundType="beta">
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent backgroundType="beta">
         <Text weight="regular" fontSize={16} style={spacings.mb} color={colors.titan}>
           {t('Import JSON')}
         </Text>
         <Text weight="regular" color={colors.titan}>
           {t('Upload a JSON file to quickly and securely access your existing wallet.')}
         </Text>
-      </AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent>
     </>
   )
 }

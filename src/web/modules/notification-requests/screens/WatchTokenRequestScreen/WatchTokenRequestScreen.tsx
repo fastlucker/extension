@@ -23,6 +23,7 @@ import useApproval from '@web/hooks/useApproval'
 
 import styles from './styles'
 
+// TODO: Refactor the useApproval, useNetwork and usePortfolio to match the latest changes.
 const WatchTokenRequestScreen = () => {
   const { t } = useTranslation()
   const [loadingTokenDetails, setLoadingTokenDetails] = useState(true)

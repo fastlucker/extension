@@ -12,7 +12,7 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING, SPACING_LG, SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
@@ -75,7 +75,7 @@ const Terms = () => {
   }
 
   return (
-    <AuthLayoutWrapperMainContent fullWidth>
+    <TabLayoutWrapperMainContent width="mid">
       <View style={{ maxWidth: 620, ...flexboxStyles.alignSelfCenter }}>
         <View style={[flexboxStyles.alignCenter]}>
           <AmbireLogo style={styles.logo} />
@@ -141,7 +141,7 @@ const Terms = () => {
           onPress={handleAcceptTerms}
         />
       </View>
-    </AuthLayoutWrapperMainContent>
+    </TabLayoutWrapperMainContent>
   )
 }
 

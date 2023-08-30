@@ -14,7 +14,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
@@ -58,7 +58,7 @@ const GetStartedScreen = () => {
     [navigate, updateStepperState, keystoreState]
   )
   return (
-    <AuthLayoutWrapperMainContent fullWidth>
+    <TabLayoutWrapperMainContent width="mid">
       <View style={[flexboxStyles.center]}>
         <Text fontSize={22} weight="medium">
           {t('Welcome to Ambire')}
@@ -163,7 +163,7 @@ const GetStartedScreen = () => {
           )}
         </View>
       </View>
-    </AuthLayoutWrapperMainContent>
+    </TabLayoutWrapperMainContent>
   )
 }
 

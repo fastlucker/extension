@@ -9,9 +9,9 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import Card from '@web/modules/auth/components/Card'
 
 const EmailAccountScreen = () => {
@@ -20,7 +20,7 @@ const EmailAccountScreen = () => {
 
   return (
     <>
-      <AuthLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent>
         <View style={[flexbox.directionRow, flexbox.justifyCenter]}>
           <Card
             text="Sign in to your Ambire wallet using your email for a simple and secure access to your crypto."
@@ -35,8 +35,8 @@ const EmailAccountScreen = () => {
             buttonText="Create New"
           />
         </View>
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent backgroundType="beta">
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent backgroundType="beta">
         <Text weight="regular" fontSize={16} style={spacings.mb} color={colors.titan}>
           {t(
             "Explore Ambire's powerful and user-friendly wallet options by logging in with your existing account or registering a new one via email. Both options provide secure access to your crypto assets while making self-custody and management simple and intuitive."
@@ -47,7 +47,7 @@ const EmailAccountScreen = () => {
             'Get started with Ambire today and enjoy a seamless experience tailored to your needs.'
           )}
         </Text>
-      </AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent>
     </>
   )
 }

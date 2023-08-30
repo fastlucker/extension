@@ -13,7 +13,6 @@ interface Styles {
 const styles = StyleSheet.create<Styles>({
   container: {
     flexDirection: 'row',
-    backgroundColor: colors.zircon
   },
   title: {
     color: colors.martinique,
