@@ -180,7 +180,8 @@ const SignMessageScreen = () => {
           <Text>{t('A standard signature (ethSign) has been requested. Message:')}</Text>
           <View style={spacings.pv}>
             <Text weight="semiBold">
-              {getMessageAsText(signMessageState.messageToSign?.content.message)}
+              {getMessageAsText(signMessageState.messageToSign?.content.message) ||
+                t('(Empty message)')}
             </Text>
           </View>
         </>
