@@ -13,32 +13,38 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 import ManifestImage from '@web/components/ManifestImage'
-import useApproval from '@web/hooks/useApproval'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 
 import styles from './styles'
 
 const GetEncryptionPublicKeyRequestScreen = () => {
   const { t } = useTranslation()
-  const { approval, rejectApproval } = useApproval()
+  const { dispatch } = useBackgroundService()
+  const { currentDappNotificationRequest } = useNotificationControllerState()
 
-  const handleDeny = useCallback(
-    () => rejectApproval(t('User rejected the request.')),
-    [t, rejectApproval]
-  )
+  const handleDeny = useCallback(() => {
+    dispatch({
+      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      params: { err: t('User rejected the request.') }
+    })
+  }, [t, dispatch])
 
   return (
     <Wrapper hasBottomTabNav={false}>
       <Panel>
         <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
           <ManifestImage
-            uri={approval?.data?.params?.session?.icon}
+            uri={currentDappNotificationRequest?.params?.session?.icon}
             size={64}
             fallback={() => <ManifestFallbackIcon />}
           />
         </View>
 
         <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-          {approval?.data?.origin ? new URL(approval?.data?.origin)?.hostname : ''}
+          {currentDappNotificationRequest?.params?.origin
+            ? new URL(currentDappNotificationRequest.params.origin).hostname
+            : ''}
         </Title>
 
         <View>
@@ -48,7 +54,7 @@ const GetEncryptionPublicKeyRequestScreen = () => {
                 {'The dApp '}
               </Text>
               <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                {approval?.data?.params?.session?.name || ''}
+                {currentDappNotificationRequest?.params?.session?.name || ''}
               </Text>
               <Text fontSize={14} weight="regular">
                 {
