@@ -14,8 +14,10 @@ interface Props {
 
 const Fee = ({ label, amount, onPress, style }: Props) => (
   <FeeWrapper onPress={onPress} style={style}>
-    <Text style={styles.label}>{label}</Text>
-    <Text style={styles.amount} numberOfLines={1}>
+    <Text fontSize={16} weight="medium" style={styles.label}>
+      {label}
+    </Text>
+    <Text fontSize={14} numberOfLines={1}>
       {amount}
     </Text>
   </FeeWrapper>

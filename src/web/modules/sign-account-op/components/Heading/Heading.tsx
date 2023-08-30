@@ -8,6 +8,10 @@ interface Props {
   text: string
   style: TextStyle
 }
-const Heading = ({ text, style }: Props) => <Text style={[styles.container, style]}>{text}</Text>
+const Heading = ({ text, style }: Props) => (
+  <Text fontSize={20} weight="semiBold" style={[styles.container, style]}>
+    {text}
+  </Text>
+)
 
 export default Heading

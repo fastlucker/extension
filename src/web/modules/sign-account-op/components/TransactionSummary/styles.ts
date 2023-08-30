@@ -1,14 +1,12 @@
 import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
   header: ViewStyle
   headerContent: ViewStyle
-  headerText: TextStyle
   action: TextStyle
   tokenImg: ImageStyle
   to: TextStyle
@@ -39,22 +37,17 @@ const styles = StyleSheet.create<Style>({
     ...flexbox.alignCenter,
     marginHorizontal: 10
   },
-  headerText: {
-    fontFamily: FONT_FAMILIES.MEDIUM
-  },
   mr5: {
     marginRight: 5
   },
   action: {
-    color: colors.greenHaze,
-    fontFamily: FONT_FAMILIES.SEMI_BOLD
+    color: colors.greenHaze
   },
   tokenImg: {
     width: 24,
     height: 24
   },
   to: {
-    fontFamily: FONT_FAMILIES.REGULAR,
     color: colors.martinique_65
   },
   body: {
@@ -62,8 +55,7 @@ const styles = StyleSheet.create<Style>({
   },
   bodyText: {
     marginBottom: 25,
-    color: colors.martinique,
-    fontSize: 12
+    color: colors.martinique
   }
 })
 

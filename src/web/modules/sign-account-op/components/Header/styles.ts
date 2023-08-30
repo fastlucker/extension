@@ -3,7 +3,6 @@ import { StyleSheet, ViewStyle, ImageStyle, TextStyle } from 'react-native'
 import text from '@common/styles/utils/text'
 import flexbox from '@common/styles/utils/flexbox'
 import colors from '@common/styles/colors'
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
 
 interface Style {
   container: ViewStyle
@@ -31,22 +30,18 @@ const styles = StyleSheet.create<Style>({
   },
   address: {
     ...text.left,
-    color: colors.greenHaze,
-    fontSize: 16
+    color: colors.greenHaze
   },
   addressLabel: {
     ...text.left,
-    color: colors.martinique,
-    fontSize: 16,
-    fontFamily: FONT_FAMILIES.SEMI_BOLD
+    color: colors.martinique
   },
   network: {
     ...flexbox.directionRow,
-    ...flexbox.alignCenter,
+    ...flexbox.alignCenter
   },
   networkText: {
-    color: colors.martinique_65,
-    fontSize: 14
+    color: colors.martinique_65
   }
 })
 

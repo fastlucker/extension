@@ -19,15 +19,21 @@ const Header = () => {
         style={styles.image}
       />
       <View style={styles.addressContainer}>
-        <Text style={styles.address}>
+        <Text fontSize={16} style={styles.address}>
           {shortenAddress('0x5a2fae94BDaa7B30B6049b1f5c9C86C3E4fd212F')}
         </Text>
-        <Text style={styles.addressLabel}>Account.Label.eth</Text>
+        <Text fontSize={16} weight="semiBold" style={styles.addressLabel}>
+          Account.Label.eth
+        </Text>
       </View>
       <View style={styles.network}>
-        <Text style={styles.networkText}>{t('on')}</Text>
+        <Text fontSize={14} style={styles.networkText}>
+          {t('on')}
+        </Text>
         <EthereumLogo />
-        <Text style={styles.networkText}>Ethereum</Text>
+        <Text fontSize={14} style={styles.networkText}>
+          Ethereum
+        </Text>
       </View>
     </View>
   )
