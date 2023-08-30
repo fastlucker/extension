@@ -145,33 +145,41 @@ const SignMessageScreen = () => {
   return (
     <Wrapper hasBottomTabNav={false}>
       <Trans values={{ name: currentDappNotificationRequest?.params?.session?.name || 'The dApp' }}>
-        <Text>
+        <Text style={spacings.mb}>
           <Text weight="semiBold">{'{{name}} '}</Text>
           <Text>is requesting your signature.</Text>
         </Text>
       </Trans>
 
       {signMessageState.messageToSign?.content.kind === 'typedMessage' && (
-        <View style={spacings.pv}>
-          <Text fontSize={12}>
-            Types: {JSON.stringify(signMessageState.messageToSign?.content.types)}
-          </Text>
-          <Text fontSize={12}>
-            Domain: {JSON.stringify(signMessageState.messageToSign?.content.domain)}
-          </Text>
-          <Text fontSize={12}>
-            Message: {JSON.stringify(signMessageState.messageToSign?.content.message)}
-          </Text>
-        </View>
+        <>
+          <Text>{t('A typed data signature (EIP-712) has been requested. Message:')}</Text>
+          <View style={spacings.pv}>
+            <Text fontSize={12}>
+              Types: {JSON.stringify(signMessageState.messageToSign?.content.types)}
+            </Text>
+            <Text fontSize={12}>
+              Domain: {JSON.stringify(signMessageState.messageToSign?.content.domain)}
+            </Text>
+            <Text fontSize={12}>
+              Message: {JSON.stringify(signMessageState.messageToSign?.content.message)}
+            </Text>
+          </View>
+        </>
       )}
       {signMessageState.messageToSign?.content.kind === 'message' && (
-        <View style={spacings.pv}>
-          <Text>{getMessageAsText(signMessageState.messageToSign?.content.message)}</Text>
-        </View>
+        <>
+          <Text>{t('A standard signature (ethSign) has been requested. Message:')}</Text>
+          <View style={spacings.pv}>
+            <Text weight="semiBold">
+              {getMessageAsText(signMessageState.messageToSign?.content.message)}
+            </Text>
+          </View>
+        </>
       )}
       <Select
         setValue={(newValue: any) => handleChangeSigningKey(newValue.value)}
-        label={t('Sign with')}
+        label={t('Signing with account')}
         options={keySelectorValues}
         disabled={!keySelectorValues.length}
         style={spacings.mb}
