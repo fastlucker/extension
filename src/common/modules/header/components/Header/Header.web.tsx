@@ -21,6 +21,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
@@ -29,20 +30,6 @@ interface Props {
   mode?: 'title' | 'controls'
   withBackButton?: boolean
   withAmbireLogo?: boolean
-}
-
-const trimAddress = (address: string, maxLength: number) => {
-  if (address.length <= maxLength) {
-    return address
-  }
-
-  const prefixLength = Math.floor((maxLength - 3) / 2)
-  const suffixLength = Math.ceil((maxLength - 3) / 2)
-
-  const prefix = address.slice(0, prefixLength)
-  const suffix = address.slice(-suffixLength)
-
-  return `${prefix}...${suffix}`
 }
 
 const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, withAmbireLogo }) => {
@@ -62,7 +49,7 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
                     { width: '100%' }
                   ]}
                 >
-                  <Text fontSize={14}>{trimAddress(mainCtrl.selectedAccount, 14)}</Text>
+                  <Text fontSize={14}>{shortenAddress(mainCtrl.selectedAccount, 14)}</Text>
                   <CopyText
                     text={mainCtrl.selectedAccount}
                     style={{ backgroundColor: 'transparent', borderColor: 'transparent' }}

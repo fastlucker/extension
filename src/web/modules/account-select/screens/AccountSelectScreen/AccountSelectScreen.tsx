@@ -12,23 +12,9 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import shortenAddress from '@web/utils/shortenAddress'
 
 import styles from './styles'
-
-// todo: move to utils
-const trimAddress = (address: string, maxLength: number) => {
-  if (address.length <= maxLength) {
-    return address
-  }
-
-  const prefixLength = Math.floor((maxLength - 3) / 2)
-  const suffixLength = Math.ceil((maxLength - 3) / 2)
-
-  const prefix = address.slice(0, prefixLength)
-  const suffix = address.slice(-suffixLength)
-
-  return `${prefix}...${suffix}`
-}
 
 const AccountSelectScreen = () => {
   const mainCtrl = useMainControllerState()
@@ -79,7 +65,7 @@ const AccountSelectScreen = () => {
                       weight="regular"
                       color={account.creation ? colors.greenHaze : colors.brownRum}
                     >
-                      {trimAddress(account.addr, 25)}
+                      {shortenAddress(account.addr, 25)}
                     </Text>
                     <Text fontSize={12} weight="semiBold">
                       {t('Account label')}
