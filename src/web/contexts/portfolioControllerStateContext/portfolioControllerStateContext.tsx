@@ -87,7 +87,6 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [isIdentityInfoFetching, identityInfo])
 
   useEffect(() => {
-    // Function to calculate account portfolio summary
     const calculateAccountPortfolio = () => {
       const updatedTokens: any = []
       const updatedTotalAmount = accountPortfolio.totalAmount

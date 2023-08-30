@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Image, View } from 'react-native'
 
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
-import MinimizeIcon from '@common/assets/svg/MinimizeIcon'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import Button from '@common/components/Button'
 import CopyText from '@common/components/CopyText'
@@ -16,7 +15,6 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -49,38 +47,52 @@ const trimAddress = (address: string, maxLength: number) => {
 
 const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, withAmbireLogo }) => {
   const mainCtrl = useMainControllerState()
-  const options = [
-    {
-      label: (
-        <View
-          style={[
-            flexboxStyles.directionRow,
-            flexboxStyles.justifySpaceBetween,
-            flexboxStyles.alignCenter,
-            { width: '100%' }
-          ]}
-        >
-          <Text fontSize={14}>{trimAddress(mainCtrl.selectedAccount, 14)}</Text>
-          <CopyText
-            text={mainCtrl.selectedAccount}
-            style={{ backgroundColor: 'transparent', borderColor: 'transparent' }}
-          />
-        </View>
-      ),
-      icon: (
-        <Image
-          style={{ width: 30, height: 30, borderRadius: 10 }}
-          source={avatarSpace}
-          resizeMode="contain"
-        />
-      ),
-      value: mainCtrl.selectedAccount
-    }
-  ]
+
+  const options = useMemo(
+    () =>
+      mainCtrl.selectedAccount
+        ? [
+            {
+              label: (
+                <View
+                  style={[
+                    flexboxStyles.directionRow,
+                    flexboxStyles.justifySpaceBetween,
+                    flexboxStyles.alignCenter,
+                    { width: '100%' }
+                  ]}
+                >
+                  <Text fontSize={14}>{trimAddress(mainCtrl.selectedAccount, 14)}</Text>
+                  <CopyText
+                    text={mainCtrl.selectedAccount}
+                    style={{ backgroundColor: 'transparent', borderColor: 'transparent' }}
+                  />
+                </View>
+              ),
+              icon: (
+                <Image
+                  style={{ width: 30, height: 30, borderRadius: 10 }}
+                  source={avatarSpace}
+                  resizeMode="contain"
+                />
+              ),
+              value: mainCtrl.selectedAccount
+            }
+          ]
+        : [],
+    [mainCtrl.selectedAccount]
+  )
+
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const [value, setValue] = useState(options[0])
+
+  useEffect(() => {
+    if (value !== options[0]) {
+      setValue(options[0])
+    }
+  }, [mainCtrl.selectedAccount, value, options])
 
   const [title, setTitle] = useState('')
   const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
