@@ -16,7 +16,6 @@ import AuthLayoutWrapper from '@web/components/AuthLayoutWrapper'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountsScreen from '@web/modules/accounts/screens/AccountsScreen'
-import PermissionRequestScreen from '@web/modules/approval-requests/screens/PermissionRequestScreen'
 import AddAccountPasswordToVaultScreen from '@web/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
@@ -30,6 +29,8 @@ import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLed
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
+import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
+import PermissionRequestScreen from '@web/modules/notification-requests/screens/PermissionRequestScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
@@ -121,6 +122,10 @@ const MainRoutes = () => {
         <Route element={headerTitle}>
           <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
           <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
+          <Route
+            path={WEB_ROUTES.getEncryptionPublicKeyRequest}
+            element={<GetEncryptionPublicKeyRequestScreen />}
+          />
         </Route>
       </Route>
       <Route element={<PrivateRoute />}>

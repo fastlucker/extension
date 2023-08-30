@@ -1,5 +1,4 @@
-import { networks } from 'ambire-common/src/consts/networks'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
@@ -14,40 +13,38 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 import ManifestImage from '@web/components/ManifestImage'
-import useApproval from '@web/hooks/useApproval'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 
 import styles from './styles'
 
-const PermissionRequestScreen = () => {
+const GetEncryptionPublicKeyRequestScreen = () => {
   const { t } = useTranslation()
-  const [isAuthorizing, setIsAuthorizing] = useState(false)
-  const { approval, rejectApproval, resolveApproval } = useApproval()
+  const { dispatch } = useBackgroundService()
+  const { currentDappNotificationRequest } = useNotificationControllerState()
 
-  const handleDenyButtonPress = useCallback(
-    () => rejectApproval(t('User rejected the request.')),
-    [t, rejectApproval]
-  )
-
-  const handleAuthorizeButtonPress = useCallback(() => {
-    setIsAuthorizing(true)
-    resolveApproval({
-      defaultChain: networks[0].nativeAssetSymbol
+  const handleDeny = useCallback(() => {
+    dispatch({
+      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      params: { err: t('User rejected the request.') }
     })
-  }, [resolveApproval])
+  }, [t, dispatch])
 
   return (
     <Wrapper hasBottomTabNav={false}>
       <Panel>
         <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
           <ManifestImage
-            uri={approval?.data?.params?.icon}
+            uri={currentDappNotificationRequest?.params?.session?.icon}
             size={64}
             fallback={() => <ManifestFallbackIcon />}
           />
         </View>
 
         <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-          {approval?.data?.params?.origin ? new URL(approval?.data?.params?.origin).hostname : ''}
+          {currentDappNotificationRequest?.params?.origin
+            ? new URL(currentDappNotificationRequest.params.origin).hostname
+            : ''}
         </Title>
 
         <View>
@@ -57,10 +54,12 @@ const PermissionRequestScreen = () => {
                 {'The dApp '}
               </Text>
               <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                {approval?.data?.params?.name || ''}
+                {currentDappNotificationRequest?.params?.session?.name || ''}
               </Text>
               <Text fontSize={14} weight="regular">
-                {' is requesting an authorization to communicate with Ambire Wallet'}
+                {
+                  ' wants to get your public encryption key. This method is deprecated and Ambire does not support it.'
+                }
               </Text>
             </Text>
           </Trans>
@@ -68,29 +67,12 @@ const PermissionRequestScreen = () => {
 
         <View style={styles.buttonsContainer}>
           <View style={styles.buttonWrapper}>
-            <Button
-              disabled={isAuthorizing}
-              type="danger"
-              onPress={handleDenyButtonPress}
-              text={t('Deny')}
-            />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <Button
-              type="outline"
-              onPress={handleAuthorizeButtonPress}
-              disabled={isAuthorizing}
-              text={isAuthorizing ? t('Authorizing...') : t('Authorize')}
-            />
+            <Button type="outline" onPress={handleDeny} text={t('Okay')} />
           </View>
         </View>
-
-        <Text fontSize={14} style={textStyles.center}>
-          {t('Webpage can be disconnected any time from the Ambire extension settings.')}
-        </Text>
       </Panel>
     </Wrapper>
   )
 }
 
-export default React.memo(PermissionRequestScreen)
+export default React.memo(GetEncryptionPublicKeyRequestScreen)

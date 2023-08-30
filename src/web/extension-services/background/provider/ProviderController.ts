@@ -15,7 +15,7 @@ import permissionService from '@web/extension-services/background/services/permi
 import sessionService, { Session } from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
-interface ApprovalRes {
+interface RequestRes {
   type?: string
   address?: string
   uiRequestComponent?: string
@@ -41,18 +41,18 @@ interface Web3WalletPermission {
   date?: number
 }
 
-const handleSignMessage = (approvalRes: ApprovalRes) => {
-  if (approvalRes) {
-    if (approvalRes?.error) {
+const handleSignMessage = (requestRes: RequestRes) => {
+  if (requestRes) {
+    if (requestRes?.error) {
       throw ethErrors.rpc.invalidParams({
-        message: approvalRes?.error
+        message: requestRes?.error
       })
     }
 
-    return approvalRes?.hash
+    return requestRes?.hash
   }
 
-  throw new Error('Internal error: approval result not found', approvalRes)
+  throw new Error('Internal error: request result not found', requestRes)
 }
 
 export class ProviderController {
@@ -143,14 +143,14 @@ export class ProviderController {
     return intToHex(1)
   }
 
-  @Reflect.metadata('APPROVAL', ['SendTransaction', false])
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
   ethSendTransaction = async (options: {
     data: {
       $ctx?: any
       params: any
     }
     session: Session
-    approvalRes: ApprovalRes
+    requestRes: RequestRes
     pushed: boolean
     result: any
   }) => {
@@ -160,14 +160,14 @@ export class ProviderController {
       data: {
         params: [txParams]
       },
-      approvalRes
+      requestRes
     } = cloneDeep(options)
 
-    if (approvalRes) {
+    if (requestRes) {
       const txnHistory = (await storage.get('transactionHistory')) || {}
-      txnHistory[approvalRes.hash || ''] = JSON.stringify(txParams)
+      txnHistory[requestRes.hash || ''] = JSON.stringify(txParams)
       await storage.set('transactionHistory', txnHistory)
-      return approvalRes?.hash
+      return requestRes?.hash
     }
 
     throw new Error('Transaction failed!')
@@ -186,37 +186,37 @@ export class ProviderController {
     return `Ambire v${APP_VERSION}`
   }
 
-  @Reflect.metadata('APPROVAL', ['SignText', false])
-  personalSign = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
+  personalSign = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignText', false])
-  ethSign = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
+  ethSign = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedData = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  ethSignTypedData = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedDataV1 = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  ethSignTypedDataV1 = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedDataV3 = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  ethSignTypedDataV3 = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedDataV4 = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  ethSignTypedDataV4 = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', [
+  @Reflect.metadata('NOTIFICATION_REQUEST', [
     'AddChain',
     ({ data, session }: any) => {
       if (!data.params[0]) {
@@ -247,7 +247,7 @@ export class ProviderController {
     session: {
       origin: string
     }
-    approvalRes?: {
+    requestRes?: {
       chain: any
       rpcUrl: string
     }
@@ -275,7 +275,7 @@ export class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', [
+  @Reflect.metadata('NOTIFICATION_REQUEST', [
     'AddChain',
     ({ data, session }: any) => {
       if (!data.params[0]) {
@@ -323,12 +323,12 @@ export class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['WalletWatchAsset', false])
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['WalletWatchAsset', false])
   walletWatchAsset = () => true
 
-  @Reflect.metadata('APPROVAL', ['GetEncryptionPublicKey', false])
-  ethGetEncryptionPublicKey = ({ approvalRes }: { approvalRes: string }) => ({
-    result: approvalRes
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['GetEncryptionPublicKey', false])
+  ethGetEncryptionPublicKey = ({ requestRes }: { requestRes: string }) => ({
+    result: requestRes
   })
 
   walletRequestPermissions = ({ data: { params: permissions } }) => {
