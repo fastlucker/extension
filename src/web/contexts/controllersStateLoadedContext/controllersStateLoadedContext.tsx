@@ -16,7 +16,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
   const signMessageState = useSignMessageControllerState()
   const notificationState = useNotificationControllerState()
-  const portfolioState = usePortfolioControllerState()
+  const { state: portfolioState } = usePortfolioControllerState()
 
   useEffect(() => {
     // Initially we set all controller states to empty object

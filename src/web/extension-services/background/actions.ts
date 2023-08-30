@@ -98,6 +98,17 @@ type MainControllerSignMessageInitAction = {
 type MainControllerSignMessageResetAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET'
 }
+type MainControllerSignMessageSignAction = {
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'
+}
+type MainControllerSignMessageSetSignKeyAction = {
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY'
+  params: { key: string }
+}
+type MainControllerBroadcastSignedMessageAction = {
+  type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE'
+  params: { signedMessage: Message }
+}
 
 type NotificationControllerResolveRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
@@ -200,6 +211,9 @@ export type Action =
   | MainControllerRemoveUserRequestAction
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
+  | MainControllerSignMessageSignAction
+  | MainControllerSignMessageSetSignKeyAction
+  | MainControllerBroadcastSignedMessageAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction

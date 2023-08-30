@@ -1,20 +1,57 @@
-import React, { useEffect } from 'react'
+import { SignMessageController } from 'ambire-common/src/controllers/signMessage/signMessage'
+import { toUtf8String } from 'ethers'
+import React, { useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { StyleSheet, View } from 'react-native'
 
+import Button from '@common/components/Button'
+import Select from '@common/components/Select'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
+import usePrevious from '@common/hooks/usePrevious'
 import spacings from '@common/styles/spacings'
-import text from '@common/styles/utils/text'
+import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import { getUiType } from '@web/utils/uiType'
 
+function getMessageAsText(msg: any) {
+  try {
+    return toUtf8String(msg)
+  } catch (_) {
+    return msg
+  }
+}
+
 const SignMessageScreen = () => {
+  const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
   const mainState = useMainControllerState()
   const { dispatch } = useBackgroundService()
+
+  const prevSignMessageState: SignMessageController =
+    usePrevious(signMessageState) || ({} as SignMessageController)
+
   console.log('signMessageState: ', signMessageState)
   console.log('mainState', mainState)
+
+  useEffect(() => {
+    if (prevSignMessageState.status === 'LOADING' && signMessageState.status === 'DONE') {
+      if (signMessageState.signedMessage) {
+        dispatch({
+          type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE',
+          params: { signedMessage: signMessageState.signedMessage }
+        })
+      }
+    }
+  }, [
+    dispatch,
+    prevSignMessageState.status,
+    signMessageState.signedMessage,
+    signMessageState.status
+  ])
 
   useEffect(() => {
     const msgsToBeSigned = mainState.messagesToBeSigned[mainState.selectedAccount || '']
@@ -53,11 +90,99 @@ const SignMessageScreen = () => {
     }
   }, [dispatch])
 
+  const keySelectorValues = useMemo(() => {
+    return (
+      mainState.accounts
+        .find((acc) => acc.addr === mainState.selectedAccount)
+        ?.associatedKeys?.map((assocKey: string) => ({ value: assocKey, label: assocKey })) || []
+    )
+  }, [mainState.accounts, mainState.selectedAccount])
+
+  const handleChangeSigningKey = (signKey: string) => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
+      params: { key: signKey }
+    })
+  }
+
+  useEffect(() => {
+    if (keySelectorValues.length) {
+      handleChangeSigningKey(keySelectorValues[0].value)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keySelectorValues.length])
+
+  const keyValue = useMemo(() => {
+    return {
+      value: signMessageState.signingKeyAddr,
+      label: signMessageState.signingKeyAddr
+    }
+  }, [signMessageState.signingKeyAddr])
+
+  const handleReject = () => {
+    dispatch({
+      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      params: { err: t('User rejected the request.') }
+    })
+  }
+
+  const handleSign = () => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'
+    })
+  }
+
+  if (!Object.keys(signMessageState).length) {
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
+        <Spinner />
+      </View>
+    )
+  }
+
   return (
     <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
-      <Text style={text.center} fontSize={100}>
-        Sign Message Screen
-      </Text>
+      {signMessageState.messageToSign?.content.kind === 'typedMessage' && (
+        <View style={spacings.pv}>
+          <Text fontSize={12}>
+            Types: {JSON.stringify(signMessageState.messageToSign?.content.types)}
+          </Text>
+          <Text fontSize={12}>
+            Domain: {JSON.stringify(signMessageState.messageToSign?.content.domain)}
+          </Text>
+          <Text fontSize={12}>
+            Message: {JSON.stringify(signMessageState.messageToSign?.content.message)}
+          </Text>
+        </View>
+      )}
+      {signMessageState.messageToSign?.content.kind === 'message' && (
+        <View style={spacings.pv}>
+          <Text>{getMessageAsText(signMessageState.messageToSign?.content.message)}</Text>
+        </View>
+      )}
+      <Select
+        setValue={(newValue: any) => handleChangeSigningKey(newValue.value)}
+        label={t('Sign with')}
+        options={keySelectorValues}
+        disabled={!keySelectorValues.length}
+        style={spacings.mb}
+        value={keyValue as {}}
+        defaultValue={keyValue as {}}
+      />
+      <View style={flexbox.directionRow}>
+        <Button
+          text="Reject"
+          type="danger"
+          style={{ width: 230, height: 66, marginRight: 20 }}
+          onPress={handleReject}
+        />
+        <Button
+          text="Sign"
+          type="primary"
+          style={{ width: 230, height: 66 }}
+          onPress={handleSign}
+        />
+      </View>
     </Wrapper>
   )
 }
