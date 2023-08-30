@@ -39,7 +39,7 @@ const IdentityInfoContext = createContext<IdentityInfoContextDataType>({
   }
 })
 
-const IdentityInfoProvider: React.FC = ({ children }: any) => {
+const IdentityInfoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const mainCtrl = useMainControllerState()
   const [isIdentityInfoFetching, setIsIdentityInfoFetching] = useState(true)
   const initialState = useMemo(
