@@ -18,7 +18,10 @@ import Routes from '../components/Routes'
 import styles from './styles'
 
 const DashboardScreen = () => {
-  const { accountPortfolio, gasTankAndRewardsData } = usePortfolioControllerState()
+  const {
+    accountPortfolio,
+    gasTankAndRewardsData: { rewards, gasTank }
+  } = usePortfolioControllerState()
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
@@ -37,15 +40,39 @@ const DashboardScreen = () => {
   }, [dispatch])
 
   const { t } = useTranslation()
+
   const tokens = [
-    ...(gasTankAndRewardsData?.gasTank?.balance
-      ? gasTankAndRewardsData.gasTank.balance.map((token: TokenResultInterface) => ({
+    ...(rewards &&
+    rewards?.walletClaimableBalance &&
+    rewards?.walletClaimableBalance?.amount &&
+    Number(rewards?.walletClaimableBalance?.amount)
+      ? [
+          {
+            ...rewards?.walletClaimableBalance,
+            vesting: true
+          }
+        ]
+      : []),
+    ...(rewards &&
+    rewards?.xWalletClaimableBalance &&
+    rewards?.xWalletClaimableBalance?.amount &&
+    Number(rewards?.xWalletClaimableBalance?.amount)
+      ? [
+          {
+            ...rewards?.xWalletClaimableBalance,
+            rewards: true
+          }
+        ]
+      : []),
+    ...(gasTank?.balance
+      ? gasTank.balance.map((token: TokenResultInterface) => ({
           ...token,
           gasToken: true
         }))
       : []),
     ...(accountPortfolio?.tokens ? accountPortfolio.tokens : [])
   ]
+
   return (
     <Wrapper contentContainerStyle={[spacings.pv0, spacings.ph0]} style={styles.container}>
       <View

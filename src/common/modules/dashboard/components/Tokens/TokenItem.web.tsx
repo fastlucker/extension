@@ -3,11 +3,13 @@ import './styles.css'
 import { networks } from 'ambire-common/src/consts/networks'
 import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
 import { formatUnits } from 'ethers'
+import LottieView from 'lottie-react'
 import React from 'react'
 import { View } from 'react-native'
 
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import InformationIcon from '@common/assets/svg/InformationIcon/InformationIcon'
+import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import Button from '@common/components/Button'
 import Dropdown from '@common/components/Dropdown'
@@ -20,14 +22,27 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
+import animationWallets from './animation-wallets.json'
 import styles from './styles'
 
 interface Token extends TokenResultInterface {
   gasToken: boolean
+  vesting: boolean
+  rewards: boolean
 }
 // TODO: customize token component for gas token, wallet rewards token. Each of them has different button and styling
 // TODO: correct props once connected with portfolio controller
-const TokenItem = ({ symbol, amount, priceIn, decimals, address, networkId, gasToken }: Token) => {
+const TokenItem = ({
+  symbol,
+  amount,
+  priceIn,
+  decimals,
+  address,
+  networkId,
+  gasToken,
+  vesting,
+  rewards
+}: Token) => {
   const { t } = useTranslation()
   // TODO: navigate to the routes onPress once they are ready or hide the ones we wont need for epic 1
   // Logic for this ones and which token would be able to
@@ -55,11 +70,25 @@ const TokenItem = ({ symbol, amount, priceIn, decimals, address, networkId, gasT
    * inside Pressable, like we need here in order to have hover effect on the token,
    * once we are on the Button component (aka the child Pressable) the hover on the parent disappears
    * */
+  const containerStyles = {
+    ...styles.container,
+    ...((rewards || vesting) && styles.rewardsContainer)
+  }
+
   return (
-    <div className="token-container" style={styles.container}>
+    <div
+      className={rewards || vesting ? 'rewards-token-container' : 'token-container'}
+      style={containerStyles}
+    >
       <View style={[flexboxStyles.directionRow]}>
         <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
-          <TokenIcon withContainer address={address} networkId={networkId} />
+          {rewards || vesting ? (
+            <View style={styles.tokenButtonIconWrapper}>
+              <RewardsIcon width={20} height={20} />
+            </View>
+          ) : (
+            <TokenIcon withContainer address={address} networkId={networkId} />
+          )}
         </View>
         <View>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignEnd]}>
@@ -74,15 +103,17 @@ const TokenItem = ({ symbol, amount, priceIn, decimals, address, networkId, gasT
             </Text>
             <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
               <Text shouldScale={false} fontSize={12}>
-                on
+                {rewards && 'rewards for claim'}
+                {vesting && 'claimable early supporters vesting'}
+                {!rewards && !vesting && 'on'}
               </Text>
-              {gasToken ? (
-                <GasTankIcon width={18} height={18} color={colors.violet} />
-              ) : (
+              {gasToken && <GasTankIcon width={18} height={18} color={colors.violet} />}
+              {!gasToken && !rewards && !vesting && (
                 <NetworkIcon name={networkId} style={{ width: 25, height: 25 }} />
               )}
               <Text style={[spacings.mrMi]} shouldScale={false} fontSize={12}>
-                {gasToken ? 'Gas Tank' : networkData?.name}
+                {gasToken && 'Gas Tank'}
+                {!gasToken && !rewards && !vesting && networkData?.name}
               </Text>
               <InformationIcon color={colors.martinique_65} />
             </View>
@@ -94,8 +125,17 @@ const TokenItem = ({ symbol, amount, priceIn, decimals, address, networkId, gasT
       </View>
 
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+        {(rewards || vesting) && (
+          <LottieView
+            animationData={animationWallets}
+            style={{
+              width: 80,
+              height: 40
+            }}
+          />
+        )}
         <div className="button-pressable">
-          {gasToken ? (
+          {gasToken && (
             <Button
               type="primary"
               size="small"
@@ -103,7 +143,20 @@ const TokenItem = ({ symbol, amount, priceIn, decimals, address, networkId, gasT
               text={t('Top Up')}
               hasBottomSpacing={false}
             />
-          ) : (
+          )}
+
+          {(rewards || vesting) && (
+            <Button
+              type="outline"
+              size="small"
+              accentColor={colors.violet}
+              text={t('Claim')}
+              style={{ width: 80 }}
+              hasBottomSpacing={false}
+            />
+          )}
+
+          {!gasToken && !rewards && !vesting && (
             <Button
               type="outline"
               size="small"
