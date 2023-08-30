@@ -4,6 +4,7 @@ import { Image, Pressable, View } from 'react-native'
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import PinIcon from '@common/assets/svg/PinIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
+import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
@@ -43,14 +44,15 @@ const AccountSelectScreen = () => {
   }
 
   return (
-    <View style={[flexboxStyles.flex1, spacings.ph, spacings.pv]}>
+    <View style={styles.container}>
+      <Search placeholder="Search for accounts" style={styles.searchBar} />
       {mainCtrl.accounts.length &&
         mainCtrl.accounts.map((account) => (
           <Pressable key={account.addr} onPress={() => selectAccount(account.addr)}>
             {({ hovered }: any) => (
               <View
                 style={[
-                  styles.container,
+                  styles.accountContainer,
                   {
                     borderColor:
                       account.addr === mainCtrl.selectedAccount || hovered
