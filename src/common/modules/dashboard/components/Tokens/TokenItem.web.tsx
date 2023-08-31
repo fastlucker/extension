@@ -106,16 +106,16 @@ const TokenItem = ({
               </Text>
               <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
                 <Text shouldScale={false} fontSize={12}>
-                  {rewards && 'rewards for claim'}
-                  {vesting && 'claimable early supporters vesting'}
-                  {!rewards && !vesting && 'on'}
+                  {rewards && t('rewards for claim')}
+                  {vesting && t('claimable early supporters vesting')}
+                  {!rewards && !vesting && t('on')}
                 </Text>
                 {gasToken && <GasTankIcon width={18} height={18} color={colors.violet} />}
                 {!gasToken && !rewards && !vesting && (
                   <NetworkIcon name={networkId} style={{ width: 25, height: 25 }} />
                 )}
                 <Text style={[spacings.mrMi]} shouldScale={false} fontSize={12}>
-                  {gasToken && 'Gas Tank'}
+                  {gasToken && t('Gas Tank')}
                   {!gasToken && !rewards && !vesting && networkData?.name}
                 </Text>
                 <InformationIcon color={colors.martinique_65} />
