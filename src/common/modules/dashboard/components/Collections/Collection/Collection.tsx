@@ -10,6 +10,7 @@ import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useNft from '@common/hooks/useNft'
 import { ROUTES } from '@common/modules/router/constants/common'
+import colors from '@common/styles/colors'
 import ImageIcon from '@web/assets/svg/ImageIcon'
 
 import styles from './styles'
@@ -40,7 +41,7 @@ const Collection: FC<Props> = ({ address, name, networkId, collectibles, priceIn
     <Pressable
       style={({ hovered }: any) => [
         styles.container,
-        hovered ? { backgroundColor: '#B6B9FF26', borderColor: '#6770B333' } : {}
+        hovered ? { backgroundColor: colors.melrose_15, borderColor: colors.scampi_20 } : {}
       ]}
       onPress={() => {
         navigate(ROUTES.collection, {
