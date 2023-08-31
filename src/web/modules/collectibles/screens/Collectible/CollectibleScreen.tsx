@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Pressable, View } from 'react-native'
 
-import Blockies from '@common/components/Blockies'
+import avatarSpaceDog from '@common/assets/images/avatars/avatar-space-dog.png'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
@@ -108,7 +108,11 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
                   {t('Owner')}
                 </Text>
                 <View style={styles.ownerContainer}>
-                  <Blockies borderRadius={10} size={8} scale={4} seed={owner} />
+                  <Image
+                    style={{ width: 34, height: 34, borderRadius: 12 }}
+                    source={avatarSpaceDog}
+                    resizeMode="contain"
+                  />
                   <View style={styles.owner}>
                     {owner === selectedAcc ? (
                       <Text weight="semiBold" fontSize={16}>
