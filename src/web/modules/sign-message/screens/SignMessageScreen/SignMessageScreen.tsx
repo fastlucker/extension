@@ -2,7 +2,7 @@ import { SignMessageController } from 'ambire-common/src/controllers/signMessage
 import { toUtf8String } from 'ethers'
 import React, { useEffect, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, TextInput, View } from 'react-native'
 
 import Button from '@common/components/Button'
 import Select from '@common/components/Select'
@@ -18,6 +18,8 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import { getUiType } from '@web/utils/uiType'
+
+import styles from './styles'
 
 function getMessageAsText(msg: any) {
   try {
@@ -37,6 +39,7 @@ const SignMessageScreen = () => {
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
 
+  // TODO: Remove these when ready
   console.log('signMessageState: ', signMessageState)
   console.log('mainState', mainState)
 
@@ -161,33 +164,48 @@ const SignMessageScreen = () => {
   return (
     <Wrapper hasBottomTabNav={false}>
       <Trans values={{ name: currentDappNotificationRequest?.params?.session?.name || 'The dApp' }}>
-        <Text>
+        <Text style={spacings.mb}>
           <Text weight="semiBold">{'{{name}} '}</Text>
           <Text>is requesting your signature.</Text>
         </Text>
       </Trans>
 
       {signMessageState.messageToSign?.content.kind === 'typedMessage' && (
-        <View style={spacings.pv}>
-          <Text fontSize={12}>
-            Types: {JSON.stringify(signMessageState.messageToSign?.content.types)}
+        <>
+          <Text style={spacings.mbMi}>
+            {t('A typed data signature (EIP-712) has been requested. Message:')}
           </Text>
-          <Text fontSize={12}>
-            Domain: {JSON.stringify(signMessageState.messageToSign?.content.domain)}
-          </Text>
-          <Text fontSize={12}>
-            Message: {JSON.stringify(signMessageState.messageToSign?.content.message)}
-          </Text>
-        </View>
+          <TextInput
+            value={JSON.stringify(
+              {
+                domain: signMessageState.messageToSign?.content.domain,
+                types: signMessageState.messageToSign?.content.types,
+                message: signMessageState.messageToSign?.content.message
+              },
+              null,
+              4
+            )}
+            multiline
+            numberOfLines={16}
+            editable={false}
+            style={[styles.textarea, spacings.mb]}
+          />
+        </>
       )}
       {signMessageState.messageToSign?.content.kind === 'message' && (
-        <View style={spacings.pv}>
-          <Text>{getMessageAsText(signMessageState.messageToSign?.content.message)}</Text>
-        </View>
+        <>
+          <Text>{t('A standard signature (ethSign) has been requested. Message:')}</Text>
+          <View style={spacings.pv}>
+            <Text weight="semiBold">
+              {getMessageAsText(signMessageState.messageToSign?.content.message) ||
+                t('(Empty message)')}
+            </Text>
+          </View>
+        </>
       )}
       <Select
         setValue={(newValue: any) => handleChangeSigningKey(newValue.value)}
-        label={t('Sign with')}
+        label={t('Signing with account')}
         options={keySelectorValues}
         disabled={!keySelectorValues.length}
         style={spacings.mb}
