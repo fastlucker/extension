@@ -7,6 +7,7 @@ import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -17,6 +18,8 @@ import shortenAddress from '@web/utils/shortenAddress'
 import styles from './styles'
 
 const AccountSelectScreen = () => {
+  const { goBack } = useNavigation()
+
   const mainCtrl = useMainControllerState()
   const { dispatch } = useBackgroundService()
 
@@ -27,6 +30,7 @@ const AccountSelectScreen = () => {
       type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
       params: { accountAddr: addr }
     })
+    goBack()
   }
 
   return (

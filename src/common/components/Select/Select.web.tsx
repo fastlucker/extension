@@ -88,9 +88,10 @@ const SelectComponent = ({
     <>
       {label && <Text style={[spacings.mbMi, labelStyle]}>{label}</Text>}
       <Pressable
-        onPress={() =>
-          openMenuOnClick && onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen)
-        }
+        onPress={() => {
+          if (!openMenuOnClick) return
+          onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen)
+        }}
         disabled={disabled}
         style={style}
       >
@@ -103,6 +104,12 @@ const SelectComponent = ({
           menuPosition="fixed"
           components={{ DropdownIndicator, Option: IconOption, SingleValue: SingleValueIconOption }}
           styles={{
+            dropdownIndicator: (provided, state) => ({
+              ...provided,
+              ...flexbox.alignCenter,
+              padding: 0,
+              margin: 8
+            }),
             indicatorSeparator: (styles) => ({ display: 'none' }),
             placeholder: (baseStyles) => ({
               ...baseStyles,
