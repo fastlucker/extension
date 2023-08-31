@@ -59,45 +59,49 @@ const DashboardScreen = () => {
   ]
   return (
     <View style={styles.container}>
-      <View style={[styles.contentContainer]}>
-        <View style={styles.overview}>
-          <View>
-            <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={16}>
-              {t('Balance')}
-            </Text>
-            <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-              {accountPortfolio.isAllReady ? (
-                <>
-                  <Text
-                    fontSize={30}
-                    shouldScale={false}
-                    style={{ lineHeight: 34 }}
-                    weight="regular"
-                  >
-                    ${' '}
-                    {Number(accountPortfolio.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
-                      'en-US'
-                    )}
-                  </Text>
-                  <Text fontSize={20} shouldScale={false} weight="regular">
-                    .{Number(accountPortfolio.totalAmount.toFixed(2).split('.')[1])}
-                  </Text>
-                </>
-              ) : (
-                <Spinner style={{ width: 25, height: 25 }} />
-              )}
-            </View>
-          </View>
-          <Routes />
-        </View>
-
-        <View style={styles.banners}>
-          <Banners
-            topics={[BANNER_TOPICS.TRANSACTION, BANNER_TOPICS.ANNOUNCEMENT, BANNER_TOPICS.WARNING]}
-          />
-        </View>
-      </View>
       <View style={spacings.ph}>
+        <View style={[styles.contentContainer]}>
+          <View style={styles.overview}>
+            <View>
+              <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={16}>
+                {t('Balance')}
+              </Text>
+              <View style={[flexbox.directionRow, flexbox.alignEnd]}>
+                {accountPortfolio.isAllReady ? (
+                  <>
+                    <Text
+                      fontSize={30}
+                      shouldScale={false}
+                      style={{ lineHeight: 34 }}
+                      weight="regular"
+                    >
+                      ${' '}
+                      {Number(accountPortfolio.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
+                        'en-US'
+                      )}
+                    </Text>
+                    <Text fontSize={20} shouldScale={false} weight="regular">
+                      .{Number(accountPortfolio.totalAmount.toFixed(2).split('.')[1])}
+                    </Text>
+                  </>
+                ) : (
+                  <Spinner style={{ width: 25, height: 25 }} />
+                )}
+              </View>
+            </View>
+            <Routes />
+          </View>
+
+          <View style={styles.banners}>
+            <Banners
+              topics={[
+                BANNER_TOPICS.TRANSACTION,
+                BANNER_TOPICS.ANNOUNCEMENT,
+                BANNER_TOPICS.WARNING
+              ]}
+            />
+          </View>
+        </View>
         <View
           style={[
             styles.contentContainer,
@@ -110,7 +114,9 @@ const DashboardScreen = () => {
           <Search />
         </View>
       </View>
-      <Assets openTab={openTab} tokens={tokens} />
+      <View style={[styles.contentContainer, { flex: 1 }]}>
+        <Assets openTab={openTab} tokens={tokens} />
+      </View>
     </View>
   )
 }

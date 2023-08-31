@@ -18,7 +18,7 @@ interface Props {
 // We do this instead of unmounting the component to prevent
 // component rerendering when switching tabs.
 const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0 }
-const VISIBLE_STYLE: ViewStyle = { flex: 1, ...spacings.phTy }
+const VISIBLE_STYLE: ViewStyle = { flex: 1, ...spacings.phTy, ...spacings.mt }
 
 const Assets = ({ tokens, openTab }: Props) => {
   return (
@@ -34,7 +34,7 @@ const Assets = ({ tokens, openTab }: Props) => {
       <ScrollView
         pointerEvents={openTab !== 'tokens' ? 'none' : 'auto'}
         style={openTab !== 'tokens' ? HIDDEN_STYLE : VISIBLE_STYLE}
-        contentContainerStyle={spacings.pv}
+        contentContainerStyle={spacings.mb}
       >
         <AfterInteractions
         /**
@@ -49,7 +49,7 @@ const Assets = ({ tokens, openTab }: Props) => {
       <ScrollView
         pointerEvents={openTab !== 'collectibles' ? 'none' : 'auto'}
         style={openTab !== 'collectibles' ? HIDDEN_STYLE : VISIBLE_STYLE}
-        contentContainerStyle={spacings.pv}
+        contentContainerStyle={spacings.mb}
       >
         <Collections />
       </ScrollView>

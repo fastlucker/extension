@@ -13,12 +13,9 @@ interface Style {
 }
 
 const styles = StyleSheet.create<Style>({
-  contentContainer: {
-    ...commonWebStyles.contentContainer
-  },
+  contentContainer: commonWebStyles.contentContainer,
   container: {
     ...flexbox.flex1,
-    ...spacings.ph,
     ...spacings.pt,
     backgroundColor: colors.white
   },
