@@ -7,8 +7,8 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
-import useApproval from '@web/hooks/useApproval'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
 import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
 import { getUiType } from '@web/utils/uiType'
@@ -16,13 +16,12 @@ import { getUiType } from '@web/utils/uiType'
 const SortHat = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
-  const { approval } = useApproval()
   const { isNotification } = getUiType()
   const { onboardingStatus } = useOnboarding()
   const keystoreState = useKeystoreControllerState()
-
+  const notificationState = useNotificationControllerState()
   const loadView = useCallback(async () => {
-    if (isNotification && !approval) {
+    if (isNotification && !notificationState.currentDappNotificationRequest) {
       window.close()
       return
     }
@@ -35,23 +34,23 @@ const SortHat = () => {
       return navigate(ROUTES.getStarted)
     }
 
-    if (approval && isNotification) {
-      if (approval?.data?.approvalComponent === 'PermissionRequest') {
+    if (isNotification && notificationState.currentDappNotificationRequest) {
+      if (notificationState.currentDappNotificationRequest?.screen === 'PermissionRequest') {
         return navigate(ROUTES.permissionRequest)
       }
-      if (approval?.data?.approvalComponent === 'SendTransaction') {
-        return console.log(approval)
+      if (notificationState.currentDappNotificationRequest?.screen === 'SendTransaction') {
+        return console.log(notificationState.currentDappNotificationRequest)
       }
-      if (approval?.data?.approvalComponent === 'SignText') {
+      if (notificationState.currentDappNotificationRequest?.screen === 'SignText') {
         return navigate(ROUTES.signMessage)
       }
-      if (approval?.data?.approvalComponent === 'SignTypedData') {
+      if (notificationState.currentDappNotificationRequest?.screen === 'SignTypedData') {
         return navigate(ROUTES.signMessage)
       }
-      if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
+      if (notificationState.currentDappNotificationRequest?.screen === 'WalletWatchAsset') {
         return navigate(ROUTES.watchAsset)
       }
-      if (approval?.data?.approvalComponent === 'GetEncryptionPublicKey') {
+      if (notificationState.currentDappNotificationRequest?.screen === 'GetEncryptionPublicKey') {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
     } else {
@@ -59,7 +58,14 @@ const SortHat = () => {
         onboardingStatus === ONBOARDING_VALUES.ON_BOARDED ? ROUTES.dashboard : ROUTES.onboarding
       )
     }
-  }, [isNotification, approval, authStatus, navigate, onboardingStatus, keystoreState])
+  }, [
+    isNotification,
+    notificationState.currentDappNotificationRequest,
+    authStatus,
+    navigate,
+    onboardingStatus,
+    keystoreState
+  ])
 
   useEffect(() => {
     loadView()

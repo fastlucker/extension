@@ -166,10 +166,10 @@ const routesConfig: {
       default: i18n.t('Earn')
     })
   },
-  [ROUTES.send]: {
-    route: ROUTES.send,
+  [ROUTES.sign]: {
+    route: ROUTES.sign,
     title: Platform.select({
-      default: i18n.t('Send')
+      default: i18n.t('Sign')
     })
   },
   [ROUTES.transfer]: {

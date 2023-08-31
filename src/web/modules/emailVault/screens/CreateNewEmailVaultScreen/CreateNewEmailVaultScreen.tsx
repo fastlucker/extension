@@ -10,10 +10,10 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import text from '@common/styles/utils/text'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import styles from '@web/components/AuthLayoutWrapper/styles'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import styles from '@web/components/TabLayoutWrapper/styles'
 
 const CreateNewEmailVaultScreen = () => {
   const { params } = useRoute()
@@ -31,7 +31,7 @@ const CreateNewEmailVaultScreen = () => {
 
   return (
     <>
-      <AuthLayoutWrapperMainContent
+      <TabLayoutWrapperMainContent
         pageTitle={
           !isPasswordConfirmStep ? 'Create Or Enter Email Vault' : 'Email Confirmation Required'
         }
@@ -55,9 +55,9 @@ const CreateNewEmailVaultScreen = () => {
             currentFlow={stepperState.currentFlow}
           />
         </View>
-      </AuthLayoutWrapperMainContent>
+      </TabLayoutWrapperMainContent>
       {!isPasswordConfirmStep && (
-        <AuthLayoutWrapperSideContent backgroundType="beta">
+        <TabLayoutWrapperSideContent backgroundType="beta">
           <Text weight="medium" style={spacings.mb} color={colors.zircon} fontSize={16}>
             {t('Email Vaults')}
           </Text>
@@ -72,7 +72,7 @@ const CreateNewEmailVaultScreen = () => {
               "Email vaults are stored in the cloud, on Ambire's infrastructure and they are used for recovery of smart accounts, recovery of your extension passphrase, as well as optionally backing up your keys."
             )}
           </Text>
-        </AuthLayoutWrapperSideContent>
+        </TabLayoutWrapperSideContent>
       )}
     </>
   )

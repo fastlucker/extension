@@ -23,10 +23,10 @@ import spacings, { SPACING_LG, SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
-import styles from '@web/components/AuthLayoutWrapper/styles'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import styles from '@web/components/TabLayoutWrapper/styles'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
@@ -107,7 +107,7 @@ const KeyStoreSetupScreen = () => {
 
   return (
     <>
-      <AuthLayoutWrapperMainContent hideStepper={isSubmitSuccessful}>
+      <TabLayoutWrapperMainContent hideStepper={isSubmitSuccessful}>
         <View
           style={[styles.mainContentWrapper, isSubmitSuccessful && flexboxStyles.justifyCenter]}
         >
@@ -199,8 +199,8 @@ const KeyStoreSetupScreen = () => {
             </>
           )}
         </View>
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent backgroundType="beta">
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent backgroundType="beta">
         <Text weight="medium" style={spacings.mb} color={colors.titan} fontSize={16}>
           {t('Setup Your Ambire Key Store')}
         </Text>
@@ -247,7 +247,7 @@ const KeyStoreSetupScreen = () => {
             'If you disable email vault keystore recovery, and lose your passphrase, you will lose access to all keys and accounts on this device'
           )}
         </Text>
-      </AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent>
     </>
   )
 }
