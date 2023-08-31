@@ -1,6 +1,7 @@
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
+import { KeystoreSigner } from 'ambire-common/src/libs/keystoreSigner/keystoreSigner'
 
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
@@ -16,8 +17,11 @@ import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeC
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
+import LatticeSigner from '@web/modules/hardware-wallet/libs/LatticeSigner'
 import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
+import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
+import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
@@ -38,10 +42,19 @@ async function init() {
   let pmRef: PortMessage
   let onResoleDappNotificationRequest: (data: any, id?: bigint) => void
   let onRejectDappNotificationRequest: (data: any, id?: bigint) => void
+
+  const signers = {
+    internal: KeystoreSigner,
+    ledger: LedgerSigner,
+    trezor: TrezorSigner,
+    lattice: LatticeSigner
+  }
+
   const mainCtrl = new MainController({
     storage,
     fetch,
     relayerUrl: RELAYER_URL,
+    keystoreSigners: signers,
     onResolveDappRequest: (data, id) => {
       !!onResoleDappNotificationRequest && onResoleDappNotificationRequest(data, id)
     },
@@ -217,6 +230,18 @@ async function init() {
               return mainCtrl.signMessage.init(data.params.messageToSign)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN':
+              return mainCtrl.signMessage.sign()
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
+              return mainCtrl.signMessage.setSigningKeyAddr(data.params.key)
+            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
+              return mainCtrl.broadcastSignedMessage(data.params.signedMessage)
+            case 'MAIN_CONTROLLER_ACTIVITY_INIT':
+              return mainCtrl.activity.init({
+                filters: data.params.filters
+              })
+            case 'MAIN_CONTROLLER_ACTIVITY_RESET':
+              return mainCtrl.activity.reset()
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break
