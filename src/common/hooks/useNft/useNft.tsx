@@ -1,9 +1,9 @@
+import ERC721ABI from 'ambire-common/contracts/compiled/IERC721.json'
 import { Contract } from 'ethers'
 import { useEffect, useState } from 'react'
 
 import { getProvider } from '@common/services/provider'
 
-import ERC721Abi from './constants/ERC721Abi'
 import fetchCollectible from './helpers/fetchCollectible'
 import getUrlWithGateway from './helpers/getUrlWithGateway'
 import handleCollectibleUri from './helpers/handleCollectibleUri'
@@ -33,7 +33,7 @@ const useNft = ({ address, networkId, id }: Props): ReturnInterface => {
 
   useEffect(() => {
     const provider = getProvider(networkId)
-    const contract = new Contract(address, ERC721Abi, provider)
+    const contract = new Contract(address, ERC721ABI.abi, provider)
 
     Promise.all([
       contract.ownerOf(id),
