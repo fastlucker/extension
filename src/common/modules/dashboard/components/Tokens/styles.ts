@@ -6,7 +6,9 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
+  rewardsContainer: ViewStyle
   addTokenContainer: ViewStyle
+  tokenButtonIconWrapper: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -14,13 +16,27 @@ const styles = StyleSheet.create<Style>({
     display: 'flex',
     ...flexbox.directionRow,
     ...flexbox.justifySpaceBetween,
+    ...spacings.mbTy,
     ...spacings.ptMi,
     ...spacings.pbMi,
     ...spacings.plMi,
     ...spacings.prMi,
-    borderWidth: 1,
+    borderColor: colors.zircon,
     borderRadius: 12,
-    borderColor: colors.zircon
+    borderWidth: 1,
+    borderStyle: 'solid'
+  },
+  tokenButtonIconWrapper: {
+    backgroundColor: colors.white,
+    borderRadius: 10,
+    ...flexbox.center,
+    width: 35,
+    height: 35
+  },
+  rewardsContainer: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.scampi_20
   },
   addTokenContainer: {
     borderWidth: 1,

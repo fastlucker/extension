@@ -1,15 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { ColorValue, Image, View } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Image, View } from 'react-native'
 
-import avatarFire from '@common/assets/images/avatars/avatar-fire.png'
-import avatarSpaceDog from '@common/assets/images/avatars/avatar-space-dog.png'
-import avatarSpaceRaccoon from '@common/assets/images/avatars/avatar-space-raccoon.png'
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import Button from '@common/components/Button'
+import CopyText from '@common/components/CopyText'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
@@ -21,7 +19,10 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import commonWebStyles from '@web/styles/utils/common'
+import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
@@ -33,60 +34,58 @@ interface Props {
 }
 
 const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, withAmbireLogo }) => {
-  const options = [
-    {
-      label: 'Account name',
-      icon: (
-        <Image
-          style={{ width: 30, height: 30, borderRadius: 10 }}
-          source={avatarSpace}
-          resizeMode="contain"
-        />
-      ),
-      value: 'Account name'
-    },
-    {
-      label: 'Account name2',
-      icon: (
-        <Image
-          style={{ width: 30, height: 30, borderRadius: 10 }}
-          source={avatarSpaceDog}
-          resizeMode="contain"
-        />
-      ),
-      value: 'Account name2'
-    },
-    {
-      label: 'Account name3',
-      icon: (
-        <Image
-          style={{ width: 30, height: 30, borderRadius: 10 }}
-          source={avatarSpaceRaccoon}
-          resizeMode="contain"
-        />
-      ),
-      value: 'Account name3'
-    },
-    {
-      label: 'Account name4',
-      icon: (
-        <Image
-          style={{ width: 30, height: 30, borderRadius: 10 }}
-          source={avatarFire}
-          resizeMode="contain"
-        />
-      ),
-      value: 'Account name4'
-    }
-  ]
+  const mainCtrl = useMainControllerState()
+
+  const options = useMemo(
+    () =>
+      mainCtrl.selectedAccount
+        ? [
+            {
+              label: (
+                <View
+                  style={[
+                    flexboxStyles.directionRow,
+                    flexboxStyles.justifySpaceBetween,
+                    flexboxStyles.alignCenter,
+                    { width: '100%' }
+                  ]}
+                >
+                  <Text fontSize={14}>{shortenAddress(mainCtrl.selectedAccount, 14)}</Text>
+                  <CopyText
+                    text={mainCtrl.selectedAccount}
+                    style={{ backgroundColor: 'transparent', borderColor: 'transparent' }}
+                  />
+                </View>
+              ),
+              icon: (
+                <Image
+                  style={{ width: 30, height: 30, borderRadius: 10 }}
+                  source={avatarSpace}
+                  resizeMode="contain"
+                />
+              ),
+              value: mainCtrl.selectedAccount
+            }
+          ]
+        : [],
+    [mainCtrl.selectedAccount]
+  )
+
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const [value, setValue] = useState(options[0])
 
+  useEffect(() => {
+    if (value !== options[0]) {
+      setValue(options[0])
+    }
+  }, [mainCtrl.selectedAccount, value, options])
+
   const [title, setTitle] = useState('')
   const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
 
+  const uiType = getUiType()
   const renderHeaderControls = (
     <View
       style={[flexboxStyles.directionRow, flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]}
@@ -100,7 +99,9 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
         menuPlacement="bottom"
         iconWidth={25}
         iconHeight={25}
-        controlStyle={{ width: 220 }}
+        controlStyle={{ width: 235 }}
+        openMenuOnClick={false}
+        onDropdownOpen={() => navigate('account-select')}
       />
       <View style={[flexboxStyles.directionRow]}>
         <Button
@@ -110,12 +111,15 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
           hasBottomSpacing={false}
           style={[spacings.mrTy, { width: 85 }]}
         />
-        <NavIconWrapper
-          onPress={() => null}
-          style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
-        >
-          <MaximizeIcon width={20} height={20} />
-        </NavIconWrapper>
+
+        {uiType.isPopup && (
+          <NavIconWrapper
+            onPress={() => openInTab('tab.html#/dashboard')}
+            style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
+          >
+            <MaximizeIcon width={20} height={20} />
+          </NavIconWrapper>
+        )}
         <NavIconWrapper onPress={() => navigate('menu')} style={{ borderColor: colors.scampi_20 }}>
           <BurgerIcon width={20} height={20} />
         </NavIconWrapper>

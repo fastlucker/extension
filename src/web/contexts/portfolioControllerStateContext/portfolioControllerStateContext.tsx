@@ -94,12 +94,11 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [isIdentityInfoFetching, identityInfo])
 
   useEffect(() => {
-    // Function to calculate account portfolio summary
     const calculateAccountPortfolio = () => {
       const updatedTokens: TokenResultInterface[] = []
       const updatedCollections: CollectionResultInterface[] = []
       const updatedTotalAmount = accountPortfolio.totalAmount
-      let newTotalAmount: number = gasTankBalance
+      let newTotalAmount: number = gasTankBalance + rewardsBalance
       let allReady = true
 
       if (!mainCtrl.selectedAccount || !state.latest || !state.latest[mainCtrl.selectedAccount]) {

@@ -300,6 +300,12 @@ const routesConfig: {
   [ROUTES.disableOtp2FA]: {
     route: ROUTES.disableOtp2FA,
     title: i18n.t('Disable 2FA')
+  },
+  [ROUTES.accountSelect]: {
+    route: ROUTES.accountSelect,
+    title: Platform.select({
+      default: i18n.t('Accounts')
+    })
   }
 }
 

@@ -39,22 +39,26 @@ const IdentityInfoContext = createContext<IdentityInfoContextDataType>({
   }
 })
 
-const IdentityInfoProvider: React.FC = ({ children }: any) => {
+const IdentityInfoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const mainCtrl = useMainControllerState()
   const [isIdentityInfoFetching, setIsIdentityInfoFetching] = useState(true)
-  const [identityInfo, setIdentityInfo] = useState({
-    rewards: {
-      supplyControllerAddr: '',
-      claimableRewardsData: {},
-      multipliers: [],
-      xWalletClaimableBalance: {},
-      walletClaimableBalance: {}
-    },
-    gasTank: {
-      balance: [],
-      availableGasTankAssets: []
-    }
-  })
+  const initialState = useMemo(
+    () => ({
+      rewards: {
+        supplyControllerAddr: '',
+        claimableRewardsData: {},
+        multipliers: [],
+        xWalletClaimableBalance: {},
+        walletClaimableBalance: {}
+      },
+      gasTank: {
+        balance: [],
+        availableGasTankAssets: []
+      }
+    }),
+    []
+  )
+  const [identityInfo, setIdentityInfo] = useState(initialState)
 
   const fetchIdentityInfo = useCallback(async () => {
     setIsIdentityInfoFetching(true)
@@ -66,10 +70,12 @@ const IdentityInfoProvider: React.FC = ({ children }: any) => {
       }
     } catch (err) {
       setIsIdentityInfoFetching(false)
+      setIdentityInfo(initialState)
+
       //  TODO: handle errors
       console.log(err)
     }
-  }, [mainCtrl.selectedAccount])
+  }, [mainCtrl.selectedAccount, initialState])
 
   useEffect(() => {
     if (!mainCtrl.selectedAccount) return
