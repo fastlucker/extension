@@ -14,11 +14,14 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 import Assets from '../components/Assets'
 import Routes from '../components/Routes'
 import Tabs from '../components/Tabs'
 import styles from './styles'
+
+const isTab = getUiType().isTab
 
 const DashboardScreen = () => {
   const route = useRoute()
@@ -105,6 +108,7 @@ const DashboardScreen = () => {
         <View
           style={[
             styles.contentContainer,
+            isTab ? spacings.ph : {},
             flexbox.flex1,
             flexbox.directionRow,
             flexbox.justifySpaceBetween
