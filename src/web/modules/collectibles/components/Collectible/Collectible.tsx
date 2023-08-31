@@ -91,7 +91,7 @@ const Collectible: FC<Props> = ({ id, collectionData, priceIn }) => {
                   fontSize={isTab ? 24 : 20}
                   weight="medium"
                 >
-                  {data?.name ? data.name.slice(0, 10) : 'Unknown name'}
+                  {data?.name ? data.name.slice(0, 10) : t('Unknown name')}
                 </Text>
                 {/* 
                 We won't show the description for now

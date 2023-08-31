@@ -14,6 +14,7 @@ interface Style {
   tabheaderTitle: TextStyle
   tabheaderContent: ViewStyle
   headerLeft: ViewStyle
+  noCollectibles: TextStyle
 }
 
 const isTab = getUiType().isTab
@@ -53,6 +54,11 @@ const styles = StyleSheet.create<Style>({
     // Fixes huge gaps between rows
     alignContent: 'flex-start',
     ...commonWebStyles.contentContainer
+  },
+  noCollectibles: {
+    textAlign: 'center',
+    ...flexbox.flex1,
+    ...spacings.mtXl
   }
 })
 

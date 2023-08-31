@@ -2,6 +2,7 @@ import { networks } from 'ambire-common/src/consts/networks'
 import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
 import { Collectible } from 'ambire-common/src/libs/portfolio/interfaces'
 import React, { FC, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Image, Pressable, View } from 'react-native'
 
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -28,6 +29,7 @@ interface Props {
 
 const Collection: FC<Props> = ({ address, name, networkId, collectibles, priceIn }) => {
   const networkData: NetworkDescriptor | {} = networks.find(({ id }) => networkId === id) || {}
+  const { t } = useTranslation()
 
   const [imageFailed, setImageFailed] = useState(false)
   const { data } = useNft({
@@ -70,10 +72,10 @@ const Collection: FC<Props> = ({ address, name, networkId, collectibles, priceIn
         </Text>
       </View>
       <View style={styles.network}>
-        <Text fontSize={12}>on</Text>
+        <Text fontSize={12}>{t('on')}</Text>
         <NetworkIcon name={networkId} style={styles.networkIcon} />
         <Text style={styles.networkName} fontSize={12}>
-          {'name' in networkData ? networkData.name : 'Unknown network'}
+          {'name' in networkData ? networkData.name : t('Unknown network')}
         </Text>
       </View>
     </Pressable>

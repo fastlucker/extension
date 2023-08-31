@@ -58,7 +58,7 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
           navigate(`${ROUTES.dashboard}?tab=collectibles`)
         }}
         forceCanGoBack
-        pageTitle={name || 'Unknown collection'}
+        pageTitle={name || t('Unknown collection')}
         image={image}
       />
       <Wrapper style={styles.container}>

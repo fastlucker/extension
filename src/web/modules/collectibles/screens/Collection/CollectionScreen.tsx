@@ -1,5 +1,6 @@
 import { Collectible as CollectibleType } from 'ambire-common/src/libs/portfolio/interfaces'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import Text from '@common/components/Text'
@@ -12,6 +13,7 @@ import styles from './styles'
 
 const CollectionScreen = () => {
   const route = useRoute()
+  const { t } = useTranslation()
 
   if (!route.state) return null
 
@@ -38,7 +40,9 @@ const CollectionScreen = () => {
               />
             ))
           ) : (
-            <Text>No collectibles found</Text>
+            <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
+              {t('No collectibles found')}
+            </Text>
           )}
         </View>
       </Wrapper>

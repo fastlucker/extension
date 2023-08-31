@@ -26,7 +26,7 @@ const CollectibleTransfer = () => {
         render={({ field: { onChange, value } }) => (
           <View>
             <Text style={styles.inputLabel} fontSize={16} weight="medium">
-              Recipient
+              {t('Recipient')}
             </Text>
             <RecipientInput
               style={styles.input}
@@ -59,7 +59,7 @@ const CollectibleTransfer = () => {
           })
         }}
         style={styles.button}
-        text="Send"
+        text={t('Send')}
       />
     </View>
   )
