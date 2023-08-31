@@ -43,10 +43,10 @@ const Banner: FC<Props> = ({ title, text, isHideBtnShown = false, actions = [], 
           <EditIcon width={22} height={22} />
         </View>
         <View style={styles.contentInner}>
-          <Text style={styles.title} fontSize={isTab ? 16 : 13} weight="medium">
+          <Text style={styles.title} fontSize={isTab ? 15 : 13} weight="medium">
             {title}
           </Text>
-          <Text fontSize={14} weight="regular">
+          <Text fontSize={13} weight="regular">
             {text}
           </Text>
         </View>

@@ -39,9 +39,9 @@ const styles = StyleSheet.create<Style>({
     ...flexbox.directionRow,
     ...flexbox.flex1,
     ...flexbox.alignCenter,
-    ...spacings.plMi,
+    paddingLeft: 7, // Required by design and missing in spacings.
     borderLeftColor: colors.violet,
-    borderLeftWidth: 9,
+    borderLeftWidth: 7,
     ...spacings.pvTy
   },
   contentInner: {
