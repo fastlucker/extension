@@ -1,3 +1,4 @@
+import { Filters } from 'ambire-common/src/controllers/activity/activity'
 import { Account } from 'ambire-common/src/interfaces/account'
 import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
 
@@ -109,6 +110,13 @@ type MainControllerBroadcastSignedMessageAction = {
   type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE'
   params: { signedMessage: Message }
 }
+type MainControllerActivityInitAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
+  params: { filters: Filters }
+}
+type MainControllerActivityResetAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
+}
 
 type NotificationControllerResolveRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
@@ -214,6 +222,8 @@ export type Action =
   | MainControllerSignMessageSignAction
   | MainControllerSignMessageSetSignKeyAction
   | MainControllerBroadcastSignedMessageAction
+  | MainControllerActivityInitAction
+  | MainControllerActivityResetAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction

@@ -9,6 +9,7 @@ import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
+import networks from '@common/constants/networks'
 import usePrevious from '@common/hooks/usePrevious'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -60,6 +61,18 @@ const SignMessageScreen = () => {
     if (msgsToBeSigned.length) {
       if (msgsToBeSigned[0].id !== signMessageState.messageToSign?.id) {
         dispatch({
+          type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
+          params: {
+            filters: {
+              account:
+                (signMessageState.messageToSign?.accountAddr as string) ||
+                (mainState.selectedAccount as string),
+              network: networks[0].id
+            }
+          }
+        })
+
+        dispatch({
           type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
           params: {
             messageToSign: mainState.messagesToBeSigned[mainState.selectedAccount || ''][0]
@@ -71,13 +84,15 @@ const SignMessageScreen = () => {
     dispatch,
     mainState.messagesToBeSigned,
     mainState.selectedAccount,
-    signMessageState.messageToSign?.id
+    signMessageState.messageToSign?.id,
+    signMessageState.messageToSign?.accountAddr
   ])
 
   useEffect(() => {
     if (!getUiType().isNotification) return
     const reset = () => {
       dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
+      dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
     }
     window.addEventListener('beforeunload', reset)
 
@@ -89,6 +104,7 @@ const SignMessageScreen = () => {
   useEffect(() => {
     return () => {
       dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
+      dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
     }
   }, [dispatch])
 

@@ -236,7 +236,12 @@ async function init() {
               return mainCtrl.signMessage.setSigningKeyAddr(data.params.key)
             case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
               return mainCtrl.broadcastSignedMessage(data.params.signedMessage)
-
+            case 'MAIN_CONTROLLER_ACTIVITY_INIT':
+              return mainCtrl.activity.init({
+                filters: data.params.filters
+              })
+            case 'MAIN_CONTROLLER_ACTIVITY_RESET':
+              return mainCtrl.activity.reset()
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break
