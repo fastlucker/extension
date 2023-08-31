@@ -1,13 +1,12 @@
 import React from 'react'
 import { Image, View } from 'react-native'
 
-import { useTranslation } from '@common/config/localization'
-import Text from '@common/components/Text'
 import EthereumLogo from '@common/assets/svg/EthereumLogo'
-import styles from './styles'
+import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
+import shortenAddress from '@web/utils/shortenAddress'
 
-// @TODO - move to utils
-const shortenAddress = (address: string) => `${address.slice(0, 11)}...${address.slice(-13)}`
+import styles from './styles'
 
 const Header = () => {
   const { t } = useTranslation()
@@ -20,7 +19,7 @@ const Header = () => {
       />
       <View style={styles.addressContainer}>
         <Text fontSize={16} style={styles.address}>
-          {shortenAddress('0x5a2fae94BDaa7B30B6049b1f5c9C86C3E4fd212F')}
+          {shortenAddress('0x5a2fae94BDaa7B30B6049b1f5c9C86C3E4fd212F', 27)}
         </Text>
         <Text fontSize={16} weight="semiBold" style={styles.addressLabel}>
           Account.Label.eth

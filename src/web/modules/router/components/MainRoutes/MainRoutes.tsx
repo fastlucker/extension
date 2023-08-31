@@ -15,6 +15,7 @@ import colors from '@common/styles/colors'
 import TabLayoutWrapper from '@web/components/TabLayoutWrapper'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
+import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
 import AccountsScreen from '@web/modules/accounts/screens/AccountsScreen'
 import AddAccountPasswordToVaultScreen from '@web/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
@@ -99,6 +100,7 @@ const MainRoutes = () => {
               element={<HardwareWalletSelectorScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
+
             <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
             <Route
               path={WEB_ROUTES.hardwareWalletSelect}
@@ -133,6 +135,7 @@ const MainRoutes = () => {
       <Route element={<PrivateRoute />}>
         <Route element={headerTitle}>
           <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
+          <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
         </Route>
         <Route element={headerControls}>
           <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />

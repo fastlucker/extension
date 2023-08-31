@@ -10,6 +10,7 @@ import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import shortenAddress from '@web/utils/shortenAddress'
 
 import styles from './styles'
 
@@ -35,20 +36,6 @@ const Account = ({
   const { t } = useTranslation()
 
   if (!account.addr) return
-
-  const trimAddress = (address: string, maxLength: number) => {
-    if (address.length <= maxLength) {
-      return address
-    }
-
-    const prefixLength = Math.floor((maxLength - 3) / 2)
-    const suffixLength = Math.ceil((maxLength - 3) / 2)
-
-    const prefix = address.slice(0, prefixLength)
-    const suffix = address.slice(-suffixLength)
-
-    return `${prefix}...${suffix}`
-  }
 
   const getAccountTypeLabel = (accType: 'legacy' | 'smart' | 'linked', creation: any) => {
     if (accType === 'legacy' || !creation) return t('Legacy Account')
@@ -125,7 +112,7 @@ const Account = ({
               style={[flexbox.flex1]}
               onPress={isDisabled ? undefined : toggleSelectedState}
             >
-              {trimAddress(account.addr, 30)}
+              {shortenAddress(account.addr, 30)}
             </Text>
             {!!account.usedOnNetworks.length && (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>

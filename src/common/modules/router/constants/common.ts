@@ -59,7 +59,8 @@ const WEB_ROUTES = {
   authEmailAccount: 'auth-email-account',
   authEmailLogin: 'auth-email-login',
   authEmailRegister: 'auth-email-register',
-  accountPersonalize: 'account-personalize'
+  accountPersonalize: 'account-personalize',
+  accountSelect: 'account-select'
 }
 
 const ROUTES = {

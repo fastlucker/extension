@@ -1,5 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, ViewProps } from 'react-native'
 import { TextInput } from 'react-native-gesture-handler'
 
 import SearchIcon from '@common/assets/svg/SearchIcon'
@@ -7,15 +7,20 @@ import colors from '@common/styles/colors'
 
 import styles from './styles'
 
-const Search = () => {
+type Props = {
+  placeholder?: string
+  style?: ViewProps
+}
+
+const Search = ({ placeholder = 'Search', style }: Props) => {
   return (
-    <View style={styles.searchSection}>
+    <View style={[styles.searchSection, style]}>
       <SearchIcon color={colors.martinique_65} />
       <TextInput
         editable
         numberOfLines={1}
         maxLength={25}
-        placeholder="Search"
+        placeholder={placeholder}
         style={[styles.textarea]}
         placeholderTextColor={colors.martinique_65}
       />

@@ -1,5 +1,5 @@
 import React from 'react'
-import Svg, { Path, SvgProps } from 'react-native-svg'
+import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
@@ -8,13 +8,12 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const CopyIcon: React.FC<Props> = ({ width = 24, height = 24 }) => (
-  <Svg width={width} height={height} viewBox="0 0 24 24">
-    <Path fill="none" d="M0 0h24v24H0z" />
-    <Path
-      d="M9 22.999a3 3 0 0 1-3-3v-12a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3Zm-1-15v12a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-12a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1Zm-6 8v-9a6.007 6.007 0 0 1 6-6h7a1 1 0 0 1 0 2H8a4 4 0 0 0-4 4v9a1 1 0 1 1-2 0Z"
-      fill={colors.titan}
-    />
+const CopyIcon: React.FC<Props> = ({ width = 22, height = 22, color = colors.martinique }) => (
+  <Svg width={width} height={height} viewBox="0 0 22 22">
+    <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
+      <Path d="M15 11.9v4.2c0 3.5-1.4 4.9-4.9 4.9H5.9C2.4 21 1 19.6 1 16.1v-4.2C1 8.4 2.4 7 5.9 7h4.2c3.5 0 4.9 1.4 4.9 4.9Z" />
+      <Path d="M21 5.9v4.2c0 3.5-1.4 4.9-4.9 4.9H15v-3.1C15 8.4 13.6 7 10.1 7H7V5.9C7 2.4 8.4 1 11.9 1h4.2C19.6 1 21 2.4 21 5.9Z" />
+    </G>
   </Svg>
 )
 

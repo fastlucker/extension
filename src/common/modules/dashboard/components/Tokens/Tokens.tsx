@@ -40,9 +40,19 @@ const Tokens = ({ tokens }: Props) => {
 
       {!!sortedTokens.length &&
         sortedTokens.map(
-          ({ address, amount, decimals, networkId, priceIn, symbol, gasToken }: any) => (
+          ({
+            address,
+            amount,
+            decimals,
+            networkId,
+            priceIn,
+            symbol,
+            gasToken,
+            vesting,
+            rewards
+          }: any) => (
             <TokenItem
-              key={`token-${address}-${networkId}-${gasToken}`}
+              key={`token-${address}-${networkId}-${gasToken}-${vesting}-${rewards}`}
               address={address}
               amount={amount}
               decimals={decimals}
@@ -50,6 +60,8 @@ const Tokens = ({ tokens }: Props) => {
               priceIn={priceIn}
               symbol={symbol}
               gasToken={gasToken}
+              vesting={vesting}
+              rewards={rewards}
             />
           )
         )}

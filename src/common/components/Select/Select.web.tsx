@@ -26,6 +26,8 @@ interface Props {
   controlStyle?: ViewStyle
   iconWidth?: number
   iconHeight?: number
+  openMenuOnClick?: boolean
+  onDropdownOpen?: () => void
 }
 
 const SelectComponent = ({
@@ -41,7 +43,9 @@ const SelectComponent = ({
   style,
   controlStyle,
   iconWidth = 36,
-  iconHeight = 36
+  iconHeight = 36,
+  openMenuOnClick = true,
+  onDropdownOpen
 }: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
@@ -49,7 +53,7 @@ const SelectComponent = ({
     return (
       <components.DropdownIndicator {...props}>
         <NavIconWrapper
-          onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+          onPress={() => (onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen))}
           width={iconWidth}
           height={iconHeight}
           hoverBackground={colors.lightViolet}
@@ -84,7 +88,10 @@ const SelectComponent = ({
     <>
       {label && <Text style={[spacings.mbMi, labelStyle]}>{label}</Text>}
       <Pressable
-        onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+        onPress={() => {
+          if (!openMenuOnClick) return
+          onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen)
+        }}
         disabled={disabled}
         style={style}
       >
@@ -97,6 +104,12 @@ const SelectComponent = ({
           menuPosition="fixed"
           components={{ DropdownIndicator, Option: IconOption, SingleValue: SingleValueIconOption }}
           styles={{
+            dropdownIndicator: (provided, state) => ({
+              ...provided,
+              ...flexbox.alignCenter,
+              padding: 0,
+              margin: 8
+            }),
             indicatorSeparator: (styles) => ({ display: 'none' }),
             placeholder: (baseStyles) => ({
               ...baseStyles,
@@ -131,6 +144,7 @@ const SelectComponent = ({
           value={value}
           onChange={setValue}
           placeholder={placeholder}
+          openMenuOnClick={openMenuOnClick}
           menuPlacement={menuPlacement}
         />
       </Pressable>
