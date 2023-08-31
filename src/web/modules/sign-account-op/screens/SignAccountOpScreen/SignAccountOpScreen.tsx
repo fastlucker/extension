@@ -1,71 +1,97 @@
 import React, { useCallback } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { ScrollView, View } from 'react-native'
 
+import NetworkIcon from '@common/components/NetworkIcon'
+import Select from '@common/components/Select/'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import spacings from '@common/styles/spacings'
-import Select from '@common/components/Select/'
-import { Controller, useForm } from 'react-hook-form'
-import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import networks from '@common/constants/networks'
 import useNavigation from '@common/hooks/useNavigation'
+import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import { ROUTES } from '@common/modules/router/constants/common'
-import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
-import Header from '@web/modules/sign-account-op/components/Header'
-import Footer from '@web/modules/sign-account-op/components/Footer'
-import Heading from '@web/modules/sign-account-op/components/Heading'
-import Fee from '@web/modules/sign-account-op/components/Fee'
+import spacings from '@common/styles/spacings'
+import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import CustomFee from '@web/modules/sign-account-op/components/CustomFee'
+import Fee from '@web/modules/sign-account-op/components/Fee'
+import Footer from '@web/modules/sign-account-op/components/Footer'
+import Header from '@web/modules/sign-account-op/components/Header'
+import Heading from '@web/modules/sign-account-op/components/Heading'
+import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
+
 import styles from './styles'
 
 // @TODO: - get accounts from controller
 const ACCOUNTS = [
   {
+    addr: '0xe1B0aB5DfBbBb7eAeC1FfBfE3B5e4FfFfFfFfFfF',
     label: 'Account.Name.eth',
-    value: '0x',
-    icon: (
-      <img
-        alt="Account 0x"
-        src="https://mars-images.imgix.net/nft/1629012092532.png?auto=compress&w=600"
-      />
-    )
+    pfp: 'https://mars-images.imgix.net/nft/1629012092532.png?auto=compress&w=600'
   },
   {
+    addr: '0x2',
     label: '0x2.eth',
-    value: '0x2',
-    icon: (
-      <img
-        alt="Account 0x2.eth"
-        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTiA3zMVkqgS_qHXKNkxgDs4IYwc387AMfesyPxHerLdt0dLiu7Zs8UfCsEmz7wSLqfz4&usqp=CAU"
-      />
-    )
+    pfp: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTiA3zMVkqgS_qHXKNkxgDs4IYwc387AMfesyPxHerLdt0dLiu7Zs8UfCsEmz7wSLqfz4&usqp=CAU'
   }
 ]
 
 // @TODO: - get tokens from portfolio based on currently selected account
 const TOKENS = [
   {
-    // @TODO: - we need to show network icon in front of network name,
-    //   https://github.com/AmbireTech/ambire-app/pull/1170#discussion_r1293243396
-    label: 'USDC on Ethereum',
-    value: 'usdc',
-    icon: (
-      <img
-        alt="USDC on Ethereum"
-        src="https://storage.googleapis.com/zapper-fi-assets/tokens/ethereum/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png"
-      />
-    )
+    address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    symbol: 'USDC',
+    networkId: 'ethereum'
   },
   {
-    label: 'Matic on Polygon',
-    value: 'matic',
-    icon: (
-      <img
-        alt="Matic on Polygon"
-        src="https://storage.googleapis.com/zapper-fi-assets/tokens/polygon/0x0000000000000000000000000000000000001010.png"
-      />
-    )
+    address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
+    symbol: 'MATIC',
+    networkId: 'polygon'
   }
 ]
+
+// Since the Select component expects a component as an icon, we map the values we get from
+// the controller to the required format from the Select component and add border radius to the icons.
+const mapValuesToOptions = (values: any[], type: 'Token' | 'Account') =>
+  values.map((value) => {
+    const option: any = {}
+
+    if (type === 'Account') {
+      option.value = value.addr
+      option.label = <Text weight="medium">{value.label}</Text>
+      option.icon = <img style={{ borderRadius: 12 }} alt={value.label} src={value.pfp} />
+
+      return option
+    }
+
+    if (type === 'Token') {
+      option.value = value.address
+      option.label = (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text weight="medium">{value.symbol}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 20 }}>
+            <Text fontSize={14}>on</Text>
+            <NetworkIcon name={value.networkId} />
+            <Text fontSize={14}>
+              {networks.find((network) => network.id === value?.networkId)?.name}
+            </Text>
+          </View>
+        </View>
+      )
+      option.icon = (
+        <TokenIcon
+          containerHeight={30}
+          containerWidth={30}
+          withContainer
+          address={value.address}
+          networkId={value.networkId}
+        />
+      )
+
+      return option
+    }
+
+    throw new Error('Invalid type')
+  })
 
 const SignAccountOpScreen = () => {
   const { t } = useTranslation()
@@ -74,8 +100,8 @@ const SignAccountOpScreen = () => {
   const { control } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
-      account: ACCOUNTS[0],
-      token: TOKENS[0]
+      account: mapValuesToOptions(ACCOUNTS, 'Account')[0],
+      token: mapValuesToOptions(TOKENS, 'Token')[0]
     }
   })
   const onBack = useCallback(() => {
@@ -109,7 +135,7 @@ const SignAccountOpScreen = () => {
               <Select
                 setValue={onChange}
                 label={t('Fee paid by')}
-                options={ACCOUNTS}
+                options={mapValuesToOptions(ACCOUNTS, 'Account')}
                 style={styles.accountSelect}
                 labelStyle={styles.accountSelectLabel}
                 value={value}
@@ -124,7 +150,7 @@ const SignAccountOpScreen = () => {
               <Select
                 setValue={onChange}
                 label={t('Pay fee with')}
-                options={TOKENS}
+                options={mapValuesToOptions(TOKENS, 'Token')}
                 style={styles.tokenSelect}
                 labelStyle={styles.tokenSelectLabel}
                 value={value}
