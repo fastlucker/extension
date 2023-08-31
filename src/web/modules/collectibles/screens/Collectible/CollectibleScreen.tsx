@@ -65,19 +65,19 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
         <View style={styles.contentContainer}>
           <View style={[styles.section, styles.info]}>
             <View style={styles.infoImageWrapper}>
-              {image && !failedImage && (
+              {image && !failedImage ? (
                 <Image
                   onError={() => setFailedImage(true)}
                   source={{ uri: image }}
                   style={styles.infoImage}
                 />
-              )}
-              {(!image || failedImage) && <ImageIcon width={148} height={148} />}
+              ) : null}
+              {!image || failedImage ? <ImageIcon width={148} height={148} /> : null}
             </View>
             <Text color={colors.martinique} style={styles.sectionTitle}>
               {name}
             </Text>
-            {description && (
+            {description ? (
               <View style={styles.infoItem}>
                 <Text color={colors.martinique} style={styles.sectionSubtitle}>
                   {t('Description')}
@@ -86,8 +86,8 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
                   {description}
                 </Text>
               </View>
-            )}
-            {address && (
+            ) : null}
+            {address ? (
               <View style={styles.infoItem}>
                 <Text color={colors.martinique} style={styles.sectionSubtitle}>
                   {t('Contract address')}
@@ -101,8 +101,8 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
                   </Pressable>
                 </View>
               </View>
-            )}
-            {owner && (
+            ) : null}
+            {owner ? (
               <View style={styles.infoItem}>
                 <Text color={colors.martinique} style={styles.sectionSubtitle}>
                   {t('Owner')}
@@ -112,7 +112,7 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
                   <View style={styles.owner}>
                     {owner === selectedAcc ? (
                       <Text weight="semiBold" fontSize={16}>
-                        {'You '}
+                        {t('You ')}
                       </Text>
                     ) : null}
                     <Text weight="semiBold" fontSize={16} numberOfLines={1}>
@@ -121,7 +121,7 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
                   </View>
                 </View>
               </View>
-            )}
+            ) : null}
           </View>
           <CollectibleTransfer />
         </View>
