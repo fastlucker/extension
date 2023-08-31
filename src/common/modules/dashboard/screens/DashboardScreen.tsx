@@ -6,7 +6,6 @@ import Banners from '@common/components/Banners'
 import Search from '@common/components/Search'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import { BANNER_TOPICS } from '@common/contexts/bannerContext/bannerContext'
 import useRoute from '@common/hooks/useRoute'
@@ -59,59 +58,60 @@ const DashboardScreen = () => {
     ...(accountPortfolio?.tokens ? accountPortfolio.tokens : [])
   ]
   return (
-    <Wrapper style={styles.container}>
-      <View style={[spacings.phSm]}>
-        <View style={[styles.contentContainer]}>
-          <View style={styles.overview}>
-            <View>
-              <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={16}>
-                {t('Balance')}
-              </Text>
-              <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-                {accountPortfolio.isAllReady ? (
-                  <>
-                    <Text
-                      fontSize={30}
-                      shouldScale={false}
-                      style={{ lineHeight: 34 }}
-                      weight="regular"
-                    >
-                      ${' '}
-                      {Number(accountPortfolio.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
-                        'en-US'
-                      )}
-                    </Text>
-                    <Text fontSize={20} shouldScale={false} weight="regular">
-                      .{Number(accountPortfolio.totalAmount.toFixed(2).split('.')[1])}
-                    </Text>
-                  </>
-                ) : (
-                  <Spinner style={{ width: 25, height: 25 }} />
-                )}
-              </View>
+    <View style={styles.container}>
+      <View style={[styles.contentContainer]}>
+        <View style={styles.overview}>
+          <View>
+            <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={16}>
+              {t('Balance')}
+            </Text>
+            <View style={[flexbox.directionRow, flexbox.alignEnd]}>
+              {accountPortfolio.isAllReady ? (
+                <>
+                  <Text
+                    fontSize={30}
+                    shouldScale={false}
+                    style={{ lineHeight: 34 }}
+                    weight="regular"
+                  >
+                    ${' '}
+                    {Number(accountPortfolio.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
+                      'en-US'
+                    )}
+                  </Text>
+                  <Text fontSize={20} shouldScale={false} weight="regular">
+                    .{Number(accountPortfolio.totalAmount.toFixed(2).split('.')[1])}
+                  </Text>
+                </>
+              ) : (
+                <Spinner style={{ width: 25, height: 25 }} />
+              )}
             </View>
-            <Routes />
           </View>
+          <Routes />
+        </View>
 
-          <View style={styles.banners}>
-            <Banners
-              topics={[
-                BANNER_TOPICS.TRANSACTION,
-                BANNER_TOPICS.ANNOUNCEMENT,
-                BANNER_TOPICS.WARNING
-              ]}
-            />
-          </View>
+        <View style={styles.banners}>
+          <Banners
+            topics={[BANNER_TOPICS.TRANSACTION, BANNER_TOPICS.ANNOUNCEMENT, BANNER_TOPICS.WARNING]}
+          />
         </View>
       </View>
-      <View style={[styles.contentContainer, flexbox.flex1]}>
-        <View style={[flexbox.directionRow, spacings.ph, flexbox.justifySpaceBetween]}>
+      <View style={spacings.ph}>
+        <View
+          style={[
+            styles.contentContainer,
+            flexbox.flex1,
+            flexbox.directionRow,
+            flexbox.justifySpaceBetween
+          ]}
+        >
           <Tabs setOpenTab={setOpenTab} openTab={openTab} />
           <Search />
         </View>
-        <Assets openTab={openTab} tokens={tokens} />
       </View>
-    </Wrapper>
+      <Assets openTab={openTab} tokens={tokens} />
+    </View>
   )
 }
 

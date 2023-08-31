@@ -14,12 +14,12 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   contentContainer: {
-    ...spacings.pv0,
-    ...spacings.ph0,
-    ...flexbox.flex1,
     ...commonWebStyles.contentContainer
   },
   container: {
+    ...flexbox.flex1,
+    ...spacings.ph,
+    ...spacings.pt,
     backgroundColor: colors.white
   },
   overview: {
