@@ -1,3 +1,5 @@
+import { Account } from 'ambire-common/src/interfaces/account'
+import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { ScrollView, View } from 'react-native'
@@ -49,35 +51,18 @@ const TOKENS = [
   }
 ]
 
-// Since the Select component expects a component as an icon, we map the values we get from
-// the controller to the required format from the Select component and add border radius to the icons.
-const mapValuesToOptions = (values: any[], type: 'Token' | 'Account') =>
-  values.map((value) => {
-    const option: any = {}
+const mapAccountOptions = (values: Account[]) =>
+  values.map((value) => ({
+    value: value.addr,
+    label: <Text weight="medium">{value.label}</Text>,
+    icon: value.pfp
+  }))
 
-    if (type === 'Account') {
-      option.value = value.addr
-      option.label = <Text weight="medium">{value.label}</Text>
-      option.icon = <img style={{ borderRadius: 12 }} alt={value.label} src={value.pfp} />
-
-      return option
-    }
-
-    if (type === 'Token') {
-      option.value = value.address
-      option.label = (
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text weight="medium">{value.symbol}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 20 }}>
-            <Text fontSize={14}>on</Text>
-            <NetworkIcon name={value.networkId} />
-            <Text fontSize={14}>
-              {networks.find((network) => network.id === value?.networkId)?.name}
-            </Text>
-          </View>
-        </View>
-      )
-      option.icon = (
+const mapTokenOptions = (values: TokenResult[]) =>
+  values.map((value) => ({
+    value: value.address,
+    label: (
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <TokenIcon
           containerHeight={30}
           containerWidth={30}
@@ -85,23 +70,33 @@ const mapValuesToOptions = (values: any[], type: 'Token' | 'Account') =>
           address={value.address}
           networkId={value.networkId}
         />
-      )
-
-      return option
-    }
-
-    throw new Error('Invalid type')
-  })
+        <Text weight="medium" style={{ marginLeft: 10 }}>
+          {value.symbol}
+        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 20 }}>
+          <Text fontSize={14}>on</Text>
+          <NetworkIcon name={value.networkId} />
+          <Text fontSize={14}>
+            {networks.find((network) => network.id === value?.networkId)?.name}
+          </Text>
+        </View>
+      </View>
+    ),
+    icon: null
+  }))
 
 const SignAccountOpScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
 
+  const mappedAccounts = mapAccountOptions(ACCOUNTS as Account[])
+  const mappedTokens = mapTokenOptions(TOKENS as TokenResult[])
+
   const { control } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
-      account: mapValuesToOptions(ACCOUNTS, 'Account')[0],
-      token: mapValuesToOptions(TOKENS, 'Token')[0]
+      account: mappedAccounts[0],
+      token: mappedTokens[0]
     }
   })
   const onBack = useCallback(() => {
@@ -135,7 +130,7 @@ const SignAccountOpScreen = () => {
               <Select
                 setValue={onChange}
                 label={t('Fee paid by')}
-                options={mapValuesToOptions(ACCOUNTS, 'Account')}
+                options={mappedAccounts}
                 style={styles.accountSelect}
                 labelStyle={styles.accountSelectLabel}
                 value={value}
@@ -150,7 +145,7 @@ const SignAccountOpScreen = () => {
               <Select
                 setValue={onChange}
                 label={t('Pay fee with')}
-                options={mapValuesToOptions(TOKENS, 'Token')}
+                options={mappedTokens}
                 style={styles.tokenSelect}
                 labelStyle={styles.tokenSelectLabel}
                 value={value}
