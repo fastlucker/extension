@@ -4,6 +4,7 @@ import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
+import { BannerProvider } from '@common/contexts/bannerContext/bannerContext'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
@@ -64,20 +65,22 @@ const AppInit = () => {
                                   <SafeAreaProvider>
                                     <KeyboardProvider>
                                       <NetInfoProvider>
-                                        <ToastProvider>
-                                          <ConstantsProvider>
-                                            <AuthProvider>
-                                              <ExtensionProvider>
-                                                <BiometricsProvider>
-                                                  <PrivateModeProvider>
-                                                    <AppRouter />
-                                                  </PrivateModeProvider>
-                                                  <PortalHost name="global" />
-                                                </BiometricsProvider>
-                                              </ExtensionProvider>
-                                            </AuthProvider>
-                                          </ConstantsProvider>
-                                        </ToastProvider>
+                                        <BannerProvider>
+                                          <ToastProvider>
+                                            <ConstantsProvider>
+                                              <AuthProvider>
+                                                <ExtensionProvider>
+                                                  <BiometricsProvider>
+                                                    <PrivateModeProvider>
+                                                      <AppRouter />
+                                                    </PrivateModeProvider>
+                                                    <PortalHost name="global" />
+                                                  </BiometricsProvider>
+                                                </ExtensionProvider>
+                                              </AuthProvider>
+                                            </ConstantsProvider>
+                                          </ToastProvider>
+                                        </BannerProvider>
                                       </NetInfoProvider>
                                     </KeyboardProvider>
                                   </SafeAreaProvider>
