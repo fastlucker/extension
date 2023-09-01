@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
-import Select, { components, DropdownIndicatorProps } from 'react-select'
+import Select, { components, DropdownIndicatorProps, OptionProps } from 'react-select'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import Text from '@common/components/Text'
@@ -69,8 +69,18 @@ const SelectComponent = ({
   const IconOption = (props: OptionProps) => (
     <components.Option {...props}>
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {props.data.icon && <View style={styles.optionIcon}>{props.data.icon}</View>}
-        <Text fontSize={14}>{props.data.label}</Text>
+        {!!props.data.icon && typeof props.data.icon === 'function' && (
+          <View style={styles.optionIcon}>{props.data.icon}</View>
+        )}
+        {!!props.data.icon && typeof props.data.icon === 'string' && (
+          <img src={props.data.icon} style={styles.optionIcon} />
+        )}
+        {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
+        {typeof props.data.label === 'string' ? (
+          <Text fontSize={14}>{props.data.label}</Text>
+        ) : (
+          props.data.label
+        )}
       </View>
     </components.Option>
   )
@@ -78,8 +88,18 @@ const SelectComponent = ({
   const SingleValueIconOption = (props: SingleValueProps) => (
     <components.SingleValue {...props}>
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {props.data.icon && <View style={styles.optionIcon}>{props.data.icon}</View>}
-        <Text fontSize={14}>{props.data.label}</Text>
+        {!!props.data.icon && typeof props.data.icon === 'function' && (
+          <View style={styles.optionIcon}>{props.data.icon}</View>
+        )}
+        {!!props.data.icon && typeof props.data.icon === 'string' && (
+          <img src={props.data.icon} style={styles.optionIcon} />
+        )}
+        {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
+        {typeof props.data.label === 'string' ? (
+          <Text fontSize={14}>{props.data.label}</Text>
+        ) : (
+          props.data.label
+        )}
       </View>
     </components.SingleValue>
   )
