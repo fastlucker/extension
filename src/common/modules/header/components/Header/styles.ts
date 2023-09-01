@@ -3,6 +3,7 @@ import { Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 import { isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import commonWebStyles from '@web/styles/utils/common'
 
 export const HEADER_HEIGHT = Platform.select({
   web: 90,
@@ -11,6 +12,7 @@ export const HEADER_HEIGHT = Platform.select({
 
 interface Styles {
   container: ViewStyle
+  containerInner: ViewStyle
   navIconContainerRegular: ViewStyle
   title: TextStyle
   sideContainer: ViewStyle
@@ -23,7 +25,13 @@ const styles = StyleSheet.create<Styles>({
     alignItems: 'center',
     backgroundColor: colors.zircon,
     ...spacings.ph,
+    ...spacings.pv,
     ...(isWeb ? { height: 90 } : {})
+  },
+  containerInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    ...commonWebStyles.contentContainer
   },
   navIconContainerRegular: {
     width: 50,
