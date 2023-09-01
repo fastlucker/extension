@@ -1,9 +1,9 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
-import flexbox from '@common/styles/utils/flexbox'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle

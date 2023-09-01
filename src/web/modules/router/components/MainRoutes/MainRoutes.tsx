@@ -36,9 +36,9 @@ import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
+import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
-import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 
 const headerControls = (
   <>
@@ -115,10 +115,10 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
 
             <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
-            <Route path={WEB_ROUTES.sign} element={<SignAccountOpScreen />} />
           </Route>
         </Route>
 
+        <Route path={WEB_ROUTES.sign} element={<SignAccountOpScreen />} />
         <Route element={headerTitleWithAmbireLogo}>
           <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
         </Route>
