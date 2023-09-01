@@ -178,10 +178,11 @@ export class NotificationController extends EventEmitter {
     notificationRequest?.reject &&
       notificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>(err))
 
+    if (notificationRequest && SIGN_METHODS.includes(notificationRequest?.params.method)) {
+      this.mainCtrl.removeUserRequest(notificationRequest?.id)
+    }
+
     if (notificationRequest && this.dappsNotificationRequests.length > 1) {
-      if (SIGN_METHODS.includes(notificationRequest?.params.method)) {
-        this.mainCtrl.removeUserRequest(notificationRequest?.id)
-      }
       this.deleteApproval(notificationRequest)
       this.currentDappNotificationRequest = this.dappsNotificationRequests[0]
     } else {
