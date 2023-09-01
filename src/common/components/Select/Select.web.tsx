@@ -12,6 +12,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import NavIconWrapper from '../NavIconWrapper'
 import styles from './styles'
 
+export type OptionType = OptionProps['data']
+
 interface Props {
   value: {} // @TODO: react-native works with object here, we need to find its type
   defaultValue?: {} // @TODO: react-native works with object here, we need to find its type
