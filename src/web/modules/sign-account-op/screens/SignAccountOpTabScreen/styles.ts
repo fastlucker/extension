@@ -1,4 +1,4 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import colors from '@common/styles/colors'
@@ -15,18 +15,6 @@ interface Style {
   estimationHeading: ViewStyle
   accountSelect: ViewStyle
   accountSelectLabel: ViewStyle
-  tokenSelect: ViewStyle
-  tokenSelectLabel: ViewStyle
-  transactionSpeedContainer: ViewStyle
-  transactionSpeedLabel: TextStyle
-  feesContainer: ViewStyle
-  feeContainer: ViewStyle
-  fee: TextStyle
-  feeUsd: TextStyle
-  gasTankContainer: ViewStyle
-  gasTankText: TextStyle
-  // @TODO - once we update react-native to 0.71, then we will have `gap` support and can remove this helper class
-  mr10: {}
 }
 
 const styles = StyleSheet.create<Style>({
@@ -63,49 +51,6 @@ const styles = StyleSheet.create<Style>({
     fontSize: 16,
     fontFamily: FONT_FAMILIES.MEDIUM,
     marginLeft: 12
-  },
-  tokenSelect: {
-    marginBottom: 28
-  },
-  tokenSelectLabel: {
-    fontSize: 16,
-    fontFamily: FONT_FAMILIES.MEDIUM,
-    marginLeft: 12
-  },
-  transactionSpeedContainer: {
-    marginBottom: 34
-  },
-  transactionSpeedLabel: {
-    fontSize: 16,
-    fontFamily: FONT_FAMILIES.MEDIUM,
-    marginLeft: 12,
-    marginBottom: 10
-  },
-  feesContainer: {
-    ...flexbox.directionRow
-  },
-  feeContainer: {
-    ...flexbox.directionRow,
-    ...flexbox.justifySpaceBetween
-  },
-  fee: {
-    fontFamily: FONT_FAMILIES.MEDIUM,
-    fontSize: 16
-  },
-  feeUsd: {
-    color: colors.violet,
-    fontSize: 16
-  },
-  gasTankContainer: {
-    ...flexbox.directionRow,
-    ...flexbox.justifySpaceBetween
-  },
-  gasTankText: {
-    color: colors.greenHaze,
-    fontSize: 14
-  },
-  mr10: {
-    marginRight: 10
   }
 })
 

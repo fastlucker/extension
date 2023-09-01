@@ -91,7 +91,7 @@ const SignAccountOpScreen = () => {
   return isTab ? (
     <SignAccountOpTabScreen onBack={onBack} tokens={mappedTokens} accounts={mappedAccounts} />
   ) : (
-    <SignAccountOpPopupScreen />
+    <SignAccountOpPopupScreen tokens={mappedTokens} />
   )
 }
 

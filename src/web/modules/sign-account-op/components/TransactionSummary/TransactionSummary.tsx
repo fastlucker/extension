@@ -30,10 +30,10 @@ const TransactionSummary = ({ style }: Props) => {
             <DownArrowIcon width={36} height={36} isActive={isExpanded} withRect />
           </NavIconWrapper>
           <View style={styles.headerContent}>
-            <Text weight="semiBold" style={[styles.action, styles.mr5]}>
+            <Text weight="semiBold" style={[styles.action, styles.mr5, styles.text]}>
               {t('Send')}
             </Text>
-            <Text weight="medium" style={styles.mr5}>
+            <Text style={[styles.mr5, styles.text]} weight="medium">
               10000.0
             </Text>
             <Image
@@ -42,13 +42,15 @@ const TransactionSummary = ({ style }: Props) => {
               }}
               style={[styles.tokenImg, styles.mr5]}
             />{' '}
-            <Text weight="medium" style={styles.mr5}>
+            <Text weight="medium" style={[styles.text, styles.mr5]}>
               USDC
             </Text>
-            <Text weight="regular" style={[styles.to, styles.mr5]}>
+            <Text weight="regular" style={[styles.to, styles.mr5, styles.text]}>
               {t('to')}
             </Text>
-            <Text weight="medium">0x5a2fae94BDaa7B30B6049b1f5c9C86C3E4fd212F</Text>
+            <Text style={styles.text} weight="medium">
+              0x5a2fae94BDaa7B30B6049b1f5c9C86C3E4fd212F
+            </Text>
           </View>
           <NavIconWrapper
             hoverBackground={colors.lightViolet}
