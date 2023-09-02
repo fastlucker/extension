@@ -13,6 +13,7 @@ interface Styles {
   navIconContainerRegular: ViewStyle
   content: ViewStyle
   sideContainer: ViewStyle
+  sideContainerRight: ViewStyle
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -43,7 +44,12 @@ const styles = StyleSheet.create<Styles>({
   },
   sideContainer: {
     width: isWeb ? 180 : 120,
-    minWidth: isWeb ? 180 : 120
+    minWidth: isWeb ? 180 : 120,
+    ...flexbox.directionRow,
+    ...flexbox.alignCenter
+  },
+  sideContainerRight: {
+    ...flexbox.justifyEnd
   }
 })
 

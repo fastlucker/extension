@@ -29,12 +29,22 @@ export const HeaderLeft = ({ handleGoBack }: { handleGoBack: () => void }) => {
   )
 }
 
-const TabHeader: React.FC<any> = ({
+interface Props {
+  hideStepper?: boolean
+  pageTitle?: string
+  forceCanGoBack?: boolean
+  image?: string
+  onBack?: () => void
+  rightSideComponent?: React.ReactNode
+}
+
+const TabHeader: React.FC<Props> = ({
   hideStepper = false,
   pageTitle = '',
   forceCanGoBack,
   image,
-  onBack
+  onBack,
+  rightSideComponent
 }) => {
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
@@ -77,7 +87,9 @@ const TabHeader: React.FC<any> = ({
           </Text>
         </View>
       )}
-      <View style={styles.sideContainer} />
+      <View style={[styles.sideContainer, styles.sideContainerRight]}>
+        {rightSideComponent || null}
+      </View>
     </View>
   )
 }
