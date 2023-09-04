@@ -119,6 +119,17 @@ async function init() {
       params: notificationCtrl
     })
   })
+  notificationCtrl.onError(() => {
+    const errors = notificationCtrl.getErrors()
+    const lastError = errors[errors.length - 1]
+    if (lastError) console.error(lastError.error)
+
+    pmRef?.request({
+      type: 'broadcast-error',
+      method: 'notification',
+      params: { errors, controller: 'notification' }
+    })
+  })
   mainCtrl.onError(() => {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
@@ -227,7 +238,11 @@ async function init() {
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
               return mainCtrl.removeUserRequest(data.params.id)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
-              return mainCtrl.signMessage.init(data.params.messageToSign)
+              return mainCtrl.signMessage.init({
+                messageToSign: data.params.messageToSign,
+                accounts: data.params.accounts,
+                accountStates: data.params.accountStates
+              })
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN':

@@ -78,7 +78,9 @@ const SignMessageScreen = () => {
         dispatch({
           type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
           params: {
-            messageToSign: mainState.messagesToBeSigned[mainState.selectedAccount || ''][0]
+            messageToSign: mainState.messagesToBeSigned[mainState.selectedAccount || ''][0],
+            accounts: mainState.accounts,
+            accountStates: mainState.accountStates
           }
         })
       }
@@ -87,6 +89,8 @@ const SignMessageScreen = () => {
     dispatch,
     mainState.messagesToBeSigned,
     mainState.selectedAccount,
+    mainState.accounts,
+    mainState.accountStates,
     signMessageState.messageToSign?.id,
     signMessageState.messageToSign?.accountAddr
   ])

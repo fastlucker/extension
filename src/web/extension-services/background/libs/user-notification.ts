@@ -118,7 +118,8 @@ class UserNotification {
         kind: 'typedMessage',
         types: typedData.types,
         domain: typedData.domain,
-        message: typedData.message
+        message: typedData.message,
+        primaryType: typedData.primaryType
       },
       networkId: network?.id,
       accountAddr: selectedAccount,
