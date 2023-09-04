@@ -119,6 +119,17 @@ async function init() {
       params: notificationCtrl
     })
   })
+  notificationCtrl.onError(() => {
+    const errors = notificationCtrl.getErrors()
+    const lastError = errors[errors.length - 1]
+    if (lastError) console.error(lastError.error)
+
+    pmRef?.request({
+      type: 'broadcast-error',
+      method: 'notification',
+      params: { errors, controller: 'notification' }
+    })
+  })
   mainCtrl.onError(() => {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
