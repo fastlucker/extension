@@ -227,7 +227,11 @@ async function init() {
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
               return mainCtrl.removeUserRequest(data.params.id)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
-              return mainCtrl.signMessage.init(data.params.messageToSign)
+              return mainCtrl.signMessage.init({
+                messageToSign: data.params.messageToSign,
+                accounts: data.params.accounts,
+                accountStates: data.params.accountStates
+              })
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN':

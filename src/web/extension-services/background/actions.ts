@@ -1,5 +1,5 @@
 import { Filters } from 'ambire-common/src/controllers/activity/activity'
-import { Account } from 'ambire-common/src/interfaces/account'
+import { Account, AccountStates } from 'ambire-common/src/interfaces/account'
 import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
 
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
@@ -94,7 +94,7 @@ type MainControllerRemoveUserRequestAction = {
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
-  params: { messageToSign: Message }
+  params: { messageToSign: Message; accounts: Account[]; accountStates: AccountStates }
 }
 type MainControllerSignMessageResetAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET'
