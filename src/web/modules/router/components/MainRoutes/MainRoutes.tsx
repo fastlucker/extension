@@ -25,6 +25,8 @@ import ExternalSignerLoginScreen from '@web/modules/auth/screens/ExternalSignerL
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
 import JsonLoginScreen from '@web/modules/auth/screens/JsonLoginScreen'
 import Terms from '@web/modules/auth/screens/Terms'
+import CollectibleScreen from '@web/modules/collectibles/screens/Collectible'
+import CollectionScreen from '@web/modules/collectibles/screens/Collection'
 import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
@@ -36,9 +38,9 @@ import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
+import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
-import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 
 const headerControls = (
   <>
@@ -100,7 +102,7 @@ const MainRoutes = () => {
               element={<HardwareWalletSelectorScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
-
+            <Route path={WEB_ROUTES.collectible} element={<CollectibleScreen />} />
             <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
             <Route
               path={WEB_ROUTES.hardwareWalletSelect}
@@ -122,6 +124,7 @@ const MainRoutes = () => {
         <Route element={headerTitleWithAmbireLogo}>
           <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
         </Route>
+        <Route path={WEB_ROUTES.collection} element={<CollectionScreen />} />
 
         <Route element={headerTitle}>
           <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />

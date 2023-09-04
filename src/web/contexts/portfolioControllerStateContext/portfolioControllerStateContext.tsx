@@ -1,5 +1,8 @@
 import { PortfolioController } from 'ambire-common/src/controllers/portfolio/portfolio'
-import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
+import {
+  CollectionResult as CollectionResultInterface,
+  TokenResult as TokenResultInterface
+} from 'ambire-common/src/libs/portfolio/interfaces'
 import { formatUnits } from 'ethers'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
@@ -8,17 +11,20 @@ import eventBus from '@web/extension-services/event/eventBus'
 import useIdentityInfo from '@web/hooks/useIdentityInfo'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
+interface AccountPortfolio {
+  tokens: TokenResultInterface[]
+  collections: CollectionResultInterface[]
+  totalAmount: number
+  isAllReady: boolean
+}
 const PortfolioControllerStateContext = createContext<{
-  accountPortfolio: {
-    tokens: TokenResultInterface[]
-    totalAmount: number
-    isAllReady: boolean
-  }
+  accountPortfolio: AccountPortfolio
   state: PortfolioController
   gasTankAndRewardsData: IdentityInfoResponseInterface
 }>({
   accountPortfolio: {
     tokens: [],
+    collections: [],
     totalAmount: 0,
     isAllReady: false
   },
@@ -30,8 +36,9 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const mainCtrl = useMainControllerState()
   const { identityInfo, isIdentityInfoFetching } = useIdentityInfo()
   const [state, setState] = useState({} as PortfolioController)
-  const [accountPortfolio, setAccountPortfolio] = useState({
+  const [accountPortfolio, setAccountPortfolio] = useState<AccountPortfolio>({
     tokens: [],
+    collections: [],
     totalAmount: 0,
     isAllReady: true
   })
@@ -88,7 +95,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     const calculateAccountPortfolio = () => {
-      const updatedTokens: any = []
+      const updatedTokens: TokenResultInterface[] = []
+      const updatedCollections: CollectionResultInterface[] = []
       const updatedTotalAmount = accountPortfolio.totalAmount
       let newTotalAmount: number = gasTankBalance + rewardsBalance
       let allReady = true
@@ -96,6 +104,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       if (!mainCtrl.selectedAccount || !state.latest || !state.latest[mainCtrl.selectedAccount]) {
         setAccountPortfolio({
           tokens: updatedTokens,
+          collections: updatedCollections,
           totalAmount: updatedTotalAmount,
           isAllReady: allReady
         })
@@ -113,12 +122,16 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           newTotalAmount += networkTotal
 
           // Assuming you want to push tokens to updatedTokens array as well
+          const networkCollections = networkData.result.collections || []
           const networkTokens = networkData.result.tokens
+
           updatedTokens.push(...networkTokens)
-          if (networkTokens.length) {
-            setAccountPortfolio((prev) => ({
+          updatedCollections.push(...networkCollections)
+          if (networkTokens.length || networkCollections.length) {
+            setAccountPortfolio((prev: any) => ({
               ...prev,
-              tokens: updatedTokens
+              tokens: updatedTokens,
+              collections: updatedCollections
             }))
           }
         } else if (networkData && networkData.isReady && networkData.isLoading) {

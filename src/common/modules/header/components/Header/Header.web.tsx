@@ -21,6 +21,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import commonWebStyles from '@web/styles/utils/common'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
@@ -177,19 +178,21 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
   // custom components that fully match the design we follow.
   return (
     <View style={[styles.container]}>
-      {mode === 'controls' && renderHeaderControls}
-      {mode === 'title' && (
-        <>
-          <View style={styles.sideContainer}>
-            {!!withBackButton && !!canGoBack && renderBackButton()}
-            {!!withAmbireLogo && <AmbireLogoHorizontal />}
-          </View>
-          <Text fontSize={18} weight="medium" style={styles.title} numberOfLines={2}>
-            {title || ''}
-          </Text>
-          <View style={styles.sideContainer} />
-        </>
-      )}
+      <View style={commonWebStyles.contentContainer}>
+        {mode === 'controls' && renderHeaderControls}
+        {mode === 'title' && (
+          <>
+            <View style={styles.sideContainer}>
+              {!!withBackButton && !!canGoBack && renderBackButton()}
+              {!!withAmbireLogo && <AmbireLogoHorizontal />}
+            </View>
+            <Text fontSize={18} weight="medium" style={styles.title} numberOfLines={2}>
+              {title || ''}
+            </Text>
+            <View style={styles.sideContainer} />
+          </>
+        )}
+      </View>
     </View>
   )
 }
