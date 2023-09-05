@@ -40,6 +40,7 @@ async function init() {
 ;(async () => {
   await init()
   let pmRef: PortMessage
+  let controllersNestedInMainSubscribe: any = null
   let onResoleDappNotificationRequest: (data: any, id?: bigint) => void
   let onRejectDappNotificationRequest: (data: any, id?: bigint) => void
 
@@ -82,27 +83,6 @@ async function init() {
    * Initializing the listeners only once proofs to be more reliable.
    */
 
-  Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
-    // Broadcast onUpdate for nested controllers
-    ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-      pmRef.request({
-        type: 'broadcast',
-        method: ctrl,
-        params: (mainCtrl as any)[ctrl]
-      })
-    })
-    ;(mainCtrl as any)[ctrl]?.onError(() => {
-      const errors = (mainCtrl as any)[ctrl].getErrors()
-      const lastError = errors[errors.length - 1]
-      if (lastError) console.error(lastError.error)
-
-      pmRef.request({
-        type: 'broadcast-error',
-        method: ctrl,
-        params: { errors, controller: ctrl }
-      })
-    })
-  })
   // Broadcast onUpdate for the main controllers
   mainCtrl.onUpdate(() => {
     pmRef?.request({
@@ -110,6 +90,37 @@ async function init() {
       method: 'main',
       params: mainCtrl
     })
+
+    if (!mainCtrl.isReady && controllersNestedInMainSubscribe) {
+      controllersNestedInMainSubscribe = null
+    }
+
+    if (mainCtrl.isReady && !controllersNestedInMainSubscribe) {
+      controllersNestedInMainSubscribe = () => {
+        Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
+          // Broadcast onUpdate for nested controllers
+          ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
+            pmRef.request({
+              type: 'broadcast',
+              method: ctrl,
+              params: (mainCtrl as any)[ctrl]
+            })
+          })
+          ;(mainCtrl as any)[ctrl]?.onError(() => {
+            const errors = (mainCtrl as any)[ctrl].getErrors()
+            const lastError = errors[errors.length - 1]
+            if (lastError) console.error(lastError.error)
+
+            pmRef.request({
+              type: 'broadcast-error',
+              method: ctrl,
+              params: { errors, controller: ctrl }
+            })
+          })
+        })
+      }
+      controllersNestedInMainSubscribe()
+    }
   })
   // Broadcast onUpdate for the notification controllers
   notificationCtrl.onUpdate(() => {
@@ -401,6 +412,9 @@ async function init() {
       return provider({ ...req, mainCtrl, notificationCtrl })
     })
   })
+  setInterval(() => {
+    console.log(mainCtrl.signMessage)
+  }, 6000)
 })()
 
 // On first install, open Ambire Extension in a new tab to start the login process
