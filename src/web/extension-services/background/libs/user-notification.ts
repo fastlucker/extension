@@ -45,7 +45,7 @@ class UserNotification {
       added: BigInt(Date.now()),
       action: {
         kind: 'message',
-        message: msg
+        message: msg[0]
       },
       networkId: network?.id,
       accountAddr: selectedAccount,
@@ -118,7 +118,8 @@ class UserNotification {
         kind: 'typedMessage',
         types: typedData.types,
         domain: typedData.domain,
-        message: typedData.message
+        message: typedData.message,
+        primaryType: typedData.primaryType
       },
       networkId: network?.id,
       accountAddr: selectedAccount,

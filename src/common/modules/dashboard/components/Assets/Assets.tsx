@@ -1,35 +1,41 @@
-import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
-import React, { useContext } from 'react'
-import { View } from 'react-native'
+import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
+import React from 'react'
+import { ScrollView, View, ViewStyle } from 'react-native'
 
 import AfterInteractions from '@common/components/AfterInteractions'
-import { AssetsToggleContext } from '@common/modules/dashboard/contexts/assetsToggleContext'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
+import Collections from '../Collections'
 import Tokens from '../Tokens'
 
-// TODO props
 interface Props {
-  tokens: any[] | TokenResultInterface[]
+  openTab: 'tokens' | 'collectibles'
+  tokens: TokenResult[]
 }
 
-const Assets = ({ tokens }: Props) => {
-  const { type } = useContext(AssetsToggleContext)
+// We do this instead of unmounting the component to prevent
+// component rerendering when switching tabs.
+const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0 }
+const VISIBLE_STYLE: ViewStyle = { flex: 1, ...spacings.phTy, ...spacings.mt }
 
+const Assets = ({ tokens, openTab }: Props) => {
   return (
     <View
       style={{
         ...flexbox.flex1,
-        ...spacings.ph,
-        ...spacings.pv,
+        ...spacings.phTy,
         backgroundColor: colors.zircon,
         borderTopRightRadius: 12,
         borderTopLeftRadius: 12
       }}
     >
-      {type === 'tokens' && (
+      <ScrollView
+        pointerEvents={openTab !== 'tokens' ? 'none' : 'auto'}
+        style={openTab !== 'tokens' ? HIDDEN_STYLE : VISIBLE_STYLE}
+        contentContainerStyle={spacings.mb}
+      >
         <AfterInteractions
         /**
          * TODO: Implementation on AfterInteractions
@@ -39,10 +45,14 @@ const Assets = ({ tokens }: Props) => {
         >
           <Tokens tokens={tokens} />
         </AfterInteractions>
-      )}
-      {/* {type === 'collectibles' && (
-       TODO: Collectibles
-      )} */}
+      </ScrollView>
+      <ScrollView
+        pointerEvents={openTab !== 'collectibles' ? 'none' : 'auto'}
+        style={openTab !== 'collectibles' ? HIDDEN_STYLE : VISIBLE_STYLE}
+        contentContainerStyle={spacings.mb}
+      >
+        <Collections />
+      </ScrollView>
     </View>
   )
 }

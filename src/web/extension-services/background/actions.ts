@@ -1,4 +1,5 @@
-import { Account } from 'ambire-common/src/interfaces/account'
+import { Filters } from 'ambire-common/src/controllers/activity/activity'
+import { Account, AccountStates } from 'ambire-common/src/interfaces/account'
 import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
 
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
@@ -93,10 +94,28 @@ type MainControllerRemoveUserRequestAction = {
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
-  params: { messageToSign: Message }
+  params: { messageToSign: Message; accounts: Account[]; accountStates: AccountStates }
 }
 type MainControllerSignMessageResetAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET'
+}
+type MainControllerSignMessageSignAction = {
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'
+}
+type MainControllerSignMessageSetSignKeyAction = {
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY'
+  params: { key: string }
+}
+type MainControllerBroadcastSignedMessageAction = {
+  type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE'
+  params: { signedMessage: Message }
+}
+type MainControllerActivityInitAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
+  params: { filters: Filters }
+}
+type MainControllerActivityResetAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
 }
 
 type NotificationControllerResolveRequestAction = {
@@ -200,6 +219,11 @@ export type Action =
   | MainControllerRemoveUserRequestAction
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
+  | MainControllerSignMessageSignAction
+  | MainControllerSignMessageSetSignKeyAction
+  | MainControllerBroadcastSignedMessageAction
+  | MainControllerActivityInitAction
+  | MainControllerActivityResetAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction

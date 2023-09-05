@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
@@ -16,6 +17,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
   const signMessageState = useSignMessageControllerState()
   const notificationState = useNotificationControllerState()
+  const activityState = useActivityControllerState()
   const { state: portfolioState } = usePortfolioControllerState()
 
   useEffect(() => {
@@ -29,7 +31,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       !Object.keys(keystoreState).length &&
       !Object.keys(signMessageState).length &&
       !Object.keys(notificationState).length &&
-      !Object.keys(portfolioState).length
+      !Object.keys(portfolioState).length &&
+      !Object.keys(activityState).length
     ) {
       setIsStateLoaded(true)
     }

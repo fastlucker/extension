@@ -1,23 +1,37 @@
 import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 
+import Banners from '@common/components/Banners'
+import Search from '@common/components/Search'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
-import { AssetsToggleProvider } from '@common/modules/dashboard/contexts/assetsToggleContext'
+import { BANNER_TOPICS } from '@common/contexts/bannerContext/bannerContext'
+import useRoute from '@common/hooks/useRoute'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 import Assets from '../components/Assets'
 import Routes from '../components/Routes'
+import Tabs from '../components/Tabs'
 import styles from './styles'
 
+const isTab = getUiType().isTab
+
 const DashboardScreen = () => {
+  const route = useRoute()
+
+  const [openTab, setOpenTab] = useState(() => {
+    const params = new URLSearchParams(route?.search)
+
+    return (params.get('tab') as 'tokens' | 'collectibles') || 'tokens'
+  })
+
   const {
     accountPortfolio,
     gasTankAndRewardsData: { rewards, gasTank }
@@ -74,40 +88,67 @@ const DashboardScreen = () => {
   ]
 
   return (
-    <Wrapper contentContainerStyle={[spacings.pv0, spacings.ph0]} style={styles.container}>
-      <View
-        style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.phSm, spacings.pvSm]}
-      >
-        <View>
-          <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={16}>
-            {t('Balance')}
-          </Text>
-          <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-            {accountPortfolio.isAllReady ? (
-              <>
-                <Text fontSize={30} shouldScale={false} style={{ lineHeight: 34 }} weight="regular">
-                  ${' '}
-                  {Number(accountPortfolio.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
-                    'en-US'
-                  )}
-                </Text>
-                <Text fontSize={20} shouldScale={false} weight="regular">
-                  .{Number(accountPortfolio.totalAmount.toFixed(2).split('.')[1])}
-                </Text>
-              </>
-            ) : (
-              <Spinner style={{ width: 25, height: 25 }} />
-            )}
+    <View style={styles.container}>
+      <View style={spacings.ph}>
+        <View style={[styles.contentContainer]}>
+          <View style={styles.overview}>
+            <View>
+              <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={16}>
+                {t('Balance')}
+              </Text>
+              <View style={[flexbox.directionRow, flexbox.alignEnd]}>
+                {accountPortfolio.isAllReady ? (
+                  <>
+                    <Text
+                      fontSize={30}
+                      shouldScale={false}
+                      style={{ lineHeight: 34 }}
+                      weight="regular"
+                    >
+                      ${' '}
+                      {Number(accountPortfolio.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
+                        'en-US'
+                      )}
+                    </Text>
+                    <Text fontSize={20} shouldScale={false} weight="regular">
+                      .{Number(accountPortfolio.totalAmount.toFixed(2).split('.')[1])}
+                    </Text>
+                  </>
+                ) : (
+                  <Spinner style={{ width: 25, height: 25 }} />
+                )}
+              </View>
+            </View>
+            <Routes />
+          </View>
+
+          <View style={styles.banners}>
+            <Banners
+              topics={[
+                BANNER_TOPICS.TRANSACTION,
+                BANNER_TOPICS.ANNOUNCEMENT,
+                BANNER_TOPICS.WARNING
+              ]}
+            />
           </View>
         </View>
-        <Routes />
+        <View
+          style={[
+            styles.contentContainer,
+            isTab ? spacings.ph : {},
+            flexbox.flex1,
+            flexbox.directionRow,
+            flexbox.justifySpaceBetween
+          ]}
+        >
+          <Tabs setOpenTab={setOpenTab} openTab={openTab} />
+          <Search />
+        </View>
       </View>
-      <View style={[flexbox.flex1]}>
-        <AssetsToggleProvider>
-          <Assets tokens={tokens} />
-        </AssetsToggleProvider>
+      <View style={[styles.contentContainer, { flex: 1 }]}>
+        <Assets openTab={openTab} tokens={tokens} />
       </View>
-    </Wrapper>
+    </View>
   )
 }
 

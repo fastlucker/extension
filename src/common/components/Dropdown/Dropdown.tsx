@@ -15,11 +15,11 @@ interface Props {
 const Dropdown: FC<Props> = ({ data, onSelect }) => {
   const DropdownButton: any = useRef()
   const [visible, setVisible] = useState(false)
-  const [dropdownTop, setDropdownTop] = useState(0)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
 
   const openDropdown = (): void => {
     DropdownButton.current.measure((_fx, _fy, _w, h, _px, py) => {
-      setDropdownTop(py + h)
+      setPosition({ x: _px - _w * 2, y: py + h })
     })
     setVisible(true)
   }
@@ -55,9 +55,9 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
 
   const renderDropdown = (): ReactElement<any, any> => {
     return (
-      <Modal visible={visible && !!dropdownTop} transparent animationType="none">
+      <Modal visible={visible && !!position.y} transparent animationType="none">
         <TouchableOpacity style={styles.overlay} onPress={() => setVisible(false)}>
-          <View style={[styles.dropdown, { top: dropdownTop, right: 30 }]}>
+          <View style={[styles.dropdown, { top: position.y, left: position.x }]}>
             <FlatList
               data={data}
               renderItem={renderItem}
