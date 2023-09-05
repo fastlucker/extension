@@ -107,7 +107,7 @@ const ExternalSignerLoginScreen = () => {
             {t('Import Legacy Account')}
           </Text>
 
-          <View>
+          <View style={spacings.mb}>
             <Text
               style={[styles.error, { opacity: errors.privKeyOrSeed ? 1 : 0 }]}
               color={colors.radicalRed}
@@ -140,12 +140,6 @@ const ExternalSignerLoginScreen = () => {
             />
           </View>
 
-          <Text shouldScale={false} fontSize={12} style={[spacings.mbLg]} color={colors.brownRum}>
-            Legacy Account found {'  '}{' '}
-            <Text shouldScale={false} fontSize={14} color={colors.brownRum} weight="semiBold">
-              0x603f453E4...5a245fB3D34Df
-            </Text>
-          </Text>
           <View style={styles.errorAndLabel}>
             <Text
               style={[spacings.plTy, spacings.mbTy]}
