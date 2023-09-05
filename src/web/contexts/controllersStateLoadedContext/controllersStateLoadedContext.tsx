@@ -42,7 +42,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     keystoreState,
     signMessageState,
     notificationState,
-    portfolioState
+    portfolioState,
+    activityState
   ])
 
   return (

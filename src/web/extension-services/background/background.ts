@@ -61,6 +61,10 @@ async function init() {
     },
     onRejectDappRequest: (err, id) => {
       !!onRejectDappNotificationRequest && onRejectDappNotificationRequest(err, id)
+    },
+    onUpdateDappSelectedAccount: (accountAddr) => {
+      const account = accountAddr ? [accountAddr] : []
+      return sessionService.broadcastEvent('accountsChanged', account)
     }
   })
   const ledgerCtrl = new LedgerController()
@@ -412,9 +416,6 @@ async function init() {
       return provider({ ...req, mainCtrl, notificationCtrl })
     })
   })
-  setInterval(() => {
-    console.log(mainCtrl.signMessage)
-  }, 6000)
 })()
 
 // On first install, open Ambire Extension in a new tab to start the login process

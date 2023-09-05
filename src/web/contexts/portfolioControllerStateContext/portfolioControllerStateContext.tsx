@@ -8,6 +8,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import { IdentityInfoResponse as IdentityInfoResponseInterface } from '@web/contexts/identityInfoContext'
 import eventBus from '@web/extension-services/event/eventBus'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useIdentityInfo from '@web/hooks/useIdentityInfo'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
@@ -28,11 +29,12 @@ const PortfolioControllerStateContext = createContext<{
     totalAmount: 0,
     isAllReady: false
   },
-  state: {},
-  gasTankAndRewardsData: {}
+  state: {} as any,
+  gasTankAndRewardsData: {} as any
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
+  const { dispatch } = useBackgroundService()
   const mainCtrl = useMainControllerState()
   const { identityInfo, isIdentityInfoFetching } = useIdentityInfo()
   const [state, setState] = useState({} as PortfolioController)
@@ -42,6 +44,15 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     totalAmount: 0,
     isAllReady: true
   })
+
+  useEffect(() => {
+    if (mainCtrl.isReady && !Object.keys(state).length) {
+      dispatch({
+        type: 'INIT_CONTROLLER_STATE',
+        params: { controller: 'portfolio' }
+      })
+    }
+  }, [dispatch, mainCtrl.isReady, state])
 
   // Calculate Gas Tank Balance Sum
   const gasTankBalance = useMemo(() => {
@@ -154,7 +165,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     state,
     isIdentityInfoFetching,
     gasTankBalance,
-    accountPortfolio.totalAmount
+    accountPortfolio.totalAmount,
+    rewardsBalance
   ])
 
   useEffect(() => {
