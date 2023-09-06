@@ -350,14 +350,6 @@ async function init() {
               break
             }
 
-            case 'BROADCAST_ACCOUNT_CHANGE': {
-              // TODO: changing the selected account will happen in the background
-              // service therefore this should be changed to use the mainCtrl.selectedAccount
-              // and moved to a better place
-              const account = data.params.selectedAcc ? [data.params.selectedAcc] : []
-              return sessionService.broadcastEvent('accountsChanged', account)
-            }
-
             default:
               return console.error(
                 `Dispatched ${data?.type} action, but handler in the extension background process not found!`

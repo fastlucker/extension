@@ -198,11 +198,6 @@ type NotificationControllerOpenFirstNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_OPEN_FIRST_NOTIFICATION_REQUEST'
 }
 
-type WalletControllerAccountChangeAction = {
-  type: 'BROADCAST_ACCOUNT_CHANGE'
-  params: { selectedAcc: Account['addr'] }
-}
-
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -245,7 +240,6 @@ export type Action =
   | WalletControllerRemoveConnectedSiteAction
   | WalletControllerGetConnectedSitesAction
   | NotificationControllerOpenFirstNotificationRequestAction
-  | WalletControllerAccountChangeAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant
