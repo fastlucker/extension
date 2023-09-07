@@ -2,6 +2,7 @@ import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from 'ambire-common/src/libs/keystoreSigner/keystoreSigner'
+import { calculateAccountPortfolio } from 'ambire-common/src/libs/portfolio/portfolioView'
 
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
@@ -104,7 +105,7 @@ async function init() {
         Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
           // Broadcast onUpdate for nested controllers
           ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-            pmRef.request({
+            pmRef?.request({
               type: 'broadcast',
               method: ctrl,
               params: (mainCtrl as any)[ctrl]
@@ -125,7 +126,12 @@ async function init() {
       }
       controllersNestedInMainSubscribe()
     }
+
+    if (mainCtrl.isReady && controllersNestedInMainSubscribe && mainCtrl.selectedAccount) {
+      fetchPortfolioData()
+    }
   })
+
   // Broadcast onUpdate for the notification controllers
   notificationCtrl.onUpdate(() => {
     pmRef?.request({
@@ -160,11 +166,27 @@ async function init() {
   let numberOfOpenedWindows = 0
 
   const fetchPortfolioData = async () => {
+    console.log(mainCtrl)
     if (!mainCtrl.selectedAccount) return
     const data = await mainCtrl.portfolio.getAdditionalPortfolio(mainCtrl.selectedAccount)
     storage.set('additionalPortfolio', data)
     return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
   }
+
+  mainCtrl.portfolio.onUpdate(async () => {
+    storage.set('portfolio', mainCtrl.portfolio)
+    const additionalPortfolio = await storage.get('additionalPortfolio', {})
+    const accountPortfolio = await storage.get('accountPortfolio', {})
+
+    const newAccPortfolio = await calculateAccountPortfolio(
+      mainCtrl.selectedAccount,
+      mainCtrl.portfolio,
+      accountPortfolio,
+      additionalPortfolio
+    )
+
+    storage.set('accountPortfolio', newAccPortfolio)
+  })
 
   fetchPortfolioData()
 
