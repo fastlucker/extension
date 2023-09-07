@@ -131,43 +131,31 @@ async function init() {
     })
   })
 
-  let isExtensionOpen = false
+  let numberOfOpenedWindows = 0
 
-  const fetchData = async () => {
-    // const data = await mainCtrl.portfolio.getAdditionalPortfolio(mainCtrl.selectedAccount)
-    // console.log(data)
-    // storage.set('additionalPortfolio', data)
-    // TODO: Get port message on popup closed in order to send a request to dispatch
-    console.log(pmRef)
-    pmRef?.request({
-      type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
-    })
+  const fetchPortfolioData = async () => {
+    if (!mainCtrl.selectedAccount) return
+    const data = await mainCtrl.portfolio.getAdditionalPortfolio(mainCtrl.selectedAccount)
+    storage.set('additionalPortfolio', data)
+    return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
   }
 
-  function updateFetchInterval() {
-    // Clear any existing interval
-    clearInterval(fetchInterval)
+  fetchPortfolioData()
 
-    // Set the fetch interval based on whether the popup is open or closed
-    if (isExtensionOpen) {
-      // If the popup is open, fetch data every 1 minute (60,000 milliseconds)
-      fetchInterval = setInterval(fetchData, 60000)
-    } else {
-      // If the popup is closed, fetch data every 10 minutes (600,000 milliseconds)
-      fetchInterval = setInterval(fetchData, 60000)
-    }
-  }
-  // TODO: Add this interval on load as well, but fetch if data is not existing.
-  let fetchInterval = setInterval(fetchData, 60000)
-  console.log(isExtensionOpen, fetchInterval)
+  setInterval(() => fetchPortfolioData(), numberOfOpenedWindows ? 60000 : 600000)
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
       const pm = new PortMessage(port)
       pmRef = pm
-      isExtensionOpen = true
-      updateFetchInterval()
+
+      numberOfOpenedWindows++
+
+      port.onDisconnect.addListener(() => {
+        if (numberOfOpenedWindows > 0) numberOfOpenedWindows--
+      })
+
       pm.listen(async (data: Action) => {
         if (data?.type) {
           switch (data.type) {
@@ -375,10 +363,6 @@ async function init() {
         })
       }
 
-      if (port.name === 'tab' || port.name === 'notification' || port.name === 'popup') {
-        isExtensionOpen = false
-        updateFetchInterval()
-      }
       if (port.name === 'tab' || port.name === 'notification') {
         port.onDisconnect.addListener(() => {
           ledgerCtrl.cleanUp()
