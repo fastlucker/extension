@@ -13,6 +13,7 @@ import networks from '@common/constants/networks'
 import usePrevious from '@common/hooks/usePrevious'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
@@ -33,6 +34,7 @@ const SignMessageScreen = () => {
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
   const mainState = useMainControllerState()
+  const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
   const { currentDappNotificationRequest } = useNotificationControllerState()
 
@@ -41,6 +43,7 @@ const SignMessageScreen = () => {
 
   // TODO: Remove these when ready
   console.log('signMessageState: ', signMessageState)
+  console.log('activityState', activityState)
   console.log('mainState', mainState)
 
   useEffect(() => {
@@ -78,7 +81,9 @@ const SignMessageScreen = () => {
         dispatch({
           type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
           params: {
-            messageToSign: mainState.messagesToBeSigned[mainState.selectedAccount || ''][0]
+            messageToSign: mainState.messagesToBeSigned[mainState.selectedAccount || ''][0],
+            accounts: mainState.accounts,
+            accountStates: mainState.accountStates
           }
         })
       }
@@ -87,6 +92,8 @@ const SignMessageScreen = () => {
     dispatch,
     mainState.messagesToBeSigned,
     mainState.selectedAccount,
+    mainState.accounts,
+    mainState.accountStates,
     signMessageState.messageToSign?.id,
     signMessageState.messageToSign?.accountAddr
   ])
