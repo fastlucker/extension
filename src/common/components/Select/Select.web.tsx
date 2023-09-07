@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
+import { Image, Pressable, TextStyle, View, ViewStyle } from 'react-native'
 import Select, { components, DropdownIndicatorProps, OptionProps } from 'react-select'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -71,11 +71,11 @@ const SelectComponent = ({
   const IconOption = (props: OptionProps) => (
     <components.Option {...props}>
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {!!props.data.icon && typeof props.data.icon === 'function' && (
+        {!!props.data.icon && typeof props.data.icon === 'object' && (
           <View style={styles.optionIcon}>{props.data.icon}</View>
         )}
         {!!props.data.icon && typeof props.data.icon === 'string' && (
-          <img src={props.data.icon} style={styles.optionIcon} />
+          <Image source={props.data.icon} style={styles.optionIcon} />
         )}
         {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
         {typeof props.data.label === 'string' ? (
@@ -90,11 +90,11 @@ const SelectComponent = ({
   const SingleValueIconOption = (props: SingleValueProps) => (
     <components.SingleValue {...props}>
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {!!props.data.icon && typeof props.data.icon === 'function' && (
+        {!!props.data.icon && typeof props.data.icon === 'object' && (
           <View style={styles.optionIcon}>{props.data.icon}</View>
         )}
         {!!props.data.icon && typeof props.data.icon === 'string' && (
-          <img src={props.data.icon} style={styles.optionIcon} />
+          <Image source={props.data.icon} style={styles.optionIcon} />
         )}
         {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
         {typeof props.data.label === 'string' ? (
