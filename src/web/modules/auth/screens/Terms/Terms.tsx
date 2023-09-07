@@ -76,7 +76,7 @@ const Terms = () => {
 
   return (
     <TabLayoutWrapperMainContent width="mid">
-      <View style={{ maxWidth: 620, ...flexboxStyles.alignSelfCenter }}>
+      <View style={[flexboxStyles.alignSelfCenter, { maxWidth: 620 }]}>
         <View style={[flexboxStyles.alignCenter]}>
           <AmbireLogo style={styles.logo} />
           <Text fontSize={32} weight="regular" style={[{ textAlign: 'center' }, spacings.mbXl]}>
@@ -135,9 +135,8 @@ const Terms = () => {
           disabled={!isChecked}
           type="primary"
           textStyle={{ fontSize: 14 }}
-          style={{ width: 296, ...flexboxStyles.alignSelfCenter }}
+          style={{ width: 296, ...flexboxStyles.alignSelfCenter, marginBottom: SPACING_LG * 2 }}
           text={t('Continue')}
-          hasBottomSpacing={false}
           onPress={handleAcceptTerms}
         />
       </View>

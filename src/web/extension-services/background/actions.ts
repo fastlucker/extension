@@ -1,5 +1,5 @@
 import { Filters } from 'ambire-common/src/controllers/activity/activity'
-import { Account } from 'ambire-common/src/interfaces/account'
+import { Account, AccountStates } from 'ambire-common/src/interfaces/account'
 import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
 
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
@@ -94,7 +94,7 @@ type MainControllerRemoveUserRequestAction = {
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
-  params: { messageToSign: Message }
+  params: { messageToSign: Message; accounts: Account[]; accountStates: AccountStates }
 }
 type MainControllerSignMessageResetAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET'
@@ -198,11 +198,6 @@ type NotificationControllerOpenFirstNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_OPEN_FIRST_NOTIFICATION_REQUEST'
 }
 
-type WalletControllerAccountChangeAction = {
-  type: 'BROADCAST_ACCOUNT_CHANGE'
-  params: { selectedAcc: Account['addr'] }
-}
-
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -245,7 +240,6 @@ export type Action =
   | WalletControllerRemoveConnectedSiteAction
   | WalletControllerGetConnectedSitesAction
   | NotificationControllerOpenFirstNotificationRequestAction
-  | WalletControllerAccountChangeAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant

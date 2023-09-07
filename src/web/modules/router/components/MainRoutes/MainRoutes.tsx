@@ -117,10 +117,10 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
 
             <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
-            <Route path={WEB_ROUTES.sign} element={<SignAccountOpScreen />} />
           </Route>
         </Route>
 
+        <Route path={WEB_ROUTES.signAccountOp} element={<SignAccountOpScreen />} />
         <Route element={headerTitleWithAmbireLogo}>
           <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
         </Route>

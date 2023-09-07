@@ -1,20 +1,12 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
+import colors from '@common/styles/colors'
+import spacings, { SPACING_MD, SPACING_SM, SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import spacings from '@common/styles/spacings'
+import { getUiType } from '@web/utils/uiType'
 
 interface Style {
-  container: ViewStyle
-  transactionsContainer: ViewStyle
-  transactionsHeading: ViewStyle
-  transactionsScrollView: ViewStyle
-  separator: ViewStyle
-  estimationContainer: ViewStyle
-  estimationHeading: ViewStyle
-  accountSelect: ViewStyle
-  accountSelectLabel: ViewStyle
   tokenSelect: ViewStyle
   tokenSelectLabel: ViewStyle
   transactionSpeedContainer: ViewStyle
@@ -29,57 +21,25 @@ interface Style {
   mr10: {}
 }
 
+const isTab = getUiType().isTab
+
 const styles = StyleSheet.create<Style>({
-  container: {
-    ...flexbox.flex1,
-    ...flexbox.directionRow
-  },
-  transactionsContainer: {
-    flexBasis: '60%',
-    height: '100%'
-  },
-  transactionsHeading: {
-    marginBottom: 40
-  },
-  transactionsScrollView: {
-    height: '100%',
-    paddingRight: 22
-  },
-  separator: {
-    width: 1,
-    marginHorizontal: 35,
-    backgroundColor: colors.chetwode_50
-  },
-  estimationContainer: {
-    ...flexbox.flex1
-  },
-  estimationHeading: {
-    marginBottom: 20
-  },
-  accountSelect: {
-    ...spacings.mb
-  },
-  accountSelectLabel: {
-    fontSize: 16,
-    fontFamily: FONT_FAMILIES.MEDIUM,
-    marginLeft: 12
-  },
   tokenSelect: {
-    marginBottom: 28
+    marginBottom: isTab ? SPACING_MD : SPACING_SM
   },
   tokenSelectLabel: {
     fontSize: 16,
     fontFamily: FONT_FAMILIES.MEDIUM,
-    marginLeft: 12
+    ...spacings.mlSm
   },
   transactionSpeedContainer: {
-    marginBottom: 34
+    marginBottom: isTab ? SPACING_XL : SPACING_SM
   },
   transactionSpeedLabel: {
     fontSize: 16,
     fontFamily: FONT_FAMILIES.MEDIUM,
-    marginLeft: 12,
-    marginBottom: 10
+    ...spacings.mlSm,
+    ...spacings.mbTy
   },
   feesContainer: {
     ...flexbox.directionRow
@@ -94,7 +54,7 @@ const styles = StyleSheet.create<Style>({
   },
   feeUsd: {
     color: colors.violet,
-    fontSize: 16
+    fontSize: isTab ? 16 : 14
   },
   gasTankContainer: {
     ...flexbox.directionRow,
@@ -102,11 +62,9 @@ const styles = StyleSheet.create<Style>({
   },
   gasTankText: {
     color: colors.greenHaze,
-    fontSize: 14
+    fontSize: isTab ? 14 : 12
   },
-  mr10: {
-    marginRight: 10
-  }
+  mr10: spacings.mrTy
 })
 
 export default styles

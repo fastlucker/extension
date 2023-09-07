@@ -40,6 +40,7 @@ async function init() {
 ;(async () => {
   await init()
   let pmRef: PortMessage
+  let controllersNestedInMainSubscribe: any = null
   let onResoleDappNotificationRequest: (data: any, id?: bigint) => void
   let onRejectDappNotificationRequest: (data: any, id?: bigint) => void
 
@@ -60,6 +61,10 @@ async function init() {
     },
     onRejectDappRequest: (err, id) => {
       !!onRejectDappNotificationRequest && onRejectDappNotificationRequest(err, id)
+    },
+    onUpdateDappSelectedAccount: (accountAddr) => {
+      const account = accountAddr ? [accountAddr] : []
+      return sessionService.broadcastEvent('accountsChanged', account)
     }
   })
   const ledgerCtrl = new LedgerController()
@@ -82,27 +87,6 @@ async function init() {
    * Initializing the listeners only once proofs to be more reliable.
    */
 
-  Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
-    // Broadcast onUpdate for nested controllers
-    ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-      pmRef.request({
-        type: 'broadcast',
-        method: ctrl,
-        params: (mainCtrl as any)[ctrl]
-      })
-    })
-    ;(mainCtrl as any)[ctrl]?.onError(() => {
-      const errors = (mainCtrl as any)[ctrl].getErrors()
-      const lastError = errors[errors.length - 1]
-      if (lastError) console.error(lastError.error)
-
-      pmRef.request({
-        type: 'broadcast-error',
-        method: ctrl,
-        params: { errors, controller: ctrl }
-      })
-    })
-  })
   // Broadcast onUpdate for the main controllers
   mainCtrl.onUpdate(() => {
     pmRef?.request({
@@ -110,6 +94,37 @@ async function init() {
       method: 'main',
       params: mainCtrl
     })
+
+    if (!mainCtrl.isReady && controllersNestedInMainSubscribe) {
+      controllersNestedInMainSubscribe = null
+    }
+
+    if (mainCtrl.isReady && !controllersNestedInMainSubscribe) {
+      controllersNestedInMainSubscribe = () => {
+        Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
+          // Broadcast onUpdate for nested controllers
+          ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
+            pmRef.request({
+              type: 'broadcast',
+              method: ctrl,
+              params: (mainCtrl as any)[ctrl]
+            })
+          })
+          ;(mainCtrl as any)[ctrl]?.onError(() => {
+            const errors = (mainCtrl as any)[ctrl].getErrors()
+            const lastError = errors[errors.length - 1]
+            if (lastError) console.error(lastError.error)
+
+            pmRef.request({
+              type: 'broadcast-error',
+              method: ctrl,
+              params: { errors, controller: ctrl }
+            })
+          })
+        })
+      }
+      controllersNestedInMainSubscribe()
+    }
   })
   // Broadcast onUpdate for the notification controllers
   notificationCtrl.onUpdate(() => {
@@ -117,6 +132,17 @@ async function init() {
       type: 'broadcast',
       method: 'notification',
       params: notificationCtrl
+    })
+  })
+  notificationCtrl.onError(() => {
+    const errors = notificationCtrl.getErrors()
+    const lastError = errors[errors.length - 1]
+    if (lastError) console.error(lastError.error)
+
+    pmRef?.request({
+      type: 'broadcast-error',
+      method: 'notification',
+      params: { errors, controller: 'notification' }
     })
   })
   mainCtrl.onError(() => {
@@ -246,7 +272,11 @@ async function init() {
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
               return mainCtrl.removeUserRequest(data.params.id)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
-              return mainCtrl.signMessage.init(data.params.messageToSign)
+              return mainCtrl.signMessage.init({
+                messageToSign: data.params.messageToSign,
+                accounts: data.params.accounts,
+                accountStates: data.params.accountStates
+              })
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN':
@@ -337,14 +367,6 @@ async function init() {
               sessionService.broadcastEvent('accountsChanged', [], data.params.origin)
               permissionService.removeConnectedSite(data.params.origin)
               break
-            }
-
-            case 'BROADCAST_ACCOUNT_CHANGE': {
-              // TODO: changing the selected account will happen in the background
-              // service therefore this should be changed to use the mainCtrl.selectedAccount
-              // and moved to a better place
-              const account = data.params.selectedAcc ? [data.params.selectedAcc] : []
-              return sessionService.broadcastEvent('accountsChanged', account)
             }
 
             default:

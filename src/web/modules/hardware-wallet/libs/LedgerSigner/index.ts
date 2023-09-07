@@ -1,3 +1,3 @@
-import LedgerSigner from './ledgerSigner'
+import LedgerSigner from '../ledgerSigner/ledgerSigner'
 
 export default LedgerSigner
