@@ -120,7 +120,7 @@ const MainRoutes = () => {
           </Route>
         </Route>
 
-        <Route path={WEB_ROUTES.sign} element={<SignAccountOpScreen />} />
+        <Route path={WEB_ROUTES.signAccountOp} element={<SignAccountOpScreen />} />
         <Route element={headerTitleWithAmbireLogo}>
           <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
         </Route>

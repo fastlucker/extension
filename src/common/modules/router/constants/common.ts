@@ -14,7 +14,7 @@ const COMMON_ROUTES = {
   collectible: 'collectible',
   earn: 'earn',
   transfer: 'transfer',
-  sign: 'sign',
+  signAccountOp: 'sign-account-op',
   transactions: 'transactions',
   gasTank: 'gas-tank',
   pendingTransactions: 'pending-transactions',

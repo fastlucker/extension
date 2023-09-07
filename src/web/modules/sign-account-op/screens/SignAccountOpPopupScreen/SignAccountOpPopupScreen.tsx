@@ -34,7 +34,7 @@ const SignAccountOpPopupScreen: FC<Props> = ({ tokens }) => {
         pageTitle="Sign Transaction"
         rightSideComponent={
           // We need to think of a way to transfer the current progress to the tab screen.
-          <Pressable onPress={() => openInternalPageInTab(ROUTES.sign)}>
+          <Pressable onPress={() => openInternalPageInTab(ROUTES.signAccountOp)}>
             <MaximizeIcon width={24} height={24} />
           </Pressable>
         }
