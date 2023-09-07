@@ -2,6 +2,7 @@ import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
 import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
 interface Style {
   container: ViewStyle
@@ -12,9 +13,12 @@ interface Style {
   to: TextStyle
   body: ViewStyle
   bodyText: TextStyle
+  text: TextStyle
   // @TODO - once we update react-native to 0.71, then we will have `gap` support and can remove this helper class
   mr5: {}
 }
+
+const { isTab } = getUiType()
 
 const styles = StyleSheet.create<Style>({
   container: {
@@ -35,7 +39,11 @@ const styles = StyleSheet.create<Style>({
     ...flexbox.flex1,
     ...flexbox.directionRow,
     ...flexbox.alignCenter,
+    ...flexbox.wrap,
     marginHorizontal: 10
+  },
+  text: {
+    fontSize: isTab ? 16 : 14
   },
   mr5: {
     marginRight: 5
@@ -44,8 +52,8 @@ const styles = StyleSheet.create<Style>({
     color: colors.greenHaze
   },
   tokenImg: {
-    width: 24,
-    height: 24
+    width: isTab ? 24 : 18,
+    height: isTab ? 24 : 18
   },
   to: {
     color: colors.martinique_65
@@ -54,7 +62,7 @@ const styles = StyleSheet.create<Style>({
     padding: 10
   },
   bodyText: {
-    marginBottom: 25,
+    marginBottom: isTab ? 25 : 5,
     color: colors.martinique
   }
 })

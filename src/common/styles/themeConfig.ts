@@ -89,7 +89,7 @@ export const lightOnlyRoutesOnWeb = [
   WEB_ROUTES.dashboard,
   WEB_ROUTES.signMessage,
   WEB_ROUTES.transfer,
-  WEB_ROUTES.sign
+  WEB_ROUTES.signAccountOp
 ]
 
 export default ThemeColors

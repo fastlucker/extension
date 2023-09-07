@@ -10,6 +10,7 @@ interface Props {
   onPress: () => any
   hoverBackground?: ColorValue
   hoverColor?: ColorValue
+  hoverBorderColor?: ColorValue
   style?: ViewStyle
   width?: number
   height?: number
@@ -23,6 +24,7 @@ const NavIconWrapper = ({
   hoverColor,
   width = 40,
   height = 40,
+  hoverBorderColor,
   ...rest
 }: Props) => {
   const childrenArray = React.Children.toArray(children)
@@ -31,14 +33,17 @@ const NavIconWrapper = ({
       {({ hovered }: any) => (
         <View
           style={{
+            ...style,
             width,
             height,
             borderWidth: 1,
-            borderColor: colors.melrose_15,
+            borderColor:
+              hovered && hoverBorderColor
+                ? hoverBorderColor
+                : style?.borderColor || colors.melrose_15,
             ...commonStyles.borderRadiusPrimary,
             ...flexbox.alignCenter,
             ...flexbox.justifyCenter,
-            ...style,
             backgroundColor:
               hovered && hoverBackground
                 ? hoverBackground
