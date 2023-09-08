@@ -5,7 +5,7 @@ import React, { useCallback } from 'react'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
-import { mapTokenOptions } from '@web/modules/account-adder/helpers/maps'
+import { mapTokenOptions } from '@web/utils/maps'
 import { getUiType } from '@web/utils/uiType'
 
 import SignAccountOpPopupScreen from '../SignAccountOpPopupScreen'
