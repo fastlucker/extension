@@ -183,12 +183,18 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
         <>
           <View style={styles.sideContainer}>
             {!!withBackButton && !!canGoBack && renderBackButton()}
-            {!!withAmbireLogo && <AmbireLogoHorizontal />}
           </View>
           <View style={styles.containerInner}>
+            {!!withAmbireLogo && (
+              <View style={styles.sideContainer}>
+                <AmbireLogoHorizontal />
+              </View>
+            )}
+
             <Text fontSize={18} weight="medium" style={styles.title} numberOfLines={2}>
               {title || ''}
             </Text>
+            {!!withAmbireLogo && <View style={styles.sideContainer} />}
           </View>
           <View style={styles.sideContainer} />
         </>
