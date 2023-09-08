@@ -12,7 +12,6 @@ import useRoute from '@common/hooks/useRoute'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -36,22 +35,6 @@ const DashboardScreen = () => {
     accountPortfolio,
     gasTankAndRewardsData: { rewards, gasTank }
   } = usePortfolioControllerState()
-  const { dispatch } = useBackgroundService()
-
-  useEffect(() => {
-    const fetchData = () => {
-      dispatch({ type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT' })
-    }
-
-    // Fetch data on page load
-    fetchData()
-
-    // Set up interval to refetch data every minute
-    const interval = setInterval(fetchData, 60000) // 60000 milliseconds = 1 minute
-
-    // Clean up interval on component unmount
-    return () => clearInterval(interval)
-  }, [dispatch])
 
   const { t } = useTranslation()
 
