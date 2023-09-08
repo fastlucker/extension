@@ -104,7 +104,7 @@ async function init() {
         Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
           // Broadcast onUpdate for nested controllers
           ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-            pmRef.request({
+            pmRef?.request({
               type: 'broadcast',
               method: ctrl,
               params: (mainCtrl as any)[ctrl]
@@ -115,7 +115,7 @@ async function init() {
             const lastError = errors[errors.length - 1]
             if (lastError) console.error(lastError.error)
 
-            pmRef.request({
+            pmRef?.request({
               type: 'broadcast-error',
               method: ctrl,
               params: { errors, controller: ctrl }
@@ -272,6 +272,11 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
+              return mainCtrl.signAccountOp.update(data.params)
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
+              return mainCtrl.signAccountOp.reset()
+
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break

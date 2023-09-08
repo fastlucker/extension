@@ -285,7 +285,7 @@ export class NotificationController extends EventEmitter {
 
       if (
         ['eth_sendTransaction', 'gs_multi_send', 'ambire_sendBatchTransaction'].includes(
-          data?.params?.data
+          data?.params?.method
         )
       ) {
         const txs = data?.params?.data

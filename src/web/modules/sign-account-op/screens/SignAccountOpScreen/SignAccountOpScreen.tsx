@@ -76,6 +76,7 @@ const mapTokenOptions = (values: TokenResult[]) =>
     icon: null
   }))
 
+const isPopup = getUiType().isPopup
 const isTab = getUiType().isTab
 
 const SignAccountOpScreen = () => {
@@ -88,10 +89,10 @@ const SignAccountOpScreen = () => {
     navigate(ROUTES.transfer)
   }, [navigate])
 
-  return isTab ? (
-    <SignAccountOpTabScreen onBack={onBack} tokens={mappedTokens} accounts={mappedAccounts} />
-  ) : (
+  return isPopup ? (
     <SignAccountOpPopupScreen tokens={mappedTokens} />
+  ) : (
+    <SignAccountOpTabScreen onBack={onBack} tokens={mappedTokens} accounts={mappedAccounts} />
   )
 }
 

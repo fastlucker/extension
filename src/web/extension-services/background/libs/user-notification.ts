@@ -134,6 +134,7 @@ class UserNotification {
     txn,
     txs,
     selectedAccount,
+    origin: dappOrigin,
     onError
   }: {
     id: bigint
@@ -154,9 +155,8 @@ class UserNotification {
       onError(`No txs request in received params for account: ${selectedAccount}`)
       return
     }
-
     const network = networks.find(
-      (n) => Number(n.chainId) === Number(permission.getConnectedSite(origin)?.chainId)
+      (n) => Number(n.chainId) === Number(permission.getConnectedSite(dappOrigin)?.chainId)
     )
 
     if (!network) {
@@ -171,7 +171,7 @@ class UserNotification {
         kind: 'call',
         ...txn
       },
-      networkId: network?.id,
+      networkId: network.id,
       accountAddr: selectedAccount,
       // TODO: ?
       forceNonce: null

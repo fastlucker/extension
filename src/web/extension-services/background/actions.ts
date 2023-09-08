@@ -1,6 +1,10 @@
 import { Filters } from 'ambire-common/src/controllers/activity/activity'
 import { Account, AccountStates } from 'ambire-common/src/interfaces/account'
+import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
 import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
+import { AccountOp } from 'ambire-common/src/libs/accountOp/accountOp'
+import { EstimateResult } from 'ambire-common/src/libs/estimate/estimate'
+import { GasRecommendation } from 'ambire-common/src/libs/gasPrice/gasPrice'
 
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
@@ -151,6 +155,21 @@ type LatticeControllerUnlockAction = {
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
 }
+type MainControllerSignAccountOpUpdateAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+  params: {
+    accounts?: Account[]
+    networks?: NetworkDescriptor[]
+    accountStates?: AccountStates
+    accountOp?: AccountOp
+    gasPrices?: GasRecommendation[]
+    estimation?: EstimateResult
+    feeTokenAddr?: string
+  }
+}
+type MainControllerSignAccountOpResetAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET'
+}
 
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
@@ -219,6 +238,8 @@ export type Action =
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
   | MainControllerActivityResetAction
+  | MainControllerSignAccountOpUpdateAction
+  | MainControllerSignAccountOpResetAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction

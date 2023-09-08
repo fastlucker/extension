@@ -1,3 +1,4 @@
+import { networks } from 'ambire-common/src/consts/networks'
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
@@ -7,6 +8,7 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
+import permission from '@web/extension-services/background/services/permission'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
@@ -39,7 +41,25 @@ const SortHat = () => {
         return navigate(ROUTES.permissionRequest)
       }
       if (notificationState.currentDappNotificationRequest?.screen === 'SendTransaction') {
-        return console.log(notificationState.currentDappNotificationRequest)
+        const accountAddr = notificationState.currentDappNotificationRequest.params.data[0].from
+
+        await permission.init()
+        const chainId = Number(
+          permission.getConnectedSite(
+            notificationState.currentDappNotificationRequest.params.session.origin
+          )?.chainId
+        )
+        const network = networks.find((n) => Number(n.chainId) === chainId)
+
+        if (accountAddr && network) {
+          return navigate(ROUTES.signAccountOp, {
+            state: {
+              accountAddr,
+              network
+            }
+          })
+        }
+        // TODO: add here some error handling and dispatch dapp request removal
       }
       if (notificationState.currentDappNotificationRequest?.screen === 'SignText') {
         return navigate(ROUTES.signMessage)
