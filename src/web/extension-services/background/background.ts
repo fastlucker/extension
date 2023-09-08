@@ -166,14 +166,18 @@ async function init() {
   let numberOfOpenedWindows = 0
 
   const fetchPortfolioData = async () => {
-    console.log(mainCtrl)
     if (!mainCtrl.selectedAccount) return
-    const data = await mainCtrl.portfolio.getAdditionalPortfolio(mainCtrl.selectedAccount)
-    storage.set('additionalPortfolio', data)
+    try {
+      const data = await mainCtrl.portfolio.getAdditionalPortfolio(mainCtrl.selectedAccount)
+      storage.set('additionalPortfolio', data)
+    } catch (e) {
+      console.log(e)
+    }
     return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
   }
 
   mainCtrl.portfolio.onUpdate(async () => {
+    if (!mainCtrl.selectedAccount) return
     storage.set('portfolio', mainCtrl.portfolio)
     const additionalPortfolio = await storage.get('additionalPortfolio', {})
     const accountPortfolio = await storage.get('accountPortfolio', {})
@@ -181,11 +185,13 @@ async function init() {
     const newAccPortfolio = await calculateAccountPortfolio(
       mainCtrl.selectedAccount,
       mainCtrl.portfolio,
-      accountPortfolio,
+      accountPortfolio[mainCtrl.selectedAccount],
       additionalPortfolio
     )
-
-    storage.set('accountPortfolio', newAccPortfolio)
+    storage.set('accountPortfolio', {
+      ...accountPortfolio,
+      [mainCtrl.selectedAccount]: newAccPortfolio
+    })
   })
 
   fetchPortfolioData()
