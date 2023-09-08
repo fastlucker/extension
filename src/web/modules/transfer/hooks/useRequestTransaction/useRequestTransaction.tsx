@@ -1,7 +1,5 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
-import { networks } from 'ambire-common/src/consts/networks'
 import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
-// import networks from 'ambire-common/src/constants/networks'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
 import { getBip44Items, resolveENSDomain } from 'ambire-common/src/services/ensDomains'
 import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
@@ -12,14 +10,10 @@ import {
 import { formatUnits, Interface, parseUnits } from 'ethers'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-// import useAccounts from '@common/hooks/useAccounts'
-// import useAddressBook from '@common/hooks/useAddressBook'
+import networks from '@common/constants/networks'
 import useConstants from '@common/hooks/useConstants'
 import useIsScreenFocused from '@common/hooks/useIsScreenFocused/useIsScreenFocused'
 import useNavigation from '@common/hooks/useNavigation'
-// import useNetwork from '@common/hooks/useNetwork'
-// import usePortfolio from '@common/hooks/usePortfolio'
-// import useRequests from '@common/hooks/useRequests'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -29,15 +23,8 @@ import { mapTokenOptions } from '@web/modules/sign-account-op/screens/SignAccoun
 const ERC20 = new Interface(erc20Abi)
 
 const addRequest = (req: any) => console.log(req)
-// @TODO: AddressBook
+// @TODO: get from AddressBook
 const isKnownAddress = (addr: string) => addr === 'always-false'
-
-const network = {
-  chainId: 1,
-  id: 'ethereum',
-  name: 'Ethereum',
-  unstoppableDomainsChain: true
-}
 
 export default function useRequestTransaction() {
   const isFocused = useIsScreenFocused()
@@ -48,10 +35,7 @@ export default function useRequestTransaction() {
   const navigation = useNavigation()
   const { selectedAccount: selectedAcc } = useMainControllerState()
 
-  // const { network }: any = useNetwork()
-  // const { addRequest } = useRequests()
   const { addToast } = useToast()
-  // const { isKnownAddress } = useAddressBook()
   const { constants } = useConstants()
   const timer: any = useRef(null)
   const [bigNumberHexAmount, setBigNumberHexAmount] = useState('')
@@ -82,15 +66,7 @@ export default function useRequestTransaction() {
       address: ''
     }
   })
-  // <Select items={assetsItems} />
-  // const assetsItems =
-  //   tokens.map(({ symbol, address: selectedTokenAddress, networkId }) => ({
-  //     label: `${symbol} on ${networkId}`,
-  //     value: selectedTokenAddress,
-  //     icon: (
-  //       <TokenIcon networkId={networkId} address={selectedTokenAddress} width={30} height={30} />
-  //     )
-  //   })) || []
+
   const assetsItems = mapTokenOptions(tokens as TokenResult[])
 
   // returns the whole token object of the selected asset
@@ -100,6 +76,10 @@ export default function useRequestTransaction() {
         ({ address: selectedAssetAddress }: TokenResult) => selectedAssetAddress === asset
       ),
     [tokens, asset]
+  )
+  const selectedAssetNetwork = useMemo(
+    () => networks.find(({ id }) => id === selectedAsset?.networkId),
+    [selectedAsset?.networkId]
   )
 
   useEffect(() => {
@@ -152,7 +132,7 @@ export default function useRequestTransaction() {
     try {
       const recipientAddress = uDAddress || ensAddress || address
 
-      if (!selectedAsset) return
+      if (!selectedAsset || !selectedAssetNetwork) return
 
       const txn = {
         to: selectedAsset.address,
@@ -169,7 +149,7 @@ export default function useRequestTransaction() {
       const req: any = {
         id: `transfer_${Date.now()}`,
         type: 'eth_sendTransaction',
-        chainId: network?.chainId,
+        chainId: selectedAssetNetwork.chainId,
         account: selectedAcc,
         txn,
         meta: null
@@ -224,8 +204,8 @@ export default function useRequestTransaction() {
       networks
         .map(({ id }) => id)
         .filter((id) => id !== 'ethereum')
-        .includes(network.id),
-    [selectedAsset?.address]
+        .includes(selectedAssetNetwork?.id || 'ethereum'),
+    [selectedAsset?.address, selectedAssetNetwork]
   )
 
   useEffect(() => {
@@ -291,11 +271,13 @@ export default function useRequestTransaction() {
         }
 
         const validateForm = async () => {
-          const UDAddress = await resolveUDomain(
-            address,
-            selectedAsset ? selectedAsset.symbol : null,
-            network.unstoppableDomainsChain
-          )
+          const UDAddress = selectedAssetNetwork
+            ? await resolveUDomain(
+                address,
+                selectedAsset ? selectedAsset.symbol : null,
+                selectedAssetNetwork.unstoppableDomainsChain
+              )
+            : null
           const bip44Item = getBip44Items(selectedAsset ? selectedAsset.symbol : null)
           const ensAddr = await resolveENSDomain(address, bip44Item)
 
