@@ -73,6 +73,7 @@ async function init() {
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
+  let numberOfOpenedWindows = 0
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -162,8 +163,6 @@ async function init() {
       params: { errors, controller: 'main' }
     })
   })
-
-  let numberOfOpenedWindows = 0
 
   const fetchPortfolioData = async () => {
     if (!mainCtrl.selectedAccount) return
