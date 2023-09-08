@@ -49,7 +49,7 @@ const mapAccountOptions = (values: Account[]) =>
     icon: value.pfp
   }))
 
-const mapTokenOptions = (values: TokenResult[]) =>
+export const mapTokenOptions = (values: TokenResult[]) =>
   values.map((value) => ({
     value: value.address,
     label: (
