@@ -1,6 +1,5 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
 import { UserRequest } from 'ambire-common/src/interfaces/userRequest'
-import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
 import { getBip44Items, resolveENSDomain } from 'ambire-common/src/services/ensDomains'
 import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
@@ -19,7 +18,7 @@ import useToast from '@common/hooks/useToast'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import { getTokenAddressAndNetworkFromId, mapTokenOptions } from '@web/utils/maps'
+import { getTokenAddressAndNetworkFromId } from '@web/utils/maps'
 
 const ERC20 = new Interface(erc20Abi)
 
@@ -37,6 +36,25 @@ const getInfoFromSearch = (search: string | undefined) => {
   return `${params.get('address')}-${params.get('networkId')}`
 }
 
+const generateRandomId = () => {
+  const randomNumber = new Uint8Array(2048 / 8)
+  const randomId = window.crypto.getRandomValues(randomNumber)[0]
+  const bigIntRandomId = BigInt(randomId)
+
+  return bigIntRandomId
+}
+
+const DEFAULT_VALIDATION_FORM_MSGS = {
+  success: {
+    amount: false,
+    address: false
+  },
+  messages: {
+    amount: '',
+    address: ''
+  }
+}
+
 export default function useRequestTransaction() {
   const isFocused = useIsScreenFocused()
   const {
@@ -44,17 +62,18 @@ export default function useRequestTransaction() {
   } = usePortfolioControllerState()
   const { search } = useRoute()
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
-  const { selectedAccount: selectedAcc } = useMainControllerState()
+  const { selectedAccount, userRequests } = useMainControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { constants } = useConstants()
   const timer: any = useRef(null)
   const [asset, setAsset] = useState<string | null>(() => {
-    if (!selectedTokenFromUrl) return null
+    if (!selectedTokenFromUrl && tokens) return `${tokens[0].address}-${tokens[0].networkId}`
+    if (!selectedTokenFromUrl && !tokens) return null
 
     return selectedTokenFromUrl
   })
-  const [amount, setAmount] = useState<number>(0)
+  const [amount, setAmount] = useState<string>('0')
   const [address, setAddress] = useState('')
   const [uDAddress, setUDAddress] = useState('')
   const [ensAddress, setEnsAddress] = useState('')
@@ -70,18 +89,7 @@ export default function useRequestTransaction() {
       amount: string | null
       address: string | null
     }
-  }>({
-    success: {
-      amount: false,
-      address: false
-    },
-    messages: {
-      amount: '',
-      address: ''
-    }
-  })
-
-  const assetsItems = mapTokenOptions(tokens as TokenResult[])
+  }>(DEFAULT_VALIDATION_FORM_MSGS)
 
   const selectedAsset = useMemo(() => {
     if (!asset) return tokens[0]
@@ -100,12 +108,12 @@ export default function useRequestTransaction() {
   )
 
   const maxAmount = useMemo(() => {
-    if (!selectedAsset) return 0
+    if (!selectedAsset) return '0'
     const { amount: selectedAssetAmount, decimals } = selectedAsset
     return formatUnits(selectedAssetAmount, decimals)
   }, [selectedAsset])
 
-  const onAmountChange = useCallback((value: any) => {
+  const onAmountChange = useCallback((value: string) => {
     setAmount(value)
   }, [])
 
@@ -115,10 +123,9 @@ export default function useRequestTransaction() {
     try {
       const recipientAddress = uDAddress || ensAddress || address
 
-      if (!selectedAsset || !selectedAssetNetwork || !selectedAcc) return
-      const bigNumberHexAmount = `0x${parseUnits(String(amount), selectedAsset.decimals).toString(
-        16
-      )}`
+      if (!selectedAsset || !selectedAssetNetwork || !selectedAccount) return
+
+      const bigNumberHexAmount = `0x${parseUnits(amount, selectedAsset.decimals).toString(16)}`
 
       const txn = {
         kind: 'call' as const,
@@ -133,27 +140,42 @@ export default function useRequestTransaction() {
         txn.data = '0x'
       }
 
+      // Recurse until we find a unique id
+      const generateBigIntRandomId = (): bigint => {
+        const generatedId = generateRandomId()
+
+        const isIdUnique = userRequests.every(({ id }) => id !== generatedId)
+
+        if (isIdUnique) return generatedId
+
+        return generateBigIntRandomId()
+      }
+
+      const bigIntRandomId = generateBigIntRandomId()
+
       const req: UserRequest = {
-        id: BigInt(100000),
+        id: bigIntRandomId,
         added: BigInt(Date.now()),
         networkId: selectedAssetNetwork.id,
-        accountAddr: selectedAcc,
+        accountAddr: selectedAccount,
         forceNonce: null,
         action: txn
       }
 
+      console.log(req)
       dispatch({
         type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
         params: req
-      })
-
-      // Timeout of 500ms because of the animated transition between screens (addRequest opens PendingTransactions screen)
-      setTimeout(() => {
-        setAsset(null)
-        setSWAddressConfirmed(false)
-        setAmount(0)
+      }).then(() => {
+        setAsset(`${tokens[0].address}-${tokens[0].networkId}`)
         setAddress('')
-      }, 500)
+        setAmount('0')
+        setEnsAddress('')
+        setUDAddress('')
+        setSWAddressConfirmed(false)
+        setAddressConfirmed(false)
+        setValidationFormMgs(DEFAULT_VALIDATION_FORM_MSGS)
+      })
     } catch (e: any) {
       console.error(e)
       addToast(`Error: ${e.message || e}`, { error: true })
@@ -164,9 +186,11 @@ export default function useRequestTransaction() {
     address,
     selectedAsset,
     selectedAssetNetwork,
-    selectedAcc,
+    selectedAccount,
     amount,
+    tokens,
     dispatch,
+    userRequests,
     addToast
   ])
 
@@ -220,7 +244,7 @@ export default function useRequestTransaction() {
   ])
 
   useEffect(() => {
-    if (isFocused && selectedAsset) {
+    if (isFocused && selectedAsset && (address || uDAddress || ensAddress)) {
       const isValidSendTransferAmount = validateSendTransferAmount(amount, selectedAsset)
 
       if (address.startsWith('0x') && address.indexOf('.') === -1) {
@@ -228,7 +252,7 @@ export default function useRequestTransaction() {
         if (ensAddress !== '') setEnsAddress('')
         const isValidRecipientAddress = validateSendTransferAddress(
           address,
-          selectedAcc,
+          selectedAccount,
           addressConfirmed,
           isKnownAddress,
           constants!.humanizerInfo
@@ -271,7 +295,7 @@ export default function useRequestTransaction() {
           const isEnsAddress = !!ensAddr
           const isValidRecipientAddress = validateSendTransferAddress(
             UDAddress || ensAddr || address,
-            selectedAcc,
+            selectedAccount,
             addressConfirmed,
             isKnownAddress,
             constants!.humanizerInfo,
@@ -308,7 +332,7 @@ export default function useRequestTransaction() {
   }, [
     address,
     amount,
-    selectedAcc,
+    selectedAccount,
     addressConfirmed,
     showSWAddressWarning,
     sWAddressConfirmed,
@@ -322,7 +346,7 @@ export default function useRequestTransaction() {
   ])
 
   useEffect(() => {
-    setAmount(0)
+    setAmount('0')
   }, [asset])
 
   return {
@@ -335,7 +359,6 @@ export default function useRequestTransaction() {
     setAsset,
     setAmount,
     setAddress,
-    assetsItems,
     sendTransaction,
     disabled,
     validationFormMgs,

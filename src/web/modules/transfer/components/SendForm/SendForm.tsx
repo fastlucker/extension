@@ -1,3 +1,4 @@
+import { TokenResult } from 'ambire-common/src/libs/portfolio'
 import React from 'react'
 import { View } from 'react-native'
 
@@ -10,15 +11,24 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { mapTokenOptions } from '@web/utils/maps'
 
 const unsupportedSWPlatforms = ['Binance', 'Huobi', 'KuCoin', 'Gate.io', 'FTX']
+
+const LOADING_ASSETS_ITEMS = [
+  {
+    value: 'loading',
+    label: <Text weight="medium">Loading...</Text>,
+    icon: null
+  }
+]
 
 const SendForm = ({
   requestTransactionState: {
     asset,
     amount,
     address,
-    assetsItems,
     setAsset,
     selectedAsset,
     onAmountChange,
@@ -34,13 +44,18 @@ const SendForm = ({
     sWAddressConfirmed,
     setSWAddressConfirmed,
     uDAddress,
-    ensAddress,
-    isLoading
+    ensAddress
   }
 }: any) => {
-  if (isLoading) return null
-
+  const {
+    // When we dispatch the new transaction the main controller updates
+    // which sets the tokens to null and isAllReady to false. This results in blinking in the UI
+    // so we have to check if the portfolio is loading and show a loading state if it is.
+    accountPortfolio: { tokens, isAllReady }
+  } = usePortfolioControllerState()
   const { t } = useTranslation()
+  const assetsItems = mapTokenOptions(tokens as TokenResult[])
+
   const selectedAssetSelectItem = assetsItems.find((item: any) => item.value === asset)
 
   return (
@@ -48,14 +63,14 @@ const SendForm = ({
       <Select
         setValue={({ value }) => setAsset(value)}
         label="Select Token"
-        options={assetsItems}
+        options={isAllReady ? assetsItems : LOADING_ASSETS_ITEMS}
         style={{ ...spacings.mbXl }}
-        value={selectedAssetSelectItem || assetsItems[0]}
-        defaultValue={assetsItems[0]}
+        value={isAllReady ? selectedAssetSelectItem || assetsItems[0] : 'loading'}
+        defaultValue={isAllReady ? assetsItems[0] : 'loading'}
       />
       <InputSendToken
         amount={amount}
-        selectedAssetSymbol={selectedAsset?.symbol || 'Unknown'}
+        selectedAssetSymbol={isAllReady ? selectedAsset?.symbol || 'Unknown' : ''}
         maxAmount={Number(maxAmount)}
         errorMessage={validationFormMgs?.messages?.amount || ''}
         onAmountChange={onAmountChange}
