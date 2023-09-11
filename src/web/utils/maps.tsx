@@ -36,7 +36,7 @@ const mapTokenOptions = (values: TokenResult[]) =>
 
 const getTokenAddressAndNetworkFromId = (id: string) => {
   const [address, networkId] = id.split('-')
-  return { address, networkId }
+  return [address, networkId]
 }
 
 export { mapTokenOptions, getTokenAddressAndNetworkFromId }
