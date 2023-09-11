@@ -22,6 +22,11 @@ const AddressBookSection = () => {
           borderColor: colors.violet,
           width: 300
         }}
+        // @TODO: implement address book
+        disabled
+        disabledStyle={{
+          opacity: 0.6
+        }}
         textStyle={{
           color: colors.violet
         }}

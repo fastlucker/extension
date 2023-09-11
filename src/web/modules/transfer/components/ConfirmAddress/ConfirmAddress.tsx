@@ -58,7 +58,9 @@ const ConfirmAddress = ({
       />
       <TouchableOpacity
         onPress={onAddToAddressBook}
-        style={[flexboxStyles.directionRow, spacings.mb]}
+        // @TODO: implement address book
+        disabled
+        style={[flexboxStyles.directionRow, spacings.mb, { opacity: 0.6 }]}
       >
         <View style={spacings.mrMi}>
           <AddIcon />
