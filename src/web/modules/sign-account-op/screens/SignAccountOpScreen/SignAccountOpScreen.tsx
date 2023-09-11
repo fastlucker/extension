@@ -51,7 +51,7 @@ const mapAccountOptions = (values: Account[]) =>
 
 export const mapTokenOptions = (values: TokenResult[]) =>
   values.map((value) => ({
-    value: value.address,
+    value: `${value.address}-${value.networkId}`,
     label: (
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <TokenIcon

@@ -1,6 +1,5 @@
 // import accountPresets from 'ambire-common/src/constants/accountPresets'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
-// import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
 import React, { useMemo } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
@@ -22,6 +21,7 @@ type Props = {
   address: string
 }
 
+// @TODO: implement isKnownAddress
 const isKnownAddress = (address: string) => false
 
 const ConfirmAddress = ({
@@ -50,7 +50,7 @@ const ConfirmAddress = ({
 
   // @TODO: Removed check:  && address !== accountPresets.feeCollector
   return !smartContractWarning && !!unknownWarning ? (
-    <View style={spacings.mbXl}>
+    <View>
       <Checkbox
         value={addressConfirmed}
         onValueChange={() => setAddressConfirmed(!addressConfirmed)}
@@ -63,7 +63,9 @@ const ConfirmAddress = ({
         <View style={spacings.mrMi}>
           <AddIcon />
         </View>
-        <Text underline>{t('Add it to the address book')}</Text>
+        <Text fontSize={14} underline>
+          {t('Add it to the address book')}
+        </Text>
       </TouchableOpacity>
     </View>
   ) : null

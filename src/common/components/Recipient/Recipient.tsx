@@ -43,7 +43,7 @@ const Recipient: React.FC<Props> = ({
         onChangeText={setAddress}
       />
       <View style={spacings.mlTy}>
-        <Text style={[spacings.mbXl]} weight="regular" fontSize={14}>
+        <Text weight="regular" fontSize={14}>
           {t(
             'Please double-check the recipient address, blockchain transactions are not reversible.'
           )}
