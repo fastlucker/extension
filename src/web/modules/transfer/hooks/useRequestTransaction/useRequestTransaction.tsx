@@ -19,7 +19,7 @@ import useToast from '@common/hooks/useToast'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import { mapTokenOptions } from '@web/modules/sign-account-op/screens/SignAccountOpScreen/SignAccountOpScreen'
+import { getTokenAddressAndNetworkFromId, mapTokenOptions } from '@web/utils/maps'
 
 const ERC20 = new Interface(erc20Abi)
 
@@ -86,7 +86,7 @@ export default function useRequestTransaction() {
   const selectedAsset = useMemo(() => {
     if (!asset) return tokens[0]
 
-    const [selectedAssetAddress, selectedAssetNetworkId] = asset.split('-')
+    const [selectedAssetAddress, selectedAssetNetworkId] = getTokenAddressAndNetworkFromId(asset)
 
     return tokens.find(
       ({ address: tokenAddress, networkId: tokenNetworkId }) =>
