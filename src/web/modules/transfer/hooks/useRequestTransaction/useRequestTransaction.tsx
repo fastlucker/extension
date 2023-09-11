@@ -162,6 +162,7 @@ export default function useRequestTransaction() {
         action: txn
       }
 
+      // @TODO: delete the console.log when /sign-account-op is ready
       console.log(req)
       dispatch({
         type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
@@ -175,6 +176,7 @@ export default function useRequestTransaction() {
         setSWAddressConfirmed(false)
         setAddressConfirmed(false)
         setValidationFormMgs(DEFAULT_VALIDATION_FORM_MSGS)
+        setDisabled(true)
       })
     } catch (e: any) {
       console.error(e)
