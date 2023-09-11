@@ -41,7 +41,7 @@ const SendForm = ({
   if (isLoading) return null
 
   const { t } = useTranslation()
-  const selectedAssetItem = assetsItems.find(({ value }: { value: string }) => value === asset)
+  const selectedAssetSelectItem = assetsItems.find((item: any) => item.value === asset)
 
   return (
     <View style={[flexbox.flex1, spacings.pbLg, { maxWidth: 500 }]}>
@@ -50,7 +50,7 @@ const SendForm = ({
         label="Select Token"
         options={assetsItems}
         style={{ ...spacings.mbXl }}
-        value={selectedAssetItem || assetsItems[0]}
+        value={selectedAssetSelectItem || assetsItems[0]}
         defaultValue={assetsItems[0]}
       />
       <InputSendToken
@@ -61,35 +61,37 @@ const SendForm = ({
         onAmountChange={onAmountChange}
         setMaxAmount={setMaxAmount}
       />
-      <Recipient
-        setAddress={setAddress}
-        address={address}
-        uDAddress={uDAddress}
-        ensAddress={ensAddress}
-        addressValidationMsg={validationFormMgs?.messages?.address || ''}
-        setAddressConfirmed={setAddressConfirmed}
-        addressConfirmed={addressConfirmed}
-      />
+      <View style={spacings.mbXl}>
+        <Recipient
+          setAddress={setAddress}
+          address={address}
+          uDAddress={uDAddress}
+          ensAddress={ensAddress}
+          addressValidationMsg={validationFormMgs?.messages?.address || ''}
+          setAddressConfirmed={setAddressConfirmed}
+          addressConfirmed={addressConfirmed}
+        />
 
-      {showSWAddressWarning && (
-        <Checkbox
-          style={spacings.mlTy}
-          value={sWAddressConfirmed}
-          onValueChange={() => setSWAddressConfirmed(!sWAddressConfirmed)}
-        >
-          <Text fontSize={12} onPress={() => setSWAddressConfirmed(!sWAddressConfirmed)}>
-            {
-              t(
-                'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
-                {
-                  platforms: unsupportedSWPlatforms.join(' / '),
-                  token: selectedAsset?.symbol
-                }
-              ) as string
-            }
-          </Text>
-        </Checkbox>
-      )}
+        {showSWAddressWarning && (
+          <Checkbox
+            style={[spacings.mlTy, spacings.mbLg]}
+            value={sWAddressConfirmed}
+            onValueChange={() => setSWAddressConfirmed(!sWAddressConfirmed)}
+          >
+            <Text fontSize={12} onPress={() => setSWAddressConfirmed(!sWAddressConfirmed)}>
+              {
+                t(
+                  'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
+                  {
+                    platforms: unsupportedSWPlatforms.join(' / '),
+                    token: selectedAsset?.label
+                  }
+                ) as string
+              }
+            </Text>
+          </Checkbox>
+        )}
+      </View>
 
       <Button
         type="primary"

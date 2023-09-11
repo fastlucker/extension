@@ -1,4 +1,5 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
+import { UserRequest } from 'ambire-common/src/interfaces/userRequest'
 import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
 import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
 import { getBip44Items, resolveENSDomain } from 'ambire-common/src/services/ensDomains'
@@ -13,33 +14,46 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import networks from '@common/constants/networks'
 import useConstants from '@common/hooks/useConstants'
 import useIsScreenFocused from '@common/hooks/useIsScreenFocused/useIsScreenFocused'
-import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { mapTokenOptions } from '@web/modules/sign-account-op/screens/SignAccountOpScreen/SignAccountOpScreen'
 
 const ERC20 = new Interface(erc20Abi)
 
-const addRequest = (req: any) => console.log(req)
 // @TODO: get from AddressBook
 const isKnownAddress = (addr: string) => addr === 'always-false'
+
+const getInfoFromSearch = (search: string | undefined) => {
+  if (!search || !search?.includes('networkId') || !search?.includes('address')) return null
+
+  const params = new URLSearchParams(search)
+
+  // Remove the search params from the url
+  window.history.replaceState(null, '', `${window.location.pathname}#/transfer`)
+
+  return `${params.get('address')}-${params.get('networkId')}`
+}
 
 export default function useRequestTransaction() {
   const isFocused = useIsScreenFocused()
   const {
     accountPortfolio: { tokens, isAllReady: isCurrNetworkBalanceLoading }
   } = usePortfolioControllerState()
-  const { params } = useRoute()
-  const navigation = useNavigation()
+  const { search } = useRoute()
+  const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
   const { selectedAccount: selectedAcc } = useMainControllerState()
-
+  const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { constants } = useConstants()
   const timer: any = useRef(null)
-  const [bigNumberHexAmount, setBigNumberHexAmount] = useState('')
-  const [asset, setAsset] = useState<string | null>(null)
+  const [asset, setAsset] = useState<string | null>(() => {
+    if (!selectedTokenFromUrl) return null
+
+    return selectedTokenFromUrl
+  })
   const [amount, setAmount] = useState<number>(0)
   const [address, setAddress] = useState('')
   const [uDAddress, setUDAddress] = useState('')
@@ -69,42 +83,21 @@ export default function useRequestTransaction() {
 
   const assetsItems = mapTokenOptions(tokens as TokenResult[])
 
-  // returns the whole token object of the selected asset
-  const selectedAsset = useMemo(
-    () =>
-      tokens.find(
-        ({ address: selectedAssetAddress }: TokenResult) => selectedAssetAddress === asset
-      ),
-    [tokens, asset]
-  )
+  const selectedAsset = useMemo(() => {
+    if (!asset) return tokens[0]
+
+    const [selectedAssetAddress, selectedAssetNetworkId] = asset.split('-')
+
+    return tokens.find(
+      ({ address: tokenAddress, networkId: tokenNetworkId }) =>
+        tokenAddress === selectedAssetAddress && tokenNetworkId === selectedAssetNetworkId
+    )
+  }, [asset, tokens])
+
   const selectedAssetNetwork = useMemo(
     () => networks.find(({ id }) => id === selectedAsset?.networkId),
     [selectedAsset?.networkId]
   )
-
-  useEffect(() => {
-    if (!selectedAsset && !!tokens && tokens?.[0]?.address !== asset) {
-      setAsset(tokens[0]?.address)
-    }
-  }, [selectedAsset, tokens, asset])
-
-  useEffect(() => {
-    if (params?.tokenAddressOrSymbol) {
-      const addrOrSymbol = params?.tokenAddressOrSymbol
-      const addr = isValidAddress(addrOrSymbol)
-        ? addrOrSymbol
-        : tokens.find(({ symbol }: any) => symbol === addrOrSymbol)?.address || null
-      if (addr) {
-        setAsset(addr)
-      }
-
-      // Clears the param so that it doesn't get cached (used) again
-      // @ts-ignore-next-line
-      navigation.setParams({
-        tokenAddressOrSymbol: undefined
-      })
-    }
-  }, [params?.tokenAddressOrSymbol, tokens, navigation])
 
   const maxAmount = useMemo(() => {
     if (!selectedAsset) return 0
@@ -112,70 +105,52 @@ export default function useRequestTransaction() {
     return formatUnits(selectedAssetAmount, decimals)
   }, [selectedAsset])
 
-  const onAmountChange = useCallback(
-    (value: any) => {
-      if (value && selectedAsset) {
-        const { decimals } = selectedAsset
-        // @TODO: non-existant .toHexString method was used here
-        const bigNumberAmount = parseUnits(value, decimals).toString()
-        setBigNumberHexAmount(bigNumberAmount)
-      }
-
-      setAmount(value)
-    },
-    [selectedAsset]
-  )
+  const onAmountChange = useCallback((value: any) => {
+    setAmount(value)
+  }, [])
 
   const setMaxAmount = useCallback(() => onAmountChange(maxAmount), [onAmountChange, maxAmount])
 
-  const sendTransaction = useCallback(() => {
+  const sendTransaction = useCallback(async () => {
     try {
       const recipientAddress = uDAddress || ensAddress || address
 
-      if (!selectedAsset || !selectedAssetNetwork) return
+      if (!selectedAsset || !selectedAssetNetwork || !selectedAcc) return
+      const bigNumberHexAmount = `0x${parseUnits(String(amount), selectedAsset.decimals).toString(
+        16
+      )}`
 
       const txn = {
+        kind: 'call' as const,
         to: selectedAsset.address,
-        value: '0',
+        value: BigInt(0),
         data: ERC20.encodeFunctionData('transfer', [recipientAddress, bigNumberHexAmount])
       }
 
       if (Number(selectedAsset.address) === 0) {
         txn.to = recipientAddress
-        txn.value = bigNumberHexAmount
+        txn.value = BigInt(bigNumberHexAmount)
         txn.data = '0x'
       }
 
-      const req: any = {
-        id: `transfer_${Date.now()}`,
-        type: 'eth_sendTransaction',
-        chainId: selectedAssetNetwork.chainId,
-        account: selectedAcc,
-        txn,
-        meta: null
+      const req: UserRequest = {
+        id: BigInt(100000),
+        added: BigInt(Date.now()),
+        networkId: selectedAssetNetwork.id,
+        accountAddr: selectedAcc,
+        forceNonce: null,
+        action: txn
       }
 
-      if (uDAddress) {
-        req.meta = {
-          addressLabel: {
-            addressLabel: address,
-            address: uDAddress
-          }
-        }
-      } else if (ensAddress) {
-        req.meta = {
-          addressLabel: {
-            addressLabel: address,
-            address: ensAddress
-          }
-        }
-      }
-
-      addRequest(req)
+      dispatch({
+        type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+        params: req
+      })
 
       // Timeout of 500ms because of the animated transition between screens (addRequest opens PendingTransactions screen)
       setTimeout(() => {
         setAsset(null)
+        setSWAddressConfirmed(false)
         setAmount(0)
         setAddress('')
       }, 500)
@@ -183,7 +158,17 @@ export default function useRequestTransaction() {
       console.error(e)
       addToast(`Error: ${e.message || e}`, { error: true })
     }
-  }, [selectedAcc, address, selectedAsset, bigNumberHexAmount, uDAddress, ensAddress, addToast])
+  }, [
+    uDAddress,
+    ensAddress,
+    address,
+    selectedAsset,
+    selectedAssetNetwork,
+    selectedAcc,
+    amount,
+    dispatch,
+    addToast
+  ])
 
   const unknownWarning = useMemo(() => {
     if (uDAddress || ensAddress) {
@@ -324,7 +309,6 @@ export default function useRequestTransaction() {
     address,
     amount,
     selectedAcc,
-    selectedAsset,
     addressConfirmed,
     showSWAddressWarning,
     sWAddressConfirmed,
@@ -332,12 +316,13 @@ export default function useRequestTransaction() {
     uDAddress,
     ensAddress,
     isFocused,
-    constants
+    constants,
+    selectedAssetNetwork,
+    selectedAsset
   ])
 
   useEffect(() => {
     setAmount(0)
-    setBigNumberHexAmount('')
   }, [asset])
 
   return {
