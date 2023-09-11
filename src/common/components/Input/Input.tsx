@@ -156,13 +156,13 @@ const Input = ({
       )}
 
       {!!isValid && !!validLabel && !error && (
-        <Text style={[styles.validText]} fontSize={12} color={colors.greenHaze}>
+        <Text style={[styles.validText]} weight="regular" fontSize={12} color={colors.greenHaze}>
           {validLabel}
         </Text>
       )}
 
       {!!info && (
-        <Text style={[styles.infoText, infoTextStyle]} fontSize={12}>
+        <Text weight="regular" style={[styles.infoText, infoTextStyle]} fontSize={12}>
           {info}
         </Text>
       )}
