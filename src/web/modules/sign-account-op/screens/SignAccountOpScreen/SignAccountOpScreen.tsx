@@ -6,9 +6,7 @@ import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
 import { mapTokenOptions } from '@web/utils/maps'
-import { getUiType } from '@web/utils/uiType'
 
-import SignAccountOpPopupScreen from '../SignAccountOpPopupScreen'
 import SignAccountOpTabScreen from '../SignAccountOpTabScreen'
 
 // @TODO: - get accounts from controller
@@ -46,8 +44,6 @@ const mapAccountOptions = (values: Account[]) =>
     icon: value.pfp
   }))
 
-const isPopup = getUiType().isPopup
-
 const SignAccountOpScreen = () => {
   const { navigate } = useNavigation()
 
@@ -58,11 +54,7 @@ const SignAccountOpScreen = () => {
     navigate(ROUTES.transfer)
   }, [navigate])
 
-  return isPopup ? (
-    <SignAccountOpPopupScreen tokens={mappedTokens} />
-  ) : (
-    <SignAccountOpTabScreen onBack={onBack} tokens={mappedTokens} accounts={mappedAccounts} />
-  )
+  return <SignAccountOpTabScreen onBack={onBack} tokens={mappedTokens} accounts={mappedAccounts} />
 }
 
 export default SignAccountOpScreen
