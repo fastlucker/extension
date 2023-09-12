@@ -68,7 +68,8 @@ export default function useRequestTransaction() {
   const { constants } = useConstants()
   const timer: any = useRef(null)
   const [asset, setAsset] = useState<string | null>(() => {
-    if (!selectedTokenFromUrl && tokens) return `${tokens[0].address}-${tokens[0].networkId}`
+    if (!selectedTokenFromUrl && tokens?.length > 0)
+      return `${tokens[0].address}-${tokens[0].networkId}`
     if (!selectedTokenFromUrl && !tokens) return null
 
     return selectedTokenFromUrl

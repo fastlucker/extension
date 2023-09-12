@@ -11,13 +11,13 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 interface Props {
   amount: number
   selectedAssetSymbol: string
-  maxAmount: number
+  maxAmount: number | null
   errorMessage: string
   onAmountChange: (value: any) => void
   setMaxAmount: () => void
 }
 
-const SendForm = ({
+const InputSendToken = ({
   amount,
   selectedAssetSymbol,
   onAmountChange,
@@ -35,8 +35,9 @@ const SendForm = ({
   )
 
   const handleSetMaxAmount = useCallback(() => {
+    if (!maxAmount) return
     setMaxAmount()
-  }, [setMaxAmount])
+  }, [setMaxAmount, maxAmount])
 
   const amountLabel = (
     <View style={[flexboxStyles.directionRow, spacings.mbMi, spacings.mbTy, spacings.mlTy]}>
@@ -44,12 +45,14 @@ const SendForm = ({
         {t('Available Amount:')}
       </Text>
 
-      <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
-        <Text numberOfLines={1} style={{ flex: 1, textAlign: 'right' }} ellipsizeMode="tail">
-          {maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
-        </Text>
-        {!!selectedAssetSymbol && <Text>{` ${selectedAssetSymbol.toUpperCase()}`}</Text>}
-      </View>
+      {maxAmount ? (
+        <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
+          <Text numberOfLines={1} style={{ flex: 1, textAlign: 'right' }} ellipsizeMode="tail">
+            {maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
+          </Text>
+          {!!selectedAssetSymbol && <Text>{` ${selectedAssetSymbol.toUpperCase()}`}</Text>}
+        </View>
+      ) : null}
     </View>
   )
 
@@ -63,7 +66,7 @@ const SendForm = ({
           value={amount.toString()}
           placeholder={t('0')}
           error={errorMessage || undefined}
-          button={t('MAX')}
+          button={maxAmount ? t('MAX') : null}
           onButtonPress={handleSetMaxAmount}
         />
       </View>
@@ -71,4 +74,4 @@ const SendForm = ({
   )
 }
 
-export default React.memo(SendForm, isEqual)
+export default React.memo(InputSendToken, isEqual)

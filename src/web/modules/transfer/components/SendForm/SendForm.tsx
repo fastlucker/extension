@@ -24,6 +24,46 @@ const LOADING_ASSETS_ITEMS = [
   }
 ]
 
+const NO_TOKENS_ITEMS = [
+  {
+    value: 'noTokens',
+    label: <Text weight="medium">You don&apos;t have any tokens</Text>,
+    icon: null
+  }
+]
+
+const getSelectProps = ({
+  tokens,
+  isAllReady,
+  asset
+}: {
+  tokens: TokenResult[]
+  isAllReady: boolean
+  asset: string
+}) => {
+  let options: any = []
+  let value = null
+  let selectDisabled = true
+
+  if (isAllReady && tokens?.length > 0) {
+    options = mapTokenOptions(tokens)
+    value = options.find((item: any) => item.value === asset) || options[0]
+    selectDisabled = false
+  } else if (isAllReady && !(tokens?.length > 0)) {
+    value = NO_TOKENS_ITEMS[0]
+    options = NO_TOKENS_ITEMS
+  } else if (!isAllReady) {
+    value = LOADING_ASSETS_ITEMS[0]
+    options = LOADING_ASSETS_ITEMS
+  }
+
+  return {
+    options,
+    value,
+    selectDisabled
+  }
+}
+
 const SendForm = ({
   requestTransactionState: {
     asset,
@@ -54,27 +94,25 @@ const SendForm = ({
     accountPortfolio: { tokens, isAllReady }
   } = usePortfolioControllerState()
   const { t } = useTranslation()
-  const assetsItems = mapTokenOptions(tokens as TokenResult[])
-
-  const selectedAssetSelectItem = assetsItems.find((item: any) => item.value === asset)
+  const { value, options, selectDisabled } = getSelectProps({ tokens, isAllReady, asset })
 
   return (
     <View style={[flexbox.flex1, spacings.pbLg, { maxWidth: 500 }]}>
       <Select
-        setValue={({ value }) => setAsset(value)}
+        setValue={({ value: newValue }) => setAsset(newValue)}
         label={t('Select Token')}
-        options={isAllReady ? assetsItems : LOADING_ASSETS_ITEMS}
+        options={options}
+        value={value}
+        disabled={selectDisabled}
         style={{ ...spacings.mbXl }}
-        value={isAllReady ? selectedAssetSelectItem || assetsItems[0] : LOADING_ASSETS_ITEMS[0]}
-        defaultValue={isAllReady ? assetsItems[0] : LOADING_ASSETS_ITEMS[0]}
       />
       <InputSendToken
         amount={amount}
         selectedAssetSymbol={isAllReady ? selectedAsset?.symbol || t('Unknown') : ''}
-        maxAmount={Number(maxAmount)}
         errorMessage={validationFormMgs?.messages?.amount || ''}
         onAmountChange={onAmountChange}
         setMaxAmount={setMaxAmount}
+        maxAmount={!selectDisabled ? Number(maxAmount) : null}
       />
       <View style={spacings.mbXl}>
         <Recipient
