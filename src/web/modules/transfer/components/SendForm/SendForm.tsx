@@ -65,8 +65,8 @@ const SendForm = ({
         label="Select Token"
         options={isAllReady ? assetsItems : LOADING_ASSETS_ITEMS}
         style={{ ...spacings.mbXl }}
-        value={isAllReady ? selectedAssetSelectItem || assetsItems[0] : 'loading'}
-        defaultValue={isAllReady ? assetsItems[0] : 'loading'}
+        value={isAllReady ? selectedAssetSelectItem || assetsItems[0] : LOADING_ASSETS_ITEMS[0]}
+        defaultValue={isAllReady ? assetsItems[0] : LOADING_ASSETS_ITEMS[0]}
       />
       <InputSendToken
         amount={amount}
