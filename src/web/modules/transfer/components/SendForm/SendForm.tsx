@@ -62,7 +62,7 @@ const SendForm = ({
     <View style={[flexbox.flex1, spacings.pbLg, { maxWidth: 500 }]}>
       <Select
         setValue={({ value }) => setAsset(value)}
-        label="Select Token"
+        label={t('Select Token')}
         options={isAllReady ? assetsItems : LOADING_ASSETS_ITEMS}
         style={{ ...spacings.mbXl }}
         value={isAllReady ? selectedAssetSelectItem || assetsItems[0] : LOADING_ASSETS_ITEMS[0]}
@@ -70,7 +70,7 @@ const SendForm = ({
       />
       <InputSendToken
         amount={amount}
-        selectedAssetSymbol={isAllReady ? selectedAsset?.symbol || 'Unknown' : ''}
+        selectedAssetSymbol={isAllReady ? selectedAsset?.symbol || t('Unknown') : ''}
         maxAmount={Number(maxAmount)}
         errorMessage={validationFormMgs?.messages?.amount || ''}
         onAmountChange={onAmountChange}
@@ -111,7 +111,7 @@ const SendForm = ({
       <Button
         type="primary"
         size="large"
-        text="Send"
+        text={t('Send')}
         disabledStyle={{ opacity: 0.6 }}
         style={[flexbox.alignSelfStart, { width: 300, paddingHorizontal: SPACING_LG * 4 }]}
         onPress={sendTransaction}
