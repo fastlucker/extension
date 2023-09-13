@@ -156,6 +156,10 @@ type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
 }
+type KeystoreControllerAddKeyExternallyStored = {
+  type: 'KEYSTORE_CONTROLLER_ADD_KEY_EXTERNALLY_STORED'
+  params: { id: string; type: string; label: string; meta: object }
+}
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
@@ -229,6 +233,7 @@ export type Action =
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
+  | KeystoreControllerAddKeyExternallyStored
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction
   | KeystoreControllerAddKeysAction

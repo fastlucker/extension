@@ -310,6 +310,13 @@ async function init() {
                 data.params.extraEntropy,
                 data.params.leaveUnlocked
               )
+            case 'KEYSTORE_CONTROLLER_ADD_KEY_EXTERNALLY_STORED':
+              return mainCtrl.keystore.addKeyExternallyStored(
+                data.params.id,
+                data.params.type,
+                data.params.label,
+                data.params.meta
+              )
             case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
               return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
             case 'KEYSTORE_CONTROLLER_LOCK':
