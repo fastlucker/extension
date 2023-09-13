@@ -43,18 +43,18 @@ export interface DappNotificationRequest {
 export class NotificationController extends EventEmitter {
   mainCtrl: MainController
 
-  _dappsNotificationRequests: DappNotificationRequest[] = []
+  _notificationRequests: DappNotificationRequest[] = []
 
   notificationWindowId: null | number = null
 
-  currentDappNotificationRequest: DappNotificationRequest | null = null
+  currentNotificationRequest: DappNotificationRequest | null = null
 
-  get dappsNotificationRequests() {
-    return this._dappsNotificationRequests
+  get notificationRequests() {
+    return this._notificationRequests
   }
 
-  set dappsNotificationRequests(newValue: DappNotificationRequest[]) {
-    this._dappsNotificationRequests = newValue
+  set notificationRequests(newValue: DappNotificationRequest[]) {
+    this._notificationRequests = newValue
 
     if (newValue.length <= 0) {
       browser.browserAction.setBadgeText({
@@ -76,7 +76,7 @@ export class NotificationController extends EventEmitter {
     winMgr.event.on('windowRemoved', (winId: number) => {
       if (winId === this.notificationWindowId) {
         this.notificationWindowId = null
-        this.rejectAllNotificationRequests()
+        this.rejectAllNotificationRequestsThatAreNotSignRequests()
       }
     })
 
@@ -93,8 +93,8 @@ export class NotificationController extends EventEmitter {
 
       if (this.notificationWindowId !== null && winId !== this.notificationWindowId) {
         if (
-          this.currentDappNotificationRequest &&
-          !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(this.currentDappNotificationRequest.screen)
+          this.currentNotificationRequest &&
+          !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(this.currentNotificationRequest.screen)
         ) {
           this.rejectNotificationRequest()
         }
@@ -125,10 +125,10 @@ export class NotificationController extends EventEmitter {
         return
       }
 
-      if (this.dappsNotificationRequests.length < 0) return
+      if (this.notificationRequests.length < 0) return
 
-      const notificationRequest = this.dappsNotificationRequests[0]
-      this.currentDappNotificationRequest = notificationRequest
+      const notificationRequest = this.notificationRequests[0]
+      this.currentNotificationRequest = notificationRequest
       this.emitUpdate()
       this.openNotification(notificationRequest.winProps)
     } catch (e) {
@@ -136,59 +136,53 @@ export class NotificationController extends EventEmitter {
     }
   }
 
-  deleteApproval = (request: DappNotificationRequest) => {
-    if (request && this.dappsNotificationRequests.length > 1) {
-      this.dappsNotificationRequests = this.dappsNotificationRequests.filter(
-        (item) => request.id !== item.id
-      )
+  deleteNotificationRequest = (request: DappNotificationRequest) => {
+    if (request && this.notificationRequests.length > 1) {
+      this.notificationRequests = this.notificationRequests.filter((item) => request.id !== item.id)
     } else {
-      this.currentDappNotificationRequest = null
-      this.dappsNotificationRequests = []
+      this.currentNotificationRequest = null
+      this.notificationRequests = []
     }
   }
 
   resolveNotificationRequest = async (data: any, requestId?: bigint) => {
-    if (requestId && requestId !== this.currentDappNotificationRequest?.id) return
-    const notificationRequest = this.currentDappNotificationRequest
-    notificationRequest?.resolve(data)
+    if (requestId && requestId !== this.currentNotificationRequest?.id) return
+    const notificationRequest = this.currentNotificationRequest
 
-    if (notificationRequest && SIGN_METHODS.includes(notificationRequest?.params.method)) {
-      this.mainCtrl.removeUserRequest(notificationRequest?.id)
+    if (notificationRequest) {
+      notificationRequest?.resolve(data)
+
+      if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
+        this.mainCtrl.removeUserRequest(notificationRequest?.id)
+        this.deleteNotificationRequest(notificationRequest)
+        this.currentNotificationRequest = null
+      } else {
+        this.deleteNotificationRequest(notificationRequest)
+        const nextNotificationRequest = this.notificationRequests[0]
+        this.currentNotificationRequest = nextNotificationRequest || null
+      }
     }
-
-    this.deleteApproval(notificationRequest as DappNotificationRequest)
-
-    if (this.dappsNotificationRequests.length > 0) {
-      this.currentDappNotificationRequest = this.dappsNotificationRequests[0]
-    } else {
-      this.currentDappNotificationRequest = null
-    }
-
     this.emitUpdate()
   }
 
   // eslint-disable-next-line default-param-last
   rejectNotificationRequest = async (err: string = 'Request rejected') => {
-    const notificationRequest = this.currentDappNotificationRequest
+    const notificationRequest = this.currentNotificationRequest
 
-    if (this.dappsNotificationRequests.length <= 1) {
-      this.clear() // TODO: FIXME
+    if (notificationRequest) {
+      notificationRequest?.reject &&
+        notificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>(err))
+
+      if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
+        this.mainCtrl.removeUserRequest(notificationRequest?.id)
+        this.deleteNotificationRequest(notificationRequest)
+        this.currentNotificationRequest = null
+      } else {
+        this.deleteNotificationRequest(notificationRequest)
+        const nextNotificationRequest = this.notificationRequests[0]
+        this.currentNotificationRequest = nextNotificationRequest || null
+      }
     }
-
-    notificationRequest?.reject &&
-      notificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>(err))
-
-    if (notificationRequest && SIGN_METHODS.includes(notificationRequest?.params.method)) {
-      this.mainCtrl.removeUserRequest(notificationRequest?.id)
-    }
-
-    if (notificationRequest && this.dappsNotificationRequests.length > 1) {
-      this.deleteApproval(notificationRequest)
-      this.currentDappNotificationRequest = this.dappsNotificationRequests[0]
-    } else {
-      await this.clear()
-    }
-
     this.emitUpdate()
   }
 
@@ -209,27 +203,21 @@ export class NotificationController extends EventEmitter {
       }
 
       if (!QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(data.screen)) {
-        if (this.currentDappNotificationRequest) {
+        if (this.currentNotificationRequest) {
           throw ethErrors.provider.userRejectedRequest(
             'please request after current request resolve'
           )
         }
       } else if (
-        this.currentDappNotificationRequest &&
-        !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(this.currentDappNotificationRequest.screen)
+        this.currentNotificationRequest &&
+        !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(this.currentNotificationRequest.screen)
       ) {
         throw ethErrors.provider.userRejectedRequest('please request after current request resolve')
       }
 
-      if (data.isUnshift) {
-        this.dappsNotificationRequests = [notificationRequest, ...this.dappsNotificationRequests]
-        this.currentDappNotificationRequest = notificationRequest
-      } else {
-        this.dappsNotificationRequests = [...this.dappsNotificationRequests, notificationRequest]
-        if (!this.currentDappNotificationRequest) {
-          this.currentDappNotificationRequest = notificationRequest
-        }
-      }
+      this.notificationRequests = [notificationRequest, ...this.notificationRequests]
+      this.currentNotificationRequest = notificationRequest
+
       if (
         ['wallet_switchEthereumChain', 'wallet_addEthereumChain'].includes(data?.params?.method)
       ) {
@@ -319,8 +307,8 @@ export class NotificationController extends EventEmitter {
   }
 
   clear = async () => {
-    this.dappsNotificationRequests = []
-    this.currentDappNotificationRequest = null
+    this.notificationRequests = []
+    this.currentNotificationRequest = null
     if (this.notificationWindowId !== null) {
       try {
         await winMgr.remove(this.notificationWindowId)
@@ -332,16 +320,18 @@ export class NotificationController extends EventEmitter {
     this.emitUpdate()
   }
 
-  rejectAllNotificationRequests = () => {
-    this.dappsNotificationRequests.forEach((notificationReq) => {
-      if (SIGN_METHODS.includes(notificationReq?.params.method)) {
-        this.mainCtrl.removeUserRequest(notificationReq?.id)
+  rejectAllNotificationRequestsThatAreNotSignRequests = () => {
+    this.notificationRequests.forEach((notificationReq) => {
+      if (!SIGN_METHODS.includes(notificationReq?.params.method)) {
+        notificationReq.reject &&
+          notificationReq.reject(
+            new EthereumProviderError(
+              4001,
+              `User rejected the request: ${notificationReq?.params.method}`
+            )
+          )
       }
-      notificationReq.reject &&
-        notificationReq.reject(new EthereumProviderError(4001, 'User rejected the request.'))
     })
-    this.dappsNotificationRequests = []
-    this.currentDappNotificationRequest = null
     this.emitUpdate()
   }
 

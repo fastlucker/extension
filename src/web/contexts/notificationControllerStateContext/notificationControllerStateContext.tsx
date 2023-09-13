@@ -35,16 +35,12 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    const id = state.currentDappNotificationRequest?.id
-    const prevId = prevState?.currentDappNotificationRequest?.id
+    const id = state.currentNotificationRequest?.id
+    const prevId = prevState?.currentNotificationRequest?.id
     if (prevId !== id) {
       setTimeout(() => navigate('/'))
     }
-  }, [
-    prevState.currentDappNotificationRequest?.id,
-    state.currentDappNotificationRequest?.id,
-    navigate
-  ])
+  }, [prevState.currentNotificationRequest?.id, state.currentNotificationRequest?.id, navigate])
 
   return (
     <NotificationControllerStateContext.Provider value={useMemo(() => state, [state])}>

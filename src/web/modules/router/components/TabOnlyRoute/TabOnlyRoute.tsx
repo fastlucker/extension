@@ -18,7 +18,7 @@ const TabOnlyRoute = () => {
   // if the current window is notification and there is a notification request don't open
   // the route in tab because the dApp that requests the notification request
   // will loose the session with the wallet and the notification request response won't arrive
-  if (isNotification && state.currentDappNotificationRequest) {
+  if (isNotification && state.currentNotificationRequest) {
     return <Outlet />
   }
 
