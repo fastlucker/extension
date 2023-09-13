@@ -11,6 +11,7 @@ interface Style {
   maxAmountValue: TextStyle
   // Input
   inputWrapper: ViewStyle
+  inputContainerStyle: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -31,6 +32,10 @@ const styles = StyleSheet.create<Style>({
   inputWrapper: {
     ...flexbox.directionRow,
     ...spacings.mbSm
+  },
+  inputContainerStyle: {
+    ...spacings.mbTy,
+    ...flexbox.flex1
   }
 })
 

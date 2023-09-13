@@ -5,8 +5,6 @@ import { View } from 'react-native'
 import NumberInput from '@common/components/NumberInput'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
 
@@ -74,7 +72,7 @@ const InputSendToken = ({
       <View style={styles.inputWrapper}>
         <NumberInput
           onChangeText={handleOnTokenAmountChange}
-          containerStyle={[spacings.mbTy, flexboxStyles.flex1]}
+          containerStyle={[]}
           value={amount.toString()}
           placeholder={t('0')}
           error={errorMessage || undefined}
