@@ -310,13 +310,17 @@ async function init() {
                 data.params.extraEntropy,
                 data.params.leaveUnlocked
               )
-            case 'KEYSTORE_CONTROLLER_ADD_KEY_EXTERNALLY_STORED':
+            case 'KEYSTORE_CONTROLLER_ADD_KEY_EXTERNALLY_STORED': {
+              const { type, model, hdPath } = trezorCtrl
+
+              // TODO: Use method that adds multiple keys at once
               return mainCtrl.keystore.addKeyExternallyStored(
-                data.params.id,
-                data.params.type,
-                data.params.label,
-                data.params.meta
+                'wallet.address', // EOA wallet address
+                type,
+                'Trezor',
+                { model, hdPath } // meta
               )
+            }
             case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
               return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
             case 'KEYSTORE_CONTROLLER_LOCK':

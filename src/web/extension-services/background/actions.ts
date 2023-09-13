@@ -158,7 +158,6 @@ type KeystoreControllerAddSecretAction = {
 }
 type KeystoreControllerAddKeyExternallyStored = {
   type: 'KEYSTORE_CONTROLLER_ADD_KEY_EXTERNALLY_STORED'
-  params: { id: string; type: string; label: string; meta: object }
 }
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'

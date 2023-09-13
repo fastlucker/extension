@@ -13,7 +13,7 @@ import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOn
 import { getDefaultSelectedAccount } from '@web/modules/account-adder/helpers/account'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
-const TrezorManager: React.FC<any> = (props) => {
+const TrezorManager: React.FC<{}> = (props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
@@ -78,7 +78,10 @@ const TrezorManager: React.FC<any> = (props) => {
       })
 
       try {
-        // Add to keystore!
+        // TODO: Use method that adds multiple keys at once
+        dispatch({
+          type: 'KEYSTORE_CONTROLLER_ADD_KEY_EXTERNALLY_STORED'
+        })
         // const keysToAddToKeystore = accountAdderState.selectedAccounts.map((acc) => {
         //   let privateKey = props.privKeyOrSeed
         //   // in case props.privKeyOrSeed is a seed the private keys have to be extracted
