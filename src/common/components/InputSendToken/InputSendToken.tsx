@@ -72,7 +72,7 @@ const InputSendToken = ({
       <View style={styles.inputWrapper}>
         <NumberInput
           onChangeText={handleOnTokenAmountChange}
-          containerStyle={[]}
+          containerStyle={styles.inputContainerStyle}
           value={amount.toString()}
           placeholder={t('0')}
           error={errorMessage || undefined}
