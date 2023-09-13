@@ -8,6 +8,35 @@ import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
+import styles from './styles'
+
+const MaxAmount = ({
+  maxAmount,
+  selectedAssetSymbol
+}: {
+  maxAmount: number | null
+  selectedAssetSymbol: string
+}) => {
+  const { t } = useTranslation()
+
+  return (
+    <View style={styles.maxAmount}>
+      <Text weight="regular" style={styles.maxAmountLabel}>
+        {t('Available Amount:')}
+      </Text>
+
+      {maxAmount ? (
+        <View style={styles.maxAmountValueWrapper}>
+          <Text numberOfLines={1} style={styles.maxAmountValue} ellipsizeMode="tail">
+            {maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
+          </Text>
+          {!!selectedAssetSymbol && <Text>{` ${selectedAssetSymbol.toUpperCase()}`}</Text>}
+        </View>
+      ) : null}
+    </View>
+  )
+}
+
 interface Props {
   amount: number
   selectedAssetSymbol: string
@@ -39,27 +68,10 @@ const InputSendToken = ({
     setMaxAmount()
   }, [setMaxAmount, maxAmount])
 
-  const amountLabel = (
-    <View style={[flexboxStyles.directionRow, spacings.mbMi, spacings.mbTy, spacings.mlTy]}>
-      <Text weight="regular" style={spacings.mr}>
-        {t('Available Amount:')}
-      </Text>
-
-      {maxAmount ? (
-        <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
-          <Text numberOfLines={1} style={{ flex: 1, textAlign: 'right' }} ellipsizeMode="tail">
-            {maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
-          </Text>
-          {!!selectedAssetSymbol && <Text>{` ${selectedAssetSymbol.toUpperCase()}`}</Text>}
-        </View>
-      ) : null}
-    </View>
-  )
-
   return (
     <>
-      {amountLabel}
-      <View style={[flexboxStyles.directionRow, spacings.mbSm]}>
+      <MaxAmount maxAmount={maxAmount} selectedAssetSymbol={selectedAssetSymbol} />
+      <View style={styles.inputWrapper}>
         <NumberInput
           onChangeText={handleOnTokenAmountChange}
           containerStyle={[spacings.mbTy, flexboxStyles.flex1]}

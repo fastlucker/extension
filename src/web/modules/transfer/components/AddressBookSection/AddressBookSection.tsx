@@ -3,13 +3,14 @@ import { View } from 'react-native'
 
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+
+import styles from './styles'
 
 const AddressBookSection = () => {
   return (
     <View>
-      <Text style={spacings.mbSm} fontSize={16} weight="regular">
+      <Text style={styles.title} fontSize={16} weight="regular">
         Address Book
       </Text>
       <Text fontSize={14}>Your Address Book is empty.</Text>
@@ -18,18 +19,13 @@ const AddressBookSection = () => {
       </Text>
       <Button
         type="outline"
-        style={{
-          borderColor: colors.violet,
-          width: 300
-        }}
+        style={styles.button}
         // @TODO: implement address book
         disabled
         disabledStyle={{
           opacity: 0.6
         }}
-        textStyle={{
-          color: colors.violet
-        }}
+        textStyle={styles.buttonText}
         text="Add Address"
       />
     </View>

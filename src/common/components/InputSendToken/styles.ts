@@ -1,24 +1,36 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+
 interface Style {
-  amountInTokenInputBackgroundStyle: ViewStyle
-  amountInUSDInputBackgroundStyle: ViewStyle
-  amountInUsdIcon: TextStyle
+  // MaxAmount
+  maxAmount: ViewStyle
+  maxAmountLabel: TextStyle
+  maxAmountValueWrapper: ViewStyle
+  maxAmountValue: TextStyle
+  // Input
+  inputWrapper: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  amountInTokenInputBackgroundStyle: {
-    borderTopRightRadius: 0,
-    borderBottomRightRadius: 0,
-    marginRight: 5
+  maxAmount: {
+    ...flexbox.directionRow,
+    ...spacings.mbMi,
+    ...spacings.mbTy,
+    ...spacings.mlTy
   },
-  amountInUSDInputBackgroundStyle: {
-    borderTopLeftRadius: 0,
-    borderBottomLeftRadius: 0
+  maxAmountLabel: {
+    ...spacings.mr
   },
-  amountInUsdIcon: {
-    lineHeight: 28,
-    paddingLeft: 5
+  maxAmountValueWrapper: {
+    ...flexbox.directionRow,
+    ...flexbox.flex1
+  },
+  maxAmountValue: { ...flexbox.flex1, textAlign: 'right' },
+  inputWrapper: {
+    ...flexbox.directionRow,
+    ...spacings.mbSm
   }
 })
 

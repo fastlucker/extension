@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { InputProps } from '@common/components/Input'
-import spacings from '@common/styles/spacings'
 import ConfirmAddress from '@web/modules/transfer/components/ConfirmAddress'
 
 import RecipientInput from '../RecipientInput'
 import Text from '../Text'
+import styles from './styles'
 
 interface Props extends InputProps {
   setAddress: (text: string) => void
@@ -33,7 +33,7 @@ const Recipient: React.FC<Props> = ({
   return (
     <>
       <RecipientInput
-        containerStyle={spacings.mb}
+        containerStyle={styles.inputContainer}
         isValidUDomain={!!uDAddress}
         isValidEns={!!ensAddress}
         label="Add Recipient"
@@ -42,8 +42,8 @@ const Recipient: React.FC<Props> = ({
         value={address}
         onChangeText={setAddress}
       />
-      <View style={spacings.mlTy}>
-        <Text style={spacings.mbSm} weight="regular" fontSize={14}>
+      <View style={styles.inputBottom}>
+        <Text style={styles.doubleCheckMessage} weight="regular" fontSize={14}>
           {t(
             'Please double-check the recipient address, blockchain transactions are not reversible.'
           )}

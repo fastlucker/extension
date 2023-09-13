@@ -3,13 +3,12 @@ import { View } from 'react-native'
 
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
-import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 
 import AddressBookSection from '../../components/AddressBookSection'
 import SendForm from '../../components/SendForm/SendForm'
 import useRequestTransaction from '../../hooks/useRequestTransaction'
+import styles from './styles'
 
 const TransferScreen = () => {
   const requestTransactionState = useRequestTransaction()
@@ -21,11 +20,9 @@ const TransferScreen = () => {
 
   return (
     <TabLayoutWrapperMainContent width="mid" forceCanGoBack onBack={onBack}>
-      <View style={[flexbox.directionRow, spacings.pv]}>
+      <View style={styles.container}>
         <SendForm requestTransactionState={requestTransactionState} />
-        <View
-          style={{ width: 1, height: '100%', backgroundColor: '#6770B333', marginHorizontal: 30 }}
-        />
+        <View style={styles.separator} />
         <AddressBookSection />
       </View>
     </TabLayoutWrapperMainContent>

@@ -9,10 +9,10 @@ import Recipient from '@common/components/Recipient'
 import Select from '@common/components/Select/'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import spacings, { SPACING_LG } from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { mapTokenOptions } from '@web/utils/maps'
+
+import styles from './styles'
 
 const unsupportedSWPlatforms = ['Binance', 'Huobi', 'KuCoin', 'Gate.io', 'FTX']
 
@@ -97,14 +97,14 @@ const SendForm = ({
   const { value, options, selectDisabled } = getSelectProps({ tokens, isAllReady, asset })
 
   return (
-    <View style={[flexbox.flex1, spacings.pbLg, { maxWidth: 500 }]}>
+    <View style={styles.container}>
       <Select
         setValue={({ value: newValue }) => setAsset(newValue)}
         label={t('Select Token')}
         options={options}
         value={value}
         disabled={selectDisabled}
-        style={{ ...spacings.mbXl }}
+        style={styles.tokenSelect}
       />
       <InputSendToken
         amount={amount}
@@ -114,7 +114,7 @@ const SendForm = ({
         setMaxAmount={setMaxAmount}
         maxAmount={!selectDisabled ? Number(maxAmount) : null}
       />
-      <View style={spacings.mbXl}>
+      <View style={styles.recipientWrapper}>
         <Recipient
           setAddress={setAddress}
           address={address}
@@ -127,7 +127,7 @@ const SendForm = ({
 
         {showSWAddressWarning && (
           <Checkbox
-            style={[spacings.mlTy, spacings.mbLg]}
+            style={styles.sWAddressWarningCheckbox}
             value={sWAddressConfirmed}
             onValueChange={() => setSWAddressConfirmed(!sWAddressConfirmed)}
           >
@@ -151,7 +151,7 @@ const SendForm = ({
         size="large"
         text={t('Send')}
         disabledStyle={{ opacity: 0.6 }}
-        style={[flexbox.alignSelfStart, { width: 300, paddingHorizontal: SPACING_LG * 4 }]}
+        style={styles.button}
         onPress={sendTransaction}
         disabled={disabled}
       />

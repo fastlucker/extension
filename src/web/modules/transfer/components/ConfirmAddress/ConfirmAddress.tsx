@@ -9,8 +9,8 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 // import useAddressBook from '@common/hooks/useAddressBook'
 import useConstants from '@common/hooks/useConstants'
-import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+
+import styles from './styles'
 
 type Props = {
   onAddToAddressBook: () => any
@@ -60,9 +60,9 @@ const ConfirmAddress = ({
         onPress={onAddToAddressBook}
         // @TODO: implement address book
         disabled
-        style={[flexboxStyles.directionRow, spacings.mb, { opacity: 0.6 }]}
+        style={styles.addToAddressBook}
       >
-        <View style={spacings.mrMi}>
+        <View style={styles.addToAddressBookIcon}>
           <AddIcon />
         </View>
         <Text fontSize={14} underline>

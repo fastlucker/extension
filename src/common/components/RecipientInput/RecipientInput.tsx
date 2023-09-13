@@ -10,12 +10,11 @@ import Input, { InputProps } from '@common/components/Input'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import { isWeb } from '@common/config/env'
-import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
 import BottomSheet from '../BottomSheet'
 import QRCodeScanner from '../QRCodeScanner'
+import styles from './styles'
 
 interface Props extends InputProps {
   isValidUDomain?: boolean
@@ -60,19 +59,19 @@ const RecipientInput: React.FC<Props> = ({
   return (
     <>
       {label && (
-        <Text weight="regular" style={[spacings.mbTy, spacings.mlTy]}>
+        <Text weight="regular" style={styles.label}>
           {label}
         </Text>
       )}
       <Input
         button={
-          <View style={flexboxStyles.directionRow}>
+          <View style={styles.domainIcons}>
             <UnstoppableDomainIcon isActive={isValidUDomain} />
-            <View style={spacings.plTy}>
+            <View style={styles.plTy}>
               <EnsIcon isActive={isValidEns} />
             </View>
             {!isWeb && (
-              <TouchableOpacity style={spacings.plTy} onPress={handleOnButtonPress}>
+              <TouchableOpacity style={styles.plTy} onPress={handleOnButtonPress}>
                 <ScanIcon isFilled={false} />
               </TouchableOpacity>
             )}
