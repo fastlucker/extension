@@ -9,7 +9,7 @@ import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 
 const mapTokenOptions = (values: TokenResult[]) =>
   values.map((value) => ({
-    value: value.address,
+    value: `${value.address}-${value.networkId}`,
     label: (
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <TokenIcon
@@ -36,7 +36,7 @@ const mapTokenOptions = (values: TokenResult[]) =>
 
 const getTokenAddressAndNetworkFromId = (id: string) => {
   const [address, networkId] = id.split('-')
-  return { address, networkId }
+  return [address, networkId]
 }
 
 export { mapTokenOptions, getTokenAddressAndNetworkFromId }

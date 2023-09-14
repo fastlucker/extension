@@ -16,7 +16,9 @@ import Dropdown from '@common/components/Dropdown'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -44,6 +46,7 @@ const TokenItem = ({
   rewards
 }: Token) => {
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
   // TODO: navigate to the routes onPress once they are ready or hide the ones we wont need for epic 1
   // Logic for this ones and which token would be able to
   // Top Up Gas Tank will be available from availableGasTankAssets
@@ -165,6 +168,9 @@ const TokenItem = ({
               type="outline"
               size="small"
               accentColor={colors.violet}
+              onPress={() =>
+                navigate(`${WEB_ROUTES.transfer}?address=${address}&networkId=${networkId}`)
+              }
               style={[flexboxStyles.directionRow]}
               text={t('Send')}
               hasBottomSpacing={false}

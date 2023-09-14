@@ -2,13 +2,13 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
-import spacings, { SPACING_MI } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 
 interface Style {
   inputContainer: ViewStyle
   inputWrapper: ViewStyle
-  input: ViewStyle
+  input: TextStyle
   button: ViewStyle
   infoText: TextStyle
   errorText: TextStyle
@@ -30,12 +30,13 @@ const styles = StyleSheet.create<Style>({
   },
   input: {
     // Centers the content (used because of the borderBottomWidth)
-    paddingTop: 2,
     fontSize: 14,
     fontFamily: isWeb ? FONT_FAMILIES.MEDIUM : FONT_FAMILIES.LIGHT,
     flex: 1,
     height: 48,
     borderBottomWidth: 2,
+    paddingTop: 2,
+    marginBottom: -2,
     ...spacings.phTy
   },
   infoText: {
