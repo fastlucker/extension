@@ -36,14 +36,6 @@ const getInfoFromSearch = (search: string | undefined) => {
   return `${params.get('address')}-${params.get('networkId')}`
 }
 
-const generateRandomId = () => {
-  const randomNumber = new Uint8Array(2048 / 8)
-  const randomId = window.crypto.getRandomValues(randomNumber)[0]
-  const bigIntRandomId = BigInt(randomId)
-
-  return bigIntRandomId
-}
-
 const DEFAULT_VALIDATION_FORM_MSGS = {
   success: {
     amount: false,
@@ -62,7 +54,7 @@ export default function useRequestTransaction() {
   } = usePortfolioControllerState()
   const { search } = useRoute()
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
-  const { selectedAccount, userRequests } = useMainControllerState()
+  const { selectedAccount } = useMainControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { constants } = useConstants()
@@ -141,22 +133,8 @@ export default function useRequestTransaction() {
         txn.data = '0x'
       }
 
-      // Recurse until we find a unique id
-      const generateBigIntRandomId = (): bigint => {
-        const generatedId = generateRandomId()
-
-        const isIdUnique = userRequests.every(({ id }) => id !== generatedId)
-
-        if (isIdUnique) return generatedId
-
-        return generateBigIntRandomId()
-      }
-
-      const bigIntRandomId = generateBigIntRandomId()
-
       const req: UserRequest = {
-        id: bigIntRandomId,
-        added: BigInt(Date.now()),
+        id: Date.now(),
         networkId: selectedAssetNetwork.id,
         accountAddr: selectedAccount,
         forceNonce: null,
@@ -193,7 +171,6 @@ export default function useRequestTransaction() {
     amount,
     tokens,
     dispatch,
-    userRequests,
     addToast
   ])
 
