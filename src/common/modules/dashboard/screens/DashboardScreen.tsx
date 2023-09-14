@@ -10,18 +10,15 @@ import { useTranslation } from '@common/config/localization'
 import { BANNER_TOPICS } from '@common/contexts/bannerContext/bannerContext'
 import useRoute from '@common/hooks/useRoute'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { IS_SCREEN_SIZE_TAB } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import { getUiType } from '@web/utils/uiType'
 
 import Assets from '../components/Assets'
 import Routes from '../components/Routes'
 import Tabs from '../components/Tabs'
 import styles from './styles'
-
-const isTab = getUiType().isTab
 
 const DashboardScreen = () => {
   const route = useRoute()
@@ -135,8 +132,7 @@ const DashboardScreen = () => {
         <View
           style={[
             styles.contentContainer,
-            isTab ? spacings.ph : {},
-            flexbox.flex1,
+            IS_SCREEN_SIZE_TAB ? spacings.plMd : {},
             flexbox.directionRow,
             flexbox.justifySpaceBetween
           ]}
@@ -145,7 +141,7 @@ const DashboardScreen = () => {
           <Search />
         </View>
       </View>
-      <View style={[styles.contentContainer, { flex: 1 }]}>
+      <View style={[styles.contentContainer, flexbox.flex1]}>
         <Assets openTab={openTab} tokens={tokens} />
       </View>
     </View>
