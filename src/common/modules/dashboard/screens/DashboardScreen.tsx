@@ -10,7 +10,7 @@ import { useTranslation } from '@common/config/localization'
 import { BANNER_TOPICS } from '@common/contexts/bannerContext/bannerContext'
 import useRoute from '@common/hooks/useRoute'
 import colors from '@common/styles/colors'
-import spacings, { IS_SCREEN_SIZE_TAB } from '@common/styles/spacings'
+import spacings, { IS_SCREEN_SIZE_TAB_CONTENT_UP } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -132,7 +132,7 @@ const DashboardScreen = () => {
         <View
           style={[
             styles.contentContainer,
-            IS_SCREEN_SIZE_TAB ? spacings.plMd : {},
+            IS_SCREEN_SIZE_TAB_CONTENT_UP ? spacings.plMd : {},
             flexbox.directionRow,
             flexbox.justifySpaceBetween
           ]}
