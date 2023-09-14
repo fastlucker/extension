@@ -79,14 +79,14 @@ const SignMessageScreen = () => {
           }
         })
 
+        const msgsToSign =
+          mainState.messagesToBeSigned[params!.accountAddr || mainState.selectedAccount || '']
+        // Last message that was pushed to the messagesToBeSigned
+        const msgToSign = msgsToSign[msgsToSign.length - 1]
         dispatch({
           type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
           params: {
-            messageToSign:
-              mainState.messagesToBeSigned[params!.accountAddr || mainState.selectedAccount || ''][
-                mainState.messagesToBeSigned[params!.accountAddr || mainState.selectedAccount || '']
-                  .length - 1
-              ],
+            messageToSign: msgToSign,
             accounts: mainState.accounts,
             accountStates: mainState.accountStates
           }

@@ -5,21 +5,14 @@ import EditIcon from '@common/assets/svg/EditIcon'
 import useBanners from '@common/hooks/useBanners'
 import useToast from '@common/hooks/useToast'
 import colors from '@common/styles/colors'
+import { Banner as BannerType } from '@web/extension-services/background/services/banners'
 import { getUiType } from '@web/utils/uiType'
 
 import Text from '../Text'
 import styles from './styles'
 
-interface Props {
-  title: string
-  id: string
-  text: string
+interface Props extends BannerType {
   isHideBtnShown?: boolean
-  actions?: {
-    label: string
-    onPress: () => void
-    hidesBanner?: boolean
-  }[]
 }
 
 const isTab = getUiType().isTab

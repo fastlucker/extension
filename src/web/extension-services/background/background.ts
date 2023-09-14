@@ -25,6 +25,7 @@ import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
+import { BannersController } from './controllers/banners'
 import { controllersNestedInMainMapping } from './types'
 
 async function init() {
@@ -41,8 +42,8 @@ async function init() {
   await init()
   let pmRef: PortMessage
   let controllersNestedInMainSubscribe: any = null
-  let onResoleDappNotificationRequest: (data: any, id?: bigint) => void
-  let onRejectDappNotificationRequest: (data: any, id?: bigint) => void
+  let onResoleDappNotificationRequest: (data: any, id?: number) => void
+  let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
   const signers = {
     internal: KeystoreSigner,
@@ -71,7 +72,8 @@ async function init() {
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
-  const notificationCtrl = new NotificationController(mainCtrl)
+  const bannersCtrl = new BannersController(mainCtrl)
+  const notificationCtrl = new NotificationController(mainCtrl, bannersCtrl)
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -286,8 +288,10 @@ async function init() {
               break
             }
 
-            case 'NOTIFICATION_CONTROLLER_OPEN_FIRST_NOTIFICATION_REQUEST':
-              return notificationCtrl.openFirstNotificationRequest()
+            case 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST':
+              return notificationCtrl.reopenCurrentNotificationRequest()
+            case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST':
+              return notificationCtrl.openNotificationRequest(data.params.id)
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock(data?.params?.hdPath)
@@ -413,6 +417,9 @@ async function init() {
       return provider({ ...req, mainCtrl, notificationCtrl })
     })
   })
+  setInterval(() => {
+    console.log(mainCtrl)
+  }, 5000)
 })()
 
 // On first install, open Ambire Extension in a new tab to start the login process

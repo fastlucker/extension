@@ -7,8 +7,8 @@ import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 
 import { isDev } from '@common/config/env'
 import colors from '@common/styles/colors'
-import generateBigIntId from '@common/utils/generateBigIntId'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
+import { BannersController } from '@web/extension-services/background/controllers/banners'
 import userNotification from '@web/extension-services/background/libs/user-notification'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
@@ -19,7 +19,7 @@ const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
   'LedgerHardwareWaiting'
 ]
 
-const SIGN_METHODS = [
+export const SIGN_METHODS = [
   'eth_signTypedData',
   'eth_signTypedData_v1',
   'eth_signTypedData_v3',
@@ -32,7 +32,7 @@ const SIGN_METHODS = [
 ]
 
 export interface DappNotificationRequest {
-  id: bigint
+  id: number
   screen: string
   winProps?: any
   params?: any
@@ -42,6 +42,8 @@ export interface DappNotificationRequest {
 
 export class NotificationController extends EventEmitter {
   mainCtrl: MainController
+
+  bannersCtrl: BannersController
 
   _notificationRequests: DappNotificationRequest[] = []
 
@@ -70,9 +72,10 @@ export class NotificationController extends EventEmitter {
     }
   }
 
-  constructor(mainCtrl: MainController) {
+  constructor(mainCtrl: MainController, bannersCtrl: BannersController) {
     super()
     this.mainCtrl = mainCtrl
+    this.bannersCtrl = bannersCtrl
     winMgr.event.on('windowRemoved', (winId: number) => {
       if (winId === this.notificationWindowId) {
         this.notificationWindowId = null
@@ -102,37 +105,58 @@ export class NotificationController extends EventEmitter {
     })
   }
 
-  openFirstNotificationRequest = async () => {
+  reopenCurrentNotificationRequest = async () => {
     try {
-      const windows = await browser.windows.getAll()
-      const existWindow = windows.find((window) => window.id === this.notificationWindowId)
-      if (this.notificationWindowId !== null && !!existWindow) {
-        const {
-          top: cTop,
-          left: cLeft,
-          width
-        } = await browser.windows.getCurrent({
-          windowTypes: ['normal']
-        })
+      if (this.notificationRequests.length < 0 || !this.currentNotificationRequest) return
+      this.openNotification(this.currentNotificationRequest?.winProps)
+    } catch (e: any) {
+      this.emitError({
+        level: 'major',
+        message: 'Request opening failed',
+        error: e
+      })
+    }
+  }
 
-        const top = cTop
-        const left = cLeft! + width! - WINDOW_SIZE.width
-        browser.windows.update(this.notificationWindowId, {
-          focused: true,
-          top,
-          left
-        })
-        return
+  openNotificationRequest = async (notificationId: number) => {
+    try {
+      const notificationRequest = this.notificationRequests.find((req) => req.id === notificationId)
+      if (notificationRequest && !SIGN_METHODS.includes(notificationRequest?.params?.method)) {
+        const windows = await browser.windows.getAll()
+        const existWindow = windows.find((window) => window.id === this.notificationWindowId)
+        if (this.notificationWindowId !== null && !!existWindow) {
+          const {
+            top: cTop,
+            left: cLeft,
+            width
+          } = await browser.windows.getCurrent({
+            windowTypes: ['normal']
+          })
+
+          const top = cTop
+          const left = cLeft! + width! - WINDOW_SIZE.width
+          browser.windows.update(this.notificationWindowId, {
+            focused: true,
+            top,
+            left
+          })
+          return
+        }
       }
 
       if (this.notificationRequests.length < 0) return
 
-      const notificationRequest = this.notificationRequests[0]
-      this.currentNotificationRequest = notificationRequest
-      this.emitUpdate()
-      this.openNotification(notificationRequest.winProps)
-    } catch (e) {
-      this.clear()
+      if (notificationRequest) {
+        this.currentNotificationRequest = notificationRequest
+        this.emitUpdate()
+        this.openNotification(notificationRequest.winProps)
+      }
+    } catch (e: any) {
+      this.emitError({
+        level: 'major',
+        message: 'Request opening failed',
+        error: e
+      })
     }
   }
 
@@ -145,9 +169,13 @@ export class NotificationController extends EventEmitter {
     }
   }
 
-  resolveNotificationRequest = async (data: any, requestId?: bigint) => {
-    if (requestId && requestId !== this.currentNotificationRequest?.id) return
-    const notificationRequest = this.currentNotificationRequest
+  resolveNotificationRequest = async (data: any, requestId?: number) => {
+    let notificationRequest = this.currentNotificationRequest
+
+    if (requestId) {
+      const notificationRequestById = this.notificationRequests.find((req) => req.id === requestId)
+      if (notificationRequestById) notificationRequest = notificationRequestById
+    }
 
     if (notificationRequest) {
       notificationRequest?.resolve(data)
@@ -166,8 +194,13 @@ export class NotificationController extends EventEmitter {
   }
 
   // eslint-disable-next-line default-param-last
-  rejectNotificationRequest = async (err: string = 'Request rejected') => {
-    const notificationRequest = this.currentNotificationRequest
+  rejectNotificationRequest = async (err: string = 'Request rejected', requestId?: number) => {
+    let notificationRequest = this.currentNotificationRequest
+
+    if (requestId) {
+      const notificationRequestById = this.notificationRequests.find((req) => req.id === requestId)
+      if (notificationRequestById) notificationRequest = notificationRequestById
+    }
 
     if (notificationRequest) {
       notificationRequest?.reject &&
@@ -188,7 +221,7 @@ export class NotificationController extends EventEmitter {
 
   requestNotificationRequest = async (data: any, winProps?: any): Promise<any> => {
     return new Promise((resolve, reject) => {
-      const id = generateBigIntId()
+      const id = new Date().getTime()
       const notificationRequest: DappNotificationRequest = {
         id,
         winProps,
@@ -241,8 +274,21 @@ export class NotificationController extends EventEmitter {
           onError: (err) => this.rejectNotificationRequest(err),
           onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
         })
-        if (request) this.mainCtrl.addUserRequest(request)
-        else {
+        if (request) {
+          this.mainCtrl.addUserRequest(request)
+          this.bannersCtrl.addBanner({
+            id: id.toString(),
+            topic: 'TRANSACTION',
+            title: 'Message waiting to be signed.',
+            text: `Message type: ${data?.params?.method}`,
+            actions: [
+              {
+                label: 'Open',
+                onPress: () => {}
+              }
+            ]
+          })
+        } else {
           this.rejectNotificationRequest('Invalid request data')
           return
         }
@@ -264,8 +310,21 @@ export class NotificationController extends EventEmitter {
           onError: (err) => this.rejectNotificationRequest(err),
           onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
         })
-        if (request) this.mainCtrl.addUserRequest(request)
-        else {
+        if (request) {
+          this.mainCtrl.addUserRequest(request)
+          this.bannersCtrl.addBanner({
+            id: id.toString(),
+            topic: 'TRANSACTION',
+            title: 'Message waiting to be signed.',
+            text: `Message type: ${data?.params?.method}`,
+            actions: [
+              {
+                label: 'Open',
+                onPress: () => {}
+              }
+            ]
+          })
+        } else {
           this.rejectNotificationRequest('Invalid request data')
           return
         }
