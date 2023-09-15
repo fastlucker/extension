@@ -1,5 +1,6 @@
 // @ts-nocheck TODO: fix provider types
 
+import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
@@ -17,7 +18,6 @@ import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
 import { navigationContainerDarkTheme } from '@common/modules/router/styles'
 import { navigationRef, routeNameRef } from '@common/services/navigation'
-import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 // TODO: v2

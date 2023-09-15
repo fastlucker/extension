@@ -2,6 +2,7 @@
 /* eslint-disable no-await-in-loop */
 import 'reflect-metadata'
 
+import { getProvider } from 'ambire-common/src/services/provider'
 import { ethErrors } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
 import { isString } from 'lodash'
@@ -9,7 +10,6 @@ import cloneDeep from 'lodash/cloneDeep'
 
 import { APP_VERSION } from '@common/config/env'
 import networks from '@common/constants/networks'
-import { getProvider } from '@common/services/provider'
 import sessionService, {
   Session
 } from '@mobile/modules/web3/services/webview-background/services/session'
