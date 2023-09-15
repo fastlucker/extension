@@ -26,9 +26,12 @@ import animationWallets from './animation-wallets.json'
 import styles from './styles'
 
 interface Token extends TokenResultInterface {
-  gasToken: boolean
+  onGasTank: boolean
   vesting: boolean
   rewards: boolean
+  canTopUpGasTank: boolean
+  isRewardsToken: boolean
+  isFeeToken: boolean
 }
 // TODO: customize token component for gas token, wallet rewards token. Each of them has different button and styling
 // TODO: correct props once connected with portfolio controller
@@ -39,7 +42,7 @@ const TokenItem = ({
   decimals,
   address,
   networkId,
-  gasToken,
+  onGasTank,
   vesting,
   rewards
 }: Token) => {
@@ -110,13 +113,13 @@ const TokenItem = ({
                   {vesting && t('claimable early supporters vesting')}
                   {!rewards && !vesting && t('on')}
                 </Text>
-                {gasToken && <GasTankIcon width={18} height={18} color={colors.violet} />}
-                {!gasToken && !rewards && !vesting && (
+                {onGasTank && <GasTankIcon width={18} height={18} color={colors.violet} />}
+                {!onGasTank && !rewards && !vesting && (
                   <NetworkIcon name={networkId} style={{ width: 25, height: 25 }} />
                 )}
                 <Text style={[spacings.mrMi]} shouldScale={false} fontSize={12}>
-                  {gasToken && t('Gas Tank')}
-                  {!gasToken && !rewards && !vesting && networkData?.name}
+                  {onGasTank && t('Gas Tank')}
+                  {!onGasTank && !rewards && !vesting && networkData?.name}
                 </Text>
                 <InformationIcon color={colors.martinique_65} />
               </View>
@@ -139,7 +142,7 @@ const TokenItem = ({
 
       <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
         <div className="button-pressable">
-          {gasToken && (
+          {onGasTank && (
             <Button
               type="primary"
               size="small"
@@ -160,7 +163,7 @@ const TokenItem = ({
             />
           )}
 
-          {!gasToken && !rewards && !vesting && (
+          {!onGasTank && !rewards && !vesting && (
             <Button
               type="outline"
               size="small"
