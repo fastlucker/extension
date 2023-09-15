@@ -70,6 +70,8 @@ export class NotificationController extends EventEmitter {
 
   currentNotificationRequest: DappNotificationRequest | null = null
 
+  selectedAcc: string | null = null
+
   get notificationRequests() {
     return this._notificationRequests
   }
@@ -91,7 +93,13 @@ export class NotificationController extends EventEmitter {
               item.networkId === currentItem.networkId &&
               item.accountAddr === currentItem.accountAddr
           )
-          if (!hasDuplicate) accumulator.push(currentItem)
+          if (!hasDuplicate && currentItem.accountAddr === this.selectedAcc)
+            accumulator.push(currentItem)
+        } else if (
+          currentItem.accountAddr === this.selectedAcc &&
+          SIGN_METHODS.includes(currentItem?.params?.method)
+        ) {
+          accumulator.push(currentItem)
         } else {
           accumulator.push(currentItem)
         }
@@ -123,6 +131,13 @@ export class NotificationController extends EventEmitter {
       if (winId === this.notificationWindowId) {
         this.notificationWindowId = null
         this.rejectAllNotificationRequestsThatAreNotSignRequests()
+      }
+    })
+
+    this.mainCtrl.onUpdate(() => {
+      if (this.selectedAcc !== mainCtrl.selectedAccount) {
+        this.selectedAcc = mainCtrl.selectedAccount
+        this.notificationRequests = [...this.notificationRequests]
       }
     })
 

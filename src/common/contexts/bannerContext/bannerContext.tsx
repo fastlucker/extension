@@ -85,6 +85,7 @@ const BannerProvider: FC<Props> = ({ children }) => {
             onPress: () => {
               const req = mainState.userRequests.find(
                 (r) =>
+                  r.action.kind === 'call' &&
                   r.accountAddr ===
                     accountOpsToBeSignedForSelectedAcc[key]?.accountOp?.accountAddr &&
                   r.networkId === accountOpsToBeSignedForSelectedAcc[key]?.accountOp?.networkId
