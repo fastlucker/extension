@@ -136,6 +136,7 @@ const LegacyImportManager = (props: Props) => {
         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
         params: { accounts: accountAdderState.selectedAccounts }
       })
+      return
     }
 
     completeStep(false)
