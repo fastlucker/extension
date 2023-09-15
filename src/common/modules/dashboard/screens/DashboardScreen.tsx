@@ -1,5 +1,4 @@
-import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
 
 import Banners from '@common/components/Banners'
@@ -33,42 +32,11 @@ const DashboardScreen = () => {
 
   const {
     accountPortfolio,
-    gasTankAndRewardsData: { rewards, gasTank }
   } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
-  const tokens = [
-    ...(rewards &&
-    rewards?.walletClaimableBalance &&
-    rewards?.walletClaimableBalance?.amount &&
-    Number(rewards?.walletClaimableBalance?.amount)
-      ? [
-          {
-            ...rewards?.walletClaimableBalance,
-            vesting: true
-          }
-        ]
-      : []),
-    ...(rewards &&
-    rewards?.xWalletClaimableBalance &&
-    rewards?.xWalletClaimableBalance?.amount &&
-    Number(rewards?.xWalletClaimableBalance?.amount)
-      ? [
-          {
-            ...rewards?.xWalletClaimableBalance,
-            rewards: true
-          }
-        ]
-      : []),
-    ...(gasTank?.balance
-      ? gasTank.balance.map((token: TokenResultInterface) => ({
-          ...token,
-          gasToken: true
-        }))
-      : []),
-    ...(accountPortfolio?.tokens ? accountPortfolio.tokens : [])
-  ]
+  const tokens = accountPortfolio?.tokens || []
 
   return (
     <View style={styles.container}>
@@ -80,7 +48,7 @@ const DashboardScreen = () => {
                 {t('Balance')}
               </Text>
               <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-                {accountPortfolio.isAllReady ? (
+                {(
                   <>
                     <Text
                       fontSize={30}
@@ -88,17 +56,15 @@ const DashboardScreen = () => {
                       style={{ lineHeight: 34 }}
                       weight="regular"
                     >
-                      ${' '}
-                      {Number(accountPortfolio.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
+                     {t('$')}{' '}
+                      {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
                         'en-US'
                       )}
                     </Text>
                     <Text fontSize={20} shouldScale={false} weight="regular">
-                      .{Number(accountPortfolio.totalAmount.toFixed(2).split('.')[1])}
+                      {t('.')}{Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
                     </Text>
                   </>
-                ) : (
-                  <Spinner style={{ width: 25, height: 25 }} />
                 )}
               </View>
             </View>
