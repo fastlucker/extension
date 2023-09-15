@@ -92,13 +92,14 @@ const LegacyImportManager = (props: Props) => {
             privateKey = getPrivateKeyFromSeed(
               props.privKeyOrSeed,
               // The slot is the key index from the derivation path
-              acc.slot - 1
+              acc.slot - 1,
+              accountAdderState.derivationPath
             )
           }
 
           return {
             privateKey,
-            label: props.label
+            label: `${props.label} for the account on slot ${acc.slot}`
           }
         })
 

@@ -1,9 +1,11 @@
 import { HDNodeWallet, Mnemonic } from 'ethers'
 
+import { BIP44_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
+
 const getPrivateKeyFromSeed = (
   seed: string,
   keyIndex: number,
-  derivationPath: string = "m/44'/60'/0'"
+  derivationPath: string = BIP44_HD_PATH
 ) => {
   const mnemonic = Mnemonic.fromPhrase(seed)
   const wallet = HDNodeWallet.fromMnemonic(mnemonic)

@@ -13,6 +13,7 @@ import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
+import { BIP44_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -225,7 +226,8 @@ async function init() {
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                preselectedAccounts: mainCtrl.accounts
+                preselectedAccounts: mainCtrl.accounts,
+                derivationPath: BIP44_HD_PATH
               })
             }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
