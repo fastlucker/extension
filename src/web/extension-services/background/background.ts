@@ -284,7 +284,7 @@ async function init() {
               break
             }
             case 'NOTIFICATION_CONTROLLER_REJECT_REQUEST': {
-              notificationCtrl.rejectNotificationRequest(data.params.err)
+              notificationCtrl.rejectNotificationRequest(data.params.err, data.params.id)
               break
             }
 
@@ -417,9 +417,6 @@ async function init() {
       return provider({ ...req, mainCtrl, notificationCtrl })
     })
   })
-  setInterval(() => {
-    console.log(mainCtrl)
-  }, 5000)
 })()
 
 // On first install, open Ambire Extension in a new tab to start the login process

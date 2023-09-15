@@ -31,11 +31,30 @@ export const SIGN_METHODS = [
   'ambire_sendBatchTransaction'
 ]
 
+const isSignAccountOpMethod = (method: string) => {
+  return ['eth_sendTransaction', 'gs_multi_send', 'ambire_sendBatchTransaction'].includes(method)
+}
+
+const isSignTypedDataMethod = (method: string) => {
+  return [
+    'eth_signTypedData',
+    'eth_signTypedData_v1',
+    'eth_signTypedData_v3',
+    'eth_signTypedData_v4'
+  ].includes(method)
+}
+
+const isSignMessageMethod = (method: string) => {
+  return ['personal_sign', 'eth_sign'].includes(method)
+}
+
 export interface DappNotificationRequest {
   id: number
   screen: string
   winProps?: any
   params?: any
+  accountAddr?: string
+  networkId?: string
   resolve: (data: any) => void
   reject: (data: any) => void
 }
@@ -58,13 +77,37 @@ export class NotificationController extends EventEmitter {
   set notificationRequests(newValue: DappNotificationRequest[]) {
     this._notificationRequests = newValue
 
-    if (newValue.length <= 0) {
+    // Reduce the number because we should count the accountOps not the calls
+    const requestsCount = newValue.reduce(
+      (accumulator: any, currentItem: DappNotificationRequest) => {
+        if (
+          isSignAccountOpMethod(currentItem.params?.method) &&
+          currentItem.networkId &&
+          currentItem.accountAddr
+        ) {
+          // Check if there's already an item in the accumulator with the same networkId and accountAddr
+          const hasDuplicate = accumulator.some(
+            (item: DappNotificationRequest) =>
+              item.networkId === currentItem.networkId &&
+              item.accountAddr === currentItem.accountAddr
+          )
+          if (!hasDuplicate) accumulator.push(currentItem)
+        } else {
+          accumulator.push(currentItem)
+        }
+
+        return accumulator
+      },
+      []
+    ).length
+
+    if (requestsCount <= 0) {
       browser.browserAction.setBadgeText({
         text: null
       })
     } else {
       browser.browserAction.setBadgeText({
-        text: `${newValue.length}`
+        text: `${requestsCount}`
       })
       browser.browserAction.setBadgeBackgroundColor({
         color: colors.turquoise
@@ -185,9 +228,19 @@ export class NotificationController extends EventEmitter {
         this.deleteNotificationRequest(notificationRequest)
         this.currentNotificationRequest = null
       } else {
+        const currentOrigin = notificationRequest.params?.session?.origin
         this.deleteNotificationRequest(notificationRequest)
         const nextNotificationRequest = this.notificationRequests[0]
-        this.currentNotificationRequest = nextNotificationRequest || null
+        const nextOrigin = nextNotificationRequest.params?.session?.origin
+
+        const shouldOpenNextRequest =
+          (nextNotificationRequest &&
+            !SIGN_METHODS.includes(nextNotificationRequest?.params?.method)) ||
+          (nextNotificationRequest && currentOrigin && nextOrigin && currentOrigin === nextOrigin)
+
+        if (shouldOpenNextRequest) {
+          this.currentNotificationRequest = nextNotificationRequest
+        } else this.currentNotificationRequest = null
       }
     }
     this.emitUpdate()
@@ -195,6 +248,7 @@ export class NotificationController extends EventEmitter {
 
   // eslint-disable-next-line default-param-last
   rejectNotificationRequest = async (err: string = 'Request rejected', requestId?: number) => {
+    console.log('in reject', requestId)
     let notificationRequest = this.currentNotificationRequest
 
     if (requestId) {
@@ -213,7 +267,12 @@ export class NotificationController extends EventEmitter {
       } else {
         this.deleteNotificationRequest(notificationRequest)
         const nextNotificationRequest = this.notificationRequests[0]
-        this.currentNotificationRequest = nextNotificationRequest || null
+        if (
+          nextNotificationRequest &&
+          !SIGN_METHODS.includes(nextNotificationRequest?.params?.method)
+        ) {
+          this.currentNotificationRequest = nextNotificationRequest
+        } else this.currentNotificationRequest = null
       }
     }
     this.emitUpdate()
@@ -235,20 +294,18 @@ export class NotificationController extends EventEmitter {
         }
       }
 
-      if (!QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(data.screen)) {
+      if (!QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(data.screen) && this.notificationWindowId) {
         if (this.currentNotificationRequest) {
           throw ethErrors.provider.userRejectedRequest(
             'please request after current request resolve'
           )
         }
-      } else if (
-        this.currentNotificationRequest &&
-        !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(this.currentNotificationRequest.screen)
-      ) {
-        throw ethErrors.provider.userRejectedRequest('please request after current request resolve')
       }
 
-      this.notificationRequests = [notificationRequest, ...this.notificationRequests]
+      // If account op we add the notification request when we validate the txn params
+      if (!isSignAccountOpMethod(notificationRequest.params?.method)) {
+        this.notificationRequests = [notificationRequest, ...this.notificationRequests]
+      }
       this.currentNotificationRequest = notificationRequest
 
       if (
@@ -265,7 +322,7 @@ export class NotificationController extends EventEmitter {
           return
         }
       }
-      if (['personal_sign', 'eth_sign'].includes(data?.params?.method)) {
+      if (isSignMessageMethod(data?.params?.method)) {
         const request = userNotification.createSignMessageUserRequest({
           id,
           data: data?.params?.data,
@@ -274,34 +331,14 @@ export class NotificationController extends EventEmitter {
           onError: (err) => this.rejectNotificationRequest(err),
           onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
         })
-        if (request) {
-          this.mainCtrl.addUserRequest(request)
-          this.bannersCtrl.addBanner({
-            id: id.toString(),
-            topic: 'TRANSACTION',
-            title: 'Message waiting to be signed.',
-            text: `Message type: ${data?.params?.method}`,
-            actions: [
-              {
-                label: 'Open',
-                onPress: () => {}
-              }
-            ]
-          })
-        } else {
+        if (request) this.mainCtrl.addUserRequest(request)
+        else {
           this.rejectNotificationRequest('Invalid request data')
           return
         }
       }
 
-      if (
-        [
-          'eth_signTypedData',
-          'eth_signTypedData_v1',
-          'eth_signTypedData_v3',
-          'eth_signTypedData_v4'
-        ].includes(data?.params?.method)
-      ) {
+      if (isSignTypedDataMethod(data?.params?.method)) {
         const request = userNotification.createSignTypedDataUserRequest({
           id,
           data: data?.params?.data,
@@ -310,31 +347,14 @@ export class NotificationController extends EventEmitter {
           onError: (err) => this.rejectNotificationRequest(err),
           onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
         })
-        if (request) {
-          this.mainCtrl.addUserRequest(request)
-          this.bannersCtrl.addBanner({
-            id: id.toString(),
-            topic: 'TRANSACTION',
-            title: 'Message waiting to be signed.',
-            text: `Message type: ${data?.params?.method}`,
-            actions: [
-              {
-                label: 'Open',
-                onPress: () => {}
-              }
-            ]
-          })
-        } else {
+        if (request) this.mainCtrl.addUserRequest(request)
+        else {
           this.rejectNotificationRequest('Invalid request data')
           return
         }
       }
 
-      if (
-        ['eth_sendTransaction', 'gs_multi_send', 'ambire_sendBatchTransaction'].includes(
-          data?.params?.method
-        )
-      ) {
+      if (isSignAccountOpMethod(data?.params?.method)) {
         const txs = data?.params?.data
 
         Object.keys(txs).forEach((key) => {
@@ -347,20 +367,25 @@ export class NotificationController extends EventEmitter {
             onError: (err) => this.rejectNotificationRequest(err),
             onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
           })
-          if (request) this.mainCtrl.addUserRequest(request)
-          else {
+          if (request) {
+            this.notificationRequests = [
+              {
+                ...notificationRequest,
+                accountAddr: request.accountAddr,
+                networkId: request.networkId
+              },
+              ...this.notificationRequests
+            ]
+            this.mainCtrl.addUserRequest(request)
+          } else {
+            this.notificationRequests = [notificationRequest, ...this.notificationRequests]
             this.rejectNotificationRequest('Invalid request data')
           }
         })
       }
 
-      if (this.notificationWindowId !== null) {
-        browser.windows.update(this.notificationWindowId, {
-          focused: true
-        })
-      } else {
-        this.openNotification(notificationRequest.winProps)
-      }
+      this.openNotification(notificationRequest.winProps)
+
       this.emitUpdate()
     })
   }
@@ -398,10 +423,11 @@ export class NotificationController extends EventEmitter {
     if (this.notificationWindowId !== null) {
       winMgr.remove(this.notificationWindowId)
       this.notificationWindowId = null
+      this.emitUpdate()
     }
     winMgr.openNotification(winProps).then((winId) => {
       this.notificationWindowId = winId!
+      this.emitUpdate()
     })
-    this.emitUpdate()
   }
 }

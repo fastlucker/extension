@@ -75,7 +75,7 @@ const BannerProvider: FC<Props> = ({ children }) => {
 
     Object.keys(accountOpsToBeSignedForSelectedAcc).forEach((key) => {
       txnBanners.push({
-        id: key,
+        id: new Date().getTime(),
         topic: 'TRANSACTION',
         title: `${accountOpsToBeSignedForSelectedAcc[key]?.accountOp?.calls.length} Transactions waiting to be signed`,
         text: '',
@@ -83,13 +83,35 @@ const BannerProvider: FC<Props> = ({ children }) => {
           {
             label: 'Open',
             onPress: () => {
-              console.log(accountOpsToBeSignedForSelectedAcc[key]?.accountOp)
+              const req = mainState.userRequests.find(
+                (r) =>
+                  r.accountAddr ===
+                    accountOpsToBeSignedForSelectedAcc[key]?.accountOp?.accountAddr &&
+                  r.networkId === accountOpsToBeSignedForSelectedAcc[key]?.accountOp?.networkId
+              )
+              if (req) {
+                dispatch({
+                  type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST',
+                  params: { id: req.id }
+                })
+              }
             }
           },
           {
             label: 'Reject',
             onPress: () => {
-              console.log(accountOpsToBeSignedForSelectedAcc[key]?.accountOp)
+              mainState.userRequests.forEach((req) => {
+                if (
+                  req.accountAddr ===
+                    accountOpsToBeSignedForSelectedAcc[key]?.accountOp?.accountAddr &&
+                  req.networkId === accountOpsToBeSignedForSelectedAcc[key]?.accountOp?.networkId
+                ) {
+                  dispatch({
+                    type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+                    params: { err: 'User rejected the message request', id: req.id }
+                  })
+                }
+              })
             }
           }
         ]

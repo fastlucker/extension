@@ -3,6 +3,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
+import useRoute from '@common/hooks/useRoute'
 import {
   NotificationController,
   SIGN_METHODS
@@ -19,6 +20,7 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
   const [state, setState] = useState({} as NotificationController)
   const { dispatch } = useBackgroundService()
   const prevState = usePrevious(state) || ({} as NotificationController)
+  const { path } = useRoute()
 
   const { navigate } = useNavigation()
 
@@ -71,6 +73,33 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
     state.currentNotificationRequest?.params.method,
     state.notificationWindowId,
     state.currentNotificationRequest
+  ])
+
+  // open the unfocused notification window
+  // if there is a pending transaction that is opened
+  // and dashboard is opened in popup or tab
+  // to prevent rejecting a request from the banners
+  // and still having an opened window
+  useEffect(() => {
+    const isNotification = getUiType().isNotification
+    if (
+      !isNotification &&
+      state.notificationWindowId &&
+      state.currentNotificationRequest &&
+      SIGN_METHODS.includes(state.currentNotificationRequest?.params?.method) &&
+      path?.includes('dashboard')
+    ) {
+      dispatch({
+        type: 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST'
+      })
+      window.close()
+    }
+  }, [
+    dispatch,
+    state.currentNotificationRequest?.params.method,
+    state.notificationWindowId,
+    state.currentNotificationRequest,
+    path
   ])
 
   return (
