@@ -2,8 +2,8 @@ import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from 'ambire-common/src/libs/keystoreSigner/keystoreSigner'
-import { calculateAccountPortfolio } from 'ambire-common/src/libs/portfolio/portfolioView'
 
+import { pinnedTokens } from '@common/constants/tokens'
 import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
@@ -66,14 +66,17 @@ async function init() {
     onUpdateDappSelectedAccount: (accountAddr) => {
       const account = accountAddr ? [accountAddr] : []
       return sessionService.broadcastEvent('accountsChanged', account)
-    }
+    },
+    pinned: pinnedTokens
   })
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
+
   let numberOfOpenedWindows = 0
+  let intervalId
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -128,7 +131,7 @@ async function init() {
       controllersNestedInMainSubscribe()
     }
 
-    if (mainCtrl.isReady && controllersNestedInMainSubscribe && mainCtrl.selectedAccount) {
+    if (mainCtrl.isReady && mainCtrl.selectedAccount) {
       fetchPortfolioData()
     }
   })
@@ -166,36 +169,19 @@ async function init() {
 
   const fetchPortfolioData = async () => {
     if (!mainCtrl.selectedAccount) return
-    try {
-      const data = await mainCtrl.portfolio.getAdditionalPortfolio(mainCtrl.selectedAccount)
-      storage.set('additionalPortfolio', data)
-    } catch (e) {
-      console.log(e)
-    }
     return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
   }
 
-  mainCtrl.portfolio.onUpdate(async () => {
-    if (!mainCtrl.selectedAccount) return
-    storage.set('portfolio', mainCtrl.portfolio)
-    const additionalPortfolio = await storage.get('additionalPortfolio', {})
-    const accountPortfolio = await storage.get('accountPortfolio', {})
-
-    const newAccPortfolio = await calculateAccountPortfolio(
-      mainCtrl.selectedAccount,
-      mainCtrl.portfolio,
-      accountPortfolio[mainCtrl.selectedAccount],
-      additionalPortfolio
-    )
-    storage.set('accountPortfolio', {
-      ...accountPortfolio,
-      [mainCtrl.selectedAccount]: newAccPortfolio
-    })
-  })
-
   fetchPortfolioData()
 
-  setInterval(() => fetchPortfolioData(), numberOfOpenedWindows ? 60000 : 600000)
+  function setPortfolioFetchInterval() {
+    clearInterval(intervalId); // Clear existing interval
+  
+    intervalId = setInterval(() =>  fetchPortfolioData(), numberOfOpenedWindows ? 60000 : 600000);
+  }
+  
+  // Call it once to initialize the interval
+  setPortfolioFetchInterval();
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port) => {
@@ -204,9 +190,11 @@ async function init() {
       pmRef = pm
 
       numberOfOpenedWindows++
+      setPortfolioFetchInterval()
 
       port.onDisconnect.addListener(() => {
         if (numberOfOpenedWindows > 0) numberOfOpenedWindows--
+        setPortfolioFetchInterval()
       })
 
       pm.listen(async (data: Action) => {
