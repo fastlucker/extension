@@ -3,9 +3,10 @@ import {
   CollectionResult as CollectionResultInterface,
   TokenResult as TokenResultInterface
 } from 'ambire-common/src/libs/portfolio/interfaces'
+import { calculateAccountPortfolio } from 'ambire-common/src/libs/portfolio/portfolioView'
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
-import storage from '@web/extension-services/background/webapi/storage'
+import { feeTokens, gasTankFeeTokens } from '@common/constants/tokens'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -17,9 +18,8 @@ interface AccountPortfolio {
   isAllReady: boolean
 }
 const PortfolioControllerStateContext = createContext<{
-  accountPortfolio: AccountPortfolio
+  accountPortfolio: AccountPortfolio | null
   state: PortfolioController
-  gasTankAndRewardsData: {}
 }>({
   accountPortfolio: {
     tokens: [],
@@ -28,16 +28,16 @@ const PortfolioControllerStateContext = createContext<{
     isAllReady: false
   },
   state: {} as any,
-  gasTankAndRewardsData: {} as any
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const { dispatch } = useBackgroundService()
   const mainCtrl = useMainControllerState()
-  const [accountPortfolio, setAccountPortfolio] = useState({})
-  const [additionalPortfolio, setAdditionalPortftolio] = useState({})
+  const [accountPortfolios, setAccountPortfolios] = useState<{ [key: string]: AccountPortfolio }>({});
   const [state, setState] = useState({} as PortfolioController)
-
+  
+  const currentAccountPortfolio = useMemo(() => mainCtrl.selectedAccount ? accountPortfolios[mainCtrl.selectedAccount] : null, [accountPortfolios, mainCtrl.selectedAccount])
+  
   useEffect(() => {
     if (mainCtrl.isReady && !Object.keys(state).length) {
       dispatch({
@@ -48,24 +48,18 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [dispatch, mainCtrl.isReady, state])
 
   useEffect(() => {
-    ;(async () => {
-      // @TODO: We may want to store additionalPortfolio for acc as well
-      const savedPortfolio = await storage.get('accountPortfolio')
-      console.log(savedPortfolio, mainCtrl.selectedAccount)
-      if (savedPortfolio[mainCtrl.selectedAccount]) {
-        setAccountPortfolio(savedPortfolio[[mainCtrl.selectedAccount]])
-      } else {
-        setAccountPortfolio({})
-      }
+    if (!mainCtrl.selectedAccount) return
 
-      const savedAdditionalPortfolio = await storage.get('additionalPortfolio', {})
-      if (savedAdditionalPortfolio) {
-        setAdditionalPortftolio(savedAdditionalPortfolio)
-      } else {
-        setAdditionalPortftolio({})
-      }
-    })()
-  }, [mainCtrl.selectedAccount])
+    const newAccountPortfolio = calculateAccountPortfolio(mainCtrl.selectedAccount, state, currentAccountPortfolio, feeTokens, gasTankFeeTokens)
+
+    if (newAccountPortfolio.isAllReady || !currentAccountPortfolio?.tokens.length) {
+      setAccountPortfolios((prevAccountPortfolios) => ({
+        ...prevAccountPortfolios,
+        ...(mainCtrl.selectedAccount ? { [mainCtrl.selectedAccount]: newAccountPortfolio } : {})
+      }));
+  
+    }
+  }, [mainCtrl.selectedAccount, state])
 
   useEffect(() => {
     const onUpdate = (newState: PortfolioController) => {
@@ -77,15 +71,15 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     return () => eventBus.removeEventListener('portfolio', onUpdate)
   }, [])
 
+ 
   return (
     <PortfolioControllerStateContext.Provider
       value={useMemo(
         () => ({
-          state,
-          gasTankAndRewardsData: additionalPortfolio,
-          accountPortfolio
+          state, 
+          accountPortfolio: currentAccountPortfolio 
         }),
-        [state, accountPortfolio, additionalPortfolio]
+        [state, currentAccountPortfolio]
       )}
     >
       {children}
