@@ -80,7 +80,7 @@ const TrezorManager: React.FC<{}> = (props) => {
       try {
         // TODO: Use method that adds multiple keys at once
         dispatch({
-          type: 'KEYSTORE_CONTROLLER_ADD_KEY_EXTERNALLY_STORED'
+          type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
         })
         // const keysToAddToKeystore = accountAdderState.selectedAccounts.map((acc) => {
         //   let privateKey = props.privKeyOrSeed

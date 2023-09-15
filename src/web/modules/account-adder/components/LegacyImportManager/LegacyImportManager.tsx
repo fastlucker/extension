@@ -89,12 +89,11 @@ const LegacyImportManager = (props: Props) => {
 
           // in case props.privKeyOrSeed is a seed the private keys have to be extracted
           if (Mnemonic.isValidMnemonic(props.privKeyOrSeed)) {
-            // The slot is the key index from the derivation path
-            const slotIdx = accountAdderState.accountsOnPage.find(
-              (accOnPage) => accOnPage.account.addr === acc.addr
-            )?.slot
-
-            privateKey = getPrivateKeyFromSeed(props.privKeyOrSeed, (slotIdx || 0) - 1)
+            privateKey = getPrivateKeyFromSeed(
+              props.privKeyOrSeed,
+              // The slot is the key index from the derivation path
+              acc.slot - 1
+            )
           }
 
           return {
@@ -137,7 +136,6 @@ const LegacyImportManager = (props: Props) => {
         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
         params: { accounts: accountAdderState.selectedAccounts }
       })
-      return
     }
 
     completeStep(false)
