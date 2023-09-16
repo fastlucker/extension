@@ -1,5 +1,6 @@
 // @ts-nocheck TODO: fix provider types
 
+import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
@@ -17,7 +18,6 @@ import { ToastProvider } from '@common/contexts/toastContext'
 import useFonts from '@common/hooks/useFonts'
 import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
-import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
 import { rpcProviders } from '@common/services/providers'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
