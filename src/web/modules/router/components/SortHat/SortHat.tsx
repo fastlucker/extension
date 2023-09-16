@@ -9,7 +9,6 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
-import permission from '@web/extension-services/background/services/permission'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
@@ -49,13 +48,9 @@ const SortHat = () => {
           accountAddr = notificationState.currentNotificationRequest.params.data[0].from
         }
 
-        await permission.init()
-        const chainId = Number(
-          permission.getConnectedSite(
-            notificationState.currentNotificationRequest.params.session.origin
-          )?.chainId
+        const network = networks.find(
+          (n) => n.id === notificationState.currentNotificationRequest?.networkId
         )
-        const network = networks.find((n) => Number(n.chainId) === chainId)
 
         if (accountAddr && network) {
           return navigate(ROUTES.signAccountOp, {

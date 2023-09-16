@@ -2,6 +2,7 @@
 import { networks } from 'ambire-common/src/consts/networks'
 import EventEmitter from 'ambire-common/src/controllers/eventEmitter'
 import { MainController } from 'ambire-common/src/controllers/main/main'
+import { UserRequest } from 'ambire-common/src/interfaces/userRequest'
 import { ethErrors } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 
@@ -139,6 +140,34 @@ export class NotificationController extends EventEmitter {
         this.selectedAcc = mainCtrl.selectedAccount
         this.notificationRequests = [...this.notificationRequests]
       }
+
+      mainCtrl.userRequests.forEach((userReq: UserRequest) => {
+        const notificationReq = this.notificationRequests.find((req) => req.id === userReq.id)
+        if (!notificationReq) {
+          const getScreenType = (kind: UserRequest['action']['kind']) => {
+            if (kind === 'call') return 'SendTransaction'
+            if (kind === 'message') return 'SignText'
+            if (kind === 'typedMessage') return 'SignTypedData'
+            return undefined
+          }
+
+          const notificationRequestFromUserRequest: DappNotificationRequest = {
+            id: userReq.id,
+            screen: getScreenType(userReq.action.kind) as string,
+            params: {
+              method: 'eth_sendTransaction'
+            },
+            accountAddr: userReq.accountAddr,
+            networkId: userReq.networkId,
+            resolve: () => {},
+            reject: () => {}
+          }
+          this.notificationRequests = [
+            notificationRequestFromUserRequest,
+            ...this.notificationRequests
+          ]
+        }
+      })
     })
 
     winMgr.event.on('windowFocusChange', (winId: number) => {
