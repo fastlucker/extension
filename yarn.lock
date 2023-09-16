@@ -6350,9 +6350,9 @@ ajv@^8.0.0, ajv@^8.1.0, ajv@^8.6.3, ajv@^8.9.0:
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-"ambire-common@git+ssh://git@github.com/AmbireTech/ambire-common.git#ad38d4f5113f5b9bab00a963cee29900715600e2":
+"ambire-common@git+ssh://git@github.com/AmbireTech/ambire-common.git#eaf1a3abf611ffd96fa0fdc6aa62fd53cbd79d9f":
   version "0.15.0"
-  resolved "git+ssh://git@github.com/AmbireTech/ambire-common.git#ad38d4f5113f5b9bab00a963cee29900715600e2"
+  resolved "git+ssh://git@github.com/AmbireTech/ambire-common.git#eaf1a3abf611ffd96fa0fdc6aa62fd53cbd79d9f"
   dependencies:
     "@jest/globals" "^29.6.1"
     aes-js "^3.1.2"
