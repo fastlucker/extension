@@ -43,24 +43,32 @@ const SortHat = () => {
         return navigate(ROUTES.permissionRequest)
       }
       if (notificationState.currentNotificationRequest?.screen === 'SendTransaction') {
-        let accountAddr = mainState.selectedAccount
-        if (notificationState.currentNotificationRequest?.params?.data?.[0]?.from) {
-          accountAddr = notificationState.currentNotificationRequest.params.data[0].from
-        }
+        if (
+          mainState.userRequests.find(
+            (req) => req.id === notificationState.currentNotificationRequest?.id
+          )
+        ) {
+          let accountAddr = mainState.selectedAccount
+          if (notificationState.currentNotificationRequest?.params?.data?.[0]?.from) {
+            accountAddr = notificationState.currentNotificationRequest.params.data[0].from
+          }
 
-        const network = networks.find(
-          (n) => n.id === notificationState.currentNotificationRequest?.networkId
-        )
+          const network = networks.find(
+            (n) => n.id === notificationState.currentNotificationRequest?.networkId
+          )
 
-        if (accountAddr && network) {
-          return navigate(ROUTES.signAccountOp, {
-            state: {
-              accountAddr: toChecksumAddress(accountAddr as string),
-              network
-            }
-          })
+          console.log('nnn', notificationState.currentNotificationRequest)
+
+          if (accountAddr && network) {
+            return navigate(ROUTES.signAccountOp, {
+              state: {
+                accountAddr: toChecksumAddress(accountAddr as string),
+                network
+              }
+            })
+          }
+          // TODO: add here some error handling and dispatch dapp request removal
         }
-        // TODO: add here some error handling and dispatch dapp request removal
       }
       if (
         ['SignText', 'SignTypedData'].includes(notificationState.currentNotificationRequest?.screen)
@@ -105,7 +113,8 @@ const SortHat = () => {
     navigate,
     onboardingStatus,
     keystoreState,
-    mainState.selectedAccount
+    mainState.selectedAccount,
+    mainState.userRequests
   ])
 
   useEffect(() => {

@@ -141,6 +141,7 @@ export class NotificationController extends EventEmitter {
         this.notificationRequests = [...this.notificationRequests]
       }
 
+      const notificationRequestsToAdd: DappNotificationRequest[] = []
       mainCtrl.userRequests.forEach((userReq: UserRequest) => {
         const notificationReq = this.notificationRequests.find((req) => req.id === userReq.id)
         if (!notificationReq) {
@@ -162,12 +163,13 @@ export class NotificationController extends EventEmitter {
             resolve: () => {},
             reject: () => {}
           }
-          this.notificationRequests = [
-            notificationRequestFromUserRequest,
-            ...this.notificationRequests
-          ]
+          notificationRequestsToAdd.push(notificationRequestFromUserRequest)
         }
       })
+      if (notificationRequestsToAdd.length) {
+        this.notificationRequests = [...notificationRequestsToAdd, ...this.notificationRequests]
+        this.openNotificationRequest(this.notificationRequests[0].id)
+      }
     })
 
     winMgr.event.on('windowFocusChange', (winId: number) => {
@@ -412,14 +414,13 @@ export class NotificationController extends EventEmitter {
             onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
           })
           if (request) {
-            this.notificationRequests = [
-              {
-                ...notificationRequest,
-                accountAddr: request.accountAddr,
-                networkId: request.networkId
-              },
-              ...this.notificationRequests
-            ]
+            const accountOpNotificationRequest = {
+              ...notificationRequest,
+              accountAddr: request.accountAddr,
+              networkId: request.networkId
+            }
+            this.notificationRequests = [accountOpNotificationRequest, ...this.notificationRequests]
+            this.currentNotificationRequest = accountOpNotificationRequest
             this.mainCtrl.addUserRequest(request)
           } else {
             this.notificationRequests = [notificationRequest, ...this.notificationRequests]
@@ -427,10 +428,8 @@ export class NotificationController extends EventEmitter {
           }
         })
       }
-
-      this.openNotification(notificationRequest.winProps)
-
       this.emitUpdate()
+      this.openNotification(notificationRequest.winProps)
     })
   }
 
