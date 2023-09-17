@@ -24,10 +24,9 @@ import styles from './styles'
 interface Props {
   tokens: OptionType[]
   accounts: OptionType[]
-  onBack: () => void
 }
 
-const SignAccountOpTabScreen: FC<Props> = ({ tokens, accounts, onBack }) => {
+const SignAccountOpTabScreen: FC<Props> = ({ tokens, accounts }) => {
   const { t } = useTranslation()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
@@ -110,7 +109,6 @@ const SignAccountOpTabScreen: FC<Props> = ({ tokens, accounts, onBack }) => {
     <TabLayoutWrapperMainContent
       width="full"
       forceCanGoBack
-      onBack={onBack}
       pageTitle={<Header />}
       footer={<Footer />}
     >

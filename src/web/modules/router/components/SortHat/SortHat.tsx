@@ -57,8 +57,6 @@ const SortHat = () => {
             (n) => n.id === notificationState.currentNotificationRequest?.networkId
           )
 
-          console.log('nnn', notificationState.currentNotificationRequest)
-
           if (accountAddr && network) {
             return navigate(ROUTES.signAccountOp, {
               state: {

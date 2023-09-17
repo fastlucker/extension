@@ -44,10 +44,12 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
   // after a change in the notification request navigate to SortHat to manage the next screen
   // based on the notification type or if notif request is null to open some of the other internal screens of the wallet
   useEffect(() => {
-    const id = state.currentNotificationRequest?.id
-    const prevId = prevState?.currentNotificationRequest?.id
-    if (prevId !== id) {
-      setTimeout(() => navigate('/'))
+    if (getUiType().isNotification) {
+      const id = state.currentNotificationRequest?.id
+      const prevId = prevState?.currentNotificationRequest?.id
+      if (prevId !== id) {
+        setTimeout(() => navigate('/'))
+      }
     }
   }, [prevState.currentNotificationRequest?.id, state.currentNotificationRequest?.id, navigate])
 

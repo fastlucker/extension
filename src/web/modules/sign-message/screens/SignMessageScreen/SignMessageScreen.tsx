@@ -10,6 +10,7 @@ import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import networks from '@common/constants/networks'
+import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
@@ -39,6 +40,8 @@ const SignMessageScreen = () => {
   const { dispatch } = useBackgroundService()
   const { currentNotificationRequest } = useNotificationControllerState()
   const { params } = useRoute()
+  const { navigate } = useNavigation()
+
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
 
@@ -46,6 +49,12 @@ const SignMessageScreen = () => {
   console.log('signMessageState: ', signMessageState)
   console.log('activityState', activityState)
   console.log('mainState', mainState)
+
+  useEffect(() => {
+    if (!params?.accountAddr) {
+      navigate('/')
+    }
+  }, [params?.accountAddr, navigate])
 
   useEffect(() => {
     if (prevSignMessageState.status === 'LOADING' && signMessageState.status === 'DONE') {

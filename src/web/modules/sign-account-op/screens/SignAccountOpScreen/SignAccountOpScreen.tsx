@@ -1,10 +1,10 @@
 import { Account } from 'ambire-common/src/interfaces/account'
 import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
-import React, { useCallback } from 'react'
+import React, { useEffect } from 'react'
 
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
-import { ROUTES } from '@common/modules/router/constants/common'
+import useRoute from '@common/hooks/useRoute'
 import { mapTokenOptions } from '@web/utils/maps'
 
 import SignAccountOpTabScreen from '../SignAccountOpTabScreen'
@@ -45,16 +45,19 @@ const mapAccountOptions = (values: Account[]) =>
   }))
 
 const SignAccountOpScreen = () => {
+  const { params } = useRoute()
   const { navigate } = useNavigation()
+
+  useEffect(() => {
+    if (!params?.accountAddr || !params?.network) {
+      navigate('/')
+    }
+  }, [params?.accountAddr, params?.network, navigate])
 
   const mappedAccounts = mapAccountOptions(ACCOUNTS as Account[])
   const mappedTokens = mapTokenOptions(TOKENS as TokenResult[])
 
-  const onBack = useCallback(() => {
-    navigate(ROUTES.transfer)
-  }, [navigate])
-
-  return <SignAccountOpTabScreen onBack={onBack} tokens={mappedTokens} accounts={mappedAccounts} />
+  return <SignAccountOpTabScreen tokens={mappedTokens} accounts={mappedAccounts} />
 }
 
 export default SignAccountOpScreen
