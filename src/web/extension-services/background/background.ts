@@ -6,6 +6,8 @@ import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/
 
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
+import { BadgesController } from '@web/extension-services/background/controllers/badges'
+import { BannersController } from '@web/extension-services/background/controllers/banners'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -25,7 +27,6 @@ import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
-import { BannersController } from './controllers/banners'
 import { controllersNestedInMainMapping } from './types'
 
 async function init() {
@@ -74,6 +75,8 @@ async function init() {
   const latticeCtrl = new LatticeController()
   const bannersCtrl = new BannersController()
   const notificationCtrl = new NotificationController(mainCtrl)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
