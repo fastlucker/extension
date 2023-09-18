@@ -36,9 +36,14 @@ const AccountSelectScreen = () => {
   }
 
   return (
+    <View style={[flexboxStyles.flex1, spacings.pv0, spacings.ph0]}>
+  
     <View style={styles.container}>
       <Search placeholder="Search for accounts" style={styles.searchBar} />
-      <Wrapper contentContainerStyle={[spacings.pv0, spacings.ph0, spacings.prTy]}>
+    </View>
+
+    <Wrapper contentContainerStyle={[spacings.phSm,
+    spacings.pv]}>
       {mainCtrl.accounts.length &&
         mainCtrl.accounts.map((account) => (
           <Pressable key={account.addr} onPress={() => selectAccount(account.addr)}>
@@ -96,7 +101,7 @@ const AccountSelectScreen = () => {
                     iconWidth={20}
                     iconHeight={20}
                     style={{...spacings.mrTy, backgroundColor: 'transparent', borderColor: 'transparent' }}
-                  /> 
+                    /> 
                   <PinIcon style={[spacings.mr]} />
                   <SettingsIcon />
                 </View>
@@ -104,8 +109,8 @@ const AccountSelectScreen = () => {
             )}
           </Pressable>
         ))}
-        </Wrapper>
-    </View>
+      </Wrapper>
+  </View>
   )
 }
 
