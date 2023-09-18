@@ -30,6 +30,7 @@ const SignAccountOpPopupScreen: FC<Props> = ({ tokens }) => {
   return (
     <View style={styles.container}>
       <TabHeader
+        style={{ backgroundColor: colors.zircon }}
         hideStepper
         pageTitle="Sign Transaction"
         rightSideComponent={

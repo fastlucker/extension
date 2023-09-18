@@ -50,6 +50,7 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
   return (
     <View style={styles.view}>
       <TabHeader
+        style={{ backgroundColor: colors.zircon }}
         // @TODO: add a case where <CollectionScreen /> doesn't receive collectibles from useRoute
         // and has to fetch them, so the back button here leads to that screen.(since we can't pass
         // collectibles to <CollectionScreen /> from <CollectibleScreen />)

@@ -177,22 +177,28 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
   // in different manner. And styling it was hell. So instead - implement
   // custom components that fully match the design we follow.
   return (
-    <View style={[styles.container]}>
-      <View style={commonWebStyles.contentContainer}>
-        {mode === 'controls' && renderHeaderControls}
-        {mode === 'title' && (
-          <>
-            <View style={styles.sideContainer}>
-              {!!withBackButton && !!canGoBack && renderBackButton()}
-              {!!withAmbireLogo && <AmbireLogoHorizontal />}
-            </View>
+    <View style={styles.container}>
+      {mode === 'controls' && <View style={styles.containerInner}>{renderHeaderControls}</View>}
+      {mode === 'title' && (
+        <>
+          <View style={styles.sideContainer}>
+            {!!withBackButton && !!canGoBack && renderBackButton()}
+          </View>
+          <View style={styles.containerInner}>
+            {!!withAmbireLogo && (
+              <View style={styles.sideContainer}>
+                <AmbireLogoHorizontal />
+              </View>
+            )}
+
             <Text fontSize={18} weight="medium" style={styles.title} numberOfLines={2}>
               {title || ''}
             </Text>
-            <View style={styles.sideContainer} />
-          </>
-        )}
-      </View>
+            {!!withAmbireLogo && <View style={styles.sideContainer} />}
+          </View>
+          <View style={styles.sideContainer} />
+        </>
+      )}
     </View>
   )
 }
