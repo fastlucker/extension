@@ -1,6 +1,12 @@
-import React, { useState } from 'react'
+import React, { CSSProperties, FC, useState } from 'react'
 import { Image, Pressable, TextStyle, View, ViewStyle } from 'react-native'
-import Select, { components, DropdownIndicatorProps, OptionProps } from 'react-select'
+import Select, {
+  components,
+  DropdownIndicatorProps,
+  MenuPlacement,
+  OptionProps,
+  SingleValueProps
+} from 'react-select'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import Text from '@common/components/Text'
@@ -23,14 +29,43 @@ interface Props {
   label?: string
   labelStyle?: TextStyle
   disabled?: boolean
-  menuPlacement?: string
+  menuPlacement?: MenuPlacement
   style?: ViewStyle
-  controlStyle?: ViewStyle
+  controlStyle?: CSSProperties
   iconWidth?: number
   iconHeight?: number
   openMenuOnClick?: boolean
   onDropdownOpen?: () => void
 }
+
+const Option = ({ data }: { data: any }) => {
+  if (!data) return null
+  return (
+    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+      {!!data?.icon && typeof data?.icon === 'object' && (
+        <View style={styles.optionIcon}>{data.icon}</View>
+      )}
+      {!!data?.icon && typeof data?.icon === 'string' && (
+        <Image source={{ uri: data.icon }} style={styles.optionIcon} />
+      )}
+      {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
+      {typeof data?.label === 'string' ? <Text fontSize={14}>{data.label}</Text> : data?.label}
+    </View>
+  )
+}
+
+const IconOption: FC<OptionProps> = ({ data, ...rest }) => (
+  // @ts-ignore
+  <components.Option data={data} {...rest}>
+    <Option data={data} />
+  </components.Option>
+)
+
+const SingleValueIconOption: FC<SingleValueProps> = ({ data, ...rest }) => (
+  <components.SingleValue data={data} {...rest}>
+    <Option data={data} />
+  </components.SingleValue>
+)
 
 const SelectComponent = ({
   value,
@@ -67,48 +102,13 @@ const SelectComponent = ({
     )
   }
 
-  // @TODO - Typescript support for `data` property
-  const IconOption = (props: OptionProps) => (
-    <components.Option {...props}>
-      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {!!props.data.icon && typeof props.data.icon === 'object' && (
-          <View style={styles.optionIcon}>{props.data.icon}</View>
-        )}
-        {!!props.data.icon && typeof props.data.icon === 'string' && (
-          <Image source={props.data.icon} style={styles.optionIcon} />
-        )}
-        {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
-        {typeof props.data.label === 'string' ? (
-          <Text fontSize={14}>{props.data.label}</Text>
-        ) : (
-          props.data.label
-        )}
-      </View>
-    </components.Option>
-  )
-  // @TODO - Typescript support for `data` property
-  const SingleValueIconOption = (props: SingleValueProps) => (
-    <components.SingleValue {...props}>
-      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {!!props.data.icon && typeof props.data.icon === 'object' && (
-          <View style={styles.optionIcon}>{props.data.icon}</View>
-        )}
-        {!!props.data.icon && typeof props.data.icon === 'string' && (
-          <Image source={props.data.icon} style={styles.optionIcon} />
-        )}
-        {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
-        {typeof props.data.label === 'string' ? (
-          <Text fontSize={14}>{props.data.label}</Text>
-        ) : (
-          props.data.label
-        )}
-      </View>
-    </components.SingleValue>
-  )
-
   return (
     <>
-      {label && <Text style={[spacings.mbMi, labelStyle]}>{label}</Text>}
+      {label && (
+        <Text weight="regular" style={[spacings.mbTy, spacings.mlTy, labelStyle]}>
+          {label}
+        </Text>
+      )}
       <Pressable
         onPress={() => {
           if (!openMenuOnClick) return
@@ -126,23 +126,23 @@ const SelectComponent = ({
           menuPosition="fixed"
           components={{ DropdownIndicator, Option: IconOption, SingleValue: SingleValueIconOption }}
           styles={{
-            dropdownIndicator: (provided, state) => ({
+            dropdownIndicator: (provided) => ({
               ...provided,
-              ...flexbox.alignCenter,
+              ...(flexbox.alignCenter as CSSProperties),
               padding: 0,
               margin: 8
             }),
-            indicatorSeparator: (styles) => ({ display: 'none' }),
+            indicatorSeparator: () => ({ display: 'none' }),
             placeholder: (baseStyles) => ({
               ...baseStyles,
-              ...common.borderRadiusPrimary,
+              ...(common.borderRadiusPrimary as CSSProperties),
               fontSize: 14,
               color: colors.martinique
             }),
             control: (baseStyles) => ({
               ...baseStyles,
               background: colors.melrose_15,
-              ...common.borderRadiusPrimary,
+              ...(common.borderRadiusPrimary as CSSProperties),
               fontSize: 14,
               color: colors.martinique,
               ...controlStyle

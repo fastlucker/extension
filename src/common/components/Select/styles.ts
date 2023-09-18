@@ -1,4 +1,4 @@
-import { StyleSheet, TextProps, ViewProps } from 'react-native'
+import { ImageStyle, StyleSheet, TextProps, ViewProps } from 'react-native'
 
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import colors from '@common/styles/colors'
@@ -16,7 +16,7 @@ interface Style {
   listItemLabelStyle: TextProps
   iconContainerStyle: ViewProps
   extra: ViewProps
-  optionIcon: ViewProps
+  optionIcon: ImageStyle
 }
 
 const styles = StyleSheet.create<Style>({

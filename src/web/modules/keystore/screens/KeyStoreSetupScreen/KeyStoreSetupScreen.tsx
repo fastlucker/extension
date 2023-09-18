@@ -1,3 +1,4 @@
+import { isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -17,16 +18,15 @@ import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import { isValidPassword } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_LG, SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import styles from '@web/components/TabLayoutWrapper/styles'
 import {
   TabLayoutWrapperMainContent,
   TabLayoutWrapperSideContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import styles from '@web/components/TabLayoutWrapper/styles'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 

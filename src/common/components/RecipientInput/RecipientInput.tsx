@@ -7,23 +7,28 @@ import EnsIcon from '@common/assets/svg/EnsIcon'
 import ScanIcon from '@common/assets/svg/ScanIcon'
 import UnstoppableDomainIcon from '@common/assets/svg/UnstoppableDomainIcon'
 import Input, { InputProps } from '@common/components/Input'
+import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import { isWeb } from '@common/config/env'
-import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
 import BottomSheet from '../BottomSheet'
 import QRCodeScanner from '../QRCodeScanner'
-import Text from "@common/components/Text";
+import styles from './styles'
 
 interface Props extends InputProps {
   isValidUDomain?: boolean
-  isValidEns?: boolean,
+  isValidEns?: boolean
   label?: string
 }
 
-const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValidEns, label, ...rest }) => {
+const RecipientInput: React.FC<Props> = ({
+  onChangeText,
+  isValidUDomain,
+  isValidEns,
+  label,
+  ...rest
+}) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
@@ -53,16 +58,20 @@ const RecipientInput: React.FC<Props> = ({ onChangeText, isValidUDomain, isValid
 
   return (
     <>
-      {label && <Text style={[spacings.mbMi]}>{label}</Text>}
+      {label && (
+        <Text weight="regular" style={styles.label}>
+          {label}
+        </Text>
+      )}
       <Input
         button={
-          <View style={flexboxStyles.directionRow}>
+          <View style={styles.domainIcons}>
             <UnstoppableDomainIcon isActive={isValidUDomain} />
-            <View style={spacings.plTy}>
+            <View style={styles.plTy}>
               <EnsIcon isActive={isValidEns} />
             </View>
             {!isWeb && (
-              <TouchableOpacity style={spacings.plTy} onPress={handleOnButtonPress}>
+              <TouchableOpacity style={styles.plTy} onPress={handleOnButtonPress}>
                 <ScanIcon isFilled={false} />
               </TouchableOpacity>
             )}
