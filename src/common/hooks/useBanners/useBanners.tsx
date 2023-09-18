@@ -1,16 +1,16 @@
 import { useContext } from 'react'
 
-import { BannerContext } from '@common/contexts/bannerContext'
-import { BannerContextReturnType } from '@common/contexts/bannerContext/bannerContext'
+import { BannersContext } from '@common/contexts/bannersContext'
+import { BannersContextReturnType } from '@common/contexts/bannersContext/bannersContext'
 
-function useBanners(): BannerContextReturnType {
-  const context = useContext(BannerContext)
+function useBanners(): BannersContextReturnType {
+  const context = useContext(BannersContext)
 
   if (!context) {
     throw new Error('useBanner must be used within an BannerContext')
   }
 
-  return context as BannerContextReturnType
+  return context as BannersContextReturnType
 }
 
 export default useBanners

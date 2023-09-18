@@ -2,7 +2,7 @@ import React, { FC } from 'react'
 import { View } from 'react-native'
 
 import useBanners from '@common/hooks/useBanners'
-import { BannerTopic } from '@web/extension-services/background/services/banners'
+import { BannerTopic } from '@web/extension-services/background/controllers/banners'
 
 import Banner from '../Banner/Banner'
 

@@ -6,7 +6,7 @@ import Text from '@common/components/Text'
 import useBanners from '@common/hooks/useBanners'
 import useToast from '@common/hooks/useToast'
 import colors from '@common/styles/colors'
-import { Banner as BannerType } from '@web/extension-services/background/services/banners'
+import { Banner as BannerType } from '@web/extension-services/background/controllers/banners'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'

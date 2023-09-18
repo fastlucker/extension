@@ -6,6 +6,7 @@ import { PortfolioController } from 'ambire-common/src/controllers/portfolio/por
 import { SignAccountOpController } from 'ambire-common/src/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from 'ambire-common/src/controllers/signMessage/signMessage'
 
+import { BannersController } from '@web/extension-services/background/controllers/banners'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 
 export const controllersNestedInMainMapping = {
@@ -21,6 +22,7 @@ export const controllersNestedInMainMapping = {
 }
 export const controllersMapping = {
   main: MainController,
+  banners: BannersController,
   notification: NotificationController,
   ...controllersNestedInMainMapping
 }

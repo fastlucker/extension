@@ -1,15 +1,11 @@
 import React, { createContext, FC, useCallback, useEffect, useMemo, useState } from 'react'
 
-import {
-  addBanner as add,
-  Banner,
-  removeBanner as remove
-} from '@web/extension-services/background/services/banners'
-import storage from '@web/extension-services/background/webapi/storage'
+import { Banner, BannersController } from '@web/extension-services/background/controllers/banners'
+import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
-export interface BannerContextReturnType {
+export interface BannersContextReturnType {
   banners: Banner[]
   addBanner: (banner: Banner) => void
   removeBanner: (id: number) => void
@@ -19,23 +15,29 @@ interface Props {
   children: React.ReactNode
 }
 
-const BannerContext = createContext<BannerContextReturnType | []>([])
+const BannersContext = createContext<BannersContextReturnType | []>([])
 
-const BannerProvider: FC<Props> = ({ children }) => {
+const BannersProvider: FC<Props> = ({ children }) => {
   const [banners, setBanners] = useState<Banner[]>([])
   const [transactionBanners, setTransactionBanners] = useState<Banner[]>([])
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
 
   useEffect(() => {
-    ;(async () => {
-      // @TODO: We may want to add a key to each banner that indicates if a banner should persist on reload or not.
-      const savedBanners = await storage.get('banners')
+    dispatch({
+      type: 'INIT_CONTROLLER_STATE',
+      params: { controller: 'banners' }
+    })
+  }, [dispatch])
 
-      if (savedBanners) {
-        setBanners((prevBanners) => [...prevBanners, ...savedBanners])
-      }
-    })()
+  useEffect(() => {
+    const onUpdate = (newState: BannersController) => {
+      setBanners(newState.banners)
+    }
+
+    eventBus.addEventListener('banners', onUpdate)
+
+    return () => eventBus.removeEventListener('banners', onUpdate)
   }, [])
 
   const getTransactionBanners = useCallback(() => {
@@ -127,19 +129,23 @@ const BannerProvider: FC<Props> = ({ children }) => {
   }, [getTransactionBanners])
 
   const addBanner = useCallback(
-    async (banner: Banner) => {
-      const updatedBanners = (await add(banner, banners)) || banners
-      setBanners(updatedBanners)
+    (banner: Banner) => {
+      dispatch({
+        type: 'BANNERS_CONTROLLER_ADD_BANNER',
+        params: { banner }
+      })
     },
-    [banners]
+    [dispatch]
   )
 
   const removeBanner = useCallback(
     async (id: number) => {
-      const updatedBanners = (await remove(id, banners)) || banners
-      setBanners(updatedBanners)
+      dispatch({
+        type: 'BANNERS_CONTROLLER_REMOVE_BANNER',
+        params: { id }
+      })
     },
-    [banners]
+    [dispatch]
   )
 
   const contextValue = useMemo(
@@ -147,7 +153,7 @@ const BannerProvider: FC<Props> = ({ children }) => {
     [banners, transactionBanners, addBanner, removeBanner]
   )
 
-  return <BannerContext.Provider value={contextValue}>{children}</BannerContext.Provider>
+  return <BannersContext.Provider value={contextValue}>{children}</BannersContext.Provider>
 }
 
-export { BannerContext, BannerProvider }
+export { BannersContext, BannersProvider }

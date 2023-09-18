@@ -9,7 +9,6 @@ import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import { isDev } from '@common/config/env'
 import colors from '@common/styles/colors'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
-import { BannersController } from '@web/extension-services/background/controllers/banners'
 import userNotification from '@web/extension-services/background/libs/user-notification'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
@@ -62,8 +61,6 @@ export interface DappNotificationRequest {
 
 export class NotificationController extends EventEmitter {
   mainCtrl: MainController
-
-  bannersCtrl: BannersController
 
   _notificationRequests: DappNotificationRequest[] = []
 
@@ -124,10 +121,9 @@ export class NotificationController extends EventEmitter {
     }
   }
 
-  constructor(mainCtrl: MainController, bannersCtrl: BannersController) {
+  constructor(mainCtrl: MainController) {
     super()
     this.mainCtrl = mainCtrl
-    this.bannersCtrl = bannersCtrl
     winMgr.event.on('windowRemoved', (winId: number) => {
       if (winId === this.notificationWindowId) {
         this.notificationWindowId = null

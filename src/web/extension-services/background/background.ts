@@ -72,8 +72,8 @@ async function init() {
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
-  const bannersCtrl = new BannersController(mainCtrl)
-  const notificationCtrl = new NotificationController(mainCtrl, bannersCtrl)
+  const bannersCtrl = new BannersController()
+  const notificationCtrl = new NotificationController(mainCtrl)
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -164,6 +164,16 @@ async function init() {
         type: 'broadcast-error',
         method: 'main',
         params: { errors, controller: 'main' }
+      })
+    })
+  })
+  // Broadcast onUpdate for the banners controllers
+  bannersCtrl.onUpdate(() => {
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast',
+        method: 'banners',
+        params: bannersCtrl
       })
     })
   })
@@ -337,6 +347,11 @@ async function init() {
               return mainCtrl.keystore.addKeys(data.params.keys)
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
+
+            case 'BANNERS_CONTROLLER_ADD_BANNER':
+              return bannersCtrl.addBanner(data.params.banner)
+            case 'BANNERS_CONTROLLER_REMOVE_BANNER':
+              return bannersCtrl.removeBanner(data.params.id)
 
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)

@@ -1,5 +1,4 @@
 import EventEmitter from 'ambire-common/src/controllers/eventEmitter'
-import { MainController } from 'ambire-common/src/controllers/main/main'
 
 export type BannerTopic = 'TRANSACTION' | 'ANNOUNCEMENT' | 'WARNING'
 
@@ -10,7 +9,7 @@ export const BANNER_TOPICS = {
 } as const
 
 export interface Banner {
-  id: string
+  id: number
   topic: BannerTopic
   title: string
   text: string
@@ -22,14 +21,11 @@ export interface Banner {
 }
 
 export class BannersController extends EventEmitter {
-  mainCtrl: MainController
-
   banners: Banner[] = []
 
-  constructor(mainCtrl: MainController) {
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor() {
     super()
-
-    this.mainCtrl = mainCtrl
   }
 
   async addBanner(banner: Banner) {

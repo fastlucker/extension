@@ -5,7 +5,7 @@ import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
-import { BannerProvider } from '@common/contexts/bannerContext/bannerContext'
+import { BannersProvider } from '@common/contexts/bannersContext/bannersContext'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
@@ -69,7 +69,7 @@ const AppInit = () => {
                                       <SafeAreaProvider>
                                         <KeyboardProvider>
                                           <NetInfoProvider>
-                                            <BannerProvider>
+                                            <BannersProvider>
                                               <ToastProvider>
                                                 <ConstantsProvider>
                                                   <AuthProvider>
@@ -84,7 +84,7 @@ const AppInit = () => {
                                                   </AuthProvider>
                                                 </ConstantsProvider>
                                               </ToastProvider>
-                                            </BannerProvider>
+                                            </BannersProvider>
                                           </NetInfoProvider>
                                         </KeyboardProvider>
                                       </SafeAreaProvider>
