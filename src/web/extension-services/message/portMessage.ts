@@ -7,13 +7,19 @@ import Message from './baseMessage'
 class PortMessage extends Message {
   port: any = null
 
+  id: string
+
   listenCallback: any
 
-  constructor(port?: any) {
+  constructor(port?: any, id?: string) {
     super()
 
     if (port) {
       this.port = port
+    }
+
+    if (id) {
+      this.id = id
     }
   }
 

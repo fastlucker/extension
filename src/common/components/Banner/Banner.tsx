@@ -2,13 +2,13 @@ import { FC } from 'react'
 import { Pressable, View } from 'react-native'
 
 import EditIcon from '@common/assets/svg/EditIcon'
+import Text from '@common/components/Text'
 import useBanners from '@common/hooks/useBanners'
 import useToast from '@common/hooks/useToast'
 import colors from '@common/styles/colors'
 import { Banner as BannerType } from '@web/extension-services/background/services/banners'
 import { getUiType } from '@web/utils/uiType'
 
-import Text from '../Text'
 import styles from './styles'
 
 interface Props extends BannerType {
@@ -48,6 +48,7 @@ const Banner: FC<Props> = ({ title, text, isHideBtnShown = false, actions = [], 
         {actions.length > 0 &&
           actions.map(({ label, onPress, hidesBanner }) => (
             <Pressable
+              key={label}
               style={styles.action}
               onPress={() => {
                 if (onPress) {
@@ -61,7 +62,7 @@ const Banner: FC<Props> = ({ title, text, isHideBtnShown = false, actions = [], 
               </Text>
             </Pressable>
           ))}
-        {isHideBtnShown && (
+        {!!isHideBtnShown && (
           <Pressable onPress={handleHide} style={styles.action}>
             <Text color={colors.violet} fontSize={14} weight="regular">
               Hide

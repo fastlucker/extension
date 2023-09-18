@@ -24,6 +24,7 @@ const Banners: FC<Props> = ({ topics }) => {
         .map((banner) => (
           <Banner
             isHideBtnShown={banner?.isHideBtnShown}
+            topic={banner?.topic}
             key={banner.id}
             id={banner.id}
             title={banner.title}
@@ -35,4 +36,4 @@ const Banners: FC<Props> = ({ topics }) => {
   )
 }
 
-export default Banners
+export default React.memo(Banners)

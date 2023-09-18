@@ -25,8 +25,8 @@ const BannerProvider: FC<Props> = ({ children }) => {
   const [banners, setBanners] = useState<Banner[]>([])
   const [transactionBanners, setTransactionBanners] = useState<Banner[]>([])
   const { dispatch } = useBackgroundService()
-
   const mainState = useMainControllerState()
+
   useEffect(() => {
     ;(async () => {
       // @TODO: We may want to add a key to each banner that indicates if a banner should persist on reload or not.
@@ -120,7 +120,7 @@ const BannerProvider: FC<Props> = ({ children }) => {
     })
 
     setTransactionBanners(txnBanners)
-  }, [mainState])
+  }, [mainState, dispatch])
 
   useEffect(() => {
     getTransactionBanners()

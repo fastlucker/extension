@@ -40,7 +40,7 @@ async function init() {
 
 ;(async () => {
   await init()
-  let pmRef: PortMessage
+  const portMessageUIRefs: { [key: string]: PortMessage } = {}
   let controllersNestedInMainSubscribe: any = null
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
   let onRejectDappNotificationRequest: (data: any, id?: number) => void
@@ -91,10 +91,12 @@ async function init() {
 
   // Broadcast onUpdate for the main controllers
   mainCtrl.onUpdate(() => {
-    pmRef?.request({
-      type: 'broadcast',
-      method: 'main',
-      params: mainCtrl
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast',
+        method: 'main',
+        params: mainCtrl
+      })
     })
 
     if (!mainCtrl.isReady && controllersNestedInMainSubscribe) {
@@ -106,21 +108,24 @@ async function init() {
         Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
           // Broadcast onUpdate for nested controllers
           ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-            pmRef?.request({
-              type: 'broadcast',
-              method: ctrl,
-              params: (mainCtrl as any)[ctrl]
+            Object.keys(portMessageUIRefs).forEach((key: string) => {
+              portMessageUIRefs[key]?.request({
+                type: 'broadcast',
+                method: ctrl,
+                params: (mainCtrl as any)[ctrl]
+              })
             })
           })
           ;(mainCtrl as any)[ctrl]?.onError(() => {
             const errors = (mainCtrl as any)[ctrl].getErrors()
             const lastError = errors[errors.length - 1]
             if (lastError) console.error(lastError.error)
-
-            pmRef?.request({
-              type: 'broadcast-error',
-              method: ctrl,
-              params: { errors, controller: ctrl }
+            Object.keys(portMessageUIRefs).forEach((key: string) => {
+              portMessageUIRefs[key]?.request({
+                type: 'broadcast-error',
+                method: ctrl,
+                params: { errors, controller: ctrl }
+              })
             })
           })
         })
@@ -130,40 +135,45 @@ async function init() {
   })
   // Broadcast onUpdate for the notification controllers
   notificationCtrl.onUpdate(() => {
-    pmRef?.request({
-      type: 'broadcast',
-      method: 'notification',
-      params: notificationCtrl
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast',
+        method: 'notification',
+        params: notificationCtrl
+      })
     })
   })
   notificationCtrl.onError(() => {
     const errors = notificationCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-
-    pmRef?.request({
-      type: 'broadcast-error',
-      method: 'notification',
-      params: { errors, controller: 'notification' }
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast-error',
+        method: 'notification',
+        params: { errors, controller: 'notification' }
+      })
     })
   })
   mainCtrl.onError(() => {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-
-    pmRef?.request({
-      type: 'broadcast-error',
-      method: 'main',
-      params: { errors, controller: 'main' }
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast-error',
+        method: 'main',
+        params: { errors, controller: 'main' }
+      })
     })
   })
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
-      const pm = new PortMessage(port)
-      pmRef = pm
+      const id = new Date().getTime().toString()
+      const pm = new PortMessage(port, id)
+      portMessageUIRefs[pm.id] = pm
 
       pm.listen(async (data: Action) => {
         if (data?.type) {
@@ -375,12 +385,14 @@ async function init() {
         })
       }
 
-      if (port.name === 'tab' || port.name === 'notification') {
-        port.onDisconnect.addListener(() => {
+      port.onDisconnect.addListener(() => {
+        delete portMessageUIRefs[pm.id]
+        if (port.name === 'tab' || port.name === 'notification') {
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
-        })
-      }
+        }
+      })
+
       eventBus.addEventListener('broadcastToUI', broadcastCallback)
       port.onDisconnect.addListener(() => {
         eventBus.removeEventListener('broadcastToUI', broadcastCallback)

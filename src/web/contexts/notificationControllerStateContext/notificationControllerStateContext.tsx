@@ -77,19 +77,13 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
     state.currentNotificationRequest
   ])
 
-  // open the unfocused notification window
-  // if there is a pending transaction that is opened
-  // and dashboard is opened in popup or tab
-  // to prevent rejecting a request from the banners
-  // and still having an opened window
   useEffect(() => {
-    const isNotification = getUiType().isNotification
+    const isPopup = getUiType().isPopup
     if (
-      !isNotification &&
+      isPopup &&
       state.notificationWindowId &&
       state.currentNotificationRequest &&
-      SIGN_METHODS.includes(state.currentNotificationRequest?.params?.method) &&
-      path?.includes('dashboard')
+      SIGN_METHODS.includes(state.currentNotificationRequest?.params?.method)
     ) {
       dispatch({
         type: 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST'
