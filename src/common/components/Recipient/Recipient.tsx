@@ -1,20 +1,13 @@
-import { Address } from 'ambire-common/v1/hooks/useAddressBook'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Keyboard, TouchableOpacity, View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
+import { View } from 'react-native'
 
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import Input, { InputProps } from '@common/components/Input'
-import useAddressBook from '@common/hooks/useAddressBook'
-import AddressList from '@common/modules/send/components/AddressList'
-import AddAddressForm from '@common/modules/send/components/AddressList/AddAddressForm'
-import ConfirmAddress from '@common/modules/send/components/ConfirmAddress'
-import spacings from '@common/styles/spacings'
+import { InputProps } from '@common/components/Input'
+import ConfirmAddress from '@web/modules/transfer/components/ConfirmAddress'
 
-import BottomSheet from '../BottomSheet'
-import NavIconWrapper from '../NavIconWrapper'
 import RecipientInput from '../RecipientInput'
+import Text from '../Text'
+import styles from './styles'
 
 interface Props extends InputProps {
   setAddress: (text: string) => void
@@ -36,91 +29,35 @@ const Recipient: React.FC<Props> = ({
   addressConfirmed
 }) => {
   const { t } = useTranslation()
-  const { addAddress } = useAddressBook()
-  const {
-    ref: sheetRefAddrAdd,
-    open: openBottomSheetAddrAdd,
-    close: closeBottomSheetAddrAdd
-  } = useModalize()
-  const {
-    ref: sheetRefAddrDisplay,
-    open: openBottomSheetAddrDisplay,
-    close: closeBottomSheetAddrDisplay
-  } = useModalize()
-
-  const handleAddNewAddress = (fieldValues: Address) => {
-    addAddress(fieldValues.name, fieldValues.address, fieldValues.type)
-    closeBottomSheetAddrAdd()
-    openBottomSheetAddrDisplay()
-  }
 
   return (
     <>
       <RecipientInput
-        containerStyle={spacings.mb}
+        containerStyle={styles.inputContainer}
         isValidUDomain={!!uDAddress}
         isValidEns={!!ensAddress}
-        placeholder={t('Recipient')}
-        info={t(
-          'Please double-check the recipient address, blockchain transactions are not reversible.'
-        )}
+        label="Add Recipient"
         isValid={address.length > 1 && !addressValidationMsg && (!!uDAddress || !!ensAddress)}
         error={address.length > 1 && addressValidationMsg}
         value={address}
         onChangeText={setAddress}
       />
+      <View style={styles.inputBottom}>
+        <Text style={styles.doubleCheckMessage} weight="regular" fontSize={14}>
+          {t(
+            'Please double-check the recipient address, blockchain transactions are not reversible.'
+          )}
+        </Text>
 
-      <ConfirmAddress
-        address={address}
-        uDAddress={uDAddress}
-        ensAddress={ensAddress}
-        addressConfirmed={addressConfirmed}
-        setAddressConfirmed={setAddressConfirmed}
-        onAddToAddressBook={openBottomSheetAddrAdd}
-      />
-
-      <TouchableOpacity
-        onPress={() => {
-          Keyboard.dismiss()
-          openBottomSheetAddrDisplay()
-        }}
-      >
-        <View pointerEvents="none">
-          <Input
-            value={t('Address Book')}
-            containerStyle={spacings.mbSm}
-            button={
-              <NavIconWrapper onPress={() => null}>
-                <DownArrowIcon width={34} height={34} />
-              </NavIconWrapper>
-            }
-          />
-        </View>
-      </TouchableOpacity>
-
-      <BottomSheet
-        id="addresses-list"
-        sheetRef={sheetRefAddrDisplay}
-        closeBottomSheet={closeBottomSheetAddrDisplay}
-      >
-        <AddressList
-          onSelectAddress={(item): any => setAddress(item.address)}
-          onCloseBottomSheet={closeBottomSheetAddrDisplay}
-          onOpenBottomSheet={openBottomSheetAddrAdd}
-        />
-      </BottomSheet>
-      <BottomSheet
-        id="add-address"
-        sheetRef={sheetRefAddrAdd}
-        closeBottomSheet={closeBottomSheetAddrAdd}
-      >
-        <AddAddressForm
-          onSubmit={handleAddNewAddress}
+        <ConfirmAddress
           address={address}
-          uDAddr={uDAddress}
-          ensAddr={ensAddress}
+          uDAddress={uDAddress}
+          ensAddress={ensAddress}
+          addressConfirmed={addressConfirmed}
+          setAddressConfirmed={setAddressConfirmed}
+          onAddToAddressBook={() => {}}
         />
-      </BottomSheet>
+      </View>
     </>
   )
 }
