@@ -220,7 +220,7 @@ export class NotificationController extends EventEmitter {
         const currentOrigin = notificationRequest.params?.session?.origin
         this.deleteNotificationRequest(notificationRequest)
         const nextNotificationRequest = this.notificationRequests[0]
-        const nextOrigin = nextNotificationRequest.params?.session?.origin
+        const nextOrigin = nextNotificationRequest?.params?.session?.origin
 
         const shouldOpenNextRequest =
           (nextNotificationRequest &&

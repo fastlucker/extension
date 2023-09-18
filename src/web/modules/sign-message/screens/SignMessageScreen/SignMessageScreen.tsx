@@ -73,7 +73,7 @@ const SignMessageScreen = () => {
   ])
 
   useEffect(() => {
-    const msgsToBeSigned = mainState.messagesToBeSigned[params!.accountAddr]
+    const msgsToBeSigned = mainState.messagesToBeSigned[params!.accountAddr] || []
     if (msgsToBeSigned.length) {
       if (msgsToBeSigned[0].id !== signMessageState.messageToSign?.id) {
         dispatch({
