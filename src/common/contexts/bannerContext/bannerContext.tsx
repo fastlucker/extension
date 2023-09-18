@@ -12,7 +12,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 export interface BannerContextReturnType {
   banners: Banner[]
   addBanner: (banner: Banner) => void
-  removeBanner: (id: string) => void
+  removeBanner: (id: number) => void
 }
 
 interface Props {
@@ -135,7 +135,7 @@ const BannerProvider: FC<Props> = ({ children }) => {
   )
 
   const removeBanner = useCallback(
-    async (id: string) => {
+    async (id: number) => {
       const updatedBanners = (await remove(id, banners)) || banners
       setBanners(updatedBanners)
     },
