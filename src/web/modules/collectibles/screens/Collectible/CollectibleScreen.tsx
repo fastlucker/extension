@@ -55,7 +55,10 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
         // and has to fetch them, so the back button here leads to that screen.(since we can't pass
         // collectibles to <CollectionScreen /> from <CollectibleScreen />)
         onBack={() => {
-          if (state?.prevRoute) navigate(-1)
+          if (state?.prevRoute) {
+            navigate(-1)
+            return
+          }
           navigate(`${ROUTES.dashboard}?tab=collectibles`)
         }}
         forceCanGoBack
