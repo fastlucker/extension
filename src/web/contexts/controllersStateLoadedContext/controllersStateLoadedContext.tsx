@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
+import useBanners from '@common/hooks/useBanners'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -21,6 +22,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const activityState = useActivityControllerState()
   const { state: portfolioState } = usePortfolioControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
+  const { state: bannersState } = useBanners()
 
   useEffect(() => {
     // Initially we set all controller states to empty object
@@ -35,7 +37,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       !Object.keys(notificationState).length &&
       !Object.keys(portfolioState).length &&
       !Object.keys(activityState).length &&
-      !Object.keys(signAccountOpState).length
+      !Object.keys(signAccountOpState).length &&
+      !Object.keys(bannersState).length
     ) {
       setIsStateLoaded(true)
     }
@@ -47,7 +50,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     notificationState,
     portfolioState,
     activityState,
-    signAccountOpState
+    signAccountOpState,
+    bannersState
   ])
 
   return (

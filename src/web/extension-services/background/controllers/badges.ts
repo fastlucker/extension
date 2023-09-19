@@ -1,76 +1,58 @@
-import { MainController } from 'ambire-common/src/controllers/main/main'
-
 import colors from '@common/styles/colors'
 import {
-  isSignAccountOpMethod,
   NotificationController,
   NotificationRequest,
   SIGN_METHODS
 } from '@web/extension-services/background/controllers/notification'
 
+import { BannersController } from './banners'
+
 export class BadgesController {
-  #mainCtrl
+  #notificationCtrl: NotificationController
 
-  #notificationCtrl
+  #bannersCtrl: BannersController
 
-  #selectedAcc: string | null = null
+  #bannersCount: number = 0
 
-  _notificationBadgesCount: number = 0
+  _badgesCount: number = 0
 
-  get notificationBadgesCount() {
-    return this._notificationBadgesCount
+  get badgesCount() {
+    return this._badgesCount + this.#bannersCtrl.banners.length
   }
 
-  set notificationBadgesCount(newValue: number) {
-    this._notificationBadgesCount = newValue
-    this.setBadges(this.notificationBadgesCount)
+  set badgesCount(newValue: number) {
+    this._badgesCount = newValue
+    this.setBadges(this.badgesCount)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor(mainCtrl: MainController, notificationCtrl: NotificationController) {
-    this.#mainCtrl = mainCtrl
+  constructor(notificationCtrl: NotificationController, bannersCtrl: BannersController) {
     this.#notificationCtrl = notificationCtrl
-
-    this.#mainCtrl.onUpdate(() => {
-      if (this.#selectedAcc !== mainCtrl.selectedAccount) {
-        this.#selectedAcc = mainCtrl.selectedAccount
-      }
-    })
+    this.#bannersCtrl = bannersCtrl
 
     this.#notificationCtrl.onUpdate(() => {
-      this.setNotificationBadgesCount(this.#notificationCtrl.notificationRequests)
+      this.setBadgesCount(this.#notificationCtrl.notificationRequests)
+    })
+
+    this.#bannersCtrl.onUpdate(() => {
+      this.#bannersCount = this.#bannersCtrl.banners.length
+      this.badgesCount = this._badgesCount
     })
   }
 
-  setNotificationBadgesCount = (requests: NotificationRequest[]) => {
-    console.log('setNotificationBadgesCount', requests)
-    // Reduce the number because we should count the accountOps not the calls
-    const requestsCount = requests.reduce((accumulator: any, currentItem: NotificationRequest) => {
-      if (
-        isSignAccountOpMethod(currentItem.params?.method) &&
-        currentItem.networkId &&
-        currentItem.accountAddr
-      ) {
-        // Check if there's already an item in the accumulator with the same networkId and accountAddr
-        const hasDuplicate = accumulator.some(
-          (item: NotificationRequest) =>
-            item.networkId === currentItem.networkId && item.accountAddr === currentItem.accountAddr
-        )
-        if (!hasDuplicate && currentItem.accountAddr === this.#selectedAcc)
+  setBadgesCount = (requests: NotificationRequest[]) => {
+    // if not a user request add the badge
+    const requestsCount = requests.reduce(
+      (accumulator: NotificationRequest[], currentItem: NotificationRequest) => {
+        if (!SIGN_METHODS.includes(currentItem?.params?.method)) {
           accumulator.push(currentItem)
-      } else if (
-        currentItem.accountAddr === this.#selectedAcc &&
-        SIGN_METHODS.includes(currentItem?.params?.method)
-      ) {
-        accumulator.push(currentItem)
-      } else {
-        accumulator.push(currentItem)
-      }
+        }
 
-      return accumulator
-    }, []).length
+        return accumulator
+      },
+      []
+    ).length
 
-    this.notificationBadgesCount = requestsCount
+    this.badgesCount = requestsCount
   }
 
   setBadges = (badgesCount: number) => {
@@ -85,6 +67,13 @@ export class BadgesController {
       browser.browserAction.setBadgeBackgroundColor({
         color: colors.turquoise
       })
+    }
+  }
+
+  toJSON() {
+    return {
+      ...this,
+      badgesCount: this.badgesCount // includes the getter in the stringified instance
     }
   }
 }

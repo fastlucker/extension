@@ -232,6 +232,11 @@ type BannersControllerRemoveBannerAction = {
   params: { id: Banner['id'] }
 }
 
+type CallBannerActionAction = {
+  type: 'CALL_BANNER_ACTION'
+  params: { id: Banner['id']; actionLabel: string }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -279,6 +284,7 @@ export type Action =
   | NotificationControllerOpenNotificationRequestAction
   | BannersControllerAddBannerAction
   | BannersControllerRemoveBannerAction
+  | CallBannerActionAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant

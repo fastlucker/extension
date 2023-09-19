@@ -86,7 +86,7 @@ export class NotificationController extends EventEmitter {
 
     this.#mainCtrl.onUpdate(() => {
       const notificationRequestsToAdd: NotificationRequest[] = []
-      mainCtrl.userRequests.forEach((userReq: UserRequest) => {
+      this.#mainCtrl.userRequests.forEach((userReq: UserRequest) => {
         const notificationReq = this.notificationRequests.find((req) => req.id === userReq.id)
         if (!notificationReq) {
           const getScreenType = (kind: UserRequest['action']['kind']) => {
@@ -412,5 +412,12 @@ export class NotificationController extends EventEmitter {
       this.notificationWindowId = winId!
       this.emitUpdate()
     })
+  }
+
+  toJSON() {
+    return {
+      ...this,
+      notificationRequests: this.notificationRequests // includes the getter in the stringified instance
+    }
   }
 }

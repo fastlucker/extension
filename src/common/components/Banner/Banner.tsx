@@ -7,6 +7,7 @@ import useBanners from '@common/hooks/useBanners'
 import useToast from '@common/hooks/useToast'
 import colors from '@common/styles/colors'
 import { Banner as BannerType } from '@web/extension-services/background/controllers/banners'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
@@ -18,6 +19,7 @@ interface Props extends BannerType {
 const isTab = getUiType().isTab
 
 const Banner: FC<Props> = ({ title, text, isHideBtnShown = false, actions = [], id }) => {
+  const { dispatch } = useBackgroundService()
   const { removeBanner } = useBanners()
   const { addToast } = useToast()
 
@@ -46,14 +48,15 @@ const Banner: FC<Props> = ({ title, text, isHideBtnShown = false, actions = [], 
       </View>
       <View style={styles.actions}>
         {actions.length > 0 &&
-          actions.map(({ label, onPress, hidesBanner }) => (
+          actions.map(({ label, hidesBanner }) => (
             <Pressable
               key={label}
               style={styles.action}
               onPress={() => {
-                if (onPress) {
-                  onPress()
-                }
+                dispatch({
+                  type: 'CALL_BANNER_ACTION',
+                  params: { id, actionLabel: label }
+                })
                 if (hidesBanner) handleHide()
               }}
             >

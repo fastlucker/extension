@@ -73,10 +73,10 @@ async function init() {
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
-  const bannersCtrl = new BannersController()
   const notificationCtrl = new NotificationController(mainCtrl)
+  const bannersCtrl = new BannersController(mainCtrl, notificationCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
+  const badgesCtrl = new BadgesController(notificationCtrl, bannersCtrl)
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -206,6 +206,12 @@ async function init() {
                   type: 'broadcast',
                   method: 'notification',
                   params: notificationCtrl
+                })
+              } else if (data.params.controller === ('banners' as any)) {
+                pm.request({
+                  type: 'broadcast',
+                  method: 'banners',
+                  params: bannersCtrl
                 })
               } else {
                 pm.request({
@@ -355,6 +361,16 @@ async function init() {
               return bannersCtrl.addBanner(data.params.banner)
             case 'BANNERS_CONTROLLER_REMOVE_BANNER':
               return bannersCtrl.removeBanner(data.params.id)
+            case 'CALL_BANNER_ACTION':
+              return bannersCtrl.banners.forEach((b) => {
+                if (b.id === data.params.id) {
+                  b.actions.forEach((a) => {
+                    if (a.label === data.params.actionLabel) {
+                      a.onPress()
+                    }
+                  })
+                }
+              })
 
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
