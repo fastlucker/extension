@@ -181,9 +181,7 @@ export class BannersController extends EventEmitter {
           {
             label: 'Open',
             onPress: () => {
-              group.forEach((req) => {
-                this.#notificationCtrl.openNotificationRequest(req.id)
-              })
+              this.#notificationCtrl.openNotificationRequest(group[0].id)
             }
           },
           {
