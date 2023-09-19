@@ -14,7 +14,6 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   container: {
-    ...flexbox.flex1,
     ...spacings.ph,
     ...spacings.pv
   },
@@ -30,7 +29,6 @@ const styles = StyleSheet.create<Style>({
   },
   searchBar: {
     ...spacings.pvSm,
-    ...spacings.mbSm,
     width: '100%'
   },
   greenLabel: {
