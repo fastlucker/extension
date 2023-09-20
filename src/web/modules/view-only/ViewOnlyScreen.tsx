@@ -20,6 +20,21 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
+const getDuplicateAccountIndexes = (accounts: { address: string }[]) => {
+  const accountAddresses = accounts.map((account) => account.address.toLowerCase())
+
+  const duplicates: number[] = []
+
+  accountAddresses.forEach((address, index) => {
+    if (address.trim() === '') return
+
+    if (accountAddresses.indexOf(address.toLowerCase()) !== index && !duplicates.includes(index)) {
+      duplicates.push(index, accountAddresses.indexOf(address.toLowerCase()))
+    }
+  })
+  return duplicates
+}
+
 const ViewOnlyScreen = () => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
@@ -44,6 +59,8 @@ const ViewOnlyScreen = () => {
 
   const accounts = watch('accounts')
 
+  const duplicateAccountsIndexes = getDuplicateAccountIndexes(accounts)
+
   useEffect(() => {
     if (!mainControllerState.isReady) return
     if (accountAdderState.isInitialized) return
@@ -64,10 +81,8 @@ const ViewOnlyScreen = () => {
     // when Wallet method is called on devices with slow CPU the UI freezes
     await delayPromise(100)
 
-    const uniqueAccounts = [...new Map(accounts.map((item) => [item.address, item])).values()]
-
     // @TODO: validate using useForm and flag duplicates
-    const accountsToAddP = uniqueAccounts.map(async (account) => {
+    const accountsToAddP = accounts.map(async (account) => {
       const accountIdentityResponse = await fetchCaught(
         `https://staging-relayer.ambire.com/v2/identity/${account.address}`
       )
@@ -128,7 +143,8 @@ const ViewOnlyScreen = () => {
               validate: (value) => {
                 if (!value) return 'Please fill in an address.'
                 if (!isValidAddress(value)) return 'Please fill in a valid address.'
-
+                if (mainControllerState.accounts.find((account) => account.addr === value))
+                  return 'This address is already in your wallet.'
                 return true
               },
               required: true
@@ -150,7 +166,10 @@ const ViewOnlyScreen = () => {
                   autoFocus
                   isValid={!errors?.accounts?.[index]?.address?.message && value !== ''}
                   validLabel={t('Address is valid.')}
-                  error={errors?.accounts?.[index]?.address?.message || ''}
+                  error={
+                    errors?.accounts?.[index]?.address?.message ||
+                    (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
+                  }
                 />
                 {index !== 0 && (
                   <Pressable style={[spacings.mlMi, spacings.mtMi]} onPress={() => remove(index)}>
@@ -179,7 +198,7 @@ const ViewOnlyScreen = () => {
         </Pressable>
         <Button
           textStyle={{ fontSize: 14 }}
-          disabled={!isValid || isSubmitting}
+          disabled={!isValid || isSubmitting || duplicateAccountsIndexes.length > 0}
           style={{ width: 300 }}
           type="primary"
           text={
