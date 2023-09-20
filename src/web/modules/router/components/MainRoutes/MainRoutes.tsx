@@ -41,6 +41,7 @@ import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
+import ViewOnlyScreen from '@web/modules/view-only/ViewOnlyScreen'
 
 const headerControls = (
   <>
@@ -109,6 +110,7 @@ const MainRoutes = () => {
               element={<HardwareWalletSelectorScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
+            <Route path={WEB_ROUTES.viewOnly} element={<ViewOnlyScreen />} />
 
             <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
 

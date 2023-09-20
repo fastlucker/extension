@@ -142,6 +142,10 @@ const routesConfig: {
     flow: 'legacy',
     flowStep: 0
   },
+  [ROUTES.viewOnly]: {
+    route: ROUTES.viewOnly,
+    title: ''
+  },
   [ROUTES.dashboard]: {
     route: ROUTES.dashboard,
     title: Platform.select({
