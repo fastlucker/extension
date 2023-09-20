@@ -291,7 +291,6 @@ export const pinnedTokens = [
     "0x6ab707aca953edaefbc4fd23ba73294241490620",
     "0x078f358208685046a11c85e8ad32895ded33a249",
     "0xe50fa9b3c56ffb159cb0fca61f5c9d750e8128c8",
-    "0xefaeee334f0fd1712f9a8cc375f427d9cdd40d73",
     "0x765277eebeca2e31912c9946eae1021199b39c61",
     "0x80a16016cc4a2e6a2caca8a4a498b1699ff0f844",
     "0xbb06dca3ae6887fabf931640f67cab3e3a16f4dc",
