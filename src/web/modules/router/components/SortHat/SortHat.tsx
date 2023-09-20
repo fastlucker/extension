@@ -1,3 +1,5 @@
+import { networks } from 'ambire-common/src/consts/networks'
+import { toChecksumAddress } from 'ethereumjs-util'
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
@@ -8,6 +10,7 @@ import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
 import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
@@ -20,8 +23,9 @@ const SortHat = () => {
   const { onboardingStatus } = useOnboarding()
   const keystoreState = useKeystoreControllerState()
   const notificationState = useNotificationControllerState()
+  const mainState = useMainControllerState()
   const loadView = useCallback(async () => {
-    if (isNotification && !notificationState.currentDappNotificationRequest) {
+    if (isNotification && !notificationState.currentNotificationRequest) {
       window.close()
       return
     }
@@ -34,23 +38,65 @@ const SortHat = () => {
       return navigate(ROUTES.getStarted)
     }
 
-    if (isNotification && notificationState.currentDappNotificationRequest) {
-      if (notificationState.currentDappNotificationRequest?.screen === 'PermissionRequest') {
+    if (isNotification && notificationState.currentNotificationRequest) {
+      if (notificationState.currentNotificationRequest?.screen === 'PermissionRequest') {
         return navigate(ROUTES.permissionRequest)
       }
-      if (notificationState.currentDappNotificationRequest?.screen === 'SendTransaction') {
-        return console.log(notificationState.currentDappNotificationRequest)
+      if (notificationState.currentNotificationRequest?.screen === 'SendTransaction') {
+        if (
+          mainState.userRequests.find(
+            (req) => req.id === notificationState.currentNotificationRequest?.id
+          )
+        ) {
+          let accountAddr = mainState.selectedAccount
+          if (notificationState.currentNotificationRequest?.params?.data?.[0]?.from) {
+            accountAddr = notificationState.currentNotificationRequest.params.data[0].from
+          }
+
+          const network = networks.find(
+            (n) => n.id === notificationState.currentNotificationRequest?.networkId
+          )
+
+          if (accountAddr && network) {
+            return navigate(ROUTES.signAccountOp, {
+              state: {
+                accountAddr: toChecksumAddress(accountAddr as string),
+                network
+              }
+            })
+          }
+          // TODO: add here some error handling and dispatch dapp request removal
+        }
       }
-      if (notificationState.currentDappNotificationRequest?.screen === 'SignText') {
-        return navigate(ROUTES.signMessage)
+      if (
+        ['SignText', 'SignTypedData'].includes(notificationState.currentNotificationRequest?.screen)
+      ) {
+        let accountAddr = mainState.selectedAccount
+
+        if (
+          notificationState.currentNotificationRequest?.screen === 'SignText' &&
+          notificationState.currentNotificationRequest?.params?.data[1]
+        ) {
+          accountAddr = notificationState.currentNotificationRequest?.params?.data[1]
+        }
+        if (
+          notificationState.currentNotificationRequest?.screen === 'SignTypedData' &&
+          notificationState.currentNotificationRequest?.params?.data[0]
+        ) {
+          accountAddr = notificationState.currentNotificationRequest?.params?.data[0]
+        }
+
+        return navigate(ROUTES.signMessage, {
+          state: {
+            accountAddr: toChecksumAddress(accountAddr as string)
+          }
+        })
       }
-      if (notificationState.currentDappNotificationRequest?.screen === 'SignTypedData') {
-        return navigate(ROUTES.signMessage)
-      }
-      if (notificationState.currentDappNotificationRequest?.screen === 'WalletWatchAsset') {
+
+      if (notificationState.currentNotificationRequest?.screen === 'WalletWatchAsset') {
         return navigate(ROUTES.watchAsset)
       }
-      if (notificationState.currentDappNotificationRequest?.screen === 'GetEncryptionPublicKey') {
+      if (notificationState.currentNotificationRequest?.screen === 'GetEncryptionPublicKey') {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
     } else {
@@ -60,11 +106,13 @@ const SortHat = () => {
     }
   }, [
     isNotification,
-    notificationState.currentDappNotificationRequest,
+    notificationState.currentNotificationRequest,
     authStatus,
     navigate,
     onboardingStatus,
-    keystoreState
+    keystoreState,
+    mainState.selectedAccount,
+    mainState.userRequests
   ])
 
   useEffect(() => {

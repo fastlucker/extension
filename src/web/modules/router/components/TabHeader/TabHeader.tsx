@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, Pressable, View } from 'react-native'
+import { Image, Pressable, View, ViewStyle } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
@@ -36,6 +36,7 @@ interface Props {
   image?: string
   onBack?: () => void
   rightSideComponent?: React.ReactNode
+  style?: ViewStyle
 }
 
 const TabHeader: React.FC<Props> = ({
@@ -44,7 +45,8 @@ const TabHeader: React.FC<Props> = ({
   forceCanGoBack,
   image,
   onBack,
-  rightSideComponent
+  rightSideComponent,
+  style
 }) => {
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
@@ -65,7 +67,7 @@ const TabHeader: React.FC<Props> = ({
   const shouldDisplayStepper = flow && !hideStepper
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       {canGoBack ? (
         <View style={styles.sideContainer}>
           <HeaderLeft handleGoBack={handleGoBack} />

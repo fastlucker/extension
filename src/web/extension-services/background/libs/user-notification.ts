@@ -13,12 +13,12 @@ class UserNotification {
     onError,
     onSuccess
   }: {
-    id: bigint
+    id: number
     data: any
     origin: string
     selectedAccount: string
     onError: (msg: string) => void
-    onSuccess: (data: any, id: bigint) => void
+    onSuccess: (data: any, id: number) => void
   }) {
     const msg = data
     if (!msg) {
@@ -42,7 +42,6 @@ class UserNotification {
 
     const request: UserRequest = {
       id,
-      added: BigInt(Date.now()),
       action: {
         kind: 'message',
         message: msg[0]
@@ -63,12 +62,12 @@ class UserNotification {
     onError,
     onSuccess
   }: {
-    id: bigint
+    id: number
     data: any
     origin: string
     selectedAccount: string
     onError: (msg: string) => void
-    onSuccess: (data: any, id: bigint) => void
+    onSuccess: (data: any, id: number) => void
   }) {
     const msg = data
     if (!msg) {
@@ -113,7 +112,6 @@ class UserNotification {
 
     const request: UserRequest = {
       id,
-      added: BigInt(Date.now()),
       action: {
         kind: 'typedMessage',
         types: typedData.types,
@@ -134,15 +132,16 @@ class UserNotification {
     txn,
     txs,
     selectedAccount,
+    origin: dappOrigin,
     onError
   }: {
-    id: bigint
+    id: number
     txn: any
     txs: any
     origin: string
     selectedAccount: string
     onError: (msg: string) => void
-    onSuccess: (data: any, id: bigint) => void
+    onSuccess: (data: any, id: number) => void
   }) {
     if (txs?.length) {
       // eslint-disable-next-line no-restricted-syntax
@@ -154,9 +153,8 @@ class UserNotification {
       onError(`No txs request in received params for account: ${selectedAccount}`)
       return
     }
-
     const network = networks.find(
-      (n) => Number(n.chainId) === Number(permission.getConnectedSite(origin)?.chainId)
+      (n) => Number(n.chainId) === Number(permission.getConnectedSite(dappOrigin)?.chainId)
     )
 
     if (!network) {
@@ -166,12 +164,11 @@ class UserNotification {
 
     const request: UserRequest = {
       id,
-      added: BigInt(Date.now()),
       action: {
         kind: 'call',
         ...txn
       },
-      networkId: network?.id,
+      networkId: network.id,
       accountAddr: selectedAccount,
       // TODO: ?
       forceNonce: null

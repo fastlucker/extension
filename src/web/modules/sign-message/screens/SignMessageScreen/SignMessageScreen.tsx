@@ -10,7 +10,9 @@ import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import networks from '@common/constants/networks'
+import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
+import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
@@ -36,7 +38,9 @@ const SignMessageScreen = () => {
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
-  const { currentDappNotificationRequest } = useNotificationControllerState()
+  const { currentNotificationRequest } = useNotificationControllerState()
+  const { params } = useRoute()
+  const { navigate } = useNavigation()
 
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
@@ -45,6 +49,12 @@ const SignMessageScreen = () => {
   console.log('signMessageState: ', signMessageState)
   console.log('activityState', activityState)
   console.log('mainState', mainState)
+
+  useEffect(() => {
+    if (!params?.accountAddr) {
+      navigate('/')
+    }
+  }, [params?.accountAddr, navigate])
 
   useEffect(() => {
     if (prevSignMessageState.status === 'LOADING' && signMessageState.status === 'DONE') {
@@ -63,7 +73,7 @@ const SignMessageScreen = () => {
   ])
 
   useEffect(() => {
-    const msgsToBeSigned = mainState.messagesToBeSigned[mainState.selectedAccount || '']
+    const msgsToBeSigned = mainState.messagesToBeSigned[params!.accountAddr] || []
     if (msgsToBeSigned.length) {
       if (msgsToBeSigned[0].id !== signMessageState.messageToSign?.id) {
         dispatch({
@@ -72,16 +82,20 @@ const SignMessageScreen = () => {
             filters: {
               account:
                 (signMessageState.messageToSign?.accountAddr as string) ||
-                (mainState.selectedAccount as string),
+                (params!.accountAddr as string),
               network: networks[0].id
             }
           }
         })
 
+        const msgsToSign =
+          mainState.messagesToBeSigned[params!.accountAddr || mainState.selectedAccount || '']
+        // Last message that was pushed to the messagesToBeSigned
+        const msgToSign = msgsToSign[msgsToSign.length - 1]
         dispatch({
           type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
           params: {
-            messageToSign: mainState.messagesToBeSigned[mainState.selectedAccount || ''][0],
+            messageToSign: msgToSign,
             accounts: mainState.accounts,
             accountStates: mainState.accountStates
           }
@@ -90,6 +104,7 @@ const SignMessageScreen = () => {
     }
   }, [
     dispatch,
+    params,
     mainState.messagesToBeSigned,
     mainState.selectedAccount,
     mainState.accounts,
@@ -121,10 +136,10 @@ const SignMessageScreen = () => {
   const keySelectorValues = useMemo(() => {
     return (
       mainState.accounts
-        .find((acc) => acc.addr === mainState.selectedAccount)
+        .find((acc) => acc.addr === params!.accountAddr)
         ?.associatedKeys?.map((assocKey: string) => ({ value: assocKey, label: assocKey })) || []
     )
-  }, [mainState.accounts, mainState.selectedAccount])
+  }, [mainState.accounts, params])
 
   const handleChangeSigningKey = (signKey: string) => {
     dispatch({
@@ -170,7 +185,7 @@ const SignMessageScreen = () => {
 
   return (
     <Wrapper hasBottomTabNav={false}>
-      <Trans values={{ name: currentDappNotificationRequest?.params?.session?.name || 'The dApp' }}>
+      <Trans values={{ name: currentNotificationRequest?.params?.session?.name || 'The dApp' }}>
         <Text style={spacings.mb}>
           <Text weight="semiBold">{'{{name}} '}</Text>
           <Text>is requesting your signature.</Text>

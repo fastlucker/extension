@@ -13,7 +13,8 @@ const styles = StyleSheet.create<Style>({
   textarea: {
     flex: 1,
     color: colors.martinique,
-    ...spacings.plMi
+    ...spacings.plMi,
+    width: '100%' // Fixes the icon being invisible on Linux
   },
   searchSection: {
     borderWidth: 1,

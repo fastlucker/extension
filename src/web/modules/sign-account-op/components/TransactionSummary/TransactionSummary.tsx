@@ -41,7 +41,7 @@ const TransactionSummary = ({ style }: Props) => {
                 uri: 'https://storage.googleapis.com/zapper-fi-assets/tokens/ethereum/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png'
               }}
               style={[styles.tokenImg, styles.mr5]}
-            />{' '}
+            />
             <Text weight="medium" style={[styles.text, styles.mr5]}>
               USDC
             </Text>

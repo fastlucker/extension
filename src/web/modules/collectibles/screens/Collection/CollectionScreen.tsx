@@ -6,6 +6,7 @@ import { View } from 'react-native'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import useRoute from '@common/hooks/useRoute'
+import colors from '@common/styles/colors'
 import Collectible from '@web/modules/collectibles/components/Collectible/Collectible'
 import TabHeader from '@web/modules/router/components/TabHeader'
 
@@ -21,7 +22,11 @@ const CollectionScreen = () => {
 
   return (
     <>
-      <TabHeader pageTitle={route.state.name} image={state.image} />
+      <TabHeader
+        style={{ backgroundColor: colors.zircon }}
+        pageTitle={route.state.name}
+        image={state.image}
+      />
       <Wrapper style={styles.container}>
         <View style={styles.contentContainer}>
           {state?.collectibles?.length ? (
