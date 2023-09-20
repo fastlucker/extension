@@ -1,9 +1,9 @@
+import { LATTICE_STANDARD_HD_PATH } from 'ambire-common/src/consts/derivation'
 import { Key } from 'ambire-common/src/libs/keystore/keystore'
 import crypto from 'crypto'
 import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
-import { LATTICE_STANDARD_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
 const keyringType = 'GridPlus'

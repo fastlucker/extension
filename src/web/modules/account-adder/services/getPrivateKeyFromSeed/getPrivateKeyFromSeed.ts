@@ -1,6 +1,5 @@
+import { BIP44_HD_PATH } from 'ambire-common/src/consts/derivation'
 import { HDNodeWallet, Mnemonic } from 'ethers'
-
-import { BIP44_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
 
 const getPrivateKeyFromSeed = (
   seed: string,
