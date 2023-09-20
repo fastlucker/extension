@@ -1,3 +1,5 @@
+import { Account } from 'ambire-common/src/interfaces/account'
+import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
 import React from 'react'
 import { Image, View } from 'react-native'
 
@@ -8,21 +10,31 @@ import shortenAddress from '@web/utils/shortenAddress'
 
 import styles from './styles'
 
-const Header = () => {
+type Props = {
+  account?: Account
+  network?: NetworkDescriptor
+}
+
+const Header = ({ account, network }: Props) => {
   const { t } = useTranslation()
+
+  const isLoading = !account || !network
+  if (isLoading) {
+    return <View style={styles.container} />
+  }
 
   return (
     <View style={styles.container}>
-      <Image
+      <Image // TODO:
         source={{ uri: 'https://mars-images.imgix.net/nft/1629012092532.png?auto=compress&w=600' }}
         style={styles.image}
       />
       <View style={styles.addressContainer}>
         <Text fontSize={16} style={styles.address}>
-          {shortenAddress('0x5a2fae94BDaa7B30B6049b1f5c9C86C3E4fd212F', 27)}
+          {shortenAddress(account.addr, 27)}
         </Text>
         <Text fontSize={16} weight="semiBold" style={styles.addressLabel}>
-          Account.Label.eth
+          {account.label}
         </Text>
       </View>
       <View style={styles.network}>
@@ -31,7 +43,7 @@ const Header = () => {
         </Text>
         <EthereumLogo />
         <Text fontSize={14} style={styles.networkText}>
-          Ethereum
+          {network.name}
         </Text>
       </View>
     </View>

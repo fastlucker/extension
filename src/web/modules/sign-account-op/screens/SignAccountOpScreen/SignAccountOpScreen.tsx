@@ -1,13 +1,31 @@
+import { networks } from 'ambire-common/src/consts/networks'
 import { Account } from 'ambire-common/src/interfaces/account'
+import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
 import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { ScrollView, StyleSheet, View } from 'react-native'
 
+import Select from '@common/components/Select/'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
+import Footer from '@web/modules/sign-account-op/components/Footer'
+import Header from '@web/modules/sign-account-op/components/Header'
+import Heading from '@web/modules/sign-account-op/components/Heading'
+import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { mapTokenOptions } from '@web/utils/maps'
 
-import SignAccountOpTabScreen from '../SignAccountOpTabScreen'
+import Fees from '../../components/Fees/Fees'
+import styles from './styles'
 
 // @TODO: - get accounts from controller
 const ACCOUNTS = [
@@ -47,6 +65,21 @@ const mapAccountOptions = (values: Account[]) =>
 const SignAccountOpScreen = () => {
   const { params } = useRoute()
   const { navigate } = useNavigation()
+  const signAccountOpState = useSignAccountOpControllerState()
+  const mainState = useMainControllerState()
+  const { dispatch } = useBackgroundService()
+  const { t } = useTranslation()
+
+  const accounts = mapAccountOptions(ACCOUNTS as Account[])
+  const tokens = mapTokenOptions(TOKENS as TokenResult[])
+
+  const { control } = useForm({
+    reValidateMode: 'onChange',
+    defaultValues: {
+      account: accounts[0] || {},
+      token: tokens[0] || {}
+    }
+  })
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
@@ -54,10 +87,107 @@ const SignAccountOpScreen = () => {
     }
   }, [params?.accountAddr, params?.network, navigate])
 
-  const mappedAccounts = mapAccountOptions(ACCOUNTS as Account[])
-  const mappedTokens = mapTokenOptions(TOKENS as TokenResult[])
+  useEffect(() => {
+    if (!params?.accountAddr || !params?.network) {
+      return
+    }
 
-  return <SignAccountOpTabScreen tokens={mappedTokens} accounts={mappedAccounts} />
+    const accountOpToBeSigned: any =
+      mainState.accountOpsToBeSigned?.[params.accountAddr]?.[params.network.id] || []
+    if (accountOpToBeSigned) {
+      if (!signAccountOpState.accountOp) {
+        dispatch({
+          type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
+          params: {
+            filters: {
+              account: params.accountAddr,
+              network: params.network.id
+            }
+          }
+        })
+
+        dispatch({
+          type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+          params: {
+            accounts: mainState.accounts,
+            accountStates: mainState.accountStates,
+            networks,
+            estimation: accountOpToBeSigned.estimation,
+            accountOp: accountOpToBeSigned.accountOp
+            // gasPrices
+            // feeTokenAddr
+          }
+        })
+      }
+    }
+  }, [
+    params,
+    dispatch,
+    mainState.messagesToBeSigned,
+    mainState.selectedAccount,
+    mainState.accounts,
+    mainState.accountStates,
+    mainState.accountOpsToBeSigned,
+    signAccountOpState.accountOp
+  ])
+
+  const account = useMemo(() => {
+    return mainState.accounts.find((acc) => acc.addr === signAccountOpState.accountOp?.accountAddr)
+  }, [mainState.accounts, signAccountOpState.accountOp?.accountAddr])
+
+  const network = useMemo(() => {
+    return mainState.settings.networks.find(
+      (n) => n.id === signAccountOpState?.accountOp?.networkId
+    )
+  }, [mainState.settings.networks, signAccountOpState?.accountOp?.networkId])
+
+  if (!signAccountOpState.accountOp) {
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+        <Spinner />
+      </View>
+    )
+  }
+
+  return (
+    <TabLayoutWrapperMainContent
+      width="full"
+      forceCanGoBack
+      pageTitle={<Header account={account} network={network} />}
+      footer={<Footer />}
+    >
+      <View style={styles.container}>
+        <View style={styles.transactionsContainer}>
+          <Heading text={t('Waiting Transactions')} style={styles.transactionsHeading} />
+          <ScrollView style={styles.transactionsScrollView} scrollEnabled>
+            <TransactionSummary style={spacings.mbSm} />
+            <TransactionSummary style={spacings.mbSm} />
+            <TransactionSummary style={spacings.mbSm} />
+          </ScrollView>
+        </View>
+        <View style={styles.separator} />
+        <View style={styles.estimationContainer}>
+          <Heading text={t('Estimation')} style={styles.estimationHeading} />
+          <Controller
+            name="account"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <Select
+                setValue={onChange}
+                label={t('Fee paid by')}
+                options={accounts}
+                style={styles.accountSelect}
+                labelStyle={styles.accountSelectLabel}
+                value={value}
+                defaultValue={value}
+              />
+            )}
+          />
+          <Fees control={control} tokens={tokens} />
+        </View>
+      </View>
+    </TabLayoutWrapperMainContent>
+  )
 }
 
 export default SignAccountOpScreen

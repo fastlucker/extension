@@ -196,12 +196,6 @@ async function init() {
                   method: 'notification',
                   params: notificationCtrl
                 })
-              } else if (data.params.controller === ('banners' as any)) {
-                pm.request({
-                  type: 'broadcast',
-                  method: 'banners',
-                  params: bannersCtrl
-                })
               } else {
                 pm.request({
                   type: 'broadcast',
@@ -292,6 +286,10 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
+              return mainCtrl.signAccountOp.update(data.params)
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
+              return mainCtrl.signAccountOp.reset()
 
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)

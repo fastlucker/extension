@@ -48,11 +48,7 @@ const SortHat = () => {
             (req) => req.id === notificationState.currentNotificationRequest?.id
           )
         ) {
-          let accountAddr = mainState.selectedAccount
-          if (notificationState.currentNotificationRequest?.params?.data?.[0]?.from) {
-            accountAddr = notificationState.currentNotificationRequest.params.data[0].from
-          }
-
+          const accountAddr = notificationState.currentNotificationRequest?.accountAddr
           const network = networks.find(
             (n) => n.id === notificationState.currentNotificationRequest?.networkId
           )

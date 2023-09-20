@@ -155,6 +155,21 @@ type LatticeControllerUnlockAction = {
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
 }
+type MainControllerSignAccountOpUpdateAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+  params: {
+    accounts?: Account[]
+    networks?: NetworkDescriptor[]
+    accountStates?: AccountStates
+    accountOp?: AccountOp
+    gasPrices?: GasRecommendation[]
+    estimation?: EstimateResult
+    feeTokenAddr?: string
+  }
+}
+type MainControllerSignAccountOpResetAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET'
+}
 
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
@@ -227,6 +242,8 @@ export type Action =
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
   | MainControllerActivityResetAction
+  | MainControllerSignAccountOpUpdateAction
+  | MainControllerSignAccountOpResetAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
