@@ -77,36 +77,9 @@ const TrezorManager: React.FC<{}> = (props) => {
         params: { accountAddr: defaultSelectedAccount.addr }
       })
 
-      try {
-        // TODO: Use method that adds multiple keys at once
-        dispatch({
-          type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
-        })
-        // const keysToAddToKeystore = accountAdderState.selectedAccounts.map((acc) => {
-        //   let privateKey = props.privKeyOrSeed
-        //   // in case props.privKeyOrSeed is a seed the private keys have to be extracted
-        //   if (Mnemonic.isValidMnemonic(props.privKeyOrSeed)) {
-        //     // The slot is the key index from the derivation path
-        //     const slotIdx = accountAdderState.accountsOnPage.find(
-        //       (accOnPage) => accOnPage.account.addr === acc.addr
-        //     )?.slot
-        //     privateKey = getPrivateKeyFromSeed(props.privKeyOrSeed, (slotIdx || 0) - 1)
-        //   }
-        //   return {
-        //     privateKey,
-        //     label: props.label
-        //   }
-        // })
-        // dispatch({
-        //   type: 'KEYSTORE_CONTROLLER_ADD_KEYS',
-        //   params: { keys: keysToAddToKeystore }
-        // })
-      } catch (error: any) {
-        // TODO: display error toast
-        // if the add keys fails we should probably remove the stored accounts
-        // or dont add them at all before successfully adding the keys to the keystore
-        alert(error?.message || 'keystore add keys failed')
-      }
+      dispatch({
+        type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
+      })
     }
   })
 
