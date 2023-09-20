@@ -148,7 +148,7 @@ const GetStartedScreen = () => {
                   textStyle={{ fontSize: 14 }}
                   accentColor={colors.violet}
                   text={t('View Mode')}
-                  disabled // temporary disabled until we have this feature
+                  onPress={() => navigate(WEB_ROUTES.viewOnly)}
                   type="outline"
                   hasBottomSpacing={false}
                   style={[{ minWidth: 190 }, spacings.mrMd]}
