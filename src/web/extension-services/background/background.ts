@@ -75,15 +75,29 @@ async function init() {
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
-
-  let numberOfOpenedWindows = 0
-  let intervalId
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
 
+  let numberOfOpenedWindows = 0
+  let intervalId: any
+
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
+
+  const fetchPortfolioData = async () => {
+    if (!mainCtrl.selectedAccount) return
+    return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
+  }
+
+  fetchPortfolioData()
+
+  function setPortfolioFetchInterval() {
+    clearInterval(intervalId) // Clear existing interval
+    intervalId = setInterval(() => fetchPortfolioData(), numberOfOpenedWindows ? 60000 : 600000)
+  }
+
+  // Call it once to initialize the interval
+  setPortfolioFetchInterval()
 
   /**
    * Init all controllers `onUpdate` listeners only once (in here), instead of
@@ -180,22 +194,6 @@ async function init() {
     })
   })
 
-  const fetchPortfolioData = async () => {
-    if (!mainCtrl.selectedAccount) return
-    return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
-  }
-
-  fetchPortfolioData()
-
-  function setPortfolioFetchInterval() {
-    clearInterval(intervalId); // Clear existing interval
-  
-    intervalId = setInterval(() =>  fetchPortfolioData(), numberOfOpenedWindows ? 60000 : 600000);
-  }
-  
-  // Call it once to initialize the interval
-  setPortfolioFetchInterval();
-
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
@@ -229,12 +227,6 @@ async function init() {
                   type: 'broadcast',
                   method: 'notification',
                   params: notificationCtrl
-                })
-              } else if (data.params.controller === ('banners' as any)) {
-                pm.request({
-                  type: 'broadcast',
-                  method: 'banners',
-                  params: bannersCtrl
                 })
               } else {
                 pm.request({
