@@ -78,8 +78,7 @@ async function init() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
 
-  let numberOfOpenedWindows = 0
-  let intervalId: any
+  let fetchPortfolioIntervalId: any
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -92,8 +91,11 @@ async function init() {
   fetchPortfolioData()
 
   function setPortfolioFetchInterval() {
-    clearInterval(intervalId) // Clear existing interval
-    intervalId = setInterval(() => fetchPortfolioData(), numberOfOpenedWindows ? 60000 : 600000)
+    clearInterval(fetchPortfolioIntervalId) // Clear existing interval
+    fetchPortfolioIntervalId = setInterval(
+      () => fetchPortfolioData(),
+      Object.keys(portMessageUIRefs).length ? 60000 : 600000
+    )
   }
 
   // Call it once to initialize the interval
@@ -200,14 +202,7 @@ async function init() {
       const id = new Date().getTime().toString()
       const pm = new PortMessage(port, id)
       portMessageUIRefs[pm.id] = pm
-
-      numberOfOpenedWindows++
       setPortfolioFetchInterval()
-
-      port.onDisconnect.addListener(() => {
-        if (numberOfOpenedWindows > 0) numberOfOpenedWindows--
-        setPortfolioFetchInterval()
-      })
 
       pm.listen(async (data: Action) => {
         if (data?.type) {
@@ -417,6 +412,8 @@ async function init() {
 
       port.onDisconnect.addListener(() => {
         delete portMessageUIRefs[pm.id]
+        setPortfolioFetchInterval()
+
         if (port.name === 'tab' || port.name === 'notification') {
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
