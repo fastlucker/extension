@@ -30,19 +30,20 @@ const DashboardScreen = () => {
     return (params.get('tab') as 'tokens' | 'collectibles') || 'tokens'
   })
 
-  const {
-    accountPortfolio,
-    startedLoading
-  } = usePortfolioControllerState()
+  const { accountPortfolio, startedLoading } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
   const tokens = accountPortfolio?.tokens || []
-  const showView = (startedLoading && (Date.now() - startedLoading) > 5000) || accountPortfolio?.isAllReady
+  const showView =
+    (startedLoading && Date.now() - startedLoading > 5000) || accountPortfolio?.isAllReady
 
-if (!showView) return (<View style={[flexbox.alignCenter]}>
-      <Spinner />
-    </View>)
+  if (!showView)
+    return (
+      <View style={[flexbox.alignCenter]}>
+        <Spinner />
+      </View>
+    )
 
   return (
     <View style={styles.container}>
@@ -54,24 +55,23 @@ if (!showView) return (<View style={[flexbox.alignCenter]}>
                 {t('Balance')}
               </Text>
               <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-                {(
-                  <>
-                    <Text
-                      fontSize={30}
-                      shouldScale={false}
-                      style={{ lineHeight: 34 }}
-                      weight="regular"
-                    >
-                     {t('$')}{' '}
-                      {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
-                        'en-US'
-                      )}
-                    </Text>
-                    <Text fontSize={20} shouldScale={false} weight="regular">
-                      {t('.')}{Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
-                    </Text>
-                  </>
-                )}
+                <>
+                  <Text
+                    fontSize={30}
+                    shouldScale={false}
+                    style={{ lineHeight: 34 }}
+                    weight="regular"
+                  >
+                    {t('$')}{' '}
+                    {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
+                      'en-US'
+                    )}
+                  </Text>
+                  <Text fontSize={20} shouldScale={false} weight="regular">
+                    {t('.')}
+                    {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
+                  </Text>
+                </>
               </View>
             </View>
             <Routes />
