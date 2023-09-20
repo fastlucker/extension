@@ -1,8 +1,7 @@
 import { networks } from 'ambire-common/src/consts/networks'
 import { Account } from 'ambire-common/src/interfaces/account'
-import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
 import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
@@ -23,6 +22,7 @@ import Header from '@web/modules/sign-account-op/components/Header'
 import Heading from '@web/modules/sign-account-op/components/Heading'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { mapTokenOptions } from '@web/utils/maps'
+import { getUiType } from '@web/utils/uiType'
 
 import Fees from '../../components/Fees/Fees'
 import styles from './styles'
@@ -141,6 +141,26 @@ const SignAccountOpScreen = () => {
     )
   }, [mainState.settings.networks, signAccountOpState?.accountOp?.networkId])
 
+  const handleRejectAccountOp = useCallback(() => {
+    if (!signAccountOpState.accountOp) return
+
+    signAccountOpState.accountOp.calls.forEach((call) => {
+      if (call.fromUserRequestId)
+        dispatch({
+          type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+          params: { err: 'User rejected the transaction request', id: call.fromUserRequestId }
+        })
+    })
+  }, [dispatch, signAccountOpState.accountOp])
+
+  const handleAddToCart = useCallback(() => {
+    if (getUiType().isNotification) {
+      window.close()
+    } else {
+      navigate('/')
+    }
+  }, [navigate])
+
   if (!signAccountOpState.accountOp) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -154,7 +174,7 @@ const SignAccountOpScreen = () => {
       width="full"
       forceCanGoBack
       pageTitle={<Header account={account} network={network} />}
-      footer={<Footer />}
+      footer={<Footer onReject={handleRejectAccountOp} onAddToCart={handleAddToCart} />}
     >
       <View style={styles.container}>
         <View style={styles.transactionsContainer}>

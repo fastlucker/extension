@@ -1,23 +1,30 @@
 import React from 'react'
 import { View } from 'react-native'
-import flexbox from '@common/styles/utils/flexbox'
-import colors from '@common/styles/colors'
+
 import Button from '@common/components/Button'
 import { useTranslation } from '@common/config/localization'
+import colors from '@common/styles/colors'
+import flexbox from '@common/styles/utils/flexbox'
+
 import styles from './styles'
 
-const Footer = () => {
+type Props = {
+  onReject: () => void
+  onAddToCart: () => void
+}
+
+const Footer = ({ onReject, onAddToCart }: Props) => {
   const { t } = useTranslation()
 
   return (
     <View style={styles.container}>
-      <Button type="danger" text={t('Reject')} onPress={() => {}} style={styles.rejectButton} />
+      <Button type="danger" text={t('Reject')} onPress={onReject} style={styles.rejectButton} />
       <View style={[flexbox.directionRow]}>
         <Button
           type="outline"
           accentColor={colors.violet}
-          text={t('Add More Transactions')}
-          onPress={() => {}}
+          text={t('Add to Cart')}
+          onPress={onAddToCart}
           style={styles.addMoreTxnButton}
         />
         <Button type="primary" text={t('Sign')} onPress={() => {}} style={styles.signButton} />
