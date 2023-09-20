@@ -6352,7 +6352,7 @@ ajv@^8.0.0, ajv@^8.1.0, ajv@^8.6.3, ajv@^8.9.0:
 
 "ambire-common@git+ssh://git@github.com/AmbireTech/ambire-common.git#feature/portfolio-view-lib":
   version "0.15.0"
-  resolved "git+ssh://git@github.com/AmbireTech/ambire-common.git#722288cd14efc4ea4956586a5ea1b97173d37aa1"
+  resolved "git+ssh://git@github.com/AmbireTech/ambire-common.git#5ff00f6e23a04485883031944f460654f016fbfc"
   dependencies:
     "@jest/globals" "^29.6.1"
     aes-js "^3.1.2"

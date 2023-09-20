@@ -32,11 +32,17 @@ const DashboardScreen = () => {
 
   const {
     accountPortfolio,
+    startedLoading
   } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
   const tokens = accountPortfolio?.tokens || []
+  const showView = (startedLoading && (Date.now() - startedLoading) > 5000) || accountPortfolio?.isAllReady
+
+if (!showView) return (<View style={[flexbox.alignCenter]}>
+      <Spinner />
+    </View>)
 
   return (
     <View style={styles.container}>

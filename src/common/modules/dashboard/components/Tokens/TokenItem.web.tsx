@@ -81,6 +81,8 @@ const TokenItem = ({
     ...((rewards || vesting) && styles.rewardsContainer)
   }
 
+  if ((rewards || vesting) && !balance) return
+
   return (
     <div
       className={rewards || vesting ? 'rewards-token-container' : 'token-container'}
