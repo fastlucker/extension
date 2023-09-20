@@ -250,7 +250,6 @@ const AccountsList = ({
           onPress={onImportReady}
           disabled={
             state.accountsLoading ||
-            state.linkedAccountsLoading ||
             isSubmitting ||
             (!state.selectedAccounts.length && !state.preselectedAccounts.length)
           }
