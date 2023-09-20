@@ -111,6 +111,14 @@ module.exports = async function (env, argv) {
   // config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
 
+  if (config.watchOptions) {
+    if (config.watchOptions.ignored) {
+      const ignored = config.watchOptions.ignored.filter((p) => p !== '**/node_modules/**')
+      ignored.push('**/node_modules/!(ambire-common)/**')
+      config.watchOptions.ignored = ignored
+    }
+  }
+
   config.entry = {
     main: config.entry[0], // the app entry
     background: './src/web/extension-services/background/background.ts', // custom entry needed for the extension

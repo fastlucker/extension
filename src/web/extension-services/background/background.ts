@@ -4,6 +4,7 @@ import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from 'ambire-common/src/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 
+import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -66,19 +67,39 @@ async function init() {
     onUpdateDappSelectedAccount: (accountAddr) => {
       const account = accountAddr ? [accountAddr] : []
       return sessionService.broadcastEvent('accountsChanged', account)
-    }
+    },
+    pinned: pinnedTokens
   })
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
 
+  let fetchPortfolioIntervalId: any
+
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
+
+  const fetchPortfolioData = async () => {
+    if (!mainCtrl.selectedAccount) return
+    return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
+  }
+
+  fetchPortfolioData()
+
+  function setPortfolioFetchInterval() {
+    clearInterval(fetchPortfolioIntervalId) // Clear existing interval
+    fetchPortfolioIntervalId = setInterval(
+      () => fetchPortfolioData(),
+      Object.keys(portMessageUIRefs).length ? 60000 : 600000
+    )
+  }
+
+  // Call it once to initialize the interval
+  setPortfolioFetchInterval()
 
   /**
    * Init all controllers `onUpdate` listeners only once (in here), instead of
@@ -134,7 +155,12 @@ async function init() {
       }
       controllersNestedInMainSubscribe()
     }
+
+    if (mainCtrl.isReady && mainCtrl.selectedAccount) {
+      fetchPortfolioData()
+    }
   })
+
   // Broadcast onUpdate for the notification controllers
   notificationCtrl.onUpdate(() => {
     Object.keys(portMessageUIRefs).forEach((key: string) => {
@@ -176,6 +202,7 @@ async function init() {
       const id = new Date().getTime().toString()
       const pm = new PortMessage(port, id)
       portMessageUIRefs[pm.id] = pm
+      setPortfolioFetchInterval()
 
       pm.listen(async (data: Action) => {
         if (data?.type) {
@@ -389,6 +416,8 @@ async function init() {
 
       port.onDisconnect.addListener(() => {
         delete portMessageUIRefs[pm.id]
+        setPortfolioFetchInterval()
+
         if (port.name === 'tab' || port.name === 'notification') {
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()

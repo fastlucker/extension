@@ -18,14 +18,30 @@ interface Props {
 const Tokens = ({ tokens }: Props) => {
   const { t } = useTranslation()
   // TODO: we will have different sorting here on v2. We will have pinned tokens with 0 balance, gas tokens and etc so this will be decided over time once all of them are wired up
-  const sortedTokens = tokens
+  let sortedTokens = [...tokens];
 
+  sortedTokens.sort((a, b) => {
+    // If a is a rewards token and b is not, a should come before b.
+    if (a.isRewardsToken && !b.isRewardsToken) {
+      return -1;
+    }
+    // If b is a rewards token and a is not, b should come before a.
+    if (!a.isRewardsToken && b.isRewardsToken) {
+      return 1;
+    }
+    // Otherwise, keep the order as is (or use another criteria to sort them).
+    return 0;
+  });
+  
+  // Now, move onGasTank tokens to the end of the array
+  const onGasTankTokens = sortedTokens.filter((token) => token.onGasTank);
+  const otherTokens = sortedTokens.filter((token) => !token.onGasTank);
+  
+  sortedTokens = [...otherTokens, ...onGasTankTokens];
+  
   return (
     <View>
       {/* {!!isCurrNetworkBalanceLoading && <TokensListLoader />} */}
-
-      {/* // TODO: Implement rewards token */}
-      {/* {!isCurrNetworkBalanceLoading && <Rewards />} */}
 
       {!sortedTokens.length && <Text>{t('No tokens yet')}</Text>}
 
@@ -38,21 +54,25 @@ const Tokens = ({ tokens }: Props) => {
             networkId,
             priceIn,
             symbol,
-            gasToken,
+            onGasTank,
             vesting,
-            rewards
+            rewards,
+            canTopUpGasTank,
+            isFeeToken,
           }: any) => (
             <TokenItem
-              key={`token-${address}-${networkId}-${gasToken}-${vesting}-${rewards}`}
+              key={`token-${address}-${networkId}-${onGasTank}-${vesting}-${rewards}`}
               address={address}
               amount={amount}
               decimals={decimals}
               networkId={networkId}
               priceIn={priceIn}
               symbol={symbol}
-              gasToken={gasToken}
+              onGasTank={onGasTank}
               vesting={vesting}
               rewards={rewards}
+              canTopUpGasTank={canTopUpGasTank}
+              isFeeToken={isFeeToken}
             />
           )
         )}

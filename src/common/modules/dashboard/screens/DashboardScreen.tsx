@@ -1,5 +1,4 @@
-import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
 
 import Banners from '@common/components/Banners'
@@ -11,7 +10,6 @@ import useRoute from '@common/hooks/useRoute'
 import colors from '@common/styles/colors'
 import spacings, { IS_SCREEN_SIZE_TAB_CONTENT_UP } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import Assets from '../components/Assets'
@@ -28,60 +26,20 @@ const DashboardScreen = () => {
     return (params.get('tab') as 'tokens' | 'collectibles') || 'tokens'
   })
 
-  const {
-    accountPortfolio,
-    gasTankAndRewardsData: { rewards, gasTank }
-  } = usePortfolioControllerState()
-  const { dispatch } = useBackgroundService()
-
-  useEffect(() => {
-    const fetchData = () => {
-      dispatch({ type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT' })
-    }
-
-    // Fetch data on page load
-    fetchData()
-
-    // Set up interval to refetch data every minute
-    const interval = setInterval(fetchData, 60000) // 60000 milliseconds = 1 minute
-
-    // Clean up interval on component unmount
-    return () => clearInterval(interval)
-  }, [dispatch])
+  const { accountPortfolio, startedLoading } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
-  const tokens = [
-    ...(rewards &&
-    rewards?.walletClaimableBalance &&
-    rewards?.walletClaimableBalance?.amount &&
-    Number(rewards?.walletClaimableBalance?.amount)
-      ? [
-          {
-            ...rewards?.walletClaimableBalance,
-            vesting: true
-          }
-        ]
-      : []),
-    ...(rewards &&
-    rewards?.xWalletClaimableBalance &&
-    rewards?.xWalletClaimableBalance?.amount &&
-    Number(rewards?.xWalletClaimableBalance?.amount)
-      ? [
-          {
-            ...rewards?.xWalletClaimableBalance,
-            rewards: true
-          }
-        ]
-      : []),
-    ...(gasTank?.balance
-      ? gasTank.balance.map((token: TokenResultInterface) => ({
-          ...token,
-          gasToken: true
-        }))
-      : []),
-    ...(accountPortfolio?.tokens ? accountPortfolio.tokens : [])
-  ]
+  const tokens = accountPortfolio?.tokens || []
+  const showView =
+    (startedLoading && Date.now() - startedLoading > 5000) || accountPortfolio?.isAllReady
+
+  if (!showView)
+    return (
+      <View style={[flexbox.alignCenter]}>
+        <Spinner />
+      </View>
+    )
 
   return (
     <View style={styles.container}>
@@ -93,26 +51,23 @@ const DashboardScreen = () => {
                 {t('Balance')}
               </Text>
               <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-                {accountPortfolio.isAllReady ? (
-                  <>
-                    <Text
-                      fontSize={30}
-                      shouldScale={false}
-                      style={{ lineHeight: 34 }}
-                      weight="regular"
-                    >
-                      ${' '}
-                      {Number(accountPortfolio.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
-                        'en-US'
-                      )}
-                    </Text>
-                    <Text fontSize={20} shouldScale={false} weight="regular">
-                      .{Number(accountPortfolio.totalAmount.toFixed(2).split('.')[1])}
-                    </Text>
-                  </>
-                ) : (
-                  <Spinner style={{ width: 25, height: 25 }} />
-                )}
+                <>
+                  <Text
+                    fontSize={30}
+                    shouldScale={false}
+                    style={{ lineHeight: 34 }}
+                    weight="regular"
+                  >
+                    {t('$')}{' '}
+                    {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
+                      'en-US'
+                    )}
+                  </Text>
+                  <Text fontSize={20} shouldScale={false} weight="regular">
+                    {t('.')}
+                    {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
+                  </Text>
+                </>
               </View>
             </View>
             <Routes />
