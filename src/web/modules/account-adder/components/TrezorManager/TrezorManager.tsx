@@ -93,7 +93,10 @@ const TrezorManager: React.FC<{}> = (props) => {
   )
 
   useEffect(() => {
-    if (keystoreState.status === 'DONE' && keystoreState.latestMethodCall === 'addKeys') {
+    if (
+      keystoreState.status === 'DONE' &&
+      keystoreState.latestMethodCall === 'addKeysExternallyStored'
+    ) {
       completeStep()
     }
   }, [completeStep, keystoreState])
