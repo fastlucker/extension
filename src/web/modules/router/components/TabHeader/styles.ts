@@ -20,9 +20,9 @@ const styles = StyleSheet.create<Styles>({
   container: {
     ...flexbox.directionRow,
     ...flexbox.alignCenter,
-    backgroundColor: colors.zircon,
     ...spacings.ph,
-    ...spacings.pv
+    ...spacings.pv,
+    height: isWeb ? 90 : 'auto'
   },
   headerLeft: { ...flexbox.directionRow, ...flexbox.alignCenter },
   headerLeftText: spacings.mlTy,
