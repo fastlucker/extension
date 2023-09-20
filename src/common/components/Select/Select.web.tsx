@@ -104,7 +104,7 @@ const SelectComponent = ({
 
   return (
     <>
-      {label && (
+      {!!label && (
         <Text weight="regular" style={[spacings.mbTy, spacings.mlTy, labelStyle]}>
           {label}
         </Text>

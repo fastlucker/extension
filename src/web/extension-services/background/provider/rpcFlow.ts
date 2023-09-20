@@ -199,8 +199,7 @@ const flowContext = flow
         screen: uiRequestComponent,
         params: rest,
         origin,
-        requestType,
-        isUnshift: true
+        requestType
       })
       if (res.uiRequestComponent) {
         return await requestNotificationRequestLoop(res)

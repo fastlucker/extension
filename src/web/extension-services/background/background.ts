@@ -7,6 +7,7 @@ import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/
 import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
+import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -40,10 +41,10 @@ async function init() {
 
 ;(async () => {
   await init()
-  let pmRef: PortMessage
+  const portMessageUIRefs: { [key: string]: PortMessage } = {}
   let controllersNestedInMainSubscribe: any = null
-  let onResoleDappNotificationRequest: (data: any, id?: bigint) => void
-  let onRejectDappNotificationRequest: (data: any, id?: bigint) => void
+  let onResoleDappNotificationRequest: (data: any, id?: number) => void
+  let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
   const signers = {
     internal: KeystoreSigner,
@@ -78,6 +79,9 @@ async function init() {
   let numberOfOpenedWindows = 0
   let intervalId
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
+
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
 
@@ -94,10 +98,12 @@ async function init() {
 
   // Broadcast onUpdate for the main controllers
   mainCtrl.onUpdate(() => {
-    pmRef?.request({
-      type: 'broadcast',
-      method: 'main',
-      params: mainCtrl
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast',
+        method: 'main',
+        params: mainCtrl
+      })
     })
 
     if (!mainCtrl.isReady && controllersNestedInMainSubscribe) {
@@ -109,21 +115,24 @@ async function init() {
         Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
           // Broadcast onUpdate for nested controllers
           ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-            pmRef?.request({
-              type: 'broadcast',
-              method: ctrl,
-              params: (mainCtrl as any)[ctrl]
+            Object.keys(portMessageUIRefs).forEach((key: string) => {
+              portMessageUIRefs[key]?.request({
+                type: 'broadcast',
+                method: ctrl,
+                params: (mainCtrl as any)[ctrl]
+              })
             })
           })
           ;(mainCtrl as any)[ctrl]?.onError(() => {
             const errors = (mainCtrl as any)[ctrl].getErrors()
             const lastError = errors[errors.length - 1]
             if (lastError) console.error(lastError.error)
-
-            pmRef.request({
-              type: 'broadcast-error',
-              method: ctrl,
-              params: { errors, controller: ctrl }
+            Object.keys(portMessageUIRefs).forEach((key: string) => {
+              portMessageUIRefs[key]?.request({
+                type: 'broadcast-error',
+                method: ctrl,
+                params: { errors, controller: ctrl }
+              })
             })
           })
         })
@@ -138,32 +147,36 @@ async function init() {
 
   // Broadcast onUpdate for the notification controllers
   notificationCtrl.onUpdate(() => {
-    pmRef?.request({
-      type: 'broadcast',
-      method: 'notification',
-      params: notificationCtrl
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast',
+        method: 'notification',
+        params: notificationCtrl
+      })
     })
   })
   notificationCtrl.onError(() => {
     const errors = notificationCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-
-    pmRef?.request({
-      type: 'broadcast-error',
-      method: 'notification',
-      params: { errors, controller: 'notification' }
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast-error',
+        method: 'notification',
+        params: { errors, controller: 'notification' }
+      })
     })
   })
   mainCtrl.onError(() => {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-
-    pmRef?.request({
-      type: 'broadcast-error',
-      method: 'main',
-      params: { errors, controller: 'main' }
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast-error',
+        method: 'main',
+        params: { errors, controller: 'main' }
+      })
     })
   })
 
@@ -186,8 +199,9 @@ async function init() {
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
-      const pm = new PortMessage(port)
-      pmRef = pm
+      const id = new Date().getTime().toString()
+      const pm = new PortMessage(port, id)
+      portMessageUIRefs[pm.id] = pm
 
       numberOfOpenedWindows++
       setPortfolioFetchInterval()
@@ -215,6 +229,12 @@ async function init() {
                   type: 'broadcast',
                   method: 'notification',
                   params: notificationCtrl
+                })
+              } else if (data.params.controller === ('banners' as any)) {
+                pm.request({
+                  type: 'broadcast',
+                  method: 'banners',
+                  params: bannersCtrl
                 })
               } else {
                 pm.request({
@@ -306,17 +326,20 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
+
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break
             }
             case 'NOTIFICATION_CONTROLLER_REJECT_REQUEST': {
-              notificationCtrl.rejectNotificationRequest(data.params.err)
+              notificationCtrl.rejectNotificationRequest(data.params.err, data.params.id)
               break
             }
 
-            case 'NOTIFICATION_CONTROLLER_OPEN_FIRST_NOTIFICATION_REQUEST':
-              return notificationCtrl.openFirstNotificationRequest()
+            case 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST':
+              return notificationCtrl.reopenCurrentNotificationRequest()
+            case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST':
+              return notificationCtrl.openNotificationRequest(data.params.id)
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock(data?.params?.hdPath)
@@ -400,12 +423,14 @@ async function init() {
         })
       }
 
-      if (port.name === 'tab' || port.name === 'notification') {
-        port.onDisconnect.addListener(() => {
+      port.onDisconnect.addListener(() => {
+        delete portMessageUIRefs[pm.id]
+        if (port.name === 'tab' || port.name === 'notification') {
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
-        })
-      }
+        }
+      })
+
       eventBus.addEventListener('broadcastToUI', broadcastCallback)
       port.onDisconnect.addListener(() => {
         eventBus.removeEventListener('broadcastToUI', broadcastCallback)

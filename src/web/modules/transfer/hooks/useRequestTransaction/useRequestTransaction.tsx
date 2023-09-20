@@ -134,7 +134,7 @@ export default function useRequestTransaction() {
       }
 
       const req: UserRequest = {
-        id: Date.now(),
+        id: new Date().getTime(),
         networkId: selectedAssetNetwork.id,
         accountAddr: selectedAccount,
         forceNonce: null,

@@ -5,7 +5,6 @@ import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
-import { BannerProvider } from '@common/contexts/bannerContext/bannerContext'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
@@ -55,17 +54,16 @@ const AppInit = () => {
               <SignMessageControllerStateProvider>
                 <ActivityControllerStateProvider>
                   <NotificationControllerStateProvider>
-                    <PortfolioControllerStateProvider>
-                      <ControllersStateLoadedProvider>
-                        <PortalProvider>
-                          <LoaderProvider>
-                            <StorageProvider>
-                              <OnboardingProvider>
-                                <ThemeProvider>
-                                  <SafeAreaProvider>
-                                    <KeyboardProvider>
-                                      <NetInfoProvider>
-                                        <BannerProvider>
+                      <PortfolioControllerStateProvider>
+                        <ControllersStateLoadedProvider>
+                          <PortalProvider>
+                            <LoaderProvider>
+                              <StorageProvider>
+                                <OnboardingProvider>
+                                  <ThemeProvider>
+                                    <SafeAreaProvider>
+                                      <KeyboardProvider>
+                                        <NetInfoProvider>
                                           <ToastProvider>
                                             <ConstantsProvider>
                                               <AuthProvider>
@@ -80,17 +78,16 @@ const AppInit = () => {
                                               </AuthProvider>
                                             </ConstantsProvider>
                                           </ToastProvider>
-                                        </BannerProvider>
-                                      </NetInfoProvider>
-                                    </KeyboardProvider>
-                                  </SafeAreaProvider>
-                                </ThemeProvider>
-                              </OnboardingProvider>
-                            </StorageProvider>
-                          </LoaderProvider>
-                        </PortalProvider>
-                      </ControllersStateLoadedProvider>
-                    </PortfolioControllerStateProvider>
+                                        </NetInfoProvider>
+                                      </KeyboardProvider>
+                                    </SafeAreaProvider>
+                                  </ThemeProvider>
+                                </OnboardingProvider>
+                              </StorageProvider>
+                            </LoaderProvider>
+                          </PortalProvider>
+                        </ControllersStateLoadedProvider>
+                      </PortfolioControllerStateProvider>
                   </NotificationControllerStateProvider>
                 </ActivityControllerStateProvider>
               </SignMessageControllerStateProvider>

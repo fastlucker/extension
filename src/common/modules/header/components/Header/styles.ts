@@ -2,7 +2,7 @@ import { Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING } from '@common/styles/spacings'
 import commonWebStyles from '@web/styles/utils/common'
 
 export const HEADER_HEIGHT = Platform.select({
@@ -21,6 +21,7 @@ interface Styles {
 const styles = StyleSheet.create<Styles>({
   container: {
     zIndex: 9,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.zircon,
