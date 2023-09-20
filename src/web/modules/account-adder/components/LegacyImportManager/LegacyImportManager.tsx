@@ -108,10 +108,11 @@ const LegacyImportManager = (props: Props) => {
           params: { keys: keysToAddToKeystore }
         })
       } catch (error: any) {
+        console.error(error)
         // TODO: display error toast
-        // if the add keys fails we should probably remove the stored accounts
-        // or dont add them at all before successfully adding the keys to the keystore
-        alert(error?.message || 'keystore add keys failed')
+        alert(
+          'The selected accounts got imported, but Ambire failed to retrieve their keys. Please log out of these accounts and try to import them again. Until then, these accounts will be view only. If the problem persists, please contact support.'
+        )
       }
     }
   }, [

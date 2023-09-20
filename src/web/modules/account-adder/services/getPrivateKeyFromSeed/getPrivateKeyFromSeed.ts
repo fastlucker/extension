@@ -14,7 +14,7 @@ const getPrivateKeyFromSeed = (
     return keyObj.privateKey
   }
 
-  throw new Error('get privateKey from Wallet failed')
+  throw new Error('Getting the private key from the seed phrase failed.')
 }
 
 export default getPrivateKeyFromSeed
