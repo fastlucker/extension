@@ -11,7 +11,6 @@ import useRoute from '@common/hooks/useRoute'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { BANNER_TOPICS } from '@web/extension-services/background/controllers/banners'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -123,13 +122,7 @@ const DashboardScreen = () => {
           </View>
 
           <View style={styles.banners}>
-            <Banners
-              topics={[
-                BANNER_TOPICS.TRANSACTION,
-                BANNER_TOPICS.ANNOUNCEMENT,
-                BANNER_TOPICS.WARNING
-              ]}
-            />
+            <Banners />
           </View>
         </View>
         <View

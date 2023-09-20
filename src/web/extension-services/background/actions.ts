@@ -7,7 +7,6 @@ import { EstimateResult } from 'ambire-common/src/libs/estimate/estimate'
 import { GasRecommendation } from 'ambire-common/src/libs/gasPrice/gasPrice'
 
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
-import { Banner } from '@web/extension-services/background/controllers/banners'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -222,21 +221,6 @@ type NotificationControllerOpenNotificationRequestAction = {
   params: { id: number }
 }
 
-type BannersControllerAddBannerAction = {
-  type: 'BANNERS_CONTROLLER_ADD_BANNER'
-  params: { banner: Banner }
-}
-
-type BannersControllerRemoveBannerAction = {
-  type: 'BANNERS_CONTROLLER_REMOVE_BANNER'
-  params: { id: Banner['id'] }
-}
-
-type CallBannerActionAction = {
-  type: 'CALL_BANNER_ACTION'
-  params: { id: Banner['id']; actionLabel: string }
-}
-
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -282,9 +266,6 @@ export type Action =
   | WalletControllerGetConnectedSitesAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
-  | BannersControllerAddBannerAction
-  | BannersControllerRemoveBannerAction
-  | CallBannerActionAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant

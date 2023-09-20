@@ -5,7 +5,6 @@ import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
-import { BannersProvider } from '@common/contexts/bannersContext/bannersContext'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
@@ -31,7 +30,6 @@ import { KeystoreControllerStateProvider } from '@web/contexts/keystoreControlle
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
 import { NotificationControllerStateProvider } from '@web/contexts/notificationControllerStateContext'
 import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControllerStateContext'
-import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
 
@@ -59,42 +57,38 @@ const AppInit = () => {
                   <NotificationControllerStateProvider>
                     <IdentityInfoProvider>
                       <PortfolioControllerStateProvider>
-                        <SignAccountOpControllerStateProvider>
-                          <BannersProvider>
-                            <ControllersStateLoadedProvider>
-                              <PortalProvider>
-                                <LoaderProvider>
-                                  <StorageProvider>
-                                    <OnboardingProvider>
-                                      <ThemeProvider>
-                                        <SafeAreaProvider>
-                                          <KeyboardProvider>
-                                            <NetInfoProvider>
-                                              <ToastProvider>
-                                                <ConstantsProvider>
-                                                  <AuthProvider>
-                                                    <ExtensionProvider>
-                                                      <BiometricsProvider>
-                                                        <PrivateModeProvider>
-                                                          <AppRouter />
-                                                        </PrivateModeProvider>
-                                                        <PortalHost name="global" />
-                                                      </BiometricsProvider>
-                                                    </ExtensionProvider>
-                                                  </AuthProvider>
-                                                </ConstantsProvider>
-                                              </ToastProvider>
-                                            </NetInfoProvider>
-                                          </KeyboardProvider>
-                                        </SafeAreaProvider>
-                                      </ThemeProvider>
-                                    </OnboardingProvider>
-                                  </StorageProvider>
-                                </LoaderProvider>
-                              </PortalProvider>
-                            </ControllersStateLoadedProvider>
-                          </BannersProvider>
-                        </SignAccountOpControllerStateProvider>
+                        <ControllersStateLoadedProvider>
+                          <PortalProvider>
+                            <LoaderProvider>
+                              <StorageProvider>
+                                <OnboardingProvider>
+                                  <ThemeProvider>
+                                    <SafeAreaProvider>
+                                      <KeyboardProvider>
+                                        <NetInfoProvider>
+                                          <ToastProvider>
+                                            <ConstantsProvider>
+                                              <AuthProvider>
+                                                <ExtensionProvider>
+                                                  <BiometricsProvider>
+                                                    <PrivateModeProvider>
+                                                      <AppRouter />
+                                                    </PrivateModeProvider>
+                                                    <PortalHost name="global" />
+                                                  </BiometricsProvider>
+                                                </ExtensionProvider>
+                                              </AuthProvider>
+                                            </ConstantsProvider>
+                                          </ToastProvider>
+                                        </NetInfoProvider>
+                                      </KeyboardProvider>
+                                    </SafeAreaProvider>
+                                  </ThemeProvider>
+                                </OnboardingProvider>
+                              </StorageProvider>
+                            </LoaderProvider>
+                          </PortalProvider>
+                        </ControllersStateLoadedProvider>
                       </PortfolioControllerStateProvider>
                     </IdentityInfoProvider>
                   </NotificationControllerStateProvider>

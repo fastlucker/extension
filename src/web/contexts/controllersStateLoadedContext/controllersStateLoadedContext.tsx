@@ -1,13 +1,11 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
-import useBanners from '@common/hooks/useBanners'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 
 const ControllersStateLoadedContext = createContext<boolean>(false)
@@ -21,8 +19,6 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const notificationState = useNotificationControllerState()
   const activityState = useActivityControllerState()
   const { state: portfolioState } = usePortfolioControllerState()
-  const signAccountOpState = useSignAccountOpControllerState()
-  const { state: bannersState } = useBanners()
 
   useEffect(() => {
     // Initially we set all controller states to empty object
@@ -36,9 +32,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       !Object.keys(signMessageState).length &&
       !Object.keys(notificationState).length &&
       !Object.keys(portfolioState).length &&
-      !Object.keys(activityState).length &&
-      !Object.keys(signAccountOpState).length &&
-      !Object.keys(bannersState).length
+      !Object.keys(activityState).length
     ) {
       setIsStateLoaded(true)
     }
@@ -49,9 +43,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     signMessageState,
     notificationState,
     portfolioState,
-    activityState,
-    signAccountOpState,
-    bannersState
+    activityState
   ])
 
   return (

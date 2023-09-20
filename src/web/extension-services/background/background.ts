@@ -7,7 +7,6 @@ import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
-import { BannersController } from '@web/extension-services/background/controllers/banners'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -74,9 +73,9 @@ async function init() {
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
-  const bannersCtrl = new BannersController(mainCtrl, notificationCtrl)
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const badgesCtrl = new BadgesController(notificationCtrl, bannersCtrl)
+  const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -167,16 +166,6 @@ async function init() {
         type: 'broadcast-error',
         method: 'main',
         params: { errors, controller: 'main' }
-      })
-    })
-  })
-  // Broadcast onUpdate for the banners controllers
-  bannersCtrl.onUpdate(() => {
-    Object.keys(portMessageUIRefs).forEach((key: string) => {
-      portMessageUIRefs[key]?.request({
-        type: 'broadcast',
-        method: 'banners',
-        params: bannersCtrl
       })
     })
   })
@@ -356,21 +345,6 @@ async function init() {
               return mainCtrl.keystore.addKeys(data.params.keys)
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
-
-            case 'BANNERS_CONTROLLER_ADD_BANNER':
-              return bannersCtrl.addBanner(data.params.banner)
-            case 'BANNERS_CONTROLLER_REMOVE_BANNER':
-              return bannersCtrl.removeBanner(data.params.id)
-            case 'CALL_BANNER_ACTION':
-              return bannersCtrl.banners.forEach((b) => {
-                if (b.id === data.params.id) {
-                  b.actions.forEach((a) => {
-                    if (a.label === data.params.actionLabel) {
-                      a.onPress()
-                    }
-                  })
-                }
-              })
 
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)

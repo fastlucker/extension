@@ -1,3 +1,5 @@
+import { MainController } from 'ambire-common/src/controllers/main/main'
+
 import colors from '@common/styles/colors'
 import {
   NotificationController,
@@ -5,19 +7,17 @@ import {
   SIGN_METHODS
 } from '@web/extension-services/background/controllers/notification'
 
-import { BannersController } from './banners'
-
 export class BadgesController {
-  #notificationCtrl: NotificationController
+  #mainCtrl: MainController
 
-  #bannersCtrl: BannersController
+  #notificationCtrl: NotificationController
 
   #bannersCount: number = 0
 
   _badgesCount: number = 0
 
   get badgesCount() {
-    return this._badgesCount + this.#bannersCtrl.banners.length
+    return this._badgesCount + this.#bannersCount
   }
 
   set badgesCount(newValue: number) {
@@ -25,17 +25,17 @@ export class BadgesController {
     this.setBadges(this.badgesCount)
   }
 
-  constructor(notificationCtrl: NotificationController, bannersCtrl: BannersController) {
+  constructor(mainCtrl: MainController, notificationCtrl: NotificationController) {
+    this.#mainCtrl = mainCtrl
     this.#notificationCtrl = notificationCtrl
-    this.#bannersCtrl = bannersCtrl
+
+    this.#mainCtrl.onUpdate(() => {
+      this.#bannersCount = this.#mainCtrl.banners.length
+      this.badgesCount = this._badgesCount
+    })
 
     this.#notificationCtrl.onUpdate(() => {
       this.setBadgesCount(this.#notificationCtrl.notificationRequests)
-    })
-
-    this.#bannersCtrl.onUpdate(() => {
-      this.#bannersCount = this.#bannersCtrl.banners.length
-      this.badgesCount = this._badgesCount
     })
   }
 
