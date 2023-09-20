@@ -7,7 +7,6 @@ import Search from '@common/components/Search'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import { BANNER_TOPICS } from '@common/contexts/bannerContext/bannerContext'
 import useRoute from '@common/hooks/useRoute'
 import colors from '@common/styles/colors'
 import spacings, { IS_SCREEN_SIZE_TAB_CONTENT_UP } from '@common/styles/spacings'
@@ -120,13 +119,7 @@ const DashboardScreen = () => {
           </View>
 
           <View style={styles.banners}>
-            <Banners
-              topics={[
-                BANNER_TOPICS.TRANSACTION,
-                BANNER_TOPICS.ANNOUNCEMENT,
-                BANNER_TOPICS.WARNING
-              ]}
-            />
+            <Banners />
           </View>
         </View>
         <View
