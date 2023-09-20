@@ -1,9 +1,9 @@
+import { LEDGER_LIVE_HD_PATH } from 'ambire-common/src/consts/derivation'
 import HDKey from 'hdkey'
 
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import { LEDGER_LIVE_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
 import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 
 export const wait = (fn: () => void, ms = 1000) => {

@@ -1,3 +1,4 @@
+import { BIP44_HD_PATH } from 'ambire-common/src/consts/derivation'
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
@@ -266,7 +267,8 @@ async function init() {
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                preselectedAccounts: mainCtrl.accounts
+                preselectedAccounts: mainCtrl.accounts,
+                derivationPath: BIP44_HD_PATH
               })
             }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
@@ -354,6 +356,18 @@ async function init() {
                 data.params.extraEntropy,
                 data.params.leaveUnlocked
               )
+            case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
+              const { type, model, hdPath } = trezorCtrl
+
+              const keys = mainCtrl.accountAdder.selectedAccounts.map(({ eoaAddress, slot }) => ({
+                id: eoaAddress,
+                type,
+                label: `Trezor on slot ${slot}`,
+                meta: { model, hdPath }
+              }))
+
+              return mainCtrl.keystore.addKeysExternallyStored(keys)
+            }
             case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
               return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
             case 'KEYSTORE_CONTROLLER_LOCK':
