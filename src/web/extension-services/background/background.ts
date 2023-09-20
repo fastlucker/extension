@@ -228,6 +228,12 @@ async function init() {
                 preselectedAccounts: mainCtrl.accounts
               })
             }
+            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY': {
+              return mainCtrl.accountAdder.init({
+                keyIterator: null as unknown as KeyIterator,
+                preselectedAccounts: mainCtrl.accounts
+              })
+            }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
               return mainCtrl.selectAccount(data.params.accountAddr)
             }
