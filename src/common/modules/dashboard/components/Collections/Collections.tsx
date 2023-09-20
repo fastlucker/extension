@@ -11,7 +11,7 @@ const Collections = () => {
 
   return (
     <View>
-      {accountPortfolio.collections.length > 0 ? (
+      {accountPortfolio?.collections && accountPortfolio.collections.length > 0 ? (
         accountPortfolio.collections.map(({ address, name, networkId, collectibles, priceIn }) => (
           <Collection
             address={address}
