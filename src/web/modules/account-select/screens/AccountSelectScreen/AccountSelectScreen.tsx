@@ -36,12 +36,12 @@ const AccountSelectScreen = () => {
   }
 
   return (
-    <View style={[flexboxStyles.flex1, spacings.pv0, spacings.ph0]}>
+    <View style={[flexboxStyles.flex1, spacings.pv, spacings.ph]}>
       <View style={styles.container}>
         <Search placeholder="Search for accounts" style={styles.searchBar} />
       </View>
 
-      <Wrapper contentContainerStyle={[spacings.phSm, spacings.pv]}>
+      <Wrapper contentContainerStyle={styles.container}>
         {mainCtrl.accounts.length &&
           mainCtrl.accounts.map((account) => (
             <Pressable key={account.addr} onPress={() => selectAccount(account.addr)}>
