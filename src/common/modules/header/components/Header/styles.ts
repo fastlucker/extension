@@ -42,7 +42,8 @@ const styles = StyleSheet.create<Styles>({
   containerInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    ...commonWebStyles.contentContainer
+    ...commonWebStyles.contentContainer,
+    flex: 1
   },
   navIconContainerRegular: {
     width: 40,
