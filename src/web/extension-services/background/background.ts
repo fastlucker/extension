@@ -313,7 +313,7 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN':
               return mainCtrl.signMessage.sign()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
-              return mainCtrl.signMessage.setSigningKeyAddr(data.params.key)
+              return mainCtrl.signMessage.setSigningKey(data.params.key, data.params.type)
             case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
               return mainCtrl.broadcastSignedMessage(data.params.signedMessage)
             case 'MAIN_CONTROLLER_ACTIVITY_INIT':

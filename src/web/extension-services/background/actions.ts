@@ -5,6 +5,7 @@ import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
 import { AccountOp } from 'ambire-common/src/libs/accountOp/accountOp'
 import { EstimateResult } from 'ambire-common/src/libs/estimate/estimate'
 import { GasRecommendation } from 'ambire-common/src/libs/gasPrice/gasPrice'
+import { Key } from 'ambire-common/src/libs/keystore/keystore'
 
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
@@ -111,7 +112,7 @@ type MainControllerSignMessageSignAction = {
 }
 type MainControllerSignMessageSetSignKeyAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY'
-  params: { key: string }
+  params: { key: Key['addr']; type: Key['type'] }
 }
 type MainControllerBroadcastSignedMessageAction = {
   type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE'

@@ -144,7 +144,7 @@ const SignMessageScreen = () => {
   const handleChangeSigningKey = (signKey: string) => {
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
-      params: { key: signKey }
+      params: { key: signKey, type: 'internal' } // TODO: Handle hw wallet keys too
     })
   }
 
