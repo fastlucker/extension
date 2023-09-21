@@ -206,7 +206,7 @@ const ViewOnlyScreen = () => {
             weight="regular"
             style={[spacings.mbXl, { borderBottomColor: colors.martinique, borderBottomWidth: 1 }]}
           >
-            Add one more address
+            {t('Add one more address')}
           </Text>
         </Pressable>
         <Button
