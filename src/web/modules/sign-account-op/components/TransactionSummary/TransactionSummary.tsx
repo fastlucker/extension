@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import { Call } from 'ambire-common/src/libs/accountOp/accountOp'
+import React, { useCallback, useState } from 'react'
 import { Image, Pressable, View, ViewStyle } from 'react-native'
 
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
@@ -7,16 +8,26 @@ import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import styles from './styles'
 
 interface Props {
   style: ViewStyle
+  call: Call
 }
 
-const TransactionSummary = ({ style }: Props) => {
+const TransactionSummary = ({ style, call }: Props) => {
   const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
+  const { dispatch } = useBackgroundService()
+
+  const handleRemoveCall = useCallback(() => {
+    dispatch({
+      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      params: { err: 'User rejected the transaction request', id: call.fromUserRequestId }
+    })
+  }, [call.fromUserRequestId, dispatch])
 
   return (
     <View style={[styles.container, style]}>
@@ -49,30 +60,35 @@ const TransactionSummary = ({ style }: Props) => {
               {t('to')}
             </Text>
             <Text style={styles.text} weight="medium">
-              0x5a2fae94BDaa7B30B6049b1f5c9C86C3E4fd212F
+              {call.to}
             </Text>
           </View>
-          <NavIconWrapper
-            hoverBackground={colors.lightViolet}
-            hoverBorderColor={colors.violet}
-            style={{ borderRadius: 10, backgroundColor: 'transparent', borderColor: 'transparent' }}
-            onPress={() => null}
-          >
-            <DeleteIcon width={18} height={20} />
-          </NavIconWrapper>
+          {!!call.fromUserRequestId && (
+            <NavIconWrapper
+              hoverBackground={colors.lightViolet}
+              hoverBorderColor={colors.violet}
+              style={{
+                borderRadius: 10,
+                backgroundColor: 'transparent',
+                borderColor: 'transparent'
+              }}
+              onPress={handleRemoveCall}
+            >
+              <DeleteIcon width={18} height={20} />
+            </NavIconWrapper>
+          )}
         </View>
       </Pressable>
       {!!isExpanded && (
         <View style={styles.body}>
           <Text fontSize={12} style={styles.bodyText}>
-            {t('Interacting with (to):')} 0x2791bca1f2de4661ed88a30c99a7a9449aa84174 (USDC token)
+            {t('Interacting with (to):')} {call.to}
           </Text>
           <Text fontSize={12} style={styles.bodyText}>
             {t('Value to be sent (value):')} 0.0 MATIC
           </Text>
           <Text fontSize={12} style={styles.bodyText}>
-            {t('Data')}:
-            0xa9059cbb0000000000000000000000009876b9765f7327f323faf7ec9b33760ae9b3910900000000000000000000000000000000000000000000000000000000000f4240
+            {t('Data')}:{call.data}
           </Text>
         </View>
       )}

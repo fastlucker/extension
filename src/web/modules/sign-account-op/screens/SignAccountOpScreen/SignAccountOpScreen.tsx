@@ -14,6 +14,7 @@ import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
@@ -67,6 +68,7 @@ const SignAccountOpScreen = () => {
   const { navigate } = useNavigation()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
+  const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
 
@@ -97,16 +99,6 @@ const SignAccountOpScreen = () => {
     if (accountOpToBeSigned) {
       if (!signAccountOpState.accountOp) {
         dispatch({
-          type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-          params: {
-            filters: {
-              account: params.accountAddr,
-              network: params.network.id
-            }
-          }
-        })
-
-        dispatch({
           type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
           params: {
             accounts: mainState.accounts,
@@ -130,6 +122,41 @@ const SignAccountOpScreen = () => {
     mainState.accountOpsToBeSigned,
     signAccountOpState.accountOp
   ])
+
+  useEffect(() => {
+    if (!params?.accountAddr || !params?.network) {
+      return
+    }
+
+    const accountOpToBeSigned: any =
+      mainState.accountOpsToBeSigned?.[params.accountAddr]?.[params.network.id] || []
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+      params: {
+        estimation: accountOpToBeSigned.estimation,
+        accountOp: accountOpToBeSigned.accountOp
+      }
+    })
+  }, [mainState.accountOpsToBeSigned, params, dispatch])
+
+  useEffect(() => {
+    if (!params?.accountAddr || !params?.network) {
+      return
+    }
+
+    if (!activityState.isInitialized) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
+        params: {
+          filters: {
+            account: params.accountAddr,
+            network: params.network.id
+          }
+        }
+      })
+    }
+  }, [activityState.isInitialized, dispatch, params])
 
   const account = useMemo(() => {
     return mainState.accounts.find((acc) => acc.addr === signAccountOpState.accountOp?.accountAddr)
@@ -180,9 +207,15 @@ const SignAccountOpScreen = () => {
         <View style={styles.transactionsContainer}>
           <Heading text={t('Waiting Transactions')} style={styles.transactionsHeading} />
           <ScrollView style={styles.transactionsScrollView} scrollEnabled>
-            <TransactionSummary style={spacings.mbSm} />
-            <TransactionSummary style={spacings.mbSm} />
-            <TransactionSummary style={spacings.mbSm} />
+            {signAccountOpState.accountOp.calls.map((call) => {
+              return (
+                <TransactionSummary
+                  key={call.data + call.fromUserRequestId}
+                  style={spacings.mbSm}
+                  call={call}
+                />
+              )
+            })}
           </ScrollView>
         </View>
         <View style={styles.separator} />

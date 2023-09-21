@@ -2,6 +2,7 @@
 import { networks } from 'ambire-common/src/consts/networks'
 import EventEmitter from 'ambire-common/src/controllers/eventEmitter'
 import { MainController } from 'ambire-common/src/controllers/main/main'
+import { Account } from 'ambire-common/src/interfaces/account'
 import { UserRequest } from 'ambire-common/src/interfaces/userRequest'
 import { ethErrors } from 'eth-rpc-errors'
 
@@ -251,7 +252,22 @@ export class NotificationController extends EventEmitter {
       if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
         this.#mainCtrl.removeUserRequest(notificationRequest?.id)
         this.deleteNotificationRequest(notificationRequest)
-        this.currentNotificationRequest = null
+
+        let nextNotificationUserRequest = null
+        if (isSignAccountOpMethod(notificationRequest?.params?.method)) {
+          const account =
+            this.#mainCtrl.accounts.find((a) => a.addr === this.#mainCtrl.selectedAccount) ||
+            ({} as Account)
+          if (account.creation) {
+            nextNotificationUserRequest =
+              this.notificationRequests.find(
+                (req) =>
+                  req.accountAddr === notificationRequest?.accountAddr &&
+                  req.networkId === notificationRequest?.networkId
+              ) || null
+          }
+        }
+        this.currentNotificationRequest = nextNotificationUserRequest
       } else {
         this.deleteNotificationRequest(notificationRequest)
         const nextNotificationRequest = this.notificationRequests[0]
