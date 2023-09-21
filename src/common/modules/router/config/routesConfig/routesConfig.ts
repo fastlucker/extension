@@ -142,8 +142,8 @@ const routesConfig: {
     flow: 'legacy',
     flowStep: 0
   },
-  [ROUTES.viewOnly]: {
-    route: ROUTES.viewOnly,
+  [ROUTES.viewOnlyAccountAdder]: {
+    route: ROUTES.viewOnlyAccountAdder,
     title: ''
   },
   [ROUTES.dashboard]: {

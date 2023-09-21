@@ -62,7 +62,7 @@ const WEB_ROUTES = {
   accountPersonalize: 'account-personalize',
   collection: 'collection',
   accountSelect: 'account-select',
-  viewOnly: 'view-only'
+  viewOnlyAccountAdder: 'view-only-account-adder'
 }
 
 const ROUTES = {

@@ -29,11 +29,15 @@ const GetStartedScreen = () => {
   const [advanceModeEnabled, setAdvancedModeEnabled] = useState(false)
 
   const handleAuthButtonPress = useCallback(
-    async (flow: 'email' | 'hw' | 'legacy') => {
+    async (flow: 'email' | 'hw' | 'legacy' | 'view-only') => {
       const hasTerms = await storage.get('termsState', false)
 
       if (!hasTerms) {
         navigate(WEB_ROUTES.terms, { state: { flow } })
+        return
+      }
+      if (flow === 'view-only') {
+        navigate(WEB_ROUTES.viewOnlyAccountAdder)
         return
       }
       if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
@@ -148,7 +152,7 @@ const GetStartedScreen = () => {
                   textStyle={{ fontSize: 14 }}
                   accentColor={colors.violet}
                   text={t('View Mode')}
-                  onPress={() => navigate(WEB_ROUTES.viewOnly)}
+                  onPress={() => handleAuthButtonPress('view-only')}
                   type="outline"
                   hasBottomSpacing={false}
                   style={[{ minWidth: 190 }, spacings.mrMd]}

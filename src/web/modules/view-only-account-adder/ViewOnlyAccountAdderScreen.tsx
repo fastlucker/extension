@@ -1,5 +1,5 @@
 import { isValidAddress } from 'ambire-common/src/services/address'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
 
@@ -40,7 +40,7 @@ const ViewOnlyScreen = () => {
   const { dispatch } = useBackgroundService()
   const mainControllerState = useMainControllerState()
   const accountAdderState = useAccountAdderControllerState()
-  const [isLoading, setIsLoading] = useState(false)
+  const isLoading = accountAdderState.addAccountsStatus === 'LOADING'
   const { t } = useTranslation()
   const {
     control,
@@ -133,10 +133,7 @@ const ViewOnlyScreen = () => {
         params: { accountAddr: selectedAccount.addr }
       }).then(() => {
         navigate(WEB_ROUTES.accountPersonalize)
-        setIsLoading(false)
       })
-    } else if (accountAdderState.addAccountsStatus === 'LOADING') {
-      setIsLoading(true)
     }
   }, [
     accountAdderState.addAccountsStatus,
