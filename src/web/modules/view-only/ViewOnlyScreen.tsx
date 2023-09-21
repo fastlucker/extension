@@ -1,5 +1,5 @@
 import { isValidAddress } from 'ambire-common/src/services/address'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
 
@@ -40,11 +40,12 @@ const ViewOnlyScreen = () => {
   const { dispatch } = useBackgroundService()
   const mainControllerState = useMainControllerState()
   const accountAdderState = useAccountAdderControllerState()
+  const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation()
   const {
     control,
     watch,
-    formState: { isSubmitting, isValid, errors }
+    formState: { isValid, errors }
   } = useForm({
     mode: 'all',
     defaultValues: {
@@ -81,7 +82,6 @@ const ViewOnlyScreen = () => {
     // when Wallet method is called on devices with slow CPU the UI freezes
     await delayPromise(100)
 
-    // @TODO: validate using useForm and flag duplicates
     const accountsToAddP = accounts.map(async (account) => {
       const accountIdentityResponse = await fetchCaught(
         `https://staging-relayer.ambire.com/v2/identity/${account.address}`
@@ -122,15 +122,28 @@ const ViewOnlyScreen = () => {
     dispatch({
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
       params: { accounts: accountsToAdd }
-    }).then(() => {
+    })
+  }, [accounts, dispatch])
+
+  useEffect(() => {
+    if (accountAdderState.addAccountsStatus === 'SUCCESS') {
+      const selectedAccount = accountAdderState.readyToAddAccounts[0]
       dispatch({
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
-        params: { accountAddr: accountsToAdd[0].addr }
+        params: { accountAddr: selectedAccount.addr }
       }).then(() => {
         navigate(WEB_ROUTES.accountPersonalize)
+        setIsLoading(false)
       })
-    })
-  }, [accounts, dispatch, navigate])
+    } else if (accountAdderState.addAccountsStatus === 'LOADING') {
+      setIsLoading(true)
+    }
+  }, [
+    accountAdderState.addAccountsStatus,
+    accountAdderState.readyToAddAccounts,
+    dispatch,
+    navigate
+  ])
 
   return (
     <TabLayoutWrapperMainContent pageTitle={t('View-Only Accounts')} hideStepper>
@@ -198,12 +211,12 @@ const ViewOnlyScreen = () => {
         </Pressable>
         <Button
           textStyle={{ fontSize: 14 }}
-          disabled={!isValid || isSubmitting || duplicateAccountsIndexes.length > 0}
+          disabled={!isValid || isLoading || duplicateAccountsIndexes.length > 0}
           style={{ width: 300 }}
           type="primary"
           text={
             // eslint-disable-next-line no-nested-ternary
-            isSubmitting ? t('Loading...') : t('Import View-Only Accounts')
+            isLoading ? t('Loading...') : t('Import View-Only Accounts')
           }
           onPress={handleFormSubmit}
         />
