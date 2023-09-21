@@ -31,7 +31,7 @@ export const HeaderLeft = ({ handleGoBack }: { handleGoBack: () => void }) => {
 
 interface Props {
   hideStepper?: boolean
-  pageTitle?: string
+  pageTitle?: string | React.ReactNode
   forceCanGoBack?: boolean
   image?: string
   onBack?: () => void
@@ -79,14 +79,17 @@ const TabHeader: React.FC<Props> = ({
           {image && (
             <Image style={{ width: 40, height: 40, borderRadius: 12 }} source={{ uri: image }} />
           )}
-          <Text
-            fontSize={20}
-            weight="medium"
-            style={[styles.title, image ? spacings.mlSm : {}]}
-            numberOfLines={2}
-          >
-            {pageTitle || title || ' '}
-          </Text>
+          {typeof pageTitle !== 'object' && (
+            <Text
+              fontSize={20}
+              weight="medium"
+              style={[styles.title, image ? spacings.mlSm : {}]}
+              numberOfLines={2}
+            >
+              {pageTitle || title || ' '}
+            </Text>
+          )}
+          {typeof pageTitle === 'object' && pageTitle}
         </View>
       )}
       <View style={[styles.sideContainer, styles.sideContainerRight]}>
