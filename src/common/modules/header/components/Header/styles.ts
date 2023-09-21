@@ -2,7 +2,7 @@ import { Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
 import colors from '@common/styles/colors'
-import spacings, { SPACING } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import commonWebStyles from '@web/styles/utils/common'
 
 export const HEADER_HEIGHT = Platform.select({
@@ -32,7 +32,8 @@ const styles = StyleSheet.create<Styles>({
   containerInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    ...commonWebStyles.contentContainer
+    ...commonWebStyles.contentContainer,
+    flex: 1
   },
   navIconContainerRegular: {
     width: 50,

@@ -15,13 +15,13 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
+import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import commonWebStyles from '@web/styles/utils/common'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
@@ -131,7 +131,13 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
   let canGoBack =
     // If you have a location key that means you routed in-app. But if you
     // don't that means you come from outside of the app or you just open it.
-    params?.prevRoute?.key !== 'default' && params?.prevRoute?.pathname !== '/' && navigationEnabled
+    (params?.prevRoute?.key !== 'default' ||
+      /* Because of window.history.pushState, used in the Tabs component, the
+       prevRoute.key gets set to 'default' when you navigate to another route from the dashboard,
+       which hides the back button in the header. */
+      params?.prevRoute?.pathname === `/${ROUTES.dashboard}`) &&
+    params?.prevRoute?.pathname !== '/' &&
+    navigationEnabled
 
   if (isExtension && getUiType().isTab) {
     canGoBack = true
@@ -181,9 +187,11 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
       {mode === 'controls' && <View style={styles.containerInner}>{renderHeaderControls}</View>}
       {mode === 'title' && (
         <>
-          <View style={styles.sideContainer}>
-            {!!withBackButton && !!canGoBack && renderBackButton()}
-          </View>
+          {!withAmbireLogo && (
+            <View style={styles.sideContainer}>
+              {!!withBackButton && !!canGoBack && renderBackButton()}
+            </View>
+          )}
           <View style={styles.containerInner}>
             {!!withAmbireLogo && (
               <View style={styles.sideContainer}>
@@ -196,7 +204,7 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
             </Text>
             {!!withAmbireLogo && <View style={styles.sideContainer} />}
           </View>
-          <View style={styles.sideContainer} />
+          {!withAmbireLogo && <View style={styles.sideContainer} />}
         </>
       )}
     </View>
