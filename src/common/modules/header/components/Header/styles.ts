@@ -24,6 +24,7 @@ interface Styles {
   accountButtonInfo: ViewStyle
   accountButtonInfoIcon: ImageStyle
   accountButtonInfoText: TextStyle
+  accountAddressAndLabel: ViewStyle
   accountCopyIcon: ViewStyle
 }
 
@@ -44,8 +45,8 @@ const styles = StyleSheet.create<Styles>({
     ...commonWebStyles.contentContainer
   },
   navIconContainerRegular: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -67,18 +68,19 @@ const styles = StyleSheet.create<Styles>({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 8,
-    ...spacings.phTy,
+    height: 40,
+    ...spacings.phMi,
     backgroundColor: '#B6B9FF26',
     borderWidth: 1,
     borderColor: '#6770B333',
     borderRadius: 12,
-    minWidth: 235
+    minWidth: 180
   },
-  accountButtonRightIcon: { borderColor: 'transparent', borderRadius: 10 },
+  accountButtonRightIcon: { borderColor: 'transparent', borderRadius: 8 },
   accountButtonInfo: { ...flexbox.directionRow, ...flexbox.alignCenter },
-  accountButtonInfoIcon: { width: 30, height: 30, borderRadius: 10 },
-  accountButtonInfoText: { ...spacings.mlTy },
+  accountButtonInfoIcon: { width: 25, height: 25, borderRadius: 10 },
+  accountButtonInfoText: { ...spacings.mlMi },
+  accountAddressAndLabel: { ...flexbox.directionRow, ...flexbox.alignEnd, ...spacings.mhTy },
   accountCopyIcon: { backgroundColor: 'transparent', borderColor: 'transparent' }
 })
 

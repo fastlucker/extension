@@ -39,6 +39,7 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const selectedAccount = mainCtrl.selectedAccount || ''
+  const selectedAccountInfo = mainCtrl.accounts.find((acc) => acc.addr === selectedAccount)
 
   const [title, setTitle] = useState('')
   const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
@@ -52,14 +53,20 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
         <Pressable style={styles.accountButton} onPress={() => navigate('account-select')}>
           <View style={styles.accountButtonInfo}>
             <Image style={styles.accountButtonInfoIcon} source={avatarSpace} resizeMode="contain" />
-            <Text style={styles.accountButtonInfoText} fontSize={14}>
-              {shortenAddress(selectedAccount, 14)}
-            </Text>
+            <View style={styles.accountAddressAndLabel}>
+              {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
+              <Text weight="medium" fontSize={14}>
+                {selectedAccountInfo?.label ? selectedAccountInfo?.label : 'Account Label'}
+              </Text>
+              <Text weight="regular" style={styles.accountButtonInfoText} fontSize={13}>
+                ({shortenAddress(selectedAccount, 14)})
+              </Text>
+            </View>
           </View>
           <NavIconWrapper
             onPress={() => navigate('account-select')}
-            width={30}
-            height={30}
+            width={25}
+            height={25}
             hoverBackground={colors.lightViolet}
             style={styles.accountButtonRightIcon}
           >
@@ -74,18 +81,25 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
           size="small"
           text={t('dApps')}
           hasBottomSpacing={false}
-          style={[spacings.mrTy, { width: 85 }]}
+          style={[spacings.mrTy, { width: 85, height: 40 }]}
         />
 
         {uiType.isPopup && (
           <NavIconWrapper
+            width={40}
+            height={40}
             onPress={() => openInTab('tab.html#/dashboard')}
             style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
           >
             <MaximizeIcon width={20} height={20} />
           </NavIconWrapper>
         )}
-        <NavIconWrapper onPress={() => navigate('menu')} style={{ borderColor: colors.scampi_20 }}>
+        <NavIconWrapper
+          width={40}
+          height={40}
+          onPress={() => navigate('menu')}
+          style={{ borderColor: colors.scampi_20 }}
+        >
           <BurgerIcon width={20} height={20} />
         </NavIconWrapper>
       </View>
