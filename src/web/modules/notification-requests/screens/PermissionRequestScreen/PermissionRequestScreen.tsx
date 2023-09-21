@@ -45,15 +45,15 @@ const PermissionRequestScreen = () => {
       <Panel>
         <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
           <ManifestImage
-            uri={state.currentDappNotificationRequest?.params?.icon}
+            uri={state.currentNotificationRequest?.params?.icon}
             size={64}
             fallback={() => <ManifestFallbackIcon />}
           />
         </View>
 
         <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-          {state.currentDappNotificationRequest?.params?.origin
-            ? new URL(state.currentDappNotificationRequest?.params?.origin).hostname
+          {state.currentNotificationRequest?.params?.origin
+            ? new URL(state.currentNotificationRequest?.params?.origin).hostname
             : ''}
         </Title>
 
@@ -64,7 +64,7 @@ const PermissionRequestScreen = () => {
                 {'The dApp '}
               </Text>
               <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                {state.currentDappNotificationRequest?.params?.name || ''}
+                {state.currentNotificationRequest?.params?.name || ''}
               </Text>
               <Text fontSize={14} weight="regular">
                 {' is requesting an authorization to communicate with Ambire Wallet'}

@@ -1,6 +1,10 @@
 import { Filters } from 'ambire-common/src/controllers/activity/activity'
 import { Account, AccountStates } from 'ambire-common/src/interfaces/account'
+import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
 import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
+import { AccountOp } from 'ambire-common/src/libs/accountOp/accountOp'
+import { EstimateResult } from 'ambire-common/src/libs/estimate/estimate'
+import { GasRecommendation } from 'ambire-common/src/libs/gasPrice/gasPrice'
 
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
@@ -123,11 +127,11 @@ type MainControllerActivityResetAction = {
 
 type NotificationControllerResolveRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
-  params: { data: any; id?: bigint }
+  params: { data: any; id?: number }
 }
 type NotificationControllerRejectRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST'
-  params: { err: string }
+  params: { err: string; id?: number }
 }
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
@@ -158,6 +162,9 @@ type MainControllerUpdateSelectedAccount = {
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
+}
+type KeystoreControllerAddKeysExternallyStored = {
+  type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
 }
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
@@ -197,8 +204,12 @@ type WalletControllerRemoveConnectedSiteAction = {
   type: 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE'
   params: { origin: string }
 }
-type NotificationControllerOpenFirstNotificationRequestAction = {
-  type: 'NOTIFICATION_CONTROLLER_OPEN_FIRST_NOTIFICATION_REQUEST'
+type NotificationControllerReopenCurrentNotificationRequestAction = {
+  type: 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST'
+}
+type NotificationControllerOpenNotificationRequestAction = {
+  type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST'
+  params: { id: number }
 }
 
 export type Action =
@@ -233,6 +244,7 @@ export type Action =
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
+  | KeystoreControllerAddKeysExternallyStored
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction
   | KeystoreControllerAddKeysAction
@@ -243,7 +255,8 @@ export type Action =
   | WalletControllerGetCurrentSiteAction
   | WalletControllerRemoveConnectedSiteAction
   | WalletControllerGetConnectedSitesAction
-  | NotificationControllerOpenFirstNotificationRequestAction
+  | NotificationControllerReopenCurrentNotificationRequestAction
+  | NotificationControllerOpenNotificationRequestAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant

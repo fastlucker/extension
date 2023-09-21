@@ -1,11 +1,14 @@
+import { BIP44_HD_PATH } from 'ambire-common/src/consts/derivation'
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from 'ambire-common/src/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 
+import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
+import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -39,10 +42,10 @@ async function init() {
 
 ;(async () => {
   await init()
-  let pmRef: PortMessage
+  const portMessageUIRefs: { [key: string]: PortMessage } = {}
   let controllersNestedInMainSubscribe: any = null
-  let onResoleDappNotificationRequest: (data: any, id?: bigint) => void
-  let onRejectDappNotificationRequest: (data: any, id?: bigint) => void
+  let onResoleDappNotificationRequest: (data: any, id?: number) => void
+  let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
   const signers = {
     internal: KeystoreSigner,
@@ -65,16 +68,39 @@ async function init() {
     onUpdateDappSelectedAccount: (accountAddr) => {
       const account = accountAddr ? [accountAddr] : []
       return sessionService.broadcastEvent('accountsChanged', account)
-    }
+    },
+    pinned: pinnedTokens
   })
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
+
+  let fetchPortfolioIntervalId: any
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
+
+  const fetchPortfolioData = async () => {
+    if (!mainCtrl.selectedAccount) return
+    return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
+  }
+
+  fetchPortfolioData()
+
+  function setPortfolioFetchInterval() {
+    clearInterval(fetchPortfolioIntervalId) // Clear existing interval
+    fetchPortfolioIntervalId = setInterval(
+      () => fetchPortfolioData(),
+      Object.keys(portMessageUIRefs).length ? 60000 : 600000
+    )
+  }
+
+  // Call it once to initialize the interval
+  setPortfolioFetchInterval()
 
   /**
    * Init all controllers `onUpdate` listeners only once (in here), instead of
@@ -89,10 +115,12 @@ async function init() {
 
   // Broadcast onUpdate for the main controllers
   mainCtrl.onUpdate(() => {
-    pmRef?.request({
-      type: 'broadcast',
-      method: 'main',
-      params: mainCtrl
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast',
+        method: 'main',
+        params: mainCtrl
+      })
     })
 
     if (!mainCtrl.isReady && controllersNestedInMainSubscribe) {
@@ -104,64 +132,78 @@ async function init() {
         Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
           // Broadcast onUpdate for nested controllers
           ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-            pmRef.request({
-              type: 'broadcast',
-              method: ctrl,
-              params: (mainCtrl as any)[ctrl]
+            Object.keys(portMessageUIRefs).forEach((key: string) => {
+              portMessageUIRefs[key]?.request({
+                type: 'broadcast',
+                method: ctrl,
+                params: (mainCtrl as any)[ctrl]
+              })
             })
           })
           ;(mainCtrl as any)[ctrl]?.onError(() => {
             const errors = (mainCtrl as any)[ctrl].getErrors()
             const lastError = errors[errors.length - 1]
             if (lastError) console.error(lastError.error)
-
-            pmRef.request({
-              type: 'broadcast-error',
-              method: ctrl,
-              params: { errors, controller: ctrl }
+            Object.keys(portMessageUIRefs).forEach((key: string) => {
+              portMessageUIRefs[key]?.request({
+                type: 'broadcast-error',
+                method: ctrl,
+                params: { errors, controller: ctrl }
+              })
             })
           })
         })
       }
       controllersNestedInMainSubscribe()
     }
+
+    if (mainCtrl.isReady && mainCtrl.selectedAccount) {
+      fetchPortfolioData()
+    }
   })
+
   // Broadcast onUpdate for the notification controllers
   notificationCtrl.onUpdate(() => {
-    pmRef?.request({
-      type: 'broadcast',
-      method: 'notification',
-      params: notificationCtrl
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast',
+        method: 'notification',
+        params: notificationCtrl
+      })
     })
   })
   notificationCtrl.onError(() => {
     const errors = notificationCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-
-    pmRef?.request({
-      type: 'broadcast-error',
-      method: 'notification',
-      params: { errors, controller: 'notification' }
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast-error',
+        method: 'notification',
+        params: { errors, controller: 'notification' }
+      })
     })
   })
   mainCtrl.onError(() => {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-
-    pmRef?.request({
-      type: 'broadcast-error',
-      method: 'main',
-      params: { errors, controller: 'main' }
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast-error',
+        method: 'main',
+        params: { errors, controller: 'main' }
+      })
     })
   })
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
-      const pm = new PortMessage(port)
-      pmRef = pm
+      const id = new Date().getTime().toString()
+      const pm = new PortMessage(port, id)
+      portMessageUIRefs[pm.id] = pm
+      setPortfolioFetchInterval()
 
       pm.listen(async (data: Action) => {
         if (data?.type) {
@@ -225,7 +267,8 @@ async function init() {
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                preselectedAccounts: mainCtrl.accounts
+                preselectedAccounts: mainCtrl.accounts,
+                derivationPath: BIP44_HD_PATH
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY': {
@@ -278,17 +321,20 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
+
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break
             }
             case 'NOTIFICATION_CONTROLLER_REJECT_REQUEST': {
-              notificationCtrl.rejectNotificationRequest(data.params.err)
+              notificationCtrl.rejectNotificationRequest(data.params.err, data.params.id)
               break
             }
 
-            case 'NOTIFICATION_CONTROLLER_OPEN_FIRST_NOTIFICATION_REQUEST':
-              return notificationCtrl.openFirstNotificationRequest()
+            case 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST':
+              return notificationCtrl.reopenCurrentNotificationRequest()
+            case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST':
+              return notificationCtrl.openNotificationRequest(data.params.id)
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock(data?.params?.hdPath)
@@ -316,6 +362,18 @@ async function init() {
                 data.params.extraEntropy,
                 data.params.leaveUnlocked
               )
+            case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
+              const { type, model, hdPath } = trezorCtrl
+
+              const keys = mainCtrl.accountAdder.selectedAccounts.map(({ eoaAddress, slot }) => ({
+                id: eoaAddress,
+                type,
+                label: `Trezor on slot ${slot}`,
+                meta: { model, hdPath }
+              }))
+
+              return mainCtrl.keystore.addKeysExternallyStored(keys)
+            }
             case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
               return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
             case 'KEYSTORE_CONTROLLER_LOCK':
@@ -372,12 +430,16 @@ async function init() {
         })
       }
 
-      if (port.name === 'tab' || port.name === 'notification') {
-        port.onDisconnect.addListener(() => {
+      port.onDisconnect.addListener(() => {
+        delete portMessageUIRefs[pm.id]
+        setPortfolioFetchInterval()
+
+        if (port.name === 'tab' || port.name === 'notification') {
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
-        })
-      }
+        }
+      })
+
       eventBus.addEventListener('broadcastToUI', broadcastCallback)
       port.onDisconnect.addListener(() => {
         eventBus.removeEventListener('broadcastToUI', broadcastCallback)

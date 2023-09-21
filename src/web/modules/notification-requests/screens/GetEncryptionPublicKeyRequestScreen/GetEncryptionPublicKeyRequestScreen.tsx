@@ -21,7 +21,7 @@ import styles from './styles'
 const GetEncryptionPublicKeyRequestScreen = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const { currentDappNotificationRequest } = useNotificationControllerState()
+  const { currentNotificationRequest } = useNotificationControllerState()
 
   const handleDeny = useCallback(() => {
     dispatch({
@@ -35,15 +35,15 @@ const GetEncryptionPublicKeyRequestScreen = () => {
       <Panel>
         <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
           <ManifestImage
-            uri={currentDappNotificationRequest?.params?.session?.icon}
+            uri={currentNotificationRequest?.params?.session?.icon}
             size={64}
             fallback={() => <ManifestFallbackIcon />}
           />
         </View>
 
         <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-          {currentDappNotificationRequest?.params?.origin
-            ? new URL(currentDappNotificationRequest.params.origin).hostname
+          {currentNotificationRequest?.params?.origin
+            ? new URL(currentNotificationRequest.params.origin).hostname
             : ''}
         </Title>
 
@@ -54,7 +54,7 @@ const GetEncryptionPublicKeyRequestScreen = () => {
                 {'The dApp '}
               </Text>
               <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                {currentDappNotificationRequest?.params?.session?.name || ''}
+                {currentNotificationRequest?.params?.session?.name || ''}
               </Text>
               <Text fontSize={14} weight="regular">
                 {
