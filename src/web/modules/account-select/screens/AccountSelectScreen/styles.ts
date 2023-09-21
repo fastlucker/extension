@@ -10,6 +10,16 @@ interface Style {
   greenLabel: ViewStyle
   searchBar: ViewStyle
   greyLabel: ViewStyle
+  blueLabel: ViewStyle
+}
+
+const label: ViewStyle = {
+  height: 18,
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingHorizontal: 8,
+  borderWidth: 1,
+  borderRadius: 50
 }
 
 const styles = StyleSheet.create<Style>({
@@ -32,25 +42,20 @@ const styles = StyleSheet.create<Style>({
     width: '100%'
   },
   greenLabel: {
-    height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    borderWidth: 1,
+    ...label,
     borderColor: colors.greenHaze,
-    borderRadius: 50,
     backgroundColor: colors.turquoise_20,
     marginLeft: 4
   },
   greyLabel: {
-    height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    borderWidth: 1,
+    ...label,
     borderColor: '#E9AD03',
-    borderRadius: 50,
     backgroundColor: '#FFBC0038'
+  },
+  blueLabel: {
+    ...label,
+    borderColor: colors.dodgerBlue,
+    backgroundColor: 'transparent'
   }
 })
 
