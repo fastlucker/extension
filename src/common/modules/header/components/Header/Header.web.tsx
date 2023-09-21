@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Image, Pressable, View } from 'react-native'
 
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
+import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import Button from '@common/components/Button'
 import CopyText from '@common/components/CopyText'
 import NavIconWrapper from '@common/components/NavIconWrapper'
@@ -175,7 +175,7 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
           <View style={styles.containerInner}>
             {!!withAmbireLogo && (
               <View style={styles.sideContainer}>
-                <AmbireLogoHorizontal />
+                <AmbireLogo width={104} height={48} />
               </View>
             )}
 
