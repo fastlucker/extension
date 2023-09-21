@@ -7,6 +7,7 @@ const colors = {
   lightAquamarine: '#B3FFFD',
   aquamarine: '#80FFFB',
   darkAquamarine: '#478C8A',
+  dodgerBlue: '#00B9FF',
 
   heliotrope: '#A36AF8',
   lightHeliotrope: '#C790FF',

@@ -1,3 +1,4 @@
+import { TREZOR_HD_PATH } from 'ambire-common/src/consts/derivation'
 import { KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
 import { Key } from 'ambire-common/src/libs/keystore/keystore'
 import { stripHexPrefix, toChecksumAddress } from 'ethereumjs-util'
@@ -6,7 +7,6 @@ import { delayPromise } from '@common/utils/promises'
 import { serialize } from '@ethersproject/transactions'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
 import trezorConnect from '@trezor/connect-web'
-import { TREZOR_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'

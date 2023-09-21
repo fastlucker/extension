@@ -53,6 +53,9 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
     derivationPath?: string | undefined
   }
 }
+type MainControllerAccountAdderInitViewOnlyAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY'
+}
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
   params: {
@@ -160,6 +163,9 @@ type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
 }
+type KeystoreControllerAddKeysExternallyStored = {
+  type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
+}
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
@@ -212,6 +218,7 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
+  | MainControllerAccountAdderInitViewOnlyAction
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
@@ -237,6 +244,7 @@ export type Action =
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
+  | KeystoreControllerAddKeysExternallyStored
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction
   | KeystoreControllerAddKeysAction

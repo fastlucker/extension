@@ -142,6 +142,10 @@ const routesConfig: {
     flow: 'legacy',
     flowStep: 0
   },
+  [ROUTES.viewOnlyAccountAdder]: {
+    route: ROUTES.viewOnlyAccountAdder,
+    title: ''
+  },
   [ROUTES.dashboard]: {
     route: ROUTES.dashboard,
     title: Platform.select({
