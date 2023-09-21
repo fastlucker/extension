@@ -32,7 +32,7 @@ const DashboardScreen = () => {
 
   const tokens = accountPortfolio?.tokens || []
   const showView =
-    (startedLoading && Date.now() - startedLoading > 5000) || accountPortfolio?.isAllReady
+    (startedLoading ? Date.now() - startedLoading > 5000 : false) || accountPortfolio?.isAllReady
 
   if (!showView)
     return (
