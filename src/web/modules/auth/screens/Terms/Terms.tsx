@@ -50,6 +50,10 @@ const Terms = () => {
       acceptedAt: Date.now()
     })
 
+    if (flow === 'view-only') {
+      navigate(WEB_ROUTES.viewOnlyAccountAdder)
+      return
+    }
     if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
       navigate(WEB_ROUTES.keyStoreSetup, { state: { backTo: WEB_ROUTES.getStarted, flow } })
       return

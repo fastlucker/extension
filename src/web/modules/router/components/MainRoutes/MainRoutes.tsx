@@ -41,6 +41,7 @@ import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
+import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
 
 const headerControls = (
   <>
@@ -102,13 +103,16 @@ const MainRoutes = () => {
               element={<HardwareWalletSelectorScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
-            <Route path={WEB_ROUTES.collectible} element={<CollectibleScreen />} />
-            <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
+
             <Route
               path={WEB_ROUTES.hardwareWalletSelect}
               element={<HardwareWalletSelectorScreen />}
             />
             <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
+            <Route
+              path={WEB_ROUTES.viewOnlyAccountAdder}
+              element={<ViewOnlyAccountAdderScreen />}
+            />
 
             <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
 
@@ -116,14 +120,21 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
             <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
 
-            <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
+            <Route element={<PrivateRoute />}>
+              <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
+              <Route path={WEB_ROUTES.collectible} element={<CollectibleScreen />} />
+              <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
+            </Route>
           </Route>
         </Route>
+      </Route>
 
+      <Route element={headerTitleWithAmbireLogo}>
+        <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
+      </Route>
+
+      <Route element={<PrivateRoute />}>
         <Route path={WEB_ROUTES.signAccountOp} element={<SignAccountOpScreen />} />
-        <Route element={headerTitleWithAmbireLogo}>
-          <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
-        </Route>
         <Route path={WEB_ROUTES.collection} element={<CollectionScreen />} />
 
         <Route element={headerTitle}>
@@ -134,8 +145,6 @@ const MainRoutes = () => {
             element={<GetEncryptionPublicKeyRequestScreen />}
           />
         </Route>
-      </Route>
-      <Route element={<PrivateRoute />}>
         <Route element={headerTitle}>
           <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
           <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />

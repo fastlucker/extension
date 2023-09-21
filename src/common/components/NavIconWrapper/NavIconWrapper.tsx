@@ -33,22 +33,22 @@ const NavIconWrapper = ({
       {({ hovered }: any) => (
         <View
           style={{
-            ...style,
             width,
             height,
             borderWidth: 1,
+            ...commonStyles.borderRadiusPrimary,
+            ...flexbox.alignCenter,
+            ...flexbox.justifyCenter,
+            overflow: 'hidden',
+            ...style,
             borderColor:
               hovered && hoverBorderColor
                 ? hoverBorderColor
                 : style?.borderColor || colors.melrose_15,
-            ...commonStyles.borderRadiusPrimary,
-            ...flexbox.alignCenter,
-            ...flexbox.justifyCenter,
             backgroundColor:
               hovered && hoverBackground
                 ? hoverBackground
-                : style?.backgroundColor || colors.melrose_15,
-            overflow: 'hidden'
+                : style?.backgroundColor || colors.melrose_15
           }}
         >
           {/* TODO: This way may not be the best to fix this. Will need to think about this */}
