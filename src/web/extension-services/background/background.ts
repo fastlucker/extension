@@ -273,7 +273,7 @@ async function init() {
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY': {
               return mainCtrl.accountAdder.init({
-                keyIterator: null as unknown as KeyIterator,
+                keyIterator: null,
                 preselectedAccounts: mainCtrl.accounts
               })
             }
