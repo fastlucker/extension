@@ -66,6 +66,10 @@ const routesConfig: {
     flow: 'email',
     flowStep: 2
   },
+  [ROUTES.keyStoreReset]: {
+    route: ROUTES.keyStoreReset,
+    title: i18n.t('Restore Key Store Passphrase')
+  },
   [ROUTES.createEmailVault]: {
     route: ROUTES.createEmailVault,
     flow: 'email',

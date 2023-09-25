@@ -6,7 +6,15 @@ import flexbox from '@common/styles/utils/flexbox'
 
 import LockSvg from './LockSvg'
 
-const KeyStoreLogo = ({ style }: { style?: ViewStyle | ViewStyle[] }) => (
+const KeyStoreLogo = ({
+  style,
+  width,
+  height
+}: {
+  style?: ViewStyle | ViewStyle[]
+  width?: number
+  height?: number
+}) => (
   <View
     style={[
       flexbox.alignCenter,
@@ -17,7 +25,7 @@ const KeyStoreLogo = ({ style }: { style?: ViewStyle | ViewStyle[] }) => (
       style
     ]}
   >
-    <LockSvg />
+    <LockSvg width={width} height={height} />
   </View>
 )
 

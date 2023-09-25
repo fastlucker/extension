@@ -50,6 +50,7 @@ const WEB_ROUTES = {
   createEmailVault: 'create-email-vault',
   terms: 'terms',
   keyStoreSetup: 'keystore-setup',
+  keyStoreReset: 'keystore-reset',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
   onboarding: 'onboarding',
   permissionRequest: 'permission-request',
