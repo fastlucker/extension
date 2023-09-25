@@ -183,6 +183,10 @@ const SignMessageScreen = () => {
     )
   }
 
+  const selectedAccountDetails = mainState.accounts.find(
+    (acc) => acc.addr === mainState.selectedAccount
+  )
+
   return (
     <Wrapper hasBottomTabNav={false}>
       <Trans values={{ name: currentNotificationRequest?.params?.session?.name || 'The dApp' }}>
@@ -227,7 +231,16 @@ const SignMessageScreen = () => {
       )}
       <Select
         setValue={(newValue: any) => handleChangeSigningKey(newValue.value)}
-        label={t('Signing with account')}
+        label={
+          selectedAccountDetails?.label
+            ? t('Signing with account {{accountLabel}}({{accountAddress}}) via key:', {
+                accountLabel: selectedAccountDetails?.label,
+                accountAddress: mainState.selectedAccount
+              })
+            : t('Signing with account {{accountAddress}} via key:', {
+                accountAddress: mainState.selectedAccount
+              })
+        }
         options={keySelectorValues}
         disabled={!keySelectorValues.length}
         style={spacings.mb}
