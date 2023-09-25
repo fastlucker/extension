@@ -68,11 +68,9 @@ const TabHeader: React.FC<Props> = ({
 
   return (
     <View style={[styles.container, style]}>
-      {canGoBack ? (
-        <View style={styles.sideContainer}>
-          <HeaderLeft handleGoBack={handleGoBack} />
-        </View>
-      ) : null}
+      <View style={styles.sideContainer}>
+        {canGoBack ? <HeaderLeft handleGoBack={handleGoBack} /> : null}
+      </View>
       {!!shouldDisplayStepper && <Stepper step={flowStep} />}
       {!shouldDisplayStepper && (!!title || !!pageTitle) && (
         <View style={styles.content}>
