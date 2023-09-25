@@ -79,7 +79,7 @@ const Terms = () => {
   }
 
   return (
-    <TabLayoutWrapperMainContent width="mid">
+    <TabLayoutWrapperMainContent width="md">
       <View style={[flexboxStyles.alignSelfCenter, { maxWidth: 620 }]}>
         <View style={[flexboxStyles.alignCenter]}>
           <AmbireLogo style={styles.logo} />
