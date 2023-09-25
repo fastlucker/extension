@@ -22,7 +22,7 @@ const OnBoardingScreen = () => {
   }, [setOnboardingStatus])
 
   return (
-    <TabLayoutWrapperMainContent width="mid" hideHeader>
+    <TabLayoutWrapperMainContent width="md" hideHeader>
       <View style={styles.wrapper}>
         <Text shouldScale={false} fontSize={20} weight="medium" style={styles.title}>
           {t('How To Use Ambire Wallet')}

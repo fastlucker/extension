@@ -14,6 +14,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import commonWebStyles from '@web/styles/utils/common'
 
 const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
 const TWITTER_URL = 'https://twitter.com/AmbireWallet'
@@ -36,7 +37,7 @@ const NavMenu = () => {
   return (
     <Wrapper>
       <View style={[spacings.mhMi, spacings.mvTy]}>
-        <View style={flexboxStyles.directionRow}>
+        <View style={(flexboxStyles.directionRow, commonWebStyles.contentContainer)}>
           {menu.map(({ Icon, name, route }) => {
             return (
               <TouchableOpacity

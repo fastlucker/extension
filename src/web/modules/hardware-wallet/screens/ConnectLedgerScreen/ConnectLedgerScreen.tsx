@@ -59,7 +59,7 @@ const ConnectLedgerScreen = () => {
   }
 
   return (
-    <TabLayoutWrapperMainContent width="mid">
+    <TabLayoutWrapperMainContent width="md">
       <View style={[flexbox.flex1, flexbox.justifyCenter]}>
         <View
           style={{

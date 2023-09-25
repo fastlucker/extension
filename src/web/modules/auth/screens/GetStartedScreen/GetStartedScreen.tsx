@@ -62,7 +62,7 @@ const GetStartedScreen = () => {
     [navigate, updateStepperState, keystoreState]
   )
   return (
-    <TabLayoutWrapperMainContent width="mid">
+    <TabLayoutWrapperMainContent width="md">
       <View style={[flexboxStyles.center]}>
         <Text fontSize={22} weight="medium">
           {t('Welcome to Ambire')}

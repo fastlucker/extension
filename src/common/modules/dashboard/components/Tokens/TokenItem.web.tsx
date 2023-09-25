@@ -27,14 +27,6 @@ import textStyles from '@common/styles/utils/text'
 import animationWallets from './animation-wallets.json'
 import styles from './styles'
 
-interface Token extends TokenResultInterface {
-  onGasTank: boolean
-  vesting: boolean
-  rewards: boolean
-  canTopUpGasTank: boolean
-  isRewardsToken: boolean
-  isFeeToken: boolean
-}
 // TODO: customize token component for gas token, wallet rewards token. Each of them has different button and styling
 // TODO: correct props once connected with portfolio controller
 const TokenItem = ({
@@ -45,9 +37,8 @@ const TokenItem = ({
   address,
   networkId,
   onGasTank,
-  vesting,
-  rewards
-}: Token) => {
+  rewardsType
+}: any) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   // TODO: navigate to the routes onPress once they are ready or hide the ones we wont need for epic 1
@@ -68,6 +59,8 @@ const TokenItem = ({
   const price =
     priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')?.price || 0
   const balanceUSD = balance * price
+  const rewards = rewardsType === 'wallet-rewards'
+  const vesting = rewardsType === 'wallet-vesting'
 
   /**
    * Explanation why we converted to html element
@@ -113,7 +106,7 @@ const TokenItem = ({
                 {balance.toFixed(balance < 1 ? 8 : 4)} {symbol}
               </Text>
               <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-                <Text shouldScale={false} fontSize={12}>
+                <Text weight="regular" shouldScale={false} fontSize={12}>
                   {rewards && t('rewards for claim')}
                   {vesting && t('claimable early supporters vesting')}
                   {!rewards && !vesting && t('on')}
@@ -122,14 +115,14 @@ const TokenItem = ({
                 {!onGasTank && !rewards && !vesting && (
                   <NetworkIcon name={networkId} style={{ width: 25, height: 25 }} />
                 )}
-                <Text style={[spacings.mrMi]} shouldScale={false} fontSize={12}>
+                <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>
                   {onGasTank && t('Gas Tank')}
                   {!onGasTank && !rewards && !vesting && networkData?.name}
                 </Text>
                 <InformationIcon color={colors.martinique_65} />
               </View>
             </View>
-            <Text fontSize={14} shouldScale={false} style={textStyles.highlightPrimary}>
+            <Text fontSize={14} weight="regular" style={textStyles.highlightPrimary}>
               ${balanceUSD?.toFixed(2)}
             </Text>
           </View>
