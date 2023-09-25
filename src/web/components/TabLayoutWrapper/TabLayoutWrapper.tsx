@@ -23,7 +23,7 @@ const TabLayoutWrapper = (
   </TabLayoutWrapperContext.Provider>
 )
 
-type Width = 'sm' | 'md' | 'lg' | 'full'
+type Width = 'xs' | 'sm' | 'md' | 'lg' | 'full'
 
 interface Props {
   width?: Width
@@ -37,6 +37,7 @@ interface Props {
 }
 
 const widthConf = {
+  xs: 500,
   sm: 770,
   md: 900,
   lg: 1000,
