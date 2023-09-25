@@ -236,7 +236,7 @@ const SignMessageScreen = () => {
         setValue={(newValue: any) => handleChangeSigningKey(newValue.value)}
         label={
           selectedAccountDetails?.label
-            ? t('Signing with account {{accountLabel}}({{accountAddress}}) via key:', {
+            ? t('Signing with account {{accountLabel}} ({{accountAddress}}) via key:', {
                 accountLabel: selectedAccountDetails?.label,
                 accountAddress: mainState.selectedAccount
               })
