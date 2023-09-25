@@ -134,6 +134,8 @@ const SignMessageScreen = () => {
   }, [dispatch])
 
   const keySelectorValues = useMemo(() => {
+    // TODO: Pull keys from the Keystore and match the ones that have the
+    // same address as the associatedKeys for the selected account.
     return (
       mainState.accounts
         .find((acc) => acc.addr === params!.accountAddr)
@@ -144,7 +146,8 @@ const SignMessageScreen = () => {
   const handleChangeSigningKey = (signKey: string) => {
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
-      params: { key: signKey, type: 'internal' } // TODO: Handle hw wallet keys too
+      // TODO: Handle keys with different types
+      params: { key: signKey, type: 'internal' }
     })
   }
 
