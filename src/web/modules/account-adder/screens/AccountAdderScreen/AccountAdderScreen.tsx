@@ -61,7 +61,7 @@ const AccountAdderScreen = () => {
     walletManagerProps = {}
   }
   if (isLegacyImport) {
-    title = 'Import Legacy Accounts'
+    title = 'Pick Accounts To Import'
     walletManagerProps = { privKeyOrSeed, label }
   }
 

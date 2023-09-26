@@ -12,8 +12,8 @@ const STEPPER_FLOWS = {
     [WEB_ROUTES.accountPersonalize]: 'Personalize\nAccounts'
   },
   hw: {
-    [WEB_ROUTES.hardwareWalletSelect]: 'Pick Hardware Wallet',
-    'connect-hardware-wallet': 'Connect Hardware Wallet',
+    [WEB_ROUTES.hardwareWalletSelect]: 'Choose Hardware Wallet',
+    'connect-hardware-wallet': 'Login with Hardware Wallet',
     [WEB_ROUTES.accountAdder]: 'Pick Accounts To Import',
     [WEB_ROUTES.accountPersonalize]: 'Personalize\nAccounts'
   },
