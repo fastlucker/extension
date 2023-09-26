@@ -141,7 +141,12 @@ const AccountsList = ({
             label={t('Enable email recovery for new Smart Accounts')}
           />
         )}
-        <Wrapper>
+        <Wrapper
+          contentContainerStyle={{
+            ...spacings.pv0,
+            ...spacings.ph0
+          }}
+        >
           {/* TODO: impl change derivation */}
           {state.accountsLoading ? null : (
             <Pressable style={styles.derivationButton}>
