@@ -62,14 +62,10 @@ const routesConfig: {
   },
   [ROUTES.keyStoreSetup]: {
     route: ROUTES.keyStoreSetup,
-    title: i18n.t('Ambire Key Store'),
-    flow: 'email',
-    flowStep: 2
+    title: i18n.t('Ambire Key Store')
   },
   [ROUTES.createEmailVault]: {
-    route: ROUTES.createEmailVault,
-    flow: 'email',
-    flowStep: 0
+    route: ROUTES.createEmailVault
   },
   [ROUTES.auth]: {
     route: ROUTES.auth,
@@ -83,9 +79,7 @@ const routesConfig: {
     title: Platform.select({
       default: i18n.t('Login'),
       web: ''
-    }),
-    flow: 'email',
-    flowStep: 1
+    })
   },
   [ROUTES.ambireAccountLoginPasswordConfirm]: {
     route: ROUTES.ambireAccountLoginPasswordConfirm,
@@ -116,9 +110,7 @@ const routesConfig: {
   },
   [ROUTES.hardwareWalletSelect]: {
     route: ROUTES.hardwareWalletSelect,
-    title: '',
-    flow: 'hw',
-    flowStep: 0
+    title: ''
   },
   [ROUTES.hardwareWalletLedger]: {
     route: ROUTES.hardwareWalletLedger,
@@ -138,9 +130,7 @@ const routesConfig: {
   },
   [ROUTES.externalSigner]: {
     route: ROUTES.externalSigner,
-    title: '',
-    flow: 'legacy',
-    flowStep: 0
+    title: ''
   },
   [ROUTES.viewOnlyAccountAdder]: {
     route: ROUTES.viewOnlyAccountAdder,
