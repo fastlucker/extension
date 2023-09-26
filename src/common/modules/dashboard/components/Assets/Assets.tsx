@@ -13,6 +13,7 @@ import Tokens from '../Tokens'
 interface Props {
   openTab: 'tokens' | 'collectibles'
   tokens: TokenResult[]
+  searchValue: string
 }
 
 // We do this instead of unmounting the component to prevent
@@ -20,7 +21,7 @@ interface Props {
 const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0 }
 const VISIBLE_STYLE: ViewStyle = { flex: 1, ...spacings.phTy, ...spacings.mt }
 
-const Assets = ({ tokens, openTab }: Props) => {
+const Assets = ({ tokens, openTab, searchValue }: Props) => {
   return (
     <View
       style={{
@@ -43,7 +44,7 @@ const Assets = ({ tokens, openTab }: Props) => {
          */
         //   placeholder={<TokensListLoader />}
         >
-          <Tokens tokens={tokens} />
+          <Tokens searchValue={searchValue} tokens={tokens} />
         </AfterInteractions>
       </ScrollView>
       <ScrollView
