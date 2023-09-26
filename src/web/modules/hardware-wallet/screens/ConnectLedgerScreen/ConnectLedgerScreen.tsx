@@ -66,12 +66,21 @@ const ConnectLedgerScreen = () => {
 
   return (
     <TabLayoutWrapperMainContent width="md">
-      <View style={[flexbox.flex1, flexbox.justifyCenter]}>
+      <Text
+        weight="medium"
+        fontSize={16}
+        style={[spacings.mtLg, spacings.mbLg, spacings.pbTy, flexbox.alignSelfCenter]}
+      >
+        {t('Login with Hardware Wallet')}
+      </Text>
+
+      <View style={[flexbox.flex1]}>
         <View
           style={{
             backgroundColor: colors.melrose_15,
             paddingTop: 50,
-            paddingBottom: 50
+            paddingBottom: 50,
+            borderRadius: 12
           }}
         >
           <Text weight="medium" style={[spacings.mbSm, flexbox.alignSelfCenter]} fontSize={20}>

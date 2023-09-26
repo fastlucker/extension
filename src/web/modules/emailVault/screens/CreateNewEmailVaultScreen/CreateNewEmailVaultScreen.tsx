@@ -41,17 +41,21 @@ const CreateNewEmailVaultScreen = () => {
         pageTitle={
           !isPasswordConfirmStep ? 'Create Or Enter Email Vault' : 'Email Confirmation Required'
         }
-        hideStepper={hideStepper || isPasswordConfirmStep}
+        hideStepper={hideStepper}
       >
         <View style={[styles.mainContentWrapper, hideFormTitle && { ...spacings.mt }]}>
-          {!isPasswordConfirmStep && !hideFormTitle && (
+          {!hideFormTitle && (
             <Text
               weight="medium"
               fontSize={16}
               color={colors.martinique}
               style={[spacings.mbLg, text.center]}
             >
-              {t('Create Or Enter Email Vault')}
+              {t(
+                !isPasswordConfirmStep
+                  ? 'Create Or Enter Email Vault'
+                  : 'Email Confirmation Required'
+              )}
             </Text>
           )}
           <EmailLoginForm

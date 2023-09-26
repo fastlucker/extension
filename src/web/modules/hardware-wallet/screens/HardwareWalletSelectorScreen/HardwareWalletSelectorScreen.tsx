@@ -67,7 +67,7 @@ const HardwareWalletSelectorScreen = () => {
   return (
     <TabLayoutWrapperMainContent width="md">
       <View style={[flexbox.center]}>
-        <Text fontSize={20} style={[spacings.mvLg, flexbox.alignSelfCenter]} weight="medium">
+        <Text fontSize={16} style={[spacings.mvLg, flexbox.alignSelfCenter]} weight="medium">
           {t('Choose Hardware Wallet')}
         </Text>
         <View style={[flexbox.directionRow]}>
