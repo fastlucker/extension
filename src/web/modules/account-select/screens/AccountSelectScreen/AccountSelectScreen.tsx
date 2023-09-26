@@ -150,6 +150,7 @@ const AccountSelectScreen = () => {
             </Pressable>
           ))
         ) : (
+          // @TODO: add a proper label
           <Text>No accounts found</Text>
         )}
       </Wrapper>
