@@ -1,7 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import useRoute from '@common/hooks/useRoute'
-import useStorageController from '@common/hooks/useStorageController'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 const STEPPER_FLOWS = {
@@ -25,7 +24,11 @@ const STEPPER_FLOWS = {
   }
 }
 
-// Edge cases like connecting HW wallets, because one step can be many routes.
+/* 
+  Adding a route here makes the stepper show in that route. This is an edge case, because
+  this route is the step 'connect-hardware-wallet' of the flow 'hw', but is not the only trigger,
+  because the other HW wallet are not routes and instead open in a popup.
+*/
 const EXTRA_STEP_SCREENS = [WEB_ROUTES.hardwareWalletLedger]
 
 const ALL_STEPS_SCREENS = Object.keys(STEPPER_FLOWS)
@@ -50,32 +53,22 @@ const StepperContext = createContext<{
 
 const StepperProvider = ({ children }: { children: React.ReactNode }) => {
   const { path } = useRoute()
-  const { getItem, setItem } = useStorageController()
 
   const [stepperState, setStepperState] = useState<{
     currentStep: number
     currentFlow: keyof typeof STEPPER_FLOWS
-  } | null>(() => {
-    const storedState = getItem('stepperState')
-
-    if (!storedState) return null
-
-    return JSON.parse(storedState)
-  })
+  } | null>(null)
 
   useEffect(() => {
     if (!path) return
 
     const pathWithoutSlash = path.slice(1)
 
+    // Delete the stepper state if the user navigates to a screen that doesn't have a stepper
     if (ALL_STEPS_SCREENS.includes(pathWithoutSlash)) return
 
     setStepperState(null)
   }, [path])
-
-  useEffect(() => {
-    setItem('stepperState', JSON.stringify(stepperState))
-  }, [stepperState, setItem])
 
   const updateStepperState = useCallback((newStep: string, newFlow: keyof typeof STEPPER_FLOWS) => {
     const newStepIndex = Object.keys(STEPPER_FLOWS[newFlow]).indexOf(newStep)
