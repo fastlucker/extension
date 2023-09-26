@@ -35,7 +35,7 @@ const AddAccountPasswordToVaultScreen = () => {
     watch,
     formState: { errors, isSubmitting }
   } = useForm({
-    reValidateMode: 'onChange',
+    mode: 'all',
     defaultValues: {
       password: ''
     }
