@@ -150,7 +150,6 @@ const SendForm = ({
         type="primary"
         size="large"
         text={t('Send')}
-        disabledStyle={{ opacity: 0.6 }}
         style={styles.button}
         onPress={sendTransaction}
         disabled={disabled}
