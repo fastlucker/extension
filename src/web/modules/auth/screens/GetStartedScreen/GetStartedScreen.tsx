@@ -9,7 +9,6 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -23,7 +22,6 @@ import styles from './styles'
 
 const GetStartedScreen = () => {
   const { t } = useTranslation()
-  const { updateStepperState } = useStepper()
   const keystoreState = useKeystoreControllerState()
   const { navigate } = useNavigation()
   const [advanceModeEnabled, setAdvancedModeEnabled] = useState(false)
@@ -45,21 +43,18 @@ const GetStartedScreen = () => {
         return
       }
       if (flow === 'email') {
-        updateStepperState(0, 'email')
         navigate(WEB_ROUTES.createEmailVault)
         return
       }
       if (flow === 'hw') {
-        updateStepperState(0, 'hw')
         navigate(WEB_ROUTES.hardwareWalletSelect)
         return
       }
       if (flow === 'legacy') {
-        updateStepperState(0, 'legacy')
         navigate(WEB_ROUTES.externalSigner)
       }
     },
-    [navigate, updateStepperState, keystoreState]
+    [navigate, keystoreState]
   )
   return (
     <TabLayoutWrapperMainContent width="md">

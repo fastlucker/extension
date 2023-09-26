@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
 
 import Text from '@common/components/Text'
@@ -23,27 +23,31 @@ const HardwareWalletSelectorScreen = () => {
   const { updateStepperState } = useStepper()
   const { dispatchAsync } = useBackgroundService()
 
+  useEffect(() => {
+    updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
+  }, [updateStepperState])
+
   const onTrezorPress = useCallback(async () => {
     try {
-      await updateStepperState(1, 'hw')
+      await updateStepperState('connect-hardware-wallet', 'hw')
       await dispatchAsync({ type: 'TREZOR_CONTROLLER_UNLOCK' })
       navigate(WEB_ROUTES.accountAdder, {
         state: { walletType: HARDWARE_WALLETS.TREZOR }
       })
     } catch (error: any) {
       addToast(error.message, { error: true })
-      await updateStepperState(0, 'hw')
+      await updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
     }
   }, [addToast, dispatchAsync, navigate, updateStepperState])
 
   const onLedgerPress = useCallback(async () => {
-    await updateStepperState(1, 'hw')
+    await updateStepperState('connect-hardware-wallet', 'hw')
     navigate(WEB_ROUTES.hardwareWalletLedger)
   }, [navigate, updateStepperState])
 
   const onGridPlusPress = useCallback(async () => {
     try {
-      await updateStepperState(1, 'hw')
+      await updateStepperState('connect-hardware-wallet', 'hw')
 
       await dispatchAsync({ type: 'LATTICE_CONTROLLER_UNLOCK' })
       navigate(WEB_ROUTES.accountAdder, {
@@ -51,7 +55,7 @@ const HardwareWalletSelectorScreen = () => {
       })
     } catch (error: any) {
       addToast(error.message, { error: true })
-      await updateStepperState(0, 'hw')
+      await updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
     }
   }, [addToast, dispatchAsync, navigate, updateStepperState])
 

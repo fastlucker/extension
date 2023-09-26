@@ -7,6 +7,7 @@ import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -49,7 +50,11 @@ const TabHeader: React.FC<Props> = ({
   style
 }) => {
   const { path, params } = useRoute()
+  const { stepperState } = useStepper()
   const { navigate } = useNavigation()
+
+  const flow = stepperState?.currentFlow
+  const flowStep = stepperState?.currentStep
 
   const handleGoBack = useCallback(
     () => (onBack ? onBack() : navigate(params?.backTo || -1)),
@@ -62,7 +67,7 @@ const TabHeader: React.FC<Props> = ({
   const canGoBack = forceCanGoBack || !!params?.prevRoute
 
   const nextRoute = path?.substring(1) as unknown as typeof ROUTES
-  const { title, flow, flowStep } = routesConfig[nextRoute]
+  const { title } = routesConfig[nextRoute]
 
   const shouldDisplayStepper = flow && !hideStepper
 

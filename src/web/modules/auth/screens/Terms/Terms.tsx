@@ -8,7 +8,6 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
-import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING, SPACING_LG, SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -25,7 +24,6 @@ const Terms = () => {
   const { params } = useRoute()
   const [isChecked, setIsChecked] = useState(false)
   const { navigate } = useNavigation()
-  const { updateStepperState } = useStepper()
   const keystoreState = useKeystoreControllerState()
   const { flow }: any = params
 
@@ -59,19 +57,16 @@ const Terms = () => {
       return
     }
     if (flow === 'email') {
-      updateStepperState(0, 'email')
       navigate(WEB_ROUTES.createEmailVault, {
         state: { backTo: WEB_ROUTES.getStarted, flow: 'email' }
       })
       return
     }
     if (flow === 'hw') {
-      updateStepperState(0, 'hw')
       navigate(WEB_ROUTES.hardwareWalletSelect, { state: { backTo: WEB_ROUTES.getStarted } })
       return
     }
     if (flow === 'legacy') {
-      updateStepperState(0, 'legacy')
       navigate(WEB_ROUTES.externalSigner, {
         state: { backTo: WEB_ROUTES.getStarted, flow: 'legacy' }
       })
