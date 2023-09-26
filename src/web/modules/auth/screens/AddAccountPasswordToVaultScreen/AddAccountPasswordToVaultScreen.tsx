@@ -32,8 +32,7 @@ const AddAccountPasswordToVaultScreen = () => {
   const {
     control,
     handleSubmit,
-    watch,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting, isValid }
   } = useForm({
     mode: 'all',
     defaultValues: {
@@ -113,7 +112,7 @@ const AddAccountPasswordToVaultScreen = () => {
           />
 
           <Button
-            disabled={isSubmitting || !watch('password', '')}
+            disabled={isSubmitting || !isValid}
             text={isSubmitting ? t('Adding to Key Store...') : t('Add password to Key Store')}
             onPress={handleFormSubmit}
           />
