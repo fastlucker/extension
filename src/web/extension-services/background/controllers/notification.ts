@@ -80,6 +80,7 @@ export class NotificationController extends EventEmitter {
     winMgr.event.on('windowRemoved', (winId: number) => {
       if (winId === this.notificationWindowId) {
         this.notificationWindowId = null
+        this.notifyForClosedUserRequestThatAreStillPending()
         this.rejectAllNotificationRequestsThatAreNotSignRequests()
       }
     })
@@ -400,6 +401,26 @@ export class NotificationController extends EventEmitter {
       }
     })
     this.emitUpdate()
+  }
+
+  notifyForClosedUserRequestThatAreStillPending = () => {
+    if (SIGN_METHODS.includes(this.currentNotificationRequest?.params?.method)) {
+      const title = isSignAccountOpMethod(this.currentNotificationRequest?.params?.method)
+        ? 'Added Pending Transaction Request'
+        : 'Added Pending Message Request'
+      const message = isSignAccountOpMethod(this.currentNotificationRequest?.params?.method)
+        ? 'Transaction added to your cart. You can add more transactions and sign them all together (thus saving on network fees).'
+        : 'The message was added to your cart. You can find all pending requests listed on your Dashboard.'
+
+      const id = new Date().getTime()
+      browser.notifications.create(id.toString(), {
+        type: 'basic',
+        iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+        title,
+        message,
+        priority: 2
+      })
+    }
   }
 
   openNotification = (winProps: any) => {
