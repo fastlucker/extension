@@ -5,7 +5,7 @@
   "description": "Тhe easiest to use, most powerful and secure Web3 non-custodial solution you can get. It’s the smart solution all smart people use.",
   "version": "SYNCED_WITH_THE_APP_VERSION_VIA_THE_WEBPACK_CONFIG",
   "manifest_version": 3,
-  "permissions": ["storage", "tabs", "unlimitedStorage", "activeTab"],
+  "permissions": ["storage", "tabs", "unlimitedStorage", "activeTab", "notifications"],
   "background": {
     "service_worker": "background.js"
   },
@@ -32,13 +32,8 @@
       "js": ["browser-polyfill.js", "content-script.js"]
     },
     {
-      "matches": [
-        "*://connect.trezor.io/*/popup.html",
-        "https://connect.onekey.so/popup.html"
-      ],
-      "js": [
-        "vendor/trezor/trezor-content-script.js"
-      ]
+      "matches": ["*://connect.trezor.io/*/popup.html", "https://connect.onekey.so/popup.html"],
+      "js": ["vendor/trezor/trezor-content-script.js"]
     }
   ],
   "web_accessible_resources": [
