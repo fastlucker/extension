@@ -59,7 +59,7 @@ const Collection: FC<Props> = ({ address, name, networkId, collectibles, priceIn
       }}
     >
       <View style={styles.imageAndName}>
-        {!imageFailed && data?.image && (
+        {!imageFailed && !!data?.image && (
           <Image
             onError={() => setImageFailed(true)}
             style={styles.image}
