@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { View } from 'react-native'
 
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
@@ -8,6 +8,7 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -20,9 +21,14 @@ import { hasConnectedLedgerDevice } from '@web/modules/hardware-wallet/utils/led
 
 const ConnectLedgerScreen = () => {
   const { navigate } = useNavigation()
+  const { updateStepperState } = useStepper()
   const { t } = useTranslation()
 
   const { dispatchAsync } = useBackgroundService()
+
+  useEffect(() => {
+    updateStepperState('connect-hardware-wallet', 'hw')
+  }, [updateStepperState])
 
   const onSubmit = async () => {
     const supportWebHID = await TransportWebHID.isSupported()
@@ -60,12 +66,17 @@ const ConnectLedgerScreen = () => {
 
   return (
     <TabLayoutWrapperMainContent width="md">
-      <View style={[flexbox.flex1, flexbox.justifyCenter]}>
+      <Text weight="medium" fontSize={16} style={[spacings.mvLg, flexbox.alignSelfCenter]}>
+        {t('Login with Hardware Wallet')}
+      </Text>
+
+      <View style={[flexbox.flex1]}>
         <View
           style={{
             backgroundColor: colors.melrose_15,
             paddingTop: 50,
-            paddingBottom: 50
+            paddingBottom: 50,
+            borderRadius: 12
           }}
         >
           <Text weight="medium" style={[spacings.mbSm, flexbox.alignSelfCenter]} fontSize={20}>

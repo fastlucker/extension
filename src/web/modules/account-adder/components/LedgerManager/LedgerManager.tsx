@@ -19,8 +19,11 @@ const LedgerManager = (props: Props) => {
   const { dispatch, dispatchAsync } = useBackgroundService()
   const state = useAccountAdderControllerState()
 
+  useEffect(() => {
+    updateStepperState(WEB_ROUTES.accountAdder, 'hw')
+  }, [updateStepperState])
+
   const onImportReady = () => {
-    updateStepperState(2, 'hw')
     navigate(WEB_ROUTES.accountPersonalize)
   }
 

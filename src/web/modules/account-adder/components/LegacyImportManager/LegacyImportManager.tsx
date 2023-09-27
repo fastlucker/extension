@@ -22,8 +22,8 @@ interface Props {
 
 const LegacyImportManager = (props: Props) => {
   const { navigate } = useNavigation()
-  const { updateStepperState } = useStepper()
   const { dispatch } = useBackgroundService()
+  const { updateStepperState } = useStepper()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
   const keystoreState = useKeystoreControllerState()
@@ -53,12 +53,14 @@ const LegacyImportManager = (props: Props) => {
 
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
-      updateStepperState(1, 'legacy')
-
       navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
     },
-    [navigate, updateStepperState]
+    [navigate]
   )
+
+  useEffect(() => {
+    updateStepperState(WEB_ROUTES.accountAdder, 'legacy')
+  }, [updateStepperState])
 
   useEffect(() => {
     return () => {
@@ -119,7 +121,6 @@ const LegacyImportManager = (props: Props) => {
     props.privKeyOrSeed,
     props.label,
     accountAdderState,
-    updateStepperState,
     navigate,
     dispatch,
     accountAdderState.readyToAddAccounts,

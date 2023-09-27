@@ -6,6 +6,8 @@ import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useStepper from '@common/modules/auth/hooks/useStepper'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -18,8 +20,15 @@ import Card from '@web/modules/account-personalize/components/Card'
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { stepperState, updateStepperState } = useStepper()
   const [elementHeights, setElementHeights] = useState({})
   const [totalHeight, setTotalHeight] = useState(300)
+
+  useEffect(() => {
+    if (!stepperState?.currentFlow) return
+
+    updateStepperState(WEB_ROUTES.accountPersonalize, stepperState.currentFlow)
+  }, [stepperState?.currentFlow, updateStepperState])
 
   const handleLayout = (index: string, event: any) => {
     const { height } = event.nativeEvent.layout
@@ -44,6 +53,10 @@ const AccountPersonalizeScreen = () => {
   return (
     <>
       <TabLayoutWrapperMainContent>
+        <Text weight="medium" fontSize={16} style={[flexboxStyles.alignSelfCenter]}>
+          {t('Personalize Your Accounts')}
+        </Text>
+
         <View style={[flexboxStyles.alignCenter, spacings.mtXl]}>
           <View>
             <Wrapper
