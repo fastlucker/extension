@@ -25,7 +25,6 @@ const Search = ({ placeholder = 'Search', style, control }: Props) => {
           <TextInput
             editable
             numberOfLines={1}
-            maxLength={25}
             placeholder={placeholder}
             style={[styles.textarea]}
             placeholderTextColor={colors.martinique_65}
