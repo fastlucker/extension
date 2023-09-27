@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useMemo } from 'react'
+import { useForm } from 'react-hook-form'
 import { Image, Pressable, View } from 'react-native'
 
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
@@ -21,11 +22,36 @@ import styles from './styles'
 
 const AccountSelectScreen = () => {
   const { goBack } = useNavigation()
+  const { control, watch } = useForm({
+    mode: 'all',
+    defaultValues: {
+      search: ''
+    }
+  })
+  const searchValue = watch('search')
 
   const mainCtrl = useMainControllerState()
   const { dispatch } = useBackgroundService()
 
   const { t } = useTranslation()
+
+  const accounts = useMemo(
+    () =>
+      mainCtrl.accounts.filter((account) => {
+        if (!searchValue) return true
+
+        const doesAddressMatch = account.addr.toLowerCase().includes(searchValue.toLowerCase())
+        const doesLabelMatch = account.label.toLowerCase().includes(searchValue.toLowerCase())
+        const isSmartAccount = !!account?.creation
+        const doesSmartAccountMatch =
+          isSmartAccount && 'smart account'.includes(searchValue.toLowerCase())
+        const doesLegacyAccountMatch =
+          !isSmartAccount && 'legacy account'.includes(searchValue.toLowerCase())
+
+        return doesAddressMatch || doesLabelMatch || doesSmartAccountMatch || doesLegacyAccountMatch
+      }),
+    [mainCtrl.accounts, searchValue]
+  )
 
   const selectAccount = (addr: string) => {
     dispatch({
@@ -38,12 +64,12 @@ const AccountSelectScreen = () => {
   return (
     <View style={[flexboxStyles.flex1, spacings.pv, spacings.ph]}>
       <View style={styles.container}>
-        <Search placeholder="Search for accounts" style={styles.searchBar} />
+        <Search control={control} placeholder="Search for accounts" style={styles.searchBar} />
       </View>
 
       <Wrapper contentContainerStyle={styles.container}>
-        {mainCtrl.accounts.length &&
-          mainCtrl.accounts.map((account) => (
+        {accounts.length ? (
+          accounts.map((account) => (
             <Pressable key={account.addr} onPress={() => selectAccount(account.addr)}>
               {({ hovered }: any) => (
                 <View
@@ -122,7 +148,11 @@ const AccountSelectScreen = () => {
                 </View>
               )}
             </Pressable>
-          ))}
+          ))
+        ) : (
+          // @TODO: add a proper label
+          <Text>No accounts found</Text>
+        )}
       </Wrapper>
     </View>
   )

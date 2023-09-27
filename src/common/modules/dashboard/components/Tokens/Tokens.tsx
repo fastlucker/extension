@@ -13,9 +13,10 @@ import TokenItem from './TokenItem'
 // TODO: correct props once connected with portfolio controller
 interface Props {
   tokens: any[] | TokenResultInterface[]
+  searchValue: string
 }
 
-const Tokens = ({ tokens }: Props) => {
+const Tokens = ({ tokens, searchValue }: Props) => {
   const { t } = useTranslation()
   // TODO: we will have different sorting here on v2. We will have pinned tokens with 0 balance, gas tokens and etc so this will be decided over time once all of them are wired up
   let sortedTokens = [...tokens]
@@ -43,7 +44,8 @@ const Tokens = ({ tokens }: Props) => {
     <View>
       {/* {!!isCurrNetworkBalanceLoading && <TokensListLoader />} */}
 
-      {!sortedTokens.length && <Text>{t('No tokens yet')}</Text>}
+      {!sortedTokens.length && !searchValue && <Text>{t('No tokens yet')}</Text>}
+      {!sortedTokens.length && searchValue && <Text>{t('No tokens found')}</Text>}
 
       {!!sortedTokens.length &&
         sortedTokens.map(
