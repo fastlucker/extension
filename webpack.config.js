@@ -8,6 +8,7 @@ const webpack = require('webpack')
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const expoEnv = require('@expo/webpack-config/env')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
@@ -156,6 +157,7 @@ module.exports = async function (env, argv) {
 
   config.plugins = [
     ...config.plugins,
+    new NodePolyfillPlugin(),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
       process: 'process'

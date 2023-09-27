@@ -1,6 +1,6 @@
 import { isValidPrivateKey } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { Mnemonic } from 'ethers'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput, View } from 'react-native'
 
@@ -8,6 +8,7 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -29,6 +30,7 @@ function isValidMnemonic(input: string) {
 }
 
 const ExternalSignerLoginScreen = () => {
+  const { updateStepperState } = useStepper()
   const {
     control,
     handleSubmit,
@@ -42,6 +44,10 @@ const ExternalSignerLoginScreen = () => {
   })
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+
+  useEffect(() => {
+    updateStepperState(WEB_ROUTES.externalSigner, 'legacy')
+  }, [updateStepperState])
 
   const handleFormSubmit = useCallback(() => {
     handleSubmit(({ privKeyOrSeed, label }) => {
@@ -99,11 +105,7 @@ const ExternalSignerLoginScreen = () => {
     <>
       <TabLayoutWrapperMainContent>
         <View style={styles.container}>
-          <Text
-            weight="medium"
-            fontSize={16}
-            style={[spacings.mtLg, spacings.mbLg, spacings.pbTy, flexbox.alignSelfCenter]}
-          >
+          <Text weight="medium" fontSize={16} style={[flexbox.alignSelfCenter]}>
             {t('Import Legacy Account')}
           </Text>
 

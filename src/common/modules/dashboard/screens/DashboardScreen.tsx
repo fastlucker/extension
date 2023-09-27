@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import Banners from '@common/components/Banners'
@@ -17,8 +18,25 @@ import Routes from '../components/Routes'
 import Tabs from '../components/Tabs'
 import styles from './styles'
 
+// We want to change the query param without refreshing the page.
+const handleChangeQuery = (openTab: string) => {
+  if (window.location.href.includes('?tab=')) {
+    window.history.pushState(null, '', `${window.location.href.split('?')[0]}?tab=${openTab}`)
+    return
+  }
+
+  window.history.pushState(null, '', `${window.location.href}?tab=${openTab}`)
+}
+
 const DashboardScreen = () => {
   const route = useRoute()
+  const { control, watch } = useForm({
+    mode: 'all',
+    defaultValues: {
+      search: ''
+    }
+  })
+  const searchValue = watch('search')
 
   const [openTab, setOpenTab] = useState(() => {
     const params = new URLSearchParams(route?.search)
@@ -30,9 +48,30 @@ const DashboardScreen = () => {
 
   const { t } = useTranslation()
 
-  const tokens = accountPortfolio?.tokens || []
+  // const tokens = accountPortfolio?.tokens || []
+  const tokens = useMemo(
+    () =>
+      accountPortfolio?.tokens.filter((token) => {
+        if (!searchValue) return true
+
+        const doesAddressMatch = token.address.toLowerCase().includes(searchValue.toLowerCase())
+        const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
+
+        return doesAddressMatch || doesSymbolMatch
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [accountPortfolio?.tokens?.length, searchValue]
+  )
+
+  useEffect(() => {
+    if (searchValue.length > 0 && openTab === 'collectibles') {
+      handleChangeQuery('tokens')
+      setOpenTab('tokens')
+    }
+  }, [searchValue, openTab])
+
   const showView =
-    (startedLoading && Date.now() - startedLoading > 5000) || accountPortfolio?.isAllReady
+    (startedLoading ? Date.now() - startedLoading > 5000 : false) || accountPortfolio?.isAllReady
 
   if (!showView)
     return (
@@ -85,12 +124,12 @@ const DashboardScreen = () => {
             flexbox.justifySpaceBetween
           ]}
         >
-          <Tabs setOpenTab={setOpenTab} openTab={openTab} />
-          <Search />
+          <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
+          <Search control={control} placeholder="Search for tokens" />
         </View>
       </View>
       <View style={[styles.contentContainer, flexbox.flex1]}>
-        <Assets openTab={openTab} tokens={tokens} />
+        <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />
       </View>
     </View>
   )

@@ -134,6 +134,8 @@ const SignMessageScreen = () => {
   }, [dispatch])
 
   const keySelectorValues = useMemo(() => {
+    // TODO: Pull keys from the Keystore and match the ones that have the
+    // same address as the associatedKeys for the selected account.
     return (
       mainState.accounts
         .find((acc) => acc.addr === params!.accountAddr)
@@ -144,7 +146,8 @@ const SignMessageScreen = () => {
   const handleChangeSigningKey = (signKey: string) => {
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
-      params: { key: signKey }
+      // TODO: Handle keys with different types
+      params: { key: signKey, type: 'internal' }
     })
   }
 
@@ -182,6 +185,10 @@ const SignMessageScreen = () => {
       </View>
     )
   }
+
+  const selectedAccountDetails = mainState.accounts.find(
+    (acc) => acc.addr === mainState.selectedAccount
+  )
 
   return (
     <Wrapper hasBottomTabNav={false}>
@@ -227,7 +234,16 @@ const SignMessageScreen = () => {
       )}
       <Select
         setValue={(newValue: any) => handleChangeSigningKey(newValue.value)}
-        label={t('Signing with account')}
+        label={
+          selectedAccountDetails?.label
+            ? t('Signing with account {{accountLabel}} ({{accountAddress}}) via key:', {
+                accountLabel: selectedAccountDetails?.label,
+                accountAddress: mainState.selectedAccount
+              })
+            : t('Signing with account {{accountAddress}} via key:', {
+                accountAddress: mainState.selectedAccount
+              })
+        }
         options={keySelectorValues}
         disabled={!keySelectorValues.length}
         style={spacings.mb}

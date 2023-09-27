@@ -1,6 +1,8 @@
+import { BIP44_HD_PATH } from 'ambire-common/src/consts/derivation'
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
+import { Key } from 'ambire-common/src/libs/keystore/keystore'
 import { KeystoreSigner } from 'ambire-common/src/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 
@@ -266,6 +268,13 @@ async function init() {
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
+                preselectedAccounts: mainCtrl.accounts,
+                derivationPath: BIP44_HD_PATH
+              })
+            }
+            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY': {
+              return mainCtrl.accountAdder.init({
+                keyIterator: null,
                 preselectedAccounts: mainCtrl.accounts
               })
             }
@@ -304,7 +313,7 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN':
               return mainCtrl.signMessage.sign()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
-              return mainCtrl.signMessage.setSigningKeyAddr(data.params.key)
+              return mainCtrl.signMessage.setSigningKey(data.params.key, data.params.type)
             case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
               return mainCtrl.broadcastSignedMessage(data.params.signedMessage)
             case 'MAIN_CONTROLLER_ACTIVITY_INIT':
@@ -358,6 +367,18 @@ async function init() {
                 data.params.extraEntropy,
                 data.params.leaveUnlocked
               )
+            case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
+              const { type, model, hdPath } = trezorCtrl
+
+              const keys = mainCtrl.accountAdder.selectedAccounts.map(({ eoaAddress, slot }) => ({
+                addr: eoaAddress,
+                type: type as Key['type'],
+                label: `Trezor on slot ${slot}`,
+                meta: { model, hdPath }
+              }))
+
+              return mainCtrl.keystore.addKeysExternallyStored(keys)
+            }
             case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
               return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
             case 'KEYSTORE_CONTROLLER_LOCK':

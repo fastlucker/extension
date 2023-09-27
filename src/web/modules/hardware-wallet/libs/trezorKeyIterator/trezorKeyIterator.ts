@@ -1,8 +1,7 @@
+import { TREZOR_PATH_BASE } from 'ambire-common/src/consts/derivation'
 import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interfaces/keyIterator'
 import { publicToAddress, toChecksumAddress } from 'ethereumjs-util'
 import HDKey from 'hdkey'
-
-import { TREZOR_PATH_BASE } from '@web/modules/hardware-wallet/constants/hdPaths'
 
 // DOCS
 // - Serves for retrieving a range of addresses/keys from a Trezor hardware wallet

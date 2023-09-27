@@ -1,7 +1,7 @@
+import { TREZOR_HD_PATH, TREZOR_PATH_BASE } from 'ambire-common/src/consts/derivation'
 import HDKey from 'hdkey'
 
 import trezorConnect from '@trezor/connect-web'
-import { TREZOR_HD_PATH, TREZOR_PATH_BASE } from '@web/modules/hardware-wallet/constants/hdPaths'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 
 const keyringType = 'Trezor'

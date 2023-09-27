@@ -3,6 +3,7 @@ import { StyleSheet, ViewStyle } from 'react-native'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import commonWebStyles from '@web/styles/utils/common'
 
 interface Style {
   container: ViewStyle
@@ -10,12 +11,23 @@ interface Style {
   greenLabel: ViewStyle
   searchBar: ViewStyle
   greyLabel: ViewStyle
+  blueLabel: ViewStyle
+}
+
+const label: ViewStyle = {
+  height: 18,
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingHorizontal: 8,
+  borderWidth: 1,
+  borderRadius: 50
 }
 
 const styles = StyleSheet.create<Style>({
   container: {
-    ...spacings.ph,
-    ...spacings.pv
+    ...commonWebStyles.contentContainer,
+    ...spacings.pv0,
+    ...spacings.ph0
   },
   accountContainer: {
     ...flexbox.directionRow,
@@ -32,25 +44,20 @@ const styles = StyleSheet.create<Style>({
     width: '100%'
   },
   greenLabel: {
-    height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    borderWidth: 1,
+    ...label,
     borderColor: colors.greenHaze,
-    borderRadius: 50,
     backgroundColor: colors.turquoise_20,
     marginLeft: 4
   },
   greyLabel: {
-    height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    borderWidth: 1,
+    ...label,
     borderColor: '#E9AD03',
-    borderRadius: 50,
     backgroundColor: '#FFBC0038'
+  },
+  blueLabel: {
+    ...label,
+    borderColor: colors.dodgerBlue,
+    backgroundColor: 'transparent'
   }
 })
 

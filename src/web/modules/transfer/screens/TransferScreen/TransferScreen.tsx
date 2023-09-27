@@ -19,7 +19,7 @@ const TransferScreen = () => {
   }, [navigate])
 
   return (
-    <TabLayoutWrapperMainContent width="mid" forceCanGoBack onBack={onBack}>
+    <TabLayoutWrapperMainContent width="lg" forceCanGoBack onBack={onBack}>
       <View style={styles.container}>
         <SendForm requestTransactionState={requestTransactionState} />
         <View style={styles.separator} />

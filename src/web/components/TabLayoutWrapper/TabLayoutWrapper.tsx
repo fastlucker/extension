@@ -6,7 +6,7 @@ import { Outlet } from 'react-router-dom'
 import InformationCircleIcon from '@common/assets/svg/InformationCircleIcon'
 import Wrapper from '@common/components/Wrapper'
 import colors from '@common/styles/colors'
-import spacings, { SPACING_LG } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import Ameba from '@web/components/TabLayoutWrapper/Ameba'
 import TabHeader from '@web/modules/router/components/TabHeader'
@@ -23,25 +23,28 @@ const TabLayoutWrapper = (
   </TabLayoutWrapperContext.Provider>
 )
 
-enum Width {
-  Normal = 'normal',
-  Mid = 'mid',
-  Full = 'full'
-}
+type Width = 'sm' | 'md' | 'lg' | 'full'
 
 interface Props {
-  width: Width
-  hideStepper: boolean
-  hideHeader: boolean
-  pageTitle: string
+  width?: Width
+  hideStepper?: boolean
+  hideHeader?: boolean
+  pageTitle?: string | React.ReactNode
   children: React.ReactNode
-  forceCanGoBack: boolean
+  forceCanGoBack?: boolean
   onBack?: () => void
   footer?: React.ReactNode
 }
 
-export const TabLayoutWrapperMainContent: React.FC<any> = ({
-  width = Width.Normal,
+const widthConf = {
+  sm: 770,
+  md: 900,
+  lg: 1000,
+  full: '100%'
+}
+
+export const TabLayoutWrapperMainContent: React.FC<Props> = ({
+  width = 'sm',
   hideStepper = false,
   hideHeader = false,
   pageTitle = '',
@@ -54,12 +57,6 @@ export const TabLayoutWrapperMainContent: React.FC<any> = ({
 
   if (!context) {
     throw new Error('Should be used in AuthLayoutWrapper component!')
-  }
-
-  const widthConf = {
-    [Width.Normal]: 770 + SPACING_LG * 2,
-    [Width.Mid]: 980,
-    [Width.Full]: '100%'
   }
 
   return (
@@ -77,18 +74,16 @@ export const TabLayoutWrapperMainContent: React.FC<any> = ({
         // Here, we set height: '100%' to enable the inner ScrollView within the Wrapper to have a scrollable content.
         // You can observe how the SignScreen utilizes an inner ScrollView component to display the transaction.
         // This should not have any impact on the other screens.
-        contentContainerStyle={{ height: '100%' }}
+        contentContainerStyle={{ height: '100%', ...spacings.pbLg, ...spacings.phLg }}
         showsVerticalScrollIndicator={false}
       >
         <View
           style={[
-            spacings.pbLg,
-            spacings.phLg,
             flexbox.alignSelfCenter,
             // Here, we set height: '100%' to enable the inner ScrollView within the Wrapper to have a scrollable content.
             // You can observe how the SignScreen utilizes an inner ScrollView component to display the transaction.
             // This should not have any impact on the other screens.
-            { width: widthConf[width], height: '100%' }
+            { maxWidth: widthConf[width], width: '100%', height: '100%' }
           ]}
         >
           {children}

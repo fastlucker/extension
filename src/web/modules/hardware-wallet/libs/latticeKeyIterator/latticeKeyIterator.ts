@@ -1,7 +1,6 @@
+import { LATTICE_STANDARD_HD_PATH } from 'ambire-common/src/consts/derivation'
 import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interfaces/keyIterator'
 import { Client } from 'gridplus-sdk'
-
-import { LATTICE_STANDARD_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
 
 // DOCS
 // - Serves for retrieving a range of addresses/keys from a Lattice hardware wallet

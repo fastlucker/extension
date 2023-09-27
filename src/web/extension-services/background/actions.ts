@@ -5,6 +5,7 @@ import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
 import { AccountOp } from 'ambire-common/src/libs/accountOp/accountOp'
 import { EstimateResult } from 'ambire-common/src/libs/estimate/estimate'
 import { GasRecommendation } from 'ambire-common/src/libs/gasPrice/gasPrice'
+import { Key } from 'ambire-common/src/libs/keystore/keystore'
 
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
@@ -52,6 +53,9 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
     pageSize?: number | undefined
     derivationPath?: string | undefined
   }
+}
+type MainControllerAccountAdderInitViewOnlyAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY'
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
@@ -108,7 +112,7 @@ type MainControllerSignMessageSignAction = {
 }
 type MainControllerSignMessageSetSignKeyAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY'
-  params: { key: string }
+  params: { key: Key['addr']; type: Key['type'] }
 }
 type MainControllerBroadcastSignedMessageAction = {
   type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE'
@@ -175,6 +179,9 @@ type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
 }
+type KeystoreControllerAddKeysExternallyStored = {
+  type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
+}
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
@@ -227,6 +234,7 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
+  | MainControllerAccountAdderInitViewOnlyAction
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
@@ -254,6 +262,7 @@ export type Action =
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
+  | KeystoreControllerAddKeysExternallyStored
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction
   | KeystoreControllerAddKeysAction

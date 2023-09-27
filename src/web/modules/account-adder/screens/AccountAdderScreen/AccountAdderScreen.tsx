@@ -61,13 +61,16 @@ const AccountAdderScreen = () => {
     walletManagerProps = {}
   }
   if (isLegacyImport) {
-    title = 'Import Legacy Account'
+    title = 'Pick Accounts To Import'
     walletManagerProps = { privKeyOrSeed, label }
   }
 
   return (
     <>
-      <TabLayoutWrapperMainContent pageTitle={t(title, { name })}>
+      <TabLayoutWrapperMainContent>
+        <Text weight="medium" fontSize={16} style={[flexbox.alignSelfCenter]}>
+          {t(title, { name })}
+        </Text>
         <View style={[spacings.mh, spacings.pv, flexbox.justifyCenter]}>
           <WalletManager {...walletManagerProps} />
         </View>
