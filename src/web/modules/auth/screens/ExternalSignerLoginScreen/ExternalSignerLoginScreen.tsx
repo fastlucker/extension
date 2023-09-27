@@ -105,11 +105,7 @@ const ExternalSignerLoginScreen = () => {
     <>
       <TabLayoutWrapperMainContent>
         <View style={styles.container}>
-          <Text
-            weight="medium"
-            fontSize={16}
-            style={[spacings.mtLg, spacings.mbLg, spacings.pbTy, flexbox.alignSelfCenter]}
-          >
+          <Text weight="medium" fontSize={16} style={[flexbox.alignSelfCenter]}>
             {t('Import Legacy Account')}
           </Text>
 

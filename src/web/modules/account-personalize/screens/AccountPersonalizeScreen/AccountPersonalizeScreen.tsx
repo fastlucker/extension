@@ -53,11 +53,7 @@ const AccountPersonalizeScreen = () => {
   return (
     <>
       <TabLayoutWrapperMainContent>
-        <Text
-          weight="medium"
-          fontSize={16}
-          style={[spacings.mtLg, spacings.mbLg, spacings.pbTy, flexboxStyles.alignSelfCenter]}
-        >
+        <Text weight="medium" fontSize={16} style={[flexboxStyles.alignSelfCenter]}>
           {t('Personalize Your Accounts')}
         </Text>
 

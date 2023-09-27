@@ -68,11 +68,7 @@ const AccountAdderScreen = () => {
   return (
     <>
       <TabLayoutWrapperMainContent>
-        <Text
-          weight="medium"
-          fontSize={16}
-          style={[spacings.mtLg, spacings.mbLg, spacings.pbTy, flexbox.alignSelfCenter]}
-        >
+        <Text weight="medium" fontSize={16} style={[flexbox.alignSelfCenter]}>
           {t(title, { name })}
         </Text>
         <View style={[spacings.mh, spacings.pv, flexbox.justifyCenter]}>
