@@ -1,4 +1,4 @@
-import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
 import flexbox from '@common/styles/utils/flexbox'
