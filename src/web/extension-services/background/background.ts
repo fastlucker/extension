@@ -1,8 +1,8 @@
 import { BIP44_HD_PATH } from 'ambire-common/src/consts/derivation'
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
+import { Key } from 'ambire-common/src/interfaces/keystore'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
-import { Key } from 'ambire-common/src/libs/keystore/keystore'
 import { KeystoreSigner } from 'ambire-common/src/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 
