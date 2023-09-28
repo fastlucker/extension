@@ -189,6 +189,11 @@ const SignAccountOpScreen = () => {
     }
   }, [navigate])
 
+  const callsToVisualize: IrCall[] = useMemo(() => {
+    if (signAccountOpState.humanReadable) return signAccountOpState.humanReadable
+    return signAccountOpState.accountOp?.calls || []
+  }, [signAccountOpState.accountOp?.calls, signAccountOpState.humanReadable])
+
   if (!signAccountOpState.accountOp || !network) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -196,11 +201,6 @@ const SignAccountOpScreen = () => {
       </View>
     )
   }
-
-  const callsToVisualize: IrCall[] = useMemo(() => {
-    if (signAccountOpState.humanReadable) return signAccountOpState.humanReadable
-    return signAccountOpState.accountOp?.calls || []
-  }, [signAccountOpState.accountOp?.calls, signAccountOpState.humanReadable])
 
   return (
     <TabLayoutWrapperMainContent

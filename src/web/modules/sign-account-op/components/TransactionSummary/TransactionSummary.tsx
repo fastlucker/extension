@@ -60,7 +60,6 @@ const TransactionSummary = ({ style, call, networkId }: Props) => {
 
   const humanizedVisualization = useCallback(
     (dataToVisualize: IrCall['fullVisualization'] = []) => {
-      console.log(dataToVisualize)
       return (
         <View style={styles.headerContent}>
           {dataToVisualize.map((item) => {
@@ -71,7 +70,7 @@ const TransactionSummary = ({ style, call, networkId }: Props) => {
                 <>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                     <Text fontSize={16} weight="medium" color={colors.martinique}>
-                      {formatUnits(item.amount || '0x0', 18)}
+                      {` ${formatUnits(item.amount || '0x0', 18)} `}
                     </Text>
                   ) : null}
 
@@ -99,7 +98,7 @@ const TransactionSummary = ({ style, call, networkId }: Props) => {
             if (item.type === 'address')
               return (
                 <Text fontSize={16} weight="medium" color={colors.martinique}>
-                  {`${item.name ? item.name : item.address} `}
+                  {` ${item.name ? item.name : item.address} `}
                   {/* {!!item.address && (
                     <TouchableOpacity
                       onPress={() => {
@@ -117,9 +116,9 @@ const TransactionSummary = ({ style, call, networkId }: Props) => {
 
             if (item.type === 'nft') {
               return (
-                <Text fontSize={16} weight="medium" color={colors.martinique}>{` ${
-                  item.name || item.address
-                } `}</Text>
+                <Text fontSize={16} weight="medium" color={colors.martinique}>
+                  {` ${item.name || item.address} `}
+                </Text>
               )
             }
 
